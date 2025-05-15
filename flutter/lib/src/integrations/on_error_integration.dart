@@ -45,7 +45,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
       // error printing. To make sure these exceptions are still visible
       // to developers (and to Sentry), we log them explicitly here.
       if (handled) {
-        options.logger(
+        options.log(
           SentryLevel.error,
           'Uncaught Platform Error',
           logger: 'sentry.platformError',

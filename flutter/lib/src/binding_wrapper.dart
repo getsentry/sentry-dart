@@ -20,7 +20,7 @@ class BindingWrapper {
     try {
       return _ambiguate(WidgetsBinding.instance);
     } catch (e, s) {
-      _hub.options.logger(
+      _hub.options.log(
         SentryLevel.error,
         'WidgetsBinding.instance was not yet initialized',
         exception: e,
@@ -57,7 +57,7 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
       // Try to get the existing binding instance
       return WidgetsBinding.instance;
     } catch (_) {
-      Sentry.currentHub.options.logger(
+      Sentry.currentHub.options.log(
           SentryLevel.info,
           'WidgetsFlutterBinding has not been initialized yet. '
           'Creating $SentryWidgetsFlutterBinding.');

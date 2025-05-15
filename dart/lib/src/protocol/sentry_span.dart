@@ -62,7 +62,7 @@ class SentrySpan extends ISentrySpan {
     if (endTimestamp == null) {
       endTimestamp = _hub.options.clock();
     } else if (endTimestamp.isBefore(_startTimestamp)) {
-      _hub.options.logger(
+      _hub.options.log(
         SentryLevel.warning,
         'End timestamp ($endTimestamp) cannot be before start timestamp ($_startTimestamp)',
       );
@@ -137,7 +137,7 @@ class SentrySpan extends ISentrySpan {
     }
 
     if (startTimestamp?.isBefore(_startTimestamp) ?? false) {
-      _hub.options.logger(
+      _hub.options.log(
         SentryLevel.warning,
         "Start timestamp ($startTimestamp) cannot be before parent span's start timestamp ($_startTimestamp). Returning NoOpSpan.",
       );
@@ -226,7 +226,7 @@ class SentrySpan extends ISentrySpan {
     SentryMeasurementUnit? unit,
   }) {
     if (finished) {
-      _hub.options.logger(SentryLevel.debug,
+      _hub.options.log(SentryLevel.debug,
           "The span is already finished. Measurement $name cannot be set");
       return;
     }

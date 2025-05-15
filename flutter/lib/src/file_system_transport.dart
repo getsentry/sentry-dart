@@ -22,7 +22,7 @@ class FileSystemTransport implements Transport {
       await _native.captureEnvelope(Uint8List.fromList(envelopeData),
           envelope.containsUnhandledException);
     } catch (exception, stackTrace) {
-      _options.logger(
+      _options.log(
         SentryLevel.error,
         'Failed to save envelope',
         exception: exception,

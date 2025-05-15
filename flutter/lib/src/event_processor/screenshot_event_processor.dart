@@ -68,7 +68,7 @@ class ScreenshotEventProcessor implements EventProcessor {
           takeScreenshot = result;
         }
       } else if (shouldDebounce) {
-        _options.logger(
+        _options.log(
           SentryLevel.debug,
           'Skipping screenshot capture due to debouncing (too many captures within ${_debouncer.waitTime.inMilliseconds}ms)',
         );
@@ -79,7 +79,7 @@ class ScreenshotEventProcessor implements EventProcessor {
         return event;
       }
     } catch (exception, stackTrace) {
-      _options.logger(
+      _options.log(
         SentryLevel.error,
         'The beforeCaptureScreenshot/beforeScreenshot callback threw an exception',
         exception: exception,
@@ -93,7 +93,7 @@ class ScreenshotEventProcessor implements EventProcessor {
     final renderer = _options.rendererWrapper.getRenderer();
 
     if (_options.platform.isWeb && renderer != FlutterRenderer.canvasKit) {
-      _options.logger(
+      _options.log(
         SentryLevel.debug,
         'Cannot take screenshot with ${renderer?.name} renderer.',
       );

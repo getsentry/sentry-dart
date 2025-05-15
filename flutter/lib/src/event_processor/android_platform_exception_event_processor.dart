@@ -57,7 +57,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
         detailsStackTrace,
       );
     } catch (e, stackTrace) {
-      _options.logger(
+      _options.log(
         SentryLevel.info,
         "Couldn't prettify PlatformException. "
         'The exception will still be reported.',

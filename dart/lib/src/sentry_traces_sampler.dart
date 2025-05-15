@@ -14,7 +14,7 @@ class SentryTracesSampler {
     Random? random,
   }) : _random = random ?? Random() {
     if (_options.tracesSampler != null && _options.tracesSampleRate != null) {
-      _options.logger(SentryLevel.warning,
+      _options.log(SentryLevel.warning,
           'Both tracesSampler and traceSampleRate are set. tracesSampler will take precedence and fallback to traceSampleRate if it returns null.');
     }
   }
@@ -34,7 +34,7 @@ class SentryTracesSampler {
           return _makeSampleDecision(sampleRate);
         }
       } catch (exception, stackTrace) {
-        _options.logger(
+        _options.log(
           SentryLevel.error,
           'The tracesSampler callback threw an exception',
           exception: exception,

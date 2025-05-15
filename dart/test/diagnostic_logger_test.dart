@@ -1,5 +1,5 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/diagnostic_logger.dart';
+import 'package:sentry/src/diagnostic_log.dart';
 import 'package:test/test.dart';
 
 import 'test_utils.dart';
@@ -11,7 +11,7 @@ void main() {
     fixture = Fixture();
   });
 
-  group(DiagnosticLogger, () {
+  group(DiagnosticLog, () {
     test('does not log if debug is disabled', () {
       fixture.options.debug = false;
 
@@ -52,8 +52,8 @@ class Fixture {
 
   Object? loggedMessage;
 
-  DiagnosticLogger getSut() {
-    return DiagnosticLogger(mockLogger, options);
+  DiagnosticLog getSut() {
+    return DiagnosticLog(mockLogger, options);
   }
 
   void mockLogger(

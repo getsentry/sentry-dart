@@ -32,7 +32,7 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
           release = '$release+$buildNumber';
         }
 
-        options.logger(SentryLevel.debug, 'release: $release');
+        options.log(SentryLevel.debug, 'release: $release');
 
         options.release = options.release ?? release;
         if (buildNumber.isNotEmpty) {
@@ -40,7 +40,7 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
         }
       }
     } catch (exception, stackTrace) {
-      options.logger(
+      options.log(
         SentryLevel.error,
         'Failed to load release and dist',
         exception: exception,

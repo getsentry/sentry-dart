@@ -49,7 +49,7 @@ class DebugPrintIntegration implements Integration<SentryFlutterOptions> {
 
   void _debugPrint(String? message, {int? wrapWidth}) {
     if (message == null) {
-      _options.logger(
+      _options.log(
         SentryLevel.debug,
         'debugPrint Integration received "null" as message. '
         'The message is dropped.',

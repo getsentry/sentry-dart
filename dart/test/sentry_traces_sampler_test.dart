@@ -132,7 +132,7 @@ class Fixture {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
     options.debug = debug;
-    options.logger = mockLogger;
+    options.log = mockLogger;
     return SentryTracesSampler(options);
   }
 

@@ -32,7 +32,7 @@ class DeduplicationEventProcessor implements EventProcessor {
     }
 
     if (!_options.enableDeduplication) {
-      _options.logger(SentryLevel.debug, 'Deduplication is disabled');
+      _options.log(SentryLevel.debug, 'Deduplication is disabled');
       return event;
     }
     return _deduplicate(event);
@@ -52,7 +52,7 @@ class DeduplicationEventProcessor implements EventProcessor {
     final exceptionHashCode = exception.hashCode;
 
     if (_exceptionToDeduplicate.contains(exceptionHashCode)) {
-      _options.logger(
+      _options.log(
         SentryLevel.info,
         'Duplicated exception detected. '
         'Event ${event.eventId} will be discarded.',

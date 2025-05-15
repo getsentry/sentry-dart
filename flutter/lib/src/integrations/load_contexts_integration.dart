@@ -224,7 +224,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         event.tags = tags;
       }
     } catch (exception, stackTrace) {
-      _options.logger(
+      _options.log(
         SentryLevel.error,
         'loadContextsIntegration failed',
         exception: exception,

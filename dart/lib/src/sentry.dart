@@ -27,6 +27,7 @@ import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
 import 'feature_flags_integration.dart';
+import 'sentry_logger.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -62,11 +63,11 @@ class Sentry {
       }
       _taskQueue = DefaultTaskQueue<SentryId>(
         sentryOptions.maxQueueSize,
-        sentryOptions.logger,
+        sentryOptions.log,
         sentryOptions.recorder,
       );
     } catch (exception, stackTrace) {
-      sentryOptions.logger(
+      sentryOptions.log(
         SentryLevel.error,
         'Error in options configuration.',
         exception: exception,
@@ -97,7 +98,7 @@ class Sentry {
 
     if (options.runtimeChecker.isDebugMode()) {
       options.debug = true;
-      options.logger(
+      options.log(
         SentryLevel.debug,
         'Debug mode is enabled: Application is running in a debug environment.',
       );
@@ -146,7 +147,7 @@ class Sentry {
     RunZonedGuardedOnError? runZonedGuardedOnError,
   ) async {
     if (isEnabled) {
-      options.logger(
+      options.log(
         SentryLevel.warning,
         'Sentry has been already initialized. Previous configuration will be overwritten.',
       );
@@ -375,7 +376,7 @@ class Sentry {
         .firstOrNull;
 
     if (featureFlagsIntegration == null) {
-      currentHub.options.logger(
+      currentHub.options.log(
         SentryLevel.warning,
         '$FeatureFlagsIntegration not found. Make sure Sentry is initialized before accessing the addFeatureFlag API.',
       );
@@ -428,4 +429,6 @@ class Sentry {
         zoneValues: zoneValues,
         zoneSpecification: zoneSpecification,
       );
+
+  static SentryLogger get logger => currentHub.options.logger;
 }

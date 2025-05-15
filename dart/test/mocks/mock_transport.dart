@@ -7,6 +7,7 @@ class MockTransport implements Transport {
   List<SentryEnvelope> envelopes = [];
   List<SentryEvent> events = [];
   List<String> statsdItems = [];
+  List<Map<String, dynamic>> logs = [];
 
   int _calls = 0;
   String _exceptions = '';
@@ -31,7 +32,7 @@ class MockTransport implements Transport {
     try {
       envelopes.add(envelope);
       if (parseFromEnvelope) {
-        await _eventFromEnvelope(envelope);
+        await _parseEnvelope(envelope);
       }
     } catch (e, stack) {
       _exceptions += '$e\n$stack\n\n';
@@ -41,7 +42,7 @@ class MockTransport implements Transport {
     return envelope.header.eventId ?? SentryId.empty();
   }
 
-  Future<void> _eventFromEnvelope(SentryEnvelope envelope) async {
+  Future<void> _parseEnvelope(SentryEnvelope envelope) async {
     final RegExp statSdRegex = RegExp('^(?!{).+@.+:.+\\|.+', multiLine: true);
 
     final envelopeItemData = await envelope.items.first.dataFactory();
@@ -49,6 +50,13 @@ class MockTransport implements Transport {
 
     if (statSdRegex.hasMatch(envelopeItem)) {
       statsdItems.add(envelopeItem);
+    } else if (envelopeItem.contains('items') &&
+        envelopeItem.contains('timestamp') &&
+        envelopeItem.contains('trace_id') &&
+        envelopeItem.contains('level') &&
+        envelopeItem.contains('body')) {
+      final envelopeItemJson = jsonDecode(envelopeItem) as Map<String, dynamic>;
+      logs.add(envelopeItemJson);
     } else {
       final envelopeItemJson = jsonDecode(envelopeItem) as Map<String, dynamic>;
       events.add(SentryEvent.fromJson(envelopeItemJson));

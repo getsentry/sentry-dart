@@ -31,7 +31,7 @@ class SpotlightHttpTransport extends Transport {
     try {
       await _sendToSpotlight(envelope);
     } catch (e) {
-      _options.logger(
+      _options.log(
           SentryLevel.warning, 'Failed to send envelope to Spotlight: $e');
       if (_options.automatedTestMode) {
         rethrow;

@@ -85,7 +85,7 @@ class SentryDelayedFramesTracker {
       return;
     }
     if (_delayedFrames.length > maxDelayedFramesBuffer) {
-      _options.logger(SentryLevel.debug,
+      _options.log(SentryLevel.debug,
           'Frame tracking buffer is full, stopping frame collection until all active spans have finished processing');
       return;
     }

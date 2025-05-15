@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:sentry/sentry.dart';
 
 import 'no_such_method_provider.dart';
@@ -8,8 +9,8 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<CaptureMessageCall> captureMessageCalls = [];
   List<CaptureEnvelopeCall> captureEnvelopeCalls = [];
   List<CaptureTransactionCall> captureTransactionCalls = [];
-
   List<CaptureFeedbackCall> captureFeedbackCalls = [];
+  List<CaptureLogCall> captureLogCalls = [];
   int closeCalls = 0;
 
   @override
@@ -82,6 +83,11 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
       hint,
     ));
     return SentryId.newId();
+  }
+
+  @override
+  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {
+    captureLogCalls.add(CaptureLogCall(log, scope));
   }
 
   @override
@@ -172,4 +178,11 @@ class CaptureTransactionCall {
   final Hint? hint;
 
   CaptureTransactionCall(this.transaction, this.traceContext, this.hint);
+}
+
+class CaptureLogCall {
+  final SentryLog log;
+  final Scope? scope;
+
+  CaptureLogCall(this.log, this.scope);
 }

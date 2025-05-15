@@ -66,7 +66,7 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     try {
       return fn();
     } catch (exception, stackTrace) {
-      _options.logger(
+      _options.log(
         SentryLevel.error,
         'SpanFrameMetricsCollector $methodName failed',
         exception: exception,

@@ -184,14 +184,14 @@ class Scope {
           hint,
         );
         if (processedBreadcrumb == null) {
-          _options.logger(
+          _options.log(
             SentryLevel.info,
             'Breadcrumb was dropped by beforeBreadcrumb',
           );
           return null;
         }
       } catch (exception, stackTrace) {
-        _options.logger(
+        _options.log(
           SentryLevel.error,
           'The BeforeBreadcrumb callback threw an exception',
           exception: exception,

@@ -95,5 +95,42 @@ void main() {
       expect(sut.header.type, SentryItemType.clientReport);
       expect(actualData, expectedData);
     });
+
+    test('fromLog', () async {
+      final logs = [
+        SentryLog(
+          timestamp: DateTime.now(),
+          traceId: SentryId.newId(),
+          level: SentryLogLevel.info,
+          body: 'test',
+          attributes: {
+            'test': SentryLogAttribute.string('test'),
+          },
+        ),
+        SentryLog(
+          timestamp: DateTime.now(),
+          traceId: SentryId.newId(),
+          level: SentryLogLevel.info,
+          body: 'test2',
+          attributes: {
+            'test2': SentryLogAttribute.int(9001),
+          },
+        ),
+      ];
+
+      final sut = SentryEnvelopeItem.fromLogs(logs);
+
+      final expectedData = utf8.encode(jsonEncode(
+        {
+          'items': logs.map((e) => e.toJson()).toList(),
+        },
+        toEncodable: jsonSerializationFallback,
+      ));
+      final actualData = await sut.dataFactory();
+
+      expect(sut.header.contentType, 'application/vnd.sentry.items.log+json');
+      expect(sut.header.type, SentryItemType.log);
+      expect(actualData, expectedData);
+    });
   });
 }

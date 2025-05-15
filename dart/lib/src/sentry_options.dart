@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
@@ -7,7 +6,7 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
-import 'diagnostic_logger.dart';
+import 'diagnostic_log.dart';
 import 'environment/environment_variables.dart';
 import 'noop_client.dart';
 import 'platform/platform.dart';
@@ -15,6 +14,9 @@ import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
+import 'sentry_log_batcher.dart';
+import 'noop_log_batcher.dart';
+import 'dart:developer' as developer;
 
 // TODO: shutdownTimeout, flushTimeoutMillis
 // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
@@ -125,18 +127,19 @@ class SentryOptions {
   /// This does not change whether an event is captured.
   MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never;
 
-  SentryLogger _logger = noOpLogger;
+  SdkLogCallback _log = noOpLog;
 
-  /// Logger interface to log useful debugging information if debug is enabled
-  SentryLogger get logger => _logger;
+  /// Log callback to log useful debugging information if debug is enabled
+  SdkLogCallback get log => _log;
 
-  set logger(SentryLogger logger) {
-    diagnosticLogger = DiagnosticLogger(logger, this);
-    _logger = diagnosticLogger!.log;
+  @internal
+  set log(SdkLogCallback value) {
+    diagnosticLog = DiagnosticLog(value, this);
+    _log = diagnosticLog!.log;
   }
 
   @visibleForTesting
-  DiagnosticLogger? diagnosticLogger;
+  DiagnosticLog? diagnosticLog;
 
   final List<EventProcessor> _eventProcessors = [];
 
@@ -160,12 +163,12 @@ class SentryOptions {
   set debug(bool newValue) {
     _debug = newValue;
     if (_debug == true &&
-        (logger == noOpLogger || diagnosticLogger?.logger == noOpLogger)) {
-      logger = debugLogger;
+        (log == noOpLog || diagnosticLog?.logger == noOpLog)) {
+      log = debugLog;
     }
     if (_debug == false &&
-        (logger == debugLogger || diagnosticLogger?.logger == debugLogger)) {
-      logger = noOpLogger;
+        (log == debugLog || diagnosticLog?.logger == debugLog)) {
+      log = noOpLog;
     }
   }
 
@@ -197,6 +200,10 @@ class SentryOptions {
   /// This function is called right before a metric is about to be emitted.
   /// Can return true to emit the metric, or false to drop it.
   BeforeMetricCallback? beforeMetricCallback;
+
+  /// This function is called right before a log is about to be sent.
+  /// Can return a modified log or null to drop the log.
+  BeforeSendLogCallback? beforeSendLog;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
@@ -531,6 +538,16 @@ class SentryOptions {
   /// This is opt-in, as it can lead to existing exception beeing grouped as new ones.
   bool groupExceptions = false;
 
+  /// Enable to capture and send logs to Sentry.
+  ///
+  /// Disabled by default.
+  bool enableLogs = false;
+
+  late final SentryLogger logger = SentryLogger(clock);
+
+  @internal
+  SentryLogBatcher logBatcher = NoopLogBatcher();
+
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
     if (platform != null) {
@@ -605,14 +622,14 @@ class SentryOptions {
       SentryStackTraceFactory(this);
 
   @visibleForTesting
-  void debugLogger(
+  void debugLog(
     SentryLevel level,
     String message, {
     String? logger,
     Object? exception,
     StackTrace? stackTrace,
   }) {
-    log(
+    developer.log(
       '[${level.name}] $message',
       level: level.toDartLogLevel(),
       name: logger ?? 'sentry',
@@ -624,7 +641,7 @@ class SentryOptions {
 }
 
 @visibleForTesting
-void noOpLogger(
+void noOpLog(
   SentryLevel level,
   String message, {
   String? logger,
@@ -660,11 +677,15 @@ typedef BeforeMetricCallback = bool Function(
   Map<String, String>? tags,
 });
 
+/// This function is called right before a log is about to be sent.
+/// Can return a modified log or null to drop the log.
+typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
+
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
 
-/// Logger interface to log useful debugging information if debug is enabled
-typedef SentryLogger = void Function(
+/// Logger callback to log useful debugging information if debug is enabled
+typedef SdkLogCallback = void Function(
   SentryLevel level,
   String message, {
   String? logger,

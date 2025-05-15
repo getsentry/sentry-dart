@@ -76,7 +76,7 @@ class TimeToFullDisplayTracker {
         ttfdSpan.finished ||
         startTimestamp == null ||
         endTimestamp == null) {
-      options.logger(
+      options.log(
         SentryLevel.warning,
         'TTFD tracker not started or already completed. Dropping TTFD measurement.',
       );
@@ -98,7 +98,7 @@ class TimeToFullDisplayTracker {
         endTimestamp: endTimestamp,
       );
     } catch (e, stackTrace) {
-      options.logger(
+      options.log(
         SentryLevel.error,
         'Failed to finish TTFD span',
         exception: e,

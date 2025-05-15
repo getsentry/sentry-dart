@@ -41,7 +41,7 @@ class ScreenshotRecorder {
 
   void _log(SentryLevel level, String message,
       {String? logger, Object? exception, StackTrace? stackTrace}) {
-    options.logger(level, '$logName: $message',
+    options.log(level, '$logName: $message',
         logger: logger, exception: exception, stackTrace: stackTrace);
   }
 
@@ -114,7 +114,7 @@ class ScreenshotRecorder {
 
   List<WidgetFilterItem>? _obscureSync(_Capture<dynamic> capture) {
     if (_maskingConfig != null) {
-      final filter = WidgetFilter(_maskingConfig, options.logger);
+      final filter = WidgetFilter(_maskingConfig, options.log);
       final colorScheme = capture.context.findColorScheme();
       filter.obscure(
         root: capture.root,

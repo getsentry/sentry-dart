@@ -87,7 +87,7 @@ class SentryRunZonedGuarded {
     Object exception,
     StackTrace stackTrace,
   ) async {
-    options.logger(
+    options.log(
       SentryLevel.error,
       'Uncaught zone error',
       logger: 'sentry.runZonedGuarded',

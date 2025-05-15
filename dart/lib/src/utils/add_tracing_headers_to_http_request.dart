@@ -10,7 +10,7 @@ void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
     addBaggageHeaderFromSpan(
       span,
       headers,
-      logger: hub.options.logger,
+      log: hub.options.log,
     );
   } else {
     final scope = hub.scope;
@@ -21,7 +21,7 @@ void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
 
     final baggageHeader = propagationContext.toBaggageHeader();
     if (baggageHeader != null) {
-      addBaggageHeader(baggageHeader, headers, logger: hub.options.logger);
+      addBaggageHeader(baggageHeader, headers, log: hub.options.log);
     }
   }
 }

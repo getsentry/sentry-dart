@@ -63,6 +63,21 @@ class SentryEnvelopeItem {
     );
   }
 
+  factory SentryEnvelopeItem.fromLogs(List<SentryLog> items) {
+    final payload = {
+      'items': items.map((e) => e.toJson()).toList(),
+    };
+    return SentryEnvelopeItem(
+      SentryEnvelopeItemHeader(
+        SentryItemType.log,
+        itemCount: items.length,
+        contentType: 'application/vnd.sentry.items.log+json',
+      ),
+      () => utf8JsonEncoder.convert(payload),
+      originalObject: payload,
+    );
+  }
+
   /// Header with info about type and length of data in bytes.
   final SentryEnvelopeItemHeader header;
 
