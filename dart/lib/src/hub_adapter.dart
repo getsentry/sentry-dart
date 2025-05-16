@@ -53,12 +53,14 @@ class HubAdapter implements Hub {
     dynamic throwable, {
     dynamic stackTrace,
     Hint? hint,
+    SentryMessage? message,
     ScopeCallback? withScope,
   }) =>
       Sentry.captureException(
         throwable,
         stackTrace: stackTrace,
         hint: hint,
+        message: message,
         withScope: withScope,
       );
 

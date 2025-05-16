@@ -1880,6 +1880,16 @@ class MockWidgetsFlutterBinding extends _i1.Mock
       ) as _i8.ValueNotifier<bool>);
 
   @override
+  _i8.ValueNotifier<bool> get debugWidgetInspectorSelectionOnTapEnabled =>
+      (super.noSuchMethod(
+        Invocation.getter(#debugWidgetInspectorSelectionOnTapEnabled),
+        returnValue: _FakeValueNotifier_18<bool>(
+          this,
+          Invocation.getter(#debugWidgetInspectorSelectionOnTapEnabled),
+        ),
+      ) as _i8.ValueNotifier<bool>);
+
+  @override
   _i9.FocusManager get focusManager => (super.noSuchMethod(
         Invocation.getter(#focusManager),
         returnValue: _FakeFocusManager_29(
@@ -2804,13 +2814,19 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     dynamic throwable, {
     dynamic stackTrace,
     _i2.Hint? hint,
+    _i2.SentryMessage? message,
     _i2.ScopeCallback? withScope,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureException,
           [throwable],
-          {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
+          {
+            #stackTrace: stackTrace,
+            #hint: hint,
+            #message: message,
+            #withScope: withScope,
+          },
         ),
         returnValue: _i11.Future<_i2.SentryId>.value(
           _FakeSentryId_5(
@@ -2818,7 +2834,12 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             Invocation.method(
               #captureException,
               [throwable],
-              {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
+              {
+                #stackTrace: stackTrace,
+                #hint: hint,
+                #message: message,
+                #withScope: withScope,
+              },
             ),
           ),
         ),
@@ -3003,6 +3024,12 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           ),
         ),
       ) as _i2.ISentrySpan);
+
+  @override
+  void generateNewTraceId() => super.noSuchMethod(
+        Invocation.method(#generateNewTraceId, []),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i11.Future<_i2.SentryId> captureTransaction(

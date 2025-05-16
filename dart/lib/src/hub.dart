@@ -126,6 +126,7 @@ class Hub {
     dynamic throwable, {
     dynamic stackTrace,
     Hint? hint,
+    SentryMessage? message,
     ScopeCallback? withScope,
   }) async {
     var sentryId = SentryId.empty();
@@ -154,6 +155,7 @@ class Hub {
         var event = SentryEvent(
           throwable: throwable,
           timestamp: _options.clock(),
+          message: message,
         );
 
         if (_options.isTracingEnabled()) {
