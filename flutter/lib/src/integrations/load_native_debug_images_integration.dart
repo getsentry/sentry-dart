@@ -11,16 +11,19 @@ import '../sentry_flutter_options.dart';
 class LoadNativeDebugImagesIntegration
     extends Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
-  static const integrationName = 'LoadNativeDebugImagesIntegration';
+  static const integrationName = 'LoadNativeDebugImages';
 
   LoadNativeDebugImagesIntegration(this._native);
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
-    options.addEventProcessor(
-      _LoadImageListIntegrationEventProcessor(options, _native),
-    );
-    options.sdk.addIntegration(integrationName);
+    // ignore: invalid_use_of_internal_member
+    if (options.runtimeChecker.isAppObfuscated()) {
+      options.addEventProcessor(
+        _LoadImageListIntegrationEventProcessor(options, _native),
+      );
+      options.sdk.addIntegration(integrationName);
+    }
   }
 }
 

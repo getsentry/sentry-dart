@@ -7,12 +7,14 @@ class MockRuntimeChecker extends RuntimeChecker with NoSuchMethodProvider {
     this.isDebug = false,
     this.isProfile = false,
     this.isRelease = false,
+    this.isObfuscated = false,
     bool isRootZone = true,
   }) : super(isRootZone: isRootZone);
 
   final bool isDebug;
   final bool isProfile;
   final bool isRelease;
+  final bool isObfuscated;
 
   @override
   bool isDebugMode() => isDebug;
@@ -22,4 +24,7 @@ class MockRuntimeChecker extends RuntimeChecker with NoSuchMethodProvider {
 
   @override
   bool isReleaseMode() => isRelease;
+
+  @override
+  bool isAppObfuscated() => isObfuscated;
 }
