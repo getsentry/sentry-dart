@@ -106,6 +106,20 @@ void main() {
 
       expect(serializedFrame.inApp, false);
     });
+
+    test('adds module for package frames', () {
+      final frame = Frame(
+        Uri.parse(
+            'package:app_name/features/login/ui/view_model/login_view_model.dart'),
+        1,
+        2,
+        'buzz',
+      );
+
+      final sentryStackFrame = Fixture().getSut().encodeStackTraceFrame(frame)!;
+
+      expect(sentryStackFrame.module, 'app_name/features/login/ui/view_model');
+    });
   });
 
   group('encodeStackTrace', () {
@@ -256,6 +270,7 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           'abs_path': '${eventOrigin}package:example/main.dart',
           'in_app': true,
           'platform': 'dart',
+          'module': 'example',
         },
         {
           'filename': 'main.dart',
