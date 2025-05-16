@@ -520,6 +520,13 @@ class MainScaffold extends StatelessWidget {
                   'Demonstrates the logging integration. log.info() will create an info event send it to Sentry.',
               buttonTitle: 'Logging',
             ),
+            TooltipButton(
+              onPressed: () {
+                Sentry.addFeatureFlag('feature-one', true);
+              },
+              text: 'Demonstrates the feature flags.',
+              buttonTitle: 'Add "feature-one" flag',
+            ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),

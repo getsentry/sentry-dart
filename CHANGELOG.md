@@ -6,6 +6,18 @@
 
 - Add `message` parameter to `captureException()` ([#2882](https://github.com/getsentry/sentry-dart/pull/2882))
 
+## 9.0.0-RC.2
+
+### Fixes
+
+- Add `hasSize` guard when using a renderObject in `SentryUserInteractionWidget` ([#2946](https://github.com/getsentry/sentry-dart/pull/2946))
+
+## 9.0.0-RC.1
+
+### Fixes
+
+- Fix feature flag model keys ([#2943](https://github.com/getsentry/sentry-dart/pull/2943))
+
 ## 9.0.0-RC
 
 ### Various fixes & improvements

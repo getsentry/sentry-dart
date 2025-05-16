@@ -321,12 +321,12 @@ void main() {
 
       expect(
         Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
-            .name,
+            .flag,
         equals('foo'),
       );
       expect(
         Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
-            .value,
+            .result,
         equals(true),
       );
     });
