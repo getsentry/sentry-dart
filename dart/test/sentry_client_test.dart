@@ -918,14 +918,12 @@ void main() {
       expect(capturedEvent.level!.name, SentryLevel.error.name);
       expect(capturedEvent.transaction, transaction);
       expect(capturedEvent.fingerprint, fingerprint);
-      expect(capturedEvent.breadcrumbs?.first.toJson(), crumb.toJson());
+      expect(capturedEvent.breadcrumbs, isNull);
       expect(capturedEvent.tags, {
         scopeTagKey: scopeTagValue,
       });
       // ignore: deprecated_member_use_from_same_package
-      expect(capturedEvent.extra, {
-        scopeExtraKey: scopeExtraValue,
-      });
+      expect(capturedEvent.extra, isNull);
     });
   });
 
@@ -1829,6 +1827,17 @@ void main() {
       expect(spanCount, 4);
     });
 
+    test('record event processor dropping feedback', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+      final feedback = fixture.fakeFeedback();
+      await client.captureFeedback(feedback);
+
+      expect(fixture.recorder.discardedEvents.first.category,
+          DataCategory.feedback);
+      expect(fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.eventProcessor);
+    });
+
     test('record event processor dropping partially spans', () async {
       final numberOfSpansDropped = 2;
       final sut = fixture.getSut(
@@ -1936,6 +1945,20 @@ void main() {
           fixture.recorder.discardedEvents.first.category, DataCategory.error);
     });
 
+    test('record beforeSend dropping feedback', () async {
+      final client = fixture.getSut();
+
+      fixture.options.beforeSendFeedback = fixture.droppingBeforeSend;
+
+      final feedback = fixture.fakeFeedback();
+      await client.captureFeedback(feedback);
+
+      expect(fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.beforeSend);
+      expect(fixture.recorder.discardedEvents.first.category,
+          DataCategory.feedback);
+    });
+
     test('record sample rate dropping event', () async {
       final client = fixture.getSut(sampleRate: 0.0);
 
@@ -1947,6 +1970,14 @@ void main() {
           DiscardReason.sampleRate);
       expect(
           fixture.recorder.discardedEvents.first.category, DataCategory.error);
+    });
+
+    test('record sample rate not dropping feedbacl', () async {
+      final client = fixture.getSut(sampleRate: 0.0);
+
+      await client.captureFeedback(fixture.fakeFeedback());
+
+      expect(fixture.recorder.discardedEvents.isEmpty, true);
     });
   });
 
