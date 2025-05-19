@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+
+- Align User Feedback API ([#2949](https://github.com/getsentry/sentry-dart/pull/2949))
+  - Don’t apply breadcrums and extras from scope to feedback event
+  - Capture session replay when processing feedback event
+  - Record dropped feedback events
+  - Record lost feedback when using `HttpTransport`
+
 ## 9.0.0-RC.2
 
 ### Fixes
