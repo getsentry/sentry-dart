@@ -9,7 +9,7 @@ import 'dart:async';
 import 'package:supabase/supabase.dart';
 
 void main() {
-  const supabaseUrl = 'YOUR_SUPABASE_URL';
+  const supabaseUrl = 'https://example.com';
   const supabaseKey = 'YOUR_ANON_KEY';
   late Fixture fixture;
 
@@ -243,6 +243,63 @@ void main() {
           updated.data?['body'], {'user': 'picklerick', 'secret': '<uwatm8>'});
     });
   });
+
+  group('Tracing', () {
+    void verifyCommonSpanAttributes(MockSpan span) {
+      expect(span.data['db.schema'], 'public');
+      expect(span.data['db.table'], 'mock-table');
+      expect(span.data['db.url'], 'https://example.com');
+      expect(span.data['db.sdk'], 'supabase-dart/2.6.3'); // TODO: Read version from dependency
+      expect(span.data['origin'], 'auto.db.supabase');
+    }
+
+    test('should create trace for select', () async {
+      fixture.mockClient.jsonResponse = '{"id": 42}';
+
+      final sentrySupabaseClient = fixture.getSut();
+      final supabase = SupabaseClient(
+        supabaseUrl,
+        supabaseKey,
+        httpClient: sentrySupabaseClient,
+      );
+
+      try {
+        await supabase
+          .from("mock-table")
+          .select()
+          .lt("id", 42)
+          .gt("id", 20)
+          .not("id", "eq", 32);
+      } catch (e) {
+        print(e);
+      }
+
+      expect(fixture.mockHub.startTransactionCalls.length, 1);
+      final startTransactionCalls = fixture.mockHub.startTransactionCalls.first;
+      expect(startTransactionCalls.$1, 'from(mock-table)'); // name
+      expect(startTransactionCalls.$2, 'db.select'); // operation
+
+      var span = fixture.mockHub.mockSpan;
+
+      verifyCommonSpanAttributes(span);
+
+      expect(span.data['db.query'], [
+        "select(*)",
+        "lt(id, 42)",
+        "gt(id, 20)",
+        "not(id, eq.32)",
+      ]);
+      expect(span.data['op'], 'db.select');
+
+      // Finished successfully
+
+      expect(span.data['http.response.status_code'], 200);
+
+      expect(span.finishCalls.length, 1);
+      final finishCall = span.finishCalls.first;
+      expect(finishCall.$1, SpanStatus.ok());
+    });
+  });
 }
 
 class Fixture {
@@ -250,7 +307,11 @@ class Fixture {
     dsn: 'https://example.com/123',
   );
   final mockClient = MockClient();
-  final mockHub = MockHub();
+  late final mockHub = MockHub(options);
+
+  Fixture() {
+    options.tracesSampleRate = 1.0; // enable tracing
+  }
 
   SentrySupabaseClient getSut(
       {bool breadcrumbs = true,
@@ -268,19 +329,69 @@ class MockClient extends BaseClient {
   final sendCalls = <BaseRequest>[];
   final closeCalls = <void>[];
 
+  var jsonResponse = '{}';
+
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     sendCalls.add(request);
-    return StreamedResponse(Stream.value(utf8.encode('{}')), 200);
+    return StreamedResponse(Stream.value(utf8.encode(jsonResponse)), 200);
   }
 }
 
 class MockHub implements Hub {
+  MockHub(this._options);
+  SentryOptions _options;
+
+  @override
+  SentryOptions get options => _options;
+
   final addBreadcrumbCalls = <(Breadcrumb, Hint?)>[];
+  final startTransactionCalls = <(String, String)>[];
 
   @override
   Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
     addBreadcrumbCalls.add((crumb, hint));
+  }
+
+  var mockSpan = MockSpan();
+
+  ISentrySpan startTransaction(
+    String name,
+    String operation, {
+    String? description,
+    DateTime? startTimestamp,
+    bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
+    bool? trimEnd,
+    OnTransactionFinish? onFinish,
+    Map<String, dynamic>? customSamplingContext,
+  }) {
+    startTransactionCalls.add((name, operation));
+    return mockSpan;
+  }
+
+  // No such method
+  @override
+  void noSuchMethod(Invocation invocation) {
+    'Method ${invocation.memberName} was called '
+        'with arguments ${invocation.positionalArguments}';
+  }
+}
+
+class MockSpan implements ISentrySpan {
+  var data = <String, dynamic>{};
+  var finishCalls = <(SpanStatus?, DateTime?, Hint?)>[];
+
+  @override
+  void setData(String key, dynamic value) {
+    data[key] = value;
+  }
+
+  @override
+  Future<void> finish({SpanStatus? status, DateTime? endTimestamp, Hint? hint}) {
+    finishCalls.add((status, endTimestamp, hint));
+    return Future.value();
   }
 
   // No such method

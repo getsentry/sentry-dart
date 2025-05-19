@@ -56,19 +56,27 @@ class SentrySupabaseClient extends BaseClient {
         _hub = hub ?? HubAdapter();
 
   @override
-  Future<StreamedResponse> send(BaseRequest request) {
+  Future<StreamedResponse> send(BaseRequest request) async {
     final method = request.method;
     final headers = request.headers;
     final operation = _extractOperation(method, headers);
-
-    if (operation != null) {
-      _instrument(request, operation);
+    if (operation == null) {
+      return _client.send(request);
     }
 
-    return _client.send(request);
+    final span = _instrument(request, operation);
+
+    final response = await _client.send(request);
+
+    if (response.statusCode == 200) {
+      span.setData('http.response.status_code', response.statusCode);
+      span.finish(status: SpanStatus.ok());
+    }
+
+    return response;
   }
 
-  void _instrument(BaseRequest request, Operation operation) {
+  ISentrySpan _instrument(BaseRequest request, Operation operation) {
     final url = request.url;
     final table = url.pathSegments.last;
     final description = 'from($table)';
@@ -78,14 +86,39 @@ class SentrySupabaseClient extends BaseClient {
     if (_breadcrumbs) {
       _addBreadcrumb(description, operation, query, body);
     }
+
+    ISentrySpan span = NoOpSentrySpan();
+    // ignore: invalid_use_of_internal_member
+    if (_hub.options.isTracingEnabled()) {
+      span = _hub.startTransaction(description, 'db.${operation.value}');
+    }
+
+    final dbSchema = request.headers["Accept-Profile"];
+    if (dbSchema != null) {
+      span.setData('db.schema', dbSchema);
+    }
+    span.setData('db.table', table);
+    span.setData('db.url', url.origin);
+    final dbSdk = request.headers["X-Client-Info"];
+    if (dbSdk != null) {
+      span.setData('db.sdk', dbSdk);
+    }
+    span.setData('db.query', query);
+
+    span.setData('op', 'db.${operation.value}');
+    span.setData('origin', 'auto.db.supabase');
+
+    return span;
   }
 
   List<String> _readQuery(BaseRequest request) {
-    return request.url.queryParameters.entries
-        .map(
-          (entry) => _translateFiltersIntoMethods(entry.key, entry.value),
-        )
-        .toList();
+  return request.url.queryParametersAll.entries
+      .expand(
+        (entry) => entry.value.map(
+          (value) => _translateFiltersIntoMethods(entry.key, value),
+        ),
+      )
+      .toList();
   }
 
   Map<String, dynamic>? _readBody(String table, BaseRequest request) {
