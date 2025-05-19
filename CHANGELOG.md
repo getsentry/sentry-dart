@@ -4,12 +4,23 @@
 
 ### Features
 
-- Logs: Models & Envelopes ([#2916](https://github.com/getsentry/sentry-dart/pull/2916))
-- Logs: Integrate in Sentry Client ([#2920](https://github.com/getsentry/sentry-dart/pull/2920))
-- [Structured Logs]: Buffering and Flushing of Logs ([#2930](https://github.com/getsentry/sentry-dart/pull/2930))
-- [Structured Logs]: Expose Public API ([#2940](https://github.com/getsentry/sentry-dart/pull/2940))
+- Sentry Structured Logs ([#2919](https://github.com/getsentry/sentry-dart/pull/2919))
   - The old `SentryLogger` has been renamed to `SdkLogCallback` and can be accessed through `options.log` now.
-- [Structured Logs]: Send client reports for dropped logs ([#2942](https://github.com/getsentry/sentry-dart/pull/2942))
+  - Adds support for structured logging though `Sentry.logger`:
+```dart
+// Enable though `SentryOptions`:
+options.enableLogs = true;
+
+// Use trout `Sentry.logger`
+Sentry.logger.info("This is a info log.");
+Sentry.logger.warn("This is a warning log with attributes.", attributes: {
+  'string-attribute': SentryLogAttribute.string('string'),
+  'int-attribute': SentryLogAttribute.int(1),
+  'double-attribute': SentryLogAttribute.double(1.0),
+  'bool-attribute': SentryLogAttribute.bool(true),
+});
+```
+
 ## 9.0.0-RC.2
 
 ### Fixes
