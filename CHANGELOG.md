@@ -1,12 +1,40 @@
 # Changelog
 
-## Unreleased
+## 9.0.0-RC.2
+
+### Fixes
+
+- Add `hasSize` guard when using a renderObject in `SentryUserInteractionWidget` ([#2946](https://github.com/getsentry/sentry-dart/pull/2946))
+
+## 9.0.0-RC.1
+
+### Fixes
+
+- Fix feature flag model keys ([#2943](https://github.com/getsentry/sentry-dart/pull/2943))
+
+## 9.0.0-RC
+
+### Various fixes & improvements
+
+- build(deps): bump ruby/setup-ruby from 1.233.0 to 1.237.0 (#2908) by @dependabot
+- build(deps): bump actions/create-github-app-token from 2.0.2 to 2.0.6 (#2909) by @dependabot
+
+## 9.0.0-beta.2
+
+### Fixes
+
+- Errors caught by `OnErrorIntegration` should be unhandled by default ([#2901](https://github.com/getsentry/sentry-dart/pull/2901))
+  - This will not affect grouping
+  - This might affect crash-free rate
 
 ### Dependencies
 
-- Bump Android SDK from v8.9.0 to v8.11.0 ([#2899](https://github.com/getsentry/sentry-dart/pull/2899))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8110)
-  - [diff](https://github.com/getsentry/sentry-java/compare/8.9.0...8.11.0)
+- Bump Android SDK from v8.9.0 to v8.11.1 ([#2899](https://github.com/getsentry/sentry-dart/pull/2899), [#2904](https://github.com/getsentry/sentry-dart/pull/2904))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8111)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.9.0...8.11.1)
+- Bump Cocoa SDK from v8.49.1 to v8.49.2 ([#2905](https://github.com/getsentry/sentry-dart/pull/2905))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8492)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.49.1...8.49.2)
 
 ## 9.0.0-beta.1
 
@@ -483,7 +511,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
       },
       appRunner: () => runApp(MyApp()),
     );
-  } (error, stackTrace) {
+  }, (error, stackTrace) {
     // Automatically sends errors to Sentry, no need to do any
     // captureException calls on your part.
     // On top of that, you can do your own custom stuff in this callback.
@@ -574,7 +602,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
       },
       appRunner: () => runApp(MyApp()),
     );
-  } (error, stackTrace) {
+  }, (error, stackTrace) {
     // Automatically sends errors to Sentry, no need to do any
     // captureException calls on your part.
     // On top of that, you can do your own custom stuff in this callback.
