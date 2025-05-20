@@ -52,6 +52,20 @@ Please carefully read through the migration guide in the Sentry docs on how to u
     lifecycle hooks.
   - **Web without `SentryNavigatorObserver`** - the same trace ID is reused until the page is
     refreshed or closed.
+- Add support for structured logs
+```dart
+// Enable in `SentryOptions`:
+options.enableLogs = true;
+
+// Use `Sentry.logger`
+Sentry.logger.info("This is a info log.");
+Sentry.logger.warn("This is a warning log with attributes.", attributes: {
+  'string-attribute': SentryLogAttribute.string('string'),
+  'int-attribute': SentryLogAttribute.int(1),
+  'double-attribute': SentryLogAttribute.double(1.0),
+  'bool-attribute': SentryLogAttribute.bool(true),
+});
+```
 - Add support for feature flags and integration with Firebase Remote Config ([#2825](https://github.com/getsentry/sentry-dart/pull/2825), [#2837](https://github.com/getsentry/sentry-dart/pull/2837))
 ```dart
 // Manually track a feature flag
