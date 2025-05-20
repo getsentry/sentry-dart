@@ -1,0 +1,21 @@
+name: testonly
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-windows:
+    runs-on: "windows-latest"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "adopt"
+          java-version: "17"
+
+      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
+
+      - name: 'Build'
+        working-directory: flutter/example
+        run: flutter build web --release --source-maps && cat build/web/main.dart.js.map
