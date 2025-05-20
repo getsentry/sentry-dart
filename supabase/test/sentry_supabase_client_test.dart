@@ -300,6 +300,89 @@ void main() {
       expect(span.data['db.body'], {'id': 42});
       expect(span.data['op'], 'db.insert');
     });
+
+    test('should create trace for upsert', () async {
+      fixture.mockClient.jsonResponse = '{"id": 42}';
+
+      final supabase = fixture.getSupabaseClient(breadcrumbs: false);
+
+      try {
+        await supabase.from("mock-table").upsert({"id": 42}).select("id,name");
+      } catch (e) {
+        print(e);
+      }
+
+      verifyStartTransaction('upsert');
+      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? "");
+      verifyFinishSpan();
+
+      final span = fixture.mockHub.mockSpan;
+      expect(span.data['db.body'], {'id': 42});
+      expect(span.data['db.query'], ['select(id,name)']);
+      expect(span.data['op'], 'db.upsert');
+    });
+
+    test('should create trace for update', () async {
+      fixture.mockClient.jsonResponse = '{"id": 1337}';
+
+      final supabase = fixture.getSupabaseClient(breadcrumbs: false);
+
+      try {
+        await supabase
+            .from("mock-table")
+            .update({"id": 1337})
+            .eq("id", 42)
+            .or("id.eq.8");
+      } catch (e) {
+        print(e);
+      }
+
+      verifyStartTransaction('update');
+      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? "");
+      verifyFinishSpan();
+
+      final span = fixture.mockHub.mockSpan;
+      expect(span.data['db.body'], {'id': 1337});
+      expect(span.data['db.query'], ["eq(id, 42)", "or(id.eq.8)"]);
+      expect(span.data['op'], 'db.update');
+    });
+
+    test('should create trace for delete', () async {
+      fixture.mockClient.jsonResponse = '{}';
+
+      final supabase = fixture.getSupabaseClient(breadcrumbs: false);
+
+      try {
+        await supabase.from("mock-table").delete().eq("id", 42);
+      } catch (e) {
+        print(e);
+      }
+
+      verifyStartTransaction('delete');
+      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? "");
+      verifyFinishSpan();
+
+      final span = fixture.mockHub.mockSpan;
+      expect(span.data['db.query'], ["eq(id, 42)"]);
+      expect(span.data['op'], 'db.delete');
+    });
+
+    test('should finish with error status if request fails', () async {
+      fixture.mockClient.statusCode = 404;
+
+      final supabase = fixture.getSupabaseClient(breadcrumbs: false);
+
+      try {
+        await supabase.from("mock-table").delete().eq("id", 42);
+      } catch (e) {
+        print(e);
+      }
+
+      final span = fixture.mockHub.mockSpan;
+      expect(span.finishCalls.length, 1);
+      final finishCall = span.finishCalls.first;
+      expect(finishCall.$1, SpanStatus.fromHttpStatusCode(404));
+    });
   });
 }
 
@@ -349,11 +432,13 @@ class MockClient extends BaseClient {
   final closeCalls = <void>[];
 
   var jsonResponse = '{}';
+  var statusCode = 200;
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     sendCalls.add(request);
-    return StreamedResponse(Stream.value(utf8.encode(jsonResponse)), 200);
+    return StreamedResponse(
+        Stream.value(utf8.encode(jsonResponse)), statusCode);
   }
 }
 
