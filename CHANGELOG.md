@@ -10,6 +10,12 @@
   - Record `feedback` client report for dropped feedback events
   - Record `feedback` client report for errors when using `HttpTransport`
 
+### Dependencies
+
+- Bump Android SDK from v8.11.1 to v8.12.0 ([#2941](https://github.com/getsentry/sentry-dart/pull/2941))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8120)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.11.1...8.12.0)
+
 ## 9.0.0-RC.2
 
 ### Fixes
