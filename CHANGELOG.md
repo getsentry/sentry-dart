@@ -28,6 +28,7 @@ Sentry.logger.warn("This is a warning log with attributes.", attributes: {
   - Capture session replay when processing feedback events
   - Record `feedback` client report for dropped feedback events
   - Record `feedback` client report for errors when using `HttpTransport`
+- Truncate feedback message to max 4096 characters ([#2954](https://github.com/getsentry/sentry-dart/pull/2954))
 
 ### Dependencies
 
