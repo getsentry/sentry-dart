@@ -476,6 +476,10 @@ class SentryClient {
     Scope? scope,
     Hint? hint,
   }) {
+    // Cap feedback messages to max 4096 characters
+    if (feedback.message.length > 4096) {
+      feedback.message = feedback.message.substring(0, 4096);
+    }
     final feedbackEvent = SentryEvent(
       type: 'feedback',
       contexts: Contexts(feedback: feedback),

@@ -1701,6 +1701,18 @@ void main() {
       expect(envelopeEvent?.contexts.feedback?.toJson(), feedback.toJson());
       expect(envelopeEvent?.level, SentryLevel.info);
     });
+
+    test('should cap feedback messages to max 4096 characters', () async {
+      final client = fixture.getSut();
+      final feedback = fixture.fakeFeedback();
+      feedback.message = 'a' * 4096 + 'b' * 4096;
+      await client.captureFeedback(feedback);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.contexts.feedback?.message, 'a' * 4096);
+    });
   });
 
   group('SentryClient captureLog', () {
