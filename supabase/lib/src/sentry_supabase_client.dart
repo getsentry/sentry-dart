@@ -68,10 +68,9 @@ class SentrySupabaseClient extends BaseClient {
 
     final response = await _client.send(request);
 
-    if (response.statusCode == 200) {
-      span.setData('http.response.status_code', response.statusCode);
-      span.finish(status: SpanStatus.ok());
-    }
+    span.setData('http.response.status_code', response.statusCode);
+    final status = SpanStatus.fromHttpStatusCode(response.statusCode);
+    span.finish(status: status);
 
     return response;
   }
@@ -83,42 +82,60 @@ class SentrySupabaseClient extends BaseClient {
     final query = _readQuery(request);
     final body = _readBody(table, request);
 
+    // Breadcrumb
+
     if (_breadcrumbs) {
-      _addBreadcrumb(description, operation, query, body);
+      final breadcrumb = Breadcrumb(
+        message: description,
+        category: 'db.${operation.value}',
+        type: 'supabase',
+      );
+      if (query.isNotEmpty || body != null) {
+        breadcrumb.data = {};
+        if (query.isNotEmpty) {
+          breadcrumb.data?['query'] = query;
+        }
+        if (body != null) {
+          breadcrumb.data?['body'] = body;
+        }
+      }
+      _hub.addBreadcrumb(breadcrumb);
     }
+
+    // Tracing
 
     ISentrySpan span = NoOpSentrySpan();
     // ignore: invalid_use_of_internal_member
     if (_hub.options.isTracingEnabled()) {
       span = _hub.startTransaction(description, 'db.${operation.value}');
-    }
 
-    final dbSchema = request.headers["Accept-Profile"];
-    if (dbSchema != null) {
-      span.setData('db.schema', dbSchema);
-    }
-    span.setData('db.table', table);
-    span.setData('db.url', url.origin);
-    final dbSdk = request.headers["X-Client-Info"];
-    if (dbSdk != null) {
-      span.setData('db.sdk', dbSdk);
-    }
-    span.setData('db.query', query);
+      final dbSchema = request.headers["Accept-Profile"];
+      if (dbSchema != null) {
+        span.setData('db.schema', dbSchema);
+      }
+      span.setData('db.table', table);
+      span.setData('db.url', url.origin);
+      final dbSdk = request.headers["X-Client-Info"];
+      if (dbSdk != null) {
+        span.setData('db.sdk', dbSdk);
+      }
+      span.setData('db.query', query);
 
-    span.setData('op', 'db.${operation.value}');
-    span.setData('origin', 'auto.db.supabase');
+      span.setData('op', 'db.${operation.value}');
+      span.setData('origin', 'auto.db.supabase');
+    }
 
     return span;
   }
 
   List<String> _readQuery(BaseRequest request) {
-  return request.url.queryParametersAll.entries
-      .expand(
-        (entry) => entry.value.map(
-          (value) => _translateFiltersIntoMethods(entry.key, value),
-        ),
-      )
-      .toList();
+    return request.url.queryParametersAll.entries
+        .expand(
+          (entry) => entry.value.map(
+            (value) => _translateFiltersIntoMethods(entry.key, value),
+          ),
+        )
+        .toList();
   }
 
   Map<String, dynamic>? _readBody(String table, BaseRequest request) {
@@ -132,33 +149,6 @@ class SentrySupabaseClient extends BaseClient {
       }
     }
     return body;
-  }
-
-  void _addBreadcrumb(
-    String description,
-    Operation operation,
-    List<String> query,
-    Map<String, dynamic>? body,
-  ) {
-    final breadcrumb = Breadcrumb(
-      message: description,
-      category: 'db.${operation.value}',
-      type: 'supabase',
-    );
-
-    if (query.isNotEmpty || body != null) {
-      breadcrumb.data = {};
-    }
-
-    if (query.isNotEmpty) {
-      breadcrumb.data?['query'] = query;
-    }
-
-    if (body != null) {
-      breadcrumb.data?['body'] = body;
-    }
-
-    _hub.addBreadcrumb(breadcrumb);
   }
 
   Operation? _extractOperation(String method, Map<String, String> headers) {

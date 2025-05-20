@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:supabase/supabase.dart';
+import 'package:supabase/supabase.dart';
 
 void main() {
   const supabaseUrl = 'https://example.com';
@@ -245,13 +246,32 @@ void main() {
   });
 
   group('Tracing', () {
-    void verifyCommonSpanAttributes(MockSpan span) {
+    void verifyCommonSpanAttributes(MockSpan span, String version) {
       expect(span.data['db.schema'], 'public');
       expect(span.data['db.table'], 'mock-table');
       expect(span.data['db.url'], 'https://example.com');
-      expect(span.data['db.sdk'], 'supabase-dart/2.6.3'); // TODO: Read version from dependency
+      expect(span.data['db.sdk'], version);
       expect(span.data['origin'], 'auto.db.supabase');
     }
+
+    test('should not create trace if disabled', () async {
+      fixture.options.tracesSampleRate = null;
+
+      final sentrySupabaseClient = fixture.getSut(breadcrumbs: false);
+      final supabase = SupabaseClient(
+        supabaseUrl,
+        supabaseKey,
+        httpClient: sentrySupabaseClient,
+      );
+
+      try {
+        await supabase.from('mock-table').select();
+      } catch (e) {
+        print(e);
+      }
+
+      expect(fixture.mockHub.startTransactionCalls.length, 0);
+    });
 
     test('should create trace for select', () async {
       fixture.mockClient.jsonResponse = '{"id": 42}';
@@ -265,11 +285,11 @@ void main() {
 
       try {
         await supabase
-          .from("mock-table")
-          .select()
-          .lt("id", 42)
-          .gt("id", 20)
-          .not("id", "eq", 32);
+            .from("mock-table")
+            .select()
+            .lt("id", 42)
+            .gt("id", 20)
+            .not("id", "eq", 32);
       } catch (e) {
         print(e);
       }
@@ -281,7 +301,7 @@ void main() {
 
       var span = fixture.mockHub.mockSpan;
 
-      verifyCommonSpanAttributes(span);
+      verifyCommonSpanAttributes(span, supabase.headers['X-Client-Info'] ?? "");
 
       expect(span.data['db.query'], [
         "select(*)",
@@ -313,9 +333,10 @@ class Fixture {
     options.tracesSampleRate = 1.0; // enable tracing
   }
 
-  SentrySupabaseClient getSut(
-      {bool breadcrumbs = true,
-      SentrySupabaseRedactRequestBody? redactRequestBody}) {
+  SentrySupabaseClient getSut({
+    bool breadcrumbs = true,
+    SentrySupabaseRedactRequestBody? redactRequestBody,
+  }) {
     return SentrySupabaseClient(
       breadcrumbs: breadcrumbs,
       client: mockClient,
@@ -340,7 +361,7 @@ class MockClient extends BaseClient {
 
 class MockHub implements Hub {
   MockHub(this._options);
-  SentryOptions _options;
+  final SentryOptions _options;
 
   @override
   SentryOptions get options => _options;
@@ -355,6 +376,7 @@ class MockHub implements Hub {
 
   var mockSpan = MockSpan();
 
+  @override
   ISentrySpan startTransaction(
     String name,
     String operation, {
@@ -389,7 +411,8 @@ class MockSpan implements ISentrySpan {
   }
 
   @override
-  Future<void> finish({SpanStatus? status, DateTime? endTimestamp, Hint? hint}) {
+  Future<void> finish(
+      {SpanStatus? status, DateTime? endTimestamp, Hint? hint}) {
     finishCalls.add((status, endTimestamp, hint));
     return Future.value();
   }
