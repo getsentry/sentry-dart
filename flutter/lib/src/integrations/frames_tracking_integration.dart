@@ -22,26 +22,26 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
     _options = options;
 
     if (!options.enableFramesTracking) {
-      return options.logger(SentryLevel.debug,
+      return options.log(SentryLevel.debug,
           '$FramesTrackingIntegration disabled: enableFramesTracking option is false');
     }
 
     if (options.tracesSampleRate == null && options.tracesSampler == null) {
-      return options.logger(SentryLevel.debug,
+      return options.log(SentryLevel.debug,
           '$FramesTrackingIntegration disabled: tracesSampleRate and tracesSampler are disabled');
     }
 
     final widgetsBinding = options.bindingUtils.instance;
     if (widgetsBinding == null ||
         widgetsBinding is! SentryWidgetsBindingMixin) {
-      return options.logger(SentryLevel.warning,
+      return options.log(SentryLevel.warning,
           '$FramesTrackingIntegration disabled: incompatible binding, SentryWidgetsFlutterBinding has not been instantiated. Please, use SentryWidgetsFlutterBinding.ensureInitialized() instead of WidgetsFlutterBinding.ensureInitialized()');
     }
     _widgetsBinding = widgetsBinding;
 
     final expectedFrameDuration = await _initializeExpectedFrameDuration();
     if (expectedFrameDuration == null) {
-      return options.logger(SentryLevel.debug,
+      return options.log(SentryLevel.debug,
           '$FramesTrackingIntegration disabled: could not fetch valid display refresh rate');
     }
 
@@ -57,7 +57,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
     _collector = collector;
 
     options.sdk.addIntegration(integrationName);
-    options.logger(SentryLevel.debug,
+    options.log(SentryLevel.debug,
         '$FramesTrackingIntegration successfully initialized with an expected frame duration of ${expectedFrameDuration.inMilliseconds}ms');
   }
 

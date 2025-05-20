@@ -567,18 +567,18 @@ void main() {
       (options) {
         options.dsn = fakeDsn;
         options.debug = true;
-        expect(options.diagnosticLogger?.logger, isNot(noOpLogger));
+        expect(options.diagnosticLog?.logger, isNot(noOpLog));
 
         options.debug = false;
-        expect(options.diagnosticLogger?.logger, noOpLogger);
+        expect(options.diagnosticLog?.logger, noOpLog);
 
         options.debug = true;
-        expect(options.diagnosticLogger?.logger, isNot(noOpLogger));
+        expect(options.diagnosticLog?.logger, isNot(noOpLog));
       },
       options: sentryOptions,
     );
 
-    expect(sentryOptions.diagnosticLogger?.logger, isNot(noOpLogger));
+    expect(sentryOptions.diagnosticLog?.logger, isNot(noOpLog));
   });
 
   group('Sentry init optionsConfiguration', () {
@@ -594,7 +594,7 @@ void main() {
           defaultTestOptions(checker: MockRuntimeChecker(isRelease: true))
             ..automatedTestMode = false
             ..debug = true
-            ..logger = fixture.mockLogger;
+            ..log = fixture.mockLogger;
 
       final exception = Exception("Exception in options callback");
       await Sentry.init(

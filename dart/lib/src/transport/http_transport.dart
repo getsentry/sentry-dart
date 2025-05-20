@@ -51,7 +51,7 @@ class HttpTransport implements Transport {
       return _parseEventId(response);
     }
     if (response.statusCode == 429) {
-      _options.logger(
+      _options.log(
           SentryLevel.warning, 'Rate limit reached, failed to send envelope');
     }
     return SentryId.empty();
@@ -62,7 +62,7 @@ class HttpTransport implements Transport {
       final eventId = json.decode(response.body)['id'];
       return eventId != null ? SentryId.fromId(eventId) : null;
     } catch (e) {
-      _options.logger(SentryLevel.error, 'Error parsing response: $e');
+      _options.log(SentryLevel.error, 'Error parsing response: $e');
       if (_options.automatedTestMode) {
         rethrow;
       }

@@ -271,7 +271,7 @@ class Fixture {
 
   HttpTransport getSut(http.Client client, RateLimiter rateLimiter) {
     options.debug = true;
-    options.logger = mockLogger;
+    options.log = mockLogger;
     options.httpClient = client;
     options.recorder = clientReportRecorder;
     options.clock = () {

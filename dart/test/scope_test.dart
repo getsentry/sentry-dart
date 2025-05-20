@@ -844,7 +844,7 @@ class Fixture {
     options.maxBreadcrumbs = maxBreadcrumbs;
     options.beforeBreadcrumb = beforeBreadcrumbCallback;
     options.debug = debug;
-    options.logger = mockLogger;
+    options.log = mockLogger;
 
     if (scopeObserver != null) {
       options.addScopeObserver(scopeObserver);

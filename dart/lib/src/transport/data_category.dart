@@ -9,6 +9,7 @@ enum DataCategory {
   attachment,
   security,
   metricBucket,
+  logItem,
   feedback,
   unknown;
 
@@ -26,6 +27,8 @@ enum DataCategory {
       // whereas the client report category is metric_bucket
       case 'statsd':
         return DataCategory.metricBucket;
+      case 'log':
+        return DataCategory.logItem;
       case 'feedback':
         return DataCategory.feedback;
       default:

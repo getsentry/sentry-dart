@@ -37,7 +37,7 @@ class RecursiveExceptionCauseExtractor {
         currentExceptionCause = extractor?.cause(extractionSourceSource);
         currentException = currentExceptionCause?.exception;
       } catch (exception, stackTrace) {
-        _options.logger(
+        _options.log(
           SentryLevel.error,
           'An exception occurred while extracting  exception cause',
           exception: exception,

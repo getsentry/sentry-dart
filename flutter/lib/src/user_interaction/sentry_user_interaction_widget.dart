@@ -300,7 +300,7 @@ class _SentryUserInteractionWidgetState
       _lastPointerId = event.pointer;
       _lastPointerDownLocation = event.localPosition;
     } catch (exception, stacktrace) {
-      _options?.logger(
+      _options?.log(
         SentryLevel.error,
         'Error while handling pointer-down event $event in $SentryUserInteractionWidget',
         exception: exception,
@@ -330,7 +330,7 @@ class _SentryUserInteractionWidgetState
         _onTappedAt(event.localPosition);
       }
     } catch (exception, stacktrace) {
-      _options?.logger(
+      _options?.log(
         SentryLevel.error,
         'Error while handling pointer-up event $event in $SentryUserInteractionWidget',
         exception: exception,

@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Features
+
+- Sentry Structured Logs ([#2919](https://github.com/getsentry/sentry-dart/pull/2919))
+  - The old `SentryLogger` has been renamed to `SdkLogCallback` and can be accessed through `options.log` now.
+  - Adds support for structured logging though `Sentry.logger`:
+```dart
+// Enable in `SentryOptions`:
+options.enableLogs = true;
+
+// Use `Sentry.logger`
+Sentry.logger.info("This is a info log.");
+Sentry.logger.warn("This is a warning log with attributes.", attributes: {
+  'string-attribute': SentryLogAttribute.string('string'),
+  'int-attribute': SentryLogAttribute.int(1),
+  'double-attribute': SentryLogAttribute.double(1.0),
+  'bool-attribute': SentryLogAttribute.bool(true),
+});
+```
+
 ### Enhancements
 
 - Align User Feedback API ([#2949](https://github.com/getsentry/sentry-dart/pull/2949))
