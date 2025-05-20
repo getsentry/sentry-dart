@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Enhancements
+
+- Align User Feedback API ([#2949](https://github.com/getsentry/sentry-dart/pull/2949))
+  - Don’t apply breadcrumbs and extras from scope to feedback events
+  - Capture session replay when processing feedback events
+  - Record `feedback` client report for dropped feedback events
+  - Record `feedback` client report for errors when using `HttpTransport`
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.49.2 to v8.51.0 ([#2951](https://github.com/getsentry/sentry-dart/pull/2951))

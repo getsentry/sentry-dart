@@ -64,6 +64,8 @@ extension _DataCategoryExtension on DataCategory {
         return 'security';
       case DataCategory.unknown:
         return 'unknown';
+      case DataCategory.feedback:
+        return 'feedback';
       case DataCategory.metricBucket:
         return 'metric_bucket';
     }

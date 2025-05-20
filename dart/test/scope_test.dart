@@ -605,6 +605,40 @@ void main() {
 
       expect(updatedEvent?.transaction, 'name');
     });
+
+    test('should not apply breadcrumbs if feedback event', () async {
+      final feedback = SentryFeedback(
+        message: 'fixture-message',
+      );
+      final feedbackEvent = SentryEvent(
+        type: 'feedback',
+        contexts: Contexts(feedback: feedback),
+        level: SentryLevel.info,
+      );
+      final scope = Scope(defaultTestOptions());
+      await scope.addBreadcrumb(Breadcrumb(message: 'fixture-breadcrumb'));
+
+      final updatedEvent = await scope.applyToEvent(feedbackEvent, Hint());
+
+      expect(updatedEvent?.breadcrumbs, isNull);
+    });
+
+    test('should not apply extras if feedback event', () async {
+      final feedback = SentryFeedback(
+        message: 'fixture-message',
+      );
+      final feedbackEvent = SentryEvent(
+        type: 'feedback',
+        contexts: Contexts(feedback: feedback),
+        level: SentryLevel.info,
+      );
+      final scope = Scope(defaultTestOptions());
+      await scope.setExtra('fixture-extra-key', 'fixture-extra-value');
+
+      final updatedEvent = await scope.applyToEvent(feedbackEvent, Hint());
+
+      expect(updatedEvent?.extra, isNull);
+    });
   });
 
   test('event processor drops the event', () async {
