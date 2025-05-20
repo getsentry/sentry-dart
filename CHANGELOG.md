@@ -52,7 +52,7 @@ Please carefully read through the migration guide in the Sentry docs on how to u
     lifecycle hooks.
   - **Web without `SentryNavigatorObserver`** - the same trace ID is reused until the page is
     refreshed or closed.
-- Add support for structured logs
+- Add support for structured logs ([#2919](https://github.com/getsentry/sentry-dart/pull/2919))
 ```dart
 // Enable in `SentryOptions`:
 options.enableLogs = true;
