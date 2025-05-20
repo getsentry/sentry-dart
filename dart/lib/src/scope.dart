@@ -313,12 +313,15 @@ class Scope {
     event
       ..transaction = event.transaction ?? transaction
       ..user = _mergeUsers(user, event.user)
-      ..breadcrumbs = (event.breadcrumbs?.isNotEmpty ?? false)
+      ..tags = tags.isNotEmpty ? _mergeEventTags(event) : event.tags;
+
+    if (event.type != 'feedback') {
+      event.breadcrumbs = (event.breadcrumbs?.isNotEmpty ?? false)
           ? event.breadcrumbs
-          : List.from(_breadcrumbs)
-      ..tags = tags.isNotEmpty ? _mergeEventTags(event) : event.tags
+          : List.from(_breadcrumbs);
       // ignore: deprecated_member_use_from_same_package
-      ..extra = extra.isNotEmpty ? _mergeEventExtra(event) : event.extra;
+      event.extra = extra.isNotEmpty ? _mergeEventExtra(event) : event.extra;
+    }
 
     if (event is! SentryTransaction) {
       event

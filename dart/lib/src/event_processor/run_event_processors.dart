@@ -71,6 +71,9 @@ Future<SentryEvent?> runEventProcessors(
 DataCategory _getCategory(SentryEvent event) {
   if (event is SentryTransaction) {
     return DataCategory.transaction;
+  } else if (event.type == 'feedback') {
+    return DataCategory.feedback;
+  } else {
+    return DataCategory.error;
   }
-  return DataCategory.error;
 }
