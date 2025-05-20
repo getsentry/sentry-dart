@@ -109,7 +109,8 @@ class SentrySupabaseClient extends BaseClient {
     if (_hub.options.isTracingEnabled()) {
       span = _hub.startTransaction(description, 'db.${operation.value}');
 
-      final dbSchema = request.headers["Accept-Profile"];
+      final dbSchema = request.headers["Accept-Profile"] ??
+          request.headers["Content-Profile"];
       if (dbSchema != null) {
         span.setData('db.schema', dbSchema);
       }
@@ -119,8 +120,12 @@ class SentrySupabaseClient extends BaseClient {
       if (dbSdk != null) {
         span.setData('db.sdk', dbSdk);
       }
-      span.setData('db.query', query);
-
+      if (query.isNotEmpty) {
+        span.setData('db.query', query);
+      }
+      if (body != null) {
+        span.setData('db.body', body);
+      }
       span.setData('op', 'db.${operation.value}');
       span.setData('origin', 'auto.db.supabase');
     }

@@ -10,8 +10,6 @@ import 'package:supabase/supabase.dart';
 import 'package:supabase/supabase.dart';
 
 void main() {
-  const supabaseUrl = 'https://example.com';
-  const supabaseKey = 'YOUR_ANON_KEY';
   late Fixture fixture;
 
   setUp(() {
@@ -33,12 +31,7 @@ void main() {
 
   group('Breadcrumb', () {
     test('select adds a breadcrumb', () async {
-      final sentrySupabaseClient = fixture.getSut();
-      final supabase = SupabaseClient(
-        supabaseUrl,
-        supabaseKey,
-        httpClient: sentrySupabaseClient,
-      );
+      final supabase = fixture.getSupabaseClient();
 
       try {
         await supabase.from('countries').select().eq('id', 42);
@@ -55,12 +48,7 @@ void main() {
     });
 
     test('insert adds a breadcrumb', () async {
-      final sentrySupabaseClient = fixture.getSut();
-      final supabase = SupabaseClient(
-        supabaseUrl,
-        supabaseKey,
-        httpClient: sentrySupabaseClient,
-      );
+      final supabase = fixture.getSupabaseClient();
 
       try {
         await supabase.from('countries').insert({'id': 42});
@@ -77,12 +65,7 @@ void main() {
     });
 
     test('upsert adds a breadcrumb', () async {
-      final sentrySupabaseClient = fixture.getSut();
-      final supabase = SupabaseClient(
-        supabaseUrl,
-        supabaseKey,
-        httpClient: sentrySupabaseClient,
-      );
+      final supabase = fixture.getSupabaseClient();
 
       try {
         await supabase.from('countries').upsert({'id': 42}).select();
@@ -100,12 +83,7 @@ void main() {
     });
 
     test('update adds a breadcrumb', () async {
-      final sentrySupabaseClient = fixture.getSut();
-      final supabase = SupabaseClient(
-        supabaseUrl,
-        supabaseKey,
-        httpClient: sentrySupabaseClient,
-      );
+      final supabase = fixture.getSupabaseClient();
 
       try {
         await supabase.from('countries').update({'id': 1337}).eq('id', 42);
@@ -123,12 +101,7 @@ void main() {
     });
 
     test('delete adds a breadcrumb', () async {
-      final sentrySupabaseClient = fixture.getSut();
-      final supabase = SupabaseClient(
-        supabaseUrl,
-        supabaseKey,
-        httpClient: sentrySupabaseClient,
-      );
+      final supabase = fixture.getSupabaseClient();
 
       try {
         await supabase.from('countries').delete().eq('id', 42);
@@ -145,12 +118,7 @@ void main() {
     });
 
     test('does not add breadcrumb when breadcrumbs are disabled', () async {
-      final sentrySupabaseClient = fixture.getSut(breadcrumbs: false);
-      final supabase = SupabaseClient(
-        supabaseUrl,
-        supabaseKey,
-        httpClient: sentrySupabaseClient,
-      );
+      final supabase = fixture.getSupabaseClient();
 
       try {
         await supabase.from('countries').select();
@@ -203,8 +171,8 @@ void main() {
         },
       );
       final supabase = SupabaseClient(
-        supabaseUrl,
-        supabaseKey,
+        fixture.supabaseUrl,
+        fixture.supabaseKey,
         httpClient: sentrySupabaseClient,
       );
 
@@ -246,7 +214,15 @@ void main() {
   });
 
   group('Tracing', () {
-    void verifyCommonSpanAttributes(MockSpan span, String version) {
+    void verifyStartTransaction(String operation) {
+      expect(fixture.mockHub.startTransactionCalls.length, 1);
+      final startTransactionCalls = fixture.mockHub.startTransactionCalls.first;
+      expect(startTransactionCalls.$1, 'from(mock-table)'); // name
+      expect(startTransactionCalls.$2, 'db.$operation');
+    }
+
+    void verifyCommonSpanAttributes(String version) {
+      final span = fixture.mockHub.mockSpan;
       expect(span.data['db.schema'], 'public');
       expect(span.data['db.table'], 'mock-table');
       expect(span.data['db.url'], 'https://example.com');
@@ -254,15 +230,17 @@ void main() {
       expect(span.data['origin'], 'auto.db.supabase');
     }
 
+    void verifyFinishSpan() {
+      final span = fixture.mockHub.mockSpan;
+      expect(span.finishCalls.length, 1);
+      final finishCall = span.finishCalls.first;
+      expect(finishCall.$1, SpanStatus.ok());
+    }
+
     test('should not create trace if disabled', () async {
       fixture.options.tracesSampleRate = null;
 
-      final sentrySupabaseClient = fixture.getSut(breadcrumbs: false);
-      final supabase = SupabaseClient(
-        supabaseUrl,
-        supabaseKey,
-        httpClient: sentrySupabaseClient,
-      );
+      final supabase = fixture.getSupabaseClient(breadcrumbs: false);
 
       try {
         await supabase.from('mock-table').select();
@@ -276,12 +254,7 @@ void main() {
     test('should create trace for select', () async {
       fixture.mockClient.jsonResponse = '{"id": 42}';
 
-      final sentrySupabaseClient = fixture.getSut();
-      final supabase = SupabaseClient(
-        supabaseUrl,
-        supabaseKey,
-        httpClient: sentrySupabaseClient,
-      );
+      final supabase = fixture.getSupabaseClient(breadcrumbs: false);
 
       try {
         await supabase
@@ -294,15 +267,11 @@ void main() {
         print(e);
       }
 
-      expect(fixture.mockHub.startTransactionCalls.length, 1);
-      final startTransactionCalls = fixture.mockHub.startTransactionCalls.first;
-      expect(startTransactionCalls.$1, 'from(mock-table)'); // name
-      expect(startTransactionCalls.$2, 'db.select'); // operation
+      verifyStartTransaction('select');
+      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? "");
+      verifyFinishSpan();
 
-      var span = fixture.mockHub.mockSpan;
-
-      verifyCommonSpanAttributes(span, supabase.headers['X-Client-Info'] ?? "");
-
+      final span = fixture.mockHub.mockSpan;
       expect(span.data['db.query'], [
         "select(*)",
         "lt(id, 42)",
@@ -310,19 +279,34 @@ void main() {
         "not(id, eq.32)",
       ]);
       expect(span.data['op'], 'db.select');
+    });
 
-      // Finished successfully
+    test('should create trace for insert', () async {
+      fixture.mockClient.jsonResponse = '{"id": 42}';
 
-      expect(span.data['http.response.status_code'], 200);
+      final supabase = fixture.getSupabaseClient(breadcrumbs: false);
 
-      expect(span.finishCalls.length, 1);
-      final finishCall = span.finishCalls.first;
-      expect(finishCall.$1, SpanStatus.ok());
+      try {
+        await supabase.from("mock-table").insert({"id": 42});
+      } catch (e) {
+        print(e);
+      }
+
+      verifyStartTransaction('insert');
+      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? "");
+      verifyFinishSpan();
+
+      final span = fixture.mockHub.mockSpan;
+      expect(span.data['db.body'], {'id': 42});
+      expect(span.data['op'], 'db.insert');
     });
   });
 }
 
 class Fixture {
+  final supabaseUrl = 'https://example.com';
+  final supabaseKey = 'YOUR_ANON_KEY';
+
   final options = SentryOptions(
     dsn: 'https://example.com/123',
   );
@@ -342,6 +326,20 @@ class Fixture {
       client: mockClient,
       hub: mockHub,
       redactRequestBody: redactRequestBody,
+    );
+  }
+
+  SupabaseClient getSupabaseClient({
+    bool breadcrumbs = true,
+    SentrySupabaseRedactRequestBody? redactRequestBody,
+  }) {
+    return SupabaseClient(
+      supabaseUrl,
+      supabaseKey,
+      httpClient: getSut(
+        breadcrumbs: breadcrumbs,
+        redactRequestBody: redactRequestBody,
+      ),
     );
   }
 }
