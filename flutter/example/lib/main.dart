@@ -42,8 +42,6 @@ var _isIntegrationTest = false;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
-  
-
   await setupSentry(
     () => runApp(
       SentryWidget(
