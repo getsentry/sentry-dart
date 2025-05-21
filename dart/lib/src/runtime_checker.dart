@@ -22,6 +22,14 @@ class RuntimeChecker {
     return const bool.fromEnvironment('dart.vm.profile', defaultValue: false);
   }
 
+  /// Check if the Dart code is obfuscated.
+  bool isAppObfuscated() {
+    // In non-obfuscated builds, this will return "RuntimeChecker"
+    // In obfuscated builds, this will return something like "a" or other short identifier
+    final typeName = runtimeType.toString();
+    return !typeName.contains('RuntimeChecker');
+  }
+
   final bool isRootZone;
 
   String get compileMode {

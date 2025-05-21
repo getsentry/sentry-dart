@@ -14,11 +14,12 @@ import 'protocol/sentry_stack_trace.dart';
 import 'sentry_options.dart';
 
 class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
-  static const integrationName = 'LoadDartDebugImagesIntegration';
+  static const integrationName = 'LoadDartDebugImages';
 
   @override
   void call(Hub hub, SentryOptions options) {
-    if (options.enableDartSymbolication) {
+    if (options.enableDartSymbolication &&
+        options.runtimeChecker.isAppObfuscated()) {
       options.addEventProcessor(LoadImageIntegrationEventProcessor(options));
       options.sdk.addIntegration(integrationName);
     }
