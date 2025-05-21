@@ -64,7 +64,9 @@ class SentrySupabaseErrorClient extends BaseClient {
     event.contexts['supabase'] = {
       'table': supabaseRequest.table,
       'operation': supabaseRequest.operation.value,
-      if (supabaseRequest.query.isNotEmpty) 'query': supabaseRequest.query,
+      // ignore: invalid_use_of_internal_member
+      if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii)
+        'query': supabaseRequest.query,
       // ignore: invalid_use_of_internal_member
       if (supabaseRequest.body != null && _hub.options.sendDefaultPii)
         'body': supabaseRequest.body,

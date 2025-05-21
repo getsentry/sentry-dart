@@ -231,16 +231,19 @@ void main() {
       final insertEvent = fixture.mockHub.captureEventCalls[0].$1;
       final insertSupabaseContext =
           insertEvent.contexts['supabase'] as Map<String, dynamic>;
+      expect(insertSupabaseContext['query'], isNull);
       expect(insertSupabaseContext['body'], isNull);
 
       final upsertEvent = fixture.mockHub.captureEventCalls[1].$1;
       final upsertSupabaseContext =
           upsertEvent.contexts['supabase'] as Map<String, dynamic>;
+      expect(upsertSupabaseContext['query'], isNull);
       expect(upsertSupabaseContext['body'], isNull);
 
       final updateEvent = fixture.mockHub.captureEventCalls[2].$1;
       final updateSupabaseContext =
           updateEvent.contexts['supabase'] as Map<String, dynamic>;
+      expect(updateSupabaseContext['query'], isNull);
       expect(updateSupabaseContext['body'], isNull);
     });
   });

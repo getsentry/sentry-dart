@@ -164,12 +164,15 @@ void main() {
       }
 
       final insertBreadcrumb = fixture.mockHub.addBreadcrumbCalls.first.$1;
+      expect(insertBreadcrumb.data?['query'], isNull);
       expect(insertBreadcrumb.data?['body'], isNull);
 
       final upsertBreadcrumb = fixture.mockHub.addBreadcrumbCalls[1].$1;
+      expect(upsertBreadcrumb.data?['query'], isNull);
       expect(upsertBreadcrumb.data?['body'], isNull);
 
       final updateBreadcrumb = fixture.mockHub.addBreadcrumbCalls[2].$1;
+      expect(updateBreadcrumb.data?['query'], isNull);
       expect(updateBreadcrumb.data?['body'], isNull);
     });
   });

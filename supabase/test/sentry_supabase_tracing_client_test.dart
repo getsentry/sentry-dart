@@ -229,6 +229,7 @@ void main() {
         // Ignore
       }
       final insertSpan = fixture.mockHub.mockSpan;
+      expect(insertSpan.data['db.query'], isNull);
       expect(insertSpan.data['db.body'], isNull);
 
       try {
@@ -238,7 +239,7 @@ void main() {
       }
       final upsertSpan = fixture.mockHub.mockSpan;
       expect(upsertSpan.data['db.body'], isNull);
-
+      expect(upsertSpan.data['db.query'], isNull);
       try {
         await supabase.from('countries').update({'id': 1337}).eq('id', 42);
       } catch (e) {
@@ -246,6 +247,7 @@ void main() {
       }
       final updateSpan = fixture.mockHub.mockSpan;
       expect(updateSpan.data['db.body'], isNull);
+      expect(updateSpan.data['db.query'], isNull);
     });
   });
 }

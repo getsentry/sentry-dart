@@ -60,7 +60,8 @@ class SentrySupabaseTracingClient extends BaseClient {
     if (dbSdk != null) {
       span.setData('db.sdk', dbSdk);
     }
-    if (supabaseRequest.query.isNotEmpty) {
+    // ignore: invalid_use_of_internal_member
+    if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii) {
       span.setData('db.query', supabaseRequest.query);
     }
     // ignore: invalid_use_of_internal_member
