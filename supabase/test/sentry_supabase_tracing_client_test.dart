@@ -216,6 +216,38 @@ void main() {
       expect(setStatusCall, SpanStatus.internalError());
     });
   });
+
+  group('PII', () {
+    test('defaultPii disabled does not send body', () async {
+      fixture.options.sendDefaultPii = false;
+
+      final supabase = fixture.getSupabaseClient();
+
+      try {
+        await supabase.from('countries').insert({'id': 42});
+      } catch (e) {
+        // Ignore
+      }
+      final insertSpan = fixture.mockHub.mockSpan;
+      expect(insertSpan.data['db.body'], isNull);
+
+      try {
+        await supabase.from('countries').upsert({'id': 42}).select();
+      } catch (e) {
+        // Ignore
+      }
+      final upsertSpan = fixture.mockHub.mockSpan;
+      expect(upsertSpan.data['db.body'], isNull);
+
+      try {
+        await supabase.from('countries').update({'id': 1337}).eq('id', 42);
+      } catch (e) {
+        // Ignore
+      }
+      final updateSpan = fixture.mockHub.mockSpan;
+      expect(updateSpan.data['db.body'], isNull);
+    });
+  });
 }
 
 class Fixture {
@@ -227,6 +259,10 @@ class Fixture {
   );
   final mockClient = MockClient();
   late final mockHub = MockHub(options);
+
+  Fixture() {
+    options.sendDefaultPii = true; // Send PII by default in test.
+  }
 
   SentrySupabaseTracingClient getSut() {
     return SentrySupabaseTracingClient(mockClient, mockHub);

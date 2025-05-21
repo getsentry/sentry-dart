@@ -140,6 +140,39 @@ void main() {
       expect(breadcrumb.data?['query'], ['eq(id, 42)']);
     });
   });
+
+  group('PII', () {
+    test('defaultPii disabled does not send body', () async {
+      fixture.options.sendDefaultPii = false;
+
+      final supabase = fixture.getSupabaseClient();
+
+      try {
+        await supabase.from('countries').insert({'id': 42});
+      } catch (e) {
+        // Ignore
+      }
+      try {
+        await supabase.from('countries').upsert({'id': 42}).select();
+      } catch (e) {
+        // Ignore
+      }
+      try {
+        await supabase.from('countries').update({'id': 1337}).eq('id', 42);
+      } catch (e) {
+        // Ignore
+      }
+
+      final insertBreadcrumb = fixture.mockHub.addBreadcrumbCalls.first.$1;
+      expect(insertBreadcrumb.data?['body'], isNull);
+
+      final upsertBreadcrumb = fixture.mockHub.addBreadcrumbCalls[1].$1;
+      expect(upsertBreadcrumb.data?['body'], isNull);
+
+      final updateBreadcrumb = fixture.mockHub.addBreadcrumbCalls[2].$1;
+      expect(updateBreadcrumb.data?['body'], isNull);
+    });
+  });
 }
 
 class Fixture {
@@ -153,7 +186,7 @@ class Fixture {
   late final mockHub = MockHub(options);
 
   Fixture() {
-    options.tracesSampleRate = 1.0; // enable tracing
+    options.sendDefaultPii = true; // Send PII by default in test.
   }
 
   SentrySupabaseBreadcrumbClient getSut() {

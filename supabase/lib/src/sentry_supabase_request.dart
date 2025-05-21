@@ -24,8 +24,8 @@ class SentrySupabaseRequest {
     final url = request.url;
     final table = url.pathSegments.last;
     final operation = _extractOperation(request.method, request.headers);
-    final query = _readQuery(request); // TODO: PII
-    final body = _readBody(table, request); // TODO: PII
+    final query = _readQuery(request);
+    final body = _readBody(table, request);
 
     return SentrySupabaseRequest(
       request: request,
@@ -73,12 +73,11 @@ class SentrySupabaseRequest {
         request is Request && request.body.isNotEmpty ? request.body : null;
     final body = bodyString != null ? jsonDecode(bodyString) : null;
 
-    // if (body != null && _redactRequestBody != null) {
-    //   for (final entry in body.entries) {
-    //     body[entry.key] = _redactRequestBody(table, entry.key, entry.value);
-    //   }
-    // }
-    return body;
+    if (body is Map<String, dynamic>) {
+      return body;
+    } else {
+      return null;
+    }
   }
 
   static const Map<String, String> _filterMappings = {
@@ -121,7 +120,7 @@ class SentrySupabaseRequest {
     }
 
     if (key == 'or' || key.endsWith('.or')) {
-      return "$key$query";
+      return '$key$query';
     }
 
     final parts = query.split('.');

@@ -46,7 +46,7 @@ class SentrySupabaseErrorClient extends BaseClient {
   }
 
   void _captureException(
-    Exception? exception,
+    dynamic exception,
     StackTrace? stackTrace,
     BaseRequest request,
     StreamedResponse? response,
@@ -65,7 +65,9 @@ class SentrySupabaseErrorClient extends BaseClient {
       'table': supabaseRequest.table,
       'operation': supabaseRequest.operation.value,
       if (supabaseRequest.query.isNotEmpty) 'query': supabaseRequest.query,
-      if (supabaseRequest.body != null) 'body': supabaseRequest.body,
+      // ignore: invalid_use_of_internal_member
+      if (supabaseRequest.body != null && _hub.options.sendDefaultPii)
+        'body': supabaseRequest.body,
     };
 
     _hub.captureEvent(event, stackTrace: stackTrace, hint: hint);

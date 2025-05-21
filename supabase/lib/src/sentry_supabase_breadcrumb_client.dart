@@ -27,11 +27,13 @@ class SentrySupabaseBreadcrumbClient extends BaseClient {
     if (supabaseRequest.query.isNotEmpty) {
       breadcrumb.data?['query'] = supabaseRequest.query;
     }
-    if (supabaseRequest.body != null) {
+
+    // ignore: invalid_use_of_internal_member
+    if (supabaseRequest.body != null && _hub.options.sendDefaultPii) {
       breadcrumb.data?['body'] = supabaseRequest.body;
     }
 
-    _hub.addBreadcrumb(breadcrumb);
+    await _hub.addBreadcrumb(breadcrumb);
 
     return _innerClient.send(request);
   }
