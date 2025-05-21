@@ -43,6 +43,9 @@ import 'sentry_supabase_error_client.dart';
 ///   SentrySupabaseClient(client: CustomClient()),
 /// );
 /// ```
+///
+/// Body data will not be sent by default. You can enable it by setting the
+/// `sendDefaultPii` option in the [SentryOptions].
 class SentrySupabaseClient extends BaseClient {
   final bool _breadcrumbs;
   final bool _tracing;
