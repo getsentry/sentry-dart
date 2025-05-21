@@ -28,8 +28,6 @@ import 'auto_close_screen.dart';
 import 'drift/connection/connection.dart';
 import 'drift/database.dart';
 import 'isar/user.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
-import 'package:sentry_supabase/sentry_supabase.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String exampleDsn =
@@ -44,20 +42,7 @@ var _isIntegrationTest = false;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
-  final sentrySupabaseClient = SentrySupabaseClient();
-
-  await supabase.Supabase.initialize(
-    url: '<YOUR_SUPABASE_URL>',
-    anonKey: '<YOUR_SUPABASE_ANON_KEY>',
-    httpClient: sentrySupabaseClient,
-  );
-
-  final supabaseClient = supabase.Supabase.instance.client;
-  final issues = await supabaseClient
-    .from('issues')
-    .select();
-
-  print(issues);
+  
 
   await setupSentry(
     () => runApp(

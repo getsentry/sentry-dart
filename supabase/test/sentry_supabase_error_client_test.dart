@@ -1,4 +1,5 @@
 import 'package:sentry_supabase/src/sentry_supabase_error_client.dart';
+import 'package:sentry_supabase/src/sentry_supabase_client_error.dart';
 import 'package:test/test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:http/http.dart';
