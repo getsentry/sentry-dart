@@ -45,7 +45,7 @@ void main() {
       try {
         await supabase.from("mock-table").select().eq("id", 42);
       } catch (e) {
-        // Do nothing
+        // Ignore
       }
 
       expect(fixture.mockHub.captureEventCalls.length, 1);
@@ -94,7 +94,7 @@ void main() {
       try {
         await supabase.from("mock-table").select().eq("id", 42);
       } catch (e) {
-        // Do nothing
+        // Ignore
       }
 
       expect(fixture.mockHub.captureEventCalls.length, 1);
@@ -117,7 +117,7 @@ void main() {
       try {
         await supabase.from("mock-table").insert({'id': 42});
       } catch (e) {
-        // Do nothing
+        // Ignore
       }
 
       expect(fixture.mockHub.captureEventCalls.length, 1);
@@ -140,7 +140,7 @@ void main() {
       try {
         await supabase.from("mock-table").update({'id': 1337}).eq("id", 42);
       } catch (e) {
-        // Do nothing
+        // Ignore
       }
 
       expect(fixture.mockHub.captureEventCalls.length, 1);
@@ -164,7 +164,7 @@ void main() {
       try {
         await supabase.from("mock-table").upsert({'id': 42}).select();
       } catch (e) {
-        // Do nothing
+        // Ignore
       }
 
       expect(fixture.mockHub.captureEventCalls.length, 1);
@@ -188,7 +188,7 @@ void main() {
       try {
         await supabase.from("mock-table").delete().eq("id", 42);
       } catch (e) {
-        // Do nothing
+        // Ignore
       }
 
       expect(fixture.mockHub.captureEventCalls.length, 1);

@@ -44,7 +44,7 @@ void main() {
       try {
         await supabase.from('countries').select().eq('id', 42);
       } catch (e) {
-        print(e);
+        // Ignore
       }
 
       expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
@@ -52,6 +52,9 @@ void main() {
       expect(breadcrumb.message, 'from(countries)');
       expect(breadcrumb.category, 'db.select');
       expect(breadcrumb.type, 'supabase');
+
+      expect(breadcrumb.data?['table'], 'countries');
+      expect(breadcrumb.data?['operation'], 'select');
       expect(breadcrumb.data?['query'], ['select(*)', 'eq(id, 42)']);
     });
 
@@ -61,7 +64,7 @@ void main() {
       try {
         await supabase.from('countries').insert({'id': 42});
       } catch (e) {
-        print(e);
+        // Ignore
       }
 
       expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
@@ -69,6 +72,9 @@ void main() {
       expect(breadcrumb.message, 'from(countries)');
       expect(breadcrumb.category, 'db.insert');
       expect(breadcrumb.type, 'supabase');
+
+      expect(breadcrumb.data?['table'], 'countries');
+      expect(breadcrumb.data?['operation'], 'insert');
       expect(breadcrumb.data?['body'], {'id': 42});
     });
 
@@ -78,7 +84,7 @@ void main() {
       try {
         await supabase.from('countries').upsert({'id': 42}).select();
       } catch (e) {
-        print(e);
+        // Ignore
       }
 
       expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
@@ -86,6 +92,9 @@ void main() {
       expect(breadcrumb.message, 'from(countries)');
       expect(breadcrumb.category, 'db.upsert');
       expect(breadcrumb.type, 'supabase');
+
+      expect(breadcrumb.data?['table'], 'countries');
+      expect(breadcrumb.data?['operation'], 'upsert');
       expect(breadcrumb.data?['query'], ['select(*)']);
       expect(breadcrumb.data?['body'], {'id': 42});
     });
@@ -96,7 +105,7 @@ void main() {
       try {
         await supabase.from('countries').update({'id': 1337}).eq('id', 42);
       } catch (e) {
-        print(e);
+        // Ignore
       }
 
       expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
@@ -104,6 +113,9 @@ void main() {
       expect(breadcrumb.message, 'from(countries)');
       expect(breadcrumb.category, 'db.update');
       expect(breadcrumb.type, 'supabase');
+
+      expect(breadcrumb.data?['table'], 'countries');
+      expect(breadcrumb.data?['operation'], 'update');
       expect(breadcrumb.data?['query'], ['eq(id, 42)']);
       expect(breadcrumb.data?['body'], {'id': 1337});
     });
@@ -114,7 +126,7 @@ void main() {
       try {
         await supabase.from('countries').delete().eq('id', 42);
       } catch (e) {
-        print(e);
+        // Ignore
       }
 
       expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
@@ -122,6 +134,9 @@ void main() {
       expect(breadcrumb.message, 'from(countries)');
       expect(breadcrumb.category, 'db.delete');
       expect(breadcrumb.type, 'supabase');
+
+      expect(breadcrumb.data?['table'], 'countries');
+      expect(breadcrumb.data?['operation'], 'delete');
       expect(breadcrumb.data?['query'], ['eq(id, 42)']);
     });
   });

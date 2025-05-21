@@ -72,7 +72,7 @@ void main() {
             .gt("id", 20)
             .not("id", "eq", 32);
       } catch (e) {
-        print(e);
+        // Ignore
       }
 
       verifyStartTransaction('select');
@@ -97,7 +97,7 @@ void main() {
       try {
         await supabase.from("mock-table").insert({"id": 42});
       } catch (e) {
-        print(e);
+        // Ignore
       }
 
       verifyStartTransaction('insert');
@@ -117,7 +117,7 @@ void main() {
       try {
         await supabase.from("mock-table").upsert({"id": 42}).select("id,name");
       } catch (e) {
-        print(e);
+        // Ignore
       }
 
       verifyStartTransaction('upsert');
@@ -142,7 +142,7 @@ void main() {
             .eq("id", 42)
             .or("id.eq.8");
       } catch (e) {
-        print(e);
+        // Ignore
       }
 
       verifyStartTransaction('update');
@@ -163,7 +163,7 @@ void main() {
       try {
         await supabase.from("mock-table").delete().eq("id", 42);
       } catch (e) {
-        print(e);
+        // Ignore
       }
 
       verifyStartTransaction('delete');
@@ -183,7 +183,7 @@ void main() {
       try {
         await supabase.from("mock-table").delete().eq("id", 42);
       } catch (e) {
-        print(e);
+        // Ignore
       }
 
       final span = fixture.mockHub.mockSpan;
