@@ -7,7 +7,7 @@ import 'package:sentry/sentry.dart';
 import 'package:http/http.dart';
 
 import 'package:supabase/supabase.dart';
-import 'mock_hub.dart';
+import 'mocks/mock_hub.dart';
 
 void main() {
   late Fixture fixture;

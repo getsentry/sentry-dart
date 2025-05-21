@@ -3,8 +3,8 @@ import 'package:test/test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:http/http.dart';
 
-import 'mock_client.dart';
-import 'mock_hub.dart';
+import 'mocks/mock_client.dart';
+import 'mocks/mock_hub.dart';
 
 void main() {
   late Fixture fixture;
