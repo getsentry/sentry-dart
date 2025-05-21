@@ -1,4 +1,3 @@
-import 'package:sentry_supabase/sentry_supabase.dart';
 import 'package:sentry_supabase/src/sentry_supabase_error_client.dart';
 import 'package:test/test.dart';
 import 'package:sentry/sentry.dart';
@@ -43,7 +42,7 @@ void main() {
       final supabase = fixture.getSupabaseClient();
 
       try {
-        await supabase.from("mock-table").select().eq("id", 42);
+        await supabase.from('mock-table').select().eq('id', 42);
       } catch (e) {
         // Ignore
       }
@@ -68,7 +67,7 @@ void main() {
       final supabase = fixture.getSupabaseClient();
 
       try {
-        await supabase.from("mock-table").select().eq("id", 42);
+        await supabase.from('mock-table').select().eq('id', 42);
       } catch (e) {
         expect(e, error); // Error is rethrown
       }
@@ -92,7 +91,7 @@ void main() {
       final supabase = fixture.getSupabaseClient();
 
       try {
-        await supabase.from("mock-table").select().eq("id", 42);
+        await supabase.from('mock-table').select().eq('id', 42);
       } catch (e) {
         // Ignore
       }
@@ -105,7 +104,7 @@ void main() {
           event.contexts['supabase'] as Map<String, dynamic>;
       expect(supabaseContext['table'], 'mock-table');
       expect(supabaseContext['operation'], 'select');
-      expect(supabaseContext['query'], ['select(*)', "eq(id, 42)"]);
+      expect(supabaseContext['query'], ['select(*)', 'eq(id, 42)']);
     });
 
     test('should add supabase data to context if insert request fails',
@@ -115,7 +114,7 @@ void main() {
       final supabase = fixture.getSupabaseClient();
 
       try {
-        await supabase.from("mock-table").insert({'id': 42});
+        await supabase.from('mock-table').insert({'id': 42});
       } catch (e) {
         // Ignore
       }
@@ -138,7 +137,7 @@ void main() {
       final supabase = fixture.getSupabaseClient();
 
       try {
-        await supabase.from("mock-table").update({'id': 1337}).eq("id", 42);
+        await supabase.from('mock-table').update({'id': 1337}).eq('id', 42);
       } catch (e) {
         // Ignore
       }
@@ -152,7 +151,7 @@ void main() {
       expect(supabaseContext['table'], 'mock-table');
       expect(supabaseContext['operation'], 'update');
       expect(supabaseContext['body'], {'id': 1337});
-      expect(supabaseContext['query'], ["eq(id, 42)"]);
+      expect(supabaseContext['query'], ['eq(id, 42)']);
     });
 
     test('should add supabase data to context if upsert request fails',
@@ -162,7 +161,7 @@ void main() {
       final supabase = fixture.getSupabaseClient();
 
       try {
-        await supabase.from("mock-table").upsert({'id': 42}).select();
+        await supabase.from('mock-table').upsert({'id': 42}).select();
       } catch (e) {
         // Ignore
       }
@@ -176,7 +175,7 @@ void main() {
       expect(supabaseContext['table'], 'mock-table');
       expect(supabaseContext['operation'], 'upsert');
       expect(supabaseContext['body'], {'id': 42});
-      expect(supabaseContext['query'], ["select(*)"]);
+      expect(supabaseContext['query'], ['select(*)']);
     });
 
     test('should add supabase data to context if delete request fails',
@@ -186,7 +185,7 @@ void main() {
       final supabase = fixture.getSupabaseClient();
 
       try {
-        await supabase.from("mock-table").delete().eq("id", 42);
+        await supabase.from('mock-table').delete().eq('id', 42);
       } catch (e) {
         // Ignore
       }
@@ -199,7 +198,7 @@ void main() {
           event.contexts['supabase'] as Map<String, dynamic>;
       expect(supabaseContext['table'], 'mock-table');
       expect(supabaseContext['operation'], 'delete');
-      expect(supabaseContext['query'], ["eq(id, 42)"]);
+      expect(supabaseContext['query'], ['eq(id, 42)']);
     });
   });
 }

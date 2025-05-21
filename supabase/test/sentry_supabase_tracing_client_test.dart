@@ -66,25 +66,25 @@ void main() {
 
       try {
         await supabase
-            .from("mock-table")
+            .from('mock-table')
             .select()
-            .lt("id", 42)
-            .gt("id", 20)
-            .not("id", "eq", 32);
+            .lt('id', 42)
+            .gt('id', 20)
+            .not('id', 'eq', 32);
       } catch (e) {
         // Ignore
       }
 
       verifyStartTransaction('select');
-      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? "");
+      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? '');
       verifyFinishSpan();
 
       final span = fixture.mockHub.mockSpan;
       expect(span.data['db.query'], [
-        "select(*)",
-        "lt(id, 42)",
-        "gt(id, 20)",
-        "not(id, eq.32)",
+        'select(*)',
+        'lt(id, 42)',
+        'gt(id, 20)',
+        'not(id, eq.32)',
       ]);
       expect(span.data['op'], 'db.select');
     });
@@ -95,13 +95,13 @@ void main() {
       final supabase = fixture.getSupabaseClient();
 
       try {
-        await supabase.from("mock-table").insert({"id": 42});
+        await supabase.from('mock-table').insert({'id': 42});
       } catch (e) {
         // Ignore
       }
 
       verifyStartTransaction('insert');
-      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? "");
+      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? '');
       verifyFinishSpan();
 
       final span = fixture.mockHub.mockSpan;
@@ -115,13 +115,13 @@ void main() {
       final supabase = fixture.getSupabaseClient();
 
       try {
-        await supabase.from("mock-table").upsert({"id": 42}).select("id,name");
+        await supabase.from('mock-table').upsert({'id': 42}).select('id,name');
       } catch (e) {
         // Ignore
       }
 
       verifyStartTransaction('upsert');
-      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? "");
+      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? '');
       verifyFinishSpan();
 
       final span = fixture.mockHub.mockSpan;
@@ -137,21 +137,21 @@ void main() {
 
       try {
         await supabase
-            .from("mock-table")
-            .update({"id": 1337})
-            .eq("id", 42)
-            .or("id.eq.8");
+            .from('mock-table')
+            .update({'id': 1337})
+            .eq('id', 42)
+            .or('id.eq.8');
       } catch (e) {
         // Ignore
       }
 
       verifyStartTransaction('update');
-      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? "");
+      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? '');
       verifyFinishSpan();
 
       final span = fixture.mockHub.mockSpan;
       expect(span.data['db.body'], {'id': 1337});
-      expect(span.data['db.query'], ["eq(id, 42)", "or(id.eq.8)"]);
+      expect(span.data['db.query'], ['eq(id, 42)', 'or(id.eq.8)']);
       expect(span.data['op'], 'db.update');
     });
 
@@ -161,17 +161,17 @@ void main() {
       final supabase = fixture.getSupabaseClient();
 
       try {
-        await supabase.from("mock-table").delete().eq("id", 42);
+        await supabase.from('mock-table').delete().eq('id', 42);
       } catch (e) {
         // Ignore
       }
 
       verifyStartTransaction('delete');
-      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? "");
+      verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? '');
       verifyFinishSpan();
 
       final span = fixture.mockHub.mockSpan;
-      expect(span.data['db.query'], ["eq(id, 42)"]);
+      expect(span.data['db.query'], ['eq(id, 42)']);
       expect(span.data['op'], 'db.delete');
     });
 
@@ -181,7 +181,7 @@ void main() {
       final supabase = fixture.getSupabaseClient();
 
       try {
-        await supabase.from("mock-table").delete().eq("id", 42);
+        await supabase.from('mock-table').delete().eq('id', 42);
       } catch (e) {
         // Ignore
       }
@@ -201,7 +201,7 @@ void main() {
       final supabase = fixture.getSupabaseClient();
 
       try {
-        await supabase.from("mock-table").delete().eq("id", 42);
+        await supabase.from('mock-table').delete().eq('id', 42);
       } catch (e) {
         expect(e, exception); // Rethrows
       }

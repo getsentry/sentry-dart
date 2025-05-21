@@ -45,16 +45,18 @@ class SentrySupabaseTracingClient extends BaseClient {
     final description = 'from(${supabaseRequest.table})';
 
     final span = _hub.startTransaction(
-        description, 'db.${supabaseRequest.operation.value}');
+      description,
+      'db.${supabaseRequest.operation.value}',
+    );
 
-    final dbSchema = supabaseRequest.request.headers["Accept-Profile"] ??
-        supabaseRequest.request.headers["Content-Profile"];
+    final dbSchema = supabaseRequest.request.headers['Accept-Profile'] ??
+        supabaseRequest.request.headers['Content-Profile'];
     if (dbSchema != null) {
       span.setData('db.schema', dbSchema);
     }
     span.setData('db.table', supabaseRequest.table);
     span.setData('db.url', supabaseRequest.request.url.origin);
-    final dbSdk = supabaseRequest.request.headers["X-Client-Info"];
+    final dbSdk = supabaseRequest.request.headers['X-Client-Info'];
     if (dbSdk != null) {
       span.setData('db.sdk', dbSdk);
     }

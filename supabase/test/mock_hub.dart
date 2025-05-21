@@ -85,8 +85,11 @@ class _MockSpan implements ISentrySpan {
   }
 
   @override
-  Future<void> finish(
-      {SpanStatus? status, DateTime? endTimestamp, Hint? hint}) {
+  Future<void> finish({
+    SpanStatus? status,
+    DateTime? endTimestamp,
+    Hint? hint,
+  }) {
     finishCalls.add((status, endTimestamp, hint));
     return Future.value();
   }

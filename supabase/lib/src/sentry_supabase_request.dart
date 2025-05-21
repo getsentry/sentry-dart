@@ -36,19 +36,21 @@ class SentrySupabaseRequest {
   }
 
   static Operation _extractOperation(
-      String method, Map<String, String> headers) {
+    String method,
+    Map<String, String> headers,
+  ) {
     switch (method) {
-      case "GET":
+      case 'GET':
         return Operation.select;
-      case "POST":
-        if (headers["Prefer"]?.contains("resolution=") ?? false) {
+      case 'POST':
+        if (headers['Prefer']?.contains('resolution=') ?? false) {
           return Operation.upsert;
         } else {
           return Operation.insert;
         }
-      case "PATCH":
+      case 'PATCH':
         return Operation.update;
-      case "DELETE":
+      case 'DELETE':
         return Operation.delete;
       default:
         return Operation.select; // Should never happen.
@@ -68,7 +70,7 @@ class SentrySupabaseRequest {
   static Map<String, dynamic>? _readBody(String table, BaseRequest request) {
     final bodyString =
         request is Request && request.body.isNotEmpty ? request.body : null;
-    var body = bodyString != null ? jsonDecode(bodyString) : null;
+    final body = bodyString != null ? jsonDecode(bodyString) : null;
 
     // if (body != null && _redactRequestBody != null) {
     //   for (final entry in body.entries) {
@@ -79,65 +81,65 @@ class SentrySupabaseRequest {
   }
 
   static const Map<String, String> _filterMappings = {
-    "eq": "eq",
-    "neq": "neq",
-    "gt": "gt",
-    "gte": "gte",
-    "lt": "lt",
-    "lte": "lte",
-    "like": "like",
-    "like(all)": "likeAllOf",
-    "like(any)": "likeAnyOf",
-    "ilike": "ilike",
-    "ilike(all)": "ilikeAllOf",
-    "ilike(any)": "ilikeAnyOf",
-    "is": "is",
-    "in": "in",
-    "cs": "contains",
-    "cd": "containedBy",
-    "sr": "rangeGt",
-    "nxl": "rangeGte",
-    "sl": "rangeLt",
-    "nxr": "rangeLte",
-    "adj": "rangeAdjacent",
-    "ov": "overlaps",
-    "fts": "",
-    "plfts": "plain",
-    "phfts": "phrase",
-    "wfts": "websearch",
-    "not": "not",
+    'eq': 'eq',
+    'neq': 'neq',
+    'gt': 'gt',
+    'gte': 'gte',
+    'lt': 'lt',
+    'lte': 'lte',
+    'like': 'like',
+    'like(all)': 'likeAllOf',
+    'like(any)': 'likeAnyOf',
+    'ilike': 'ilike',
+    'ilike(all)': 'ilikeAllOf',
+    'ilike(any)': 'ilikeAnyOf',
+    'is': 'is',
+    'in': 'in',
+    'cs': 'contains',
+    'cd': 'containedBy',
+    'sr': 'rangeGt',
+    'nxl': 'rangeGte',
+    'sl': 'rangeLt',
+    'nxr': 'rangeLte',
+    'adj': 'rangeAdjacent',
+    'ov': 'overlaps',
+    'fts': '',
+    'plfts': 'plain',
+    'phfts': 'phrase',
+    'wfts': 'websearch',
+    'not': 'not',
   };
 
   static String _translateFiltersIntoMethods(String key, String query) {
-    if (query.isEmpty || query == "*") {
-      return "select(*)";
+    if (query.isEmpty || query == '*') {
+      return 'select(*)';
     }
 
-    if (key == "select") {
-      return "select($query)";
+    if (key == 'select') {
+      return 'select($query)';
     }
 
-    if (key == "or" || key.endsWith(".or")) {
+    if (key == 'or' || key.endsWith('.or')) {
       return "$key$query";
     }
 
-    final parts = query.split(".");
+    final parts = query.split('.');
     final filter = parts[0];
-    final value = parts.sublist(1).join(".");
+    final value = parts.sublist(1).join('.');
 
     String method;
     // Handle optional `configPart` of the filter
-    if (filter.startsWith("fts")) {
-      method = "textSearch";
-    } else if (filter.startsWith("plfts")) {
-      method = "textSearch[plain]";
-    } else if (filter.startsWith("phfts")) {
-      method = "textSearch[phrase]";
-    } else if (filter.startsWith("wfts")) {
-      method = "textSearch[websearch]";
+    if (filter.startsWith('fts')) {
+      method = 'textSearch';
+    } else if (filter.startsWith('plfts')) {
+      method = 'textSearch[plain]';
+    } else if (filter.startsWith('phfts')) {
+      method = 'textSearch[phrase]';
+    } else if (filter.startsWith('wfts')) {
+      method = 'textSearch[websearch]';
     } else {
-      method = _filterMappings[filter] ?? "filter";
+      method = _filterMappings[filter] ?? 'filter';
     }
-    return "$method($key, $value)";
+    return '$method($key, $value)';
   }
 }
