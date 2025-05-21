@@ -35,7 +35,7 @@ mixin SentryNativeSafeInvoker {
   }
 
   void _logError(String nativeMethodName, Object error, StackTrace stackTrace) {
-    options.logger(
+    options.log(
       SentryLevel.error,
       'Native call `$nativeMethodName` failed',
       exception: error,

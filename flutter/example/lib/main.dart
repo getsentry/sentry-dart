@@ -107,6 +107,8 @@ Future<void> setupSentry(
       options.replay.sessionSampleRate = 1.0;
       options.replay.onErrorSampleRate = 1.0;
 
+      options.enableLogs = true;
+
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
         options.dist = '1';
@@ -543,6 +545,16 @@ class MainScaffold extends StatelessWidget {
               },
               text: 'Demonstrates the feature flags.',
               buttonTitle: 'Add "feature-one" flag',
+            ),
+            TooltipButton(
+              onPressed: () {
+                Sentry.logger
+                    .info('Sentry Log With Test Attribute', attributes: {
+                  'test-attribute': SentryLogAttribute.string('test-value'),
+                });
+              },
+              text: 'Demonstrates the logging with Sentry Log.',
+              buttonTitle: 'Sentry Log with Attribute',
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),

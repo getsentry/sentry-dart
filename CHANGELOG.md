@@ -1,5 +1,44 @@
 # Changelog
 
+## 9.0.0-RC.3
+
+### Features
+
+- Sentry Structured Logs ([#2919](https://github.com/getsentry/sentry-dart/pull/2919))
+  - The old `SentryLogger` has been renamed to `SdkLogCallback` and can be accessed through `options.log` now.
+  - Adds support for structured logging though `Sentry.logger`:
+```dart
+// Enable in `SentryOptions`:
+options.enableLogs = true;
+
+// Use `Sentry.logger`
+Sentry.logger.info("This is a info log.");
+Sentry.logger.warn("This is a warning log with attributes.", attributes: {
+  'string-attribute': SentryLogAttribute.string('string'),
+  'int-attribute': SentryLogAttribute.int(1),
+  'double-attribute': SentryLogAttribute.double(1.0),
+  'bool-attribute': SentryLogAttribute.bool(true),
+});
+```
+
+### Enhancements
+
+- Align User Feedback API ([#2949](https://github.com/getsentry/sentry-dart/pull/2949))
+  - Don’t apply breadcrumbs and extras from scope to feedback events
+  - Capture session replay when processing feedback events
+  - Record `feedback` client report for dropped feedback events
+  - Record `feedback` client report for errors when using `HttpTransport`
+- Truncate feedback message to max 4096 characters ([#2954](https://github.com/getsentry/sentry-dart/pull/2954))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.49.2 to v8.51.0 ([#2951](https://github.com/getsentry/sentry-dart/pull/2951))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8510)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.49.2...8.51.0)
+- Bump Android SDK from v8.11.1 to v8.12.0 ([#2941](https://github.com/getsentry/sentry-dart/pull/2941))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8120)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.11.1...8.12.0)
+
 ## 9.0.0-RC.2
 
 ### Fixes

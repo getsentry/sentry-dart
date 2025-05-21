@@ -25,7 +25,7 @@ class NativeAppStart {
         isColdStart is! bool ||
         nativeSpanTimes is! Map) {
       // ignore: invalid_use_of_internal_member
-      Sentry.currentHub.options.logger(
+      Sentry.currentHub.options.log(
         SentryLevel.warning,
         'Failed to parse json when capturing App Start metrics. App Start wont be reported.',
       );

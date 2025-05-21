@@ -29,7 +29,7 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
       await _native.init(hub);
       options.sdk.addIntegration('nativeSdkIntegration');
     } catch (exception, stackTrace) {
-      options.logger(
+      options.log(
         SentryLevel.fatal,
         'nativeSdkIntegration failed to be installed',
         exception: exception,
@@ -47,7 +47,7 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
       try {
         await _native.close();
       } catch (exception, stackTrace) {
-        _options?.logger(
+        _options?.log(
           SentryLevel.fatal,
           'nativeSdkIntegration failed to be closed',
           exception: exception,

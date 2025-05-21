@@ -9,6 +9,8 @@ enum DataCategory {
   attachment,
   security,
   metricBucket,
+  logItem,
+  feedback,
   unknown;
 
   static DataCategory fromItemType(String itemType) {
@@ -25,6 +27,10 @@ enum DataCategory {
       // whereas the client report category is metric_bucket
       case 'statsd':
         return DataCategory.metricBucket;
+      case 'log':
+        return DataCategory.logItem;
+      case 'feedback':
+        return DataCategory.feedback;
       default:
         return DataCategory.unknown;
     }

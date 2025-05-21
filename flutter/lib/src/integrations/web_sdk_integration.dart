@@ -40,7 +40,7 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
       await _web.init(hub);
       options.sdk.addIntegration(name);
     } catch (exception, stackTrace) {
-      options.logger(
+      options.log(
         SentryLevel.fatal,
         '$name failed to be installed.',
         exception: exception,
@@ -58,7 +58,7 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
       await _web.close();
       await _scriptLoader.close();
     } catch (error, stackTrace) {
-      _options?.logger(SentryLevel.warning, '$name failed to be closed.',
+      _options?.log(SentryLevel.warning, '$name failed to be closed.',
           exception: error, stackTrace: stackTrace);
       if (_options?.automatedTestMode == true) {
         rethrow;

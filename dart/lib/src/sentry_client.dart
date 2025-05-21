@@ -27,6 +27,7 @@ import 'type_check_hint.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
+import 'sentry_log_batcher.dart';
 import 'version.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
@@ -75,6 +76,9 @@ class SentryClient {
     if (enableFlutterSpotlight) {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
+    if (options.enableLogs) {
+      options.logBatcher = SentryLogBatcher(options);
+    }
     return SentryClient._(options);
   }
 
@@ -90,7 +94,7 @@ class SentryClient {
     Hint? hint,
   }) async {
     if (_isIgnoredError(event)) {
-      _options.logger(
+      _options.log(
         SentryLevel.debug,
         'Error was ignored as specified in the ignoredErrors options.',
       );
@@ -100,7 +104,7 @@ class SentryClient {
     }
 
     if (_options.containsIgnoredExceptionForType(event.throwable)) {
-      _options.logger(
+      _options.log(
         SentryLevel.debug,
         'Event was dropped as the exception ${event.throwable.runtimeType.toString()} is ignored.',
       );
@@ -112,7 +116,7 @@ class SentryClient {
     if (_sampleRate() && event.type != 'feedback') {
       _options.recorder
           .recordLostEvent(DiscardReason.sampleRate, _getCategory(event));
-      _options.logger(
+      _options.log(
         SentryLevel.debug,
         'Event ${event.eventId.toString()} was dropped due to sampling decision.',
       );
@@ -127,7 +131,7 @@ class SentryClient {
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint);
     } else {
-      _options.logger(
+      _options.log(
           SentryLevel.debug, 'No scope to apply on event was provided');
     }
 
@@ -179,7 +183,7 @@ class SentryClient {
     if (traceContext == null) {
       if (scope != null) {
         scope.propagationContext.baggage ??=
-            SentryBaggage({}, logger: _options.logger)
+            SentryBaggage({}, log: _options.log)
               ..setValuesFromScope(scope, _options);
         traceContext = SentryTraceContextHeader.fromBaggage(
             scope.propagationContext.baggage!);
@@ -389,7 +393,7 @@ class SentryClient {
       preparedTransaction = await scope.applyToEvent(preparedTransaction, hint)
           as SentryTransaction?;
     } else {
-      _options.logger(
+      _options.log(
           SentryLevel.debug, 'No scope to apply on transaction was provided');
     }
 
@@ -411,7 +415,7 @@ class SentryClient {
     }
 
     if (_isIgnoredTransaction(preparedTransaction)) {
-      _options.logger(
+      _options.log(
         SentryLevel.debug,
         'Transaction was ignored as specified in the ignoredTransactions options.',
       );
@@ -472,6 +476,10 @@ class SentryClient {
     Scope? scope,
     Hint? hint,
   }) {
+    // Cap feedback messages to max 4096 characters
+    if (feedback.message.length > 4096) {
+      feedback.message = feedback.message.substring(0, 4096);
+    }
     final feedbackEvent = SentryEvent(
       type: 'feedback',
       contexts: Contexts(feedback: feedback),
@@ -483,6 +491,78 @@ class SentryClient {
       scope: scope,
       hint: hint,
     );
+  }
+
+  @internal
+  FutureOr<void> captureLog(
+    SentryLog log, {
+    Scope? scope,
+  }) async {
+    if (!_options.enableLogs) {
+      return;
+    }
+
+    log.attributes['sentry.sdk.name'] = SentryLogAttribute.string(
+      _options.sdk.name,
+    );
+    log.attributes['sentry.sdk.version'] = SentryLogAttribute.string(
+      _options.sdk.version,
+    );
+    final environment = _options.environment;
+    if (environment != null) {
+      log.attributes['sentry.environment'] = SentryLogAttribute.string(
+        environment,
+      );
+    }
+    final release = _options.release;
+    if (release != null) {
+      log.attributes['sentry.release'] = SentryLogAttribute.string(
+        release,
+      );
+    }
+
+    final propagationContext = scope?.propagationContext;
+    if (propagationContext != null) {
+      log.traceId = propagationContext.traceId;
+    }
+    final span = scope?.span;
+    if (span != null) {
+      log.attributes['sentry.trace.parent_span_id'] = SentryLogAttribute.string(
+        span.context.spanId.toString(),
+      );
+    }
+
+    final beforeSendLog = _options.beforeSendLog;
+    SentryLog? processedLog = log;
+    if (beforeSendLog != null) {
+      try {
+        final callbackResult = beforeSendLog(log);
+
+        if (callbackResult is Future<SentryLog?>) {
+          processedLog = await callbackResult;
+        } else {
+          processedLog = callbackResult;
+        }
+      } catch (exception, stackTrace) {
+        _options.log(
+          SentryLevel.error,
+          'The beforeSendLog callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
+    if (processedLog != null) {
+      _options.logBatcher.addLog(processedLog);
+    } else {
+      _options.recorder.recordLostEvent(
+        DiscardReason.beforeSend,
+        DataCategory.logItem,
+      );
+    }
   }
 
   void close() {
@@ -527,7 +607,7 @@ class SentryClient {
         }
       }
     } catch (exception, stackTrace) {
-      _options.logger(
+      _options.log(
         SentryLevel.error,
         'The $beforeSendName callback threw an exception',
         exception: exception,
@@ -546,7 +626,7 @@ class SentryClient {
         _options.recorder.recordLostEvent(discardReason, DataCategory.span,
             count: spanCountBeforeCallback + 1);
       }
-      _options.logger(
+      _options.log(
         SentryLevel.debug,
         '${event.runtimeType} was dropped by $beforeSendName callback',
       );
@@ -574,8 +654,11 @@ class SentryClient {
   DataCategory _getCategory(SentryEvent event) {
     if (event is SentryTransaction) {
       return DataCategory.transaction;
+    } else if (event.type == 'feedback') {
+      return DataCategory.feedback;
+    } else {
+      return DataCategory.error;
     }
-    return DataCategory.error;
   }
 
   FutureOr<void> _emitBeforeSendEventObserver(
@@ -587,7 +670,7 @@ class SentryClient {
           await result;
         }
       } catch (exception, stackTrace) {
-        _options.logger(
+        _options.log(
           SentryLevel.error,
           'Error while running beforeSendEvent observer',
           exception: exception,

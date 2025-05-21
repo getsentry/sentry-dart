@@ -87,6 +87,8 @@ extension _DataCategoryExtension on DataCategory {
         return DataCategory.security;
       case 'metric_bucket':
         return DataCategory.metricBucket;
+      case 'log_item':
+        return DataCategory.logItem;
     }
     return DataCategory.unknown;
   }
