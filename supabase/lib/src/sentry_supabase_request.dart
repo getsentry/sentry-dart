@@ -3,6 +3,7 @@ import 'package:http/http.dart';
 
 import 'operation.dart';
 
+/// Concepts based on https://github.com/supabase-community/sentry-integration-js
 class SentrySupabaseRequest {
   final BaseRequest request;
 
