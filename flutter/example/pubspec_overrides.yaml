@@ -27,5 +27,4 @@ dependency_overrides:
   isar_generator:
     version: ^3.1.0
     hosted: https://pub.isar-community.dev/
-  sentry_supabase:
-    path: ../../supabase
+

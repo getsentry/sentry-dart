@@ -11,7 +11,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  supabase_flutter: ^2.9.0
   sentry:
   sentry_flutter:
   sentry_dio:
@@ -21,7 +20,6 @@ dependencies:
   sentry_hive:
   sentry_drift:
   sentry_isar:
-  sentry_supabase:
   universal_platform: ^1.0.0
   feedback: ^2.0.0
   provider: ^6.0.0
