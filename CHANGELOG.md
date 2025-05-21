@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
+  - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
+
 ## 9.0.0-RC.3
 
 ### Features
