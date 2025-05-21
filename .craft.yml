@@ -19,6 +19,7 @@ targets:
       isar:
       link:
       firebase_remote_config:
+      supabase:
   - name: github
   - name: registry
     sdks:
@@ -35,3 +36,5 @@ targets:
       # pub:sentry_link:
       # TODO: after we published firebase we need to add it to the registry repo and then uncomment here
       # pub:sentry_firebase_remote_config:
+      # TODO: after we published supabase we need to add it to the registry repo and then uncomment here
+      # pub:sentry_supabase:
