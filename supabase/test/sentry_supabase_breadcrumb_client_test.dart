@@ -7,6 +7,7 @@ import 'package:sentry/sentry.dart';
 import 'package:http/http.dart';
 
 import 'package:supabase/supabase.dart';
+import 'mock_hub.dart';
 
 void main() {
   late Fixture fixture;
@@ -134,7 +135,7 @@ class Fixture {
     dsn: 'https://example.com/123',
   );
   final mockClient = _MockClient();
-  late final mockHub = _MockHub(options);
+  late final mockHub = MockHub(options);
 
   Fixture() {
     options.tracesSampleRate = 1.0; // enable tracing
@@ -175,27 +176,5 @@ class _MockClient extends BaseClient {
   @override
   void close() {
     closeCalls.add(null);
-  }
-}
-
-class _MockHub implements Hub {
-  _MockHub(this._options);
-  final SentryOptions _options;
-
-  @override
-  SentryOptions get options => _options;
-
-  final addBreadcrumbCalls = <(Breadcrumb, Hint?)>[];
-
-  @override
-  Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
-    addBreadcrumbCalls.add((crumb, hint));
-  }
-
-  // No such method
-  @override
-  void noSuchMethod(Invocation invocation) {
-    'Method ${invocation.memberName} was called '
-        'with arguments ${invocation.positionalArguments}';
   }
 }

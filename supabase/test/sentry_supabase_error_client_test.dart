@@ -3,11 +3,10 @@ import 'package:sentry_supabase/src/sentry_supabase_error_client.dart';
 import 'package:test/test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:http/http.dart';
-import 'dart:convert';
-
-import 'dart:async';
 
 import 'package:supabase/supabase.dart';
+import 'mock_client.dart';
+import 'mock_hub.dart';
 
 void main() {
   late Fixture fixture;
@@ -212,7 +211,7 @@ class Fixture {
     dsn: 'https://example.com/123',
   );
   final mockClient = MockClient();
-  late final mockHub = _MockHub(options);
+  late final mockHub = MockHub(options);
 
   Fixture() {
     options.tracesSampleRate = 1.0; // enable tracing
@@ -231,59 +230,5 @@ class Fixture {
       'YOUR_ANON_KEY',
       httpClient: getSut(),
     );
-  }
-}
-
-class MockClient extends BaseClient {
-  final sendCalls = <BaseRequest>[];
-  final closeCalls = <void>[];
-
-  var jsonResponse = '{}';
-  var statusCode = 200;
-  dynamic throwException;
-
-  @override
-  Future<StreamedResponse> send(BaseRequest request) async {
-    sendCalls.add(request);
-    if (throwException != null) {
-      throw throwException;
-    }
-    return StreamedResponse(
-      Stream.value(utf8.encode(jsonResponse)),
-      statusCode,
-    );
-  }
-
-  @override
-  void close() {
-    closeCalls.add(null);
-  }
-}
-
-class _MockHub implements Hub {
-  _MockHub(this._options);
-  final SentryOptions _options;
-
-  @override
-  SentryOptions get options => _options;
-
-  final captureEventCalls = <(SentryEvent, dynamic, Hint?, ScopeCallback?)>[];
-
-  @override
-  Future<SentryId> captureEvent(
-    SentryEvent event, {
-    dynamic stackTrace,
-    Hint? hint,
-    ScopeCallback? withScope,
-  }) {
-    captureEventCalls.add((event, stackTrace, hint, withScope));
-    return Future.value(SentryId.empty());
-  }
-
-  // No such method
-  @override
-  void noSuchMethod(Invocation invocation) {
-    'Method ${invocation.memberName} was called '
-        'with arguments ${invocation.positionalArguments}';
   }
 }

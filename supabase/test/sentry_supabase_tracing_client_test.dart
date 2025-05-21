@@ -1,12 +1,11 @@
-import 'package:sentry_supabase/sentry_supabase.dart';
+import 'package:sentry_supabase/src/sentry_supabase_tracing_client.dart';
 import 'package:test/test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:http/http.dart';
-import 'dart:convert';
-
-import 'dart:async';
 
 import 'package:supabase/supabase.dart';
+import 'mock_client.dart';
+import 'mock_hub.dart';
 
 void main() {
   late Fixture fixture;
@@ -226,8 +225,8 @@ class Fixture {
   final options = SentryOptions(
     dsn: 'https://example.com/123',
   );
-  final mockClient = _MockClient();
-  late final mockHub = _MockHub(options);
+  final mockClient = MockClient();
+  late final mockHub = MockHub(options);
 
   SentrySupabaseTracingClient getSut() {
     return SentrySupabaseTracingClient(mockClient, mockHub);
@@ -239,105 +238,5 @@ class Fixture {
       supabaseKey,
       httpClient: getSut(),
     );
-  }
-}
-
-class _MockClient extends BaseClient {
-  final sendCalls = <BaseRequest>[];
-  final closeCalls = <void>[];
-
-  var jsonResponse = '{}';
-  var statusCode = 200;
-  dynamic throwException;
-
-  @override
-  Future<StreamedResponse> send(BaseRequest request) async {
-    sendCalls.add(request);
-    if (throwException != null) {
-      throw throwException;
-    }
-    return StreamedResponse(
-      Stream.value(utf8.encode(jsonResponse)),
-      statusCode,
-    );
-  }
-
-  @override
-  void close() {
-    closeCalls.add(null);
-  }
-}
-
-class _MockHub implements Hub {
-  _MockHub(this._options);
-
-  final SentryOptions _options;
-
-  @override
-  SentryOptions get options => _options;
-
-  final startTransactionCalls = <(String, String)>[];
-
-  var mockSpan = _MockSpan();
-
-  @override
-  ISentrySpan startTransaction(
-    String name,
-    String operation, {
-    String? description,
-    DateTime? startTimestamp,
-    bool? bindToScope,
-    bool? waitForChildren,
-    Duration? autoFinishAfter,
-    bool? trimEnd,
-    OnTransactionFinish? onFinish,
-    Map<String, dynamic>? customSamplingContext,
-  }) {
-    startTransactionCalls.add((name, operation));
-    return mockSpan;
-  }
-
-  // No such method
-  @override
-  void noSuchMethod(Invocation invocation) {
-    'Method ${invocation.memberName} was called '
-        'with arguments ${invocation.positionalArguments}';
-  }
-}
-
-class _MockSpan implements ISentrySpan {
-  var data = <String, dynamic>{};
-  var finishCalls = <(SpanStatus?, DateTime?, Hint?)>[];
-
-  var setThrowableCalls = <dynamic>[];
-  var setStatusCalls = <SpanStatus?>[];
-
-  @override
-  void setData(String key, dynamic value) {
-    data[key] = value;
-  }
-
-  @override
-  set throwable(dynamic value) {
-    setThrowableCalls.add(value);
-  }
-
-  @override
-  set status(SpanStatus? value) {
-    setStatusCalls.add(value);
-  }
-
-  @override
-  Future<void> finish(
-      {SpanStatus? status, DateTime? endTimestamp, Hint? hint}) {
-    finishCalls.add((status, endTimestamp, hint));
-    return Future.value();
-  }
-
-  // No such method
-  @override
-  void noSuchMethod(Invocation invocation) {
-    'Method ${invocation.memberName} was called '
-        'with arguments ${invocation.positionalArguments}';
   }
 }
