@@ -20,15 +20,16 @@ class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
   void call(Hub hub, SentryOptions options) {
     if (options.enableDartSymbolication &&
         options.runtimeChecker.isAppObfuscated()) {
-      options.addEventProcessor(LoadImageIntegrationEventProcessor(options));
+      options.addEventProcessor(
+          LoadDartDebugImagesIntegrationEventProcessor(options));
       options.sdk.addIntegration(integrationName);
     }
   }
 }
 
 @internal
-class LoadImageIntegrationEventProcessor implements EventProcessor {
-  LoadImageIntegrationEventProcessor(this._options);
+class LoadDartDebugImagesIntegrationEventProcessor implements EventProcessor {
+  LoadDartDebugImagesIntegrationEventProcessor(this._options);
 
   final SentryOptions _options;
 
