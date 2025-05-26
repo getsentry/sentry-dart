@@ -25,15 +25,16 @@ class LoadNativeDebugImagesIntegration
     // ignore: invalid_use_of_internal_member
     if (options.runtimeChecker.isAppObfuscated()) {
       options.addEventProcessor(
-        _LoadImageListIntegrationEventProcessor(options, _native),
+        _LoadNativeDebugImagesIntegrationEventProcessor(options, _native),
       );
       options.sdk.addIntegration(integrationName);
     }
   }
 }
 
-class _LoadImageListIntegrationEventProcessor implements EventProcessor {
-  _LoadImageListIntegrationEventProcessor(this._options, this._native);
+class _LoadNativeDebugImagesIntegrationEventProcessor
+    implements EventProcessor {
+  _LoadNativeDebugImagesIntegrationEventProcessor(this._options, this._native);
 
   final SentryFlutterOptions _options;
   final SentryNativeBinding _native;

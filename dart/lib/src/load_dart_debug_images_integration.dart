@@ -19,7 +19,7 @@ class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
   @override
   void call(Hub hub, SentryOptions options) {
     if (options.enableDartSymbolication &&
-        options.runtimeChecker.isAppObfuscated()) {
+        (options.runtimeChecker.isAppObfuscated() || options.platform.isWeb)) {
       options.addEventProcessor(
           LoadDartDebugImagesIntegrationEventProcessor(options));
       options.sdk.addIntegration(integrationName);

@@ -75,8 +75,8 @@ void main() {
 
     test('Event processor adds image list to the event', () async {
       final ep = fixture.options.eventProcessors.first;
-      expect(
-          ep.runtimeType.toString(), "_LoadImageListIntegrationEventProcessor");
+      expect(ep.runtimeType.toString(),
+          "_LoadNativeDebugImagesIntegrationEventProcessor");
       SentryEvent? event = _getEvent();
       event = await ep.apply(event, Hint());
 
