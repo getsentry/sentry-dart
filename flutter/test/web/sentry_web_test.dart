@@ -1,6 +1,8 @@
 @TestOn('browser')
 library;
 
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -18,7 +20,7 @@ import '../mocks.dart';
 import '../mocks.mocks.dart';
 
 void main() {
-  group('$SentryWeb', () {
+  group(SentryWeb, () {
     late SentryFlutterOptions options;
     late Hub hub;
 
@@ -102,6 +104,68 @@ void main() {
         await sut.captureStructuredEnvelope(SentryEnvelope.fromEvent(
             SentryEvent(), SdkVersion(name: 'test', version: '0')));
       });
+
+      test('loadDebugImages returns null if no debug ids are available',
+          () async {
+        await sut.init(hub);
+        _globalThis['_sentryDebugIds'] = null;
+
+        final frames = [
+          SentryStackFrame(absPath: 'http://127.0.0.1:8080/main.dart.js')
+        ];
+        final stackTrace = SentryStackTrace(frames: frames);
+        final images = await sut.loadDebugImages(stackTrace);
+
+        expect(images, isNull);
+      });
+
+      test('loadDebugImages returns null if no matching absPath or filename',
+          () async {
+        await sut.init(hub);
+        _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
+
+        final frames = [SentryStackFrame(absPath: 'abc', fileName: 'def')];
+        final stackTrace = SentryStackTrace(frames: frames);
+        final images = await sut.loadDebugImages(stackTrace);
+
+        expect(images, isNull);
+      });
+
+      test(
+          'loadDebugImages loads debug id to debug images with matching absPath',
+          () async {
+        await sut.init(hub);
+        _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
+
+        final frames = [
+          SentryStackFrame(absPath: 'http://127.0.0.1:8080/main.dart.js')
+        ];
+        final stackTrace = SentryStackTrace(frames: frames);
+        final images = await sut.loadDebugImages(stackTrace);
+
+        expect(images, isNotNull);
+        expect(images!.length, 1);
+        expect(images.first.codeFile, frames.first.absPath);
+        expect(images.first.debugId, debugId);
+      });
+
+      test(
+          'loadDebugImages loads debug id to debug images with matching filename',
+          () async {
+        await sut.init(hub);
+        _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
+
+        final frames = [
+          SentryStackFrame(fileName: 'http://127.0.0.1:8080/main.dart.js')
+        ];
+        final stackTrace = SentryStackTrace(frames: frames);
+        final images = await sut.loadDebugImages(stackTrace);
+
+        expect(images, isNotNull);
+        expect(images!.length, 1);
+        expect(images.first.codeFile, frames.first.fileName);
+        expect(images.first.debugId, debugId);
+      });
     });
 
     group('with mock binding', () {
@@ -155,7 +219,6 @@ void main() {
           sut.endNativeFrames(SentryId.empty());
           sut.fetchNativeAppStart();
           sut.loadContexts();
-          sut.loadDebugImages(SentryStackTrace(frames: []));
           sut.nativeCrash();
           sut.removeContexts('key');
           sut.removeExtra('key');
@@ -176,7 +239,6 @@ void main() {
           expect(sut.displayRefreshRate(), isNull);
           expect(sut.fetchNativeAppStart(), isNull);
           expect(sut.loadContexts(), isNull);
-          expect(sut.loadDebugImages(SentryStackTrace(frames: [])), isNull);
           expect(sut.collectProfile(SentryId.empty(), 0, 0), isNull);
           expect(sut.endNativeFrames(SentryId.empty()), isNull);
           expect(sut.startProfiler(SentryId.empty()), isNull);
@@ -234,3 +296,6 @@ void main() {
     });
   });
 }
+
+@JS('globalThis')
+external JSObject get _globalThis;

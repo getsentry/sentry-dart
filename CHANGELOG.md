@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- [Flutter Web]: add debug ids to events ([#2917](https://github.com/getsentry/sentry-dart/pull/2917))
+  - This allows support for symbolication based on [debug ids](https://docs.sentry.io/platforms/javascript/sourcemaps/troubleshooting_js/debug-ids/)
+
+## 9.0.0-RC
+
+### Various fixes & improvements
+
+- build(deps): bump ruby/setup-ruby from 1.233.0 to 1.237.0 (#2908) by @dependabot
+- build(deps): bump actions/create-github-app-token from 2.0.2 to 2.0.6 (#2909) by @dependabot
+
 ## 9.0.0-beta.2
 
 ### Fixes
@@ -492,7 +506,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
       },
       appRunner: () => runApp(MyApp()),
     );
-  } (error, stackTrace) {
+  }, (error, stackTrace) {
     // Automatically sends errors to Sentry, no need to do any
     // captureException calls on your part.
     // On top of that, you can do your own custom stuff in this callback.
@@ -583,7 +597,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
       },
       appRunner: () => runApp(MyApp()),
     );
-  } (error, stackTrace) {
+  }, (error, stackTrace) {
     // Automatically sends errors to Sentry, no need to do any
     // captureException calls on your part.
     // On top of that, you can do your own custom stuff in this callback.

@@ -3005,6 +3005,12 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.ISentrySpan);
 
   @override
+  void generateNewTraceId() => super.noSuchMethod(
+        Invocation.method(#generateNewTraceId, []),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   _i11.Future<_i2.SentryId> captureTransaction(
     _i2.SentryTransaction? transaction, {
     _i2.SentryTraceContextHeader? traceContext,
