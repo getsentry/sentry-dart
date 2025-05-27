@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import '../../sentry_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
 
 class SentryFeedbackWidget extends StatefulWidget {
   SentryFeedbackWidget({
@@ -101,6 +103,15 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   final TextEditingController _messageController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _imagePicker = ImagePicker();
+
+  SentryAttachment? _screenshot;
+
+  @override
+  void initState() {
+    super.initState();
+    _screenshot = widget.screenshot;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -221,6 +232,82 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                         },
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                       ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: Row(
+                          spacing: 8,
+                          children: [
+                            if (_screenshot != null)
+                              SizedBox(
+                                width: 48,
+                                height: 48,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: FutureBuilder<Uint8List>(
+                                    future: Future.value(_screenshot!.bytes),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      }
+                                      if (snapshot.hasError) {
+                                        return const Icon(Icons.error);
+                                      }
+                                      if (!snapshot.hasData) {
+                                        return const SizedBox();
+                                      }
+                                      return Image.memory(
+                                        snapshot.data!,
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  if (_screenshot != null) {
+                                    setState(() {
+                                      _screenshot = null;
+                                    });
+                                  } else {
+                                    try {
+                                      final pickerFile =
+                                          await _imagePicker.pickImage(
+                                        source: ImageSource.gallery,
+                                        requestFullMetadata: false,
+                                      );
+                                      if (pickerFile == null) {
+                                        return;
+                                      }
+                                      final imageData =
+                                          await pickerFile.readAsBytes();
+                                      setState(() {
+                                        _screenshot =
+                                            SentryAttachment.fromByteData(
+                                          ByteData.view(imageData.buffer),
+                                          pickerFile.name,
+                                          contentType: pickerFile.mimeType,
+                                        );
+                                      });
+                                    } catch (e, stackTrace) {
+                                      await Sentry.captureException(e,
+                                          stackTrace: stackTrace);
+                                    }
+                                  }
+                                },
+                                child: _screenshot == null
+                                    ? const Text('Add Screenshot')
+                                    : const Text('Remove Screenshot'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -231,7 +318,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
               children: [
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
+                  child: FilledButton(
                     key: const ValueKey('sentry_feedback_submit_button'),
                     onPressed: () async {
                       if (!_formKey.currentState!.validate()) {
@@ -244,9 +331,8 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                         associatedEventId: widget.associatedEventId,
                       );
                       Hint? hint;
-                      final screenshot = widget.screenshot;
-                      if (screenshot != null) {
-                        hint = Hint.withScreenshot(screenshot);
+                      if (_screenshot != null) {
+                        hint = Hint.withScreenshot(_screenshot!);
                       }
                       await _captureFeedback(feedback, hint);
                       if (mounted) {
