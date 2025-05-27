@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
-import '../sentry_flutter.dart';
 
 /// Key which is used to identify the [RepaintBoundary]
 @internal

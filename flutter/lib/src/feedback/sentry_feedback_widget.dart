@@ -5,6 +5,7 @@ import '../../sentry_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
+import 'sentry_feedback_options.dart';
 
 class SentryFeedbackWidget extends StatefulWidget {
   @internal
@@ -32,26 +33,8 @@ class SentryFeedbackWidget extends StatefulWidget {
   SentryFeedbackWidget({
     super.key,
     this.associatedEventId,
-    Hub? hub,
-    String? title,
-    String? nameLabel,
-    String? namePlaceholder,
-    String? emailLabel,
-    String? emailPlaceholder,
-    String? messageLabel,
-    String? messagePlaceholder,
-    String? submitButtonLabel,
-    String? cancelButtonLabel,
-    String? validationErrorLabel,
-    String? isRequiredLabel,
-    String? successMessageText,
-    bool? isNameRequired,
-    bool? showName,
-    bool? isEmailRequired = false,
-    bool? showEmail = true,
-    bool? useSentryUser = true,
-    bool? showBranding = true,
     this.screenshot,
+    @internal Hub? hub,
   })  : assert(associatedEventId != const SentryId.empty()),
         _hub = hub ?? HubAdapter() {
     // ignore: invalid_use_of_internal_member
@@ -59,62 +42,13 @@ class SentryFeedbackWidget extends StatefulWidget {
         'SentryFlutterOptions is required');
     // ignore: invalid_use_of_internal_member
     final options = _hub.options as SentryFlutterOptions;
-    final feedbackOptions = options.feedbackOptions;
-
-    this.title = title ?? feedbackOptions.title;
-    this.nameLabel = nameLabel ?? feedbackOptions.nameLabel;
-    this.namePlaceholder = namePlaceholder ?? feedbackOptions.namePlaceholder;
-    this.emailLabel = emailLabel ?? feedbackOptions.emailLabel;
-    this.emailPlaceholder =
-        emailPlaceholder ?? feedbackOptions.emailPlaceholder;
-    this.messageLabel = messageLabel ?? feedbackOptions.messageLabel;
-    this.messagePlaceholder =
-        messagePlaceholder ?? feedbackOptions.messagePlaceholder;
-    this.submitButtonLabel =
-        submitButtonLabel ?? feedbackOptions.submitButtonLabel;
-    this.cancelButtonLabel =
-        cancelButtonLabel ?? feedbackOptions.cancelButtonLabel;
-    this.validationErrorLabel =
-        validationErrorLabel ?? feedbackOptions.validationErrorLabel;
-    this.isRequiredLabel = isRequiredLabel ?? feedbackOptions.isRequiredLabel;
-    this.successMessageText =
-        successMessageText ?? feedbackOptions.successMessageText;
-    this.isNameRequired = isNameRequired ?? feedbackOptions.isNameRequired;
-    this.showName = showName ?? feedbackOptions.showName;
-    this.isEmailRequired = isEmailRequired ?? feedbackOptions.isEmailRequired;
-    this.showEmail = showEmail ?? feedbackOptions.showEmail;
-    this.useSentryUser = useSentryUser ?? feedbackOptions.useSentryUser;
-    this.showBranding = showBranding ?? feedbackOptions.showBranding;
+    this.options = options.feedbackOptions;
   }
 
   final SentryId? associatedEventId;
   final Hub _hub;
   final SentryAttachment? screenshot;
-
-  late final String title;
-
-  late final String nameLabel;
-  late final String namePlaceholder;
-  late final String emailLabel;
-  late final String emailPlaceholder;
-  late final String messageLabel;
-  late final String messagePlaceholder;
-
-  late final String submitButtonLabel;
-  late final String cancelButtonLabel;
-  late final String validationErrorLabel;
-
-  late final String isRequiredLabel;
-  late final String successMessageText;
-
-  late final bool isNameRequired;
-  late final bool showName;
-
-  late final bool isEmailRequired;
-  late final bool showEmail;
-
-  late final bool useSentryUser;
-  late final bool showBranding;
+  late final SentryFeedbackOptions options;
 
   @override
   _SentryFeedbackWidgetState createState() => _SentryFeedbackWidgetState();
@@ -140,7 +74,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.options.title),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -158,15 +92,15 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                         children: [
                           Text(
                             key: const ValueKey('sentry_feedback_name_label'),
-                            widget.nameLabel,
+                            widget.options.nameLabel,
                             style: Theme.of(context).textTheme.labelMedium,
                           ),
                           const SizedBox(width: 4),
-                          if (widget.isNameRequired)
+                          if (widget.options.isNameRequired)
                             Text(
                               key: const ValueKey(
                                   'sentry_feedback_name_required_label'),
-                              widget.isRequiredLabel,
+                              widget.options.isRequiredLabel,
                               style: Theme.of(context).textTheme.labelMedium,
                             ),
                         ],
@@ -178,11 +112,12 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                         controller: _nameController,
                         decoration: InputDecoration(
                           border: const OutlineInputBorder(),
-                          hintText: widget.namePlaceholder,
+                          hintText: widget.options.namePlaceholder,
                         ),
                         keyboardType: TextInputType.text,
                         validator: (String? value) {
-                          return _errorText(value, widget.isNameRequired);
+                          return _errorText(
+                              value, widget.options.isNameRequired);
                         },
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                       ),
@@ -191,15 +126,15 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                         children: [
                           Text(
                             key: const ValueKey('sentry_feedback_email_label'),
-                            widget.emailLabel,
+                            widget.options.emailLabel,
                             style: Theme.of(context).textTheme.labelMedium,
                           ),
                           const SizedBox(width: 4),
-                          if (widget.isEmailRequired)
+                          if (widget.options.isEmailRequired)
                             Text(
                               key: const ValueKey(
                                   'sentry_feedback_email_required_label'),
-                              widget.isRequiredLabel,
+                              widget.options.isRequiredLabel,
                               style: Theme.of(context).textTheme.labelMedium,
                             ),
                         ],
@@ -211,11 +146,12 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                         style: Theme.of(context).textTheme.bodyLarge,
                         decoration: InputDecoration(
                           border: const OutlineInputBorder(),
-                          hintText: widget.emailPlaceholder,
+                          hintText: widget.options.emailPlaceholder,
                         ),
                         keyboardType: TextInputType.emailAddress,
                         validator: (String? value) {
-                          return _errorText(value, widget.isEmailRequired);
+                          return _errorText(
+                              value, widget.options.isEmailRequired);
                         },
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                       ),
@@ -225,14 +161,14 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                           Text(
                             key:
                                 const ValueKey('sentry_feedback_message_label'),
-                            widget.messageLabel,
+                            widget.options.messageLabel,
                             style: Theme.of(context).textTheme.labelMedium,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             key: const ValueKey(
                                 'sentry_feedback_message_required_label'),
-                            widget.isRequiredLabel,
+                            widget.options.isRequiredLabel,
                             style: Theme.of(context).textTheme.labelMedium,
                           ),
                         ],
@@ -247,7 +183,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                         maxLines: null,
                         decoration: InputDecoration(
                           border: const OutlineInputBorder(),
-                          hintText: widget.messagePlaceholder,
+                          hintText: widget.options.messagePlaceholder,
                         ),
                         keyboardType: TextInputType.multiline,
                         validator: (String? value) {
@@ -371,7 +307,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                       await _captureFeedback(feedback, hint);
                       _dismiss(pendingAssociatedEventId: false);
                     },
-                    child: Text(widget.submitButtonLabel),
+                    child: Text(widget.options.submitButtonLabel),
                   ),
                 ),
                 SizedBox(
@@ -381,7 +317,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                     onPressed: () {
                       _dismiss(pendingAssociatedEventId: false);
                     },
-                    child: Text(widget.cancelButtonLabel),
+                    child: Text(widget.options.cancelButtonLabel),
                   ),
                 ),
               ],
@@ -402,7 +338,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
   String? _errorText(String? value, bool isRequired) {
     if (isRequired && (value == null || value.isEmpty)) {
-      return widget.validationErrorLabel;
+      return widget.options.validationErrorLabel;
     }
     return null;
   }

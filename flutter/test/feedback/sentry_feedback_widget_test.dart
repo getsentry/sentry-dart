@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:flutter/services.dart';
 
 import '../mocks.mocks.dart';
 
@@ -47,11 +48,12 @@ void main() {
     });
 
     testWidgets('shows error on submit if name not valid', (tester) async {
+      fixture.options.feedbackOptions.isNameRequired = true;
+
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(
           hub: hub,
-          isNameRequired: true,
         ),
       );
 
@@ -63,11 +65,11 @@ void main() {
     });
 
     testWidgets('shows error on submit if email not valid', (tester) async {
+      fixture.options.feedbackOptions.isEmailRequired = true;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(
           hub: hub,
-          isEmailRequired: true,
         ),
       );
 
@@ -80,12 +82,12 @@ void main() {
 
     testWidgets('shows error on submit if name and email not valid',
         (tester) async {
+      fixture.options.feedbackOptions.isNameRequired = true;
+      fixture.options.feedbackOptions.isEmailRequired = true;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(
           hub: hub,
-          isNameRequired: true,
-          isEmailRequired: true,
         ),
       );
 
@@ -105,7 +107,13 @@ void main() {
     });
 
     testWidgets('does add screenshot attachment to hint', (tester) async {
-      final screenshot = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.png');
+      final ByteData pngData =
+          await rootBundle.load('assets/screenshotIcon.png');
+      final screenshot = SentryAttachment.fromByteData(
+        pngData,
+        'test.png',
+        contentType: 'image/png',
+      );
 
       await fixture.pumpFeedbackWidget(
         tester,
@@ -210,42 +218,6 @@ void main() {
         tester,
         (hub) => SentryFeedbackWidget(
           hub: hub,
-        ),
-      );
-
-      expect(find.text('fixture-title'), findsOne);
-      expect(find.text('fixture-nameLabel'), findsOne);
-      expect(find.text('fixture-namePlaceholder'), findsOne);
-      expect(find.text('fixture-emailLabel'), findsOne);
-      expect(find.text('fixture-emailPlaceholder'), findsOne);
-      expect(find.text('fixture-messageLabel'), findsOne);
-      expect(find.text('fixture-messagePlaceholder'), findsOne);
-      expect(find.text('fixture-submitButtonLabel'), findsOne);
-      expect(find.text('fixture-cancelButtonLabel'), findsOne);
-      expect(find.text('fixture-isRequiredLabel'), findsOne);
-
-      await tester.tap(find.text('fixture-submitButtonLabel'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('fixture-validationErrorLabel'), findsOne);
-    });
-
-    testWidgets('sets labels and hints from parameters', (tester) async {
-      await fixture.pumpFeedbackWidget(
-        tester,
-        (hub) => SentryFeedbackWidget(
-          hub: hub,
-          title: 'fixture-title',
-          nameLabel: 'fixture-nameLabel',
-          namePlaceholder: 'fixture-namePlaceholder',
-          emailLabel: 'fixture-emailLabel',
-          emailPlaceholder: 'fixture-emailPlaceholder',
-          messageLabel: 'fixture-messageLabel',
-          messagePlaceholder: 'fixture-messagePlaceholder',
-          submitButtonLabel: 'fixture-submitButtonLabel',
-          cancelButtonLabel: 'fixture-cancelButtonLabel',
-          isRequiredLabel: 'fixture-isRequiredLabel',
-          validationErrorLabel: 'fixture-validationErrorLabel',
         ),
       );
 
