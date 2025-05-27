@@ -24,14 +24,13 @@ final sentryScreenshotWidgetGlobalKey =
 ///   times.
 class SentryScreenshotWidget extends StatefulWidget {
   final Widget child;
-  late final Hub _hub;
+  final Hub _hub;
 
   SentryScreenshotWidget({
     required this.child,
     @internal Hub? hub,
-  }) : super(key: sentryScreenshotWidgetGlobalKey) {
-    _hub = hub ?? HubAdapter();
-  }
+  })  : _hub = hub ?? HubAdapter(),
+        super(key: sentryScreenshotWidgetGlobalKey);
 
   @internal
   static void showTakeScreenshotButton() {
