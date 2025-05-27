@@ -11,14 +11,13 @@ final sentryWidgetGlobalKey = GlobalKey(debugLabel: 'sentry_widget');
 /// as [SentryScreenshotWidget] and [SentryUserInteractionWidget].
 class SentryWidget extends StatefulWidget {
   final Widget child;
-  late final Hub _hub;
+  final Hub _hub;
 
   SentryWidget({
+    super.key,
     required this.child,
     @internal Hub? hub,
-  }) : super(key: sentryWidgetGlobalKey) {
-    _hub = hub ?? HubAdapter();
-  }
+  }) : _hub = hub ?? HubAdapter();
 
   SentryFlutterOptions? get _options =>
       // ignore: invalid_use_of_internal_member
@@ -45,7 +44,10 @@ class _SentryWidgetState extends State<SentryWidget> {
     } else {
       content = SentryScreenshotWidget(child: content);
       content = SentryUserInteractionWidget(child: content);
-      return content;
+      return Container(
+        key: sentryWidgetGlobalKey,
+        child: content,
+      );
     }
   }
 }
