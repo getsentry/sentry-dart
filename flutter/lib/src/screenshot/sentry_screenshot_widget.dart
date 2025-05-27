@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import '../../sentry_flutter.dart';
+import '../sentry_flutter.dart';
 
 /// Key which is used to identify the [RepaintBoundary]
 @internal
@@ -23,8 +25,28 @@ final sentryScreenshotWidgetGlobalKey =
 ///   times.
 class SentryScreenshotWidget extends StatefulWidget {
   final Widget child;
+  late final Hub _hub;
 
-  const SentryScreenshotWidget({super.key, required this.child});
+  SentryScreenshotWidget({
+    required this.child,
+    @internal Hub? hub,
+  }) : super(key: sentryScreenshotWidgetGlobalKey) {
+    _hub = hub ?? HubAdapter();
+  }
+
+  @internal
+  static void showTakeScreenshotButton() {
+    final state = sentryScreenshotWidgetGlobalKey.currentState
+        as _SentryScreenshotWidgetState?;
+    state?._toggleScreenshotButton(true);
+  }
+
+  @internal
+  static void hideTakeScreenshotButton() {
+    final state = sentryScreenshotWidgetGlobalKey.currentState
+        as _SentryScreenshotWidgetState?;
+    state?._toggleScreenshotButton(false);
+  }
 
   @override
   _SentryScreenshotWidgetState createState() => _SentryScreenshotWidgetState();
@@ -66,6 +88,16 @@ typedef SentryScreenshotWidgetOnBuildCallback = bool Function(
     SentryScreenshotWidgetStatus? previousStatus);
 
 class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
+  // Add a boolean to control button visibility
+  bool _isScreenshotButtonVisible = false;
+
+  // Add a method to toggle the button
+  void _toggleScreenshotButton(bool show) {
+    setState(() {
+      _isScreenshotButtonVisible = show;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
@@ -88,8 +120,50 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
     }
 
     return RepaintBoundary(
-      key: sentryScreenshotWidgetGlobalKey,
-      child: widget.child,
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Stack(
+          children: [
+            Container(
+              child: widget.child,
+            ),
+            if (_isScreenshotButtonVisible)
+              Positioned(
+                right: 32,
+                bottom: 32,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    SentryScreenshotWidget.hideTakeScreenshotButton();
+                    final screenshot = await SentryFlutter.captureScreenshot();
+
+                    // ignore: invalid_use_of_internal_member
+                    final options =
+                        widget._hub.options as SentryFlutterOptions?;
+                    final currentContext =
+                        options?.navigatorKey?.currentContext;
+
+                    if (currentContext != null && currentContext.mounted) {
+                      SentryFeedbackWidget.show(
+                        currentContext,
+                        associatedEventId:
+                            SentryFeedbackWidget.pendingAccociatedEventId,
+                        screenshot: screenshot,
+                      );
+                    }
+                  },
+                  icon: Image.asset(
+                    'assets/screenshotIcon.png',
+                    package: 'sentry_flutter',
+                    width: 22,
+                    height: 22,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  label: const Text('Take Screenshot'),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

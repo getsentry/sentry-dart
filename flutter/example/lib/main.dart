@@ -498,7 +498,7 @@ class MainScaffold extends StatelessWidget {
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
                 if (!context.mounted) return;
-                SentryFlutter.showFeedbackWidget(
+                SentryFeedbackWidget.show(
                   context,
                   associatedEventId: id,
                 );

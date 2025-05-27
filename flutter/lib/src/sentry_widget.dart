@@ -28,21 +28,10 @@ class SentryWidget extends StatefulWidget {
           : null;
 
   @override
-  SentryWidgetState createState() => SentryWidgetState();
+  _SentryWidgetState createState() => _SentryWidgetState();
 }
 
-@internal
-class SentryWidgetState extends State<SentryWidget> {
-  // Add a boolean to control button visibility
-  bool _isScreenshotButtonVisible = false;
-
-  // Add a method to toggle the button
-  void toggleScreenshotButton(bool show) {
-    setState(() {
-      _isScreenshotButtonVisible = show;
-    });
-  }
-
+class _SentryWidgetState extends State<SentryWidget> {
   @override
   Widget build(BuildContext context) {
     Widget content = widget.child;
@@ -56,46 +45,7 @@ class SentryWidgetState extends State<SentryWidget> {
     } else {
       content = SentryScreenshotWidget(child: content);
       content = SentryUserInteractionWidget(child: content);
-      // TODO: Move to screenshot widget...
-      return Directionality(
-        textDirection: TextDirection.ltr,
-        child: Stack(
-          children: [
-            Container(
-              child: content,
-            ),
-            if (_isScreenshotButtonVisible)
-              Positioned(
-                right: 32,
-                bottom: 32,
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    SentryFlutter.hideCaptureScreenshotButton();
-                    final screenshot = await SentryFlutter.captureScreenshot();
-
-                    final currentContext =
-                        widget._options?.navigatorKey?.currentContext;
-                    if (currentContext != null && currentContext.mounted) {
-                      SentryFlutter.showFeedbackWidget(
-                        currentContext,
-                        SentryFeedbackWidget.pendingAccociatedEventId,
-                        screenshot: screenshot,
-                      );
-                    }
-                  },
-                  icon: Image.asset(
-                    'assets/screenshotIcon.png',
-                    package: 'sentry_flutter',
-                    width: 22,
-                    height: 22,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  label: const Text('Take Screenshot'),
-                ),
-              ),
-          ],
-        ),
-      );
+      return content;
     }
   }
 }

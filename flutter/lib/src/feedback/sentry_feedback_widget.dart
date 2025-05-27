@@ -10,6 +10,25 @@ class SentryFeedbackWidget extends StatefulWidget {
   @internal
   static SentryId? pendingAccociatedEventId;
 
+  static void show(
+    BuildContext context, {
+    SentryId? associatedEventId,
+    SentryAttachment? screenshot,
+  }) {
+    if (context.mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute<SentryFeedbackWidget>(
+          builder: (context) => SentryFeedbackWidget(
+            associatedEventId: associatedEventId,
+            screenshot: screenshot,
+          ),
+          fullscreenDialog: true,
+        ),
+      );
+    }
+  }
+
   SentryFeedbackWidget({
     super.key,
     this.associatedEventId,
@@ -318,7 +337,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                           child: ElevatedButton(
                             onPressed: () async {
                               _dismiss(pendingAssociatedEventId: true);
-                              SentryFlutter.showCaptureScreenshotButton();
+                              SentryScreenshotWidget.showTakeScreenshotButton();
                             },
                             child: const Text('Take a screenshot'),
                           ),

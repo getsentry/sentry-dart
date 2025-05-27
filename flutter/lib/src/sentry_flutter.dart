@@ -315,38 +315,6 @@ mixin SentryFlutter {
     }
   }
 
-  // TODO: Consider moving to screenshot widget...
-  static void showFeedbackWidget(
-    BuildContext context, {
-    SentryId? associatedEventId,
-    SentryAttachment? screenshot,
-  }) {
-    if (context.mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute<SentryFeedbackWidget>(
-          builder: (context) => SentryFeedbackWidget(
-            associatedEventId: associatedEventId,
-            screenshot: screenshot,
-          ),
-          fullscreenDialog: true,
-        ),
-      );
-    }
-  }
-
-  @internal
-  static void showCaptureScreenshotButton() {
-    final state = sentryWidgetGlobalKey.currentState as SentryWidgetState?;
-    state?.toggleScreenshotButton(true);
-  }
-
-  @internal
-  static void hideCaptureScreenshotButton() {
-    final state = sentryWidgetGlobalKey.currentState as SentryWidgetState?;
-    state?.toggleScreenshotButton(false);
-  }
-
   @internal
   static SentryNativeBinding? get native => _native;
 
