@@ -34,8 +34,6 @@ import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 import 'web/javascript_transport.dart';
 
-import 'package:flutter/material.dart';
-
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
     SentryFlutterOptions);
