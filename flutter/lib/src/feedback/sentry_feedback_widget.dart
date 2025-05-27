@@ -4,8 +4,12 @@ import 'package:flutter/material.dart';
 import '../../sentry_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
+import 'package:meta/meta.dart';
 
 class SentryFeedbackWidget extends StatefulWidget {
+  @internal
+  static SentryId? pendingAccociatedEventId;
+
   SentryFeedbackWidget({
     super.key,
     this.associatedEventId,
@@ -301,13 +305,24 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                                   }
                                 },
                                 child: _screenshot == null
-                                    ? const Text('Add Screenshot')
-                                    : const Text('Remove Screenshot'),
+                                    ? const Text('Add a screenshot')
+                                    : const Text('Remove screenshot'),
                               ),
                             ),
                           ],
                         ),
                       ),
+                      if (_screenshot == null)
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              _dismiss(pendingAssociatedEventId: true);
+                              SentryFlutter.showCaptureScreenshotButton();
+                            },
+                            child: const Text('Take a screenshot'),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -335,10 +350,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                         hint = Hint.withScreenshot(_screenshot!);
                       }
                       await _captureFeedback(feedback, hint);
-                      if (mounted) {
-                        // ignore: use_build_context_synchronously
-                        await Navigator.maybePop(context);
-                      }
+                      _dismiss(pendingAssociatedEventId: false);
                     },
                     child: Text(widget.submitButtonLabel),
                   ),
@@ -348,7 +360,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                   child: TextButton(
                     key: const ValueKey('sentry_feedback_close_button'),
                     onPressed: () {
-                      Navigator.pop(context);
+                      _dismiss(pendingAssociatedEventId: false);
                     },
                     child: Text(widget.cancelButtonLabel),
                   ),
@@ -378,5 +390,13 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
   Future<SentryId> _captureFeedback(SentryFeedback feedback, Hint? hint) {
     return widget._hub.captureFeedback(feedback, hint: hint);
+  }
+
+  void _dismiss({required bool pendingAssociatedEventId}) {
+    SentryFeedbackWidget.pendingAccociatedEventId =
+        pendingAssociatedEventId ? widget.associatedEventId : null;
+    if (mounted) {
+      Navigator.maybePop(context);
+    }
   }
 }

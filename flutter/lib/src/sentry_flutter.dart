@@ -34,6 +34,8 @@ import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 import 'web/javascript_transport.dart';
 
+import 'package:flutter/material.dart';
+
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
     SentryFlutterOptions);
@@ -311,6 +313,38 @@ mixin SentryFlutter {
     } else {
       return null;
     }
+  }
+
+  // TODO: Consider moving to screenshot widget...
+  static void showFeedbackWidget(
+    BuildContext context, {
+    SentryId? associatedEventId,
+    SentryAttachment? screenshot,
+  }) {
+    if (context.mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute<SentryFeedbackWidget>(
+          builder: (context) => SentryFeedbackWidget(
+            associatedEventId: associatedEventId,
+            screenshot: screenshot,
+          ),
+          fullscreenDialog: true,
+        ),
+      );
+    }
+  }
+
+  @internal
+  static void showCaptureScreenshotButton() {
+    final state = sentryWidgetGlobalKey.currentState as SentryWidgetState?;
+    state?.toggleScreenshotButton(true);
+  }
+
+  @internal
+  static void hideCaptureScreenshotButton() {
+    final state = sentryWidgetGlobalKey.currentState as SentryWidgetState?;
+    state?.toggleScreenshotButton(false);
   }
 
   @internal

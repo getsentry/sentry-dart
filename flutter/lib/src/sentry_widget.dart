@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 
@@ -13,10 +14,9 @@ class SentryWidget extends StatefulWidget {
   late final Hub _hub;
 
   SentryWidget({
-    super.key,
     required this.child,
     @internal Hub? hub,
-  }) {
+  }) : super(key: sentryWidgetGlobalKey) {
     _hub = hub ?? HubAdapter();
   }
 
@@ -28,10 +28,21 @@ class SentryWidget extends StatefulWidget {
           : null;
 
   @override
-  _SentryWidgetState createState() => _SentryWidgetState();
+  SentryWidgetState createState() => SentryWidgetState();
 }
 
-class _SentryWidgetState extends State<SentryWidget> {
+@internal
+class SentryWidgetState extends State<SentryWidget> {
+  // Add a boolean to control button visibility
+  bool _isScreenshotButtonVisible = false;
+
+  // Add a method to toggle the button
+  void toggleScreenshotButton(bool show) {
+    setState(() {
+      _isScreenshotButtonVisible = show;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget content = widget.child;
@@ -45,9 +56,45 @@ class _SentryWidgetState extends State<SentryWidget> {
     } else {
       content = SentryScreenshotWidget(child: content);
       content = SentryUserInteractionWidget(child: content);
-      return Container(
-        key: sentryWidgetGlobalKey,
-        child: content,
+      // TODO: Move to screenshot widget...
+      return Directionality(
+        textDirection: TextDirection.ltr,
+        child: Stack(
+          children: [
+            Container(
+              child: content,
+            ),
+            if (_isScreenshotButtonVisible)
+              Positioned(
+                right: 32,
+                bottom: 32,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    SentryFlutter.hideCaptureScreenshotButton();
+                    final screenshot = await SentryFlutter.captureScreenshot();
+
+                    final currentContext =
+                        widget._options?.navigatorKey?.currentContext;
+                    if (currentContext != null && currentContext.mounted) {
+                      SentryFlutter.showFeedbackWidget(
+                        currentContext,
+                        SentryFeedbackWidget.pendingAccociatedEventId,
+                        screenshot: screenshot,
+                      );
+                    }
+                  },
+                  icon: Image.asset(
+                    'assets/screenshotIcon.png',
+                    package: 'sentry_flutter',
+                    width: 22,
+                    height: 22,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  label: const Text('Take Screenshot'),
+                ),
+              ),
+          ],
+        ),
       );
     }
   }
