@@ -8,45 +8,88 @@ class SentryFeedbackWidget extends StatefulWidget {
     super.key,
     this.associatedEventId,
     Hub? hub,
-    this.title = 'Report a Bug',
-    this.nameLabel = 'Name',
-    this.namePlaceholder = 'Your Name',
-    this.emailLabel = 'Email',
-    this.emailPlaceholder = 'your.email@example.org',
-    this.messageLabel = 'Description',
-    this.messagePlaceholder = 'What\'s the bug? What did you expect?',
-    this.submitButtonLabel = 'Send Bug Report',
-    this.cancelButtonLabel = 'Cancel',
-    this.validationErrorLabel = 'Can\'t be empty',
-    this.isRequiredLabel = '(required)',
-    this.isNameRequired = false,
-    this.isEmailRequired = false,
+    String? title,
+    String? nameLabel,
+    String? namePlaceholder,
+    String? emailLabel,
+    String? emailPlaceholder,
+    String? messageLabel,
+    String? messagePlaceholder,
+    String? submitButtonLabel,
+    String? cancelButtonLabel,
+    String? validationErrorLabel,
+    String? isRequiredLabel,
+    String? successMessageText,
+    bool? isNameRequired,
+    bool? showName,
+    bool? isEmailRequired = false,
+    bool? showEmail = true,
+    bool? useSentryUser = true,
+    bool? showBranding = true,
     this.screenshot,
   })  : assert(associatedEventId != const SentryId.empty()),
-        _hub = hub ?? HubAdapter();
+        _hub = hub ?? HubAdapter() {
+    // ignore: invalid_use_of_internal_member
+    assert(_hub.options is SentryFlutterOptions,
+        'SentryFlutterOptions is required');
+    // ignore: invalid_use_of_internal_member
+    final options = _hub.options as SentryFlutterOptions;
+    final feedbackOptions = options.feedbackOptions;
+
+    this.title = title ?? feedbackOptions.title;
+    this.nameLabel = nameLabel ?? feedbackOptions.nameLabel;
+    this.namePlaceholder = namePlaceholder ?? feedbackOptions.namePlaceholder;
+    this.emailLabel = emailLabel ?? feedbackOptions.emailLabel;
+    this.emailPlaceholder =
+        emailPlaceholder ?? feedbackOptions.emailPlaceholder;
+    this.messageLabel = messageLabel ?? feedbackOptions.messageLabel;
+    this.messagePlaceholder =
+        messagePlaceholder ?? feedbackOptions.messagePlaceholder;
+    this.submitButtonLabel =
+        submitButtonLabel ?? feedbackOptions.submitButtonLabel;
+    this.cancelButtonLabel =
+        cancelButtonLabel ?? feedbackOptions.cancelButtonLabel;
+    this.validationErrorLabel =
+        validationErrorLabel ?? feedbackOptions.validationErrorLabel;
+    this.isRequiredLabel = isRequiredLabel ?? feedbackOptions.isRequiredLabel;
+    this.successMessageText =
+        successMessageText ?? feedbackOptions.successMessageText;
+    this.isNameRequired = isNameRequired ?? feedbackOptions.isNameRequired;
+    this.showName = showName ?? feedbackOptions.showName;
+    this.isEmailRequired = isEmailRequired ?? feedbackOptions.isEmailRequired;
+    this.showEmail = showEmail ?? feedbackOptions.showEmail;
+    this.useSentryUser = useSentryUser ?? feedbackOptions.useSentryUser;
+    this.showBranding = showBranding ?? feedbackOptions.showBranding;
+  }
 
   final SentryId? associatedEventId;
   final Hub _hub;
-
-  final String title;
-
-  final String nameLabel;
-  final String namePlaceholder;
-  final String emailLabel;
-  final String emailPlaceholder;
-  final String messageLabel;
-  final String messagePlaceholder;
-
-  final String submitButtonLabel;
-  final String cancelButtonLabel;
-  final String validationErrorLabel;
-
-  final String isRequiredLabel;
-
-  final bool isNameRequired;
-  final bool isEmailRequired;
-
   final SentryAttachment? screenshot;
+
+  late final String title;
+
+  late final String nameLabel;
+  late final String namePlaceholder;
+  late final String emailLabel;
+  late final String emailPlaceholder;
+  late final String messageLabel;
+  late final String messagePlaceholder;
+
+  late final String submitButtonLabel;
+  late final String cancelButtonLabel;
+  late final String validationErrorLabel;
+
+  late final String isRequiredLabel;
+  late final String successMessageText;
+
+  late final bool isNameRequired;
+  late final bool showName;
+
+  late final bool isEmailRequired;
+  late final bool showEmail;
+
+  late final bool useSentryUser;
+  late final bool showBranding;
 
   @override
   _SentryFeedbackWidgetState createState() => _SentryFeedbackWidgetState();

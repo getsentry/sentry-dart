@@ -43,7 +43,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Can\'t be empty'), findsOne);
-      expect(find.text('(required)'), findsOne);
+      expect(find.text(' (Required)'), findsOne);
     });
 
     testWidgets('shows error on submit if name not valid', (tester) async {
@@ -59,7 +59,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Can\'t be empty'), findsExactly(2));
-      expect(find.text('(required)'), findsExactly(2));
+      expect(find.text(' (Required)'), findsExactly(2));
     });
 
     testWidgets('shows error on submit if email not valid', (tester) async {
@@ -75,7 +75,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Can\'t be empty'), findsExactly(2));
-      expect(find.text('(required)'), findsExactly(2));
+      expect(find.text(' (Required)'), findsExactly(2));
     });
 
     testWidgets('shows error on submit if name and email not valid',
@@ -93,7 +93,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Can\'t be empty'), findsExactly(3));
-      expect(find.text('(required)'), findsExactly(3));
+      expect(find.text(' (Required)'), findsExactly(3));
     });
   });
 
@@ -191,6 +191,45 @@ void main() {
       fixture = Fixture();
     });
 
+    testWidgets('sets labels and hints from feedbackoptions', (tester) async {
+      final options = fixture.options;
+      options.feedbackOptions.title = 'fixture-title';
+      options.feedbackOptions.nameLabel = 'fixture-nameLabel';
+      options.feedbackOptions.namePlaceholder = 'fixture-namePlaceholder';
+      options.feedbackOptions.emailLabel = 'fixture-emailLabel';
+      options.feedbackOptions.emailPlaceholder = 'fixture-emailPlaceholder';
+      options.feedbackOptions.messageLabel = 'fixture-messageLabel';
+      options.feedbackOptions.messagePlaceholder = 'fixture-messagePlaceholder';
+      options.feedbackOptions.submitButtonLabel = 'fixture-submitButtonLabel';
+      options.feedbackOptions.cancelButtonLabel = 'fixture-cancelButtonLabel';
+      options.feedbackOptions.isRequiredLabel = 'fixture-isRequiredLabel';
+      options.feedbackOptions.validationErrorLabel =
+          'fixture-validationErrorLabel';
+
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(
+          hub: hub,
+        ),
+      );
+
+      expect(find.text('fixture-title'), findsOne);
+      expect(find.text('fixture-nameLabel'), findsOne);
+      expect(find.text('fixture-namePlaceholder'), findsOne);
+      expect(find.text('fixture-emailLabel'), findsOne);
+      expect(find.text('fixture-emailPlaceholder'), findsOne);
+      expect(find.text('fixture-messageLabel'), findsOne);
+      expect(find.text('fixture-messagePlaceholder'), findsOne);
+      expect(find.text('fixture-submitButtonLabel'), findsOne);
+      expect(find.text('fixture-cancelButtonLabel'), findsOne);
+      expect(find.text('fixture-isRequiredLabel'), findsOne);
+
+      await tester.tap(find.text('fixture-submitButtonLabel'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('fixture-validationErrorLabel'), findsOne);
+    });
+
     testWidgets('sets labels and hints from parameters', (tester) async {
       await fixture.pumpFeedbackWidget(
         tester,
@@ -230,7 +269,12 @@ void main() {
 }
 
 class Fixture {
+  var options = SentryFlutterOptions();
   var hub = MockHub();
+
+  Fixture() {
+    when(hub.options).thenReturn(options);
+  }
 
   Future<void> pumpFeedbackWidget(
       WidgetTester tester, Widget Function(Hub) builder) async {
