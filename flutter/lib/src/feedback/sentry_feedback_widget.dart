@@ -275,7 +275,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                                         final imageData =
                                             await pickerFile.readAsBytes();
                                         setState(() {
-                                          SentryAttachment.fromIntList(
+                                          _screenshot = SentryAttachment.fromIntList(
                                             imageData,
                                             pickerFile.name,
                                             contentType: pickerFile.mimeType,
@@ -309,7 +309,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                           widget.options.showCaptureScreenshot)
                         SizedBox(
                           width: double.infinity,
-                          child: FilledButton(
+                          child: ElevatedButton(
                             key: const ValueKey(
                                 'sentry_feedback_capture_screenshot_button'),
                             onPressed: () async {
