@@ -160,7 +160,7 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
                   label: Text(
                     key: const ValueKey(
                         'sentry_screenshot_take_screenshot_button'),
-                    _options?.feedbackOptions.takeScreenshotButtonLabel ??
+                    _options?.feedback.takeScreenshotButtonLabel ??
                         'Take Screenshot',
                   ),
                 ),

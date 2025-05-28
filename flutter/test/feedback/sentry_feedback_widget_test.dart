@@ -47,7 +47,7 @@ void main() {
     });
 
     testWidgets('shows error on submit if name not valid', (tester) async {
-      fixture.options.feedbackOptions.isNameRequired = true;
+      fixture.options.feedback.isNameRequired = true;
 
       await fixture.pumpFeedbackWidget(
         tester,
@@ -64,7 +64,7 @@ void main() {
     });
 
     testWidgets('shows error on submit if email not valid', (tester) async {
-      fixture.options.feedbackOptions.isEmailRequired = true;
+      fixture.options.feedback.isEmailRequired = true;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(
@@ -81,8 +81,8 @@ void main() {
 
     testWidgets('shows error on submit if name and email not valid',
         (tester) async {
-      fixture.options.feedbackOptions.isNameRequired = true;
-      fixture.options.feedbackOptions.isEmailRequired = true;
+      fixture.options.feedback.isNameRequired = true;
+      fixture.options.feedback.isEmailRequired = true;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(
@@ -106,7 +106,7 @@ void main() {
     });
 
     testWidgets('shows name field if showName is true', (tester) async {
-      fixture.options.feedbackOptions.showName = true;
+      fixture.options.feedback.showName = true;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(hub: hub),
@@ -116,7 +116,7 @@ void main() {
     });
 
     testWidgets('hides name field if showName is false', (tester) async {
-      fixture.options.feedbackOptions.showName = false;
+      fixture.options.feedback.showName = false;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(hub: hub),
@@ -126,7 +126,7 @@ void main() {
     });
 
     testWidgets('shows email field if showEmail is true', (tester) async {
-      fixture.options.feedbackOptions.showEmail = true;
+      fixture.options.feedback.showEmail = true;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(hub: hub),
@@ -136,7 +136,7 @@ void main() {
     });
 
     testWidgets('hides email field if showEmail is false', (tester) async {
-      fixture.options.feedbackOptions.showEmail = false;
+      fixture.options.feedback.showEmail = false;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(hub: hub),
@@ -147,7 +147,7 @@ void main() {
 
     testWidgets('shows add screenshot button if showAddScreenshot is true',
         (tester) async {
-      fixture.options.feedbackOptions.showAddScreenshot = true;
+      fixture.options.feedback.showAddScreenshot = true;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(hub: hub),
@@ -158,7 +158,7 @@ void main() {
 
     testWidgets('hides add screenshot button if showAddScreenshot is false',
         (tester) async {
-      fixture.options.feedbackOptions.showAddScreenshot = false;
+      fixture.options.feedback.showAddScreenshot = false;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(hub: hub),
@@ -170,7 +170,7 @@ void main() {
     testWidgets(
         'shows capture screenshot button if showCaptureScreenshot is true',
         (tester) async {
-      fixture.options.feedbackOptions.showCaptureScreenshot = true;
+      fixture.options.feedback.showCaptureScreenshot = true;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(hub: hub),
@@ -182,7 +182,7 @@ void main() {
     testWidgets(
         'hides capture screenshot button if showCaptureScreenshot is false',
         (tester) async {
-      fixture.options.feedbackOptions.showCaptureScreenshot = false;
+      fixture.options.feedback.showCaptureScreenshot = false;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(hub: hub),
@@ -192,7 +192,7 @@ void main() {
     });
 
     testWidgets('shows sentry logo if showBranding is true', (tester) async {
-      fixture.options.feedbackOptions.showBranding = true;
+      fixture.options.feedback.showBranding = true;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(hub: hub),
@@ -203,7 +203,7 @@ void main() {
     });
 
     testWidgets('hides sentry logo if showBranding is false', (tester) async {
-      fixture.options.feedbackOptions.showBranding = false;
+      fixture.options.feedback.showBranding = false;
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(hub: hub),
@@ -222,26 +222,21 @@ void main() {
     });
 
     testWidgets('when different naming is configured', (tester) async {
-      fixture.options.feedbackOptions.isNameRequired = true;
-      fixture.options.feedbackOptions.isEmailRequired = true;
+      fixture.options.feedback.isNameRequired = true;
+      fixture.options.feedback.isEmailRequired = true;
 
-      fixture.options.feedbackOptions.title = 'fixture-title';
-      fixture.options.feedbackOptions.nameLabel = 'fixture-nameLabel';
-      fixture.options.feedbackOptions.namePlaceholder =
-          'fixture-namePlaceholder';
-      fixture.options.feedbackOptions.emailLabel = 'fixture-emailLabel';
-      fixture.options.feedbackOptions.emailPlaceholder =
-          'fixture-emailPlaceholder';
-      fixture.options.feedbackOptions.messageLabel = 'fixture-messageLabel';
-      fixture.options.feedbackOptions.messagePlaceholder =
+      fixture.options.feedback.title = 'fixture-title';
+      fixture.options.feedback.nameLabel = 'fixture-nameLabel';
+      fixture.options.feedback.namePlaceholder = 'fixture-namePlaceholder';
+      fixture.options.feedback.emailLabel = 'fixture-emailLabel';
+      fixture.options.feedback.emailPlaceholder = 'fixture-emailPlaceholder';
+      fixture.options.feedback.messageLabel = 'fixture-messageLabel';
+      fixture.options.feedback.messagePlaceholder =
           'fixture-messagePlaceholder';
-      fixture.options.feedbackOptions.submitButtonLabel =
-          'fixture-submitButtonLabel';
-      fixture.options.feedbackOptions.cancelButtonLabel =
-          'fixture-cancelButtonLabel';
-      fixture.options.feedbackOptions.isRequiredLabel =
-          'fixture-isRequiredLabel';
-      fixture.options.feedbackOptions.validationErrorLabel =
+      fixture.options.feedback.submitButtonLabel = 'fixture-submitButtonLabel';
+      fixture.options.feedback.cancelButtonLabel = 'fixture-cancelButtonLabel';
+      fixture.options.feedback.isRequiredLabel = 'fixture-isRequiredLabel';
+      fixture.options.feedback.validationErrorLabel =
           'fixture-validationErrorLabel';
 
       await fixture.pumpFeedbackWidget(
@@ -437,18 +432,17 @@ void main() {
 
     testWidgets('sets labels and hints from feedbackoptions', (tester) async {
       final options = fixture.options;
-      options.feedbackOptions.title = 'fixture-title';
-      options.feedbackOptions.nameLabel = 'fixture-nameLabel';
-      options.feedbackOptions.namePlaceholder = 'fixture-namePlaceholder';
-      options.feedbackOptions.emailLabel = 'fixture-emailLabel';
-      options.feedbackOptions.emailPlaceholder = 'fixture-emailPlaceholder';
-      options.feedbackOptions.messageLabel = 'fixture-messageLabel';
-      options.feedbackOptions.messagePlaceholder = 'fixture-messagePlaceholder';
-      options.feedbackOptions.submitButtonLabel = 'fixture-submitButtonLabel';
-      options.feedbackOptions.cancelButtonLabel = 'fixture-cancelButtonLabel';
-      options.feedbackOptions.isRequiredLabel = 'fixture-isRequiredLabel';
-      options.feedbackOptions.validationErrorLabel =
-          'fixture-validationErrorLabel';
+      options.feedback.title = 'fixture-title';
+      options.feedback.nameLabel = 'fixture-nameLabel';
+      options.feedback.namePlaceholder = 'fixture-namePlaceholder';
+      options.feedback.emailLabel = 'fixture-emailLabel';
+      options.feedback.emailPlaceholder = 'fixture-emailPlaceholder';
+      options.feedback.messageLabel = 'fixture-messageLabel';
+      options.feedback.messagePlaceholder = 'fixture-messagePlaceholder';
+      options.feedback.submitButtonLabel = 'fixture-submitButtonLabel';
+      options.feedback.cancelButtonLabel = 'fixture-cancelButtonLabel';
+      options.feedback.isRequiredLabel = 'fixture-isRequiredLabel';
+      options.feedback.validationErrorLabel = 'fixture-validationErrorLabel';
 
       await fixture.pumpFeedbackWidget(
         tester,

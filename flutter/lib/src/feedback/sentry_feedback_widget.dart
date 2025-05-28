@@ -47,7 +47,7 @@ class SentryFeedbackWidget extends StatefulWidget {
         'SentryFlutterOptions is required');
     // ignore: invalid_use_of_internal_member
     final options = _hub.options as SentryFlutterOptions;
-    this.options = options.feedbackOptions;
+    this.options = options.feedback;
   }
 
   final SentryId? associatedEventId;
@@ -275,7 +275,8 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                                         final imageData =
                                             await pickerFile.readAsBytes();
                                         setState(() {
-                                          _screenshot = SentryAttachment.fromIntList(
+                                          _screenshot =
+                                              SentryAttachment.fromIntList(
                                             imageData,
                                             pickerFile.name,
                                             contentType: pickerFile.mimeType,
