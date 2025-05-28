@@ -86,7 +86,6 @@ typedef SentryScreenshotWidgetOnBuildCallback = bool Function(
     SentryScreenshotWidgetStatus? previousStatus);
 
 class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
-  
   bool _isScreenshotButtonVisible = false;
 
   void _toggleScreenshotButton(bool show) {

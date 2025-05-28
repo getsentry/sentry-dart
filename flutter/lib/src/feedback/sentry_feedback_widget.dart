@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import '../../sentry_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'sentry_feedback_options.dart';
+import 'package:flutter/services.dart';
 
 class SentryFeedbackWidget extends StatefulWidget {
   @internal
@@ -15,11 +15,13 @@ class SentryFeedbackWidget extends StatefulWidget {
     BuildContext context, {
     SentryId? associatedEventId,
     SentryAttachment? screenshot,
+    RouteSettings? routeSettings,
   }) {
     if (context.mounted) {
       Navigator.push(
         context,
         MaterialPageRoute<SentryFeedbackWidget>(
+          settings: routeSettings,
           builder: (context) => SentryFeedbackWidget(
             associatedEventId: associatedEventId,
             screenshot: screenshot,
@@ -63,11 +65,16 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   final _imagePicker = ImagePicker();
 
   SentryAttachment? _screenshot;
+  Future<Uint8List>? _screenshotFuture;
 
   @override
   void initState() {
     super.initState();
-    _screenshot = widget.screenshot;
+    final screenshot = widget.screenshot;
+    if (screenshot != null) {
+      _screenshot = screenshot;
+      _screenshotFuture = Future.value(screenshot.bytes);
+    }
   }
 
   @override
@@ -190,6 +197,9 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                           return _errorText(value, true);
                         },
                         autovalidateMode: AutovalidateMode.onUserInteraction,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(4096),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       SizedBox(
@@ -197,14 +207,14 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                         child: Row(
                           spacing: 8,
                           children: [
-                            if (_screenshot != null)
+                            if (_screenshotFuture != null)
                               SizedBox(
                                 width: 48,
                                 height: 48,
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(4),
                                   child: FutureBuilder<Uint8List>(
-                                    future: Future.value(_screenshot!.bytes),
+                                    future: _screenshotFuture,
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
                                           ConnectionState.waiting) {
@@ -232,6 +242,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                                   if (_screenshot != null) {
                                     setState(() {
                                       _screenshot = null;
+                                      _screenshotFuture = null;
                                     });
                                   } else {
                                     try {
@@ -246,12 +257,13 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                                       final imageData =
                                           await pickerFile.readAsBytes();
                                       setState(() {
-                                        _screenshot =
-                                            SentryAttachment.fromByteData(
-                                          ByteData.view(imageData.buffer),
+                                        SentryAttachment.fromIntList(
+                                          imageData,
                                           pickerFile.name,
                                           contentType: pickerFile.mimeType,
                                         );
+                                        _screenshotFuture =
+                                            Future.value(imageData);
                                       });
                                     } catch (e, stackTrace) {
                                       await Sentry.captureException(e,

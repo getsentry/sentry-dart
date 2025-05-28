@@ -1,5 +1,5 @@
 class SentryFeedbackOptions {
-  /// Form Configuration
+  // Form Configuration
 
   /// The title of the feedback form.
   var title = 'Report a Bug';
@@ -22,7 +22,7 @@ class SentryFeedbackOptions {
   /// Displays the Sentry logo inside the form
   var showBranding = true;
 
-  /// Form Labels Configuration
+  // Form Labels Configuration
 
   /// The title of the feedback form.
   String formTitle = 'Report a Bug';
