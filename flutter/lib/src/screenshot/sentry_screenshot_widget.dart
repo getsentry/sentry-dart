@@ -136,7 +136,7 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
                 bottom: 32,
                 child: ElevatedButton.icon(
                   key: const ValueKey(
-                        'sentry_screenshot_take_screenshot_button'),
+                      'sentry_screenshot_take_screenshot_button'),
                   onPressed: () async {
                     SentryScreenshotWidget.hideTakeScreenshotButton();
                     final screenshot = await SentryFlutter.captureScreenshot();
