@@ -14,7 +14,6 @@ class SentryLogo extends StatelessWidget {
   }
 }
 
-//Copy this CustomPainter code to the Bottom of the File
 class _CustomPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
