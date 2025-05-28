@@ -99,6 +99,175 @@ void main() {
     });
   });
 
+  group('$SentryFeedbackWidget show/hide ui elements', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets('shows name field if showName is true', (tester) async {
+      fixture.options.feedbackOptions.showName = true;
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      expect(find.text('Name'), findsOne);
+    });
+
+    testWidgets('hides name field if showName is false', (tester) async {
+      fixture.options.feedbackOptions.showName = false;
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      expect(find.text('Name'), findsNothing);
+    });
+
+    testWidgets('shows email field if showEmail is true', (tester) async {
+      fixture.options.feedbackOptions.showEmail = true;
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      expect(find.text('Email'), findsOne);
+    });
+
+    testWidgets('hides email field if showEmail is false', (tester) async {
+      fixture.options.feedbackOptions.showEmail = false;
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      expect(find.text('Email'), findsNothing);
+    });
+
+    testWidgets('shows add screenshot button if showAddScreenshot is true',
+        (tester) async {
+      fixture.options.feedbackOptions.showAddScreenshot = true;
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      expect(find.text('Add a screenshot'), findsOne);
+    });
+
+    testWidgets('hides add screenshot button if showAddScreenshot is false',
+        (tester) async {
+      fixture.options.feedbackOptions.showAddScreenshot = false;
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      expect(find.text('Add a screenshot'), findsNothing);
+    });
+
+    testWidgets(
+        'shows capture screenshot button if showCaptureScreenshot is true',
+        (tester) async {
+      fixture.options.feedbackOptions.showCaptureScreenshot = true;
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      expect(find.text('Capture a screenshot'), findsOne);
+    });
+
+    testWidgets(
+        'hides capture screenshot button if showCaptureScreenshot is false',
+        (tester) async {
+      fixture.options.feedbackOptions.showCaptureScreenshot = false;
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      expect(find.text('Capture a screenshot'), findsNothing);
+    });
+
+    testWidgets('shows sentry logo if showBranding is true', (tester) async {
+      fixture.options.feedbackOptions.showBranding = true;
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      expect(find.byKey(const ValueKey('sentry_feedback_branding_logo')),
+          findsOne);
+    });
+
+    testWidgets('hides sentry logo if showBranding is false', (tester) async {
+      fixture.options.feedbackOptions.showBranding = false;
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      expect(find.byKey(const ValueKey('sentry_feedback_branding_logo')),
+          findsNothing);
+    });
+  });
+
+  group('$SentryFeedbackWidget uses naming from options', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets('when different naming is configured', (tester) async {
+      fixture.options.feedbackOptions.isNameRequired = true;
+      fixture.options.feedbackOptions.isEmailRequired = true;
+
+      fixture.options.feedbackOptions.title = 'fixture-title';
+      fixture.options.feedbackOptions.nameLabel = 'fixture-nameLabel';
+      fixture.options.feedbackOptions.namePlaceholder =
+          'fixture-namePlaceholder';
+      fixture.options.feedbackOptions.emailLabel = 'fixture-emailLabel';
+      fixture.options.feedbackOptions.emailPlaceholder =
+          'fixture-emailPlaceholder';
+      fixture.options.feedbackOptions.messageLabel = 'fixture-messageLabel';
+      fixture.options.feedbackOptions.messagePlaceholder =
+          'fixture-messagePlaceholder';
+      fixture.options.feedbackOptions.submitButtonLabel =
+          'fixture-submitButtonLabel';
+      fixture.options.feedbackOptions.cancelButtonLabel =
+          'fixture-cancelButtonLabel';
+      fixture.options.feedbackOptions.isRequiredLabel =
+          'fixture-isRequiredLabel';
+      fixture.options.feedbackOptions.validationErrorLabel =
+          'fixture-validationErrorLabel';
+
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      expect(find.text('fixture-title'), findsOne);
+      expect(find.text('fixture-nameLabel'), findsOne);
+      expect(find.text('fixture-namePlaceholder'), findsOne);
+      expect(find.text('fixture-emailLabel'), findsOne);
+      expect(find.text('fixture-emailPlaceholder'), findsOne);
+      expect(find.text('fixture-messageLabel'), findsOne);
+      expect(find.text('fixture-messagePlaceholder'), findsOne);
+      expect(find.text('fixture-submitButtonLabel'), findsOne);
+      expect(find.text('fixture-cancelButtonLabel'), findsOne);
+      expect(find.text('fixture-isRequiredLabel'), findsAny);
+
+      await tester.tap(find.text('fixture-submitButtonLabel'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('fixture-validationErrorLabel'), findsAny);
+    });
+  });
+
   group('$SentryFeedbackWidget submit', () {
     late Fixture fixture;
 
@@ -107,10 +276,78 @@ void main() {
     });
 
     testWidgets('does add screenshot attachment to hint', (tester) async {
-      final ByteData pngData =
-          await rootBundle.load('assets/screenshotIcon.png');
-      final screenshot = SentryAttachment.fromByteData(
-        pngData,
+      // Source: https://evanhahn.com/worlds-smallest-png/
+      final data = [
+        0x89,
+        0x50,
+        0x4E,
+        0x47,
+        0x0D,
+        0x0A,
+        0x1A,
+        0x0A,
+        0x00,
+        0x00,
+        0x00,
+        0x0D,
+        0x49,
+        0x48,
+        0x44,
+        0x52,
+        0x00,
+        0x00,
+        0x00,
+        0x01,
+        0x00,
+        0x00,
+        0x00,
+        0x01,
+        0x01,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x37,
+        0x6E,
+        0xF9,
+        0x24,
+        0x00,
+        0x00,
+        0x00,
+        0x0A,
+        0x49,
+        0x44,
+        0x41,
+        0x54,
+        0x78,
+        0x01,
+        0x63,
+        0x60,
+        0x00,
+        0x00,
+        0x00,
+        0x02,
+        0x00,
+        0x01,
+        0x73,
+        0x75,
+        0x01,
+        0x18,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x49,
+        0x45,
+        0x4E,
+        0x44,
+        0xAE,
+        0x42,
+        0x60,
+        0x82
+      ];
+      final screenshot = SentryAttachment.fromIntList(
+        data,
         'test.png',
         contentType: 'image/png',
       );

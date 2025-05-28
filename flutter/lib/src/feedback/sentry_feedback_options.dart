@@ -22,6 +22,12 @@ class SentryFeedbackOptions {
   /// Displays the Sentry logo inside the form
   var showBranding = true;
 
+  /// Displays the add screenshot button on the feedback form
+  var showAddScreenshot = true;
+
+  /// Displays the capture screenshot button on the feedback form
+  var showCaptureScreenshot = true;
+
   // Form Labels Configuration
 
   /// The title of the feedback form.
@@ -59,4 +65,16 @@ class SentryFeedbackOptions {
 
   /// The label of the validation error message.
   String validationErrorLabel = 'Can\'t be empty';
+
+  /// The label of the add screenshot button.
+  String addScreenshotButtonLabel = 'Add a screenshot';
+
+  /// The label of the capture screenshot button.
+  String captureScreenshotButtonLabel = 'Capture a screenshot';
+
+  /// The label of the remove screenshot button.
+  String removeScreenshotButtonLabel = 'Remove screenshot';
+
+  /// The label of the take screenshot button shown outside of the feedback widget.
+  String takeScreenshotButtonLabel = 'Take Screenshot';
 }

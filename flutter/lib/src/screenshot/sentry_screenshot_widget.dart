@@ -94,6 +94,13 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
     });
   }
 
+  SentryFlutterOptions? get _options =>
+      // ignore: invalid_use_of_internal_member
+      widget._hub.options is SentryFlutterOptions
+          // ignore: invalid_use_of_internal_member
+          ? widget._hub.options as SentryFlutterOptions?
+          : null;
+
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
@@ -132,11 +139,8 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
                     SentryScreenshotWidget.hideTakeScreenshotButton();
                     final screenshot = await SentryFlutter.captureScreenshot();
 
-                    // ignore: invalid_use_of_internal_member
-                    final options =
-                        widget._hub.options as SentryFlutterOptions?;
                     final currentContext =
-                        options?.navigatorKey?.currentContext;
+                        _options?.navigatorKey?.currentContext;
 
                     if (currentContext != null && currentContext.mounted) {
                       SentryFeedbackWidget.show(
@@ -147,14 +151,17 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
                       );
                     }
                   },
-                  icon: Image.asset(
-                    'assets/screenshotIcon.png',
-                    package: 'sentry_flutter',
-                    width: 22,
-                    height: 22,
+                  icon: Icon(
+                    Icons.screenshot_outlined,
                     color: Theme.of(context).colorScheme.primary,
+                    size: 24.0,
                   ),
-                  label: const Text('Take Screenshot'),
+                  label: Text(
+                    key: const ValueKey(
+                        'sentry_screenshot_take_screenshot_button'),
+                    _options?.feedbackOptions.takeScreenshotButtonLabel ??
+                        'Take Screenshot',
+                  ),
                 ),
               ),
           ],

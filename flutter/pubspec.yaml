@@ -51,8 +51,6 @@ dev_dependencies:
 
   platform: any
 flutter:
-  assets:
-    - assets/screenshotIcon.png
   plugin:
     platforms:
       android:
