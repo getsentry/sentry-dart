@@ -17,6 +17,7 @@ class SentryFeedbackWidget extends StatefulWidget {
     SentryId? associatedEventId,
     SentryAttachment? screenshot,
     RouteSettings? routeSettings,
+    @internal Hub? hub,
   }) {
     if (context.mounted) {
       Navigator.push(
@@ -26,6 +27,7 @@ class SentryFeedbackWidget extends StatefulWidget {
           builder: (context) => SentryFeedbackWidget(
             associatedEventId: associatedEventId,
             screenshot: screenshot,
+            hub: hub,
           ),
           fullscreenDialog: true,
         ),
@@ -307,14 +309,14 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                           widget.options.showCaptureScreenshot)
                         SizedBox(
                           width: double.infinity,
-                          child: ElevatedButton(
+                          child: FilledButton(
+                            key: const ValueKey(
+                                'sentry_feedback_capture_screenshot_button'),
                             onPressed: () async {
                               _dismiss(pendingAssociatedEventId: true);
                               SentryScreenshotWidget.showTakeScreenshotButton();
                             },
                             child: Text(
-                              key: const ValueKey(
-                                  'sentry_feedback_capture_screenshot_button'),
                               widget.options.captureScreenshotButtonLabel,
                             ),
                           ),

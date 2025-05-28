@@ -148,6 +148,7 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
                         associatedEventId:
                             SentryFeedbackWidget.pendingAccociatedEventId,
                         screenshot: screenshot,
+                        hub: widget._hub,
                       );
                     }
                   },

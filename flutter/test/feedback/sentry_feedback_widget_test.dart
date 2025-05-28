@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:flutter/services.dart';
 
 import '../mocks.mocks.dart';
 
@@ -473,6 +472,84 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('fixture-validationErrorLabel'), findsOne);
+    });
+  });
+
+  group('$SentryFeedbackWidget pending associatedEventId', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets('sets pending accociatedEventId when taking screenshot',
+        (tester) async {
+      final associatedEventId =
+          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(
+            hub: hub, associatedEventId: associatedEventId),
+      );
+      await tester.pumpAndSettle();
+
+      final button = find
+          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
+      expect(button, findsOneWidget);
+      await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackWidget.pendingAccociatedEventId, associatedEventId);
+    });
+
+    testWidgets('clears pending accociatedEventId when submitting feedback',
+        (tester) async {
+      final associatedEventId =
+          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+      SentryFeedbackWidget.pendingAccociatedEventId = associatedEventId;
+
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) async => SentryId.empty());
+
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      await tester.enterText(
+        find.byKey(ValueKey('sentry_feedback_message_textfield')),
+        "fixture-message",
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackWidget.pendingAccociatedEventId, isNull);
+    });
+
+    testWidgets('clears pending accociatedEventId on cancel', (tester) async {
+      final associatedEventId =
+          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+      SentryFeedbackWidget.pendingAccociatedEventId = associatedEventId;
+
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      await tester.enterText(
+        find.byKey(ValueKey('sentry_feedback_message_textfield')),
+        "fixture-message",
+      );
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackWidget.pendingAccociatedEventId, isNull);
     });
   });
 }
