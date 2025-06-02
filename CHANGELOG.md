@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- UserFeedback Widget improvements ([#2964](https://github.com/getsentry/sentry-dart/pull/2964))
+- SentryFeedbackWidget Improvements ([#2964](https://github.com/getsentry/sentry-dart/pull/2964))
  - Pick screenshots from camera roll for feedback
  - Capture a device screenshot for feedback
  - Customize tests and required fields
