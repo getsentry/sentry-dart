@@ -222,9 +222,8 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                       SizedBox(
                         width: double.infinity,
                         child: Row(
-                          spacing: 8,
                           children: [
-                            if (_screenshotFuture != null)
+                            if (_screenshotFuture != null) ...[
                               SizedBox(
                                 width: 48,
                                 height: 48,
@@ -253,6 +252,8 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                                   ),
                                 ),
                               ),
+                              const SizedBox(width: 8),
+                            ],
                             if (widget.options.showAddScreenshot)
                               Expanded(
                                 child: ElevatedButton(
