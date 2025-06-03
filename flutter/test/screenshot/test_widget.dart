@@ -21,6 +21,7 @@ Future<Element> pumpTestElement(WidgetTester tester,
                         padding: EdgeInsets.all(15),
                         child: Center(child: Text('Centered text')),
                       ),
+                      newRichText(),
                       ElevatedButton(
                         onPressed: () {},
                         child: Text('Button title'),
@@ -28,10 +29,13 @@ Future<Element> pumpTestElement(WidgetTester tester,
                       newCustomImage(),
                       // Invisible widgets won't be obscured.
                       Visibility(visible: false, child: Text('Invisible text')),
+                      Visibility(visible: false, child: newRichText(text: 'Invisible Rich Text')),
                       Visibility(visible: false, child: newImage()),
                       Opacity(opacity: 0, child: Text('Invisible text')),
+                      Opacity(opacity: 0, child: newRichText(text: 'Invisible Rich Text')),
                       Opacity(opacity: 0, child: newImage()),
                       Offstage(offstage: true, child: Text('Offstage text')),
+                      Offstage(offstage: true, child: newRichText(text: 'Offstage Rich Text')),
                       Offstage(offstage: true, child: newImage()),
                       Text(dummyText),
                       Material(child: TextFormField()),
@@ -92,3 +96,10 @@ class CustomImageWidget extends Image {
   CustomImageWidget.memory(super.bytes, {super.key, super.width, super.height})
       : super.memory();
 }
+
+RichText newRichText({String text = 'Rich Text'}) => RichText(
+      text: TextSpan(
+        text: text,
+        style: const TextStyle(color: Colors.black, fontSize: 16),
+      ),
+    );
