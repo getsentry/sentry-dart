@@ -29,13 +29,19 @@ Future<Element> pumpTestElement(WidgetTester tester,
                       newCustomImage(),
                       // Invisible widgets won't be obscured.
                       Visibility(visible: false, child: Text('Invisible text')),
-                      Visibility(visible: false, child: newRichText(text: 'Invisible Rich Text')),
+                      Visibility(
+                          visible: false,
+                          child: newRichText(text: 'Invisible Rich Text')),
                       Visibility(visible: false, child: newImage()),
                       Opacity(opacity: 0, child: Text('Invisible text')),
-                      Opacity(opacity: 0, child: newRichText(text: 'Invisible Rich Text')),
+                      Opacity(
+                          opacity: 0,
+                          child: newRichText(text: 'Invisible Rich Text')),
                       Opacity(opacity: 0, child: newImage()),
                       Offstage(offstage: true, child: Text('Offstage text')),
-                      Offstage(offstage: true, child: newRichText(text: 'Offstage Rich Text')),
+                      Offstage(
+                          offstage: true,
+                          child: newRichText(text: 'Offstage Rich Text')),
                       Offstage(offstage: true, child: newImage()),
                       Text(dummyText),
                       Material(child: TextFormField()),
