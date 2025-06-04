@@ -3,8 +3,6 @@ import 'sentry_envelope.dart';
 import 'sentry_options.dart';
 import 'protocol/sentry_log.dart';
 import 'package:meta/meta.dart';
-import 'contexts_enricher.dart';
-import 'protocol/contexts.dart';
 
 @internal
 class SentryLogBatcher {
