@@ -1788,7 +1788,9 @@ void main() {
       final span = MockSpan();
       scope.span = span;
 
-      final client = fixture.getSut();
+      final enrichingEventProcessor = _LogsEventProcessor();
+
+      final client = fixture.getSut(eventProcessor: enrichingEventProcessor);
       fixture.options.logBatcher = MockLogBatcher();
 
       await client.captureLog(log, scope: scope);
@@ -1837,6 +1839,17 @@ void main() {
         capturedLog.attributes['sentry.trace.parent_span_id']?.type,
         'string',
       );
+
+      expect(capturedLog.attributes['os.name']?.value, 'test-name');
+      expect(capturedLog.attributes['os.name']?.type, 'string');
+      expect(capturedLog.attributes['os.version']?.value, 'test-version');
+      expect(capturedLog.attributes['os.version']?.type, 'string');
+      expect(capturedLog.attributes['device.brand']?.value, 'test-brand');
+      expect(capturedLog.attributes['device.brand']?.type, 'string');
+      expect(capturedLog.attributes['device.model']?.value, 'test-model');
+      expect(capturedLog.attributes['device.model']?.type, 'string');
+      expect(capturedLog.attributes['device.family']?.value, 'test-family');
+      expect(capturedLog.attributes['device.family']?.type, 'string');
     });
 
     test('should set trace id from propagation context', () async {
@@ -2833,5 +2846,22 @@ class _TestOrderObserver extends BeforeSendEventObserver {
   @override
   FutureOr<void> onBeforeSendEvent(SentryEvent event, Hint hint) {
     _processingOrder.add('beforeSendEvent');
+  }
+}
+
+final class _LogsEventProcessor implements EventProcessor, ContextsEnricher {
+  @override
+  FutureOr<SentryEvent?> apply(SentryEvent event, Hint hint) async {
+    event.contexts = await enrich(event.contexts);
+    return event;
+  }
+
+  @override
+  Future<Contexts> enrich(Contexts contexts) async {
+    contexts.operatingSystem =
+        SentryOperatingSystem(name: 'test-name', version: 'test-version');
+    contexts.device = SentryDevice(
+        brand: 'test-brand', model: 'test-model', family: 'test-family');
+    return contexts;
   }
 }

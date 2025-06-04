@@ -14,7 +14,8 @@ EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
 /// Enriches [SentryEvent]s with various kinds of information.
 /// Uses Darts [Platform](https://api.dart.dev/stable/dart-io/Platform-class.html)
 /// class to read information.
-class IoEnricherEventProcessor implements EnricherEventProcessor {
+class IoEnricherEventProcessor
+    implements EnricherEventProcessor, ContextsEnricher {
   IoEnricherEventProcessor(this._options);
 
   final SentryOptions _options;
@@ -42,20 +43,21 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    final contexts = event.contexts;
+    event.contexts = await enrich(event.contexts);
+    return event;
+  }
 
+  @override
+  Future<Contexts> enrich(Contexts contexts) async {
     contexts
-      ..device = await _getDevice(event.contexts.device)
-      ..operatingSystem = _getOperatingSystem(event.contexts.operatingSystem)
-      ..runtimes = _getRuntimes(event.contexts.runtimes)
-      ..app = _getApp(event.contexts.app)
-      ..culture = _getSentryCulture(event.contexts.culture);
+      ..device = await _getDevice(contexts.device)
+      ..operatingSystem = _getOperatingSystem(contexts.operatingSystem)
+      ..runtimes = _getRuntimes(contexts.runtimes)
+      ..app = _getApp(contexts.app)
+      ..culture = _getSentryCulture(contexts.culture);
 
     contexts['dart_context'] = _getDartContext();
-
-    event.contexts = contexts;
-
-    return event;
+    return contexts;
   }
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {

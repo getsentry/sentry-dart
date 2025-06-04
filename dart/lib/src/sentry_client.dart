@@ -29,6 +29,7 @@ import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
 import 'sentry_log_batcher.dart';
 import 'version.dart';
+import 'contexts_enricher.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
@@ -556,6 +557,40 @@ class SentryClient {
       }
     }
     if (processedLog != null) {
+      var contexts = Contexts();
+
+      for (final eventProcessor in _options.eventProcessors) {
+        if (eventProcessor is ContextsEnricher) {
+          final enricher = eventProcessor as ContextsEnricher;
+          contexts = await enricher.enrich(contexts);
+        }
+      }
+      if (contexts.operatingSystem?.name != null) {
+        log.attributes['os.name'] = SentryLogAttribute.string(
+          contexts.operatingSystem?.name ?? '',
+        );
+      }
+      if (contexts.operatingSystem?.version != null) {
+        log.attributes['os.version'] = SentryLogAttribute.string(
+          contexts.operatingSystem?.version ?? '',
+        );
+      }
+      if (contexts.device?.brand != null) {
+        log.attributes['device.brand'] = SentryLogAttribute.string(
+          contexts.device?.brand ?? '',
+        );
+      }
+      if (contexts.device?.model != null) {
+        log.attributes['device.model'] = SentryLogAttribute.string(
+          contexts.device?.model ?? '',
+        );
+      }
+      if (contexts.device?.family != null) {
+        log.attributes['device.family'] = SentryLogAttribute.string(
+          contexts.device?.family ?? '',
+        );
+      }
+
       _options.logBatcher.addLog(processedLog);
     } else {
       _options.recorder.recordLostEvent(

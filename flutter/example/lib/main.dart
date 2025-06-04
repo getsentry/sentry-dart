@@ -211,6 +211,12 @@ class MainScaffold extends StatelessWidget {
               ),
             ),
             TooltipButton(
+              onPressed: () => {Sentry.logger.warn("foobar")},
+              text:
+                  'Pushes a screen and creates a transaction named \'AutoCloseScreen\' with a child span that finishes after 3 seconds. \nAfter the screen has popped the transaction can then be seen on the performance page.',
+              buttonTitle: 'Log',
+            ),
+            TooltipButton(
               onPressed: () => navigateToAutoCloseScreen(context),
               text:
                   'Pushes a screen and creates a transaction named \'AutoCloseScreen\' with a child span that finishes after 3 seconds. \nAfter the screen has popped the transaction can then be seen on the performance page.',
