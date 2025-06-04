@@ -3,15 +3,9 @@ package io.sentry.flutter
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.res.Configuration
-import android.graphics.Point
-import android.graphics.Rect
 import android.os.Build
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import android.os.Looper
 import android.util.Log
-import android.view.WindowManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -49,18 +43,6 @@ class SentryFlutterPlugin :
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
   private lateinit var sentryFlutter: SentryFlutter
-
-  // Note: initial config because we don't yet have the numbers of the actual Flutter widget.
-  // See how SentryFlutterReplayRecorder.start() handles it. New settings will be set by setReplayConfig() method below.
-  private var replayConfig =
-    ScreenshotRecorderConfig(
-      recordingWidth = VIDEO_BLOCK_SIZE,
-      recordingHeight = VIDEO_BLOCK_SIZE,
-      scaleFactorX = 1.0f,
-      scaleFactorY = 1.0f,
-      frameRate = 1,
-      bitRate = 75000,
-    )
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
@@ -169,18 +151,6 @@ class SentryFlutterPlugin :
           context.applicationContext,
           dateProvider = CurrentDateProvider.getInstance(),
           recorderProvider = { SentryFlutterReplayRecorder(channel, replay!!) },
-          recorderConfigProvider = {
-            Log.i(
-              "Sentry",
-              "Replay configuration requested. Returning: %dx%d at %d FPS, %d BPS".format(
-                replayConfig.recordingWidth,
-                replayConfig.recordingHeight,
-                replayConfig.frameRate,
-                replayConfig.bitRate,
-              ),
-            )
-            replayConfig
-          },
           replayCacheProvider = null,
         )
       replay!!.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
@@ -530,7 +500,8 @@ class SentryFlutterPlugin :
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
-    @JvmStatic fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
+    @JvmStatic
+    fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
 
     private fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
@@ -572,8 +543,21 @@ class SentryFlutterPlugin :
     // Since codec block size is 16, so we have to adjust the width and height to it,
     // otherwise the codec might fail to configure on some devices, see
     // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
+    val windowWidth = call.argument("windowWidth") as? Double ?: 0.0
+    val windowHeight = call.argument("windowHeight") as? Double ?: 0.0
+
     var width = call.argument("width") as? Double ?: 0.0
     var height = call.argument("height") as? Double ?: 0.0
+
+    if (width == 0.0 || height == 0.0 || windowWidth == 0.0 || windowHeight == 0.0) {
+      result.error(
+        "5",
+        "Replay config is not valid: width: $width, height: $height, windowWidth: $windowWidth, windowHeight: $windowHeight",
+        null
+      )
+      return
+    }
+
     // First update the smaller dimension, as changing that will affect the screen ratio more.
     if (width < height) {
       val newWidth = width.adjustReplaySizeToBlockSize()
@@ -585,23 +569,12 @@ class SentryFlutterPlugin :
       height = newHeight
     }
 
-    val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    val screenBounds =
-      if (VERSION.SDK_INT >= VERSION_CODES.R) {
-        wm.currentWindowMetrics.bounds
-      } else {
-        val screenBounds = Point()
-        @Suppress("DEPRECATION")
-        wm.defaultDisplay.getRealSize(screenBounds)
-        Rect(0, 0, screenBounds.x, screenBounds.y)
-      }
-
-    replayConfig =
+    val replayConfig =
       ScreenshotRecorderConfig(
         recordingWidth = width.roundToInt(),
         recordingHeight = height.roundToInt(),
-        scaleFactorX = width.toFloat() / screenBounds.width().toFloat(),
-        scaleFactorY = height.toFloat() / screenBounds.height().toFloat(),
+        scaleFactorX = width.toFloat() / windowWidth.toFloat(),
+        scaleFactorY = height.toFloat() / windowHeight.toFloat(),
         frameRate = call.argument("frameRate") as? Int ?: 0,
         bitRate = call.argument("bitRate") as? Int ?: 0,
       )
@@ -614,7 +587,7 @@ class SentryFlutterPlugin :
         replayConfig.bitRate,
       ),
     )
-    replay!!.onConfigurationChanged(Configuration())
+    replay?.onConfigurationChanged(replayConfig)
     result.success("")
   }
 

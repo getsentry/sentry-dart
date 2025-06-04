@@ -30,6 +30,8 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
       SentryScreenshotWidget.onBuild((status, prevStatus) {
         if (status != prevStatus) {
           _native.setReplayConfig(ReplayConfig(
+              windowWidth: status.size?.width ?? 0.0,
+              windowHeight: status.size?.height ?? 0.0,
               width: replayOptions.quality.resolutionScalingFactor *
                   (status.size?.width ?? 0.0),
               height: replayOptions.quality.resolutionScalingFactor *
