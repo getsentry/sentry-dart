@@ -12,7 +12,6 @@ internal class SentryFlutterReplayRecorder(
   private val channel: MethodChannel,
   private val integration: ReplayIntegration,
 ) : Recorder {
-
   override fun start() {
     Handler(Looper.getMainLooper()).post {
       try {
@@ -46,7 +45,7 @@ internal class SentryFlutterReplayRecorder(
           mapOf(
             "width" to config.recordingWidth,
             "height" to config.recordingHeight,
-            "frameRate" to config.frameRate
+            "frameRate" to config.frameRate,
           ),
         )
       } catch (ignored: Exception) {

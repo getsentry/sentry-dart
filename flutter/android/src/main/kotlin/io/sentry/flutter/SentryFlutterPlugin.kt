@@ -553,7 +553,7 @@ class SentryFlutterPlugin :
       result.error(
         "5",
         "Replay config is not valid: width: $width, height: $height, windowWidth: $windowWidth, windowHeight: $windowHeight",
-        null
+        null,
       )
       return
     }
