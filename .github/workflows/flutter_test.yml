@@ -131,7 +131,7 @@ jobs:
           sed -i '' 's/12\.0/13.0/g' Podfile
 
       # Currently the beta requires a deployment target of `10.15`
-      - name: Update iOS deployment target for beta
+      - name: Update macOS deployment target for beta
         if: matrix.sdk == 'beta' && matrix.target == 'macos'
         working-directory: ./flutter/example/${{ matrix.target }}
         run: |
