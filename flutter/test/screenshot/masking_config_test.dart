@@ -226,6 +226,7 @@ void main() async {
         'SentryMaskingCustomRule<Image>(Mask all images except asset images.)',
         'SentryMaskingConstantRule<Text>(mask)',
         'SentryMaskingConstantRule<EditableText>(mask)',
+        'SentryMaskingConstantRule<RichText>(mask)',
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ];
       test('mask() takes precedence', () {
