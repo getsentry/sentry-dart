@@ -14,7 +14,8 @@ typedef WidgetBindingGetter = WidgetsBinding? Function();
 /// Enriches [SentryEvent]s with various kinds of information.
 /// FlutterEnricher only needs to add information which aren't exposed by
 /// the Dart runtime.
-class FlutterEnricherEventProcessor implements EventProcessor {
+class FlutterEnricherEventProcessor
+    implements EventProcessor, ContextsEnricher {
   FlutterEnricherEventProcessor(this._options);
 
   final SentryFlutterOptions _options;
@@ -36,21 +37,28 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     SentryEvent event,
     Hint hint,
   ) async {
+    event.contexts = await enrich(event.contexts);
+    if (event is! SentryTransaction) {
+      event.modules = await _getPackages();
+    }
+    return event;
+  }
+
+  @override
+  Future<Contexts> enrich(Contexts contexts) async {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
     // TODO: while we have a native integration with JS SDK, it's currently opt in and we dont gather contexts yet
     // so for web it's still better to rely on the information of Flutter.
     final device = _hasNativeIntegration && !_options.platform.isWeb
         ? null
-        : _getDevice(event.contexts.device);
+        : _getDevice(contexts.device);
 
-    final contexts = event.contexts;
     contexts.device = device;
-    contexts.runtimes = _getRuntimes(event.contexts.runtimes);
-    contexts.culture = _getCulture(event.contexts.culture);
-    contexts.operatingSystem =
-        _getOperatingSystem(event.contexts.operatingSystem);
-    contexts.app = _getApp(event.contexts.app);
+    contexts.runtimes = _getRuntimes(contexts.runtimes);
+    contexts.culture = _getCulture(contexts.culture);
+    contexts.operatingSystem = _getOperatingSystem(contexts.operatingSystem);
+    contexts.app = _getApp(contexts.app);
 
     final app = contexts.app;
     if (app != null) {
@@ -63,12 +71,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     // Conflicts with Flutter runtime if it's just called `Flutter`
     contexts['flutter_context'] = _getFlutterContext();
 
-    event.contexts = contexts;
-
-    if (event is! SentryTransaction) {
-      event.modules = await _getPackages();
-    }
-    return event;
+    return contexts;
   }
 
   /// Packages are loaded from [LicenseRegistry].

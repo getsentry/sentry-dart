@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:web/web.dart' as web show window, Window, Navigator;
 
 import '../../../sentry.dart';
@@ -11,7 +12,8 @@ EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
   );
 }
 
-class WebEnricherEventProcessor implements EnricherEventProcessor {
+class WebEnricherEventProcessor
+    implements EnricherEventProcessor, ContextsEnricher {
   WebEnricherEventProcessor(
     this._window,
     this._options,
@@ -22,18 +24,24 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
   final SentryOptions _options;
 
   @override
-  SentryEvent? apply(SentryEvent event, Hint hint) {
+  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     // Web has no native integration, so no need to check for it
-    event.contexts
-      ..device = _getDevice(event.contexts.device)
-      ..culture = _getSentryCulture(event.contexts.culture)
-      ..runtimes = _getRuntimes(event.contexts.runtimes);
-
-    event.contexts['dart_context'] = _getDartContext();
+    event.contexts = await enrich(event.contexts);
 
     return event
       ..request = _getRequest(event.request)
       ..transaction = event.transaction ?? _window.location.pathname;
+  }
+
+  @override
+  Future<Contexts> enrich(Contexts contexts) async {
+    contexts
+      ..device = _getDevice(contexts.device)
+      ..culture = _getSentryCulture(contexts.culture)
+      ..runtimes = _getRuntimes(contexts.runtimes);
+
+    contexts['dart_context'] = _getDartContext();
+    return contexts;
   }
 
   // As seen in

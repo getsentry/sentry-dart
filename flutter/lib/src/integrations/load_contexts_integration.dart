@@ -46,55 +46,23 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
   }
 }
 
-class _LoadContextsIntegrationEventProcessor implements EventProcessor {
+class _LoadContextsIntegrationEventProcessor
+    implements EventProcessor, ContextsEnricher {
   _LoadContextsIntegrationEventProcessor(this._native, this._options);
 
   final SentryNativeBinding _native;
   final SentryFlutterOptions _options;
 
+  // Don't call native channel multiple times.
+  Map<String, dynamic>? _cachedInfos;
+
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     // TODO don't copy everything (i.e. avoid unnecessary Map.from())
     try {
-      final infos = await _native.loadContexts() ?? {};
-      final contextsMap = infos['contexts'] as Map?;
-      if (contextsMap != null && contextsMap.isNotEmpty) {
-        final contexts = Contexts.fromJson(
-          Map<String, dynamic>.from(contextsMap),
-        );
-        final eventContexts = event.contexts;
-
-        contexts.forEach(
-          (key, dynamic value) {
-            if (value != null) {
-              final currentValue = eventContexts[key];
-              if (key == SentryRuntime.listType) {
-                contexts.runtimes.forEach(eventContexts.addRuntime);
-              } else if (currentValue == null) {
-                eventContexts[key] = value;
-              } else {
-                // merge the values
-                if (key == SentryOperatingSystem.type &&
-                    currentValue is SentryOperatingSystem &&
-                    value is SentryOperatingSystem) {
-                  // merge os context
-                  final osMap = {...value.toJson(), ...currentValue.toJson()};
-                  final os = SentryOperatingSystem.fromJson(osMap);
-                  eventContexts[key] = os;
-                } else if (key == SentryApp.type &&
-                    currentValue is SentryApp &&
-                    value is SentryApp) {
-                  // merge app context
-                  final appMap = {...value.toJson(), ...currentValue.toJson()};
-                  final app = SentryApp.fromJson(appMap);
-                  eventContexts[key] = app;
-                }
-              }
-            }
-          },
-        );
-        event.contexts = eventContexts;
-      }
+      event.contexts = await enrich(event.contexts);
+      final infos = _cachedInfos ?? await _native.loadContexts() ?? {};
+      _cachedInfos = null;
 
       final tagsMap = infos['tags'] as Map?;
       if (tagsMap != null && tagsMap.isNotEmpty) {
@@ -235,5 +203,50 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
       }
     }
     return event;
+  }
+
+  @override
+  Future<Contexts> enrich(Contexts contexts) async {
+    final infos = await _native.loadContexts() ?? {};
+    _cachedInfos = infos;
+
+    final contextsMap = infos['contexts'] as Map?;
+
+    if (contextsMap != null && contextsMap.isNotEmpty) {
+      final nativeContexts = Contexts.fromJson(
+        Map<String, dynamic>.from(contextsMap),
+      );
+
+      nativeContexts.forEach(
+        (key, dynamic value) {
+          if (value != null) {
+            final currentValue = contexts[key];
+            if (key == SentryRuntime.listType) {
+              nativeContexts.runtimes.forEach(contexts.addRuntime);
+            } else if (currentValue == null) {
+              contexts[key] = value;
+            } else {
+              // merge the values
+              if (key == SentryOperatingSystem.type &&
+                  currentValue is SentryOperatingSystem &&
+                  value is SentryOperatingSystem) {
+                // merge os context
+                final osMap = {...value.toJson(), ...currentValue.toJson()};
+                final os = SentryOperatingSystem.fromJson(osMap);
+                contexts[key] = os;
+              } else if (key == SentryApp.type &&
+                  currentValue is SentryApp &&
+                  value is SentryApp) {
+                // merge app context
+                final appMap = {...value.toJson(), ...currentValue.toJson()};
+                final app = SentryApp.fromJson(appMap);
+                contexts[key] = app;
+              }
+            }
+          }
+        },
+      );
+    }
+    return contexts;
   }
 }
