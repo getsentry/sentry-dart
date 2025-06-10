@@ -69,6 +69,10 @@ class SentryPrivacyOptions {
         mask: true,
         name: 'EditableText',
       ));
+      rules.add(const SentryMaskingConstantRule<RichText>(
+        mask: true,
+        name: 'RichText',
+      ));
     }
 
     // In Debug mode, check if users explicitly mask (or unmask) widgets that
