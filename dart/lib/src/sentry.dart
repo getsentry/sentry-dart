@@ -416,7 +416,7 @@ class Sentry {
   ///   // On top of that, you can do your own custom stuff in this callback.
   /// });
   /// ```
-  static void runZonedGuarded<R>(
+  static dynamic runZonedGuarded<R>(
     R Function() body,
     void Function(Object error, StackTrace stack)? onError, {
     Map<Object?, Object?>? zoneValues,
