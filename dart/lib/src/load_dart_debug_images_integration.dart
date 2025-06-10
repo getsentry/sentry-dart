@@ -61,7 +61,7 @@ class LoadImageIntegrationEventProcessor implements EventProcessor {
     try {
       _debugImage ??= createDebugImage(stackTrace);
     } catch (e, stack) {
-      _options.logger(
+      _options.log(
         SentryLevel.info,
         "Couldn't add Dart debug image to event. The event will still be reported.",
         exception: e,
@@ -77,7 +77,7 @@ class LoadImageIntegrationEventProcessor implements EventProcessor {
   @visibleForTesting
   DebugImage? createDebugImage(SentryStackTrace stackTrace) {
     if (stackTrace.buildId == null || stackTrace.baseAddr == null) {
-      _options.logger(SentryLevel.warning,
+      _options.log(SentryLevel.warning,
           'Cannot create DebugImage without a build ID and image base address.');
       return null;
     }
@@ -105,7 +105,7 @@ class LoadImageIntegrationEventProcessor implements EventProcessor {
       debugId = _formatHexToUuid(stackTrace.buildId!);
       codeFile = 'App.Framework/App';
     } else {
-      _options.logger(
+      _options.log(
         SentryLevel.warning,
         'Unsupported platform for creating Dart debug images.',
       );

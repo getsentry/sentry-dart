@@ -63,7 +63,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
       return true;
     }());
 
-    options.logger(SentryLevel.debug,
+    options.log(SentryLevel.debug,
         "$logName: starting capture (${config.width}x${config.height} @ ${config.frameRate} Hz).");
     _status = _Status.running;
     _startScheduler();
@@ -84,11 +84,11 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   }
 
   Future<void> stop() async {
-    options.logger(SentryLevel.debug, "$logName: stopping capture.");
+    options.log(SentryLevel.debug, "$logName: stopping capture.");
     _status = _Status.stopped;
     await _stopScheduler();
     // await Future.wait([_stopScheduler(), _idleFrameFiller.stop()]);
-    options.logger(SentryLevel.debug, "$logName: capture stopped.");
+    options.log(SentryLevel.debug, "$logName: capture stopped.");
   }
 
   Future<void> pause() async {
@@ -113,7 +113,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
       // _idleFrameFiller.actualFrameReceived(screenshot);
     } else {
       // drop any screenshots from callbacks if the replay has already been stopped/paused.
-      options.logger(SentryLevel.debug,
+      options.log(SentryLevel.debug,
           '$logName: screenshot dropped because status=${_status.name}.');
     }
   }
@@ -124,7 +124,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
       await _callback(screenshot, isNewlyCaptured);
     } else {
       // drop any screenshots from callbacks if the replay has already been stopped/paused.
-      options.logger(SentryLevel.debug,
+      options.log(SentryLevel.debug,
           '$logName: screenshot dropped because status=${_status.name}.');
     }
   }

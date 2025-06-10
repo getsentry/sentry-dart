@@ -81,6 +81,21 @@ class SentryEnvelope {
     );
   }
 
+  factory SentryEnvelope.fromLogs(
+    List<SentryLog> items,
+    SdkVersion sdkVersion,
+  ) {
+    return SentryEnvelope(
+      SentryEnvelopeHeader(
+        null,
+        sdkVersion,
+      ),
+      [
+        SentryEnvelopeItem.fromLogs(items),
+      ],
+    );
+  }
+
   /// Stream binary data representation of `Envelope` file encoded.
   Stream<List<int>> envelopeStream(SentryOptions options) async* {
     yield utf8JsonEncoder.convert(header.toJson());

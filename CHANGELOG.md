@@ -46,13 +46,9 @@ Please carefully read through the migration guide in the Sentry docs on how to u
 
 ### Features
 
-- Properly generates and links trace IDs for errors and spans ([#2869](https://github.com/getsentry/sentry-dart/pull/2869), [#2861](https://github.com/getsentry/sentry-dart/pull/2861)):
-  - **With `SentryNavigatorObserver`** - each navigation event starts a new trace.
-  - **Without `SentryNavigatorObserver` on non-web platforms** - a new trace is started from app
-    lifecycle hooks.
-  - **Web without `SentryNavigatorObserver`** - the same trace ID is reused until the page is
-    refreshed or closed.
-- Add support for structured logs ([#2919](https://github.com/getsentry/sentry-dart/pull/2919))
+- Sentry Structured Logs ([#2919](https://github.com/getsentry/sentry-dart/pull/2919))
+  - The old `SentryLogger` has been renamed to `SdkLogCallback` and can be accessed through `options.log` now.
+  - Adds support for structured logging though `Sentry.logger`:
 ```dart
 // Enable in `SentryOptions`:
 options.enableLogs = true;
@@ -66,6 +62,16 @@ Sentry.logger.warn("This is a warning log with attributes.", attributes: {
   'bool-attribute': SentryLogAttribute.bool(true),
 });
 ```
+- Properly generates and links trace IDs for errors and spans ([#2869](https://github.com/getsentry/sentry-dart/pull/2869), [#2861](https://github.com/getsentry/sentry-dart/pull/2861)):
+  - **With `SentryNavigatorObserver`** - each navigation event starts a new trace.
+  - **Without `SentryNavigatorObserver` on non-web platforms** - a new trace is started from app
+    lifecycle hooks.
+  - **Web without `SentryNavigatorObserver`** - the same trace ID is reused until the page is
+    refreshed or closed.
+- Add support for structured logs ([#2919](https://github.com/getsentry/sentry-dart/pull/2919))
+
+### Features
+
 - Add support for feature flags and integration with Firebase Remote Config ([#2825](https://github.com/getsentry/sentry-dart/pull/2825), [#2837](https://github.com/getsentry/sentry-dart/pull/2837))
 ```dart
 // Manually track a feature flag
@@ -119,6 +125,83 @@ await SentryFlutter.init(
 - Bump jni from v0.14.0 to v0.14.1 ([#2800])(https://github.com/getsentry/sentry-dart/pull/2800)
   - [changelog](https://github.com/dart-lang/native/blob/main/pkgs/jni/CHANGELOG.md#0141)
   - [diff](https://github.com/dart-lang/native/compare/jnigen-v0.14.0..jnigen-v0.14.1)
+=======
+
+### Enhancements
+
+- Align User Feedback API ([#2949](https://github.com/getsentry/sentry-dart/pull/2949))
+  - Don’t apply breadcrumbs and extras from scope to feedback events
+  - Capture session replay when processing feedback events
+  - Record `feedback` client report for dropped feedback events
+  - Record `feedback` client report for errors when using `HttpTransport`
+- Truncate feedback message to max 4096 characters ([#2954](https://github.com/getsentry/sentry-dart/pull/2954))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.49.2 to v8.51.0 ([#2951](https://github.com/getsentry/sentry-dart/pull/2951))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8510)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.49.2...8.51.0)
+- Bump Android SDK from v8.11.1 to v8.12.0 ([#2941](https://github.com/getsentry/sentry-dart/pull/2941))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8120)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.11.1...8.12.0)
+
+=======
+## 9.0.0-RC.3
+
+### Features
+
+- Sentry Structured Logs ([#2919](https://github.com/getsentry/sentry-dart/pull/2919))
+  - The old `SentryLogger` has been renamed to `SdkLogCallback` and can be accessed through `options.log` now.
+  - Adds support for structured logging though `Sentry.logger`:
+```dart
+// Enable in `SentryOptions`:
+options.enableLogs = true;
+
+// Use `Sentry.logger`
+Sentry.logger.info("This is a info log.");
+Sentry.logger.warn("This is a warning log with attributes.", attributes: {
+  'string-attribute': SentryLogAttribute.string('string'),
+  'int-attribute': SentryLogAttribute.int(1),
+  'double-attribute': SentryLogAttribute.double(1.0),
+  'bool-attribute': SentryLogAttribute.bool(true),
+});
+```
+
+## 9.0.0-RC.2
+
+### Fixes
+
+- Add `hasSize` guard when using a renderObject in `SentryUserInteractionWidget` ([#2946](https://github.com/getsentry/sentry-dart/pull/2946))
+
+## 9.0.0-RC.1
+
+### Fixes
+
+- Fix feature flag model keys ([#2943](https://github.com/getsentry/sentry-dart/pull/2943))
+
+## 9.0.0-RC
+
+### Various fixes & improvements
+
+- build(deps): bump ruby/setup-ruby from 1.233.0 to 1.237.0 (#2908) by @dependabot
+- build(deps): bump actions/create-github-app-token from 2.0.2 to 2.0.6 (#2909) by @dependabot
+
+## 9.0.0-beta.2
+
+### Fixes
+
+- Errors caught by `OnErrorIntegration` should be unhandled by default ([#2901](https://github.com/getsentry/sentry-dart/pull/2901))
+  - This will not affect grouping
+  - This might affect crash-free rate
+
+### Dependencies
+
+- Bump Android SDK from v8.9.0 to v8.11.1 ([#2899](https://github.com/getsentry/sentry-dart/pull/2899), [#2904](https://github.com/getsentry/sentry-dart/pull/2904))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8111)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.9.0...8.11.1)
+- Bump Cocoa SDK from v8.49.1 to v8.49.2 ([#2905](https://github.com/getsentry/sentry-dart/pull/2905))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8492)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.49.1...8.49.2)
 
 ## 9.0.0-beta.1
 
@@ -143,7 +226,7 @@ await SentryFlutter.init(
     options.dsn = 'https://example@sentry.io/add-your-dsn-here';
     options.addIntegration(
       SentryFirebaseRemoteConfigIntegration(
-        firebaseRemoteConfig: yourRirebaseRemoteConfig,
+        firebaseRemoteConfig: yourFirebaseRemoteConfig,
       ),
     );
   },
@@ -595,7 +678,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
       },
       appRunner: () => runApp(MyApp()),
     );
-  } (error, stackTrace) {
+  }, (error, stackTrace) {
     // Automatically sends errors to Sentry, no need to do any
     // captureException calls on your part.
     // On top of that, you can do your own custom stuff in this callback.
@@ -686,7 +769,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
       },
       appRunner: () => runApp(MyApp()),
     );
-  } (error, stackTrace) {
+  }, (error, stackTrace) {
     // Automatically sends errors to Sentry, no need to do any
     // captureException calls on your part.
     // On top of that, you can do your own custom stuff in this callback.

@@ -12,7 +12,7 @@ class TransportUtils {
       {required String target}) {
     if (response.statusCode != 200) {
       if (options.debug) {
-        options.logger(
+        options.log(
           SentryLevel.error,
           'Error, statusCode = ${response.statusCode}, body = ${response.body}',
         );
@@ -36,7 +36,7 @@ class TransportUtils {
         }
       }
     } else {
-      options.logger(
+      options.log(
         SentryLevel.debug,
         'Envelope ${envelope.header.eventId ?? "--"} was sent successfully to $target.',
       );

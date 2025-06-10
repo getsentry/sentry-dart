@@ -23,11 +23,9 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
   ErrorCallback? _defaultOnError;
   ErrorCallback? _integrationOnError;
   PlatformDispatcherWrapper? dispatchWrapper;
-  SentryFlutterOptions? _options;
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
-    _options = options;
     final binding = options.bindingUtils.instance;
 
     if (binding == null) {
@@ -41,15 +39,20 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
     _defaultOnError = wrapper.onError;
 
     _integrationOnError = (Object exception, StackTrace stackTrace) {
-      _options!.logger(
-        SentryLevel.error,
-        "Uncaught Platform Error",
-        logger: 'sentry.platformError',
-        exception: exception,
-        stackTrace: stackTrace,
-      );
-
-      final handled = _defaultOnError?.call(exception, stackTrace) ?? true;
+      final handled = _defaultOnError?.call(exception, stackTrace) ?? false;
+      // If the original `onError` callback returned `true` the framework
+      // treats the exception as already handled and suppresses the default
+      // error printing. To make sure these exceptions are still visible
+      // to developers (and to Sentry), we log them explicitly here.
+      if (handled) {
+        options.log(
+          SentryLevel.error,
+          'Uncaught Platform Error',
+          logger: 'sentry.platformError',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      }
 
       // As per docs, the app might crash on some platforms
       // after this is called.
