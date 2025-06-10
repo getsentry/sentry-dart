@@ -114,7 +114,8 @@ jobs:
       fail-fast: false
       matrix:
         target: [ios, macos]
-        sdk: [stable, beta]
+        # disable beta for now as there are issues with minimum deployment version
+        sdk: [stable]
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -122,20 +123,6 @@ jobs:
       - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
         with:
           channel: ${{ matrix.sdk }}
-
-      # Currently the beta requires a deployment target of `13.0`
-      - name: Update iOS deployment target for beta
-        if: matrix.sdk == 'beta' && matrix.target == 'ios'
-        working-directory: ./flutter/example/${{ matrix.target }}
-        run: |
-          sed -i '' 's/12\.0/13.0/g' Podfile
-
-      # Currently the beta requires a deployment target of `10.15`
-      - name: Update macOS deployment target for beta
-        if: matrix.sdk == 'beta' && matrix.target == 'macos'
-        working-directory: ./flutter/example/${{ matrix.target }}
-        run: |
-          sed -i '' 's/10\.14/10.15/g' Podfile
 
       - run: flutter pub get
 
