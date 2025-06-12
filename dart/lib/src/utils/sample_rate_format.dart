@@ -102,9 +102,9 @@ class SampleRateFormat {
   static final _maxInt = 1 is double ? pow(2, 52) : 1.0e300.floor();
   static final _maxDigits = (log(_maxInt) / log(10)).ceil();
 
-  bool _isNaN(number) => number is num ? number.isNaN : false;
-  bool _isSmallerZero(number) => number is num ? number < 0 : false;
-  bool _isLargerOne(number) => number is num ? number > 1 : false;
+  bool _isNaN(dynamic number) => number is num ? number.isNaN : false;
+  bool _isSmallerZero(dynamic number) => number is num ? number < 0 : false;
+  bool _isLargerOne(dynamic number) => number is num ? number > 1 : false;
 
   /// Format the basic number portion, including the fractional digits.
   void _formatFixed(dynamic number) {
@@ -240,7 +240,7 @@ class SampleRateFormat {
 
   /// Compute the raw integer digits which will then be printed with
   /// grouping and translated to localized digits.
-  String _integerDigits(integerPart, extraIntegerDigits) {
+  String _integerDigits(dynamic integerPart, dynamic extraIntegerDigits) {
     // If the integer part is larger than the maximum integer size
     // (2^52 on Javascript, 2^63 on the VM) it will lose precision,
     // so pad out the rest of it with zeros.
@@ -265,7 +265,7 @@ class SampleRateFormat {
   /// The digit string of the integer part. This is the empty string if the
   /// integer part is zero and otherwise is the toString() of the integer
   /// part, stripping off any minus sign.
-  String _mainIntegerDigits(integer) {
+  String _mainIntegerDigits(dynamic integer) {
     if (integer == 0) return '';
     var digits = integer.toString();
     // If we have a fixed-length int representation, it can have a negative
