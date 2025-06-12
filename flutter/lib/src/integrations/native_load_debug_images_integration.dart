@@ -22,20 +22,25 @@ class LoadNativeDebugImagesIntegration
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
-    options.addEventProcessor(
-      _LoadImageListIntegrationEventProcessor(options, _native),
-    );
-    options.sdk.addIntegration(integrationName);
+    // ignore: invalid_use_of_internal_member
+    if (options.runtimeChecker.isAppObfuscated()) {
+      options.addEventProcessor(
+        _LoadNativeDebugImagesIntegrationEventProcessor(options, _native),
+      );
+      options.sdk.addIntegration(integrationName);
+    }
   }
 }
 
-class _LoadImageListIntegrationEventProcessor implements EventProcessor {
-  _LoadImageListIntegrationEventProcessor(this._options, this._native);
+class _LoadNativeDebugImagesIntegrationEventProcessor
+    implements EventProcessor {
+  _LoadNativeDebugImagesIntegrationEventProcessor(this._options, this._native);
 
   final SentryFlutterOptions _options;
   final SentryNativeBinding _native;
 
-  late final _dartProcessor = LoadImageIntegrationEventProcessor(_options);
+  late final _dartProcessor =
+      LoadDartDebugImagesIntegrationEventProcessor(_options);
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {

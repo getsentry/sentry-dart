@@ -73,10 +73,12 @@ void main() {}
 class MockRuntimeChecker with NoSuchMethodProvider implements RuntimeChecker {
   MockRuntimeChecker({
     this.buildMode = MockRuntimeCheckerBuildMode.debug,
+    this.isObfuscated = false,
     this.isRoot = true,
   });
 
   final MockRuntimeCheckerBuildMode buildMode;
+  final bool isObfuscated;
   final bool isRoot;
 
   @override
@@ -87,6 +89,9 @@ class MockRuntimeChecker with NoSuchMethodProvider implements RuntimeChecker {
 
   @override
   bool isReleaseMode() => buildMode == MockRuntimeCheckerBuildMode.release;
+
+  @override
+  bool isAppObfuscated() => isObfuscated;
 
   @override
   bool get isRootZone => isRoot;
