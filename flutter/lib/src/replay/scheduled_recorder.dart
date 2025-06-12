@@ -15,10 +15,9 @@ typedef ScheduledScreenshotRecorderCallback = Future<void> Function(
 
 @internal
 class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
-  late final Scheduler _scheduler;
   late final ScheduledScreenshotRecorderCallback _callback;
-  var _status = _Status.running;
-  late final Duration _frameDuration;
+  var _status = _Status.stopped;
+  Scheduler? _scheduler;
   // late final _idleFrameFiller = _IdleFrameFiller(_frameDuration, _onScreenshot);
 
   @override
@@ -26,20 +25,8 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   ScheduledScreenshotRecorderConfig get config =>
       super.config as ScheduledScreenshotRecorderConfig;
 
-  ScheduledScreenshotRecorder(
-      ScheduledScreenshotRecorderConfig config, SentryFlutterOptions options,
-      [ScheduledScreenshotRecorderCallback? callback])
-      : super(config, options) {
-    assert(config.frameRate > 0);
-    _frameDuration = Duration(milliseconds: 1000 ~/ config.frameRate);
-    assert(_frameDuration.inMicroseconds > 0);
-
-    _scheduler = Scheduler(
-      _frameDuration,
-      (_) => capture(_onImageCaptured),
-      _addPostFrameCallback,
-    );
-
+  ScheduledScreenshotRecorder(super.options,
+      [ScheduledScreenshotRecorderCallback? callback]) {
     if (callback != null) {
       _callback = callback;
     }
@@ -55,7 +42,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     _callback = callback;
   }
 
-  void start() {
+  void start() async {
     assert(() {
       // The following fails if callback hasn't been provided
       // in the constructor nor set with a setter.
@@ -63,24 +50,49 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
       return true;
     }());
 
-    options.log(SentryLevel.debug,
-        "$logName: starting capture (${config.width}x${config.height} @ ${config.frameRate} Hz).");
+    options.log(SentryLevel.debug, "$logName: starting capture");
     _status = _Status.running;
-    _startScheduler();
+    _restartScheduler();
+  }
+
+  void onConfigurationChanged(ScheduledScreenshotRecorderConfig config) async {
+    super.config = config;
+    options.log(SentryLevel.debug,
+        "$logName: onConfigurationChanged (${config.width}x${config.height} @ ${config.frameRate} Hz).");
+
+    _restartScheduler();
   }
 
   Future<void> _stopScheduler() {
-    return _scheduler.stop();
+    return _scheduler?.stop() ?? Future.value();
   }
 
-  void _startScheduler() {
-    _scheduler.start();
+  void _restartScheduler() async {
+    await _stopScheduler();
 
-    // We need to schedule a frame because if this happens in-between user
-    // actions, there may not be any frame captured for a long time so even
-    // the IdleFrameFiller won't have anything to repeat. This would appear
-    // as if the replay was broken.
-    options.bindingUtils.instance!.ensureVisualUpdate();
+    if (super.config == null) {
+      return;
+    }
+
+    assert(config.frameRate > 0);
+    var frameDuration = Duration(milliseconds: 1000 ~/ config.frameRate);
+    assert(frameDuration.inMicroseconds > 0);
+
+    _scheduler = Scheduler(
+      frameDuration,
+      (_) => capture(_onImageCaptured),
+      _addPostFrameCallback,
+    );
+
+    if (_status == _Status.running) {
+      _scheduler!.start();
+
+      // We need to schedule a frame because if this happens in-between user
+      // actions, there may not be any frame captured for a long time so even
+      // the IdleFrameFiller won't have anything to repeat. This would appear
+      // as if the replay was broken.
+      options.bindingUtils.instance!.ensureVisualUpdate();
+    }
   }
 
   Future<void> stop() async {
@@ -102,7 +114,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   Future<void> resume() async {
     if (_status == _Status.paused) {
       _status = _Status.running;
-      _startScheduler();
+      _restartScheduler();
       // _idleFrameFiller.resume();
     }
   }
