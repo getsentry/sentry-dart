@@ -7,17 +7,17 @@ import '../sentry_flutter_options.dart';
 
 Integration<SentryFlutterOptions> createLoadDebugImagesIntegration(
     SentryNativeBinding native) {
-  return LoadNativeDebugImagesIntegration(native);
+  return LoadWebDebugImagesIntegration(native);
 }
 
 /// Loads the debug id injected by Sentry tooling e.g Sentry Dart Plugin
 /// This is necessary for symbolication of minified js stacktraces via debug ids.
-class LoadNativeDebugImagesIntegration
+class LoadWebDebugImagesIntegration
     extends Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
   static const integrationName = 'LoadWebDebugImages';
 
-  LoadNativeDebugImagesIntegration(this._native);
+  LoadWebDebugImagesIntegration(this._native);
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
