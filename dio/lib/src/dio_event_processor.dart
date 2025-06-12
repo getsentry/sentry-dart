@@ -45,11 +45,18 @@ class DioEventProcessor implements EventProcessor {
     final headers = options.headers
         .map((key, dynamic value) => MapEntry(key, value?.toString() ?? ''));
 
+    // Get content length from request headers (similar to response handling)
+    final contentLength = _getRequestContentLength(options.headers);
+    final requestData = _getRequestData(dioError.requestOptions.data);
+    
+    // Apply content-length filtering if we have both content-length and data
+    final filteredData = _filterDataByContentLength(requestData, contentLength);
+
     return SentryRequest.fromUri(
       uri: options.uri,
       method: options.method,
       headers: _options.sendDefaultPii ? headers : null,
-      data: _getRequestData(dioError.requestOptions.data),
+      data: filteredData,
     );
   }
 
@@ -58,16 +65,53 @@ class DioEventProcessor implements EventProcessor {
     if (!_options.sendDefaultPii) {
       return null;
     }
+    
+    // For String data, we have exact size information
     if (data is String) {
       if (_options.maxRequestBodySize.shouldAddBody(data.codeUnits.length)) {
         return data;
       }
-    } else if (data is List<int>) {
+    } 
+    // For List<int> data, we have exact size information
+    else if (data is List<int>) {
       if (_options.maxRequestBodySize.shouldAddBody(data.length)) {
         return data;
       }
     }
+    // For other data types (Map, List, primitives), check if we have content-length from headers
+    else if (data != null) {
+      return data; // Include data and let content-length from headers determine if it should be sent
+    }
+    
     return null;
+  }
+
+  /// Extract content-length from request headers
+  int? _getRequestContentLength(Map<String, dynamic> headers) {
+    // Convert headers to the format expected by HttpHeaderUtils
+    final convertedHeaders = <String, List<String>>{};
+    headers.forEach((key, value) {
+      convertedHeaders[key] = [value?.toString() ?? ''];
+    });
+    
+    // ignore: invalid_use_of_internal_member
+    return HttpHeaderUtils.getContentLength(convertedHeaders);
+  }
+  
+  /// Filter data based on content-length and maxRequestBodySize settings
+  Object? _filterDataByContentLength(Object? data, int? contentLength) {
+    if (data == null) {
+      return null;
+    }
+    
+    // If we have content-length from headers, use it for size checking
+    if (contentLength != null) {
+      if (!_options.maxRequestBodySize.shouldAddBody(contentLength)) {
+        return null; // Data too large according to content-length
+      }
+    }
+    
+    return data;
   }
 
   SentryResponse _responseFrom(DioError dioError) {
