@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- SentryFeedbackWidget Improvements ([#2964](https://github.com/getsentry/sentry-dart/pull/2964))
+ - Pick screenshots from camera roll for feedback
+ - Capture a device screenshot for feedback
+ - Customize tests and required fields
+ - Customization moved from the `SentryFeedbackWidget` constructor to `SentryFlutterOptions`:
+```dart
+options.feedback.showBranding = false;
+```
+
 ## 9.0.0-RC.4
 
 ### Enhancements
