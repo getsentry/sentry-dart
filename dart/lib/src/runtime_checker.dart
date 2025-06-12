@@ -26,6 +26,7 @@ class RuntimeChecker {
   bool isAppObfuscated() {
     // In non-obfuscated builds, this will return "RuntimeChecker"
     // In obfuscated builds, this will return something like "a" or other short identifier
+    // Note: Flutter Web production builds will always be minified / "obfuscated".
     final typeName = runtimeType.toString();
     return !typeName.contains('RuntimeChecker');
   }
