@@ -75,6 +75,11 @@ class SentryPrivacyOptions {
       ));
     }
 
+    rules.add(const SentryMaskingConstantRule<SensitiveContent>(
+      mask: true,
+      name: 'SensitiveContent',
+    ));
+
     // In Debug mode, check if users explicitly mask (or unmask) widgets that
     // look like they should be masked, e.g. Videos, WebViews, etc.
     if (runtimeChecker.isDebugMode()) {
