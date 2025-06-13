@@ -11,7 +11,7 @@ class RecursiveExceptionCauseExtractor {
 
   final SentryOptions _options;
 
-  List<ExceptionCause> flatten(exception, stackTrace) {
+  List<ExceptionCause> flatten(dynamic exception, dynamic stackTrace) {
     final allExceptionCauses = <ExceptionCause>[];
     final circularityDetector = <dynamic>{};
 
