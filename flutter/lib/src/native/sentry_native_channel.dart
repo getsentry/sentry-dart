@@ -84,6 +84,8 @@ class SentryNativeChannel
       },
       'enableSpotlight': options.spotlight.enabled,
       'spotlightUrl': options.spotlight.url,
+      'attachAndroidLogcat': options.attachAndroidLogcat,
+      'androidAttachmentPaths': options.androidAttachmentPaths,
     });
   }
 

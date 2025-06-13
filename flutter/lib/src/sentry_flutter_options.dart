@@ -163,6 +163,16 @@ class SentryFlutterOptions extends SentryOptions {
   /// If used on a platform other than Web, this setting will be ignored.
   List<String> denyUrls = [];
 
+  /// (Android only)
+  /// android natvie crash will use this attachment paths when crash happens and upload these attachments via event processor.
+  /// If used on a platform other than Android, it will be ignored.
+  List<String> androidAttachmentPaths = [];
+
+  /// (Android only)
+  /// Indidate that whether the recent android log cat content will be uploaded.
+  /// If used on a platform other than Android, it will be ignored.
+  bool attachAndroidLogcat = false;
+
   /// Enables Out of Memory Tracking for iOS and macCatalyst.
   /// See the following link for more information and possible restrictions:
   /// https://docs.sentry.io/platforms/apple/guides/ios/configuration/out-of-memory/
