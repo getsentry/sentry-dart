@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Report Flutter framework feature flags ([#2991](https://github.com/getsentry/sentry-dart/pull/2991))
+
 ## 9.0.0-RC.4
 
 ### Enhancements
