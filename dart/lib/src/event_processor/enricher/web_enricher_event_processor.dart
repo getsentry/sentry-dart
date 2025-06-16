@@ -26,7 +26,7 @@ class WebEnricherEventProcessor
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     // Web has no native integration, so no need to check for it
-    event.contexts = await enrich(event.contexts);
+    await enrich(event.contexts);
 
     return event
       ..request = _getRequest(event.request)
@@ -34,14 +34,13 @@ class WebEnricherEventProcessor
   }
 
   @override
-  Future<Contexts> enrich(Contexts contexts) async {
+  Future<void> enrich(Contexts contexts) async {
     contexts
       ..device = _getDevice(contexts.device)
       ..culture = _getSentryCulture(contexts.culture)
       ..runtimes = _getRuntimes(contexts.runtimes);
 
     contexts['dart_context'] = _getDartContext();
-    return contexts;
   }
 
   // As seen in

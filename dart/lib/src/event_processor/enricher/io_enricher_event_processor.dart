@@ -43,12 +43,12 @@ class IoEnricherEventProcessor
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    event.contexts = await enrich(event.contexts);
+    await enrich(event.contexts);
     return event;
   }
 
   @override
-  Future<Contexts> enrich(Contexts contexts) async {
+  Future<void> enrich(Contexts contexts) async {
     contexts
       ..device = await _getDevice(contexts.device)
       ..operatingSystem = _getOperatingSystem(contexts.operatingSystem)
@@ -57,7 +57,6 @@ class IoEnricherEventProcessor
       ..culture = _getSentryCulture(contexts.culture);
 
     contexts['dart_context'] = _getDartContext();
-    return contexts;
   }
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {

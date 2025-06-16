@@ -2852,16 +2852,20 @@ class _TestOrderObserver extends BeforeSendEventObserver {
 final class _LogsEventProcessor implements EventProcessor, ContextsEnricher {
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    event.contexts = await enrich(event.contexts);
+    await enrich(event.contexts);
     return event;
   }
 
   @override
-  Future<Contexts> enrich(Contexts contexts) async {
-    contexts.operatingSystem =
-        SentryOperatingSystem(name: 'test-name', version: 'test-version');
+  Future<void> enrich(Contexts contexts) async {
+    contexts.operatingSystem = SentryOperatingSystem(
+      name: 'test-name',
+      version: 'test-version',
+    );
     contexts.device = SentryDevice(
-        brand: 'test-brand', model: 'test-model', family: 'test-family');
-    return contexts;
+      brand: 'test-brand',
+      model: 'test-model',
+      family: 'test-family',
+    );
   }
 }

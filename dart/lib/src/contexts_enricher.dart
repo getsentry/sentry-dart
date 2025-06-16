@@ -4,5 +4,5 @@ import 'package:meta/meta.dart';
 
 abstract class ContextsEnricher {
   @internal
-  Future<Contexts> enrich(Contexts contexts);
+  Future<void> enrich(Contexts contexts);
 }

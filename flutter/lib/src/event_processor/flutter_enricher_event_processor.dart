@@ -37,7 +37,7 @@ class FlutterEnricherEventProcessor
     SentryEvent event,
     Hint hint,
   ) async {
-    event.contexts = await enrich(event.contexts);
+    await enrich(event.contexts);
     if (event is! SentryTransaction) {
       event.modules = await _getPackages();
     }
@@ -45,7 +45,7 @@ class FlutterEnricherEventProcessor
   }
 
   @override
-  Future<Contexts> enrich(Contexts contexts) async {
+  Future<void> enrich(Contexts contexts) async {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
     // TODO: while we have a native integration with JS SDK, it's currently opt in and we dont gather contexts yet
@@ -70,8 +70,6 @@ class FlutterEnricherEventProcessor
 
     // Conflicts with Flutter runtime if it's just called `Flutter`
     contexts['flutter_context'] = _getFlutterContext();
-
-    return contexts;
   }
 
   /// Packages are loaded from [LicenseRegistry].

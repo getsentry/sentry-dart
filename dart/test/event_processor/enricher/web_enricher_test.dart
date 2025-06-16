@@ -28,7 +28,8 @@ void main() {
 
     test("don't overwrite transaction", () async {
       var enricher = fixture.getSut();
-      final event = await enricher.apply(SentryEvent(transaction: 'foobar'), Hint());
+      final event =
+          await enricher.apply(SentryEvent(transaction: 'foobar'), Hint());
 
       expect(event?.transaction, 'foobar');
     });

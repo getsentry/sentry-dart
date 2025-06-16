@@ -60,7 +60,7 @@ class _LoadContextsIntegrationEventProcessor
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     // TODO don't copy everything (i.e. avoid unnecessary Map.from())
     try {
-      event.contexts = await enrich(event.contexts);
+      await enrich(event.contexts);
       final infos = _cachedInfos ?? await _native.loadContexts() ?? {};
       _cachedInfos = null;
 
@@ -206,7 +206,7 @@ class _LoadContextsIntegrationEventProcessor
   }
 
   @override
-  Future<Contexts> enrich(Contexts contexts) async {
+  Future<void> enrich(Contexts contexts) async {
     final infos = await _native.loadContexts() ?? {};
     _cachedInfos = infos;
 
@@ -247,6 +247,5 @@ class _LoadContextsIntegrationEventProcessor
         },
       );
     }
-    return contexts;
   }
 }

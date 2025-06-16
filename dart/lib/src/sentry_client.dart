@@ -562,7 +562,7 @@ class SentryClient {
       for (final eventProcessor in _options.eventProcessors) {
         if (eventProcessor is ContextsEnricher) {
           final enricher = eventProcessor as ContextsEnricher;
-          contexts = await enricher.enrich(contexts);
+          await enricher.enrich(contexts);
         }
       }
       if (contexts.operatingSystem?.name != null) {
