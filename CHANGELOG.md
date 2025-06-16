@@ -5,6 +5,11 @@
 ### Enhancements
 
 - Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
+## 9.0.0-RC.4
+
+### Enhancements
+
+- Replay: Mask RichText Widgets ([#2975](https://github.com/getsentry/sentry-dart/pull/2975))
 
 ## 9.0.0-RC.3
 

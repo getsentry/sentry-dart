@@ -201,6 +201,15 @@ class MainScaffold extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            RichText(
+              text: const TextSpan(
+                text: '(I am) Rich Text',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
+            ),
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action.\n')),
             const Padding(
