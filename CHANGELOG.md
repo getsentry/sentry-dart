@@ -46,7 +46,7 @@ Please carefully read through the migration guide in the Sentry docs on how to u
 
 ### Features
 
-- Sentry Structured Logs ([#2919](https://github.com/getsentry/sentry-dart/pull/2919))
+- Sentry Structured Logs Beta ([#2919](https://github.com/getsentry/sentry-dart/pull/2919))
   - The old `SentryLogger` has been renamed to `SdkLogCallback` and can be accessed through `options.log` now.
   - Adds support for structured logging though `Sentry.logger`:
 ```dart
