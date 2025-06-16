@@ -112,6 +112,7 @@ await SentryFlutter.init(
   - Record `feedback` client report for dropped feedback events
   - Record `feedback` client report for errors when using `HttpTransport`
 - Truncate feedback message to max 4096 characters ([#2954](https://github.com/getsentry/sentry-dart/pull/2954))
+- Replay: Mask RichText Widgets by default ([#2975](https://github.com/getsentry/sentry-dart/pull/2975))
 
 ### Dependencies
 
