@@ -16,7 +16,7 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
     options.sdk.addIntegration('FeatureFlagsIntegration');
   }
 
-  FutureOr<void> addFeatureFlag(String name, bool value) async {
+  FutureOr<void> addFeatureFlag(String flag, bool result) async {
     final flags =
         _hub?.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
             SentryFeatureFlags(values: []);
@@ -26,11 +26,11 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
       values.removeAt(0);
     }
 
-    final index = values.indexWhere((element) => element.name == name);
+    final index = values.indexWhere((element) => element.flag == flag);
     if (index != -1) {
-      values[index] = SentryFeatureFlag(name: name, value: value);
+      values[index] = SentryFeatureFlag(flag: flag, result: result);
     } else {
-      values.add(SentryFeatureFlag(name: name, value: value));
+      values.add(SentryFeatureFlag(flag: flag, result: result));
     }
 
     flags.values = values;

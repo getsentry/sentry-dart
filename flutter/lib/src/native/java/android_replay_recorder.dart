@@ -46,7 +46,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
 
     try {
       final data = await screenshot.rawRgbaData;
-      options.logger(
+      options.log(
           SentryLevel.debug,
           '$logName: captured screenshot ('
           '${screenshot.width}x${screenshot.height} pixels, '
@@ -59,7 +59,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
         height: screenshot.height,
       ));
     } catch (error, stackTrace) {
-      options.logger(
+      options.log(
         SentryLevel.error,
         '$logName: native call `addReplayScreenshot` failed',
         exception: error,

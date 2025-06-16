@@ -90,6 +90,8 @@ Future<void> setupSentry(
       options.replay.sessionSampleRate = 1.0;
       options.replay.onErrorSampleRate = 1.0;
 
+      options.enableLogs = true;
+
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
         options.dist = '1';
@@ -206,6 +208,15 @@ class MainScaffold extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            RichText(
+              text: const TextSpan(
+                text: '(I am) Rich Text',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
+            ),
             if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action.\n')),
             const Padding(
@@ -526,6 +537,23 @@ class MainScaffold extends StatelessWidget {
               text:
                   'Demonstrates the logging integration. log.info() will create an info event send it to Sentry.',
               buttonTitle: 'Logging',
+            ),
+            TooltipButton(
+              onPressed: () {
+                Sentry.addFeatureFlag('feature-one', true);
+              },
+              text: 'Demonstrates the feature flags.',
+              buttonTitle: 'Add "feature-one" flag',
+            ),
+            TooltipButton(
+              onPressed: () {
+                Sentry.logger
+                    .info('Sentry Log With Test Attribute', attributes: {
+                  'test-attribute': SentryLogAttribute.string('test-value'),
+                });
+              },
+              text: 'Demonstrates the logging with Sentry Log.',
+              buttonTitle: 'Sentry Log with Attribute',
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),

@@ -45,7 +45,7 @@ void main() async {
           context: element,
           root: element.renderObject as RenderRepaintBoundary,
           colorScheme: colorScheme);
-      expect(sut.items.length, 6);
+      expect(sut.items.length, 7);
     });
 
     testWidgets('does not redact text when disabled', (tester) async {
@@ -77,7 +77,7 @@ void main() async {
           context: element,
           root: element.renderObject as RenderRepaintBoundary,
           colorScheme: colorScheme);
-      expect(sut.items.length, 6);
+      expect(sut.items.length, 7);
       expect(
           sut.items.map(boundsRect),
           unorderedEquals([
@@ -87,6 +87,7 @@ void main() async {
             '800x24',
             '800x24',
             '50x20',
+            '144x16',
           ]));
     });
   });

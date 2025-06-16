@@ -19,7 +19,7 @@ class DefaultTaskQueue<T> implements TaskQueue<T> {
   DefaultTaskQueue(this._maxQueueSize, this._logger, this._recorder);
 
   final int _maxQueueSize;
-  final SentryLogger _logger;
+  final SdkLogCallback _logger;
   final ClientReportRecorder _recorder;
 
   int _queueCount = 0;

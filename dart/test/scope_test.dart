@@ -440,7 +440,7 @@ void main() {
       await scope.setContexts(
           SentryFeatureFlags.type,
           SentryFeatureFlags(
-            values: [SentryFeatureFlag(name: 'foo', value: true)],
+            values: [SentryFeatureFlag(flag: 'foo', result: true)],
           ));
       await scope.setUser(scopeUser);
 
@@ -456,10 +456,10 @@ void main() {
       expect(
           updatedEvent?.extra, {'e-infos': 'abc', 'company-name': 'Dart Inc'});
       expect(updatedEvent?.contexts['theme'], {'value': 'material'});
-      expect(updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.name,
+      expect(updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.flag,
           'foo');
       expect(
-          updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.value,
+          updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.result,
           true);
     });
 
@@ -604,6 +604,40 @@ void main() {
       final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.transaction, 'name');
+    });
+
+    test('should not apply breadcrumbs if feedback event', () async {
+      final feedback = SentryFeedback(
+        message: 'fixture-message',
+      );
+      final feedbackEvent = SentryEvent(
+        type: 'feedback',
+        contexts: Contexts(feedback: feedback),
+        level: SentryLevel.info,
+      );
+      final scope = Scope(defaultTestOptions());
+      await scope.addBreadcrumb(Breadcrumb(message: 'fixture-breadcrumb'));
+
+      final updatedEvent = await scope.applyToEvent(feedbackEvent, Hint());
+
+      expect(updatedEvent?.breadcrumbs, isNull);
+    });
+
+    test('should not apply extras if feedback event', () async {
+      final feedback = SentryFeedback(
+        message: 'fixture-message',
+      );
+      final feedbackEvent = SentryEvent(
+        type: 'feedback',
+        contexts: Contexts(feedback: feedback),
+        level: SentryLevel.info,
+      );
+      final scope = Scope(defaultTestOptions());
+      await scope.setExtra('fixture-extra-key', 'fixture-extra-value');
+
+      final updatedEvent = await scope.applyToEvent(feedbackEvent, Hint());
+
+      expect(updatedEvent?.extra, isNull);
     });
   });
 
@@ -810,7 +844,7 @@ class Fixture {
     options.maxBreadcrumbs = maxBreadcrumbs;
     options.beforeBreadcrumb = beforeBreadcrumbCallback;
     options.debug = debug;
-    options.logger = mockLogger;
+    options.log = mockLogger;
 
     if (scopeObserver != null) {
       options.addScopeObserver(scopeObserver);

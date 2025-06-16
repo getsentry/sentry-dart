@@ -44,7 +44,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
           appStartEnd: appStartEnd,
         );
       } catch (exception, stackTrace) {
-        options.logger(
+        options.log(
           SentryLevel.error,
           'Error while capturing native app start',
           exception: exception,

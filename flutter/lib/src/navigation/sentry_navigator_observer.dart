@@ -351,7 +351,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         );
       }
     } catch (exception, stacktrace) {
-      _hub.options.logger(
+      _hub.options.log(
         SentryLevel.error,
         'Error while finishing transaction',
         exception: exception,

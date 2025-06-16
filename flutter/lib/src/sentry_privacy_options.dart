@@ -28,7 +28,7 @@ class SentryPrivacyOptions {
 
   @internal
   SentryMaskingConfig buildMaskingConfig(
-      SentryLogger logger, RuntimeChecker runtimeChecker) {
+      SdkLogCallback logger, RuntimeChecker runtimeChecker) {
     // First, we collect rules defined by the user (so they're applied first).
     final rules = _userMaskingRules.toList();
 
@@ -68,6 +68,10 @@ class SentryPrivacyOptions {
       rules.add(const SentryMaskingConstantRule<EditableText>(
         mask: true,
         name: 'EditableText',
+      ));
+      rules.add(const SentryMaskingConstantRule<RichText>(
+        mask: true,
+        name: 'RichText',
       ));
     }
 

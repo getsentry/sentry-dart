@@ -32,7 +32,7 @@ class SentryDisplay {
       if (options.automatedTestMode) {
         rethrow;
       }
-      options.logger(
+      options.log(
         SentryLevel.error,
         'Error while reporting TTFD',
         exception: exception,
