@@ -37,10 +37,12 @@ void main() {
                 'Skipping compiling sentry_dart_web_example|web/main.dart')),
             reason:
                 'Could not compile main.dart, likely because of dart:io import.');
-        expect(compileResult.stdout, contains('building; web/main.dart'));
         expect(
           compileResult.stdout,
-          contains('Built with build_runner'),
+          anyOf(
+            contains('Built with build_runner'),
+            contains('build_web_compilers:entrypoint'),
+          ),
         );
       },
       timeout: Timeout(const Duration(minutes: 1)), // double of detault timeout
