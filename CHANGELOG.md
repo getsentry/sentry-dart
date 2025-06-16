@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-### Enhancements
-
-- Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
 Version 9.0.0 marks a major release of the Sentry Dart/Flutter SDKs containing breaking changes.
 
 The goal of this release is the following:
@@ -144,6 +141,10 @@ await SentryFlutter.init(
 - Bump jni from v0.14.0 to v0.14.1 ([#2800])(https://github.com/getsentry/sentry-dart/pull/2800)
   - [changelog](https://github.com/dart-lang/native/blob/main/pkgs/jni/CHANGELOG.md#0141)
   - [diff](https://github.com/dart-lang/native/compare/jnigen-v0.14.0..jnigen-v0.14.1)
+
+### Enhancements
+
+- Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
 
 ## 9.0.0-RC.4
 
