@@ -62,16 +62,6 @@ Sentry.logger.warn("This is a warning log with attributes.", attributes: {
   'bool-attribute': SentryLogAttribute.bool(true),
 });
 ```
-- Properly generates and links trace IDs for errors and spans ([#2869](https://github.com/getsentry/sentry-dart/pull/2869), [#2861](https://github.com/getsentry/sentry-dart/pull/2861)):
-  - **With `SentryNavigatorObserver`** - each navigation event starts a new trace.
-  - **Without `SentryNavigatorObserver` on non-web platforms** - a new trace is started from app
-    lifecycle hooks.
-  - **Web without `SentryNavigatorObserver`** - the same trace ID is reused until the page is
-    refreshed or closed.
-- Add support for structured logs ([#2919](https://github.com/getsentry/sentry-dart/pull/2919))
-
-### Features
-
 - Add support for feature flags and integration with Firebase Remote Config ([#2825](https://github.com/getsentry/sentry-dart/pull/2825), [#2837](https://github.com/getsentry/sentry-dart/pull/2837))
 ```dart
 // Manually track a feature flag
@@ -90,6 +80,12 @@ await SentryFlutter.init(
   },
 );
 ```
+- Properly generates and links trace IDs for errors and spans ([#2869](https://github.com/getsentry/sentry-dart/pull/2869), [#2861](https://github.com/getsentry/sentry-dart/pull/2861)):
+  - **With `SentryNavigatorObserver`** - each navigation event starts a new trace.
+  - **Without `SentryNavigatorObserver` on non-web platforms** - a new trace is started from app
+    lifecycle hooks.
+  - **Web without `SentryNavigatorObserver`** - the same trace ID is reused until the page is
+    refreshed or closed.
 - Add support for Flutter Web release health ([#2794](https://github.com/getsentry/sentry-dart/pull/2794))
   - Requires using `SentryNavigatorObserver`;
 
@@ -110,25 +106,6 @@ await SentryFlutter.init(
   - Some SDK classes do not have `const` constructors anymore.
   - The `copyWith` and `clone` methods of SDK classes were deprecated.
 - Replay: improve Android native interop performance by using JNI ([#2670](https://github.com/getsentry/sentry-dart/pull/2670))
-
-### Dependencies
-
-- Bump Android SDK from v7.22.4 to v8.9.0 ([#2819](https://github.com/getsentry/sentry-dart/pull/2819), [#2831](https://github.com/getsentry/sentry-dart/pull/2831), [#2848](https://github.com/getsentry/sentry-dart/pull/2848), [#2873](https://github.com/getsentry/sentry-dart/pull/2873, [#2883](https://github.com/getsentry/sentry-dart/pull/2883)))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#890)
-  - [diff](https://github.com/getsentry/sentry-java/compare/7.22.4...8.9.0)
-- Bump Cocoa SDK from v8.46.0 to v8.49.0 ([#2820](https://github.com/getsentry/sentry-dart/pull/2820), [#2851](https://github.com/getsentry/sentry-dart/pull/2851, [#2884](https://github.com/getsentry/sentry-dart/pull/2884)))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8491)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.46.0...8.49.1)
-- Bump Native SDK from v0.8.2 to v0.8.4 ([#2823](https://github.com/getsentry/sentry-dart/pull/2823), [#2872](https://github.com/getsentry/sentry-dart/pull/2872))
-  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#084)
-  - [diff](https://github.com/getsentry/sentry-native/compare/0.8.2...0.8.4)
-- Bump jni from v0.14.0 to v0.14.1 ([#2800])(https://github.com/getsentry/sentry-dart/pull/2800)
-  - [changelog](https://github.com/dart-lang/native/blob/main/pkgs/jni/CHANGELOG.md#0141)
-  - [diff](https://github.com/dart-lang/native/compare/jnigen-v0.14.0..jnigen-v0.14.1)
-=======
-
-### Enhancements
-
 - Align User Feedback API ([#2949](https://github.com/getsentry/sentry-dart/pull/2949))
   - Don’t apply breadcrumbs and extras from scope to feedback events
   - Capture session replay when processing feedback events
@@ -138,14 +115,25 @@ await SentryFlutter.init(
 
 ### Dependencies
 
-- Bump Cocoa SDK from v8.49.2 to v8.51.0 ([#2951](https://github.com/getsentry/sentry-dart/pull/2951))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8510)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.49.2...8.51.0)
-- Bump Android SDK from v8.11.1 to v8.12.0 ([#2941](https://github.com/getsentry/sentry-dart/pull/2941))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8120)
-  - [diff](https://github.com/getsentry/sentry-java/compare/8.11.1...8.12.0)
+- Bump Android SDK from v7.22.4 to v8.12.0 ([#2941](https://github.com/getsentry/sentry-dart/pull/2941), [#2819](https://github.com/getsentry/sentry-dart/pull/2819), [#2831](https://github.com/getsentry/sentry-dart/pull/2831), [#2848](https://github.com/getsentry/sentry-dart/pull/2848), [#2873](https://github.com/getsentry/sentry-dart/pull/2873, [#2883](https://github.com/getsentry/sentry-dart/pull/2883)))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#890)
+  - [diff](https://github.com/getsentry/sentry-java/compare/7.22.4...8.9.0)
+- Bump Cocoa SDK from v8.46.0 to v8.51.0 ([#2820](https://github.com/getsentry/sentry-dart/pull/2820), [#2851](https://github.com/getsentry/sentry-dart/pull/2851), [#2884](https://github.com/getsentry/sentry-dart/pull/2884), [#2951](https://github.com/getsentry/sentry-dart/pull/2951)))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8491)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.46.0...8.49.1)
+- Bump Native SDK from v0.8.2 to v0.8.4 ([#2823](https://github.com/getsentry/sentry-dart/pull/2823), [#2872](https://github.com/getsentry/sentry-dart/pull/2872))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#084)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.8.2...0.8.4)
+- Bump jni from v0.14.0 to v0.14.1 ([#2800])(https://github.com/getsentry/sentry-dart/pull/2800)
+  - [changelog](https://github.com/dart-lang/native/blob/main/pkgs/jni/CHANGELOG.md#0141)
+  - [diff](https://github.com/dart-lang/native/compare/jnigen-v0.14.0..jnigen-v0.14.1)
 
-=======
+## 9.0.0-RC.4
+
+### Enhancements
+
+- Replay: Mask RichText Widgets ([#2975](https://github.com/getsentry/sentry-dart/pull/2975))
+
 ## 9.0.0-RC.3
 
 ### Features
