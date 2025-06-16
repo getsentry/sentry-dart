@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.0.0
 
 Version 9.0.0 marks a major release of the Sentry Dart/Flutter SDKs containing breaking changes.
 
