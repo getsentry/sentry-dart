@@ -31,7 +31,7 @@ class SentrySpanHelper {
   }) async {
     final parentSpan = _transactionStack.lastOrNull ?? _hub.getSpan();
     if (parentSpan == null) {
-      _hub.options.logger(
+      _hub.options.log(
         SentryLevel.warning,
         'Active Sentry transaction does not exist, could not start span for the Drift operation: $description',
         logger: loggerName,
@@ -76,7 +76,7 @@ class SentrySpanHelper {
   }) {
     final parentSpan = _transactionStack.lastOrNull ?? _hub.getSpan();
     if (parentSpan == null) {
-      _hub.options.logger(
+      _hub.options.log(
         SentryLevel.warning,
         'Active Sentry transaction does not exist, could not start span for Drift operation: Begin Transaction',
         logger: loggerName,
@@ -119,7 +119,7 @@ class SentrySpanHelper {
   Future<T> finishTransaction<T>(Future<T> Function() execute) async {
     final parentSpan = _transactionStack.lastOrNull;
     if (parentSpan == null) {
-      _hub.options.logger(
+      _hub.options.log(
         SentryLevel.warning,
         'Active Sentry transaction does not exist, could not finish span for Drift operation: Finish Transaction',
         logger: loggerName,
@@ -146,7 +146,7 @@ class SentrySpanHelper {
   Future<T> abortTransaction<T>(Future<T> Function() execute) async {
     final parentSpan = _transactionStack.lastOrNull;
     if (parentSpan == null) {
-      _hub.options.logger(
+      _hub.options.log(
         SentryLevel.warning,
         'Active Sentry transaction does not exist, could not finish span for Drift operation: Abort Transaction',
         logger: loggerName,

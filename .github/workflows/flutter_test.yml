@@ -114,7 +114,8 @@ jobs:
       fail-fast: false
       matrix:
         target: [ios, macos]
-        sdk: [stable, beta]
+        # disable beta for now as there are issues with minimum deployment version
+        sdk: [stable]
     steps:
       - name: checkout
         uses: actions/checkout@v4

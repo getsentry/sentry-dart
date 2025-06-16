@@ -33,32 +33,32 @@ void main() {
     expect(200, options.maxBreadcrumbs);
   });
 
-  test('SentryLogger sets a diagnostic logger', () {
+  test('SdkLogger sets a diagnostic logger', () {
     final options = defaultTestOptions();
-    expect(options.logger, noOpLogger);
+    expect(options.log, noOpLog);
     options.debug = true;
 
-    expect(options.logger, isNot(noOpLogger));
+    expect(options.log, isNot(noOpLog));
   });
 
   test('setting debug correctly sets logger', () {
     final options = defaultTestOptions();
-    expect(options.logger, noOpLogger);
-    expect(options.diagnosticLogger, isNull);
+    expect(options.log, noOpLog);
+    expect(options.diagnosticLog, isNull);
     options.debug = true;
-    expect(options.logger, isNot(options.debugLogger));
-    expect(options.diagnosticLogger!.logger, options.debugLogger);
-    expect(options.logger, options.diagnosticLogger!.log);
+    expect(options.log, isNot(options.debugLog));
+    expect(options.diagnosticLog!.logger, options.debugLog);
+    expect(options.log, options.diagnosticLog!.log);
 
     options.debug = false;
-    expect(options.logger, isNot(noOpLogger));
-    expect(options.diagnosticLogger!.logger, noOpLogger);
-    expect(options.logger, options.diagnosticLogger!.log);
+    expect(options.log, isNot(noOpLog));
+    expect(options.diagnosticLog!.logger, noOpLog);
+    expect(options.log, options.diagnosticLog!.log);
 
     options.debug = true;
-    expect(options.logger, isNot(options.debugLogger));
-    expect(options.diagnosticLogger!.logger, options.debugLogger);
-    expect(options.logger, options.diagnosticLogger!.log);
+    expect(options.log, isNot(options.debugLog));
+    expect(options.diagnosticLog!.logger, options.debugLog);
+    expect(options.log, options.diagnosticLog!.log);
   });
 
   test('tracesSampler is null by default', () {

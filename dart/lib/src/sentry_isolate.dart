@@ -46,7 +46,7 @@ class SentryIsolate {
     Hub hub,
     dynamic error,
   ) async {
-    hub.options.logger(SentryLevel.debug, 'Capture from IsolateError $error');
+    hub.options.log(SentryLevel.debug, 'Capture from IsolateError $error');
 
     // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
     // error is a list of 2 elements
@@ -60,7 +60,7 @@ class SentryIsolate {
       final String throwable = error.first;
       final String? stackTrace = error.last;
 
-      hub.options.logger(
+      hub.options.log(
         SentryLevel.error,
         'Uncaught isolate error',
         logger: 'sentry.isolateError',

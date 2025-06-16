@@ -281,6 +281,43 @@ void main() {
       final result = rateLimiter.filter(envelope);
       expect(result, isNull);
     });
+
+    test('log', () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+
+      final log = SentryLog(
+        timestamp: DateTime.now(),
+        traceId: SentryId.newId(),
+        level: SentryLogLevel.info,
+        body: 'test',
+        attributes: {
+          'test': SentryLogAttribute.string('test'),
+        },
+      );
+
+      final sdkVersion = SdkVersion(name: 'test', version: 'test');
+      final envelope = SentryEnvelope.fromLogs([log], sdkVersion);
+
+      rateLimiter.updateRetryAfterLimits(
+          '1:log_item:key, 5:log_item:organization', null, 1);
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+    });
+  });
+
+  group('$DataCategory', () {
+    test('fromItemType', () {
+      expect(DataCategory.fromItemType('event'), DataCategory.error);
+      expect(DataCategory.fromItemType('session'), DataCategory.session);
+      expect(DataCategory.fromItemType('attachment'), DataCategory.attachment);
+      expect(
+          DataCategory.fromItemType('transaction'), DataCategory.transaction);
+      expect(DataCategory.fromItemType('statsd'), DataCategory.metricBucket);
+      expect(DataCategory.fromItemType('log'), DataCategory.logItem);
+      expect(DataCategory.fromItemType('unknown'), DataCategory.unknown);
+    });
   });
 }
 

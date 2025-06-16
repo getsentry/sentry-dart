@@ -24,7 +24,7 @@ class CocoaReplayRecorder {
   Future<Map<String, int>?> captureScreenshot() async {
     return _recorder.capture((screenshot) async {
       final data = await screenshot.rawRgbaData;
-      _options.logger(
+      _options.log(
           SentryLevel.debug,
           'Replay: captured screenshot ('
           '${screenshot.width}x${screenshot.height} pixels, '
