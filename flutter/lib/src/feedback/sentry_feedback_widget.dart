@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import '../../sentry_flutter.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:meta/meta.dart';
 import 'sentry_feedback_options.dart';
 import 'package:flutter/services.dart';
@@ -65,7 +64,6 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   final TextEditingController _messageController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final _imagePicker = ImagePicker();
 
   SentryAttachment? _screenshot;
   Future<Uint8List>? _screenshotFuture;
@@ -254,54 +252,20 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                               ),
                               const SizedBox(width: 8),
                             ],
-                            if (widget.options.showAddScreenshot)
+                            if (_screenshot != null)
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    if (_screenshot != null) {
-                                      setState(() {
-                                        _screenshot = null;
-                                        _screenshotFuture = null;
-                                      });
-                                    } else {
-                                      try {
-                                        final pickerFile =
-                                            await _imagePicker.pickImage(
-                                          source: ImageSource.gallery,
-                                          requestFullMetadata: false,
-                                        );
-                                        if (pickerFile == null) {
-                                          return;
-                                        }
-                                        final imageData =
-                                            await pickerFile.readAsBytes();
-                                        setState(() {
-                                          _screenshot =
-                                              SentryAttachment.fromIntList(
-                                            imageData,
-                                            pickerFile.name,
-                                            contentType: pickerFile.mimeType,
-                                          );
-                                          _screenshotFuture =
-                                              Future.value(imageData);
-                                        });
-                                      } catch (e, stackTrace) {
-                                        await Sentry.captureException(e,
-                                            stackTrace: stackTrace);
-                                      }
-                                    }
+                                    setState(() {
+                                      _screenshot = null;
+                                      _screenshotFuture = null;
+                                    });
                                   },
-                                  child: _screenshot == null
-                                      ? Text(
-                                          key: const ValueKey(
-                                              'sentry_feedback_add_screenshot_button'),
-                                          widget
-                                              .options.addScreenshotButtonLabel)
-                                      : Text(
-                                          key: const ValueKey(
-                                              'sentry_feedback_remove_screenshot_button'),
-                                          widget.options
-                                              .removeScreenshotButtonLabel),
+                                  child: Text(
+                                      key: const ValueKey(
+                                          'sentry_feedback_remove_screenshot_button'),
+                                      widget
+                                          .options.removeScreenshotButtonLabel),
                                 ),
                               ),
                           ],

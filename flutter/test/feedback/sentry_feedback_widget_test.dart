@@ -145,28 +145,6 @@ void main() {
       expect(find.text('Email'), findsNothing);
     });
 
-    testWidgets('shows add screenshot button if showAddScreenshot is true',
-        (tester) async {
-      fixture.options.feedback.showAddScreenshot = true;
-      await fixture.pumpFeedbackWidget(
-        tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
-      );
-
-      expect(find.text('Add a screenshot'), findsOne);
-    });
-
-    testWidgets('hides add screenshot button if showAddScreenshot is false',
-        (tester) async {
-      fixture.options.feedback.showAddScreenshot = false;
-      await fixture.pumpFeedbackWidget(
-        tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
-      );
-
-      expect(find.text('Add a screenshot'), findsNothing);
-    });
-
     testWidgets(
         'shows capture screenshot button if showCaptureScreenshot is true',
         (tester) async {

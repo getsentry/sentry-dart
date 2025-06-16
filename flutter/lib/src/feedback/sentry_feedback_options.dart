@@ -22,9 +22,6 @@ class SentryFeedbackOptions {
   /// Displays the Sentry logo inside the form
   var showBranding = true;
 
-  /// Displays the add screenshot button on the feedback form
-  var showAddScreenshot = true;
-
   /// Displays the capture screenshot button on the feedback form
   var showCaptureScreenshot = true;
 
