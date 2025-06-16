@@ -27,6 +27,12 @@ import 'test_utils.dart';
 import 'utils/url_details_test.dart';
 import 'mocks/mock_log_batcher.dart';
 
+import 'package:sentry/src/utils/web_get_sentry_operating_system.dart'
+    if (dart.library.io) 'package:sentry/src/utils/io_get_sentry_operating_system.dart';
+
+import 'package:sentry/src/utils/web_get_sentry_device.dart'
+    if (dart.library.io) 'package:sentry/src/utils/io_get_sentry_device.dart';
+
 void main() {
   group('SentryClient captures message', () {
     late Fixture fixture;
@@ -1788,9 +1794,7 @@ void main() {
       final span = MockSpan();
       scope.span = span;
 
-      final enrichingEventProcessor = _LogsEventProcessor();
-
-      final client = fixture.getSut(eventProcessor: enrichingEventProcessor);
+      final client = fixture.getSut();
       fixture.options.logBatcher = MockLogBatcher();
 
       await client.captureLog(log, scope: scope);
@@ -1840,16 +1844,37 @@ void main() {
         'string',
       );
 
-      expect(capturedLog.attributes['os.name']?.value, 'test-name');
-      expect(capturedLog.attributes['os.name']?.type, 'string');
-      expect(capturedLog.attributes['os.version']?.value, 'test-version');
-      expect(capturedLog.attributes['os.version']?.type, 'string');
-      expect(capturedLog.attributes['device.brand']?.value, 'test-brand');
-      expect(capturedLog.attributes['device.brand']?.type, 'string');
-      expect(capturedLog.attributes['device.model']?.value, 'test-model');
-      expect(capturedLog.attributes['device.model']?.type, 'string');
-      expect(capturedLog.attributes['device.family']?.value, 'test-family');
-      expect(capturedLog.attributes['device.family']?.type, 'string');
+      final expectedOs = getSentryOperatingSystem();
+
+      if (expectedOs.name != null) {
+        expect(capturedLog.attributes['os.name']?.value, expectedOs.name);
+        expect(capturedLog.attributes['os.name']?.type, 'string');
+      }
+
+      if (expectedOs.version != null) {
+        expect(capturedLog.attributes['os.version']?.value, expectedOs.version);
+        expect(capturedLog.attributes['os.version']?.type, 'string');
+      }
+
+      final expectedDevice = getSentryDevice(null, fixture.options);
+
+      if (expectedDevice.brand != null) {
+        expect(capturedLog.attributes['device.brand']?.value,
+            expectedDevice.brand);
+        expect(capturedLog.attributes['device.brand']?.type, 'string');
+      }
+
+      if (expectedDevice.model != null) {
+        expect(capturedLog.attributes['device.model']?.value,
+            expectedDevice.model);
+        expect(capturedLog.attributes['device.model']?.type, 'string');
+      }
+
+      if (expectedDevice.family != null) {
+        expect(capturedLog.attributes['device.family']?.value,
+            expectedDevice.family);
+        expect(capturedLog.attributes['device.family']?.type, 'string');
+      }
     });
 
     test('should set trace id from propagation context', () async {
@@ -2846,26 +2871,5 @@ class _TestOrderObserver extends BeforeSendEventObserver {
   @override
   FutureOr<void> onBeforeSendEvent(SentryEvent event, Hint hint) {
     _processingOrder.add('beforeSendEvent');
-  }
-}
-
-final class _LogsEventProcessor implements EventProcessor, ContextsEnricher {
-  @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    await enrich(event.contexts);
-    return event;
-  }
-
-  @override
-  Future<void> enrich(Contexts contexts) async {
-    contexts.operatingSystem = SentryOperatingSystem(
-      name: 'test-name',
-      version: 'test-version',
-    );
-    contexts.device = SentryDevice(
-      brand: 'test-brand',
-      model: 'test-model',
-      family: 'test-family',
-    );
   }
 }

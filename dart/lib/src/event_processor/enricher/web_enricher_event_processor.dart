@@ -4,6 +4,7 @@ import 'package:web/web.dart' as web show window, Window, Navigator;
 import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
 import 'flutter_runtime.dart';
+import '../../utils/web_get_sentry_device.dart';
 
 EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
   return WebEnricherEventProcessor(
@@ -12,8 +13,7 @@ EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
   );
 }
 
-class WebEnricherEventProcessor
-    implements EnricherEventProcessor, ContextsEnricher {
+class WebEnricherEventProcessor implements EnricherEventProcessor {
   WebEnricherEventProcessor(
     this._window,
     this._options,
@@ -26,21 +26,16 @@ class WebEnricherEventProcessor
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     // Web has no native integration, so no need to check for it
-    await enrich(event.contexts);
+    event.contexts
+      ..device = getSentryDevice(event.contexts.device, _options)
+      ..culture = _getSentryCulture(event.contexts.culture)
+      ..runtimes = _getRuntimes(event.contexts.runtimes);
+
+    event.contexts['dart_context'] = _getDartContext();
 
     return event
       ..request = _getRequest(event.request)
       ..transaction = event.transaction ?? _window.location.pathname;
-  }
-
-  @override
-  Future<void> enrich(Contexts contexts) async {
-    contexts
-      ..device = _getDevice(contexts.device)
-      ..culture = _getSentryCulture(contexts.culture)
-      ..runtimes = _getRuntimes(contexts.runtimes);
-
-    contexts['dart_context'] = _getDartContext();
   }
 
   // As seen in
@@ -58,40 +53,6 @@ class WebEnricherEventProcessor
     return request
       ..headers = header
       ..sanitize();
-  }
-
-  SentryDevice _getDevice(SentryDevice? device) {
-    device ??= SentryDevice();
-    return device
-      ..online = device.online ?? _window.navigator.onLine
-      ..memorySize = device.memorySize ?? _getMemorySize()
-      ..orientation = device.orientation ?? _getScreenOrientation()
-      ..screenHeightPixels =
-          device.screenHeightPixels ?? _window.screen.availHeight
-      ..screenWidthPixels =
-          device.screenWidthPixels ?? _window.screen.availWidth
-      ..screenDensity =
-          device.screenDensity ?? _window.devicePixelRatio.toDouble();
-  }
-
-  int? _getMemorySize() {
-    // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/deviceMemory
-    // ignore: invalid_null_aware_operator
-    final size = _window.navigator.deviceMemory?.toDouble();
-    final memoryByteSize = size != null ? size * 1024 * 1024 * 1024 : null;
-    return memoryByteSize?.toInt();
-  }
-
-  SentryOrientation? _getScreenOrientation() {
-    // https://developer.mozilla.org/en-US/docs/Web/API/ScreenOrientation
-    final screenOrientation = _window.screen.orientation;
-    if (screenOrientation.type.startsWith('portrait')) {
-      return SentryOrientation.portrait;
-    }
-    if (screenOrientation.type.startsWith('landscape')) {
-      return SentryOrientation.landscape;
-    }
-    return null;
   }
 
   Map<String, dynamic> _getDartContext() {

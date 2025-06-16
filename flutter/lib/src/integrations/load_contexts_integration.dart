@@ -47,22 +47,19 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
 }
 
 class _LoadContextsIntegrationEventProcessor
-    implements EventProcessor, ContextsEnricher {
+    implements EventProcessor {
   _LoadContextsIntegrationEventProcessor(this._native, this._options);
 
   final SentryNativeBinding _native;
   final SentryFlutterOptions _options;
 
-  // Don't call native channel multiple times.
-  Map<String, dynamic>? _cachedInfos;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     // TODO don't copy everything (i.e. avoid unnecessary Map.from())
     try {
-      await enrich(event.contexts);
-      final infos = _cachedInfos ?? await _native.loadContexts() ?? {};
-      _cachedInfos = null;
+      final infos = await _native.loadContexts() ?? {};
+      await _enrichContext(event.contexts, infos);
 
       final tagsMap = infos['tags'] as Map?;
       if (tagsMap != null && tagsMap.isNotEmpty) {
@@ -205,11 +202,7 @@ class _LoadContextsIntegrationEventProcessor
     return event;
   }
 
-  @override
-  Future<void> enrich(Contexts contexts) async {
-    final infos = await _native.loadContexts() ?? {};
-    _cachedInfos = infos;
-
+  void _enrichContext(Contexts contexts, Map<String, dynamic> infos) {
     final contextsMap = infos['contexts'] as Map?;
 
     if (contextsMap != null && contextsMap.isNotEmpty) {
