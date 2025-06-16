@@ -37,6 +37,7 @@ void main() {
                 'Skipping compiling sentry_dart_web_example|web/main.dart')),
             reason:
                 'Could not compile main.dart, likely because of dart:io import.');
+        expect(compileResult.stdout, 'building; web/main.dart');
         expect(
           compileResult.stdout,
           contains('Built with build_runner'),
