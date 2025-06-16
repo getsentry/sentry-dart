@@ -133,15 +133,17 @@ void main() {
         await tester.tap(find.byType(ElevatedButton));
 
         // Ensure spans are created and frame tracking is active
-        expect(tracer, isNotNull, reason: 'Tracer should be created after tapping button');
-        expect(child, isNotNull, reason: 'Child span should be created after tapping button');
-        
+        expect(tracer, isNotNull,
+            reason: 'Tracer should be created after tapping button');
+        expect(child, isNotNull,
+            reason: 'Child span should be created after tapping button');
+
         // Give time for the SpanFrameMetricsCollector.onSpanStarted to activate tracking
         await tester.pump(Duration(milliseconds: 10));
-        
+
         // Verify frame tracking is active
         expect(widgetsBinding!.options?.enableFramesTracking, isTrue);
-        
+
         /// Generates 2 slow and 1 frozen frame for the child span
         Future<void> _simulateChildSpanFrames() async {
           // Simulate slow frame (100ms > 16.67ms expected frame duration)
@@ -165,7 +167,7 @@ void main() {
         }
 
         await _simulateChildSpanFrames();
-        
+
         // Allow time for frame processing before finishing child span
         await tester.pump(Duration(milliseconds: 10));
         await child?.finish(endTimestamp: options.clock());
@@ -190,7 +192,7 @@ void main() {
         }
 
         await _simulateTracerFrames();
-        
+
         // Allow time for frame processing before finishing tracer
         await tester.pump(Duration(milliseconds: 10));
         await tracer?.finish(endTimestamp: options.clock());
@@ -202,32 +204,41 @@ void main() {
 
         // Verify child span - add more detailed error messages
         final childSpan = tracer!.children.first;
-        expect(childSpan.data['frames.slow'] as int?, 2, 
-            reason: 'Child span should have 2 slow frames, but got ${childSpan.data['frames.slow']}. '
-                   'Child span data: ${childSpan.data}');
+        expect(childSpan.data['frames.slow'] as int?, 2,
+            reason:
+                'Child span should have 2 slow frames, but got ${childSpan.data['frames.slow']}. '
+                'Child span data: ${childSpan.data}');
         expect(childSpan.data['frames.frozen'] as int?, 1,
-            reason: 'Child span should have 1 frozen frame, but got ${childSpan.data['frames.frozen']}. '
-                   'Child span data: ${childSpan.data}');
+            reason:
+                'Child span should have 1 frozen frame, but got ${childSpan.data['frames.frozen']}. '
+                'Child span data: ${childSpan.data}');
 
         // Verify tracer - add more detailed error messages
         expect(tracer!.data['frames.slow'] as int?, 5,
-            reason: 'Tracer should have 5 slow frames total, but got ${tracer!.data['frames.slow']}. '
-                   'Tracer data: ${tracer!.data}');
+            reason:
+                'Tracer should have 5 slow frames total, but got ${tracer!.data['frames.slow']}. '
+                'Tracer data: ${tracer!.data}');
         expect(tracer!.data['frames.frozen'] as int?, 2,
-            reason: 'Tracer should have 2 frozen frames total, but got ${tracer!.data['frames.frozen']}. '
-                   'Tracer data: ${tracer!.data}');
-                   
+            reason:
+                'Tracer should have 2 frozen frames total, but got ${tracer!.data['frames.frozen']}. '
+                'Tracer data: ${tracer!.data}');
+
         expect(
             (tracer!.measurements['frames_total'] as SentryMeasurement?)?.value,
             greaterThanOrEqualTo(8),
-            reason: 'Total frames should be at least 8, but got ${tracer!.measurements['frames_total']}');
-        expect((tracer!.measurements['frames_slow'] as SentryMeasurement?)?.value,
-            5,
-            reason: 'Slow frames measurement should be 5, but got ${tracer!.measurements['frames_slow']}');
+            reason:
+                'Total frames should be at least 8, but got ${tracer!.measurements['frames_total']}');
         expect(
-            (tracer!.measurements['frames_frozen'] as SentryMeasurement?)?.value,
+            (tracer!.measurements['frames_slow'] as SentryMeasurement?)?.value,
+            5,
+            reason:
+                'Slow frames measurement should be 5, but got ${tracer!.measurements['frames_slow']}');
+        expect(
+            (tracer!.measurements['frames_frozen'] as SentryMeasurement?)
+                ?.value,
             2,
-            reason: 'Frozen frames measurement should be 2, but got ${tracer!.measurements['frames_frozen']}');
+            reason:
+                'Frozen frames measurement should be 2, but got ${tracer!.measurements['frames_frozen']}');
         // we don't measure the frames delay or total frames because the timings are not
         // completely accurate in a test env so it may flake
       });
