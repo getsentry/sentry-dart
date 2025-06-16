@@ -10,7 +10,7 @@ class SentryFeedbackOptions {
   /// Displays the name field on the feedback form. Ignored if `isNameRequired` is `true`.
   var showName = true;
 
-  /// Requires the email field on the feedback form to be filled in. |
+  /// Requires the email field on the feedback form to be filled in.
   var isEmailRequired = false;
 
   /// Displays the email field on the feedback form. Ignored if `isEmailRequired` is `true`.
