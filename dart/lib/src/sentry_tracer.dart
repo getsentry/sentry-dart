@@ -214,7 +214,7 @@ class SentryTracer extends ISentrySpan {
     }
 
     if (children.length >= _hub.options.maxSpans) {
-      _hub.options.logger(
+      _hub.options.log(
         SentryLevel.warning,
         'Span operation: $operation, description: $description dropped due to limit reached. Returning NoOpSpan.',
       );
@@ -242,7 +242,7 @@ class SentryTracer extends ISentrySpan {
     _scheduleTimer();
 
     if (children.length >= _hub.options.maxSpans) {
-      _hub.options.logger(
+      _hub.options.log(
         SentryLevel.warning,
         'Span operation: $operation, description: $description dropped due to limit reached. Returning NoOpSpan.',
       );
@@ -345,7 +345,7 @@ class SentryTracer extends ISentrySpan {
   @override
   void setMeasurement(String name, num value, {SentryMeasurementUnit? unit}) {
     if (finished) {
-      _hub.options.logger(SentryLevel.debug,
+      _hub.options.log(SentryLevel.debug,
           "The tracer is already finished. Measurement $name cannot be set");
       return;
     }
@@ -365,7 +365,7 @@ class SentryTracer extends ISentrySpan {
     final context = traceContext();
 
     if (context != null) {
-      final baggage = context.toBaggage(logger: _hub.options.logger);
+      final baggage = context.toBaggage(log: _hub.options.log);
       return SentryBaggageHeader.fromBaggage(baggage);
     }
     return null;

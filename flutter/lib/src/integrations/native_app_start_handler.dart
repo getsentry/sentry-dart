@@ -118,7 +118,7 @@ class NativeAppStartHandler {
           description: entry.key as String,
         ));
       } catch (e) {
-        _options.logger(
+        _options.log(
             SentryLevel.warning, 'Failed to parse native span times: $e');
         continue;
       }
@@ -213,7 +213,7 @@ class NativeAppStartHandler {
         span.data.putIfAbsent('native', () => true);
         transaction.children.add(span);
       } catch (e) {
-        _options.logger(SentryLevel.warning,
+        _options.log(SentryLevel.warning,
             'Failed to attach native span to app start transaction: $e');
       }
     });

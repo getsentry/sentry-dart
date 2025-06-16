@@ -17,12 +17,15 @@ import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
+import 'package:sentry/src/noop_log_batcher.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_hub.dart';
 import 'mocks/mock_transport.dart';
 import 'test_utils.dart';
+import 'utils/url_details_test.dart';
+import 'mocks/mock_log_batcher.dart';
 
 void main() {
   group('SentryClient captures message', () {
@@ -918,14 +921,12 @@ void main() {
       expect(capturedEvent.level!.name, SentryLevel.error.name);
       expect(capturedEvent.transaction, transaction);
       expect(capturedEvent.fingerprint, fingerprint);
-      expect(capturedEvent.breadcrumbs?.first.toJson(), crumb.toJson());
+      expect(capturedEvent.breadcrumbs, isNull);
       expect(capturedEvent.tags, {
         scopeTagKey: scopeTagValue,
       });
       // ignore: deprecated_member_use_from_same_package
-      expect(capturedEvent.extra, {
-        scopeExtraKey: scopeExtraValue,
-      });
+      expect(capturedEvent.extra, isNull);
     });
   });
 
@@ -1700,6 +1701,252 @@ void main() {
       expect(envelopeEvent?.contexts.feedback?.toJson(), feedback.toJson());
       expect(envelopeEvent?.level, SentryLevel.info);
     });
+
+    test('should cap feedback messages to max 4096 characters', () async {
+      final client = fixture.getSut();
+      final feedback = fixture.fakeFeedback();
+      feedback.message = 'a' * 4096 + 'b' * 4096;
+      await client.captureFeedback(feedback);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.contexts.feedback?.message, 'a' * 4096);
+    });
+  });
+
+  group('SentryClient captureLog', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    SentryLog givenLog() {
+      return SentryLog(
+        timestamp: DateTime.now(),
+        traceId: SentryId.newId(),
+        level: SentryLogLevel.info,
+        body: 'test',
+        attributes: {
+          'attribute': SentryLogAttribute.string('value'),
+        },
+      );
+    }
+
+    test('sets log batcher on options when logs are enabled', () async {
+      expect(fixture.options.logBatcher is NoopLogBatcher, true);
+
+      fixture.options.enableLogs = true;
+      fixture.getSut();
+
+      expect(fixture.options.logBatcher is NoopLogBatcher, false);
+    });
+
+    test('disabled by default', () async {
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      final log = givenLog();
+
+      await client.captureLog(log);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls, isEmpty);
+    });
+
+    test('should capture logs as envelope', () async {
+      fixture.options.enableLogs = true;
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      final log = givenLog();
+
+      await client.captureLog(log);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+
+      expect(capturedLog.traceId, log.traceId);
+      expect(capturedLog.level, log.level);
+      expect(capturedLog.body, log.body);
+      expect(capturedLog.attributes['attribute']?.value,
+          log.attributes['attribute']?.value);
+    });
+
+    test('should add additional info to attributes', () async {
+      fixture.options.enableLogs = true;
+      fixture.options.environment = 'test-environment';
+      fixture.options.release = 'test-release';
+
+      final log = givenLog();
+
+      final scope = Scope(fixture.options);
+      final span = MockSpan();
+      scope.span = span;
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      await client.captureLog(log, scope: scope);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+
+      expect(
+        capturedLog.attributes['sentry.sdk.name']?.value,
+        fixture.options.sdk.name,
+      );
+      expect(
+        capturedLog.attributes['sentry.sdk.name']?.type,
+        'string',
+      );
+      expect(
+        capturedLog.attributes['sentry.sdk.version']?.value,
+        fixture.options.sdk.version,
+      );
+      expect(
+        capturedLog.attributes['sentry.sdk.version']?.type,
+        'string',
+      );
+      expect(
+        capturedLog.attributes['sentry.environment']?.value,
+        fixture.options.environment,
+      );
+      expect(
+        capturedLog.attributes['sentry.environment']?.type,
+        'string',
+      );
+      expect(
+        capturedLog.attributes['sentry.release']?.value,
+        fixture.options.release,
+      );
+      expect(
+        capturedLog.attributes['sentry.release']?.type,
+        'string',
+      );
+      expect(
+        capturedLog.attributes['sentry.trace.parent_span_id']?.value,
+        span.context.spanId.toString(),
+      );
+      expect(
+        capturedLog.attributes['sentry.trace.parent_span_id']?.type,
+        'string',
+      );
+    });
+
+    test('should set trace id from propagation context', () async {
+      fixture.options.enableLogs = true;
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      final log = givenLog();
+      final scope = Scope(fixture.options);
+
+      await client.captureLog(log, scope: scope);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+
+      expect(capturedLog.traceId, scope.propagationContext.traceId);
+    });
+
+    test(
+        '$BeforeSendLogCallback returning null drops the log and record it as lost',
+        () async {
+      fixture.options.enableLogs = true;
+      fixture.options.beforeSendLog = (log) => null;
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      final log = givenLog();
+
+      await client.captureLog(log);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 0);
+
+      expect(
+        fixture.recorder.discardedEvents.first.reason,
+        DiscardReason.beforeSend,
+      );
+      expect(
+        fixture.recorder.discardedEvents.first.category,
+        DataCategory.logItem,
+      );
+    });
+
+    test('$BeforeSendLogCallback returning a log modifies it', () async {
+      fixture.options.enableLogs = true;
+      fixture.options.beforeSendLog = (log) {
+        log.body = 'modified';
+        return log;
+      };
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      final log = givenLog();
+
+      await client.captureLog(log);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+
+      expect(capturedLog.body, 'modified');
+    });
+
+    test('$BeforeSendLogCallback returning a log async modifies it', () async {
+      fixture.options.enableLogs = true;
+      fixture.options.beforeSendLog = (log) async {
+        await Future.delayed(Duration(milliseconds: 100));
+        log.body = 'modified';
+        return log;
+      };
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      final log = givenLog();
+
+      await client.captureLog(log);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+
+      expect(capturedLog.body, 'modified');
+    });
+
+    test('$BeforeSendLogCallback throwing is caught', () async {
+      fixture.options.enableLogs = true;
+      fixture.options.automatedTestMode = false;
+
+      fixture.options.beforeSendLog = (log) {
+        throw Exception('test');
+      };
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      final log = givenLog();
+
+      await client.captureLog(log);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+
+      expect(capturedLog.body, 'test');
+    });
   });
 
   group('SentryClient captures envelope', () {
@@ -1829,6 +2076,17 @@ void main() {
       expect(spanCount, 4);
     });
 
+    test('record event processor dropping feedback', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+      final feedback = fixture.fakeFeedback();
+      await client.captureFeedback(feedback);
+
+      expect(fixture.recorder.discardedEvents.first.category,
+          DataCategory.feedback);
+      expect(fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.eventProcessor);
+    });
+
     test('record event processor dropping partially spans', () async {
       final numberOfSpansDropped = 2;
       final sut = fixture.getSut(
@@ -1936,6 +2194,20 @@ void main() {
           fixture.recorder.discardedEvents.first.category, DataCategory.error);
     });
 
+    test('record beforeSend dropping feedback', () async {
+      final client = fixture.getSut();
+
+      fixture.options.beforeSendFeedback = fixture.droppingBeforeSend;
+
+      final feedback = fixture.fakeFeedback();
+      await client.captureFeedback(feedback);
+
+      expect(fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.beforeSend);
+      expect(fixture.recorder.discardedEvents.first.category,
+          DataCategory.feedback);
+    });
+
     test('record sample rate dropping event', () async {
       final client = fixture.getSut(sampleRate: 0.0);
 
@@ -1947,6 +2219,14 @@ void main() {
           DiscardReason.sampleRate);
       expect(
           fixture.recorder.discardedEvents.first.category, DataCategory.error);
+    });
+
+    test('record sample rate not dropping feedbacl', () async {
+      final client = fixture.getSut(sampleRate: 0.0);
+
+      await client.captureFeedback(fixture.fakeFeedback());
+
+      expect(fixture.recorder.discardedEvents.isEmpty, true);
     });
   });
 
@@ -2424,7 +2704,7 @@ class Fixture {
     options.beforeSendTransaction = beforeSendTransaction;
     options.beforeSendFeedback = beforeSendFeedback;
     options.debug = debug;
-    options.logger = mockLogger;
+    options.log = mockLogger;
 
     if (eventProcessor != null) {
       options.addEventProcessor(eventProcessor);
