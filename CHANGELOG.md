@@ -20,14 +20,15 @@ Please carefully read through the migration guide in the Sentry docs on how to u
 
 ### Breaking changes
 
+- Increase minimum SDK version requirements to Dart `v3.5.0` and Flutter `v3.24.0` ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
 - Update naming of `LoadImagesListIntegration` to `LoadNativeDebugImagesIntegration` ([#2833](https://github.com/getsentry/sentry-dart/pull/2833))
 - Set sentry-native backend to `crashpad` by default and `breakpad` for Windows ARM64 ([#2791](https://github.com/getsentry/sentry-dart/pull/2791))
   - Setting the `SENTRY_NATIVE_BACKEND` environment variable will override the defaults.
 - Remove manual TTID implementation ([#2668](https://github.com/getsentry/sentry-dart/pull/2668))
-- Increase minimum SDK version requirements to Dart `v3.5.0` and Flutter `v3.24.0` ([#2643](https://github.com/getsentry/sentry-dart/pull/2643))
 - Remove screenshot option `attachScreenshotOnlyWhenResumed` ([#2664](https://github.com/getsentry/sentry-dart/pull/2664))
 - Remove deprecated `beforeScreenshot` ([#2662](https://github.com/getsentry/sentry-dart/pull/2662))
 - Remove old user feedback api ([#2686](https://github.com/getsentry/sentry-dart/pull/2686))
+  - This is replaced by `beforeCaptureScreenshot`
 - Remove deprecated loggers ([#2685](https://github.com/getsentry/sentry-dart/pull/2685))
 - Remove user segment ([#2687](https://github.com/getsentry/sentry-dart/pull/2687))
 - Enable Sentry JS SDK native integration by default ([#2688](https://github.com/getsentry/sentry-dart/pull/2688))
@@ -43,6 +44,21 @@ Please carefully read through the migration guide in the Sentry docs on how to u
   - For now, only the `dio` integration is supported.
 - Enable privacy masking for screenshots by default ([#2728](https://github.com/getsentry/sentry-dart/pull/2728))
 - Set option `anrEnabled` to `true` by default (#2878)
+- Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))
+  - Some SDK classes do not have `const` constructors anymore.
+  - The `copyWith` and `clone` methods of SDK classes were deprecated.
+```dart
+// old
+options.beforeSend = (event, hint) {
+  event = event.copyWith(release: 'my-release');
+  return event;
+}
+// new
+options.beforeSend = (event, hint) {
+  event.release = 'my-release';
+  return event;
+}
+```
 
 ### Features
 
@@ -102,9 +118,6 @@ await SentryFlutter.init(
 
 ### Improvements
 
-- Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))
-  - Some SDK classes do not have `const` constructors anymore.
-  - The `copyWith` and `clone` methods of SDK classes were deprecated.
 - Replay: improve Android native interop performance by using JNI ([#2670](https://github.com/getsentry/sentry-dart/pull/2670))
 - Align User Feedback API ([#2949](https://github.com/getsentry/sentry-dart/pull/2949))
   - Don’t apply breadcrumbs and extras from scope to feedback events
