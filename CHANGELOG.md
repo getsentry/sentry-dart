@@ -15,8 +15,8 @@ The goal of this release is the following:
 ### How To Upgrade
 
 Please carefully read through the migration guide in the Sentry docs on how to upgrade from version 8 to version 9
- - [Dart migration guide](https://docs.sentry.io/platforms/dart/migration/v8-to-v9/)
- - [Flutter migration guide](https://docs.sentry.io/platforms/dart/guides/flutter/migration/v8-to-v9/)
+ - [Dart migration guide](https://docs.sentry.io/platforms/dart/migration/#migrating-from-sentry-8x-to-sentry-9x)
+ - [Flutter migration guide](https://docs.sentry.io/platforms/dart/guides/flutter/migration/#migrating-from-sentry_flutter-8x-to-sentry_flutter-9x)
 
 ### Breaking changes
 
