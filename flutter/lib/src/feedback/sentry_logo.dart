@@ -133,7 +133,7 @@ class _CustomPainter extends CustomPainter {
     path_0.close();
 
     Paint paint0Fill = Paint()..style = PaintingStyle.fill;
-    paint0Fill.color = Color(0xff362d59).withValues(alpha: 1.0);
+    paint0Fill.color = Color(0xff362d59);
     canvas.drawPath(path_0, paint0Fill);
   }
 
