@@ -63,9 +63,6 @@ class SentryFeedbackOptions {
   /// The label of the validation error message.
   String validationErrorLabel = 'Can\'t be empty';
 
-  /// The label of the add screenshot button.
-  String addScreenshotButtonLabel = 'Add a screenshot';
-
   /// The label of the capture screenshot button.
   String captureScreenshotButtonLabel = 'Capture a screenshot';
 
