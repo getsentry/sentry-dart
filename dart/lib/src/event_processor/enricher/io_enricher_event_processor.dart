@@ -4,8 +4,7 @@ import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
 import 'flutter_runtime.dart';
 import 'io_platform_memory.dart';
-import '../../utils/io_get_sentry_operating_system.dart';
-import '../../utils/io_get_sentry_device.dart';
+import '../../utils/os_utils.dart';
 
 EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
   return IoEnricherEventProcessor(options);
@@ -94,8 +93,12 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   Future<SentryDevice> _getDevice(SentryDevice? device) async {
-    device ??= getSentryDevice(device, _options);
+    device ??= SentryDevice();
     return device
+      ..name = device.name ??
+          (_options.sendDefaultPii ? Platform.localHostname : null)
+      ..processorCount = device.processorCount ?? Platform.numberOfProcessors
+      ..memorySize = device.memorySize
       ..memorySize = device.memorySize ?? await _getTotalPhysicalMemory()
       ..freeMemory = device.freeMemory;
   }

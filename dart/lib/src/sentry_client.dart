@@ -30,12 +30,6 @@ import 'utils/stacktrace_utils.dart';
 import 'sentry_log_batcher.dart';
 import 'version.dart';
 
-import 'utils/web_get_sentry_operating_system.dart'
-    if (dart.library.io) 'utils/io_get_sentry_operating_system.dart';
-
-import 'utils/web_get_sentry_device.dart'
-    if (dart.library.io) 'utils/io_get_sentry_device.dart';
-
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
 /// to true.
@@ -561,34 +555,36 @@ class SentryClient {
         }
       }
     }
-    if (processedLog != null) {
-      var contexts = Contexts();
 
-      final os = getSentryOperatingSystem();
-      if (os.name != null) {
+    if (processedLog != null) {
+      final contexts = Contexts();
+      for (final enricher in _options.contextsEnrichers) {
+        await enricher.enrich(contexts);
+      }
+
+      if (contexts.operatingSystem?.name != null) {
         log.attributes['os.name'] = SentryLogAttribute.string(
-          os.name ?? '',
+          contexts.operatingSystem?.name ?? '',
         );
       }
-      if (os.version != null) {
+      if (contexts.operatingSystem?.version != null) {
         log.attributes['os.version'] = SentryLogAttribute.string(
-          os.version ?? '',
+          contexts.operatingSystem?.version ?? '',
         );
       }
-      final device = getSentryDevice(contexts.device, _options);
-      if (device.brand != null) {
+      if (contexts.device?.brand != null) {
         log.attributes['device.brand'] = SentryLogAttribute.string(
-          device.brand ?? '',
+          contexts.device?.brand ?? '',
         );
       }
-      if (device.model != null) {
+      if (contexts.device?.model != null) {
         log.attributes['device.model'] = SentryLogAttribute.string(
-          device.model ?? '',
+          contexts.device?.model ?? '',
         );
       }
-      if (device.family != null) {
+      if (contexts.device?.family != null) {
         log.attributes['device.family'] = SentryLogAttribute.string(
-          device.family ?? '',
+          contexts.device?.family ?? '',
         );
       }
       _options.logBatcher.addLog(processedLog);

@@ -11,7 +11,7 @@ import 'package:test/test.dart';
 import '../../mocks.dart';
 import '../../test_utils.dart';
 
-import 'package:sentry/src/utils/io_get_sentry_operating_system.dart';
+import 'package:sentry/src/utils/_io_get_sentry_operating_system.dart';
 
 void main() {
   late Fixture fixture;

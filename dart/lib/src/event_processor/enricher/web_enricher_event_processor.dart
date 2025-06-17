@@ -4,7 +4,6 @@ import 'package:web/web.dart' as web show window, Window, Navigator;
 import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
 import 'flutter_runtime.dart';
-import '../../utils/web_get_sentry_device.dart';
 
 EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
   return WebEnricherEventProcessor(
@@ -27,7 +26,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     // Web has no native integration, so no need to check for it
     event.contexts
-      ..device = getSentryDevice(event.contexts.device, _options)
+      ..device = _getSentryDevice(event.contexts.device)
       ..culture = _getSentryCulture(event.contexts.culture)
       ..runtimes = _getRuntimes(event.contexts.runtimes);
 
@@ -59,6 +58,40 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
     return <String, dynamic>{
       'compile_mode': _options.runtimeChecker.compileMode,
     };
+  }
+
+  SentryDevice _getSentryDevice(SentryDevice? device) {
+    final window = web.window;
+    device ??= SentryDevice();
+    return device
+      ..online = device.online ?? window.navigator.onLine
+      ..memorySize = device.memorySize ?? _getMemorySize(window)
+      ..orientation = device.orientation ?? _getScreenOrientation(window)
+      ..screenHeightPixels =
+          device.screenHeightPixels ?? window.screen.availHeight
+      ..screenWidthPixels = device.screenWidthPixels ?? window.screen.availWidth
+      ..screenDensity =
+          device.screenDensity ?? window.devicePixelRatio.toDouble();
+  }
+
+  int? _getMemorySize(web.Window window) {
+    // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/deviceMemory
+    // ignore: invalid_null_aware_operator
+    final size = window.navigator.deviceMemory?.toDouble();
+    final memoryByteSize = size != null ? size * 1024 * 1024 * 1024 : null;
+    return memoryByteSize?.toInt();
+  }
+
+  SentryOrientation? _getScreenOrientation(web.Window window) {
+    // https://developer.mozilla.org/en-US/docs/Web/API/ScreenOrientation
+    final screenOrientation = window.screen.orientation;
+    if (screenOrientation.type.startsWith('portrait')) {
+      return SentryOrientation.portrait;
+    }
+    if (screenOrientation.type.startsWith('landscape')) {
+      return SentryOrientation.landscape;
+    }
+    return null;
   }
 
   SentryCulture _getSentryCulture(SentryCulture? culture) {

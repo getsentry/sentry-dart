@@ -183,7 +183,11 @@ mixin SentryFlutter {
       integrations.add(createSdkIntegration(native));
       if (!platform.isWeb) {
         if (native.supportsLoadContexts) {
-          integrations.add(LoadContextsIntegration(native));
+          final nativeContextsEnricher = NativeContextsEnricher(native);
+          options.addContextsEnricher(nativeContextsEnricher);
+
+          integrations
+              .add(LoadContextsIntegration(native, nativeContextsEnricher));
         }
         integrations.add(LoadNativeDebugImagesIntegration(native));
         integrations.add(FramesTrackingIntegration(native));

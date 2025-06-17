@@ -7,15 +7,16 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
 
-import 'fixture.dart';
+import '../mocks.dart';
+import '../mocks.mocks.dart';
 
 void main() {
   group(LoadContextsIntegration, () {
-    late IntegrationTestFixture<LoadContextsIntegration> fixture;
+    late Fixture fixture;
 
-    setUp(() async {
-      fixture = IntegrationTestFixture(LoadContextsIntegration.new);
-      await fixture.registerIntegration();
+    setUp(() {
+      fixture = Fixture();
+      fixture.registerIntegration();
     });
 
     test('loadContextsIntegration adds integration', () {
@@ -222,4 +223,21 @@ void main() {
       expect(actualId, expectedId);
     });
   });
+}
+
+class Fixture {
+  late LoadContextsIntegration sut;
+  late Hub hub;
+  final options = defaultTestOptions();
+  final binding = MockSentryNativeBinding();
+
+  Fixture() {
+    hub = Hub(options);
+    final nativeContextsEnricher = NativeContextsEnricher(binding);
+    sut = LoadContextsIntegration(binding, nativeContextsEnricher);
+  }
+
+  void registerIntegration() {
+    sut.call(hub, options);
+  }
 }

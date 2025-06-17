@@ -621,6 +621,17 @@ class SentryOptions {
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
 
+  final List<ContextsEnricher> _contextsEnrichers = [];
+
+  @internal
+  List<ContextsEnricher> get contextsEnrichers =>
+      List.unmodifiable(_contextsEnrichers);
+
+  @internal
+  void addContextsEnricher(ContextsEnricher enricher) {
+    _contextsEnrichers.add(enricher);
+  }
+
   @visibleForTesting
   void debugLog(
     SentryLevel level,

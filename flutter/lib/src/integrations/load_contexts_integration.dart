@@ -19,13 +19,15 @@ import '../sentry_flutter_options.dart';
 /// This integration is only executed on iOS, macOS & Android Apps.
 class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
+  final NativeContextsEnricher _nativeContextsEnricher;
 
-  LoadContextsIntegration(this._native);
+  LoadContextsIntegration(this._native, this._nativeContextsEnricher);
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     options.addEventProcessor(
-      _LoadContextsIntegrationEventProcessor(_native, options),
+      _LoadContextsIntegrationEventProcessor(
+          _native, options, _nativeContextsEnricher),
     );
 
     // We need to move [IOEnricherEventProcessor] after [_LoadContextsIntegrationEventProcessor]
@@ -46,20 +48,22 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
   }
 }
 
-class _LoadContextsIntegrationEventProcessor
-    implements EventProcessor {
-  _LoadContextsIntegrationEventProcessor(this._native, this._options);
+class _LoadContextsIntegrationEventProcessor implements EventProcessor {
+  _LoadContextsIntegrationEventProcessor(
+      this._native, this._options, this._nativeContextsEnricher);
 
   final SentryNativeBinding _native;
   final SentryFlutterOptions _options;
-
+  final NativeContextsEnricher _nativeContextsEnricher;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     // TODO don't copy everything (i.e. avoid unnecessary Map.from())
     try {
-      final infos = await _native.loadContexts() ?? {};
-      await _enrichContext(event.contexts, infos);
+      await _nativeContextsEnricher.enrich(event.contexts);
+      final infos = _nativeContextsEnricher.cachedInfos ??
+          await _native.loadContexts() ??
+          {};
 
       final tagsMap = infos['tags'] as Map?;
       if (tagsMap != null && tagsMap.isNotEmpty) {
@@ -201,9 +205,22 @@ class _LoadContextsIntegrationEventProcessor
     }
     return event;
   }
+}
 
-  void _enrichContext(Contexts contexts, Map<String, dynamic> infos) {
+// ignore: invalid_use_of_internal_member
+class NativeContextsEnricher implements ContextsEnricher {
+  NativeContextsEnricher(this._native);
+
+  final SentryNativeBinding _native;
+
+  /// Avoid loading the infos multiple times from the native SDK.
+  Map<String, dynamic>? cachedInfos;
+
+  @override
+  Future<void> enrich(Contexts contexts) async {
+    final infos = await _native.loadContexts() ?? {};
     final contextsMap = infos['contexts'] as Map?;
+    cachedInfos = infos;
 
     if (contextsMap != null && contextsMap.isNotEmpty) {
       final nativeContexts = Contexts.fromJson(

@@ -463,6 +463,7 @@ class Fixture {
         ]
       }}) {
     when(binding.loadContexts()).thenAnswer((_) async => contexts);
-    return LoadContextsIntegration(binding);
+    final nativeContextsEnricher = NativeContextsEnricher(binding);
+    return LoadContextsIntegration(binding, nativeContextsEnricher);
   }
 }
