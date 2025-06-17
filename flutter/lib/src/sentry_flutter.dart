@@ -33,6 +33,7 @@ import 'utils/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 import 'web/javascript_transport.dart';
+import 'contexts_enricher/native_contexts_enricher.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(

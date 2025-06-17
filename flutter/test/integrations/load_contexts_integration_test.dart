@@ -6,6 +6,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
+import 'package:sentry_flutter/src/contexts_enricher/native_contexts_enricher.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';

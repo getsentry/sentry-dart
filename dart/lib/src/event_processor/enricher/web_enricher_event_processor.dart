@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:web/web.dart' as web show window, Window, Navigator;
 
 import '../../../sentry.dart';
@@ -23,10 +22,10 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
   final SentryOptions _options;
 
   @override
-  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     // Web has no native integration, so no need to check for it
     event.contexts
-      ..device = _getSentryDevice(event.contexts.device)
+      ..device = _getDevice(event.contexts.device)
       ..culture = _getSentryCulture(event.contexts.culture)
       ..runtimes = _getRuntimes(event.contexts.runtimes);
 
@@ -54,37 +53,31 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
       ..sanitize();
   }
 
-  Map<String, dynamic> _getDartContext() {
-    return <String, dynamic>{
-      'compile_mode': _options.runtimeChecker.compileMode,
-    };
-  }
-
-  SentryDevice _getSentryDevice(SentryDevice? device) {
-    final window = web.window;
+  SentryDevice _getDevice(SentryDevice? device) {
     device ??= SentryDevice();
     return device
-      ..online = device.online ?? window.navigator.onLine
-      ..memorySize = device.memorySize ?? _getMemorySize(window)
-      ..orientation = device.orientation ?? _getScreenOrientation(window)
+      ..online = device.online ?? _window.navigator.onLine
+      ..memorySize = device.memorySize ?? _getMemorySize()
+      ..orientation = device.orientation ?? _getScreenOrientation()
       ..screenHeightPixels =
-          device.screenHeightPixels ?? window.screen.availHeight
-      ..screenWidthPixels = device.screenWidthPixels ?? window.screen.availWidth
+          device.screenHeightPixels ?? _window.screen.availHeight
+      ..screenWidthPixels =
+          device.screenWidthPixels ?? _window.screen.availWidth
       ..screenDensity =
-          device.screenDensity ?? window.devicePixelRatio.toDouble();
+          device.screenDensity ?? _window.devicePixelRatio.toDouble();
   }
 
-  int? _getMemorySize(web.Window window) {
+  int? _getMemorySize() {
     // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/deviceMemory
     // ignore: invalid_null_aware_operator
-    final size = window.navigator.deviceMemory?.toDouble();
+    final size = _window.navigator.deviceMemory?.toDouble();
     final memoryByteSize = size != null ? size * 1024 * 1024 * 1024 : null;
     return memoryByteSize?.toInt();
   }
 
-  SentryOrientation? _getScreenOrientation(web.Window window) {
+  SentryOrientation? _getScreenOrientation() {
     // https://developer.mozilla.org/en-US/docs/Web/API/ScreenOrientation
-    final screenOrientation = window.screen.orientation;
+    final screenOrientation = _window.screen.orientation;
     if (screenOrientation.type.startsWith('portrait')) {
       return SentryOrientation.portrait;
     }
@@ -92,6 +85,12 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
       return SentryOrientation.landscape;
     }
     return null;
+  }
+
+  Map<String, dynamic> _getDartContext() {
+    return <String, dynamic>{
+      'compile_mode': _options.runtimeChecker.compileMode,
+    };
   }
 
   SentryCulture _getSentryCulture(SentryCulture? culture) {

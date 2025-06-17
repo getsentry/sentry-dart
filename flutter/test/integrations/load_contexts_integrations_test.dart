@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
+import 'package:sentry_flutter/src/contexts_enricher/native_contexts_enricher.dart'
+    as contexts_enricher;
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -463,7 +465,8 @@ class Fixture {
         ]
       }}) {
     when(binding.loadContexts()).thenAnswer((_) async => contexts);
-    final nativeContextsEnricher = NativeContextsEnricher(binding);
+    final nativeContextsEnricher =
+        contexts_enricher.NativeContextsEnricher(binding);
     return LoadContextsIntegration(binding, nativeContextsEnricher);
   }
 }
