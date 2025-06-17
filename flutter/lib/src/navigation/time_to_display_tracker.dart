@@ -108,7 +108,6 @@ class TimeToDisplayTracker {
         endTimestamp: ttidSpan?.endTimestamp ?? endTimestamp,
       );
     }
-    clear();
   }
 
   void clear() {
