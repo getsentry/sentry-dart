@@ -123,7 +123,9 @@ void main() {
       expect(sentryStackFrame.module, 'app_name/features/login/ui/view_model');
     });
 
-    test('does not add module for package frames when includeModuleInStackTrace is false', () {
+    test(
+        'does not add module for package frames when includeModuleInStackTrace is false',
+        () {
       final frame = Frame(
         Uri.parse(
             'package:app_name/features/login/ui/view_model/login_view_model.dart'),
