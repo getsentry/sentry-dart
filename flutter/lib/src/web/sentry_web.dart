@@ -20,7 +20,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   final SentryFlutterOptions _options;
 
   void _log(String message) {
-    _options.logger(SentryLevel.info, logger: '$SentryWeb', message);
+    _options.log(SentryLevel.info, logger: '$SentryWeb', message);
   }
 
   void _logNotSupported(String operation) =>
