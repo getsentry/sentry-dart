@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Features
+
+- Add `message` parameter to `captureException()` ([#2882](https://github.com/getsentry/sentry-dart/pull/2882))
 - Report Flutter framework feature flags ([#2991](https://github.com/getsentry/sentry-dart/pull/2991))
 
 ## 9.0.0
