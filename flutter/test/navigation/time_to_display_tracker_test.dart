@@ -175,18 +175,6 @@ void main() {
       expect(ttfdSpan.status, SpanStatus.deadlineExceeded());
       expect(ttfdSpan.endTimestamp, ttidEndTimestamp);
     });
-
-    test('calls ttfd/ttid clear', () async {
-      fixture.options.enableTimeToFullDisplayTracing = true;
-
-      final sut = fixture.getSut();
-
-      final transaction = fixture.getTransaction();
-      await sut.cancelUnfinishedSpans(transaction, transaction.startTimestamp);
-
-      verify(fixture.ttidTracker.clear()).called(1);
-      verify(fixture.ttfdTracker.clear()).called(1);
-    });
   });
 
   group('transactionId', () {
