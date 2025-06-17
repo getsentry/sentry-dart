@@ -79,12 +79,14 @@ class MockHub with NoSuchMethodProvider implements Hub {
     dynamic throwable, {
     dynamic stackTrace,
     Hint? hint,
+    SentryMessage? message,
     ScopeCallback? withScope,
   }) async {
     captureExceptionCalls.add(CaptureExceptionCall(
       throwable,
       stackTrace,
       hint,
+      message,
     ));
     return SentryId.newId();
   }
@@ -160,11 +162,13 @@ class CaptureExceptionCall {
   final dynamic throwable;
   final dynamic stackTrace;
   final Hint? hint;
+  final SentryMessage? message;
 
   CaptureExceptionCall(
     this.throwable,
     this.stackTrace,
     this.hint,
+    this.message,
   );
 }
 
