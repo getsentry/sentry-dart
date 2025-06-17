@@ -13,7 +13,7 @@ void main() {
 
       expect(
           options.sdk.integrations
-              .contains('FlutterFrameworkFeatureFlagIntegration'),
+              .contains('FlutterFrameworkFeatureFlag'),
           true);
     });
 

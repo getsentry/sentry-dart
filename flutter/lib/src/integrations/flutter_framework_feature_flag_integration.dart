@@ -27,7 +27,7 @@ class FlutterFrameworkFeatureFlagIntegration
     for (final featureFlag in enabledFeatureFlags) {
       Sentry.addFeatureFlag(featureFlag, true);
     }
-    options.sdk.addIntegration('FlutterFrameworkFeatureFlagIntegration');
+    options.sdk.addIntegration('FlutterFrameworkFeatureFlag');
   }
 }
 
