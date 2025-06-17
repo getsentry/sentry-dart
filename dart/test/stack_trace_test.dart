@@ -116,7 +116,9 @@ void main() {
         'buzz',
       );
 
-      final sentryStackFrame = Fixture().getSut().encodeStackTraceFrame(frame)!;
+      final sentryStackFrame = Fixture()
+          .getSut(includeModuleInStackTrace: true)
+          .encodeStackTraceFrame(frame)!;
 
       expect(sentryStackFrame.module, 'app_name/features/login/ui/view_model');
     });
@@ -270,7 +272,6 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           'abs_path': '${eventOrigin}package:example/main.dart',
           'in_app': true,
           'platform': 'dart',
-          'module': 'example',
         },
         {
           'filename': 'main.dart',
@@ -321,10 +322,12 @@ class Fixture {
     List<String> inAppIncludes = const [],
     List<String> inAppExcludes = const [],
     bool considerInAppFramesByDefault = true,
+    bool includeModuleInStackTrace = false,
   }) {
     inAppIncludes.forEach(options.addInAppInclude);
     inAppExcludes.forEach(options.addInAppExclude);
     options.considerInAppFramesByDefault = considerInAppFramesByDefault;
+    options.includeModuleInStackTrace = includeModuleInStackTrace;
 
     return SentryStackTraceFactory(options);
   }
