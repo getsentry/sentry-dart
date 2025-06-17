@@ -182,15 +182,15 @@ void main() {
       );
     });
 
-    test('$WebEnricherEventProcessor gets added on init', () {
+    test('$WebEnricherEventProcessor gets added on init', () async {
       late SentryOptions sentryOptions;
-      Sentry.init(
+      await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
           sentryOptions = options;
         },
       );
-      Sentry.close();
+      await Sentry.close();
 
       expect(sentryOptions.eventProcessors.map((e) => e.runtimeType.toString()),
           contains('$WebEnricherEventProcessor'));
