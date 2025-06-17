@@ -5,6 +5,8 @@
 ### Features
 
 - Add `message` parameter to `captureException()` ([#2882](https://github.com/getsentry/sentry-dart/pull/2882))
+- Add module in SentryStackFrame ([#2931](https://github.com/getsentry/sentry-dart/pull/2931))
+  - Set `SentryOptions.includeModuleInStackTrace = true` to enable this. This may change grouping of exceptions. 
 
 ### Dependencies
 
