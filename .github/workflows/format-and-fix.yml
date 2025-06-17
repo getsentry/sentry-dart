@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c # pin@v1
         if: ${{ matrix.package.sdk == 'dart' }}
-      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
+      - uses: subosito/flutter-action@395322a6cded4e9ed503aebd4cc1965625f8e59a # pin@v2.20.0
         if: ${{ matrix.package.sdk == 'flutter' }}
 
       - run: ${{ matrix.package.sdk }} pub get
