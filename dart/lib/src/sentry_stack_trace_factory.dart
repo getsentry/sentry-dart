@@ -132,7 +132,7 @@ class SentryStackTraceFactory {
     final abs = '$eventOrigin${_absolutePathForCrashReport(frame)}';
 
     final includeModule =
-        frame.package == null && _options.includeModuleInStackTrace;
+        frame.package != null && _options.includeModuleInStackTrace;
 
     var sentryStackFrame = SentryStackFrame(
       absPath: abs,
@@ -143,10 +143,10 @@ class SentryStackTraceFactory {
       package: frame.package,
       platform: platform,
       module: includeModule
-          ? null
-          : frame.uri.pathSegments
+          ? frame.uri.pathSegments
               .sublist(0, frame.uri.pathSegments.length - 1)
-              .join('/'),
+              .join('/')
+          : null,
     );
 
     final line = frame.line;

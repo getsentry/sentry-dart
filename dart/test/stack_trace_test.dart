@@ -122,6 +122,22 @@ void main() {
 
       expect(sentryStackFrame.module, 'app_name/features/login/ui/view_model');
     });
+
+    test('does not add module for package frames when includeModuleInStackTrace is false', () {
+      final frame = Frame(
+        Uri.parse(
+            'package:app_name/features/login/ui/view_model/login_view_model.dart'),
+        1,
+        2,
+        'buzz',
+      );
+
+      final sentryStackFrame = Fixture()
+          .getSut(includeModuleInStackTrace: false)
+          .encodeStackTraceFrame(frame)!;
+
+      expect(sentryStackFrame.module, null);
+    });
   });
 
   group('encodeStackTrace', () {
