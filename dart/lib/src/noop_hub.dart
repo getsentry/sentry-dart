@@ -44,6 +44,7 @@ class NoOpHub implements Hub {
     dynamic throwable, {
     dynamic stackTrace,
     Hint? hint,
+    SentryMessage? message,
     ScopeCallback? withScope,
   }) async =>
       SentryId.empty();

@@ -224,6 +224,7 @@ class Sentry {
     dynamic throwable, {
     dynamic stackTrace,
     Hint? hint,
+    SentryMessage? message,
     ScopeCallback? withScope,
   }) =>
       _taskQueue.enqueue(
@@ -231,6 +232,7 @@ class Sentry {
           throwable,
           stackTrace: stackTrace,
           hint: hint,
+          message: message,
           withScope: withScope,
         ),
         SentryId.empty(),

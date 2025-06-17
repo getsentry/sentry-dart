@@ -5,6 +5,9 @@
 ### Enhancements
 
 - Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
+### Features
+
+- Add `message` parameter to `captureException()` ([#2882](https://github.com/getsentry/sentry-dart/pull/2882))
 
 ## 9.0.0
 
