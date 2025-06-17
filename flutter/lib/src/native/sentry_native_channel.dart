@@ -29,7 +29,7 @@ class SentryNativeChannel
   SentryNativeChannel(this.options)
       : channel = SentrySafeMethodChannel(options);
 
-  void _logNotSupported(String operation) => options.logger(
+  void _logNotSupported(String operation) => options.log(
       SentryLevel.debug, 'SentryNativeChannel: $operation is not supported');
 
   @override

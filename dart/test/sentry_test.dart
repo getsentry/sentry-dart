@@ -101,6 +101,14 @@ void main() {
       expect(client.captureEventCalls.first.scope, isNotNull);
     });
 
+    test('should capture exception with message', () async {
+      await Sentry.captureException(anException,
+          message: SentryMessage('Sentry rocks'));
+
+      expect(client.captureEventCalls.first.event.message?.formatted,
+          'Sentry rocks');
+    });
+
     test('should capture exception withScope', () async {
       await Sentry.captureException(anException, withScope: (scope) {
         scope.setUser(SentryUser(id: 'foo bar'));
@@ -313,12 +321,12 @@ void main() {
 
       expect(
         Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
-            .name,
+            .flag,
         equals('foo'),
       );
       expect(
         Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
-            .value,
+            .result,
         equals(true),
       );
     });
@@ -567,18 +575,18 @@ void main() {
       (options) {
         options.dsn = fakeDsn;
         options.debug = true;
-        expect(options.diagnosticLogger?.logger, isNot(noOpLogger));
+        expect(options.diagnosticLog?.logger, isNot(noOpLog));
 
         options.debug = false;
-        expect(options.diagnosticLogger?.logger, noOpLogger);
+        expect(options.diagnosticLog?.logger, noOpLog);
 
         options.debug = true;
-        expect(options.diagnosticLogger?.logger, isNot(noOpLogger));
+        expect(options.diagnosticLog?.logger, isNot(noOpLog));
       },
       options: sentryOptions,
     );
 
-    expect(sentryOptions.diagnosticLogger?.logger, isNot(noOpLogger));
+    expect(sentryOptions.diagnosticLog?.logger, isNot(noOpLog));
   });
 
   group('Sentry init optionsConfiguration', () {
@@ -594,7 +602,7 @@ void main() {
           defaultTestOptions(checker: MockRuntimeChecker(isRelease: true))
             ..automatedTestMode = false
             ..debug = true
-            ..logger = fixture.mockLogger;
+            ..log = fixture.mockLogger;
 
       final exception = Exception("Exception in options callback");
       await Sentry.init(

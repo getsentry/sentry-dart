@@ -205,13 +205,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
 
 import '../../sentry_flutter.dart';
 import '../widget_utils.dart';
 import 'user_interaction_info.dart';
-
-// ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
 
 const _tapDeltaArea = 20 * 20;
 Element? _clickTrackerElement;
@@ -301,7 +300,7 @@ class _SentryUserInteractionWidgetState
       _lastPointerId = event.pointer;
       _lastPointerDownLocation = event.localPosition;
     } catch (exception, stacktrace) {
-      _options?.logger(
+      _options?.log(
         SentryLevel.error,
         'Error while handling pointer-down event $event in $SentryUserInteractionWidget',
         exception: exception,
@@ -331,7 +330,7 @@ class _SentryUserInteractionWidgetState
         _onTappedAt(event.localPosition);
       }
     } catch (exception, stacktrace) {
-      _options?.logger(
+      _options?.log(
         SentryLevel.error,
         'Error while handling pointer-up event $event in $SentryUserInteractionWidget',
         exception: exception,
@@ -542,10 +541,14 @@ class _SentryUserInteractionWidgetState
         return;
       }
 
+      // Skip elements that don't have a valid render object or whose
+      // render box hasn't been laid out yet.
       final renderObject = element.renderObject;
-      if (renderObject == null) {
+      if (renderObject == null ||
+          (renderObject is RenderBox && !renderObject.hasSize)) {
         return;
       }
+
       var hitFound = true;
       if (renderObject is RenderPointerListener) {
         final hitResult = BoxHitTestResult();

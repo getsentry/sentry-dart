@@ -196,6 +196,31 @@ void main() {
       expect(spanDiscardedEvent!.quantity, 3);
     });
 
+    test('does record lost feedback for error >= 400', () async {
+      final httpMock = MockClient((http.Request request) async {
+        return http.Response('{}', 400);
+      });
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final feedback = SentryFeedback(message: 'fixture-message');
+      final feedbackEvent = SentryEvent(
+        type: 'feedback',
+        contexts: Contexts(feedback: feedback),
+        level: SentryLevel.info,
+      );
+      final envelope = SentryEnvelope.fromEvent(
+        feedbackEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
+      await sut.send(envelope);
+
+      expect(fixture.clientReportRecorder.discardedEvents.first.reason,
+          DiscardReason.networkError);
+      expect(fixture.clientReportRecorder.discardedEvents.first.category,
+          DataCategory.feedback);
+    });
+
     test('does not record lost event for error 429', () async {
       final httpMock = MockClient((http.Request request) async {
         return http.Response('{}', 429);
@@ -246,7 +271,7 @@ class Fixture {
 
   HttpTransport getSut(http.Client client, RateLimiter rateLimiter) {
     options.debug = true;
-    options.logger = mockLogger;
+    options.log = mockLogger;
     options.httpClient = client;
     options.recorder = clientReportRecorder;
     options.clock = () {

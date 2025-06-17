@@ -12,7 +12,7 @@ class JavascriptTransport implements Transport {
     try {
       await _binding.captureStructuredEnvelope(envelope);
     } catch (exception, stackTrace) {
-      _options.logger(
+      _options.log(
         SentryLevel.error,
         'Failed to send envelope',
         exception: exception,

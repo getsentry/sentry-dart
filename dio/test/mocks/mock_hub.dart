@@ -72,6 +72,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
     dynamic throwable, {
     dynamic stackTrace,
     Hint? hint,
+    SentryMessage? message,
     ScopeCallback? withScope,
   }) async {
     captureExceptionCalls.add(
