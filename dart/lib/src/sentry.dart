@@ -221,6 +221,7 @@ class Sentry {
     dynamic throwable, {
     dynamic stackTrace,
     Hint? hint,
+    SentryMessage? message,
     ScopeCallback? withScope,
   }) =>
       _taskQueue.enqueue(
@@ -228,6 +229,7 @@ class Sentry {
           throwable,
           stackTrace: stackTrace,
           hint: hint,
+          message: message,
           withScope: withScope,
         ),
         SentryId.empty(),
@@ -416,7 +418,7 @@ class Sentry {
   ///   // On top of that, you can do your own custom stuff in this callback.
   /// });
   /// ```
-  static runZonedGuarded<R>(
+  static dynamic runZonedGuarded<R>(
     R Function() body,
     void Function(Object error, StackTrace stack)? onError, {
     Map<Object?, Object?>? zoneValues,
