@@ -14,16 +14,17 @@ const _featureFlag = 'FLUTTER_ENABLED_FEATURE_FLAGS';
 // See https://github.com/flutter/flutter/pull/168437
 class FlutterFrameworkFeatureFlagIntegration
     extends Integration<SentryOptions> {
-
   final String flags;
 
-  FlutterFrameworkFeatureFlagIntegration({@visibleForTesting this.flags = const String.fromEnvironment(_featureFlag)});
+  FlutterFrameworkFeatureFlagIntegration({
+    @visibleForTesting this.flags = const String.fromEnvironment(_featureFlag),
+  });
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
-    final debugEnabledFeatureFlags = flags.split(',');
+    final enabledFeatureFlags = flags.split(',');
 
-    for (final featureFlag in debugEnabledFeatureFlags) {
+    for (final featureFlag in enabledFeatureFlags) {
       Sentry.addFeatureFlag(featureFlag, true);
     }
     options.sdk.addIntegration('FlutterFrameworkFeatureFlagIntegration');
