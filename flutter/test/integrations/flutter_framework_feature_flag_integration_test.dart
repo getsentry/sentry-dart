@@ -1,28 +1,63 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/integrations/flutter_framework_feature_flag_integration.dart';
-
-import '../mocks.dart';
-import '../mocks.mocks.dart';
 
 void main() {
   group(FlutterFrameworkFeatureFlagIntegration, () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+
+      await Sentry.init((options) {
+        options.dsn = 'https://example.com/sentry-dsn';
+      });
+
+      // ignore: invalid_use_of_internal_member
+      fixture.hub = Sentry.currentHub;
+      // ignore: invalid_use_of_internal_member
+      fixture.options = fixture.hub.options;
+    });
+
+    tearDown(() {
+      Sentry.close();
+    });
+
     test('adds sdk integration', () {
-      final options = defaultTestOptions();
-      FlutterFrameworkFeatureFlagIntegration(flags: 'foo,bar,baz')
-          .call(MockHub(), options);
+      final sut = fixture.getSut('foo,bar,baz');
+      sut.call(fixture.hub, fixture.options);
 
       expect(
-          options.sdk.integrations
+          fixture.options.sdk.integrations
               .contains('FlutterFrameworkFeatureFlag'),
           true);
     });
 
     test('adds feature flags', () {
-      final options = defaultTestOptions();
-      FlutterFrameworkFeatureFlagIntegration(flags: 'foo,bar,baz')
-          .call(MockHub(), options);
+      final sut = fixture.getSut('foo,bar,baz');
+      sut.call(fixture.hub, fixture.options);
 
-      // TODO what expect to write here?
+      // ignore: invalid_use_of_internal_member
+      final featureFlags = fixture.hub.scope.contexts[SentryFeatureFlags.type]
+          as SentryFeatureFlags?;
+
+      expect(featureFlags, isNotNull);
+      expect(featureFlags?.values.length, 3);
+      expect(featureFlags?.values.first.flag, 'foo');
+      expect(featureFlags?.values.first.result, true);
+      expect(featureFlags?.values[1].flag, 'bar');
+      expect(featureFlags?.values[1].result, true);
+      expect(featureFlags?.values[2].flag, 'baz');
+      expect(featureFlags?.values[2].result, true);
     });
   });
+}
+
+class Fixture {
+  late Hub hub;
+  late SentryOptions options;
+
+  FlutterFrameworkFeatureFlagIntegration getSut(String features) {
+    return FlutterFrameworkFeatureFlagIntegration(flags: features);
+  }
 }
