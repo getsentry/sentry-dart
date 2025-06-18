@@ -13,20 +13,24 @@ import '../web/web_session_handler.dart';
 /// started on route changes and updated when errors occur.
 ///
 /// The integration is only active on web platforms with enableAutoSessionTracking enabled.
-class WebSessionIntegration
-    implements Integration<SentryFlutterOptions>, BeforeSendEventObserver {
-  static const integrationName = 'WebSessionIntegration';
+class WebSessionIntegration implements Integration<SentryFlutterOptions> {
+  WebSessionIntegration(this._native);
+
   final SentryNativeBinding _native;
-  SentryFlutterOptions? _options;
-  WebSessionHandler? _webSessionHandler;
+
+  static const integrationName = 'WebSessionIntegration';
+
   WebSessionHandler? get webSessionHandler => _webSessionHandler;
   bool get _isEnabled => _webSessionHandler != null;
 
-  WebSessionIntegration(this._native);
+  SentryFlutterOptions? _options;
+  WebSessionHandler? _webSessionHandler;
+  Hub? _hub;
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     _options = options;
+    _hub = hub;
     _options?.log(SentryLevel.info,
         '$integrationName initialization started, waiting for SentryNavigatorObserver to be initialized.');
   }
@@ -50,7 +54,10 @@ class WebSessionIntegration
     }
 
     _webSessionHandler = WebSessionHandler(_native);
-    _options?.addBeforeSendEventObserver(this);
+    _hub?.registerCallback<BeforeSendEventEvent>((event) async {
+      await _webSessionHandler?.updateSessionFromEvent(event.event);
+    });
+
     _options?.sdk.addIntegration(integrationName);
     _options?.log(SentryLevel.info, '$integrationName successfully enabled.');
   }
@@ -65,10 +72,5 @@ class WebSessionIntegration
       return false;
     }
     return true;
-  }
-
-  @override
-  FutureOr<void> onBeforeSendEvent(SentryEvent event, Hint hint) async {
-    await _webSessionHandler?.updateSessionFromEvent(event);
   }
 }

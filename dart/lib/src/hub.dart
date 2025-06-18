@@ -648,6 +648,12 @@ class Hub {
     }
     return event;
   }
+
+  void registerCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleEventCallback<T> callback) {
+    final item = _peek();
+    item.client.registerCallback(callback);
+  }
 }
 
 class _StackItem {

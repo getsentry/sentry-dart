@@ -40,16 +40,6 @@ String get defaultIpAddress => _defaultIpAddress;
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
-  final SentryOptions _options;
-
-  final Random? _random;
-
-  static final _emptySentryId = Future.value(SentryId.empty());
-
-  SentryExceptionFactory get _exceptionFactory => _options.exceptionFactory;
-
-  SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
-
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
     if (options.sendClientReports) {
@@ -85,6 +75,77 @@ class SentryClient {
   /// Instantiates a client using [SentryOptions]
   SentryClient._(this._options)
       : _random = _options.sampleRate == null ? null : Random();
+
+  final SentryOptions _options;
+  final Random? _random;
+
+  static final _emptySentryId = Future.value(SentryId.empty());
+
+  final Map<Type, List<Function>> _sdkLifecycleCallbacks = {};
+
+  SentryExceptionFactory get _exceptionFactory => _options.exceptionFactory;
+  SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
+
+  /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
+  Future<SentryId> captureException(
+    dynamic throwable, {
+    dynamic stackTrace,
+    Scope? scope,
+    Hint? hint,
+  }) {
+    final event = SentryEvent(
+      throwable: throwable,
+      timestamp: _options.clock(),
+    );
+
+    return captureEvent(
+      event,
+      stackTrace: stackTrace,
+      scope: scope,
+      hint: hint,
+    );
+  }
+
+  /// Reports the [template]
+  Future<SentryId> captureMessage(
+    String formatted, {
+    SentryLevel? level,
+    String? template,
+    List<dynamic>? params,
+    Scope? scope,
+    Hint? hint,
+  }) {
+    final event = SentryEvent(
+      message: SentryMessage(formatted, template: template, params: params),
+      level: level ?? SentryLevel.info,
+      timestamp: _options.clock(),
+    );
+
+    return captureEvent(event, scope: scope, hint: hint);
+  }
+
+  /// Reports the [feedback] to Sentry.io.
+  Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Scope? scope,
+    Hint? hint,
+  }) {
+    // Cap feedback messages to max 4096 characters
+    if (feedback.message.length > 4096) {
+      feedback.message = feedback.message.substring(0, 4096);
+    }
+    final feedbackEvent = SentryEvent(
+      type: 'feedback',
+      contexts: Contexts(feedback: feedback),
+      level: SentryLevel.info,
+    );
+
+    return captureEvent(
+      feedbackEvent,
+      scope: scope,
+      hint: hint,
+    );
+  }
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -164,8 +225,8 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    // Event is fully processed and ready to be sent, emit beforeSendEvent observer
-    await _emitBeforeSendEventObserver(preparedEvent, hint);
+    // Event is fully processed and ready to be sent, we can emit the callback now
+    await emitCallback(BeforeSendEventEvent(event, hint));
 
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
     attachments.addAll(hint.attachments);
@@ -204,6 +265,205 @@ class SentryClient {
     return id ?? SentryId.empty();
   }
 
+  @internal
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    Scope? scope,
+    SentryTraceContextHeader? traceContext,
+    Hint? hint,
+  }) async {
+    hint ??= Hint();
+
+    SentryTransaction? preparedTransaction =
+        _prepareEvent(transaction, hint) as SentryTransaction;
+
+    if (scope != null) {
+      preparedTransaction = await scope.applyToEvent(preparedTransaction, hint)
+          as SentryTransaction?;
+    } else {
+      _options.log(
+          SentryLevel.debug, 'No scope to apply on transaction was provided');
+    }
+
+    // dropped by scope event processors
+    if (preparedTransaction == null) {
+      return _emptySentryId;
+    }
+
+    preparedTransaction = await runEventProcessors(
+      preparedTransaction,
+      hint,
+      _options.eventProcessors,
+      _options,
+    ) as SentryTransaction?;
+
+    // dropped by event processors
+    if (preparedTransaction == null) {
+      return _emptySentryId;
+    }
+
+    if (_isIgnoredTransaction(preparedTransaction)) {
+      _options.log(
+        SentryLevel.debug,
+        'Transaction was ignored as specified in the ignoredTransactions options.',
+      );
+
+      _options.recorder.recordLostEvent(
+          DiscardReason.ignored, _getCategory(preparedTransaction));
+      return _emptySentryId;
+    }
+
+    preparedTransaction = _createUserOrSetDefaultIpAddress(preparedTransaction)
+        as SentryTransaction;
+
+    preparedTransaction =
+        await _runBeforeSend(preparedTransaction, hint) as SentryTransaction?;
+
+    // dropped by beforeSendTransaction
+    if (preparedTransaction == null) {
+      return _emptySentryId;
+    }
+
+    final attachments = scope?.attachments
+        .where((element) => element.addToTransactions)
+        .toList();
+    final envelope = SentryEnvelope.fromTransaction(
+      preparedTransaction,
+      _options.sdk,
+      dsn: _options.dsn,
+      traceContext: traceContext,
+      attachments: attachments,
+    );
+
+    final profileInfo = preparedTransaction.tracer.profileInfo;
+    if (profileInfo != null) {
+      envelope.items.add(profileInfo.asEnvelopeItem());
+    }
+    final id = await captureEnvelope(envelope);
+
+    return id ?? SentryId.empty();
+  }
+
+  /// Reports the [envelope] to Sentry.io.
+  Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
+    return _options.transport.send(envelope);
+  }
+
+  @internal
+  FutureOr<void> captureLog(
+    SentryLog log, {
+    Scope? scope,
+  }) async {
+    if (!_options.enableLogs) {
+      return;
+    }
+
+    log.attributes['sentry.sdk.name'] = SentryLogAttribute.string(
+      _options.sdk.name,
+    );
+    log.attributes['sentry.sdk.version'] = SentryLogAttribute.string(
+      _options.sdk.version,
+    );
+    final environment = _options.environment;
+    if (environment != null) {
+      log.attributes['sentry.environment'] = SentryLogAttribute.string(
+        environment,
+      );
+    }
+    final release = _options.release;
+    if (release != null) {
+      log.attributes['sentry.release'] = SentryLogAttribute.string(
+        release,
+      );
+    }
+
+    final propagationContext = scope?.propagationContext;
+    if (propagationContext != null) {
+      log.traceId = propagationContext.traceId;
+    }
+    final span = scope?.span;
+    if (span != null) {
+      log.attributes['sentry.trace.parent_span_id'] = SentryLogAttribute.string(
+        span.context.spanId.toString(),
+      );
+    }
+
+    final beforeSendLog = _options.beforeSendLog;
+    SentryLog? processedLog = log;
+    if (beforeSendLog != null) {
+      try {
+        final callbackResult = beforeSendLog(log);
+
+        if (callbackResult is Future<SentryLog?>) {
+          processedLog = await callbackResult;
+        } else {
+          processedLog = callbackResult;
+        }
+      } catch (exception, stackTrace) {
+        _options.log(
+          SentryLevel.error,
+          'The beforeSendLog callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
+    if (processedLog != null) {
+      _options.logBatcher.addLog(processedLog);
+    } else {
+      _options.recorder.recordLostEvent(
+        DiscardReason.beforeSend,
+        DataCategory.logItem,
+      );
+    }
+  }
+
+  void close() {
+    _options.httpClient.close();
+  }
+
+  @internal
+  void registerCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleEventCallback<T> callback) {
+    _sdkLifecycleCallbacks.putIfAbsent(T, () => []).add(callback);
+  }
+
+  @internal
+  void unregisterCallback<T extends SdkLifecycleEvent>(
+    SdkLifecycleEventCallback<T> cb,
+  ) {
+    _sdkLifecycleCallbacks[T]?.remove(cb);
+  }
+
+  @internal
+  FutureOr<void> emitCallback<T extends SdkLifecycleEvent>(T event) async {
+    try {
+      final callbacks = _sdkLifecycleCallbacks[event.runtimeType];
+      if (callbacks != null) {
+        for (final cb in callbacks) {
+          if (cb is Future<T>) {
+            await (cb as SdkLifecycleEventCallback<T>)(event);
+          } else {
+            (cb as SdkLifecycleEventCallback<T>)(event);
+          }
+        }
+      }
+    } catch (exception, stackTrace) {
+      _options.log(
+        SentryLevel.error,
+        'Error while running SDK lifecycle callback: ${T.runtimeType}',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
+    }
+  }
+
   bool _isIgnoredError(SentryEvent event) {
     if (event.message == null || _options.ignoreErrors.isEmpty) {
       return false;
@@ -211,6 +471,15 @@ class SentryClient {
 
     var message = event.message!.formatted;
     return isMatchingRegexPattern(message, _options.ignoreErrors);
+  }
+
+  bool _isIgnoredTransaction(SentryTransaction transaction) {
+    if (_options.ignoreTransactions.isEmpty) {
+      return false;
+    }
+
+    var name = transaction.tracer.name;
+    return isMatchingRegexPattern(name, _options.ignoreTransactions);
   }
 
   SentryEvent _prepareEvent(SentryEvent event, Hint hint,
@@ -339,236 +608,6 @@ class SentryClient {
     return event;
   }
 
-  /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
-  Future<SentryId> captureException(
-    dynamic throwable, {
-    dynamic stackTrace,
-    Scope? scope,
-    Hint? hint,
-  }) {
-    final event = SentryEvent(
-      throwable: throwable,
-      timestamp: _options.clock(),
-    );
-
-    return captureEvent(
-      event,
-      stackTrace: stackTrace,
-      scope: scope,
-      hint: hint,
-    );
-  }
-
-  /// Reports the [template]
-  Future<SentryId> captureMessage(
-    String formatted, {
-    SentryLevel? level,
-    String? template,
-    List<dynamic>? params,
-    Scope? scope,
-    Hint? hint,
-  }) {
-    final event = SentryEvent(
-      message: SentryMessage(formatted, template: template, params: params),
-      level: level ?? SentryLevel.info,
-      timestamp: _options.clock(),
-    );
-
-    return captureEvent(event, scope: scope, hint: hint);
-  }
-
-  @internal
-  Future<SentryId> captureTransaction(
-    SentryTransaction transaction, {
-    Scope? scope,
-    SentryTraceContextHeader? traceContext,
-    Hint? hint,
-  }) async {
-    hint ??= Hint();
-
-    SentryTransaction? preparedTransaction =
-        _prepareEvent(transaction, hint) as SentryTransaction;
-
-    if (scope != null) {
-      preparedTransaction = await scope.applyToEvent(preparedTransaction, hint)
-          as SentryTransaction?;
-    } else {
-      _options.log(
-          SentryLevel.debug, 'No scope to apply on transaction was provided');
-    }
-
-    // dropped by scope event processors
-    if (preparedTransaction == null) {
-      return _emptySentryId;
-    }
-
-    preparedTransaction = await runEventProcessors(
-      preparedTransaction,
-      hint,
-      _options.eventProcessors,
-      _options,
-    ) as SentryTransaction?;
-
-    // dropped by event processors
-    if (preparedTransaction == null) {
-      return _emptySentryId;
-    }
-
-    if (_isIgnoredTransaction(preparedTransaction)) {
-      _options.log(
-        SentryLevel.debug,
-        'Transaction was ignored as specified in the ignoredTransactions options.',
-      );
-
-      _options.recorder.recordLostEvent(
-          DiscardReason.ignored, _getCategory(preparedTransaction));
-      return _emptySentryId;
-    }
-
-    preparedTransaction = _createUserOrSetDefaultIpAddress(preparedTransaction)
-        as SentryTransaction;
-
-    preparedTransaction =
-        await _runBeforeSend(preparedTransaction, hint) as SentryTransaction?;
-
-    // dropped by beforeSendTransaction
-    if (preparedTransaction == null) {
-      return _emptySentryId;
-    }
-
-    final attachments = scope?.attachments
-        .where((element) => element.addToTransactions)
-        .toList();
-    final envelope = SentryEnvelope.fromTransaction(
-      preparedTransaction,
-      _options.sdk,
-      dsn: _options.dsn,
-      traceContext: traceContext,
-      attachments: attachments,
-    );
-
-    final profileInfo = preparedTransaction.tracer.profileInfo;
-    if (profileInfo != null) {
-      envelope.items.add(profileInfo.asEnvelopeItem());
-    }
-    final id = await captureEnvelope(envelope);
-
-    return id ?? SentryId.empty();
-  }
-
-  bool _isIgnoredTransaction(SentryTransaction transaction) {
-    if (_options.ignoreTransactions.isEmpty) {
-      return false;
-    }
-
-    var name = transaction.tracer.name;
-    return isMatchingRegexPattern(name, _options.ignoreTransactions);
-  }
-
-  /// Reports the [envelope] to Sentry.io.
-  Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
-    return _options.transport.send(envelope);
-  }
-
-  /// Reports the [feedback] to Sentry.io.
-  Future<SentryId> captureFeedback(
-    SentryFeedback feedback, {
-    Scope? scope,
-    Hint? hint,
-  }) {
-    // Cap feedback messages to max 4096 characters
-    if (feedback.message.length > 4096) {
-      feedback.message = feedback.message.substring(0, 4096);
-    }
-    final feedbackEvent = SentryEvent(
-      type: 'feedback',
-      contexts: Contexts(feedback: feedback),
-      level: SentryLevel.info,
-    );
-
-    return captureEvent(
-      feedbackEvent,
-      scope: scope,
-      hint: hint,
-    );
-  }
-
-  @internal
-  FutureOr<void> captureLog(
-    SentryLog log, {
-    Scope? scope,
-  }) async {
-    if (!_options.enableLogs) {
-      return;
-    }
-
-    log.attributes['sentry.sdk.name'] = SentryLogAttribute.string(
-      _options.sdk.name,
-    );
-    log.attributes['sentry.sdk.version'] = SentryLogAttribute.string(
-      _options.sdk.version,
-    );
-    final environment = _options.environment;
-    if (environment != null) {
-      log.attributes['sentry.environment'] = SentryLogAttribute.string(
-        environment,
-      );
-    }
-    final release = _options.release;
-    if (release != null) {
-      log.attributes['sentry.release'] = SentryLogAttribute.string(
-        release,
-      );
-    }
-
-    final propagationContext = scope?.propagationContext;
-    if (propagationContext != null) {
-      log.traceId = propagationContext.traceId;
-    }
-    final span = scope?.span;
-    if (span != null) {
-      log.attributes['sentry.trace.parent_span_id'] = SentryLogAttribute.string(
-        span.context.spanId.toString(),
-      );
-    }
-
-    final beforeSendLog = _options.beforeSendLog;
-    SentryLog? processedLog = log;
-    if (beforeSendLog != null) {
-      try {
-        final callbackResult = beforeSendLog(log);
-
-        if (callbackResult is Future<SentryLog?>) {
-          processedLog = await callbackResult;
-        } else {
-          processedLog = callbackResult;
-        }
-      } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'The beforeSendLog callback threw an exception',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
-    }
-    if (processedLog != null) {
-      _options.logBatcher.addLog(processedLog);
-    } else {
-      _options.recorder.recordLostEvent(
-        DiscardReason.beforeSend,
-        DataCategory.logItem,
-      );
-    }
-  }
-
-  void close() {
-    _options.httpClient.close();
-  }
-
   Future<SentryEvent?> _runBeforeSend(
     SentryEvent event,
     Hint hint,
@@ -660,26 +699,24 @@ class SentryClient {
       return DataCategory.error;
     }
   }
+}
 
-  FutureOr<void> _emitBeforeSendEventObserver(
-      SentryEvent event, Hint hint) async {
-    for (final observer in _options.beforeSendEventObservers) {
-      try {
-        final result = observer.onBeforeSendEvent(event, hint);
-        if (result is Future) {
-          await result;
-        }
-      } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'Error while running beforeSendEvent observer',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
-    }
-  }
+typedef SdkLifecycleEventCallback<T extends SdkLifecycleEvent> = FutureOr<void>
+    Function(T event);
+
+abstract class SdkLifecycleEvent {}
+
+/// This is called right before an event is sent (after the public beforeSend)
+/// and should not be used to mutate the event.
+class BeforeSendEventEvent implements SdkLifecycleEvent {
+  BeforeSendEventEvent(this.event, this.hint);
+
+  final SentryEvent event;
+  final Hint hint;
+}
+
+class BeforeCaptureLogEvent implements SdkLifecycleEvent {
+  final SentryLog log;
+
+  BeforeCaptureLogEvent(this.log);
 }
