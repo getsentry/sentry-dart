@@ -7,8 +7,6 @@ library;
 
 // ignore: invalid_export_of_internal_element
 export 'src/constants.dart';
-// ignore: invalid_export_of_internal_element
-export 'src/contexts_enricher.dart';
 export 'src/event_processor.dart';
 export 'src/exception_cause.dart';
 export 'src/exception_cause_extractor.dart';
@@ -37,6 +35,7 @@ export 'src/scope_observer.dart';
 export 'src/sentry.dart';
 export 'src/sentry_attachment/sentry_attachment.dart';
 export 'src/sentry_baggage.dart';
+// ignore: invalid_export_of_internal_element
 export 'src/sentry_client.dart';
 export 'src/sentry_envelope.dart';
 export 'src/sentry_envelope_item.dart';

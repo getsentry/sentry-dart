@@ -6,17 +6,14 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
-import 'package:sentry_flutter/src/contexts_enricher/native_contexts_enricher.dart';
-
-import '../mocks.dart';
-import '../mocks.mocks.dart';
+import 'fixture.dart';
 
 void main() {
   group(LoadContextsIntegration, () {
-    late Fixture fixture;
+    late IntegrationTestFixture fixture;
 
     setUp(() {
-      fixture = Fixture();
+      fixture = IntegrationTestFixture(LoadContextsIntegration.new);
       fixture.registerIntegration();
     });
 
@@ -224,21 +221,4 @@ void main() {
       expect(actualId, expectedId);
     });
   });
-}
-
-class Fixture {
-  late LoadContextsIntegration sut;
-  late Hub hub;
-  final options = defaultTestOptions();
-  final binding = MockSentryNativeBinding();
-
-  Fixture() {
-    hub = Hub(options);
-    final nativeContextsEnricher = NativeContextsEnricher(binding);
-    sut = LoadContextsIntegration(binding, nativeContextsEnricher);
-  }
-
-  void registerIntegration() {
-    sut.call(hub, options);
-  }
 }

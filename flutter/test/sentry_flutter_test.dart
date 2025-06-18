@@ -18,8 +18,6 @@ import 'package:sentry_flutter/src/replay/integration.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'package:sentry_flutter/src/web/javascript_transport.dart';
-import 'package:sentry_flutter/src/contexts_enricher/native_contexts_enricher.dart';
-import 'package:sentry/src/platform/platform.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -669,52 +667,6 @@ void main() {
         options: sentryFlutterOptions,
       );
       SentryFlutter.native = null;
-    });
-
-    test('NativeContextsEnricher is added on init', () async {
-      final sentryFlutterOptions =
-          defaultTestOptions(checker: MockRuntimeChecker())
-            ..platform = MockPlatform.android()
-            ..methodChannel = native.channel;
-      await SentryFlutter.init(
-        (options) {
-          expect(
-              options.contextsEnrichers.any((e) => e is NativeContextsEnricher),
-              true);
-        },
-        appRunner: appRunner,
-        options: sentryFlutterOptions,
-      );
-    });
-
-    test(
-        'NativeContextsEnricher is not added if fetching contexts is not supported',
-        () async {
-      final binding = mockNativeBinding();
-      when(binding.supportsLoadContexts).thenReturn(false);
-      SentryFlutter.native = binding;
-
-      // Don't override native mock instance on init.
-      final platform = MockPlatform(
-        operatingSystem: OperatingSystem.android,
-        isWeb: false,
-        supportsNativeIntegration: false,
-      );
-
-      final sentryFlutterOptions =
-          defaultTestOptions(checker: MockRuntimeChecker())
-            ..platform = platform
-            ..methodChannel = native.channel;
-
-      await SentryFlutter.init(
-        (options) {
-          expect(
-              options.contextsEnrichers.any((e) => e is NativeContextsEnricher),
-              false);
-        },
-        appRunner: appRunner,
-        options: sentryFlutterOptions,
-      );
     });
   });
 

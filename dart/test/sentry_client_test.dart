@@ -1791,7 +1791,9 @@ void main() {
       final client = fixture.getSut();
       fixture.options.logBatcher = MockLogBatcher();
 
-      fixture.options.addContextsEnricher(_TestContextsEnricher());
+      client.onBeforeCaptureLog((log) {
+        log.attributes['test'] = SentryLogAttribute.string('test-value');
+      });
 
       await client.captureLog(log, scope: scope);
 
@@ -1840,23 +1842,8 @@ void main() {
         'string',
       );
 
-      expect(capturedLog.attributes['os.name']?.value, "test-os-name");
-      expect(capturedLog.attributes['os.name']?.type, 'string');
-
-      expect(capturedLog.attributes['os.version']?.value, "test-os-version");
-      expect(capturedLog.attributes['os.version']?.type, 'string');
-
-      expect(
-          capturedLog.attributes['device.brand']?.value, "test-device-brand");
-      expect(capturedLog.attributes['device.brand']?.type, 'string');
-
-      expect(
-          capturedLog.attributes['device.model']?.value, "test-device-model");
-      expect(capturedLog.attributes['device.model']?.type, 'string');
-
-      expect(
-          capturedLog.attributes['device.family']?.value, "test-device-family");
-      expect(capturedLog.attributes['device.family']?.type, 'string');
+      expect(capturedLog.attributes['test']?.value, "test-value");
+      expect(capturedLog.attributes['test']?.type, 'string');
     });
 
     test('should set trace id from propagation context', () async {
@@ -2853,20 +2840,5 @@ class _TestOrderObserver extends BeforeSendEventObserver {
   @override
   FutureOr<void> onBeforeSendEvent(SentryEvent event, Hint hint) {
     _processingOrder.add('beforeSendEvent');
-  }
-}
-
-class _TestContextsEnricher implements ContextsEnricher {
-  @override
-  FutureOr<void> enrich(Contexts contexts) async {
-    contexts.operatingSystem =
-        contexts.operatingSystem ?? SentryOperatingSystem();
-    contexts.device = contexts.device ?? SentryDevice();
-
-    contexts.operatingSystem?.name = 'test-os-name';
-    contexts.operatingSystem?.version = 'test-os-version';
-    contexts.device?.brand = 'test-device-brand';
-    contexts.device?.model = 'test-device-model';
-    contexts.device?.family = 'test-device-family';
   }
 }

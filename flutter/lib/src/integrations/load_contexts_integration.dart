@@ -6,7 +6,6 @@ import 'package:collection/collection.dart';
 import 'package:sentry/src/event_processor/enricher/enricher_event_processor.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
-import '../contexts_enricher/native_contexts_enricher.dart';
 
 /// Load Device's Contexts from the iOS & Android SDKs.
 ///
@@ -20,15 +19,13 @@ import '../contexts_enricher/native_contexts_enricher.dart';
 /// This integration is only executed on iOS, macOS & Android Apps.
 class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
-  final NativeContextsEnricher _nativeContextsEnricher;
 
-  LoadContextsIntegration(this._native, this._nativeContextsEnricher);
+  LoadContextsIntegration(this._native);
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     options.addEventProcessor(
-      _LoadContextsIntegrationEventProcessor(
-          _native, options, _nativeContextsEnricher),
+      _LoadContextsIntegrationEventProcessor(_native, options),
     );
 
     // We need to move [IOEnricherEventProcessor] after [_LoadContextsIntegrationEventProcessor]
@@ -45,26 +42,67 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
       options.addEventProcessor(enricherEventProcessor);
     }
 
+    // ignore: invalid_use_of_internal_member
+    hub.onBeforeCaptureLog((log) async {
+      try {
+        final infos = await _native.loadContexts() ?? {};
+
+        final contextsMap = infos['contexts'] as Map<String, dynamic>?;
+        final contexts = Contexts(); // We just need the the native contexts.
+        _mergeNativeWithLocalContexts(contextsMap, contexts);
+
+        if (contexts.operatingSystem?.name != null) {
+          log.attributes['os.name'] = SentryLogAttribute.string(
+            contexts.operatingSystem?.name ?? '',
+          );
+        }
+        if (contexts.operatingSystem?.version != null) {
+          log.attributes['os.version'] = SentryLogAttribute.string(
+            contexts.operatingSystem?.version ?? '',
+          );
+        }
+        if (contexts.device?.brand != null) {
+          log.attributes['device.brand'] = SentryLogAttribute.string(
+            contexts.device?.brand ?? '',
+          );
+        }
+        if (contexts.device?.model != null) {
+          log.attributes['device.model'] = SentryLogAttribute.string(
+            contexts.device?.model ?? '',
+          );
+        }
+        if (contexts.device?.family != null) {
+          log.attributes['device.family'] = SentryLogAttribute.string(
+            contexts.device?.family ?? '',
+          );
+        }
+      } catch (exception, stackTrace) {
+        options.log(
+          SentryLevel.error,
+          'LoadContextsIntegration failed to load contexts',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      }
+    });
+
     options.sdk.addIntegration('loadContextsIntegration');
   }
 }
 
 class _LoadContextsIntegrationEventProcessor implements EventProcessor {
-  _LoadContextsIntegrationEventProcessor(
-      this._native, this._options, this._nativeContextsEnricher);
+  _LoadContextsIntegrationEventProcessor(this._native, this._options);
 
   final SentryNativeBinding _native;
   final SentryFlutterOptions _options;
-  final NativeContextsEnricher _nativeContextsEnricher;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     // TODO don't copy everything (i.e. avoid unnecessary Map.from())
     try {
-      await _nativeContextsEnricher.enrich(event.contexts);
-      final infos = _nativeContextsEnricher.cachedInfos ??
-          await _native.loadContexts() ??
-          {};
+      final infos = await _native.loadContexts() ?? {};
+      final contextsMap = infos['contexts'] as Map<String, dynamic>?;
+      _mergeNativeWithLocalContexts(contextsMap, event.contexts);
 
       final tagsMap = infos['tags'] as Map?;
       if (tagsMap != null && tagsMap.isNotEmpty) {
@@ -205,5 +243,44 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
       }
     }
     return event;
+  }
+}
+
+void _mergeNativeWithLocalContexts(
+    Map<String, dynamic>? contextsMap, Contexts contexts) {
+  if (contextsMap != null && contextsMap.isNotEmpty) {
+    final nativeContexts = Contexts.fromJson(
+      Map<String, dynamic>.from(contextsMap),
+    );
+
+    nativeContexts.forEach(
+      (key, dynamic value) {
+        if (value != null) {
+          final currentValue = contexts[key];
+          if (key == SentryRuntime.listType) {
+            nativeContexts.runtimes.forEach(contexts.addRuntime);
+          } else if (currentValue == null) {
+            contexts[key] = value;
+          } else {
+            // merge the values
+            if (key == SentryOperatingSystem.type &&
+                currentValue is SentryOperatingSystem &&
+                value is SentryOperatingSystem) {
+              // merge os context
+              final osMap = {...value.toJson(), ...currentValue.toJson()};
+              final os = SentryOperatingSystem.fromJson(osMap);
+              contexts[key] = os;
+            } else if (key == SentryApp.type &&
+                currentValue is SentryApp &&
+                value is SentryApp) {
+              // merge app context
+              final appMap = {...value.toJson(), ...currentValue.toJson()};
+              final app = SentryApp.fromJson(appMap);
+              contexts[key] = app;
+            }
+          }
+        }
+      },
+    );
   }
 }

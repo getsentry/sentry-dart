@@ -38,6 +38,9 @@ const _defaultIpAddress = '{{auto}}';
 @visibleForTesting
 String get defaultIpAddress => _defaultIpAddress;
 
+@internal
+typedef OnBeforeCaptureLog = FutureOr<void> Function(SentryLog log);
+
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
   final SentryOptions _options;
@@ -49,6 +52,8 @@ class SentryClient {
   SentryExceptionFactory get _exceptionFactory => _options.exceptionFactory;
 
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
+
+  final List<OnBeforeCaptureLog> _onBeforeCaptureLog = [];
 
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
@@ -557,36 +562,7 @@ class SentryClient {
     }
 
     if (processedLog != null) {
-      final contexts = Contexts();
-      for (final enricher in _options.contextsEnrichers) {
-        await enricher.enrich(contexts);
-      }
-
-      if (contexts.operatingSystem?.name != null) {
-        log.attributes['os.name'] = SentryLogAttribute.string(
-          contexts.operatingSystem?.name ?? '',
-        );
-      }
-      if (contexts.operatingSystem?.version != null) {
-        log.attributes['os.version'] = SentryLogAttribute.string(
-          contexts.operatingSystem?.version ?? '',
-        );
-      }
-      if (contexts.device?.brand != null) {
-        log.attributes['device.brand'] = SentryLogAttribute.string(
-          contexts.device?.brand ?? '',
-        );
-      }
-      if (contexts.device?.model != null) {
-        log.attributes['device.model'] = SentryLogAttribute.string(
-          contexts.device?.model ?? '',
-        );
-      }
-      if (contexts.device?.family != null) {
-        log.attributes['device.family'] = SentryLogAttribute.string(
-          contexts.device?.family ?? '',
-        );
-      }
+      await _emitBeforeCaptureLog(processedLog);
       _options.logBatcher.addLog(processedLog);
     } else {
       _options.recorder.recordLostEvent(
@@ -598,6 +574,17 @@ class SentryClient {
 
   void close() {
     _options.httpClient.close();
+  }
+
+  @internal
+  void onBeforeCaptureLog(OnBeforeCaptureLog hook) {
+    _onBeforeCaptureLog.add(hook);
+  }
+
+  FutureOr<void> _emitBeforeCaptureLog(SentryLog log) async {
+    for (final hook in _onBeforeCaptureLog) {
+      await hook(log);
+    }
   }
 
   Future<SentryEvent?> _runBeforeSend(

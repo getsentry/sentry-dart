@@ -6,7 +6,7 @@ import 'dart:isolate';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
-import 'package:sentry/src/contexts_enricher/os_contexts_enricher.dart';
+import 'package:sentry/src/logs_enricher_integration.dart';
 import 'package:sentry/src/feature_flags_integration.dart';
 import 'package:test/test.dart';
 
@@ -498,19 +498,6 @@ void main() {
 
       await completer.future;
       expect(completed, true);
-    });
-
-    test('$OsContextsEnricher is added on init', () async {
-      final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-          final count =
-              options.contextsEnrichers.whereType<OsContextsEnricher>().length;
-          expect(count, 1);
-        },
-      );
     });
   }, testOn: 'vm');
 

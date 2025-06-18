@@ -630,6 +630,12 @@ class Hub {
 
   SentryProfilerFactory? _profilerFactory;
 
+  @internal
+  void onBeforeCaptureLog(OnBeforeCaptureLog hook) {
+    final item = _peek();
+    item.client.onBeforeCaptureLog(hook);
+  }
+
   SentryEvent _assignTraceContext(SentryEvent event) {
     // assign trace context
     if (event.throwable != null && event.contexts.trace == null) {
