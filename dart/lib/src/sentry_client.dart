@@ -588,7 +588,7 @@ class SentryClient {
       } catch (exception, stackTrace) {
         _options.log(
           SentryLevel.error,
-          'The beforeSendLog callback threw an exception',
+          'The onBeforeCaptureLog hook threw an exception',
           exception: exception,
           stackTrace: stackTrace,
         );
