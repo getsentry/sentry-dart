@@ -16,8 +16,6 @@ class AutoCloseScreen extends StatefulWidget {
 }
 
 class AutoCloseScreenState extends State<AutoCloseScreen> {
-  static const delayInSeconds = 3;
-
   @override
   void initState() {
     super.initState();
@@ -28,6 +26,8 @@ class AutoCloseScreenState extends State<AutoCloseScreen> {
     final dio = Dio();
     dio.addSentry();
     try {
+      // Add a bit of delay to demonstrate TTFD
+      await Future.delayed(const Duration(seconds: 3));
       await dio.get<String>(exampleUrl);
     } catch (exception, stackTrace) {
       await Sentry.captureException(exception, stackTrace: stackTrace);
@@ -46,7 +46,7 @@ class AutoCloseScreenState extends State<AutoCloseScreen> {
       ),
       body: const Center(
         child: Text(
-          'This screen will automatically close in $delayInSeconds seconds...',
+          'This screen will automatically close in a few seconds.',
           textAlign: TextAlign.center,
         ),
       ),
