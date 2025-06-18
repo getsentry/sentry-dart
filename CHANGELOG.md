@@ -6,6 +6,17 @@
 
 - Add `message` parameter to `captureException()` ([#2882](https://github.com/getsentry/sentry-dart/pull/2882))
 - Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
+- Add module in SentryStackFrame ([#2931](https://github.com/getsentry/sentry-dart/pull/2931))
+  - Set `SentryOptions.includeModuleInStackTrace = true` to enable this. This may change grouping of exceptions. 
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.51.0 to v8.52.1 ([#2981](https://github.com/getsentry/sentry-dart/pull/2981))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8521)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.51.0...8.52.1)
+- Bump Native SDK from v0.8.4 to v0.9.0 ([#2980](https://github.com/getsentry/sentry-dart/pull/2980))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#090)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.8.4...0.9.0)
 
 ## 9.0.0
 
