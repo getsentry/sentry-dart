@@ -45,12 +45,12 @@ void testConfiguration({
     nativeIntegration = integrations.firstWhereOrNull(
         (x) => x.runtimeType.toString() == 'WebSdkIntegration');
     loadDebugImagesIntegration = integrations.firstWhereOrNull(
-        (x) => x.runtimeType.toString() == 'LoadWebDebugImages');
+        (x) => x.runtimeType.toString() == 'LoadWebDebugImagesIntegration');
   } else {
     nativeIntegration = integrations.firstWhereOrNull(
         (x) => x.runtimeType.toString() == 'NativeSdkIntegration');
     loadDebugImagesIntegration = integrations.firstWhereOrNull(
-        (x) => x.runtimeType.toString() == 'LoadNativeDebugImages');
+        (x) => x.runtimeType.toString() == 'LoadNativeDebugImagesIntegration');
   }
   expect(loadDebugImagesIntegration, isNotNull);
   expect(nativeIntegration, isNotNull);
