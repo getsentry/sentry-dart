@@ -26,6 +26,7 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
   SentryFlutterOptions? _options;
   WebSessionHandler? _webSessionHandler;
   Hub? _hub;
+  SdkLifecycleEventCallback<BeforeSendEventEvent>? _callback;
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
@@ -54,16 +55,14 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
     }
 
     _webSessionHandler = WebSessionHandler(_native);
-    _callback = (event) async {
-      await _webSessionHandler?.updateSessionFromEvent(event.event);
+    _callback = (event) {
+      _webSessionHandler?.updateSessionFromEvent(event.event);
     };
     _hub?.registerCallback<BeforeSendEventEvent>(_callback!);
 
     _options?.sdk.addIntegration(integrationName);
     _options?.log(SentryLevel.info, '$integrationName successfully enabled.');
   }
-
-  SdkLifecycleEventCallback<BeforeSendEventEvent>? _callback;
 
   bool _shouldEnable() {
     if (_options == null) {

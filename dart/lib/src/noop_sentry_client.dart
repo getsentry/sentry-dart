@@ -76,4 +76,8 @@ class NoOpSentryClient implements SentryClient {
   @override
   void registerCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleEventCallback<T> callback) {}
+
+  @override
+  void removeCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleEventCallback<T> cb) {}
 }
