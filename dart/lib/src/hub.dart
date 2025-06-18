@@ -654,6 +654,12 @@ class Hub {
     final item = _peek();
     item.client.registerCallback(callback);
   }
+
+  void removeCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleEventCallback<T> callback) {
+    final item = _peek();
+    item.client.removeCallback(callback);
+  }
 }
 
 class _StackItem {

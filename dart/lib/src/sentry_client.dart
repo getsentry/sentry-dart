@@ -432,7 +432,7 @@ class SentryClient {
   }
 
   @internal
-  void unregisterCallback<T extends SdkLifecycleEvent>(
+  void removeCallback<T extends SdkLifecycleEvent>(
     SdkLifecycleEventCallback<T> cb,
   ) {
     _sdkLifecycleCallbacks[T]?.remove(cb);
