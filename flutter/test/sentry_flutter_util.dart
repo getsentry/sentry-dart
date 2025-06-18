@@ -40,13 +40,19 @@ void testConfiguration({
   }
 
   Integration? nativeIntegration;
+  Integration? loadDebugImagesIntegration;
   if (kIsWeb) {
     nativeIntegration = integrations.firstWhereOrNull(
         (x) => x.runtimeType.toString() == 'WebSdkIntegration');
+    loadDebugImagesIntegration = integrations.firstWhereOrNull(
+        (x) => x.runtimeType.toString() == 'LoadWebDebugImages');
   } else {
     nativeIntegration = integrations.firstWhereOrNull(
         (x) => x.runtimeType.toString() == 'NativeSdkIntegration');
+    loadDebugImagesIntegration = integrations.firstWhereOrNull(
+        (x) => x.runtimeType.toString() == 'LoadNativeDebugImages');
   }
+  expect(loadDebugImagesIntegration, isNotNull);
   expect(nativeIntegration, isNotNull);
 }
 
