@@ -34,6 +34,7 @@ import 'package:sentry/src/profiling.dart' as _i4;
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
+// ignore_for_file: invalid_use_of_internal_member
 
 class _FakeSentryOptions_0 extends _i1.SmartFake implements _i2.SentryOptions {
   _FakeSentryOptions_0(Object parent, Invocation parentInvocation)
@@ -147,6 +148,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     dynamic stackTrace,
     _i2.Hint? hint,
     _i2.ScopeCallback? withScope,
+    _i2.SentryMessage? message,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
