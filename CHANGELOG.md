@@ -4,26 +4,38 @@
 
 ### Features
 
-- TTID/TTFD Improvements ([#2866](https://github.com/getsentry/sentry-dart/pull/2866))
+- Improved TTID/TTFD API ([#2866](https://github.com/getsentry/sentry-dart/pull/2866))
+  - This improves the stability and consistency of TTFD reporting by introducing new APIs
 ```dart
-// To report TTFD you need to use the SentryNavigatorObserver and wrap your widget in `SentryDisplayWidget`:
+// Prerequisite: `SentryNavigatorObserver` is set up
+// Info: Stateless widgets will report TTFD automatically when wrapped with `SentryDisplayWidget` - no need to call `reportFullyDisplayed`.
 
+// Method 1: wrap your widget that you navigate to in `SentryDisplayWidget` 
 SentryDisplayWidget(child: YourWidget())
 
 // Then report TTFD after long running work (File I/O, Network) within your widget.
+@override
+void initState() {
+  super.initState();
+  // Do some long running work...
+  Future.delayed(const Duration(seconds: 3), () {
+    if (mounted) {
+      SentryDisplayWidget.of(context).reportFullyDisplayed();
+    }
+  });
+}
 
-SentryDisplayWidget.of(context).reportFullDisplay();
-
-// Stateless widgets will report TTFD automatically when wrapped with SentryDisplayWidget.
-
-// Alternativeley, you can manually report TTFD:
-
-// Get a reference to the current display before doing work.
-
-final sentryDisplay = Sentry.currentDisplay();
-
-// After long running work, call `reportFullyDisplayed` on the SentryDisplay instance.
-sentryDisplay?.reportFullyDisplayed()
+// Method 2: use the API directly to report TTFD - this does not require wrapping your widget with `SentryDisplayWidget`:
+@override
+void initState() {
+  super.initState();
+  // Get a reference to the current display before doing work.
+  final currentDisplay = SentryFlutter.currentDisplay();
+  // Do some long running work...
+  Future.delayed(const Duration(seconds: 3), () {
+    currentDisplay?.reportFullyDisplayed();
+  });
+}
 ```
 - Add `message` parameter to `captureException()` ([#2882](https://github.com/getsentry/sentry-dart/pull/2882))
 - Add module in SentryStackFrame ([#2931](https://github.com/getsentry/sentry-dart/pull/2931))
