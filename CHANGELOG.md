@@ -7,7 +7,7 @@
 - Improved TTID/TTFD API ([#2866](https://github.com/getsentry/sentry-dart/pull/2866))
   - This improves the stability and consistency of TTFD reporting by introducing new APIs
 ```dart
-// Prerequisite: `SentryNavigatorObserver` is set up
+// Prerequisite: `SentryNavigatorObserver` is set up and route have unique names, e.g configured via `RouteSettings`
 // Info: Stateless widgets will report TTFD automatically when wrapped with `SentryDisplayWidget` - no need to call `reportFullyDisplayed`.
 
 // Method 1: wrap your widget that you navigate to in `SentryDisplayWidget` 
