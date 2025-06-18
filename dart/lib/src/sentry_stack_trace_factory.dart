@@ -123,14 +123,16 @@ class SentryStackTraceFactory {
       // We shouldn't get here. If we do, it means there's likely an issue in
       // the parsing so let's fall back and post a stack trace as is, so that at
       // least we get an indication something's wrong and are able to fix it.
-      _options.logger(
-          SentryLevel.debug, "Failed to parse stack frame: $member");
+      _options.log(SentryLevel.debug, "Failed to parse stack frame: $member");
     }
 
     final platform = _options.platform.isWeb ? 'javascript' : 'dart';
     final fileName =
         frame.uri.pathSegments.isNotEmpty ? frame.uri.pathSegments.last : null;
     final abs = '$eventOrigin${_absolutePathForCrashReport(frame)}';
+
+    final includeModule =
+        frame.package != null && _options.includeModuleInStackTrace;
 
     var sentryStackFrame = SentryStackFrame(
       absPath: abs,
@@ -140,6 +142,11 @@ class SentryStackTraceFactory {
       fileName: fileName,
       package: frame.package,
       platform: platform,
+      module: includeModule
+          ? frame.uri.pathSegments
+              .sublist(0, frame.uri.pathSegments.length - 1)
+              .join('/')
+          : null,
     );
 
     final line = frame.line;

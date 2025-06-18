@@ -27,6 +27,7 @@ import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
 import 'feature_flags_integration.dart';
+import 'sentry_logger.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -62,11 +63,11 @@ class Sentry {
       }
       _taskQueue = DefaultTaskQueue<SentryId>(
         sentryOptions.maxQueueSize,
-        sentryOptions.logger,
+        sentryOptions.log,
         sentryOptions.recorder,
       );
     } catch (exception, stackTrace) {
-      sentryOptions.logger(
+      sentryOptions.log(
         SentryLevel.error,
         'Error in options configuration.',
         exception: exception,
@@ -97,7 +98,7 @@ class Sentry {
 
     if (options.runtimeChecker.isDebugMode()) {
       options.debug = true;
-      options.logger(
+      options.log(
         SentryLevel.debug,
         'Debug mode is enabled: Application is running in a debug environment.',
       );
@@ -146,7 +147,7 @@ class Sentry {
     RunZonedGuardedOnError? runZonedGuardedOnError,
   ) async {
     if (isEnabled) {
-      options.logger(
+      options.log(
         SentryLevel.warning,
         'Sentry has been already initialized. Previous configuration will be overwritten.',
       );
@@ -220,6 +221,7 @@ class Sentry {
     dynamic throwable, {
     dynamic stackTrace,
     Hint? hint,
+    SentryMessage? message,
     ScopeCallback? withScope,
   }) =>
       _taskQueue.enqueue(
@@ -227,6 +229,7 @@ class Sentry {
           throwable,
           stackTrace: stackTrace,
           hint: hint,
+          message: message,
           withScope: withScope,
         ),
         SentryId.empty(),
@@ -365,8 +368,8 @@ class Sentry {
   /// Returns `null` if performance is disabled in the options.
   static ISentrySpan? getSpan() => _hub.getSpan();
 
-  static Future<void> addFeatureFlag(String name, dynamic value) async {
-    if (value is! bool) {
+  static Future<void> addFeatureFlag(String flag, dynamic result) async {
+    if (result is! bool) {
       return;
     }
 
@@ -375,14 +378,14 @@ class Sentry {
         .firstOrNull;
 
     if (featureFlagsIntegration == null) {
-      currentHub.options.logger(
+      currentHub.options.log(
         SentryLevel.warning,
         '$FeatureFlagsIntegration not found. Make sure Sentry is initialized before accessing the addFeatureFlag API.',
       );
       return;
     }
 
-    await featureFlagsIntegration.addFeatureFlag(name, value);
+    await featureFlagsIntegration.addFeatureFlag(flag, result);
   }
 
   @internal
@@ -415,7 +418,7 @@ class Sentry {
   ///   // On top of that, you can do your own custom stuff in this callback.
   /// });
   /// ```
-  static runZonedGuarded<R>(
+  static dynamic runZonedGuarded<R>(
     R Function() body,
     void Function(Object error, StackTrace stack)? onError, {
     Map<Object?, Object?>? zoneValues,
@@ -428,4 +431,6 @@ class Sentry {
         zoneValues: zoneValues,
         zoneSpecification: zoneSpecification,
       );
+
+  static SentryLogger get logger => currentHub.options.logger;
 }

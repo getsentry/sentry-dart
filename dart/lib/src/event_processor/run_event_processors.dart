@@ -25,7 +25,7 @@ Future<SentryEvent?> runEventProcessors(
       final e = processor.apply(processedEvent!, hint);
       processedEvent = e is Future<SentryEvent?> ? await e : e;
     } catch (exception, stackTrace) {
-      options.logger(
+      options.log(
         SentryLevel.error,
         'An exception occurred while processing event by a processor',
         exception: exception,
@@ -47,7 +47,7 @@ Future<SentryEvent?> runEventProcessors(
           count: spanCountBeforeEventProcessors + 1,
         );
       }
-      options.logger(SentryLevel.debug, 'Event was dropped by a processor');
+      options.log(SentryLevel.debug, 'Event was dropped by a processor');
       break;
     } else if (event is SentryTransaction &&
         processedEvent is SentryTransaction) {
@@ -71,6 +71,9 @@ Future<SentryEvent?> runEventProcessors(
 DataCategory _getCategory(SentryEvent event) {
   if (event is SentryTransaction) {
     return DataCategory.transaction;
+  } else if (event.type == 'feedback') {
+    return DataCategory.feedback;
+  } else {
+    return DataCategory.error;
   }
-  return DataCategory.error;
 }

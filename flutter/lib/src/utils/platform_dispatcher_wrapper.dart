@@ -24,7 +24,7 @@ class PlatformDispatcherWrapper {
       return false;
     } catch (exception, stacktrace) {
       // This error is neither expected on pre 3.10.0 nor on >= 3.10.0 Flutter versions
-      options.logger(
+      options.log(
         SentryLevel.debug,
         'An unexpected exception was thrown, please create an issue at https://github.com/getsentry/sentry-dart/issues',
         exception: exception,
@@ -54,7 +54,7 @@ class PlatformDispatcherWrapper {
       return false;
     } catch (exception, stacktrace) {
       // This error is neither expected on pre 3.1 nor on >= 3.1 Flutter versions
-      options.logger(
+      options.log(
         SentryLevel.debug,
         'An unexpected exception was thrown, please create an issue at https://github.com/getsentry/sentry-dart/issues',
         exception: exception,
