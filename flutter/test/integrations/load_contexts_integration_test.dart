@@ -7,8 +7,38 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
 import 'fixture.dart';
+import 'package:sentry/src/protocol/sentry_log.dart';
+import 'package:sentry/src/protocol/sentry_log_attribute.dart';
+import 'package:sentry/src/protocol/sentry_id.dart';
+import 'package:sentry/src/protocol/sentry_log_level.dart';
 
 void main() {
+  final infosJson = {
+    'contexts': {
+      'device': {
+        'family': 'fixture-device-family',
+        'model': 'fixture-device-model',
+        'brand': 'fixture-device-brand',
+      },
+      'os': {
+        'name': 'fixture-os-name',
+        'version': 'fixture-os-version',
+      },
+    }
+  };
+
+  SentryLog givenLog() {
+    return SentryLog(
+      timestamp: DateTime.now(),
+      traceId: SentryId.newId(),
+      level: SentryLogLevel.info,
+      body: 'test',
+      attributes: {
+        'attribute': SentryLogAttribute.string('value'),
+      },
+    );
+  }
+
   group(LoadContextsIntegration, () {
     late IntegrationTestFixture fixture;
 
@@ -219,6 +249,21 @@ void main() {
 
       expect(actualIp, isNull);
       expect(actualId, expectedId);
+    });
+
+    test('add os and device attributes to log', () async {
+      fixture.options.enableLogs = true;
+
+      when(fixture.binding.loadContexts()).thenAnswer((_) async => infosJson);
+
+      final log = givenLog();
+      await fixture.hub.captureLog(log);
+
+      expect(log.attributes['os.name']?.value, 'fixture-os-name');
+      expect(log.attributes['os.version']?.value, 'fixture-os-version');
+      expect(log.attributes['device.brand']?.value, 'fixture-device-brand');
+      expect(log.attributes['device.model']?.value, 'fixture-device-model');
+      expect(log.attributes['device.family']?.value, 'fixture-device-family');
     });
   });
 }

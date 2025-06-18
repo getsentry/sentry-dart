@@ -9,6 +9,7 @@ import 'sentry_options.dart';
 
 @internal
 class LogsEnricherIntegration extends Integration<SentryOptions> {
+  static const integrationName = 'LogsEnricherIntegration';
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
@@ -26,6 +27,6 @@ class LogsEnricherIntegration extends Integration<SentryOptions> {
         );
       }
     });
-    options.sdk.addIntegration('LogsEnricherIntegration');
+    options.sdk.addIntegration(integrationName);
   }
 }

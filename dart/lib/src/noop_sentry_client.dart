@@ -69,4 +69,7 @@ class NoOpSentryClient implements SentryClient {
 
   @override
   FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {}
+
+  @override
+  void onBeforeCaptureLog(OnBeforeCaptureLog hook) {}
 }

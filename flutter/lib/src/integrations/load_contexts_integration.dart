@@ -85,7 +85,6 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
         );
       }
     });
-
     options.sdk.addIntegration('loadContextsIntegration');
   }
 }

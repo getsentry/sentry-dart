@@ -6,6 +6,10 @@ import 'package:sentry/src/propagation_context.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
+import 'package:sentry/src/protocol/sentry_log.dart';
+import 'package:sentry/src/protocol/sentry_log_attribute.dart';
+import 'package:sentry/src/protocol/sentry_id.dart';
+import 'package:sentry/src/protocol/sentry_log_level.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -807,6 +811,51 @@ void main() {
               element.reason == DiscardReason.sampleRate)
           .quantity;
       expect(spanCount, 4);
+    });
+  });
+
+  group('Hub Logs', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    SentryLog givenLog() {
+      return SentryLog(
+        timestamp: DateTime.now(),
+        traceId: SentryId.newId(),
+        level: SentryLogLevel.info,
+        body: 'test',
+        attributes: {
+          'attribute': SentryLogAttribute.string('value'),
+        },
+      );
+    }
+
+    test('onBeforeCaptureLog should call the hook', () async {
+      final hub = fixture.getSut();
+
+      final log = givenLog();
+      await hub.captureLog(log);
+
+      expect(fixture.client.captureLogCalls.length, 1);
+      expect(fixture.client.captureLogCalls.first.log, log);
+    });
+
+    test('onBeforeCaptureLog should call the hook', () async {
+      final hub = fixture.getSut();
+
+      final hook = (SentryLog log) async {
+        // No-op
+      };
+      hub.onBeforeCaptureLog(hook);
+
+      final log = givenLog();
+      await hub.captureLog(log);
+
+      expect(fixture.client.onBeforeCaptureLogCalls.length, 1);
+      expect(fixture.client.onBeforeCaptureLogCalls.first, hook);
     });
   });
 }

@@ -625,7 +625,7 @@ class SentryOptions {
   @internal
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
-      
+
   @visibleForTesting
   void debugLog(
     SentryLevel level,
