@@ -31,7 +31,5 @@ targets:
       pub:sentry_drift:
       pub:sentry_hive:
       pub:sentry_isar:
-      # TODO: after we published link we need to add it to the registry repo and then uncomment here
-      # pub:sentry_link:
-      # TODO: after we published firebase we need to add it to the registry repo and then uncomment here
-      # pub:sentry_firebase_remote_config:
+      pub:sentry_link:
+      pub:sentry_firebase_remote_config:
