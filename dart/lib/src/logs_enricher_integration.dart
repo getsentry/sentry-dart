@@ -9,7 +9,7 @@ import 'sentry_options.dart';
 
 @internal
 class LogsEnricherIntegration extends Integration<SentryOptions> {
-  static const integrationName = 'LogsEnricherIntegration';
+  static const integrationName = 'LogsEnricher';
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
