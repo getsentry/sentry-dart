@@ -12,8 +12,7 @@ Integration<SentryFlutterOptions> createLoadDebugImagesIntegration(
 
 /// Loads the debug id injected by Sentry tooling e.g Sentry Dart Plugin
 /// This is necessary for symbolication of minified js stacktraces via debug ids.
-class LoadWebDebugImagesIntegration
-    extends Integration<SentryFlutterOptions> {
+class LoadWebDebugImagesIntegration extends Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
   static const integrationName = 'LoadWebDebugImages';
 
