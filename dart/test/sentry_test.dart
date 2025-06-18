@@ -286,6 +286,12 @@ void main() {
       );
       expect(
         optionsReference.integrations
+            .whereType<LogsEnricherIntegration>()
+            .length,
+        1,
+      );
+      expect(
+        optionsReference.integrations
             .whereType<IsolateErrorIntegration>()
             .length,
         1,
