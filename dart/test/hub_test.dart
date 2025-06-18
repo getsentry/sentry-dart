@@ -6,10 +6,6 @@ import 'package:sentry/src/propagation_context.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
-import 'package:sentry/src/protocol/sentry_log.dart';
-import 'package:sentry/src/protocol/sentry_log_attribute.dart';
-import 'package:sentry/src/protocol/sentry_id.dart';
-import 'package:sentry/src/protocol/sentry_log_level.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';
