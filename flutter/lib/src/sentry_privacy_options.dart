@@ -41,6 +41,20 @@ class SentryPrivacyOptions {
       mask: false,
       name: 'SentryUnmask',
     ));
+    // TODO: check for Flutter version and make this testable
+    rules.add(SentryMaskingCustomRule<Widget>(
+        callback: (Element element, Widget widget) {
+          dynamic dynWidget = widget;
+          try {
+            final sensitivity = dynWidget.sensitivity;
+            assert(sensitivity is Enum);
+            return SentryMaskingDecision.mask;
+          } catch (e) {
+            return SentryMaskingDecision.continueProcessing;
+          }
+        },
+        name: 'SensitiveContent',
+        description: 'Mask SensitiveContent'));
 
     // Then, we apply apply rules based on the configuration.
     if (maskAllImages) {
