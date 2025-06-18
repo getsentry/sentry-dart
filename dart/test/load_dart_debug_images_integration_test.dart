@@ -211,28 +211,16 @@ isolate_dso_base: 10000000
     expect(fixture.options.eventProcessors.length, 0);
   });
 
-  test(
-      'does add itself to sdk.integrations if app is not obfuscated but platform is web',
-      () {
+  test('does not add itself to sdk.integrations if platform is web', () {
     final fixture = Fixture()
-      ..options.runtimeChecker = MockRuntimeChecker(isObfuscated: false)
+      ..options.runtimeChecker = MockRuntimeChecker(isObfuscated: true)
       ..options.platform = MockPlatform(isWeb: true);
     fixture.callIntegration();
     expect(
       fixture.options.sdk.integrations
           .contains(LoadDartDebugImagesIntegration.integrationName),
-      true,
+      false,
     );
-  });
-
-  test(
-      'does add event processor to options if app is not obfuscated but platform is web',
-      () {
-    final fixture = Fixture()
-      ..options.runtimeChecker = MockRuntimeChecker(isObfuscated: false)
-      ..options.platform = MockPlatform(isWeb: true);
-    fixture.callIntegration();
-    expect(fixture.options.eventProcessors.length, 1);
   });
 
   test('debug image is null on unsupported platforms', () async {
