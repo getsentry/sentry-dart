@@ -1791,10 +1791,6 @@ void main() {
       final client = fixture.getSut();
       fixture.options.logBatcher = MockLogBatcher();
 
-      client.onBeforeCaptureLog((log) {
-        log.attributes['test'] = SentryLogAttribute.string('test-value');
-      });
-
       await client.captureLog(log, scope: scope);
 
       final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
@@ -1841,9 +1837,6 @@ void main() {
         capturedLog.attributes['sentry.trace.parent_span_id']?.type,
         'string',
       );
-
-      expect(capturedLog.attributes['test']?.value, "test-value");
-      expect(capturedLog.attributes['test']?.type, 'string');
     });
 
     test('should set trace id from propagation context', () async {
@@ -1945,8 +1938,63 @@ void main() {
       fixture.options.logBatcher = MockLogBatcher();
 
       final log = givenLog();
-
       await client.captureLog(log);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+
+      expect(capturedLog.body, 'test');
+    });
+
+    test('onBeforeCaptureLog hook is called', () async {
+      fixture.options.enableLogs = true;
+      fixture.options.environment = 'test-environment';
+      fixture.options.release = 'test-release';
+
+      final log = givenLog();
+
+      final scope = Scope(fixture.options);
+      final span = MockSpan();
+      scope.span = span;
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      client.onBeforeCaptureLog((log) {
+        log.attributes['test'] = SentryLogAttribute.string('test-value');
+      });
+
+      await client.captureLog(log, scope: scope);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+
+      expect(capturedLog.attributes['test']?.value, "test-value");
+      expect(capturedLog.attributes['test']?.type, 'string');
+    });
+
+    test('throwing onBeforeCaptureLog hook is handled', () async {
+      fixture.options.enableLogs = true;
+      fixture.options.environment = 'test-environment';
+      fixture.options.release = 'test-release';
+      fixture.options.automatedTestMode = false;
+
+      final log = givenLog();
+
+      final scope = Scope(fixture.options);
+      final span = MockSpan();
+      scope.span = span;
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      client.onBeforeCaptureLog((log) {
+        throw Exception('test');
+      });
+
+      await client.captureLog(log, scope: scope);
 
       final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
       expect(mockLogBatcher.addLogCalls.length, 1);

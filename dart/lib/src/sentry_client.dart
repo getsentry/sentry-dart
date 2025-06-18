@@ -583,7 +583,19 @@ class SentryClient {
 
   FutureOr<void> _emitBeforeCaptureLog(SentryLog log) async {
     for (final hook in _onBeforeCaptureLog) {
-      await hook(log);
+      try {
+        await hook(log);
+      } catch (exception, stackTrace) {
+        _options.log(
+          SentryLevel.error,
+          'The beforeSendLog callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
     }
   }
 
