@@ -55,13 +55,13 @@ jobs:
 
       - uses: ./.github/actions/flutter-test
         with:
-          directory: flutter
+          directory: packages/flutter
 
       - uses: ./.github/actions/coverage
         if: matrix.target == 'linux' && matrix.sdk == 'stable'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: flutter
+          directory: packages/flutter
           coverage: sentry_flutter
           min-coverage: 90
 
@@ -139,7 +139,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: ./flutter
+        working-directory: packages/flutter
     steps:
       - uses: actions/checkout@v4
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
@@ -150,7 +150,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: ./flutter
+        working-directory: packages/flutter
     steps:
       - uses: actions/checkout@v4
       - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@3.2.1
@@ -162,7 +162,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: ./flutter
+        working-directory: packages/flutter
     steps:
       - uses: actions/checkout@v4
 
