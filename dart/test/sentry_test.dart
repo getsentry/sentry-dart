@@ -286,12 +286,6 @@ void main() {
       );
       expect(
         optionsReference.integrations
-            .whereType<LogsEnricherIntegration>()
-            .length,
-        1,
-      );
-      expect(
-        optionsReference.integrations
             .whereType<IsolateErrorIntegration>()
             .length,
         1,
@@ -303,6 +297,27 @@ void main() {
         1,
       );
     }, onPlatform: {'browser': Skip()});
+
+    test('should add logsEnricherIntegration', () async {
+      late SentryOptions optionsReference;
+      final options = defaultTestOptions();
+
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          optionsReference = options;
+        },
+        appRunner: appRunner,
+      );
+
+      expect(
+        optionsReference.integrations
+            .whereType<LogsEnricherIntegration>()
+            .length,
+        1,
+      );
+    });
 
     test('should add only web compatible default integrations', () async {
       final options = defaultTestOptions();

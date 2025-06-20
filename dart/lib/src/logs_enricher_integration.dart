@@ -14,22 +14,24 @@ class LogsEnricherIntegration extends Integration<SentryOptions> {
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
-    hub.registerCallback<OnBeforeCaptureLog>(
-      (event) async {
-        final os = getSentryOperatingSystem();
+    if (options.enableLogs) {
+      hub.registerCallback<OnBeforeCaptureLog>(
+        (event) async {
+          final os = getSentryOperatingSystem();
 
-        if (os.name != null) {
-          event.log.attributes['os.name'] = SentryLogAttribute.string(
-            os.name ?? '',
-          );
-        }
-        if (os.version != null) {
-          event.log.attributes['os.version'] = SentryLogAttribute.string(
-            os.version ?? '',
-          );
-        }
-      },
-    );
-    options.sdk.addIntegration(integrationName);
+          if (os.name != null) {
+            event.log.attributes['os.name'] = SentryLogAttribute.string(
+              os.name ?? '',
+            );
+          }
+          if (os.version != null) {
+            event.log.attributes['os.version'] = SentryLogAttribute.string(
+              os.version ?? '',
+            );
+          }
+        },
+      );
+      options.sdk.addIntegration(integrationName);
+    }
   }
 }
