@@ -301,7 +301,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
             if arguments["enableAutoPerformanceTracing"] as? Bool ?? false {
                 PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
-                #if os(iOS) || targetEnvironment(macCatalyst)
+                #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
                     PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
                 #endif
             }
@@ -533,7 +533,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     private var slowFrames: UInt = 0
 
     private func beginNativeFrames(result: @escaping FlutterResult) {
-        #if os(iOS) || targetEnvironment(macCatalyst)
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
                 print("Native frames tracking not running.")
                 result(nil)
@@ -552,7 +552,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     private func endNativeFrames(result: @escaping FlutterResult) {
-        #if os(iOS) || targetEnvironment(macCatalyst)
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
                 print("Native frames tracking not running.")
                 result(nil)
