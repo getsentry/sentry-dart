@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 
@@ -10,15 +11,13 @@ final sentryWidgetGlobalKey = GlobalKey(debugLabel: 'sentry_widget');
 /// as [SentryScreenshotWidget] and [SentryUserInteractionWidget].
 class SentryWidget extends StatefulWidget {
   final Widget child;
-  late final Hub _hub;
+  final Hub _hub;
 
   SentryWidget({
     super.key,
     required this.child,
     @internal Hub? hub,
-  }) {
-    _hub = hub ?? HubAdapter();
-  }
+  }) : _hub = hub ?? HubAdapter();
 
   SentryFlutterOptions? get _options =>
       // ignore: invalid_use_of_internal_member
