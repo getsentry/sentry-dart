@@ -53,6 +53,10 @@ void initState() {
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#090)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.8.4...0.9.0)
 
+### Enhancements
+
+- Only enable load debug image integration for obfuscated apps ([#2907](https://github.com/getsentry/sentry-dart/pull/2907))
+
 ## 9.0.0
 
 Version 9.0.0 marks a major release of the Sentry Dart/Flutter SDKs containing breaking changes.
