@@ -113,10 +113,17 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    final rootDisplay = SentryFlutter.currentDisplay();
     Future.delayed(const Duration(seconds: 3), () {
-      SentryFlutter.reportFullyDisplayed();
+      // Do some long running work...
+      rootDisplay?.reportFullyDisplayed();
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return feedback.BetterFeedback(
       child: ChangeNotifierProvider<ThemeProvider>(
         create: (_) => ThemeProvider(),
@@ -746,7 +753,9 @@ void navigateToAutoCloseScreen(BuildContext context) {
     MaterialPageRoute(
       settings: const RouteSettings(name: 'AutoCloseScreen'),
       // ignore: deprecated_member_use
-      builder: (context) => const AutoCloseScreen(),
+      builder: (context) => const SentryDisplayWidget(
+        child: AutoCloseScreen(),
+      ),
     ),
   );
 }
