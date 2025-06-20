@@ -4,6 +4,9 @@
 
 ### Features
 
+- Flutter Web: add debug ids to events ([#2917](https://github.com/getsentry/sentry-dart/pull/2917))
+  - This allows support for symbolication based on [debug ids](https://docs.sentry.io/platforms/javascript/sourcemaps/troubleshooting_js/debug-ids/)
+  - This only works if you use the Sentry Dart Plugin version `3.0.0` or higher
 - Improved TTID/TTFD API ([#2866](https://github.com/getsentry/sentry-dart/pull/2866))
   - This improves the stability and consistency of TTFD reporting by introducing new APIs
 ```dart
@@ -50,6 +53,10 @@ void initState() {
 - Bump Native SDK from v0.8.4 to v0.9.0 ([#2980](https://github.com/getsentry/sentry-dart/pull/2980))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#090)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.8.4...0.9.0)
+
+### Enhancements
+
+- Only enable load debug image integration for obfuscated apps ([#2907](https://github.com/getsentry/sentry-dart/pull/2907))
 
 ## 9.0.0
 
