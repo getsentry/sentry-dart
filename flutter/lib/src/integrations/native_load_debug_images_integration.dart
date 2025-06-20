@@ -32,15 +32,13 @@ class LoadNativeDebugImagesIntegration
   }
 }
 
-class _LoadNativeDebugImagesIntegrationEventProcessor
-    implements EventProcessor {
-  _LoadNativeDebugImagesIntegrationEventProcessor(this._options, this._native);
+class _LoadImageListIntegrationEventProcessor implements EventProcessor {
+  _LoadImageListIntegrationEventProcessor(this._options, this._native);
 
   final SentryFlutterOptions _options;
   final SentryNativeBinding _native;
 
-  late final _dartProcessor =
-      LoadDartDebugImagesIntegrationEventProcessor(_options);
+  late final _dartProcessor = LoadImageIntegrationEventProcessor(_options);
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
