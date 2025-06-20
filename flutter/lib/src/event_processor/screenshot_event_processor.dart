@@ -17,13 +17,11 @@ class ScreenshotEventProcessor implements EventProcessor {
 
   ScreenshotEventProcessor(this._options) {
     final targetResolution = _options.screenshotQuality.targetResolution();
-    _recorder = ScreenshotRecorder(
-      ScreenshotRecorderConfig(
-        width: targetResolution,
-        height: targetResolution,
-      ),
-      _options,
-    );
+    _recorder = ScreenshotRecorder(_options,
+        config: ScreenshotRecorderConfig(
+          width: targetResolution,
+          height: targetResolution,
+        ));
     _debouncer = Debouncer(
       // ignore: invalid_use_of_internal_member
       _options.clock,

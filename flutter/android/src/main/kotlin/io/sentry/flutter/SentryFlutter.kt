@@ -201,10 +201,10 @@ class SentryFlutter {
     replayOptions.sessionSampleRate = (data["sessionSampleRate"] as? Number)?.toDouble()
     replayOptions.onErrorSampleRate = (data["onErrorSampleRate"] as? Number)?.toDouble()
 
-    // Disable native tracking of orientation change (causes replay restart)
+    // Disable native tracking of window sizes
     // because we don't have the new size from Flutter yet. Instead, we'll
     // trigger onConfigurationChanged() manually in setReplayConfig().
-    replayOptions.setTrackOrientationChange(false)
+    replayOptions.isTrackConfiguration = false
 
     @Suppress("UNCHECKED_CAST")
     val tags = (data["tags"] as? Map<String, Any>) ?: mapOf()

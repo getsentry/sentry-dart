@@ -263,6 +263,8 @@ class SentryNativeChannel
   @override
   FutureOr<void> setReplayConfig(ReplayConfig config) =>
       channel.invokeMethod('setReplayConfig', {
+        'windowWidth': config.windowWidth,
+        'windowHeight': config.windowHeight,
         'width': config.width,
         'height': config.height,
         'frameRate': config.frameRate,
