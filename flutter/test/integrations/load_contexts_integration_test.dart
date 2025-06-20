@@ -7,6 +7,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
 import 'fixture.dart';
+import 'package:sentry/src/logs_enricher_integration.dart';
 
 void main() {
   final infosJson = {
@@ -259,6 +260,7 @@ void main() {
 
     test('add os and device attributes to log', () async {
       fixture.options.enableLogs = true;
+
       await fixture.registerIntegration();
 
       when(fixture.binding.loadContexts()).thenAnswer((_) async => infosJson);
@@ -271,6 +273,20 @@ void main() {
       expect(log.attributes['device.brand']?.value, 'fixture-device-brand');
       expect(log.attributes['device.model']?.value, 'fixture-device-model');
       expect(log.attributes['device.family']?.value, 'fixture-device-family');
+    });
+
+    test('removes logsEnricherIntegration', () async {
+      final integration = LogsEnricherIntegration();
+      fixture.options.addIntegration(integration);
+
+      fixture.options.enableLogs = true;
+      await fixture.registerIntegration();
+
+      // ignore: invalid_use_of_internal_member
+      expect(
+          fixture.options.integrations
+              .any((element) => element is LogsEnricherIntegration),
+          isFalse);
     });
 
     test('does not add os and device attributes to log if enableLogs is false',

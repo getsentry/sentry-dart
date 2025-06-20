@@ -4,6 +4,8 @@ import 'package:sentry/sentry.dart';
 import 'package:collection/collection.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/event_processor/enricher/enricher_event_processor.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/logs_enricher_integration.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 
@@ -42,6 +44,14 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
       options.addEventProcessor(enricherEventProcessor);
     }
     if (options.enableLogs) {
+      final logsEnricherIntegration = options.integrations.firstWhereOrNull(
+        // ignore: invalid_use_of_internal_member
+        (element) => element is LogsEnricherIntegration,
+      );
+      if (logsEnricherIntegration != null) {
+        options.removeIntegration(logsEnricherIntegration);
+      }
+
       // ignore: invalid_use_of_internal_member
       hub.registerCallback<OnBeforeCaptureLog>(
         (event) async {
