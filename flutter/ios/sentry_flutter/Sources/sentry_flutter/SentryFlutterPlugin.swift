@@ -5,13 +5,13 @@ import Sentry._Hybrid
 import sentry_flutter_objc
 #endif
 
-#if os(iOS)
-import Flutter
-import UIKit
-#elseif os(macOS)
+#if os(macOS)
 import FlutterMacOS
 import AppKit
 import CoreVideo
+#else
+import Flutter
+import UIKit
 #endif
 
 // swiftlint:disable file_length function_body_length
