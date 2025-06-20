@@ -4,6 +4,9 @@
 
 ### Features
 
+- Flutter Web: add debug ids to events ([#2917](https://github.com/getsentry/sentry-dart/pull/2917))
+  - This allows support for symbolication based on [debug ids](https://docs.sentry.io/platforms/javascript/sourcemaps/troubleshooting_js/debug-ids/)
+  - This only works if you use the Sentry Dart Plugin version `3.0.0` or higher
 - Improved TTID/TTFD API ([#2866](https://github.com/getsentry/sentry-dart/pull/2866))
   - This improves the stability and consistency of TTFD reporting by introducing new APIs
 ```dart

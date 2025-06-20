@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:meta/meta.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
@@ -15,13 +16,21 @@ import 'package:sentry_flutter/src/navigation/time_to_full_display_tracker.dart'
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
-import 'package:sentry/src/platform/platform.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 const fakeProguardUuid = '3457d982-65ef-576d-a6ad-65b5f30f49a5';
+final _firstFrame =
+    '''Error at chrome-extension://aeblfdkhhhdcdjpifhhbdiojplfjncoa/inline/injected/webauthn-listeners.js:2:127
+  at chrome-extension://aeblfdkhhhdcdjpifhhbdiojplfjncoa/inline/injected/webauthn-listeners.js:2:260
+''';
+final _secondFrame = '''Error at http://127.0.0.1:8080/main.dart.js:2:169
+  at http://127.0.0.1:8080/main.dart.js:2:304''';
+// We wanna assert that the second frame is the correct debug id match
+final debugIdMap = {_firstFrame: 'whatever debug id', _secondFrame: debugId};
+final debugId = '82cc8a97-04c5-5e1e-b98d-bb3e647208e6';
 
 SentryFlutterOptions defaultTestOptions(
     {Platform? platform, RuntimeChecker? checker}) {

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_item_type.dart';
 
@@ -18,8 +19,12 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   final SentryJsBinding _binding;
   final SentryFlutterOptions _options;
 
+  void _log(String message) {
+    _options.log(SentryLevel.info, logger: '$SentryWeb', message);
+  }
+
   void _logNotSupported(String operation) =>
-      options.log(SentryLevel.debug, 'SentryWeb: $operation is not supported');
+      _log('$operation is not supported');
 
   @override
   FutureOr<void> init(Hub hub) {
@@ -178,7 +183,34 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
-    _logNotSupported('loading debug images');
+    final debugIdMap = _binding.getFilenameToDebugIdMap();
+    if (debugIdMap == null || debugIdMap.isEmpty) {
+      _log('Could not find debug id in js source file.');
+      return null;
+    }
+
+    final frame = stackTrace.frames.firstWhereOrNull((frame) {
+      return debugIdMap.containsKey(frame.absPath) ||
+          debugIdMap.containsKey(frame.fileName);
+    });
+    if (frame == null) {
+      _log('Could not find any frame with a matching debug id.');
+      return null;
+    }
+
+    final codeFile = frame.absPath ?? frame.fileName;
+    final debugId = debugIdMap[codeFile];
+    if (debugId != null) {
+      return [
+        DebugImage(
+          debugId: debugId,
+          type: 'sourcemap',
+          codeFile: codeFile,
+        ),
+      ];
+    }
+
+    _log('Could not match any frame against the debug id map.');
     return null;
   }
 
