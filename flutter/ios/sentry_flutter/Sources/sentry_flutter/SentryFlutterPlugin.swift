@@ -1,17 +1,17 @@
 import Sentry
 
 #if SWIFT_PACKAGE
-import Sentry._Hybrid
-import sentry_flutter_objc
+    import Sentry._Hybrid
+    import sentry_flutter_objc
 #endif
 
 #if os(macOS)
-import FlutterMacOS
-import AppKit
-import CoreVideo
+    import FlutterMacOS
+    import AppKit
+    import CoreVideo
 #else
-import Flutter
-import UIKit
+    import Flutter
+    import UIKit
 #endif
 
 // swiftlint:disable file_length function_body_length
@@ -27,11 +27,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         pluginRegistrationTime = Int64(Date().timeIntervalSince1970 * 1000)
 
-#if os(iOS)
-        let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
-#elseif os(macOS)
-        let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger)
-#endif
+        #if os(macOS)
+            let channel = FlutterMethodChannel(
+                name: "sentry_flutter", binaryMessenger: registrar.messenger)
+        #else
+            let channel = FlutterMethodChannel(
+                name: "sentry_flutter", binaryMessenger: registrar.messenger())
+        #endif
 
         let instance = SentryFlutterPlugin(channel: channel)
         registrar.addMethodCallDelegate(instance, channel: channel)
@@ -62,8 +64,8 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
     // Replace with `NSDate+SentryExtras` when available.
     private func dateFrom(iso8601String: String) -> Date? {
-      return iso8601FormatterWithMillisecondPrecision.date(from: iso8601String)
-        ?? iso8601Formatter.date(from: iso8601String) // Parse date with low precision formatter for backward compatible
+        return iso8601FormatterWithMillisecondPrecision.date(from: iso8601String)
+            ?? iso8601Formatter.date(from: iso8601String)  // Parse date with low precision formatter for backward compatible
     }
 
     // swiftlint:disable:next cyclomatic_complexity
@@ -140,11 +142,11 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             removeTag(key: key, result: result)
 
         #if !os(tvOS) && !os(watchOS)
-        case "discardProfiler":
-            discardProfiler(call, result)
+            case "discardProfiler":
+                discardProfiler(call, result)
 
-        case "collectProfile":
-            collectProfile(call, result)
+            case "collectProfile":
+                collectProfile(call, result)
         #endif
 
         case "displayRefreshRate":
@@ -160,12 +162,12 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             crash()
 
         case "captureReplay":
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-            PrivateSentrySDKOnly.captureReplay()
-            result(PrivateSentrySDKOnly.getReplayId())
-#else
-            result(nil)
-#endif
+            #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+                PrivateSentrySDKOnly.captureReplay()
+                result(PrivateSentrySDKOnly.getReplayId())
+            #else
+                result(nil)
+            #endif
 
         default:
             result(FlutterMethodNotImplemented)
@@ -216,7 +218,9 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             }
 
             if let integrations = PrivateSentrySDKOnly.options.integrations {
-                infos["integrations"] = integrations.filter { $0 != "SentrySessionReplayIntegration" }
+                infos["integrations"] = integrations.filter {
+                    $0 != "SentrySessionReplayIntegration"
+                }
             }
 
             let deviceStr = "device"
@@ -247,8 +251,10 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
             // Not reading the name from PrivateSentrySDKOnly.getSdkName because
             // this is added as a package and packages should follow the sentry-release-registry format
-            infos["package"] = ["version": PrivateSentrySDKOnly.getSdkVersionString(),
-                "sdk_name": "cocoapods:sentry-cocoa"]
+            infos["package"] = [
+                "version": PrivateSentrySDKOnly.getSdkVersionString(),
+                "sdk_name": "cocoapods:sentry-cocoa",
+            ]
 
             result(infos)
         }
@@ -272,8 +278,9 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
                 }
             }
             debugImages =
-              SentryDependencyContainer.sharedInstance().debugImageProvider
-              .getDebugImagesForImageAddressesFromCache(imageAddresses: imagesAddresses) as [DebugMeta]
+                SentryDependencyContainer.sharedInstance().debugImageProvider
+                .getDebugImagesForImageAddressesFromCache(imageAddresses: imagesAddresses)
+                as [DebugMeta]
         }
         if debugImages.isEmpty {
             debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
@@ -295,12 +302,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             if arguments["enableAutoPerformanceTracing"] as? Bool ?? false {
                 PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
                 #if os(iOS) || targetEnvironment(macCatalyst)
-                PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
+                    PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
                 #endif
             }
 
             let version = PrivateSentrySDKOnly.getSdkVersionString()
-            PrivateSentrySDKOnly.setSdkName(SentryFlutterPlugin.nativeClientName, andVersionString: version)
+            PrivateSentrySDKOnly.setSdkName(
+                SentryFlutterPlugin.nativeClientName, andVersionString: version)
 
             let flutterSdk = arguments["sdk"] as? [String: Any]
 
@@ -334,15 +342,16 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         }
 
         #if os(iOS) || targetEnvironment(macCatalyst)
-        let appIsActive = UIApplication.shared.applicationState == .active
+            let appIsActive = UIApplication.shared.applicationState == .active
         #else
-        let appIsActive = NSApplication.shared.isActive
+            let appIsActive = NSApplication.shared.isActive
         #endif
 
         // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, to mimic
         // the didBecomeActiveNotification notification. This is needed for session, OOM tracking, replays, etc.
         if appIsActive {
-            NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
+            NotificationCenter.default.post(
+                name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
         }
 
         configureReplay(arguments)
@@ -350,29 +359,30 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         result("")
     }
 
-  private func configureReplay(_ arguments: [String: Any]) {
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-       let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
-       let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
-       PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
-       if let replayOptions = arguments["replay"] as? [String: Any] {
-         if let tags = replayOptions["tags"] as? [String: Any] {
-           let sessionReplayOptions = PrivateSentrySDKOnly.options.sessionReplay
-           var newTags: [String: Any] = [
-            "sessionSampleRate": sessionReplayOptions.sessionSampleRate,
-            "errorSampleRate": sessionReplayOptions.onErrorSampleRate,
-            "quality": String(describing: sessionReplayOptions.quality),
-            "nativeSdkName": PrivateSentrySDKOnly.getSdkName(),
-            "nativeSdkVersion": PrivateSentrySDKOnly.getSdkVersionString()
-           ]
-           for (key, value) in tags {
-               newTags[key] = value
-           }
-           PrivateSentrySDKOnly.setReplayTags(newTags)
-         }
-       }
-#endif
-  }
+    private func configureReplay(_ arguments: [String: Any]) {
+        #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+            let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+            let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
+            PrivateSentrySDKOnly.configureSessionReplay(
+                with: breadcrumbConverter, screenshotProvider: screenshotProvider)
+            if let replayOptions = arguments["replay"] as? [String: Any] {
+                if let tags = replayOptions["tags"] as? [String: Any] {
+                    let sessionReplayOptions = PrivateSentrySDKOnly.options.sessionReplay
+                    var newTags: [String: Any] = [
+                        "sessionSampleRate": sessionReplayOptions.sessionSampleRate,
+                        "errorSampleRate": sessionReplayOptions.onErrorSampleRate,
+                        "quality": String(describing: sessionReplayOptions.quality),
+                        "nativeSdkName": PrivateSentrySDKOnly.getSdkName(),
+                        "nativeSdkVersion": PrivateSentrySDKOnly.getSdkVersionString(),
+                    ]
+                    for (key, value) in tags {
+                        newTags[key] = value
+                    }
+                    PrivateSentrySDKOnly.setReplayTags(newTags)
+                }
+            }
+        #endif
+    }
 
     private func closeNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         SentrySDK.close()
@@ -420,8 +430,9 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
     private func captureEnvelope(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let arguments = call.arguments as? [Any],
-              !arguments.isEmpty,
-              let data = (arguments.first as? FlutterStandardTypedData)?.data else {
+            !arguments.isEmpty,
+            let data = (arguments.first as? FlutterStandardTypedData)?.data
+        else {
             print("Envelope is null or empty!")
             result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil))
             return
@@ -444,72 +455,76 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         func addToMap(_ map: inout [String: Any]) {
             map[description] = [
                 "startTimestampMsSinceEpoch": startTimestampMsSinceEpoch,
-                "stopTimestampMsSinceEpoch": stopTimestampMsSinceEpoch
+                "stopTimestampMsSinceEpoch": stopTimestampMsSinceEpoch,
             ]
         }
     }
 
     private func fetchNativeAppStart(result: @escaping FlutterResult) {
         #if os(iOS) || os(tvOS)
-        guard let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement else {
-            print("warning: appStartMeasurement is null")
-            result(nil)
-            return
-        }
+            guard let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement else {
+                print("warning: appStartMeasurement is null")
+                result(nil)
+                return
+            }
 
-        var nativeSpanTimes: [String: Any] = [:]
+            var nativeSpanTimes: [String: Any] = [:]
 
-        let appStartTimeMs = appStartMeasurement.appStartTimestamp.timeIntervalSince1970.toMilliseconds()
-        let runtimeInitTimeMs = appStartMeasurement.runtimeInitTimestamp.timeIntervalSince1970.toMilliseconds()
-        let moduleInitializationTimeMs =
-            appStartMeasurement.moduleInitializationTimestamp.timeIntervalSince1970.toMilliseconds()
-        let sdkStartTimeMs = appStartMeasurement.sdkStartTimestamp.timeIntervalSince1970.toMilliseconds()
+            let appStartTimeMs = appStartMeasurement.appStartTimestamp.timeIntervalSince1970
+                .toMilliseconds()
+            let runtimeInitTimeMs = appStartMeasurement.runtimeInitTimestamp.timeIntervalSince1970
+                .toMilliseconds()
+            let moduleInitializationTimeMs =
+                appStartMeasurement.moduleInitializationTimestamp.timeIntervalSince1970
+                .toMilliseconds()
+            let sdkStartTimeMs = appStartMeasurement.sdkStartTimestamp.timeIntervalSince1970
+                .toMilliseconds()
 
-        if !appStartMeasurement.isPreWarmed {
-            let preRuntimeInitDescription = "Pre Runtime Init"
-            let preRuntimeInitSpan = TimeSpan(
-                startTimestampMsSinceEpoch: NSNumber(value: appStartTimeMs),
-                stopTimestampMsSinceEpoch: NSNumber(value: runtimeInitTimeMs),
-                description: preRuntimeInitDescription
+            if !appStartMeasurement.isPreWarmed {
+                let preRuntimeInitDescription = "Pre Runtime Init"
+                let preRuntimeInitSpan = TimeSpan(
+                    startTimestampMsSinceEpoch: NSNumber(value: appStartTimeMs),
+                    stopTimestampMsSinceEpoch: NSNumber(value: runtimeInitTimeMs),
+                    description: preRuntimeInitDescription
+                )
+                preRuntimeInitSpan.addToMap(&nativeSpanTimes)
+
+                let moduleInitializationDescription = "Runtime init to Pre Main initializers"
+                let moduleInitializationSpan = TimeSpan(
+                    startTimestampMsSinceEpoch: NSNumber(value: runtimeInitTimeMs),
+                    stopTimestampMsSinceEpoch: NSNumber(value: moduleInitializationTimeMs),
+                    description: moduleInitializationDescription
+                )
+                moduleInitializationSpan.addToMap(&nativeSpanTimes)
+            }
+
+            let uiKitInitDescription = "UIKit init"
+            let uiKitInitSpan = TimeSpan(
+                startTimestampMsSinceEpoch: NSNumber(value: moduleInitializationTimeMs),
+                stopTimestampMsSinceEpoch: NSNumber(value: sdkStartTimeMs),
+                description: uiKitInitDescription
             )
-            preRuntimeInitSpan.addToMap(&nativeSpanTimes)
+            uiKitInitSpan.addToMap(&nativeSpanTimes)
 
-            let moduleInitializationDescription = "Runtime init to Pre Main initializers"
-            let moduleInitializationSpan = TimeSpan(
-                startTimestampMsSinceEpoch: NSNumber(value: runtimeInitTimeMs),
-                stopTimestampMsSinceEpoch: NSNumber(value: moduleInitializationTimeMs),
-                description: moduleInitializationDescription
-            )
-            moduleInitializationSpan.addToMap(&nativeSpanTimes)
-        }
+            // Info: We don't have access to didFinishLaunchingTimestamp,
+            // On HybridSDKs, the Cocoa SDK misses the didFinishLaunchNotification and the
+            // didBecomeVisibleNotification. Therefore, we can't set the
+            // didFinishLaunchingTimestamp
 
-        let uiKitInitDescription = "UIKit init"
-        let uiKitInitSpan = TimeSpan(
-            startTimestampMsSinceEpoch: NSNumber(value: moduleInitializationTimeMs),
-            stopTimestampMsSinceEpoch: NSNumber(value: sdkStartTimeMs),
-            description: uiKitInitDescription
-        )
-        uiKitInitSpan.addToMap(&nativeSpanTimes)
+            let appStartTime = appStartMeasurement.appStartTimestamp.timeIntervalSince1970 * 1000
+            let isColdStart = appStartMeasurement.type == .cold
 
-        // Info: We don't have access to didFinishLaunchingTimestamp,
-        // On HybridSDKs, the Cocoa SDK misses the didFinishLaunchNotification and the
-        // didBecomeVisibleNotification. Therefore, we can't set the
-        // didFinishLaunchingTimestamp
+            let item: [String: Any] = [
+                "pluginRegistrationTime": SentryFlutterPlugin.pluginRegistrationTime,
+                "appStartTime": appStartTime,
+                "isColdStart": isColdStart,
+                "nativeSpanTimes": nativeSpanTimes,
+            ]
 
-        let appStartTime = appStartMeasurement.appStartTimestamp.timeIntervalSince1970 * 1000
-        let isColdStart = appStartMeasurement.type == .cold
-
-        let item: [String: Any] = [
-            "pluginRegistrationTime": SentryFlutterPlugin.pluginRegistrationTime,
-            "appStartTime": appStartTime,
-            "isColdStart": isColdStart,
-            "nativeSpanTimes": nativeSpanTimes
-        ]
-
-        result(item)
+            result(item)
         #else
-        print("note: appStartMeasurement not available on this platform")
-        result(nil)
+            print("note: appStartMeasurement not available on this platform")
+            result(nil)
         #endif
     }
 
@@ -518,190 +533,201 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     private var slowFrames: UInt = 0
 
     private func beginNativeFrames(result: @escaping FlutterResult) {
-      #if os(iOS) || targetEnvironment(macCatalyst)
-      guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
-        print("Native frames tracking not running.")
-        result(nil)
-        return
-      }
+        #if os(iOS) || targetEnvironment(macCatalyst)
+            guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
+                print("Native frames tracking not running.")
+                result(nil)
+                return
+            }
 
-      let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
-      totalFrames = currentFrames.total
-      frozenFrames = currentFrames.frozen
-      slowFrames = currentFrames.slow
+            let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
+            totalFrames = currentFrames.total
+            frozenFrames = currentFrames.frozen
+            slowFrames = currentFrames.slow
 
-      result(nil)
-      #else
-      result(nil)
-      #endif
+            result(nil)
+        #else
+            result(nil)
+        #endif
     }
 
     private func endNativeFrames(result: @escaping FlutterResult) {
-      #if os(iOS) || targetEnvironment(macCatalyst)
-      guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
-        print("Native frames tracking not running.")
-        result(nil)
-        return
-      }
+        #if os(iOS) || targetEnvironment(macCatalyst)
+            guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
+                print("Native frames tracking not running.")
+                result(nil)
+                return
+            }
 
-      let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
-      let total = max(Int(currentFrames.total) - Int(totalFrames), 0)
-      let frozen = max(Int(currentFrames.frozen) - Int(frozenFrames), 0)
-      let slow = max(Int(currentFrames.slow) - Int(slowFrames), 0)
+            let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
+            let total = max(Int(currentFrames.total) - Int(totalFrames), 0)
+            let frozen = max(Int(currentFrames.frozen) - Int(frozenFrames), 0)
+            let slow = max(Int(currentFrames.slow) - Int(slowFrames), 0)
 
-      if total <= 0 && frozen <= 0 && slow <= 0 {
-        result(nil)
-        return
-      }
+            if total <= 0 && frozen <= 0 && slow <= 0 {
+                result(nil)
+                return
+            }
 
-      let item: [String: Any] = [
-          "totalFrames": total,
-          "frozenFrames": frozen,
-          "slowFrames": slow
-      ]
+            let item: [String: Any] = [
+                "totalFrames": total,
+                "frozenFrames": frozen,
+                "slowFrames": slow,
+            ]
 
-      result(item)
-      #else
-      result(nil)
-      #endif
+            result(item)
+        #else
+            result(nil)
+        #endif
     }
 
     private func setContexts(key: String?, value: Any?, result: @escaping FlutterResult) {
-      guard let key = key else {
-        result("")
-        return
-      }
-
-      SentrySDK.configureScope { scope in
-        if let dictionary = value as? [String: Any] {
-          scope.setContext(value: dictionary, key: key)
-        } else if let string = value as? String {
-          scope.setContext(value: ["value": string], key: key)
-        } else if let int = value as? Int {
-          scope.setContext(value: ["value": int], key: key)
-        } else if let double = value as? Double {
-          scope.setContext(value: ["value": double], key: key)
-        } else if let bool = value as? Bool {
-          scope.setContext(value: ["value": bool], key: key)
+        guard let key = key else {
+            result("")
+            return
         }
-        result("")
-      }
+
+        SentrySDK.configureScope { scope in
+            if let dictionary = value as? [String: Any] {
+                scope.setContext(value: dictionary, key: key)
+            } else if let string = value as? String {
+                scope.setContext(value: ["value": string], key: key)
+            } else if let int = value as? Int {
+                scope.setContext(value: ["value": int], key: key)
+            } else if let double = value as? Double {
+                scope.setContext(value: ["value": double], key: key)
+            } else if let bool = value as? Bool {
+                scope.setContext(value: ["value": bool], key: key)
+            }
+            result("")
+        }
     }
 
     private func removeContexts(key: String?, result: @escaping FlutterResult) {
-      guard let key = key else {
-        result("")
-        return
-      }
-      SentrySDK.configureScope { scope in
-        scope.removeContext(key: key)
-        result("")
-      }
+        guard let key = key else {
+            result("")
+            return
+        }
+        SentrySDK.configureScope { scope in
+            scope.removeContext(key: key)
+            result("")
+        }
     }
 
     private func setUser(user: [String: Any]?, result: @escaping FlutterResult) {
-      if let user = user {
-        let userInstance = PrivateSentrySDKOnly.user(with: user)
-        SentrySDK.setUser(userInstance)
-      } else {
-        SentrySDK.setUser(nil)
-      }
-      result("")
+        if let user = user {
+            let userInstance = PrivateSentrySDKOnly.user(with: user)
+            SentrySDK.setUser(userInstance)
+        } else {
+            SentrySDK.setUser(nil)
+        }
+        result("")
     }
 
     private func addBreadcrumb(breadcrumb: [String: Any]?, result: @escaping FlutterResult) {
-      if let breadcrumb = breadcrumb {
-        let breadcrumbInstance = PrivateSentrySDKOnly.breadcrumb(with: breadcrumb)
-        SentrySDK.addBreadcrumb(breadcrumbInstance)
-      }
-      result("")
+        if let breadcrumb = breadcrumb {
+            let breadcrumbInstance = PrivateSentrySDKOnly.breadcrumb(with: breadcrumb)
+            SentrySDK.addBreadcrumb(breadcrumbInstance)
+        }
+        result("")
     }
 
     private func clearBreadcrumbs(result: @escaping FlutterResult) {
-      SentrySDK.configureScope { scope in
-        scope.clearBreadcrumbs()
+        SentrySDK.configureScope { scope in
+            scope.clearBreadcrumbs()
 
-        result("")
-      }
+            result("")
+        }
     }
 
     private func setExtra(key: String?, value: Any?, result: @escaping FlutterResult) {
-      guard let key = key else {
-        result("")
-        return
-      }
-      SentrySDK.configureScope { scope in
-        scope.setExtra(value: value, key: key)
+        guard let key = key else {
+            result("")
+            return
+        }
+        SentrySDK.configureScope { scope in
+            scope.setExtra(value: value, key: key)
 
-        result("")
-      }
+            result("")
+        }
     }
 
     private func removeExtra(key: String?, result: @escaping FlutterResult) {
-      guard let key = key else {
-        result("")
-        return
-      }
-      SentrySDK.configureScope { scope in
-        scope.removeExtra(key: key)
+        guard let key = key else {
+            result("")
+            return
+        }
+        SentrySDK.configureScope { scope in
+            scope.removeExtra(key: key)
 
-        result("")
-      }
+            result("")
+        }
     }
 
     private func setTag(key: String?, value: String?, result: @escaping FlutterResult) {
-      guard let key = key, let value = value else {
-        result("")
-        return
-      }
-      SentrySDK.configureScope { scope in
-        scope.setTag(value: value, key: key)
+        guard let key = key, let value = value else {
+            result("")
+            return
+        }
+        SentrySDK.configureScope { scope in
+            scope.setTag(value: value, key: key)
 
-        result("")
-      }
+            result("")
+        }
     }
 
     private func removeTag(key: String?, result: @escaping FlutterResult) {
-      guard let key = key else {
-        result("")
-        return
-      }
-      SentrySDK.configureScope { scope in
-        scope.removeTag(key: key)
+        guard let key = key else {
+            result("")
+            return
+        }
+        SentrySDK.configureScope { scope in
+            scope.removeTag(key: key)
 
-        result("")
-      }
+            result("")
+        }
     }
 
     private func collectProfile(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let arguments = call.arguments as? [String: Any],
-              let traceId = arguments["traceId"] as? String else {
+            let traceId = arguments["traceId"] as? String
+        else {
             print("Cannot collect profile: trace ID missing")
-            result(FlutterError(code: "6", message: "Cannot collect profile: trace ID missing", details: nil))
+            result(
+                FlutterError(
+                    code: "6", message: "Cannot collect profile: trace ID missing", details: nil))
             return
         }
 
         guard let startTime = arguments["startTime"] as? UInt64 else {
             print("Cannot collect profile: start time missing")
-            result(FlutterError(code: "7", message: "Cannot collect profile: start time missing", details: nil))
+            result(
+                FlutterError(
+                    code: "7", message: "Cannot collect profile: start time missing", details: nil))
             return
         }
 
         guard let endTime = arguments["endTime"] as? UInt64 else {
             print("Cannot collect profile: end time missing")
-            result(FlutterError(code: "8", message: "Cannot collect profile: end time missing", details: nil))
+            result(
+                FlutterError(
+                    code: "8", message: "Cannot collect profile: end time missing", details: nil))
             return
         }
 
-        let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: endTime,
-                                                                       forTrace: SentryId(uuidString: traceId))
+        let payload = PrivateSentrySDKOnly.collectProfileBetween(
+            startTime, and: endTime,
+            forTrace: SentryId(uuidString: traceId))
         result(payload)
     }
 
     private func discardProfiler(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let traceId = call.arguments as? String else {
             print("Cannot discard a profiler: trace ID missing")
-            result(FlutterError(code: "9", message: "Cannot discard a profiler: trace ID missing", details: nil))
+            result(
+                FlutterError(
+                    code: "9", message: "Cannot discard a profiler: trace ID missing", details: nil)
+            )
             return
         }
 
@@ -709,40 +735,40 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         result(nil)
     }
 
-    #if os(iOS)
-    // Taken from the Flutter engine:
-    // https://github.com/flutter/engine/blob/main/shell/platform/darwin/ios/framework/Source/vsync_waiter_ios.mm#L150
-    private func displayRefreshRate(_ result: @escaping FlutterResult) {
-        let displayLink = CADisplayLink(target: self, selector: #selector(onDisplayLink(_:)))
-        displayLink.add(to: .main, forMode: .common)
-        displayLink.isPaused = true
-
-        let preferredFPS = displayLink.preferredFramesPerSecond
-        displayLink.invalidate()
-
-        if preferredFPS != 0 {
-            result(preferredFPS)
-            return
+    #if os(macOS)
+        private func displayRefreshRate(_ result: @escaping FlutterResult) {
+            result(nil)
         }
+    #else
+        // Taken from the Flutter engine:
+        // https://github.com/flutter/engine/blob/main/shell/platform/darwin/ios/framework/Source/vsync_waiter_ios.mm#L150
+        private func displayRefreshRate(_ result: @escaping FlutterResult) {
+            let displayLink = CADisplayLink(target: self, selector: #selector(onDisplayLink(_:)))
+            displayLink.add(to: .main, forMode: .common)
+            displayLink.isPaused = true
 
-        if #available(iOS 13.0, *) {
-            guard let windowScene = UIApplication.shared.windows.first?.windowScene else {
-                result(nil)
+            let preferredFPS = displayLink.preferredFramesPerSecond
+            displayLink.invalidate()
+
+            if preferredFPS != 0 {
+                result(preferredFPS)
                 return
             }
-            result(windowScene.screen.maximumFramesPerSecond)
-        } else {
-            result(UIScreen.main.maximumFramesPerSecond)
-        }
-    }
 
-    @objc private func onDisplayLink(_ displayLink: CADisplayLink) {
-        // No-op
-    }
-    #elseif os(macOS)
-    private func displayRefreshRate(_ result: @escaping FlutterResult) {
-        result(nil)
-    }
+            if #available(iOS 13.0, *) {
+                guard let windowScene = UIApplication.shared.windows.first?.windowScene else {
+                    result(nil)
+                    return
+                }
+                result(windowScene.screen.maximumFramesPerSecond)
+            } else {
+                result(UIScreen.main.maximumFramesPerSecond)
+            }
+        }
+
+        @objc private func onDisplayLink(_ displayLink: CADisplayLink) {
+            // No-op
+        }
     #endif
 
     private func pauseAppHangTracking(_ result: @escaping FlutterResult) {
@@ -762,8 +788,8 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
 // swiftlint:enable function_body_length
 
-private extension TimeInterval {
-    func toMilliseconds() -> Int64 {
+extension TimeInterval {
+    fileprivate func toMilliseconds() -> Int64 {
         return Int64(self * 1000)
     }
 }
