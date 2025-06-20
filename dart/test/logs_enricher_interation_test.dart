@@ -9,6 +9,7 @@ import 'package:sentry/src/protocol/sentry_log_attribute.dart';
 import 'package:sentry/src/protocol/sentry_id.dart';
 import 'package:sentry/src/protocol/sentry_log_level.dart';
 import 'test_utils.dart';
+import 'package:sentry/src/utils/os_utils.dart';
 
 void main() {
   SentryLog givenLog() {
@@ -61,8 +62,10 @@ void main() {
       final log = givenLog();
       await fixture.hub.captureLog(log);
 
-      expect(log.attributes['os.name'], isNotNull);
-      expect(log.attributes['os.version'], isNotNull);
+      final os = getSentryOperatingSystem();
+
+      expect(log.attributes['os.name']?.value, os.name);
+      expect(log.attributes['os.version']?.value, os.version);
     });
 
     test(
