@@ -6,6 +6,7 @@ import 'integration.dart';
 import 'hub.dart';
 import 'protocol/sentry_log_attribute.dart';
 import 'sentry_options.dart';
+import 'sentry_client.dart';
 
 @internal
 class LogsEnricherIntegration extends Integration<SentryOptions> {
@@ -13,20 +14,22 @@ class LogsEnricherIntegration extends Integration<SentryOptions> {
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
-    hub.onBeforeCaptureLog((log) async {
-      final os = getSentryOperatingSystem();
+    hub.registerCallback<OnBeforeCaptureLog>(
+      (event) async {
+        final os = getSentryOperatingSystem();
 
-      if (os.name != null) {
-        log.attributes['os.name'] = SentryLogAttribute.string(
-          os.name ?? '',
-        );
-      }
-      if (os.version != null) {
-        log.attributes['os.version'] = SentryLogAttribute.string(
-          os.version ?? '',
-        );
-      }
-    });
+        if (os.name != null) {
+          event.log.attributes['os.name'] = SentryLogAttribute.string(
+            os.name ?? '',
+          );
+        }
+        if (os.version != null) {
+          event.log.attributes['os.version'] = SentryLogAttribute.string(
+            os.version ?? '',
+          );
+        }
+      },
+    );
     options.sdk.addIntegration(integrationName);
   }
 }

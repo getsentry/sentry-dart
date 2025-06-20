@@ -38,7 +38,8 @@ void main() {
       );
     });
 
-    test('adds os.name and os.version to log attributes on beforeSendLog',
+    test(
+        'adds os.name and os.version to log attributes on OnBeforeCaptureLog lifecycle event',
         () async {
       final log = givenLog();
       await fixture.hub.captureLog(log);

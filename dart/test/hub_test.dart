@@ -839,19 +839,17 @@ void main() {
       expect(fixture.client.captureLogCalls.first.log, log);
     });
 
-    test('onBeforeCaptureLog should call the hook', () async {
+    test('OnBeforeCaptureLog should call the hook', () async {
       final hub = fixture.getSut();
 
-      final hook = (SentryLog log) async {
+      hub.registerCallback<OnBeforeCaptureLog>((event) {
         // No-op
-      };
-      hub.onBeforeCaptureLog(hook);
+      });
 
       final log = givenLog();
       await hub.captureLog(log);
 
-      expect(fixture.client.onBeforeCaptureLogCalls.length, 1);
-      expect(fixture.client.onBeforeCaptureLogCalls.first, hook);
+      expect(fixture.client.lifecycleCallbacks[OnBeforeCaptureLog]?.length, 1);
     });
   });
 }

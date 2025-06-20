@@ -39,7 +39,17 @@ const _defaultIpAddress = '{{auto}}';
 String get defaultIpAddress => _defaultIpAddress;
 
 @internal
-typedef OnBeforeCaptureLog = FutureOr<void> Function(SentryLog log);
+typedef SdkLifecycleCallback<T extends SdkLifecycleEvent> = FutureOr<void>
+    Function(T event);
+
+@internal
+abstract class SdkLifecycleEvent {}
+
+@internal
+class OnBeforeCaptureLog extends SdkLifecycleEvent {
+  final SentryLog log;
+  OnBeforeCaptureLog(this.log);
+}
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
@@ -53,7 +63,7 @@ class SentryClient {
 
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
 
-  final List<OnBeforeCaptureLog> _onBeforeCaptureLog = [];
+  final Map<Type, List<dynamic>> _lifecycleCallbacks = {};
 
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
@@ -562,7 +572,7 @@ class SentryClient {
     }
 
     if (processedLog != null) {
-      await _emitBeforeCaptureLog(processedLog);
+      await _dispatchCallbacks(OnBeforeCaptureLog(processedLog));
       _options.logBatcher.addLog(processedLog);
     } else {
       _options.recorder.recordLostEvent(
@@ -574,29 +584,6 @@ class SentryClient {
 
   void close() {
     _options.httpClient.close();
-  }
-
-  @internal
-  void onBeforeCaptureLog(OnBeforeCaptureLog hook) {
-    _onBeforeCaptureLog.add(hook);
-  }
-
-  FutureOr<void> _emitBeforeCaptureLog(SentryLog log) async {
-    for (final hook in _onBeforeCaptureLog) {
-      try {
-        await hook(log);
-      } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'The onBeforeCaptureLog hook threw an exception',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
-    }
   }
 
   Future<SentryEvent?> _runBeforeSend(
@@ -703,6 +690,37 @@ class SentryClient {
         _options.log(
           SentryLevel.error,
           'Error while running beforeSendEvent observer',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
+  }
+
+  @internal
+  void registerCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {
+    _lifecycleCallbacks[T] ??= [];
+    _lifecycleCallbacks[T]?.add(callback);
+  }
+
+  FutureOr<void> _dispatchCallbacks<T extends SdkLifecycleEvent>(
+      T event) async {
+    final callbacks = _lifecycleCallbacks[event.runtimeType] ?? [];
+    for (final cb in callbacks) {
+      try {
+        if (cb is Future<T>) {
+          await (cb as SdkLifecycleCallback<T>)(event);
+        } else {
+          (cb as SdkLifecycleCallback<T>)(event);
+        }
+      } catch (exception, stackTrace) {
+        _options.log(
+          SentryLevel.error,
+          'The SDK lifecycle callback threw an exception',
           exception: exception,
           stackTrace: stackTrace,
         );

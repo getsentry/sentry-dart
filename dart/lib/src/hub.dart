@@ -631,9 +631,10 @@ class Hub {
   SentryProfilerFactory? _profilerFactory;
 
   @internal
-  void onBeforeCaptureLog(OnBeforeCaptureLog hook) {
+  void registerCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {
     final item = _peek();
-    item.client.onBeforeCaptureLog(hook);
+    item.client.registerCallback<T>(callback);
   }
 
   SentryEvent _assignTraceContext(SentryEvent event) {

@@ -147,5 +147,6 @@ class NoOpHub implements Hub {
 
   @internal
   @override
-  void onBeforeCaptureLog(OnBeforeCaptureLog hook) {}
+  void registerCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {}
 }

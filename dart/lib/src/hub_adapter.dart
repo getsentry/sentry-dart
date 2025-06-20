@@ -201,7 +201,8 @@ class HubAdapter implements Hub {
   FutureOr<void> captureLog(SentryLog log) => Sentry.currentHub.captureLog(log);
 
   @override
-  void onBeforeCaptureLog(OnBeforeCaptureLog hook) {
-    Sentry.currentHub.onBeforeCaptureLog(hook);
+  void registerCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {
+    Sentry.currentHub.registerCallback(callback);
   }
 }

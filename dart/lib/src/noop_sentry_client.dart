@@ -71,5 +71,6 @@ class NoOpSentryClient implements SentryClient {
   FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {}
 
   @override
-  void onBeforeCaptureLog(OnBeforeCaptureLog hook) {}
+  void registerCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {}
 }

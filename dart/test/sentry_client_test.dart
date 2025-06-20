@@ -1947,7 +1947,7 @@ void main() {
       expect(capturedLog.body, 'test');
     });
 
-    test('onBeforeCaptureLog hook is called', () async {
+    test('OnBeforeCaptureLog lifecycle event is called', () async {
       fixture.options.enableLogs = true;
       fixture.options.environment = 'test-environment';
       fixture.options.release = 'test-release';
@@ -1961,8 +1961,8 @@ void main() {
       final client = fixture.getSut();
       fixture.options.logBatcher = MockLogBatcher();
 
-      client.onBeforeCaptureLog((log) {
-        log.attributes['test'] = SentryLogAttribute.string('test-value');
+      client.registerCallback<OnBeforeCaptureLog>((event) {
+        event.log.attributes['test'] = SentryLogAttribute.string('test-value');
       });
 
       await client.captureLog(log, scope: scope);
@@ -1975,7 +1975,7 @@ void main() {
       expect(capturedLog.attributes['test']?.type, 'string');
     });
 
-    test('throwing onBeforeCaptureLog hook is handled', () async {
+    test('throwing OnBeforeCaptureLog lifecycle event is handled', () async {
       fixture.options.enableLogs = true;
       fixture.options.environment = 'test-environment';
       fixture.options.release = 'test-release';
@@ -1990,7 +1990,7 @@ void main() {
       final client = fixture.getSut();
       fixture.options.logBatcher = MockLogBatcher();
 
-      client.onBeforeCaptureLog((log) {
+      client.registerCallback<OnBeforeCaptureLog>((event) {
         throw Exception('test');
       });
 

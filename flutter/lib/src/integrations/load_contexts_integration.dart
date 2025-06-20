@@ -41,50 +41,51 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
       options.removeEventProcessor(enricherEventProcessor);
       options.addEventProcessor(enricherEventProcessor);
     }
-
     // ignore: invalid_use_of_internal_member
-    hub.onBeforeCaptureLog((log) async {
-      try {
-        final infos = await _native.loadContexts() ?? {};
+    hub.registerCallback<OnBeforeCaptureLog>(
+      (event) async {
+        try {
+          final infos = await _native.loadContexts() ?? {};
 
-        final contextsMap = infos['contexts'] as Map<String, dynamic>?;
-        final contexts = Contexts(); // We just need the the native contexts.
-        _mergeNativeWithLocalContexts(contextsMap, contexts);
+          final contextsMap = infos['contexts'] as Map<String, dynamic>?;
+          final contexts = Contexts(); // We just need the the native contexts.
+          _mergeNativeWithLocalContexts(contextsMap, contexts);
 
-        if (contexts.operatingSystem?.name != null) {
-          log.attributes['os.name'] = SentryLogAttribute.string(
-            contexts.operatingSystem?.name ?? '',
+          if (contexts.operatingSystem?.name != null) {
+            event.log.attributes['os.name'] = SentryLogAttribute.string(
+              contexts.operatingSystem?.name ?? '',
+            );
+          }
+          if (contexts.operatingSystem?.version != null) {
+            event.log.attributes['os.version'] = SentryLogAttribute.string(
+              contexts.operatingSystem?.version ?? '',
+            );
+          }
+          if (contexts.device?.brand != null) {
+            event.log.attributes['device.brand'] = SentryLogAttribute.string(
+              contexts.device?.brand ?? '',
+            );
+          }
+          if (contexts.device?.model != null) {
+            event.log.attributes['device.model'] = SentryLogAttribute.string(
+              contexts.device?.model ?? '',
+            );
+          }
+          if (contexts.device?.family != null) {
+            event.log.attributes['device.family'] = SentryLogAttribute.string(
+              contexts.device?.family ?? '',
+            );
+          }
+        } catch (exception, stackTrace) {
+          options.log(
+            SentryLevel.error,
+            'LoadContextsIntegration failed to load contexts',
+            exception: exception,
+            stackTrace: stackTrace,
           );
         }
-        if (contexts.operatingSystem?.version != null) {
-          log.attributes['os.version'] = SentryLogAttribute.string(
-            contexts.operatingSystem?.version ?? '',
-          );
-        }
-        if (contexts.device?.brand != null) {
-          log.attributes['device.brand'] = SentryLogAttribute.string(
-            contexts.device?.brand ?? '',
-          );
-        }
-        if (contexts.device?.model != null) {
-          log.attributes['device.model'] = SentryLogAttribute.string(
-            contexts.device?.model ?? '',
-          );
-        }
-        if (contexts.device?.family != null) {
-          log.attributes['device.family'] = SentryLogAttribute.string(
-            contexts.device?.family ?? '',
-          );
-        }
-      } catch (exception, stackTrace) {
-        options.log(
-          SentryLevel.error,
-          'LoadContextsIntegration failed to load contexts',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-      }
-    });
+      },
+    );
     options.sdk.addIntegration('loadContextsIntegration');
   }
 }

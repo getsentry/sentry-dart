@@ -11,7 +11,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<CaptureTransactionCall> captureTransactionCalls = [];
   List<CaptureFeedbackCall> captureFeedbackCalls = [];
   List<CaptureLogCall> captureLogCalls = [];
-  List<OnBeforeCaptureLog> onBeforeCaptureLogCalls = [];
+  final Map<Type, List<dynamic>> lifecycleCallbacks = {};
   int closeCalls = 0;
 
   @override
@@ -92,8 +92,10 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   }
 
   @override
-  void onBeforeCaptureLog(OnBeforeCaptureLog hook) {
-    onBeforeCaptureLogCalls.add(hook);
+  void registerCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {
+    lifecycleCallbacks[T] ??= [];
+    lifecycleCallbacks[T]?.add(callback);
   }
 
   @override
