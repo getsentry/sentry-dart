@@ -49,6 +49,8 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
         (element) => element is LogsEnricherIntegration,
       );
       if (logsEnricherIntegration != null) {
+        // Contexts from native cover the os.name and os.version attributes,
+        // so we can remove the logsEnricherIntegration.
         options.removeIntegration(logsEnricherIntegration);
       }
 
