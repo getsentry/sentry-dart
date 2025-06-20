@@ -688,52 +688,59 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         }
     }
 
-    private func collectProfile(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        guard let arguments = call.arguments as? [String: Any],
-            let traceId = arguments["traceId"] as? String
-        else {
-            print("Cannot collect profile: trace ID missing")
-            result(
-                FlutterError(
-                    code: "6", message: "Cannot collect profile: trace ID missing", details: nil))
-            return
+    #if !os(tvOS)
+        private func collectProfile(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+            guard let arguments = call.arguments as? [String: Any],
+                let traceId = arguments["traceId"] as? String
+            else {
+                print("Cannot collect profile: trace ID missing")
+                result(
+                    FlutterError(
+                        code: "6", message: "Cannot collect profile: trace ID missing", details: nil
+                    ))
+                return
+            }
+
+            guard let startTime = arguments["startTime"] as? UInt64 else {
+                print("Cannot collect profile: start time missing")
+                result(
+                    FlutterError(
+                        code: "7", message: "Cannot collect profile: start time missing",
+                        details: nil))
+                return
+            }
+
+            guard let endTime = arguments["endTime"] as? UInt64 else {
+                print("Cannot collect profile: end time missing")
+                result(
+                    FlutterError(
+                        code: "8", message: "Cannot collect profile: end time missing", details: nil
+                    ))
+                return
+            }
+
+            let payload = PrivateSentrySDKOnly.collectProfileBetween(
+                startTime, and: endTime,
+                forTrace: SentryId(uuidString: traceId))
+            result(payload)
         }
 
-        guard let startTime = arguments["startTime"] as? UInt64 else {
-            print("Cannot collect profile: start time missing")
-            result(
-                FlutterError(
-                    code: "7", message: "Cannot collect profile: start time missing", details: nil))
-            return
+        private func discardProfiler(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+            guard let traceId = call.arguments as? String else {
+                print("Cannot discard a profiler: trace ID missing")
+                result(
+                    FlutterError(
+                        code: "9", message: "Cannot discard a profiler: trace ID missing",
+                        details: nil)
+                )
+                return
+            }
+
+            PrivateSentrySDKOnly.discardProfiler(forTrace: SentryId(uuidString: traceId))
+
+            result(nil)
         }
-
-        guard let endTime = arguments["endTime"] as? UInt64 else {
-            print("Cannot collect profile: end time missing")
-            result(
-                FlutterError(
-                    code: "8", message: "Cannot collect profile: end time missing", details: nil))
-            return
-        }
-
-        let payload = PrivateSentrySDKOnly.collectProfileBetween(
-            startTime, and: endTime,
-            forTrace: SentryId(uuidString: traceId))
-        result(payload)
-    }
-
-    private func discardProfiler(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        guard let traceId = call.arguments as? String else {
-            print("Cannot discard a profiler: trace ID missing")
-            result(
-                FlutterError(
-                    code: "9", message: "Cannot discard a profiler: trace ID missing", details: nil)
-            )
-            return
-        }
-
-        PrivateSentrySDKOnly.discardProfiler(forTrace: SentryId(uuidString: traceId))
-        result(nil)
-    }
+    #endif
 
     #if os(macOS)
         private func displayRefreshRate(_ result: @escaping FlutterResult) {
