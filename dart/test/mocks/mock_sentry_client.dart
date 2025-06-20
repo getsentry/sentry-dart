@@ -11,7 +11,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<CaptureTransactionCall> captureTransactionCalls = [];
   List<CaptureFeedbackCall> captureFeedbackCalls = [];
   List<CaptureLogCall> captureLogCalls = [];
-  final Map<Type, List<dynamic>> lifecycleCallbacks = {};
+  final Map<Type, List<Function>> lifecycleCallbacks = {};
   int closeCalls = 0;
 
   @override

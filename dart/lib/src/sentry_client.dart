@@ -63,7 +63,7 @@ class SentryClient {
 
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
 
-  final Map<Type, List<dynamic>> _lifecycleCallbacks = {};
+  final Map<Type, List<Function>> _lifecycleCallbacks = {};
 
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
