@@ -664,6 +664,7 @@ void main() {
         appRunner: appRunner,
         options: sentryFlutterOptions,
       );
+      SentryFlutter.native = null;
     });
   });
 

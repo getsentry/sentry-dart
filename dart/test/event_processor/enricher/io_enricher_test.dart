@@ -11,6 +11,8 @@ import 'package:test/test.dart';
 import '../../mocks.dart';
 import '../../test_utils.dart';
 
+import 'package:sentry/src/utils/_io_get_sentry_operating_system.dart';
+
 void main() {
   late Fixture fixture;
 
@@ -101,8 +103,9 @@ void main() {
     ///   "Version 14.5 (Build 18E182)"
     ///   '"Windows 10 Pro" 10.0 (Build 19043)'
 
-    Map<String, dynamic> parse(String name, String description) =>
-        fixture.getSut().extractOperatingSystem(name, description).toJson();
+    Map<String, dynamic> parse(String name, String rawDescription) =>
+        getSentryOperatingSystem(name: name, rawDescription: rawDescription)
+            .toJson();
 
     test('android', () {
       expect(parse('android', 'LYA-L29 10.1.0.289(C432E7R1P5)'), {
