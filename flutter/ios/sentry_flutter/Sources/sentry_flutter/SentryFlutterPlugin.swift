@@ -341,7 +341,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             }
         }
 
-        #if os(iOS) || targetEnvironment(macCatalyst)
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
             let appIsActive = UIApplication.shared.applicationState == .active
         #else
             let appIsActive = NSApplication.shared.isActive
