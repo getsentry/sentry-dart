@@ -6,7 +6,7 @@ import 'integration.dart';
 import 'hub.dart';
 import 'protocol/sentry_log_attribute.dart';
 import 'sentry_options.dart';
-import 'sentry_client.dart';
+import 'lifecycle/on_before_capture_log.dart';
 
 @internal
 class LogsEnricherIntegration extends Integration<SentryOptions> {

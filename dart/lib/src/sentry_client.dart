@@ -29,6 +29,7 @@ import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
 import 'sentry_log_batcher.dart';
 import 'version.dart';
+import 'lifecycle/on_before_capture_log.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
@@ -44,12 +45,6 @@ typedef SdkLifecycleCallback<T extends SdkLifecycleEvent> = FutureOr<void>
 
 @internal
 abstract class SdkLifecycleEvent {}
-
-@internal
-class OnBeforeCaptureLog extends SdkLifecycleEvent {
-  final SentryLog log;
-  OnBeforeCaptureLog(this.log);
-}
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
