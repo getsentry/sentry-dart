@@ -148,7 +148,7 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
                       SentryFeedbackWidget.show(
                         currentContext,
                         associatedEventId:
-                            SentryFeedbackWidget.pendingAccociatedEventId,
+                            SentryFeedbackWidget.pendingAssociatedEventId,
                         screenshot: screenshot,
                         hub: widget._hub,
                       );

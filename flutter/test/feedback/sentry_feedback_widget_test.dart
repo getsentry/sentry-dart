@@ -474,14 +474,14 @@ void main() {
       await tester.tap(button);
       await tester.pumpAndSettle();
 
-      expect(SentryFeedbackWidget.pendingAccociatedEventId, associatedEventId);
+      expect(SentryFeedbackWidget.pendingAssociatedEventId, associatedEventId);
     });
 
     testWidgets('clears pending accociatedEventId when submitting feedback',
         (tester) async {
       final associatedEventId =
           SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
-      SentryFeedbackWidget.pendingAccociatedEventId = associatedEventId;
+      SentryFeedbackWidget.pendingAssociatedEventId = associatedEventId;
 
       when(fixture.hub.captureFeedback(
         any,
@@ -501,13 +501,13 @@ void main() {
       await tester.tap(find.text('Send Bug Report'));
       await tester.pumpAndSettle();
 
-      expect(SentryFeedbackWidget.pendingAccociatedEventId, isNull);
+      expect(SentryFeedbackWidget.pendingAssociatedEventId, isNull);
     });
 
     testWidgets('clears pending accociatedEventId on cancel', (tester) async {
       final associatedEventId =
           SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
-      SentryFeedbackWidget.pendingAccociatedEventId = associatedEventId;
+      SentryFeedbackWidget.pendingAssociatedEventId = associatedEventId;
 
       await fixture.pumpFeedbackWidget(
         tester,
@@ -521,7 +521,7 @@ void main() {
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
 
-      expect(SentryFeedbackWidget.pendingAccociatedEventId, isNull);
+      expect(SentryFeedbackWidget.pendingAssociatedEventId, isNull);
     });
   });
 }

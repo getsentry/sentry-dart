@@ -8,8 +8,29 @@ import 'package:flutter/services.dart';
 import 'sentry_logo.dart';
 
 class SentryFeedbackWidget extends StatefulWidget {
+  SentryFeedbackWidget({
+    super.key,
+    this.associatedEventId,
+    this.screenshot,
+    @internal Hub? hub,
+  })  : assert(associatedEventId != const SentryId.empty()),
+        _hub = hub ?? HubAdapter() {
+    // ignore: invalid_use_of_internal_member
+    assert(_hub.options is SentryFlutterOptions,
+        'SentryFlutterOptions is required');
+    // ignore: invalid_use_of_internal_member
+    final options = _hub.options as SentryFlutterOptions;
+    this.options = options.feedback;
+  }
+
+  final SentryId? associatedEventId;
+  final Hub _hub;
+  final SentryAttachment? screenshot;
+
+  late final SentryFeedbackOptions options;
+
   @internal
-  static SentryId? pendingAccociatedEventId;
+  static SentryId? pendingAssociatedEventId;
 
   static void show(
     BuildContext context, {
@@ -33,26 +54,6 @@ class SentryFeedbackWidget extends StatefulWidget {
       );
     }
   }
-
-  SentryFeedbackWidget({
-    super.key,
-    this.associatedEventId,
-    this.screenshot,
-    @internal Hub? hub,
-  })  : assert(associatedEventId != const SentryId.empty()),
-        _hub = hub ?? HubAdapter() {
-    // ignore: invalid_use_of_internal_member
-    assert(_hub.options is SentryFlutterOptions,
-        'SentryFlutterOptions is required');
-    // ignore: invalid_use_of_internal_member
-    final options = _hub.options as SentryFlutterOptions;
-    this.options = options.feedback;
-  }
-
-  final SentryId? associatedEventId;
-  final Hub _hub;
-  final SentryAttachment? screenshot;
-  late final SentryFeedbackOptions options;
 
   @override
   _SentryFeedbackWidgetState createState() => _SentryFeedbackWidgetState();
@@ -357,7 +358,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   }
 
   void _dismiss({required bool pendingAssociatedEventId}) {
-    SentryFeedbackWidget.pendingAccociatedEventId =
+    SentryFeedbackWidget.pendingAssociatedEventId =
         pendingAssociatedEventId ? widget.associatedEventId : null;
     if (mounted) {
       Navigator.maybePop(context);
