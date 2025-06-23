@@ -524,6 +524,133 @@ void main() {
       expect(SentryFeedbackWidget.pendingAssociatedEventId, isNull);
     });
   });
+
+  group('$SentryFeedbackWidget form data preservation', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+      SentryFeedbackWidget.clearPreservedData();
+    });
+
+    testWidgets('preserves form data when taking screenshot', (tester) async {
+      fixture.options.feedback.showName = true;
+      fixture.options.feedback.showEmail = true;
+
+      final associatedEventId =
+          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(
+            hub: hub, associatedEventId: associatedEventId),
+      );
+
+      // Enter form data
+      await tester.enterText(
+        find.byKey(ValueKey('sentry_feedback_name_textfield')),
+        "test-name",
+      );
+      await tester.enterText(
+        find.byKey(ValueKey('sentry_feedback_email_textfield')),
+        "test@example.com",
+      );
+      await tester.enterText(
+        find.byKey(ValueKey('sentry_feedback_message_textfield')),
+        "test-message",
+      );
+
+      final button = find
+          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      // Verify data is preserved
+      expect(SentryFeedbackWidget.preservedName, "test-name");
+      expect(SentryFeedbackWidget.preservedEmail, "test@example.com");
+      expect(SentryFeedbackWidget.preservedMessage, "test-message");
+    });
+
+    testWidgets('restores form data when widget is reopened', (tester) async {
+      fixture.options.feedback.showName = true;
+      fixture.options.feedback.showEmail = true;
+
+      SentryFeedbackWidget.preservedName = "preserved-name";
+      SentryFeedbackWidget.preservedEmail = "preserved@example.com";
+      SentryFeedbackWidget.preservedMessage = "preserved-message";
+
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      final nameField = tester.widget<TextFormField>(
+        find.byKey(ValueKey('sentry_feedback_name_textfield')),
+      );
+      final emailField = tester.widget<TextFormField>(
+        find.byKey(ValueKey('sentry_feedback_email_textfield')),
+      );
+      final messageField = tester.widget<TextFormField>(
+        find.byKey(ValueKey('sentry_feedback_message_textfield')),
+      );
+
+      expect(nameField.controller?.text, "preserved-name");
+      expect(emailField.controller?.text, "preserved@example.com");
+      expect(messageField.controller?.text, "preserved-message");
+    });
+
+    testWidgets('clears preserved data when submitting feedback',
+        (tester) async {
+      SentryFeedbackWidget.preservedName = "test-name";
+      SentryFeedbackWidget.preservedEmail = "test@example.com";
+      SentryFeedbackWidget.preservedMessage = "test-message";
+
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) async => SentryId.empty());
+
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      await tester.enterText(
+        find.byKey(ValueKey('sentry_feedback_message_textfield')),
+        "new-message",
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pumpAndSettle();
+
+      // Verify preserved data is cleared
+      expect(SentryFeedbackWidget.preservedName, isNull);
+      expect(SentryFeedbackWidget.preservedEmail, isNull);
+      expect(SentryFeedbackWidget.preservedMessage, isNull);
+    });
+
+    testWidgets('clears preserved data when cancelling', (tester) async {
+      SentryFeedbackWidget.preservedName = "test-name";
+      SentryFeedbackWidget.preservedEmail = "test@example.com";
+      SentryFeedbackWidget.preservedMessage = "test-message";
+
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackWidget.preservedName, isNull);
+      expect(SentryFeedbackWidget.preservedEmail, isNull);
+      expect(SentryFeedbackWidget.preservedMessage, isNull);
+    });
+  });
 }
 
 class Fixture {

@@ -32,6 +32,18 @@ class SentryFeedbackWidget extends StatefulWidget {
   @internal
   static SentryId? pendingAssociatedEventId;
 
+  @internal
+  @visibleForTesting
+  static String? preservedName;
+
+  @internal
+  @visibleForTesting
+  static String? preservedEmail;
+
+  @internal
+  @visibleForTesting
+  static String? preservedMessage;
+
   static void show(
     BuildContext context, {
     SentryId? associatedEventId,
@@ -55,6 +67,13 @@ class SentryFeedbackWidget extends StatefulWidget {
     }
   }
 
+  @visibleForTesting
+  static void clearPreservedData() {
+    SentryFeedbackWidget.preservedName = null;
+    SentryFeedbackWidget.preservedEmail = null;
+    SentryFeedbackWidget.preservedMessage = null;
+  }
+
   @override
   _SentryFeedbackWidgetState createState() => _SentryFeedbackWidgetState();
 }
@@ -72,6 +91,9 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   @override
   void initState() {
     super.initState();
+
+    _restorePreservedData();
+
     final screenshot = widget.screenshot;
     if (screenshot != null) {
       _screenshot = screenshot;
@@ -360,8 +382,36 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   void _dismiss({required bool pendingAssociatedEventId}) {
     SentryFeedbackWidget.pendingAssociatedEventId =
         pendingAssociatedEventId ? widget.associatedEventId : null;
+
+    _writePreservedData();
+
     if (mounted) {
       Navigator.maybePop(context);
+    }
+  }
+
+  void _restorePreservedData() {
+    final preservedName = SentryFeedbackWidget.preservedName;
+    if (preservedName != null) {
+      _nameController.text = preservedName;
+    }
+    final preservedEmail = SentryFeedbackWidget.preservedEmail;
+    if (preservedEmail != null) {
+      _emailController.text = preservedEmail;
+    }
+    final preservedMessage = SentryFeedbackWidget.preservedMessage;
+    if (preservedMessage != null) {
+      _messageController.text = preservedMessage;
+    }
+  }
+
+  void _writePreservedData() {
+    if (SentryFeedbackWidget.pendingAssociatedEventId != null) {
+      SentryFeedbackWidget.preservedName = _nameController.text;
+      SentryFeedbackWidget.preservedEmail = _emailController.text;
+      SentryFeedbackWidget.preservedMessage = _messageController.text;
+    } else {
+      SentryFeedbackWidget.clearPreservedData();
     }
   }
 }
