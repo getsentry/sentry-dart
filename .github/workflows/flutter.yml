@@ -49,6 +49,9 @@ jobs:
             os: ubuntu
           - target: wasm
             os: ubuntu
+        exclude:
+          - target: wasm
+            sdk: beta
 
     steps:
       - uses: actions/checkout@v4
