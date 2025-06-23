@@ -282,9 +282,9 @@ void main() {
       fixture.options.enableLogs = true;
       await fixture.registerIntegration();
 
-      // ignore: invalid_use_of_internal_member
       expect(
           fixture.options.integrations
+              // ignore: invalid_use_of_internal_member
               .any((element) => element is LogsEnricherIntegration),
           isFalse);
     });
