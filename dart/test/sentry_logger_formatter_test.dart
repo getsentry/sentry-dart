@@ -265,6 +265,9 @@ class MockLogger implements SentryLogger {
   var fatalCalls = <LoggerCall>[];
 
   @override
+  SentryLoggerFormatter get fmt => throw UnimplementedError();
+
+  @override
   Future<void> trace(String message, {Map<String, dynamic>? attributes}) async {
     traceCalls.add((message: message, attributes: attributes));
     return;
