@@ -60,7 +60,7 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
           try {
             final infos = await _native.loadContexts() ?? {};
 
-            final contextsMap = infos['contexts'] as Map<String, dynamic>?;
+            final contextsMap = infos['contexts'] as Map?;
             final contexts =
                 Contexts(); // We just need the the native contexts.
             _mergeNativeWithLocalContexts(contextsMap, contexts);
@@ -116,7 +116,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
     // TODO don't copy everything (i.e. avoid unnecessary Map.from())
     try {
       final infos = await _native.loadContexts() ?? {};
-      final contextsMap = infos['contexts'] as Map<String, dynamic>?;
+      final contextsMap = infos['contexts'] as Map?;
       _mergeNativeWithLocalContexts(contextsMap, event.contexts);
 
       final tagsMap = infos['tags'] as Map?;
@@ -262,7 +262,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
 }
 
 void _mergeNativeWithLocalContexts(
-    Map<String, dynamic>? contextsMap, Contexts contexts) {
+    Map<dynamic, dynamic>? contextsMap, Contexts contexts) {
   if (contextsMap != null && contextsMap.isNotEmpty) {
     final nativeContexts = Contexts.fromJson(
       Map<String, dynamic>.from(contextsMap),
