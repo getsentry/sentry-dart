@@ -56,7 +56,7 @@ void main() {
 
     test('no arguments - replace all with empty strings', () {
       final sut = fixture.getSut("Hello, %s! You are %s years old.");
-      
+
       // Expect an AssertionError to be thrown when empty arguments are passed
       expect(() => sut.format([]), throwsA(isA<AssertionError>()));
     });
