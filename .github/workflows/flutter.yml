@@ -52,6 +52,7 @@ jobs:
         exclude:
           # Flutter WASM tests don't compile on beta currently.
           # We can re-enable when it is fixed by Flutter.
+          # https://github.com/getsentry/sentry-dart/pull/3003
           - target: wasm
             sdk: beta
 
