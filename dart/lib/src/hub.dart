@@ -631,10 +631,20 @@ class Hub {
   SentryProfilerFactory? _profilerFactory;
 
   @internal
+  Map<Type, List<Function>> get lifecycleCallbacks =>
+      _peek().client.lifecycleCallbacks;
+
+  @internal
   void registerCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {
     final item = _peek();
     item.client.registerCallback<T>(callback);
+  }
+
+  @internal
+  void removeCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {
+    _peek().client.removeCallback<T>(callback);
   }
 
   SentryEvent _assignTraceContext(SentryEvent event) {

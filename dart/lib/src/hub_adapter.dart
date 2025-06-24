@@ -205,4 +205,14 @@ class HubAdapter implements Hub {
       SdkLifecycleCallback<T> callback) {
     Sentry.currentHub.registerCallback(callback);
   }
+
+  @override
+  void removeCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {
+    Sentry.currentHub.removeCallback(callback);
+  }
+
+  @override
+  Map<Type, List<Function>> get lifecycleCallbacks =>
+      Sentry.currentHub.lifecycleCallbacks;
 }

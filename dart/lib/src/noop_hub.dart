@@ -149,4 +149,11 @@ class NoOpHub implements Hub {
   @override
   void registerCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {}
+
+  @override
+  void removeCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {}
+
+  @override
+  Map<Type, List<Function>> get lifecycleCallbacks => {};
 }

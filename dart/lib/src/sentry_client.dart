@@ -7,6 +7,7 @@ import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'event_processor/run_event_processors.dart';
 import 'hint.dart';
+import 'sdk_lifecycle_hooks.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
@@ -29,7 +30,6 @@ import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
 import 'sentry_log_batcher.dart';
 import 'version.dart';
-import 'lifecycle/on_before_capture_log.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
@@ -57,6 +57,9 @@ class SentryClient {
   SentryExceptionFactory get _exceptionFactory => _options.exceptionFactory;
 
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
+
+  @internal
+  Map<Type, List<Function>> get lifecycleCallbacks => _lifecycleCallbacks;
 
   final Map<Type, List<Function>> _lifecycleCallbacks = {};
 
@@ -174,8 +177,8 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    // Event is fully processed and ready to be sent, emit beforeSendEvent observer
-    await _emitBeforeSendEventObserver(preparedEvent, hint);
+    // Event is fully processed and ready to be sent
+    await _dispatchCallback(OnBeforeSendEvent(event));
 
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
     attachments.addAll(hint.attachments);
@@ -567,7 +570,7 @@ class SentryClient {
     }
 
     if (processedLog != null) {
-      await _dispatchCallbacks(OnBeforeCaptureLog(processedLog));
+      await _dispatchCallback(OnBeforeCaptureLog(processedLog));
       _options.logBatcher.addLog(processedLog);
     } else {
       _options.recorder.recordLostEvent(
@@ -673,28 +676,6 @@ class SentryClient {
     }
   }
 
-  FutureOr<void> _emitBeforeSendEventObserver(
-      SentryEvent event, Hint hint) async {
-    for (final observer in _options.beforeSendEventObservers) {
-      try {
-        final result = observer.onBeforeSendEvent(event, hint);
-        if (result is Future) {
-          await result;
-        }
-      } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'Error while running beforeSendEvent observer',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
-    }
-  }
-
   @internal
   void registerCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {
@@ -702,8 +683,14 @@ class SentryClient {
     _lifecycleCallbacks[T]?.add(callback);
   }
 
-  FutureOr<void> _dispatchCallbacks<T extends SdkLifecycleEvent>(
-      T event) async {
+  @internal
+  void removeCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {
+    final callbacks = _lifecycleCallbacks[T];
+    callbacks?.remove(callback);
+  }
+
+  FutureOr<void> _dispatchCallback<T extends SdkLifecycleEvent>(T event) async {
     final callbacks = _lifecycleCallbacks[event.runtimeType] ?? [];
     for (final cb in callbacks) {
       try {
