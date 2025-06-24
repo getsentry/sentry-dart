@@ -4,10 +4,7 @@ class SentryTemplateString {
   final String template;
 
   String format(List<dynamic> arguments) {
-    if (arguments.isEmpty) {
-      // If no arguments provided, replace all %s with empty strings
-      return template.replaceAll('%s', '');
-    }
+    assert(arguments.isNotEmpty);
 
     final result = StringBuffer();
     int argIndex = 0;
