@@ -54,11 +54,16 @@ void main() {
       expect(result, 'Hello, John! You are  years old.');
     });
 
-    test('no arguments - replace all with empty strings', () {
+    test('empty arguments trigger assertion error', () {
       final sut = fixture.getSut("Hello, %s! You are %s years old.");
 
-      // Expect an AssertionError to be thrown when empty arguments are passed
       expect(() => sut.format([]), throwsA(isA<AssertionError>()));
+    });
+
+    test('no placeholder strings trigger assertion error', () {
+      final sut = fixture.getSut("Hello, World!");
+
+      expect(() => sut.format(['ignored']), throwsA(isA<AssertionError>()));
     });
 
     test('too many arguments - ignore extras', () {
@@ -76,7 +81,8 @@ void main() {
       expect(result, 'The object is CustomObject: test value');
     });
 
-    test('unsupported type without toString() - fallback to empty string', () {
+    test('unsupported type with throwing toString() falls back to empty string',
+        () {
       final sut = fixture.getSut("The object is %s");
       final result = sut.format([ThrowingToStringObject()]);
 
@@ -90,18 +96,11 @@ void main() {
       expect(result, 'The object is Instance of \'NoToStringMethodObject\'');
     });
 
-    test('template with no placeholders', () {
-      final sut = fixture.getSut("Hello, World!");
-      final result = sut.format(['ignored']);
-
-      expect(result, 'Hello, World!');
-    });
-
     test('template with escaped %%s', () {
-      final sut = fixture.getSut("The percentage is 50%%s");
-      final result = sut.format(['extra']);
+      final sut = fixture.getSut("The percentage is %s%%");
+      final result = sut.format([50]);
 
-      expect(result, 'The percentage is 50%s');
+      expect(result, 'The percentage is 50%');
     });
 
     test('template with literal % character', () {
