@@ -50,6 +50,8 @@ jobs:
           - target: wasm
             os: ubuntu
         exclude:
+          # Flutter WASM tests don't compile on beta currently.
+          # We can re-enable when it is fixed by Flutter.
           - target: wasm
             sdk: beta
 
