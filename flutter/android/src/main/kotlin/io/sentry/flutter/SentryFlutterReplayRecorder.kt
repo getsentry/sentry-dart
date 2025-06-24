@@ -12,21 +12,12 @@ internal class SentryFlutterReplayRecorder(
   private val channel: MethodChannel,
   private val integration: ReplayIntegration,
 ) : Recorder {
-  override fun start(recorderConfig: ScreenshotRecorderConfig) {
-    // Ignore if this is the initial call before we actually got the configuration from Flutter.
-    // We'll get another call here when the configuration is changed according to the widget size.
-    if (recorderConfig.recordingHeight <= VIDEO_BLOCK_SIZE && recorderConfig.recordingWidth <= VIDEO_BLOCK_SIZE) {
-      return
-    }
-
+  override fun start() {
     Handler(Looper.getMainLooper()).post {
       try {
         channel.invokeMethod(
           "ReplayRecorder.start",
           mapOf(
-            "width" to recorderConfig.recordingWidth,
-            "height" to recorderConfig.recordingHeight,
-            "frameRate" to recorderConfig.frameRate,
             "replayId" to integration.getReplayId().toString(),
           ),
         )
@@ -42,6 +33,33 @@ internal class SentryFlutterReplayRecorder(
         channel.invokeMethod("ReplayRecorder.resume", null)
       } catch (ignored: Exception) {
         Log.w("Sentry", "Failed to resume replay recorder", ignored)
+      }
+    }
+  }
+
+  override fun onConfigurationChanged(config: ScreenshotRecorderConfig) {
+    Handler(Looper.getMainLooper()).post {
+      try {
+        channel.invokeMethod(
+          "ReplayRecorder.onConfigurationChanged",
+          mapOf(
+            "width" to config.recordingWidth,
+            "height" to config.recordingHeight,
+            "frameRate" to config.frameRate,
+          ),
+        )
+      } catch (ignored: Exception) {
+        Log.w("Sentry", "Failed to propagate configuration change to Flutter", ignored)
+      }
+    }
+  }
+
+  override fun reset() {
+    Handler(Looper.getMainLooper()).post {
+      try {
+        channel.invokeMethod("ReplayRecorder.reset", null)
+      } catch (ignored: Exception) {
+        Log.w("Sentry", "Failed to reset replay recorder", ignored)
       }
     }
   }
