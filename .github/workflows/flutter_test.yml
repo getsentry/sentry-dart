@@ -49,7 +49,7 @@ jobs:
           distribution: 'adopt'
           java-version: '17'
 
-      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
+      - uses: subosito/flutter-action@395322a6cded4e9ed503aebd4cc1965625f8e59a # pin@v2.20.0
         with:
           channel: ${{ matrix.sdk }}
 
@@ -114,12 +114,13 @@ jobs:
       fail-fast: false
       matrix:
         target: [ios, macos]
-        sdk: [stable, beta]
+        # disable beta for now as there are issues with minimum deployment version
+        sdk: [stable]
     steps:
       - name: checkout
         uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
+      - uses: subosito/flutter-action@395322a6cded4e9ed503aebd4cc1965625f8e59a # pin@v2.20.0
         with:
           channel: ${{ matrix.sdk }}
 
@@ -178,7 +179,7 @@ jobs:
           chrome-version: stable
       - run: chrome --version
 
-      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
+      - uses: subosito/flutter-action@395322a6cded4e9ed503aebd4cc1965625f8e59a # pin@v2.20.0
         with:
           channel: ${{ matrix.sdk }}
 

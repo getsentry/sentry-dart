@@ -25,6 +25,12 @@ import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker
     as _i20;
 import 'package:sentry_flutter/src/native/native_frames.dart' as _i18;
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i16;
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart'
+    as _i24;
+import 'package:sentry_flutter/src/navigation/time_to_full_display_tracker.dart'
+    as _i26;
+import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart'
+    as _i25;
 import 'package:sentry_flutter/src/replay/replay_config.dart' as _i19;
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart' as _i23;
 
@@ -271,18 +277,24 @@ class _FakeWidget_38 extends _i1.SmartFake implements _i9.Widget {
       super.toString();
 }
 
-class _FakeSentryOptions_39 extends _i1.SmartFake implements _i2.SentryOptions {
-  _FakeSentryOptions_39(Object parent, Invocation parentInvocation)
+class _FakeSentryFlutterOptions_39 extends _i1.SmartFake
+    implements _i2.SentryFlutterOptions {
+  _FakeSentryFlutterOptions_39(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakeScope_40 extends _i1.SmartFake implements _i2.Scope {
-  _FakeScope_40(Object parent, Invocation parentInvocation)
+class _FakeSentryOptions_40 extends _i1.SmartFake implements _i2.SentryOptions {
+  _FakeSentryOptions_40(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
-class _FakeHub_41 extends _i1.SmartFake implements _i2.Hub {
-  _FakeHub_41(Object parent, Invocation parentInvocation)
+class _FakeScope_41 extends _i1.SmartFake implements _i2.Scope {
+  _FakeScope_41(Object parent, Invocation parentInvocation)
+      : super(parent, parentInvocation);
+}
+
+class _FakeHub_42 extends _i1.SmartFake implements _i2.Hub {
+  _FakeHub_42(Object parent, Invocation parentInvocation)
       : super(parent, parentInvocation);
 }
 
@@ -1880,6 +1892,16 @@ class MockWidgetsFlutterBinding extends _i1.Mock
       ) as _i8.ValueNotifier<bool>);
 
   @override
+  _i8.ValueNotifier<bool> get debugWidgetInspectorSelectionOnTapEnabled =>
+      (super.noSuchMethod(
+        Invocation.getter(#debugWidgetInspectorSelectionOnTapEnabled),
+        returnValue: _FakeValueNotifier_18<bool>(
+          this,
+          Invocation.getter(#debugWidgetInspectorSelectionOnTapEnabled),
+        ),
+      ) as _i8.ValueNotifier<bool>);
+
+  @override
   _i9.FocusManager get focusManager => (super.noSuchMethod(
         Invocation.getter(#focusManager),
         returnValue: _FakeFocusManager_29(
@@ -2734,6 +2756,154 @@ class MockSentryJsBinding extends _i1.Mock implements _i23.SentryJsBinding {
       );
 }
 
+/// A class which mocks [TimeToDisplayTracker].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockTimeToDisplayTracker extends _i1.Mock
+    implements _i24.TimeToDisplayTracker {
+  MockTimeToDisplayTracker() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i2.SentryFlutterOptions get options => (super.noSuchMethod(
+        Invocation.getter(#options),
+        returnValue: _FakeSentryFlutterOptions_39(
+          this,
+          Invocation.getter(#options),
+        ),
+      ) as _i2.SentryFlutterOptions);
+
+  @override
+  set transactionId(_i2.SpanId? _transactionId) => super.noSuchMethod(
+        Invocation.setter(#transactionId, _transactionId),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i11.Future<void> track(
+    _i2.ISentrySpan? transaction, {
+    DateTime? ttidEndTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #track,
+          [transaction],
+          {#ttidEndTimestamp: ttidEndTimestamp},
+        ),
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
+
+  @override
+  _i11.Future<void> reportFullyDisplayed({
+    _i2.SpanId? spanId,
+    DateTime? endTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(#reportFullyDisplayed, [], {
+          #spanId: spanId,
+          #endTimestamp: endTimestamp,
+        }),
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
+
+  @override
+  _i11.Future<void> cancelUnfinishedSpans(
+    _i3.SentryTracer? transaction,
+    DateTime? endTimestamp,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(#cancelUnfinishedSpans, [
+          transaction,
+          endTimestamp,
+        ]),
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
+
+  @override
+  void clear() => super.noSuchMethod(
+        Invocation.method(#clear, []),
+        returnValueForMissingStub: null,
+      );
+}
+
+/// A class which mocks [TimeToInitialDisplayTracker].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockTimeToInitialDisplayTracker extends _i1.Mock
+    implements _i25.TimeToInitialDisplayTracker {
+  MockTimeToInitialDisplayTracker() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i11.Future<_i2.ISentrySpan?> track({
+    required _i3.SentryTracer? transaction,
+    DateTime? endTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(#track, [], {
+          #transaction: transaction,
+          #endTimestamp: endTimestamp,
+        }),
+        returnValue: _i11.Future<_i2.ISentrySpan?>.value(),
+      ) as _i11.Future<_i2.ISentrySpan?>);
+
+  @override
+  void clear() => super.noSuchMethod(
+        Invocation.method(#clear, []),
+        returnValueForMissingStub: null,
+      );
+}
+
+/// A class which mocks [TimeToFullDisplayTracker].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockTimeToFullDisplayTracker extends _i1.Mock
+    implements _i26.TimeToFullDisplayTracker {
+  MockTimeToFullDisplayTracker() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i11.Future<void> track({
+    required _i3.SentryTracer? transaction,
+    DateTime? ttidEndTimestamp,
+    DateTime? ttfdEndTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(#track, [], {
+          #transaction: transaction,
+          #ttidEndTimestamp: ttidEndTimestamp,
+          #ttfdEndTimestamp: ttfdEndTimestamp,
+        }),
+        returnValue: _i11.Future<void>.value(),
+        returnValueForMissingStub: _i11.Future<void>.value(),
+      ) as _i11.Future<void>);
+
+  @override
+  _i11.Future<bool> reportFullyDisplayed({
+    _i2.SpanId? spanId,
+    DateTime? endTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(#reportFullyDisplayed, [], {
+          #spanId: spanId,
+          #endTimestamp: endTimestamp,
+        }),
+        returnValue: _i11.Future<bool>.value(false),
+      ) as _i11.Future<bool>);
+
+  @override
+  void clear() => super.noSuchMethod(
+        Invocation.method(#clear, []),
+        returnValueForMissingStub: null,
+      );
+}
+
 /// A class which mocks [Hub].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -2745,7 +2915,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i2.SentryOptions get options => (super.noSuchMethod(
         Invocation.getter(#options),
-        returnValue: _FakeSentryOptions_39(
+        returnValue: _FakeSentryOptions_40(
           this,
           Invocation.getter(#options),
         ),
@@ -2765,7 +2935,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i2.Scope get scope => (super.noSuchMethod(
         Invocation.getter(#scope),
-        returnValue: _FakeScope_40(this, Invocation.getter(#scope)),
+        returnValue: _FakeScope_41(this, Invocation.getter(#scope)),
       ) as _i2.Scope);
 
   @override
@@ -2804,13 +2974,19 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     dynamic throwable, {
     dynamic stackTrace,
     _i2.Hint? hint,
+    _i2.SentryMessage? message,
     _i2.ScopeCallback? withScope,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureException,
           [throwable],
-          {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
+          {
+            #stackTrace: stackTrace,
+            #hint: hint,
+            #message: message,
+            #withScope: withScope,
+          },
         ),
         returnValue: _i11.Future<_i2.SentryId>.value(
           _FakeSentryId_5(
@@ -2818,7 +2994,12 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             Invocation.method(
               #captureException,
               [throwable],
-              {#stackTrace: stackTrace, #hint: hint, #withScope: withScope},
+              {
+                #stackTrace: stackTrace,
+                #hint: hint,
+                #message: message,
+                #withScope: withScope,
+              },
             ),
           ),
         ),
@@ -2904,7 +3085,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i2.Hub clone() => (super.noSuchMethod(
         Invocation.method(#clone, []),
-        returnValue: _FakeHub_41(this, Invocation.method(#clone, [])),
+        returnValue: _FakeHub_42(this, Invocation.method(#clone, [])),
       ) as _i2.Hub);
 
   @override
@@ -3003,6 +3184,12 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           ),
         ),
       ) as _i2.ISentrySpan);
+
+  @override
+  void generateNewTraceId() => super.noSuchMethod(
+        Invocation.method(#generateNewTraceId, []),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i11.Future<_i2.SentryId> captureTransaction(

@@ -543,6 +543,11 @@ class SentryOptions {
   /// Disabled by default.
   bool enableLogs = false;
 
+  /// Enables adding the module in [SentryStackFrame.module].
+  /// This option only has an effect in non-obfuscated builds.
+  /// Enabling this option may change grouping.
+  bool includeModuleInStackTrace = false;
+
   late final SentryLogger logger = SentryLogger(clock);
 
   @internal

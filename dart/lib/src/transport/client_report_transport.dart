@@ -14,12 +14,12 @@ class ClientReportTransport implements Transport {
   ClientReportTransport(this._rateLimiter, this._options, this._transport);
 
   @visibleForTesting
-  get rateLimiter => _rateLimiter;
+  RateLimiter? get rateLimiter => _rateLimiter;
 
   int _numberOfDroppedEnvelopes = 0;
 
   @visibleForTesting
-  get numberOfDroppedEvents => _numberOfDroppedEnvelopes;
+  int get numberOfDroppedEvents => _numberOfDroppedEnvelopes;
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {

@@ -1,7 +1,7 @@
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
-import 'package:flutter/cupertino.dart';
+import 'package:meta/meta.dart';
 
 import 'sentry_js_binding.dart';
 
@@ -11,6 +11,14 @@ SentryJsBinding createJsBinding() {
 
 class WebSentryJsBinding implements SentryJsBinding {
   SentryJsClient? _client;
+  JSObject? _options;
+  final Map<String, String> _filenameToDebugIds = {};
+  final Set<String> _debugIdsWithFilenames = {};
+
+  int _lastKeysCount = 0;
+
+  @visibleForTesting
+  Map<String, String>? get filenameToDebugIds => _filenameToDebugIds;
 
   @override
   void init(Map<String, dynamic> options) {
@@ -20,6 +28,7 @@ class WebSentryJsBinding implements SentryJsBinding {
     }
     _init(options.jsify());
     _client = SentryJsClient();
+    _options = _client?.getOptions();
   }
 
   @override
@@ -54,10 +63,10 @@ class WebSentryJsBinding implements SentryJsBinding {
 
   @override
   void close() {
-    final sentryProp = _globalThis.getProperty('Sentry'.toJS);
+    final sentryProp = globalThis.getProperty('Sentry'.toJS);
     if (sentryProp != null) {
       _close();
-      _globalThis['Sentry'] = null;
+      globalThis['Sentry'] = null;
     }
   }
 
@@ -92,6 +101,74 @@ class WebSentryJsBinding implements SentryJsBinding {
     } catch (e) {
       return null;
     }
+  }
+
+  @override
+  Map<String, String>? getFilenameToDebugIdMap() {
+    final options = _options;
+    if (options == null) {
+      return null;
+    }
+
+    final debugIdMap =
+        globalThis['_sentryDebugIds'].dartify() as Map<dynamic, dynamic>?;
+    if (debugIdMap == null) {
+      return null;
+    }
+
+    if (debugIdMap.keys.length != _lastKeysCount) {
+      _buildFilenameToDebugIdMap(
+        debugIdMap,
+        options,
+      );
+      _lastKeysCount = debugIdMap.keys.length;
+    }
+
+    return Map.unmodifiable(_filenameToDebugIds);
+  }
+
+  void _buildFilenameToDebugIdMap(
+    Map<dynamic, dynamic> debugIdMap,
+    JSObject options,
+  ) {
+    final stackParser = _stackParser(options);
+    if (stackParser == null) {
+      return;
+    }
+
+    for (final debugIdMapEntry in debugIdMap.entries) {
+      final String stackKeyStr = debugIdMapEntry.key.toString();
+      final String debugIdStr = debugIdMapEntry.value.toString();
+
+      final debugIdHasCachedFilename =
+          _debugIdsWithFilenames.contains(debugIdStr);
+
+      if (!debugIdHasCachedFilename) {
+        final parsedStack = stackParser
+            .callAsFunction(options, stackKeyStr.toJS)
+            .dartify() as List<dynamic>?;
+
+        if (parsedStack == null) continue;
+
+        for (final stackFrame in parsedStack) {
+          final stackFrameMap = stackFrame as Map<dynamic, dynamic>;
+          final filename = stackFrameMap['filename']?.toString();
+          if (filename != null) {
+            _filenameToDebugIds[filename] = debugIdStr;
+            _debugIdsWithFilenames.add(debugIdStr);
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  JSFunction? _stackParser(JSObject options) {
+    final parser = options['stackParser'];
+    if (parser != null && parser.isA<JSFunction>()) {
+      return parser as JSFunction;
+    }
+    return null;
   }
 }
 
@@ -136,4 +213,5 @@ external JSObject _globalHandlersIntegration();
 external JSObject _dedupeIntegration();
 
 @JS('globalThis')
-external JSObject get _globalThis;
+@internal
+external JSObject get globalThis;
