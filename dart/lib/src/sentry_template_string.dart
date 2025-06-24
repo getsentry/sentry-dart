@@ -6,7 +6,8 @@ class SentryTemplateString {
   static final _regex = RegExp(r'%(?:%|s)');
 
   String format() {
-    assert(arguments.isNotEmpty);
+    assert(arguments.isNotEmpty,
+        'No arguments provided for template with placeholders.');
 
     int argIndex = 0;
     var foundPlaceholders = false;
@@ -31,7 +32,7 @@ class SentryTemplateString {
       return '';
     });
 
-    assert(foundPlaceholders, 'No placeholder strings found in template');
+    assert(foundPlaceholders, 'No placeholders provided in template.');
 
     return string;
   }
