@@ -1,10 +1,11 @@
 class SentryTemplateString {
-  SentryTemplateString(this.template);
+  SentryTemplateString(this.template, this.arguments);
 
   final String template;
+  final List<dynamic> arguments;
   static final _regex = RegExp(r'%(?:%|s)');
 
-  String format(List<dynamic> arguments) {
+  String format() {
     assert(arguments.isNotEmpty);
 
     int argIndex = 0;
@@ -33,5 +34,10 @@ class SentryTemplateString {
     assert(foundPlaceholders, 'No placeholder strings found in template');
 
     return string;
+  }
+
+  @override
+  String toString() {
+    return format();
   }
 }

@@ -13,8 +13,8 @@ class SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    final templateString = SentryTemplateString(templateBody);
-    final interpolatedBody = templateString.format(arguments);
+    final templateString = SentryTemplateString(templateBody, arguments);
+    final interpolatedBody = templateString.format();
     final allAttributes = _getTemplateAttributes(templateBody, arguments);
     if (attributes != null) {
       allAttributes.addAll(attributes);
@@ -27,8 +27,8 @@ class SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    final templateString = SentryTemplateString(templateBody);
-    final interpolatedBody = templateString.format(arguments);
+    final templateString = SentryTemplateString(templateBody, arguments);
+    final interpolatedBody = templateString.format();
     final allAttributes = _getTemplateAttributes(templateBody, arguments);
     if (attributes != null) {
       allAttributes.addAll(attributes);
@@ -41,8 +41,8 @@ class SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    final templateString = SentryTemplateString(templateBody);
-    final interpolatedBody = templateString.format(arguments);
+    final templateString = SentryTemplateString(templateBody, arguments);
+    final interpolatedBody = templateString.format();
     final allAttributes = _getTemplateAttributes(templateBody, arguments);
     if (attributes != null) {
       allAttributes.addAll(attributes);
@@ -55,8 +55,8 @@ class SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    final templateString = SentryTemplateString(templateBody);
-    final interpolatedBody = templateString.format(arguments);
+    final templateString = SentryTemplateString(templateBody, arguments);
+    final interpolatedBody = templateString.format();
     final allAttributes = _getTemplateAttributes(templateBody, arguments);
     if (attributes != null) {
       allAttributes.addAll(attributes);
@@ -69,8 +69,8 @@ class SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    final templateString = SentryTemplateString(templateBody);
-    final interpolatedBody = templateString.format(arguments);
+    final templateString = SentryTemplateString(templateBody, arguments);
+    final interpolatedBody = templateString.format();
     final allAttributes = _getTemplateAttributes(templateBody, arguments);
     if (attributes != null) {
       allAttributes.addAll(attributes);
@@ -83,8 +83,8 @@ class SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    final templateString = SentryTemplateString(templateBody);
-    final interpolatedBody = templateString.format(arguments);
+    final templateString = SentryTemplateString(templateBody, arguments);
+    final interpolatedBody = templateString.format();
     final allAttributes = _getTemplateAttributes(templateBody, arguments);
     if (attributes != null) {
       allAttributes.addAll(attributes);
