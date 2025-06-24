@@ -43,6 +43,8 @@ void initState() {
 - Add `message` parameter to `captureException()` ([#2882](https://github.com/getsentry/sentry-dart/pull/2882))
 - Add module in SentryStackFrame ([#2931](https://github.com/getsentry/sentry-dart/pull/2931))
   - Set `SentryOptions.includeModuleInStackTrace = true` to enable this. This may change grouping of exceptions. 
+- Report Flutter framework feature flags ([#2991](https://github.com/getsentry/sentry-dart/pull/2991))
+  - This works on Flutter builds that include [this PR](https://github.com/flutter/flutter/pull/168437) which is likely Flutter v3.34 and up
 
 ### Dependencies
 
