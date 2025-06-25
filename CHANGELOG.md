@@ -4,8 +4,8 @@
 
 ### Features
 
-- Set Firebase Remote Config flags on integration initialization ([#3010](https://github.com/getsentry/sentry-dart/pull/3010))
 - Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
+- Set Firebase Remote Config flags on integration initialization ([#3010](https://github.com/getsentry/sentry-dart/pull/3010))
 
 ## 9.1.0
 
