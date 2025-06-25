@@ -38,6 +38,10 @@ import 'web/javascript_transport.dart';
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
     SentryFlutterOptions);
 
+void test() {
+  throw StateError('whast up');
+}
+
 /// Sentry Flutter SDK main entry point
 mixin SentryFlutter {
   /// Represents the time when the Sentry init set up has started.
