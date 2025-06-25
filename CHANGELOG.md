@@ -2,9 +2,11 @@
 
 ## Unreleased
 
-### Features
+## Features
 
 - Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
+- String templating for structured logs #3002 ([#3002](https://github.com/getsentry/sentry-dart/pull/3002))
+### Features
 
 ## 9.1.0
 
@@ -48,7 +50,7 @@ void initState() {
 ```
 - Add `message` parameter to `captureException()` ([#2882](https://github.com/getsentry/sentry-dart/pull/2882))
 - Add module in SentryStackFrame ([#2931](https://github.com/getsentry/sentry-dart/pull/2931))
-  - Set `SentryOptions.includeModuleInStackTrace = true` to enable this. This may change grouping of exceptions. 
+  - Set `SentryOptions.includeModuleInStackTrace = true` to enable this. This may change grouping of exceptions.
 
 ### Dependencies
 
