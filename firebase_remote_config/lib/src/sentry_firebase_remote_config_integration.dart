@@ -19,7 +19,7 @@ class SentryFirebaseRemoteConfigIntegration extends Integration<SentryOptions> {
     options.sdk.addIntegration('SentryFirebaseRemoteConfigIntegration');
 
     final allKeys = _firebaseRemoteConfig.getAll().keys.toSet();
-    await _updateFeatureFlags(allKeys);
+    unawaited(_updateFeatureFlags(allKeys));
 
     _subscription = _firebaseRemoteConfig.onConfigUpdated.listen((event) async {
       if (_activateOnConfigUpdated) {
