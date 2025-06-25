@@ -13,13 +13,14 @@ class SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    final templateString = SentryTemplateString(templateBody, arguments);
-    final interpolatedBody = templateString.format();
-    final allAttributes = _getTemplateAttributes(templateBody, arguments);
-    if (attributes != null) {
-      allAttributes.addAll(attributes);
-    }
-    return _logger.trace(interpolatedBody, attributes: allAttributes);
+    return _format(
+      templateBody,
+      arguments,
+      attributes,
+      (formattedBody, allAttributes) {
+        return _logger.trace(formattedBody, attributes: allAttributes);
+      },
+    );
   }
 
   FutureOr<void> debug(
@@ -27,13 +28,14 @@ class SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    final templateString = SentryTemplateString(templateBody, arguments);
-    final interpolatedBody = templateString.format();
-    final allAttributes = _getTemplateAttributes(templateBody, arguments);
-    if (attributes != null) {
-      allAttributes.addAll(attributes);
-    }
-    return _logger.debug(interpolatedBody, attributes: allAttributes);
+    return _format(
+      templateBody,
+      arguments,
+      attributes,
+      (formattedBody, allAttributes) {
+        return _logger.debug(formattedBody, attributes: allAttributes);
+      },
+    );
   }
 
   FutureOr<void> info(
@@ -41,13 +43,14 @@ class SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    final templateString = SentryTemplateString(templateBody, arguments);
-    final interpolatedBody = templateString.format();
-    final allAttributes = _getTemplateAttributes(templateBody, arguments);
-    if (attributes != null) {
-      allAttributes.addAll(attributes);
-    }
-    return _logger.info(interpolatedBody, attributes: allAttributes);
+    return _format(
+      templateBody,
+      arguments,
+      attributes,
+      (formattedBody, allAttributes) {
+        return _logger.info(formattedBody, attributes: allAttributes);
+      },
+    );
   }
 
   FutureOr<void> warn(
@@ -55,13 +58,14 @@ class SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    final templateString = SentryTemplateString(templateBody, arguments);
-    final interpolatedBody = templateString.format();
-    final allAttributes = _getTemplateAttributes(templateBody, arguments);
-    if (attributes != null) {
-      allAttributes.addAll(attributes);
-    }
-    return _logger.warn(interpolatedBody, attributes: allAttributes);
+    return _format(
+      templateBody,
+      arguments,
+      attributes,
+      (formattedBody, allAttributes) {
+        return _logger.warn(formattedBody, attributes: allAttributes);
+      },
+    );
   }
 
   FutureOr<void> error(
@@ -69,13 +73,14 @@ class SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    final templateString = SentryTemplateString(templateBody, arguments);
-    final interpolatedBody = templateString.format();
-    final allAttributes = _getTemplateAttributes(templateBody, arguments);
-    if (attributes != null) {
-      allAttributes.addAll(attributes);
-    }
-    return _logger.error(interpolatedBody, attributes: allAttributes);
+    return _format(
+      templateBody,
+      arguments,
+      attributes,
+      (formattedBody, allAttributes) {
+        return _logger.error(formattedBody, attributes: allAttributes);
+      },
+    );
   }
 
   FutureOr<void> fatal(
@@ -83,19 +88,37 @@ class SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryLogAttribute>? attributes,
   }) {
-    final templateString = SentryTemplateString(templateBody, arguments);
-    final interpolatedBody = templateString.format();
-    final allAttributes = _getTemplateAttributes(templateBody, arguments);
-    if (attributes != null) {
-      allAttributes.addAll(attributes);
-    }
-    return _logger.fatal(interpolatedBody, attributes: allAttributes);
+    return _format(
+      templateBody,
+      arguments,
+      attributes,
+      (formattedBody, allAttributes) {
+        return _logger.fatal(formattedBody, attributes: allAttributes);
+      },
+    );
   }
 
   // Helper
 
-  Map<String, SentryLogAttribute> _getTemplateAttributes(
-      String templateBody, List<dynamic> args) {
+  FutureOr<void> _format(
+    String templateBody,
+    List<dynamic> arguments,
+    Map<String, SentryLogAttribute>? attributes,
+    FutureOr<void> Function(String, Map<String, SentryLogAttribute>) callback,
+  ) {
+    final templateString = SentryTemplateString(templateBody, arguments);
+    final formattedBody = templateString.format();
+    final templateAttributes = _getAllAttributes(templateBody, arguments);
+    if (attributes != null) {
+      templateAttributes.addAll(attributes);
+    }
+    return callback(formattedBody, templateAttributes);
+  }
+
+  Map<String, SentryLogAttribute> _getAllAttributes(
+    String templateBody,
+    List<dynamic> args,
+  ) {
     final templateAttributes = {
       'sentry.message.template': SentryLogAttribute.string(templateBody),
     };
@@ -119,7 +142,6 @@ class SentryLoggerFormatter {
         }
       }
     }
-
     return templateAttributes;
   }
 }
