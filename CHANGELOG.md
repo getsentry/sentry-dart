@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Set Firebase Remote Config flags on integration initialization ([#3010](https://github.com/getsentry/sentry-dart/pull/3010))
+
 ## 9.1.0
 
 ### Features
