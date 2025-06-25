@@ -85,7 +85,7 @@ void main() {
     expect(featureFlags, isNotNull);
     expect(featureFlags?.values.length, 1);
     expect(featureFlags?.values.first.flag, 'test');
-    expect(featureFlags?.values.first.result, false);
+    expect(featureFlags?.values.first.result, isFalse);
   });
 
   test('adds boolean update to feature flags', () async {
