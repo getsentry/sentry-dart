@@ -440,7 +440,8 @@ String? _getDefaultCrashpadPath() {
       final appDir = Platform.resolvedExecutable.substring(0, lastSeparator);
       final candidates = [
         '$appDir${Platform.pathSeparator}crashpad_handler',
-        '$appDir${Platform.pathSeparator}bin/crashpad_handler'
+        '$appDir${Platform.pathSeparator}bin/crashpad_handler',
+        '$appDir${Platform.pathSeparator}lib/crashpad_handler'
       ];
       return candidates.firstWhereOrNull((path) => File(path).existsSync());
     }
