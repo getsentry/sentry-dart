@@ -4,10 +4,9 @@
 
 ## Features
 
+- Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
 - String templating for structured logs #3002 ([#3002](https://github.com/getsentry/sentry-dart/pull/3002))
 ### Features
-
-- Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
 
 ## 9.1.0
 
