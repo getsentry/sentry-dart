@@ -37,14 +37,16 @@ jobs:
       - uses: subosito/flutter-action@395322a6cded4e9ed503aebd4cc1965625f8e59a # pin@v2.20.0
         if: ${{ inputs.sdk == 'flutter' }}
 
-      - run: $SDK pub get
-        env:
-          SDK: ${{ inputs.sdk }}
-      - run: $SDK pub get
+      - run: dart pub get
+        if: ${{ inputs.sdk == 'dart' }}
+
+      - run: flutter pub get
+        if: ${{ inputs.sdk == 'flutter' }}
+
+      - run: flutter pub get
         if: ${{ inputs.package == 'flutter' }}
         working-directory: flutter/microbenchmarks
-        env:
-          SDK: ${{ inputs.sdk }}
+
       - run: dart format --set-exit-if-changed ./
 
       - name: dart analyze
