@@ -16,18 +16,26 @@ class SentryFirebaseRemoteConfigIntegration extends Integration<SentryOptions> {
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) async {
+    options.sdk.addIntegration('SentryFirebaseRemoteConfigIntegration');
+
+    final allKeys = _firebaseRemoteConfig.getAll().keys.toSet();
+    await _updateFeatureFlags(allKeys);
+
     _subscription = _firebaseRemoteConfig.onConfigUpdated.listen((event) async {
       if (_activateOnConfigUpdated) {
         await _firebaseRemoteConfig.activate();
       }
-      for (final updatedKey in event.updatedKeys) {
-        final value = _firebaseRemoteConfig.getBoolOrNull(updatedKey);
-        if (value != null) {
-          await Sentry.addFeatureFlag(updatedKey, value);
-        }
-      }
+      await _updateFeatureFlags(event.updatedKeys);
     });
-    options.sdk.addIntegration('SentryFirebaseRemoteConfigIntegration');
+  }
+
+  Future<void> _updateFeatureFlags(Set<String> updatedKeys) async {
+    for (final updatedKey in updatedKeys) {
+      final value = _firebaseRemoteConfig.getBoolOrNull(updatedKey);
+      if (value != null) {
+        await Sentry.addFeatureFlag(updatedKey, value);
+      }
+    }
   }
 
   @override

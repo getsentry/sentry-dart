@@ -10,6 +10,10 @@ import 'package:sentry_firebase_remote_config/sentry_firebase_remote_config.dart
 void main() {
   late Fixture fixture;
 
+  givenInitialValues() {
+    when(fixture.mockFirebaseRemoteConfig.getAll()).thenReturn({});
+  }
+
   givenRemoveConfigUpdate() {
     final update = RemoteConfigUpdate({'test', 'foo'});
     when(fixture.mockFirebaseRemoteConfig.onConfigUpdated)
@@ -32,6 +36,8 @@ void main() {
     fixture.hub = Sentry.currentHub;
     // ignore: invalid_use_of_internal_member
     fixture.options = fixture.hub.options;
+
+    givenInitialValues();
   });
 
   tearDown(() {
@@ -130,6 +136,37 @@ void main() {
     );
 
     verify(fixture.mockFirebaseRemoteConfig.activate()).called(1);
+  });
+
+  test('adds all initial key/value evaluations to feature flags', () async {
+    givenRemoveConfigUpdate();
+
+    when(fixture.mockFirebaseRemoteConfig.getAll()).thenReturn({
+      'foo': RemoteConfigValue(
+        [0x74, 0x72, 0x75, 0x65],
+        ValueSource.valueDefault,
+      ),
+      'bar': RemoteConfigValue(
+        [0x66, 0x61, 0x6c, 0x73, 0x65],
+        ValueSource.valueRemote,
+      ),
+    });
+    when(fixture.mockFirebaseRemoteConfig.getString('foo')).thenReturn('true');
+    when(fixture.mockFirebaseRemoteConfig.getString('bar')).thenReturn('false');
+
+    final sut = await fixture.getSut();
+    await sut.call(fixture.hub, fixture.options);
+
+    // ignore: invalid_use_of_internal_member
+    final featureFlags = fixture.hub.scope.contexts[SentryFeatureFlags.type]
+        as SentryFeatureFlags?;
+
+    expect(featureFlags, isNotNull);
+    expect(featureFlags?.values.length, 2);
+    expect(featureFlags?.values.first.flag, 'foo');
+    expect(featureFlags?.values.first.result, true);
+    expect(featureFlags?.values.last.flag, 'bar');
+    expect(featureFlags?.values.last.result, false);
   });
 }
 
