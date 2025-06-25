@@ -2,12 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/replay/integration.dart';
 
 import '../mocks.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  group('$SentryFeedbackWidget replay', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets('calls captureReplay on initState', (tester) async {
+      final mockBinding = MockSentryNativeBinding();
+      when(mockBinding.supportsReplay).thenReturn(true);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
+      when(fixture.hub.configureScope(any)).thenAnswer((invocation) {
+        final callback = invocation.positionalArguments.first;
+        callback(fixture.scope);
+        return null;
+      });
+      final replayId = SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+      when(mockBinding.captureReplay(any)).thenAnswer((_) async => replayId);
+
+      final replayIntegration = ReplayIntegration(mockBinding);
+      fixture.options.addIntegration(replayIntegration);
+      fixture.options.replay.onErrorSampleRate = 1.0;
+      await replayIntegration.call(fixture.hub, fixture.options);
+
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+      // await tester.pumpAndSettle();
+
+      verify(mockBinding.captureReplay(any)).called(1);
+      //ignore: invalid_use_of_internal_member
+      expect(fixture.hub.scope.replayId, replayId);
+    });
+  });
   group('$SentryFeedbackWidget validation', () {
     late Fixture fixture;
 
@@ -656,9 +692,11 @@ void main() {
 class Fixture {
   var options = SentryFlutterOptions();
   var hub = MockHub();
+  late var scope = Scope(options);
 
   Fixture() {
     when(hub.options).thenReturn(options);
+    when(hub.scope).thenReturn(scope);
   }
 
   Future<void> pumpFeedbackWidget(

@@ -1,11 +1,13 @@
 // ignore_for_file: library_private_types_in_public_api
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import '../../sentry_flutter.dart';
 import 'package:meta/meta.dart';
 import 'sentry_feedback_options.dart';
 import 'package:flutter/services.dart';
 import 'sentry_logo.dart';
+import '../replay/integration.dart';
 
 class SentryFeedbackWidget extends StatefulWidget {
   SentryFeedbackWidget({
@@ -93,11 +95,22 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
     super.initState();
 
     _restorePreservedData();
+    _captureReplay();
 
     final screenshot = widget.screenshot;
     if (screenshot != null) {
       _screenshot = screenshot;
       _screenshotFuture = Future.value(screenshot.bytes);
+    }
+  }
+
+  Future<void> _captureReplay() async {
+    // ignore: invalid_use_of_internal_member
+    final replayIntegration = widget._hub.options.integrations.firstWhereOrNull(
+      (element) => element is ReplayIntegration,
+    ) as ReplayIntegration?;
+    if (replayIntegration != null) {
+      await replayIntegration.captureReplay();
     }
   }
 
