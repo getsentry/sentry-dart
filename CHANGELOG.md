@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## Features
+
+- Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
+- String templating for structured logs #3002 ([#3002](https://github.com/getsentry/sentry-dart/pull/3002))
+### Features
+
+## 9.1.0
+
 ### Features
 
 - Flutter Web: add debug ids to events ([#2917](https://github.com/getsentry/sentry-dart/pull/2917))
@@ -50,6 +58,7 @@ void initState() {
 ```dart
 options.feedback.showBranding = false;
 ```
+  - Set `SentryOptions.includeModuleInStackTrace = true` to enable this. This may change grouping of exceptions.
 
 ### Dependencies
 
