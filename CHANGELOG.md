@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Dependencies
+
+- Bump Android SDK from v8.12.0 to v8.15.0 ([#3019](https://github.com/getsentry/sentry-dart/pull/3019))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8150)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.12.0...8.15.0)
+
 ## Features
 
 - Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
