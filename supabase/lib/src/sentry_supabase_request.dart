@@ -54,7 +54,7 @@ class SentrySupabaseRequest {
       case 'DELETE':
         return Operation.delete;
       default:
-        return Operation.select; // Should never happen.
+        return Operation.unknown; // Should never happen.
     }
   }
 

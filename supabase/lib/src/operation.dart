@@ -3,7 +3,8 @@ enum Operation {
   insert('insert'),
   upsert('upsert'),
   update('update'),
-  delete('delete');
+  delete('delete'),
+  unknown('unknown');
 
   final String value;
   const Operation(this.value);
