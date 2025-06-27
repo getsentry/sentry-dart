@@ -30,6 +30,7 @@ import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
 import 'sentry_log_batcher.dart';
 import 'version.dart';
+import 'sdk_lifecycle_hooks.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
@@ -60,7 +61,6 @@ class SentryClient {
 
   @internal
   Map<Type, List<Function>> get lifecycleCallbacks => _lifecycleCallbacks;
-
   final Map<Type, List<Function>> _lifecycleCallbacks = {};
 
   /// Instantiates a client using [SentryOptions]

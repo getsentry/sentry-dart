@@ -145,7 +145,9 @@ class NoOpHub implements Hub {
   @override
   Scope get scope => Scope(_options);
 
-  @internal
+  @override
+  Map<Type, List<Function>> get lifecycleCallbacks => {};
+
   @override
   void registerCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {}
@@ -153,7 +155,4 @@ class NoOpHub implements Hub {
   @override
   void removeCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {}
-
-  @override
-  Map<Type, List<Function>> get lifecycleCallbacks => {};
 }

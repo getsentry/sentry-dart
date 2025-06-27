@@ -71,13 +71,13 @@ class NoOpSentryClient implements SentryClient {
   FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {}
 
   @override
+  Map<Type, List<Function>> get lifecycleCallbacks => {};
+
+  @override
   void registerCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {}
 
   @override
   void removeCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {}
-
-  @override
-  Map<Type, List<Function>> get lifecycleCallbacks => {};
 }
