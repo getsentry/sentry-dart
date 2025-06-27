@@ -21,6 +21,8 @@ class MockHub implements Hub {
 
   final startTransactionCalls = <(String, String)>[];
   var mockSpan = _MockSpan();
+  var getSpanCallCount = 0;
+  var currentSpan = _MockSpan();
 
   @override
   ISentrySpan startTransaction(
@@ -37,6 +39,12 @@ class MockHub implements Hub {
   }) {
     startTransactionCalls.add((name, operation));
     return mockSpan;
+  }
+
+  @override
+  ISentrySpan? getSpan() {
+    getSpanCallCount++;
+    return currentSpan;
   }
 
   // Error
@@ -68,6 +76,19 @@ class _MockSpan implements ISentrySpan {
 
   var setThrowableCalls = <dynamic>[];
   var setStatusCalls = <SpanStatus?>[];
+  var startChildCalls = <(String, String?)>[];
+  _MockSpan? _childSpan;
+
+  _MockSpan get childSpan {
+    _childSpan ??= _MockSpan._child();
+    return _childSpan!;
+  }
+
+  // Constructor for child spans that don't create their own children
+  _MockSpan._child();
+
+  // Default constructor
+  _MockSpan();
 
   @override
   void setData(String key, dynamic value) {
@@ -92,6 +113,19 @@ class _MockSpan implements ISentrySpan {
   }) {
     finishCalls.add((status, endTimestamp, hint));
     return Future.value();
+  }
+
+  @override
+  ISentrySpan startChild(
+    String operation, {
+    String? description,
+    DateTime? startTimestamp,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
+    bool? trimEnd,
+  }) {
+    startChildCalls.add((operation, description));
+    return childSpan;
   }
 
   // No such method

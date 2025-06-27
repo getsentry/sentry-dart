@@ -42,11 +42,13 @@ class SentrySupabaseTracingClient extends BaseClient {
   // Helper
 
   ISentrySpan? _createSpan(SentrySupabaseRequest supabaseRequest) {
-    final description = 'from(${supabaseRequest.table})';
-
-    final span = _hub.startTransaction(
-      description,
+    final currentSpan = _hub.getSpan();
+    if (currentSpan == null) {
+      return null;
+    }
+    final span = currentSpan.startChild(
       'db.${supabaseRequest.operation.value}',
+      description: 'from(${supabaseRequest.table})',
     );
 
     final dbSchema = supabaseRequest.request.headers['Accept-Profile'] ??
@@ -69,7 +71,8 @@ class SentrySupabaseTracingClient extends BaseClient {
       span.setData('db.body', supabaseRequest.body);
     }
     span.setData('op', 'db.${supabaseRequest.operation.value}');
-    span.setData('origin', 'auto.db.supabase');
+    // ignore: invalid_use_of_internal_member
+    span.setData('origin', SentryTraceOrigins.autoDbSupabase);
 
     return span;
   }

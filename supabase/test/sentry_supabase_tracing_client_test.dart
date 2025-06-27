@@ -36,24 +36,26 @@ void main() {
   });
 
   group('Tracing', () {
-    void verifyStartTransaction(String operation) {
-      expect(fixture.mockHub.startTransactionCalls.length, 1);
-      final startTransactionCalls = fixture.mockHub.startTransactionCalls.first;
-      expect(startTransactionCalls.$1, 'from(mock-table)'); // name
-      expect(startTransactionCalls.$2, 'db.$operation');
+    void verifySpanCreation(String operation) {
+      expect(fixture.mockHub.getSpanCallCount, 1);
+      expect(fixture.mockHub.currentSpan.startChildCalls.length, 1);
+      final startChildCall = fixture.mockHub.currentSpan.startChildCalls.first;
+      expect(startChildCall.$1, 'db.$operation'); // operation
+      expect(startChildCall.$2, 'from(mock-table)'); // description
     }
 
     void verifyCommonSpanAttributes(String version) {
-      final span = fixture.mockHub.mockSpan;
+      final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.schema'], 'public');
       expect(span.data['db.table'], 'mock-table');
       expect(span.data['db.url'], 'https://example.com');
       expect(span.data['db.sdk'], version);
-      expect(span.data['origin'], 'auto.db.supabase');
+      // ignore: invalid_use_of_internal_member
+      expect(span.data['origin'], SentryTraceOrigins.autoDbSupabase);
     }
 
     void verifyFinishSpan() {
-      final span = fixture.mockHub.mockSpan;
+      final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.finishCalls.length, 1);
       final setStatusCall = span.setStatusCalls.first;
       expect(setStatusCall, SpanStatus.ok());
@@ -75,11 +77,11 @@ void main() {
         // Ignore
       }
 
-      verifyStartTransaction('select');
+      verifySpanCreation('select');
       verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? '');
       verifyFinishSpan();
 
-      final span = fixture.mockHub.mockSpan;
+      final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.query'], [
         'select(*)',
         'lt(id, 42)',
@@ -100,11 +102,11 @@ void main() {
         // Ignore
       }
 
-      verifyStartTransaction('insert');
+      verifySpanCreation('insert');
       verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? '');
       verifyFinishSpan();
 
-      final span = fixture.mockHub.mockSpan;
+      final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 42});
       expect(span.data['op'], 'db.insert');
     });
@@ -120,11 +122,11 @@ void main() {
         // Ignore
       }
 
-      verifyStartTransaction('upsert');
+      verifySpanCreation('upsert');
       verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? '');
       verifyFinishSpan();
 
-      final span = fixture.mockHub.mockSpan;
+      final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 42});
       expect(span.data['db.query'], ['select(id,name)']);
       expect(span.data['op'], 'db.upsert');
@@ -145,11 +147,11 @@ void main() {
         // Ignore
       }
 
-      verifyStartTransaction('update');
+      verifySpanCreation('update');
       verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? '');
       verifyFinishSpan();
 
-      final span = fixture.mockHub.mockSpan;
+      final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 1337});
       expect(span.data['db.query'], ['eq(id, 42)', 'or(id.eq.8)']);
       expect(span.data['op'], 'db.update');
@@ -166,11 +168,11 @@ void main() {
         // Ignore
       }
 
-      verifyStartTransaction('delete');
+      verifySpanCreation('delete');
       verifyCommonSpanAttributes(supabase.headers['X-Client-Info'] ?? '');
       verifyFinishSpan();
 
-      final span = fixture.mockHub.mockSpan;
+      final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.query'], ['eq(id, 42)']);
       expect(span.data['op'], 'db.delete');
     });
@@ -186,7 +188,7 @@ void main() {
         // Ignore
       }
 
-      final span = fixture.mockHub.mockSpan;
+      final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.finishCalls.length, 1);
       final setStatusCall = span.setStatusCalls.first;
       expect(setStatusCall, SpanStatus.fromHttpStatusCode(404));
@@ -206,7 +208,7 @@ void main() {
         expect(e, exception); // Rethrows
       }
 
-      final span = fixture.mockHub.mockSpan;
+      final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.finishCalls.length, 1);
 
       final setThrowableCall = span.setThrowableCalls.first;
@@ -228,7 +230,7 @@ void main() {
       } catch (e) {
         // Ignore
       }
-      final insertSpan = fixture.mockHub.mockSpan;
+      final insertSpan = fixture.mockHub.currentSpan.childSpan;
       expect(insertSpan.data['db.query'], isNull);
       expect(insertSpan.data['db.body'], isNull);
 
@@ -237,7 +239,7 @@ void main() {
       } catch (e) {
         // Ignore
       }
-      final upsertSpan = fixture.mockHub.mockSpan;
+      final upsertSpan = fixture.mockHub.currentSpan.childSpan;
       expect(upsertSpan.data['db.body'], isNull);
       expect(upsertSpan.data['db.query'], isNull);
       try {
@@ -245,7 +247,7 @@ void main() {
       } catch (e) {
         // Ignore
       }
-      final updateSpan = fixture.mockHub.mockSpan;
+      final updateSpan = fixture.mockHub.currentSpan.childSpan;
       expect(updateSpan.data['db.body'], isNull);
       expect(updateSpan.data['db.query'], isNull);
     });
