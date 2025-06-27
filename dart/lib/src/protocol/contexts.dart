@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'package:meta/meta.dart';
 
 import '../protocol.dart';
 import 'sentry_feedback.dart';
@@ -76,7 +77,7 @@ class Contexts extends MapView<String, dynamic> {
     );
 
     data.keys
-        .where((key) => !_defaultFields.contains(key) && data[key] != null)
+        .where((key) => !defaultFields.contains(key) && data[key] != null)
         .forEach((key) => contexts[key] = data[key]);
 
     return contexts;
@@ -292,7 +293,7 @@ class Contexts extends MapView<String, dynamic> {
       feedback: feedback?.clone(),
       flags: flags?.clone(),
     )..addEntries(
-        entries.where((element) => !_defaultFields.contains(element.key)),
+        entries.where((element) => !defaultFields.contains(element.key)),
       );
 
     return copy;
@@ -327,10 +328,11 @@ class Contexts extends MapView<String, dynamic> {
         feedback: feedback ?? this.feedback,
         flags: flags ?? this.flags,
       )..addEntries(
-          entries.where((element) => !_defaultFields.contains(element.key)),
+          entries.where((element) => !defaultFields.contains(element.key)),
         );
 
-  static const _defaultFields = [
+  @internal
+  static const defaultFields = [
     SentryApp.type,
     SentryDevice.type,
     SentryOperatingSystem.type,
