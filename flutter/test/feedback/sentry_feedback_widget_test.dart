@@ -761,6 +761,11 @@ class Fixture {
   Fixture() {
     when(hub.options).thenReturn(options);
     when(hub.scope).thenReturn(scope);
+    when(hub.captureFeedback(
+      any,
+      hint: anyNamed('hint'),
+      withScope: anyNamed('withScope'),
+    )).thenAnswer((_) async => SentryId.empty());
   }
 
   Future<void> pumpFeedbackWidget(
