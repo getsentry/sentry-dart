@@ -27,9 +27,9 @@ import 'sentry_supabase_error_client.dart';
 /// var supabase = SupabaseClient(
 ///   'https://example.com',
 ///   SentrySupabaseClient(
-///     breadcrumbs: false,
-///     tracing: false,
-///     errors: true,
+///     enableBreadcrumbs: false,
+///     enableTracing: false,
+///     enableErrors: true,
 ///   ),
 /// );
 /// ```
@@ -47,34 +47,34 @@ import 'sentry_supabase_error_client.dart';
 /// Body data will not be sent by default. You can enable it by setting the
 /// `sendDefaultPii` option in the [SentryOptions].
 class SentrySupabaseClient extends BaseClient {
-  final bool _breadcrumbs;
-  final bool _tracing;
-  final bool _errors;
+  final bool _enableBreadcrumbs;
+  final bool _enableTracing;
+  final bool _enableErrors;
 
   Client _innerClient;
   final Hub _hub;
 
   SentrySupabaseClient({
-    bool breadcrumbs = true,
-    bool tracing = true,
-    bool errors = true,
+    bool enableBreadcrumbs = true,
+    bool enableTracing = true,
+    bool enableErrors = true,
     Client? client,
     Hub? hub,
-  })  : _breadcrumbs = breadcrumbs,
-        _tracing = tracing,
-        _errors = errors,
+  })  : _enableBreadcrumbs = enableBreadcrumbs,
+        _enableTracing = enableTracing,
+        _enableErrors = enableErrors,
         _innerClient = client ?? Client(),
         _hub = hub ?? HubAdapter();
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
-    if (_breadcrumbs) {
+    if (_enableBreadcrumbs) {
       _innerClient = SentrySupabaseBreadcrumbClient(_innerClient, _hub);
     }
-    if (_tracing) {
+    if (_enableTracing) {
       _innerClient = SentrySupabaseTracingClient(_innerClient, _hub);
     }
-    if (_errors) {
+    if (_enableErrors) {
       _innerClient = SentrySupabaseErrorClient(_innerClient, _hub);
     }
     return _innerClient.send(request);

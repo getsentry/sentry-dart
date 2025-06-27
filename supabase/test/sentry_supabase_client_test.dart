@@ -16,9 +16,9 @@ void main() {
   group('Inner Client', () {
     test('send called on send', () async {
       final sut = fixture.getSut(
-        breadcrumbs: true,
-        tracing: true,
-        errors: true,
+        enableBreadcrumbs: true,
+        enableTracing: true,
+        enableErrors: true,
       );
 
       final request = Request('GET', Uri.parse('https://example.com/123'));
@@ -31,9 +31,9 @@ void main() {
 
     test('close called on close', () async {
       final sut = fixture.getSut(
-        breadcrumbs: true,
-        tracing: true,
-        errors: true,
+        enableBreadcrumbs: true,
+        enableTracing: true,
+        enableErrors: true,
       );
 
       sut.close();
@@ -45,9 +45,9 @@ void main() {
   group('Inner Sentry Supabase Clients', () {
     test('breadcrumb client', () async {
       final sut = fixture.getSut(
-        breadcrumbs: true,
-        tracing: false,
-        errors: false,
+        enableBreadcrumbs: true,
+        enableTracing: false,
+        enableErrors: false,
       );
 
       final request = Request('GET', Uri.parse('https://example.com/123'));
@@ -58,9 +58,9 @@ void main() {
 
     test('tracing client', () async {
       final sut = fixture.getSut(
-        breadcrumbs: false,
-        tracing: true,
-        errors: false,
+        enableBreadcrumbs: false,
+        enableTracing: true,
+        enableErrors: false,
       );
 
       final request = Request('GET', Uri.parse('https://example.com/123'));
@@ -71,9 +71,9 @@ void main() {
 
     test('error client', () async {
       final sut = fixture.getSut(
-        breadcrumbs: false,
-        tracing: false,
-        errors: true,
+        enableBreadcrumbs: false,
+        enableTracing: false,
+        enableErrors: true,
       );
 
       fixture.mockClient.statusCode = 404;
@@ -86,9 +86,9 @@ void main() {
 
     test('all clients', () async {
       final sut = fixture.getSut(
-        breadcrumbs: true,
-        tracing: true,
-        errors: true,
+        enableBreadcrumbs: true,
+        enableTracing: true,
+        enableErrors: true,
       );
 
       fixture.mockClient.statusCode = 404;
@@ -113,14 +113,14 @@ class Fixture {
   late final mockHub = MockHub(options);
 
   SentrySupabaseClient getSut({
-    required bool breadcrumbs,
-    required bool tracing,
-    required bool errors,
+    required bool enableBreadcrumbs,
+    required bool enableTracing,
+    required bool enableErrors,
   }) {
     return SentrySupabaseClient(
-      breadcrumbs: breadcrumbs,
-      tracing: tracing,
-      errors: errors,
+      enableBreadcrumbs: enableBreadcrumbs,
+      enableTracing: enableTracing,
+      enableErrors: enableErrors,
       client: mockClient,
       hub: mockHub,
     );
