@@ -383,8 +383,13 @@ class SentryFlutterOptions extends SentryOptions {
   @meta.internal
   Duration appInBackgroundTracingThreshold = Duration(seconds: 30);
 
+  final _feedback = SentryFeedbackOptions();
+
   /// Options for the [SentryFeedbackWidget]
-  var feedback = SentryFeedbackOptions();
+  SentryFeedbackOptions get feedback {
+    sdk.addIntegration('MobileFeedbackWidget');
+    return _feedback;
+  }
 }
 
 /// A callback which can be used to suppress capturing of screenshots.

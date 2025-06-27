@@ -687,6 +687,70 @@ void main() {
       expect(SentryFeedbackWidget.preservedMessage, isNull);
     });
   });
+
+  group('$SentryFeedbackWidget integration tracking', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets('adds integration when options are accessed', (tester) async {
+      expect(fixture.options.sdk.integrations,
+          isNot(contains('MobileFeedbackWidget')));
+
+      // Access feedback options (this should trigger integration tracking)
+      fixture.options.feedback;
+
+      expect(
+          fixture.options.sdk.integrations, contains('MobileFeedbackWidget'));
+    });
+
+    testWidgets('does not duplicate integration if already added',
+        (tester) async {
+      // Access feedback options to add integration
+      fixture.options.feedback;
+
+      final integrationCount = fixture.options.sdk.integrations
+          .where((integration) => integration == 'MobileFeedbackWidget')
+          .length;
+
+      // Access feedback again to add integration
+      fixture.options.feedback;
+
+      final newIntegrationCount = fixture.options.sdk.integrations
+          .where((integration) => integration == 'MobileFeedbackWidget')
+          .length;
+
+      expect(integrationCount, equals(1));
+      expect(newIntegrationCount, equals(1));
+    });
+
+    testWidgets('adds integration when widget is shown', (tester) async {
+      expect(fixture.options.sdk.integrations,
+          isNot(contains('MobileFeedbackWidget')));
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                SentryFeedbackWidget.show(context, hub: fixture.hub);
+              },
+              child: Text('Show Feedback'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      // Integration should be added when the widget renders and accesses feedback options
+      expect(
+          fixture.options.sdk.integrations, contains('MobileFeedbackWidget'));
+    });
+  });
 }
 
 class Fixture {
