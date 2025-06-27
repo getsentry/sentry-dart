@@ -7,13 +7,13 @@
 - Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
 - String templating for structured logs ([#3002](https://github.com/getsentry/sentry-dart/pull/3002))
 - Add user attributes to Dart/Flutter logs ([#3014](https://github.com/getsentry/sentry-dart/pull/3002))
+- Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
+  - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
 
 ## 9.1.0
 
 ### Features
 
-- Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
-  - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
 - Flutter Web: add debug ids to events ([#2917](https://github.com/getsentry/sentry-dart/pull/2917))
   - This allows support for symbolication based on [debug ids](https://docs.sentry.io/platforms/javascript/sourcemaps/troubleshooting_js/debug-ids/)
   - This only works if you use the Sentry Dart Plugin version `3.0.0` or higher
