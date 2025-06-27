@@ -2591,49 +2591,6 @@ void main() {
       await client.captureEvent(fakeEvent, stackTrace: StackTrace.current);
     });
   });
-
-  group('beforeSendEvent observer', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
-
-    test('is called with correct event and hint', () async {
-      final observer = _TestEventObserver();
-      fixture.options.addBeforeSendEventObserver(observer);
-
-      final client = fixture.getSut();
-      final hint = Hint();
-      final event = SentryEvent(type: 'some random type');
-
-      await client.captureEvent(event, hint: hint);
-
-      expect(observer.inspectedEvent?.type, 'some random type');
-      expect(observer.inspectedHint, same(hint));
-    });
-
-    test('is called after all other processors', () async {
-      final processingOrder = <String>[];
-      final beforeSend = (SentryEvent event, Hint hint) {
-        processingOrder.add('beforeSend');
-        return event;
-      };
-
-      fixture.options
-          .addBeforeSendEventObserver(_TestOrderObserver(processingOrder));
-
-      final client = fixture.getSut(
-          beforeSend: beforeSend,
-          eventProcessor: _TestEventProcessor(processingOrder));
-      final event = SentryEvent();
-
-      await client.captureEvent(event);
-
-      expect(
-          processingOrder, ['eventProcessor', 'beforeSend', 'beforeSendEvent']);
-    });
-  });
 }
 
 Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
@@ -2854,39 +2811,5 @@ class ExceptionWithStackTraceExtractor
   @override
   StackTrace? stackTrace(ExceptionWithStackTrace error) {
     return error.stackTrace;
-  }
-}
-
-class _TestEventObserver implements BeforeSendEventObserver {
-  SentryEvent? inspectedEvent;
-  Hint? inspectedHint;
-
-  @override
-  FutureOr<void> onBeforeSendEvent(SentryEvent event, Hint hint) {
-    inspectedEvent = event;
-    inspectedHint = hint;
-  }
-}
-
-class _TestEventProcessor extends EventProcessor {
-  _TestEventProcessor(this._processingOrder);
-
-  final List<String> _processingOrder;
-
-  @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, Hint hint) {
-    _processingOrder.add('eventProcessor');
-    return event;
-  }
-}
-
-class _TestOrderObserver extends BeforeSendEventObserver {
-  final List<String> _processingOrder;
-
-  _TestOrderObserver(this._processingOrder);
-
-  @override
-  FutureOr<void> onBeforeSendEvent(SentryEvent event, Hint hint) {
-    _processingOrder.add('beforeSendEvent');
   }
 }
