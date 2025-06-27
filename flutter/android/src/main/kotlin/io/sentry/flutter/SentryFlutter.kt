@@ -1,6 +1,8 @@
 package io.sentry.flutter
 
 import android.util.Log
+import io.sentry.Attachment
+import io.sentry.EventProcessor;
 import io.sentry.Hint
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
@@ -183,6 +185,16 @@ class SentryFlutter {
         options.sessionReplay.sdkVersion = SdkVersion(it["name"] as String, it["version"] as String)
       }
     }
+
+    data.getIfNotNull<List<String>>("androidAttachmentPaths") { paths ->
+      options.addEventProcessor(EventProcessImpl(paths));
+    }
+
+    data.getIfNotNull<Boolean>("attachAndroidLogcat") { attachAndroidLogcat ->
+      if (attachAndroidLogcat) {
+        options.addEventProcessor(AttachLogcatEventProcess());
+      }
+    }
   }
 
   private fun updateReplayOptions(
@@ -232,6 +244,16 @@ private fun <T> Map<String, Any>.getIfNotNull(
 ) {
   (get(key) as? T)?.let {
     callback(it)
+  }
+}
+
+private class EventProcessImpl(private val attachmentPaths: List<String>) : EventProcessor {
+  override fun process(event: SentryEvent, hint: Hint): SentryEvent? {
+    super.process(event, hint);
+    attachmentPaths.forEach { path ->
+      hint?.addAttachment(Attachment(path))
+    }
+    return event;
   }
 }
 
