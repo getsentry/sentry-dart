@@ -13,6 +13,8 @@
 ```dart
 options.feedback.showBranding = false;
 ```
+- String templating for structured logs ([#3002](https://github.com/getsentry/sentry-dart/pull/3002))
+- Add user attributes to Dart/Flutter logs ([#3014](https://github.com/getsentry/sentry-dart/pull/3002))
 
 ## 9.1.0
 
