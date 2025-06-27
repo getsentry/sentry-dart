@@ -80,15 +80,9 @@ class _MockSpan implements ISentrySpan {
   _MockSpan? _childSpan;
 
   _MockSpan get childSpan {
-    _childSpan ??= _MockSpan._child();
+    _childSpan ??= _MockSpan();
     return _childSpan!;
   }
-
-  // Constructor for child spans that don't create their own children
-  _MockSpan._child();
-
-  // Default constructor
-  _MockSpan();
 
   @override
   void setData(String key, dynamic value) {

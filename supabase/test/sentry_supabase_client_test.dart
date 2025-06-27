@@ -66,7 +66,7 @@ void main() {
       final request = Request('GET', Uri.parse('https://example.com/123'));
       await sut.send(request);
 
-      expect(fixture.mockHub.startTransactionCalls.length, 1);
+      expect(fixture.mockHub.getSpanCallCount, 1);
     });
 
     test('error client', () async {
@@ -97,7 +97,7 @@ void main() {
       await sut.send(request);
 
       expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
-      expect(fixture.mockHub.startTransactionCalls.length, 1);
+      expect(fixture.mockHub.getSpanCallCount, 1);
       expect(fixture.mockHub.captureEventCalls.length, 1);
     });
   });

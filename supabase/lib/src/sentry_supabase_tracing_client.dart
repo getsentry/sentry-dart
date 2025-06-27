@@ -70,7 +70,7 @@ class SentrySupabaseTracingClient extends BaseClient {
     if (supabaseRequest.body != null && _hub.options.sendDefaultPii) {
       span.setData('db.body', supabaseRequest.body);
     }
-    span.setData('op', 'db.${supabaseRequest.operation.value}');
+    span.setData('db.operation', supabaseRequest.operation.value);
     // ignore: invalid_use_of_internal_member
     span.setData('origin', SentryTraceOrigins.autoDbSupabase);
 

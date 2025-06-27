@@ -88,7 +88,7 @@ void main() {
         'gt(id, 20)',
         'not(id, eq.32)',
       ]);
-      expect(span.data['op'], 'db.select');
+      expect(span.data['db.operation'], 'select');
     });
 
     test('should create trace for insert', () async {
@@ -108,7 +108,7 @@ void main() {
 
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 42});
-      expect(span.data['op'], 'db.insert');
+      expect(span.data['db.operation'], 'insert');
     });
 
     test('should create trace for upsert', () async {
@@ -129,7 +129,7 @@ void main() {
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 42});
       expect(span.data['db.query'], ['select(id,name)']);
-      expect(span.data['op'], 'db.upsert');
+      expect(span.data['db.operation'], 'upsert');
     });
 
     test('should create trace for update', () async {
@@ -154,7 +154,7 @@ void main() {
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 1337});
       expect(span.data['db.query'], ['eq(id, 42)', 'or(id.eq.8)']);
-      expect(span.data['op'], 'db.update');
+      expect(span.data['db.operation'], 'update');
     });
 
     test('should create trace for delete', () async {
@@ -174,7 +174,7 @@ void main() {
 
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.query'], ['eq(id, 42)']);
-      expect(span.data['op'], 'db.delete');
+      expect(span.data['db.operation'], 'delete');
     });
 
     test('should finish with error status if request fails', () async {
