@@ -2,15 +2,15 @@
 
 ## Unreleased
 
-### Fixes
-
-- Fix context to native sync for sentry context types ([#3012](https://github.com/getsentry/sentry-dart/pull/3012))
 ### Features
-## Features
 
 - Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
 - String templating for structured logs ([#3002](https://github.com/getsentry/sentry-dart/pull/3002))
 - Add user attributes to Dart/Flutter logs ([#3014](https://github.com/getsentry/sentry-dart/pull/3002))
+
+### Fixes
+
+- Fix context to native sync for sentry context types ([#3012](https://github.com/getsentry/sentry-dart/pull/3012))
 
 ## 9.1.0
 
