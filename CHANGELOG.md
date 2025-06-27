@@ -12,6 +12,12 @@
 
 - Fix context to native sync for sentry context types ([#3012](https://github.com/getsentry/sentry-dart/pull/3012))
 
+### Dependencies
+
+- Bump Cocoa SDK from v8.52.1 to v8.53.1 ([#3021](https://github.com/getsentry/sentry-dart/pull/3021))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8531)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.52.1...8.53.1)
+
 ## 9.1.0
 
 ### Features
