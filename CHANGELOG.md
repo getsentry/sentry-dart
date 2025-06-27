@@ -12,6 +12,10 @@
 
 - Fix context to native sync for sentry context types ([#3012](https://github.com/getsentry/sentry-dart/pull/3012))
 
+### Fixes
+
+- Add additional crashpad path candidate ([#3016](https://github.com/getsentry/sentry-dart/pull/3016))
+
 ## 9.1.0
 
 ### Features
