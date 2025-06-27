@@ -2,11 +2,70 @@
 
 ## Unreleased
 
+## Features
+
+- Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
+- String templating for structured logs ([#3002](https://github.com/getsentry/sentry-dart/pull/3002))
+- Add user attributes to Dart/Flutter logs ([#3014](https://github.com/getsentry/sentry-dart/pull/3002))
+
+## 9.1.0
+
 ### Features
 
 - Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
   - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
+- Flutter Web: add debug ids to events ([#2917](https://github.com/getsentry/sentry-dart/pull/2917))
+  - This allows support for symbolication based on [debug ids](https://docs.sentry.io/platforms/javascript/sourcemaps/troubleshooting_js/debug-ids/)
+  - This only works if you use the Sentry Dart Plugin version `3.0.0` or higher
+- Improved TTID/TTFD API ([#2866](https://github.com/getsentry/sentry-dart/pull/2866))
+  - This improves the stability and consistency of TTFD reporting by introducing new APIs
+```dart
+// Prerequisite: `SentryNavigatorObserver` is set up and routes you navigate to have unique names, e.g configured via `RouteSettings`
+// Info: Stateless widgets will report TTFD automatically when wrapped with `SentryDisplayWidget` - no need to call `reportFullyDisplayed`.
+
+// Method 1: wrap your widget that you navigate to in `SentryDisplayWidget` 
+SentryDisplayWidget(child: YourWidget())
+
+// Then report TTFD after long running work (File I/O, Network) within your widget.
+@override
+void initState() {
+  super.initState();
+  // Do some long running work...
+  Future.delayed(const Duration(seconds: 3), () {
+    if (mounted) {
+      SentryDisplayWidget.of(context).reportFullyDisplayed();
+    }
+  });
+}
+
+// Method 2: use the API directly to report TTFD - this does not require wrapping your widget with `SentryDisplayWidget`:
+@override
+void initState() {
+  super.initState();
+  // Get a reference to the current display before doing work.
+  final currentDisplay = SentryFlutter.currentDisplay();
+  // Do some long running work...
+  Future.delayed(const Duration(seconds: 3), () {
+    currentDisplay?.reportFullyDisplayed();
+  });
+}
+```
 - Add `message` parameter to `captureException()` ([#2882](https://github.com/getsentry/sentry-dart/pull/2882))
+- Add module in SentryStackFrame ([#2931](https://github.com/getsentry/sentry-dart/pull/2931))
+  - Set `SentryOptions.includeModuleInStackTrace = true` to enable this. This may change grouping of exceptions.
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.51.0 to v8.52.1 ([#2981](https://github.com/getsentry/sentry-dart/pull/2981))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8521)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.51.0...8.52.1)
+- Bump Native SDK from v0.8.4 to v0.9.0 ([#2980](https://github.com/getsentry/sentry-dart/pull/2980))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#090)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.8.4...0.9.0)
+
+### Enhancements
+
+- Only enable load debug image integration for obfuscated apps ([#2907](https://github.com/getsentry/sentry-dart/pull/2907))
 
 ## 9.0.0
 
@@ -242,6 +301,8 @@ await SentryFlutter.init(
   },
 );
 ```
+- Make hierarchical exception grouping opt-in ([#2858](https://github.com/getsentry/sentry-dart/pull/2858))
+
 
 ### Fixes
 

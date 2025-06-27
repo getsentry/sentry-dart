@@ -106,6 +106,40 @@ void main() {
 
       expect(serializedFrame.inApp, false);
     });
+
+    test('adds module for package frames', () {
+      final frame = Frame(
+        Uri.parse(
+            'package:app_name/features/login/ui/view_model/login_view_model.dart'),
+        1,
+        2,
+        'buzz',
+      );
+
+      final sentryStackFrame = Fixture()
+          .getSut(includeModuleInStackTrace: true)
+          .encodeStackTraceFrame(frame)!;
+
+      expect(sentryStackFrame.module, 'app_name/features/login/ui/view_model');
+    });
+
+    test(
+        'does not add module for package frames when includeModuleInStackTrace is false',
+        () {
+      final frame = Frame(
+        Uri.parse(
+            'package:app_name/features/login/ui/view_model/login_view_model.dart'),
+        1,
+        2,
+        'buzz',
+      );
+
+      final sentryStackFrame = Fixture()
+          .getSut(includeModuleInStackTrace: false)
+          .encodeStackTraceFrame(frame)!;
+
+      expect(sentryStackFrame.module, null);
+    });
   });
 
   group('encodeStackTrace', () {
@@ -306,10 +340,12 @@ class Fixture {
     List<String> inAppIncludes = const [],
     List<String> inAppExcludes = const [],
     bool considerInAppFramesByDefault = true,
+    bool includeModuleInStackTrace = false,
   }) {
     inAppIncludes.forEach(options.addInAppInclude);
     inAppExcludes.forEach(options.addInAppExclude);
     options.considerInAppFramesByDefault = considerInAppFramesByDefault;
+    options.includeModuleInStackTrace = includeModuleInStackTrace;
 
     return SentryStackTraceFactory(options);
   }

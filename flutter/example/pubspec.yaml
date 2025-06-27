@@ -1,6 +1,6 @@
 name: sentry_flutter_example
 description: Demonstrates how to use the sentry_flutter plugin.
-version: 9.0.0
+version: 9.1.0
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -38,7 +38,7 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^2.0.0
-  sentry_dart_plugin: ^2.2.0
+  sentry_dart_plugin: ^3.0.0
   integration_test:
     sdk: flutter
   flutter_test:
