@@ -9,15 +9,19 @@ import '../mocks/mocks.mocks.dart';
 void main() {
   late Fixture fixture;
 
-  givenDefaultRemoteConfig() {
-    when(fixture.mockFirebaseRemoteConfig.onConfigUpdated)
-        .thenAnswer((_) => Stream.empty());
-
+  void mockGetAll(Fixture fixture) {
     when(fixture.mockFirebaseRemoteConfig.getAll()).thenReturn({
       'test':
           RemoteConfigValue([102, 97, 108, 115, 101], ValueSource.valueDefault),
       'foo': RemoteConfigValue(null, ValueSource.valueDefault),
     });
+  }
+
+  givenDefaultRemoteConfig() {
+    when(fixture.mockFirebaseRemoteConfig.onConfigUpdated)
+        .thenAnswer((_) => Stream.empty());
+
+    mockGetAll(fixture);
     when(fixture.mockFirebaseRemoteConfig.getString('test'))
         .thenReturn('false');
     when(fixture.mockFirebaseRemoteConfig.getString('foo')).thenReturn('');
@@ -30,11 +34,7 @@ void main() {
     when(fixture.mockFirebaseRemoteConfig.onConfigUpdated)
         .thenAnswer((_) => Stream.value(update));
 
-    when(fixture.mockFirebaseRemoteConfig.getAll()).thenReturn({
-      'test':
-          RemoteConfigValue([102, 97, 108, 115, 101], ValueSource.valueDefault),
-      'foo': RemoteConfigValue(null, ValueSource.valueDefault),
-    });
+    mockGetAll(fixture);
     when(fixture.mockFirebaseRemoteConfig.getString('test')).thenReturn('true');
     when(fixture.mockFirebaseRemoteConfig.getString('foo')).thenReturn('bar');
     when(fixture.mockFirebaseRemoteConfig.activate())
