@@ -50,6 +50,7 @@ void main() {
       expect(span.data['db.table'], 'mock-table');
       expect(span.data['db.url'], 'https://example.com');
       expect(span.data['db.sdk'], version);
+      expect(span.data['db.system'], 'postgres');
       // ignore: invalid_use_of_internal_member
       expect(span.data['origin'], SentryTraceOrigins.autoDbSupabase);
     }
