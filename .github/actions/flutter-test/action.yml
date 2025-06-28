@@ -36,11 +36,13 @@ runs:
       if: matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos'
       working-directory: ${{ inputs.directory }}
       shell: bash
+      env:
+        INPUT_DIRECTORY: ${{ inputs.directory }}
       run: |
-        testCmd="flutter test ${{ (inputs.directory == 'isar' && '-j 1') || '' }} --test-randomize-ordering-seed=random"
+        testCmd="flutter test $([ "$INPUT_DIRECTORY" = "isar" ] && echo "-j 1") --test-randomize-ordering-seed=random"
         if ${{ (matrix.target == 'linux' && matrix.sdk == 'stable' && 'true') || 'false' }} ; then
           $testCmd --coverage
-          if [[ '${{ inputs.directory }}' == 'flutter' ]] ; then
+          if [[ "$INPUT_DIRECTORY" == 'flutter' ]] ; then
             dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
           fi
         else

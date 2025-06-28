@@ -45,10 +45,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - run: dart run bin/flutter_symbol_collector.dart --version=${{ inputs.flutter_version || '3.*.*' }}
+      - run: dart run bin/flutter_symbol_collector.dart --version="$FLUTTER_VERSION"
         timeout-minutes: 300
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          FLUTTER_VERSION: ${{ inputs.flutter_version || '3.*.*' }}
 
       - name: Upload updated status cache of processed files
         uses: actions/upload-artifact@v4
