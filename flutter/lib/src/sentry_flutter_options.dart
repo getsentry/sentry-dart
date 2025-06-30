@@ -387,6 +387,7 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Options for the [SentryFeedbackWidget]
   SentryFeedbackOptions get feedback {
+    // Added so we can track usage of the widget. This will only add the integration once, even if called multiple times.
     sdk.addIntegration('MobileFeedbackWidget');
     return _feedback;
   }
