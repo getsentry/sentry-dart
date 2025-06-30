@@ -24,7 +24,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) async {
     if (!options.isTracingEnabled()) {
       options.log(SentryLevel.info,
-          '$integrationName integration is disabled. Tracing is not enabled.');
+          'Skipping $integrationName integration because tracing is disabled.');
       return;
     }
 
