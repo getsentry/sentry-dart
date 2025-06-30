@@ -13,6 +13,10 @@ class SentrySupabaseBreadcrumbClient extends BaseClient {
   Future<StreamedResponse> send(BaseRequest request) async {
     final supabaseRequest = SentrySupabaseRequest.fromRequest(request);
 
+    if (supabaseRequest == null) {
+      return _innerClient.send(request);
+    }
+
     final breadcrumb = Breadcrumb(
       message: 'from(${supabaseRequest.table})',
       category: 'db.${supabaseRequest.operation.value}',

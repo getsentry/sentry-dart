@@ -50,7 +50,8 @@ void main() {
         enableErrors: false,
       );
 
-      final request = Request('GET', Uri.parse('https://example.com/123'));
+      final request =
+          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
       await sut.send(request);
 
       expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
@@ -63,7 +64,8 @@ void main() {
         enableErrors: false,
       );
 
-      final request = Request('GET', Uri.parse('https://example.com/123'));
+      final request =
+          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
       await sut.send(request);
 
       expect(fixture.mockHub.getSpanCallCount, 1);
@@ -78,7 +80,8 @@ void main() {
 
       fixture.mockClient.statusCode = 404;
 
-      final request = Request('GET', Uri.parse('https://example.com/123'));
+      final request =
+          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
       await sut.send(request);
 
       expect(fixture.mockHub.captureEventCalls.length, 1);
@@ -93,7 +96,8 @@ void main() {
 
       fixture.mockClient.statusCode = 404;
 
-      final request = Request('GET', Uri.parse('https://example.com/123'));
+      final request =
+          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
       await sut.send(request);
 
       expect(fixture.mockHub.addBreadcrumbCalls.length, 1);

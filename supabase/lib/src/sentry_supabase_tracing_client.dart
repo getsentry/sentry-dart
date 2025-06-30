@@ -12,6 +12,9 @@ class SentrySupabaseTracingClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     final supabaseRequest = SentrySupabaseRequest.fromRequest(request);
+    if (supabaseRequest == null) {
+      return _innerClient.send(request);
+    }
 
     final span = _createSpan(supabaseRequest);
 
@@ -71,6 +74,7 @@ class SentrySupabaseTracingClient extends BaseClient {
       span.setData('db.body', supabaseRequest.body);
     }
     span.setData('db.operation', supabaseRequest.operation.value);
+    span.setData('db.sql.query', supabaseRequest.generateSqlQuery());
     // ignore: invalid_use_of_internal_member
     span.setData('origin', SentryTraceOrigins.autoDbSupabase);
     span.setData('db.system', 'postgres');

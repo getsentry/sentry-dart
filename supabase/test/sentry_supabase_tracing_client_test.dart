@@ -33,6 +33,17 @@ void main() {
 
       expect(fixture.mockClient.closeCalls.length, 1);
     });
+
+    test('should not create span for auth requests', () async {
+      final sut = fixture.getSut();
+
+      final request = Request('GET',
+          Uri.parse('https://example.com/auth/v1/token?grant_type=password'));
+
+      await sut.send(request);
+
+      expect(fixture.mockHub.getSpanCallCount, 0);
+    });
   });
 
   group('Tracing', () {
@@ -73,7 +84,9 @@ void main() {
             .select()
             .lt('id', 42)
             .gt('id', 20)
-            .not('id', 'eq', 32);
+            .not('id', 'eq', 32)
+            .ilike('name', 'John')
+            .inFilter('status', ['active', 'pending']);
       } catch (e) {
         // Ignore
       }
@@ -88,8 +101,11 @@ void main() {
         'lt(id, 42)',
         'gt(id, 20)',
         'not(id, eq.32)',
+        'ilike(name, John)',
+        'in(status, ("active","pending"))',
       ]);
       expect(span.data['db.operation'], 'select');
+      expect(span.data['db.sql.query'], 'SELECT * FROM "mock-table"');
     });
 
     test('should create trace for insert', () async {
@@ -110,6 +126,10 @@ void main() {
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 42});
       expect(span.data['db.operation'], 'insert');
+      expect(
+        span.data['db.sql.query'],
+        'INSERT INTO "mock-table" ("id") VALUES (?)',
+      );
     });
 
     test('should create trace for upsert', () async {
@@ -131,6 +151,10 @@ void main() {
       expect(span.data['db.body'], {'id': 42});
       expect(span.data['db.query'], ['select(id,name)']);
       expect(span.data['db.operation'], 'upsert');
+      expect(
+        span.data['db.sql.query'],
+        'INSERT INTO "mock-table" ("id") VALUES (?)',
+      );
     });
 
     test('should create trace for update', () async {
@@ -156,6 +180,10 @@ void main() {
       expect(span.data['db.body'], {'id': 1337});
       expect(span.data['db.query'], ['eq(id, 42)', 'or(id.eq.8)']);
       expect(span.data['db.operation'], 'update');
+      expect(
+        span.data['db.sql.query'],
+        'UPDATE "mock-table" SET "id" = ? WHERE id = ? OR id = ?',
+      );
     });
 
     test('should create trace for delete', () async {
@@ -176,6 +204,10 @@ void main() {
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.query'], ['eq(id, 42)']);
       expect(span.data['db.operation'], 'delete');
+      expect(
+        span.data['db.sql.query'],
+        'DELETE FROM "mock-table" WHERE id = ?',
+      );
     });
 
     test('should finish with error status if request fails', () async {

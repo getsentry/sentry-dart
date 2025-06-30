@@ -61,16 +61,18 @@ class SentrySupabaseErrorClient extends BaseClient {
     final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
 
     final supabaseRequest = SentrySupabaseRequest.fromRequest(request);
-    event.contexts['supabase'] = {
-      'table': supabaseRequest.table,
-      'operation': supabaseRequest.operation.value,
-      // ignore: invalid_use_of_internal_member
-      if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii)
-        'query': supabaseRequest.query,
-      // ignore: invalid_use_of_internal_member
-      if (supabaseRequest.body != null && _hub.options.sendDefaultPii)
-        'body': supabaseRequest.body,
-    };
+    if (supabaseRequest != null) {
+      event.contexts['supabase'] = {
+        'table': supabaseRequest.table,
+        'operation': supabaseRequest.operation.value,
+        // ignore: invalid_use_of_internal_member
+        if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii)
+          'query': supabaseRequest.query,
+        // ignore: invalid_use_of_internal_member
+        if (supabaseRequest.body != null && _hub.options.sendDefaultPii)
+          'body': supabaseRequest.body,
+      };
+    }
 
     _hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
   }

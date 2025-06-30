@@ -20,8 +20,13 @@ class SentrySupabaseRequest {
     required this.body,
   });
 
-  factory SentrySupabaseRequest.fromRequest(BaseRequest request) {
+  static SentrySupabaseRequest? fromRequest(BaseRequest request) {
     final url = request.url;
+    // Ignoring URLS like https://example.com/auth/v1/token?grant_type=password
+    // Only consider requests to the REST API.
+    if (!url.path.startsWith('/rest/v1')) {
+      return null;
+    }
     final table = url.pathSegments.last;
     final operation = _extractOperation(request.method, request.headers);
     final query = _readQuery(request);
@@ -141,5 +146,134 @@ class SentrySupabaseRequest {
       method = _filterMappings[filter] ?? 'filter';
     }
     return '$method($key, $value)';
+  }
+
+  /// Generates a SQL query representation for debugging and tracing purposes
+  String generateSqlQuery() {
+    final body = this.body;
+    switch (operation) {
+      case Operation.select:
+        return 'SELECT * FROM "$table"';
+      case Operation.insert:
+      case Operation.upsert:
+        if (body != null && body.isNotEmpty) {
+          final columns = body.keys.map((k) => '"$k"').join(', ');
+          final placeholders = body.keys.map((_) => '?').join(', ');
+          return 'INSERT INTO "$table" ($columns) VALUES ($placeholders)';
+        } else {
+          return 'INSERT INTO "$table" VALUES (?)';
+        }
+      case Operation.update:
+        final setClause = body != null && body.isNotEmpty
+            ? body.keys.map((k) => '"$k" = ?').join(', ')
+            : '?';
+        final whereClause = _buildWhereClause();
+        return 'UPDATE "$table" SET $setClause${whereClause.isNotEmpty ? ' WHERE $whereClause' : ''}';
+      case Operation.delete:
+        final whereClause = _buildWhereClause();
+        return 'DELETE FROM "$table"${whereClause.isNotEmpty ? ' WHERE $whereClause' : ''}';
+      case Operation.unknown:
+        return 'UNKNOWN OPERATION ON "$table"';
+    }
+  }
+
+  /// Builds WHERE clause from query parameters for SQL representation
+  String _buildWhereClause() {
+    final conditions = <String>[];
+
+    // Get original query parameters to help with NOT conditions
+    final originalParams = request.url.queryParameters;
+
+    for (final queryItem in query) {
+      // Skip select queries
+      if (queryItem.startsWith('select(')) continue;
+
+      // Handle OR conditions - e.g., orstatus.eq.inactive or or(id.eq.8)
+      if (queryItem.startsWith('or')) {
+        String orCondition;
+        if (queryItem.startsWith('or(') && queryItem.endsWith(')')) {
+          // Format: or(id.eq.8)
+          orCondition = queryItem.substring(3, queryItem.length - 1);
+        } else if (queryItem.contains('.')) {
+          // Format: orstatus.eq.inactive
+          orCondition = queryItem.substring(2);
+        } else {
+          continue;
+        }
+
+        final orParts = orCondition.split('.');
+        if (orParts.length >= 3) {
+          final column = orParts[0];
+          final operator = orParts[1];
+          final operatorSql = _getOperatorSql(operator);
+          conditions.add('OR $column $operatorSql ?');
+        } else {
+          conditions.add('OR $orCondition = ?');
+        }
+        continue;
+      }
+
+      // Handle NOT conditions via filter - e.g., filter(not, eq.deleted)
+      if (queryItem.startsWith('filter(not,')) {
+        // Find the NOT parameter in original query
+        final notParam = originalParams.entries.firstWhere(
+          (entry) => entry.key == 'not',
+          orElse: () => const MapEntry('not', 'unknown.eq.value'),
+        );
+
+        if (notParam.value.contains('.eq.')) {
+          final parts = notParam.value.split('.eq.');
+          if (parts.isNotEmpty) {
+            final column = parts[0];
+            conditions.add('$column != ?');
+          }
+        }
+        continue;
+      }
+
+      // Handle regular conditions - e.g., eq(id, 42), gt(age, 18), in(status, (active,pending))
+      if (queryItem.contains('(') && queryItem.contains(')')) {
+        final match =
+            RegExp(r'^(\w+)\(([^,]+),\s*(.+)\)$').firstMatch(queryItem);
+        if (match != null) {
+          final operation = match.group(1);
+          final column = match.group(2);
+          if (operation != null && column != null) {
+            final operatorSql = _getOperatorSql(operation);
+            conditions.add('$column $operatorSql ?');
+          }
+        }
+      }
+    }
+
+    return conditions.join(' AND ').replaceAll(' AND OR ', ' OR ');
+  }
+
+  /// Maps filter operations to SQL operators
+  /// This is a subset of the operations supported by Supabase.
+  /// See https://supabase.com/docs/reference/dart/select#filter-operators
+  String _getOperatorSql(String operation) {
+    switch (operation) {
+      case 'eq':
+        return '=';
+      case 'neq':
+        return '!=';
+      case 'gt':
+        return '>';
+      case 'gte':
+        return '>=';
+      case 'lt':
+        return '<';
+      case 'lte':
+        return '<=';
+      case 'like':
+        return 'LIKE';
+      case 'ilike':
+        return 'ILIKE';
+      case 'in':
+        return 'IN';
+      default:
+        return '=';
+    }
   }
 }
