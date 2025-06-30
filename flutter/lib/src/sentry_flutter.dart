@@ -130,7 +130,7 @@ mixin SentryFlutter {
         }
       }
       if (!options.platform.isWeb) {
-        options.addScopeObserver(NativeScopeObserver(_native!));
+        options.addScopeObserver(NativeScopeObserver(_native!, options));
       }
     }
 
