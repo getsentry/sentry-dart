@@ -17,8 +17,8 @@ class ReplayEventProcessor implements EventProcessor {
 
     final isFeedbackEvent =
         event.eventId != SentryId.empty() && event.type == 'feedback';
-    // ignore: invalid_use_of_internal_member
     final isWidgetFeedbackEvent =
+        // ignore: invalid_use_of_internal_member
         hint.get(TypeCheckHint.isWidgetFeedback) == true;
 
     final shouldCaptureReplay =
