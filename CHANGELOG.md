@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
+- String templating for structured logs ([#3002](https://github.com/getsentry/sentry-dart/pull/3002))
+- Add user attributes to Dart/Flutter logs ([#3014](https://github.com/getsentry/sentry-dart/pull/3002))
+
+### Fixes
+
+- Fix context to native sync for sentry context types ([#3012](https://github.com/getsentry/sentry-dart/pull/3012))
+
+### Enhancements
+
+- Dont execute app start integration if tracing is disabled ([#3026](https://github.com/getsentry/sentry-dart/pull/3026))
+
+
 ## 9.1.0
 
 ### Features
@@ -42,7 +59,7 @@ void initState() {
 ```
 - Add `message` parameter to `captureException()` ([#2882](https://github.com/getsentry/sentry-dart/pull/2882))
 - Add module in SentryStackFrame ([#2931](https://github.com/getsentry/sentry-dart/pull/2931))
-  - Set `SentryOptions.includeModuleInStackTrace = true` to enable this. This may change grouping of exceptions. 
+  - Set `SentryOptions.includeModuleInStackTrace = true` to enable this. This may change grouping of exceptions.
 
 ### Dependencies
 

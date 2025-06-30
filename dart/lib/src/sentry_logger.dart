@@ -5,12 +5,15 @@ import 'protocol/sentry_log.dart';
 import 'protocol/sentry_log_level.dart';
 import 'protocol/sentry_log_attribute.dart';
 import 'sentry_options.dart';
+import 'sentry_logger_formatter.dart';
 
 class SentryLogger {
   SentryLogger(this._clock, {Hub? hub}) : _hub = hub ?? HubAdapter();
 
   final ClockProvider _clock;
   final Hub _hub;
+
+  late final fmt = SentryLoggerFormatter(this);
 
   FutureOr<void> trace(
     String body, {
