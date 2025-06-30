@@ -431,8 +431,9 @@ void main() {
             feedback.message == 'fixture-message' &&
             feedback.associatedEventId ==
                 SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'))),
-        hint: argThat(
-            predicate<Hint>((hint) => hint.get('isWidgetFeedback') == true),
+        hint: argThat(predicate<Hint>(
+                // ignore: invalid_use_of_internal_member
+                (hint) => hint.get(TypeCheckHint.isWidgetFeedback) == true),
             named: 'hint'),
         withScope: anyNamed('withScope'),
       )).called(1);

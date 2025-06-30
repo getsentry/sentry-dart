@@ -390,7 +390,8 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
   Future<SentryId> _captureFeedback(SentryFeedback feedback, Hint? hint) {
     hint ??= Hint();
-    hint.set('isWidgetFeedback', true);
+    // ignore: invalid_use_of_internal_member
+    hint.set(TypeCheckHint.isWidgetFeedback, true);
     return widget._hub.captureFeedback(feedback, hint: hint);
   }
 
