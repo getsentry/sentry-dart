@@ -5,7 +5,8 @@
 ### Features
 
 - Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
-- String templating for structured logs #3002 ([#3002](https://github.com/getsentry/sentry-dart/pull/3002))
+- String templating for structured logs ([#3002](https://github.com/getsentry/sentry-dart/pull/3002))
+- Add user attributes to Dart/Flutter logs ([#3014](https://github.com/getsentry/sentry-dart/pull/3002))
 - SentryFeedbackWidget Improvements ([#2964](https://github.com/getsentry/sentry-dart/pull/2964))
  - Capture a device screenshot for feedback
  - Customize tests and required fields
@@ -13,8 +14,6 @@
 ```dart
 options.feedback.showBranding = false;
 ```
-- String templating for structured logs ([#3002](https://github.com/getsentry/sentry-dart/pull/3002))
-- Add user attributes to Dart/Flutter logs ([#3014](https://github.com/getsentry/sentry-dart/pull/3002))
 
 ### Fixes
 
