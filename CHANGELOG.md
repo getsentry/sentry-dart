@@ -19,6 +19,11 @@ options.feedback.showBranding = false;
 
 - Fix context to native sync for sentry context types ([#3012](https://github.com/getsentry/sentry-dart/pull/3012))
 
+### Enhancements
+
+- Dont execute app start integration if tracing is disabled ([#3026](https://github.com/getsentry/sentry-dart/pull/3026))
+
+
 ## 9.1.0
 
 ### Features
