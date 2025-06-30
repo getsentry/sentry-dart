@@ -140,7 +140,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (widget.options.showName)
+                      if (widget.options.showName) ...[
                         Row(
                           children: [
                             Text(
@@ -158,8 +158,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                               ),
                           ],
                         ),
-                      if (widget.options.showName) const SizedBox(height: 4),
-                      if (widget.options.showName)
+                        const SizedBox(height: 4),
                         TextFormField(
                           key: const ValueKey('sentry_feedback_name_textfield'),
                           style: Theme.of(context).textTheme.bodyLarge,
@@ -175,8 +174,9 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                         ),
-                      if (widget.options.showName) const SizedBox(height: 16),
-                      if (widget.options.showEmail)
+                        const SizedBox(height: 16),
+                      ],
+                      if (widget.options.showEmail) ...[
                         Row(
                           children: [
                             Text(
@@ -195,8 +195,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                               ),
                           ],
                         ),
-                      if (widget.options.showEmail) const SizedBox(height: 4),
-                      if (widget.options.showEmail)
+                        const SizedBox(height: 4),
                         TextFormField(
                           key:
                               const ValueKey('sentry_feedback_email_textfield'),
@@ -213,7 +212,8 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
                           },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                         ),
-                      if (widget.options.showEmail) const SizedBox(height: 16),
+                        const SizedBox(height: 16),
+                      ],
                       Row(
                         children: [
                           Text(

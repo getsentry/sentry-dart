@@ -447,7 +447,7 @@ void main() {
       fixture = Fixture();
     });
 
-    testWidgets('sets labels and hints from feedbackoptions', (tester) async {
+    testWidgets('sets labels and hints from feedback options', (tester) async {
       final options = fixture.options;
       options.feedback.title = 'fixture-title';
       options.feedback.nameLabel = 'fixture-nameLabel';
