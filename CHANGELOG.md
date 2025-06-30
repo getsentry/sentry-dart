@@ -15,6 +15,7 @@
 ### Enhancements
 
 - Dont execute app start integration if tracing is disabled ([#3026](https://github.com/getsentry/sentry-dart/pull/3026))
+- Set Firebase Remote Config flags on integration initialization ([#3008](https://github.com/getsentry/sentry-dart/pull/3008))
 
 
 ## 9.1.0
