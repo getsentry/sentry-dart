@@ -13,7 +13,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       this._frameCallbackHandler, this._nativeAppStartHandler);
 
   @internal
-  static const integrationName = 'nativeAppStartIntegration';
+  static const integrationName = 'NativeAppStart';
 
   final FrameCallbackHandler _frameCallbackHandler;
   final NativeAppStartHandler _nativeAppStartHandler;
@@ -24,7 +24,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) async {
     if (!options.isTracingEnabled()) {
       options.log(SentryLevel.info,
-          '$integrationName is disabled. Tracing is not enabled.');
+          '$integrationName integration is disabled. Tracing is not enabled.');
       return;
     }
 
