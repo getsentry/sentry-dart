@@ -389,6 +389,8 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   }
 
   Future<SentryId> _captureFeedback(SentryFeedback feedback, Hint? hint) {
+    hint ??= Hint();
+    hint.set('isWidgetFeedback', true);
     return widget._hub.captureFeedback(feedback, hint: hint);
   }
 
