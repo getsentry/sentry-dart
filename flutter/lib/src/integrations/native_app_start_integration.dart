@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:meta/meta.dart';
+
 import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
 import 'native_app_start_handler.dart';
@@ -10,6 +12,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   NativeAppStartIntegration(
       this._frameCallbackHandler, this._nativeAppStartHandler);
 
+  @internal
+  static const integrationName = 'nativeAppStartIntegration';
+
   final FrameCallbackHandler _frameCallbackHandler;
   final NativeAppStartHandler _nativeAppStartHandler;
 
@@ -17,6 +22,12 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) async {
+    if (!options.isTracingEnabled()) {
+      options.log(SentryLevel.info,
+          '$integrationName is disabled. Tracing is not enabled.');
+      return;
+    }
+
     // Create context early so we have an id to refernce for reporting full display
     final context = SentryTransactionContext(
       'root /',
@@ -59,6 +70,6 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
     }
 
     _frameCallbackHandler.addTimingsCallback(timingsCallback);
-    options.sdk.addIntegration('nativeAppStartIntegration');
+    options.sdk.addIntegration(integrationName);
   }
 }
