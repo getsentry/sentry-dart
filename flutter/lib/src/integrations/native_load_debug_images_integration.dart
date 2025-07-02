@@ -7,30 +7,40 @@ import 'package:sentry/src/load_dart_debug_images_integration.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 
+Integration<SentryFlutterOptions> createLoadDebugImagesIntegration(
+    SentryNativeBinding native) {
+  return LoadNativeDebugImagesIntegration(native);
+}
+
 /// Loads the native debug image list from the native SDKs for stack trace symbolication.
 class LoadNativeDebugImagesIntegration
     extends Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
-  static const integrationName = 'LoadNativeDebugImagesIntegration';
+  static const integrationName = 'LoadNativeDebugImages';
 
   LoadNativeDebugImagesIntegration(this._native);
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
-    options.addEventProcessor(
-      _LoadImageListIntegrationEventProcessor(options, _native),
-    );
-    options.sdk.addIntegration(integrationName);
+    // ignore: invalid_use_of_internal_member
+    if (options.runtimeChecker.isAppObfuscated()) {
+      options.addEventProcessor(
+        _LoadNativeDebugImagesIntegrationEventProcessor(options, _native),
+      );
+      options.sdk.addIntegration(integrationName);
+    }
   }
 }
 
-class _LoadImageListIntegrationEventProcessor implements EventProcessor {
-  _LoadImageListIntegrationEventProcessor(this._options, this._native);
+class _LoadNativeDebugImagesIntegrationEventProcessor
+    implements EventProcessor {
+  _LoadNativeDebugImagesIntegrationEventProcessor(this._options, this._native);
 
   final SentryFlutterOptions _options;
   final SentryNativeBinding _native;
 
-  late final _dartProcessor = LoadImageIntegrationEventProcessor(_options);
+  late final _dartProcessor =
+      LoadDartDebugImagesIntegrationEventProcessor(_options);
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {

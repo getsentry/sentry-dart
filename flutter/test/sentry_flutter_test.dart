@@ -44,13 +44,11 @@ final nonWebIntegrations = [
 
 // These should be added to Android
 final androidIntegrations = [
-  LoadNativeDebugImagesIntegration,
   LoadContextsIntegration,
 ];
 
 // These should be added to iOS and macOS
 final iOsAndMacOsIntegrations = [
-  LoadNativeDebugImagesIntegration,
   LoadContextsIntegration,
 ];
 
@@ -666,6 +664,7 @@ void main() {
         appRunner: appRunner,
         options: sentryFlutterOptions,
       );
+      SentryFlutter.native = null;
     });
   });
 

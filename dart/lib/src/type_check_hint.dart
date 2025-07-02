@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'http_client/failed_request_client.dart';
 
 /// Constants used for Type Check hints.
@@ -19,4 +20,7 @@ class TypeCheckHint {
 
   /// Used to indicate that the SDK added a synthetic current stack trace.
   static const currentStackTrace = 'currentStackTrace';
+
+  @internal
+  static const isWidgetFeedback = 'isWidgetFeedback';
 }

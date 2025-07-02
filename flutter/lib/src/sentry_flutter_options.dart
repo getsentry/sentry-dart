@@ -13,6 +13,7 @@ import 'screenshot/sentry_screenshot_quality.dart';
 import 'sentry_privacy_options.dart';
 import 'sentry_replay_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
+import 'feedback/sentry_feedback_options.dart';
 
 /// This class adds options which are only available in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
@@ -381,6 +382,15 @@ class SentryFlutterOptions extends SentryOptions {
   /// Defaults to 30 seconds.
   @meta.internal
   Duration appInBackgroundTracingThreshold = Duration(seconds: 30);
+
+  final _feedback = SentryFeedbackOptions();
+
+  /// Options for the [SentryFeedbackWidget]
+  SentryFeedbackOptions get feedback {
+    // Added so we can track usage of the widget. This will only add the integration once, even if called multiple times.
+    sdk.addIntegration('MobileFeedbackWidget');
+    return _feedback;
+  }
 }
 
 /// A callback which can be used to suppress capturing of screenshots.

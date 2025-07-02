@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:meta/meta.dart';
+
 import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
 import 'native_app_start_handler.dart';
@@ -10,6 +12,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   NativeAppStartIntegration(
       this._frameCallbackHandler, this._nativeAppStartHandler);
 
+  @internal
+  static const integrationName = 'NativeAppStart';
+
   final FrameCallbackHandler _frameCallbackHandler;
   final NativeAppStartHandler _nativeAppStartHandler;
 
@@ -17,6 +22,20 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) async {
+    if (!options.isTracingEnabled()) {
+      options.log(SentryLevel.info,
+          'Skipping $integrationName integration because tracing is disabled.');
+      return;
+    }
+
+    // Create context early so we have an id to refernce for reporting full display
+    final context = SentryTransactionContext(
+      'root /',
+      // ignore: invalid_use_of_internal_member
+      SentrySpanOperations.uiLoad,
+    );
+    options.timeToDisplayTracker.transactionId = context.spanId;
+
     void timingsCallback(List<FrameTiming> timings) async {
       if (!_allowProcessing) {
         return;
@@ -32,6 +51,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         await _nativeAppStartHandler.call(
           hub,
           options,
+          context: context,
           appStartEnd: appStartEnd,
         );
       } catch (exception, stackTrace) {
@@ -50,6 +70,6 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
     }
 
     _frameCallbackHandler.addTimingsCallback(timingsCallback);
-    options.sdk.addIntegration('nativeAppStartIntegration');
+    options.sdk.addIntegration(integrationName);
   }
 }

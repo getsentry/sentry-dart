@@ -20,7 +20,7 @@ class SentryFeatureFlags {
 
     final valuesValues = json['values'] as List<dynamic>?;
     final values = valuesValues
-        ?.map((e) => SentryFeatureFlag.fromJson(e))
+        ?.map((e) => SentryFeatureFlag.fromJson(Map<String, dynamic>.from(e)))
         .toList(growable: false);
 
     return SentryFeatureFlags(
