@@ -135,7 +135,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<SentryId> captureReplay(bool isCrash) {
+  FutureOr<SentryId> captureReplay() {
     throw UnsupportedError(
         "$SentryWeb.captureReplay() not supported on this platform");
   }
