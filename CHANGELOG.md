@@ -2,6 +2,12 @@
 
 ## Unreleased 
 
+### Potentially Breaking Change
+
+- Upgrade Kotlin `languageVersion` to `1.8` ([#3032](https://github.com/getsentry/sentry-dart/pull/3032))
+  - This allows usage of the Kotlin Android Plugin `2.2.0` which requires a `languageVersion` of `1.8` or higher
+  - If you are experiencing an issue we recommend upgrading to a toolchain compatible with Kotlin `1.8` or higher
+
 ### Features
 
 - SentryFeedbackWidget Improvements ([#2964](https://github.com/getsentry/sentry-dart/pull/2964))
@@ -12,12 +18,6 @@
 // configure your feedback widget
 options.feedback.showBranding = false;
 ```
-
-### Dependencies
-
-- Upgrade Kotlin languageVersion to `1.8` ([#3032](https://github.com/getsentry/sentry-dart/pull/3032))
-  - This allows usage of the Kotlin Android Plugin `2.2.0` which requires a languageVersion of `1.8` or higher
-  - If you are using an older Kotlin/Android toolchain we recommend upgrading to one compatible with Kotlin `1.8` or higher
 
 ## 9.2.0
 
