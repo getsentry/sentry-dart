@@ -1,5 +1,4 @@
 -keep class io.sentry.flutter.** { *; }
--keepclassmembers class io.sentry.flutter.** { *; }
 
 # Keep replay integration classes used by JNI
 -keep class io.sentry.android.replay.** { *; }
