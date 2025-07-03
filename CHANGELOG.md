@@ -5,6 +5,7 @@
 ### Fixes
 
 - Add additional crashpad path candidate ([#3016](https://github.com/getsentry/sentry-dart/pull/3016))
+- Replay JNI usage with `SentryFlutterPlugin` ([#3036](https://github.com/getsentry/sentry-dart/pull/3036))
 
 ## 9.3.0 
 
