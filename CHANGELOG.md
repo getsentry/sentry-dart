@@ -5,6 +5,8 @@
 ### Fixes
 
 - Replay JNI usage with `SentryFlutterPlugin` ([#3036](https://github.com/getsentry/sentry-dart/pull/3036))
+- Do not set `isTerminating` on `captureReplay` for Android ([#3037](https://github.com/getsentry/sentry-dart/pull/3037))
+  - Previously segments might be missing on Android replays if an unhandled error happened
 
 ## 9.3.0
 
