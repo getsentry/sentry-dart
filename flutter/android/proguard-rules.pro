@@ -1,4 +1,3 @@
--keep class io.sentry.flutter.** { *; }
 -keep class io.sentry.** { *; }
 
 # Keep bitmap classes used by JNI
