@@ -43,11 +43,11 @@ void main() {
 
       expect(featureFlags, isNotNull);
       expect(featureFlags?.values.length, 3);
-      expect(featureFlags?.values.first.flag, 'foo');
+      expect(featureFlags?.values.first.flag, 'flutter:foo');
       expect(featureFlags?.values.first.result, true);
-      expect(featureFlags?.values[1].flag, 'bar');
+      expect(featureFlags?.values[1].flag, 'flutter:bar');
       expect(featureFlags?.values[1].result, true);
-      expect(featureFlags?.values[2].flag, 'baz');
+      expect(featureFlags?.values[2].flag, 'flutter:baz');
       expect(featureFlags?.values[2].result, true);
     });
   });

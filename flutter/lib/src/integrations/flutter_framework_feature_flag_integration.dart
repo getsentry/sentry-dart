@@ -25,7 +25,7 @@ class FlutterFrameworkFeatureFlagIntegration
     final enabledFeatureFlags = flags.split(',');
 
     for (final featureFlag in enabledFeatureFlags) {
-      Sentry.addFeatureFlag(featureFlag, true);
+      Sentry.addFeatureFlag('flutter:$featureFlag', true);
     }
     options.sdk.addIntegration('FlutterFrameworkFeatureFlag');
   }

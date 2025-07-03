@@ -1,5 +1,13 @@
 # Changelog
 
+# Unreleased
+
+### Features
+
+- Report Flutter framework feature flags ([#2991](https://github.com/getsentry/sentry-dart/pull/2991))
+  - Search for feature flags that are prefixed with `flutter:*`
+  - This works on Flutter builds that include [this PR](https://github.com/flutter/flutter/pull/171545)
+
 ## 9.3.0
 
 ### Breaking Change (Tooling)
@@ -18,8 +26,6 @@
 // configure your feedback widget
 options.feedback.showBranding = false;
 ```
-- Report Flutter framework feature flags ([#2991](https://github.com/getsentry/sentry-dart/pull/2991))
-  - This works on Flutter builds that include [this PR](https://github.com/flutter/flutter/pull/171545)
 
 ## 9.2.0
 
