@@ -16,16 +16,6 @@ void main() {
     fixture = _Fixture();
   });
 
-  for (var isHandled in [true, false]) {
-    test(
-        'sets scope replay ID for ${isHandled ? 'handled' : 'unhandled'} exceptions',
-        () async {
-      expect(fixture.scope.replayId, isNull);
-      await fixture.apply(isHandled: isHandled);
-      expect(fixture.scope.replayId, SentryId.fromId('42'));
-    });
-  }
-
   test('captures replay for feedback event', () async {
     final feedback = SentryFeedback(message: 'fixture-message');
     final feedbackEvent = SentryEvent(
@@ -79,8 +69,7 @@ class _Fixture {
     });
     sut = ReplayEventProcessor(hub, binding);
   }
-  Future<SentryEvent?> apply(
-      {bool hasException = true, bool isHandled = false}) {
+  Future<SentryEvent?> apply({bool hasException = true}) {
     final event = SentryEvent(
       eventId: SentryId.newId(),
       exceptions: hasException
@@ -88,7 +77,7 @@ class _Fixture {
               SentryException(
                   type: 'type',
                   value: 'value',
-                  mechanism: Mechanism(type: 'foo', handled: isHandled))
+                  mechanism: Mechanism(type: 'foo'))
             ]
           : [],
     );

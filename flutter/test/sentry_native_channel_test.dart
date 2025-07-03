@@ -371,6 +371,7 @@ void main() {
 
         final returnedId = await sut.captureReplay();
 
+        verify(channel.invokeMethod('captureReplay'));
         expect(returnedId, sentryId);
       });
 
