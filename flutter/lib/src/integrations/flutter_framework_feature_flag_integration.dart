@@ -11,7 +11,12 @@ const _featureFlag = 'FLUTTER_ENABLED_FEATURE_FLAGS';
 // if it's not in there.
 // As a result, we also don't know the whole list of flags, but only the active ones.
 //
-// See https://github.com/flutter/flutter/pull/168437
+// See
+// - https://github.com/flutter/flutter/pull/168437
+// - https://github.com/flutter/flutter/pull/171545
+//
+// The Flutter feature flag implementation is not meant to be public and can change in a patch release.
+// See this discussion https://github.com/getsentry/sentry-dart/pull/2991/files#r2183105202
 class FlutterFrameworkFeatureFlagIntegration
     extends Integration<SentryOptions> {
   final String flags;
