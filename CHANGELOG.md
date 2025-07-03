@@ -8,6 +8,10 @@
   - Search for feature flags that are prefixed with `flutter:*`
   - This works on Flutter builds that include [this PR](https://github.com/flutter/flutter/pull/171545)
 
+### Fixes
+
+- Replay JNI usage with `SentryFlutterPlugin` ([#3036](https://github.com/getsentry/sentry-dart/pull/3036))
+
 ## 9.3.0
 
 ### Breaking Change (Tooling)
