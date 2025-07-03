@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased 
+
+### Breaking Change (Tooling)
+
+- Upgrade Kotlin `languageVersion` to `1.8` ([#3032](https://github.com/getsentry/sentry-dart/pull/3032))
+  - This allows usage of the Kotlin Android Plugin `2.2.0` which requires a `languageVersion` of `1.8` or higher
+  - If you are experiencing an issue we recommend upgrading to a toolchain compatible with Kotlin `1.8` or higher
+
+### Features
+
+- SentryFeedbackWidget Improvements ([#2964](https://github.com/getsentry/sentry-dart/pull/2964))
+  - Capture a device screenshot for feedback
+  - Customize tests and required fields
+  - Customization moved from the `SentryFeedbackWidget` constructor to `SentryFlutterOptions`:
+```dart
+// configure your feedback widget
+options.feedback.showBranding = false;
+```
+
 ## 9.2.0
 
 ### Features
@@ -7,13 +26,6 @@
 - Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
 - String templating for structured logs ([#3002](https://github.com/getsentry/sentry-dart/pull/3002))
 - Add user attributes to Dart/Flutter logs ([#3014](https://github.com/getsentry/sentry-dart/pull/3002))
-- SentryFeedbackWidget Improvements ([#2964](https://github.com/getsentry/sentry-dart/pull/2964))
- - Capture a device screenshot for feedback
- - Customize tests and required fields
- - Customization moved from the `SentryFeedbackWidget` constructor to `SentryFlutterOptions`:
-```dart
-options.feedback.showBranding = false;
-```
 
 ### Fixes
 
