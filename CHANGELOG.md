@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased 
+## Unreleased
+
+### Fixes
+
+- Add additional crashpad path candidate ([#3016](https://github.com/getsentry/sentry-dart/pull/3016))
+
+## 9.3.0 
 
 ### Breaking Change (Tooling)
 
@@ -35,10 +41,6 @@ options.feedback.showBranding = false;
 
 - Dont execute app start integration if tracing is disabled ([#3026](https://github.com/getsentry/sentry-dart/pull/3026))
 - Set Firebase Remote Config flags on integration initialization ([#3008](https://github.com/getsentry/sentry-dart/pull/3008))
-
-### Fixes
-
-- Add additional crashpad path candidate ([#3016](https://github.com/getsentry/sentry-dart/pull/3016))
 
 ## 9.1.0
 
