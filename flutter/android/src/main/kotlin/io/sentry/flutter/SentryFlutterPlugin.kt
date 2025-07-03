@@ -621,7 +621,7 @@ class SentryFlutterPlugin :
   private fun captureReplay(
     result: Result,
   ) {
-    replay!!.captureReplay()
+    replay!!.captureReplay(isTerminating = false)
     result.success(replay!!.getReplayId().toString())
   }
 }
