@@ -369,9 +369,8 @@ void main() {
         when(channel.invokeMethod('captureReplay', any))
             .thenAnswer((_) => Future.value(sentryId.toString()));
 
-        final returnedId = await sut.captureReplay(true);
+        final returnedId = await sut.captureReplay();
 
-        verify(channel.invokeMethod('captureReplay', {'isCrash': true}));
         expect(returnedId, sentryId);
       });
 

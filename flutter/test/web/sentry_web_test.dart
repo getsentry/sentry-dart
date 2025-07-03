@@ -205,7 +205,7 @@ void main() {
 
       group('no-op or throwing methods', () {
         test('captureReplay throws unsupported error', () {
-          expect(() => sut.captureReplay(false), throwsUnsupportedError);
+          expect(() => sut.captureReplay(), throwsUnsupportedError);
         });
 
         test('methods execute without calling JS binding', () {
