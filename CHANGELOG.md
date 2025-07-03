@@ -2,7 +2,7 @@
 
 ## Unreleased 
 
-### Potentially Breaking Change
+### Breaking Change (Tooling)
 
 - Upgrade Kotlin `languageVersion` to `1.8` ([#3032](https://github.com/getsentry/sentry-dart/pull/3032))
   - This allows usage of the Kotlin Android Plugin `2.2.0` which requires a `languageVersion` of `1.8` or higher
