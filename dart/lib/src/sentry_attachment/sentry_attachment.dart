@@ -89,9 +89,12 @@ class SentryAttachment {
         );
 
   SentryAttachment.fromScreenshotData(Uint8List bytes)
-      : this.fromUint8List(bytes, 'screenshot.png',
-            contentType: 'image/png',
-            attachmentType: SentryAttachment.typeAttachmentDefault);
+      : this.fromUint8List(
+          bytes,
+          'screenshot.png',
+          contentType: 'image/png',
+          attachmentType: SentryAttachment.typeAttachmentDefault,
+        );
 
   SentryAttachment.fromViewHierarchy(SentryViewHierarchy sentryViewHierarchy)
       : this.fromLoader(
