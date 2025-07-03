@@ -2,6 +2,7 @@
 library;
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -9,6 +10,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'sentry_screenshot_widget_test.mocks.dart';
 import 'test_widget.dart';
+
+import '../mocks.mocks.dart' as mocks;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -58,6 +61,67 @@ void main() {
       verify(mock(any, any)).called(1);
       await pumpTestElement(tester);
       verifyNever(mock(any, any));
+    });
+  });
+
+  group('Screenshot Button', () {
+    setUp(() {
+      SentryScreenshotWidget.reset();
+    });
+
+    testWidgets('shows & hides screenshot button', (tester) async {
+      var options = SentryFlutterOptions();
+      var hub = mocks.MockHub();
+      when(hub.options).thenReturn(options);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: SentryScreenshotWidget(
+            hub: hub,
+            child: const Text('fixture-child'),
+          ),
+        ),
+      );
+
+      SentryScreenshotWidget.showTakeScreenshotButton();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Take Screenshot'), findsOne);
+
+      SentryScreenshotWidget.hideTakeScreenshotButton();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Take Screenshot'), findsNothing);
+    });
+
+    testWidgets('presents feedback widget when screenshot is taken',
+        (tester) async {
+      final navigatorKey = GlobalKey<NavigatorState>();
+
+      var options = SentryFlutterOptions();
+      options.navigatorKey = navigatorKey;
+
+      var hub = mocks.MockHub();
+      when(hub.options).thenReturn(options);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorKey: navigatorKey,
+          home: SentryScreenshotWidget(
+            hub: hub,
+            child: const Text('fixture-child'),
+          ),
+        ),
+      );
+
+      SentryScreenshotWidget.showTakeScreenshotButton();
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Take Screenshot'));
+      await tester.pumpAndSettle();
+
+      // Send button in feedback widget
+      expect(find.text('Send Bug Report'), findsOne);
     });
   });
 }
