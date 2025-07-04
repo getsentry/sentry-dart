@@ -26,7 +26,7 @@ void main() {
         return null;
       });
       final replayId = SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
-      when(mockBinding.captureReplay(any)).thenAnswer((_) async => replayId);
+      when(mockBinding.captureReplay()).thenAnswer((_) async => replayId);
 
       final replayIntegration = ReplayIntegration(mockBinding);
       fixture.options.addIntegration(replayIntegration);
@@ -39,7 +39,7 @@ void main() {
       );
       // await tester.pumpAndSettle();
 
-      verify(mockBinding.captureReplay(any)).called(1);
+      verify(mockBinding.captureReplay()).called(1);
       //ignore: invalid_use_of_internal_member
       expect(fixture.hub.scope.replayId, replayId);
     });
