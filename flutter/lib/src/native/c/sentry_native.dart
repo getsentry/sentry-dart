@@ -78,6 +78,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
       if (crashpadPath != null) {
         native.options_set_handler_path(cOptions, c.str(crashpadPath));
+      } else {
+        options.log(
+            SentryLevel.warning, 'SentryNative: could not find crashpad path');
       }
 
       return cOptions;
@@ -440,7 +443,8 @@ String? _getDefaultCrashpadPath() {
       final appDir = Platform.resolvedExecutable.substring(0, lastSeparator);
       final candidates = [
         '$appDir${Platform.pathSeparator}crashpad_handler',
-        '$appDir${Platform.pathSeparator}bin/crashpad_handler'
+        '$appDir${Platform.pathSeparator}bin${Platform.pathSeparator}crashpad_handler',
+        '$appDir${Platform.pathSeparator}lib${Platform.pathSeparator}crashpad_handler'
       ];
       return candidates.firstWhereOrNull((path) => File(path).existsSync());
     }

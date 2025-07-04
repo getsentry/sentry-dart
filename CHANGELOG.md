@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Add additional crashpad path candidate ([#3016](https://github.com/getsentry/sentry-dart/pull/3016))
 - Replay JNI usage with `SentryFlutterPlugin` ([#3036](https://github.com/getsentry/sentry-dart/pull/3036), [#3039](https://github.com/getsentry/sentry-dart/pull/3039))
 - Do not set `isTerminating` on `captureReplay` for Android ([#3037](https://github.com/getsentry/sentry-dart/pull/3037))
   - Previously segments might be missing on Android replays if an unhandled error happened
