@@ -201,8 +201,18 @@ class HubAdapter implements Hub {
   FutureOr<void> captureLog(SentryLog log) => Sentry.currentHub.captureLog(log);
 
   @override
+  Map<Type, List<Function>> get lifecycleCallbacks =>
+      Sentry.currentHub.lifecycleCallbacks;
+
+  @override
   void registerCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {
     Sentry.currentHub.registerCallback(callback);
+  }
+
+  @override
+  void removeCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {
+    Sentry.currentHub.removeCallback(callback);
   }
 }

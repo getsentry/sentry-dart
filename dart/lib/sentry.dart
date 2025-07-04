@@ -21,7 +21,6 @@ export 'src/integration.dart';
 export 'src/noop_isolate_error_integration.dart'
     if (dart.library.io) 'src/isolate_error_integration.dart';
 // ignore: invalid_export_of_internal_element
-export 'src/observers.dart';
 export 'src/performance_collector.dart';
 export 'src/protocol.dart';
 export 'src/protocol/sentry_feature_flag.dart';
@@ -38,7 +37,7 @@ export 'src/sentry_baggage.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/sentry_client.dart';
 // ignore: invalid_export_of_internal_element
-export 'src/lifecycle/on_before_capture_log.dart';
+export 'src/sdk_lifecycle_hooks.dart';
 export 'src/sentry_envelope.dart';
 export 'src/sentry_envelope_item.dart';
 export 'src/sentry_options.dart';
