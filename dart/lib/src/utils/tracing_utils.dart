@@ -1,8 +1,21 @@
 import '../../sentry.dart';
 
+SentryTraceHeader generateSentryTraceHeader(
+    {SentryId? traceId, SpanId? spanId, bool? sampled}) {
+  traceId ??= SentryId.newId();
+  spanId ??= SpanId.newId();
+  return SentryTraceHeader(traceId, spanId, sampled: sampled);
+}
+
 void addSentryTraceHeaderFromSpan(
     ISentrySpan span, Map<String, dynamic> headers) {
   final traceHeader = span.toSentryTrace();
+  headers[traceHeader.name] = traceHeader.value;
+}
+
+void addSentryTraceHeaderFromScope(Scope scope, Map<String, dynamic> headers) {
+  final propagationContext = scope.propagationContext;
+  final traceHeader = propagationContext.toSentryTrace();
   headers[traceHeader.name] = traceHeader.value;
 }
 
@@ -19,6 +32,18 @@ void addBaggageHeaderFromSpan(
   final baggage = span.toBaggageHeader();
   if (baggage != null) {
     addBaggageHeader(baggage, headers, log: log);
+  }
+}
+
+void addBaggageHeaderFromScope(
+  Scope scope,
+  Map<String, dynamic> headers, {
+  SdkLogCallback? log,
+}) {
+  final propagationContext = scope.propagationContext;
+  final baggageHeader = propagationContext.toBaggageHeader();
+  if (baggageHeader != null) {
+    addBaggageHeader(baggageHeader, headers, log: log);
   }
 }
 

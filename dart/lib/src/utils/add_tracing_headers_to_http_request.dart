@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
+import '../propagation_context.dart';
 
 @internal
 void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
@@ -13,15 +14,7 @@ void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
       log: hub.options.log,
     );
   } else {
-    final scope = hub.scope;
-    final propagationContext = scope.propagationContext;
-
-    final traceHeader = propagationContext.toSentryTrace();
-    addSentryTraceHeader(traceHeader, headers);
-
-    final baggageHeader = propagationContext.toBaggageHeader();
-    if (baggageHeader != null) {
-      addBaggageHeader(baggageHeader, headers, log: hub.options.log);
-    }
+    addSentryTraceHeaderFromScope(hub.scope, headers);
+    addBaggageHeaderFromScope(hub.scope, headers, log: hub.options.log);
   }
 }

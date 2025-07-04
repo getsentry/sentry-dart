@@ -213,9 +213,9 @@ class SentrySpan extends ISentrySpan {
   Map<String, dynamic> get data => _data;
 
   @override
-  SentryTraceHeader toSentryTrace() => SentryTraceHeader(
-        _context.traceId,
-        _context.spanId,
+  SentryTraceHeader toSentryTrace() => generateSentryTraceHeader(
+        traceId: _context.traceId,
+        spanId: _context.spanId,
         sampled: samplingDecision?.sampled,
       );
 
