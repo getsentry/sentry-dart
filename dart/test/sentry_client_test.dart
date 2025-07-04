@@ -1839,6 +1839,55 @@ void main() {
       );
     });
 
+    test('should add user info to attributes', () async {
+      fixture.options.enableLogs = true;
+
+      final log = givenLog();
+      final scope = Scope(fixture.options);
+      final user = SentryUser(
+        id: '123',
+        email: 'test@test.com',
+        name: 'test-name',
+      );
+      await scope.setUser(user);
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      await client.captureLog(log, scope: scope);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+
+      expect(
+        capturedLog.attributes['user.id']?.value,
+        user.id,
+      );
+      expect(
+        capturedLog.attributes['user.id']?.type,
+        'string',
+      );
+
+      expect(
+        capturedLog.attributes['user.name']?.value,
+        user.name,
+      );
+      expect(
+        capturedLog.attributes['user.name']?.type,
+        'string',
+      );
+
+      expect(
+        capturedLog.attributes['user.email']?.value,
+        user.email,
+      );
+      expect(
+        capturedLog.attributes['user.email']?.type,
+        'string',
+      );
+    });
+
     test('should set trace id from propagation context', () async {
       fixture.options.enableLogs = true;
 
