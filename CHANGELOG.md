@@ -5,7 +5,15 @@
 ### Fixes
 
 - Add additional crashpad path candidate ([#3016](https://github.com/getsentry/sentry-dart/pull/3016))
-- Replay JNI usage with `SentryFlutterPlugin` ([#3036](https://github.com/getsentry/sentry-dart/pull/3036))
+- Replay JNI usage with `SentryFlutterPlugin` ([#3036](https://github.com/getsentry/sentry-dart/pull/3036), [#3039](https://github.com/getsentry/sentry-dart/pull/3039))
+- Do not set `isTerminating` on `captureReplay` for Android ([#3037](https://github.com/getsentry/sentry-dart/pull/3037))
+  - Previously segments might be missing on Android replays if an unhandled error happened
+
+### Dependencies
+
+- Bump Android SDK from v8.12.0 to v8.13.2 ([#3042](https://github.com/getsentry/sentry-dart/pull/3042))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8132)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.12.0...8.13.2)
 
 ## 9.3.0
 
