@@ -501,9 +501,6 @@ class Hub {
         transactionContext.samplingDecision = samplingDecision;
       }
 
-      // sampling decision has been made, now update the propagation context
-      scope.propagationContext.sampled = samplingDecision.sampled;
-
       transactionContext.origin ??= SentryTraceOrigins.manual;
       transactionContext.traceId = scope.propagationContext.traceId;
 

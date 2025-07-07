@@ -101,8 +101,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
         _appInBackgroundStopwatch.stop();
         if (_appInBackgroundStopwatch.elapsed.inSeconds >
             _options.appInBackgroundTracingThreshold.inSeconds) {
-          _hub.scope.propagationContext.generateNewTraceId();
-          _hub.scope.propagationContext.generateNewSampleRand();
+          _hub.scope.propagationContext.traceId = SentryId.newId();
+          _hub.scope.propagationContext.sampleRand = Random().nextDouble();
         }
         _appInBackgroundStopwatch.reset();
       }

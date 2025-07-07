@@ -15,21 +15,25 @@ void main() {
     fixture = Fixture();
   });
 
-  test('didPush starts a new trace', () {
+  test('didPush starts a new trace and transaction uses the new trace id', () {
     final fromRoute = _route(RouteSettings(name: 'From Route'));
     final toRoute = _route(RouteSettings(name: 'To Route'));
+
     final oldTraceId = fixture.hub.scope.propagationContext.traceId;
-    final oldSampleRand = fixture.hub.scope.propagationContext.sampleRand;
 
     final sut = fixture.getSut();
     sut.didPush(toRoute, fromRoute);
 
+    // Verify new trace was started
     final newTraceId = fixture.hub.scope.propagationContext.traceId;
-    final newSampleRand = fixture.hub.scope.propagationContext.sampleRand;
     expect(oldTraceId, isNot(newTraceId));
-    expect(oldSampleRand, isNot(newSampleRand));
+
+    // Verify the transaction uses the new trace ID
+    final transaction = fixture.hub.scope.span;
+    expect(transaction?.context.traceId, equals(newTraceId));
   });
 
+  // Note: didPop does not create a transaction
   test('didPop starts a new trace', () {
     final fromRoute = _route(RouteSettings(name: 'From Route'));
     final toRoute = _route(RouteSettings(name: 'To Route'));
@@ -45,6 +49,7 @@ void main() {
     expect(oldSampleRand, isNot(newSampleRand));
   });
 
+  // Note: didReplace does not create a transaction
   test('didReplace starts a new trace', () {
     final fromRoute = _route(RouteSettings(name: 'From Route'));
     final toRoute = _route(RouteSettings(name: 'To Route'));
@@ -59,49 +64,6 @@ void main() {
     expect(oldTraceId, isNot(newTraceId));
     expect(oldSampleRand, isNot(newSampleRand));
   });
-
-  // group('execution order', () {
-  //   /// Prepares mocks, we don't care about what they exactly do.
-  //   /// We only test the order of execution in this group.
-  //   void _prepareMocks() {
-  //     when(fixture.mockHub.scope()).thenAnswer((_) => {});
-  //     when(fixture.mockHub.configureScope(any))
-  //         .thenAnswer((_) => Future.value());
-  //     when(fixture.mockHub.startTransactionWithContext(
-  //       any,
-  //       bindToScope: anyNamed('bindToScope'),
-  //       waitForChildren: anyNamed('waitForChildren'),
-  //       autoFinishAfter: anyNamed('autoFinishAfter'),
-  //       trimEnd: anyNamed('trimEnd'),
-  //       onFinish: anyNamed('onFinish'),
-  //       customSamplingContext: anyNamed('customSamplingContext'),
-  //       startTimestamp: anyNamed('startTimestamp'),
-  //     )).thenReturn(NoOpSentrySpan());
-  //   }
-  //
-  //   test('didPush generates a new trace before creating transaction spans', () {
-  //     final fromRoute = _route(RouteSettings(name: 'From Route'));
-  //     final toRoute = _route(RouteSettings(name: 'To Route'));
-  //
-  //     _prepareMocks();
-  //
-  //     final sut = fixture.getSut(hub: fixture.mockHub);
-  //     sut.didPush(toRoute, fromRoute);
-  //     verifyInOrder([
-  //       fixture.mockHub.scope.propagationContext.generateNewTraceId(),
-  //       fixture.mockHub.startTransactionWithContext(
-  //         any,
-  //         bindToScope: anyNamed('bindToScope'),
-  //         waitForChildren: anyNamed('waitForChildren'),
-  //         autoFinishAfter: anyNamed('autoFinishAfter'),
-  //         trimEnd: anyNamed('trimEnd'),
-  //         onFinish: anyNamed('onFinish'),
-  //         customSamplingContext: anyNamed('customSamplingContext'),
-  //         startTimestamp: anyNamed('startTimestamp'),
-  //       ),
-  //     ]);
-  //   });
-  // });
 }
 
 PageRoute<dynamic> _route(RouteSettings? settings) => PageRouteBuilder<void>(
@@ -110,9 +72,16 @@ PageRoute<dynamic> _route(RouteSettings? settings) => PageRouteBuilder<void>(
     );
 
 class Fixture {
-  final options = defaultTestOptions();
+  final options = defaultTestOptions()..tracesSampleRate = 1.0;
   late final mockHub = MockHub();
   late final hub = Hub(options);
+  late final mockScope = Scope(options);
+
+  Fixture() {
+    // Set up the mockHub with proper scope
+    when(mockHub.options).thenReturn(options);
+    when(mockHub.scope).thenReturn(mockScope);
+  }
 
   SentryNavigatorObserver getSut({Hub? hub}) {
     hub ??= this.hub;
