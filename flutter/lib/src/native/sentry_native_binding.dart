@@ -26,6 +26,7 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> beginNativeFrames();
 
+  // TODO: we can safely remove the native frames impl
   FutureOr<NativeFrames?> endNativeFrames(SentryId id);
 
   FutureOr<void> setUser(SentryUser? user);

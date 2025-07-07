@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'hint.dart';
 import 'hub.dart';
 import 'profiling.dart';
+import 'propagation_context.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
@@ -171,6 +172,11 @@ class HubAdapter implements Hub {
     String transaction,
   ) =>
       Sentry.currentHub.setSpanContext(throwable, span, transaction);
+
+  @internal
+  @override
+  PropagationContext get propagationContext =>
+      Sentry.currentHub.propagationContext;
 
   @internal
   @override

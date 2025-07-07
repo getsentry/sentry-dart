@@ -2,7 +2,6 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'protocol.dart';
-import 'sentry_baggage.dart';
 
 @internal
 class PropagationContext {
@@ -21,5 +20,5 @@ class PropagationContext {
 
   /// Sentry trace header to attach to http headers.
   SentryTraceHeader toSentryTrace() =>
-      generateSentryTraceHeader(traceId: traceId, sampled: sampled);
+      generateSentryTraceHeader(traceId: traceId);
 }

@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'hint.dart';
 import 'hub.dart';
 import 'profiling.dart';
+import 'propagation_context.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
@@ -149,4 +150,8 @@ class NoOpHub implements Hub {
   @override
   void registerCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {}
+
+  @internal
+  @override
+  PropagationContext get propagationContext => PropagationContext();
 }

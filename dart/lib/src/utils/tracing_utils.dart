@@ -7,6 +7,21 @@ SentryTraceHeader generateSentryTraceHeader(
   return SentryTraceHeader(traceId, spanId, sampled: sampled);
 }
 
+void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
+    {ISentrySpan? span}) {
+  if (span != null) {
+    addSentryTraceHeaderFromSpan(span, headers);
+    addBaggageHeaderFromSpan(
+      span,
+      headers,
+      log: hub.options.log,
+    );
+  } else {
+    addSentryTraceHeaderFromScope(hub.scope, headers);
+    addBaggageHeaderFromScope(hub.scope, headers, log: hub.options.log);
+  }
+}
+
 void addSentryTraceHeaderFromSpan(
     ISentrySpan span, Map<String, dynamic> headers) {
   final traceHeader = span.toSentryTrace();
