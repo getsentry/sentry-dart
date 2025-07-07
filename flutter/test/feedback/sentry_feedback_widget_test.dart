@@ -272,11 +272,6 @@ void main() {
       await tester.tap(find.text('fixture-submitButtonLabel'));
       await tester.pumpAndSettle();
 
-      // Wait for validation errors to fully render - sometimes multiple errors
-      // don't all appear at exactly the same time causing flaky test failures
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pumpAndSettle();
-
       expect(find.text('fixture-validationErrorLabel'), findsAny);
     });
   });
@@ -574,7 +569,6 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
-      SentryFeedbackWidget.clearPreservedData();
     });
 
     testWidgets('preserves form data when taking screenshot', (tester) async {
@@ -774,6 +768,9 @@ class Fixture {
       hint: anyNamed('hint'),
       withScope: anyNamed('withScope'),
     )).thenAnswer((_) async => SentryId.empty());
+
+    SentryFeedbackWidget.pendingAssociatedEventId = null;
+    SentryFeedbackWidget.clearPreservedData();
   }
 
   Future<void> pumpFeedbackWidget(
