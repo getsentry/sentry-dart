@@ -83,4 +83,8 @@ class SentryTracesSampler {
     final rand = sampleRand ?? _random.nextDouble();
     return rand <= sampleRate;
   }
+
+  double generateSampleRand() {
+    return _random.nextDouble();
+  }
 }

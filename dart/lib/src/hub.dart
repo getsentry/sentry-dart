@@ -45,7 +45,7 @@ class Hub {
   }
 
   Hub._(this._options) {
-    _tracesSampler = SentryTracesSampler(_options);
+    _tracesSampler = SentryTracesSampler(this);
     _stack.add(_StackItem(_getClient(_options), Scope(_options)));
     _isEnabled = true;
     _throwableToSpan = _WeakMap(_options);
@@ -532,6 +532,10 @@ class Hub {
   @internal
   void generateNewTraceId() {
     scope.propagationContext.traceId = SentryId.newId();
+  }
+
+  void generateNewSampleRand() {
+    scope.propagationContext.sampleRand = _tracesSampler.generateSampleRand();
   }
 
   @internal

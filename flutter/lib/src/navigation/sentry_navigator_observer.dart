@@ -149,8 +149,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.generateNewTraceId();
-    _hub.propagationContext.sampleRand = _random.nextDouble();
+    _startNewTrace();
 
     _setCurrentRouteName(route);
     _setCurrentRouteNameAsTransaction(route);
@@ -182,8 +181,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.generateNewTraceId();
-    _hub.propagationContext.sampleRand = _random.nextDouble();
+    _startNewTrace();
 
     _setCurrentRouteName(newRoute);
     _setCurrentRouteNameAsTransaction(newRoute);
@@ -206,8 +204,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.generateNewTraceId();
-    _hub.propagationContext.sampleRand = _random.nextDouble();
+    _startNewTrace();
 
     _setCurrentRouteName(previousRoute);
     _setCurrentRouteNameAsTransaction(previousRoute);
@@ -222,6 +219,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     final timestamp = _hub.options.clock();
     _finishTransaction(endTimestamp: timestamp);
+  }
+
+  void _startNewTrace() {
+    _hub.generateNewTraceId();
+    _hub.generateNewSampleRand();
   }
 
   void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {

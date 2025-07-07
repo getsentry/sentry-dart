@@ -19,5 +19,5 @@ class PropagationContext {
 
   /// Sentry trace header to attach to http headers.
   SentryTraceHeader toSentryTrace() =>
-      generateSentryTraceHeader(traceId: traceId);
+      generateSentryTraceHeader(traceId: traceId, sampled: sampled);
 }
