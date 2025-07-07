@@ -6,6 +6,15 @@
 @import Sentry._Hybrid;
 #endif
 
+// Fallback imports for framework builds where module imports might fail
+#if __has_include(<Sentry/Sentry-Swift.h>)
+#import <Sentry/Sentry-Swift.h>
+#endif
+
+#if __has_include(<Sentry/PrivateSentrySDKOnly.h>)
+#import <Sentry/PrivateSentrySDKOnly.h>
+#endif
+
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 @implementation SentryFlutterReplayBreadcrumbConverter {
