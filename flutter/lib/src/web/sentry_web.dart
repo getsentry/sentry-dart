@@ -7,7 +7,6 @@ import 'package:sentry/src/sentry_item_type.dart';
 
 import '../../sentry_flutter.dart';
 import '../native/native_app_start.dart';
-import '../native/native_frames.dart';
 import '../native/sentry_native_binding.dart';
 import '../native/sentry_native_invoker.dart';
 import '../replay/replay_config.dart';
@@ -160,12 +159,6 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<int?> displayRefreshRate() {
     _logNotSupported('fetching display refresh rate');
-    return null;
-  }
-
-  @override
-  FutureOr<NativeFrames?> endNativeFrames(SentryId id) {
-    _logNotSupported('end native frames collection');
     return null;
   }
 

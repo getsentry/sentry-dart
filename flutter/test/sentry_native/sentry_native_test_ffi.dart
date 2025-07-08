@@ -143,11 +143,6 @@ void main() {
         expect(sut.fetchNativeAppStart(), null);
       });
 
-      test('frames tracking', () {
-        sut.beginNativeFrames();
-        expect(sut.endNativeFrames(SentryId.newId()), null);
-      });
-
       test('hang tracking', () {
         sut.pauseAppHangTracking();
         sut.resumeAppHangTracking();

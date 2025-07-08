@@ -216,7 +216,6 @@ void main() {
           sut.collectProfile(SentryId.empty(), 0, 0);
           sut.discardProfiler(SentryId.empty());
           sut.displayRefreshRate();
-          sut.endNativeFrames(SentryId.empty());
           sut.fetchNativeAppStart();
           sut.loadContexts();
           sut.nativeCrash();
@@ -240,7 +239,6 @@ void main() {
           expect(sut.fetchNativeAppStart(), isNull);
           expect(sut.loadContexts(), isNull);
           expect(sut.collectProfile(SentryId.empty(), 0, 0), isNull);
-          expect(sut.endNativeFrames(SentryId.empty()), isNull);
           expect(sut.startProfiler(SentryId.empty()), isNull);
         });
       });
