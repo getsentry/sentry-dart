@@ -15,20 +15,27 @@ class LoggingIntegration implements Integration<SentryOptions> {
   /// [Breadcrumb].
   /// All log events equal or higher than [minEventLevel] are recorded as a
   /// [SentryEvent].
+  /// All log events equal or higher than [minSentryLogLevel] are logged to
+  /// Sentry, if [SentryOptions.enableLogs] is true.
   LoggingIntegration({
     Level minBreadcrumbLevel = Level.INFO,
     Level minEventLevel = Level.SEVERE,
+    Level minSentryLogLevel = Level.SEVERE,
   })  : _minBreadcrumbLevel = minBreadcrumbLevel,
-        _minEventLevel = minEventLevel;
+        _minEventLevel = minEventLevel,
+        _minSentryLogLevel = minSentryLogLevel;
 
   final Level _minBreadcrumbLevel;
   final Level _minEventLevel;
+  final Level _minSentryLogLevel;
   late StreamSubscription<LogRecord> _subscription;
   late Hub _hub;
+  late SentryOptions _options;
 
   @override
   void call(Hub hub, SentryOptions options) {
     _hub = hub;
+    _options = options;
     _subscription = Logger.root.onRecord.listen(
       _onLog,
       onError: (Object error, StackTrace stackTrace) async {
@@ -67,6 +74,48 @@ class LoggingIntegration implements Integration<SentryOptions> {
         record.toBreadcrumb(),
         hint: Hint.withMap({TypeCheckHint.record: record}),
       );
+    }
+
+    if (_options.enableLogs && _isLoggable(record.level, _minSentryLogLevel)) {
+      final attributes = {
+        'loggerName': SentryLogAttribute.string(record.loggerName),
+        'sequenceNumber': SentryLogAttribute.int(record.sequenceNumber),
+        'time': SentryLogAttribute.int(record.time.millisecondsSinceEpoch),
+        if (record.error != null)
+          'error': SentryLogAttribute.string(record.error.toString()),
+        if (record.stackTrace != null)
+          'stackTrace': SentryLogAttribute.string(record.stackTrace.toString()),
+      };
+
+      switch (record.level) {
+        case Level.SHOUT:
+          await _options.logger.error(record.message, attributes: attributes);
+          break;
+        case Level.SEVERE:
+          await _options.logger.error(record.message, attributes: attributes);
+          break;
+        case Level.WARNING:
+          await _options.logger.warn(record.message, attributes: attributes);
+          break;
+        case Level.INFO:
+          await _options.logger.info(record.message, attributes: attributes);
+          break;
+        case Level.CONFIG:
+          await _options.logger.debug(record.message, attributes: attributes);
+          break;
+        case Level.FINE:
+          await _options.logger.debug(record.message, attributes: attributes);
+          break;
+        case Level.FINER:
+          await _options.logger.debug(record.message, attributes: attributes);
+          break;
+        case Level.FINEST:
+          await _options.logger.debug(record.message, attributes: attributes);
+          break;
+        case Level.ALL:
+          await _options.logger.debug(record.message, attributes: attributes);
+          break;
+      }
     }
   }
 }
