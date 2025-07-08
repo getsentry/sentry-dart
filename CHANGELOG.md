@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `LoggingIntegration` support for `SenryLog` ([#3050](https://github.com/getsentry/sentry-dart/pull/3050))
+
 ### Fixes
 
 - Respect ancestor text direction in `SentryScreenshotWidget` ([#3046](https://github.com/getsentry/sentry-dart/pull/3046))
