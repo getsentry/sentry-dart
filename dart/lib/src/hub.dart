@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:meta/meta.dart';
 
@@ -500,6 +501,9 @@ class Hub {
         transactionContext.samplingDecision = samplingDecision;
       }
 
+      // sampling decision has been made, now update the propagation context
+      scope.propagationContext.sampled = samplingDecision.sampled;
+
       transactionContext.origin ??= SentryTraceOrigins.manual;
       transactionContext.traceId = scope.propagationContext.traceId;
 
@@ -528,18 +532,6 @@ class Hub {
 
     return NoOpSentrySpan();
   }
-
-  @internal
-  void generateNewTraceId() {
-    scope.propagationContext.traceId = SentryId.newId();
-  }
-
-  void generateNewSampleRand() {
-    scope.propagationContext.sampleRand = _tracesSampler.generateSampleRand();
-  }
-
-  @internal
-  PropagationContext get propagationContext => scope.propagationContext;
 
   /// Gets the current active transaction or span.
   ISentrySpan? getSpan() {

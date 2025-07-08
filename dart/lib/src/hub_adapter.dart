@@ -163,20 +163,12 @@ class HubAdapter implements Hub {
       );
 
   @override
-  void generateNewTraceId() => Sentry.currentHub.generateNewTraceId();
-
-  @override
   void setSpanContext(
     dynamic throwable,
     ISentrySpan span,
     String transaction,
   ) =>
       Sentry.currentHub.setSpanContext(throwable, span, transaction);
-
-  @internal
-  @override
-  PropagationContext get propagationContext =>
-      Sentry.currentHub.propagationContext;
 
   @internal
   @override

@@ -193,8 +193,7 @@ class SentryClient {
     if (traceContext == null) {
       if (scope != null) {
         scope.propagationContext.baggage ??=
-            SentryBaggage({}, log: _options.log)
-              ..setValuesFromScope(scope, _options);
+            SentryBaggage.fromScope(scope, _options);
         traceContext = SentryTraceContextHeader.fromBaggage(
             scope.propagationContext.baggage!);
       }

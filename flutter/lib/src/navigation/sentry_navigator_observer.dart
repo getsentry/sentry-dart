@@ -222,8 +222,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   void _startNewTrace() {
-    _hub.generateNewTraceId();
-    _hub.generateNewSampleRand();
+    _hub.scope.propagationContext.generateNewTraceId();
+    _hub.scope.propagationContext.generateNewSampleRand();
   }
 
   void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {
@@ -310,7 +310,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
         final transactionContext = transaction.context;
         if (transactionContext is SentryTransactionContext) {
-          _hub.propagationContext.sampled =
+          _hub.scope.propagationContext.sampled =
               transactionContext.samplingDecision?.sampled;
         }
       },

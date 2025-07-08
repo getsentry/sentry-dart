@@ -6,8 +6,7 @@ import '../sentry.dart';
 
 @internal
 class SentryTracesSampler {
-  SentryTracesSampler(this._hub, {Random? random})
-      : _random = random ?? Random() {
+  SentryTracesSampler(this._hub) {
     _options = _hub.options;
     if (_options.tracesSampler != null && _options.tracesSampleRate != null) {
       _options.log(SentryLevel.warning,
@@ -16,12 +15,11 @@ class SentryTracesSampler {
   }
 
   final Hub _hub;
-  final Random _random;
 
   late final SentryOptions _options;
 
   SentryTracesSamplingDecision sample(SentrySamplingContext samplingContext) {
-    final tracesSampleRand = _hub.propagationContext.sampleRand;
+    final tracesSampleRand = _hub.scope.propagationContext.sampleRand;
     final samplingDecision =
         samplingContext.transactionContext.samplingDecision;
     if (samplingDecision != null) {
@@ -80,11 +78,7 @@ class SentryTracesSampler {
   }
 
   bool _isSampled(double sampleRate, {double? sampleRand}) {
-    final rand = sampleRand ?? _random.nextDouble();
+    final rand = sampleRand ?? Random().nextDouble();
     return rand <= sampleRate;
-  }
-
-  double generateSampleRand() {
-    return _random.nextDouble();
   }
 }

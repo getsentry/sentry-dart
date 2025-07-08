@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -100,7 +101,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
         _appInBackgroundStopwatch.stop();
         if (_appInBackgroundStopwatch.elapsed.inSeconds >
             _options.appInBackgroundTracingThreshold.inSeconds) {
-          _hub.generateNewTraceId();
+          _hub.scope.propagationContext.generateNewTraceId();
+          _hub.scope.propagationContext.generateNewSampleRand();
         }
         _appInBackgroundStopwatch.reset();
       }
