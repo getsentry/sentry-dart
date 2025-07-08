@@ -170,6 +170,28 @@ void main() {
     });
 
     test(
+        'tracing header from propagation context should generate new span ids for new events',
+        () async {
+      fixture._hub.options.tracesSampleRate = null;
+      fixture._hub.options.tracesSampler = null;
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
+      final propagationContext = fixture._hub.scope.propagationContext;
+      propagationContext.baggage = SentryBaggage({'foo': 'bar'});
+
+      final response1 = await sut.get(requestUri);
+      final response2 = await sut.get(requestUri);
+
+      final traceHeader1 = SentryTraceHeader.fromTraceHeader(
+          response1.request!.headers['sentry-trace']!);
+      final traceHeader2 = SentryTraceHeader.fromTraceHeader(
+          response2.request!.headers['sentry-trace']!);
+
+      expect(traceHeader1.spanId, isNot(traceHeader2.spanId));
+    });
+
+    test(
         'should not add tracing headers when URL does not match tracePropagationTargets with tracing enabled',
         () async {
       final sut = fixture.getSut(
