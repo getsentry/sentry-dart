@@ -175,17 +175,38 @@ void main() {
       final response = await sut.get<dynamic>(requestOptions);
 
       final baggageHeader = propagationContext.toBaggageHeader();
-      final sentryTraceHeader = propagationContext.toSentryTrace();
 
       expect(propagationContext.toBaggageHeader(), isNotNull);
       expect(
         response.headers[baggageHeader!.name],
         <String>[baggageHeader.value],
       );
-      expect(
-        response.headers[sentryTraceHeader.name],
-        <String>[sentryTraceHeader.value],
+
+      // // check that we can create a valid trace header out of it
+      SentryTraceHeader.fromTraceHeader(
+        response.headers['sentry-trace']?.first as String,
       );
+    });
+
+    test(
+        'should create header with new generated span id for request when tracing is disabled',
+        () async {
+      fixture._options.tracesSampleRate = null;
+      fixture._options.tracesSampler = null;
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
+
+      final response1 = await sut.get<dynamic>(requestOptions);
+      final response2 = await sut.get<dynamic>(requestOptions);
+
+      final header1 = SentryTraceHeader.fromTraceHeader(
+        response1.headers['sentry-trace']?.first as String,
+      );
+      final header2 = SentryTraceHeader.fromTraceHeader(
+        response2.headers['sentry-trace']?.first as String,
+      );
+      expect(header1.spanId, isNot(header2.spanId));
     });
 
     test(
