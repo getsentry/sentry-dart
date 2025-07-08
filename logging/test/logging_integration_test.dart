@@ -311,15 +311,12 @@ void main() {
 
       final log = Logger('TestLogger');
 
-      // Test basic attributes (without error/stackTrace)
+      // Test basic attributes (without error)
       log.info('Basic message');
 
-      // Test with error only
-      final exception = Exception('test error');
-      log.severe('Message with error', exception);
-
-      // Test with both error and stackTrace
+      // Test with error and stackTrace (stackTrace won't be in attributes)
       final stackTrace = StackTrace.current;
+      final exception = Exception('test error');
       log.severe('Message with error and stack', exception, stackTrace);
 
       await Future<void>.delayed(Duration(milliseconds: 10));
@@ -333,16 +330,11 @@ void main() {
       expect(basicAttributes.containsKey('error'), false);
       expect(basicAttributes.containsKey('stackTrace'), false);
 
-      // Verify error attribute is included when present
-      expect(mockLogger.errorCalls.length, 2);
-      final errorAttributes = mockLogger.errorCalls.first.attributes!;
-      expect(errorAttributes['error']?.value, 'Exception: test error');
-      expect(errorAttributes.containsKey('stackTrace'), false);
-
-      // Verify both error and stackTrace attributes are included when present
-      final fullAttributes = mockLogger.errorCalls.last.attributes!;
-      expect(fullAttributes['error']?.value, 'Exception: test error');
-      expect(fullAttributes['stackTrace']?.value, stackTrace.toString());
+      // Verify error/stacktrace attributes are not included when present
+      expect(mockLogger.errorCalls.length, 1);
+      final fullAttributes = mockLogger.errorCalls.first.attributes!;
+      expect(fullAttributes.containsKey('error'), false);
+      expect(fullAttributes.containsKey('stackTrace'), false);
     });
 
     test('Level.OFF is never sent to sentry logger', () async {

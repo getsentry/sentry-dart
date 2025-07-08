@@ -81,10 +81,6 @@ class LoggingIntegration implements Integration<SentryOptions> {
         'loggerName': SentryLogAttribute.string(record.loggerName),
         'sequenceNumber': SentryLogAttribute.int(record.sequenceNumber),
         'time': SentryLogAttribute.int(record.time.millisecondsSinceEpoch),
-        if (record.error != null)
-          'error': SentryLogAttribute.string(record.error.toString()),
-        if (record.stackTrace != null)
-          'stackTrace': SentryLogAttribute.string(record.stackTrace.toString()),
       };
 
       switch (record.level) {
