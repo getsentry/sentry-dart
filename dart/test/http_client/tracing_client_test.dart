@@ -160,13 +160,16 @@ void main() {
       final response = await sut.get(requestUri);
 
       final baggageHeader = propagationContext.toBaggageHeader();
-      final sentryTraceHeader = propagationContext.toSentryTrace();
 
       expect(propagationContext.toBaggageHeader(), isNotNull);
       expect(
           response.request!.headers[baggageHeader!.name], baggageHeader.value);
-      expect(response.request!.headers[sentryTraceHeader.name],
-          sentryTraceHeader.value);
+
+      final traceHeader = SentryTraceHeader.fromTraceHeader(
+        response.request!.headers['sentry-trace'] as String,
+      );
+      expect(traceHeader.traceId, propagationContext.traceId);
+      // can't check span id as it is always generated new
     });
 
     test(

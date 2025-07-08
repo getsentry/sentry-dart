@@ -182,10 +182,11 @@ void main() {
         <String>[baggageHeader.value],
       );
 
-      // // check that we can create a valid trace header out of it
-      SentryTraceHeader.fromTraceHeader(
+      final traceHeader = SentryTraceHeader.fromTraceHeader(
         response.headers['sentry-trace']?.first as String,
       );
+      expect(traceHeader.traceId, propagationContext.traceId);
+      // can't check span id as it is always generated new
     });
 
     test(

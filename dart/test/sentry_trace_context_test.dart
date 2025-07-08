@@ -1,4 +1,5 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/propagation_context.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -47,6 +48,20 @@ void main() {
     expect(
         traceContext.replayId.toString(), '00000000000000000000000000000004');
     expect(traceContext.data, {'key': 'value'});
+  });
+
+  test('fromPropagationContext creates valid SentryTraceContext', () {
+    final propagationContext = PropagationContext();
+
+    final traceContext1 =
+        SentryTraceContext.fromPropagationContext(propagationContext);
+    final traceContext2 =
+        SentryTraceContext.fromPropagationContext(propagationContext);
+
+    expect(traceContext1.traceId, propagationContext.traceId);
+    expect(traceContext1.traceId, traceContext1.traceId);
+    // the span id is always generated new when creating a trace context from scope
+    expect(traceContext1.spanId, isNot(traceContext2.spanId));
   });
 }
 
