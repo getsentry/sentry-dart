@@ -473,6 +473,7 @@ class MockLogCall {
 
 class TestSentryOptions extends SentryOptions {
   @override
+  // ignore: overridden_fields
   late final SentryLogger logger;
 
   TestSentryOptions(SentryLogger mockLogger)
