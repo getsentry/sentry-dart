@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -81,6 +82,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
     List<String>? ignoreRoutes,
+    Random? random,
   })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
         _autoFinishAfter = autoFinishAfter,
@@ -88,7 +90,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _routeNameExtractor = routeNameExtractor,
         _additionalInfoProvider = additionalInfoProvider,
         _ignoreRoutes = ignoreRoutes ?? [],
-        _native = SentryFlutter.native {
+        _native = SentryFlutter.native,
+        _random = random ?? Random() {
     _isCreated = true;
     if (enableAutoTransactions) {
       _hub.options.sdk.addIntegration('UINavigationTracing');
@@ -119,6 +122,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final AdditionalInfoExtractor? _additionalInfoProvider;
   final SentryNativeBinding? _native;
   final List<String> _ignoreRoutes;
+  final Random _random;
   TimeToDisplayTracker? _timeToDisplayTracker;
   WebSessionHandler? _webSessionHandler;
   @visibleForTesting
@@ -146,6 +150,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
 
     _hub.generateNewTraceId();
+    _hub.propagationContext.sampleRand = _random.nextDouble();
+
     _setCurrentRouteName(route);
     _setCurrentRouteNameAsTransaction(route);
 
@@ -177,6 +183,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
 
     _hub.generateNewTraceId();
+    _hub.propagationContext.sampleRand = _random.nextDouble();
+
     _setCurrentRouteName(newRoute);
     _setCurrentRouteNameAsTransaction(newRoute);
 
@@ -199,6 +207,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
 
     _hub.generateNewTraceId();
+    _hub.propagationContext.sampleRand = _random.nextDouble();
+
     _setCurrentRouteName(previousRoute);
     _setCurrentRouteNameAsTransaction(previousRoute);
 
@@ -295,18 +305,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       trimEnd: true,
       onFinish: (transaction) async {
         _transaction = null;
-        final nativeFrames =
-            await _native?.endNativeFrames(transaction.context.traceId);
-        if (nativeFrames != null) {
-          final measurements = nativeFrames.toMeasurements();
-          for (final item in measurements.entries) {
-            final measurement = item.value;
-            transaction.setMeasurement(
-              item.key,
-              measurement.value,
-              unit: measurement.unit,
-            );
-          }
+
+        final transactionContext = transaction.context;
+        if (transactionContext is SentryTransactionContext) {
+          _hub.propagationContext.sampled =
+              transactionContext.samplingDecision?.sampled;
         }
       },
     );

@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
-import 'protocol.dart';
 
 @internal
 class PropagationContext {
