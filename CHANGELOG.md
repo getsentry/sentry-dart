@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.4.0-beta.2
 
 ### Features
 
