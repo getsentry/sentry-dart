@@ -44,8 +44,7 @@ void addBaggageHeaderFromScope(
   Map<String, dynamic> headers, {
   SdkLogCallback? log,
 }) {
-  final propagationContext = scope.propagationContext;
-  final baggageHeader = propagationContext.toBaggageHeader();
+  final baggageHeader = scope.propagationContext.toBaggageHeader();
   if (baggageHeader != null) {
     addBaggageHeader(baggageHeader, headers, log: log);
   }
