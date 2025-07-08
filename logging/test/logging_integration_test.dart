@@ -413,38 +413,50 @@ class MockSentryLogger implements SentryLogger {
   final List<MockLogCall> fatalCalls = [];
 
   @override
-  Future<void> trace(String body,
-      {Map<String, SentryLogAttribute>? attributes}) async {
+  Future<void> trace(
+    String body, {
+    Map<String, SentryLogAttribute>? attributes,
+  }) async {
     traceCalls.add(MockLogCall(body, attributes));
   }
 
   @override
-  Future<void> debug(String body,
-      {Map<String, SentryLogAttribute>? attributes}) async {
+  Future<void> debug(
+    String body, {
+    Map<String, SentryLogAttribute>? attributes,
+  }) async {
     debugCalls.add(MockLogCall(body, attributes));
   }
 
   @override
-  Future<void> info(String body,
-      {Map<String, SentryLogAttribute>? attributes}) async {
+  Future<void> info(
+    String body, {
+    Map<String, SentryLogAttribute>? attributes,
+  }) async {
     infoCalls.add(MockLogCall(body, attributes));
   }
 
   @override
-  Future<void> warn(String body,
-      {Map<String, SentryLogAttribute>? attributes}) async {
+  Future<void> warn(
+    String body, {
+    Map<String, SentryLogAttribute>? attributes,
+  }) async {
     warnCalls.add(MockLogCall(body, attributes));
   }
 
   @override
-  Future<void> error(String body,
-      {Map<String, SentryLogAttribute>? attributes}) async {
+  Future<void> error(
+    String body, {
+    Map<String, SentryLogAttribute>? attributes,
+  }) async {
     errorCalls.add(MockLogCall(body, attributes));
   }
 
   @override
-  Future<void> fatal(String body,
-      {Map<String, SentryLogAttribute>? attributes}) async {
+  Future<void> fatal(
+    String body, {
+    Map<String, SentryLogAttribute>? attributes,
+  }) async {
     fatalCalls.add(MockLogCall(body, attributes));
   }
 
