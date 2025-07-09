@@ -206,7 +206,7 @@ mixin SentryFlutter {
       options.enableDartSymbolication = false;
     }
 
-    if (isScreenshotSupported(options)) {
+    if (options.isScreenshotSupported) {
       integrations.add(ScreenshotIntegration());
     }
 

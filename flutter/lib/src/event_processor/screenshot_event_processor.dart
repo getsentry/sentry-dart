@@ -49,7 +49,7 @@ class ScreenshotEventProcessor implements EventProcessor {
     }
 
     final renderer = _options.rendererWrapper.renderer;
-    if (isScreenshotSupported(_options)) {
+    if (_options.isScreenshotSupported) {
       _options.log(
         SentryLevel.debug,
         'Screenshot: not supported in this environment with renderer $renderer',

@@ -20,7 +20,7 @@ void main() {
 
     test('returns true for non-web platforms', () {
       final options = _buildOptions(isWeb: false);
-      expect(isScreenshotSupported(options), isTrue);
+      expect(options.isScreenshotSupported, isTrue);
     });
 
     test('returns true for web CanvasKit renderer', () {
@@ -28,7 +28,7 @@ void main() {
         isWeb: true,
         renderer: FlutterRenderer.canvasKit,
       );
-      expect(isScreenshotSupported(options), isTrue);
+      expect(options.isScreenshotSupported, isTrue);
     });
 
     test('returns true for web Skwasm renderer', () {
@@ -36,7 +36,7 @@ void main() {
         isWeb: true,
         renderer: FlutterRenderer.skwasm,
       );
-      expect(isScreenshotSupported(options), isTrue);
+      expect(options.isScreenshotSupported, isTrue);
     });
 
     test('returns false for web html renderer', () {
@@ -44,7 +44,7 @@ void main() {
         isWeb: true,
         renderer: FlutterRenderer.html,
       );
-      expect(isScreenshotSupported(options), isFalse);
+      expect(options.isScreenshotSupported, isFalse);
     });
 
     test('returns false for web unknown renderer', () {
@@ -52,7 +52,7 @@ void main() {
         isWeb: true,
         renderer: FlutterRenderer.unknown,
       );
-      expect(isScreenshotSupported(options), isFalse);
+      expect(options.isScreenshotSupported, isFalse);
     });
   });
 }
