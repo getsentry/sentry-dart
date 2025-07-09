@@ -652,19 +652,18 @@ class Hub {
 
   @internal
   Map<Type, List<Function>> get lifecycleCallbacks =>
-      _peek().client.lifecycleCallbacks;
+      _peek().client.lifeCycleRegistry.lifecycleCallbacks;
 
   @internal
-  void registerCallback<T extends SdkLifecycleEvent>(
+  void registerSdkLifecycleCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {
-    final item = _peek();
-    item.client.registerCallback<T>(callback);
+    _peek().client.lifeCycleRegistry.registerCallback<T>(callback);
   }
 
   @internal
-  void removeCallback<T extends SdkLifecycleEvent>(
+  void removeSdkLifecycleCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {
-    _peek().client.removeCallback<T>(callback);
+    _peek().client.lifeCycleRegistry.removeCallback<T>(callback);
   }
 
   SentryEvent _assignTraceContext(SentryEvent event) {

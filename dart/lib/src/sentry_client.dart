@@ -30,7 +30,6 @@ import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
 import 'sentry_log_batcher.dart';
 import 'version.dart';
-import 'sdk_lifecycle_hooks.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
@@ -40,28 +39,21 @@ const _defaultIpAddress = '{{auto}}';
 @visibleForTesting
 String get defaultIpAddress => _defaultIpAddress;
 
-@internal
-typedef SdkLifecycleCallback<T extends SdkLifecycleEvent> = FutureOr<void>
-    Function(T event);
-
-@internal
-abstract class SdkLifecycleEvent {}
-
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
   final SentryOptions _options;
-
   final Random? _random;
 
   static final _emptySentryId = Future.value(SentryId.empty());
 
-  SentryExceptionFactory get _exceptionFactory => _options.exceptionFactory;
+  late final SdkLifecycleRegistry _lifecycleRegistry;
 
-  SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
-
+  /// Allows registration of callbacks outside of SentryClient
   @internal
-  Map<Type, List<Function>> get lifecycleCallbacks => _lifecycleCallbacks;
-  final Map<Type, List<Function>> _lifecycleCallbacks = {};
+  SdkLifecycleRegistry get lifeCycleRegistry => _lifecycleRegistry;
+
+  SentryExceptionFactory get _exceptionFactory => _options.exceptionFactory;
+  SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
 
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
@@ -97,7 +89,9 @@ class SentryClient {
 
   /// Instantiates a client using [SentryOptions]
   SentryClient._(this._options)
-      : _random = _options.sampleRate == null ? null : Random();
+      : _random = _options.sampleRate == null ? null : Random() {
+    _lifecycleRegistry = SdkLifecycleRegistry(_options);
+  }
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -178,7 +172,7 @@ class SentryClient {
     }
 
     // Event is fully processed and ready to be sent
-    await _dispatchCallback(OnBeforeSendEvent(event));
+    await _lifecycleRegistry.dispatchCallback(OnBeforeSendEvent(event, hint));
 
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
     attachments.addAll(hint.attachments);
@@ -584,7 +578,8 @@ class SentryClient {
     }
 
     if (processedLog != null) {
-      await _dispatchCallback(OnBeforeCaptureLog(processedLog));
+      await _lifecycleRegistry
+          .dispatchCallback(OnBeforeCaptureLog(processedLog));
       _options.logBatcher.addLog(processedLog);
     } else {
       _options.recorder.recordLostEvent(
@@ -687,43 +682,6 @@ class SentryClient {
       return DataCategory.feedback;
     } else {
       return DataCategory.error;
-    }
-  }
-
-  @internal
-  void registerCallback<T extends SdkLifecycleEvent>(
-      SdkLifecycleCallback<T> callback) {
-    _lifecycleCallbacks[T] ??= [];
-    _lifecycleCallbacks[T]?.add(callback);
-  }
-
-  @internal
-  void removeCallback<T extends SdkLifecycleEvent>(
-      SdkLifecycleCallback<T> callback) {
-    final callbacks = _lifecycleCallbacks[T];
-    callbacks?.remove(callback);
-  }
-
-  FutureOr<void> _dispatchCallback<T extends SdkLifecycleEvent>(T event) async {
-    final callbacks = _lifecycleCallbacks[event.runtimeType] ?? [];
-    for (final cb in callbacks) {
-      try {
-        if (cb is Future<T>) {
-          await (cb as SdkLifecycleCallback<T>)(event);
-        } else {
-          (cb as SdkLifecycleCallback<T>)(event);
-        }
-      } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'The SDK lifecycle callback threw an exception',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
     }
   }
 }
