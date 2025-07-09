@@ -293,13 +293,16 @@ void main() {
       expect(mockLogger.infoCalls.length, 1);
       expect(mockLogger.infoCalls.first.message, 'INFO message');
 
-      // Verify debug mappings (CONFIG, FINE, FINER, FINEST, ALL -> debug)
-      expect(mockLogger.debugCalls.length, 5);
+      // Verify trace mappings (FINER, FINEST -> trace)
+      expect(mockLogger.traceCalls.length, 2);
+      expect(mockLogger.traceCalls[0].message, 'FINER message');
+      expect(mockLogger.traceCalls[1].message, 'FINEST message');
+
+      // Verify debug mappings (CONFIG, FINE, ALL -> debug)
+      expect(mockLogger.debugCalls.length, 3);
       expect(mockLogger.debugCalls[0].message, 'CONFIG message');
       expect(mockLogger.debugCalls[1].message, 'FINE message');
-      expect(mockLogger.debugCalls[2].message, 'FINER message');
-      expect(mockLogger.debugCalls[3].message, 'FINEST message');
-      expect(mockLogger.debugCalls[4].message, 'ALL message');
+      expect(mockLogger.debugCalls[2].message, 'ALL message');
     });
 
     test('includes all expected attributes in sentry logger calls', () async {
@@ -353,6 +356,7 @@ void main() {
       expect(mockLogger.warnCalls.length, 0);
       expect(mockLogger.infoCalls.length, 0);
       expect(mockLogger.debugCalls.length, 0);
+      expect(mockLogger.traceCalls.length, 0);
     });
 
     test('minSentryLogLevel is respected', () async {

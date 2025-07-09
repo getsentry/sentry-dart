@@ -103,10 +103,10 @@ class LoggingIntegration implements Integration<SentryOptions> {
           await _options.logger.debug(record.message, attributes: attributes);
           break;
         case Level.FINER:
-          await _options.logger.debug(record.message, attributes: attributes);
+          await _options.logger.trace(record.message, attributes: attributes);
           break;
         case Level.FINEST:
-          await _options.logger.debug(record.message, attributes: attributes);
+          await _options.logger.trace(record.message, attributes: attributes);
           break;
         case Level.ALL:
           await _options.logger.debug(record.message, attributes: attributes);
