@@ -210,7 +210,6 @@ void main() {
 
         test('methods execute without calling JS binding', () {
           sut.addBreadcrumb(Breadcrumb());
-          sut.beginNativeFrames();
           sut.captureEnvelope(Uint8List(0), false);
           sut.clearBreadcrumbs();
           sut.collectProfile(SentryId.empty(), 0, 0);
