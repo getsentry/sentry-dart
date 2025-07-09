@@ -31,3 +31,7 @@ Podfile.lock
 
 .gradle
 flutter/.gradle
+
+# FVM Version Cache
+.fvm/
+.fvmrc
