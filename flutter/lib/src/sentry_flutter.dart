@@ -27,7 +27,6 @@ import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
-import 'renderer/renderer.dart';
 import 'replay/integration.dart';
 import 'screenshot/screenshot_support.dart';
 import 'utils/platform_dispatcher_wrapper.dart';
