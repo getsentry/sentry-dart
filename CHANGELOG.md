@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## 9.4.0-beta.2
+
+### Fixes
+
+- Respect ancestor text direction in `SentryScreenshotWidget` ([#3046](https://github.com/getsentry/sentry-dart/pull/3046))
+
+## 9.4.0-beta.1
 
 ### Fixes
 
