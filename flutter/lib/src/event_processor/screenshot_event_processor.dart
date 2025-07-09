@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
-import '../renderer/renderer.dart';
 import '../screenshot/recorder.dart';
 import '../screenshot/recorder_config.dart';
 
@@ -49,7 +48,7 @@ class ScreenshotEventProcessor implements EventProcessor {
     }
 
     final renderer = _options.rendererWrapper.renderer;
-    if (_options.isScreenshotSupported) {
+    if (!_options.isScreenshotSupported) {
       _options.log(
         SentryLevel.debug,
         'Screenshot: not supported in this environment with renderer $renderer',
