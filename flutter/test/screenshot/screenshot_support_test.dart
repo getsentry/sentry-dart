@@ -23,7 +23,7 @@ void main() {
       expect(options.isScreenshotSupported, isTrue);
     });
 
-    test('returns true for web CanvasKit renderer', () {
+    test('returns true for web canvasKit renderer', () {
       final options = _buildOptions(
         isWeb: true,
         renderer: FlutterRenderer.canvasKit,
@@ -31,7 +31,7 @@ void main() {
       expect(options.isScreenshotSupported, isTrue);
     });
 
-    test('returns true for web Skwasm renderer', () {
+    test('returns true for web skwasm renderer', () {
       final options = _buildOptions(
         isWeb: true,
         renderer: FlutterRenderer.skwasm,
