@@ -29,6 +29,7 @@ import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
 import 'replay/integration.dart';
+import 'screenshot/screenshot_support.dart';
 import 'utils/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
@@ -205,8 +206,7 @@ mixin SentryFlutter {
       options.enableDartSymbolication = false;
     }
 
-    final renderer = options.rendererWrapper.getRenderer();
-    if (!platform.isWeb || renderer == FlutterRenderer.canvasKit) {
+    if (isScreenshotSupported(options)) {
       integrations.add(ScreenshotIntegration());
     }
 
