@@ -61,11 +61,6 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> beginNativeFrames() {
-    _logNotSupported('begin native frames collection');
-  }
-
-  @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
     _logNotSupported('capture raw envelope data');
