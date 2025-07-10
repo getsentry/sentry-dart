@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- `ScreenshotIntegration` not being added for web ([#3055](https://github.com/getsentry/sentry-dart/pull/3055))
+
 ## 9.4.0
 
 ### Fixes
