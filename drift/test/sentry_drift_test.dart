@@ -603,6 +603,62 @@ void main() {
       );
     });
 
+    test('abortTransaction executes function even when parentSpan is null',
+        () async {
+      final sut = fixture.getSut();
+
+      sut.spanHelper.transactionStack.clear();
+
+      bool executeFunctionCalled = false;
+      String? result;
+
+      result = await sut.spanHelper.abortTransaction(() async {
+        executeFunctionCalled = true;
+        return 'test_result';
+      });
+
+      expect(executeFunctionCalled, true);
+      expect(result, 'test_result');
+      expect(sut.spanHelper.transactionStack, isEmpty);
+    });
+
+    test(
+        'abortTransaction with parentSpan executes function and marks span as aborted',
+        () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      final tx = _startTransaction();
+      bool exceptionThrown = false;
+
+      try {
+        await db.transaction(() async {
+          expect(sut.spanHelper.transactionStack.isNotEmpty, true);
+          throw Exception('should be aborted');
+        });
+      } catch (_) {
+        exceptionThrown = true;
+      }
+
+      bool executeFunctionCalled = false;
+      String? result;
+
+      result = await sut.spanHelper.abortTransaction(() async {
+        executeFunctionCalled = true;
+        return 'test_result';
+      });
+
+      expect(exceptionThrown, true);
+      expect(executeFunctionCalled, true);
+      expect(result, 'test_result');
+
+      expect(sut.spanHelper.transactionStack, isEmpty);
+
+      final abortedSpans =
+          tx.children.where((child) => child.status == SpanStatus.aborted());
+      expect(abortedSpans.length, 1);
+    });
+
     test('batch does not add span for failed operations', () async {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
