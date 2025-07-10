@@ -104,7 +104,7 @@ void main() {
     });
 
     testWidgets(
-        'when app lifecycle tracing enabled is enabled, only inactive and resumed are tracked',
+        'on supported platforms when app lifecycle tracing enabled is enabled, only inactive and resumed are tracked',
         (WidgetTester tester) async {
       flutterTrackingDisabledOptions.platform = MockPlatform(isWeb: false);
       flutterTrackingDisabledOptions.appInBackgroundTracingThreshold =
@@ -128,7 +128,7 @@ void main() {
       await sendLifecycle('resumed');
 
       verify(hub.generateNewTraceId()).called(1);
-    });
+    }, skip: kIsWeb ? 'App lifecycle tracing is not supported on web' : false);
 
     testWidgets('memory pressure breadcrumb', (WidgetTester tester) async {
       final hub = MockHub();
