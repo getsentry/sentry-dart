@@ -6,6 +6,10 @@
 
 - `ScreenshotIntegration` not being added for web ([#3055](https://github.com/getsentry/sentry-dart/pull/3055))
 
+### Enhancements
+
+- Remove `SentryTimingsCallback` and use Flutter's `TimingsCallback` instead ([#3054](https://github.com/getsentry/sentry-dart/pull/3054))
+
 ## 9.4.0
 
 ### Fixes
