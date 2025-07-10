@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add `LoggingIntegration` support for `SenryLog` ([#3050](https://github.com/getsentry/sentry-dart/pull/3050))
+
 ## 9.4.0-beta.2
 
 ### Fixes
