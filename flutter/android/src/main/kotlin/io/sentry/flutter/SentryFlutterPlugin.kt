@@ -23,6 +23,7 @@ import io.sentry.Breadcrumb
 import io.sentry.DateUtils
 import io.sentry.HubAdapter
 import io.sentry.Sentry
+import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.LoadClass
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions

@@ -12,7 +12,6 @@ import 'package:sentry/src/sentry_tracer.dart';
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
 import '../integrations/web_session_integration.dart';
-import '../native/sentry_native_binding.dart';
 import '../web/web_session_handler.dart';
 import 'time_to_display_tracker.dart';
 
@@ -86,8 +85,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
         _additionalInfoProvider = additionalInfoProvider,
-        _ignoreRoutes = ignoreRoutes ?? [],
-        _native = SentryFlutter.native {
+        _ignoreRoutes = ignoreRoutes ?? [] {
     _isCreated = true;
     if (enableAutoTransactions) {
       _hub.options.sdk.addIntegration('UINavigationTracing');
@@ -116,7 +114,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
-  final SentryNativeBinding? _native;
   final List<String> _ignoreRoutes;
   TimeToDisplayTracker? _timeToDisplayTracker;
 
