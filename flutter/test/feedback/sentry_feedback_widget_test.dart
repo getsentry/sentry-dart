@@ -569,7 +569,6 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
-      SentryFeedbackWidget.clearPreservedData();
     });
 
     testWidgets('preserves form data when taking screenshot', (tester) async {
@@ -769,6 +768,9 @@ class Fixture {
       hint: anyNamed('hint'),
       withScope: anyNamed('withScope'),
     )).thenAnswer((_) async => SentryId.empty());
+
+    SentryFeedbackWidget.pendingAssociatedEventId = null;
+    SentryFeedbackWidget.clearPreservedData();
   }
 
   Future<void> pumpFeedbackWidget(
