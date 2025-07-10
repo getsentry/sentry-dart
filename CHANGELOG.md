@@ -23,6 +23,10 @@
 
 - Respect ancestor text direction in `SentryScreenshotWidget` ([#3046](https://github.com/getsentry/sentry-dart/pull/3046))
 
+### Enhancements
+
+- Remove `SentryTimingsCallback` and use Flutter's `TimingsCallback` instead ([#3054](https://github.com/getsentry/sentry-dart/pull/3054))
+
 ## 9.4.0-beta.1
 
 ### Fixes
