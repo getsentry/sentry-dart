@@ -20,7 +20,7 @@ class LoggingIntegration implements Integration<SentryOptions> {
   LoggingIntegration({
     Level minBreadcrumbLevel = Level.INFO,
     Level minEventLevel = Level.SEVERE,
-    Level minSentryLogLevel = Level.SEVERE,
+    Level minSentryLogLevel = Level.INFO,
   })  : _minBreadcrumbLevel = minBreadcrumbLevel,
         _minEventLevel = minEventLevel,
         _minSentryLogLevel = minSentryLogLevel;
