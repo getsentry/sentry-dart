@@ -71,7 +71,7 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> setReplayConfig(ReplayConfig config);
 
-  FutureOr<SentryId> captureReplay(bool isCrash);
+  FutureOr<SentryId> captureReplay();
 
   /// Starts a new session.
   ///

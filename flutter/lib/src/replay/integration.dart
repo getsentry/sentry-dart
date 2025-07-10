@@ -47,7 +47,7 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
 
   Future<void> captureReplay() async {
     if (_native.supportsReplay && _options?.replay.isEnabled == true) {
-      final replayId = await _native.captureReplay(false);
+      final replayId = await _native.captureReplay();
       _hub?.configureScope((scope) {
         // ignore: invalid_use_of_internal_member
         scope.replayId = replayId;

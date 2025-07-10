@@ -1,5 +1,72 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- `ScreenshotIntegration` not being added for web ([#3055](https://github.com/getsentry/sentry-dart/pull/3055))
+
+### Enhancements
+
+- Remove `SentryTimingsCallback` and use Flutter's `TimingsCallback` instead ([#3054](https://github.com/getsentry/sentry-dart/pull/3054))
+
+## 9.4.0
+
+### Fixes
+
+- SPM should use `exact` instead of `from` when defining the sentry-cocoa package ([#3065](https://github.com/getsentry/sentry-dart/pull/3065))
+- Respect ancestor text direction in `SentryScreenshotWidget` ([#3046](https://github.com/getsentry/sentry-dart/pull/3046))
+- Add additional crashpad path candidate ([#3016](https://github.com/getsentry/sentry-dart/pull/3016))
+- Replay JNI usage with `SentryFlutterPlugin` ([#3036](https://github.com/getsentry/sentry-dart/pull/3036), [#3039](https://github.com/getsentry/sentry-dart/pull/3039))
+- Do not set `isTerminating` on `captureReplay` for Android ([#3037](https://github.com/getsentry/sentry-dart/pull/3037))
+  - Previously segments might be missing on Android replays if an unhandled error happened
+
+### Dependencies
+
+- Bump Android SDK from v8.12.0 to v8.13.2 ([#3042](https://github.com/getsentry/sentry-dart/pull/3042))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8132)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.12.0...8.13.2)
+
+## 9.4.0-beta.2
+
+### Fixes
+
+- Respect ancestor text direction in `SentryScreenshotWidget` ([#3046](https://github.com/getsentry/sentry-dart/pull/3046))
+
+## 9.4.0-beta.1
+
+### Fixes
+
+- Add additional crashpad path candidate ([#3016](https://github.com/getsentry/sentry-dart/pull/3016))
+- Replay JNI usage with `SentryFlutterPlugin` ([#3036](https://github.com/getsentry/sentry-dart/pull/3036), [#3039](https://github.com/getsentry/sentry-dart/pull/3039))
+- Do not set `isTerminating` on `captureReplay` for Android ([#3037](https://github.com/getsentry/sentry-dart/pull/3037))
+  - Previously segments might be missing on Android replays if an unhandled error happened
+
+### Dependencies
+
+- Bump Android SDK from v8.12.0 to v8.13.2 ([#3042](https://github.com/getsentry/sentry-dart/pull/3042))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8132)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.12.0...8.13.2)
+
+## 9.3.0
+
+### Breaking Change (Tooling)
+
+- Upgrade Kotlin `languageVersion` to `1.8` ([#3032](https://github.com/getsentry/sentry-dart/pull/3032))
+  - This allows usage of the Kotlin Android Plugin `2.2.0` which requires a `languageVersion` of `1.8` or higher
+  - If you are experiencing an issue we recommend upgrading to a toolchain compatible with Kotlin `1.8` or higher
+
+### Features
+
+- SentryFeedbackWidget Improvements ([#2964](https://github.com/getsentry/sentry-dart/pull/2964))
+  - Capture a device screenshot for feedback
+  - Customize tests and required fields
+  - Customization moved from the `SentryFeedbackWidget` constructor to `SentryFlutterOptions`:
+```dart
+// configure your feedback widget
+options.feedback.showBranding = false;
+```
+
 ## 9.2.0
 
 ### Features
@@ -7,13 +74,6 @@
 - Add os and device attributes to Flutter logs ([#2978](https://github.com/getsentry/sentry-dart/pull/2978))
 - String templating for structured logs ([#3002](https://github.com/getsentry/sentry-dart/pull/3002))
 - Add user attributes to Dart/Flutter logs ([#3014](https://github.com/getsentry/sentry-dart/pull/3002))
-- SentryFeedbackWidget Improvements ([#2964](https://github.com/getsentry/sentry-dart/pull/2964))
- - Capture a device screenshot for feedback
- - Customize tests and required fields
- - Customization moved from the `SentryFeedbackWidget` constructor to `SentryFlutterOptions`:
-```dart
-options.feedback.showBranding = false;
-```
 
 ### Fixes
 
@@ -66,7 +126,6 @@ void initState() {
 ```
 - Add `message` parameter to `captureException()` ([#2882](https://github.com/getsentry/sentry-dart/pull/2882))
 - Add module in SentryStackFrame ([#2931](https://github.com/getsentry/sentry-dart/pull/2931))
-  - Set `SentryOptions.includeModuleInStackTrace = true` to enable this. This may change grouping of exceptions. 
   - Set `SentryOptions.includeModuleInStackTrace = true` to enable this. This may change grouping of exceptions.
 
 ### Dependencies

@@ -25,9 +25,7 @@ class ReplayEventProcessor implements EventProcessor {
         isErrorEvent || (isFeedbackEvent && !isWidgetFeedbackEvent);
 
     if (shouldCaptureReplay) {
-      final isCrash =
-          event.exceptions?.any((e) => e.mechanism?.handled == false) ?? false;
-      final replayId = await _binding.captureReplay(isCrash);
+      final replayId = await _binding.captureReplay();
       // If session replay is disabled, this is the first time we receive the ID.
       _hub.configureScope((scope) {
         // ignore: invalid_use_of_internal_member
