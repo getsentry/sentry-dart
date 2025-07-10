@@ -9,8 +9,6 @@
 ### Enhancements
 
 - Remove `SentryTimingsCallback` and use Flutter's `TimingsCallback` instead ([#3054](https://github.com/getsentry/sentry-dart/pull/3054))
-## Enhancements
-
 - Remove unused native frames integration ([#3053](https://github.com/getsentry/sentry-dart/pull/3053))
 
 ## 9.4.0
