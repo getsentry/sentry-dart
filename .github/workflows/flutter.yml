@@ -123,9 +123,6 @@ jobs:
         with:
           channel: main
 
-      - name: Use Xcode 16.4
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-
       - run: flutter config --enable-swift-package-manager
 
       - name: Run on iOS
