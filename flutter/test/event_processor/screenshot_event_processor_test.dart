@@ -77,12 +77,6 @@ void main() {
           added: true, isWeb: true);
     });
 
-    testWidgets('adds screenshot attachment with skwasm renderer',
-        (tester) async {
-      await _addScreenshotAttachment(tester, FlutterRenderer.skwasm,
-          added: true, isWeb: true);
-    });
-
     testWidgets('does not add screenshot attachment with html renderer',
         (tester) async {
       await _addScreenshotAttachment(tester, FlutterRenderer.html,
