@@ -779,6 +779,50 @@ void main() {
       expect(calls[2].scope?.user, isNull);
       expect(calls[2].formatted, 'foo bar 2');
     });
+
+    test('withScope shares propagation context to fix trace ID inconsistency', () async {
+      final hub = fixture.getSut();
+      
+      // Set up baggage on the hub's scope
+      hub.scope.propagationContext.baggage = SentryBaggage({'service': 'test'});
+      
+      // Get the original trace context
+      final originalTraceId = hub.scope.propagationContext.traceId;
+      final originalSpanId = hub.scope.propagationContext.spanId;
+      final originalTraceHeader = hub.scope.propagationContext.toSentryTrace();
+      
+      // Capture variables from within the withScope callback
+      SentryId? withScopeTraceId;
+      SpanId? withScopeSpanId;
+      SentryTraceHeader? withScopeTraceHeader;
+      
+      await hub.captureException(Exception('test'), withScope: (scope) async {
+        withScopeTraceId = scope.propagationContext.traceId;
+        withScopeSpanId = scope.propagationContext.spanId;
+        withScopeTraceHeader = scope.propagationContext.toSentryTrace();
+        
+        // Verify the propagation context is shared (same instance)
+        expect(identical(hub.scope.propagationContext, scope.propagationContext), true,
+               reason: 'Propagation context should be shared between hub scope and withScope');
+      });
+      
+      // Verify trace IDs are the same (fixes issue #3067)
+      expect(withScopeTraceId?.toString(), originalTraceId.toString(),
+             reason: 'Trace IDs should be identical between hub scope and withScope');
+      
+      // Verify span IDs are the same
+      expect(withScopeSpanId?.toString(), originalSpanId.toString(),
+             reason: 'Span IDs should be identical between hub scope and withScope');
+      
+      // Verify trace headers are the same (this is what gets sent in HTTP requests)
+      expect(withScopeTraceHeader?.value, originalTraceHeader.value,
+             reason: 'Trace headers should be identical for HTTP requests and Sentry events');
+      
+      // Verify this solves the original issue where HTTP Request Header 
+      // would have different trace ID than the event sent to Sentry
+      expect(originalTraceHeader.traceId, withScopeTraceHeader?.traceId,
+             reason: 'HTTP Request Header trace ID should match Sentry event trace ID');
+    });
   });
 
   group('ClientReportRecorder', () {
