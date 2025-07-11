@@ -88,6 +88,15 @@ void main() {
       expect(fixture.client.captureEventCalls.first.scope, isNotNull);
     });
 
+    test('should capture exception with message', () async {
+      final hub = fixture.getSut();
+      await hub.captureException(fakeException,
+          message: SentryMessage('Sentry rocks'));
+
+      expect(fixture.client.captureEventCalls.first.event.message?.formatted,
+          'Sentry rocks');
+    });
+
     test('should capture message', () async {
       final hub = fixture.getSut();
       final fakeMessage = getFakeMessage();
@@ -798,6 +807,49 @@ void main() {
               element.reason == DiscardReason.sampleRate)
           .quantity;
       expect(spanCount, 4);
+    });
+  });
+
+  group('Hub Logs', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    SentryLog givenLog() {
+      return SentryLog(
+        timestamp: DateTime.now(),
+        traceId: SentryId.newId(),
+        level: SentryLogLevel.info,
+        body: 'test',
+        attributes: {
+          'attribute': SentryLogAttribute.string('value'),
+        },
+      );
+    }
+
+    test('onBeforeCaptureLog should call the hook', () async {
+      final hub = fixture.getSut();
+
+      final log = givenLog();
+      await hub.captureLog(log);
+
+      expect(fixture.client.captureLogCalls.length, 1);
+      expect(fixture.client.captureLogCalls.first.log, log);
+    });
+
+    test('OnBeforeCaptureLog should call the hook', () async {
+      final hub = fixture.getSut();
+
+      hub.registerCallback<OnBeforeCaptureLog>((event) {
+        // No-op
+      });
+
+      final log = givenLog();
+      await hub.captureLog(log);
+
+      expect(fixture.client.lifecycleCallbacks[OnBeforeCaptureLog]?.length, 1);
     });
   });
 }

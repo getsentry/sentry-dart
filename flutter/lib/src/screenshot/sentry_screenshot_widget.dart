@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import '../../sentry_flutter.dart';
 
 /// Key which is used to identify the [RepaintBoundary]
 @internal
@@ -23,8 +24,27 @@ final sentryScreenshotWidgetGlobalKey =
 ///   times.
 class SentryScreenshotWidget extends StatefulWidget {
   final Widget child;
+  final Hub _hub;
 
-  const SentryScreenshotWidget({super.key, required this.child});
+  SentryScreenshotWidget({
+    required this.child,
+    @internal Hub? hub,
+  })  : _hub = hub ?? HubAdapter(),
+        super(key: sentryScreenshotWidgetGlobalKey);
+
+  @internal
+  static void showTakeScreenshotButton() {
+    final state = sentryScreenshotWidgetGlobalKey.currentState
+        as _SentryScreenshotWidgetState?;
+    state?._toggleScreenshotButton(true);
+  }
+
+  @internal
+  static void hideTakeScreenshotButton() {
+    final state = sentryScreenshotWidgetGlobalKey.currentState
+        as _SentryScreenshotWidgetState?;
+    state?._toggleScreenshotButton(false);
+  }
 
   @override
   _SentryScreenshotWidgetState createState() => _SentryScreenshotWidgetState();
@@ -66,6 +86,21 @@ typedef SentryScreenshotWidgetOnBuildCallback = bool Function(
     SentryScreenshotWidgetStatus? previousStatus);
 
 class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
+  bool _isScreenshotButtonVisible = false;
+
+  void _toggleScreenshotButton(bool show) {
+    setState(() {
+      _isScreenshotButtonVisible = show;
+    });
+  }
+
+  SentryFlutterOptions? get _options =>
+      // ignore: invalid_use_of_internal_member
+      widget._hub.options is SentryFlutterOptions
+          // ignore: invalid_use_of_internal_member
+          ? widget._hub.options as SentryFlutterOptions?
+          : null;
+
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
@@ -87,9 +122,60 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
       unregisterCallbacks.forEach(SentryScreenshotWidget._onBuild.remove);
     }
 
+    // Detect the current text direction or fall back to LTR
+    TextDirection textDirection;
+    try {
+      textDirection = Directionality.of(context);
+    } catch (_) {
+      textDirection = TextDirection.ltr;
+    }
+
     return RepaintBoundary(
-      key: sentryScreenshotWidgetGlobalKey,
-      child: widget.child,
+      child: Directionality(
+        textDirection: textDirection,
+        child: Stack(
+          children: [
+            Container(
+              child: widget.child,
+            ),
+            if (_isScreenshotButtonVisible)
+              PositionedDirectional(
+                end: 32,
+                bottom: 32,
+                child: ElevatedButton.icon(
+                  key: const ValueKey(
+                      'sentry_screenshot_take_screenshot_button'),
+                  onPressed: () async {
+                    SentryScreenshotWidget.hideTakeScreenshotButton();
+                    final screenshot = await SentryFlutter.captureScreenshot();
+
+                    final currentContext =
+                        _options?.navigatorKey?.currentContext;
+
+                    if (currentContext != null && currentContext.mounted) {
+                      SentryFeedbackWidget.show(
+                        currentContext,
+                        associatedEventId:
+                            SentryFeedbackWidget.pendingAssociatedEventId,
+                        screenshot: screenshot,
+                        hub: widget._hub,
+                      );
+                    }
+                  },
+                  icon: Icon(
+                    Icons.screenshot_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 24.0,
+                  ),
+                  label: Text(
+                    _options?.feedback.takeScreenshotButtonLabel ??
+                        'Take Screenshot',
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

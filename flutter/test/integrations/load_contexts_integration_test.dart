@@ -6,25 +6,54 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
-
 import 'fixture.dart';
+import 'package:sentry/src/logs_enricher_integration.dart';
 
 void main() {
-  group(LoadContextsIntegration, () {
-    late IntegrationTestFixture<LoadContextsIntegration> fixture;
+  final infosJson = {
+    'contexts': {
+      'device': {
+        'family': 'fixture-device-family',
+        'model': 'fixture-device-model',
+        'brand': 'fixture-device-brand',
+      },
+      'os': {
+        'name': 'fixture-os-name',
+        'version': 'fixture-os-version',
+      },
+    }
+  };
 
-    setUp(() async {
+  SentryLog givenLog() {
+    return SentryLog(
+      timestamp: DateTime.now(),
+      traceId: SentryId.newId(),
+      level: SentryLogLevel.info,
+      body: 'test',
+      attributes: {
+        'attribute': SentryLogAttribute.string('value'),
+      },
+    );
+  }
+
+  group(LoadContextsIntegration, () {
+    late IntegrationTestFixture fixture;
+
+    setUp(() {
       fixture = IntegrationTestFixture(LoadContextsIntegration.new);
-      await fixture.registerIntegration();
     });
 
-    test('loadContextsIntegration adds integration', () {
+    test('loadContextsIntegration adds integration', () async {
+      await fixture.registerIntegration();
+
       expect(
           fixture.options.sdk.integrations.contains('loadContextsIntegration'),
           true);
     });
 
     test('take breadcrumbs from native if scope sync is enabled', () async {
+      await fixture.registerIntegration();
+
       fixture.options.enableScopeSync = true;
 
       final eventBreadcrumb = Breadcrumb(message: 'event');
@@ -42,6 +71,7 @@ void main() {
     });
 
     test('take breadcrumbs from event if scope sync is disabled', () async {
+      await fixture.registerIntegration();
       fixture.options.enableScopeSync = false;
 
       final eventBreadcrumb = Breadcrumb(message: 'event');
@@ -59,6 +89,7 @@ void main() {
     });
 
     test('apply beforeBreadcrumb to native breadcrumbs', () async {
+      await fixture.registerIntegration();
       fixture.options.enableScopeSync = true;
       fixture.options.beforeBreadcrumb = (breadcrumb, hint) {
         if (breadcrumb?.message == 'native-mutated') {
@@ -89,6 +120,8 @@ void main() {
     test(
         'apply default IP to user during captureEvent after loading context if ip is null and sendDefaultPii is true',
         () async {
+      await fixture.registerIntegration();
+
       fixture.options.enableScopeSync = true;
       fixture.options.sendDefaultPii = true;
 
@@ -122,6 +155,7 @@ void main() {
     test(
         'does not apply default IP to user during captureEvent after loading context if ip is null and sendDefaultPii is false',
         () async {
+      await fixture.registerIntegration();
       fixture.options.enableScopeSync = true;
       // sendDefaultPii false is by default
 
@@ -154,6 +188,7 @@ void main() {
     test(
         'apply default IP to user during captureTransaction after loading context if ip is null and sendDefaultPii is true',
         () async {
+      await fixture.registerIntegration();
       fixture.options.enableScopeSync = true;
       fixture.options.sendDefaultPii = true;
 
@@ -190,6 +225,7 @@ void main() {
     test(
         'does not apply default IP to user during captureTransaction after loading context if ip is null and sendDefaultPii is false',
         () async {
+      await fixture.registerIntegration();
       fixture.options.enableScopeSync = true;
       // sendDefaultPii false is by default
 
@@ -220,6 +256,70 @@ void main() {
 
       expect(actualIp, isNull);
       expect(actualId, expectedId);
+    });
+
+    test('add os and device attributes to log', () async {
+      fixture.options.enableLogs = true;
+
+      await fixture.registerIntegration();
+
+      when(fixture.binding.loadContexts()).thenAnswer((_) async => infosJson);
+
+      final log = givenLog();
+      await fixture.hub.captureLog(log);
+
+      expect(log.attributes['os.name']?.value, 'fixture-os-name');
+      expect(log.attributes['os.version']?.value, 'fixture-os-version');
+      expect(log.attributes['device.brand']?.value, 'fixture-device-brand');
+      expect(log.attributes['device.model']?.value, 'fixture-device-model');
+      expect(log.attributes['device.family']?.value, 'fixture-device-family');
+    });
+
+    test('removes logsEnricherIntegration', () async {
+      final integration = LogsEnricherIntegration();
+      fixture.options.addIntegration(integration);
+
+      fixture.options.enableLogs = true;
+      await fixture.registerIntegration();
+
+      expect(
+          fixture.options.integrations
+              // ignore: invalid_use_of_internal_member
+              .any((element) => element is LogsEnricherIntegration),
+          isFalse);
+    });
+
+    test('does not add os and device attributes to log if enableLogs is false',
+        () async {
+      fixture.options.enableLogs = false;
+      await fixture.registerIntegration();
+
+      when(fixture.binding.loadContexts()).thenAnswer((_) async => infosJson);
+
+      final log = givenLog();
+      await fixture.hub.captureLog(log);
+
+      expect(log.attributes['os.name'], isNull);
+      expect(log.attributes['os.version'], isNull);
+      expect(log.attributes['device.brand'], isNull);
+      expect(log.attributes['device.model'], isNull);
+      expect(log.attributes['device.family'], isNull);
+    });
+
+    test('handles throw during loadContexts', () async {
+      fixture.options.enableLogs = true;
+      await fixture.registerIntegration();
+
+      when(fixture.binding.loadContexts()).thenThrow(Exception('test'));
+
+      final log = givenLog();
+      await fixture.hub.captureLog(log);
+
+      expect(log.attributes['os.name'], isNull);
+      expect(log.attributes['os.version'], isNull);
+      expect(log.attributes['device.brand'], isNull);
+      expect(log.attributes['device.model'], isNull);
+      expect(log.attributes['device.family'], isNull);
     });
   });
 }

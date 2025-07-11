@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../replay/replay_config.dart';
 import 'native_app_start.dart';
-import 'native_frames.dart';
 
 /// Provide typed methods to access native layer.
 @internal
@@ -23,10 +22,6 @@ abstract class SentryNativeBinding {
       Uint8List envelopeData, bool containsUnhandledException);
 
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope);
-
-  FutureOr<void> beginNativeFrames();
-
-  FutureOr<NativeFrames?> endNativeFrames(SentryId id);
 
   FutureOr<void> setUser(SentryUser? user);
 
@@ -71,7 +66,7 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> setReplayConfig(ReplayConfig config);
 
-  FutureOr<SentryId> captureReplay(bool isCrash);
+  FutureOr<SentryId> captureReplay();
 
   /// Starts a new session.
   ///

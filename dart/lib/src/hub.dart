@@ -126,6 +126,7 @@ class Hub {
     dynamic throwable, {
     dynamic stackTrace,
     Hint? hint,
+    SentryMessage? message,
     ScopeCallback? withScope,
   }) async {
     var sentryId = SentryId.empty();
@@ -154,6 +155,7 @@ class Hub {
         var event = SentryEvent(
           throwable: throwable,
           timestamp: _options.clock(),
+          message: message,
         );
 
         if (_options.isTracingEnabled()) {
@@ -627,6 +629,13 @@ class Hub {
   set profilerFactory(SentryProfilerFactory? value) => _profilerFactory = value;
 
   SentryProfilerFactory? _profilerFactory;
+
+  @internal
+  void registerCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {
+    final item = _peek();
+    item.client.registerCallback<T>(callback);
+  }
 
   SentryEvent _assignTraceContext(SentryEvent event) {
     // assign trace context

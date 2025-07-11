@@ -27,8 +27,8 @@ import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
-import 'renderer/renderer.dart';
 import 'replay/integration.dart';
+import 'screenshot/screenshot_support.dart';
 import 'utils/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
@@ -130,7 +130,7 @@ mixin SentryFlutter {
         }
       }
       if (!options.platform.isWeb) {
-        options.addScopeObserver(NativeScopeObserver(_native!));
+        options.addScopeObserver(NativeScopeObserver(_native!, options));
       }
     }
 
@@ -181,11 +181,11 @@ mixin SentryFlutter {
       // We also need to call this before the native sdk integrations so release is properly propagated.
       integrations.add(LoadReleaseIntegration());
       integrations.add(createSdkIntegration(native));
+      integrations.add(createLoadDebugImagesIntegration(native));
       if (!platform.isWeb) {
         if (native.supportsLoadContexts) {
           integrations.add(LoadContextsIntegration(native));
         }
-        integrations.add(LoadNativeDebugImagesIntegration(native));
         integrations.add(FramesTrackingIntegration(native));
         integrations.add(
           NativeAppStartIntegration(
@@ -205,8 +205,7 @@ mixin SentryFlutter {
       options.enableDartSymbolication = false;
     }
 
-    final renderer = options.rendererWrapper.getRenderer();
-    if (!platform.isWeb || renderer == FlutterRenderer.canvasKit) {
+    if (options.isScreenshotSupported) {
       integrations.add(ScreenshotIntegration());
     }
 
@@ -244,13 +243,16 @@ mixin SentryFlutter {
     options.sdk = sdk;
   }
 
-  /// Reports the time it took for the screen to be fully displayed.
-  /// This requires the [SentryFlutterOptions.enableTimeToFullDisplayTracing] option to be set to `true`.
+  @Deprecated(
+      'Use reportFullyDisplayed() on a SentryDisplay instance instead. Read the TTFD documentation at https://docs.sentry.io/platforms/dart/guides/flutter/integrations/routing-instrumentation/#time-to-full-display.')
   static Future<void> reportFullyDisplayed() async {
     final options = Sentry.currentHub.options;
     if (options is SentryFlutterOptions) {
       try {
-        return options.timeToDisplayTracker.reportFullyDisplayed();
+        final transactionId = options.timeToDisplayTracker.transactionId;
+        return options.timeToDisplayTracker.reportFullyDisplayed(
+          spanId: transactionId,
+        );
       } catch (exception, stackTrace) {
         options.log(
           SentryLevel.error,
@@ -259,9 +261,35 @@ mixin SentryFlutter {
           stackTrace: stackTrace,
         );
       }
-    } else {
-      return;
     }
+  }
+
+  /// Returns the current display.
+  ///
+  /// Use it to report fully displayed for a widget when using the [SentryNavigatorObserver].
+  ///
+  /// Example:
+  /// ```dart
+  /// // At the start of async work
+  /// final currentDisplay = SentryFlutter.currentDisplay;
+  ///
+  /// // After async work completes
+  /// if (currentDisplay != null) {
+  ///   currentDisplay.reportFullyDisplayed();
+  /// }
+  /// ```
+  static SentryDisplay? currentDisplay({Hub? hub}) {
+    hub ??= Sentry.currentHub;
+
+    final options = hub.options;
+    if (options is! SentryFlutterOptions) {
+      return null;
+    }
+    final transactionId = options.timeToDisplayTracker.transactionId;
+    if (transactionId == null) {
+      return null;
+    }
+    return SentryDisplay(transactionId, hub: hub);
   }
 
   /// Pauses the app hang tracking.

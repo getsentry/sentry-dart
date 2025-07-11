@@ -140,7 +140,7 @@ class _AndroidNativeReplayWorker {
     // Android Bitmap creation is a bit costly so we reuse it between captures.
     native.Bitmap? bitmap;
 
-    final _nativeReplay = native.SentryFlutterPlugin$Companion(null)
+    final _nativeReplay = native.SentryFlutterPlugin.Companion
         .privateSentryGetReplayIntegration()!;
 
     receivePort.listen((message) {

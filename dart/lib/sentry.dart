@@ -35,7 +35,10 @@ export 'src/scope_observer.dart';
 export 'src/sentry.dart';
 export 'src/sentry_attachment/sentry_attachment.dart';
 export 'src/sentry_baggage.dart';
+// ignore: invalid_export_of_internal_element
 export 'src/sentry_client.dart';
+// ignore: invalid_export_of_internal_element
+export 'src/lifecycle/on_before_capture_log.dart';
 export 'src/sentry_envelope.dart';
 export 'src/sentry_envelope_item.dart';
 export 'src/sentry_options.dart';
@@ -49,8 +52,6 @@ export 'src/transport/transport.dart';
 export 'src/type_check_hint.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils.dart';
-// ignore: invalid_export_of_internal_element
-export 'src/utils/add_tracing_headers_to_http_request.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/http_header_utils.dart';
 // ignore: invalid_export_of_internal_element

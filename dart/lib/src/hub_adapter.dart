@@ -53,12 +53,14 @@ class HubAdapter implements Hub {
     dynamic throwable, {
     dynamic stackTrace,
     Hint? hint,
+    SentryMessage? message,
     ScopeCallback? withScope,
   }) =>
       Sentry.captureException(
         throwable,
         stackTrace: stackTrace,
         hint: hint,
+        message: message,
         withScope: withScope,
       );
 
@@ -197,4 +199,10 @@ class HubAdapter implements Hub {
 
   @override
   FutureOr<void> captureLog(SentryLog log) => Sentry.currentHub.captureLog(log);
+
+  @override
+  void registerCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {
+    Sentry.currentHub.registerCallback(callback);
+  }
 }

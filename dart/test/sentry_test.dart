@@ -6,6 +6,7 @@ import 'dart:isolate';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
+import 'package:sentry/src/logs_enricher_integration.dart';
 import 'package:sentry/src/feature_flags_integration.dart';
 import 'package:test/test.dart';
 
@@ -99,6 +100,14 @@ void main() {
       expect(client.captureEventCalls.first.event.throwable, anException);
       expect(client.captureEventCalls.first.stackTrace, isNull);
       expect(client.captureEventCalls.first.scope, isNotNull);
+    });
+
+    test('should capture exception with message', () async {
+      await Sentry.captureException(anException,
+          message: SentryMessage('Sentry rocks'));
+
+      expect(client.captureEventCalls.first.event.message?.formatted,
+          'Sentry rocks');
     });
 
     test('should capture exception withScope', () async {
@@ -288,6 +297,27 @@ void main() {
         1,
       );
     }, onPlatform: {'browser': Skip()});
+
+    test('should add logsEnricherIntegration', () async {
+      late SentryOptions optionsReference;
+      final options = defaultTestOptions();
+
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          optionsReference = options;
+        },
+        appRunner: appRunner,
+      );
+
+      expect(
+        optionsReference.integrations
+            .whereType<LogsEnricherIntegration>()
+            .length,
+        1,
+      );
+    });
 
     test('should add only web compatible default integrations', () async {
       final options = defaultTestOptions();

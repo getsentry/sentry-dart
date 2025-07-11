@@ -1,5 +1,33 @@
 import '../../sentry.dart';
 
+SentryTraceHeader generateSentryTraceHeader(
+    {SentryId? traceId, SpanId? spanId, bool? sampled}) {
+  traceId ??= SentryId.newId();
+  spanId ??= SpanId.newId();
+  return SentryTraceHeader(traceId, spanId, sampled: sampled);
+}
+
+void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
+    {ISentrySpan? span}) {
+  if (span != null) {
+    addSentryTraceHeaderFromSpan(span, headers);
+    addBaggageHeaderFromSpan(
+      span,
+      headers,
+      log: hub.options.log,
+    );
+  } else {
+    addSentryTraceHeaderFromScope(hub.scope, headers);
+    addBaggageHeaderFromScope(hub.scope, headers, log: hub.options.log);
+  }
+}
+
+void addSentryTraceHeaderFromScope(Scope scope, Map<String, dynamic> headers) {
+  final propagationContext = scope.propagationContext;
+  final traceHeader = propagationContext.toSentryTrace();
+  headers[traceHeader.name] = traceHeader.value;
+}
+
 void addSentryTraceHeaderFromSpan(
     ISentrySpan span, Map<String, dynamic> headers) {
   final traceHeader = span.toSentryTrace();
@@ -9,6 +37,17 @@ void addSentryTraceHeaderFromSpan(
 void addSentryTraceHeader(
     SentryTraceHeader traceHeader, Map<String, dynamic> headers) {
   headers[traceHeader.name] = traceHeader.value;
+}
+
+void addBaggageHeaderFromScope(
+  Scope scope,
+  Map<String, dynamic> headers, {
+  SdkLogCallback? log,
+}) {
+  final baggageHeader = scope.propagationContext.toBaggageHeader();
+  if (baggageHeader != null) {
+    addBaggageHeader(baggageHeader, headers, log: log);
+  }
 }
 
 void addBaggageHeaderFromSpan(

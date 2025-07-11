@@ -34,13 +34,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c # pin@v1
         if: ${{ inputs.sdk == 'dart' }}
-      - uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046 # pin@v2.19.0
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         if: ${{ inputs.sdk == 'flutter' }}
 
-      - run: ${{ inputs.sdk }} pub get
-      - run: ${{ inputs.sdk }} pub get
+      - run: dart pub get
+        if: ${{ inputs.sdk == 'dart' }}
+
+      - run: flutter pub get
+        if: ${{ inputs.sdk == 'flutter' }}
+
+      - run: flutter pub get
         if: ${{ inputs.package == 'flutter' }}
         working-directory: flutter/microbenchmarks
+
       - run: dart format --set-exit-if-changed ./
 
       - name: dart analyze
@@ -77,10 +83,11 @@ jobs:
         env:
           TOTAL: ${{ steps.analysis.outputs.total }}
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
+          PANA_THRESHOLD: ${{ inputs.panaThreshold }}
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          if (( $PERCENTAGE < ${{ inputs.panaThreshold }} ))
+          if (( $PERCENTAGE < $PANA_THRESHOLD ))
           then
-            echo "Score too low ($PERCENTAGE % is less than the expected ${{ inputs.panaThreshold }} %)!"
+            echo "Score too low ($PERCENTAGE % is less than the expected $PANA_THRESHOLD %)!"
             exit 1
           fi

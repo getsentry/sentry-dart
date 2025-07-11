@@ -44,6 +44,7 @@ class NoOpHub implements Hub {
     dynamic throwable, {
     dynamic stackTrace,
     Hint? hint,
+    SentryMessage? message,
     ScopeCallback? withScope,
   }) async =>
       SentryId.empty();
@@ -143,4 +144,9 @@ class NoOpHub implements Hub {
 
   @override
   Scope get scope => Scope(_options);
+
+  @internal
+  @override
+  void registerCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {}
 }

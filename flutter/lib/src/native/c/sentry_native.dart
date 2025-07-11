@@ -10,7 +10,6 @@ import 'package:meta/meta.dart';
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../native_app_start.dart';
-import '../native_frames.dart';
 import '../sentry_native_binding.dart';
 import '../sentry_native_invoker.dart';
 import 'binding.dart' as binding;
@@ -78,6 +77,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
       if (crashpadPath != null) {
         native.options_set_handler_path(cOptions, c.str(crashpadPath));
+      } else {
+        options.log(
+            SentryLevel.warning, 'SentryNative: could not find crashpad path');
       }
 
       return cOptions;
@@ -107,12 +109,6 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) {
     throw UnsupportedError("Not supported on this platform");
   }
-
-  @override
-  FutureOr<void> beginNativeFrames() {}
-
-  @override
-  FutureOr<NativeFrames?> endNativeFrames(SentryId id) => null;
 
   @override
   FutureOr<void> setUser(SentryUser? user) {
@@ -282,7 +278,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<SentryId> captureReplay(bool isCrash) {
+  FutureOr<SentryId> captureReplay() {
     _logNotSupported('capturing replay');
     return SentryId.empty();
   }
@@ -440,7 +436,8 @@ String? _getDefaultCrashpadPath() {
       final appDir = Platform.resolvedExecutable.substring(0, lastSeparator);
       final candidates = [
         '$appDir${Platform.pathSeparator}crashpad_handler',
-        '$appDir${Platform.pathSeparator}bin/crashpad_handler'
+        '$appDir${Platform.pathSeparator}bin${Platform.pathSeparator}crashpad_handler',
+        '$appDir${Platform.pathSeparator}lib${Platform.pathSeparator}crashpad_handler'
       ];
       return candidates.firstWhereOrNull((path) => File(path).existsSync());
     }
