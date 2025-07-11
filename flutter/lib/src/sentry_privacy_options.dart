@@ -161,8 +161,7 @@ class SentryPrivacyOptions {
   }
 }
 
-/// Adds a masking rule for the [SensitiveContent] widget if we're running on a
-/// Flutter SDK that doesn't natively include it yet (prior to 3.33.0).
+/// Adds a masking rule for the [SensitiveContent] widget.
 ///
 /// The rule masks any widget that exposes a `sensitivity` property which is an
 /// [Enum]. This is how the future [SensitiveContent] widget can be detected
