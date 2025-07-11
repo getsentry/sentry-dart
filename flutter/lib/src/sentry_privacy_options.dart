@@ -104,6 +104,10 @@ class SentryPrivacyOptions {
               'Debug-mode-only warning for potentially sensitive widgets.'));
     }
 
+    // Add fallback masking rule for SensitiveContent widget on Flutter versions
+    // that don't include it yet.
+    _maybeAddSensitiveContentRule(rules);
+
     return SentryMaskingConfig(rules);
   }
 
@@ -156,6 +160,73 @@ class SentryPrivacyOptions {
       description:
           description ?? 'Custom callback-based rule (description unspecified)',
     ));
+  }
+}
+
+// ------------------------
+// SensitiveContent fallback
+// ------------------------
+
+/// Adds a masking rule for the [SensitiveContent] widget if we're running on a
+/// Flutter SDK that doesn't natively include it yet (prior to 3.33.0).
+///
+/// The rule masks any widget that exposes a `sensitivity` property which is an
+/// [Enum]. This is how the future [SensitiveContent] widget can be detected
+/// without depending on its type directly (which would fail to compile on
+/// older Flutter versions).
+///
+/// To avoid unnecessary code retention for newer SDKs, the whole rule is
+/// conditionally added based on the compile-time `FLUTTER_VERSION` dart define
+/// (available since Flutter 3.32). If the version is 3.33.0-0.2.pre or later,
+/// we skip adding the rule so that the `dynamic` property access can be tree
+///-shaken away.
+void _maybeAddSensitiveContentRule(List<SentryMaskingRule> rules) {
+  const requiredMajor = 3;
+  const requiredMinor = 33;
+
+  bool shouldAddRule = true;
+
+  // The FLUTTER_VERSION define is optional and only available on recent
+  // versions of Flutter. We use it to avoid retaining the dynamic reflection
+  // code path when the SDK already provides the SensitiveContent widget with
+  // default masking.
+  if (bool.hasEnvironment('FLUTTER_VERSION')) {
+    const versionString = String.fromEnvironment('FLUTTER_VERSION');
+    final parts = versionString.split('.');
+    if (parts.length >= 2) {
+      final major = int.tryParse(parts[0]) ?? 0;
+      final minor = int.tryParse(parts[1]) ?? 0;
+      // Any hotfix/pre-release of 3.33 or higher already contains
+      // SensitiveContent, so we don't need the fallback rule.
+      if (major > requiredMajor || (major == requiredMajor && minor >= requiredMinor)) {
+        shouldAddRule = false;
+      }
+    }
+  }
+
+  if (!shouldAddRule) {
+    return;
+  }
+
+  rules.add(SentryMaskingCustomRule<Widget>(
+    callback: _maskSensitiveContentFallback,
+    name: 'SensitiveContent',
+    description: 'Mask SensitiveContent (fallback for Flutter < 3.33)',
+  ));
+}
+
+/// Callback that detects the future `SensitiveContent` widget by checking for
+/// the presence of a `sensitivity` property at runtime.
+SentryMaskingDecision _maskSensitiveContentFallback(Element element, Widget widget) {
+  try {
+    final dynamic dynWidget = widget;
+    final sensitivity = dynWidget.sensitivity;
+    // If the property exists, we assume this is the SensitiveContent widget.
+    assert(sensitivity is Enum);
+    return SentryMaskingDecision.mask;
+  } catch (_) {
+    // Property not found – continue processing other rules.
+    return SentryMaskingDecision.continueProcessing;
   }
 }
 
