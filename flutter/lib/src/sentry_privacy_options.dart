@@ -184,27 +184,30 @@ void _maybeAddSensitiveContentRule(List<SentryMaskingRule> rules) {
   const requiredMajor = 3;
   const requiredMinor = 33;
 
-  bool shouldAddRule = true;
+  // Only add the rule if we can *statically* determine that the running
+  // Flutter SDK is at least 3.33 – that is the first version that contains
+  // the SensitiveContent widget. For older SDKs we skip the rule entirely so
+  // that the dynamic `sensitivity` lookup is tree-shaken away.
 
-  // The FLUTTER_VERSION define is optional and only available on recent
-  // versions of Flutter. We use it to avoid retaining the dynamic reflection
-  // code path when the SDK already provides the SensitiveContent widget with
-  // default masking.
-  if (bool.hasEnvironment('FLUTTER_VERSION')) {
-    const versionString = String.fromEnvironment('FLUTTER_VERSION');
-    final parts = versionString.split('.');
-    if (parts.length >= 2) {
-      final major = int.tryParse(parts[0]) ?? 0;
-      final minor = int.tryParse(parts[1]) ?? 0;
-      // Any hotfix/pre-release of 3.33 or higher already contains
-      // SensitiveContent, so we don't need the fallback rule.
-      if (major > requiredMajor || (major == requiredMajor && minor >= requiredMinor)) {
-        shouldAddRule = false;
-      }
-    }
+  if (!bool.hasEnvironment('FLUTTER_VERSION')) {
+    // FLUTTER_VERSION not available ‑ the SDK is older (<3.32). Skip.
+    return;
   }
 
-  if (!shouldAddRule) {
+  const versionString = String.fromEnvironment('FLUTTER_VERSION');
+  final parts = versionString.split('.');
+  if (parts.length < 2) {
+    // Malformed version string – be safe and skip.
+    return;
+  }
+
+  final major = int.tryParse(parts[0]) ?? 0;
+  final minor = int.tryParse(parts[1]) ?? 0;
+
+  final isNewEnough = major > requiredMajor || (major == requiredMajor && minor >= requiredMinor);
+
+  if (!isNewEnough) {
+    // Older than 3.33 – skip.
     return;
   }
 
