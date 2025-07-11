@@ -210,13 +210,11 @@ void main() {
 
         test('methods execute without calling JS binding', () {
           sut.addBreadcrumb(Breadcrumb());
-          sut.beginNativeFrames();
           sut.captureEnvelope(Uint8List(0), false);
           sut.clearBreadcrumbs();
           sut.collectProfile(SentryId.empty(), 0, 0);
           sut.discardProfiler(SentryId.empty());
           sut.displayRefreshRate();
-          sut.endNativeFrames(SentryId.empty());
           sut.fetchNativeAppStart();
           sut.loadContexts();
           sut.nativeCrash();
@@ -240,7 +238,6 @@ void main() {
           expect(sut.fetchNativeAppStart(), isNull);
           expect(sut.loadContexts(), isNull);
           expect(sut.collectProfile(SentryId.empty(), 0, 0), isNull);
-          expect(sut.endNativeFrames(SentryId.empty()), isNull);
           expect(sut.startProfiler(SentryId.empty()), isNull);
         });
       });
