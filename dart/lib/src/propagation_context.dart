@@ -15,15 +15,6 @@ class PropagationContext {
   /// The dynamic sampling context.
   SentryBaggage? baggage;
 
-  /// Creates a new PropagationContext with random traceId and spanId
-  PropagationContext();
-
-  /// Creates a copy of an existing PropagationContext
-  PropagationContext.copy(PropagationContext other)
-      : traceId = SentryId.fromId(other.traceId.toString()),
-        spanId = SpanId.fromId(other.spanId.toString()),
-        baggage = other.baggage;
-
   /// Baggage header to attach to http headers.
   SentryBaggageHeader? toBaggageHeader() =>
       baggage != null ? SentryBaggageHeader.fromBaggage(baggage!) : null;
