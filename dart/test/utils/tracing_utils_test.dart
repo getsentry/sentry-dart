@@ -154,9 +154,181 @@ void main() {
       expect(isValidSampleRate(double.nan), false);
     });
   });
+
+  group('$generateSentryTraceHeader', () {
+    test('generates header with new ids when not provided', () {
+      final header = generateSentryTraceHeader();
+
+      expect(header.traceId, isNotNull);
+      expect(header.spanId, isNotNull);
+      expect(header.sampled, isNull);
+    });
+
+    test('generates header with provided traceId', () {
+      final traceId = SentryId.newId();
+      final header = generateSentryTraceHeader(traceId: traceId);
+
+      expect(header.traceId, traceId);
+      expect(header.spanId, isNotNull);
+      expect(header.sampled, isNull);
+    });
+
+    test('generates header with provided spanId', () {
+      final spanId = SpanId.newId();
+      final header = generateSentryTraceHeader(spanId: spanId);
+
+      expect(header.traceId, isNotNull);
+      expect(header.spanId, spanId);
+      expect(header.sampled, isNull);
+    });
+
+    test('generates header with provided sampled decision', () {
+      final header = generateSentryTraceHeader(sampled: true);
+
+      expect(header.traceId, isNotNull);
+      expect(header.spanId, isNotNull);
+      expect(header.sampled, true);
+    });
+
+    test('generates header with all parameters provided', () {
+      final traceId = SentryId.newId();
+      final spanId = SpanId.newId();
+      final header = generateSentryTraceHeader(
+        traceId: traceId,
+        spanId: spanId,
+        sampled: false,
+      );
+
+      expect(header.traceId, traceId);
+      expect(header.spanId, spanId);
+      expect(header.sampled, false);
+    });
+  });
+
+  group('$addTracingHeadersToHttpHeader', () {
+    final fixture = Fixture();
+
+    test('adds headers from span when span is provided', () {
+      final headers = <String, dynamic>{};
+      final hub = fixture._hub;
+      final span = fixture.getSut();
+
+      addTracingHeadersToHttpHeader(headers, hub, span: span);
+
+      final traceHeader =
+          SentryTraceHeader.fromTraceHeader(headers['sentry-trace']);
+      expect(traceHeader.traceId, span.context.traceId);
+      expect(traceHeader.spanId, span.context.spanId);
+      expect(traceHeader.sampled, span.samplingDecision?.sampled);
+      expect(headers['baggage'], isNotNull);
+    });
+
+    test('adds headers from scope when span is null', () {
+      final headers = <String, dynamic>{};
+      final hub = fixture._hub;
+      hub.configureScope((scope) {
+        scope.propagationContext.baggage = SentryBaggage({'test': 'value'});
+      });
+
+      addTracingHeadersToHttpHeader(headers, hub);
+
+      final traceHeader =
+          SentryTraceHeader.fromTraceHeader(headers['sentry-trace']);
+      expect(traceHeader.traceId, hub.scope.propagationContext.traceId);
+      expect(headers['baggage'], contains('test=value'));
+    });
+  });
+
+  group('$addSentryTraceHeaderFromScope', () {
+    test('adds sentry trace header from scope propagation context', () {
+      final fixture = Fixture();
+      final headers = <String, dynamic>{};
+      final hub = fixture._hub;
+      final scope = hub.scope;
+
+      addSentryTraceHeaderFromScope(scope, headers);
+
+      final traceHeader =
+          SentryTraceHeader.fromTraceHeader(headers['sentry-trace']);
+      expect(traceHeader.traceId, scope.propagationContext.traceId);
+    });
+  });
+
+  group('$addBaggageHeaderFromScope', () {
+    test('adds baggage header from scope when baggage exists', () {
+      final fixture = Fixture();
+      final headers = <String, dynamic>{};
+      final hub = fixture._hub;
+      final scope = hub.scope;
+      scope.propagationContext.baggage = SentryBaggage({
+        'sentry-trace_id': scope.propagationContext.traceId.toString(),
+        'sentry-public_key': 'public',
+        'custom': 'value',
+      });
+
+      addBaggageHeaderFromScope(scope, headers);
+
+      expect(headers['baggage'], isNotNull);
+      expect(headers['baggage'], contains('custom=value'));
+      expect(headers['baggage'], contains('sentry-public_key=public'));
+    });
+
+    test('does not add baggage header when baggage is null', () {
+      final fixture = Fixture();
+      final headers = <String, dynamic>{};
+      final hub = fixture._hub;
+      final scope = hub.scope;
+      scope.propagationContext.baggage = null;
+
+      addBaggageHeaderFromScope(scope, headers);
+
+      expect(headers['baggage'], isNull);
+    });
+  });
+
+  group('$isValidSampleRand', () {
+    test('returns false if null sampleRand', () {
+      expect(isValidSampleRand(null), false);
+    });
+
+    test('returns true if 0', () {
+      expect(isValidSampleRand(0.0), true);
+    });
+
+    test('returns true if 0.5', () {
+      expect(isValidSampleRand(0.5), true);
+    });
+
+    test('returns true if 0.999', () {
+      expect(isValidSampleRand(0.999), true);
+    });
+
+    test('returns false if 1.0', () {
+      expect(isValidSampleRand(1.0), false);
+    });
+
+    test('returns false if below the range', () {
+      expect(isValidSampleRand(-0.01), false);
+    });
+
+    test('returns false if above the range', () {
+      expect(isValidSampleRand(1.01), false);
+    });
+
+    test('returns false if NaN', () {
+      expect(isValidSampleRand(double.nan), false);
+    });
+  });
 }
 
 class Fixture {
+  Fixture() {
+    _hub = Hub(_options);
+    _hub.configureScope((scope) => scope.setUser(_user));
+
+    _hub.bindClient(_client);
+  }
+
   final _context = SentryTransactionContext(
     'name',
     'op',
@@ -180,10 +352,6 @@ class Fixture {
   );
 
   SentryTracer getSut() {
-    _hub = Hub(_options);
-    _hub.configureScope((scope) => scope.setUser(_user));
-
-    _hub.bindClient(_client);
     return SentryTracer(_context, _hub);
   }
 }
