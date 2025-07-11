@@ -10,7 +10,6 @@ import 'package:meta/meta.dart';
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../native_app_start.dart';
-import '../native_frames.dart';
 import '../sentry_native_binding.dart';
 import '../sentry_native_invoker.dart';
 import 'binding.dart' as binding;
@@ -110,12 +109,6 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) {
     throw UnsupportedError("Not supported on this platform");
   }
-
-  @override
-  FutureOr<void> beginNativeFrames() {}
-
-  @override
-  FutureOr<NativeFrames?> endNativeFrames(SentryId id) => null;
 
   @override
   FutureOr<void> setUser(SentryUser? user) {
