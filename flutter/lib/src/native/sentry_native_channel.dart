@@ -10,7 +10,6 @@ import '../../sentry_flutter.dart';
 import '../replay/replay_config.dart';
 import 'method_channel_helper.dart';
 import 'native_app_start.dart';
-import 'native_frames.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
 import 'sentry_safe_method_channel.dart';
@@ -119,16 +118,6 @@ class SentryNativeChannel
   @override
   Future<Map<String, dynamic>?> loadContexts() =>
       channel.invokeMapMethod<String, dynamic>('loadContexts');
-
-  @override
-  Future<void> beginNativeFrames() => channel.invokeMethod('beginNativeFrames');
-
-  @override
-  Future<NativeFrames?> endNativeFrames(SentryId id) async {
-    final json = await channel.invokeMapMethod<String, dynamic>(
-        'endNativeFrames', {'id': id.toString()});
-    return (json != null) ? NativeFrames.fromJson(json) : null;
-  }
 
   @override
   Future<void> setUser(SentryUser? user) async {

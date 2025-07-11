@@ -12,8 +12,6 @@ import 'package:sentry/src/sentry_tracer.dart';
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
 import '../integrations/web_session_integration.dart';
-import '../native/native_frames.dart';
-import '../native/sentry_native_binding.dart';
 import '../web/web_session_handler.dart';
 import 'time_to_display_tracker.dart';
 
@@ -87,8 +85,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
         _additionalInfoProvider = additionalInfoProvider,
-        _ignoreRoutes = ignoreRoutes ?? [],
-        _native = SentryFlutter.native {
+        _ignoreRoutes = ignoreRoutes ?? [] {
     _isCreated = true;
     if (enableAutoTransactions) {
       _hub.options.sdk.addIntegration('UINavigationTracing');
@@ -117,10 +114,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
-  final SentryNativeBinding? _native;
   final List<String> _ignoreRoutes;
   TimeToDisplayTracker? _timeToDisplayTracker;
+
   WebSessionHandler? _webSessionHandler;
+
   @visibleForTesting
   WebSessionHandler? get webSessionHandler => _webSessionHandler;
 
@@ -128,13 +126,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   static String? _currentRouteName;
 
+  @internal
+  static String? get currentRouteName => _currentRouteName;
+
   static bool _isCreated = false;
 
   @internal
   static bool get isCreated => _isCreated;
-
-  @internal
-  static String? get currentRouteName => _currentRouteName;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -295,19 +293,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       trimEnd: true,
       onFinish: (transaction) async {
         _transaction = null;
-        final nativeFrames =
-            await _native?.endNativeFrames(transaction.context.traceId);
-        if (nativeFrames != null) {
-          final measurements = nativeFrames.toMeasurements();
-          for (final item in measurements.entries) {
-            final measurement = item.value;
-            transaction.setMeasurement(
-              item.key,
-              measurement.value,
-              unit: measurement.unit,
-            );
-          }
-        }
       },
     );
     // if _enableAutoTransactions is enabled but there's no traces sample rate
@@ -325,8 +310,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     await _hub.configureScope((scope) {
       scope.span ??= _transaction;
     });
-
-    await _native?.beginNativeFrames();
 
     await _timeToDisplayTracker?.track(transaction);
   }
@@ -432,18 +415,5 @@ class RouteObserverBreadcrumb extends Breadcrumb {
           MapEntry<String, String>(key, value.toString()));
     }
     return args.toString();
-  }
-}
-
-extension NativeFramesMeasurement on NativeFrames {
-  Map<String, SentryMeasurement> toMeasurements() {
-    final total = SentryMeasurement.totalFrames(totalFrames);
-    final slow = SentryMeasurement.slowFrames(slowFrames);
-    final frozen = SentryMeasurement.frozenFrames(frozenFrames);
-    return {
-      total.name: total,
-      slow.name: slow,
-      frozen.name: frozen,
-    };
   }
 }

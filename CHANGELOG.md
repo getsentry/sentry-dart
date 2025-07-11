@@ -4,11 +4,13 @@
 
 ### Fixes
 
+- Span ids not re-generating for headers created from scope ([#3051](https://github.com/getsentry/sentry-dart/pull/3051))
 - `ScreenshotIntegration` not being added for web ([#3055](https://github.com/getsentry/sentry-dart/pull/3055))
 
 ### Enhancements
 
 - Remove `SentryTimingsCallback` and use Flutter's `TimingsCallback` instead ([#3054](https://github.com/getsentry/sentry-dart/pull/3054))
+- Remove unused native frames integration ([#3053](https://github.com/getsentry/sentry-dart/pull/3053))
 
 ### Dependencies
 

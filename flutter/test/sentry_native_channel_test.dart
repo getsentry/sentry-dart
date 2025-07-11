@@ -69,32 +69,6 @@ void main() {
         expect(actual, isNull);
       });
 
-      test('beginNativeFrames', () async {
-        when(channel.invokeMethod('beginNativeFrames'))
-            .thenAnswer((realInvocation) async {});
-        await sut.beginNativeFrames();
-
-        verify(channel.invokeMethod('beginNativeFrames'));
-      });
-
-      test('endNativeFrames', () async {
-        final sentryId = SentryId.empty();
-
-        when(channel
-                .invokeMethod('endNativeFrames', {'id': sentryId.toString()}))
-            .thenAnswer((_) async => {
-                  'totalFrames': 3,
-                  'slowFrames': 2,
-                  'frozenFrames': 1,
-                });
-
-        final actual = await sut.endNativeFrames(sentryId);
-
-        expect(actual?.totalFrames, 3);
-        expect(actual?.slowFrames, 2);
-        expect(actual?.frozenFrames, 1);
-      });
-
       test('setUser', () async {
         final user = SentryUser(
           id: "fixture-id",

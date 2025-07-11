@@ -87,12 +87,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         case "fetchNativeAppStart":
             fetchNativeAppStart(result: result)
 
-        case "beginNativeFrames":
-            beginNativeFrames(result: result)
-
-        case "endNativeFrames":
-            endNativeFrames(result: result)
-
         case "setContexts":
             let arguments = call.arguments as? [String: Any?]
             let key = arguments?["key"] as? String
@@ -511,59 +505,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         print("note: appStartMeasurement not available on this platform")
         result(nil)
         #endif
-    }
-
-    private var totalFrames: UInt = 0
-    private var frozenFrames: UInt = 0
-    private var slowFrames: UInt = 0
-
-    private func beginNativeFrames(result: @escaping FlutterResult) {
-      #if os(iOS) || targetEnvironment(macCatalyst)
-      guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
-        print("Native frames tracking not running.")
-        result(nil)
-        return
-      }
-
-      let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
-      totalFrames = currentFrames.total
-      frozenFrames = currentFrames.frozen
-      slowFrames = currentFrames.slow
-
-      result(nil)
-      #else
-      result(nil)
-      #endif
-    }
-
-    private func endNativeFrames(result: @escaping FlutterResult) {
-      #if os(iOS) || targetEnvironment(macCatalyst)
-      guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
-        print("Native frames tracking not running.")
-        result(nil)
-        return
-      }
-
-      let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
-      let total = max(Int(currentFrames.total) - Int(totalFrames), 0)
-      let frozen = max(Int(currentFrames.frozen) - Int(frozenFrames), 0)
-      let slow = max(Int(currentFrames.slow) - Int(slowFrames), 0)
-
-      if total <= 0 && frozen <= 0 && slow <= 0 {
-        result(nil)
-        return
-      }
-
-      let item: [String: Any] = [
-          "totalFrames": total,
-          "frozenFrames": frozen,
-          "slowFrames": slow
-      ]
-
-      result(item)
-      #else
-      result(nil)
-      #endif
     }
 
     private func setContexts(key: String?, value: Any?, result: @escaping FlutterResult) {

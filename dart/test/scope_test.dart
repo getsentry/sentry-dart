@@ -463,13 +463,34 @@ void main() {
           true);
     });
 
-    test('apply trace context to event', () async {
+    test('apply trace context to event with active span', () async {
       final event = SentryEvent();
       final scope = Scope(defaultTestOptions())..span = fixture.sentryTracer;
 
       final updatedEvent = await scope.applyToEvent(event, Hint());
 
-      expect(updatedEvent?.contexts['trace'] is SentryTraceContext, true);
+      expect(updatedEvent?.contexts['trace'] is SentryTraceContext, isTrue);
+    });
+
+    test('apply trace context to event with propagation context', () async {
+      final event = SentryEvent();
+      final event2 = SentryEvent();
+      final scope = Scope(defaultTestOptions());
+
+      final updatedEvent = await scope.applyToEvent(event, Hint());
+
+      final traceContext =
+          updatedEvent?.contexts['trace'] as SentryTraceContext;
+      final spanId1 = traceContext.spanId;
+      expect(traceContext.traceId, scope.propagationContext.traceId);
+
+      final updatedEvent2 = await scope.applyToEvent(event2, Hint());
+      final traceContext2 =
+          updatedEvent2?.contexts['trace'] as SentryTraceContext;
+      final spanId2 = traceContext2.spanId;
+
+      // trace contexts from the scope should always re-generate span ids
+      expect(spanId1, isNot(spanId2));
     });
 
     test('should not apply the scope properties when event already has it ',
