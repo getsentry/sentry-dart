@@ -59,7 +59,7 @@ void main() {
         SentryTraceContext.fromPropagationContext(propagationContext);
 
     expect(traceContext1.traceId, propagationContext.traceId);
-    expect(traceContext1.traceId, traceContext1.traceId);
+    expect(traceContext1.traceId, traceContext2.traceId);
     // the span id is always generated new when creating a trace context from scope
     expect(traceContext1.spanId, isNot(traceContext2.spanId));
   });
