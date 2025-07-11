@@ -426,6 +426,7 @@ class Scope {
       .._transaction = _transaction
       ..span = span
       .._enableScopeSync = false
+      ..propagationContext = propagationContext
       .._replayId = _replayId;
 
     clone._setUserSync(user);

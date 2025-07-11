@@ -6,6 +6,7 @@
 
 - Span ids not re-generating for headers created from scope ([#3051](https://github.com/getsentry/sentry-dart/pull/3051))
 - `ScreenshotIntegration` not being added for web ([#3055](https://github.com/getsentry/sentry-dart/pull/3055))
+- `PropagationContext` not being set when `Scope` is cloned resulting in different trace ids when using `withScope` ([#3069](https://github.com/getsentry/sentry-dart/pull/3069))
 
 ### Enhancements
 
