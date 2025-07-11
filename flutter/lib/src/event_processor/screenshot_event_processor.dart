@@ -3,10 +3,10 @@ import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
-import '../renderer/renderer.dart';
 import '../screenshot/recorder.dart';
 import '../screenshot/recorder_config.dart';
 
+import '../screenshot/screenshot_support.dart';
 import '../utils/debouncer.dart';
 
 class ScreenshotEventProcessor implements EventProcessor {
@@ -45,6 +45,15 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event; // No need to attach screenshot of feedback form.
     }
 
+    final renderer = _options.rendererWrapper.renderer;
+    if (!_options.isScreenshotSupported) {
+      _options.log(
+        SentryLevel.debug,
+        'Screenshot: not supported in this environment with renderer $renderer',
+      );
+      return event;
+    }
+
     // skip capturing in case of debouncing (=too many frequent capture requests)
     // the BeforeCaptureCallback may overrule the debouncing decision
     final shouldDebounce = _debouncer.shouldDebounce();
@@ -68,7 +77,7 @@ class ScreenshotEventProcessor implements EventProcessor {
       } else if (shouldDebounce) {
         _options.log(
           SentryLevel.debug,
-          'Skipping screenshot capture due to debouncing (too many captures within ${_debouncer.waitTime.inMilliseconds}ms)',
+          'Screenshot: skipping capture due to debouncing (too many captures within ${_debouncer.waitTime.inMilliseconds}ms)',
         );
         takeScreenshot = false;
       }
@@ -79,23 +88,13 @@ class ScreenshotEventProcessor implements EventProcessor {
     } catch (exception, stackTrace) {
       _options.log(
         SentryLevel.error,
-        'The beforeCaptureScreenshot/beforeScreenshot callback threw an exception',
+        'Screenshot: the beforeCaptureScreenshot/beforeScreenshot callback threw an exception',
         exception: exception,
         stackTrace: stackTrace,
       );
       if (_options.automatedTestMode) {
         rethrow;
       }
-    }
-
-    final renderer = _options.rendererWrapper.getRenderer();
-
-    if (_options.platform.isWeb && renderer != FlutterRenderer.canvasKit) {
-      _options.log(
-        SentryLevel.debug,
-        'Cannot take screenshot with ${renderer?.name} renderer.',
-      );
-      return event;
     }
 
     final screenshotData = await createScreenshot();

@@ -2,11 +2,36 @@
 
 ## Unreleased
 
+### Fixes
+
+- `ScreenshotIntegration` not being added for web ([#3055](https://github.com/getsentry/sentry-dart/pull/3055))
+
+### Enhancements
+
+- Remove `SentryTimingsCallback` and use Flutter's `TimingsCallback` instead ([#3054](https://github.com/getsentry/sentry-dart/pull/3054))
+
 ### Dependencies
 
 - Bump Android SDK from v8.14.0 to v8.16.0 ([#2977](https://github.com/getsentry/sentry-dart/pull/2977))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8140)
   - [diff](https://github.com/getsentry/sentry-java/compare/8.14.0...8.16.0)
+
+## 9.4.0
+
+### Fixes
+
+- SPM should use `exact` instead of `from` when defining the sentry-cocoa package ([#3065](https://github.com/getsentry/sentry-dart/pull/3065))
+- Respect ancestor text direction in `SentryScreenshotWidget` ([#3046](https://github.com/getsentry/sentry-dart/pull/3046))
+- Add additional crashpad path candidate ([#3016](https://github.com/getsentry/sentry-dart/pull/3016))
+- Replay JNI usage with `SentryFlutterPlugin` ([#3036](https://github.com/getsentry/sentry-dart/pull/3036), [#3039](https://github.com/getsentry/sentry-dart/pull/3039))
+- Do not set `isTerminating` on `captureReplay` for Android ([#3037](https://github.com/getsentry/sentry-dart/pull/3037))
+  - Previously segments might be missing on Android replays if an unhandled error happened
+
+### Dependencies
+
+- Bump Android SDK from v8.12.0 to v8.13.2 ([#3042](https://github.com/getsentry/sentry-dart/pull/3042))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8132)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.12.0...8.13.2)
 
 ## 9.4.0-beta.2
 
