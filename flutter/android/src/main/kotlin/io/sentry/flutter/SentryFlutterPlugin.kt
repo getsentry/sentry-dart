@@ -84,7 +84,7 @@ class SentryFlutterPlugin :
       "displayRefreshRate" -> displayRefreshRate(result)
       "nativeCrash" -> crash()
       "setReplayConfig" -> setReplayConfig(call, result)
-      "captureReplay" -> captureReplay(call.argument("isCrash"), result)
+      "captureReplay" -> captureReplay(result)
       else -> result.notImplemented()
     }
   }
@@ -592,14 +592,9 @@ class SentryFlutterPlugin :
   }
 
   private fun captureReplay(
-    isCrash: Boolean?,
     result: Result,
   ) {
-    if (isCrash == null) {
-      result.error("5", "Arguments are null", null)
-      return
-    }
-    replay!!.captureReplay(isCrash)
+    replay!!.captureReplay(isTerminating = false)
     result.success(replay!!.getReplayId().toString())
   }
 }

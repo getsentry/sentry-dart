@@ -157,7 +157,9 @@ jobs:
         # Should be OK because it will likely be removed after switching to FFI (see https://github.com/getsentry/sentry-dart/issues/1444).
         if: ${{ matrix.target != 'macos' }}
         working-directory: ./flutter/example/${{ matrix.target }}
-        run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=${{ steps.device.outputs.platform }}" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
+        run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=$DEVICE_PLATFORM" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
+        env:
+          DEVICE_PLATFORM: ${{ steps.device.outputs.platform }}
 
   test-web:
     runs-on: ubuntu-latest

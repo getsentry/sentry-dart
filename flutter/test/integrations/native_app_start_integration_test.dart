@@ -20,6 +20,7 @@ void main() {
 
   setUp(() {
     fixture = Fixture();
+    fixture.options.tracesSampleRate = 1.0;
   });
 
   final _fakeFrameTiming = FrameTiming(
@@ -31,13 +32,21 @@ void main() {
       rasterFinishWallTime: 10);
 
   group('$NativeAppStartIntegration', () {
+    test('does not add integration if tracing is disabled', () {
+      fixture.options.tracesSampleRate = null;
+      fixture.options.tracesSampler = null;
+
+      fixture.callIntegration();
+
+      expect(fixture.options.sdk.integrations,
+          isNot(contains(NativeAppStartIntegration.integrationName)));
+    });
+
     test('adds integration', () async {
       fixture.callIntegration();
 
-      expect(
-          fixture.options.sdk.integrations
-              .contains('nativeAppStartIntegration'),
-          true);
+      expect(fixture.options.sdk.integrations,
+          contains(NativeAppStartIntegration.integrationName));
     });
 
     test('adds timingsCallback', () async {

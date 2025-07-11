@@ -16,27 +16,6 @@ void main() {
     fixture = _Fixture();
   });
 
-  for (var isHandled in [true, false]) {
-    test(
-        'captures replay for ${isHandled ? 'handled' : 'unhandled'} exceptions',
-        () async {
-      final event = await fixture.apply(isHandled: isHandled);
-      bool isCrash = verify(fixture.binding.captureReplay(captureAny))
-          .captured
-          .single as bool;
-      expect(isCrash, !isHandled);
-      expect(event, isNotNull);
-    });
-
-    test(
-        'sets scope replay ID for ${isHandled ? 'handled' : 'unhandled'} exceptions',
-        () async {
-      expect(fixture.scope.replayId, isNull);
-      await fixture.apply(isHandled: isHandled);
-      expect(fixture.scope.replayId, SentryId.fromId('42'));
-    });
-  }
-
   test('captures replay for feedback event', () async {
     final feedback = SentryFeedback(message: 'fixture-message');
     final feedbackEvent = SentryEvent(
@@ -44,15 +23,14 @@ void main() {
       contexts: Contexts(feedback: feedback),
     );
 
+    expect(fixture.scope.replayId, isNull);
+
     final processedEvent = await fixture.sut.apply(feedbackEvent, Hint());
     expect(processedEvent, isNotNull);
 
     await fixture.apply(hasException: false);
-    bool isCrash = verify(fixture.binding.captureReplay(captureAny))
-        .captured
-        .single as bool;
 
-    expect(isCrash, false);
+    expect(fixture.scope.replayId, isNotNull);
   });
 
   test('sets scope replay ID for feedback event', () async {
@@ -70,7 +48,7 @@ void main() {
 
   test('does not capture replay for non-errors', () async {
     await fixture.apply(hasException: false);
-    verifyNever(fixture.binding.captureReplay(any));
+    verifyNever(fixture.binding.captureReplay());
     expect(fixture.scope.replayId, isNull);
   });
 }
@@ -82,7 +60,7 @@ class _Fixture {
   Scope scope = Scope(defaultTestOptions());
 
   _Fixture() {
-    when(binding.captureReplay(captureAny))
+    when(binding.captureReplay())
         .thenAnswer((_) async => SentryId.fromId('42'));
     when(hub.configureScope(any)).thenAnswer((invocation) async {
       final callback = invocation.positionalArguments.first as FutureOr<void>
@@ -91,8 +69,7 @@ class _Fixture {
     });
     sut = ReplayEventProcessor(hub, binding);
   }
-  Future<SentryEvent?> apply(
-      {bool hasException = true, bool isHandled = false}) {
+  Future<SentryEvent?> apply({bool hasException = true}) {
     final event = SentryEvent(
       eventId: SentryId.newId(),
       exceptions: hasException
@@ -100,7 +77,7 @@ class _Fixture {
               SentryException(
                   type: 'type',
                   value: 'value',
-                  mechanism: Mechanism(type: 'foo', handled: isHandled))
+                  mechanism: Mechanism(type: 'foo'))
             ]
           : [],
     );

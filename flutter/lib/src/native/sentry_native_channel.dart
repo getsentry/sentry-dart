@@ -271,10 +271,9 @@ class SentryNativeChannel
       });
 
   @override
-  Future<SentryId> captureReplay(bool isCrash) =>
-      channel.invokeMethod('captureReplay', {
-        'isCrash': isCrash,
-      }).then((value) => SentryId.fromId(value as String));
+  Future<SentryId> captureReplay() => channel
+      .invokeMethod('captureReplay')
+      .then((value) => SentryId.fromId(value as String));
 
   @override
   FutureOr<void> captureSession() {
