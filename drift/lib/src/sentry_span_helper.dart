@@ -151,7 +151,7 @@ class SentrySpanHelper {
         'Active Sentry transaction does not exist, could not finish span for Drift operation: Abort Transaction',
         logger: loggerName,
       );
-      return Future<T>.value();
+      return execute();
     }
 
     try {
