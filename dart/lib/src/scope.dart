@@ -428,6 +428,9 @@ class Scope {
       .._enableScopeSync = false
       .._replayId = _replayId;
 
+    // Copy propagation context to maintain trace continuity
+    clone.propagationContext = PropagationContext.copy(propagationContext);
+
     clone._setUserSync(user);
 
     final tags = List.from(_tags.keys);
