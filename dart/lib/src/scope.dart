@@ -426,10 +426,8 @@ class Scope {
       .._transaction = _transaction
       ..span = span
       .._enableScopeSync = false
+      ..propagationContext = propagationContext
       .._replayId = _replayId;
-
-    // Share the same propagation context to maintain trace continuity
-    clone.propagationContext = propagationContext;
 
     clone._setUserSync(user);
 
