@@ -413,67 +413,43 @@ void main() {
 
   test('clone shares propagation context to maintain trace continuity', () {
     final sut = fixture.getSut();
-    
-    // Get the original propagation context
-    final originalTraceId = sut.propagationContext.traceId;
-    final originalSpanId = sut.propagationContext.spanId;
-    
+
     // Clone the scope
     final clone = sut.clone();
-    
+
     // Verify the propagation context is shared (same instance)
     expect(identical(sut.propagationContext, clone.propagationContext), true,
         reason: 'Propagation context should be the same instance');
-    
-    // Verify trace IDs are the same
-    expect(clone.propagationContext.traceId.toString(), 
-           originalTraceId.toString(),
-           reason: 'Trace IDs should be identical');
-    
-    // Verify span IDs are the same
-    expect(clone.propagationContext.spanId.toString(), 
-           originalSpanId.toString(),
-           reason: 'Span IDs should be identical');
-    
-    // Verify baggage is shared
-    sut.propagationContext.baggage = SentryBaggage({'test': 'value'});
-    expect(clone.propagationContext.baggage?.items['test'], 'value',
-           reason: 'Baggage should be shared between original and clone');
-    
-    // Verify modifications to propagation context affect both scopes
-    clone.propagationContext.baggage = SentryBaggage({'shared': 'data'});
-    expect(sut.propagationContext.baggage?.items['shared'], 'data',
-           reason: 'Modifications to propagation context should affect both scopes');
   });
 
   test('clone preserves trace context for withScope scenario', () {
     final sut = fixture.getSut();
-    
+
     // Set up baggage on the original scope
     sut.propagationContext.baggage = SentryBaggage({'service': 'test-service'});
-    
+
     // Get the original trace context
     final originalTraceHeader = sut.propagationContext.toSentryTrace();
     final originalBaggageHeader = sut.propagationContext.toBaggageHeader();
-    
+
     // Clone the scope (this simulates what happens in withScope)
     final clone = sut.clone();
-    
+
     // Verify the trace headers are identical
     final clonedTraceHeader = clone.propagationContext.toSentryTrace();
     final clonedBaggageHeader = clone.propagationContext.toBaggageHeader();
-    
+
     expect(clonedTraceHeader.value, originalTraceHeader.value,
-           reason: 'Sentry trace header should be identical');
+        reason: 'Sentry trace header should be identical');
     expect(clonedBaggageHeader?.value, originalBaggageHeader?.value,
-           reason: 'Baggage header should be identical');
-    
-    // Verify this fixes the issue where HTTP headers and Sentry events 
+        reason: 'Baggage header should be identical');
+
+    // Verify this fixes the issue where HTTP headers and Sentry events
     // would have different trace IDs
     expect(originalTraceHeader.traceId, clonedTraceHeader.traceId,
-           reason: 'Trace IDs in headers should match');
+        reason: 'Trace IDs in headers should match');
     expect(originalTraceHeader.spanId, clonedTraceHeader.spanId,
-           reason: 'Span IDs in headers should match');
+        reason: 'Span IDs in headers should match');
   });
 
   group('Scope apply', () {
