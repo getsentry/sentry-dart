@@ -168,8 +168,6 @@ class SentryPrivacyOptions {
 /// without depending on its type directly (which would fail to compile on
 /// older Flutter versions).
 void _maybeAddSensitiveContentRule(List<SentryMaskingRule> rules) {
-  const requiredMajor = 3;
-  const requiredMinor = 33;
   final flutterVersion = FlutterVersion.version;
 
   // Only add the rule if we can statically determine that the running
@@ -186,6 +184,8 @@ void _maybeAddSensitiveContentRule(List<SentryMaskingRule> rules) {
     return;
   }
 
+  const requiredMajor = 3;
+  const requiredMinor = 33;
   final major = int.tryParse(parts[0]) ?? 0;
   final minor = int.tryParse(parts[1]) ?? 0;
 
