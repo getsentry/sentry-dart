@@ -9,21 +9,24 @@ import 'version.dart';
 /// An [Integration] which listens to all messages of the
 /// [logging](https://pub.dev/packages/logging) package.
 class LoggingIntegration implements Integration<SentryOptions> {
-  /// Creates a [LoggingIntegration] to capture log events into Sentry.
+  /// Creates the [LoggingIntegration].
   ///
-  /// The integration listens to all log records and:
-  ///  - Converts records at or above [minBreadcrumbLevel] into a [Breadcrumb] and adds them to the scope.
-  ///  - Converts records at or above [minEventLevel] into a [SentryEvent] and captures it.
-  ///  - Sends records at or above [minLogLevel] to Sentry as “logs” when [SentryOptions.enableLogs] is true).
+  /// - All log events equal or higher than [minBreadcrumbLevel] are recorded as a
+  /// [Breadcrumb].
+  /// - All log events equal or higher than [minEventLevel] are recorded as a
+  /// [SentryEvent].
+  /// - All log events equal or higher than [minSentryLogLevel] are logged to
+  /// Sentry, if [SentryOptions.enableLogs] is true.
   ///
-  /// Parameters:
-  ///  - [minBreadcrumbLevel]: the lowest level at which to record a breadcrumb.
-  ///    Defaults to [SentryLevel.INFO].
-  ///  - [minEventLevel]: the lowest level at which to capture a Sentry event.
-  ///    Defaults to [SentryLevel.SEVERE].
-  ///  - [minSentryLogLevel]: the lowest level at which to forward the log record
-  ///    itself to Sentry as a log entry (if Sentry logs are enabled).
-  ///    Defaults to [SentryLevel.INFO].
+  /// Log levels are mapped to the following Sentry log levels methods:
+  ///
+  /// | Dart Log Level        | Sentry Log Level |
+  /// |-----------------------|------------------|
+  /// | SHOUT, SEVERE         | error            |
+  /// | WARNING               | warn             |
+  /// | INFO                  | info             |
+  /// | CONFIG, FINE, ALL     | debug            |
+  /// | FINER, FINEST         | trace            |
   LoggingIntegration({
     Level minBreadcrumbLevel = Level.INFO,
     Level minEventLevel = Level.SEVERE,

@@ -5,7 +5,6 @@ import '../hub_adapter.dart';
 import '../protocol.dart';
 import '../sentry_trace_origins.dart';
 import '../tracing.dart';
-import '../utils/add_tracing_headers_to_http_request.dart';
 import '../utils/http_sanitizer.dart';
 import '../utils/tracing_utils.dart';
 
