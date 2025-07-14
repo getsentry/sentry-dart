@@ -1,7 +1,0 @@
-include: package:lints/recommended.yaml
-
-linter:
-  rules:
-    prefer_relative_imports: true
-    unnecessary_brace_in_string_interps: true
-    unawaited_futures: true
