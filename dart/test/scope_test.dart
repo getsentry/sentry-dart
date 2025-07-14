@@ -411,6 +411,18 @@ void main() {
     expect(0, fixture.mockScopeObserver.numberOfSetContextsCalls);
   });
 
+  test('clone shares propagation context to maintain trace continuity', () {
+    final sut = fixture.getSut();
+
+    // Clone the scope
+    final clone = sut.clone();
+
+    // Verify the propagation context is shared (same instance)
+    expect(identical(sut.propagationContext, clone.propagationContext), true,
+        reason: 'Propagation context should be the same instance');
+    expect(clone.propagationContext.traceId, sut.propagationContext.traceId);
+  });
+
   group('Scope apply', () {
     final scopeUser = SentryUser(
       id: '800',

@@ -779,6 +779,26 @@ void main() {
       expect(calls[2].scope?.user, isNull);
       expect(calls[2].formatted, 'foo bar 2');
     });
+
+    test(
+        'withScope should use the same propagation context as the current scope',
+        () async {
+      final hub = fixture.getSut();
+      late Scope clonedScope;
+      final currentScope = hub.scope;
+      await hub.captureEvent(SentryEvent(), withScope: (scope) async {
+        clonedScope = scope;
+      });
+
+      // Verify the propagation context is shared (same instance)
+      expect(
+          identical(
+              clonedScope.propagationContext, currentScope.propagationContext),
+          true,
+          reason: 'Propagation context should be the same instance');
+      expect(clonedScope.propagationContext.traceId,
+          currentScope.propagationContext.traceId);
+    });
   });
 
   group('ClientReportRecorder', () {
