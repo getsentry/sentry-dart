@@ -119,7 +119,7 @@ class SentryTraceContext {
       PropagationContext propagationContext) {
     return SentryTraceContext(
         traceId: propagationContext.traceId,
-        spanId: propagationContext.spanId,
+        spanId: SpanId.newId(),
         operation: 'default',
         replayId: propagationContext.baggage?.getReplayId());
   }

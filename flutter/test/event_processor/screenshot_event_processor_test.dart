@@ -83,6 +83,12 @@ void main() {
           added: false, isWeb: true);
     });
 
+    testWidgets('adds screenshot attachment with skwasm renderer',
+        (tester) async {
+      await _addScreenshotAttachment(tester, FlutterRenderer.skwasm,
+          added: true, isWeb: true);
+    });
+
     testWidgets('does add screenshot in correct resolution for low',
         (tester) async {
       final height = SentryScreenshotQuality.low.targetResolution()!;

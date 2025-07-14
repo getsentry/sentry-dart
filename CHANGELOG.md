@@ -4,6 +4,18 @@
 
 ### Fixes
 
+- Span ids not re-generating for headers created from scope ([#3051](https://github.com/getsentry/sentry-dart/pull/3051))
+- `ScreenshotIntegration` not being added for web ([#3055](https://github.com/getsentry/sentry-dart/pull/3055))
+
+### Enhancements
+
+- Remove `SentryTimingsCallback` and use Flutter's `TimingsCallback` instead ([#3054](https://github.com/getsentry/sentry-dart/pull/3054))
+- Remove unused native frames integration ([#3053](https://github.com/getsentry/sentry-dart/pull/3053))
+
+## 9.4.0
+
+### Fixes
+
 - SPM should use `exact` instead of `from` when defining the sentry-cocoa package ([#3065](https://github.com/getsentry/sentry-dart/pull/3065))
 - Respect ancestor text direction in `SentryScreenshotWidget` ([#3046](https://github.com/getsentry/sentry-dart/pull/3046))
 - Add additional crashpad path candidate ([#3016](https://github.com/getsentry/sentry-dart/pull/3016))

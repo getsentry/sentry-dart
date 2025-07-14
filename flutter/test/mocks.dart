@@ -124,9 +124,7 @@ class MockRendererWrapper implements RendererWrapper {
   final FlutterRenderer? _renderer;
 
   @override
-  FlutterRenderer? getRenderer() {
-    return _renderer;
-  }
+  FlutterRenderer? get renderer => _renderer;
 }
 
 class TestBindingWrapper implements BindingWrapper {
