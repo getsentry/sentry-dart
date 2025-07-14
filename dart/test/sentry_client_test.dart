@@ -647,8 +647,7 @@ void main() {
       expect(fixture.transport.envelopes.length, 1);
       expect(
           scopePropagationContext.traceId, sentryEvent.contexts.trace!.traceId);
-      expect(
-          scopePropagationContext.spanId, sentryEvent.contexts.trace!.spanId);
+      // not checking for span id as it should be a new generated random span id
     });
 
     test('keeps existing trace context if already present', () async {
@@ -680,8 +679,6 @@ void main() {
       expect(spanContext.spanId, isNot(sentryEvent.contexts.trace!.spanId));
       expect(propagationContext.traceId,
           isNot(sentryEvent.contexts.trace!.traceId));
-      expect(
-          propagationContext.spanId, isNot(sentryEvent.contexts.trace!.spanId));
     });
 
     test(
