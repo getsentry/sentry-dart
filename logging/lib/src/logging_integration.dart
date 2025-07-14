@@ -121,6 +121,19 @@ class LoggingIntegration implements Integration<SentryOptions> {
         case Level.ALL:
           await _options.logger.debug(record.message, attributes: attributes);
           break;
+        default:
+          if (record.level.value >= Level.SEVERE.value) {
+            await _options.logger.error(record.message, attributes: attributes);
+          } else if (record.level.value >= Level.WARNING.value) {
+            await _options.logger.warn(record.message, attributes: attributes);
+          } else if (record.level.value >= Level.INFO.value) {
+            await _options.logger.info(record.message, attributes: attributes);
+          } else if (record.level.value >= Level.CONFIG.value) {
+            await _options.logger.debug(record.message, attributes: attributes);
+          } else {
+            await _options.logger.trace(record.message, attributes: attributes);
+          }
+          break;
       }
     }
   }
