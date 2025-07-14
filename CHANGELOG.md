@@ -10,6 +10,7 @@
 - Replay JNI usage with `SentryFlutterPlugin` ([#3036](https://github.com/getsentry/sentry-dart/pull/3036), [#3039](https://github.com/getsentry/sentry-dart/pull/3039))
 - Do not set `isTerminating` on `captureReplay` for Android ([#3037](https://github.com/getsentry/sentry-dart/pull/3037))
   - Previously segments might be missing on Android replays if an unhandled error happened
+- Drift transaction rollback not executed when parent span is null ([#3062](https://github.com/getsentry/sentry-dart/pull/3062))
 
 ### Dependencies
 
