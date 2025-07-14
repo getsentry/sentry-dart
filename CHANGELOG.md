@@ -7,6 +7,7 @@
 - Span ids not re-generating for headers created from scope ([#3051](https://github.com/getsentry/sentry-dart/pull/3051))
 - `ScreenshotIntegration` not being added for web ([#3055](https://github.com/getsentry/sentry-dart/pull/3055))
 - `PropagationContext` not being set when `Scope` is cloned resulting in different trace ids when using `withScope` ([#3069](https://github.com/getsentry/sentry-dart/pull/3069))
+- Drift transaction rollback not executed when parent span is null ([#3062](https://github.com/getsentry/sentry-dart/pull/3062))
 
 ### Enhancements
 
@@ -23,7 +24,6 @@
 - Replay JNI usage with `SentryFlutterPlugin` ([#3036](https://github.com/getsentry/sentry-dart/pull/3036), [#3039](https://github.com/getsentry/sentry-dart/pull/3039))
 - Do not set `isTerminating` on `captureReplay` for Android ([#3037](https://github.com/getsentry/sentry-dart/pull/3037))
   - Previously segments might be missing on Android replays if an unhandled error happened
-- Drift transaction rollback not executed when parent span is null ([#3062](https://github.com/getsentry/sentry-dart/pull/3062))
 
 ### Dependencies
 
