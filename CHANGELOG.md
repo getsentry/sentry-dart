@@ -1,11 +1,21 @@
 # Changelog
 
-## Unreleased
+# Unreleased
+
+### Features
+
+- Report Flutter framework feature flags ([#2991](https://github.com/getsentry/sentry-dart/pull/2991))
+  - Search for feature flags that are prefixed with `flutter:*`
+  - This works on Flutter builds that include [this PR](https://github.com/flutter/flutter/pull/171545)
+
+## 9.4.1
 
 ### Fixes
 
 - Span ids not re-generating for headers created from scope ([#3051](https://github.com/getsentry/sentry-dart/pull/3051))
 - `ScreenshotIntegration` not being added for web ([#3055](https://github.com/getsentry/sentry-dart/pull/3055))
+- `PropagationContext` not being set when `Scope` is cloned resulting in different trace ids when using `withScope` ([#3069](https://github.com/getsentry/sentry-dart/pull/3069))
+- Drift transaction rollback not executed when parent span is null ([#3062](https://github.com/getsentry/sentry-dart/pull/3062))
 
 ### Enhancements
 
