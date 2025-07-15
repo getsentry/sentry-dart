@@ -53,9 +53,9 @@ write_bundle_integrities() {
   local integrity_dbg="$2"
 
   # Replace the first occurrence (production) …
-  perl -0777 -i -pe "s/('integrity': *')sha384-[^']*'/\$1sha384-$integrity_prod/" "$BUNDLE_FILE"
+  perl -0777 -i -pe "s%('integrity': *')sha384-[^']*'%\$1sha384-$integrity_prod'%" "$BUNDLE_FILE"
   # …and the second occurrence (debug).
-  perl -0777 -i -pe "s/('integrity': *')sha384-[^']*'/\$1sha384-$integrity_dbg/2" "$BUNDLE_FILE"
+  perl -0777 -i -pe "s%('integrity': *')sha384-[^']*'%\$1sha384-$integrity_dbg'%" "$BUNDLE_FILE"
 }
 
 case "${1:-}" in
