@@ -18,20 +18,6 @@ get_current_version() {
   awk -F"'" '/sentryJsSdkVersion/ { print $2 }' "$VERSION_DART_FILE"
 }
 
-# Writes the YAML config with the provided version  integrity hashes
-write_config() {
-  local version="$1"
-  local integrity_prod="$2"
-  local integrity_dbg="$3"
-
-  cat >"$CONFIG_FILE" <<EOF
-version: '$version'
-integrity:
-  production: 'sha384-$integrity_prod'
-  debug: 'sha384-$integrity_dbg'
-EOF
-}
-
 # Regenerates the Dart helper that exposes the SDK version as a compile-time
 # constant so that the rest of the code can simply import it.
 write_version_dart() {
