@@ -10,6 +10,13 @@ class PropagationContext {
   /// The dynamic sampling context.
   SentryBaggage? baggage;
 
+  /// Random number generated for sampling decisions.
+  ///
+  /// This value must be generated **once per trace** and reused across all
+  /// child spans and transactions that belong to the same trace. It is reset
+  /// whenever a new trace is started (i.e. when [traceId] changes).
+  double? sampleRand;
+
   /// Baggage header to attach to http headers.
   SentryBaggageHeader? toBaggageHeader() =>
       baggage != null ? SentryBaggageHeader.fromBaggage(baggage!) : null;

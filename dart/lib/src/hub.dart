@@ -490,13 +490,26 @@ class Hub {
     } else if (_options.isTracingEnabled()) {
       final item = _peek();
 
-      // if transactionContext has no sampled decision, run the traces sampler
+      // if transactionContext has no sampling decision yet, run the traces sampler
       var samplingDecision = transactionContext.samplingDecision;
       if (samplingDecision == null) {
+        final propagationContext = scope.propagationContext;
         final samplingContext = SentrySamplingContext(
             transactionContext, customSamplingContext ?? {});
-        samplingDecision = _tracesSampler.sample(samplingContext);
+
+        samplingDecision = _tracesSampler.sample(
+          samplingContext,
+          sampleRand: propagationContext.sampleRand,
+        );
+
+        // Persist the sampling decision within the transaction context
         transactionContext.samplingDecision = samplingDecision;
+
+        // Store the generated/used sampleRand on the propagation context so
+        // that subsequent spans/transactions of the same trace reuse it.
+        if (samplingDecision.sampleRand != null) {
+          propagationContext.sampleRand = samplingDecision.sampleRand;
+        }
       }
 
       transactionContext.origin ??= SentryTraceOrigins.manual;
@@ -531,6 +544,8 @@ class Hub {
   @internal
   void generateNewTraceId() {
     scope.propagationContext.traceId = SentryId.newId();
+    // Reset sampleRand so that a new one is generated for the new trace.
+    scope.propagationContext.sampleRand = null;
   }
 
   /// Gets the current active transaction or span.
