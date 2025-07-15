@@ -100,7 +100,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
         _appInBackgroundStopwatch.stop();
         if (_appInBackgroundStopwatch.elapsed.inSeconds >
             _options.appInBackgroundTracingThreshold.inSeconds) {
-          _hub.generateNewTraceId();
+          _hub.generateNewTrace();
         }
         _appInBackgroundStopwatch.reset();
       }

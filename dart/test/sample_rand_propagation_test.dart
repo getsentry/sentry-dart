@@ -31,7 +31,7 @@ void main() {
       expect(rand1, isNotNull);
 
       // Start a new trace
-      hub.generateNewTraceId();
+      hub.generateNewTrace();
 
       final tx2 = hub.startTransaction('tx2', 'op') as SentryTracer;
       final rand2 = tx2.samplingDecision?.sampleRand;

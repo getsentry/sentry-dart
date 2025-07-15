@@ -542,7 +542,7 @@ class Hub {
   }
 
   @internal
-  void generateNewTraceId() {
+  void generateNewTrace() {
     scope.propagationContext.traceId = SentryId.newId();
     // Reset sampleRand so that a new one is generated for the new trace.
     scope.propagationContext.sampleRand = null;

@@ -581,10 +581,10 @@ void main() {
       });
     });
 
-    test('generateNewTraceId creates new trace id in propagation context', () {
+    test('generateNewTrace creates new trace id in propagation context', () {
       final oldTraceId = hub.scope.propagationContext.traceId;
 
-      hub.generateNewTraceId();
+      hub.generateNewTrace();
 
       final newTraceId = hub.scope.propagationContext.traceId;
       expect(oldTraceId, isNot(newTraceId));
