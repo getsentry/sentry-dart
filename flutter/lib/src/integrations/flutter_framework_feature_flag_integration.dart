@@ -25,13 +25,13 @@ class FlutterFrameworkFeatureFlagIntegration
 
   @override
   void call(Hub hub, SentryOptions options) {
-    if (flags.trim().isEmpty) return;
+    if (flags.isEmpty) return;
     final enabledFeatureFlags = flags
         .split(',')
         .map((flag) => flag.trim())
         .where((flag) => flag.isNotEmpty);
 
-    if (flags.isEmpty) {
+    if (enabledFeatureFlags.isEmpty) {
       return;
     }
 
