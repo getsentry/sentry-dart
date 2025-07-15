@@ -5,7 +5,9 @@ import 'package:meta/meta.dart';
 const sentryJsSdkVersion = '9.5.0';
 
 @internal
-const productionIntegrity = 'sha384-nsiByevQ25GvAyX+c3T3VctX7x10qZpYsLt3dfkBt04A71M451kWQEu+K4r1Uuk3';
+const productionIntegrity =
+    'sha384-nsiByevQ25GvAyX+c3T3VctX7x10qZpYsLt3dfkBt04A71M451kWQEu+K4r1Uuk3';
 
 @internal
-const debugIntegrity = 'sha384-Iw737zuRcOiGNbRmsWBSA17nCEbheKhfoqbG/3/9JScn1+WV/V6KdisyboGHqovH';
+const debugIntegrity =
+    'sha384-Iw737zuRcOiGNbRmsWBSA17nCEbheKhfoqbG/3/9JScn1+WV/V6KdisyboGHqovH';

@@ -46,10 +46,12 @@ import 'package:meta/meta.dart';
 const sentryJsSdkVersion = '$version';
 
 @internal
-const productionIntegrity = 'sha384-$integrity_prod';
+const productionIntegrity =
+    'sha384-$integrity_prod';
 
 @internal
-const debugIntegrity = 'sha384-$integrity_dbg';
+const debugIntegrity =
+    'sha384-$integrity_dbg';
 EOF
 }
 
