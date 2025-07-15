@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:sentry/sentry.dart';
 
@@ -26,8 +24,16 @@ class FlutterFrameworkFeatureFlagIntegration
   });
 
   @override
-  FutureOr<void> call(Hub hub, SentryOptions options) {
-    final enabledFeatureFlags = flags.split(',');
+  void call(Hub hub, SentryOptions options) {
+    if (flags.trim().isEmpty) return;
+    final enabledFeatureFlags = flags
+        .split(',')
+        .map((flag) => flag.trim())
+        .where((flag) => flag.isNotEmpty);
+
+    if (flags.isEmpty) {
+      return;
+    }
 
     for (final featureFlag in enabledFeatureFlags) {
       Sentry.addFeatureFlag('flutter:$featureFlag', true);
