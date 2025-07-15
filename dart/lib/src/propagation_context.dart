@@ -14,7 +14,7 @@ class PropagationContext {
   ///
   /// This value must be generated **once per trace** and reused across all
   /// child spans and transactions that belong to the same trace. It is reset
-  /// whenever a new trace is started (i.e. when [traceId] changes).
+  /// whenever a new trace is started.
   double? sampleRand;
 
   /// Baggage header to attach to http headers.
