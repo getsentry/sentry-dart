@@ -1,7 +1,4 @@
--keep class io.sentry.flutter.** { *; }
-
-# Keep replay integration classes used by JNI
--keep class io.sentry.android.replay.** { *; }
+-keep class io.sentry.** { *; }
 
 # Keep bitmap classes used by JNI
 -keep class android.graphics.Bitmap { *; }

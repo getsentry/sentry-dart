@@ -23,7 +23,6 @@ import io.sentry.Breadcrumb
 import io.sentry.DateUtils
 import io.sentry.HubAdapter
 import io.sentry.Sentry
-import io.sentry.android.core.ActivityFramesTracker
 import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.LoadClass
 import io.sentry.android.core.SentryAndroid
@@ -63,7 +62,6 @@ class SentryFlutterPlugin :
     )
 
   private var activity: WeakReference<Activity>? = null
-  private var framesTracker: ActivityFramesTracker? = null
   private var pluginRegistrationTime: Long? = null
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -87,8 +85,6 @@ class SentryFlutterPlugin :
       "loadImageList" -> loadImageList(call, result)
       "closeNativeSdk" -> closeNativeSdk(result)
       "fetchNativeAppStart" -> fetchNativeAppStart(result)
-      "beginNativeFrames" -> beginNativeFrames(result)
-      "endNativeFrames" -> endNativeFrames(call.argument("id"), result)
       "setContexts" -> setContexts(call.argument("key"), call.argument("value"), result)
       "removeContexts" -> removeContexts(call.argument("key"), result)
       "setUser" -> setUser(call.argument("user"), result)
@@ -102,7 +98,7 @@ class SentryFlutterPlugin :
       "displayRefreshRate" -> displayRefreshRate(result)
       "nativeCrash" -> crash()
       "setReplayConfig" -> setReplayConfig(call, result)
-      "captureReplay" -> captureReplay(call.argument("isCrash"), result)
+      "captureReplay" -> captureReplay(result)
       else -> result.notImplemented()
     }
   }
@@ -121,7 +117,6 @@ class SentryFlutterPlugin :
 
   override fun onDetachedFromActivity() {
     activity = null
-    framesTracker = null
   }
 
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
@@ -149,10 +144,6 @@ class SentryFlutterPlugin :
 
     SentryAndroid.init(context) { options ->
       sentryFlutter.updateOptions(options, args)
-
-      if (sentryFlutter.autoPerformanceTracingEnabled) {
-        framesTracker = ActivityFramesTracker(LoadClass(), options)
-      }
 
       setupReplay(options)
     }
@@ -291,52 +282,6 @@ class SentryFlutterPlugin :
         )
     }
   }
-
-  private fun beginNativeFrames(result: Result) {
-    if (!sentryFlutter.autoPerformanceTracingEnabled) {
-      result.success(null)
-      return
-    }
-
-    activity?.get()?.let {
-      framesTracker?.addActivity(it)
-    }
-    result.success(null)
-  }
-
-  private fun endNativeFrames(
-    id: String?,
-    result: Result,
-  ) {
-    val activity = activity?.get()
-    if (!sentryFlutter.autoPerformanceTracingEnabled || activity == null || id == null) {
-      if (id == null) {
-        Log.w("Sentry", "Parameter id cannot be null when calling endNativeFrames.")
-      }
-      result.success(null)
-      return
-    }
-
-    val sentryId = SentryId(id)
-    framesTracker?.setMetrics(activity, sentryId)
-    val metrics = framesTracker?.takeMetrics(sentryId)
-    val total = metrics?.get("frames_total")?.value?.toInt() ?: 0
-    val slow = metrics?.get("frames_slow")?.value?.toInt() ?: 0
-    val frozen = metrics?.get("frames_frozen")?.value?.toInt() ?: 0
-
-    if (total == 0 && slow == 0 && frozen == 0) {
-      result.success(null)
-    } else {
-      val frames =
-        mapOf<String, Any?>(
-          "totalFrames" to total,
-          "slowFrames" to slow,
-          "frozenFrames" to frozen,
-        )
-      result.success(frames)
-    }
-  }
-
   private fun setContexts(
     key: String?,
     value: Any?,
@@ -518,8 +463,6 @@ class SentryFlutterPlugin :
 
   private fun closeNativeSdk(result: Result) {
     HubAdapter.getInstance().close()
-    framesTracker?.stop()
-    framesTracker = null
 
     result.success("")
   }
@@ -619,14 +562,9 @@ class SentryFlutterPlugin :
   }
 
   private fun captureReplay(
-    isCrash: Boolean?,
     result: Result,
   ) {
-    if (isCrash == null) {
-      result.error("5", "Arguments are null", null)
-      return
-    }
-    replay!!.captureReplay(isCrash)
+    replay!!.captureReplay(isTerminating = false)
     result.success(replay!!.getReplayId().toString())
   }
 }

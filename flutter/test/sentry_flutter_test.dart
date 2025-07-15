@@ -564,13 +564,40 @@ void main() {
       await Sentry.close();
     }, testOn: 'vm');
 
-    test('installed with canvasKit renderer', () async {
+    test('installed on web with canvasKit renderer', () async {
       List<Integration> integrations = [];
 
       final sentryFlutterOptions =
           defaultTestOptions(checker: MockRuntimeChecker())
-            ..platform = MockPlatform.iOS()
+            ..platform = MockPlatform.iOS(isWeb: true)
             ..rendererWrapper = MockRendererWrapper(FlutterRenderer.canvasKit)
+            ..release = ''
+            ..dist = '';
+
+      await SentryFlutter.init(
+        (options) async {
+          integrations = options.integrations;
+        },
+        appRunner: appRunner,
+        options: sentryFlutterOptions,
+      );
+
+      expect(
+          integrations
+              .map((e) => e.runtimeType)
+              .contains(ScreenshotIntegration),
+          true);
+
+      await Sentry.close();
+    }, testOn: 'browser');
+
+    test('installed on web with skwasm renderer', () async {
+      List<Integration> integrations = [];
+
+      final sentryFlutterOptions =
+          defaultTestOptions(checker: MockRuntimeChecker())
+            ..platform = MockPlatform.iOS(isWeb: true)
+            ..rendererWrapper = MockRendererWrapper(FlutterRenderer.skwasm)
             ..release = ''
             ..dist = '';
 

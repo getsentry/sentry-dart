@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -104,7 +105,7 @@ void main() {
     });
 
     testWidgets(
-        'when app lifecycle tracing enabled is enabled, only inactive and resumed are tracked',
+        'on supported platforms when app lifecycle tracing enabled is enabled, only inactive and resumed are tracked',
         (WidgetTester tester) async {
       flutterTrackingDisabledOptions.platform = MockPlatform(isWeb: false);
       flutterTrackingDisabledOptions.appInBackgroundTracingThreshold =
@@ -128,7 +129,7 @@ void main() {
       await sendLifecycle('resumed');
 
       verify(hub.generateNewTraceId()).called(1);
-    });
+    }, skip: kIsWeb);
 
     testWidgets('memory pressure breadcrumb', (WidgetTester tester) async {
       final hub = MockHub();

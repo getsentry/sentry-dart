@@ -122,17 +122,25 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
       unregisterCallbacks.forEach(SentryScreenshotWidget._onBuild.remove);
     }
 
+    // Detect the current text direction or fall back to LTR
+    TextDirection textDirection;
+    try {
+      textDirection = Directionality.of(context);
+    } catch (_) {
+      textDirection = TextDirection.ltr;
+    }
+
     return RepaintBoundary(
       child: Directionality(
-        textDirection: TextDirection.ltr,
+        textDirection: textDirection,
         child: Stack(
           children: [
             Container(
               child: widget.child,
             ),
             if (_isScreenshotButtonVisible)
-              Positioned(
-                right: 32,
+              PositionedDirectional(
+                end: 32,
                 bottom: 32,
                 child: ElevatedButton.icon(
                   key: const ValueKey(
