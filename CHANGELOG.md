@@ -5,6 +5,19 @@
 ### Features
 
 - Add `LoggingIntegration` support for `SenryLog` ([#3050](https://github.com/getsentry/sentry-dart/pull/3050))
+# Unreleased
+
+### Features
+
+- Report Flutter framework feature flags ([#2991](https://github.com/getsentry/sentry-dart/pull/2991))
+  - Search for feature flags that are prefixed with `flutter:*`
+  - This works on Flutter builds that include [this PR](https://github.com/flutter/flutter/pull/171545)
+
+### Dependencies
+
+- Bump Native SDK from v0.9.0 to v0.9.1 ([#3018](https://github.com/getsentry/sentry-dart/pull/3018))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#091)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.9.0...0.9.1)
 
 ## 9.4.1
 
