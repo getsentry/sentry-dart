@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 import 'sentry_js_sdk_version.dart';
 
-// The JS SDK version is injected by CI via `update-js.sh`.
+// The JS SDK version is automatically bumped by CI via `update-js.sh`.
 @internal
 const jsSdkVersion = sentryJsSdkVersion;
 
