@@ -38,7 +38,10 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^2.0.0
-  sentry_dart_plugin: ^3.0.0
+  sentry_dart_plugin:
+    git:
+      url: git@github.com:getsentry/sentry-dart-plugin.git
+      ref: fix/ios-builds-fastlane
   integration_test:
     sdk: flutter
   flutter_test:
