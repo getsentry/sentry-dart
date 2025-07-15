@@ -5,8 +5,8 @@ import 'package:test/test.dart';
 import 'test_utils.dart';
 
 void main() {
-  group('sampleRand propagation', () {
-    test('sampleRand is reused for transactions within the same trace', () {
+  group('sampleRand', () {
+    test('is reused for transactions within the same trace', () {
       final options = defaultTestOptions()..tracesSampleRate = 1.0;
       final hub = Hub(options);
 
@@ -22,7 +22,7 @@ void main() {
       expect(rand2, equals(rand1));
     });
 
-    test('new trace gets new sampleRand', () {
+    test('is generated within a transaction in a new trace', () {
       final options = defaultTestOptions()..tracesSampleRate = 1.0;
       final hub = Hub(options);
 
