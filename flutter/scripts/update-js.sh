@@ -31,6 +31,7 @@ version: '$version'
 integrity:
   production: 'sha384-$integrity_prod'
   debug: 'sha384-$integrity_dbg'
+
 EOF
 }
 
@@ -70,7 +71,6 @@ case "${1:-}" in
   set-version)
     new_version="$2"
 
-    # Fetch SRI hashes for the given version.
     min_js_url="https://browser.sentry-cdn.com/$new_version/bundle.tracing.min.js"
     dbg_js_url="https://browser.sentry-cdn.com/$new_version/bundle.tracing.js"
 
