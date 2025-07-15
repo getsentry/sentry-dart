@@ -6,9 +6,7 @@ on:
     - cron: '0 5 * * *'
   # Allow manual trigger
   workflow_dispatch:
-  # Triggered by external hooks whenever a new tag of the JS SDK is published.
-  repository_dispatch:
-    types: [sentry-js-sdk-release]
+  pull_request:
 
 jobs:
   bump-js-sdk:
