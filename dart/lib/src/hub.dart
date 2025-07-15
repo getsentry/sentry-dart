@@ -506,14 +506,14 @@ class Hub {
         transactionContext.samplingDecision = samplingDecision;
 
         // Store the generated/used sampleRand on the propagation context so
-        // that subsequent spans/transactions of the same trace reuse it.
+        // that subsequent transactions in the same trace reuse it.
         if (samplingDecision.sampleRand != null) {
           propagationContext.sampleRand = samplingDecision.sampleRand;
         }
       }
 
       transactionContext.origin ??= SentryTraceOrigins.manual;
-      transactionContext.traceId = scope.propagationContext.traceId;
+      transactionContext.traceId = propagationContext.traceId;
 
       SentryProfiler? profiler;
       if (_profilerFactory != null &&
@@ -544,7 +544,7 @@ class Hub {
   @internal
   void generateNewTrace() {
     scope.propagationContext.traceId = SentryId.newId();
-    // Reset sampleRand so that a new one is generated for the new trace.
+    // Reset sampleRand so that a new one is generated for the new trace when a new transaction is started
     scope.propagationContext.sampleRand = null;
   }
 
