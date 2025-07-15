@@ -20,7 +20,7 @@ get_current_version() {
   grep '^version:' "$CONFIG_FILE" | awk '{print $2}' | tr -d "'\""
 }
 
-# Writes the YAML config with the provided version + integrity hashes
+# Writes the YAML config with the provided version  integrity hashes
 write_config() {
   local version="$1"
   local integrity_prod="$2"
@@ -31,7 +31,6 @@ version: '$version'
 integrity:
   production: 'sha384-$integrity_prod'
   debug: 'sha384-$integrity_dbg'
-
 EOF
 }
 
@@ -53,11 +52,19 @@ write_bundle_integrities() {
   local integrity_prod="$1"
   local integrity_dbg="$2"
 
-  # Update production bundle hash (minified script)
-  perl -0777 -i -pe "s%('url':\s*'https://browser\.sentry-cdn\.com/\$jsSdkVersion/bundle\.tracing\.min\.js',\s*'integrity':\s*')sha384-[^']*'%\$1sha384-$integrity_prod'%sg" "$BUNDLE_FILE"
+  # Perl’s -0777 option slurps the whole file, so we can match across newlines.
+  # The pattern:
+  #   - finds the bundle URL line (minified or debug)
+  #   - skips any amount of text/newlines until it reaches `'integrity':`
+  #   - captures everything up to the opening quote of the hash
+  #   - replaces only the hash
+  perl -0777 -i -pe "
+    s%('url'\\s*:\\s*'[^']*bundle\\.tracing\\.min\\.js'[\\s\\S]*?'integrity'\\s*:\\s*')sha384-[^']*'%\$1sha384-${integrity_prod}'%g
+  " $BUNDLE_FILE
 
-  # Update debug bundle hash (non-minified script)
-  perl -0777 -i -pe "s%('url':\s*'https://browser\.sentry-cdn\.com/\$jsSdkVersion/bundle\.tracing\.js',\s*'integrity':\s*')sha384-[^']*'%\$1sha384-$integrity_dbg'%sg" "$BUNDLE_FILE"
+  perl -0777 -i -pe "
+    s%('url'\\s*:\\s*'[^']*bundle\\.tracing\\.js'[\\s\\S]*?'integrity'\\s*:\\s*')sha384-[^']*'%\$1sha384-${integrity_dbg}'%g
+  " $BUNDLE_FILE
 }
 
 case "${1:-}" in
@@ -72,6 +79,7 @@ case "${1:-}" in
   set-version)
     new_version="$2"
 
+    # Fetch SRI hashes for the given version.
     min_js_url="https://browser.sentry-cdn.com/$new_version/bundle.tracing.min.js"
     dbg_js_url="https://browser.sentry-cdn.com/$new_version/bundle.tracing.js"
 
