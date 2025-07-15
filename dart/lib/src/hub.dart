@@ -492,8 +492,8 @@ class Hub {
 
       // if transactionContext has no sampling decision yet, run the traces sampler
       var samplingDecision = transactionContext.samplingDecision;
+      final propagationContext = scope.propagationContext;
       if (samplingDecision == null) {
-        final propagationContext = scope.propagationContext;
         final samplingContext = SentrySamplingContext(
             transactionContext, customSamplingContext ?? {});
 
@@ -504,14 +504,11 @@ class Hub {
 
         // Persist the sampling decision within the transaction context
         transactionContext.samplingDecision = samplingDecision;
-
-        // Store the generated/used sampleRand on the propagation context so
-        // that subsequent transactions in the same trace reuse it.
-        if (samplingDecision.sampleRand != null) {
-          propagationContext.sampleRand = samplingDecision.sampleRand;
-        }
       }
 
+      // Store the generated/used sampleRand on the propagation context so
+      // that subsequent transactions in the same trace reuse it.
+      propagationContext.sampleRand ??= samplingDecision.sampleRand;
       transactionContext.origin ??= SentryTraceOrigins.manual;
       transactionContext.traceId = propagationContext.traceId;
 
