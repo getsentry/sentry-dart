@@ -1,12 +1,13 @@
 # Changelog
 
-# Unreleased
+## Unreleased
 
 ### Features
 
 - Report Flutter framework feature flags ([#2991](https://github.com/getsentry/sentry-dart/pull/2991))
   - Search for feature flags that are prefixed with `flutter:*`
   - This works on Flutter builds that include [this PR](https://github.com/flutter/flutter/pull/171545)
+- Add `LoggingIntegration` support for `SentryLog` ([#3050](https://github.com/getsentry/sentry-dart/pull/3050))
 
 ### Fixes
 
