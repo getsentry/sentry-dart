@@ -1,8 +1,9 @@
 import 'package:meta/meta.dart';
+import 'sentry_js_sdk_version.dart';
 
-// todo: set up ci to update this and the integrity
+// The JS SDK version is injected by CI via `update-js.sh`.
 @internal
-const jsSdkVersion = '9.5.0';
+const jsSdkVersion = sentryJsSdkVersion;
 
 // The URLs from which the script should be downloaded.
 @internal
