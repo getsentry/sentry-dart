@@ -27,6 +27,13 @@ class LoggingIntegration implements Integration<SentryOptions> {
   /// | INFO                  | info             |
   /// | CONFIG, FINE, ALL     | debug            |
   /// | FINER, FINEST         | trace            |
+  ///
+  /// Custom log levels are mapped based on their numeric values:
+  /// - >= 1000 → error
+  /// - >= 900 → warn
+  /// - >= 800 → info
+  /// - >= 700 || 500 || 0 → debug
+  /// - < 700 → trace
   LoggingIntegration({
     Level minBreadcrumbLevel = Level.INFO,
     Level minEventLevel = Level.SEVERE,
@@ -93,47 +100,25 @@ class LoggingIntegration implements Integration<SentryOptions> {
         'time': SentryLogAttribute.int(record.time.millisecondsSinceEpoch),
       };
 
-      switch (record.level) {
-        case Level.SHOUT:
-          await _options.logger.error(record.message, attributes: attributes);
-          break;
-        case Level.SEVERE:
-          await _options.logger.error(record.message, attributes: attributes);
-          break;
-        case Level.WARNING:
-          await _options.logger.warn(record.message, attributes: attributes);
-          break;
-        case Level.INFO:
-          await _options.logger.info(record.message, attributes: attributes);
-          break;
-        case Level.CONFIG:
-          await _options.logger.debug(record.message, attributes: attributes);
-          break;
-        case Level.FINE:
-          await _options.logger.debug(record.message, attributes: attributes);
-          break;
-        case Level.FINER:
-          await _options.logger.trace(record.message, attributes: attributes);
-          break;
-        case Level.FINEST:
-          await _options.logger.trace(record.message, attributes: attributes);
-          break;
-        case Level.ALL:
-          await _options.logger.debug(record.message, attributes: attributes);
-          break;
-        default:
-          if (record.level.value >= Level.SEVERE.value) {
-            await _options.logger.error(record.message, attributes: attributes);
-          } else if (record.level.value >= Level.WARNING.value) {
-            await _options.logger.warn(record.message, attributes: attributes);
-          } else if (record.level.value >= Level.INFO.value) {
-            await _options.logger.info(record.message, attributes: attributes);
-          } else if (record.level.value >= Level.CONFIG.value) {
-            await _options.logger.debug(record.message, attributes: attributes);
-          } else {
-            await _options.logger.trace(record.message, attributes: attributes);
-          }
-          break;
+      // Map log levels based on value ranges
+      final levelValue = record.level.value;
+      if (levelValue >= Level.SEVERE.value) {
+        // >= 1000 → error
+        await _options.logger.error(record.message, attributes: attributes);
+      } else if (levelValue >= Level.WARNING.value) {
+        // >= 900 → warn
+        await _options.logger.warn(record.message, attributes: attributes);
+      } else if (levelValue >= Level.INFO.value) {
+        // >= 800 → info
+        await _options.logger.info(record.message, attributes: attributes);
+      } else if (levelValue >= Level.CONFIG.value ||
+          levelValue == Level.FINE.value ||
+          levelValue == Level.ALL.value) {
+        // >= 700 || 500 || 0 → debug
+        await _options.logger.debug(record.message, attributes: attributes);
+      } else {
+        // < 700 → trace
+        await _options.logger.trace(record.message, attributes: attributes);
       }
     }
   }
