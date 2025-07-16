@@ -21,7 +21,6 @@ set-version)
     newValue="${BASH_REMATCH[1]}$2"
     echo "${content/${BASH_REMATCH[0]}/$newValue}" >$file
     # Regenerate Dart JNI bindings so they stay in sync with the updated Android SDK version.
-    # This mirrors what we already do for Cocoa bindings in the iOS update script.
     ../scripts/generate-jni-bindings.sh "$2"
     ;;
 *)
