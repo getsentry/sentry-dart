@@ -52,12 +52,12 @@ void main() {
 
     group('sampled', () {
       test('is null by default', () {
-        final hub = Hub(defaultTestOptions());
+        final hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
         expect(hub.scope.propagationContext.sampled, isNull);
       });
 
       test('is set by the first transaction and stays unchanged', () {
-        final hub = Hub(defaultTestOptions());
+        final hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
         // 1. Start the first (root) transaction with an explicit sampled = true.
         final txContextTrue = SentryTransactionContext(
           'trx',
@@ -81,7 +81,7 @@ void main() {
       });
 
       test('is reset when a new trace is generated', () {
-        final hub = Hub(defaultTestOptions());
+        final hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
         final txContext = SentryTransactionContext(
           'trx',
           'op',
