@@ -589,6 +589,15 @@ void main() {
       final newTraceId = hub.scope.propagationContext.traceId;
       expect(oldTraceId, isNot(newTraceId));
     });
+
+    test('generateNewTrace resets sampleRand in propagation context', () {
+      hub.scope.propagationContext.sampleRand = 1.0;
+
+      hub.generateNewTrace();
+
+      final newSampleRand = hub.scope.propagationContext.sampleRand;
+      expect(newSampleRand, isNull);
+    });
   });
 
   group('Hub scope callback', () {
