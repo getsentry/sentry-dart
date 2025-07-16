@@ -17,21 +17,18 @@ import 'widget_filter.dart';
 @internal
 class ScreenshotRecorder {
   @protected
-  final ScreenshotRecorderConfig config;
-
-  @protected
   final SentryFlutterOptions options;
+
+  ScreenshotRecorderConfig? config;
 
   final String logName;
   bool _warningLogged = false;
   late final SentryMaskingConfig? _maskingConfig;
 
-  ScreenshotRecorder(
-    this.config,
-    this.options, {
-    SentryPrivacyOptions? privacyOptions,
-    this.logName = 'ScreenshotRecorder',
-  }) {
+  ScreenshotRecorder(this.options,
+      {SentryPrivacyOptions? privacyOptions,
+      this.logName = 'ScreenshotRecorder',
+      this.config}) {
     privacyOptions ??= options.privacy;
 
     final maskingConfig =
@@ -71,7 +68,13 @@ class ScreenshotRecorder {
         return Future.value(null);
       }
 
-      final capture = _Capture<R>.create(renderObject, config, context);
+      if (config == null) {
+        _log(SentryLevel.warning,
+            "Capture config is not set, skipping capture.");
+        return Future.value(null);
+      }
+
+      final capture = _Capture<R>.create(renderObject, config!, context);
 
       Timeline.startSync('Sentry::captureScreenshot:RenderObjectToImage',
           flow: flow);
