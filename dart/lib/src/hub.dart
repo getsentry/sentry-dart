@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:meta/meta.dart';
 
@@ -490,17 +491,29 @@ class Hub {
     } else if (_options.isTracingEnabled()) {
       final item = _peek();
 
-      // if transactionContext has no sampled decision, run the traces sampler
+      // if transactionContext has no sampling decision yet, run the traces sampler
       var samplingDecision = transactionContext.samplingDecision;
+      final propagationContext = scope.propagationContext;
+      // Store the generated/used sampleRand on the propagation context so
+      // that subsequent transactions in the same trace reuse it.
+      propagationContext.sampleRand ??= Random().nextDouble();
+
       if (samplingDecision == null) {
         final samplingContext = SentrySamplingContext(
             transactionContext, customSamplingContext ?? {});
-        samplingDecision = _tracesSampler.sample(samplingContext);
+
+        samplingDecision = _tracesSampler.sample(
+          samplingContext,
+          // sampleRand is guaranteed not to be null here
+          propagationContext.sampleRand!,
+        );
+
+        // Persist the sampling decision within the transaction context
         transactionContext.samplingDecision = samplingDecision;
       }
 
       transactionContext.origin ??= SentryTraceOrigins.manual;
-      transactionContext.traceId = scope.propagationContext.traceId;
+      transactionContext.traceId = propagationContext.traceId;
 
       // Persist the "sampled" decision onto the propagation context the
       // first time we obtain one for the current trace.
@@ -537,10 +550,11 @@ class Hub {
 
   @internal
   void generateNewTraceId() {
-    // Create a brand-new trace identifier and reset the sampling flag so
+    // Create a brand-new trace identifier and reset the sampling flag and sampleRand so
     // that the next root transaction can set it again.
     scope.propagationContext
       ..traceId = SentryId.newId()
+      ..sampleRand = null
       ..sampled = null;
   }
 

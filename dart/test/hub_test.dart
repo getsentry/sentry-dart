@@ -581,13 +581,22 @@ void main() {
       });
     });
 
-    test('generateNewTraceId creates new trace id in propagation context', () {
+    test('generateNewTrace creates new trace id in propagation context', () {
       final oldTraceId = hub.scope.propagationContext.traceId;
 
-      hub.generateNewTraceId();
+      hub.generateNewTrace();
 
       final newTraceId = hub.scope.propagationContext.traceId;
       expect(oldTraceId, isNot(newTraceId));
+    });
+
+    test('generateNewTrace resets sampleRand in propagation context', () {
+      hub.scope.propagationContext.sampleRand = 1.0;
+
+      hub.generateNewTrace();
+
+      final newSampleRand = hub.scope.propagationContext.sampleRand;
+      expect(newSampleRand, isNull);
     });
   });
 

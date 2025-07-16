@@ -1783,9 +1783,9 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.ISentrySpan);
 
   @override
-  void generateNewTraceId() => super.noSuchMethod(
+  void generateNewTrace() => super.noSuchMethod(
         Invocation.method(
-          #generateNewTraceId,
+          #generateNewTrace,
           [],
         ),
         returnValueForMissingStub: null,
