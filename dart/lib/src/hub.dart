@@ -549,8 +549,8 @@ class Hub {
   }
 
   @internal
-  void generateNewTraceId() {
-    // Create a brand-new trace identifier and reset the sampling flag and sampleRand so
+  void generateNewTrace() {
+    // Create a brand-new trace and reset the sampling flag and sampleRand so
     // that the next root transaction can set it again.
     scope.propagationContext
       ..traceId = SentryId.newId()
