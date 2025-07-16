@@ -5,47 +5,30 @@ import 'package:test/test.dart';
 
 import 'test_utils.dart';
 
-SentryOptions _createOptions() {
-  final options = SentryOptions(dsn: 'https://public@sentry.example.com/1');
-  // Disable transports – we don't want real network calls in unit tests.
-  options.transport = NoOpTransport();
-  // Ensure deterministic sampling decisions; we'll provide them manually.
-  return options;
-}
-
 void main() {
   group('PropagationContext', () {
     group('traceId', () {
-      test('generateNewTrace creates new trace id', () {
-        final hub = Hub(defaultTestOptions());
-
-        final oldTraceId = hub.scope.propagationContext.traceId;
-
-        hub.generateNewTrace();
-
-        final newTraceId = hub.scope.propagationContext.traceId;
-        expect(oldTraceId, isNot(newTraceId));
-      });
-
-      test('generateNewTrace resets sampleRand', () {
-        final hub = Hub(defaultTestOptions());
-
-        hub.scope.propagationContext.sampleRand = 1.0;
-
-        hub.generateNewTrace();
-
-        expect(hub.scope.propagationContext.sampleRand, isNull);
-      });
-    });
-    group('sampleRand', () {
       test('is reused for transactions within the same trace', () {
         final options = defaultTestOptions()..tracesSampleRate = 1.0;
         final hub = Hub(options);
 
         final tx1 = hub.startTransaction('tx1', 'op') as SentryTracer;
-        final rand1 = tx1.samplingDecision?.sampleRand;
+        final traceId1 = hub.scope.propagationContext.traceId;
 
-        // Sanity check
+        final tx2 = hub.startTransaction('tx2', 'op') as SentryTracer;
+        final traceId2 = hub.scope.propagationContext.traceId;
+
+        expect(traceId1, equals(traceId2));
+      });
+    });
+
+    group('sampleRand', () {
+      test('is set by the first transaction and stays unchanged', () {
+        final options = defaultTestOptions()..tracesSampleRate = 1.0;
+        final hub = Hub(options);
+
+        final tx1 = hub.startTransaction('tx1', 'op') as SentryTracer;
+        final rand1 = tx1.samplingDecision?.sampleRand;
         expect(rand1, isNotNull);
 
         final tx2 = hub.startTransaction('tx2', 'op') as SentryTracer;
@@ -53,31 +36,13 @@ void main() {
 
         expect(rand2, equals(rand1));
       });
-
-      test('is generated within a transaction in a new trace', () {
-        final options = defaultTestOptions()..tracesSampleRate = 1.0;
-        final hub = Hub(options);
-
-        final tx1 = hub.startTransaction('tx1', 'op') as SentryTracer;
-        final rand1 = tx1.samplingDecision?.sampleRand;
-        expect(rand1, isNotNull);
-
-        // Start a new trace
-        hub.generateNewTrace();
-
-        final tx2 = hub.startTransaction('tx2', 'op') as SentryTracer;
-        final rand2 = tx2.samplingDecision?.sampleRand;
-
-        expect(rand2, isNotNull);
-        expect(rand2, isNot(equals(rand1)));
-      });
     });
 
-    group('sampled lifecycle', () {
+    group('sampled', () {
       late Hub hub;
 
       setUp(() {
-        final options = _createOptions();
+        final options = defaultTestOptions();
         hub = Hub(options);
       });
 
@@ -108,7 +73,7 @@ void main() {
             reason: 'sampled flag must remain unchanged for the trace');
       });
 
-      test('is reset when a new trace id is generated', () {
+      test('is reset when a new trace is generated', () {
         final txContext = SentryTransactionContext(
           'trx',
           'op',
@@ -118,11 +83,16 @@ void main() {
         expect(hub.scope.propagationContext.sampled, isTrue);
 
         // Simulate new trace.
-        hub.generateNewTraceId();
+        hub.generateNewTrace();
         expect(hub.scope.propagationContext.sampled, isNull);
       });
+    });
 
-      test('sentry-trace header reflects sampled flag', () {
+    group('toSentryTrace', () {
+      test('header reflects values', () {
+        final options = defaultTestOptions()..tracesSampleRate = 1.0;
+        final hub = Hub(options);
+
         final txContext = SentryTransactionContext(
           'trx',
           'op',

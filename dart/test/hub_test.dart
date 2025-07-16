@@ -580,6 +580,15 @@ void main() {
         expect('test', scope.breadcrumbs.first.message);
       });
     });
+
+    test('generateNewTraceId creates new trace id in propagation context', () {
+      final oldTraceId = hub.scope.propagationContext.traceId;
+
+      hub.generateNewTraceId();
+
+      final newTraceId = hub.scope.propagationContext.traceId;
+      expect(oldTraceId, isNot(newTraceId));
+    });
   });
 
   group('Hub scope callback', () {
