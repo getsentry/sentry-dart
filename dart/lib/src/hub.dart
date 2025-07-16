@@ -502,6 +502,13 @@ class Hub {
       transactionContext.origin ??= SentryTraceOrigins.manual;
       transactionContext.traceId = scope.propagationContext.traceId;
 
+      // Persist the "sampled" decision onto the propagation context the
+      // first time we obtain one for the current trace.
+      // Subsequent transactions MUST NOT change this flag.
+      if (scope.propagationContext.sampled == null) {
+        scope.propagationContext.sampled = samplingDecision.sampled;
+      }
+
       SentryProfiler? profiler;
       if (_profilerFactory != null &&
           _tracesSampler.sampleProfiling(samplingDecision)) {
@@ -530,7 +537,11 @@ class Hub {
 
   @internal
   void generateNewTraceId() {
-    scope.propagationContext.traceId = SentryId.newId();
+    // Create a brand-new trace identifier and reset the sampling flag so
+    // that the next root transaction can set it again.
+    scope.propagationContext
+      ..traceId = SentryId.newId()
+      ..sampled = null;
   }
 
   /// Gets the current active transaction or span.
