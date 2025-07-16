@@ -1101,7 +1101,7 @@ class Fixture {
     List<String>? ignoreRoutes,
   }) {
     if (hub is MockHub) {
-      when(hub.generateNewTraceId()).thenAnswer((_) => {});
+      when(hub.generateNewTrace()).thenAnswer((_) => {});
     }
     final options = hub.options;
     if (options is SentryFlutterOptions) {

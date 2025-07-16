@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:meta/meta.dart';
 
@@ -490,17 +491,29 @@ class Hub {
     } else if (_options.isTracingEnabled()) {
       final item = _peek();
 
-      // if transactionContext has no sampled decision, run the traces sampler
+      // if transactionContext has no sampling decision yet, run the traces sampler
       var samplingDecision = transactionContext.samplingDecision;
+      final propagationContext = scope.propagationContext;
+      // Store the generated/used sampleRand on the propagation context so
+      // that subsequent transactions in the same trace reuse it.
+      propagationContext.sampleRand ??= Random().nextDouble();
+
       if (samplingDecision == null) {
         final samplingContext = SentrySamplingContext(
             transactionContext, customSamplingContext ?? {});
-        samplingDecision = _tracesSampler.sample(samplingContext);
+
+        samplingDecision = _tracesSampler.sample(
+          samplingContext,
+          // sampleRand is guaranteed not to be null here
+          propagationContext.sampleRand!,
+        );
+
+        // Persist the sampling decision within the transaction context
         transactionContext.samplingDecision = samplingDecision;
       }
 
       transactionContext.origin ??= SentryTraceOrigins.manual;
-      transactionContext.traceId = scope.propagationContext.traceId;
+      transactionContext.traceId = propagationContext.traceId;
 
       SentryProfiler? profiler;
       if (_profilerFactory != null &&
@@ -529,8 +542,10 @@ class Hub {
   }
 
   @internal
-  void generateNewTraceId() {
+  void generateNewTrace() {
     scope.propagationContext.traceId = SentryId.newId();
+    // Reset sampleRand so that a new one is generated for the new trace when a new transaction is started
+    scope.propagationContext.sampleRand = null;
   }
 
   /// Gets the current active transaction or span.

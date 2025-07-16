@@ -6,6 +6,7 @@ import 'test_utils.dart';
 
 void main() {
   late Fixture fixture;
+  const _sampleRand = 1.0;
 
   setUp(() {
     fixture = Fixture();
@@ -21,7 +22,7 @@ void main() {
     );
     final context = SentrySamplingContext(trContext, {});
 
-    expect(sut.sample(context).sampled, true);
+    expect(sut.sample(context, _sampleRand).sampled, true);
   });
 
   test('options has sampler', () {
@@ -40,7 +41,7 @@ void main() {
     );
     final context = SentrySamplingContext(trContext, {});
 
-    expect(sut.sample(context).sampled, true);
+    expect(sut.sample(context, _sampleRand).sampled, true);
   });
 
   test('transactionContext has parentSampled', () {
@@ -53,7 +54,7 @@ void main() {
     );
     final context = SentrySamplingContext(trContext, {});
 
-    expect(sut.sample(context).sampled, true);
+    expect(sut.sample(context, _sampleRand).sampled, true);
   });
 
   test('options has rate 1.0', () {
@@ -65,7 +66,7 @@ void main() {
     );
     final context = SentrySamplingContext(trContext, {});
 
-    expect(sut.sample(context).sampled, true);
+    expect(sut.sample(context, _sampleRand).sampled, true);
   });
 
   test('options has rate 0.0', () {
@@ -77,7 +78,7 @@ void main() {
     );
     final context = SentrySamplingContext(trContext, {});
 
-    expect(sut.sample(context).sampled, false);
+    expect(sut.sample(context, _sampleRand).sampled, false);
   });
 
   test('does not sample if tracesSampleRate and tracesSampleRate are null', () {
@@ -88,7 +89,7 @@ void main() {
       'op',
     );
     final context = SentrySamplingContext(trContext, {});
-    final samplingDecision = sut.sample(context);
+    final samplingDecision = sut.sample(context, _sampleRand);
 
     expect(samplingDecision.sampleRate, isNull);
     expect(samplingDecision.sampleRand, isNull);
@@ -111,7 +112,7 @@ void main() {
       'op',
     );
     final context = SentrySamplingContext(trContext, {});
-    sut.sample(context);
+    sut.sample(context, _sampleRand);
 
     expect(fixture.loggedException, exception);
     expect(fixture.loggedLevel, SentryLevel.error);
