@@ -519,7 +519,7 @@ class Hub {
       // first time we obtain one for the current trace.
       // Subsequent transactions MUST NOT change this flag.
       if (scope.propagationContext.sampled == null) {
-        scope.propagationContext.sampled = samplingDecision.sampled;
+        scope.propagationContext.sampled ??= samplingDecision.sampled;
       }
 
       SentryProfiler? profiler;
