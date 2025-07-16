@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:meta/meta.dart';
 
@@ -493,22 +494,24 @@ class Hub {
       // if transactionContext has no sampling decision yet, run the traces sampler
       var samplingDecision = transactionContext.samplingDecision;
       final propagationContext = scope.propagationContext;
+      // Store the generated/used sampleRand on the propagation context so
+      // that subsequent transactions in the same trace reuse it.
+      propagationContext.sampleRand ??= Random().nextDouble();
+
       if (samplingDecision == null) {
         final samplingContext = SentrySamplingContext(
             transactionContext, customSamplingContext ?? {});
 
         samplingDecision = _tracesSampler.sample(
           samplingContext,
-          sampleRand: propagationContext.sampleRand,
+          // sampleRand is guaranteed not to be null here
+          propagationContext.sampleRand!,
         );
 
         // Persist the sampling decision within the transaction context
         transactionContext.samplingDecision = samplingDecision;
       }
 
-      // Store the generated/used sampleRand on the propagation context so
-      // that subsequent transactions in the same trace reuse it.
-      propagationContext.sampleRand ??= samplingDecision.sampleRand;
       transactionContext.origin ??= SentryTraceOrigins.manual;
       transactionContext.traceId = propagationContext.traceId;
 

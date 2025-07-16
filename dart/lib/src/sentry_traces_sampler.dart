@@ -20,9 +20,9 @@ class SentryTracesSampler {
   }
 
   SentryTracesSamplingDecision sample(
-    SentrySamplingContext samplingContext, {
-    double? sampleRand,
-  }) {
+    SentrySamplingContext samplingContext,
+    double sampleRand,
+  ) {
     final samplingDecision =
         samplingContext.transactionContext.samplingDecision;
     if (samplingDecision != null) {
