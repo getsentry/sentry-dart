@@ -8,6 +8,12 @@ import 'test_utils.dart';
 void main() {
   group('PropagationContext', () {
     group('traceId', () {
+      test('is a new trace id by default', () {
+        final hub = Hub(defaultTestOptions());
+        final traceId = hub.scope.propagationContext.traceId;
+        expect(traceId, isNotNull);
+      });
+
       test('is reused for transactions within the same trace', () {
         final options = defaultTestOptions()..tracesSampleRate = 1.0;
         final hub = Hub(options);
@@ -23,6 +29,12 @@ void main() {
     });
 
     group('sampleRand', () {
+      test('is null by default', () {
+        final hub = Hub(defaultTestOptions());
+        final sampleRand = hub.scope.propagationContext.sampleRand;
+        expect(sampleRand, isNull);
+      });
+
       test('is set by the first transaction and stays unchanged', () {
         final options = defaultTestOptions()..tracesSampleRate = 1.0;
         final hub = Hub(options);
@@ -39,18 +51,13 @@ void main() {
     });
 
     group('sampled', () {
-      late Hub hub;
-
-      setUp(() {
-        final options = defaultTestOptions();
-        hub = Hub(options);
-      });
-
       test('is null by default', () {
+        final hub = Hub(defaultTestOptions());
         expect(hub.scope.propagationContext.sampled, isNull);
       });
 
       test('is set by the first transaction and stays unchanged', () {
+        final hub = Hub(defaultTestOptions());
         // 1. Start the first (root) transaction with an explicit sampled = true.
         final txContextTrue = SentryTransactionContext(
           'trx',
@@ -74,6 +81,7 @@ void main() {
       });
 
       test('is reset when a new trace is generated', () {
+        final hub = Hub(defaultTestOptions());
         final txContext = SentryTransactionContext(
           'trx',
           'op',
