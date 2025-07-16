@@ -1,15 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# This script regenerates the Dart JNI bindings that allow the Flutter layer to
-# talk to the underlying Android SDK.
-#
-# It is invoked automatically from `update-android.sh` whenever we bump the
-# Sentry Android SDK version, mirroring how Cocoa bindings are regenerated on
-# iOS.
-
-# When running inside CI environments we cannot rely on the Flutter SDK being
-# pre-installed, so download and add it to PATH on-the-fly.
 if [[ -n ${CI:+x} ]]; then
     echo "Running in CI – setting up Flutter SDK first"
     # Note: keep version in sync with other binding generation scripts.
