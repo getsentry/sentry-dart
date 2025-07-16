@@ -15,6 +15,28 @@ SentryOptions _createOptions() {
 
 void main() {
   group('PropagationContext', () {
+    group('traceId', () {
+      test('generateNewTrace creates new trace id', () {
+        final hub = Hub(defaultTestOptions());
+
+        final oldTraceId = hub.scope.propagationContext.traceId;
+
+        hub.generateNewTrace();
+
+        final newTraceId = hub.scope.propagationContext.traceId;
+        expect(oldTraceId, isNot(newTraceId));
+      });
+
+      test('generateNewTrace resets sampleRand', () {
+        final hub = Hub(defaultTestOptions());
+
+        hub.scope.propagationContext.sampleRand = 1.0;
+
+        hub.generateNewTrace();
+
+        expect(hub.scope.propagationContext.sampleRand, isNull);
+      });
+    });
     group('sampleRand', () {
       test('is reused for transactions within the same trace', () {
         final options = defaultTestOptions()..tracesSampleRate = 1.0;
