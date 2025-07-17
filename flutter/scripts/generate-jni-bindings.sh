@@ -16,6 +16,20 @@ cd "$(dirname "$0")/../"
 
 binding_path="lib/src/native/java/binding.dart"
 
+# Ensure the Android Gradle wrapper exists. jnigen relies on it to resolve
+# compile classpaths. The wrapper script (gradlew/gradlew.bat) is usually
+# Git-ignored, so it won't be present on a fresh clone/CI checkout. Run a
+# minimal Flutter build in the example app to have Flutter regenerate the
+# wrapper if it is missing.
+if [[ ! -f example/android/gradlew ]]; then
+  echo "Gradle wrapper not found – generating via \`flutter build apk --debug\`."
+  pushd example >/dev/null
+  # We don't need a release build, a fast debug build is sufficient to
+  # trigger wrapper + dependency resolution.
+  flutter build apk --debug --no-pub --quiet || flutter build apk --debug --quiet
+  popd >/dev/null
+fi
+
 # Regenerate the bindings.
 dart run jnigen --config ffi-jni.yaml
 
