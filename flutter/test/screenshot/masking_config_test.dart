@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -146,9 +148,10 @@ void main() async {
   });
 
   group('$SentryReplayOptions.buildMaskingConfig()', () {
-    List<String> rulesAsStrings(SentryPrivacyOptions options) {
-      final config =
-          options.buildMaskingConfig(MockLogger().call, RuntimeChecker());
+    List<String> rulesAsStrings(SentryPrivacyOptions options,
+        {String? flutterVersion}) {
+      final config = options.buildMaskingConfig(
+          MockLogger().call, RuntimeChecker(), flutterVersion);
       return config.rules
           .map((rule) => rule.toString())
           // These normalize the string on VM & js & wasm:
@@ -220,6 +223,30 @@ void main() async {
         ...alwaysEnabledRules,
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ]);
+    });
+
+    test(
+        'SensitiveContent rule is automatically added when current Flutter version is equal or newer than 3.33',
+        () {
+      final testCases = <String?, bool>{
+        null: false,
+        '1.0.0': false,
+        '3.32.5': false,
+        '3.33.0': true,
+        '3.40.0': true,
+        '4.0.0': true,
+        '3.a.b': false,
+        'invalid': false,
+      };
+
+      testCases.forEach((version, shouldAdd) {
+        final sut = SentryPrivacyOptions();
+        expect(
+            rulesAsStrings(sut, flutterVersion: version).contains(
+                'SentryMaskingCustomRule<SensitiveContent>(Mask SensitiveContent widget.)'),
+            shouldAdd,
+            reason: 'Test failed with version: $version');
+      });
     });
 
     group('user rules', () {

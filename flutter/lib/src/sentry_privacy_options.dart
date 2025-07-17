@@ -27,8 +27,8 @@ class SentryPrivacyOptions {
   Iterable<SentryMaskingRule> get userMaskingRules => _userMaskingRules;
 
   @internal
-  SentryMaskingConfig buildMaskingConfig(
-      SdkLogCallback logger, RuntimeChecker runtimeChecker) {
+  SentryMaskingConfig buildMaskingConfig(SdkLogCallback logger,
+      RuntimeChecker runtimeChecker, String? flutterVersion) {
     // First, we collect rules defined by the user (so they're applied first).
     final rules = _userMaskingRules.toList();
 
@@ -74,6 +74,8 @@ class SentryPrivacyOptions {
         name: 'RichText',
       ));
     }
+
+    maybeAddSensitiveContentRule(rules, flutterVersion);
 
     // In Debug mode, check if users explicitly mask (or unmask) widgets that
     // look like they should be masked, e.g. Videos, WebViews, etc.
@@ -157,6 +159,63 @@ class SentryPrivacyOptions {
           description ?? 'Custom callback-based rule (description unspecified)',
     ));
   }
+}
+
+/// Returns `true` if a SensitiveContent masking rule _should_ be added for a
+/// given [flutterVersion] string. The SensitiveContent widget was introduced
+/// in Flutter 3.33, therefore we only add the masking rule when the detected
+/// version is >= 3.33.
+bool _shouldAddSensitiveContentRule(String? flutterVersion) {
+  if (flutterVersion == null) return false;
+
+  final parts = flutterVersion.split('.');
+  if (parts.length < 2) {
+    // Malformed version string – be safe and skip.
+    return false;
+  }
+
+  const requiredMajor = 3;
+  const requiredMinor = 33;
+  final major = int.tryParse(parts[0]);
+  final minor = int.tryParse(parts[1]);
+  if (major == null || minor == null) {
+    // Not numeric – treat as unknown.
+    return false;
+  }
+
+  return major > requiredMajor ||
+      (major == requiredMajor && minor >= requiredMinor);
+}
+
+/// Adds a masking rule for the [SensitiveContent] widget.
+///
+/// The rule masks any widget that exposes a `sensitivity` property which is an
+/// [Enum]. This is how the [SensitiveContent] widget can be detected
+/// without depending on its type directly (which would fail to compile on
+/// older Flutter versions).
+@visibleForTesting
+void maybeAddSensitiveContentRule(
+    List<SentryMaskingRule> rules, String? flutterVersion) {
+  if (!_shouldAddSensitiveContentRule(flutterVersion)) return;
+
+  SentryMaskingDecision maskSensitiveContent(Element element, Widget widget) {
+    try {
+      final dynamic dynWidget = widget;
+      final sensitivity = dynWidget.sensitivity;
+      // If the property exists, we assume this is the SensitiveContent widget.
+      assert(sensitivity is Enum);
+      return SentryMaskingDecision.mask;
+    } catch (_) {
+      // Property not found – continue processing other rules.
+      return SentryMaskingDecision.continueProcessing;
+    }
+  }
+
+  rules.add(SentryMaskingCustomRule<Widget>(
+    callback: maskSensitiveContent,
+    name: 'SensitiveContent',
+    description: 'Mask SensitiveContent widget.',
+  ));
 }
 
 SentryMaskingDecision _maskImagesExceptAssets(Element element, Image widget) {
