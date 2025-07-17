@@ -1,6 +1,5 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:test/test.dart';
 
 import 'test_utils.dart';
@@ -18,10 +17,10 @@ void main() {
         final options = defaultTestOptions()..tracesSampleRate = 1.0;
         final hub = Hub(options);
 
-        final tx1 = hub.startTransaction('tx1', 'op') as SentryTracer;
+        hub.startTransaction('tx1', 'op') as SentryTracer;
         final traceId1 = hub.scope.propagationContext.traceId;
 
-        final tx2 = hub.startTransaction('tx2', 'op') as SentryTracer;
+        hub.startTransaction('tx2', 'op') as SentryTracer;
         final traceId2 = hub.scope.propagationContext.traceId;
 
         expect(traceId1, equals(traceId2));
