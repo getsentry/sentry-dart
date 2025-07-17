@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:meta/meta.dart';
 
+import 'sdk_lifecycle_hooks.dart';
 import 'utils/os_utils.dart';
 import 'integration.dart';
 import 'hub.dart';
 import 'protocol/sentry_log_attribute.dart';
 import 'sentry_options.dart';
-import 'lifecycle/on_before_capture_log.dart';
 
 @internal
 class LogsEnricherIntegration extends Integration<SentryOptions> {
