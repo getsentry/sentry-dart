@@ -123,12 +123,7 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
     }
 
     // Detect the current text direction or fall back to LTR
-    TextDirection textDirection;
-    try {
-      textDirection = Directionality.of(context);
-    } catch (_) {
-      textDirection = TextDirection.ltr;
-    }
+    final textDirection = Directionality.maybeOf(context) ?? TextDirection.ltr;
 
     return RepaintBoundary(
       child: Directionality(
