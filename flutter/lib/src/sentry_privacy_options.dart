@@ -164,7 +164,7 @@ class SentryPrivacyOptions {
 /// Adds a masking rule for the [SensitiveContent] widget.
 ///
 /// The rule masks any widget that exposes a `sensitivity` property which is an
-/// [Enum]. This is how the future [SensitiveContent] widget can be detected
+/// [Enum]. This is how the [SensitiveContent] widget can be detected
 /// without depending on its type directly (which would fail to compile on
 /// older Flutter versions).
 void _maybeAddSensitiveContentRule(List<SentryMaskingRule> rules) {
@@ -172,8 +172,7 @@ void _maybeAddSensitiveContentRule(List<SentryMaskingRule> rules) {
 
   // Only add the rule if we can statically determine that the running
   // Flutter SDK is at least 3.33 – that is the first version that contains
-  // the SensitiveContent widget. For older SDKs we skip the rule entirely so
-  // that the dynamic `sensitivity` lookup is tree-shaken away.
+  // the SensitiveContent widget. For older SDKs we skip the rule entirely.
   if (flutterVersion == null) {
     return;
   }
