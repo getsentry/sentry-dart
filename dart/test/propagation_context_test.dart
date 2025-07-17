@@ -17,12 +17,14 @@ void main() {
         final options = defaultTestOptions()..tracesSampleRate = 1.0;
         final hub = Hub(options);
 
-        hub.startTransaction('tx1', 'op') as SentryTracer;
+        final tx1 = hub.startTransaction('tx1', 'op') as SentryTracer;
         final traceId1 = hub.scope.propagationContext.traceId;
 
-        hub.startTransaction('tx2', 'op') as SentryTracer;
+        final tx2 = hub.startTransaction('tx2', 'op') as SentryTracer;
         final traceId2 = hub.scope.propagationContext.traceId;
 
+        expect(tx1.context.traceId, equals(tx2.context.traceId));
+        expect(tx1.context.traceId, equals(traceId1));
         expect(traceId1, equals(traceId2));
       });
     });
@@ -46,6 +48,7 @@ void main() {
         final rand2 = tx2.samplingDecision?.sampleRand;
 
         expect(rand2, equals(rand1));
+        expect(rand1, equals(hub.scope.propagationContext.sampleRand));
       });
     });
 
