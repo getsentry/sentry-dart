@@ -2,10 +2,38 @@
 
 ## Unreleased
 
+### Features
+
+- Report Flutter framework feature flags ([#2991](https://github.com/getsentry/sentry-dart/pull/2991))
+  - Search for feature flags that are prefixed with `flutter:*`
+  - This works on Flutter builds that include [this PR](https://github.com/flutter/flutter/pull/171545)
+- Add `LoggingIntegration` support for `SentryLog` ([#3050](https://github.com/getsentry/sentry-dart/pull/3050))
+
+### Fixes
+
+- Ensure consistent sampling per trace ([#3079](https://github.com/getsentry/sentry-dart/pull/3079))
+
+### Dependencies
+
+- Bump Native SDK from v0.9.0 to v0.9.1 ([#3018](https://github.com/getsentry/sentry-dart/pull/3018))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#091)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.9.0...0.9.1)
+- Bump JavaScript SDK from v9.5.0 to v9.39.0 ([#3085](https://github.com/getsentry/sentry-dart/pull/3085))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#9390)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/9.5.0...9.39.0)
+
+## Internal
+
+- Automate Sentry JS SDK version updates ([#3080](https://github.com/getsentry/sentry-dart/pull/3080))
+
+## 9.4.1
+
 ### Fixes
 
 - Span ids not re-generating for headers created from scope ([#3051](https://github.com/getsentry/sentry-dart/pull/3051))
 - `ScreenshotIntegration` not being added for web ([#3055](https://github.com/getsentry/sentry-dart/pull/3055))
+- `PropagationContext` not being set when `Scope` is cloned resulting in different trace ids when using `withScope` ([#3069](https://github.com/getsentry/sentry-dart/pull/3069))
+- Drift transaction rollback not executed when parent span is null ([#3062](https://github.com/getsentry/sentry-dart/pull/3062))
 
 ### Enhancements
 

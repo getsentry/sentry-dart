@@ -59,7 +59,7 @@ void main() {
       await sendLifecycle('inactive');
       await sendLifecycle('resumed');
 
-      verifyNever(hub.generateNewTraceId());
+      verifyNever(hub.generateNewTrace());
     });
 
     testWidgets('app lifecycle does not generate new trace if platform is web',
@@ -79,7 +79,7 @@ void main() {
       await sendLifecycle('inactive');
       await sendLifecycle('resumed');
 
-      verifyNever(hub.generateNewTraceId());
+      verifyNever(hub.generateNewTrace());
     });
 
     testWidgets(
@@ -89,7 +89,7 @@ void main() {
       flutterTrackingDisabledOptions.appInBackgroundTracingThreshold =
           Duration(seconds: -1);
       final hub = MockHub();
-      when(hub.generateNewTraceId()).thenAnswer((_) {});
+      when(hub.generateNewTrace()).thenAnswer((_) {});
       final observer = SentryWidgetsBindingObserver(
         hub: hub,
         options: flutterTrackingDisabledOptions,
@@ -101,7 +101,7 @@ void main() {
       await sendLifecycle('inactive');
       await sendLifecycle('resumed');
 
-      verify(hub.generateNewTraceId()).called(1);
+      verify(hub.generateNewTrace()).called(1);
     });
 
     testWidgets(
@@ -111,7 +111,7 @@ void main() {
       flutterTrackingDisabledOptions.appInBackgroundTracingThreshold =
           Duration(seconds: -1);
       final hub = MockHub();
-      when(hub.generateNewTraceId()).thenAnswer((_) {});
+      when(hub.generateNewTrace()).thenAnswer((_) {});
       final observer = SentryWidgetsBindingObserver(
         hub: hub,
         options: flutterTrackingDisabledOptions,
@@ -123,12 +123,12 @@ void main() {
       await sendLifecycle('detached');
       await sendLifecycle('resumed');
 
-      verifyNever(hub.generateNewTraceId());
+      verifyNever(hub.generateNewTrace());
 
       await sendLifecycle('inactive');
       await sendLifecycle('resumed');
 
-      verify(hub.generateNewTraceId()).called(1);
+      verify(hub.generateNewTrace()).called(1);
     }, skip: kIsWeb);
 
     testWidgets('memory pressure breadcrumb', (WidgetTester tester) async {
