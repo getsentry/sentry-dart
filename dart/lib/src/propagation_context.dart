@@ -10,6 +10,8 @@ class PropagationContext {
   /// The dynamic sampling context.
   SentryBaggage? baggage;
 
+  bool? _sampled;
+
   /// Indicates whether the current trace is sampled or not.
   ///
   /// This flag follows the lifecycle of a trace:
@@ -22,7 +24,12 @@ class PropagationContext {
   ///
   /// The flag is propagated via the `sentry-trace` header so that downstream
   /// services can honour the original sampling decision.
-  bool? sampled;
+  bool? get sampled => _sampled;
+
+  /// Applies the sampling decision exactly once per trace.
+  void applySamplingDecision(bool sampled) {
+    _sampled ??= sampled;
+  }
 
   /// Random number generated for sampling decisions.
   ///
@@ -30,6 +37,13 @@ class PropagationContext {
   /// child spans and transactions that belong to the same trace. It is reset
   /// whenever a new trace is started.
   double? sampleRand;
+
+  /// Starts a brand-new trace (new ID, new sampling value & sampled state).
+  void resetTrace() {
+    traceId = SentryId.newId();
+    sampleRand = null;
+    _sampled = null;
+  }
 
   /// Baggage header to attach to http headers.
   SentryBaggageHeader? toBaggageHeader() =>
