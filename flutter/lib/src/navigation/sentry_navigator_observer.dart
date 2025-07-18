@@ -79,18 +79,22 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
     List<String>? ignoreRoutes,
+    bool enableTimeToDisplayTracing = true,
   })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
         _autoFinishAfter = autoFinishAfter,
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
         _additionalInfoProvider = additionalInfoProvider,
-        _ignoreRoutes = ignoreRoutes ?? [] {
+        _ignoreRoutes = ignoreRoutes ?? [],
+        _enableTimeToDisplayTracing = enableTimeToDisplayTracing {
     _isCreated = true;
     if (enableAutoTransactions) {
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
-    _timeToDisplayTracker = _initializeTimeToDisplayTracker();
+    _timeToDisplayTracker = _enableTimeToDisplayTracing
+        ? _initializeTimeToDisplayTracker()
+        : null;
     final webSessionIntegration = _hub.options.integrations
         .whereType<WebSessionIntegration>()
         .firstOrNull;
