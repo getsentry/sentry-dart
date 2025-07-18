@@ -118,9 +118,11 @@ class SentryTraceContext {
   factory SentryTraceContext.fromPropagationContext(
       PropagationContext propagationContext) {
     return SentryTraceContext(
-        traceId: propagationContext.traceId,
-        spanId: SpanId.newId(),
-        operation: 'default',
-        replayId: propagationContext.baggage?.getReplayId());
+      traceId: propagationContext.traceId,
+      spanId: SpanId.newId(),
+      operation: 'default',
+      sampled: propagationContext.sampled,
+      replayId: propagationContext.baggage?.getReplayId(),
+    );
   }
 }

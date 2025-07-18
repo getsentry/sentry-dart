@@ -13,6 +13,10 @@
 
 - Ensure consistent sampling per trace ([#3079](https://github.com/getsentry/sentry-dart/pull/3079))
 
+### Enhancements
+
+- Add sampled flag in propagation context ([#3084](https://github.com/getsentry/sentry-dart/pull/3084))
+
 ### Dependencies
 
 - Bump Native SDK from v0.9.0 to v0.9.1 ([#3018](https://github.com/getsentry/sentry-dart/pull/3018))
