@@ -80,6 +80,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     AdditionalInfoExtractor? additionalInfoProvider,
     List<String>? ignoreRoutes,
     bool enableTimeToDisplayTracing = true,
+    bool generateNewTrace = true,
   })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
         _autoFinishAfter = autoFinishAfter,
@@ -87,7 +88,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _routeNameExtractor = routeNameExtractor,
         _additionalInfoProvider = additionalInfoProvider,
         _ignoreRoutes = ignoreRoutes ?? [],
-        _enableTimeToDisplayTracing = enableTimeToDisplayTracing {
+        _enableTimeToDisplayTracing = enableTimeToDisplayTracing,
+        _generateNewTrace = generateNewTrace {
     _isCreated = true;
     if (enableAutoTransactions) {
       _hub.options.sdk.addIntegration('UINavigationTracing');
@@ -120,6 +122,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final AdditionalInfoExtractor? _additionalInfoProvider;
   final List<String> _ignoreRoutes;
   TimeToDisplayTracker? _timeToDisplayTracker;
+  // Flag indicating if TTID/TTFD tracing is enabled.
+  final bool _enableTimeToDisplayTracing;
+  // Flag controlling whether a new trace (propagation context) should be generated for every navigation event.
+  final bool _generateNewTrace;
 
   WebSessionHandler? _webSessionHandler;
 
@@ -147,7 +153,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.generateNewTrace();
+    if (_generateNewTrace) {
+      _hub.generateNewTrace();
+    }
     _setCurrentRouteName(route);
     _setCurrentRouteNameAsTransaction(route);
 
@@ -178,7 +186,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.generateNewTrace();
+    if (_generateNewTrace) {
+      _hub.generateNewTrace();
+    }
     _setCurrentRouteName(newRoute);
     _setCurrentRouteNameAsTransaction(newRoute);
 
@@ -200,7 +210,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.generateNewTrace();
+    if (_generateNewTrace) {
+      _hub.generateNewTrace();
+    }
     _setCurrentRouteName(previousRoute);
     _setCurrentRouteNameAsTransaction(previousRoute);
 
