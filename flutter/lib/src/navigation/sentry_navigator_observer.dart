@@ -74,6 +74,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   SentryNavigatorObserver({
     Hub? hub,
     bool enableAutoTransactions = true,
+    bool shouldStartNewTraceOnNavigation = true,
     Duration autoFinishAfter = const Duration(seconds: 3),
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
@@ -81,6 +82,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     List<String>? ignoreRoutes,
   })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
+        _shouldStartNewTraceOnNavigation = shouldStartNewTraceOnNavigation,
         _autoFinishAfter = autoFinishAfter,
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
@@ -110,6 +112,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   final Hub _hub;
   final bool _enableAutoTransactions;
+  final bool _shouldStartNewTraceOnNavigation;
   final Duration _autoFinishAfter;
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
@@ -143,7 +146,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.generateNewTrace();
+    _startNewTraceIfEnabled();
     _setCurrentRouteName(route);
     _setCurrentRouteNameAsTransaction(route);
 
@@ -174,7 +177,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.generateNewTrace();
+    _startNewTraceIfEnabled();
     _setCurrentRouteName(newRoute);
     _setCurrentRouteNameAsTransaction(newRoute);
 
@@ -196,7 +199,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.generateNewTrace();
+    _startNewTraceIfEnabled();
     _setCurrentRouteName(previousRoute);
     _setCurrentRouteNameAsTransaction(previousRoute);
 
@@ -210,6 +213,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     final timestamp = _hub.options.clock();
     _finishTransaction(endTimestamp: timestamp);
+  }
+
+  void _startNewTraceIfEnabled() {
+    if (_shouldStartNewTraceOnNavigation) {
+      _hub.generateNewTrace();
+    }
   }
 
   void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {
