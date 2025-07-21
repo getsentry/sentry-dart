@@ -100,9 +100,7 @@ void main() {
         final to = _route(RouteSettings(name: 'To Route'));
         final before = fixture.hub.scope.propagationContext.traceId;
 
-        fixture
-            .getSut(shouldStartNewTraceOnNavigation: false)
-            .didPush(to, from);
+        fixture.getSut(enableNewTraceOnNavigation: false).didPush(to, from);
 
         final after = fixture.hub.scope.propagationContext.traceId;
         expect(after, equals(before));
@@ -113,7 +111,7 @@ void main() {
         final to = _route(RouteSettings(name: 'To Route'));
         final before = fixture.hub.scope.propagationContext.traceId;
 
-        fixture.getSut(shouldStartNewTraceOnNavigation: false).didPop(to, from);
+        fixture.getSut(enableNewTraceOnNavigation: false).didPop(to, from);
 
         final after = fixture.hub.scope.propagationContext.traceId;
         expect(after, equals(before));
@@ -125,7 +123,7 @@ void main() {
         final before = fixture.hub.scope.propagationContext.traceId;
 
         fixture
-            .getSut(shouldStartNewTraceOnNavigation: false)
+            .getSut(enableNewTraceOnNavigation: false)
             .didReplace(newRoute: to, oldRoute: from);
 
         final after = fixture.hub.scope.propagationContext.traceId;
@@ -147,7 +145,7 @@ class Fixture {
 
   SentryNavigatorObserver getSut({
     Hub? hub,
-    bool shouldStartNewTraceOnNavigation = true,
+    bool enableNewTraceOnNavigation = true,
   }) {
     hub ??= this.hub;
     if (hub == mockHub) {
@@ -155,7 +153,7 @@ class Fixture {
     }
     return SentryNavigatorObserver(
       hub: hub,
-      shouldStartNewTraceOnNavigation: shouldStartNewTraceOnNavigation,
+      enableNewTraceOnNavigation: enableNewTraceOnNavigation,
     );
   }
 }
