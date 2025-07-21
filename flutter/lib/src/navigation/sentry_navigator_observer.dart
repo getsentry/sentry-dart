@@ -74,7 +74,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   SentryNavigatorObserver({
     Hub? hub,
     bool enableAutoTransactions = true,
-    bool shouldStartNewTraceOnNavigation = true,
+    bool enableNewTraceOnNavigation = true,
     Duration autoFinishAfter = const Duration(seconds: 3),
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
@@ -82,7 +82,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     List<String>? ignoreRoutes,
   })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
-        _shouldStartNewTraceOnNavigation = shouldStartNewTraceOnNavigation,
+        _enableNewTraceOnNavigation = enableNewTraceOnNavigation,
         _autoFinishAfter = autoFinishAfter,
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
@@ -112,7 +112,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   final Hub _hub;
   final bool _enableAutoTransactions;
-  final bool _shouldStartNewTraceOnNavigation;
+  final bool _enableNewTraceOnNavigation;
   final Duration _autoFinishAfter;
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
@@ -216,7 +216,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   void _startNewTraceIfEnabled() {
-    if (_shouldStartNewTraceOnNavigation) {
+    if (_enableNewTraceOnNavigation) {
       _hub.generateNewTrace();
     }
   }
