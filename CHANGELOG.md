@@ -8,6 +8,13 @@
   - Search for feature flags that are prefixed with `flutter:*`
   - This works on Flutter builds that include [this PR](https://github.com/flutter/flutter/pull/171545)
 - Add `LoggingIntegration` support for `SentryLog` ([#3050](https://github.com/getsentry/sentry-dart/pull/3050))
+- Add `enableNewTraceOnNavigation` flag to `SentryNavigatorObserver` ([#3096](https://github.com/getsentry/sentry-dart/pull/3096))
+  - **Default:** `true`
+  - **Disable** by passing `false`, e.g.:
+    ```dart
+    SentryNavigatorObserver(enableNewTraceOnNavigation: false)
+    ```
+  - _Note: traces differ from transactions/spans — see tracing concepts [here](https://docs.sentry.io/concepts/key-terms/tracing/)_
 
 ### Fixes
 
