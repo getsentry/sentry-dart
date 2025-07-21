@@ -62,6 +62,9 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 /// if those happen to take longer. The transaction will be set to [Scope.span]
 /// if the latter is empty.
 ///
+/// If [enableNewTraceOnNavigation] is true (default), a
+/// fresh trace is generated before each push, pop, or replace event.
+///
 /// Enabling the [setRouteNameAsTransaction] option overrides the current
 /// [Scope.transaction] which will also override the name of the current
 /// [Scope.span]. So be careful when this is used together with performance
