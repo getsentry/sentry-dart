@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.5.0
 
 ### Features
 
@@ -8,6 +8,21 @@
   - Search for feature flags that are prefixed with `flutter:*`
   - This works on Flutter builds that include [this PR](https://github.com/flutter/flutter/pull/171545)
 - Add `LoggingIntegration` support for `SentryLog` ([#3050](https://github.com/getsentry/sentry-dart/pull/3050))
+- Add `enableNewTraceOnNavigation` flag to `SentryNavigatorObserver` ([#3096](https://github.com/getsentry/sentry-dart/pull/3096))
+  - **Default:** `true`
+  - **Disable** by passing `false`, e.g.:
+    ```dart
+    SentryNavigatorObserver(enableNewTraceOnNavigation: false)
+    ```
+  - _Note: traces differ from transactions/spans — see tracing concepts [here](https://docs.sentry.io/concepts/key-terms/tracing/)_
+
+### Fixes
+
+- Ensure consistent sampling per trace ([#3079](https://github.com/getsentry/sentry-dart/pull/3079))
+
+### Enhancements
+
+- Add sampled flag in propagation context ([#3084](https://github.com/getsentry/sentry-dart/pull/3084))
 
 ### Dependencies
 
@@ -17,9 +32,9 @@
 - Bump Native SDK from v0.9.0 to v0.9.1 ([#3018](https://github.com/getsentry/sentry-dart/pull/3018))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#091)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.9.0...0.9.1)
-- Bump JavaScript SDK from v9.5.0 to v9.39.0 ([#3085](https://github.com/getsentry/sentry-dart/pull/3085))
-  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#9390)
-  - [diff](https://github.com/getsentry/sentry-javascript/compare/9.5.0...9.39.0)
+- Bump JavaScript SDK from v9.5.0 to v9.40.0 ([#3085](https://github.com/getsentry/sentry-dart/pull/3085), [#3092](https://github.com/getsentry/sentry-dart/pull/3092))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#9400)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/9.5.0...9.40.0)
 
 ## Internal
 
