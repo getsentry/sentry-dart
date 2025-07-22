@@ -48,7 +48,7 @@ class SentryClient {
 
   late final SdkLifecycleRegistry _lifecycleRegistry;
 
-  /// Allows registration of callbacks outside of SentryClient
+  /// Allows registration and dispatching of callbacks outside of SentryClient
   @internal
   SdkLifecycleRegistry get lifeCycleRegistry => _lifecycleRegistry;
 

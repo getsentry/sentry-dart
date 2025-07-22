@@ -8,6 +8,7 @@ import 'profiling.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
+import 'sdk_lifecycle_hooks.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
@@ -205,14 +206,14 @@ class HubAdapter implements Hub {
       Sentry.currentHub.lifecycleCallbacks;
 
   @override
-  void registerCallback<T extends SdkLifecycleEvent>(
+  void registerSdkLifecycleCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {
-    Sentry.currentHub.registerCallback(callback);
+    Sentry.currentHub.registerSdkLifecycleCallback(callback);
   }
 
   @override
-  void removeCallback<T extends SdkLifecycleEvent>(
+  void removeSdkLifecycleCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {
-    Sentry.currentHub.removeCallback(callback);
+    Sentry.currentHub.removeSdkLifecycleCallback(callback);
   }
 }

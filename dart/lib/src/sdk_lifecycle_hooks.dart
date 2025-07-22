@@ -38,10 +38,9 @@ class SdkLifecycleRegistry {
     final callbacks = _lifecycleCallbacks[event.runtimeType] ?? [];
     for (final cb in callbacks) {
       try {
-        if (cb is Future<T>) {
-          await (cb as SdkLifecycleCallback<T>)(event);
-        } else {
-          (cb as SdkLifecycleCallback<T>)(event);
+        final result = (cb as SdkLifecycleCallback<T>)(event);
+        if (result is Future) {
+          await result;
         }
       } catch (exception, stackTrace) {
         _options.log(
