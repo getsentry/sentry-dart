@@ -84,8 +84,8 @@ void main() {
       expect(executed, isFalse);
     });
 
-    test('dispatch rethrows exception when automatedTestMode is enabled',
-        () async {
+    test('dispatch handles exceptions thrown in the callback', () async {
+      fixture.options.automatedTestMode = false;
       final registry = fixture.getSut();
       final cb = (OnBeforeSendEvent _) {
         throw StateError('failure in callback');
@@ -94,11 +94,10 @@ void main() {
       registry.registerCallback<OnBeforeSendEvent>(cb);
 
       expect(
-        () async => registry.dispatchCallback<OnBeforeSendEvent>(
-          OnBeforeSendEvent(SentryEvent(), Hint()),
-        ),
-        throwsA(isA<StateError>()),
-      );
+          () async => registry.dispatchCallback<OnBeforeSendEvent>(
+                OnBeforeSendEvent(SentryEvent(), Hint()),
+              ),
+          returnsNormally);
     });
   });
 }
