@@ -334,66 +334,6 @@ void main() {
       verify(span.setData('route_settings_arguments', arguments));
     });
 
-    test('root route does not start transaction on non-web', () async {
-      final rootRoute = route(RouteSettings(name: '/'));
-
-      final hub = _MockHub();
-      hub.options.platform = MockPlatform(isWeb: false);
-      final span = getMockSentryTracer();
-      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
-      when(span.finished).thenReturn(false);
-      when(span.status).thenReturn(SpanStatus.ok());
-      _whenAnyStart(hub, span);
-
-      final sut = fixture.getSut(hub: hub);
-
-      sut.didPush(rootRoute, null);
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-
-      verifyNever(hub.startTransactionWithContext(
-        any,
-        startTimestamp: anyNamed('startTimestamp'),
-        waitForChildren: true,
-        autoFinishAfter: anyNamed('autoFinishAfter'),
-        trimEnd: true,
-        onFinish: anyNamed('onFinish'),
-      ));
-
-      await hub.configureScope((scope) {
-        expect(scope.span, null);
-      });
-    });
-
-    test('root route starts transaction on web', () async {
-      final rootRoute = route(RouteSettings(name: '/'));
-
-      final hub = _MockHub();
-      hub.options.platform = MockPlatform(isWeb: true);
-      final span = getMockSentryTracer();
-      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
-      when(span.finished).thenReturn(false);
-      when(span.status).thenReturn(SpanStatus.ok());
-      _whenAnyStart(hub, span);
-
-      final sut = fixture.getSut(hub: hub);
-
-      sut.didPush(rootRoute, null);
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-
-      verify(hub.startTransactionWithContext(
-        any,
-        startTimestamp: anyNamed('startTimestamp'),
-        waitForChildren: true,
-        autoFinishAfter: anyNamed('autoFinishAfter'),
-        trimEnd: true,
-        onFinish: anyNamed('onFinish'),
-      ));
-
-      await hub.configureScope((scope) {
-        expect(scope.span, isNotNull);
-      });
-    });
-
     test('didPush sets current route name', () async {
       const name = 'Current Route';
       final currentRoute = route(RouteSettings(name: name));
@@ -483,6 +423,93 @@ void main() {
       sut.didPop(newRoute, oldRoute);
 
       expect(SentryNavigatorObserver.currentRouteName, 'Old Route');
+    });
+
+    group('root route transaction behavior by platform', () {
+      // Platforms that skip root transactions (have app start integration)
+      final platformsWithAppStart = [
+        ('iOS', MockPlatform.iOS()),
+        ('Android', MockPlatform.android()),
+        ('macOS', MockPlatform.macOS(isWeb: false)),
+      ];
+
+      // Platforms that don't skip root transactions (no app start integration)
+      final platformsWithoutAppStart = [
+        ('Web', MockPlatform(isWeb: true)),
+        ('Linux', MockPlatform.linux(isWeb: false)),
+        ('Windows', MockPlatform.windows(isWeb: false)),
+      ];
+
+      void testRootRouteTransaction({
+        required String platformName,
+        required MockPlatform platform,
+        required bool shouldStartTransaction,
+      }) {
+        test(
+            'root route ${shouldStartTransaction ? 'starts' : 'does not start'} transaction on $platformName',
+            () async {
+          final rootRoute = route(RouteSettings(name: '/'));
+
+          final hub = _MockHub();
+          hub.options.platform = platform;
+          final span = getMockSentryTracer();
+          when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
+          when(span.finished).thenReturn(false);
+          when(span.status).thenReturn(SpanStatus.ok());
+          _whenAnyStart(hub, span);
+
+          final sut = fixture.getSut(hub: hub);
+
+          sut.didPush(rootRoute, null);
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+
+          if (shouldStartTransaction) {
+            verify(hub.startTransactionWithContext(
+              any,
+              startTimestamp: anyNamed('startTimestamp'),
+              waitForChildren: true,
+              autoFinishAfter: anyNamed('autoFinishAfter'),
+              trimEnd: true,
+              onFinish: anyNamed('onFinish'),
+            ));
+
+            await hub.configureScope((scope) {
+              expect(scope.span, isNotNull);
+            });
+          } else {
+            verifyNever(hub.startTransactionWithContext(
+              any,
+              startTimestamp: anyNamed('startTimestamp'),
+              waitForChildren: true,
+              autoFinishAfter: anyNamed('autoFinishAfter'),
+              trimEnd: true,
+              onFinish: anyNamed('onFinish'),
+            ));
+
+            await hub.configureScope((scope) {
+              expect(scope.span, null);
+            });
+          }
+        });
+      }
+
+      // Test platforms that skip root transactions
+      for (final (platformName, platform) in platformsWithAppStart) {
+        testRootRouteTransaction(
+          platformName: platformName,
+          platform: platform,
+          shouldStartTransaction: false,
+        );
+      }
+
+      // Test platforms that don't skip root transactions
+      for (final (platformName, platform) in platformsWithoutAppStart) {
+        testRootRouteTransaction(
+          platformName: platformName,
+          platform: platform,
+          shouldStartTransaction: true,
+        );
+      }
     });
   });
 
