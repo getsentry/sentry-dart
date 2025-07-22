@@ -14,6 +14,6 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
 
   @override
   Future<void> start() async {
-    super.start();
+    await super.start();
   }
 }
