@@ -492,23 +492,17 @@ class SentryFlutterPlugin :
     var width = call.argument("width") as? Double ?: 0.0
     var height = call.argument("height") as? Double ?: 0.0
 
-    val frameRate = call.argument("frameRate") as? Int ?: 0
-    val bitRate = call.argument("bitRate") as? Int ?: 0
-
     val invalidConfig =
       width == 0.0 ||
         height == 0.0 ||
         windowWidth == 0.0 ||
-        windowHeight == 0.0 ||
-        frameRate <= 0 ||
-        bitRate <= 0
+        windowHeight == 0.0
 
     if (invalidConfig) {
       result.error(
         "5",
         "Replay config is not valid: width: $width, height: $height, " +
-          "windowWidth: $windowWidth, windowHeight: $windowHeight" +
-          "frameRate: $frameRate, bitRate: $bitRate",
+          "windowWidth: $windowWidth, windowHeight: $windowHeight",
         null,
       )
       return
@@ -531,8 +525,8 @@ class SentryFlutterPlugin :
         recordingHeight = height.roundToInt(),
         scaleFactorX = width.toFloat() / windowWidth.toFloat(),
         scaleFactorY = height.toFloat() / windowHeight.toFloat(),
-        frameRate = frameRate,
-        bitRate = bitRate,
+        frameRate = call.argument("frameRate") as? Int ?: 0,
+        bitRate = call.argument("bitRate") as? Int ?: 0,
       )
     Log.i(
       "Sentry",
