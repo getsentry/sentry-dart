@@ -603,6 +603,52 @@ void main() {
       );
     });
 
+    test(
+        'transaction is rolled back within Sentry transaction, added aborted span',
+        () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      final tx = _startTransaction();
+
+      // pre-condition: table empty
+      expect(await db.select(db.todoItems).get(), isEmpty);
+
+      // run a transaction that is forced to fail -> should be rolled back
+      await expectLater(
+        () => db.transaction(() async {
+          await _insertRow(db, withError: true);
+        }),
+        throwsA(isA<Exception>()),
+      );
+
+      final abortedSpans =
+          tx.children.where((child) => child.status == SpanStatus.aborted());
+      expect(abortedSpans.length, 1);
+
+      // if rollback happened the row must be absent
+      expect(await db.select(db.todoItems).get(), isEmpty);
+    });
+
+    test('transaction is rolled back without Sentry transaction', () async {
+      final sut = fixture.getSut();
+      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+
+      // pre-condition: table empty
+      expect(await db.select(db.todoItems).get(), isEmpty);
+
+      // run a transaction that is forced to fail -> should be rolled back
+      await expectLater(
+        () => db.transaction(() async {
+          await _insertRow(db, withError: true);
+        }),
+        throwsA(isA<Exception>()),
+      );
+
+      // if rollback happened the row must be absent
+      expect(await db.select(db.todoItems).get(), isEmpty);
+    });
+
     test('batch does not add span for failed operations', () async {
       final sut = fixture.getSut();
       final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));

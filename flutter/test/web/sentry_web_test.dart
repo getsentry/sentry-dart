@@ -205,18 +205,16 @@ void main() {
 
       group('no-op or throwing methods', () {
         test('captureReplay throws unsupported error', () {
-          expect(() => sut.captureReplay(false), throwsUnsupportedError);
+          expect(() => sut.captureReplay(), throwsUnsupportedError);
         });
 
         test('methods execute without calling JS binding', () {
           sut.addBreadcrumb(Breadcrumb());
-          sut.beginNativeFrames();
           sut.captureEnvelope(Uint8List(0), false);
           sut.clearBreadcrumbs();
           sut.collectProfile(SentryId.empty(), 0, 0);
           sut.discardProfiler(SentryId.empty());
           sut.displayRefreshRate();
-          sut.endNativeFrames(SentryId.empty());
           sut.fetchNativeAppStart();
           sut.loadContexts();
           sut.nativeCrash();
@@ -227,7 +225,8 @@ void main() {
           sut.pauseAppHangTracking();
           sut.setContexts('key', 'value');
           sut.setExtra('key', 'value');
-          sut.setReplayConfig(ReplayConfig(width: 0, height: 0, frameRate: 0));
+          sut.setReplayConfig(ReplayConfig(
+              windowWidth: 0, windowHeight: 0, width: 0, height: 0));
           sut.setTag('key', 'value');
           sut.setUser(null);
           sut.startProfiler(SentryId.empty());
@@ -240,7 +239,6 @@ void main() {
           expect(sut.fetchNativeAppStart(), isNull);
           expect(sut.loadContexts(), isNull);
           expect(sut.collectProfile(SentryId.empty(), 0, 0), isNull);
-          expect(sut.endNativeFrames(SentryId.empty()), isNull);
           expect(sut.startProfiler(SentryId.empty()), isNull);
         });
       });

@@ -1,20 +1,40 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry/sentry.dart';
-
-import 'package:mockito/mockito.dart';
-import '../mocks/mocks.mocks.dart';
-
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sentry_firebase_remote_config/sentry_firebase_remote_config.dart';
+
+import '../mocks/mocks.mocks.dart';
 
 void main() {
   late Fixture fixture;
 
-  givenRemoveConfigUpdate() {
+  void mockGetAll(Fixture fixture) {
+    when(fixture.mockFirebaseRemoteConfig.getAll()).thenReturn({
+      'test':
+          RemoteConfigValue([102, 97, 108, 115, 101], ValueSource.valueDefault),
+      'foo': RemoteConfigValue(null, ValueSource.valueDefault),
+    });
+  }
+
+  givenDefaultRemoteConfig() {
+    when(fixture.mockFirebaseRemoteConfig.onConfigUpdated)
+        .thenAnswer((_) => Stream.empty());
+
+    mockGetAll(fixture);
+    when(fixture.mockFirebaseRemoteConfig.getString('test'))
+        .thenReturn('false');
+    when(fixture.mockFirebaseRemoteConfig.getString('foo')).thenReturn('');
+    when(fixture.mockFirebaseRemoteConfig.activate())
+        .thenAnswer((_) => Future.value(true));
+  }
+
+  givenRemoteConfigUpdate() {
     final update = RemoteConfigUpdate({'test', 'foo'});
     when(fixture.mockFirebaseRemoteConfig.onConfigUpdated)
         .thenAnswer((_) => Stream.value(update));
 
+    mockGetAll(fixture);
     when(fixture.mockFirebaseRemoteConfig.getString('test')).thenReturn('true');
     when(fixture.mockFirebaseRemoteConfig.getString('foo')).thenReturn('bar');
     when(fixture.mockFirebaseRemoteConfig.activate())
@@ -39,7 +59,7 @@ void main() {
   });
 
   test('adds integration to options', () async {
-    givenRemoveConfigUpdate();
+    givenDefaultRemoteConfig();
 
     final sut = await fixture.getSut();
 
@@ -52,8 +72,24 @@ void main() {
     );
   });
 
+  test('adds boolean default to feature flags', () async {
+    givenDefaultRemoteConfig();
+
+    final sut = await fixture.getSut();
+    sut.call(fixture.hub, fixture.options);
+
+    // ignore: invalid_use_of_internal_member
+    final featureFlags = fixture.hub.scope.contexts[SentryFeatureFlags.type]
+        as SentryFeatureFlags?;
+
+    expect(featureFlags, isNotNull);
+    expect(featureFlags?.values.length, 1);
+    expect(featureFlags?.values.first.flag, 'test');
+    expect(featureFlags?.values.first.result, isFalse);
+  });
+
   test('adds boolean update to feature flags', () async {
-    givenRemoveConfigUpdate();
+    givenRemoteConfigUpdate();
 
     final sut = await fixture.getSut();
     sut.call(fixture.hub, fixture.options);
@@ -73,7 +109,9 @@ void main() {
     expect(featureFlags?.values.first.result, true);
   });
 
-  test('stream canceld on close', () async {
+  test('stream canceled on close', () async {
+    givenRemoteConfigUpdate();
+
     final streamSubscription = MockStreamSubscription<RemoteConfigUpdate>();
     when(streamSubscription.cancel()).thenAnswer((_) => Future.value());
 
@@ -91,7 +129,7 @@ void main() {
   });
 
   test('activate called by default', () async {
-    givenRemoveConfigUpdate();
+    givenRemoteConfigUpdate();
 
     final sut = await fixture.getSut();
     sut.call(fixture.hub, fixture.options);
@@ -105,7 +143,7 @@ void main() {
   });
 
   test('activate not called if activateOnConfigUpdated is false', () async {
-    givenRemoveConfigUpdate();
+    givenRemoteConfigUpdate();
 
     final sut = await fixture.getSut(activateOnConfigUpdated: false);
     sut.call(fixture.hub, fixture.options);
@@ -119,7 +157,7 @@ void main() {
   });
 
   test('activate called if activateOnConfigUpdated is true', () async {
-    givenRemoveConfigUpdate();
+    givenRemoteConfigUpdate();
 
     final sut = await fixture.getSut(activateOnConfigUpdated: true);
     sut.call(fixture.hub, fixture.options);

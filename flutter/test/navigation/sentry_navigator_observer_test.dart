@@ -10,7 +10,6 @@ import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
-import 'package:sentry_flutter/src/native/native_frames.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -39,90 +38,6 @@ void main() {
 
   setUp(() {
     fixture = Fixture();
-  });
-
-  group('NativeFrames', () {
-    late MockSentryNativeBinding mockBinding;
-
-    setUp(() {
-      mockBinding = MockSentryNativeBinding();
-      when(mockBinding.beginNativeFrames()).thenReturn(null);
-      SentryFlutter.native = mockBinding;
-    });
-
-    tearDown(() {
-      SentryFlutter.native = null;
-    });
-
-    test('transaction start begins frames collection', () async {
-      final currentRoute = route(RouteSettings(name: 'Current Route'));
-      final mockHub = _MockHub();
-
-      final tracer = getMockSentryTracer();
-      _whenAnyStart(mockHub, tracer);
-      when(tracer.context).thenReturn(SentrySpanContext(operation: 'op'));
-      when(tracer.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
-      when(tracer.finished).thenReturn(false);
-      when(tracer.status).thenReturn(SpanStatus.ok());
-
-      final sut = fixture.getSut(hub: mockHub);
-
-      sut.didPush(currentRoute, null);
-
-      // Handle internal async method calls.
-      await Future.delayed(const Duration(milliseconds: 10), () {});
-      verify(mockBinding.beginNativeFrames()).called(1);
-    }, testOn: 'vm');
-
-    test('transaction finish adds native frames to tracer', () async {
-      final currentRoute = route(RouteSettings(name: 'Current Route'));
-
-      final options = defaultTestOptions();
-      options.tracesSampleRate = 1;
-      // Drop events, otherwise sentry tries to send them to the test DSN.
-      options.addEventProcessor(FunctionEventProcessor((_, __) => null));
-      final hub = Hub(options);
-
-      when(mockBinding.endNativeFrames(any))
-          .thenAnswer((_) async => NativeFrames(3, 2, 1));
-
-      final sut = fixture.getSut(hub: hub);
-
-      sut.didPush(currentRoute, null);
-
-      // Get ref to created transaction
-      SentryTracer? actualTransaction;
-      await hub.configureScope((scope) {
-        actualTransaction = scope.span as SentryTracer;
-      });
-
-      // Wait for the transaction to finish the async native frame fetching
-      await Future<void>.delayed(Duration(milliseconds: 1500));
-
-      verify(mockBinding.beginNativeFrames()).called(1);
-
-      final measurements = actualTransaction?.measurements ?? {};
-
-      expect(measurements.length, 3);
-
-      final expectedTotal = SentryMeasurement.totalFrames(3);
-      final expectedSlow = SentryMeasurement.slowFrames(2);
-      final expectedFrozen = SentryMeasurement.frozenFrames(1);
-
-      for (final item in measurements.entries) {
-        final measurement = item.value;
-        if (measurement.name == expectedTotal.name) {
-          expect(measurement.value, expectedTotal.value);
-        } else if (measurement.name == expectedSlow.name) {
-          expect(measurement.value, expectedSlow.value);
-        } else if (measurement.name == expectedFrozen.name) {
-          expect(measurement.value, expectedFrozen.value);
-        }
-      }
-    }, testOn: 'vm');
   });
 
   group('$SentryNavigatorObserver', () {
@@ -1186,7 +1101,7 @@ class Fixture {
     List<String>? ignoreRoutes,
   }) {
     if (hub is MockHub) {
-      when(hub.generateNewTraceId()).thenAnswer((_) => {});
+      when(hub.generateNewTrace()).thenAnswer((_) => {});
     }
     final options = hub.options;
     if (options is SentryFlutterOptions) {

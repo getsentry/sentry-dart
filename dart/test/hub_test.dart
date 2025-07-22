@@ -581,13 +581,22 @@ void main() {
       });
     });
 
-    test('generateNewTraceId creates new trace id in propagation context', () {
+    test('generateNewTrace creates new trace id in propagation context', () {
       final oldTraceId = hub.scope.propagationContext.traceId;
 
-      hub.generateNewTraceId();
+      hub.generateNewTrace();
 
       final newTraceId = hub.scope.propagationContext.traceId;
       expect(oldTraceId, isNot(newTraceId));
+    });
+
+    test('generateNewTrace resets sampleRand in propagation context', () {
+      hub.scope.propagationContext.sampleRand = 1.0;
+
+      hub.generateNewTrace();
+
+      final newSampleRand = hub.scope.propagationContext.sampleRand;
+      expect(newSampleRand, isNull);
     });
   });
 
@@ -778,6 +787,26 @@ void main() {
 
       expect(calls[2].scope?.user, isNull);
       expect(calls[2].formatted, 'foo bar 2');
+    });
+
+    test(
+        'withScope should use the same propagation context as the current scope',
+        () async {
+      final hub = fixture.getSut();
+      late Scope clonedScope;
+      final currentScope = hub.scope;
+      await hub.captureEvent(SentryEvent(), withScope: (scope) async {
+        clonedScope = scope;
+      });
+
+      // Verify the propagation context is shared (same instance)
+      expect(
+          identical(
+              clonedScope.propagationContext, currentScope.propagationContext),
+          true,
+          reason: 'Propagation context should be the same instance');
+      expect(clonedScope.propagationContext.traceId,
+          currentScope.propagationContext.traceId);
     });
   });
 

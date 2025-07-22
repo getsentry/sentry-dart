@@ -69,32 +69,6 @@ void main() {
         expect(actual, isNull);
       });
 
-      test('beginNativeFrames', () async {
-        when(channel.invokeMethod('beginNativeFrames'))
-            .thenAnswer((realInvocation) async {});
-        await sut.beginNativeFrames();
-
-        verify(channel.invokeMethod('beginNativeFrames'));
-      });
-
-      test('endNativeFrames', () async {
-        final sentryId = SentryId.empty();
-
-        when(channel
-                .invokeMethod('endNativeFrames', {'id': sentryId.toString()}))
-            .thenAnswer((_) async => {
-                  'totalFrames': 3,
-                  'slowFrames': 2,
-                  'frozenFrames': 1,
-                });
-
-        final actual = await sut.endNativeFrames(sentryId);
-
-        expect(actual?.totalFrames, 3);
-        expect(actual?.slowFrames, 2);
-        expect(actual?.frozenFrames, 1);
-      });
-
       test('setUser', () async {
         final user = SentryUser(
           id: "fixture-id",
@@ -349,11 +323,18 @@ void main() {
         when(channel.invokeMethod('setReplayConfig', any))
             .thenAnswer((_) => Future.value());
 
-        final config = ReplayConfig(width: 1.1, height: 2.2, frameRate: 3);
+        final config = ReplayConfig(
+            windowWidth: 110,
+            windowHeight: 220,
+            width: 1.1,
+            height: 2.2,
+            frameRate: 3);
         await sut.setReplayConfig(config);
 
         if (mockPlatform.isAndroid) {
           verify(channel.invokeMethod('setReplayConfig', {
+            'windowWidth': config.windowWidth,
+            'windowHeight': config.windowHeight,
             'width': config.width,
             'height': config.height,
             'frameRate': config.frameRate,
@@ -369,9 +350,9 @@ void main() {
         when(channel.invokeMethod('captureReplay', any))
             .thenAnswer((_) => Future.value(sentryId.toString()));
 
-        final returnedId = await sut.captureReplay(true);
+        final returnedId = await sut.captureReplay();
 
-        verify(channel.invokeMethod('captureReplay', {'isCrash': true}));
+        verify(channel.invokeMethod('captureReplay'));
         expect(returnedId, sentryId);
       });
 

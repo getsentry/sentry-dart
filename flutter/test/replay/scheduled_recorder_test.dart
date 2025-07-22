@@ -42,23 +42,24 @@ class _Fixture {
 
   _Fixture._(this._tester) {
     _sut = ScheduledScreenshotRecorder(
-      ScheduledScreenshotRecorderConfig(
-        width: 1000,
-        height: 1000,
-        frameRate: 1000,
-      ),
       defaultTestOptions()..bindingUtils = TestBindingWrapper(),
       (image, isNewlyCaptured) async {
         capturedImages.add('${image.width}x${image.height}');
         _completer.complete();
       },
     );
+
+    _sut.onConfigurationChanged(ScheduledScreenshotRecorderConfig(
+      width: 1000,
+      height: 1000,
+      frameRate: 1000,
+    ));
   }
 
   static Future<_Fixture> create(WidgetTester tester) async {
     final fixture = _Fixture._(tester);
     await pumpTestElement(tester);
-    fixture.sut.start();
+    await fixture.sut.start();
     return fixture;
   }
 
