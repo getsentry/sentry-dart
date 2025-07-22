@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:platform/platform.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -333,10 +334,11 @@ void main() {
       verify(span.setData('route_settings_arguments', arguments));
     });
 
-    test('root route does not start transaction', () async {
+    test('root route does not start transaction on non-web', () async {
       final rootRoute = route(RouteSettings(name: '/'));
 
       final hub = _MockHub();
+      hub.options.platform = MockPlatform(isWeb: false);
       final span = getMockSentryTracer();
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.finished).thenReturn(false);
@@ -359,6 +361,36 @@ void main() {
 
       await hub.configureScope((scope) {
         expect(scope.span, null);
+      });
+    });
+
+    test('root route starts transaction on web', () async {
+      final rootRoute = route(RouteSettings(name: '/'));
+
+      final hub = _MockHub();
+      hub.options.platform = MockPlatform(isWeb: true);
+      final span = getMockSentryTracer();
+      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
+      when(span.finished).thenReturn(false);
+      when(span.status).thenReturn(SpanStatus.ok());
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(rootRoute, null);
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+
+      verify(hub.startTransactionWithContext(
+        any,
+        startTimestamp: anyNamed('startTimestamp'),
+        waitForChildren: true,
+        autoFinishAfter: anyNamed('autoFinishAfter'),
+        trimEnd: true,
+        onFinish: anyNamed('onFinish'),
+      ));
+
+      await hub.configureScope((scope) {
+        expect(scope.span, isNotNull);
       });
     });
 

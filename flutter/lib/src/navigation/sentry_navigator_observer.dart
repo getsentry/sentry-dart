@@ -289,8 +289,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     // On Web we don't want to skip as we dont have a pageload / app start integration
     // On mobile we do want to skip because we have an app start integration
-    final skipRoot = !_hub.options.platformChecker.isWeb && routeName == '/'
-    if (!_enableAutoTransactions || routeName == null || isRoot) {
+    final skipRoot = !_hub.options.platform.isWeb && routeName == '/';
+    if (!_enableAutoTransactions || routeName == null || skipRoot) {
       return;
     }
     if (transactionContext == null) {
