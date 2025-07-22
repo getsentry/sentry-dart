@@ -62,6 +62,9 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 /// if those happen to take longer. The transaction will be set to [Scope.span]
 /// if the latter is empty.
 ///
+/// If [enableNewTraceOnNavigation] is true (default), a
+/// fresh trace is generated before each push, pop, or replace event.
+///
 /// Enabling the [setRouteNameAsTransaction] option overrides the current
 /// [Scope.transaction] which will also override the name of the current
 /// [Scope.span]. So be careful when this is used together with performance
@@ -74,6 +77,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   SentryNavigatorObserver({
     Hub? hub,
     bool enableAutoTransactions = true,
+    bool enableNewTraceOnNavigation = true,
     Duration autoFinishAfter = const Duration(seconds: 3),
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
@@ -81,6 +85,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     List<String>? ignoreRoutes,
   })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
+        _enableNewTraceOnNavigation = enableNewTraceOnNavigation,
         _autoFinishAfter = autoFinishAfter,
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
@@ -110,6 +115,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   final Hub _hub;
   final bool _enableAutoTransactions;
+  final bool _enableNewTraceOnNavigation;
   final Duration _autoFinishAfter;
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
@@ -143,7 +149,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.generateNewTraceId();
+    _startNewTraceIfEnabled();
     _setCurrentRouteName(route);
     _setCurrentRouteNameAsTransaction(route);
 
@@ -174,7 +180,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.generateNewTraceId();
+    _startNewTraceIfEnabled();
     _setCurrentRouteName(newRoute);
     _setCurrentRouteNameAsTransaction(newRoute);
 
@@ -196,7 +202,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _hub.generateNewTraceId();
+    _startNewTraceIfEnabled();
     _setCurrentRouteName(previousRoute);
     _setCurrentRouteNameAsTransaction(previousRoute);
 
@@ -210,6 +216,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     final timestamp = _hub.options.clock();
     _finishTransaction(endTimestamp: timestamp);
+  }
+
+  void _startNewTraceIfEnabled() {
+    if (_enableNewTraceOnNavigation) {
+      _hub.generateNewTrace();
+    }
   }
 
   void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {

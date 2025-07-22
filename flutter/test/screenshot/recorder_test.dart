@@ -173,10 +173,12 @@ void main() async {
 }
 
 class _Fixture {
-  late final ScreenshotRecorder sut = ScreenshotRecorder(
-      ScreenshotRecorderConfig(width: width, height: height), options);
+  late final ScreenshotRecorder sut =
+      ScreenshotRecorder(options, config: recorderConfig);
   late final options = defaultTestOptions()
     ..bindingUtils = TestBindingWrapper();
+  late final recorderConfig =
+      ScreenshotRecorderConfig(width: width, height: height);
   final double? width;
   final double? height;
 
