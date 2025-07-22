@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Dependencies
+
+- Bump Android SDK from v8.13.2 to v8.17.0 ([#2977](https://github.com/getsentry/sentry-dart/pull/2977))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8170)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.13.2...8.17.0)
+
 ## 9.5.0
 
 ### Features
@@ -26,9 +34,6 @@
 
 ### Dependencies
 
-- Bump Android SDK from v8.14.0 to v8.16.0 ([#2977](https://github.com/getsentry/sentry-dart/pull/2977))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8132)
-  - [diff](https://github.com/getsentry/sentry-java/compare/8.13.2...8.16.0)
 - Bump Native SDK from v0.9.0 to v0.9.1 ([#3018](https://github.com/getsentry/sentry-dart/pull/3018))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#091)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.9.0...0.9.1)
@@ -147,25 +152,25 @@ SentryDisplayWidget(child: YourWidget())
 // Then report TTFD after long running work (File I/O, Network) within your widget.
 @override
 void initState() {
-  super.initState();
-  // Do some long running work...
-  Future.delayed(const Duration(seconds: 3), () {
-    if (mounted) {
-      SentryDisplayWidget.of(context).reportFullyDisplayed();
-    }
-  });
+super.initState();
+// Do some long running work...
+Future.delayed(const Duration(seconds: 3), () {
+if (mounted) {
+SentryDisplayWidget.of(context).reportFullyDisplayed();
+}
+});
 }
 
 // Method 2: use the API directly to report TTFD - this does not require wrapping your widget with `SentryDisplayWidget`:
 @override
 void initState() {
-  super.initState();
-  // Get a reference to the current display before doing work.
-  final currentDisplay = SentryFlutter.currentDisplay();
-  // Do some long running work...
-  Future.delayed(const Duration(seconds: 3), () {
-    currentDisplay?.reportFullyDisplayed();
-  });
+super.initState();
+// Get a reference to the current display before doing work.
+final currentDisplay = SentryFlutter.currentDisplay();
+// Do some long running work...
+Future.delayed(const Duration(seconds: 3), () {
+currentDisplay?.reportFullyDisplayed();
+});
 }
 ```
 - Add `message` parameter to `captureException()` ([#2882](https://github.com/getsentry/sentry-dart/pull/2882))
@@ -190,18 +195,18 @@ void initState() {
 Version 9.0.0 marks a major release of the Sentry Dart/Flutter SDKs containing breaking changes.
 
 The goal of this release is the following:
- - Bump the minimum Dart and Flutter versions to `3.5.0` and `3.24.0` respectively
- - Bump the minimum Android API version to 21
- - Add interoperability with the Sentry Javascript SDK in Flutter Web for features such as release health and reporting native JS errors
- - GA the [Session Replay](https://docs.sentry.io/product/explore/session-replay/) feature
- - Provide feature flag support as well as [Firebase Remote Config](https://firebase.google.com/docs/remote-config) support
- - Trim down unused and potentially confusing APIs
+- Bump the minimum Dart and Flutter versions to `3.5.0` and `3.24.0` respectively
+- Bump the minimum Android API version to 21
+- Add interoperability with the Sentry Javascript SDK in Flutter Web for features such as release health and reporting native JS errors
+- GA the [Session Replay](https://docs.sentry.io/product/explore/session-replay/) feature
+- Provide feature flag support as well as [Firebase Remote Config](https://firebase.google.com/docs/remote-config) support
+- Trim down unused and potentially confusing APIs
 
 ### How To Upgrade
 
 Please carefully read through the migration guide in the Sentry docs on how to upgrade from version 8 to version 9
- - [Dart migration guide](https://docs.sentry.io/platforms/dart/migration/#migrating-from-sentry-8x-to-sentry-9x)
- - [Flutter migration guide](https://docs.sentry.io/platforms/dart/guides/flutter/migration/#migrating-from-sentry_flutter-8x-to-sentry_flutter-9x)
+- [Dart migration guide](https://docs.sentry.io/platforms/dart/migration/#migrating-from-sentry-8x-to-sentry-9x)
+- [Flutter migration guide](https://docs.sentry.io/platforms/dart/guides/flutter/migration/#migrating-from-sentry_flutter-8x-to-sentry_flutter-9x)
 
 ### Breaking changes
 
@@ -235,13 +240,13 @@ Please carefully read through the migration guide in the Sentry docs on how to u
 ```dart
 // old
 options.beforeSend = (event, hint) {
-  event = event.copyWith(release: 'my-release');
-  return event;
+event = event.copyWith(release: 'my-release');
+return event;
 }
 // new
 options.beforeSend = (event, hint) {
-  event.release = 'my-release';
-  return event;
+event.release = 'my-release';
+return event;
 }
 ```
 
@@ -257,10 +262,10 @@ options.enableLogs = true;
 // Use `Sentry.logger`
 Sentry.logger.info("This is a info log.");
 Sentry.logger.warn("This is a warning log with attributes.", attributes: {
-  'string-attribute': SentryLogAttribute.string('string'),
-  'int-attribute': SentryLogAttribute.int(1),
-  'double-attribute': SentryLogAttribute.double(1.0),
-  'bool-attribute': SentryLogAttribute.bool(true),
+'string-attribute': SentryLogAttribute.string('string'),
+'int-attribute': SentryLogAttribute.int(1),
+'double-attribute': SentryLogAttribute.double(1.0),
+'bool-attribute': SentryLogAttribute.bool(true),
 });
 ```
 - Add support for feature flags and integration with Firebase Remote Config ([#2825](https://github.com/getsentry/sentry-dart/pull/2825), [#2837](https://github.com/getsentry/sentry-dart/pull/2837))
@@ -271,14 +276,14 @@ Sentry.addFeatureFlag('my-feature', true);
 // or use the Sentry Firebase Remote Config Integration (sentry_firebase_remote_config package is required)
 // Add the integration to automatically track feature flags from firebase remote config.
 await SentryFlutter.init(
-  (options) {
-    options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-    options.addIntegration(
-      SentryFirebaseRemoteConfigIntegration(
-        firebaseRemoteConfig: yourFirebaseRemoteConfig,
-      ),
-    );
-  },
+(options) {
+options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+options.addIntegration(
+SentryFirebaseRemoteConfigIntegration(
+firebaseRemoteConfig: yourFirebaseRemoteConfig,
+),
+);
+},
 );
 ```
 - Properly generates and links trace IDs for errors and spans ([#2869](https://github.com/getsentry/sentry-dart/pull/2869), [#2861](https://github.com/getsentry/sentry-dart/pull/2861)):
@@ -347,10 +352,10 @@ options.enableLogs = true;
 // Use `Sentry.logger`
 Sentry.logger.info("This is a info log.");
 Sentry.logger.warn("This is a warning log with attributes.", attributes: {
-  'string-attribute': SentryLogAttribute.string('string'),
-  'int-attribute': SentryLogAttribute.int(1),
-  'double-attribute': SentryLogAttribute.double(1.0),
-  'bool-attribute': SentryLogAttribute.bool(true),
+'string-attribute': SentryLogAttribute.string('string'),
+'int-attribute': SentryLogAttribute.int(1),
+'double-attribute': SentryLogAttribute.double(1.0),
+'bool-attribute': SentryLogAttribute.bool(true),
 });
 ```
 
@@ -409,14 +414,14 @@ Sentry.addFeatureFlag('my-feature', true);
 ```dart
 // Add the integration to automatically track feature flags from firebase remote config.
 await SentryFlutter.init(
-  (options) {
-    options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-    options.addIntegration(
-      SentryFirebaseRemoteConfigIntegration(
-        firebaseRemoteConfig: yourFirebaseRemoteConfig,
-      ),
-    );
-  },
+(options) {
+options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+options.addIntegration(
+SentryFirebaseRemoteConfigIntegration(
+firebaseRemoteConfig: yourFirebaseRemoteConfig,
+),
+);
+},
 );
 ```
 - Make hierarchical exception grouping opt-in ([#2858](https://github.com/getsentry/sentry-dart/pull/2858))
@@ -476,7 +481,7 @@ await SentryFlutter.init(
 
 - Add support for Flutter Web release health ([#2794](https://github.com/getsentry/sentry-dart/pull/2794))
   - Requires using `SentryNavigatorObserver`;
- 
+
 ### Dependencies
 
 - Bump Native SDK from v0.7.20 to v0.8.2 ([#2761](https://github.com/getsentry/sentry-dart/pull/2761), [#2807](https://github.com/getsentry/sentry-dart/pull/2807))
@@ -491,7 +496,7 @@ await SentryFlutter.init(
 - Set sentry-native backend to `crashpad` by default and `breakpad` for Windows ARM64 ([#2791](https://github.com/getsentry/sentry-dart/pull/2791))
   - Setting the `SENTRY_NATIVE_BACKEND` environment variable will override the defaults.
 - Remove renderer from `flutter_context` ([#2751](https://github.com/getsentry/sentry-dart/pull/2751))
-  
+
 ### API changes
 
 - Move replay and privacy from experimental to options ([#2755](https://github.com/getsentry/sentry-dart/pull/2755))
@@ -589,7 +594,7 @@ final db = AppDatabase(executor);
   - Responses are attached to the `Hint` object, which can be read in `beforeSend`/`beforeSendTransaction` callbacks via `hint.response`.
   - For now, only the `dio` integration is supported.
 - Enable privacy masking for screenshots by default ([#2728](https://github.com/getsentry/sentry-dart/pull/2728))
-  
+
 ### Enhancements
 
 - Replay: improve Android native interop performance by using JNI ([#2670](https://github.com/getsentry/sentry-dart/pull/2670))
@@ -1459,8 +1464,8 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 - Add `SentryFlutter.nativeCrash()` using MethodChannels for Android and iOS ([#2239](https://github.com/getsentry/sentry-dart/pull/2239))
   - This can be used to test if native crash reporting works
 - Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
-    - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
-    - Ignored routes will also create no TTID and TTFD spans.
+  - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
+  - Ignored routes will also create no TTID and TTFD spans.
 ```dart
 SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
 ```
@@ -2297,15 +2302,15 @@ options.readTimeout = Duration(seconds: 10);
 
 ```dart
 Sentry.configureScope(
-  (scope) => scope.setUser(SentryUser(
-      id: '1234',
-      name: 'Jane Doe',
-      email: 'jane.doe@example.com',
-      geo: SentryGeo(
-        city: 'Vienna',
-        countryCode: 'AT',
-        region: 'Austria',
-      ))),
+(scope) => scope.setUser(SentryUser(
+id: '1234',
+name: 'Jane Doe',
+email: 'jane.doe@example.com',
+geo: SentryGeo(
+city: 'Vienna',
+countryCode: 'AT',
+region: 'Austria',
+))),
 );
 ```
 
@@ -2316,14 +2321,14 @@ Sentry.configureScope(
 import 'dart:convert';
 
 options.beforeSend = (event, {hint}) {
-  final text = 'This event should not be sent happen in prod. Investigate.';
-  final textAttachment = SentryAttachment.fromIntList(
-    utf8.encode(text),
-    'event_info.txt',
-    contentType: 'text/plain',
-  );
-  hint?.attachments.add(textAttachment);
-  return event;
+final text = 'This event should not be sent happen in prod. Investigate.';
+final textAttachment = SentryAttachment.fromIntList(
+utf8.encode(text),
+'event_info.txt',
+contentType: 'text/plain',
+);
+hint?.attachments.add(textAttachment);
+return event;
 };
 ```
 
