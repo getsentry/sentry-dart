@@ -30,6 +30,7 @@ import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'replay/integration.dart';
 import 'screenshot/screenshot_support.dart';
+import 'thread_info_collector.dart';
 import 'utils/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
@@ -146,6 +147,10 @@ mixin SentryFlutter {
     }
 
     options.addEventProcessor(PlatformExceptionEventProcessor());
+    
+    if (options.isTracingEnabled()) {
+      options.addPerformanceCollector(ThreadInfoCollector());
+    }
 
     _setSdk(options);
   }
