@@ -37,7 +37,7 @@ class SentryNativeJava extends SentryNativeChannel {
                 height: (call.arguments['height'] as num).toDouble(),
                 frameRate: call.arguments['frameRate'] as int);
 
-            _replayRecorder?.onConfigurationChanged(config);
+            await _replayRecorder?.onConfigurationChanged(config);
             break;
           case 'ReplayRecorder.stop':
             hub.configureScope((s) {

@@ -27,7 +27,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   @override
   Future<void> start() async {
     final spawningWorker = _AndroidNativeReplayWorker.spawn();
-    super.start();
+    await super.start();
     _worker = await spawningWorker;
   }
 

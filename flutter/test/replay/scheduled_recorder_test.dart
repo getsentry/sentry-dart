@@ -59,7 +59,7 @@ class _Fixture {
   static Future<_Fixture> create(WidgetTester tester) async {
     final fixture = _Fixture._(tester);
     await pumpTestElement(tester);
-    fixture.sut.start();
+    await fixture.sut.start();
     return fixture;
   }
 

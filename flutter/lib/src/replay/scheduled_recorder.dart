@@ -42,7 +42,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     _callback = callback;
   }
 
-  void start() async {
+  Future<void> start() async {
     assert(() {
       // The following fails if callback hasn't been provided
       // in the constructor nor set with a setter.
@@ -52,22 +52,23 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
 
     options.log(SentryLevel.debug, "$logName: starting capture");
     _status = _Status.running;
-    _restartScheduler();
+    await _restartScheduler();
   }
 
-  void onConfigurationChanged(ScheduledScreenshotRecorderConfig config) async {
+  Future<void> onConfigurationChanged(
+      ScheduledScreenshotRecorderConfig config) async {
     super.config = config;
     options.log(SentryLevel.debug,
         "$logName: onConfigurationChanged (${config.width}x${config.height} @ ${config.frameRate} Hz).");
 
-    _restartScheduler();
+    await _restartScheduler();
   }
 
   Future<void> _stopScheduler() {
     return _scheduler?.stop() ?? Future.value();
   }
 
-  void _restartScheduler() async {
+  Future<void> _restartScheduler() async {
     await _stopScheduler();
 
     if (super.config == null) {
@@ -114,7 +115,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   Future<void> resume() async {
     if (_status == _Status.paused) {
       _status = _Status.running;
-      _restartScheduler();
+      await _restartScheduler();
       // _idleFrameFiller.resume();
     }
   }
