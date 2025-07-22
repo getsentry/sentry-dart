@@ -1,5 +1,81 @@
 # Changelog
 
+## Unreleased
+
+### Dependencies
+
+- Bump Android SDK from v8.13.2 to v8.17.0 ([#2977](https://github.com/getsentry/sentry-dart/pull/2977))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8170)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.13.2...8.17.0)
+
+## 9.5.0
+
+### Features
+
+- Report Flutter framework feature flags ([#2991](https://github.com/getsentry/sentry-dart/pull/2991))
+  - Search for feature flags that are prefixed with `flutter:*`
+  - This works on Flutter builds that include [this PR](https://github.com/flutter/flutter/pull/171545)
+- Add `LoggingIntegration` support for `SentryLog` ([#3050](https://github.com/getsentry/sentry-dart/pull/3050))
+- Add `enableNewTraceOnNavigation` flag to `SentryNavigatorObserver` ([#3096](https://github.com/getsentry/sentry-dart/pull/3096))
+  - **Default:** `true`
+  - **Disable** by passing `false`, e.g.:
+    ```dart
+    SentryNavigatorObserver(enableNewTraceOnNavigation: false)
+    ```
+  - _Note: traces differ from transactions/spans — see tracing concepts [here](https://docs.sentry.io/concepts/key-terms/tracing/)_
+
+### Fixes
+
+- Ensure consistent sampling per trace ([#3079](https://github.com/getsentry/sentry-dart/pull/3079))
+
+### Enhancements
+
+- Add sampled flag in propagation context ([#3084](https://github.com/getsentry/sentry-dart/pull/3084))
+
+### Dependencies
+
+- Bump Native SDK from v0.9.0 to v0.9.1 ([#3018](https://github.com/getsentry/sentry-dart/pull/3018))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#091)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.9.0...0.9.1)
+- Bump JavaScript SDK from v9.5.0 to v9.40.0 ([#3085](https://github.com/getsentry/sentry-dart/pull/3085), [#3092](https://github.com/getsentry/sentry-dart/pull/3092))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#9400)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/9.5.0...9.40.0)
+
+## Internal
+
+- Automate Sentry JS SDK version updates ([#3080](https://github.com/getsentry/sentry-dart/pull/3080))
+
+## 9.4.1
+
+### Fixes
+
+- Span ids not re-generating for headers created from scope ([#3051](https://github.com/getsentry/sentry-dart/pull/3051))
+- `ScreenshotIntegration` not being added for web ([#3055](https://github.com/getsentry/sentry-dart/pull/3055))
+- `PropagationContext` not being set when `Scope` is cloned resulting in different trace ids when using `withScope` ([#3069](https://github.com/getsentry/sentry-dart/pull/3069))
+- Drift transaction rollback not executed when parent span is null ([#3062](https://github.com/getsentry/sentry-dart/pull/3062))
+
+### Enhancements
+
+- Remove `SentryTimingsCallback` and use Flutter's `TimingsCallback` instead ([#3054](https://github.com/getsentry/sentry-dart/pull/3054))
+- Remove unused native frames integration ([#3053](https://github.com/getsentry/sentry-dart/pull/3053))
+
+## 9.4.0
+
+### Fixes
+
+- SPM should use `exact` instead of `from` when defining the sentry-cocoa package ([#3065](https://github.com/getsentry/sentry-dart/pull/3065))
+- Respect ancestor text direction in `SentryScreenshotWidget` ([#3046](https://github.com/getsentry/sentry-dart/pull/3046))
+- Add additional crashpad path candidate ([#3016](https://github.com/getsentry/sentry-dart/pull/3016))
+- Replay JNI usage with `SentryFlutterPlugin` ([#3036](https://github.com/getsentry/sentry-dart/pull/3036), [#3039](https://github.com/getsentry/sentry-dart/pull/3039))
+- Do not set `isTerminating` on `captureReplay` for Android ([#3037](https://github.com/getsentry/sentry-dart/pull/3037))
+  - Previously segments might be missing on Android replays if an unhandled error happened
+
+### Dependencies
+
+- Bump Android SDK from v8.12.0 to v8.13.2 ([#3042](https://github.com/getsentry/sentry-dart/pull/3042))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8132)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.12.0...8.13.2)
+
 ## 9.4.0-beta.2
 
 ### Fixes

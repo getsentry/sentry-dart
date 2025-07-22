@@ -15,11 +15,12 @@ class CocoaReplayRecorder {
 
   CocoaReplayRecorder(this._options)
       : _recorder = ReplayScreenshotRecorder(
-          ScreenshotRecorderConfig(
-            pixelRatio: _options.replay.quality.resolutionScalingFactor,
-          ),
           _options,
-        );
+        ) {
+    _recorder.config = ScreenshotRecorderConfig(
+      pixelRatio: _options.replay.quality.resolutionScalingFactor,
+    );
+  }
 
   Future<Map<String, int>?> captureScreenshot() async {
     return _recorder.capture((screenshot) async {

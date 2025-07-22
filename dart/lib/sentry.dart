@@ -52,8 +52,6 @@ export 'src/type_check_hint.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils.dart';
 // ignore: invalid_export_of_internal_element
-export 'src/utils/add_tracing_headers_to_http_request.dart';
-// ignore: invalid_export_of_internal_element
 export 'src/utils/http_header_utils.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/http_sanitizer.dart';
