@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'utils/stacktrace_utils.dart';
+
 /// Helper to check in which environment the library is running.
 /// The environment checks (release/debug/profile) are mutually exclusive.
 class RuntimeChecker {
@@ -29,6 +31,11 @@ class RuntimeChecker {
     // Note: Flutter Web production builds will always be minified / "obfuscated".
     final typeName = runtimeType.toString();
     return !typeName.contains('RuntimeChecker');
+  }
+
+  bool isSplitDebugInfoBuild() {
+    final str = StackTrace.current.toString();
+    return buildIdRegex.hasMatch(str) || absRegex.hasMatch(str);
   }
 
   final bool isRootZone;
