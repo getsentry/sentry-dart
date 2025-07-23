@@ -20,29 +20,28 @@ class WebAppStartIntegration extends Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) {
     if (!options.isTracingEnabled()) return;
 
-    final ctx = SentryTransactionContext(
+    final transactionContext = SentryTransactionContext(
       'root /',
       SentrySpanOperations.uiLoad,
       origin: SentryTraceOrigins.autoUiTimeToDisplay,
     );
     final startTimeStamp = hub.options.clock();
     // expose id so SentryFlutter.currentDisplay() can return something
-    options.timeToDisplayTracker.transactionId = ctx.spanId;
+    options.timeToDisplayTracker.transactionId = transactionContext.spanId;
 
     _framesHandler.addPostFrameCallback((_) async {
       final endTimestamp = options.clock();
-      final txn = hub.startTransactionWithContext(
-        ctx,
-        startTimestamp: startTimeStamp, // when integration ran
+      final transaction = hub.startTransactionWithContext(
+        transactionContext,
+        startTimestamp: startTimeStamp,
       );
 
-      // attach TTID + (optionally) TTFD spans
       await options.timeToDisplayTracker.track(
-        txn,
+        transaction,
         ttidEndTimestamp: endTimestamp,
       );
 
-      await txn.finish(endTimestamp: endTimestamp);
+      await transaction.finish(endTimestamp: endTimestamp);
     });
 
     options.sdk.addIntegration(integrationName);
