@@ -1,5 +1,8 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+@TestOn('browser')
+library;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/src/integrations/web_app_start_integration.dart';
