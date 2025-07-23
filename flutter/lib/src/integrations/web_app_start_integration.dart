@@ -28,14 +28,13 @@ class WebAppStartIntegration extends Integration<SentryFlutterOptions> {
     final startTimeStamp = hub.options.clock();
     // expose id so SentryFlutter.currentDisplay() can return something
     options.timeToDisplayTracker.transactionId = transactionContext.spanId;
+    final transaction = hub.startTransactionWithContext(
+      transactionContext,
+      startTimestamp: startTimeStamp,
+    );
 
     _framesHandler.addPostFrameCallback((_) async {
       final endTimestamp = options.clock();
-      final transaction = hub.startTransactionWithContext(
-        transactionContext,
-        startTimestamp: startTimeStamp,
-      );
-
       await options.timeToDisplayTracker.track(
         transaction,
         ttidEndTimestamp: endTimestamp,
