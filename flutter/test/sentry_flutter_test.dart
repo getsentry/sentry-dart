@@ -11,6 +11,7 @@ import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
 import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
+import 'package:sentry_flutter/src/integrations/web_app_start_integration.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
 import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
@@ -36,6 +37,7 @@ final platformAgnosticIntegrations = [
 final webIntegrations = [
   ConnectivityIntegration,
   WebSessionIntegration,
+  WebAppStartIntegration,
 ];
 
 final nonWebIntegrations = [
