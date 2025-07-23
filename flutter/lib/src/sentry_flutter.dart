@@ -23,6 +23,7 @@ import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
+import 'integrations/web_app_start_integration.dart';
 import 'integrations/web_session_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
@@ -199,6 +200,7 @@ mixin SentryFlutter {
         );
         integrations.add(ReplayIntegration(native));
       } else {
+        integrations.add(WebAppStartIntegration());
         // Updating sessions manually is only relevant for web
         // iOS & Android sessions are handled by the native SDKs directly
         //
@@ -290,6 +292,7 @@ mixin SentryFlutter {
       return null;
     }
     final transactionId = options.timeToDisplayTracker.transactionId;
+    assert(transactionId != null);
     if (transactionId == null) {
       return null;
     }
