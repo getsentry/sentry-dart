@@ -172,7 +172,8 @@ class SentryClient {
     }
 
     // Event is fully processed and ready to be sent
-    await _lifecycleRegistry.dispatchCallback(OnBeforeSendEvent(event, hint));
+    await _lifecycleRegistry
+        .dispatchCallback(OnBeforeSendEvent(preparedEvent, hint));
 
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
     attachments.addAll(hint.attachments);

@@ -72,7 +72,8 @@ class NoOpSentryClient implements SentryClient {
   @override
   FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {}
 
+  final _lifeCycleRegistry = SdkLifecycleRegistry(SentryOptions());
+
   @override
-  SdkLifecycleRegistry get lifeCycleRegistry =>
-      SdkLifecycleRegistry(SentryOptions());
+  SdkLifecycleRegistry get lifeCycleRegistry => _lifeCycleRegistry;
 }
