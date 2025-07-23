@@ -425,16 +425,16 @@ void main() {
     });
 
     group('root route transaction behavior by platform', () {
-      // Platforms that skip root transactions (have app start integration)
+      // Platforms that skip root transactions in the observer (have app start integration)
       final platformsWithAppStart = [
         ('iOS', MockPlatform.iOS()),
         ('Android', MockPlatform.android()),
         ('macOS', MockPlatform.macOS(isWeb: false)),
+        ('Web', MockPlatform(isWeb: true)),
       ];
 
-      // Platforms that don't skip root transactions (no app start integration)
+      // Platforms that don't skip root transactions in the observer (no app start integration)
       final platformsWithoutAppStart = [
-        ('Web', MockPlatform(isWeb: true)),
         ('Linux', MockPlatform.linux(isWeb: false)),
         ('Windows', MockPlatform.windows(isWeb: false)),
       ];
