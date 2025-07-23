@@ -292,8 +292,11 @@ mixin SentryFlutter {
       return null;
     }
     final transactionId = options.timeToDisplayTracker.transactionId;
-    assert(transactionId != null);
     if (transactionId == null) {
+      assert(() {
+        throw StateError(
+            'Could not process TTFD - transactionId should not be null');
+      }());
       return null;
     }
     return SentryDisplay(transactionId, hub: hub);
