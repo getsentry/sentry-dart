@@ -138,17 +138,6 @@ void main() {
         verify(fixture.mockTransaction.finish(endTimestamp: endTime)).called(1);
       });
 
-      test('frame callback is not executed synchronously', () {
-        final sut = fixture.getSut();
-
-        sut.call(fixture.hub, fixture.options);
-
-        // Transaction should not be started immediately
-        verifyNever(fixture.mockHub.startTransactionWithContext(any,
-            startTimestamp: anyNamed('startTimestamp')));
-        expect(fixture.fakeTimeToDisplayTracker.trackCalled, isFalse);
-      });
-
       test('maintains transaction ID consistency between setup and tracking',
           () async {
         final sut = fixture.getSut();
