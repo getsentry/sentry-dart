@@ -287,8 +287,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     final routeName = _getRouteName(route) ?? _currentRouteName;
     final arguments = route?.settings.arguments;
 
-    // Web is skipped because the WebAppStartIntegration takes care of it
-    final skipRoot = _hub.options.platform.isWeb && routeName == '/';
+    // Web and Mobile are skipped in root because the respective app start integrations take care of it
+    final skipRoot = (_hub.options.platform.isWeb ||
+            _hub.options.platform.isAndroid ||
+            _hub.options.platform.isIOS ||
+            _hub.options.platform.isMacOS) &&
+        routeName == '/';
     if (!_enableAutoTransactions || routeName == null || skipRoot) {
       return;
     }
