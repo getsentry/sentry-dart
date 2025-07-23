@@ -63,11 +63,9 @@ class SentrySupabaseClient extends BaseClient {
   })  : _enableBreadcrumbs = enableBreadcrumbs,
         _enableTracing = enableTracing,
         _enableErrors = enableErrors,
-        _innerClient = client ?? Client(),
-        _hub = hub ?? HubAdapter();
-
-  @override
-  Future<StreamedResponse> send(BaseRequest request) async {
+        _hub = hub ?? HubAdapter(),
+        _innerClient = client ?? Client() {
+    // Wrap the client with the appropriate layers during construction
     if (_enableBreadcrumbs) {
       _innerClient = SentrySupabaseBreadcrumbClient(_innerClient, _hub);
     }
@@ -77,6 +75,10 @@ class SentrySupabaseClient extends BaseClient {
     if (_enableErrors) {
       _innerClient = SentrySupabaseErrorClient(_innerClient, _hub);
     }
+  }
+
+  @override
+  Future<StreamedResponse> send(BaseRequest request) async {
     return _innerClient.send(request);
   }
 
