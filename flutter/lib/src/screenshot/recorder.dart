@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart' as cupertino;
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:meta/meta.dart';
 
@@ -31,8 +32,8 @@ class ScreenshotRecorder {
       this.config}) {
     privacyOptions ??= options.privacy;
 
-    final maskingConfig =
-        privacyOptions.buildMaskingConfig(_log, options.runtimeChecker);
+    final maskingConfig = privacyOptions.buildMaskingConfig(
+        _log, options.runtimeChecker, FlutterVersion.version);
     _maskingConfig = maskingConfig.length > 0 ? maskingConfig : null;
   }
 

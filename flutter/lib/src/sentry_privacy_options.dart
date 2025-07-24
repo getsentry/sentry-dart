@@ -75,6 +75,12 @@ class SentryPrivacyOptions {
       ));
     }
 
+    const flutterVersion = FlutterVersion.version;
+    if (flutterVersion != null &&
+        _shouldAddSensitiveContentRule(flutterVersion)) {
+      addSensitiveContentRule(rules, flutterVersion);
+    }
+
     // In Debug mode, check if users explicitly mask (or unmask) widgets that
     // look like they should be masked, e.g. Videos, WebViews, etc.
     if (runtimeChecker.isDebugMode()) {
@@ -157,6 +163,53 @@ class SentryPrivacyOptions {
           description ?? 'Custom callback-based rule (description unspecified)',
     ));
   }
+}
+
+/// Returns `true` if a SensitiveContent masking rule _should_ be added for a
+/// given [flutterVersion] string. The SensitiveContent widget was introduced
+/// in Flutter 3.33, therefore we only add the masking rule when the detected
+/// version is >= 3.33.
+bool _shouldAddSensitiveContentRule(String version) {
+  final dot = version.indexOf('.');
+  if (dot == -1) return false;
+
+  final major = int.tryParse(version.substring(0, dot));
+  final nextDot = version.indexOf('.', dot + 1);
+  final minor = int.tryParse(
+      version.substring(dot + 1, nextDot == -1 ? version.length : nextDot));
+
+  return major != null &&
+      minor != null &&
+      (major > 3 || (major == 3 && minor >= 33));
+}
+
+/// Adds a masking rule for the [SensitiveContent] widget.
+///
+/// The rule masks any widget that exposes a `sensitivity` property which is an
+/// [Enum]. This is how the [SensitiveContent] widget can be detected
+/// without depending on its type directly (which would fail to compile on
+/// older Flutter versions).
+@visibleForTesting
+void addSensitiveContentRule(
+    List<SentryMaskingRule> rules, String? flutterVersion) {
+  SentryMaskingDecision maskSensitiveContent(Element element, Widget widget) {
+    try {
+      final dynamic dynWidget = widget;
+      final sensitivity = dynWidget.sensitivity;
+      // If the property exists, we assume this is the SensitiveContent widget.
+      assert(sensitivity is Enum);
+      return SentryMaskingDecision.mask;
+    } catch (_) {
+      // Property not found – continue processing other rules.
+      return SentryMaskingDecision.continueProcessing;
+    }
+  }
+
+  rules.add(SentryMaskingCustomRule<Widget>(
+    callback: maskSensitiveContent,
+    name: 'SensitiveContent',
+    description: 'Mask SensitiveContent widget.',
+  ));
 }
 
 SentryMaskingDecision _maskImagesExceptAssets(Element element, Image widget) {
