@@ -40,6 +40,9 @@ class WebAppStartIntegration extends Integration<SentryFlutterOptions> {
           ttidEndTimestamp: endTimestamp,
         );
         await transaction.finish(endTimestamp: endTimestamp);
+
+        // Note: we do not set app start transaction measurements on purpose for Web
+        // This integration is used for TTID/TTFD mainly
       } catch (exception, stackTrace) {
         options.log(
           SentryLevel.error,
