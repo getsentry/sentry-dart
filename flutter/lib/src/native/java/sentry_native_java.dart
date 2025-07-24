@@ -24,19 +24,20 @@ class SentryNativeJava extends SentryNativeChannel {
             final replayId =
                 SentryId.fromId(call.arguments['replayId'] as String);
 
+            _replayRecorder = AndroidReplayRecorder.factory(options);
+            await _replayRecorder!.start();
+            hub.configureScope((s) {
+              // ignore: invalid_use_of_internal_member
+              s.replayId = replayId;
+            });
+            break;
+          case 'ReplayRecorder.onConfigurationChanged':
             final config = ScheduledScreenshotRecorderConfig(
                 width: (call.arguments['width'] as num).toDouble(),
                 height: (call.arguments['height'] as num).toDouble(),
                 frameRate: call.arguments['frameRate'] as int);
 
-            _replayRecorder = AndroidReplayRecorder.factory(config, options);
-            await _replayRecorder!.start();
-
-            hub.configureScope((s) {
-              // ignore: invalid_use_of_internal_member
-              s.replayId = replayId;
-            });
-
+            await _replayRecorder?.onConfigurationChanged(config);
             break;
           case 'ReplayRecorder.stop':
             hub.configureScope((s) {
@@ -54,6 +55,9 @@ class SentryNativeJava extends SentryNativeChannel {
             break;
           case 'ReplayRecorder.resume':
             await _replayRecorder?.resume();
+            break;
+          case 'ReplayRecorder.reset':
+            // ignored
             break;
           default:
             throw UnimplementedError('Method ${call.method} not implemented');

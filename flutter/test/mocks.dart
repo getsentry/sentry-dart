@@ -80,11 +80,13 @@ class MockRuntimeChecker with NoSuchMethodProvider implements RuntimeChecker {
   MockRuntimeChecker({
     this.buildMode = MockRuntimeCheckerBuildMode.debug,
     this.isObfuscated = false,
+    this.isSplitDebugInfo = false,
     this.isRoot = true,
   });
 
   final MockRuntimeCheckerBuildMode buildMode;
   final bool isObfuscated;
+  final bool isSplitDebugInfo;
   final bool isRoot;
 
   @override
@@ -98,6 +100,9 @@ class MockRuntimeChecker with NoSuchMethodProvider implements RuntimeChecker {
 
   @override
   bool isAppObfuscated() => isObfuscated;
+
+  @override
+  bool isSplitDebugInfoBuild() => isSplitDebugInfo;
 
   @override
   bool get isRootZone => isRoot;

@@ -515,6 +515,11 @@ class Hub {
       transactionContext.origin ??= SentryTraceOrigins.manual;
       transactionContext.traceId = propagationContext.traceId;
 
+      // Persist the "sampled" decision onto the propagation context the
+      // first time we obtain one for the current trace.
+      // Subsequent transactions do not affect the sampled flag.
+      propagationContext.applySamplingDecision(samplingDecision.sampled);
+
       SentryProfiler? profiler;
       if (_profilerFactory != null &&
           _tracesSampler.sampleProfiling(samplingDecision)) {
@@ -543,9 +548,9 @@ class Hub {
 
   @internal
   void generateNewTrace() {
-    scope.propagationContext.traceId = SentryId.newId();
-    // Reset sampleRand so that a new one is generated for the new trace when a new transaction is started
-    scope.propagationContext.sampleRand = null;
+    // Create a brand-new trace and reset the sampling flag and sampleRand so
+    // that the next root transaction can set it again.
+    scope.propagationContext.resetTrace();
   }
 
   /// Gets the current active transaction or span.
@@ -646,10 +651,19 @@ class Hub {
   SentryProfilerFactory? _profilerFactory;
 
   @internal
-  void registerCallback<T extends SdkLifecycleEvent>(
+  Map<Type, List<Function>> get lifecycleCallbacks =>
+      _peek().client.lifeCycleRegistry.lifecycleCallbacks;
+
+  @internal
+  void registerSdkLifecycleCallback<T extends SdkLifecycleEvent>(
       SdkLifecycleCallback<T> callback) {
-    final item = _peek();
-    item.client.registerCallback<T>(callback);
+    _peek().client.lifeCycleRegistry.registerCallback<T>(callback);
+  }
+
+  @internal
+  void removeSdkLifecycleCallback<T extends SdkLifecycleEvent>(
+      SdkLifecycleCallback<T> callback) {
+    _peek().client.lifeCycleRegistry.removeCallback<T>(callback);
   }
 
   SentryEvent _assignTraceContext(SentryEvent event) {
