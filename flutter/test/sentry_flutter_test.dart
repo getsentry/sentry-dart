@@ -37,7 +37,10 @@ final platformAgnosticIntegrations = [
 final webIntegrations = [
   ConnectivityIntegration,
   WebSessionIntegration,
-  WebAppStartIntegration,
+];
+
+final linuxWindowsAndWebIntegrations = [
+  GenericAppStartIntegration,
 ];
 
 final nonWebIntegrations = [
@@ -259,6 +262,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
+          ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -307,6 +311,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
+          ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -356,6 +361,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -426,6 +432,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -470,6 +477,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -514,6 +522,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,

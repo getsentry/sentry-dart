@@ -192,15 +192,16 @@ mixin SentryFlutter {
           integrations.add(LoadContextsIntegration(native));
         }
         integrations.add(FramesTrackingIntegration(native));
-        integrations.add(
-          NativeAppStartIntegration(
-            DefaultFrameCallbackHandler(),
-            NativeAppStartHandler(native),
-          ),
-        );
+        if (platform.isIOS || platform.isAndroid || platform.isMacOS) {
+          integrations.add(
+            NativeAppStartIntegration(
+              DefaultFrameCallbackHandler(),
+              NativeAppStartHandler(native),
+            ),
+          );
+        }
         integrations.add(ReplayIntegration(native));
       } else {
-        integrations.add(WebAppStartIntegration());
         // Updating sessions manually is only relevant for web
         // iOS & Android sessions are handled by the native SDKs directly
         //
@@ -209,6 +210,10 @@ mixin SentryFlutter {
         integrations.add(WebSessionIntegration(native));
       }
       options.enableDartSymbolication = false;
+    }
+
+    if (platform.isWeb || platform.isLinux || platform.isWindows) {
+      integrations.add(GenericAppStartIntegration());
     }
 
     if (options.isScreenshotSupported) {

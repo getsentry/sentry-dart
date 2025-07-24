@@ -201,7 +201,8 @@ void main() {
 
     group('integration constants', () {
       test('has correct integration name', () {
-        expect(WebAppStartIntegration.integrationName, equals('WebAppStart'));
+        expect(
+            GenericAppStartIntegration.integrationName, equals('WebAppStart'));
       });
     });
   });
@@ -265,7 +266,7 @@ class Fixture {
     hub = mockHub;
   }
 
-  WebAppStartIntegration getSut() {
-    return WebAppStartIntegration(fakeFrameHandler);
+  GenericAppStartIntegration getSut() {
+    return GenericAppStartIntegration(fakeFrameHandler);
   }
 }
