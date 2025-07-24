@@ -33,6 +33,7 @@ class RuntimeChecker {
     return !typeName.contains('RuntimeChecker');
   }
 
+  /// Check if the current build has been built with --split-debug-info
   bool isSplitDebugInfoBuild() {
     final str = StackTrace.current.toString();
     return buildIdRegex.hasMatch(str) || absRegex.hasMatch(str);
