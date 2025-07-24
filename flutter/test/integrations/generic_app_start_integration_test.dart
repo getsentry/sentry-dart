@@ -1,11 +1,8 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-@TestOn('browser')
-library;
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sentry_flutter/src/integrations/web_app_start_integration.dart';
+import 'package:sentry_flutter/src/integrations/generic_app_start_integration.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -14,7 +11,7 @@ import '../mocks.dart';
 import '../mocks.mocks.dart';
 
 void main() {
-  group('WebAppStartIntegration', () {
+  group('GenericAppStartIntegration', () {
     late Fixture fixture;
 
     setUp(() {
@@ -32,7 +29,7 @@ void main() {
         sut.call(fixture.hub, fixture.options);
 
         expect(fixture.options.sdk.integrations.length, 1);
-        expect(fixture.options.sdk.integrations.first, 'WebAppStart');
+        expect(fixture.options.sdk.integrations.first, 'GenericAppStart');
       });
 
       test('sets transaction ID on timeToDisplayTracker', () {
@@ -201,8 +198,8 @@ void main() {
 
     group('integration constants', () {
       test('has correct integration name', () {
-        expect(
-            GenericAppStartIntegration.integrationName, equals('WebAppStart'));
+        expect(GenericAppStartIntegration.integrationName,
+            equals('GenericAppStart'));
       });
     });
   });

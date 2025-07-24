@@ -22,7 +22,7 @@ class GenericAppStartIntegration extends Integration<SentryFlutterOptions> {
 
   final FrameCallbackHandler _framesHandler;
 
-  static const String integrationName = 'WebAppStart';
+  static const String integrationName = 'GenericAppStart';
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
