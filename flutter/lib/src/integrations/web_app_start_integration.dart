@@ -20,29 +20,39 @@ class WebAppStartIntegration extends Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) {
     if (!options.isTracingEnabled()) return;
 
-    final transactionContext = SentryTransactionContext(
-      'root /',
-      SentrySpanOperations.uiLoad,
-      origin: SentryTraceOrigins.autoUiTimeToDisplay,
-    );
-    final startTimeStamp = hub.options.clock();
-    // expose id so SentryFlutter.currentDisplay() can return something
-    options.timeToDisplayTracker.transactionId = transactionContext.spanId;
-    final transaction = hub.startTransactionWithContext(
-      transactionContext,
-      startTimestamp: startTimeStamp,
-    );
-
-    _framesHandler.addPostFrameCallback((_) async {
-      final endTimestamp = options.clock();
-      await options.timeToDisplayTracker.track(
-        transaction,
-        ttidEndTimestamp: endTimestamp,
+    try {
+      final transactionContext = SentryTransactionContext(
+        'root /',
+        SentrySpanOperations.uiLoad,
+        origin: SentryTraceOrigins.autoUiTimeToDisplay,
+      );
+      final startTimeStamp = options.clock();
+      // expose id so SentryFlutter.currentDisplay() can return something
+      options.timeToDisplayTracker.transactionId = transactionContext.spanId;
+      final transaction = hub.startTransactionWithContext(
+        transactionContext,
+        startTimestamp: startTimeStamp,
       );
 
-      await transaction.finish(endTimestamp: endTimestamp);
-    });
+      _framesHandler.addPostFrameCallback((_) async {
+        final endTimestamp = options.clock();
+        await options.timeToDisplayTracker.track(
+          transaction,
+          ttidEndTimestamp: endTimestamp,
+        );
 
-    options.sdk.addIntegration(integrationName);
-  }
+        await transaction.finish(endTimestamp: endTimestamp);
+      });
+
+      options.sdk.addIntegration(integrationName);
+    } catch (exception, stackTrace) {
+      options.log(
+        SentryLevel.error,
+        'An exception occurred while executing the $WebAppStartIntegration',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
+      if (options.automatedTestMode) {
+        rethrow;
+      }
 }
