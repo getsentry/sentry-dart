@@ -2294,7 +2294,7 @@ void main() {
           fixture.recorder.discardedEvents.first.category, DataCategory.error);
     });
 
-    test('record sample rate not dropping feedbacl', () async {
+    test('record sample rate not dropping feedback', () async {
       final client = fixture.getSut(sampleRate: 0.0);
 
       await client.captureFeedback(fixture.fakeFeedback());
