@@ -426,15 +426,11 @@ void main() {
 
     group('root route transaction behavior by platform', () {
       // Platforms that skip root transactions in the observer (have app start integration)
-      final platformsWithAppStart = [
+      final platforms = [
         ('iOS', MockPlatform.iOS()),
         ('Android', MockPlatform.android()),
         ('macOS', MockPlatform.macOS(isWeb: false)),
         ('Web', MockPlatform(isWeb: true)),
-      ];
-
-      // Platforms that don't skip root transactions in the observer (no app start integration)
-      final platformsWithoutAppStart = [
         ('Linux', MockPlatform.linux(isWeb: false)),
         ('Windows', MockPlatform.windows(isWeb: false)),
       ];
@@ -442,10 +438,8 @@ void main() {
       void testRootRouteTransaction({
         required String platformName,
         required MockPlatform platform,
-        required bool shouldStartTransaction,
       }) {
-        test(
-            'root route ${shouldStartTransaction ? 'starts' : 'does not start'} transaction on $platformName',
+        test('root route does not start transaction on $platformName',
             () async {
           final rootRoute = route(RouteSettings(name: '/'));
 
@@ -462,51 +456,25 @@ void main() {
           sut.didPush(rootRoute, null);
           await Future<void>.delayed(const Duration(milliseconds: 100));
 
-          if (shouldStartTransaction) {
-            verify(hub.startTransactionWithContext(
-              any,
-              startTimestamp: anyNamed('startTimestamp'),
-              waitForChildren: true,
-              autoFinishAfter: anyNamed('autoFinishAfter'),
-              trimEnd: true,
-              onFinish: anyNamed('onFinish'),
-            ));
+          verifyNever(hub.startTransactionWithContext(
+            any,
+            startTimestamp: anyNamed('startTimestamp'),
+            waitForChildren: true,
+            autoFinishAfter: anyNamed('autoFinishAfter'),
+            trimEnd: true,
+            onFinish: anyNamed('onFinish'),
+          ));
 
-            await hub.configureScope((scope) {
-              expect(scope.span, isNotNull);
-            });
-          } else {
-            verifyNever(hub.startTransactionWithContext(
-              any,
-              startTimestamp: anyNamed('startTimestamp'),
-              waitForChildren: true,
-              autoFinishAfter: anyNamed('autoFinishAfter'),
-              trimEnd: true,
-              onFinish: anyNamed('onFinish'),
-            ));
-
-            await hub.configureScope((scope) {
-              expect(scope.span, null);
-            });
-          }
+          await hub.configureScope((scope) {
+            expect(scope.span, null);
+          });
         });
       }
 
-      // Test platforms that skip root transactions
-      for (final (platformName, platform) in platformsWithAppStart) {
+      for (final (platformName, platform) in platforms) {
         testRootRouteTransaction(
           platformName: platformName,
           platform: platform,
-          shouldStartTransaction: false,
-        );
-      }
-
-      // Test platforms that don't skip root transactions
-      for (final (platformName, platform) in platformsWithoutAppStart) {
-        testRootRouteTransaction(
-          platformName: platformName,
-          platform: platform,
-          shouldStartTransaction: true,
         );
       }
     });
