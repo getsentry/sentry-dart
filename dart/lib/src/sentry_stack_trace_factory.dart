@@ -4,14 +4,13 @@ import 'package:stack_trace/stack_trace.dart';
 import 'origin.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
+import 'utils/stacktrace_utils.dart';
 
 /// converts [StackTrace] to [SentryStackFrame]s
 class SentryStackTraceFactory {
   final SentryOptions _options;
 
-  static final _absRegex = RegExp(r'^\s*#[0-9]+ +abs +([A-Fa-f0-9]+)');
   static final _frameRegex = RegExp(r'^\s*#', multiLine: true);
-  static final _buildIdRegex = RegExp(r"build_id[:=] *'([A-Fa-f0-9]+)'");
   static final _baseAddrRegex = RegExp(r'isolate_dso_base[:=] *([A-Fa-f0-9]+)');
   static final SentryStackFrame _asynchronousGapFrameJson =
       SentryStackFrame(absPath: '<asynchronous suspension>');
@@ -91,7 +90,7 @@ class SentryStackTraceFactory {
       final chain = Chain.parse(
           startOffset == 0 ? stackTrace : stackTrace.substring(startOffset));
       final info = _StackInfo(chain.traces);
-      info.buildId = _buildIdRegex.firstMatch(stackTrace)?.group(1);
+      info.buildId = buildIdRegex.firstMatch(stackTrace)?.group(1);
       info.baseAddr = _baseAddrRegex.firstMatch(stackTrace)?.group(1);
       if (info.baseAddr != null) {
         info.baseAddr = '0x${info.baseAddr}';
@@ -111,7 +110,7 @@ class SentryStackTraceFactory {
       //     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
 
       // we are only interested on the #01, 02... items which contains the 'abs' addresses.
-      final match = _absRegex.firstMatch(member);
+      final match = absRegex.firstMatch(member);
       if (match != null) {
         return SentryStackFrame(
           instructionAddr: '0x${match.group(1)!}',
