@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Dependencies
+
+- Bump Android SDK from v8.13.2 to v8.17.0 ([#2977](https://github.com/getsentry/sentry-dart/pull/2977))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8170)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.13.2...8.17.0)
+
+### Internal
+
+- Use lifecycle hook for before send event ([#3017](https://github.com/getsentry/sentry-dart/pull/3017))
+
 ## 9.5.0
 
 ### Features

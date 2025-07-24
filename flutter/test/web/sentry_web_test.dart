@@ -225,7 +225,8 @@ void main() {
           sut.pauseAppHangTracking();
           sut.setContexts('key', 'value');
           sut.setExtra('key', 'value');
-          sut.setReplayConfig(ReplayConfig(width: 0, height: 0, frameRate: 0));
+          sut.setReplayConfig(ReplayConfig(
+              windowWidth: 0, windowHeight: 0, width: 0, height: 0));
           sut.setTag('key', 'value');
           sut.setUser(null);
           sut.startProfiler(SentryId.empty());
