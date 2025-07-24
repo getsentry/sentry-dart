@@ -107,7 +107,33 @@ void main() {
     });
   });
 
-  test('does not add itself to sdk.integrations if app is not obfuscated',
+  test('does add itself to sdk.integrations if app split debug info is true',
+      () async {
+    final fixture =
+        IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
+    fixture.options.runtimeChecker = MockRuntimeChecker(isSplitDebugInfo: true);
+    await fixture.registerIntegration();
+    expect(
+      fixture.options.sdk.integrations
+          .contains(LoadNativeDebugImagesIntegration.integrationName),
+      isTrue,
+    );
+  });
+
+  test('does add itself to sdk.integrations if obfuscation is true', () async {
+    final fixture =
+        IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
+    fixture.options.runtimeChecker = MockRuntimeChecker(isObfuscated: true);
+    await fixture.registerIntegration();
+    expect(
+      fixture.options.sdk.integrations
+          .contains(LoadNativeDebugImagesIntegration.integrationName),
+      isTrue,
+    );
+  });
+
+  test(
+      'does not add itself to sdk.integrations if app obfuscation and split debug info is false',
       () async {
     final fixture =
         IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
@@ -120,7 +146,25 @@ void main() {
     );
   });
 
-  test('does not add event processor to options if app is not obfuscated',
+  test('does add event processor to options if split debug info is true',
+      () async {
+    final fixture =
+        IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
+    fixture.options.runtimeChecker = MockRuntimeChecker(isSplitDebugInfo: true);
+    await fixture.registerIntegration();
+    expect(fixture.options.eventProcessors.length, 1);
+  });
+
+  test('does add event processor to options if obfuscation is true', () async {
+    final fixture =
+        IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
+    fixture.options.runtimeChecker = MockRuntimeChecker(isObfuscated: true);
+    await fixture.registerIntegration();
+    expect(fixture.options.eventProcessors.length, 1);
+  });
+
+  test(
+      'does not add event processor to options if app obfuscation and split debug info is false',
       () async {
     final fixture =
         IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);

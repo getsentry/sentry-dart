@@ -193,9 +193,32 @@ isolate_dso_base: 10000000
     });
   }
 
-  test('does not add itself to sdk.integrations if app is not obfuscated', () {
+  test('does add itself to sdk.integrations if split debug info is true', () {
     final fixture = Fixture()
-      ..options.runtimeChecker = MockRuntimeChecker(isObfuscated: false);
+      ..options.runtimeChecker = MockRuntimeChecker(isSplitDebugInfo: true);
+    fixture.callIntegration();
+    expect(
+      fixture.options.sdk.integrations
+          .contains(LoadDartDebugImagesIntegration.integrationName),
+      isTrue,
+    );
+  });
+
+  test('does add itself to sdk.integrations if obfuscation is true', () {
+    final fixture = Fixture()
+      ..options.runtimeChecker = MockRuntimeChecker(isObfuscated: true);
+    fixture.callIntegration();
+    expect(
+      fixture.options.sdk.integrations
+          .contains(LoadDartDebugImagesIntegration.integrationName),
+      isTrue,
+    );
+  });
+
+  test(
+      'does not add itself to sdk.integrations if app obfuscation and split debug info is false',
+      () {
+    final fixture = Fixture()..options.runtimeChecker = MockRuntimeChecker();
     fixture.callIntegration();
     expect(
       fixture.options.sdk.integrations
@@ -204,9 +227,24 @@ isolate_dso_base: 10000000
     );
   });
 
-  test('does not add event processor to options if app is not obfuscated', () {
+  test('does add event processor to options if split debug info is true', () {
     final fixture = Fixture()
-      ..options.runtimeChecker = MockRuntimeChecker(isObfuscated: false);
+      ..options.runtimeChecker = MockRuntimeChecker(isSplitDebugInfo: true);
+    fixture.callIntegration();
+    expect(fixture.options.eventProcessors.length, 1);
+  });
+
+  test('does add event processor to options if obfuscation is true', () {
+    final fixture = Fixture()
+      ..options.runtimeChecker = MockRuntimeChecker(isObfuscated: true);
+    fixture.callIntegration();
+    expect(fixture.options.eventProcessors.length, 1);
+  });
+
+  test(
+      'does not add event processor to options if app obfuscation and split debug info is false',
+      () {
+    final fixture = Fixture()..options.runtimeChecker = MockRuntimeChecker();
     fixture.callIntegration();
     expect(fixture.options.eventProcessors.length, 0);
   });
@@ -239,7 +277,8 @@ isolate_dso_base: 40000000
 
 class Fixture {
   final options = defaultTestOptions()
-    ..runtimeChecker = MockRuntimeChecker(isObfuscated: true);
+    ..runtimeChecker =
+        MockRuntimeChecker(isObfuscated: true, isSplitDebugInfo: true);
   late final factory = SentryStackTraceFactory(options);
 
   void callIntegration() {

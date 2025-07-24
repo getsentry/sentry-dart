@@ -15,82 +15,120 @@ void main() {
     fixture = Fixture();
   });
 
-  test('didPush generates a new trace', () {
-    final fromRoute = _route(RouteSettings(name: 'From Route'));
-    final toRoute = _route(RouteSettings(name: 'To Route'));
-    final oldTraceId = fixture.hub.scope.propagationContext.traceId;
+  group('SentryNavigatorObserver', () {
+    group('when starting traces on navigation is enabled (default)', () {
+      test('didPush should start a new trace', () {
+        final from = _route(RouteSettings(name: 'From Route'));
+        final to = _route(RouteSettings(name: 'To Route'));
+        final before = fixture.hub.scope.propagationContext.traceId;
 
-    final sut = fixture.getSut();
-    sut.didPush(toRoute, fromRoute);
+        fixture.getSut().didPush(to, from);
 
-    final newTraceId = fixture.hub.scope.propagationContext.traceId;
-    expect(oldTraceId, isNot(newTraceId));
-  });
+        final after = fixture.hub.scope.propagationContext.traceId;
+        expect(after, isNot(before));
+      });
 
-  test('didPop generates a new trace', () {
-    final fromRoute = _route(RouteSettings(name: 'From Route'));
-    final toRoute = _route(RouteSettings(name: 'To Route'));
-    final oldTraceId = fixture.hub.scope.propagationContext.traceId;
+      test('didPop should start a new trace', () {
+        final from = _route(RouteSettings(name: 'From Route'));
+        final to = _route(RouteSettings(name: 'To Route'));
+        final before = fixture.hub.scope.propagationContext.traceId;
 
-    final sut = fixture.getSut();
-    sut.didPop(toRoute, fromRoute);
+        fixture.getSut().didPop(to, from);
 
-    final newTraceId = fixture.hub.scope.propagationContext.traceId;
-    expect(oldTraceId, isNot(newTraceId));
-  });
+        final after = fixture.hub.scope.propagationContext.traceId;
+        expect(after, isNot(before));
+      });
 
-  test('didReplace generates a new trace', () {
-    final fromRoute = _route(RouteSettings(name: 'From Route'));
-    final toRoute = _route(RouteSettings(name: 'To Route'));
-    final oldTraceId = fixture.hub.scope.propagationContext.traceId;
+      test('didReplace should start a new trace', () {
+        final from = _route(RouteSettings(name: 'From Route'));
+        final to = _route(RouteSettings(name: 'To Route'));
+        final before = fixture.hub.scope.propagationContext.traceId;
 
-    final sut = fixture.getSut();
-    sut.didReplace(newRoute: toRoute, oldRoute: fromRoute);
+        fixture.getSut().didReplace(newRoute: to, oldRoute: from);
 
-    final newTraceId = fixture.hub.scope.propagationContext.traceId;
-    expect(oldTraceId, isNot(newTraceId));
-  });
+        final after = fixture.hub.scope.propagationContext.traceId;
+        expect(after, isNot(before));
+      });
 
-  group('execution order', () {
-    /// Prepares mocks, we don't care about what they exactly do.
-    /// We only test the order of execution in this group.
-    void _prepareMocks() {
-      when(fixture.mockHub.generateNewTrace()).thenAnswer((_) => {});
-      when(fixture.mockHub.configureScope(any))
-          .thenAnswer((_) => Future.value());
-      when(fixture.mockHub.startTransactionWithContext(
-        any,
-        bindToScope: anyNamed('bindToScope'),
-        waitForChildren: anyNamed('waitForChildren'),
-        autoFinishAfter: anyNamed('autoFinishAfter'),
-        trimEnd: anyNamed('trimEnd'),
-        onFinish: anyNamed('onFinish'),
-        customSamplingContext: anyNamed('customSamplingContext'),
-        startTimestamp: anyNamed('startTimestamp'),
-      )).thenReturn(NoOpSentrySpan());
-    }
+      group('execution order', () {
+        void _stubHub() {
+          when(fixture.mockHub.generateNewTrace()).thenReturn(null);
+          when(fixture.mockHub.configureScope(any))
+              .thenAnswer((_) => Future.value());
+          when(fixture.mockHub.startTransactionWithContext(
+            any,
+            bindToScope: anyNamed('bindToScope'),
+            waitForChildren: anyNamed('waitForChildren'),
+            autoFinishAfter: anyNamed('autoFinishAfter'),
+            trimEnd: anyNamed('trimEnd'),
+            onFinish: anyNamed('onFinish'),
+            customSamplingContext: anyNamed('customSamplingContext'),
+            startTimestamp: anyNamed('startTimestamp'),
+          )).thenReturn(NoOpSentrySpan());
+        }
 
-    test('didPush generates a new trace before creating transaction spans', () {
-      final fromRoute = _route(RouteSettings(name: 'From Route'));
-      final toRoute = _route(RouteSettings(name: 'To Route'));
+        test(
+            'didPush should call generateNewTrace before starting the transaction',
+            () {
+          final from = _route(RouteSettings(name: 'From Route'));
+          final to = _route(RouteSettings(name: 'To Route'));
 
-      _prepareMocks();
+          _stubHub();
+          final sut = fixture.getSut(hub: fixture.mockHub);
+          sut.didPush(to, from);
 
-      final sut = fixture.getSut(hub: fixture.mockHub);
-      sut.didPush(toRoute, fromRoute);
-      verifyInOrder([
-        fixture.mockHub.generateNewTrace(),
-        fixture.mockHub.startTransactionWithContext(
-          any,
-          bindToScope: anyNamed('bindToScope'),
-          waitForChildren: anyNamed('waitForChildren'),
-          autoFinishAfter: anyNamed('autoFinishAfter'),
-          trimEnd: anyNamed('trimEnd'),
-          onFinish: anyNamed('onFinish'),
-          customSamplingContext: anyNamed('customSamplingContext'),
-          startTimestamp: anyNamed('startTimestamp'),
-        ),
-      ]);
+          verifyInOrder([
+            fixture.mockHub.generateNewTrace(),
+            fixture.mockHub.startTransactionWithContext(
+              any,
+              bindToScope: anyNamed('bindToScope'),
+              waitForChildren: anyNamed('waitForChildren'),
+              autoFinishAfter: anyNamed('autoFinishAfter'),
+              trimEnd: anyNamed('trimEnd'),
+              onFinish: anyNamed('onFinish'),
+              customSamplingContext: anyNamed('customSamplingContext'),
+              startTimestamp: anyNamed('startTimestamp'),
+            ),
+          ]);
+        });
+      });
+    });
+
+    group('when starting traces on navigation is disabled', () {
+      test('didPush should not start a new trace', () {
+        final from = _route(RouteSettings(name: 'From Route'));
+        final to = _route(RouteSettings(name: 'To Route'));
+        final before = fixture.hub.scope.propagationContext.traceId;
+
+        fixture.getSut(enableNewTraceOnNavigation: false).didPush(to, from);
+
+        final after = fixture.hub.scope.propagationContext.traceId;
+        expect(after, equals(before));
+      });
+
+      test('didPop should not start a new trace', () {
+        final from = _route(RouteSettings(name: 'From Route'));
+        final to = _route(RouteSettings(name: 'To Route'));
+        final before = fixture.hub.scope.propagationContext.traceId;
+
+        fixture.getSut(enableNewTraceOnNavigation: false).didPop(to, from);
+
+        final after = fixture.hub.scope.propagationContext.traceId;
+        expect(after, equals(before));
+      });
+
+      test('didReplace should not start a new trace', () {
+        final from = _route(RouteSettings(name: 'From Route'));
+        final to = _route(RouteSettings(name: 'To Route'));
+        final before = fixture.hub.scope.propagationContext.traceId;
+
+        fixture
+            .getSut(enableNewTraceOnNavigation: false)
+            .didReplace(newRoute: to, oldRoute: from);
+
+        final after = fixture.hub.scope.propagationContext.traceId;
+        expect(after, equals(before));
+      });
     });
   });
 }
@@ -105,11 +143,17 @@ class Fixture {
   late final mockHub = MockHub();
   late final hub = Hub(options);
 
-  SentryNavigatorObserver getSut({Hub? hub}) {
+  SentryNavigatorObserver getSut({
+    Hub? hub,
+    bool enableNewTraceOnNavigation = true,
+  }) {
     hub ??= this.hub;
     if (hub == mockHub) {
       when(mockHub.options).thenReturn(options);
     }
-    return SentryNavigatorObserver(hub: hub);
+    return SentryNavigatorObserver(
+      hub: hub,
+      enableNewTraceOnNavigation: enableNewTraceOnNavigation,
+    );
   }
 }
