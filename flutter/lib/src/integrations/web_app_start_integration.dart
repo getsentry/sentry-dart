@@ -20,40 +20,39 @@ class WebAppStartIntegration extends Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) {
     if (!options.isTracingEnabled()) return;
 
-    try {
-      final transactionContext = SentryTransactionContext(
-        'root /',
-        SentrySpanOperations.uiLoad,
-        origin: SentryTraceOrigins.autoUiTimeToDisplay,
-      );
-      final startTimeStamp = options.clock();
-      // expose id so SentryFlutter.currentDisplay() can return something
-      options.timeToDisplayTracker.transactionId = transactionContext.spanId;
-      final transaction = hub.startTransactionWithContext(
-        transactionContext,
-        startTimestamp: startTimeStamp,
-      );
+    final startTimeStamp = options.clock();
+    final transactionContext = SentryTransactionContext(
+      'root /',
+      SentrySpanOperations.uiLoad,
+      origin: SentryTraceOrigins.autoUiTimeToDisplay,
+    );
+    options.timeToDisplayTracker.transactionId = transactionContext.spanId;
 
-      _framesHandler.addPostFrameCallback((_) async {
+    _framesHandler.addPostFrameCallback((_) async {
+      try {
+        final transaction = hub.startTransactionWithContext(
+          transactionContext,
+          startTimestamp: startTimeStamp,
+        );
         final endTimestamp = options.clock();
         await options.timeToDisplayTracker.track(
           transaction,
           ttidEndTimestamp: endTimestamp,
         );
-
         await transaction.finish(endTimestamp: endTimestamp);
-      });
-
-      options.sdk.addIntegration(integrationName);
-    } catch (exception, stackTrace) {
-      options.log(
-        SentryLevel.error,
-        'An exception occurred while executing the $WebAppStartIntegration',
-        exception: exception,
-        stackTrace: stackTrace,
-      );
-      if (options.automatedTestMode) {
-        rethrow;
+      } catch (exception, stackTrace) {
+        options.log(
+          SentryLevel.error,
+          'An exception occurred while executing the $WebAppStartIntegration',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (options.automatedTestMode) {
+          rethrow;
+        }
       }
-    }
+    });
+
+    options.sdk.addIntegration(integrationName);
+  }
 }

@@ -24,6 +24,12 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) async {
+    if (options.platform.isLinux || options.platform.isWindows) {
+      options.log(SentryLevel.info,
+          'Skipping $integrationName integration because it is not supported on Linux or Windows.');
+      return;
+    }
+
     if (!options.isTracingEnabled()) {
       options.log(SentryLevel.info,
           'Skipping $integrationName integration because tracing is disabled.');
