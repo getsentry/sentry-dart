@@ -293,10 +293,8 @@ mixin SentryFlutter {
     }
     final transactionId = options.timeToDisplayTracker.transactionId;
     if (transactionId == null) {
-      assert(() {
-        throw StateError(
-            'Could not process TTFD - transactionId should not be null');
-      }());
+      hub.options.log(SentryLevel.error,
+          'Could not process TTFD for screen ${SentryNavigatorObserver.currentRouteName} - transactionId should not be null');
       return null;
     }
     return SentryDisplay(transactionId, hub: hub);
