@@ -75,7 +75,11 @@ class SentryPrivacyOptions {
       ));
     }
 
-    maybeAddSensitiveContentRule(rules, flutterVersion);
+    const flutterVersion = FlutterVersion.version;
+    if (flutterVersion != null &&
+        _shouldAddSensitiveContentRule(flutterVersion)) {
+      addSensitiveContentRule(rules, flutterVersion);
+    }
 
     // In Debug mode, check if users explicitly mask (or unmask) widgets that
     // look like they should be masked, e.g. Videos, WebViews, etc.
@@ -165,26 +169,18 @@ class SentryPrivacyOptions {
 /// given [flutterVersion] string. The SensitiveContent widget was introduced
 /// in Flutter 3.33, therefore we only add the masking rule when the detected
 /// version is >= 3.33.
-bool _shouldAddSensitiveContentRule(String? flutterVersion) {
-  if (flutterVersion == null) return false;
+bool _shouldAddSensitiveContentRule(String version) {
+  final dot = version.indexOf('.');
+  if (dot == -1) return false;
 
-  final parts = flutterVersion.split('.');
-  if (parts.length < 2) {
-    // Malformed version string – be safe and skip.
-    return false;
-  }
+  final major = int.tryParse(version.substring(0, dot));
+  final nextDot = version.indexOf('.', dot + 1);
+  final minor = int.tryParse(
+      version.substring(dot + 1, nextDot == -1 ? version.length : nextDot));
 
-  const requiredMajor = 3;
-  const requiredMinor = 33;
-  final major = int.tryParse(parts[0]);
-  final minor = int.tryParse(parts[1]);
-  if (major == null || minor == null) {
-    // Not numeric – treat as unknown.
-    return false;
-  }
-
-  return major > requiredMajor ||
-      (major == requiredMajor && minor >= requiredMinor);
+  return major != null &&
+      minor != null &&
+      (major > 3 || (major == 3 && minor >= 33));
 }
 
 /// Adds a masking rule for the [SensitiveContent] widget.
@@ -194,10 +190,8 @@ bool _shouldAddSensitiveContentRule(String? flutterVersion) {
 /// without depending on its type directly (which would fail to compile on
 /// older Flutter versions).
 @visibleForTesting
-void maybeAddSensitiveContentRule(
+void addSensitiveContentRule(
     List<SentryMaskingRule> rules, String? flutterVersion) {
-  if (!_shouldAddSensitiveContentRule(flutterVersion)) return;
-
   SentryMaskingDecision maskSensitiveContent(Element element, Widget widget) {
     try {
       final dynamic dynWidget = widget;
