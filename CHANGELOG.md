@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- TTID/TTFD transaction not starting for Web and Linux, Windows Desktop ([#3099](https://github.com/getsentry/sentry-dart/pull/3099))
+
 ### Dependencies
 
 - Bump Android SDK from v8.13.2 to v8.17.0 ([#2977](https://github.com/getsentry/sentry-dart/pull/2977))
