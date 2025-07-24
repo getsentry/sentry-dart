@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Debug meta not loaded for split debug info only builds ([#3104](https://github.com/getsentry/sentry-dart/pull/3104))
+
 ### Dependencies
 
 - Bump Android SDK from v8.13.2 to v8.17.0 ([#2977](https://github.com/getsentry/sentry-dart/pull/2977))
