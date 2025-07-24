@@ -46,8 +46,26 @@ class BreadcrumbClientAdapter implements HttpClientAdapter {
       responseBodySize = HttpHeaderUtils.getContentLength(response.headers);
 
       return response;
-    } catch (_) {
+    } catch (exception) {
       requestHadException = true;
+
+      // If the exception contains an HTTP response (e.g. non-2xx status
+      // code which Dio treats as an error by default), we can still extract
+      // useful information such as the status code and reason in order to
+      // enrich the resulting breadcrumb.
+      if (exception is DioError) {
+        statusCode = exception.response?.statusCode;
+        reason = exception.response?.statusMessage;
+
+        // Try to obtain the response body size when available.
+        final responseHeaders = exception.response?.headers;
+        if (responseHeaders != null) {
+          // ignore: invalid_use_of_internal_member
+          responseBodySize =
+              HttpHeaderUtils.getContentLength(responseHeaders.map);
+        }
+      }
+
       rethrow;
     } finally {
       stopwatch.stop();
