@@ -5,7 +5,9 @@ on:
   schedule:
     - cron: "0 3 * * *"
   # And on on every PR merge so we get the updated dependencies ASAP, and to make sure the changelog doesn't conflict.
-  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   android:
