@@ -23,7 +23,7 @@ import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
-import 'integrations/web_app_start_integration.dart';
+import 'integrations/generic_app_start_integration.dart';
 import 'integrations/web_session_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
