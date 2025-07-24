@@ -55,4 +55,5 @@ class WebAppStartIntegration extends Integration<SentryFlutterOptions> {
       if (options.automatedTestMode) {
         rethrow;
       }
+    }
 }
