@@ -150,8 +150,8 @@ void main() async {
   group('$SentryReplayOptions.buildMaskingConfig()', () {
     List<String> rulesAsStrings(SentryPrivacyOptions options,
         {String? flutterVersion}) {
-      final config = options.buildMaskingConfig(
-          MockLogger().call, RuntimeChecker(), flutterVersion);
+      final config =
+          options.buildMaskingConfig(MockLogger().call, RuntimeChecker());
       return config.rules
           .map((rule) => rule.toString())
           // These normalize the string on VM & js & wasm:

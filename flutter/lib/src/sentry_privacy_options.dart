@@ -27,8 +27,8 @@ class SentryPrivacyOptions {
   Iterable<SentryMaskingRule> get userMaskingRules => _userMaskingRules;
 
   @internal
-  SentryMaskingConfig buildMaskingConfig(SdkLogCallback logger,
-      RuntimeChecker runtimeChecker, String? flutterVersion) {
+  SentryMaskingConfig buildMaskingConfig(
+      SdkLogCallback logger, RuntimeChecker runtimeChecker) {
     // First, we collect rules defined by the user (so they're applied first).
     final rules = _userMaskingRules.toList();
 
