@@ -287,8 +287,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     final routeName = _getRouteName(route) ?? _currentRouteName;
     final arguments = route?.settings.arguments;
 
-    final isRoot = routeName ==
-        '/'; // Root transaction is already created by the app start integration.
+    // Skip root - app start integrations create TTID/TTFD for root
+    final isRoot = routeName == '/';
     if (!_enableAutoTransactions || routeName == null || isRoot) {
       return;
     }

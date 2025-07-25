@@ -44,16 +44,10 @@ class NativeAppStartHandler {
     final rootScreenTransaction = _hub.startTransactionWithContext(
       context,
       startTimestamp: appStartInfo.start,
-    );
-
-    // Bind to scope if null
-    await _hub.configureScope((scope) {
-      scope.span ??= rootScreenTransaction;
-    });
-
-    await options.timeToDisplayTracker.track(
-      rootScreenTransaction,
-      ttidEndTimestamp: appStartInfo.end,
+      waitForChildren: true,
+      autoFinishAfter: Duration(seconds: 3),
+      bindToScope: true,
+      trimEnd: true,
     );
 
     SentryTracer sentryTracer;
@@ -63,20 +57,17 @@ class NativeAppStartHandler {
       return;
     }
 
-    // Enrich Transaction
+    // We need to add the measurements before we add the child spans
+    // If the child span finish the transaction will finish and then we cannot add measurements
+    // TODO(buenaflor): eventually we can move this to the onFinish callback
     SentryMeasurement? measurement = appStartInfo.toMeasurement();
     sentryTracer.measurements[measurement.name] = appStartInfo.toMeasurement();
+
+    await options.timeToDisplayTracker.track(
+      rootScreenTransaction,
+      ttidEndTimestamp: appStartInfo.end,
+    );
     await _attachAppStartSpans(appStartInfo, sentryTracer);
-
-    // Remove from scope
-    await _hub.configureScope((scope) {
-      if (scope.span == rootScreenTransaction) {
-        scope.span = null;
-      }
-    });
-
-    // Finish Transaction
-    await rootScreenTransaction.finish(endTimestamp: appStartInfo.end);
   }
 
   _AppStartInfo? _infoNativeAppStart(

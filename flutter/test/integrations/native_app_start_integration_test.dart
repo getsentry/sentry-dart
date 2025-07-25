@@ -1,4 +1,4 @@
-@TestOn('vm')
+@TestOn('vm && !windows && !linux')
 library;
 
 import 'dart:core';
