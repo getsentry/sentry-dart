@@ -47,13 +47,13 @@ class GenericAppStartIntegration extends Integration<SentryFlutterOptions> {
 
     options.timeToDisplayTracker.transactionId = transactionContext.spanId;
 
-    _framesHandler.addPostFrameCallback((_) {
+    _framesHandler.addPostFrameCallback((_) async {
       try {
         final endTimestamp = options.clock();
-        unawaited(options.timeToDisplayTracker.track(
+        await options.timeToDisplayTracker.track(
           transaction,
           ttidEndTimestamp: endTimestamp,
-        ));
+        );
 
         // Note: we do not set app start transaction measurements (yet) on purpose
         // This integration is used for TTID/TTFD mainly

@@ -50,11 +50,6 @@ class NativeAppStartHandler {
       trimEnd: true,
     );
 
-    unawaited(options.timeToDisplayTracker.track(
-      rootScreenTransaction,
-      ttidEndTimestamp: appStartInfo.end,
-    ));
-
     SentryTracer sentryTracer;
     if (rootScreenTransaction is SentryTracer) {
       sentryTracer = rootScreenTransaction;
@@ -62,10 +57,17 @@ class NativeAppStartHandler {
       return;
     }
 
-    // Enrich Transaction
+    // We need to add the measurements before we add the child spans
+    // If the child span finish the transaction will finish and then we cannot add measurements
+    // TODO(buenaflor): eventually we can move this to the onFinish callback
     SentryMeasurement? measurement = appStartInfo.toMeasurement();
     sentryTracer.measurements[measurement.name] = appStartInfo.toMeasurement();
-    unawaited(_attachAppStartSpans(appStartInfo, sentryTracer));
+
+    await options.timeToDisplayTracker.track(
+      rootScreenTransaction,
+      ttidEndTimestamp: appStartInfo.end,
+    );
+    await _attachAppStartSpans(appStartInfo, sentryTracer);
   }
 
   _AppStartInfo? _infoNativeAppStart(

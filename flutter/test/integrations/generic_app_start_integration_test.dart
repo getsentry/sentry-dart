@@ -1,18 +1,15 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/generic_app_start_integration.dart';
 // Internal import is fine in tests.
-import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
-import '../mocks.mocks.dart';
 
 void main() {
   group('GenericAppStartIntegration (real impl)', () {
