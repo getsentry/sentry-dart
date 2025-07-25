@@ -38,8 +38,6 @@ class TracingClient extends BaseClient {
     }
 
     final currentSpan = _hub.getSpan();
-    print('start child');
-    print(currentSpan);
     var span = currentSpan?.startChild(
       'http.client',
       description: description,
