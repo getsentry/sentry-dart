@@ -1,12 +1,13 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
 
-// buenaflor: marking this internal until we can find a robust way to unify
-// the TTID/TTFD implementation as currently it is very fragmented.
+// TODO(buenaflor): marking this internal until we can find a robust way to unify the TTID/TTFD implementation as currently it is very fragmented.
 
 /// A fallback app–start integration for platforms without built-in app-start timing.
 ///
@@ -28,26 +29,31 @@ class GenericAppStartIntegration extends Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) {
     if (!options.isTracingEnabled()) return;
 
-    final startTimeStamp = options.clock();
     final transactionContext = SentryTransactionContext(
       'root /',
       SentrySpanOperations.uiLoad,
       origin: SentryTraceOrigins.autoUiTimeToDisplay,
     );
+
+    final startTimeStamp = options.clock();
+    final transaction = hub.startTransactionWithContext(
+      transactionContext,
+      startTimestamp: startTimeStamp,
+      waitForChildren: true,
+      autoFinishAfter: Duration(seconds: 3),
+      bindToScope: true,
+      trimEnd: true,
+    );
+
     options.timeToDisplayTracker.transactionId = transactionContext.spanId;
 
-    _framesHandler.addPostFrameCallback((_) async {
+    _framesHandler.addPostFrameCallback((_) {
       try {
-        final transaction = hub.startTransactionWithContext(
-          transactionContext,
-          startTimestamp: startTimeStamp,
-        );
         final endTimestamp = options.clock();
-        await options.timeToDisplayTracker.track(
+        unawaited(options.timeToDisplayTracker.track(
           transaction,
           ttidEndTimestamp: endTimestamp,
-        );
-        await transaction.finish(endTimestamp: endTimestamp);
+        ));
 
         // Note: we do not set app start transaction measurements (yet) on purpose
         // This integration is used for TTID/TTFD mainly

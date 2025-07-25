@@ -2,9 +2,14 @@
 
 ## Unreleased
 
+### Enhancements
+
+- TTID/TTFD transactions ([#3099](https://github.com/getsentry/sentry-dart/pull/3099))
+  - Web, Linux and Windows now create a UI transaction for the root page
+  - iOS, Android now correctly create idle transactions
+
 ### Fixes
 
-- TTID/TTFD transaction not starting for Web and Linux, Windows Desktop ([#3099](https://github.com/getsentry/sentry-dart/pull/3099))
 - Debug meta not loaded for split debug info only builds ([#3104](https://github.com/getsentry/sentry-dart/pull/3104))
 
 ### Dependencies
