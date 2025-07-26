@@ -162,13 +162,33 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _addWebSessions(from: previousRoute, to: route);
 
     // Clearing the display tracker here is safe since didPush happens before the Widget is built
-    _timeToDisplayTracker?.clear();
+    // _timeToDisplayTracker?.clear();
 
     DateTime timestamp = _hub.options.clock();
-    _finishTransaction(endTimestamp: timestamp);
+    // _finishTransaction(endTimestamp: timestamp);
 
-    final transactionContext = _createTransactionContext(route);
-    _startTransaction(route, timestamp, transactionContext);
+    // final transactionContext = _createTransactionContext(route);
+    // _startTransaction(route, timestamp, transactionContext);
+
+    if (_currentRouteName == '/') {
+      return;
+    }
+    _instrumentRoute(_currentRouteName!);
+  }
+
+  void _instrumentRoute(String route) {
+    final spanId = SpanId.newId();
+    final startTimestamp = _hub.options.clock();
+    final handle = interactor.startRoute(
+        spanId: spanId,
+        ts: startTimestamp,
+        routeName: _currentRouteName ?? 'unknown');
+    if (handle != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final endTimestamp = _hub.options.clock();
+        handle.endTtid(endTimestamp);
+      });
+    }
   }
 
   @override
