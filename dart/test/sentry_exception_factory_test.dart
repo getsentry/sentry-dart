@@ -248,6 +248,40 @@ void main() {
     expect(sentryStackTrace.frames[16].package, 'sentry_flutter_example');
     expect(sentryStackTrace.frames[15].package, 'flutter');
   });
+
+  test('omitExceptionType = true sets empty string as exception type', () {
+    fixture.options.omitExceptionType = true;
+    
+    SentryException sentryException;
+    try {
+      throw StateError('a state error');
+    } catch (err, stacktrace) {
+      sentryException = fixture.getSut().getSentryException(
+            err,
+            stackTrace: stacktrace,
+          );
+    }
+
+    expect(sentryException.type, '');
+    expect(sentryException.stackTrace!.frames, isNotEmpty);
+  });
+
+  test('omitExceptionType = false keeps original exception type', () {
+    fixture.options.omitExceptionType = false;
+    
+    SentryException sentryException;
+    try {
+      throw StateError('a state error');
+    } catch (err, stacktrace) {
+      sentryException = fixture.getSut().getSentryException(
+            err,
+            stackTrace: stacktrace,
+          );
+    }
+
+    expect(sentryException.type, 'StateError');
+    expect(sentryException.stackTrace!.frames, isNotEmpty);
+  });
 }
 
 class CustomError extends Error {}

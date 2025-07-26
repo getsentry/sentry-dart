@@ -74,6 +74,10 @@ class SentryExceptionFactory {
       }
     }
 
+    if (_options.omitExceptionType) {
+      errorTypeName = '';
+    }
+
     // if --obfuscate feature is enabled, 'type' won't be human readable.
     // https://flutter.dev/docs/deployment/obfuscate#caveat
     return SentryException(

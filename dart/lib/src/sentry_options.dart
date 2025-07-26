@@ -473,6 +473,20 @@ class SentryOptions {
   /// Default: `true`
   bool enableExceptionTypeIdentification = true;
 
+  /// **Note: setting this option to `true` might change grouping of events.**
+  ///
+  /// Enables omitting the exception type when capturing exceptions.
+  /// When true, the SDK will set an empty string as the exception type,
+  /// allowing the Sentry backend to use the most relevant stacktrace frame
+  /// as the issue title instead. This is useful for obfuscated builds where
+  /// the exception type name might be obfuscated.
+  ///
+  /// However ensure that symbolication of stack traces is set up and working
+  /// otherwise the issue title will not be readable as well.
+  ///
+  /// Default: `false`
+  bool omitExceptionType = false;
+
   final List<ExceptionTypeIdentifier> _exceptionTypeIdentifiers = [];
 
   List<ExceptionTypeIdentifier> get exceptionTypeIdentifiers =>
