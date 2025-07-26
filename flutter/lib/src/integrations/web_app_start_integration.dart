@@ -98,14 +98,16 @@ class WebAppStartIntegration extends Integration<SentryFlutterOptions> {
 
     print('attach');
 
-    final child = sentryTracer.startChild('ui.load.initial-display');
+    final child = sentryTracer.startChild('ui.load.initial-display',
+        startTimestamp:
+            DateTime.fromMicrosecondsSinceEpoch((timeOrigin * 1000).toInt()));
     child.finish(endTimestamp: appStartEnd);
     // Add browser navigation spans
     _attachBrowserNavigationSpans(
         sentryTracer, timing, timeOrigin, appStartEnd);
 
-    // Note: Flutter engine timing spans could be added here in the future
-    // For now, we focus on meaningful browser navigation timing
+    // Add resource timing spans for individual assets
+    _attachResourceTimingSpans(sentryTracer, timeOrigin);
 
     // Add measurements
     final totalDuration = appStartEnd.difference(appStartTime);
@@ -252,6 +254,182 @@ class WebAppStartIntegration extends Integration<SentryFlutterOptions> {
         description: 'Load Complete To First Frame',
         startTimestamp: _preciseDateTime(absoluteLoadEventStartTime));
     child.finish(endTimestamp: appStartEnd);
+  }
+
+  /// Adds resource timing spans for individual assets loaded during pageload
+  void _attachResourceTimingSpans(SentryTracer transaction, double timeOrigin) {
+    try {
+      final resourceEntries = window.performance.getEntriesByType('resource');
+      final resources = <PerformanceResourceTiming>[];
+
+      for (int i = 0; i < resourceEntries.length; i++) {
+        final entry = resourceEntries.getProperty(i.toJS);
+        if (entry != null) {
+          resources.add(entry as PerformanceResourceTiming);
+        }
+      }
+
+      for (final resource in resources) {
+        final resourceSpan =
+            _createResourceSpan(transaction, resource, timeOrigin);
+        if (resourceSpan != null) {
+          transaction.children.add(resourceSpan);
+        }
+      }
+    } catch (e) {
+      _options.log(
+          SentryLevel.debug, 'Failed to create resource timing spans: $e');
+    }
+  }
+
+  /// Creates a resource span from PerformanceResourceTiming entry
+  SentrySpan? _createResourceSpan(
+    SentryTracer transaction,
+    PerformanceResourceTiming resource,
+    double timeOrigin,
+  ) {
+    // Skip if timing data is incomplete
+    if (resource.startTime == 0 ||
+        resource.responseEnd == 0 ||
+        resource.responseEnd < resource.startTime) {
+      return null;
+    }
+
+    // Determine resource type from initiatorType or URL
+    final resourceType = _getResourceType(resource);
+    final operation = 'resource.$resourceType';
+
+    // Use resource name (URL) as description, but truncate if too long
+    final description = _truncateUrl(resource.name);
+
+    // Calculate absolute timestamps
+    final absoluteStartTime = timeOrigin + resource.startTime;
+    final absoluteEndTime = timeOrigin + resource.responseEnd;
+
+    final span = SentrySpan(
+      transaction,
+      SentrySpanContext(
+        operation: operation,
+        description: description,
+        parentSpanId: transaction.context.spanId,
+        traceId: transaction.context.traceId,
+      ),
+      _hub,
+      startTimestamp: DateTime.fromMicrosecondsSinceEpoch(
+        (absoluteStartTime * 1000).toInt(),
+      ),
+    );
+
+    // Add resource size data
+    _addResourceData(span, resource);
+
+    // Finish span immediately since timing data is historical
+    span.finish(
+      endTimestamp: DateTime.fromMicrosecondsSinceEpoch(
+        (absoluteEndTime * 1000).toInt(),
+      ),
+    );
+
+    return span;
+  }
+
+  /// Determines resource type from initiatorType or URL extension
+  String _getResourceType(PerformanceResourceTiming resource) {
+    final initiatorType = resource.initiatorType;
+
+    // Use initiatorType if available and meaningful
+    if (initiatorType.isNotEmpty &&
+        !['other', 'navigation'].contains(initiatorType)) {
+      return initiatorType;
+    }
+
+    // Fallback to URL extension analysis for Flutter Web assets
+    final url = resource.name.toLowerCase();
+
+    // Flutter Web specific assets
+    if (url.contains('main.dart.js') || url.contains('.dart.js')) {
+      return 'script.dart';
+    }
+    if (url.contains('flutter_service_worker.js')) {
+      return 'script.serviceworker';
+    }
+    if (url.contains('flutter.js')) {
+      return 'script.flutter';
+    }
+    if (url.contains('canvaskit')) {
+      return 'script.canvaskit';
+    }
+
+    // Standard web asset types
+    if (url.endsWith('.js')) return 'script';
+    if (url.endsWith('.css')) return 'css';
+    if (url.contains('.woff') || url.contains('.ttf') || url.contains('.otf')) {
+      return 'font';
+    }
+    if (url.contains('.png') ||
+        url.contains('.jpg') ||
+        url.contains('.jpeg') ||
+        url.contains('.gif') ||
+        url.contains('.svg') ||
+        url.contains('.webp')) {
+      return 'img';
+    }
+    if (url.contains('.wasm')) return 'wasm';
+    if (url.contains('.json')) return 'fetch';
+
+    return 'other';
+  }
+
+  /// Adds resource size and performance data to span
+  void _addResourceData(SentrySpan span, PerformanceResourceTiming resource) {
+    // Transfer size (compressed size over network)
+    if (resource.transferSize > 0) {
+      span.setData('http.response_transfer_size', resource.transferSize);
+    }
+
+    // Encoded body size (compressed response body)
+    if (resource.encodedBodySize > 0) {
+      span.setData('http.response_content_length', resource.encodedBodySize);
+    }
+
+    // Decoded body size (uncompressed response body)
+    if (resource.decodedBodySize > 0) {
+      span.setData(
+          'http.decoded_response_content_length', resource.decodedBodySize);
+    }
+
+    // Resource URL
+    span.setData('url', resource.name);
+
+    // Resource type
+    if (resource.initiatorType.isNotEmpty) {
+      span.setData('resource.initiator_type', resource.initiatorType);
+    }
+
+    // Cache hit detection
+    if (resource.transferSize == 0 && resource.encodedBodySize > 0) {
+      span.setTag('resource.from_cache', 'true');
+    }
+  }
+
+  /// Truncates URL for span description to keep it readable
+  String _truncateUrl(String url) {
+    const maxLength = 100;
+    if (url.length <= maxLength) return url;
+
+    // Try to keep meaningful parts of URL
+    final uri = Uri.tryParse(url);
+    if (uri != null) {
+      final pathSegments = uri.pathSegments;
+      if (pathSegments.isNotEmpty) {
+        final fileName = pathSegments.last;
+        if (fileName.length < maxLength) {
+          return '.../$fileName';
+        }
+      }
+    }
+
+    return '${url.substring(0, maxLength - 3)}...';
   }
 
   /// Converts high-precision double timestamp to DateTime while preserving sub-millisecond precision
