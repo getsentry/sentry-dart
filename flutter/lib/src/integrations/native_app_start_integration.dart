@@ -64,9 +64,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         if (options.automatedTestMode) {
           rethrow;
         }
-      } finally {
-        _frameCallbackHandler.removeTimingsCallback(timingsCallback);
-      }
+      } finally {}
     }
 
     _frameCallbackHandler.addTimingsCallback(timingsCallback);
