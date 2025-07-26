@@ -212,6 +212,9 @@ external JSObject _globalHandlersIntegration();
 @JS('Sentry.dedupeIntegration')
 external JSObject _dedupeIntegration();
 
+@JS('Sentry.browserTracingIntegration')
+external JSObject _browserTracingIntegration();
+
 @JS('globalThis')
 @internal
 external JSObject get globalThis;

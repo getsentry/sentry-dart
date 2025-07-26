@@ -39,20 +39,17 @@ class NativeAppStartHandler {
       return;
     }
 
-    // Create Transaction & Span
+    final handle = interactor.startApp(
+        ts: appStartInfo.start,
+        coldStart: appStartInfo.type == _AppStartType.cold,
+        spanId: context.spanId); // context.spanId is wrong
+    if (handle == null) return;
 
-    final rootScreenTransaction = _hub.startTransactionWithContext(
-      context,
-      startTimestamp: appStartInfo.start,
-      waitForChildren: true,
-      autoFinishAfter: Duration(seconds: 3),
-      bindToScope: true,
-      trimEnd: true,
-    );
+    final transaction = _hub.getSpan();
 
     SentryTracer sentryTracer;
-    if (rootScreenTransaction is SentryTracer) {
-      sentryTracer = rootScreenTransaction;
+    if (transaction is SentryTracer) {
+      sentryTracer = transaction;
     } else {
       return;
     }
@@ -63,14 +60,11 @@ class NativeAppStartHandler {
     SentryMeasurement? measurement = appStartInfo.toMeasurement();
     sentryTracer.measurements[measurement.name] = appStartInfo.toMeasurement();
 
-    await options.timeToDisplayTracker.track(
-      rootScreenTransaction,
-      ttidEndTimestamp: appStartInfo.end,
-    );
-    await _attachAppStartSpans(appStartInfo, sentryTracer);
+    unawaited(_attachAppStartSpans(appStartInfo, sentryTracer));
+    handle.endTtid(appStartInfo.end);
   }
 
-  _AppStartInfo? _infoNativeAppStart(
+  AppStartInfo? _infoNativeAppStart(
     NativeAppStart nativeAppStart,
     DateTime appStartEnd,
   ) {
@@ -120,7 +114,7 @@ class NativeAppStartHandler {
     // Performance wise this won't affect us since the native span amount is very low.
     nativeSpanTimes.sort((a, b) => a.start.compareTo(b.start));
 
-    return _AppStartInfo(
+    return AppStartInfo(
       nativeAppStart.isColdStart ? _AppStartType.cold : _AppStartType.warm,
       start: appStartDateTime,
       end: appStartEnd,
@@ -131,7 +125,7 @@ class NativeAppStartHandler {
   }
 
   Future<void> _attachAppStartSpans(
-      _AppStartInfo appStartInfo, SentryTracer transaction) async {
+      AppStartInfo appStartInfo, SentryTracer transaction) async {
     final transactionTraceId = transaction.context.traceId;
     final appStartEnd = appStartInfo.end;
 
@@ -186,7 +180,7 @@ class NativeAppStartHandler {
   }
 
   Future<void> _attachNativeSpans(
-    _AppStartInfo appStartInfo,
+    AppStartInfo appStartInfo,
     SentryTracer transaction,
     SentrySpan parent,
   ) async {
@@ -238,8 +232,8 @@ class NativeAppStartHandler {
 
 enum _AppStartType { cold, warm }
 
-class _AppStartInfo {
-  _AppStartInfo(
+class AppStartInfo {
+  AppStartInfo(
     this.type, {
     required this.start,
     required this.end,

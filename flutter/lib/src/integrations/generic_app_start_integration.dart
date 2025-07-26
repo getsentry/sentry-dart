@@ -27,32 +27,16 @@ class GenericAppStartIntegration extends Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) {
     if (!options.isTracingEnabled()) return;
 
-    final transactionContext = SentryTransactionContext(
-      'root /',
-      SentrySpanOperations.uiLoad,
-      origin: SentryTraceOrigins.autoUiTimeToDisplay,
-    );
-
-    final startTimeStamp = options.clock();
-    final transaction = hub.startTransactionWithContext(
-      transactionContext,
-      startTimestamp: startTimeStamp,
-      waitForChildren: true,
-      autoFinishAfter: Duration(seconds: 3),
-      bindToScope: true,
-      trimEnd: true,
-    );
-
-    options.timeToDisplayTracker.transactionId = transactionContext.spanId;
+    final startTimestamp = options.clock();
+    final spanId = SpanId.newId();
+    final handle = interactor.startApp(
+        ts: startTimestamp, coldStart: true, spanId: spanId);
+    if (handle == null) return;
 
     _framesHandler.addPostFrameCallback((_) async {
       try {
         final endTimestamp = options.clock();
-        await options.timeToDisplayTracker.track(
-          transaction,
-          ttidEndTimestamp: endTimestamp,
-        );
-
+        handle.endTtid(endTimestamp);
         // Note: we do not set app start transaction measurements (yet) on purpose
         // This integration is used for TTID/TTFD mainly
         // However this may change in the future.
