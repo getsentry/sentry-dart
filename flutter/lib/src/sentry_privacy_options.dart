@@ -76,9 +76,8 @@ class SentryPrivacyOptions {
     }
 
     const flutterVersion = FlutterVersion.version;
-    if (flutterVersion != null &&
-        _shouldAddSensitiveContentRule(flutterVersion)) {
-      addSensitiveContentRule(rules, flutterVersion);
+    if (flutterVersion != null) {
+      maybeAddSensitiveContentRule(rules, flutterVersion);
     }
 
     // In Debug mode, check if users explicitly mask (or unmask) widgets that
@@ -190,8 +189,12 @@ bool _shouldAddSensitiveContentRule(String version) {
 /// without depending on its type directly (which would fail to compile on
 /// older Flutter versions).
 @visibleForTesting
-void addSensitiveContentRule(
-    List<SentryMaskingRule> rules, String? flutterVersion) {
+void maybeAddSensitiveContentRule(
+    List<SentryMaskingRule> rules, String flutterVersion) {
+  if (!_shouldAddSensitiveContentRule(flutterVersion)) {
+    return;
+  }
+
   SentryMaskingDecision maskSensitiveContent(Element element, Widget widget) {
     try {
       final dynamic dynWidget = widget;

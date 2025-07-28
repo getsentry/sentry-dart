@@ -32,8 +32,8 @@ class ScreenshotRecorder {
       this.config}) {
     privacyOptions ??= options.privacy;
 
-    final maskingConfig = privacyOptions.buildMaskingConfig(
-        _log, options.runtimeChecker, FlutterVersion.version);
+    final maskingConfig =
+        privacyOptions.buildMaskingConfig(_log, options.runtimeChecker);
     _maskingConfig = maskingConfig.length > 0 ? maskingConfig : null;
   }
 

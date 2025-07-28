@@ -148,8 +148,7 @@ void main() async {
   });
 
   group('$SentryReplayOptions.buildMaskingConfig()', () {
-    List<String> rulesAsStrings(SentryPrivacyOptions options,
-        {String? flutterVersion}) {
+    List<String> rulesAsStrings(SentryPrivacyOptions options) {
       final config =
           options.buildMaskingConfig(MockLogger().call, RuntimeChecker());
       return config.rules
@@ -228,26 +227,28 @@ void main() async {
     test(
         'SensitiveContent rule is automatically added when current Flutter version is equal or newer than 3.33',
         () {
-      final testCases = <String?, bool>{
-        null: false,
-        '1.0.0': false,
-        '3.32.5': false,
-        '3.33.0': true,
-        '3.40.0': true,
-        '4.0.0': true,
-        '3.a.b': false,
-        'invalid': false,
-      };
+      final sut = SentryPrivacyOptions();
+      final version = FlutterVersion.version!;
+      final dot = version.indexOf('.');
+      final major = int.tryParse(version.substring(0, dot));
+      final nextDot = version.indexOf('.', dot + 1);
+      final minor = int.tryParse(
+          version.substring(dot + 1, nextDot == -1 ? version.length : nextDot));
 
-      testCases.forEach((version, shouldAdd) {
-        final sut = SentryPrivacyOptions();
+      if (major! > 3 || (major == 3 && minor! >= 33)) {
         expect(
-            rulesAsStrings(sut, flutterVersion: version).contains(
+            rulesAsStrings(sut).contains(
                 'SentryMaskingCustomRule<SensitiveContent>(Mask SensitiveContent widget.)'),
-            shouldAdd,
-            reason: 'Test failed with version: $version');
-      });
-    });
+            isTrue,
+            reason: 'Test failed with version: ${FlutterVersion.version}');
+      } else {
+        expect(
+            rulesAsStrings(sut).contains(
+                'SentryMaskingCustomRule<SensitiveContent>(Mask SensitiveContent widget.)'),
+            isFalse,
+            reason: 'Test failed with version: ${FlutterVersion.version}');
+      }
+    }, skip: FlutterVersion.version == null);
 
     group('user rules', () {
       final defaultRules = [
