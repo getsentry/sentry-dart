@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Tag all spans with thread info ([#3101](https://github.com/getsentry/sentry-dart/pull/3101))
+
 ### Fixes
 
 - Debug meta not loaded for split debug info only builds ([#3104](https://github.com/getsentry/sentry-dart/pull/3104))
