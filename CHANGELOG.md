@@ -11,6 +11,7 @@
 
 ### Dependencies
 
+- Bump JNI from v0.14.1 to v0.14.2 ([#3075](https://github.com/getsentry/sentry-dart/pull/3075))
 - Bump Android SDK from v8.13.2 to v8.17.0 ([#2977](https://github.com/getsentry/sentry-dart/pull/2977))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8170)
   - [diff](https://github.com/getsentry/sentry-java/compare/8.13.2...8.17.0)
