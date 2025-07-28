@@ -77,7 +77,7 @@ class SentryPrivacyOptions {
 
     const flutterVersion = FlutterVersion.version;
     if (flutterVersion != null) {
-      maybeAddSensitiveContentRule(rules, flutterVersion);
+      _maybeAddSensitiveContentRule(rules, flutterVersion);
     }
 
     // In Debug mode, check if users explicitly mask (or unmask) widgets that
@@ -188,8 +188,7 @@ bool _shouldAddSensitiveContentRule(String version) {
 /// [Enum]. This is how the [SensitiveContent] widget can be detected
 /// without depending on its type directly (which would fail to compile on
 /// older Flutter versions).
-@visibleForTesting
-void maybeAddSensitiveContentRule(
+void _maybeAddSensitiveContentRule(
     List<SentryMaskingRule> rules, String flutterVersion) {
   if (!_shouldAddSensitiveContentRule(flutterVersion)) {
     return;
