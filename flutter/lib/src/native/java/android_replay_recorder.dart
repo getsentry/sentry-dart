@@ -7,7 +7,6 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/scheduled_recorder.dart';
-import '../../replay/scheduled_recorder_config.dart';
 import '../../screenshot/screenshot.dart';
 import 'binding.dart' as native;
 
@@ -18,18 +17,17 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   _AndroidNativeReplayWorker? _worker;
 
   @internal // visible for testing, used by SentryNativeJava
-  static AndroidReplayRecorder Function(
-          ScheduledScreenshotRecorderConfig, SentryFlutterOptions) factory =
+  static AndroidReplayRecorder Function(SentryFlutterOptions) factory =
       AndroidReplayRecorder.new;
 
-  AndroidReplayRecorder(super.config, super.options) {
+  AndroidReplayRecorder(super.options) {
     super.callback = _addReplayScreenshot;
   }
 
   @override
   Future<void> start() async {
     final spawningWorker = _AndroidNativeReplayWorker.spawn();
-    super.start();
+    await super.start();
     _worker = await spawningWorker;
   }
 
