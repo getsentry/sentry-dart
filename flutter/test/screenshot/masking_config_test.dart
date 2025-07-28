@@ -127,7 +127,7 @@ void main() async {
           SentryMaskingDecision.unmask);
     });
 
-    testWidgets('retuns false if no rule matches', (tester) async {
+    testWidgets('returns false if no rule matches', (tester) async {
       final sut = SentryMaskingConfig([
         SentryMaskingCustomRule<Image>(
           callback: (e, w) => SentryMaskingDecision.continueProcessing,

@@ -29,8 +29,8 @@ void main() async {
       ..maskAllImages = redactImages
       ..maskAllText = redactText;
     logger.clear();
-    final maskingConfig = privacyOptions.buildMaskingConfig(logger.call,
-        runtimeChecker ?? RuntimeChecker(), FlutterVersion.version);
+    final maskingConfig = privacyOptions.buildMaskingConfig(
+        logger.call, runtimeChecker ?? RuntimeChecker());
     return WidgetFilter(maskingConfig, logger.call);
   };
 
