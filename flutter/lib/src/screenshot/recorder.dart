@@ -5,7 +5,6 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart' as cupertino;
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:meta/meta.dart';
 
