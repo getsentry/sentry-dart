@@ -41,6 +41,39 @@ void main() {
   });
 
   group('$SentryNavigatorObserver', () {
+    test('didPush on root does not start a transaction', () async {
+      const name = '/';
+      final currentRoute = route(RouteSettings(name: name));
+
+      const op = 'ui.load';
+      final hub = _MockHub();
+      final span = getMockSentryTracer(name: name);
+      when(span.context).thenReturn(SentrySpanContext(operation: op));
+      _whenAnyStart(hub, span);
+      when(span.finished).thenReturn(false);
+      when(span.status).thenReturn(SpanStatus.ok());
+      when(span.startChild('ui.load.initial_display',
+              description: anyNamed('description'),
+              startTimestamp: anyNamed('startTimestamp')))
+          .thenReturn(NoOpSentrySpan());
+
+      final sut = fixture.getSut(
+        hub: hub,
+        autoFinishAfter: Duration(seconds: 5),
+      );
+
+      sut.didPush(currentRoute, null);
+
+      verifyNever(hub.startTransactionWithContext(
+        any,
+        startTimestamp: anyNamed('startTimestamp'),
+        waitForChildren: anyNamed('waitForChildren'),
+        autoFinishAfter: anyNamed('autoFinishAfter'),
+        trimEnd: anyNamed('trimEnd'),
+        onFinish: anyNamed('onFinish'),
+      ));
+    });
+
     test('didPush starts transaction', () async {
       const name = 'Current Route';
       final currentRoute = route(RouteSettings(name: name));
