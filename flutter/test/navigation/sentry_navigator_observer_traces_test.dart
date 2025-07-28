@@ -17,6 +17,16 @@ void main() {
 
   group('SentryNavigatorObserver', () {
     group('when starting traces on navigation is enabled (default)', () {
+      test('didPush should not start a new trace on root', () {
+        final to = _route(RouteSettings(name: '/'));
+        final before = fixture.hub.scope.propagationContext.traceId;
+
+        fixture.getSut().didPush(to, null);
+
+        final after = fixture.hub.scope.propagationContext.traceId;
+        expect(after, equals(before));
+      });
+
       test('didPush should start a new trace', () {
         final from = _route(RouteSettings(name: 'From Route'));
         final to = _route(RouteSettings(name: 'To Route'));
