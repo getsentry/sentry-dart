@@ -65,7 +65,7 @@ void main() {
       sut.didPush(currentRoute, null);
 
       verifyNever(hub.startTransactionWithContext(
-        captureAny,
+        any,
         startTimestamp: anyNamed('startTimestamp'),
         waitForChildren: anyNamed('waitForChildren'),
         autoFinishAfter: anyNamed('autoFinishAfter'),
