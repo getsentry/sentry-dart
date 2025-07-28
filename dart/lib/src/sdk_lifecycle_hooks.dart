@@ -71,3 +71,10 @@ class OnBeforeSendEvent extends SdkLifecycleEvent {
   final SentryEvent event;
   final Hint hint;
 }
+
+@internal
+class OnSpanStart extends SdkLifecycleEvent {
+  OnSpanStart(this.span);
+
+  final ISentrySpan span;
+}

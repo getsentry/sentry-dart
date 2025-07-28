@@ -19,7 +19,6 @@ import 'package:sentry_flutter/src/replay/integration.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'package:sentry_flutter/src/web/javascript_transport.dart';
-import 'package:sentry_flutter/src/thread_info_collector.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -706,46 +705,21 @@ void main() {
       SentryFlutter.native = null;
     });
 
-    test('ThreadInfoCollector is added when tracing is enabled', () async {
+    test('ThreadInfoIntegration is added', () async {
       final sentryFlutterOptions =
           defaultTestOptions(checker: MockRuntimeChecker())
             ..platform = MockPlatform.android()
-            ..methodChannel = native.channel
-            ..tracesSampleRate = 1.0; // Enable tracing
+            ..methodChannel = native.channel;
 
       SentryFlutter.native = mockNativeBinding();
       await SentryFlutter.init(
         (options) {
           expect(
-            options.performanceCollectors
-                .any((collector) => collector is ThreadInfoCollector),
+            options.integrations.any((integration) =>
+                integration.runtimeType.toString() == 'ThreadInfoIntegration'),
             true,
             reason:
-                'ThreadInfoCollector should be added when tracing is enabled',
-          );
-        },
-        appRunner: appRunner,
-        options: sentryFlutterOptions,
-      );
-      SentryFlutter.native = null;
-    });
-
-    test('ThreadInfoCollector is not added when tracing is disabled', () async {
-      final sentryFlutterOptions =
-          defaultTestOptions(checker: MockRuntimeChecker())
-            ..platform = MockPlatform.android()
-            ..methodChannel = native.channel
-            ..tracesSampleRate = null; // Disable tracing
-
-      SentryFlutter.native = mockNativeBinding();
-      await SentryFlutter.init(
-        (options) {
-          expect(
-            options.performanceCollectors
-                .any((collector) => collector is ThreadInfoCollector),
-            false,
-            reason:
-                'ThreadInfoCollector should not be added when tracing is disabled',
+                'ThreadInfoIntegration should be added when tracing is enabled',
           );
         },
         appRunner: appRunner,

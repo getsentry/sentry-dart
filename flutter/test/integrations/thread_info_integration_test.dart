@@ -3,11 +3,11 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sentry_flutter/src/thread_info_collector.dart';
+import 'package:sentry_flutter/src/integrations/thread_info_integration.dart';
 import 'package:sentry_flutter/src/isolate_helper.dart';
-import 'package:sentry/src/span_data_convention.dart';
-import 'package:sentry/src/protocol/sentry_span.dart';
-import 'package:sentry/src/sentry_span_context.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+
+import '../mocks.mocks.dart';
 
 void main() {
   late _Fixture fixture;
@@ -16,15 +16,22 @@ void main() {
     fixture = _Fixture();
   });
 
-  group('ThreadInfoCollector', () {
+  group('ThreadInfoIntegration', () {
     test('sets main thread name when in root isolate', () async {
       fixture.mockHelper.setIsRootIsolate(true);
       fixture.mockHelper.setIsolateName("main(debug)");
 
-      final collector = fixture.getSut();
+      final hub = fixture.createHub();
+      final integration = fixture.getSut();
       final span = fixture.createMockSpan();
 
-      await collector.onSpanStarted(span);
+      // Call the integration like the real app would
+      integration.call(hub, fixture.options);
+
+      // Dispatch OnSpanStart event through the lifecycle registry
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanStart(span));
 
       final setDataCalls = span.setDataCalls;
       expect(setDataCalls.length, equals(2));
@@ -42,10 +49,14 @@ void main() {
       fixture.mockHelper.setIsRootIsolate(false);
       fixture.mockHelper.setIsolateName('worker-thread');
 
-      final collector = fixture.getSut();
+      final hub = fixture.createHub();
+      final integration = fixture.getSut();
       final span = fixture.createMockSpan();
 
-      await collector.onSpanStarted(span);
+      integration.call(hub, fixture.options);
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanStart(span));
 
       final setDataCalls = span.setDataCalls;
       expect(setDataCalls.length, equals(2));
@@ -59,80 +70,104 @@ void main() {
       expect(threadNameCall.value, equals('worker-thread'));
     });
 
-    test('onSpanFinished is no-op', () async {
-      fixture.mockHelper.setIsRootIsolate(false);
-      final collector = fixture.getSut();
-      final span = fixture.createMockSpan();
-
-      await collector.onSpanFinished(span, DateTime.now());
-      expect(span.setDataCalls, isEmpty);
-    });
-
     test('gets thread info dynamically for each span', () async {
       fixture.mockHelper.setIsRootIsolate(false);
       fixture.mockHelper.setIsolateName('dynamic-test');
 
-      final collector = fixture.getSut();
+      final hub = fixture.createHub();
+      final integration = fixture.getSut();
       final span = fixture.createMockSpan();
 
-      await collector.onSpanStarted(span);
+      integration.call(hub, fixture.options);
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanStart(span));
       final firstCallCount = span.setDataCalls.length;
 
       final span2 = fixture.createMockSpan();
-      await collector.onSpanStarted(span2);
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanStart(span2));
 
       // Should have same number of calls for both spans (thread info collected fresh each time)
       expect(span2.setDataCalls.length, equals(firstCallCount));
-
-      // Both spans should have thread info when isolate has a name
-      expect(firstCallCount, equals(2));
     });
 
-    test('uses provided isolate name correctly', () async {
+    test('sets thread ID and name for non-root isolate with valid name',
+        () async {
       fixture.mockHelper.setIsRootIsolate(false);
-      fixture.mockHelper.setIsolateName('custom-isolate-name');
-      final collector = fixture.getSut();
+      fixture.mockHelper.setIsolateName('custom-isolate');
+
+      final hub = fixture.createHub();
+      final integration = fixture.getSut();
       final span = fixture.createMockSpan();
 
-      await collector.onSpanStarted(span);
+      integration.call(hub, fixture.options);
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanStart(span));
 
       // Find thread data calls
-      String? threadId;
-      String? threadName;
-      for (final call in span.setDataCalls) {
-        if (call.key == SpanDataConvention.threadId) {
-          threadId = call.value as String?;
-        }
-        if (call.key == SpanDataConvention.threadName) {
-          threadName = call.value as String?;
-        }
-      }
+      final threadIdCall = span.setDataCalls
+          .firstWhere((call) => call.key == SpanDataConvention.threadId);
+      final threadNameCall = span.setDataCalls
+          .firstWhere((call) => call.key == SpanDataConvention.threadName);
 
-      expect(threadName, equals('custom-isolate-name'));
-      expect(threadId, equals('custom-isolate-name'.hashCode.toString()));
+      expect(threadIdCall.value, equals('custom-isolate'.hashCode.toString()));
+      expect(threadNameCall.value, equals('custom-isolate'));
     });
 
-    test('no thread info when isolate name is null', () async {
+    test('does not set thread info when isolate name is null', () async {
       fixture.mockHelper.setIsRootIsolate(false);
       fixture.mockHelper.setIsolateName(null);
-      final collector = fixture.getSut();
+
+      final hub = fixture.createHub();
+      final integration = fixture.getSut();
       final span = fixture.createMockSpan();
 
-      await collector.onSpanStarted(span);
+      integration.call(hub, fixture.options);
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanStart(span));
 
       // When isolate name is null, no thread data should be set
       expect(span.setDataCalls, isEmpty);
     });
 
-    test('no thread info when isolate name is empty', () async {
+    test('does not set thread info when isolate name is empty', () async {
       fixture.mockHelper.setIsRootIsolate(false);
       fixture.mockHelper.setIsolateName('');
-      final collector = fixture.getSut();
+
+      final hub = fixture.createHub();
+      final integration = fixture.getSut();
       final span = fixture.createMockSpan();
 
-      await collector.onSpanStarted(span);
+      integration.call(hub, fixture.options);
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanStart(span));
 
       // When isolate name is empty, no thread data should be set
+      expect(span.setDataCalls, isEmpty);
+    });
+
+    test('does not register callback when tracing is disabled', () async {
+      fixture.mockHelper.setIsRootIsolate(true);
+      fixture.mockHelper.setIsolateName("main");
+
+      final hub = fixture.createHub();
+      final integration = fixture.getSut();
+      final span = fixture.createMockSpan();
+
+      // Disable tracing
+      fixture.options.tracesSampleRate = null;
+
+      integration.call(hub, fixture.options);
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanStart(span));
+
+      // Should not add any thread data when tracing is disabled
       expect(span.setDataCalls, isEmpty);
     });
   });
@@ -140,20 +175,29 @@ void main() {
 
 class _Fixture {
   late _MockIsolateHelper mockHelper;
+  late SentryFlutterOptions options;
 
   _Fixture() {
     mockHelper = _MockIsolateHelper();
+    options = SentryFlutterOptions();
+    options.tracesSampleRate = 1.0; // Enable tracing by default
     // Set default return values to avoid null errors
     mockHelper.setIsRootIsolate(false);
     mockHelper.setIsolateName(null);
   }
 
-  ThreadInfoCollector getSut() {
-    return ThreadInfoCollector(mockHelper);
+  ThreadInfoIntegration getSut() {
+    return ThreadInfoIntegration(mockHelper);
   }
 
   _MockSpan createMockSpan() {
     return _MockSpan();
+  }
+
+  MockHub createHub() {
+    final hub = MockHub();
+    when(hub.options).thenReturn(options);
+    return hub;
   }
 }
 

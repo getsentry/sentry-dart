@@ -24,6 +24,7 @@ import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
 import 'integrations/generic_app_start_integration.dart';
+import 'integrations/thread_info_integration.dart';
 import 'integrations/web_session_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
@@ -31,7 +32,6 @@ import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'replay/integration.dart';
 import 'screenshot/screenshot_support.dart';
-import 'thread_info_collector.dart';
 import 'utils/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
@@ -148,10 +148,6 @@ mixin SentryFlutter {
     }
 
     options.addEventProcessor(PlatformExceptionEventProcessor());
-    
-    if (options.isTracingEnabled()) {
-      options.addPerformanceCollector(ThreadInfoCollector());
-    }
 
     _setSdk(options);
   }
@@ -233,6 +229,8 @@ mixin SentryFlutter {
     integrations.add(SentryViewHierarchyIntegration());
 
     integrations.add(DebugPrintIntegration());
+
+    integrations.add(ThreadInfoIntegration());
 
     return integrations;
   }
