@@ -223,6 +223,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   void _instrumentTimeToDisplayOnPush(String routeName, Object? arguments) {
+    if (!_enableAutoTransactions) {
+      return;
+    }
+
     _timeToDisplayTracker?.clear();
 
     DateTime timestamp = _hub.options.clock();
@@ -274,7 +278,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  SentryTransactionContext? _createTransactionContext(String routeName) {
+  SentryTransactionContext _createTransactionContext(String routeName) {
     return SentryTransactionContext(
       routeName,
       SentrySpanOperations.uiLoad,
@@ -285,15 +289,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   Future<void> _startTransaction(
     DateTime startTimestamp,
-    SentryTransactionContext? transactionContext,
+    SentryTransactionContext transactionContext,
     Object? arguments,
   ) async {
-    if (!_enableAutoTransactions) {
-      return;
-    }
-    if (transactionContext == null) {
-      return;
-    }
     _timeToDisplayTracker?.transactionId = transactionContext.spanId;
 
     final transaction = _hub.startTransactionWithContext(
@@ -306,7 +304,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _transaction = null;
       },
     );
-    // if _enableAutoTransactions is enabled but there's no traces sample rate
     if (transaction is NoOpSentrySpan) {
       _timeToDisplayTracker?.transactionId = null;
       return;
