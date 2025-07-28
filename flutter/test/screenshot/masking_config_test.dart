@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -209,7 +208,8 @@ void main() async {
         'SentryMaskingConstantRule<Text>(mask)',
         'SentryMaskingConstantRule<EditableText>(mask)',
         'SentryMaskingConstantRule<RichText>(mask)',
-        'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
+        'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)',
+        ..._maybeWithSensitiveContent(),
       ]);
     });
 
@@ -259,18 +259,27 @@ void main() async {
         'SentryMaskingConstantRule<RichText>(mask)',
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ];
+
       test('mask() takes precedence', () {
         final sut = SentryPrivacyOptions();
         sut.mask<Image>();
-        expect(rulesAsStrings(sut),
-            ['SentryMaskingConstantRule<Image>(mask)', ...defaultRules]);
+        expect(rulesAsStrings(sut), [
+          'SentryMaskingConstantRule<Image>(mask)',
+          ...defaultRules,
+          ..._maybeWithSensitiveContent(),
+        ]);
       });
+
       test('unmask() takes precedence', () {
         final sut = SentryPrivacyOptions();
         sut.unmask<Image>();
-        expect(rulesAsStrings(sut),
-            ['SentryMaskingConstantRule<Image>(unmask)', ...defaultRules]);
+        expect(rulesAsStrings(sut), [
+          'SentryMaskingConstantRule<Image>(unmask)',
+          ...defaultRules,
+          ..._maybeWithSensitiveContent(),
+        ]);
       });
+
       test('are ordered in the call order', () {
         var sut = SentryPrivacyOptions();
         sut.mask<Image>();
@@ -300,13 +309,15 @@ void main() async {
           ...defaultRules
         ]);
       });
+
       test('maskCallback() takes precedence', () {
         final sut = SentryPrivacyOptions();
         sut.maskCallback(
             (Element element, Image widget) => SentryMaskingDecision.mask);
         expect(rulesAsStrings(sut), [
           'SentryMaskingCustomRule<Image>(Custom callback-based rule (description unspecified))',
-          ...defaultRules
+          ...defaultRules,
+          ..._maybeWithSensitiveContent(),
         ]);
       });
       test('User cannot add $SentryMask and $SentryUnmask rules', () {
@@ -326,6 +337,25 @@ void main() async {
       });
     });
   });
+}
+
+List<String> _maybeWithSensitiveContent() {
+  final version = FlutterVersion.version;
+  if (version == null) {
+    return [];
+  }
+  final dot = version.indexOf('.');
+  final major = int.tryParse(version.substring(0, dot));
+  final nextDot = version.indexOf('.', dot + 1);
+  final minor = int.tryParse(
+      version.substring(dot + 1, nextDot == -1 ? version.length : nextDot));
+  if (major! > 3 || (major == 3 && minor! >= 33)) {
+    return [
+      'SentryMaskingCustomRule<SensitiveContent>(Mask SensitiveContent widget.)'
+    ];
+  } else {
+    return [];
+  }
 }
 
 extension on Element {
