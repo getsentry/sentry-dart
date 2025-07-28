@@ -5,6 +5,9 @@
 ### Fixes
 
 - Debug meta not loaded for split debug info only builds ([#3104](https://github.com/getsentry/sentry-dart/pull/3104))
+- TTID/TTFD root transactions ([#3099](https://github.com/getsentry/sentry-dart/pull/3099))
+  - Web, Linux and Windows now create a UI transaction for the root page
+  - iOS, Android now correctly create idle transactions
 
 ### Dependencies
 
