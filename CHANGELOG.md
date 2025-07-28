@@ -9,6 +9,7 @@
   - Web, Linux and Windows now create a UI transaction for the root page
   - iOS, Android now correctly create idle transactions
   - Fixes behaviour of traceId generation and TTFD for app start
+- Directionality assertion issue in debug mode ([#3088](https://github.com/getsentry/sentry-dart/pull/3088))
 
 ### Dependencies
 
