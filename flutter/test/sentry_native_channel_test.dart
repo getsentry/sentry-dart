@@ -243,20 +243,35 @@ void main() {
         }));
       });
 
-      test('captureEnvelope', () async {
-        final data = Uint8List.fromList([1, 2, 3]);
+      test(
+        'captureEnvelope',
+        () {
+          when(channel.invokeMethod('captureEnvelope', any))
+              .thenAnswer((_) async => {});
 
-        late Uint8List captured;
-        when(channel.invokeMethod('captureEnvelope', any)).thenAnswer(
-            (invocation) async =>
-                {captured = invocation.positionalArguments[1][0] as Uint8List});
+          late Matcher matcher;
+          if (mockPlatform.isAndroid) {
+            matcher = throwsA(predicate((e) =>
+                e is Error &&
+                e.toString().contains('Unable to locate the helper library')));
+          } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
+            if (Platform().isMacOS) {
+              matcher = throwsA(predicate((e) =>
+                  e is Exception &&
+                  e.toString().contains('Failed to load Objective-C class')));
+            } else {
+              matcher = throwsA(predicate((e) =>
+                  e is ArgumentError &&
+                  e.toString().contains('Failed to lookup symbol')));
+            }
+          }
 
-        await sut.captureEnvelope(data, false);
+          final data = Uint8List.fromList([1, 2, 3]);
+          expect(() => sut.captureEnvelope(data, false), matcher);
 
-        expect(captured, data);
-      },
-          skip:
-              (Platform().isAndroid || Platform().isIOS || Platform().isMacOS));
+          verifyZeroInteractions(channel);
+        },
+      );
 
       test('loadContexts', () async {
         when(channel.invokeMethod('loadContexts'))
