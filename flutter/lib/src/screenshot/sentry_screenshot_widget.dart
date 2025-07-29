@@ -107,7 +107,7 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
     final status = SentryScreenshotWidgetStatus(
       size: mq.size,
       pixelRatio: mq.devicePixelRatio,
-      orientantion: mq.orientation,
+      orientation: mq.orientation,
     );
     final prevStatus = SentryScreenshotWidget._status;
     SentryScreenshotWidget._status = status;
@@ -180,11 +180,23 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
 class SentryScreenshotWidgetStatus {
   final Size? size;
   final double? pixelRatio;
-  final Orientation? orientantion;
+  final Orientation? orientation;
 
   const SentryScreenshotWidgetStatus({
     required this.size,
     required this.pixelRatio,
-    required this.orientantion,
+    required this.orientation,
   });
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! SentryScreenshotWidgetStatus) return false;
+    return size == other.size &&
+        pixelRatio == other.pixelRatio &&
+        orientation == other.orientation;
+  }
+
+  @override
+  int get hashCode => Object.hash(size, pixelRatio, orientation);
 }

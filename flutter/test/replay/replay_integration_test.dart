@@ -3,6 +3,7 @@
 @TestOn('vm')
 library;
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -103,5 +104,46 @@ void main() {
         as ReplayConfig;
     expect(config.width, 640);
     expect(config.height, 480);
+  });
+
+  testWidgets(
+      'Does not call setReplayConfig again when widget size remains unchanged',
+      (tester) async {
+    options.replay.sessionSampleRate = 1.0;
+    when(native.setReplayConfig(any)).thenReturn(null);
+    sut.call(hub, options);
+
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    tester.view.physicalSize = Size(10, 20);
+    await pumpTestElement(tester);
+    await tester.pumpAndSettle(Duration(seconds: 1));
+
+    verify(native.setReplayConfig(any)).called(1);
+
+    tester.view.physicalSize = Size(10, 20);
+    await pumpTestElement(tester);
+    await tester.pumpAndSettle(Duration(seconds: 1));
+
+    verifyNever(native.setReplayConfig(any));
+  });
+
+  testWidgets('Does call setReplayConfig again when widget size changed',
+      (tester) async {
+    options.replay.sessionSampleRate = 1.0;
+    when(native.setReplayConfig(any)).thenReturn(null);
+    sut.call(hub, options);
+
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    tester.view.physicalSize = Size(10, 20);
+    await pumpTestElement(tester);
+    await tester.pumpAndSettle(Duration(seconds: 1));
+
+    tester.view.physicalSize = Size(20, 20);
+    await pumpTestElement(tester);
+    await tester.pumpAndSettle(Duration(seconds: 1));
+
+    verify(native.setReplayConfig(any)).called(2);
   });
 }
