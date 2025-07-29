@@ -1,5 +1,6 @@
 // backcompatibility for Flutter < 3.3
 // ignore: unnecessary_import
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:convert';
 
@@ -40,12 +41,12 @@ class _EnvelopeItemData {
 
 /// Serializes envelope data to bytes in an isolate.
 /// This function works with serializable data only.
-Future<List<int>> _serializeEnvelopeData(
+Future<Uint8List> _serializeEnvelopeData(
     _EnvelopeSerializationData data) async {
-  final result = <int>[];
+  final builder = BytesBuilder();
 
   // Add header
-  result.addAll(utf8.encode(jsonEncode(data.headerJson)));
+  builder.add(utf8.encode(jsonEncode(data.headerJson)));
   final newLineData = utf8.encode('\n');
 
   // Add each item
@@ -56,14 +57,14 @@ Future<List<int>> _serializeEnvelopeData(
       continue;
     }
 
-    result.addAll(newLineData);
-    result.addAll(utf8.encode(jsonEncode(item.headerData)));
-    result.addAll(newLineData);
-    result.addAll(item.data);
+    builder.add(newLineData);
+    builder.add(utf8.encode(jsonEncode(item.headerData)));
+    builder.add(newLineData);
+    builder.add(item.data);
   }
 
-  final data2 = Uint8List.fromList(result);
-  captureEnvelopeWithJni(data2);
+  final result = builder.toBytes();
+  captureEnvelopeWithJni(result);
 
   return result;
 }
@@ -82,10 +83,10 @@ class FileSystemTransport implements Transport {
       final serializationData = await _prepareSerializationData(envelope);
 
       // Serialize envelope in a background isolate to avoid blocking the main thread
-      final envelopeData = await compute<_EnvelopeSerializationData, List<int>>(
+      unawaited(compute<_EnvelopeSerializationData, Uint8List>(
         _serializeEnvelopeData,
         serializationData,
-      );
+      ));
       stopwatch.stop();
       debugPrint(
           'Envelope serialized with compute in ${stopwatch.elapsedMilliseconds}ms');
