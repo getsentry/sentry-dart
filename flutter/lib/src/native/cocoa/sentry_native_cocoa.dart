@@ -71,8 +71,6 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    final stopwatch = Stopwatch()..start();
-
     // Use a safe copy-based conversion to avoid double-free issues observed
     // when relying on `dataWithBytesNoCopy:length:freeWhenDone:`. Although
     // this involves an additional copy, it prevents the EXC_BAD_ACCESS
@@ -98,8 +96,6 @@ class SentryNativeCocoa extends SentryNativeChannel {
     } finally {
       malloc.free(ptr);
     }
-
-    stopwatch.stop();
   }
 
   @override
