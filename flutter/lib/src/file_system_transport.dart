@@ -15,12 +15,14 @@ class FileSystemTransport implements Transport {
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
-    final envelopeData = <int>[];
-    await envelope.envelopeStream(_options).forEach(envelopeData.addAll);
+    final builder = BytesBuilder(copy: false);
+    await envelope.envelopeStream(_options).forEach(builder.add);
+    final Uint8List envelopeData = builder.takeBytes();
+
     try {
       // TODO avoid copy
-      await _native.captureEnvelope(Uint8List.fromList(envelopeData),
-          envelope.containsUnhandledException);
+      await _native.captureEnvelope(
+          envelopeData, envelope.containsUnhandledException);
     } catch (exception, stackTrace) {
       _options.log(
         SentryLevel.error,

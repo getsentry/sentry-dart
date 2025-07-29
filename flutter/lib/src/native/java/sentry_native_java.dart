@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
@@ -72,36 +74,28 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  Future<void> captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) async {
+  FutureOr<void> captureEnvelope(
+      Uint8List envelopeData, bool containsUnhandledException) {
     JObject? id;
     JByteArray? byteArray;
-    final stopWatch = Stopwatch()..start();
     try {
-      byteArray = JByteArray.from(envelopeData.toList());
+      byteArray = JByteArray.from(envelopeData);
       id = native.InternalSentrySdk.captureEnvelope(byteArray, false);
 
-      if (id != null) {
-        print('success');
-      } else {
-        print('failed');
+      if (id == null) {
+        throw Exception('Captured SentryId is null');
       }
-    } catch (e, s) {
-      options.log(SentryLevel.error, 'Failed to capture envelope via JNI',
-          exception: e, stackTrace: s);
+    } catch (exception, stackTrace) {
+      options.log(SentryLevel.error, 'Failed to capture envelope',
+          exception: exception, stackTrace: stackTrace);
+
+      if (options.automatedTestMode) {
+        rethrow;
+      }
     } finally {
       byteArray?.release();
       id?.release();
     }
-    stopWatch.stop();
-    final stopwatch2 = Stopwatch()..start();
-    await super.captureEnvelope(envelopeData, containsUnhandledException);
-    stopwatch2.stop();
-
-    print('JNI: ${stopWatch.elapsedMilliseconds}ms');
-    print('Dart: ${stopwatch2.elapsedMilliseconds}ms');
-
-    return Future<void>.value();
   }
 
   @override

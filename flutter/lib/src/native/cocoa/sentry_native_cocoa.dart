@@ -70,38 +70,37 @@ class SentryNativeCocoa extends SentryNativeChannel {
   // }
 
   @override
-  Future<void> captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) async {
-    // 1. Allocate a native Uint8 buffer of the needed length
-    // final length = envelopeData.length;
-    // final ptr = malloc<ffi.Uint8>(length);
-
+  FutureOr<void> captureEnvelope(
+      Uint8List envelopeData, bool containsUnhandledException) {
     final stopwatch = Stopwatch()..start();
 
-    cocoa.NSData nsData;
+    // Use a safe copy-based conversion to avoid double-free issues observed
+    // when relying on `dataWithBytesNoCopy:length:freeWhenDone:`. Although
+    // this involves an additional memcpy, it prevents the EXC_BAD_ACCESS
+    // crash caused by Cocoa freeing the buffer twice.
+    final length = envelopeData.length;
+    final ptr = malloc<ffi.Uint8>(length);
+    ptr.asTypedList(length).setAll(0, envelopeData);
     try {
-      // 1) allocate & copy into C heap, then hand it off to Cocoa (copy semantics)
-      nsData = envelopeData.toFfiNSDataCopy(_lib);
+      final nsData = cocoa.NSData.dataWithBytes_length_(
+          _lib, ptr.cast<ffi.Void>(), length);
 
-      // 2) wrap that NSData in a Sentry envelope
       final envelope =
           cocoa.PrivateSentrySDKOnly.envelopeWithData_(_lib, nsData);
 
-      // 3) finally, send it off
       cocoa.PrivateSentrySDKOnly.captureEnvelope_(_lib, envelope);
-    } catch (error, stackTrace) {
-      debugPrint('🔴 captureEnvelope failed: $error\n$stackTrace');
+    } catch (exception, stackTrace) {
+      options.log(SentryLevel.error, 'Failed to capture envelope',
+          exception: exception, stackTrace: stackTrace);
+
+      if (options.automatedTestMode) {
+        rethrow;
+      }
+    } finally {
+      malloc.free(ptr);
     }
 
     stopwatch.stop();
-
-    final stopwatch2 = Stopwatch()..start();
-
-    await super.captureEnvelope(envelopeData, containsUnhandledException);
-
-    stopwatch2.stop();
-
-    return Future.value();
   }
 
   @override
@@ -117,28 +116,4 @@ class SentryNativeCocoa extends SentryNativeChannel {
             cocoa.PrivateSentrySDKOnly.startProfilerForTrace_(_lib, cSentryId);
         return startTime;
       });
-}
-
-extension Uint8ListFfi on Uint8List {
-  /// Allocates a native buffer, copies [this] into it,
-  /// and wraps it in an NSData (copy‑on‑write) so we can free the ptr immediately.
-  cocoa.NSData toFfiNSDataCopy(cocoa.SentryCocoa lib) {
-    // A) malloc a Uint8 buffer
-    final ptr = malloc<ffi.Uint8>(length);
-
-    // B) copy your Dart bytes into the native buffer
-    ptr.asTypedList(length).setAll(0, this);
-
-    // C) ask Cocoa to copy INTO its own NSData
-    final data = cocoa.NSData.dataWithBytes_length_(
-      lib,
-      ptr.cast<ffi.Void>(),
-      length,
-    );
-
-    // D) free our malloc right away—NSData has already made its own copy
-    malloc.free(ptr);
-
-    return data;
-  }
 }
