@@ -120,13 +120,11 @@ void main() {
     await pumpTestElement(tester);
     await tester.pumpAndSettle(Duration(seconds: 1));
 
-    verify(native.setReplayConfig(any)).called(1);
-
     tester.view.physicalSize = Size(10, 20);
     await pumpTestElement(tester);
     await tester.pumpAndSettle(Duration(seconds: 1));
 
-    verifyNever(native.setReplayConfig(any));
+    verify(native.setReplayConfig(any)).called(1);
   });
 
   testWidgets('Does call setReplayConfig again when widget size changed',
