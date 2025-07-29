@@ -5,6 +5,9 @@ import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 import 'screenshot/masking_config.dart';
 import 'screenshot/widget_filter.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/event_processor/enricher/flutter_runtime.dart'
+    as flutter_runtime;
 
 /// Configuration of the experimental privacy feature.
 class SentryPrivacyOptions {
@@ -75,7 +78,7 @@ class SentryPrivacyOptions {
       ));
     }
 
-    const flutterVersion = FlutterVersion.version;
+    const flutterVersion = flutter_runtime.FlutterVersion.version;
     if (flutterVersion != null) {
       _maybeAddSensitiveContentRule(rules, flutterVersion);
     }
