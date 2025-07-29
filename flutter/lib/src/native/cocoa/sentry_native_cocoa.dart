@@ -54,20 +54,6 @@ class SentryNativeCocoa extends SentryNativeChannel {
     return super.init(hub);
   }
 
-  // private func captureEnvelope(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-  // guard let arguments = call.arguments as? [Any],
-  // !arguments.isEmpty,
-  // let data = (arguments.first as? FlutterStandardTypedData)?.data else {
-  // print("Envelope is null or empty!")
-  // result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil))
-  // return
-  // }
-  // guard let envelope = PrivateSentrySDKOnly.envelope(with: data) else {
-  // print("Cannot parse the envelope data")
-  // result(FlutterError(code: "3", message: "Cannot parse the envelope data", details: nil))
-  // return
-  // }
-
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
