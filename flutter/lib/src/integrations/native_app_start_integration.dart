@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:ui';
 
 import 'package:meta/meta.dart';
@@ -31,8 +33,8 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
     // Create context early so we have an id to refernce for reporting full display
     final context = SentryTransactionContext(
       'root /',
-      // ignore: invalid_use_of_internal_member
       SentrySpanOperations.uiLoad,
+      origin: SentryTraceOrigins.autoUiTimeToDisplay,
     );
     options.timeToDisplayTracker.transactionId = context.spanId;
 
@@ -45,7 +47,6 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       _allowProcessing = false;
 
       try {
-        // ignore: invalid_use_of_internal_member
         final appStartEnd = DateTime.fromMicrosecondsSinceEpoch(timings.first
             .timestampInMicroseconds(FramePhase.rasterFinishWallTime));
         await _nativeAppStartHandler.call(

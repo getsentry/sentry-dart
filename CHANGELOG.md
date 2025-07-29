@@ -1,13 +1,19 @@
 # Changelog
 
-## Unreleased
+## 9.6.0-beta.1
 
 ### Fixes
 
 - Debug meta not loaded for split debug info only builds ([#3104](https://github.com/getsentry/sentry-dart/pull/3104))
+- TTID/TTFD root transactions ([#3099](https://github.com/getsentry/sentry-dart/pull/3099), [#3111](https://github.com/getsentry/sentry-dart/pull/3111))
+  - Web, Linux and Windows now create a UI transaction for the root page
+  - iOS, Android now correctly create idle transactions
+  - Fixes behaviour of traceId generation and TTFD for app start
+- Directionality assertion issue in debug mode ([#3088](https://github.com/getsentry/sentry-dart/pull/3088))
 
 ### Dependencies
 
+- Bump JNI from v0.14.1 to v0.14.2 ([#3075](https://github.com/getsentry/sentry-dart/pull/3075))
 - Bump Android SDK from v8.13.2 to v8.17.0 ([#2977](https://github.com/getsentry/sentry-dart/pull/2977))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8170)
   - [diff](https://github.com/getsentry/sentry-java/compare/8.13.2...8.17.0)
