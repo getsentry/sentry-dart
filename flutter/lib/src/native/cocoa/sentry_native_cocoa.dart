@@ -58,9 +58,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
     // Use a safe copy-based conversion to avoid double-free issues observed
-    // when relying on `dataWithBytesNoCopy:length:freeWhenDone:`. Although
-    // this involves an additional copy, it prevents the EXC_BAD_ACCESS
-    // crash caused by Cocoa freeing the buffer twice.
+    // when relying on `dataWithBytesNoCopy:length:freeWhenDone:`.
     final length = envelopeData.length;
     final ptr = malloc<Uint8>(length);
     ptr.asTypedList(length).setAll(0, envelopeData);

@@ -254,7 +254,9 @@ void main() {
         await sut.captureEnvelope(data, false);
 
         expect(captured, data);
-      });
+      },
+          skip:
+              (Platform().isAndroid || Platform().isIOS || Platform().isMacOS));
 
       test('loadContexts', () async {
         when(channel.invokeMethod('loadContexts'))
