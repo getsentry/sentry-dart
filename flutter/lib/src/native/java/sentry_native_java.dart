@@ -73,33 +73,8 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   Future<void> captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) async {
-    JObject? id;
-    JByteArray? byteArray;
-    final stopWatch = Stopwatch()..start();
-    try {
-      byteArray = JByteArray.from(envelopeData.toList());
-      id = native.InternalSentrySdk.captureEnvelope(byteArray, false);
-
-      if (id != null) {
-        print('success');
-      } else {
-        print('failed');
-      }
-    } catch (e, s) {
-      options.log(SentryLevel.error, 'Failed to capture envelope via JNI',
-          exception: e, stackTrace: s);
-    } finally {
-      byteArray?.release();
-      id?.release();
-    }
-    stopWatch.stop();
-    final stopwatch2 = Stopwatch()..start();
-    await super.captureEnvelope(envelopeData, containsUnhandledException);
-    stopwatch2.stop();
-
-    print('JNI: ${stopWatch.elapsedMilliseconds}ms');
-    print('Dart: ${stopwatch2.elapsedMilliseconds}ms');
+      Uint8List envelopeData, bool containsUnhandledException) {
+    compute(captureEnvelopeWithJni, envelopeData);
 
     return Future<void>.value();
   }
@@ -109,4 +84,28 @@ class SentryNativeJava extends SentryNativeChannel {
     await _replayRecorder?.stop();
     return super.close();
   }
+}
+
+void captureEnvelopeWithJni(Uint8List envelopeData) {
+  JObject? id;
+  JByteArray? byteArray;
+  final stopWatch = Stopwatch()..start();
+  try {
+    byteArray = JByteArray.from(envelopeData.toList());
+    id = native.InternalSentrySdk.captureEnvelope(byteArray, false);
+
+    if (id != null) {
+      print('success');
+    } else {
+      print('failed');
+    }
+  } catch (e, s) {
+    // options.log(SentryLevel.error, 'Failed to capture envelope via JNI',
+    //     exception: e, stackTrace: s);
+  } finally {
+    byteArray?.release();
+    id?.release();
+  }
+  stopWatch.stop();
+  print('JNI took ${stopWatch.elapsedMilliseconds}ms');
 }
