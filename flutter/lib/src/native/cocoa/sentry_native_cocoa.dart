@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:ffi';
-import 'dart:ffi' as ffi;
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
@@ -79,11 +78,11 @@ class SentryNativeCocoa extends SentryNativeChannel {
     // this involves an additional memcpy, it prevents the EXC_BAD_ACCESS
     // crash caused by Cocoa freeing the buffer twice.
     final length = envelopeData.length;
-    final ptr = malloc<ffi.Uint8>(length);
+    final ptr = malloc<Uint8>(length);
     ptr.asTypedList(length).setAll(0, envelopeData);
     try {
-      final nsData = cocoa.NSData.dataWithBytes_length_(
-          _lib, ptr.cast<ffi.Void>(), length);
+      final nsData =
+          cocoa.NSData.dataWithBytes_length_(_lib, ptr.cast<Void>(), length);
 
       final envelope =
           cocoa.PrivateSentrySDKOnly.envelopeWithData_(_lib, nsData);
