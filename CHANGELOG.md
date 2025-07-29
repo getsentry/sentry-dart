@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- False replay config restarts because of `ScreenshotWidgetStatus` equality issues ([#3114](https://github.com/getsentry/sentry-dart/pull/3114))
+
 ## 9.6.0-beta.1
 
 ### Fixes
