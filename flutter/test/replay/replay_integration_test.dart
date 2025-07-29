@@ -32,6 +32,12 @@ void main() {
 
   tearDown(() {
     SentryScreenshotWidget.reset();
+    // Reset the view to default physical size for clean test state
+    // This ensures each test starts with the default 800x600 size
+    final binding = TestWidgetsFlutterBinding.ensureInitialized();
+    for (final view in binding.platformDispatcher.views) {
+      view.resetPhysicalSize();
+    }
   });
 
   for (var supportsReplay in [true, false]) {
