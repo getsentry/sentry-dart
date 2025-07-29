@@ -75,7 +75,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
     // Use a safe copy-based conversion to avoid double-free issues observed
     // when relying on `dataWithBytesNoCopy:length:freeWhenDone:`. Although
-    // this involves an additional memcpy, it prevents the EXC_BAD_ACCESS
+    // this involves an additional copy, it prevents the EXC_BAD_ACCESS
     // crash caused by Cocoa freeing the buffer twice.
     final length = envelopeData.length;
     final ptr = malloc<Uint8>(length);
