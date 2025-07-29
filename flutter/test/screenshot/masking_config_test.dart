@@ -170,6 +170,7 @@ void main() async {
         'SentryMaskingConstantRule<Text>(mask)',
         'SentryMaskingConstantRule<EditableText>(mask)',
         'SentryMaskingConstantRule<RichText>(mask)',
+        ..._maybeWithSensitiveContent(),
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ]);
     });
@@ -182,6 +183,7 @@ void main() async {
       expect(rulesAsStrings(sut), [
         ...alwaysEnabledRules,
         'SentryMaskingConstantRule<Image>(mask)',
+        ..._maybeWithSensitiveContent(),
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ]);
     });
@@ -194,6 +196,7 @@ void main() async {
       expect(rulesAsStrings(sut), [
         ...alwaysEnabledRules,
         'SentryMaskingCustomRule<Image>(Mask all images except asset images.)',
+        ..._maybeWithSensitiveContent(),
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ]);
     });
@@ -208,8 +211,8 @@ void main() async {
         'SentryMaskingConstantRule<Text>(mask)',
         'SentryMaskingConstantRule<EditableText>(mask)',
         'SentryMaskingConstantRule<RichText>(mask)',
-        'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)',
         ..._maybeWithSensitiveContent(),
+        'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ]);
     });
 
@@ -220,6 +223,7 @@ void main() async {
         ..maskAssetImages = false;
       expect(rulesAsStrings(sut), [
         ...alwaysEnabledRules,
+        ..._maybeWithSensitiveContent(),
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ]);
     });
@@ -257,6 +261,7 @@ void main() async {
         'SentryMaskingConstantRule<Text>(mask)',
         'SentryMaskingConstantRule<EditableText>(mask)',
         'SentryMaskingConstantRule<RichText>(mask)',
+        ..._maybeWithSensitiveContent(),
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)'
       ];
 
@@ -266,7 +271,6 @@ void main() async {
         expect(rulesAsStrings(sut), [
           'SentryMaskingConstantRule<Image>(mask)',
           ...defaultRules,
-          ..._maybeWithSensitiveContent(),
         ]);
       });
 
@@ -276,7 +280,6 @@ void main() async {
         expect(rulesAsStrings(sut), [
           'SentryMaskingConstantRule<Image>(unmask)',
           ...defaultRules,
-          ..._maybeWithSensitiveContent(),
         ]);
       });
 
@@ -317,7 +320,6 @@ void main() async {
         expect(rulesAsStrings(sut), [
           'SentryMaskingCustomRule<Image>(Custom callback-based rule (description unspecified))',
           ...defaultRules,
-          ..._maybeWithSensitiveContent(),
         ]);
       });
       test('User cannot add $SentryMask and $SentryUnmask rules', () {
