@@ -73,7 +73,7 @@ jobs:
         if: ${{ inputs.package == 'flutter' }}
         working-directory: ${{ inputs.package }}
         run: |
-          sed -i.bak 's|sentry:.*|sentry:\n    path: /github/workspace/dart|g' pubspec.yaml
+          sed -i.bak 's|sentry:.*|sentry:\n    path: /github/workspace/packages/dart|g' pubspec.yaml
       - uses: axel-op/dart-package-analyzer@56afb7e6737bd2b7cee05382ae7f0e8111138080 # pin@v3
         id: analysis
         with:

@@ -44,7 +44,7 @@ dependency_overrides:
   flutter:
     sdk: flutter
   sentry:
-    path: ../dart
+    path: ../packages/dart
   sentry_flutter:
     path: ../flutter
   sentry_dio:
