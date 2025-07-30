@@ -12,7 +12,7 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
-      - 'dart/**'
+      - 'packages/dart/**'
 
 jobs:
   cancel-previous-workflow:
