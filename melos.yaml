@@ -1,6 +1,6 @@
 name: sentry_dart_workspace
 packages:
-  - 'packages/*'
+  - 'packages/**'
 
 ide:
   intellij:
