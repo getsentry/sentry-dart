@@ -235,9 +235,9 @@ class MismatchedDataStructureExceptionExtractor
 class UnexpectedResponseStructureExceptionExtractor
     extends LinkExceptionExtractor<UnexpectedResponseStructureException> {}
 
-class OperationExceptionExtractor extends ExceptionCauseExtractor<T> {
+class OperationExceptionExtractor extends ExceptionCauseExtractor<OperationException> {
   @override
-  ExceptionCause? cause(T error) {
+  ExceptionCause? cause(OperationException error) {
     return ExceptionCause(error.linkException, error.originalStackTrace);
   }
 }
