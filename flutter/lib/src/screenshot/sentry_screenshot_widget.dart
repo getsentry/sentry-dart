@@ -198,7 +198,8 @@ class SentryScreenshotWidgetStatus {
 
     if (orientation != other.orientation) return false;
 
-    if (!_almostEqual(pixelRatio, other.pixelRatio, _pixelRatioTolerance)) {
+    if (!_pixelRatioAlmostEqual(
+        pixelRatio, other.pixelRatio, _pixelRatioTolerance)) {
       return false;
     }
 
@@ -218,7 +219,7 @@ class SentryScreenshotWidgetStatus {
     return Object.hash(orientation, prHash, wHash, hHash);
   }
 
-  static bool _almostEqual(double? a, double? b, double tol) {
+  static bool _pixelRatioAlmostEqual(double? a, double? b, double tol) {
     if (a == b) return true;
     if (a == null || b == null) return false;
     return (a - b).abs() <= tol;
