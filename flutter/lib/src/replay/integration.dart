@@ -33,20 +33,20 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
       }
 
       SentryScreenshotWidget.onBuild((status, prevStatus) {
-        if (status != prevStatus) {
-          // Skip config update if the difference is negligible (e.g., due to floating-point precision)
-          // e.g a size.height of 200.00001 and 200.001 could be treated as equals
-          if (prevStatus != null && status.almostEquals(prevStatus)) {
-            return true;
-          }
-          _native.setReplayConfig(ReplayConfig(
-              windowWidth: status.size?.width ?? 0.0,
-              windowHeight: status.size?.height ?? 0.0,
-              width: replayOptions.quality.resolutionScalingFactor *
-                  (status.size?.width ?? 0.0),
-              height: replayOptions.quality.resolutionScalingFactor *
-                  (status.size?.height ?? 0.0)));
+        // Skip config update if the difference is negligible (e.g., due to floating-point precision)
+        // e.g a size.height of 200.00001 and 200.001 could be treated as equals
+        if (prevStatus != null && status.matches(prevStatus)) {
+          return true;
         }
+
+        _native.setReplayConfig(ReplayConfig(
+            windowWidth: status.size?.width ?? 0.0,
+            windowHeight: status.size?.height ?? 0.0,
+            width: replayOptions.quality.resolutionScalingFactor *
+                (status.size?.width ?? 0.0),
+            height: replayOptions.quality.resolutionScalingFactor *
+                (status.size?.height ?? 0.0)));
+
         return true;
       });
     }

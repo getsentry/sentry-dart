@@ -126,7 +126,7 @@ void main() {
   });
 
   group('SentryScreenshotWidgetStatus', () {
-    group('almostEquals', () {
+    group('matches', () {
       test('returns true for instances with very close pixelRatio values', () {
         final status1 = SentryScreenshotWidgetStatus(
           size: const Size(100, 200),
@@ -139,7 +139,7 @@ void main() {
           orientation: Orientation.portrait,
         );
 
-        expect(status1.almostEquals(status2), isTrue);
+        expect(status1.matches(status2), isTrue);
       });
 
       test('returns true for instances with very close size dimensions', () {
@@ -155,7 +155,7 @@ void main() {
           orientation: Orientation.portrait,
         );
 
-        expect(status1.almostEquals(status2), isTrue);
+        expect(status1.matches(status2), isTrue);
       });
 
       test(
@@ -172,7 +172,7 @@ void main() {
           orientation: Orientation.portrait,
         );
 
-        expect(status1.almostEquals(status2), isFalse);
+        expect(status1.matches(status2), isFalse);
       });
 
       test(
@@ -189,7 +189,7 @@ void main() {
           orientation: Orientation.portrait,
         );
 
-        expect(status1.almostEquals(status2), isFalse);
+        expect(status1.matches(status2), isFalse);
       });
 
       test(
@@ -206,7 +206,7 @@ void main() {
           orientation: Orientation.portrait,
         );
 
-        expect(status1.almostEquals(status2), isTrue);
+        expect(status1.matches(status2), isTrue);
       });
 
       test('returns true if values are within tolerance', () {
@@ -221,234 +221,7 @@ void main() {
           orientation: Orientation.portrait,
         );
 
-        expect(status1.almostEquals(status2), isTrue);
-      });
-    });
-
-    group('equality operator', () {
-      test('returns true for identical instances', () {
-        final status = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-
-        expect(status == status, isTrue);
-      });
-
-      test('returns true for instances with same values', () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-
-        expect(status1 == status2, isTrue);
-      });
-
-      test('returns false for instances with different size', () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(200, 300),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-
-        expect(status1 == status2, isFalse);
-      });
-
-      test('returns false for instances with different pixelRatio', () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 3.0,
-          orientation: Orientation.portrait,
-        );
-
-        expect(status1 == status2, isFalse);
-      });
-
-      test('returns false for instances with different orientation', () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.landscape,
-        );
-
-        expect(status1 == status2, isFalse);
-      });
-
-      test('returns false for null values comparison', () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: null,
-          pixelRatio: null,
-          orientation: null,
-        );
-
-        expect(status1 == status2, isFalse);
-      });
-
-      test('returns true for instances with all null values', () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: null,
-          pixelRatio: null,
-          orientation: null,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: null,
-          pixelRatio: null,
-          orientation: null,
-        );
-
-        expect(status1 == status2, isTrue);
-      });
-
-      test('returns true for exact equality', () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100.0, 200.0),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(100.0, 200.0), // Exactly the same
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-
-        expect(status1 == status2, isTrue);
-      });
-    });
-
-    group('hashCode', () {
-      test('returns same hashCode for equal instances', () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-
-        expect(status1.hashCode, equals(status2.hashCode));
-      });
-
-      test('returns different hashCode for different instances', () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(200, 300),
-          pixelRatio: 3.0,
-          orientation: Orientation.landscape,
-        );
-
-        expect(status1.hashCode, isNot(equals(status2.hashCode)));
-      });
-
-      test('hashCode is consistent across multiple calls', () {
-        final status = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-
-        final hashCode1 = status.hashCode;
-        final hashCode2 = status.hashCode;
-
-        expect(hashCode1, equals(hashCode2));
-      });
-
-      test('handles null values in hashCode calculation', () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: null,
-          pixelRatio: null,
-          orientation: null,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: null,
-          pixelRatio: null,
-          orientation: null,
-        );
-
-        expect(status1.hashCode, equals(status2.hashCode));
-      });
-
-      test(
-          'returns different hashCode for pixelRatio difference just over tolerance',
-          () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100.0, 200.0),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(100.0, 200.0),
-          pixelRatio: 2.000001,
-          orientation: Orientation.portrait,
-        );
-
-        expect(status1.hashCode, isNot(equals(status2.hashCode)));
-      });
-
-      test('returns different hashCode for size difference just over tolerance',
-          () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100.0, 200.0),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(100.1, 200.0),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-
-        expect(status1.hashCode, isNot(equals(status2.hashCode)));
-      });
-
-      test(
-          'returns different hashCode for same size/pixelRatio but different orientation',
-          () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100.0, 200.0),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(100.0, 200.0),
-          pixelRatio: 2.0,
-          orientation: Orientation.landscape,
-        );
-
-        expect(status1.hashCode, isNot(equals(status2.hashCode)));
+        expect(status1.matches(status2), isTrue);
       });
     });
   });

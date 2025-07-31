@@ -193,11 +193,10 @@ class SentryScreenshotWidgetStatus {
     required this.orientation,
   });
 
-  bool almostEquals(SentryScreenshotWidgetStatus other) {
+  bool matches(SentryScreenshotWidgetStatus other) {
     if (identical(this, other)) return true;
     if (orientation != other.orientation) return false;
 
-    // Nulls must match exactly
     if (pixelRatio == null || other.pixelRatio == null) {
       if (pixelRatio != other.pixelRatio) return false;
     } else if ((pixelRatio! - other.pixelRatio!).abs() > _pixelRatioTolerance) {
@@ -217,16 +216,4 @@ class SentryScreenshotWidgetStatus {
 
     return true;
   }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! SentryScreenshotWidgetStatus) return false;
-    return size == other.size &&
-        pixelRatio == other.pixelRatio &&
-        orientation == other.orientation;
-  }
-
-  @override
-  int get hashCode => Object.hash(size, pixelRatio, orientation);
 }
