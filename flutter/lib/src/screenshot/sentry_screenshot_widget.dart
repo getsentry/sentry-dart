@@ -198,25 +198,41 @@ class SentryScreenshotWidgetStatus {
 
     if (orientation != other.orientation) return false;
 
-    if (pixelRatio != other.pixelRatio) {
-      if (pixelRatio == null || other.pixelRatio == null) return false;
-      if ((pixelRatio! - other.pixelRatio!).abs() > _pixelRatioTolerance) {
-        return false;
-      }
+    if (!_almostEqual(pixelRatio, other.pixelRatio, _pixelRatioTolerance)) {
+      return false;
     }
 
-    if (size != other.size) {
-      if (size == null || other.size == null) return false;
-      final widthDiff = (size!.width - other.size!.width).abs();
-      final heightDiff = (size!.height - other.size!.height).abs();
-      if (widthDiff > _sizeTolerance || heightDiff > _sizeTolerance) {
-        return false;
-      }
+    if (!_sizeAlmostEqual(size, other.size, _sizeTolerance)) {
+      return false;
     }
 
     return true;
   }
 
   @override
-  int get hashCode => Object.hash(size, pixelRatio, orientation);
+  int get hashCode {
+    final prHash = _quantize(pixelRatio, _pixelRatioTolerance);
+    final wHash = _quantize(size?.width, _sizeTolerance);
+    final hHash = _quantize(size?.height, _sizeTolerance);
+
+    return Object.hash(orientation, prHash, wHash, hHash);
+  }
+
+  static bool _almostEqual(double? a, double? b, double tol) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    return (a - b).abs() <= tol;
+  }
+
+  static bool _sizeAlmostEqual(Size? a, Size? b, double tol) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    return (a.width - b.width).abs() <= tol &&
+        (a.height - b.height).abs() <= tol;
+  }
+
+  static int _quantize(double? value, double tol) {
+    if (value == null) return 0;
+    return (value / tol).round();
+  }
 }

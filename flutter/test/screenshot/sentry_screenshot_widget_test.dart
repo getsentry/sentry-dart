@@ -227,9 +227,7 @@ void main() {
         expect(status1 == status2, isTrue);
       });
 
-      test(
-          'returns true for instances below the tolerance for different pixelRatio',
-          () {
+      test('returns true for instances with very close pixelRatio values', () {
         final status1 = SentryScreenshotWidgetStatus(
           size: const Size(100, 200),
           pixelRatio: 2.0,
@@ -244,8 +242,24 @@ void main() {
         expect(status1 == status2, isTrue);
       });
 
+      test('returns true for instances with very close size dimensions', () {
+        final status1 = SentryScreenshotWidgetStatus(
+          size: const Size(100.0, 200.0),
+          pixelRatio: 2.0,
+          orientation: Orientation.portrait,
+        );
+        final status2 = SentryScreenshotWidgetStatus(
+          size: const Size(100.005, 200.005),
+          // Very close dimensions (within 0.01 tolerance)
+          pixelRatio: 2.0,
+          orientation: Orientation.portrait,
+        );
+
+        expect(status1 == status2, isTrue);
+      });
+
       test(
-          'returns false for instances over the tolerance for different pixelRatio',
+          'returns false for instances with significantly different pixelRatio',
           () {
         final status1 = SentryScreenshotWidgetStatus(
           size: const Size(100, 200),
@@ -262,7 +276,7 @@ void main() {
       });
 
       test(
-          'returns false for instances over the tolerance for different size dimensions',
+          'returns false for instances with significantly different size dimensions',
           () {
         final status1 = SentryScreenshotWidgetStatus(
           size: const Size(100.0, 200.0),
@@ -279,7 +293,7 @@ void main() {
       });
 
       test(
-          'returns true for instances below the tolerance for different size dimensions',
+          'returns true for instances with significantly different size dimensions',
           () {
         final status1 = SentryScreenshotWidgetStatus(
           size: const Size(100.0, 200.0),
@@ -287,7 +301,7 @@ void main() {
           orientation: Orientation.portrait,
         );
         final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(100.01, 200.0),
+          size: const Size(100.01, 200.0), // Significantly different width
           pixelRatio: 2.0,
           orientation: Orientation.portrait,
         );
@@ -311,7 +325,7 @@ void main() {
       });
 
       test(
-          'returns true when checking successful tolerance fallback when exact equality fails',
+          'layered equality check tolerance fallback when exact equality fails',
           () {
         final status1 = SentryScreenshotWidgetStatus(
           size: const Size(100.0, 200.0),
@@ -320,10 +334,13 @@ void main() {
         );
         final status2 = SentryScreenshotWidgetStatus(
           size: const Size(100.005, 200.005),
+          // Very close but not exact (within 0.01 tolerance)
           pixelRatio: 2.0000001,
+          // Very close but not exact (within 1e-6 tolerance)
           orientation: Orientation.portrait,
         );
 
+        // This should fail exact equality but pass tolerance check
         expect(status1 == status2, isTrue);
       });
     });
@@ -385,6 +402,56 @@ void main() {
         );
 
         expect(status1.hashCode, equals(status2.hashCode));
+      });
+
+      test(
+          'returns different hashCode for pixelRatio difference just over tolerance',
+          () {
+        final status1 = SentryScreenshotWidgetStatus(
+          size: const Size(100.0, 200.0),
+          pixelRatio: 2.0,
+          orientation: Orientation.portrait,
+        );
+        final status2 = SentryScreenshotWidgetStatus(
+          size: const Size(100.0, 200.0),
+          pixelRatio: 2.000001,
+          orientation: Orientation.portrait,
+        );
+
+        expect(status1.hashCode, isNot(equals(status2.hashCode)));
+      });
+
+      test('returns different hashCode for size difference just over tolerance',
+          () {
+        final status1 = SentryScreenshotWidgetStatus(
+          size: const Size(100.0, 200.0),
+          pixelRatio: 2.0,
+          orientation: Orientation.portrait,
+        );
+        final status2 = SentryScreenshotWidgetStatus(
+          size: const Size(100.1, 200.0),
+          pixelRatio: 2.0,
+          orientation: Orientation.portrait,
+        );
+
+        expect(status1.hashCode, isNot(equals(status2.hashCode)));
+      });
+
+      test(
+          'returns different hashCode for same size/pixelRatio but different orientation',
+          () {
+        final status1 = SentryScreenshotWidgetStatus(
+          size: const Size(100.0, 200.0),
+          pixelRatio: 2.0,
+          orientation: Orientation.portrait,
+        );
+        final status2 = SentryScreenshotWidgetStatus(
+          size: const Size(100.0, 200.0),
+          pixelRatio: 2.0,
+          orientation: Orientation.landscape,
+        );
+
+        expect(status1.hashCode, isNot(equals(status2.hashCode)));
       });
     });
   });
