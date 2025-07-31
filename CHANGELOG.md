@@ -17,6 +17,12 @@
   - Fixes behaviour of traceId generation and TTFD for app start
 - Directionality assertion issue in debug mode ([#3088](https://github.com/getsentry/sentry-dart/pull/3088))
 
+### Features
+
+- Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
+  - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
+
+
 ### Dependencies
 
 - Bump JNI from v0.14.1 to v0.14.2 ([#3075](https://github.com/getsentry/sentry-dart/pull/3075))
