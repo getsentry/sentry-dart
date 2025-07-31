@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Tag all spans with thread info ([#3101](https://github.com/getsentry/sentry-dart/pull/3101))
+
 ### Fixes
 
 - False replay config restarts because of `ScreenshotWidgetStatus` equality issues ([#3114](https://github.com/getsentry/sentry-dart/pull/3114))

@@ -88,6 +88,7 @@ class SentryTracer extends ISentrySpan {
         collector.onSpanStarted(_rootSpan);
       }
     }
+    unawaited(_dispatchOnSpanStart(_rootSpan));
   }
 
   @override
@@ -271,6 +272,7 @@ class SentryTracer extends ISentrySpan {
         collector.onSpanStarted(child);
       }
     }
+    unawaited(_dispatchOnSpanStart(child));
 
     return child;
   }
@@ -434,5 +436,9 @@ class SentryTracer extends ISentrySpan {
         await finish(status: status ?? SpanStatus.ok());
       });
     }
+  }
+
+  Future<void> _dispatchOnSpanStart(ISentrySpan span) async {
+    await _hub.options.lifecycleRegistry.dispatchCallback(OnSpanStart(span));
   }
 }

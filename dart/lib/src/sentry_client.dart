@@ -46,12 +46,6 @@ class SentryClient {
 
   static final _emptySentryId = Future.value(SentryId.empty());
 
-  late final SdkLifecycleRegistry _lifecycleRegistry;
-
-  /// Allows registration and dispatching of callbacks outside of SentryClient
-  @internal
-  SdkLifecycleRegistry get lifeCycleRegistry => _lifecycleRegistry;
-
   SentryExceptionFactory get _exceptionFactory => _options.exceptionFactory;
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
 
@@ -89,9 +83,7 @@ class SentryClient {
 
   /// Instantiates a client using [SentryOptions]
   SentryClient._(this._options)
-      : _random = _options.sampleRate == null ? null : Random() {
-    _lifecycleRegistry = SdkLifecycleRegistry(_options);
-  }
+      : _random = _options.sampleRate == null ? null : Random();
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -172,7 +164,7 @@ class SentryClient {
     }
 
     // Event is fully processed and ready to be sent
-    await _lifecycleRegistry
+    await _options.lifecycleRegistry
         .dispatchCallback(OnBeforeSendEvent(preparedEvent, hint));
 
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
@@ -579,7 +571,7 @@ class SentryClient {
     }
 
     if (processedLog != null) {
-      await _lifecycleRegistry
+      await _options.lifecycleRegistry
           .dispatchCallback(OnBeforeCaptureLog(processedLog));
       _options.logBatcher.addLog(processedLog);
     } else {

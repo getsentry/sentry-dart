@@ -2007,7 +2007,8 @@ void main() {
       final client = fixture.getSut();
       fixture.options.logBatcher = MockLogBatcher();
 
-      client.lifeCycleRegistry.registerCallback<OnBeforeCaptureLog>((event) {
+      fixture.options.lifecycleRegistry
+          .registerCallback<OnBeforeCaptureLog>((event) {
         event.log.attributes['test'] = SentryLogAttribute.string('test-value');
       });
 

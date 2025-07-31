@@ -704,6 +704,29 @@ void main() {
       );
       SentryFlutter.native = null;
     });
+
+    test('ThreadInfoIntegration is added', () async {
+      final sentryFlutterOptions =
+          defaultTestOptions(checker: MockRuntimeChecker())
+            ..platform = MockPlatform.android()
+            ..methodChannel = native.channel;
+
+      SentryFlutter.native = mockNativeBinding();
+      await SentryFlutter.init(
+        (options) {
+          expect(
+            options.integrations.any((integration) =>
+                integration.runtimeType.toString() == 'ThreadInfoIntegration'),
+            true,
+            reason:
+                'ThreadInfoIntegration should be added when tracing is enabled',
+          );
+        },
+        appRunner: appRunner,
+        options: sentryFlutterOptions,
+      );
+      SentryFlutter.native = null;
+    });
   });
 
   test('resumeAppHangTracking calls native method when available', () async {

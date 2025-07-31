@@ -55,7 +55,7 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
       }
 
       // ignore: invalid_use_of_internal_member
-      hub.registerSdkLifecycleCallback<OnBeforeCaptureLog>(
+      options.lifecycleRegistry.registerCallback<OnBeforeCaptureLog>(
         (event) async {
           try {
             final infos = await _native.loadContexts() ?? {};

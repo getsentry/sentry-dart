@@ -412,6 +412,9 @@ class SentryOptions {
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();
 
+  @internal
+  late SdkLifecycleRegistry lifecycleRegistry = SdkLifecycleRegistry(this);
+
   /// List of strings/regex controlling to which outgoing requests
   /// the SDK will attach tracing headers.
   ///

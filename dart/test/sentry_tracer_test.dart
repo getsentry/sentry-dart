@@ -598,6 +598,137 @@ void main() {
       expect(context.sampleRate, '1');
       expect(context.sampled, 'true');
     });
+
+    group('OnSpanStart lifecycle callbacks', () {
+      test('dispatches OnSpanStart for root span on tracer creation', () async {
+        final fixture = Fixture();
+        final capturedSpans = <ISentrySpan>[];
+
+        // Register OnSpanStart callback
+        fixture.hub.options.lifecycleRegistry.registerCallback<OnSpanStart>(
+          (OnSpanStart event) async {
+            capturedSpans.add(event.span);
+          },
+        );
+
+        // Create tracer (this should dispatch OnSpanStart for the root span)
+        final sut = fixture.getSut();
+
+        // Allow async callbacks to complete
+        await Future.delayed(Duration.zero);
+
+        expect(capturedSpans.length, equals(1));
+        // The root span is a SentrySpan, not the SentryTracer itself
+        expect(capturedSpans.first, isA<SentrySpan>());
+        expect(capturedSpans.first.context.operation, equals('op'));
+        expect(capturedSpans.first.context.description,
+            isNull); // No description set for root span
+        expect(
+            capturedSpans.first.context.traceId, equals(sut.context.traceId));
+      });
+
+      test('dispatches OnSpanStart for child spans', () async {
+        final fixture = Fixture();
+        final capturedSpans = <ISentrySpan>[];
+
+        // Register OnSpanStart callback
+        fixture.hub.options.lifecycleRegistry.registerCallback<OnSpanStart>(
+          (OnSpanStart event) async {
+            capturedSpans.add(event.span);
+          },
+        );
+
+        final sut = fixture.getSut();
+
+        // Clear the root span callback
+        capturedSpans.clear();
+
+        // Create child spans
+        sut.startChild('child_op1');
+        sut.startChild('child_op2', description: 'child description');
+
+        // Allow async callbacks to complete
+        await Future.delayed(Duration.zero);
+
+        expect(capturedSpans.length, equals(2));
+
+        // Verify first child span
+        expect(capturedSpans[0].context.operation, equals('child_op1'));
+        expect(capturedSpans[0].context.description, isNull);
+        expect(
+            capturedSpans[0].context.parentSpanId, equals(sut.context.spanId));
+
+        // Verify second child span
+        expect(capturedSpans[1].context.operation, equals('child_op2'));
+        expect(
+            capturedSpans[1].context.description, equals('child description'));
+        expect(
+            capturedSpans[1].context.parentSpanId, equals(sut.context.spanId));
+      });
+
+      test('dispatches OnSpanStart for nested child spans', () async {
+        final fixture = Fixture();
+        final capturedSpans = <ISentrySpan>[];
+
+        // Register OnSpanStart callback
+        fixture.hub.options.lifecycleRegistry.registerCallback<OnSpanStart>(
+          (OnSpanStart event) async {
+            capturedSpans.add(event.span);
+          },
+        );
+
+        final sut = fixture.getSut();
+        capturedSpans.clear(); // Clear root span
+
+        // Create nested spans
+        final child = sut.startChild('child_op');
+        await Future.delayed(Duration.zero);
+
+        child.startChild('grandchild_op');
+        await Future.delayed(Duration.zero);
+
+        expect(capturedSpans.length, equals(2));
+
+        // Verify child span
+        expect(capturedSpans[0].context.operation, equals('child_op'));
+        expect(
+            capturedSpans[0].context.parentSpanId, equals(sut.context.spanId));
+
+        // Verify grandchild span
+        expect(capturedSpans[1].context.operation, equals('grandchild_op'));
+        expect(capturedSpans[1].context.parentSpanId,
+            equals(child.context.spanId));
+      });
+
+      test('callbacks are called asynchronously without blocking span creation',
+          () async {
+        final fixture = Fixture();
+        var callbackExecuted = false;
+
+        // Register callback that takes some time
+        fixture.hub.options.lifecycleRegistry.registerCallback<OnSpanStart>(
+          (OnSpanStart event) async {
+            await Future.delayed(const Duration(milliseconds: 10));
+            callbackExecuted = true;
+          },
+        );
+
+        // Span creation should complete immediately without waiting for callback
+        final sut = fixture.getSut();
+        final child = sut.startChild('child_op');
+
+        // Callback should not have been executed yet (since it's unawaited)
+        expect(callbackExecuted, isFalse);
+
+        // Wait a bit for the callback to complete
+        await Future.delayed(const Duration(milliseconds: 20));
+
+        // Now callback should have completed
+        expect(callbackExecuted, isTrue);
+        expect(sut.context.operation, equals('op'));
+        expect(child.context.operation, equals('child_op'));
+      });
+    });
   });
 }
 
