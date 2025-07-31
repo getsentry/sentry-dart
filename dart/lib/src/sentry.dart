@@ -23,6 +23,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_run_zoned_guarded.dart';
+import 'spotlight.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
@@ -154,6 +155,8 @@ class Sentry {
         'Sentry has been already initialized. Previous configuration will be overwritten.',
       );
     }
+
+    _disableSpotlightInReleaseBuilds(options);
 
     // let's set the default values to options
     if (await _setDefaultConfiguration(options)) {
@@ -435,4 +438,14 @@ class Sentry {
       );
 
   static SentryLogger get logger => currentHub.options.logger;
+
+  static void _disableSpotlightInReleaseBuilds(SentryOptions options) {
+    final isReleaseMode = options.runtimeChecker.isReleaseMode();
+
+    if (isReleaseMode) {
+      if (options.spotlight.enabled) {
+        options.spotlight = Spotlight(enabled: false);
+      }
+    }
+  }
 }
