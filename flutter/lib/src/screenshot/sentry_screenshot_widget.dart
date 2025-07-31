@@ -193,38 +193,40 @@ class SentryScreenshotWidgetStatus {
     required this.orientation,
   });
 
-  @override
-  bool operator ==(Object other) {
+  bool almostEquals(SentryScreenshotWidgetStatus other) {
     if (identical(this, other)) return true;
-    if (other is! SentryScreenshotWidgetStatus) return false;
-
     if (orientation != other.orientation) return false;
 
-    final pr1 = pixelRatio?.roundToResolution(_pixelRatioTolerance);
-    final pr2 = other.pixelRatio?.roundToResolution(_pixelRatioTolerance);
-    if (pr1 != pr2) return false;
+    // Nulls must match exactly
+    if (pixelRatio == null || other.pixelRatio == null) {
+      if (pixelRatio != other.pixelRatio) return false;
+    } else if ((pixelRatio! - other.pixelRatio!).abs() > _pixelRatioTolerance) {
+      return false;
+    }
 
-    final w1 = size?.width.roundToResolution(_sizeTolerance);
-    final h1 = size?.height.roundToResolution(_sizeTolerance);
-    final w2 = other.size?.width.roundToResolution(_sizeTolerance);
-    final h2 = other.size?.height.roundToResolution(_sizeTolerance);
-    if (w1 != w2 || h1 != h2) return false;
+    if (size == null || other.size == null) {
+      if (size != other.size) return false;
+    } else {
+      if ((size!.width - other.size!.width).abs() > _sizeTolerance) {
+        return false;
+      }
+      if ((size!.height - other.size!.height).abs() > _sizeTolerance) {
+        return false;
+      }
+    }
 
     return true;
   }
 
   @override
-  int get hashCode {
-    final pr = pixelRatio?.roundToResolution(_pixelRatioTolerance);
-    final w = size?.width.roundToResolution(_sizeTolerance);
-    final h = size?.height.roundToResolution(_sizeTolerance);
-    return Object.hash(orientation, pr, w, h);
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! SentryScreenshotWidgetStatus) return false;
+    return size == other.size &&
+        pixelRatio == other.pixelRatio &&
+        orientation == other.orientation;
   }
-}
 
-extension _RoundToTolerance on double {
-  /// Rounds this value to the nearest multiple of [resolution].
-  double roundToResolution(double resolution) {
-    return (this / resolution).round() * resolution;
-  }
+  @override
+  int get hashCode => Object.hash(size, pixelRatio, orientation);
 }
