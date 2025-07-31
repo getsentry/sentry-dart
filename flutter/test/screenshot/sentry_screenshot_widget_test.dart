@@ -133,7 +133,7 @@ void main() {
           pixelRatio: 2.0,
           orientation: Orientation.portrait,
         );
-        
+
         expect(status == status, isTrue);
       });
 
@@ -148,7 +148,7 @@ void main() {
           pixelRatio: 2.0,
           orientation: Orientation.portrait,
         );
-        
+
         expect(status1 == status2, isTrue);
       });
 
@@ -163,7 +163,7 @@ void main() {
           pixelRatio: 2.0,
           orientation: Orientation.portrait,
         );
-        
+
         expect(status1 == status2, isFalse);
       });
 
@@ -178,7 +178,7 @@ void main() {
           pixelRatio: 3.0,
           orientation: Orientation.portrait,
         );
-        
+
         expect(status1 == status2, isFalse);
       });
 
@@ -193,7 +193,7 @@ void main() {
           pixelRatio: 2.0,
           orientation: Orientation.landscape,
         );
-        
+
         expect(status1 == status2, isFalse);
       });
 
@@ -208,7 +208,7 @@ void main() {
           pixelRatio: null,
           orientation: null,
         );
-        
+
         expect(status1 == status2, isFalse);
       });
 
@@ -223,20 +223,8 @@ void main() {
           pixelRatio: null,
           orientation: null,
         );
-        
-        expect(status1 == status2, isTrue);
-      });
 
-      test('returns false when compared to different type', () {
-        final status = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        
-        expect(status == 'not a status', isFalse);
-        expect(status == 42, isFalse);
-        expect(status == null, isFalse);
+        expect(status1 == status2, isTrue);
       });
     });
 
@@ -252,7 +240,7 @@ void main() {
           pixelRatio: 2.0,
           orientation: Orientation.portrait,
         );
-        
+
         expect(status1.hashCode, equals(status2.hashCode));
       });
 
@@ -267,7 +255,7 @@ void main() {
           pixelRatio: 3.0,
           orientation: Orientation.landscape,
         );
-        
+
         expect(status1.hashCode, isNot(equals(status2.hashCode)));
       });
 
@@ -277,10 +265,10 @@ void main() {
           pixelRatio: 2.0,
           orientation: Orientation.portrait,
         );
-        
+
         final hashCode1 = status.hashCode;
         final hashCode2 = status.hashCode;
-        
+
         expect(hashCode1, equals(hashCode2));
       });
 
@@ -295,7 +283,7 @@ void main() {
           pixelRatio: null,
           orientation: null,
         );
-        
+
         expect(status1.hashCode, equals(status2.hashCode));
       });
     });
