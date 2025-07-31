@@ -182,6 +182,9 @@ class SentryScreenshotWidgetStatus {
   final double? pixelRatio;
   final Orientation? orientation;
 
+  static const double _pixelRatioTolerance = 1e-6;
+  static const double _sizeTolerance = 0.05;
+
   const SentryScreenshotWidgetStatus({
     required this.size,
     required this.pixelRatio,
@@ -193,28 +196,22 @@ class SentryScreenshotWidgetStatus {
     if (identical(this, other)) return true;
     if (other is! SentryScreenshotWidgetStatus) return false;
 
-    // First, try exact equality (the original method) - this is faster and handles most cases
-    if (orientation == other.orientation &&
-        pixelRatio == other.pixelRatio &&
-        size == other.size) {
-      return true;
-    }
-
-    // If exact equality fails, use tolerance-based comparison as additional safeguard
-    // This prevents false reconfiguration when values differ by tiny amounts
-    // due to floating-point precision issues
     if (orientation != other.orientation) return false;
+
     if (pixelRatio != other.pixelRatio) {
       if (pixelRatio == null || other.pixelRatio == null) return false;
-      const double tolerance = 1e-6;
-      if ((pixelRatio! - other.pixelRatio!).abs() > tolerance) return false;
+      if ((pixelRatio! - other.pixelRatio!).abs() > _pixelRatioTolerance) {
+        return false;
+      }
     }
+
     if (size != other.size) {
       if (size == null || other.size == null) return false;
-      const double tolerance = 0.05;
       final widthDiff = (size!.width - other.size!.width).abs();
       final heightDiff = (size!.height - other.size!.height).abs();
-      if (widthDiff >= tolerance || heightDiff >= tolerance) return false;
+      if (widthDiff > _sizeTolerance || heightDiff > _sizeTolerance) {
+        return false;
+      }
     }
 
     return true;
