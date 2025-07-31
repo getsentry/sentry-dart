@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
@@ -198,42 +200,31 @@ class SentryScreenshotWidgetStatus {
 
     if (orientation != other.orientation) return false;
 
-    if (!_pixelRatioAlmostEqual(
-        pixelRatio, other.pixelRatio, _pixelRatioTolerance)) {
-      return false;
-    }
+    final pr1 = pixelRatio?.roundToResolution(_pixelRatioTolerance);
+    final pr2 = other.pixelRatio?.roundToResolution(_pixelRatioTolerance);
+    if (pr1 != pr2) return false;
 
-    if (!_sizeAlmostEqual(size, other.size, _sizeTolerance)) {
-      return false;
-    }
+    final w1 = size?.width.roundToResolution(_sizeTolerance);
+    final h1 = size?.height.roundToResolution(_sizeTolerance);
+    final w2 = other.size?.width.roundToResolution(_sizeTolerance);
+    final h2 = other.size?.height.roundToResolution(_sizeTolerance);
+    if (w1 != w2 || h1 != h2) return false;
 
     return true;
   }
 
   @override
   int get hashCode {
-    final prHash = _quantize(pixelRatio, _pixelRatioTolerance);
-    final wHash = _quantize(size?.width, _sizeTolerance);
-    final hHash = _quantize(size?.height, _sizeTolerance);
-
-    return Object.hash(orientation, prHash, wHash, hHash);
+    final pr = pixelRatio?.roundToResolution(_pixelRatioTolerance);
+    final w = size?.width.roundToResolution(_sizeTolerance);
+    final h = size?.height.roundToResolution(_sizeTolerance);
+    return Object.hash(orientation, pr, w, h);
   }
+}
 
-  static bool _pixelRatioAlmostEqual(double? a, double? b, double tol) {
-    if (a == b) return true;
-    if (a == null || b == null) return false;
-    return (a - b).abs() <= tol;
-  }
-
-  static bool _sizeAlmostEqual(Size? a, Size? b, double tol) {
-    if (a == b) return true;
-    if (a == null || b == null) return false;
-    return (a.width - b.width).abs() <= tol &&
-        (a.height - b.height).abs() <= tol;
-  }
-
-  static int _quantize(double? value, double tol) {
-    if (value == null) return 0;
-    return (value / tol).round();
+extension _RoundToTolerance on double {
+  /// Rounds this value to the nearest multiple of [resolution].
+  double roundToResolution(double resolution) {
+    return (this / resolution).round() * resolution;
   }
 }
