@@ -11,7 +11,7 @@ import '../isolate_helper.dart';
 /// information to spans when they are started.
 @internal
 class ThreadInfoIntegration implements Integration<SentryFlutterOptions> {
-  static const integrationName = 'ThreadInfoIntegration';
+  static const integrationName = 'ThreadInfo';
 
   final IsolateHelper _isolateHelper;
   Hub? _hub;
