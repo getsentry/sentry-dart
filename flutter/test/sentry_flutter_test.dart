@@ -716,7 +716,7 @@ void main() {
         (options) {
           expect(
             options.integrations.any((integration) =>
-                integration.runtimeType.toString() == 'ThreadInfo'),
+                integration.runtimeType.toString() == 'ThreadInfoIntegration'),
             true,
             reason:
                 'ThreadInfoIntegration should be added when tracing is enabled',
