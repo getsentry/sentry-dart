@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.6.0
 
 Note: this release might require updating your Android Gradle Plugin version to at least `8.1.4`.
 
