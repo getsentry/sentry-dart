@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Tag all spans with thread info ([#3101](https://github.com/getsentry/sentry-dart/pull/3101))
+
 ## 9.6.0
 
 Note: this release might require updating your Android Gradle Plugin version to at least `8.1.4`.
@@ -32,10 +38,6 @@ Note: this release might require updating your Android Gradle Plugin version to 
 - False replay config restarts because of `ScreenshotWidgetStatus` equality issues ([#3114](https://github.com/getsentry/sentry-dart/pull/3114))
 
 ## 9.6.0-beta.1
-
-### Features
-
-- Tag all spans with thread info ([#3101](https://github.com/getsentry/sentry-dart/pull/3101))
 
 ### Fixes
 
