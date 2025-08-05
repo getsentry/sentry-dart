@@ -16,15 +16,7 @@ build/
 .fvmrc
 
 .test_coverage.dart
-dart/coverage/*
-logging/coverage/*
-dio/coverage/*
-file/coverage/*
-flutter/coverage/*
-sqflite/coverage/*
-drift/coverage/*
-hive/coverage/*
-isar/coverage/*
+packages/**/coverage/*
 
 pubspec.lock
 Podfile.lock
