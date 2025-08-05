@@ -12,8 +12,8 @@ on:
       - '.github/actions/coverage/**'
       - '!**/*.md'
       - '!**/class-diagram.svg'
-      - 'dart/**'
-      - 'flutter/**'
+      - 'packages/dart/**'
+      - 'packages/flutter/**'
       - 'metrics/flutter.properties'
 
 jobs:
@@ -61,20 +61,20 @@ jobs:
 
       - uses: ./.github/actions/flutter-test
         with:
-          directory: flutter
+          directory: packages/flutter
 
       - uses: ./.github/actions/coverage
         if: matrix.target == 'linux' && matrix.sdk == 'stable'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: flutter
+          directory: packages/flutter
           coverage: sentry_flutter
           min-coverage: 90
 
       - name: Build example for ${{ matrix.target }}
         # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.
         if: matrix.target != 'wasm'
-        working-directory: flutter/example
+        working-directory: packages/flutter/example
         shell: bash
         run: |
           flutter config --enable-windows-desktop
@@ -110,7 +110,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: flutter/example
+        working-directory: packages/flutter/example
     strategy:
       fail-fast: false
       matrix:
@@ -136,7 +136,7 @@ jobs:
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: flutter
+      package: packages/flutter
       sdk: flutter
       panaThreshold: 87
 
@@ -145,7 +145,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: ./flutter
+        working-directory: packages/flutter
     steps:
       - uses: actions/checkout@v4
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
@@ -156,7 +156,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: ./flutter
+        working-directory: packages/flutter
     steps:
       - uses: actions/checkout@v4
       - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@3.2.1
@@ -168,7 +168,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: ./flutter
+        working-directory: packages/flutter
     steps:
       - uses: actions/checkout@v4
 
@@ -188,4 +188,4 @@ jobs:
       # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb
       - uses: natiginfo/action-detekt-all@45229fbbe47eaff1160b6c956d7ffe14dc23c206 # pin@1.23.8
         with:
-          args: -i flutter/android,flutter/example/android --baseline flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules
+          args: -i packages/flutter/android,packages/flutter/example/android --baseline packages/flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules
