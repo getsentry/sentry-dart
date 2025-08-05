@@ -57,4 +57,3 @@ jobs:
     uses: ./.github/workflows/analyze.yml
     with:
       package: packages/drift
-      sdk: dart
