@@ -12,9 +12,9 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
-      - 'dart/**'
+      - 'packages/dart/**'
       - 'packages/flutter/**'
-      - 'firebase_remote_config/**'
+      - 'packages/firebase_remote_config/**'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
