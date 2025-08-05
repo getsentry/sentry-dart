@@ -3,6 +3,8 @@
 @TestOn('vm')
 library;
 
+import 'dart:ui';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -30,6 +32,10 @@ void main() {
 
   tearDown(() {
     SentryScreenshotWidget.reset();
+    final binding = TestWidgetsFlutterBinding.ensureInitialized();
+    for (final view in binding.platformDispatcher.views) {
+      view.resetPhysicalSize();
+    }
   });
 
   for (var supportsReplay in [true, false]) {
@@ -103,5 +109,44 @@ void main() {
         as ReplayConfig;
     expect(config.width, 640);
     expect(config.height, 480);
+  });
+
+  testWidgets(
+      'Does not call setReplayConfig again when widget size remains unchanged',
+      (tester) async {
+    options.replay.sessionSampleRate = 1.0;
+    when(native.setReplayConfig(any)).thenReturn(null);
+    sut.call(hub, options);
+
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    tester.view.physicalSize = Size(10, 20);
+    await pumpTestElement(tester);
+    await tester.pumpAndSettle(Duration(seconds: 1));
+
+    tester.view.physicalSize = Size(10, 20);
+    await pumpTestElement(tester);
+    await tester.pumpAndSettle(Duration(seconds: 1));
+
+    verify(native.setReplayConfig(any)).called(1);
+  });
+
+  testWidgets('Does call setReplayConfig again when widget size changed',
+      (tester) async {
+    options.replay.sessionSampleRate = 1.0;
+    when(native.setReplayConfig(any)).thenReturn(null);
+    sut.call(hub, options);
+
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    tester.view.physicalSize = Size(10, 20);
+    await pumpTestElement(tester);
+    await tester.pumpAndSettle(Duration(seconds: 1));
+
+    tester.view.physicalSize = Size(20, 20);
+    await pumpTestElement(tester);
+    await tester.pumpAndSettle(Duration(seconds: 1));
+
+    verify(native.setReplayConfig(any)).called(2);
   });
 }

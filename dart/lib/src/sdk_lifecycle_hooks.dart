@@ -71,3 +71,11 @@ class OnBeforeSendEvent extends SdkLifecycleEvent {
   final SentryEvent event;
   final Hint hint;
 }
+
+/// Dispatched when a sampled span is started.
+@internal
+class OnSpanStart extends SdkLifecycleEvent {
+  OnSpanStart(this.span);
+
+  final ISentrySpan span;
+}
