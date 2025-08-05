@@ -5,7 +5,7 @@ on:
     paths:
       - .github/workflows/metrics.yml
       - dart/**
-      - flutter/**
+      - packages/flutter/**
       - metrics/**
       - "!**/*.md"
     branches-ignore:

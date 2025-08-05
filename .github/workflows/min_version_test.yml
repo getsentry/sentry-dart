@@ -10,7 +10,7 @@ on:
       - "!**/class-diagram.svg"
       - ".github/workflows/min_version_test.yml"
       - "dart/**"
-      - "flutter/**"
+      - "packages/flutter/**"
       - "min_version_test/**"
 
 jobs:
