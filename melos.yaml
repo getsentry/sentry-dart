@@ -1,6 +1,8 @@
 name: sentry_dart_workspace
 packages:
-  - 'packages/**'
+  - 'packages/*'
+  - 'packages/*/*'
+  - 'packages/*/*/*'
 
 ignore:
   - 'packages/flutter/example/' # ignore it for now
