@@ -25,27 +25,33 @@ jobs:
           access_token: ${{ github.token }}
 
   build:
-    name: '${{ matrix.target }} | ${{ matrix.sdk }}'
-    runs-on: ${{ matrix.target == 'linux' && 'ubuntu' || matrix.target }}-latest
+    name: '${{ matrix.os }} | ${{ matrix.sdk }}'
+    runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        target: [macos, linux, windows]
+        os: [ ubuntu, macos, windows ]
         sdk: [stable, beta]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install libsqlite3
-        if: matrix.target == 'linux'
+      - name: Install libsqlite3 (Linux)
+        if: matrix.os == 'ubuntu'
         run: sudo apt-get -y install libsqlite3-dev
 
-      - name: Install SQLite on Windows
-        if: matrix.target == 'windows'
+      - name: Install SQLite (macOS)
+        if: matrix.os == 'macos'
+        run: brew install sqlite3
+
+      - name: Install SQLite (Windows)
+        if: matrix.os == 'windows'
+        shell: powershell
         run: |
-          choco install sqlite -y
-          echo "C:/ProgramData/chocolatey/lib/sqlite/tools" >> $GITHUB_PATH
+          Invoke-WebRequest -Uri "https://www.sqlite.org/2023/sqlite-dll-win64-x64-3420000.zip" -OutFile "sqlite.zip"
+          Expand-Archive -Path "sqlite.zip" -DestinationPath "C:\sqlite"
+          echo "C:\sqlite" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - uses: ./.github/actions/dart-test
         with:
@@ -53,7 +59,7 @@ jobs:
           web: 'false'
 
       - uses: ./.github/actions/coverage
-        if: matrix.target == 'linux' && matrix.sdk == 'stable'
+        if: matrix.os == 'ubuntu' && matrix.sdk == 'stable'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: packages/drift
