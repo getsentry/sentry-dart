@@ -3,7 +3,7 @@ packages:
   - 'packages/**'
 
 ignore:
-  - 'packages/flutter/example/**' # ignore it for now
+  - 'packages/flutter/example/' # ignore it for now
 
 ide:
   intellij:
