@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import '../../../packages/dart/test/mocks/mock_transport.dart';
+import '../../../dart/test/mocks/mock_transport.dart';
 
 void main() {
   final transport = MockTransport();
