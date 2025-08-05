@@ -12,7 +12,7 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
-      - 'dart/**'
+      - 'packages/dart/**'
 
 jobs:
   cancel-previous-workflow:
@@ -45,18 +45,18 @@ jobs:
 
       - uses: ./.github/actions/dart-test
         with:
-          directory: dart
+          directory: packages/dart
 
       - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: dart
+          directory: packages/dart
           coverage: sentry
           min-coverage: 85
 
       - name: Build example
-        working-directory: dart/example
+        working-directory: packages/dart/example
         run: |
           dart pub get
           dart compile aot-snapshot bin/example.dart
@@ -64,5 +64,5 @@ jobs:
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: dart
+      package: packages/dart
       panaThreshold: 87

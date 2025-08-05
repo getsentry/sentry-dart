@@ -1,0 +1,7 @@
+name: sentry_dart_workspace
+packages:
+  - 'packages/**'
+
+ide:
+  intellij:
+    moduleNamePrefix: ''
