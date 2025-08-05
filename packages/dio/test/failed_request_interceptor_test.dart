@@ -5,8 +5,8 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_dio/src/failed_request_interceptor.dart';
 import 'package:test/test.dart';
 
-import '../../../dio/test/mocks/mock_hub.dart';
-import '../../../dio/test/mocks/no_such_method_provider.dart';
+import 'dio/test/mocks/mock_hub.dart';
+import 'dio/test/mocks/no_such_method_provider.dart';
 
 void main() {
   late Fixture fixture;

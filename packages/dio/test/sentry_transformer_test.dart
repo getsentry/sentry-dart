@@ -7,8 +7,8 @@ import 'package:sentry_dio/src/sentry_transformer.dart';
 import 'package:test/scaffolding.dart';
 import 'package:test/test.dart';
 
-import '../../../dio/test/mocks.dart';
-import '../../../dio/test/mocks/mock_transport.dart';
+import 'dio/test/mocks.dart';
+import 'dio/test/mocks/mock_transport.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 final requestUri = Uri.parse('https://example.com?foo=bar#baz');
