@@ -37,21 +37,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install libsqlite3 (Linux)
-        if: matrix.os == 'ubuntu'
+      - name: Install libsqlite3
+        if: matrix.target == 'linux'
         run: sudo apt-get -y install libsqlite3-dev
-
-      - name: Install SQLite (macOS)
-        if: matrix.os == 'macos'
-        run: brew install sqlite3
-
-      - name: Install SQLite (Windows)
-        if: matrix.os == 'windows'
-        shell: powershell
-        run: |
-          Invoke-WebRequest -Uri "https://www.sqlite.org/2023/sqlite-dll-win64-x64-3420000.zip" -OutFile "sqlite.zip"
-          Expand-Archive -Path "sqlite.zip" -DestinationPath "C:\sqlite"
-          echo "C:\sqlite" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - uses: ./.github/actions/dart-test
         with:
