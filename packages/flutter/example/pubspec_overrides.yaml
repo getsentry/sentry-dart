@@ -1,30 +1,29 @@
-# melos_managed_dependency_overrides: sentry,sentry_dio,sentry_drift,sentry_file,sentry_flutter,sentry_hive,sentry_logging
+# melos_managed_dependency_overrides: sentry,sentry_dio,sentry_drift,sentry_file,sentry_flutter,sentry_hive,sentry_isar,sentry_logging,sentry_sqflite,isar,isar_flutter_libs,isar_generator
 dependency_overrides:
   sentry:
     path: ../../dart
-  sentry_flutter:
-    path: ../
   sentry_dio:
     path: ../../dio
+  sentry_drift:
+    path: ../../drift
+  sentry_file:
+    path: ../../file
+  sentry_flutter:
+    path: ..
+  sentry_hive:
+    path: ../../hive
+  sentry_isar:
+    path: ../../isar
   sentry_logging:
     path: ../../logging
   sentry_sqflite:
     path: ../../sqflite
-  sentry_file:
-    path: ../../file
-  sentry_hive:
-    path: ../../hive
-  sentry_drift:
-    path: ../../drift
-  sentry_isar:
-    path: ../../isar
-  # isar community fork is more stable
   isar:
-    version: ^3.1.0
     hosted: https://pub.isar-community.dev/
+    version: ^3.1.0
   isar_flutter_libs:
-    version: ^3.1.0
     hosted: https://pub.isar-community.dev/
+    version: ^3.1.0
   isar_generator:
-    version: ^3.1.0
     hosted: https://pub.isar-community.dev/
+    version: ^3.1.0
