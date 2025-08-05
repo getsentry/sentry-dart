@@ -4,6 +4,9 @@
 
 ### Features
 
+- Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
+  - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
+
 - Tag all spans with thread info ([#3101](https://github.com/getsentry/sentry-dart/pull/3101))
 
 ## 9.6.0
