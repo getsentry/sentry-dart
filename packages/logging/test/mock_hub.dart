@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'package:sentry/sentry.dart';
 
-import '../../../logging/test/no_such_method_provider.dart';
+import 'no_such_method_provider.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
