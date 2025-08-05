@@ -9,7 +9,7 @@ dependency_overrides:
   sentry_logging:
     path: ../../logging
   sentry_sqflite:
-    path: ../../../sqflite
+    path: ../../sqflite
   sentry_file:
     path: ../../file
   sentry_hive:
