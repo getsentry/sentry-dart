@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - .github/workflows/metrics.yml
-      - dart/**
+      - packages/dart/**
       - packages/flutter/**
       - metrics/**
       - "!**/*.md"

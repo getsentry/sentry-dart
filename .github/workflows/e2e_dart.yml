@@ -9,8 +9,8 @@ on:
       - "!**/*.md"
       - "!**/class-diagram.svg"
       - ".github/workflows/e2e_dart.yml"
-      - '.github/workflows/analyze.yml'
-      - "dart/**"
+      - ".github/workflows/analyze.yml"
+      - "packages/dart/**"
       - "e2e_test/**"
 
 env:
