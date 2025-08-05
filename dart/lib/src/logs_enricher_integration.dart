@@ -15,7 +15,7 @@ class LogsEnricherIntegration extends Integration<SentryOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
     if (options.enableLogs) {
-      hub.registerSdkLifecycleCallback<OnBeforeCaptureLog>(
+      options.lifecycleRegistry.registerCallback<OnBeforeCaptureLog>(
         (event) async {
           final os = getSentryOperatingSystem();
 
