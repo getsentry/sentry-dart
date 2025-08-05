@@ -11,6 +11,7 @@ import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
 import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
+import 'package:sentry_flutter/src/integrations/generic_app_start_integration.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
 import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
@@ -36,6 +37,10 @@ final platformAgnosticIntegrations = [
 final webIntegrations = [
   ConnectivityIntegration,
   WebSessionIntegration,
+];
+
+final linuxWindowsAndWebIntegrations = [
+  GenericAppStartIntegration,
 ];
 
 final nonWebIntegrations = [
@@ -257,6 +262,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
+          ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -305,6 +311,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
+          ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -354,6 +361,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -424,6 +432,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -468,6 +477,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -512,6 +522,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
@@ -687,6 +698,29 @@ void main() {
       await SentryFlutter.init(
         (options) {
           expect(options.enableDartSymbolication, false);
+        },
+        appRunner: appRunner,
+        options: sentryFlutterOptions,
+      );
+      SentryFlutter.native = null;
+    });
+
+    test('ThreadInfoIntegration is added', () async {
+      final sentryFlutterOptions =
+          defaultTestOptions(checker: MockRuntimeChecker())
+            ..platform = MockPlatform.android()
+            ..methodChannel = native.channel;
+
+      SentryFlutter.native = mockNativeBinding();
+      await SentryFlutter.init(
+        (options) {
+          expect(
+            options.integrations.any((integration) =>
+                integration.runtimeType.toString() == 'ThreadInfoIntegration'),
+            true,
+            reason:
+                'ThreadInfoIntegration should be added when tracing is enabled',
+          );
         },
         appRunner: appRunner,
         options: sentryFlutterOptions,

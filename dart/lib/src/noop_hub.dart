@@ -144,9 +144,4 @@ class NoOpHub implements Hub {
 
   @override
   Scope get scope => Scope(_options);
-
-  @internal
-  @override
-  void registerCallback<T extends SdkLifecycleEvent>(
-      SdkLifecycleCallback<T> callback) {}
 }

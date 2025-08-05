@@ -1761,17 +1761,6 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
         ),
         returnValueForMissingStub: null,
       );
-
-  @override
-  void registerCallback<T extends _i2.SdkLifecycleEvent>(
-          _i2.SdkLifecycleCallback<T>? callback) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #registerCallback,
-          [callback],
-        ),
-        returnValueForMissingStub: null,
-      );
 }
 
 /// A class which mocks [MethodChannel].
@@ -4316,17 +4305,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             span,
             transaction,
           ],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void registerCallback<T extends _i2.SdkLifecycleEvent>(
-          _i2.SdkLifecycleCallback<T>? callback) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #registerCallback,
-          [callback],
         ),
         returnValueForMissingStub: null,
       );

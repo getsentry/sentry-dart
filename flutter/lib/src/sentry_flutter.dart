@@ -23,6 +23,8 @@ import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
 import 'integrations/screenshot_integration.dart';
+import 'integrations/generic_app_start_integration.dart';
+import 'integrations/thread_info_integration.dart';
 import 'integrations/web_session_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
@@ -191,12 +193,14 @@ mixin SentryFlutter {
           integrations.add(LoadContextsIntegration(native));
         }
         integrations.add(FramesTrackingIntegration(native));
-        integrations.add(
-          NativeAppStartIntegration(
-            DefaultFrameCallbackHandler(),
-            NativeAppStartHandler(native),
-          ),
-        );
+        if (platform.isIOS || platform.isAndroid || platform.isMacOS) {
+          integrations.add(
+            NativeAppStartIntegration(
+              DefaultFrameCallbackHandler(),
+              NativeAppStartHandler(native),
+            ),
+          );
+        }
         integrations.add(ReplayIntegration(native));
       } else {
         // Updating sessions manually is only relevant for web
@@ -207,6 +211,10 @@ mixin SentryFlutter {
         integrations.add(WebSessionIntegration(native));
       }
       options.enableDartSymbolication = false;
+    }
+
+    if (platform.isWeb || platform.isLinux || platform.isWindows) {
+      integrations.add(GenericAppStartIntegration());
     }
 
     if (options.isScreenshotSupported) {
@@ -221,6 +229,8 @@ mixin SentryFlutter {
     integrations.add(SentryViewHierarchyIntegration());
 
     integrations.add(DebugPrintIntegration());
+
+    integrations.add(ThreadInfoIntegration());
 
     return integrations;
   }
@@ -291,6 +301,8 @@ mixin SentryFlutter {
     }
     final transactionId = options.timeToDisplayTracker.transactionId;
     if (transactionId == null) {
+      hub.options.log(SentryLevel.error,
+          'Could not process TTFD for screen ${SentryNavigatorObserver.currentRouteName} - transactionId should not be null');
       return null;
     }
     return SentryDisplay(transactionId, hub: hub);

@@ -412,6 +412,9 @@ class SentryOptions {
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();
 
+  @internal
+  late SdkLifecycleRegistry lifecycleRegistry = SdkLifecycleRegistry(this);
+
   /// List of strings/regex controlling to which outgoing requests
   /// the SDK will attach tracing headers.
   ///
@@ -510,26 +513,6 @@ class SentryOptions {
   /// On Android & iOS, the proxy settings are handled by the native SDK.
   /// iOS only supports http proxies, while macOS also supports socks.
   SentryProxy? proxy;
-
-  final List<BeforeSendEventObserver> _beforeSendEventObserver = [];
-
-  @internal
-  List<BeforeSendEventObserver> get beforeSendEventObservers =>
-      List.unmodifiable(_beforeSendEventObserver);
-
-  /// Adds an observer which is called right before an event is sent.
-  /// This should not be used to mutate the event.
-  ///
-  /// Note: this is not triggered for transactions/spans with startTransaction or startChild.
-  @internal
-  void addBeforeSendEventObserver(BeforeSendEventObserver observer) {
-    _beforeSendEventObserver.add(observer);
-  }
-
-  @internal
-  void removeBeforeSendEventObserver(BeforeSendEventObserver observer) {
-    _beforeSendEventObserver.remove(observer);
-  }
 
   /// Whether to group exceptions hierarchically.
   ///

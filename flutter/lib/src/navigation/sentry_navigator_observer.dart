@@ -149,7 +149,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _startNewTraceIfEnabled();
     _setCurrentRouteName(route);
     _setCurrentRouteNameAsTransaction(route);
 
@@ -161,14 +160,15 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     _addWebSessions(from: previousRoute, to: route);
 
-    // Clearing the display tracker here is safe since didPush happens before the Widget is built
-    _timeToDisplayTracker?.clear();
+    final routeName = _getRouteName(route) ?? _currentRouteName;
+    if (routeName != null && routeName != '/') {
+      // Don't generate a new trace on initial app start / root
+      // During SentryFlutter.init a traceId is already created
+      _startNewTraceIfEnabled();
 
-    DateTime timestamp = _hub.options.clock();
-    _finishTransaction(endTimestamp: timestamp);
-
-    final transactionContext = _createTransactionContext(route);
-    _startTransaction(route, timestamp, transactionContext);
+      // App start TTID/TTFD is taken care of by app start integrations
+      _instrumentTimeToDisplayOnPush(routeName, route.settings.arguments);
+    }
   }
 
   @override
@@ -224,6 +224,21 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
+  void _instrumentTimeToDisplayOnPush(String routeName, Object? arguments) {
+    if (!_enableAutoTransactions) {
+      return;
+    }
+
+    // Clearing the display tracker here is safe since didPush happens before the Widget is built
+    _timeToDisplayTracker?.clear();
+
+    DateTime timestamp = _hub.options.clock();
+    _finishTransaction(endTimestamp: timestamp);
+
+    final transactionContext = _createTransactionContext(routeName);
+    _startTransaction(timestamp, transactionContext, arguments);
+  }
+
   void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {
     final fromName = from != null ? _getRouteName(from) : null;
     final toName = to != null ? _getRouteName(to) : null;
@@ -266,11 +281,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  SentryTransactionContext? _createTransactionContext(Route<dynamic>? route) {
-    final routeName = _getRouteName(route) ?? _currentRouteName;
-    if (routeName == null) {
-      return null;
-    }
+  SentryTransactionContext _createTransactionContext(String routeName) {
     return SentryTransactionContext(
       routeName,
       SentrySpanOperations.uiLoad,
@@ -280,21 +291,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   Future<void> _startTransaction(
-    Route<dynamic>? route,
     DateTime startTimestamp,
-    SentryTransactionContext? transactionContext,
+    SentryTransactionContext transactionContext,
+    Object? arguments,
   ) async {
-    final routeName = _getRouteName(route) ?? _currentRouteName;
-    final arguments = route?.settings.arguments;
-
-    final isRoot = routeName ==
-        '/'; // Root transaction is already created by the app start integration.
-    if (!_enableAutoTransactions || routeName == null || isRoot) {
-      return;
-    }
-    if (transactionContext == null) {
-      return;
-    }
     _timeToDisplayTracker?.transactionId = transactionContext.spanId;
 
     final transaction = _hub.startTransactionWithContext(

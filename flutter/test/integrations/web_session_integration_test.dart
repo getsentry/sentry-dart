@@ -1,5 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -59,6 +60,10 @@ void main() {
     });
 
     test('handles enable being called multiple times', () {
+      expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+          isEmpty);
+
       final sut = fixture.getSut(native);
       sut.call(hub, fixture.options);
       sut.enable();
@@ -70,42 +75,41 @@ void main() {
                   integration == WebSessionIntegration.integrationName)
               .length,
           1);
-      expect(fixture.options.beforeSendEventObservers.length, 1);
-    });
 
-    test('adds BeforeSendEventObserver when enabled', () {
-      expect(fixture.options.beforeSendEventObservers.length, 0);
-
-      final sut = fixture.getSut(native);
-      sut.call(hub, fixture.options);
-      sut.enable();
-
-      expect(fixture.options.beforeSendEventObservers.length, 1);
       expect(
-          fixture.options.beforeSendEventObservers.first
-              is WebSessionIntegration,
-          true);
+          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened
+              .length,
+          1);
     });
 
-    test('BeforeSendEventObserver uses correct session handler', () {
+    test('adds onBeforeSendEventCallback when enabled', () {
       final sut = fixture.getSut(native);
+
+      expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+          isEmpty);
+
       sut.call(hub, fixture.options);
       sut.enable();
 
-      final observer = fixture.options.beforeSendEventObservers.first
-          as WebSessionIntegration;
-      expect(observer.webSessionHandler, equals(sut.webSessionHandler));
+      expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+          isNotEmpty);
     });
 
-    test('removes BeforeSendEventObserver on close', () {
+    test('removes onBeforeSendEventCallback on close', () {
       final sut = fixture.getSut(native);
       sut.call(hub, fixture.options);
       sut.enable();
-      expect(fixture.options.beforeSendEventObservers.length, 1);
+      expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+          isNotEmpty);
 
       sut.close();
 
-      expect(fixture.options.beforeSendEventObservers.length, 0);
+      expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+          isEmpty);
     });
 
     test('sets WebSessionHandler when enabled', () {
