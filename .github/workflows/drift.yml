@@ -41,6 +41,12 @@ jobs:
         if: matrix.target == 'linux'
         run: sudo apt-get -y install libsqlite3-dev
 
+      - name: Install SQLite on Windows
+        if: matrix.target == 'windows'
+        run: |
+          choco install sqlite -y
+          echo "C:/ProgramData/chocolatey/lib/sqlite/tools" >> $GITHUB_PATH
+
       - uses: ./.github/actions/dart-test
         with:
           directory: packages/drift
