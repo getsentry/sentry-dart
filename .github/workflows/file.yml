@@ -12,9 +12,9 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
-      - 'dart/**'
-      - 'flutter/**'
-      - 'file/**'
+      - 'packages/dart/**'
+      - 'packages/flutter/**'
+      - 'packages/file/**'
 
 jobs:
   cancel-previous-workflow:
@@ -40,19 +40,19 @@ jobs:
 
       - uses: ./.github/actions/dart-test
         with:
-          directory: file
+          directory: packages/file
           web: false
 
       - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: file
+          directory: packages/file
           coverage: sentry_file
           min-coverage: 55
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: file
+      package: packages/file
       panaThreshold: 90
