@@ -28,7 +28,7 @@ dependency_overrides:
   sentry:
     path: ../../packages/dart
   sentry_flutter:
-    path: ../../flutter
+    path: ../../packages/flutter
 
 EOF
 
