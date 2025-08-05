@@ -37,7 +37,7 @@ jobs:
 
       - uses: ./.github/actions/flutter-test
         with:
-          directory: firebase_remote_config
+          directory: packages/firebase_remote_config
           web: false
 
 #       TODO: don't set coverage for now to finish publishing it
@@ -52,5 +52,5 @@ jobs:
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: firebase_remote_config
+      package: packages/firebase_remote_config
       sdk: flutter
