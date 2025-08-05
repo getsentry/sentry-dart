@@ -6,8 +6,8 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_dio/src/breadcrumb_client_adapter.dart';
 import 'package:test/test.dart';
 
-import 'dio/test/mocks/mock_http_client_adapter.dart';
-import 'dio/test/mocks/mock_hub.dart';
+import 'mocks/mock_http_client_adapter.dart';
+import 'mocks/mock_hub.dart';
 
 void main() {
   group(BreadcrumbClientAdapter, () {

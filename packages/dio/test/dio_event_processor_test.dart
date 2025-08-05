@@ -7,7 +7,7 @@ import 'package:sentry_dio/src/dio_error_extractor.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
 
-import 'dio/test/mocks.dart';
+import 'mocks.dart';
 
 void main() {
   late Fixture fixture;

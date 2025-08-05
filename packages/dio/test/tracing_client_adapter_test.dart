@@ -7,9 +7,9 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_dio/src/tracing_client_adapter.dart';
 import 'package:test/test.dart';
 
-import 'dio/test/mocks.dart';
-import 'dio/test/mocks/mock_http_client_adapter.dart';
-import 'dio/test/mocks/mock_transport.dart';
+import 'mocks.dart';
+import 'mocks/mock_http_client_adapter.dart';
+import 'mocks/mock_transport.dart';
 
 final requestUri = Uri.parse('https://example.com?foo=bar#baz');
 final requestOptions = '?foo=bar#baz';
