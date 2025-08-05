@@ -5,8 +5,8 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 
-import 'dio/lib/src/breadcrumb_client_adapter.dart';
-import 'dio/lib/src/tracing_client_adapter.dart';
+import 'breadcrumb_client_adapter.dart';
+import 'tracing_client_adapter.dart';
 
 /// A [Dio](https://pub.dev/packages/dio)-package compatible HTTP client adapter.
 ///
