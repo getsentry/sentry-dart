@@ -12,7 +12,7 @@ import 'package:sentry_dio/src/version.dart';
 import 'package:test/test.dart';
 
 import 'failed_request_interceptor_test.dart';
-import 'mocks/mock_hub.dart';
+import '../../../dio/test/mocks/mock_hub.dart';
 
 void main() {
   late Fixture fixture;

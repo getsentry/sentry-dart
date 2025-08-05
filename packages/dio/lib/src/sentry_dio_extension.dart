@@ -2,11 +2,11 @@
 
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
-import 'dio_error_extractor.dart';
-import 'dio_event_processor.dart';
+import '../../../../dio/lib/src/dio_error_extractor.dart';
+import '../../../../dio/lib/src/dio_event_processor.dart';
 import 'dio_stacktrace_extractor.dart';
 import 'failed_request_interceptor.dart';
-import 'sentry_transformer.dart';
+import '../../../../dio/lib/src/sentry_transformer.dart';
 import 'sentry_dio_client_adapter.dart';
 import 'version.dart';
 

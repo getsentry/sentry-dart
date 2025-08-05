@@ -6,10 +6,10 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_dio/src/sentry_dio_client_adapter.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
-import 'mocks/mock_http_client_adapter.dart';
-import 'mocks/mock_hub.dart';
-import 'mocks/mock_transport.dart';
+import '../../../dio/test/mocks.dart';
+import '../../../dio/test/mocks/mock_http_client_adapter.dart';
+import '../../../dio/test/mocks/mock_hub.dart';
+import '../../../dio/test/mocks/mock_transport.dart';
 
 final requestUri = Uri.parse('https://example.com/');
 
