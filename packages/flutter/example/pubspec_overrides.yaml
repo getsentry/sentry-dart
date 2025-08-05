@@ -17,7 +17,7 @@ dependency_overrides:
   sentry_drift:
     path: ../../drift
   sentry_isar:
-    path: ../../../isar
+    path: ../../isar
   # isar community fork is more stable
   isar:
     version: ^3.1.0
