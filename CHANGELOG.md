@@ -6,6 +6,12 @@
 
 - Tag all spans with thread info ([#3101](https://github.com/getsentry/sentry-dart/pull/3101))
 
+### Dependencies
+
+- Bump Cocoa SDK from v8.52.1 to v8.54.0 ([#3122](https://github.com/getsentry/sentry-dart/pull/3122))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8540)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.52.1...8.54.0)
+
 ## 9.6.0
 
 Note: this release might require updating your Android Gradle Plugin version to at least `8.1.4`.
