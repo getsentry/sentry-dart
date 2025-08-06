@@ -16,6 +16,10 @@ cd "$(dirname "$0")/../"
 
 binding_path="lib/src/native/java/binding.dart"
 
+cd example
+flutter build apk
+cd -
+
 # Regenerate the bindings.
 dart run jnigen --config ffi-jni.yaml
 

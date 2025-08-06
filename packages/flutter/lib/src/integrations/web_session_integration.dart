@@ -21,7 +21,6 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
   static const integrationName = 'WebSessionIntegration';
 
   SentryFlutterOptions? _options;
-  Hub? _hub;
   WebSessionHandler? _webSessionHandler;
   WebSessionHandler? get webSessionHandler => _webSessionHandler;
   SdkLifecycleCallback<OnBeforeSendEvent>? _onBeforeSendEventCallback;
@@ -33,7 +32,6 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     _options = options;
-    _hub = hub;
     _options?.log(SentryLevel.info,
         '$integrationName initialization started, waiting for SentryNavigatorObserver to be initialized.');
   }
@@ -41,7 +39,8 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
   @override
   void close() {
     if (_onBeforeSendEventCallback != null) {
-      _hub?.removeSdkLifecycleCallback(_onBeforeSendEventCallback!);
+      _options?.lifecycleRegistry
+          .removeCallback<OnBeforeSendEvent>(_onBeforeSendEventCallback!);
     }
   }
 
@@ -60,8 +59,7 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
     _onBeforeSendEventCallback = (lifecycleEvent) async {
       await _webSessionHandler?.updateSessionFromEvent(lifecycleEvent.event);
     };
-    _hub?.registerSdkLifecycleCallback<OnBeforeSendEvent>(
-        _onBeforeSendEventCallback!);
+    _options?.lifecycleRegistry.registerCallback(_onBeforeSendEventCallback!);
     _options?.sdk.addIntegration(integrationName);
     _options?.log(SentryLevel.info, '$integrationName successfully enabled.');
   }

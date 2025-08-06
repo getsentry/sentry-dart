@@ -4,10 +4,8 @@ import 'hint.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
-import 'sdk_lifecycle_hooks.dart';
 import 'sentry_client.dart';
 import 'sentry_envelope.dart';
-import 'sentry_options.dart';
 import 'sentry_trace_context_header.dart';
 
 class NoOpSentryClient implements SentryClient {
@@ -71,9 +69,4 @@ class NoOpSentryClient implements SentryClient {
 
   @override
   FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {}
-
-  final _lifeCycleRegistry = SdkLifecycleRegistry(SentryOptions.empty());
-
-  @override
-  SdkLifecycleRegistry get lifeCycleRegistry => _lifeCycleRegistry;
 }

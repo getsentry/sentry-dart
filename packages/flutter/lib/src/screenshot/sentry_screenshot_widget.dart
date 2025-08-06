@@ -107,7 +107,7 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
     final status = SentryScreenshotWidgetStatus(
       size: mq.size,
       pixelRatio: mq.devicePixelRatio,
-      orientantion: mq.orientation,
+      orientation: mq.orientation,
     );
     final prevStatus = SentryScreenshotWidget._status;
     SentryScreenshotWidget._status = status;
@@ -180,11 +180,38 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
 class SentryScreenshotWidgetStatus {
   final Size? size;
   final double? pixelRatio;
-  final Orientation? orientantion;
+  final Orientation? orientation;
+
+  static const double _pixelRatioTolerance = 1e-6;
+  static const double _sizeTolerance = 0.05;
 
   const SentryScreenshotWidgetStatus({
     required this.size,
     required this.pixelRatio,
-    required this.orientantion,
+    required this.orientation,
   });
+
+  bool matches(SentryScreenshotWidgetStatus other) {
+    if (identical(this, other)) return true;
+    if (orientation != other.orientation) return false;
+
+    if (pixelRatio == null || other.pixelRatio == null) {
+      if (pixelRatio != other.pixelRatio) return false;
+    } else if ((pixelRatio! - other.pixelRatio!).abs() > _pixelRatioTolerance) {
+      return false;
+    }
+
+    if (size == null || other.size == null) {
+      if (size != other.size) return false;
+    } else {
+      if ((size!.width - other.size!.width).abs() > _sizeTolerance) {
+        return false;
+      }
+      if ((size!.height - other.size!.height).abs() > _sizeTolerance) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }

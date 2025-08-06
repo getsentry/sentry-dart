@@ -60,7 +60,9 @@ void main() {
     });
 
     test('handles enable being called multiple times', () {
-      expect(hub.lifecycleCallbacks.values.flattened, isEmpty);
+      expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+          isEmpty);
 
       final sut = fixture.getSut(native);
       sut.call(hub, fixture.options);
@@ -74,29 +76,40 @@ void main() {
               .length,
           1);
 
-      expect(hub.lifecycleCallbacks.values.flattened.length, 1);
+      expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened
+              .length,
+          1);
     });
 
     test('adds onBeforeSendEventCallback when enabled', () {
       final sut = fixture.getSut(native);
 
-      expect(hub.lifecycleCallbacks.values.flattened, isEmpty);
+      expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+          isEmpty);
 
       sut.call(hub, fixture.options);
       sut.enable();
 
-      expect(hub.lifecycleCallbacks.values.flattened, isNotEmpty);
+      expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+          isNotEmpty);
     });
 
     test('removes onBeforeSendEventCallback on close', () {
       final sut = fixture.getSut(native);
       sut.call(hub, fixture.options);
       sut.enable();
-      expect(hub.lifecycleCallbacks.values.flattened, isNotEmpty);
+      expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+          isNotEmpty);
 
       sut.close();
 
-      expect(hub.lifecycleCallbacks.values.flattened, isEmpty);
+      expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+          isEmpty);
     });
 
     test('sets WebSessionHandler when enabled', () {
