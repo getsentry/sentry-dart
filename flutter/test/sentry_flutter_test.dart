@@ -742,8 +742,7 @@ void main() {
             options.integrations.any((integration) =>
                 integration.runtimeType.toString() == 'ThreadInfoIntegration'),
             false,
-            reason:
-                'ThreadInfoIntegration should not be added on web platform',
+            reason: 'ThreadInfoIntegration should not be added on web platform',
           );
         },
         appRunner: appRunner,
