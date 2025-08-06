@@ -4,6 +4,9 @@ packages:
   - 'packages/*/*'
   - 'packages/*/*/*'
 
+ignore:
+  - 'packages/flutter/example/' # ignore it for now
+
 ide:
   intellij:
     moduleNamePrefix: ''
