@@ -11,7 +11,7 @@ set -euo pipefail
 #   set-version X – updates the version to X, refreshes integrity hashes and
 #                   regenerates the Dart constant file used by the web runtime
 
-VERSION_DART_FILE="$(git rev-parse --show-toplevel)/flutter/lib/src/web/sentry_js_sdk_version.dart"
+VERSION_DART_FILE="$(git rev-parse --show-toplevel)/packages/flutter/lib/src/web/sentry_js_sdk_version.dart"
 
 get_current_version() {
   awk -F"'" '/sentryJsSdkVersion/ { print $2 }' "$VERSION_DART_FILE"

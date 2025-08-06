@@ -1,35 +1,99 @@
-### Dart
+# Contributing to Sentry Dart & Flutter
 
-All you need is the [sentry-dart](https://github.com/getsentry/sentry-dart/tree/main/dart). The `sentry` package doesn't depend on the Flutter SDK.
+Thank you for your interest in contributing to Sentry's Dart and Flutter SDKs! This guide will help
+you get started.
 
-### Flutter
+## Prerequisites
 
-All you need is the [sentry-flutter](https://github.com/getsentry/sentry-dart/tree/main/flutter) and `sentry-dart` as stated above.
+### Required Tools
 
-The SDK currently supports Android, iOS, and Web. We build the example app for these targets on 3 platforms: Windows, macOS, and Linux.
-This is to make sure you'd be able to contribute to this project if you're using any of these operating systems.
+* **Dart SDK** - Required for all packages
+* **Flutter SDK** - Required for `sentry-flutter` and Flutter integrations
+* **[melos](https://melos.invertase.dev/)** - For managing the monorepo
 
-We also run CI against the Flutter `stable` and `beta` channels, so you should be able to build it if you're in one of those.
+## Environment Setup
 
-The Flutter SDK has our Native SDKs embedded if you wish to learn more about them, they sit at:
+### 1. Install melos
 
-[sentry-java](https://github.com/getsentry/sentry-java) for the Android integration.
-[sentry-cocoa](https://github.com/getsentry/sentry-cocoa) for the Apple integration.
-[sentry-native](https://github.com/getsentry/sentry-native) for the Android NDK integration.
+```bash
+dart pub global activate melos
+```
 
-### Dependencies
+### 2. Bootstrap the project
 
-* The Dart SDK (if you want to change `sentry-dart`)
-* The Flutter SDK (if you want to change `sentry-dart` or `sentry-flutter`)
-* Android: Android SDK (`sentry-java`) with NDK (`sentry-native`): The example project includes C++.
-* iOS: Cocoa SDK (`sentry-cocoa`), you'll need a Mac with Xcode installed.
-* Web: No additional dependencies.
+At the repository root, run:
 
-### Static Code Analysis, Tests, Formatting, Pub Score and Dry publish
+```bash
+melos bootstrap
+```
 
-* Dart/Flutter
-  * Execute `./tool/presubmit.sh` within the `dart` and `flutter` folders
-* Swift/CocoaPods
-  * Use `swiftlint` and `pod lib lint`
-* Kotlin
-  * Use `ktlint` and `detekt`
+If you're using [fvm](https://fvm.app/), specify the SDK path:
+
+```bash
+melos bootstrap --sdk-path=/Users/user/fvm/default/
+```
+
+## Project Structure
+
+### Core SDKs
+
+* **[packages/dart](https://github.com/getsentry/sentry-dart/tree/main/packages/dart)** - Core Dart
+  SDK (`sentry` package)
+* **[packages/flutter](https://github.com/getsentry/sentry-dart/tree/main/packages/flutter)** -
+  Flutter SDK (`sentry_flutter` package)
+
+### Integration Packages
+
+Located under `packages/`, we maintain integrations for popular Dart/Flutter libraries:
+
+* **sentry_dio** - HTTP client integration for [dio](https://pub.dev/packages/dio)
+* **sentry_logging** - Integration for the [logging](https://pub.dev/packages/logging) package
+* **sentry_sqflite** - Integration for [sqflite](https://pub.dev/packages/sqflite) database
+* **sentry_drift** - Integration for [drift](https://pub.dev/packages/drift) database
+* **sentry_hive** - Integration for [hive](https://pub.dev/packages/hive) database
+* **sentry_isar** - Integration for [isar](https://pub.dev/packages/isar) database
+* **sentry_file** - File I/O operations integration
+* **sentry_link** - GraphQL integration via [gql_link](https://pub.dev/packages/gql_link)
+* **sentry_firebase_remote_config** - Integration
+  for [firebase_remote_config](https://pub.dev/packages/firebase_remote_config)
+
+## Platform Support
+
+The Flutter SDK supports the following platforms:
+
+* Android
+* iOS
+* macOS
+* Linux
+* Windows
+* Web
+
+We test the example app on Windows, macOS, and Linux to ensure cross-platform compatibility. CI runs
+against Flutter `stable` and `beta` channels.
+
+## Native SDK Dependencies
+
+The Flutter SDK embeds platform-specific native SDKs:
+
+* **Android**: [sentry-java](https://github.com/getsentry/sentry-java) (via
+  Gradle) + [sentry-native](https://github.com/getsentry/sentry-native) for NDK
+* **iOS/macOS**: [sentry-cocoa](https://github.com/getsentry/sentry-cocoa) (via CocoaPods/SPM)
+* **Linux/Windows**: [sentry-native](https://github.com/getsentry/sentry-native) (bundled in
+  `packages/flutter/sentry-native/`)
+* **Web**: [sentry-javascript](https://github.com/getsentry/sentry-javascript) (loaded via CDN)
+
+[//]: # (TODO: buenaflor - properly set up precommit hooks)
+[//]: # (### Static Code Analysis, Tests, Formatting, Pub Score and Dry publish)
+
+[//]: # ()
+[//]: # (* Dart/Flutter)
+
+[//]: # (  * Execute `./tool/presubmit.sh` within the `dart` and `flutter` folders)
+
+[//]: # (* Swift/CocoaPods)
+
+[//]: # (  * Use `swiftlint` and `pod lib lint`)
+
+[//]: # (* Kotlin)
+
+[//]: # (  * Use `ktlint` and `detekt`)

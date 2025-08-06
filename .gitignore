@@ -22,4 +22,4 @@ pubspec.lock
 Podfile.lock
 
 .gradle
-flutter/.gradle
+packages/flutter/.gradle
