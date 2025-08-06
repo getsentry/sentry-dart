@@ -2,6 +2,7 @@ import 'dart:io';
 import 'src/image_bench.dart' as image_bench;
 import 'src/memory_bench.dart' as memory_bench;
 import 'src/jni_bench.dart' as jni_bench;
+import 'src/envelope_builder_bench.dart' as envelope_builder_bench;
 
 typedef BenchmarkSet = (String name, Future<void> Function() callback);
 
@@ -12,6 +13,7 @@ Future<void> main() async {
     ('Image', image_bench.execute),
     ('Memory', memory_bench.execute),
     if (Platform.isAndroid) ('JNI', jni_bench.execute),
+    ('EnvelopeBuilder', envelope_builder_bench.execute),
   ];
 
   RegExp? filterRegexp;
