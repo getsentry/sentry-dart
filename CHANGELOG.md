@@ -10,6 +10,12 @@
 
 - Improve envelope conversion to `Uint8List` in `FileSystemTransport` ([#3147](https://github.com/getsentry/sentry-dart/pull/3147))
 
+### Dependencies
+
+- Bump Android SDK from v8.17.0 to v8.18.0 ([#3150](https://github.com/getsentry/sentry-dart/pull/3150))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8180)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.17.0...8.18.0)
+
 ## 9.6.0
 
 Note: this release might require updating your Android Gradle Plugin version to at least `8.1.4`.
