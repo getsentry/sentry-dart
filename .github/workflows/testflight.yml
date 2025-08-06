@@ -23,17 +23,17 @@ jobs:
           bundler-cache: true
 
       - name: flutter
-        working-directory: ./flutter/example
+        working-directory: ./packages/flutter/example
         run: |
           flutter pub get
           flutter build ios --no-codesign --obfuscate --split-debug-info=.
 
       - name: Install Fastlane
-        working-directory: ./flutter/example/ios
+        working-directory: ./packages/flutter/example/ios
         run: bundle install
 
       - name: Bump, Build & Upload App to TestFlight
-        working-directory: ./flutter/example/ios
+        working-directory: ./packages/flutter/example/ios
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -51,7 +51,7 @@ jobs:
           bundle exec fastlane upload_testflight
 
       - name: Upload Symbols to Sentry
-        working-directory: ./flutter/example
+        working-directory: ./packages/flutter/example
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: flutter packages pub run sentry_dart_plugin

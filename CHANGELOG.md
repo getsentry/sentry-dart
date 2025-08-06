@@ -5,6 +5,51 @@
 ### Features
 
 - Add [SensitiveContent](https://main-api.flutter.dev/flutter/widgets/SensitiveContent-class.html) widget to default masking ([#2989](https://github.com/getsentry/sentry-dart/pull/2989))
+- Tag all spans with thread info ([#3101](https://github.com/getsentry/sentry-dart/pull/3101))
+
+### Enhancements
+
+- Improve envelope conversion to `Uint8List` in `FileSystemTransport` ([#3147](https://github.com/getsentry/sentry-dart/pull/3147))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.52.1 to v8.54.0 ([#3149](https://github.com/getsentry/sentry-dart/pull/3149/))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8540)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.52.1...8.54.0)
+- Bump Android SDK from v8.17.0 to v8.18.0 ([#3150](https://github.com/getsentry/sentry-dart/pull/3150))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8180)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.17.0...8.18.0)
+
+## 9.6.0
+
+Note: this release might require updating your Android Gradle Plugin version to at least `8.1.4`.
+
+### Fixes
+
+- False replay config restarts because of `ScreenshotWidgetStatus` equality issues ([#3114](https://github.com/getsentry/sentry-dart/pull/3114))
+- Debug meta not loaded for split debug info only builds ([#3104](https://github.com/getsentry/sentry-dart/pull/3104))
+- TTID/TTFD root transactions ([#3099](https://github.com/getsentry/sentry-dart/pull/3099), [#3111](https://github.com/getsentry/sentry-dart/pull/3111))
+  - Web, Linux and Windows now create a UI transaction for the root page
+  - iOS, Android now correctly create idle transactions
+  - Fixes behaviour of traceId generation and TTFD for app start
+- Directionality assertion issue in debug mode ([#3088](https://github.com/getsentry/sentry-dart/pull/3088))
+
+### Dependencies
+
+- Bump JNI from v0.14.1 to v0.14.2 ([#3075](https://github.com/getsentry/sentry-dart/pull/3075))
+- Bump Android SDK from v8.13.2 to v8.17.0 ([#2977](https://github.com/getsentry/sentry-dart/pull/2977))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8170)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.13.2...8.17.0)
+
+### Internal
+
+- Use lifecycle hook for before send event ([#3017](https://github.com/getsentry/sentry-dart/pull/3017))
+
+## 9.6.0-beta.2
+
+### Fixes
+
+- False replay config restarts because of `ScreenshotWidgetStatus` equality issues ([#3114](https://github.com/getsentry/sentry-dart/pull/3114))
 
 ## 9.6.0-beta.1
 

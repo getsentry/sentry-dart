@@ -12,8 +12,8 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/flutter-test/**'
       - '.github/actions/coverage/**'
-      - 'dart/**'
-      - 'isar/**'
+      - 'packages/dart/**'
+      - 'packages/isar/**'
 
 jobs:
   cancel-previous-workflow:
@@ -39,18 +39,18 @@ jobs:
 
       - uses: ./.github/actions/flutter-test
         with:
-          directory: isar
+          directory: packages/isar
 
       - uses: ./.github/actions/coverage
         if: matrix.target == 'linux' && matrix.sdk == 'stable'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: isar
+          directory: packages/isar
           coverage: sentry_isar
           min-coverage: 55
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: isar
+      package: packages/isar
       sdk: flutter

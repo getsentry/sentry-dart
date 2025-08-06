@@ -12,8 +12,8 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
-      - 'dart/**'
-      - 'logging/**'
+      - 'packages/dart/**'
+      - 'packages/logging/**'
 
 jobs:
   cancel-previous-workflow:
@@ -39,17 +39,17 @@ jobs:
 
       - uses: ./.github/actions/dart-test
         with:
-          directory: logging
+          directory: packages/logging
 
       - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: logging
+          directory: packages/logging
           coverage: sentry_logging
           min-coverage: 90
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: logging
+      package: packages/logging
