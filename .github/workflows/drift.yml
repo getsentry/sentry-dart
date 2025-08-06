@@ -31,13 +31,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu, macos, windows ]
+        os: [ubuntu, macos, windows]
         sdk: [stable, beta]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install libsqlite3 (Linux)
+      - name: Install libsqlite3 (Ubuntu)
         if: matrix.os == 'ubuntu'
         run: sudo apt-get -y install libsqlite3-dev
 
