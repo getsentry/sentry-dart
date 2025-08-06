@@ -12,8 +12,8 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
-      - 'dart/**'
-      - 'link/**'
+      - 'packages/dart/**'
+      - 'packages/link/**'
 
 jobs:
   cancel-previous-workflow:
@@ -39,7 +39,7 @@ jobs:
 
       - uses: ./.github/actions/dart-test
         with:
-          directory: link
+          directory: packages/link
           web: false
 
 #       TODO: don't set coverage for now to finish publishing it
@@ -54,4 +54,4 @@ jobs:
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: link
+      package: packages/link
