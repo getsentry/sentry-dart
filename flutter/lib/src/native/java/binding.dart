@@ -55,7 +55,7 @@ class ReplayIntegration extends jni$_.JObject {
   static const nullableType = $ReplayIntegration$NullableType();
   static const type = $ReplayIntegration$Type();
   static final _id_new$ = _class.constructorId(
-    r'(Landroid/content/Context;Lio/sentry/transport/ICurrentDateProvider;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V',
+    r'(Landroid/content/Context;Lio/sentry/transport/ICurrentDateProvider;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)V',
   );
 
   static final _new$ = jni$_.ProtectedJniExtensions.lookup<
@@ -68,7 +68,6 @@ class ReplayIntegration extends jni$_.JObject {
                         jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>
                       )>)>>('globalEnv_NewObject')
       .asFunction<
@@ -78,36 +77,32 @@ class ReplayIntegration extends jni$_.JObject {
               jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public void <init>(android.content.Context context, io.sentry.transport.ICurrentDateProvider iCurrentDateProvider, kotlin.jvm.functions.Function0<? extends io.sentry.android.replay.Recorder> function0, kotlin.jvm.functions.Function1<? super java.lang.Boolean, io.sentry.android.replay.ScreenshotRecorderConfig> function1, kotlin.jvm.functions.Function1<? super io.sentry.protocol.SentryId, io.sentry.android.replay.ReplayCache> function11)`
+  /// from: `public void <init>(android.content.Context context, io.sentry.transport.ICurrentDateProvider iCurrentDateProvider, kotlin.jvm.functions.Function0<? extends io.sentry.android.replay.Recorder> function0, kotlin.jvm.functions.Function1<? super io.sentry.protocol.SentryId, io.sentry.android.replay.ReplayCache> function1)`
   /// The returned object must be released after use, by calling the [release] method.
   factory ReplayIntegration(
     jni$_.JObject context,
     jni$_.JObject iCurrentDateProvider,
     jni$_.JObject? function0,
     jni$_.JObject? function1,
-    jni$_.JObject? function11,
   ) {
     final _$context = context.reference;
     final _$iCurrentDateProvider = iCurrentDateProvider.reference;
     final _$function0 = function0?.reference ?? jni$_.jNullReference;
     final _$function1 = function1?.reference ?? jni$_.jNullReference;
-    final _$function11 = function11?.reference ?? jni$_.jNullReference;
     return ReplayIntegration.fromReference(_new$(
             _class.reference.pointer,
             _id_new$ as jni$_.JMethodIDPtr,
             _$context.pointer,
             _$iCurrentDateProvider.pointer,
             _$function0.pointer,
-            _$function1.pointer,
-            _$function11.pointer)
+            _$function1.pointer)
         .reference);
   }
 
   static final _id_new$1 = _class.constructorId(
-    r'(Landroid/content/Context;Lio/sentry/transport/ICurrentDateProvider;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V',
+    r'(Landroid/content/Context;Lio/sentry/transport/ICurrentDateProvider;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V',
   );
 
   static final _new$1 = jni$_.ProtectedJniExtensions.lookup<
@@ -117,7 +112,6 @@ class ReplayIntegration extends jni$_.JObject {
                   jni$_.JMethodIDPtr,
                   jni$_.VarArgs<
                       (
-                        jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>,
@@ -133,18 +127,16 @@ class ReplayIntegration extends jni$_.JObject {
               jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
               int,
               jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `synthetic public void <init>(android.content.Context context, io.sentry.transport.ICurrentDateProvider iCurrentDateProvider, kotlin.jvm.functions.Function0 function0, kotlin.jvm.functions.Function1 function1, kotlin.jvm.functions.Function1 function11, int i, kotlin.jvm.internal.DefaultConstructorMarker defaultConstructorMarker)`
+  /// from: `synthetic public void <init>(android.content.Context context, io.sentry.transport.ICurrentDateProvider iCurrentDateProvider, kotlin.jvm.functions.Function0 function0, kotlin.jvm.functions.Function1 function1, int i, kotlin.jvm.internal.DefaultConstructorMarker defaultConstructorMarker)`
   /// The returned object must be released after use, by calling the [release] method.
   factory ReplayIntegration.new$1(
     jni$_.JObject? context,
     jni$_.JObject? iCurrentDateProvider,
     jni$_.JObject? function0,
     jni$_.JObject? function1,
-    jni$_.JObject? function11,
     int i,
     jni$_.JObject? defaultConstructorMarker,
   ) {
@@ -153,7 +145,6 @@ class ReplayIntegration extends jni$_.JObject {
         iCurrentDateProvider?.reference ?? jni$_.jNullReference;
     final _$function0 = function0?.reference ?? jni$_.jNullReference;
     final _$function1 = function1?.reference ?? jni$_.jNullReference;
-    final _$function11 = function11?.reference ?? jni$_.jNullReference;
     final _$defaultConstructorMarker =
         defaultConstructorMarker?.reference ?? jni$_.jNullReference;
     return ReplayIntegration.fromReference(_new$1(
@@ -163,7 +154,6 @@ class ReplayIntegration extends jni$_.JObject {
             _$iCurrentDateProvider.pointer,
             _$function0.pointer,
             _$function1.pointer,
-            _$function11.pointer,
             i,
             _$defaultConstructorMarker.pointer)
         .reference);
@@ -207,7 +197,7 @@ class ReplayIntegration extends jni$_.JObject {
   }
 
   static final _id_new$3 = _class.constructorId(
-    r'(Landroid/content/Context;Lio/sentry/transport/ICurrentDateProvider;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lio/sentry/android/replay/util/MainLooperHandler;Lkotlin/jvm/functions/Function0;)V',
+    r'(Landroid/content/Context;Lio/sentry/transport/ICurrentDateProvider;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lio/sentry/android/replay/util/MainLooperHandler;Lkotlin/jvm/functions/Function0;)V',
   );
 
   static final _new$3 = jni$_.ProtectedJniExtensions.lookup<
@@ -217,7 +207,6 @@ class ReplayIntegration extends jni$_.JObject {
                   jni$_.JMethodIDPtr,
                   jni$_.VarArgs<
                       (
-                        jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>,
@@ -236,10 +225,9 @@ class ReplayIntegration extends jni$_.JObject {
               jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public void <init>(android.content.Context context, io.sentry.transport.ICurrentDateProvider iCurrentDateProvider, kotlin.jvm.functions.Function0<? extends io.sentry.android.replay.Recorder> function0, kotlin.jvm.functions.Function1<? super java.lang.Boolean, io.sentry.android.replay.ScreenshotRecorderConfig> function1, kotlin.jvm.functions.Function1<? super io.sentry.protocol.SentryId, io.sentry.android.replay.ReplayCache> function11, kotlin.jvm.functions.Function1<? super java.lang.Boolean, ? extends io.sentry.android.replay.capture.CaptureStrategy> function12, io.sentry.android.replay.util.MainLooperHandler mainLooperHandler, kotlin.jvm.functions.Function0<io.sentry.android.replay.gestures.GestureRecorder> function01)`
+  /// from: `public void <init>(android.content.Context context, io.sentry.transport.ICurrentDateProvider iCurrentDateProvider, kotlin.jvm.functions.Function0<? extends io.sentry.android.replay.Recorder> function0, kotlin.jvm.functions.Function1<? super io.sentry.protocol.SentryId, io.sentry.android.replay.ReplayCache> function1, kotlin.jvm.functions.Function1<? super java.lang.Boolean, ? extends io.sentry.android.replay.capture.CaptureStrategy> function11, io.sentry.android.replay.util.MainLooperHandler mainLooperHandler, kotlin.jvm.functions.Function0<io.sentry.android.replay.gestures.GestureRecorder> function01)`
   /// The returned object must be released after use, by calling the [release] method.
   factory ReplayIntegration.new$3(
     jni$_.JObject context,
@@ -247,7 +235,6 @@ class ReplayIntegration extends jni$_.JObject {
     jni$_.JObject? function0,
     jni$_.JObject? function1,
     jni$_.JObject? function11,
-    jni$_.JObject? function12,
     jni$_.JObject? mainLooperHandler,
     jni$_.JObject? function01,
   ) {
@@ -256,7 +243,6 @@ class ReplayIntegration extends jni$_.JObject {
     final _$function0 = function0?.reference ?? jni$_.jNullReference;
     final _$function1 = function1?.reference ?? jni$_.jNullReference;
     final _$function11 = function11?.reference ?? jni$_.jNullReference;
-    final _$function12 = function12?.reference ?? jni$_.jNullReference;
     final _$mainLooperHandler =
         mainLooperHandler?.reference ?? jni$_.jNullReference;
     final _$function01 = function01?.reference ?? jni$_.jNullReference;
@@ -268,14 +254,13 @@ class ReplayIntegration extends jni$_.JObject {
             _$function0.pointer,
             _$function1.pointer,
             _$function11.pointer,
-            _$function12.pointer,
             _$mainLooperHandler.pointer,
             _$function01.pointer)
         .reference);
   }
 
   static final _id_new$4 = _class.constructorId(
-    r'(Landroid/content/Context;Lio/sentry/transport/ICurrentDateProvider;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lio/sentry/android/replay/util/MainLooperHandler;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V',
+    r'(Landroid/content/Context;Lio/sentry/transport/ICurrentDateProvider;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lio/sentry/android/replay/util/MainLooperHandler;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V',
   );
 
   static final _new$4 = jni$_.ProtectedJniExtensions.lookup<
@@ -285,7 +270,6 @@ class ReplayIntegration extends jni$_.JObject {
                   jni$_.JMethodIDPtr,
                   jni$_.VarArgs<
                       (
-                        jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>,
@@ -307,11 +291,10 @@ class ReplayIntegration extends jni$_.JObject {
               jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
               int,
               jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `synthetic public void <init>(android.content.Context context, io.sentry.transport.ICurrentDateProvider iCurrentDateProvider, kotlin.jvm.functions.Function0 function0, kotlin.jvm.functions.Function1 function1, kotlin.jvm.functions.Function1 function11, kotlin.jvm.functions.Function1 function12, io.sentry.android.replay.util.MainLooperHandler mainLooperHandler, kotlin.jvm.functions.Function0 function01, int i, kotlin.jvm.internal.DefaultConstructorMarker defaultConstructorMarker)`
+  /// from: `synthetic public void <init>(android.content.Context context, io.sentry.transport.ICurrentDateProvider iCurrentDateProvider, kotlin.jvm.functions.Function0 function0, kotlin.jvm.functions.Function1 function1, kotlin.jvm.functions.Function1 function11, io.sentry.android.replay.util.MainLooperHandler mainLooperHandler, kotlin.jvm.functions.Function0 function01, int i, kotlin.jvm.internal.DefaultConstructorMarker defaultConstructorMarker)`
   /// The returned object must be released after use, by calling the [release] method.
   factory ReplayIntegration.new$4(
     jni$_.JObject? context,
@@ -319,7 +302,6 @@ class ReplayIntegration extends jni$_.JObject {
     jni$_.JObject? function0,
     jni$_.JObject? function1,
     jni$_.JObject? function11,
-    jni$_.JObject? function12,
     jni$_.JObject? mainLooperHandler,
     jni$_.JObject? function01,
     int i,
@@ -331,7 +313,6 @@ class ReplayIntegration extends jni$_.JObject {
     final _$function0 = function0?.reference ?? jni$_.jNullReference;
     final _$function1 = function1?.reference ?? jni$_.jNullReference;
     final _$function11 = function11?.reference ?? jni$_.jNullReference;
-    final _$function12 = function12?.reference ?? jni$_.jNullReference;
     final _$mainLooperHandler =
         mainLooperHandler?.reference ?? jni$_.jNullReference;
     final _$function01 = function01?.reference ?? jni$_.jNullReference;
@@ -345,7 +326,6 @@ class ReplayIntegration extends jni$_.JObject {
             _$function0.pointer,
             _$function1.pointer,
             _$function11.pointer,
-            _$function12.pointer,
             _$mainLooperHandler.pointer,
             _$function01.pointer,
             i,
@@ -778,34 +758,6 @@ class ReplayIntegration extends jni$_.JObject {
     _close(reference.pointer, _id_close as jni$_.JMethodIDPtr).check();
   }
 
-  static final _id_onConfigurationChanged = _class.instanceMethodId(
-    r'onConfigurationChanged',
-    r'(Landroid/content/res/Configuration;)V',
-  );
-
-  static final _onConfigurationChanged = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void onConfigurationChanged(android.content.res.Configuration configuration)`
-  void onConfigurationChanged(
-    jni$_.JObject configuration,
-  ) {
-    final _$configuration = configuration.reference;
-    _onConfigurationChanged(
-            reference.pointer,
-            _id_onConfigurationChanged as jni$_.JMethodIDPtr,
-            _$configuration.pointer)
-        .check();
-  }
-
   static final _id_onConnectionStatusChanged = _class.instanceMethodId(
     r'onConnectionStatusChanged',
     r'(Lio/sentry/IConnectionStatusProvider$ConnectionStatus;)V',
@@ -860,29 +812,6 @@ class ReplayIntegration extends jni$_.JObject {
         .check();
   }
 
-  static final _id_onLowMemory = _class.instanceMethodId(
-    r'onLowMemory',
-    r'()V',
-  );
-
-  static final _onLowMemory = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public void onLowMemory()`
-  void onLowMemory() {
-    _onLowMemory(reference.pointer, _id_onLowMemory as jni$_.JMethodIDPtr)
-        .check();
-  }
-
   static final _id_onTouchEvent = _class.instanceMethodId(
     r'onTouchEvent',
     r'(Landroid/view/MotionEvent;)V',
@@ -906,6 +835,60 @@ class ReplayIntegration extends jni$_.JObject {
     final _$motionEvent = motionEvent.reference;
     _onTouchEvent(reference.pointer, _id_onTouchEvent as jni$_.JMethodIDPtr,
             _$motionEvent.pointer)
+        .check();
+  }
+
+  static final _id_onWindowSizeChanged = _class.instanceMethodId(
+    r'onWindowSizeChanged',
+    r'(II)V',
+  );
+
+  static final _onWindowSizeChanged = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Int32, jni$_.Int32)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int, int)>();
+
+  /// from: `public void onWindowSizeChanged(int i, int i1)`
+  void onWindowSizeChanged(
+    int i,
+    int i1,
+  ) {
+    _onWindowSizeChanged(reference.pointer,
+            _id_onWindowSizeChanged as jni$_.JMethodIDPtr, i, i1)
+        .check();
+  }
+
+  static final _id_onConfigurationChanged = _class.instanceMethodId(
+    r'onConfigurationChanged',
+    r'(Lio/sentry/android/replay/ScreenshotRecorderConfig;)V',
+  );
+
+  static final _onConfigurationChanged = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final void onConfigurationChanged(io.sentry.android.replay.ScreenshotRecorderConfig screenshotRecorderConfig)`
+  void onConfigurationChanged(
+    jni$_.JObject screenshotRecorderConfig,
+  ) {
+    final _$screenshotRecorderConfig = screenshotRecorderConfig.reference;
+    _onConfigurationChanged(
+            reference.pointer,
+            _id_onConfigurationChanged as jni$_.JMethodIDPtr,
+            _$screenshotRecorderConfig.pointer)
         .check();
   }
 }
