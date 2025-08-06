@@ -8,7 +8,6 @@ import 'profiling.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
-import 'sdk_lifecycle_hooks.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'tracing.dart';
@@ -145,15 +144,4 @@ class NoOpHub implements Hub {
 
   @override
   Scope get scope => Scope(_options);
-
-  @override
-  Map<Type, List<Function>> get lifecycleCallbacks => {};
-
-  @override
-  void registerSdkLifecycleCallback<T extends SdkLifecycleEvent>(
-      SdkLifecycleCallback<T> callback) {}
-
-  @override
-  void removeSdkLifecycleCallback<T extends SdkLifecycleEvent>(
-      SdkLifecycleCallback<T> callback) {}
 }
