@@ -2,6 +2,9 @@ name: sentry_dart_workspace
 packages:
   - 'packages/**'
 
+ignore:
+  - 'packages/flutter/example/' # ignore it for now
+
 ide:
   intellij:
     moduleNamePrefix: ''

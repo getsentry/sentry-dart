@@ -45,7 +45,7 @@ jobs:
 
       - run: flutter pub get
         if: ${{ inputs.package == 'flutter' }}
-        working-directory: flutter/microbenchmarks
+        working-directory: packages/flutter/microbenchmarks
 
       - run: dart format --set-exit-if-changed ./
 
