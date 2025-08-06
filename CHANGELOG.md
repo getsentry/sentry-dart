@@ -6,6 +6,12 @@
 
 - Tag all spans with thread info ([#3101](https://github.com/getsentry/sentry-dart/pull/3101))
 
+### Dependencies
+
+- Bump JavaScript SDK from v9.40.0 to v10.1.0 ([#3127](https://github.com/getsentry/sentry-dart/pull/3127))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#1010)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/9.40.0...10.1.0)
+
 ## 9.6.0
 
 Note: this release might require updating your Android Gradle Plugin version to at least `8.1.4`.
