@@ -12,8 +12,8 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/flutter-test/**'
       - '.github/actions/coverage/**'
-      - 'dart/**'
-      - 'sqflite/**'
+      - 'packages/dart/**'
+      - 'packages/sqflite/**'
 
 jobs:
   cancel-previous-workflow:
@@ -43,18 +43,18 @@ jobs:
 
       - uses: ./.github/actions/flutter-test
         with:
-          directory: sqflite
+          directory: packages/sqflite
 
       - uses: ./.github/actions/coverage
         if: matrix.target == 'linux' && matrix.sdk == 'stable'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: sqflite
+          directory: packages/sqflite
           coverage: sentry_sqflite
           min-coverage: 80
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: sqflite
+      package: packages/sqflite
       sdk: flutter

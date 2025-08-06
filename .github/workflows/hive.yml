@@ -12,8 +12,8 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
-      - 'dart/**'
-      - 'hive/**'
+      - 'packages/dart/**'
+      - 'packages/hive/**'
 
 jobs:
   cancel-previous-workflow:
@@ -39,19 +39,19 @@ jobs:
 
       - uses: ./.github/actions/dart-test
         with:
-          directory: hive
+          directory: packages/hive
           web: false
 
       - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: hive
+          directory: packages/hive
           coverage: sentry_hive
           min-coverage: 55
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: hive
+      package: packages/hive
       panaThreshold: 90
