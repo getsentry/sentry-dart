@@ -10,10 +10,10 @@ on:
       - '!**/class-diagram.svg'
       - '.github/workflows/drift.yml'
       - '.github/workflows/analyze.yml'
-      - '.github/actions/flutter-test/**'
+      - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
-      - 'dart/**'
-      - 'drift/**'
+      - 'packages/dart/**'
+      - 'packages/drift/**'
 
 jobs:
   cancel-previous-workflow:
@@ -25,36 +25,47 @@ jobs:
           access_token: ${{ github.token }}
 
   build:
-    name: '${{ matrix.target }} | ${{ matrix.sdk }}'
-    runs-on: ${{ matrix.target == 'linux' && 'ubuntu' || matrix.target }}-latest
+    name: '${{ matrix.os }} | ${{ matrix.sdk }}'
+    runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        target: [macos, linux, windows]
+        os: [ubuntu, macos, windows]
         sdk: [stable, beta]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install libsqlite3
-        if: matrix.target == 'linux'
+      - name: Install libsqlite3 (Ubuntu)
+        if: matrix.os == 'ubuntu'
         run: sudo apt-get -y install libsqlite3-dev
 
-      - uses: ./.github/actions/flutter-test
+      - name: Install SQLite (macOS)
+        if: matrix.os == 'macos'
+        run: brew install sqlite3
+
+      - name: Install SQLite (Windows)
+        if: matrix.os == 'windows'
+        shell: powershell
+        run: |
+          choco install sqlite -y
+          echo "C:/ProgramData/chocolatey/lib/sqlite/tools" >> $GITHUB_PATH
+
+      - uses: ./.github/actions/dart-test
         with:
-          directory: drift
+          directory: packages/drift
+          web: 'false'
 
       - uses: ./.github/actions/coverage
-        if: matrix.target == 'linux' && matrix.sdk == 'stable'
+        if: matrix.os == 'ubuntu' && matrix.sdk == 'stable'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: drift
+          directory: packages/drift
           coverage: sentry_drift
           min-coverage: 80
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: drift
-      sdk: flutter
+      package: packages/drift
