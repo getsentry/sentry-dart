@@ -12,6 +12,7 @@ import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integr
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/integrations/generic_app_start_integration.dart';
+import 'package:sentry_flutter/src/integrations/thread_info_integration.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
 import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
@@ -45,6 +46,7 @@ final linuxWindowsAndWebIntegrations = [
 
 final nonWebIntegrations = [
   OnErrorIntegration,
+  ThreadInfoIntegration,
 ];
 
 // These should be added to Android
@@ -719,7 +721,7 @@ void main() {
                 integration.runtimeType.toString() == 'ThreadInfoIntegration'),
             true,
             reason:
-                'ThreadInfoIntegration should be added when tracing is enabled',
+                'ThreadInfoIntegration should be added on non-web platforms',
           );
         },
         appRunner: appRunner,
@@ -727,6 +729,27 @@ void main() {
       );
       SentryFlutter.native = null;
     });
+
+    test('ThreadInfoIntegration is not added on web', () async {
+      final sentryFlutterOptions =
+          defaultTestOptions(checker: MockRuntimeChecker())
+            ..platform = MockPlatform.linux(isWeb: true)
+            ..methodChannel = native.channel;
+
+      await SentryFlutter.init(
+        (options) {
+          expect(
+            options.integrations.any((integration) =>
+                integration.runtimeType.toString() == 'ThreadInfoIntegration'),
+            false,
+            reason:
+                'ThreadInfoIntegration should not be added on web platform',
+          );
+        },
+        appRunner: appRunner,
+        options: sentryFlutterOptions,
+      );
+    }, testOn: 'browser');
   });
 
   test('resumeAppHangTracking calls native method when available', () async {

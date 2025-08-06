@@ -230,8 +230,9 @@ mixin SentryFlutter {
 
     integrations.add(DebugPrintIntegration());
 
-    integrations.add(ThreadInfoIntegration());
-
+    if (!platform.isWeb) {
+      integrations.add(ThreadInfoIntegration());
+    }
     return integrations;
   }
 
