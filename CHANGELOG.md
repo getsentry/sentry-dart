@@ -6,6 +6,10 @@
 
 - Tag all spans with thread info ([#3101](https://github.com/getsentry/sentry-dart/pull/3101))
 
+### Enhancements
+
+- Improve envelope conversion to `Uint8List` in `FileSystemTransport` ([#3147](https://github.com/getsentry/sentry-dart/pull/3147))
+
 ### Dependencies
 
 - Bump Android SDK from v8.17.0 to v8.18.0 ([#3150](https://github.com/getsentry/sentry-dart/pull/3150))

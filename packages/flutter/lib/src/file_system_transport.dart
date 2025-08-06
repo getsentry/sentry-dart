@@ -1,8 +1,4 @@
-// backcompatibility for Flutter < 3.3
-// ignore: unnecessary_import
 import 'dart:typed_data';
-
-import 'package:flutter/services.dart';
 
 import '../sentry_flutter.dart';
 import 'native/sentry_native_binding.dart';
@@ -15,12 +11,13 @@ class FileSystemTransport implements Transport {
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
-    final envelopeData = <int>[];
-    await envelope.envelopeStream(_options).forEach(envelopeData.addAll);
+    final bytesBuilder = BytesBuilder(copy: false);
+    await envelope.envelopeStream(_options).forEach(bytesBuilder.add);
+    final envelopeData = bytesBuilder.takeBytes();
+
     try {
-      // TODO avoid copy
-      await _native.captureEnvelope(Uint8List.fromList(envelopeData),
-          envelope.containsUnhandledException);
+      await _native.captureEnvelope(
+          envelopeData, envelope.containsUnhandledException);
     } catch (exception, stackTrace) {
       _options.log(
         SentryLevel.error,
