@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 import 'dart:math';
 
-const _numberOfIterations = 1000;
+const _minIterations = 50;
+const _maxIterations = 1000;
 
 Future<void> execute() async {
   print('Envelope Builder Benchmark');
@@ -21,18 +22,22 @@ Future<void> execute() async {
     print('Envelope size: $label');
     print('-' * 40);
 
+    // Use adaptive iteration count based on data size
+    final iterations = _getIterationCount(size);
+    print('Running $iterations iterations...');
+
     // Create mock envelope data
     final mockData = _generateMockEnvelopeData(size);
 
     // Benchmark legacy approach
-    final legacyResults = await _benchmarkLegacyApproach(mockData);
+    final legacyResults = await _benchmarkLegacyApproach(mockData, iterations);
     final legacyAvg =
         legacyResults.reduce((a, b) => a + b) / legacyResults.length;
     final legacyMin = legacyResults.reduce(min);
     final legacyMax = legacyResults.reduce(max);
 
     // Benchmark new approach
-    final newResults = await _benchmarkNewApproach(mockData);
+    final newResults = await _benchmarkNewApproach(mockData, iterations);
     final newAvg = newResults.reduce((a, b) => a + b) / newResults.length;
     final newMin = newResults.reduce(min);
     final newMax = newResults.reduce(max);
@@ -54,6 +59,19 @@ Future<void> execute() async {
 
     print('Performance improvement: $improvement% (${speedup}x faster)');
     print('');
+  }
+}
+
+// Adaptive iteration count to avoid memory pressure and hanging
+int _getIterationCount(int dataSize) {
+  if (dataSize <= 10 * 1024) {
+    return _maxIterations; // 1K iterations for <= 10KB
+  } else if (dataSize <= 100 * 1024) {
+    return _maxIterations ~/ 2; // 500 iterations for <= 100KB
+  } else if (dataSize <= 1024 * 1024) {
+    return _maxIterations ~/ 5; // 200 iterations for <= 1MB
+  } else {
+    return _minIterations; // 50 iterations for > 1MB
   }
 }
 
@@ -79,16 +97,20 @@ List<List<int>> _generateMockEnvelopeData(int totalSize) {
   return chunks;
 }
 
-Future<List<double>> _benchmarkLegacyApproach(List<List<int>> chunks) async {
+Future<List<double>> _benchmarkLegacyApproach(
+    List<List<int>> chunks, int iterations) async {
   final results = <double>[];
 
+  // Reduced warmup for large data
+  final warmupIterations = min(20, iterations ~/ 5);
+
   // Warmup
-  for (var i = 0; i < 100; i++) {
+  for (var i = 0; i < warmupIterations; i++) {
     _runLegacyApproach(chunks);
   }
 
   // Actual benchmark
-  for (var i = 0; i < _numberOfIterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     final stopwatch = Stopwatch()..start();
     _runLegacyApproach(chunks);
     stopwatch.stop();
@@ -98,16 +120,20 @@ Future<List<double>> _benchmarkLegacyApproach(List<List<int>> chunks) async {
   return results;
 }
 
-Future<List<double>> _benchmarkNewApproach(List<List<int>> chunks) async {
+Future<List<double>> _benchmarkNewApproach(
+    List<List<int>> chunks, int iterations) async {
   final results = <double>[];
 
+  // Reduced warmup for large data
+  final warmupIterations = min(20, iterations ~/ 5);
+
   // Warmup
-  for (var i = 0; i < 100; i++) {
+  for (var i = 0; i < warmupIterations; i++) {
     _runNewApproach(chunks);
   }
 
   // Actual benchmark
-  for (var i = 0; i < _numberOfIterations; i++) {
+  for (var i = 0; i < iterations; i++) {
     final stopwatch = Stopwatch()..start();
     _runNewApproach(chunks);
     stopwatch.stop();
@@ -141,4 +167,8 @@ String _formatMicroseconds(double microseconds) {
   } else {
     return '${(microseconds / 1000000).toStringAsFixed(2)} s';
   }
+}
+
+void main() async {
+  await execute();
 }
