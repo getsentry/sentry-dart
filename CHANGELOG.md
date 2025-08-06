@@ -4,12 +4,7 @@
 
 ### Features
 
-- Tag all spans with thread info ([#3101](https://github.com/getsentry/sentry-dart/pull/3101))
-
-### Fixes
-
-- `ThreadInfo` integration should only be added for non-web platforms ([#3144](https://github.com/getsentry/sentry-dart/pull/3144))
-
+- Tag all spans with thread info on non-web platforms ([#3101](https://github.com/getsentry/sentry-dart/pull/3101), [#3144](https://github.com/getsentry/sentry-dart/pull/3144))
 ## 9.6.0
 
 Note: this release might require updating your Android Gradle Plugin version to at least `8.1.4`.
