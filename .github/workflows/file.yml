@@ -13,7 +13,6 @@ on:
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
       - 'packages/dart/**'
-      - 'packages/flutter/**'
       - 'packages/file/**'
 
 jobs:
