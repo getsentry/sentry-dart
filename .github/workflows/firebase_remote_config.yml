@@ -12,9 +12,9 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
-      - 'dart/**'
+      - 'packages/dart/**'
       - 'packages/flutter/**'
-      - 'firebase_remote_config/**'
+      - 'packages/firebase_remote_config/**'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -37,7 +37,7 @@ jobs:
 
       - uses: ./.github/actions/flutter-test
         with:
-          directory: firebase_remote_config
+          directory: packages/firebase_remote_config
           web: false
 
 #       TODO: don't set coverage for now to finish publishing it
@@ -52,5 +52,5 @@ jobs:
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: firebase_remote_config
+      package: packages/firebase_remote_config
       sdk: flutter
