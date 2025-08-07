@@ -42,6 +42,7 @@ runs:
 
     - name: Test dart2js
       if: ${{ inputs.web == 'true' }}
+      run: dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
       shell: bash
       working-directory: ${{ inputs.directory }}
 
