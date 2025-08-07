@@ -80,10 +80,12 @@ class SentryNativeJava extends SentryNativeChannel {
     JByteArray? byteArray;
     try {
       byteArray = JByteArray.from(envelopeData);
-      id = native.InternalSentrySdk.captureEnvelope(byteArray, false);
+      id = native.InternalSentrySdk.captureEnvelope(
+          byteArray, containsUnhandledException);
 
       if (id == null) {
-        throw Exception('Captured SentryId is null');
+        options.log(SentryLevel.error,
+            'Native Android SDK returned null id when capturing envelope');
       }
     } catch (exception, stackTrace) {
       options.log(SentryLevel.error, 'Failed to capture envelope',
