@@ -24,8 +24,9 @@ class SentryNativeJava extends SentryNativeChannel {
             final replayId =
                 SentryId.fromId(call.arguments['replayId'] as String);
 
-            _replayRecorder = AndroidReplayRecorder.factory(options);
+            _replayRecorder ??= AndroidReplayRecorder.factory(options);
             await _replayRecorder!.start();
+
             hub.configureScope((s) {
               // ignore: invalid_use_of_internal_member
               s.replayId = replayId;
