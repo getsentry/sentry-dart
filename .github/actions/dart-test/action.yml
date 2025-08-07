@@ -4,11 +4,11 @@ inputs:
   directory:
     description: The directory to run tests in
     required: false
-    default: ''
+    default: ""
   web:
     description: Whether to run tests for web
     required: false
-    default: 'true'
+    default: "true"
 
 runs:
   using: composite
@@ -22,21 +22,26 @@ runs:
       shell: bash
       working-directory: ${{ inputs.directory }}
 
+    - name: Install flutter_junitreport
+      shell: bash
+      run: |
+        dart pub global activate --source git https://github.com/waffiqaziz/flutter-junitreport.git --git-ref main
+
     - name: Test VM
       working-directory: ${{ inputs.directory }}
       shell: bash
       run: |
         testCmd="dart test -p vm --test-randomize-ordering-seed=random --chain-stack-traces"
         if ${{ (matrix.os == 'ubuntu' && matrix.sdk == 'stable' && 'true') || 'false' }} ; then
-          $testCmd --coverage=coverage
+          $testCmd --coverage=coverage --reporter json > test-vm.jsonl
           dart run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
         else
-          $testCmd
+          $testCmd --reporter json > test-vm.jsonl
         fi
+        dart pub global run flutter_junitreport:tojunit --input test-vm.jsonl --output TEST-vm.xml
 
     - name: Test dart2js
       if: ${{ inputs.web == 'true' }}
-      run: dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
       shell: bash
       working-directory: ${{ inputs.directory }}
 
