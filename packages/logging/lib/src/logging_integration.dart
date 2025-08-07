@@ -102,7 +102,7 @@ class LoggingIntegration implements Integration<SentryOptions> {
         'loggerName': SentryLogAttribute.string(record.loggerName),
         'sequenceNumber': SentryLogAttribute.int(record.sequenceNumber),
         'time': SentryLogAttribute.int(record.time.millisecondsSinceEpoch),
-        'origin': SentryLogAttribute.string(origin),
+        'sentry.origin': SentryLogAttribute.string(origin),
       };
 
       // Map log levels based on value ranges
