@@ -51,6 +51,7 @@ class LoggingIntegration implements Integration<SentryOptions> {
   late SentryOptions _options;
 
   @internal
+  // ignore: public_member_api_docs
   static const origin = 'auto.log.logging';
 
   @override

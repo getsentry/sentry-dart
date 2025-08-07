@@ -331,7 +331,9 @@ void main() {
       expect(basicAttributes['sequenceNumber']?.value, isA<int>());
       expect(basicAttributes['time']?.value, isA<int>());
       expect(
-          basicAttributes['sentry.origin']?.value, LoggingIntegration.origin);
+        basicAttributes['sentry.origin']?.value,
+        LoggingIntegration.origin,
+      );
       expect(basicAttributes.containsKey('error'), false);
       expect(basicAttributes.containsKey('stackTrace'), false);
 
