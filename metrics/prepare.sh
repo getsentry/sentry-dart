@@ -26,9 +26,9 @@ cat <<EOF >>"$pubspec"
 
 dependency_overrides:
   sentry:
-    path: ../../dart
+    path: ../../packages/dart
   sentry_flutter:
-    path: ../../flutter
+    path: ../../packages/flutter
 
 EOF
 

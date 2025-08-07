@@ -12,8 +12,8 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
-      - 'dart/**'
-      - 'dio/**'
+      - 'packages/dart/**'
+      - 'packages/dio/**'
 
 jobs:
   cancel-previous-workflow:
@@ -39,17 +39,17 @@ jobs:
 
       - uses: ./.github/actions/dart-test
         with:
-          directory: dio
+          directory: packages/dio
 
       - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: dio
+          directory: packages/dio
           coverage: sentry_dio
           min-coverage: 81
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: dio
+      package: packages/dio

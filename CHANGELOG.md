@@ -1,10 +1,25 @@
 # Changelog
 
-## Unreleased
+## 9.7.0-beta.1
 
 ### Features
 
 - Tag all spans with thread info on non-web platforms ([#3101](https://github.com/getsentry/sentry-dart/pull/3101), [#3144](https://github.com/getsentry/sentry-dart/pull/3144))
+- Tag all spans with thread info ([#3101](https://github.com/getsentry/sentry-dart/pull/3101))
+
+### Enhancements
+
+- Improve envelope conversion to `Uint8List` in `FileSystemTransport` ([#3147](https://github.com/getsentry/sentry-dart/pull/3147))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.52.1 to v8.54.0 ([#3149](https://github.com/getsentry/sentry-dart/pull/3149/))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8540)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.52.1...8.54.0)
+- Bump Android SDK from v8.17.0 to v8.18.0 ([#3150](https://github.com/getsentry/sentry-dart/pull/3150))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8180)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.17.0...8.18.0)
+
 ## 9.6.0
 
 Note: this release might require updating your Android Gradle Plugin version to at least `8.1.4`.
