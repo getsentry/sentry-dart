@@ -57,7 +57,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    // Use a safe copy-based conversion to avoid double-free issues observed
+    // Use a safe copy-based conversion to avoid crashes due to memory issues observed
     // when relying on `dataWithBytesNoCopy:length:freeWhenDone:`.
     final length = envelopeData.length;
     final ptr = malloc<Uint8>(length);
