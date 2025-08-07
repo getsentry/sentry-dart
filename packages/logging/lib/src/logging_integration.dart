@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
 import 'package:logging/logging.dart';
 import 'package:sentry/sentry.dart';
 
@@ -48,6 +49,10 @@ class LoggingIntegration implements Integration<SentryOptions> {
   late StreamSubscription<LogRecord> _subscription;
   late Hub _hub;
   late SentryOptions _options;
+
+  @internal
+  // ignore: public_member_api_docs
+  static const origin = 'auto.log.logging';
 
   @override
   void call(Hub hub, SentryOptions options) {
@@ -98,6 +103,7 @@ class LoggingIntegration implements Integration<SentryOptions> {
         'loggerName': SentryLogAttribute.string(record.loggerName),
         'sequenceNumber': SentryLogAttribute.int(record.sequenceNumber),
         'time': SentryLogAttribute.int(record.time.millisecondsSinceEpoch),
+        'sentry.origin': SentryLogAttribute.string(origin),
       };
 
       // Map log levels based on value ranges
