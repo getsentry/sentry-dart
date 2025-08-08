@@ -13,6 +13,7 @@ output:
 log_level: all
 
 classes:
+  - io.sentry.android.core.InternalSentrySdk
   - io.sentry.android.replay.ReplayIntegration
   - io.sentry.flutter.SentryFlutterPlugin
   - android.graphics.Bitmap
