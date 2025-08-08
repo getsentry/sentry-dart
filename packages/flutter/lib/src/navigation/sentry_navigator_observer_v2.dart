@@ -65,6 +65,8 @@ class SentryNavigatorObserverV2 extends RouteObserver<PageRoute<dynamic>> {
     }
 
     final now = options.clock();
+    // Invalidate any existing route handle so pending callbacks become no-ops.
+    _currentRouteHandle?.invalidate();
     _currentRouteHandle = options.displayTiming.startRoute(
       name: routeName,
       arguments: route.settings.arguments,
@@ -96,8 +98,12 @@ class SentryNavigatorObserverV2 extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    options.displayTiming
-        .abortCurrent(slot: DisplaySlot.route, when: options.clock());
+    // Invalidate current handle then abort active route state.
+    _currentRouteHandle?.invalidate();
+    options.displayTiming.abortCurrent(
+      slot: DisplaySlot.route,
+      when: options.clock(),
+    );
     _currentRouteHandle = null;
   }
 
@@ -127,6 +133,8 @@ class SentryNavigatorObserverV2 extends RouteObserver<PageRoute<dynamic>> {
       _hub.generateNewTrace();
     }
     final now = options.clock();
+    // Invalidate any existing route handle so pending callbacks become no-ops.
+    _currentRouteHandle?.invalidate();
     _currentRouteHandle = options.displayTiming.startRoute(
       name: routeName,
       arguments: newRoute?.settings.arguments,

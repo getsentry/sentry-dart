@@ -1,5 +1,11 @@
 import 'dart:async';
 
+// ignore_for_file: invalid_use_of_internal_member
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/sentry.dart';
+
+import '../../sentry_flutter.dart';
 import 'display_txn.dart';
 
 typedef Clock = DateTime Function();
@@ -14,17 +20,19 @@ typedef Logger = void Function(
 /// Manages per-slot state, timers, and legal transitions for TTID/TTFD.
 class DisplayTransactionEngine {
   DisplayTransactionEngine({
-    required Object hub,
-    required Object options,
+    required Hub hub,
+    required SentryFlutterOptions options,
     Clock? clock,
     Duration? defaultAutoFinishAfter,
     Logger? logger,
-  })  : _clock = clock ?? DateTime.now,
+  })  : _hub = hub,
+        _clock = clock ?? DateTime.now,
         _defaultAutoFinishAfter =
             defaultAutoFinishAfter ?? const Duration(seconds: 30),
         _log = logger ?? _noopLogger;
 
-  // Reserved for future use when wiring to real Hub/Options. Not stored until used.
+  final Hub _hub;
+  // Clock and configuration
   final Clock _clock;
   final Duration _defaultAutoFinishAfter;
   final Logger _log;
@@ -54,12 +62,52 @@ class DisplayTransactionEngine {
       abort(slot: slot, when: now);
     }
 
+    // Create a transaction context based on slot/name
+    final context = _transactionContextFor(slot: slot, name: name);
+
+    // Keep variable removal to satisfy lints (not currently used).
+    // Start transaction via Hub
+    final root = _hub.startTransactionWithContext(
+      context,
+      startTimestamp: now,
+      waitForChildren: true,
+      autoFinishAfter: autoFinishAfter ?? _defaultAutoFinishAfter,
+      trimEnd: true,
+      onFinish: (t) {},
+    );
+
+    if (root is! SentryTracer) {
+      // Not sampled or disabled; keep engine idle for this slot.
+      _log('start(): No tracer (not sampled?) for $slot:$name.');
+      return DisplayTxn(
+        slot: slot,
+        name: name,
+        arguments: arguments,
+        transaction: SentryTracer(
+          context,
+          _hub,
+          startTimestamp: now,
+        ),
+        startedAt: now,
+        autoFinishAfter: autoFinishAfter ?? _defaultAutoFinishAfter,
+      );
+    }
+
+    // Attach route arguments if provided
+    if (arguments != null) {
+      root.setData('route_settings_arguments', arguments);
+    }
+
+    // Bind transaction to scope only if no active span is set
+    _hub.configureScope((scope) {
+      scope.span ??= root;
+    });
+
     final txn = DisplayTxn(
       slot: slot,
       name: name,
       arguments: arguments,
-      transaction:
-          Object(), // real transaction will be attached in controller wiring
+      transaction: root,
       startedAt: now,
       autoFinishAfter: autoFinishAfter ?? _defaultAutoFinishAfter,
     );
@@ -103,6 +151,25 @@ class DisplayTransactionEngine {
           // idempotent
           return;
         }
+        // Create TTID span if needed and finish it
+        final tracer = txn.transaction;
+        txn.ttidSpan ??= tracer.startChild(
+          SentrySpanOperations.uiTimeToInitialDisplay,
+          description: '${txn.name} initial display',
+          startTimestamp: tracer.startTimestamp,
+        )..origin = SentryTraceOrigins.autoUiTimeToDisplay;
+
+        final ttidSpan = txn.ttidSpan!;
+        // Add TTID measurement on transaction
+        final ttidMeasurement = SentryMeasurement.timeToInitialDisplay(
+          when.difference(tracer.startTimestamp),
+        );
+        tracer.setMeasurement(
+          ttidMeasurement.name,
+          ttidMeasurement.value,
+          unit: ttidMeasurement.unit,
+        );
+        ttidSpan.finish(status: SpanStatus.ok(), endTimestamp: when);
         txn.ttidEndedAt = when;
 
         final pending = txn.pendingTtfdBeforeTtid;
@@ -143,8 +210,31 @@ class DisplayTransactionEngine {
         if (ttidOpen) {
           if (dueToTimeout) {
             // Timeout forces completion even if TTID didn't end yet.
+            // End TTID span with deadlineExceeded
+            final tracer = txn.transaction;
+            txn.ttidSpan ??= tracer.startChild(
+              SentrySpanOperations.uiTimeToInitialDisplay,
+              description: '${txn.name} initial display',
+              startTimestamp: tracer.startTimestamp,
+            )..origin = SentryTraceOrigins.autoUiTimeToDisplay;
+
+            // Add TTID measurement even in timeout (same as legacy)
+            final ttidMeasurement = SentryMeasurement.timeToInitialDisplay(
+              when.difference(tracer.startTimestamp),
+            );
+            tracer.setMeasurement(
+              ttidMeasurement.name,
+              ttidMeasurement.value,
+              unit: ttidMeasurement.unit,
+            );
+
+            txn.ttidSpan!.finish(
+              status: SpanStatus.deadlineExceeded(),
+              endTimestamp: when,
+            );
             txn.ttidEndedAt = when;
-            _finishTtfdInternal(slot: slot, txn: txn, when: when);
+            _finishTtfdInternal(
+                slot: slot, txn: txn, when: when, dueToTimeout: true);
             return;
           } else {
             // TTID not yet finished; store pending TTFD.
@@ -177,13 +267,37 @@ class DisplayTransactionEngine {
         return;
       case Active(txn: final txn, ttidOpen: final ttidOpen):
         _cancelTimeout(txn);
+        final tracer = txn.transaction;
+        // Ensure TTID span is finished
         if (ttidOpen) {
+          txn.ttidSpan ??= tracer.startChild(
+            SentrySpanOperations.uiTimeToInitialDisplay,
+            description: '${txn.name} initial display',
+            startTimestamp: tracer.startTimestamp,
+          )..origin = SentryTraceOrigins.autoUiTimeToDisplay;
+
+          final ttidMeasurement = SentryMeasurement.timeToInitialDisplay(
+            when.difference(tracer.startTimestamp),
+          );
+          tracer.setMeasurement(
+            ttidMeasurement.name,
+            ttidMeasurement.value,
+            unit: ttidMeasurement.unit,
+          );
+          txn.ttidSpan!.finish(
+            status: SpanStatus.deadlineExceeded(),
+            endTimestamp: when,
+          );
           txn.ttidEndedAt = when; // TTID ends with deadline exceeded semantics
         }
         // Ensure TTFD end is set and not before TTID end.
         final ttfdEnd = _maxDate(when, txn.ttidEndedAt ?? when);
-        txn.ttfdEndedAt = ttfdEnd;
-        _state[slot] = Aborted(txn: txn);
+        _finishTtfdInternal(
+          slot: slot,
+          txn: txn,
+          when: ttfdEnd,
+          aborted: true,
+        );
     }
   }
 
@@ -197,6 +311,8 @@ class DisplayTransactionEngine {
     required DisplaySlot slot,
     required DisplayTxn txn,
     required DateTime when,
+    bool dueToTimeout = false,
+    bool aborted = false,
   }) {
     if (txn.ttfdEndedAt != null) {
       // idempotent
@@ -204,7 +320,48 @@ class DisplayTransactionEngine {
     }
     _cancelTimeout(txn);
     txn.ttfdEndedAt = when;
+
+    // Create TTFD span if needed and finish it
+    final tracer = txn.transaction;
+    txn.ttfdSpan ??= tracer.startChild(
+      SentrySpanOperations.uiTimeToFullDisplay,
+      description: '${txn.name} full display',
+      startTimestamp: tracer.startTimestamp,
+    )..origin = SentryTraceOrigins.manualUiTimeToDisplay;
+
+    // Add TTFD measurement
+    final ttfdMeasurement = SentryMeasurement.timeToFullDisplay(
+      when.difference(tracer.startTimestamp),
+    );
+    tracer.setMeasurement(
+      ttfdMeasurement.name,
+      ttfdMeasurement.value,
+      unit: ttfdMeasurement.unit,
+    );
+
+    final status = (dueToTimeout || aborted)
+        ? SpanStatus.deadlineExceeded()
+        : SpanStatus.ok();
+    txn.ttfdSpan!.finish(status: status, endTimestamp: when);
+
+    // Finish the transaction itself at TTFD end
+    tracer.finish(endTimestamp: when);
+
     _state[slot] = Finished(txn: txn);
+  }
+
+  SentryTransactionContext _transactionContextFor({
+    required DisplaySlot slot,
+    required String name,
+  }) {
+    return SentryTransactionContext(
+      name,
+      SentrySpanOperations.uiLoad,
+      transactionNameSource: SentryTransactionNameSource.component,
+      origin: slot == DisplaySlot.root
+          ? SentryTraceOrigins.autoUiTimeToDisplay
+          : SentryTraceOrigins.autoNavigationRouteObserver,
+    );
   }
 
   void _cancelTimeout(DisplayTxn txn) {

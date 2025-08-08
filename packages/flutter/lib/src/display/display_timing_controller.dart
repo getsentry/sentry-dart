@@ -15,6 +15,10 @@ class DisplayTimingController {
 
   AppStartDisplayHandle startApp(
       {required String name, required DateTime now}) {
+    // Enforce single active state globally: abort any active slot and
+    // invalidate existing tokens/handles before starting root.
+    _abortAllAndInvalidate(when: now);
+
     final token = Object();
     _rootToken = token;
     _engine.start(slot: DisplaySlot.root, name: name, now: now);
@@ -27,6 +31,10 @@ class DisplayTimingController {
     required DateTime now,
     Duration? autoFinishAfter,
   }) {
+    // Enforce single active state globally: abort any active slot and
+    // invalidate existing tokens/handles before starting route.
+    _abortAllAndInvalidate(when: now);
+
     final token = Object();
     _routeToken = token;
     _engine.start(
@@ -60,6 +68,15 @@ class DisplayTimingController {
   void abortCurrent({required DisplaySlot slot, required DateTime when}) {
     _engine.abort(slot: slot, when: when);
     _invalidate(slot);
+  }
+
+  // Abort any active transaction in both slots and invalidate their tokens.
+  void _abortAllAndInvalidate({required DateTime when}) {
+    // Abort route then root (order not important, but deterministic).
+    _engine.abort(slot: DisplaySlot.route, when: when);
+    _engine.abort(slot: DisplaySlot.root, when: when);
+    _invalidate(DisplaySlot.route);
+    _invalidate(DisplaySlot.root);
   }
 
   void _invalidate(DisplaySlot slot) {

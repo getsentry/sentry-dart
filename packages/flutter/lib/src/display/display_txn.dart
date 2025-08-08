@@ -1,4 +1,8 @@
 import 'dart:async';
+// ignore_for_file: invalid_use_of_internal_member
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/sentry.dart';
 
 /// Identifies which logical slot a display transaction belongs to.
 ///
@@ -32,13 +36,13 @@ class DisplayTxn {
   final Object? arguments;
 
   /// The top-level transaction span.
-  final Object transaction;
+  final SentryTracer transaction;
 
   /// The TTID child span (ui.time_to_initial_display), if created.
-  Object? ttidSpan;
+  ISentrySpan? ttidSpan;
 
   /// The TTFD child span (ui.time_to_full_display), if created.
-  Object? ttfdSpan;
+  ISentrySpan? ttfdSpan;
 
   /// Transaction start timestamp.
   final DateTime startedAt;
