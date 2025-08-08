@@ -40,10 +40,20 @@ class DisplayTransactionEngine {
   static void _noopLogger(Object message,
       {Object? exception, StackTrace? stackTrace}) {}
 
-  final Map<DisplaySlot, DisplayState> _state = {
-    DisplaySlot.root: const Idle(),
-    DisplaySlot.route: const Idle(),
-  };
+  // Maintain two explicit state fields (root and route) instead of a map.
+  DisplayState _rootState = const Idle();
+  DisplayState _routeState = const Idle();
+
+  DisplayState _getState(DisplaySlot slot) =>
+      slot == DisplaySlot.root ? _rootState : _routeState;
+
+  void _setState(DisplaySlot slot, DisplayState state) {
+    if (slot == DisplaySlot.root) {
+      _rootState = state;
+    } else {
+      _routeState = state;
+    }
+  }
 
   /// Starts a new display transaction on [slot], aborting any previous one.
   DisplayTxn start({
@@ -53,7 +63,7 @@ class DisplayTransactionEngine {
     required DateTime now,
     Duration? autoFinishAfter,
   }) {
-    final current = _state[slot];
+    final current = _getState(slot);
     if (current is Active) {
       // Auto-abort previous as per policy.
       _log(
@@ -123,7 +133,7 @@ class DisplayTransactionEngine {
       }
     });
 
-    _state[slot] = Active(txn: txn, ttidOpen: true);
+    _setState(slot, Active(txn: txn, ttidOpen: true));
     return txn;
   }
 
@@ -132,11 +142,8 @@ class DisplayTransactionEngine {
     required DisplaySlot slot,
     required DateTime when,
   }) {
-    final s = _state[slot];
+    final s = _getState(slot);
     switch (s) {
-      case null:
-        _state[slot] = const Idle();
-        return;
       case Idle():
         _log('finishTtid(): No active transaction for $slot. Ignoring.');
         return;
@@ -182,7 +189,7 @@ class DisplayTransactionEngine {
         }
 
         // Keep active but TTID is now closed.
-        _state[slot] = Active(txn: txn, ttidOpen: false);
+        _setState(slot, Active(txn: txn, ttidOpen: false));
     }
   }
 
@@ -192,11 +199,8 @@ class DisplayTransactionEngine {
     required DateTime when,
     bool dueToTimeout = false,
   }) {
-    final s = _state[slot];
+    final s = _getState(slot);
     switch (s) {
-      case null:
-        _state[slot] = const Idle();
-        return;
       case Idle():
         _log('finishTtfd(): No active transaction for $slot. Ignoring.');
         return;
@@ -251,11 +255,8 @@ class DisplayTransactionEngine {
     required DisplaySlot slot,
     required DateTime when,
   }) {
-    final s = _state[slot];
+    final s = _getState(slot);
     switch (s) {
-      case null:
-        _state[slot] = const Idle();
-        return;
       case Idle():
         // nothing to abort
         return;
@@ -303,8 +304,8 @@ class DisplayTransactionEngine {
 
   /// Returns a snapshot of both slots.
   ({DisplayState root, DisplayState route}) snapshot() => (
-        root: _state[DisplaySlot.root]!,
-        route: _state[DisplaySlot.route]!,
+        root: _rootState,
+        route: _routeState,
       );
 
   void _finishTtfdInternal({
@@ -347,7 +348,7 @@ class DisplayTransactionEngine {
     // Finish the transaction itself at TTFD end
     tracer.finish(endTimestamp: when);
 
-    _state[slot] = Finished(txn: txn);
+    _setState(slot, Finished(txn: txn));
   }
 
   SentryTransactionContext _transactionContextFor({
