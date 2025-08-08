@@ -25,6 +25,9 @@ class SentryFeedbackOptions {
   /// Displays the capture screenshot button on the feedback form
   var showCaptureScreenshot = true;
 
+  /// Determines whether the feedback view should resize to avoid the keyboard.
+  var resizeToAvoidBottomInset = true;
+
   // Form Labels Configuration
 
   /// The title of the feedback form.
