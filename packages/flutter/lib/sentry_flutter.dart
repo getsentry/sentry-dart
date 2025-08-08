@@ -13,6 +13,7 @@ export 'src/integrations/on_error_integration.dart';
 export 'src/navigation/sentry_navigator_observer.dart';
 export 'src/navigation/sentry_display.dart';
 export 'src/navigation/sentry_display_widget.dart';
+export 'src/navigation/sentry_navigator_observer_v2.dart';
 export 'src/replay/replay_quality.dart';
 export 'src/screenshot/masking_config.dart' show SentryMaskingDecision;
 export 'src/screenshot/sentry_mask_widget.dart';

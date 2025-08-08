@@ -1,4 +1,5 @@
 import '../../sentry_flutter.dart';
+import '../display/display_handles.dart';
 
 /// Represents the current route and allows to report the time to full display.
 ///
@@ -14,9 +15,16 @@ import '../../sentry_flutter.dart';
 /// ```
 class SentryDisplay {
   final Hub _hub;
-  final SpanId spanId;
+  final SpanId? spanId;
+  final DisplayHandle? _handle;
 
-  SentryDisplay(this.spanId, {Hub? hub}) : _hub = hub ?? HubAdapter();
+  SentryDisplay(this.spanId, {Hub? hub})
+      : _hub = hub ?? HubAdapter(),
+        _handle = null;
+
+  SentryDisplay.withHandle(this._handle, {Hub? hub})
+      : _hub = hub ?? HubAdapter(),
+        spanId = null;
 
   Future<void> reportFullyDisplayed() async {
     // ignore: invalid_use_of_internal_member
@@ -25,9 +33,19 @@ class SentryDisplay {
       return;
     }
     try {
-      return options.timeToDisplayTracker.reportFullyDisplayed(
-        spanId: spanId,
-      );
+      if (options.experimentalUseDisplayTimingV2 && _handle != null) {
+        // Use the public Hub clock via options; allowed internally
+        // ignore: invalid_use_of_internal_member
+        final now = options.clock();
+        _handle.reportFullyDisplayed(now);
+        return;
+      }
+      final id = spanId;
+      if (id != null) {
+        return options.timeToDisplayTracker.reportFullyDisplayed(
+          spanId: id,
+        );
+      }
     } catch (exception, stackTrace) {
       if (options.automatedTestMode) {
         rethrow;

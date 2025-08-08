@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
+import 'display/display_txn.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_enricher_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
@@ -22,8 +23,10 @@ import 'integrations/flutter_framework_feature_flag_integration.dart';
 import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
+import 'integrations/native_app_start_integration_v2.dart';
 import 'integrations/screenshot_integration.dart';
 import 'integrations/generic_app_start_integration.dart';
+import 'integrations/generic_app_start_integration_v2.dart';
 import 'integrations/thread_info_integration.dart';
 import 'integrations/web_session_integration.dart';
 import 'native/factory.dart';
@@ -194,12 +197,21 @@ mixin SentryFlutter {
         }
         integrations.add(FramesTrackingIntegration(native));
         if (platform.isIOS || platform.isAndroid || platform.isMacOS) {
-          integrations.add(
-            NativeAppStartIntegration(
-              DefaultFrameCallbackHandler(),
-              NativeAppStartHandler(native),
-            ),
-          );
+          if (options.experimentalUseDisplayTimingV2) {
+            integrations.add(
+              NativeAppStartIntegrationV2(
+                DefaultFrameCallbackHandler(),
+                NativeAppStartHandler(native),
+              ),
+            );
+          } else {
+            integrations.add(
+              NativeAppStartIntegration(
+                DefaultFrameCallbackHandler(),
+                NativeAppStartHandler(native),
+              ),
+            );
+          }
         }
         integrations.add(ReplayIntegration(native));
       } else {
@@ -214,7 +226,12 @@ mixin SentryFlutter {
     }
 
     if (platform.isWeb || platform.isLinux || platform.isWindows) {
-      integrations.add(GenericAppStartIntegration());
+      // Side-by-side: prefer V2 when experimental flag is on, else legacy
+      if (options.experimentalUseDisplayTimingV2) {
+        integrations.add(GenericAppStartIntegrationV2());
+      } else {
+        integrations.add(GenericAppStartIntegration());
+      }
     }
 
     if (options.isScreenshotSupported) {
@@ -300,13 +317,25 @@ mixin SentryFlutter {
     if (options is! SentryFlutterOptions) {
       return null;
     }
-    final transactionId = options.timeToDisplayTracker.transactionId;
-    if (transactionId == null) {
-      hub.options.log(SentryLevel.error,
-          'Could not process TTFD for screen ${SentryNavigatorObserver.currentRouteName} - transactionId should not be null');
-      return null;
+    if (options.experimentalUseDisplayTimingV2) {
+      final handle = options.displayTiming.currentDisplay(DisplaySlot.route);
+      if (handle == null) {
+        hub.options.log(
+          SentryLevel.error,
+          'Could not process TTFD for screen ${SentryNavigatorObserver.currentRouteName} - no active display handle',
+        );
+        return null;
+      }
+      return SentryDisplay.withHandle(handle, hub: hub);
+    } else {
+      final transactionId = options.timeToDisplayTracker.transactionId;
+      if (transactionId == null) {
+        hub.options.log(SentryLevel.error,
+            'Could not process TTFD for screen ${SentryNavigatorObserver.currentRouteName} - transactionId should not be null');
+        return null;
+      }
+      return SentryDisplay(transactionId, hub: hub);
     }
-    return SentryDisplay(transactionId, hub: hub);
   }
 
   /// Pauses the app hang tracking.

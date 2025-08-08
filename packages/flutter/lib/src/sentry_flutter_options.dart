@@ -1,3 +1,4 @@
+// ignore_for_file: invalid_use_of_internal_member
 import 'dart:async';
 
 import 'package:flutter/services.dart';
@@ -14,6 +15,8 @@ import 'sentry_privacy_options.dart';
 import 'sentry_replay_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
 import 'feedback/sentry_feedback_options.dart';
+import 'display/display_timing_controller.dart';
+import 'display/display_transaction_engine.dart';
 
 /// This class adds options which are only available in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
@@ -211,6 +214,27 @@ class SentryFlutterOptions extends SentryOptions {
   @meta.internal
   late TimeToDisplayTracker timeToDisplayTracker = TimeToDisplayTracker(
     options: this,
+  );
+
+  /// Experimental V2: new display timing controller and engine wiring.
+  /// Guarded by [experimentalUseDisplayTimingV2].
+  @meta.internal
+  bool experimentalUseDisplayTimingV2 = false;
+
+  /// Default auto-finish duration for display timing V2 engine.
+  /// Used when per-route override is not provided.
+  @meta.internal
+  Duration displayAutoFinishAfter = const Duration(seconds: 3);
+
+  /// New V2 display timing controller wired with injected Hub, Clock and timeout.
+  @meta.internal
+  late final DisplayTimingController displayTiming = DisplayTimingController(
+    engine: DisplayTransactionEngine(
+      hub: Sentry.currentHub,
+      options: this,
+      clock: clock,
+      defaultAutoFinishAfter: displayAutoFinishAfter,
+    ),
   );
 
   /// Sets the Proguard uuid for Android platform.
