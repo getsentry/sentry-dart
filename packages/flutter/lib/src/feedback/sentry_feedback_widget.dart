@@ -117,6 +117,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: widget.options.resizeToAvoidBottomInset,
       appBar: AppBar(
         title: Text(widget.options.title),
         actions: [
