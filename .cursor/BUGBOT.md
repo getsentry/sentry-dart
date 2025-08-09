@@ -1,84 +1,119 @@
-# PR Review Guidelines for Cursor Bot
+# PR Review Guidelines for Cursor Bot (Root)
 
-Reviewer-focused checks for Sentry Dart/Flutter SDK PRs. Keep comments specific and fix-oriented. Prefer small suggestions over walls of text. If you find anything to flag, mention that you flagged this in the review because it was mentioned in this rules file. Do not flag the issues below if they appear only in tests.
+**Scope & intent**
 
-## Critical Issues to Flag
+- High-level review guidance for the entire monorepo.
+- Optimize for **signal over noise**: only comment when there’s material correctness, security/privacy, performance, or API-quality impact.
+- If you find anything to flag, mention that you flagged this in the review because it was mentioned in this rules file.
+- Do not flag the issues below if they appear only in tests.
 
-### Security & Privacy
+**Reviewer style**
 
-- Flag: Secrets/DSNs/tokens added to code or config
-  - Why: credential leakage
-  - Fix: use placeholders or env/CI injection; never commit real secrets
-- Flag: PII added to events/breadcrumbs/tags/extras (emails, tokens, device IDs)
-  - Why: privacy/legal risk
-  - Fix: redact via `beforeSend`/`beforeBreadcrumb`
+- Be concise. Quote exact lines/spans and propose a minimal fix (tiny diff/code block).
+- If something is subjective, ask a brief question rather than asserting.
+- Prefer principles over nitpicks; avoid noisy style-only comments that don’t impact behavior.
 
-### Public API & Stability
+---
 
-- Flag: Public API changes without deprecation/migration notes
-  - Why: breaks downstream users
-  - Fix: deprecate first; provide migration guidance
-- Flag: Removal of publicly exported functions/classes/types
-  - Why: breaking change
-  - Fix: keep exported symbols or add deprecations
+## 0) Critical Issues to Flag
 
-## Architecture & Options
+> Use a clear prefix like **CRITICAL:** in the review comment title.
 
-- Flag: Sync I/O on UI isolate
-  - Why: jank/hangs
-  - Fix: async/non-blocking I/O;
+### A. Security & Privacy
 
-## Performance & Tracing
+- **Secrets / credentials exposure**: Keys, tokens, DSNs, endpoints, or auth data in code, logs, tests, configs, or example apps.
+- **PII handling**: New code that logs or sends user-identifiable data without clear intent and controls. These must be gated behind the `sendDefaultPii` flag.
+- **Unsafe logging**: Request/response bodies, full URLs with query secrets, file paths or device identifiers logged by default.
+- **File/attachments**: Large or sensitive payloads attached by default; lack of size limits or backoff.
+- **Debug code shipped**: Diagnostics, sampling overrides, verbose logging, or feature flags accidentally enabled in production defaults.
 
-- Flag: Spans/transactions started but not finished
-  - Why: memory/time skew
-  - Fix: `try { … } finally { span?.finish(); }`
-- Flag: Double instrumentation of HTTP
-  - Why: duplicate spans/breadcrumbs
-  - Fix: avoid combining Dio interceptor with `SentryHttpClient` (pick one)
+### B. Public API & Stability
 
-## Auto Instrumentation and Sentry conventions
+- **Breaking changes**: Signature/behavior changes, renamed/removed symbols, altered nullability/defaults, or event/telemetry shape changes **without** deprecation/migration notes.
+- **Behavioral compatibility**: Silent changes to defaults, sampling, or feature toggles that affect existing apps.
+- **Serialization & wire formats**: Changes that break compatibility of stored data, envelopes, or integration contracts.
+- **Telemetry invariants**: Trace/log/span IDs and standard fields remain stable; do not repurpose keys without a transition plan.
 
-- Flag: Missing span op or origin on auto-instrumented spans
-  - Why: weak classification and trace analysis
-  - Fix: ensure spans include op (`sentry.op`) and origin (`sentry.origin`) when starting
-- Flag: Missing origin on auto-instrumented logs
-  - Why: weak classification and log analysis
-  - Fix: ensure all logs triggered from auto instrumentation include origin (`sentry.origin`)
-- Flag: High-cardinality or sensitive span descriptions (IDs, tokens, query strings)
-  - Why: privacy risk; noisy data
-  - Fix: use stable, sanitized descriptions (route names, table names)
-- Prefer canonical ops where applicable: `http.client`, `db.query`, `file.read`, `navigation`, `ui.load`
+---
 
-## Performance Issues
+## 1) General Software Quality
 
-- Flag: Breadcrumb/tag flood (logging every iteration/request)
-  - Why: high overhead, storage noise
-  - Fix: throttle/summarize; cap with `maxBreadcrumbs`; use `beforeBreadcrumb` to drop noisy entries
-- Flag: High-cardinality tags/extras (UUIDs, timestamps, raw IDs)
-  - Why: poor aggregation; increased storage
-  - Fix: bucket/normalize (e.g., `user_tier=premium`) or redact
-- Flag: Large events/attachments (images, payload dumps)
-  - Why: big envelopes; slower transport
-  - Fix: avoid attachments by default; truncate strings; record counts/sizes instead of bodies
-- Flag: Per-request interceptor/listener setup
-  - Why: repeated allocation overhead
-  - Fix: register interceptors once at client init
-- Flag: Creating spans in tight loops or per-frame callbacks
-  - Why: overhead and memory churn
-  - Fix: sample or instrument at a coarser granularity
-- Flag: Heavy work in `build()`/frame callbacks
-  - Why: jank and dropped frames
-  - Fix: move to `initState`/effects or background; memoize; use `const` widgets
-- Flag: Un-cancelled `Timer`/`StreamSubscription`/controller
-  - Why: leaks and unexpected callbacks
-  - Fix: store and cancel/dispose in lifecycle
-- Flag: Repeated JSON encode/decode or large map copies in hot paths
-  - Why: CPU/memory overhead
-  - Fix: cache parsed forms; avoid full spreads on large maps
-- Flag: Using isolates/`compute` for trivial work or non-transferable objects
-  - Why: overhead outweighs benefit; runtime errors
-  - Fix: offload only CPU-bound, transferable workloads
-- Flag: Expensive `RegExp` in hot paths
-  - Why: CPU spikes
-  - Fix: precompile/simplify patterns; avoid catastrophic quantifiers
+**Clarity & simplicity**
+
+- Prefer straightforward control flow, early returns, and focused functions.
+- Descriptive names; avoid unnecessary abbreviations.
+- Keep public APIs minimal and intentional; avoid booleans that overload behavior.
+
+**Correctness & safety**
+
+- Add/update tests with behavioral changes and bug fixes.
+- Handle error paths explicitly.
+- Avoid global mutable state; prefer immutability and clear ownership.
+
+**DRY & cohesion**
+
+- Remove duplication where it reduces complexity; avoid over-abstraction.
+- Keep modules cohesive; avoid reaching across layers for convenience.
+
+**Performance (pragmatic)**
+
+- Prefer linear-time approaches; avoid unnecessary allocations/copies.
+- Don’t micro-optimize prematurely—call out obvious hotspots or regressions.
+- Use streaming/iterables over building large intermediates when feasible.
+
+---
+
+## 2) Dart-Specific
+
+**Idioms & language features**
+
+- Avoid `!` (null assertion) on nullable targets; use guards or null-aware operators.
+- Follow Effective Dart style and documentation; document public symbols.
+- Consider modern Dart 3.x features (e.g., sealed classes) when they clarify the model.
+
+**Safety & async**
+
+- Avoid unawaited futures unless intentional and documented.
+- Cancel `StreamSubscription`s and dispose resources deterministically.
+- Use `late` sparingly and only when initialization order requires it.
+
+**Concurrency & isolates**
+
+- For CPU-bound work with simple inputs/outputs, consider offloading to an **isolate**; avoid complex object graphs needing heavy serialization.
+
+**Tree-shakeability**
+
+- Avoid patterns that defeat tree shaking
+- Use const constructors/values where it makes sense to enable constant folding/canonicalization.
+- Instantiate optional features/integrations inside guarded branches (e.g., if (options.enableX) { ... }) and avoid top-level references to optional classes that would pin them in the binary.
+- Prefer typed factories over dynamic/string lookups
+
+---
+
+## 3) SDK-Specific (high-level)
+
+**Tracing & spans**
+
+- Any span started must be **closed**.
+- For _automated_ instrumented spans, always set:
+  - `sentry.origin`
+  - `sentry.op` using a standard operation where applicable (see Sentry’s list of standard ops).
+
+**Structured logs**
+
+- For _automated_ instrumented structured logs, always set `sentry.origin`.
+
+**Initialization & error paths**
+
+- Wrap dangerous or failure-prone paths (especially during `Sentry`/`SentryFlutter` init) in `try/catch`, add actionable context, and ensure fallbacks keep the app usable.
+
+---
+
+## Quick reviewer checklist
+
+- [ ] **CRITICAL:** No secrets/PII/logging risks introduced; safe defaults preserved.
+- [ ] **CRITICAL:** Public API/telemetry stability maintained or properly deprecated with docs.
+- [ ] Spans started are always closed; automated spans/logs include `sentry.origin` (+ valid `sentry.op` for spans).
+- [ ] Dangerous init paths guarded; app remains usable on failure.
+- [ ] No `!` on nullable targets; async gaps guarded; resources disposed.
+- [ ] Tests/docs/CHANGELOG updated for behavior changes.
