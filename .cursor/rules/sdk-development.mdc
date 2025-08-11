@@ -1,0 +1,97 @@
+---
+description: Guidance for developing and maintaining the Sentry Dart & Flutter SDK.
+alwaysApply: true
+---
+
+## 1) Tracing & Performance
+
+- **Enablement**: tracing is on when either `tracesSampleRate` or `tracesSampler` is set.
+- **Sampling**: prefer `tracesSampler` for dynamic control; never blindly override a **parent decision**; propagate sampling to children.
+- **Transactions**: support `startTransaction` / `startTransactionWithContext`; capture child spans for I/O (HTTP, File), DB (sqflite/drift/isar), and custom operations.
+- **Dynamic Sampling Context (DSC)**: include required fields; attach DSC on outbound HTTP so distributed traces stay connected.
+- **Metrics**: support attaching performance metrics when available.
+
+---
+
+## 2) Data & Privacy (Default-Safe)
+
+- **PII**: default to scrubbing common secrets, URLs with query strings where appropriate, and sensitive headers; respect server-side scrubbing.
+- **Stack traces**: mark application frames as `inApp`; allow `inAppInclude/Exclude` tuning.
+- **Attachments**: screenshots/view hierarchy should be masked/redacted by default, and opt-in via options.
+
+---
+
+## 3) Releases, Environments & Build Artifacts
+
+- **Release & dist**: set and propagate `release` and `dist` consistently across packages; surface helpers for Flutter to read from `package_info_plus`.
+- **Debug symbols / source maps**: ensure guidance & integration tests for `sentry_dart_plugin` (Android/iOS/macOS dSYMs/ProGuard, Web source maps & sources). Keep CI examples up to date.
+- **Environment**: default from env var when present; allow explicit override via options.
+
+---
+
+## 4) Integrations (keep light, composable)
+
+- **HTTP**: instrument `package:http` via our HTTP client wrapper; record breadcrumbs, spans, and failed-request events.
+- **Dio**: via `sentry_dio` (adapter-based) — breadcrumbs, tracing, error capture.
+- **File I/O**: record spans for slow operations via `sentry_file`.
+- **Databases**: sqflite/drift/isar integrations create spans and breadcrumbs; avoid excessive cardinality in DB span data.
+- **Logging**: `sentry_logging` bridges the `logging` package to breadcrumbs/events (level routes to breadcrumb vs event by threshold).
+- **Flutter**: expose automatic instrumentation (navigation, app start, slow/frozen frames) without requiring app changes beyond init.
+
+**Integration principles**
+
+- Avoid hard dependencies between packages; keep opt-in via separate package and feature flags.
+- Ensure integrations are **idempotent** (safe to add twice) and **graceful** if the target package isn’t present.
+
+---
+
+## 5) Filtering & Volume Controls
+
+- Provide `beforeSend` / `beforeBreadcrumb` / `beforeSendTransaction` hooks; never throw inside hooks.
+- Document common client-side filters (e.g., network noise, dev-only exceptions). Ship safe defaults for error & trace sampling.
+
+---
+
+## 6) Testing Guidance
+
+- Use a **mock transport** to assert captured envelopes.
+- **Flush** the client/hub in tests to avoid flakes.
+- Add golden tests for serialization of events & spans.
+- Include **integration tests** under each package (e.g., Flutter example app) to validate platform wiring (Android/iOS/Web/macOS/Windows/Linux).
+
+**Minimal testing sketch**
+
+```dart
+final captured = <SentryEvent>[];
+final options = SentryOptions(dsn: 'https://public@example/1')
+  ..transport = MockTransport((envelope) { /* collect */ });
+await Sentry.init((o) => o.copyFrom(options));
+try {
+  throw StateError('boom');
+} catch (e, st) {
+  await Sentry.captureException(e, stackTrace: st);
+}
+await Sentry.close();
+// assert on `captured`
+```
+
+---
+
+## 8) Public API & Compatibility
+
+- **Follow the Unified API** where applicable; align option names & behaviors with other SDKs.
+- Keep breaking changes batched & documented in the migration guide; maintain deprecations for at least one stable cycle when feasible.
+- Watch package version constraints (Flutter/Dart minimums, transitive deps like `package_info_plus`).
+
+---
+
+## 9) Examples & Docs
+
+- Keep the example apps compiling for all supported platforms and using the **Sentry Dart Plugin** for artifact upload.
+- Update internal docs when changing defaults (sampling, PII, app start, screenshot masking, etc.).
+
+---
+
+## 10) PR Checklist (copy into PR template if helpful)
+
+- ***
