@@ -64,13 +64,12 @@ class SentryNativeCocoa extends SentryNativeChannel {
     cocoa.NSData? nsData;
     cocoa.SentryEnvelope? envelope;
     try {
-      buffer.asTypedList(length).setAll(0, this);
-      nsData =
-          cocoa.NSData.dataWithBytes_length_(_lib, buffer.cast(), length);
+      buffer.asTypedList(length).setAll(0, envelopeData);
+      nsData = cocoa.NSData.dataWithBytes_length_(_lib, buffer.cast(), length);
       envelope = cocoa.PrivateSentrySDKOnly.envelopeWithData_(_lib, nsData);
       cocoa.PrivateSentrySDKOnly.captureEnvelope_(_lib, envelope);
     } catch (e, stackTrace) {
-      options.logger(
+      options.log(
           SentryLevel.error, 'Failed to capture envelope', e, stackTrace);
 
       if (options.automatedTestMode) {
