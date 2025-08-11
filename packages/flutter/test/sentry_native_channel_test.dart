@@ -199,7 +199,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           matcher = throwsUnsupportedError;
         } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
-          if (Platform().isMacOS) {
+          if (mockPlatform.isMacOS) {
             matcher = throwsA(predicate((e) =>
                 e is Exception &&
                 e.toString().contains('Failed to load Objective-C class')));
@@ -255,7 +255,7 @@ void main() {
                 e is Error &&
                 e.toString().contains('Unable to locate the helper library')));
           } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
-            if (Platform().isMacOS) {
+            if (mockPlatform.isMacOS) {
               matcher = throwsA(predicate((e) =>
                   e is Exception &&
                   e.toString().contains('Failed to load Objective-C class')));
