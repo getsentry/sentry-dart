@@ -8,6 +8,12 @@
 - Tag all spans with thread info on non-web platforms ([#3101](https://github.com/getsentry/sentry-dart/pull/3101), [#3144](https://github.com/getsentry/sentry-dart/pull/3144))
 - feat(feedback): Add option to disable keyboard resize ([#3154](https://github.com/getsentry/sentry-dart/pull/3154))
 
+### Dependencies
+
+- Bump Android SDK from v8.18.0 to v8.19.0 ([#3161](https://github.com/getsentry/sentry-dart/pull/3161))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8190)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.18.0...8.19.0)
+
 ## 9.7.0-beta.1
 
 ### Features
