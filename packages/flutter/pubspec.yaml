@@ -43,7 +43,7 @@ dev_dependencies:
   http: ^1.2.2 # check if js sdk cdn bundle exists
   flutter_localizations:
     sdk: flutter
-  ffigen: 19.0.0 # 19.1.0 already depends on Dart 3.8
+  ffigen: 19.0.0 # 19.1.0 already depends on Dart 3.8 which we don't support yet
   jnigen: 0.14.2
 
   platform: any
