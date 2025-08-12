@@ -8,6 +8,10 @@
 - Tag all spans with thread info on non-web platforms ([#3101](https://github.com/getsentry/sentry-dart/pull/3101), [#3144](https://github.com/getsentry/sentry-dart/pull/3144))
 - feat(feedback): Add option to disable keyboard resize ([#3154](https://github.com/getsentry/sentry-dart/pull/3154))
 
+### Dependencies
+
+- Pin `ffigen` to `19.0.0` ([#3163](https://github.com/getsentry/sentry-dart/pull/3163)) and add `objective_c` version `8.0.0` package used in `ffigen` on iOS and macOS
+
 ## 9.7.0-beta.1
 
 ### Features
