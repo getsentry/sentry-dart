@@ -157,7 +157,7 @@ void main() {
           statusCode: 404,
           statusMessage: 'Not Found',
           headers: {
-            'content-length': ['123']
+            'content-length': ['123'],
           },
         ),
       );
@@ -235,9 +235,9 @@ class DioExceptionWithResponseAdapter implements HttpClientAdapter {
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
-    Future? cancelFuture,
+    Future<dynamic>? cancelFuture,
   ) async {
-    final response = Response(
+    final response = Response<dynamic>(
       requestOptions: options,
       statusCode: statusCode,
       statusMessage: statusMessage,
