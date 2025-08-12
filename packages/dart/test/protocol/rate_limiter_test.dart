@@ -319,6 +319,121 @@ void main() {
       expect(DataCategory.fromItemType('unknown'), DataCategory.unknown);
     });
   });
+
+  group('RateLimiter logging', () {
+    test('logs debug for dropped item and full envelope', () {
+      final options = defaultTestOptions();
+      options.debug = true;
+      options.diagnosticLevel = SentryLevel.debug;
+
+      final logCalls = <_LogCall>[];
+      void mockLogger(
+        SentryLevel level,
+        String message, {
+        String? logger,
+        Object? exception,
+        StackTrace? stackTrace,
+      }) {
+        logCalls.add(_LogCall(level, message));
+      }
+
+      options.log = mockLogger;
+
+      final rateLimiter = RateLimiter(options);
+
+      final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+      final envelope = SentryEnvelope(
+        SentryEnvelopeHeader.newEventId(),
+        [eventItem],
+      );
+
+      // Apply rate limit for error (event)
+      rateLimiter.updateRetryAfterLimits(
+          '1:error:key, 5:error:organization', null, 1);
+
+      // Filter should drop the entire envelope
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+
+      // Expect 2 debug logs: item dropped + all items dropped
+      expect(logCalls.length, 2);
+
+      final itemLog = logCalls[0];
+      expect(itemLog.level, SentryLevel.debug);
+      expect(
+        itemLog.message,
+        contains(
+            'Envelope item of type "event" was dropped due to rate limiting'),
+      );
+
+      final fullDropLog = logCalls[1];
+      expect(fullDropLog.level, SentryLevel.debug);
+      expect(
+        fullDropLog.message,
+        contains('All envelope items were dropped due to rate limiting'),
+      );
+    });
+
+    test('logs debug when some items dropped and some sent', () {
+      final options = defaultTestOptions();
+      options.debug = true;
+      options.diagnosticLevel = SentryLevel.debug;
+
+      final logCalls = <_LogCall>[];
+      void mockLogger(
+        SentryLevel level,
+        String message, {
+        String? logger,
+        Object? exception,
+        StackTrace? stackTrace,
+      }) {
+        logCalls.add(_LogCall(level, message));
+      }
+
+      options.log = mockLogger;
+
+      final rateLimiter = RateLimiter(options);
+
+      // One event (error) and one transaction
+      final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+      final transaction = fixture.getTransaction();
+      final transactionItem = SentryEnvelopeItem.fromTransaction(transaction);
+
+      final envelope = SentryEnvelope(
+        SentryEnvelopeHeader.newEventId(),
+        [eventItem, transactionItem],
+      );
+
+      // Apply rate limit only for errors so the transaction can still be sent
+      rateLimiter.updateRetryAfterLimits('60:error:key', null, 1);
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNotNull);
+      expect(result!.items.length, 1);
+      expect(result.items.first.header.type, 'transaction');
+
+      // Expect 2 debug logs: per-item drop + summary
+      expect(logCalls.length, 2);
+
+      final itemLog = logCalls[0];
+      expect(itemLog.level, SentryLevel.debug);
+      expect(
+        itemLog.message,
+        contains(
+            'Envelope item of type "event" was dropped due to rate limiting'),
+      );
+
+      final summaryLog = logCalls[1];
+      expect(summaryLog.level, SentryLevel.debug);
+      expect(
+        summaryLog.message,
+        allOf([
+          contains('1 envelope item(s) were dropped due to rate limiting'),
+          contains('but 1 item(s) will still be sent'),
+        ]),
+      );
+    });
+  });
 }
 
 class Fixture {
@@ -347,4 +462,11 @@ class Fixture {
     final tracer = SentryTracer(context, MockHub());
     return SentryTransaction(tracer);
   }
+}
+
+class _LogCall {
+  final SentryLevel level;
+  final String message;
+
+  _LogCall(this.level, this.message);
 }

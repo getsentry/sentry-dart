@@ -26,6 +26,12 @@ class RateLimiter {
           DataCategory.fromItemType(item.header.type),
         );
 
+        // Log debug when individual envelope items are dropped due to rate limiting
+        _options.log(
+          SentryLevel.debug,
+          'Envelope item of type "${item.header.type}" was dropped due to rate limiting',
+        );
+
         final originalObject = item.originalObject;
         if (originalObject is SentryTransaction) {
           _options.recorder.recordLostEvent(
@@ -48,8 +54,19 @@ class RateLimiter {
 
       // no reason to continue
       if (toSend.isEmpty) {
+        // Log error when entire envelope is dropped due to rate limiting
+        _options.log(
+          SentryLevel.debug,
+          'All envelope items were dropped due to rate limiting. No events will be sent to Sentry.',
+        );
         return null;
       }
+
+      // Log debug when some items were dropped but envelope can still be sent
+      _options.log(
+        SentryLevel.debug,
+        '${dropItems.length} envelope item(s) were dropped due to rate limiting, but ${toSend.length} item(s) will still be sent',
+      );
 
       return SentryEnvelope(envelope.header, toSend);
     } else {
