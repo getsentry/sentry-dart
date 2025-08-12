@@ -206,7 +206,7 @@ void main() {
           } else {
             matcher = throwsA(predicate((e) =>
                 e is ArgumentError &&
-                e.toString().contains('Failed to lookup symbol')));
+                e.toString().contains('undefined symbol: objc_msgSend')));
           }
         }
         expect(() => sut.startProfiler(SentryId.newId()), matcher);
