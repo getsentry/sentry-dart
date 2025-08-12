@@ -8,6 +8,10 @@
 - Tag all spans with thread info on non-web platforms ([#3101](https://github.com/getsentry/sentry-dart/pull/3101), [#3144](https://github.com/getsentry/sentry-dart/pull/3144))
 - feat(feedback): Add option to disable keyboard resize ([#3154](https://github.com/getsentry/sentry-dart/pull/3154))
 
+### Enhancements
+
+- Add `DioException` response data to error breadcrumb ([#3164](https://github.com/getsentry/sentry-dart/pull/3164))
+
 ## 9.7.0-beta.1
 
 ### Features
