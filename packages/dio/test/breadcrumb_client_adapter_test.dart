@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
@@ -148,6 +150,39 @@ void main() {
       expect(breadcrumb.data?['duration'], isNotNull);
     });
 
+    test('breadcrumb gets added when DioException with response is thrown',
+        () async {
+      final sut = fixture.getSut(
+        DioExceptionWithResponseAdapter(
+          statusCode: 404,
+          statusMessage: 'Not Found',
+          headers: {
+            'content-length': ['123']
+          },
+        ),
+      );
+
+      try {
+        await sut.get<dynamic>('');
+        fail('Method did not throw');
+      } on DioException catch (_) {}
+
+      expect(fixture.hub.addBreadcrumbCalls.length, 1);
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+
+      expect(breadcrumb.type, 'http');
+      expect(breadcrumb.data?['url'], 'https://example.com');
+      expect(breadcrumb.data?['method'], 'GET');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
+      expect(breadcrumb.level, SentryLevel.error);
+      expect(breadcrumb.data?['duration'], isNotNull);
+      expect(breadcrumb.data?['status_code'], 404);
+      expect(breadcrumb.data?['reason'], 'Not Found');
+      expect(breadcrumb.data?['response_body_size'], 123);
+    });
+
     test('close does get called for user defined client', () async {
       final mockHub = MockHub();
 
@@ -185,8 +220,45 @@ void main() {
 
 class CloseableMockClientAdapter extends Mock implements HttpClientAdapter {}
 
+class DioExceptionWithResponseAdapter implements HttpClientAdapter {
+  DioExceptionWithResponseAdapter({
+    required this.statusCode,
+    required this.statusMessage,
+    required this.headers,
+  });
+
+  final int statusCode;
+  final String statusMessage;
+  final Map<String, List<String>> headers;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future? cancelFuture,
+  ) async {
+    final response = Response(
+      requestOptions: options,
+      statusCode: statusCode,
+      statusMessage: statusMessage,
+      headers: Headers.fromMap(headers),
+    );
+
+    throw DioException.badResponse(
+      requestOptions: options,
+      response: response,
+      statusCode: statusCode,
+    );
+  }
+
+  @override
+  void close({bool force = false}) {
+    // No-op for testing
+  }
+}
+
 class Fixture {
-  Dio getSut([MockHttpClientAdapter? client]) {
+  Dio getSut([HttpClientAdapter? client]) {
     final mc = client ?? getClient();
     final dio = Dio(
       BaseOptions(baseUrl: 'https://example.com?foo=bar#baz'),
