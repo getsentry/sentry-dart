@@ -8,6 +8,12 @@
 - Tag all spans with thread info on non-web platforms ([#3101](https://github.com/getsentry/sentry-dart/pull/3101), [#3144](https://github.com/getsentry/sentry-dart/pull/3144))
 - feat(feedback): Add option to disable keyboard resize ([#3154](https://github.com/getsentry/sentry-dart/pull/3154))
 
+### Dependencies
+
+- Bump JavaScript SDK from v9.40.0 to v10.4.0 ([#3157](https://github.com/getsentry/sentry-dart/pull/3157))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#1040)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/9.40.0...10.4.0)
+
 ## 9.7.0-beta.1
 
 ### Features
