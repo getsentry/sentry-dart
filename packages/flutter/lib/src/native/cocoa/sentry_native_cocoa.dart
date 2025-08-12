@@ -65,7 +65,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
           final sentryId = cocoa.SentryId.castFromPointer(
             sentryId$1.ref.pointer,
             retain: false,
-            release: false,
+            release: true,
           );
 
           final startTime =
