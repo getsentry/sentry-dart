@@ -10,7 +10,7 @@
 
 ### Dependencies
 
-- Pin `ffigen` to `19.0.0` ([#3163](https://github.com/getsentry/sentry-dart/pull/3163)) and add `objective_c` version `8.0.0` package used in `ffigen` on iOS and macOS
+- Pin `ffigen` to `19.0.0` and add `objective_c` version `8.0.0` package used in `ffigen` on iOS and macOS ([#3163](https://github.com/getsentry/sentry-dart/pull/3163))
 
 ## 9.7.0-beta.1
 
