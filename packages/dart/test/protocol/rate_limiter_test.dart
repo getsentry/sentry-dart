@@ -321,7 +321,7 @@ void main() {
   });
 
   group('RateLimiter logging', () {
-    test('logs debug for dropped item and full envelope', () {
+    test('logs warning for dropped item and full envelope', () {
       final options = defaultTestOptions();
       options.debug = true;
       options.diagnosticLevel = SentryLevel.debug;
@@ -355,11 +355,11 @@ void main() {
       final result = rateLimiter.filter(envelope);
       expect(result, isNull);
 
-      // Expect 2 debug logs: item dropped + all items dropped
+      // Expect 2 warning logs: item dropped + all items dropped
       expect(logCalls.length, 2);
 
       final itemLog = logCalls[0];
-      expect(itemLog.level, SentryLevel.debug);
+      expect(itemLog.level, SentryLevel.warning);
       expect(
         itemLog.message,
         contains(
@@ -367,14 +367,15 @@ void main() {
       );
 
       final fullDropLog = logCalls[1];
-      expect(fullDropLog.level, SentryLevel.debug);
+      expect(fullDropLog.level, SentryLevel.warning);
       expect(
         fullDropLog.message,
         contains('All envelope items were dropped due to rate limiting'),
       );
     });
 
-    test('logs debug when some items dropped and some sent', () {
+    test('logs warning for each dropped item only when some items are sent',
+        () {
       final options = defaultTestOptions();
       options.debug = true;
       options.diagnosticLevel = SentryLevel.debug;
@@ -412,25 +413,15 @@ void main() {
       expect(result!.items.length, 1);
       expect(result.items.first.header.type, 'transaction');
 
-      // Expect 2 debug logs: per-item drop + summary
-      expect(logCalls.length, 2);
+      // Expect only 1 warning log: per-item drop (no summary)
+      expect(logCalls.length, 1);
 
-      final itemLog = logCalls[0];
-      expect(itemLog.level, SentryLevel.debug);
+      final itemLog = logCalls.first;
+      expect(itemLog.level, SentryLevel.warning);
       expect(
         itemLog.message,
         contains(
             'Envelope item of type "event" was dropped due to rate limiting'),
-      );
-
-      final summaryLog = logCalls[1];
-      expect(summaryLog.level, SentryLevel.debug);
-      expect(
-        summaryLog.message,
-        allOf([
-          contains('1 envelope item(s) were dropped due to rate limiting'),
-          contains('but 1 item(s) will still be sent'),
-        ]),
       );
     });
   });
