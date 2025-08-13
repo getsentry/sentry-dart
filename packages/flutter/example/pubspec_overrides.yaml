@@ -26,8 +26,4 @@ dependency_overrides:
     version: ^3.1.0
   isar_generator:
     hosted: https://pub.isar-community.dev/
-<<<<<<< HEAD:flutter/example/pubspec_overrides.yaml
-
-=======
     version: ^3.1.0
->>>>>>> main:packages/flutter/example/pubspec_overrides.yaml
