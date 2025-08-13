@@ -502,6 +502,57 @@ void main() {
         expect(supabaseRequest.table, 'my_table_name');
       });
 
+      test('parses table name correctly when URL has additional path segments',
+          () {
+        // Test with URL like /rest/v1/users/123 where 'users' is the table name, not '123'
+        final request = Request(
+          'GET',
+          Uri.parse('https://example.com/rest/v1/users/123'),
+        );
+        final supabaseRequest =
+            SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+
+        expect(supabaseRequest.table, 'users');
+      });
+
+      test(
+          'parses table name correctly when URL has multiple additional path segments',
+          () {
+        // Test with URL like /rest/v1/users/123/profile where 'users' is the table name
+        final request = Request(
+          'GET',
+          Uri.parse('https://example.com/rest/v1/users/123/profile'),
+        );
+        final supabaseRequest =
+            SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+
+        expect(supabaseRequest.table, 'users');
+      });
+
+      test('returns null for URLs with insufficient path segments', () {
+        // Test with URL like /rest/v1 (missing table name)
+        final request = Request(
+          'GET',
+          Uri.parse('https://example.com/rest/v1'),
+        );
+        final supabaseRequest =
+            SentrySupabaseRequest.fromRequest(request, options: mockOptions);
+
+        expect(supabaseRequest, isNull);
+      });
+
+      test('returns null for URLs with only rest/v1/ (missing table name)', () {
+        // Test with URL like /rest/v1/ (missing table name)
+        final request = Request(
+          'GET',
+          Uri.parse('https://example.com/rest/v1/'),
+        );
+        final supabaseRequest =
+            SentrySupabaseRequest.fromRequest(request, options: mockOptions);
+
+        expect(supabaseRequest, isNull);
+      });
+
       test('parses operation from HTTP method and headers', () {
         // GET -> SELECT
         var request =
@@ -652,8 +703,10 @@ void main() {
           options: optionsWithSmallLimit,
         );
         expect(supabaseRequestWithLargeBody, isNotNull);
-        expect(supabaseRequestWithLargeBody?.body,
-            isNull); // Body should be filtered out due to size
+        expect(
+          supabaseRequestWithLargeBody?.body,
+          isNull,
+        ); // Body should be filtered out due to size
 
         // Test with maxRequestBodySize = never
         final optionsWithNeverLimit = SentryOptions()
@@ -665,8 +718,10 @@ void main() {
           options: optionsWithNeverLimit,
         );
         expect(supabaseRequestWithNeverLimit, isNotNull);
-        expect(supabaseRequestWithNeverLimit?.body,
-            isNull); // Body should never be included
+        expect(
+          supabaseRequestWithNeverLimit?.body,
+          isNull,
+        ); // Body should never be included
       });
     });
   });

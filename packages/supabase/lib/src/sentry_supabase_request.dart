@@ -31,7 +31,21 @@ class SentrySupabaseRequest {
     if (!url.path.startsWith('/rest/v1')) {
       return null;
     }
-    final table = url.pathSegments.last;
+
+    // Validate that the URL contains at least three path segments (rest, v1, table)
+    // to ensure we have a valid table name
+    if (url.pathSegments.length < 3) {
+      return null;
+    }
+
+    // The table name is the third segment (index 2) after 'rest' and 'v1'
+    // For URLs like /rest/v1/users/123, the table name is 'users', not '123'
+    final table = url.pathSegments[2];
+
+    // Ensure the table name is not empty (e.g., /rest/v1/ would have empty third segment)
+    if (table.isEmpty) {
+      return null;
+    }
     final operation = _extractOperation(request.method, request.headers);
     final query = _readQuery(request);
     try {
