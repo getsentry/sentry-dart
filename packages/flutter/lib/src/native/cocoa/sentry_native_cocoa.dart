@@ -57,17 +57,15 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    // Use a safe copy-based conversion to avoid crashes due to memory issues observed
-    // when relying on `dataWithBytesNoCopy:length:freeWhenDone:`.
     final length = envelopeData.length;
     final buffer = malloc<Uint8>(length);
-    cocoa.NSData? nsData;
-    cocoa.SentryEnvelope? envelope;
+    buffer.asTypedList(length).setAll(0, envelopeData);
     try {
-      buffer.asTypedList(length).setAll(0, envelopeData);
-      nsData = cocoa.NSData.dataWithBytes_length_(_lib, buffer.cast(), length);
-      envelope = cocoa.PrivateSentrySDKOnly.envelopeWithData_(_lib, nsData);
-      cocoa.PrivateSentrySDKOnly.captureEnvelope_(_lib, envelope);
+      final nsData = NSData.dataWithBytesNoCopy$1(buffer.cast(), length: length, freeWhenDone: true);
+      final envelope = cocoa.PrivateSentrySDKOnly.envelopeWithData(nsData);
+      if (envelope != null) {
+        cocoa.PrivateSentrySDKOnly.captureEnvelope(envelope);
+      }
     } catch (exception, stackTrace) {
       options.log(SentryLevel.error, 'Failed to capture envelope',
           exception: exception, stackTrace: stackTrace);
@@ -75,19 +73,6 @@ class SentryNativeCocoa extends SentryNativeChannel {
       if (options.automatedTestMode) {
         rethrow;
       }
-    } finally {
-      // Release ObjC wrappers promptly and free the temporary C buffer.
-      if (envelope != null) {
-        try {
-          envelope.release();
-        } catch (_) {}
-      }
-      if (nsData != null) {
-        try {
-          nsData.release();
-        } catch (_) {}
-      }
-      malloc.free(buffer);
     }
   }
 
