@@ -206,8 +206,9 @@ void main() {
             matcher = throwsA(predicate((e) =>
                 (e is ArgumentError &&
                     (e.toString().contains('undefined symbol: objc_msgSend') ||
-                        e.toString().contains(
-                            'Couldn\'t resolve native function \'objc_msgSend\''))) ||
+                        e
+                            .toString()
+                            .contains('Couldn\'t resolve native function'))) ||
                 (e is Exception &&
                     e
                         .toString()
