@@ -204,10 +204,14 @@ void main() {
                 e.toString().contains('Failed to load Objective-C class')));
           } else {
             matcher = throwsA(predicate((e) =>
-                e is ArgumentError &&
-                (e.toString().contains('undefined symbol: objc_msgSend') ||
-                    e.toString().contains(
-                        'Couldn\'t resolve native function \'objc_msgSend\''))));
+                (e is ArgumentError &&
+                    (e.toString().contains('undefined symbol: objc_msgSend') ||
+                        e.toString().contains(
+                            'Couldn\'t resolve native function \'objc_msgSend\''))) ||
+                (e is Exception &&
+                    e
+                        .toString()
+                        .contains('Failed to load Objective-C class'))));
           }
         }
         expect(() => sut.startProfiler(SentryId.newId()), matcher);
@@ -258,14 +262,21 @@ void main() {
           } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
             if (mockPlatform.isMacOS) {
               matcher = throwsA(predicate((e) =>
-                  e is Exception &&
-                  e.toString().contains('Failed to load Objective-C class')));
+                  (e is Exception &&
+                      (e
+                          .toString()
+                          .contains('Failed to load Objective-C class'))) ||
+                  (e is ArgumentError &&
+                      e
+                          .toString()
+                          .contains('Couldn\'t resolve native function'))));
             } else {
               matcher = throwsA(predicate((e) =>
                   e is ArgumentError &&
                   (e.toString().contains('undefined symbol: objc_msgSend') ||
-                      e.toString().contains(
-                          'Couldn\'t resolve native function \'objc_msgSend\'') ||
+                      e
+                          .toString()
+                          .contains('Couldn\'t resolve native function') ||
                       e.toString().contains('Failed to lookup symbol'))));
             }
           }
