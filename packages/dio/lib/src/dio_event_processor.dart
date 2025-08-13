@@ -2,8 +2,8 @@
 
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
-import 'dart:convert'; // Added for jsonEncode
-import 'dart:typed_data'; // Added for Uint8List
+import 'dart:convert';
+import 'dart:typed_data';
 
 /// This is an [EventProcessor], which improves crash reports of [DioError]s.
 /// It adds information about [DioError.requestOptions] if present and also about
@@ -47,18 +47,11 @@ class DioEventProcessor implements EventProcessor {
     final headers = options.headers
         .map((key, dynamic value) => MapEntry(key, value?.toString() ?? ''));
 
-    // Get content length from request headers (similar to response handling)
-    final contentLength = _getRequestContentLength(options.headers);
-    final requestData = _getRequestData(dioError.requestOptions.data, options);
-
-    // Apply content-length filtering if we have both content-length and data
-    final filteredData = _filterDataByContentLength(requestData, contentLength);
-
     return SentryRequest.fromUri(
       uri: options.uri,
       method: options.method,
       headers: _options.sendDefaultPii ? headers : null,
-      data: filteredData,
+      data: _getRequestData(dioError.requestOptions.data, options),
     );
   }
 
@@ -150,34 +143,6 @@ class DioEventProcessor implements EventProcessor {
     }
 
     return result;
-  }
-
-  /// Extract content-length from request headers
-  int? _getRequestContentLength(Map<String, dynamic> headers) {
-    // Convert headers to the format expected by HttpHeaderUtils
-    final convertedHeaders = <String, List<String>>{};
-    headers.forEach((key, value) {
-      convertedHeaders[key] = [value?.toString() ?? ''];
-    });
-
-    // ignore: invalid_use_of_internal_member
-    return HttpHeaderUtils.getContentLength(convertedHeaders);
-  }
-
-  /// Filter data based on content-length and maxRequestBodySize settings
-  Object? _filterDataByContentLength(Object? data, int? contentLength) {
-    if (data == null) {
-      return null;
-    }
-
-    // If we have content-length from headers, use it for size checking
-    if (contentLength != null) {
-      if (!_options.maxRequestBodySize.shouldAddBody(contentLength)) {
-        return null; // Data too large according to content-length
-      }
-    }
-
-    return data;
   }
 
   SentryResponse _responseFrom(DioError dioError) {
