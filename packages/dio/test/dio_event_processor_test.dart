@@ -193,6 +193,33 @@ void main() {
   });
 
   group('request data types', () {
+    test('handles String data correctly', () {
+      final sut = fixture.getSut(sendDefaultPii: true);
+
+      final data = 'Hello, World!';
+      final request = requestOptions.copyWith(
+        method: 'POST',
+        data: data,
+      );
+      final throwable = Exception();
+      final dioError = DioError(
+        requestOptions: request,
+        response: Response<dynamic>(
+          requestOptions: request,
+        ),
+      );
+      final event = SentryEvent(
+        throwable: throwable,
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError),
+        ],
+      );
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(processedEvent.request?.data, data);
+    });
+
     test('handles Uint8List data correctly', () {
       final sut = fixture.getSut(sendDefaultPii: true);
 
