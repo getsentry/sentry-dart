@@ -76,11 +76,19 @@ class SentrySupabaseRequest {
   static Map<String, dynamic>? _readBody(String table, BaseRequest request) {
     final bodyString =
         request is Request && request.body.isNotEmpty ? request.body : null;
-    final body = bodyString != null ? jsonDecode(bodyString) : null;
+    
+    if (bodyString == null) {
+      return null;
+    }
 
-    if (body is Map<String, dynamic>) {
-      return body;
-    } else {
+    try {
+      final body = jsonDecode(bodyString);
+      if (body is Map<String, dynamic>) {
+        return body;
+      } else {
+        return null;
+      }
+    } catch (e) {
       return null;
     }
   }
