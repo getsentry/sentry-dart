@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart';
+import 'package:sentry/sentry.dart';
 
 import 'operation.dart';
 
@@ -20,7 +21,10 @@ class SentrySupabaseRequest {
     required this.body,
   });
 
-  static SentrySupabaseRequest? fromRequest(BaseRequest request) {
+  static SentrySupabaseRequest? fromRequest(
+    BaseRequest request, {
+    required SentryOptions options,
+  }) {
     final url = request.url;
     // Ignoring URLS like https://example.com/auth/v1/token?grant_type=password
     // Only consider requests to the REST API.
@@ -31,7 +35,7 @@ class SentrySupabaseRequest {
     final operation = _extractOperation(request.method, request.headers);
     final query = _readQuery(request);
     try {
-      final body = _readBody(table, request);
+      final body = _readBody(table, request, options: options);
       return SentrySupabaseRequest(
         request: request,
         table: table,
@@ -76,11 +80,21 @@ class SentrySupabaseRequest {
         .toList();
   }
 
-  static Map<String, dynamic>? _readBody(String table, BaseRequest request) {
+  static Map<String, dynamic>? _readBody(
+    String table,
+    BaseRequest request, {
+    required SentryOptions options,
+  }) {
     final bodyString =
         request is Request && request.body.isNotEmpty ? request.body : null;
 
     if (bodyString == null) {
+      return null;
+    }
+
+    // Check if we should include the body based on PII settings and size limits
+    if (!options.sendDefaultPii ||
+        !options.maxRequestBodySize.shouldAddBody(bodyString.length)) {
       return null;
     }
 

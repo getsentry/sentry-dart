@@ -60,7 +60,11 @@ class SentrySupabaseErrorClient extends BaseClient {
     final event = SentryEvent(throwable: throwable);
     final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
 
-    final supabaseRequest = SentrySupabaseRequest.fromRequest(request);
+    final supabaseRequest = SentrySupabaseRequest.fromRequest(
+      request,
+      // ignore: invalid_use_of_internal_member
+      options: _hub.options,
+    );
     if (supabaseRequest != null) {
       event.contexts['supabase'] = {
         'table': supabaseRequest.table,

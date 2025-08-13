@@ -260,6 +260,8 @@ class Fixture {
 
   Fixture() {
     options.sendDefaultPii = true; // Send PII by default in test.
+    options.maxRequestBodySize =
+        MaxRequestBodySize.always; // Always include body in test.
   }
 
   SentrySupabaseErrorClient getSut() {

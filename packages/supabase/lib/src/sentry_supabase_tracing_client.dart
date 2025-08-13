@@ -11,7 +11,11 @@ class SentrySupabaseTracingClient extends BaseClient {
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
-    final supabaseRequest = SentrySupabaseRequest.fromRequest(request);
+    final supabaseRequest = SentrySupabaseRequest.fromRequest(
+      request,
+      // ignore: invalid_use_of_internal_member
+      options: _hub.options,
+    );
     if (supabaseRequest == null) {
       return _innerClient.send(request);
     }
