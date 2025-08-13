@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_dio/sentry_dio.dart';
@@ -188,6 +189,244 @@ void main() {
           scenario.shouldBeIncluded ? isNotNull : isNull,
         );
       }
+    });
+  });
+
+  group('request data types', () {
+    test('handles Uint8List data correctly', () {
+      final sut = fixture.getSut(sendDefaultPii: true);
+
+      final data = Uint8List.fromList([1, 2, 3, 4, 5]);
+      final request = requestOptions.copyWith(
+        method: 'POST',
+        data: data,
+      );
+      final throwable = Exception();
+      final dioError = DioError(
+        requestOptions: request,
+        response: Response<dynamic>(
+          requestOptions: request,
+        ),
+      );
+      final event = SentryEvent(
+        throwable: throwable,
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError),
+        ],
+      );
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(processedEvent.request?.data, data);
+    });
+
+    test('handles json map data correctly', () {
+      final sut = fixture.getSut(sendDefaultPii: true);
+
+      final data = {'key1': 'value1', 'key2': 42, 'key3': true};
+      final request = requestOptions.copyWith(
+        method: 'POST',
+        data: data,
+        contentType: 'application/json',
+      );
+      final throwable = Exception();
+      final dioError = DioError(
+        requestOptions: request,
+        response: Response<dynamic>(
+          requestOptions: request,
+        ),
+      );
+      final event = SentryEvent(
+        throwable: throwable,
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError),
+        ],
+      );
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(processedEvent.request?.data, data);
+    });
+
+    test('handles json list data correctly', () {
+      final sut = fixture.getSut(sendDefaultPii: true);
+
+      final data = ['item1', 'item2', 123, false];
+      final request = requestOptions.copyWith(
+        method: 'POST',
+        data: data,
+        contentType: 'application/json',
+      );
+      final throwable = Exception();
+      final dioError = DioError(
+        requestOptions: request,
+        response: Response<dynamic>(
+          requestOptions: request,
+        ),
+      );
+      final event = SentryEvent(
+        throwable: throwable,
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError),
+        ],
+      );
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(processedEvent.request?.data, data);
+    });
+
+    test('handles FormData correctly', () {
+      final sut = fixture.getSut(sendDefaultPii: true);
+
+      final formData = FormData.fromMap({
+        'field1': 'value1',
+        'field2': 'value2',
+      });
+      final request = requestOptions.copyWith(
+        method: 'POST',
+        data: formData,
+      );
+      final throwable = Exception();
+      final dioError = DioError(
+        requestOptions: request,
+        response: Response<dynamic>(
+          requestOptions: request,
+        ),
+      );
+      final event = SentryEvent(
+        throwable: throwable,
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError),
+        ],
+      );
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(processedEvent.request?.data, isNotNull);
+      expect(processedEvent.request?.data, isA<Map<dynamic, dynamic>>());
+      final capturedData = processedEvent.request?.data as Map;
+      expect(capturedData['field1'], 'value1');
+      expect(capturedData['field2'], 'value2');
+    });
+
+    test('handles FormData with files correctly', () {
+      final sut = fixture.getSut(sendDefaultPii: true);
+
+      final formData = FormData.fromMap({
+        'field1': 'value1',
+      });
+      // Add a file to FormData
+      formData.files.add(
+        MapEntry(
+          'file1',
+          MultipartFile.fromString(
+            'file content',
+            filename: 'test.txt',
+          ),
+        ),
+      );
+
+      final request = requestOptions.copyWith(
+        method: 'POST',
+        data: formData,
+      );
+      final throwable = Exception();
+      final dioError = DioError(
+        requestOptions: request,
+        response: Response<dynamic>(
+          requestOptions: request,
+        ),
+      );
+      final event = SentryEvent(
+        throwable: throwable,
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError),
+        ],
+      );
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(processedEvent.request?.data, isNotNull);
+      expect(processedEvent.request?.data, isA<Map<dynamic, dynamic>>());
+      final capturedData = processedEvent.request?.data as Map;
+      expect(capturedData['field1'], 'value1');
+      expect(capturedData['file1_file'], isA<Map<dynamic, dynamic>>());
+      final fileData = capturedData['file1_file'] as Map;
+      expect(fileData['filename'], 'test.txt');
+      expect(fileData['length'], greaterThan(0));
+    });
+
+    test('handles MultipartFile correctly', () {
+      final sut = fixture.getSut(sendDefaultPii: true);
+
+      final file = MultipartFile.fromString(
+        'file content here',
+        filename: 'test.txt',
+        contentType: DioMediaType('text', 'plain'),
+      );
+      final request = requestOptions.copyWith(
+        method: 'POST',
+        data: file,
+      );
+      final throwable = Exception();
+      final dioError = DioError(
+        requestOptions: request,
+        response: Response<dynamic>(
+          requestOptions: request,
+        ),
+      );
+      final event = SentryEvent(
+        throwable: throwable,
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError),
+        ],
+      );
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(processedEvent.request?.data, isNotNull);
+      expect(processedEvent.request?.data, isA<Map<dynamic, dynamic>>());
+      final capturedData = processedEvent.request?.data as Map;
+      expect(capturedData['filename'], 'test.txt');
+      expect(capturedData['length'], greaterThan(0));
+      expect(capturedData['contentType'], contains('text/plain'));
+    });
+
+    test('handles primitive types correctly', () {
+      final sut = fixture.getSut(sendDefaultPii: true);
+
+      // Test num
+      final numData = 42;
+      final numRequest = requestOptions.copyWith(
+        method: 'POST',
+        data: numData,
+      );
+      final numEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: numRequest)),
+        ],
+      );
+      final processedNumEvent = sut.apply(numEvent, Hint()) as SentryEvent;
+      expect(processedNumEvent.request?.data, numData);
+
+      // Test bool
+      final boolData = true;
+      final boolRequest = requestOptions.copyWith(
+        method: 'POST',
+        data: boolData,
+      );
+      final boolEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: boolRequest)),
+        ],
+      );
+      final processedBoolEvent = sut.apply(boolEvent, Hint()) as SentryEvent;
+      expect(processedBoolEvent.request?.data, boolData);
     });
   });
 
