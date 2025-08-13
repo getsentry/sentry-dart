@@ -395,7 +395,7 @@ void main() {
       expect(capturedData['filename'], 'test.txt');
       expect(capturedData['length'], greaterThan(0));
       expect(capturedData['contentType'], contains('text/plain'));
-      
+
       // Test headers
       expect(capturedData['headers'], isA<Map<dynamic, dynamic>>());
       final headers = capturedData['headers'] as Map;
@@ -437,6 +437,219 @@ void main() {
       );
       final processedBoolEvent = sut.apply(boolEvent, Hint()) as SentryEvent;
       expect(processedBoolEvent.request?.data, boolData);
+    });
+  });
+
+  group('maxRequestBodySize', () {
+    test('respects maxRequestBodySize.never for primitive types', () {
+      final sut = fixture.getSut(
+        sendDefaultPii: true,
+        maxRequestBodySize: MaxRequestBodySize.never,
+      );
+
+      // Test num - should not be added when maxRequestBodySize is never
+      final numData = 42;
+      final numRequest = requestOptions.copyWith(method: 'POST', data: numData);
+      final numEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: numRequest)),
+        ],
+      );
+      final processedNumEvent = sut.apply(numEvent, Hint()) as SentryEvent;
+      expect(processedNumEvent.request?.data, isNull);
+
+      // Test bool - should not be added when maxRequestBodySize is never
+      final boolData = true;
+      final boolRequest =
+          requestOptions.copyWith(method: 'POST', data: boolData);
+      final boolEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: boolRequest)),
+        ],
+      );
+      final processedBoolEvent = sut.apply(boolEvent, Hint()) as SentryEvent;
+      expect(processedBoolEvent.request?.data, isNull);
+    });
+
+    test('respects maxRequestBodySize.small for large String data', () {
+      final sut = fixture.getSut(
+        sendDefaultPii: true,
+        maxRequestBodySize: MaxRequestBodySize.small,
+      );
+
+      // Test String - should not be added due to size (4000 bytes = 4000 characters)
+      final largeString = 'x' * 5000; // 5000 characters > 4000 limit
+      final stringRequest =
+          requestOptions.copyWith(method: 'POST', data: largeString);
+      final stringEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: stringRequest)),
+        ],
+      );
+      final processedStringEvent =
+          sut.apply(stringEvent, Hint()) as SentryEvent;
+      expect(processedStringEvent.request?.data, isNull);
+    });
+
+    test('respects maxRequestBodySize.small for large List<int> data', () {
+      final sut = fixture.getSut(
+        sendDefaultPii: true,
+        maxRequestBodySize: MaxRequestBodySize.small,
+      );
+
+      // Test List<int> - should not be added due to size
+      final largeList = List<int>.filled(5000, 1); // 5000 bytes > 4000 limit
+      final listRequest =
+          requestOptions.copyWith(method: 'POST', data: largeList);
+      final listEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: listRequest)),
+        ],
+      );
+      final processedListEvent = sut.apply(listEvent, Hint()) as SentryEvent;
+      expect(processedListEvent.request?.data, isNull);
+    });
+
+    test('respects maxRequestBodySize.small for large Uint8List data', () {
+      final sut = fixture.getSut(
+        sendDefaultPii: true,
+        maxRequestBodySize: MaxRequestBodySize.small,
+      );
+
+      // Test Uint8List - should not be added due to size
+      final largeUint8List = Uint8List.fromList(
+        List<int>.filled(5000, 1),
+      ); // 5000 bytes > 4000 limit
+      final uint8ListRequest =
+          requestOptions.copyWith(method: 'POST', data: largeUint8List);
+      final uint8ListEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: uint8ListRequest)),
+        ],
+      );
+      final processedUint8ListEvent =
+          sut.apply(uint8ListEvent, Hint()) as SentryEvent;
+      expect(processedUint8ListEvent.request?.data, isNull);
+    });
+
+    test('respects maxRequestBodySize.small for large Map data', () {
+      final sut = fixture.getSut(
+        sendDefaultPii: true,
+        maxRequestBodySize: MaxRequestBodySize.small,
+      );
+
+      // Test Map - should not be added due to size
+      final largeMap = <String, String>{};
+      for (int i = 0; i < 200; i++) {
+        largeMap['key$i'] =
+            'value' * 25; // Each value is 125 characters, total > 4000
+      }
+      final mapRequest = requestOptions.copyWith(
+        method: 'POST',
+        data: largeMap,
+        contentType: 'application/json',
+      );
+      final mapEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: mapRequest)),
+        ],
+      );
+      final processedMapEvent = sut.apply(mapEvent, Hint()) as SentryEvent;
+      expect(processedMapEvent.request?.data, isNull);
+    });
+
+    test('respects maxRequestBodySize.small for large List data', () {
+      final sut = fixture.getSut(
+        sendDefaultPii: true,
+        maxRequestBodySize: MaxRequestBodySize.small,
+      );
+
+      // Test List - should not be added due to size
+      final largeListData = List<String>.generate(
+        200,
+        (i) => 'item$i' * 25,
+      ); // Each item is 125+ characters, total > 4000
+      final largeListRequest = requestOptions.copyWith(
+        method: 'POST',
+        data: largeListData,
+        contentType: 'application/json',
+      );
+      final largeListEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: largeListRequest)),
+        ],
+      );
+      final processedLargeListEvent =
+          sut.apply(largeListEvent, Hint()) as SentryEvent;
+      expect(processedLargeListEvent.request?.data, isNull);
+    });
+
+    test('respects maxRequestBodySize.small for large FormData', () {
+      final sut = fixture.getSut(
+        sendDefaultPii: true,
+        maxRequestBodySize: MaxRequestBodySize.small,
+      );
+
+      // Test FormData - should not be added due to size
+      final largeFormData = FormData.fromMap({});
+      for (int i = 0; i < 200; i++) {
+        largeFormData.fields.add(
+          MapEntry(
+            'field$i',
+            'value' * 25,
+          ),
+        ); // Each field value is 125 characters, total > 4000
+      }
+      final formDataRequest =
+          requestOptions.copyWith(method: 'POST', data: largeFormData);
+      final formDataEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: formDataRequest)),
+        ],
+      );
+      final processedFormDataEvent =
+          sut.apply(formDataEvent, Hint()) as SentryEvent;
+      expect(processedFormDataEvent.request?.data, isNull);
+    });
+
+    test('respects maxRequestBodySize.small for large MultipartFile', () {
+      final sut = fixture.getSut(
+        sendDefaultPii: true,
+        maxRequestBodySize: MaxRequestBodySize.small,
+      );
+
+      // Test MultipartFile - should not be added due to size
+      final largeFile = MultipartFile.fromString(
+        'x' * 5000,
+        filename: 'large.txt',
+      ); // 5000 characters > 4000 limit
+      final fileRequest =
+          requestOptions.copyWith(method: 'POST', data: largeFile);
+      final fileEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: fileRequest)),
+        ],
+      );
+      final processedFileEvent = sut.apply(fileEvent, Hint()) as SentryEvent;
+      expect(processedFileEvent.request?.data, isNull);
     });
   });
 
