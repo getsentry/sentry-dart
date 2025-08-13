@@ -49,6 +49,15 @@ jobs:
           coverage: sentry_logging
           min-coverage: 90
 
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # pin@v1.1.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: dart-tests-${{ runner.os }}-${{ matrix.sdk }}
+          flags: dart
+          verbose: true
+
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
