@@ -12,6 +12,8 @@
 
 - Add `DioException` response data to error breadcrumb ([#3164](https://github.com/getsentry/sentry-dart/pull/3164))
   - Bumped `dio` min verion to `5.2.0`
+- Support additional request data types in `dio` package ([#3170](https://github.com/getsentry/sentry-dart/pull/3170))
+  - Add support for `json`, `UInt8List`, `num`, `bool`, `FormData`, `Multipart` request data.
 
 ## 9.7.0-beta.1
 
