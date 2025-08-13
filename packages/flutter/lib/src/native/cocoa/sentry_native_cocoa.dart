@@ -65,6 +65,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
       final envelope = cocoa.PrivateSentrySDKOnly.envelopeWithData(nsData);
       if (envelope != null) {
         cocoa.PrivateSentrySDKOnly.captureEnvelope(envelope);
+      } else {
+        options.log(SentryLevel.error, 'Failed to capture envelope: envelope is null');
       }
     } catch (exception, stackTrace) {
       options.log(SentryLevel.error, 'Failed to capture envelope',
