@@ -20,43 +20,43 @@ jobs:
           sudo apt install graphviz
 
       - name: dart
-        working-directory: ./dart
+        working-directory: ./packages/dart
         run: lakos . -i "{test/**,example/**,example_web/**}" | dot -Tsvg -o class-diagram.svg
 
       - name: flutter
-        working-directory: ./flutter
+        working-directory: ./packages/flutter
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
       - name: dio
-        working-directory: ./dio
+        working-directory: ./packages/dio
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
       - name: file
-        working-directory: ./file
+        working-directory: ./packages/file
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
       - name: sqflite
-        working-directory: ./sqflite
+        working-directory: ./packages/sqflite
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
       - name: logging
-        working-directory: ./logging
+        working-directory: ./packages/logging
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
       - name: hive
-        working-directory: ./hive
+        working-directory: ./packages/hive
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
       - name: isar
-        working-directory: ./isar
+        working-directory: ./packages/isar
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
       - name: link
-        working-directory: ./link
+        working-directory: ./packages/link
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
       - name: firebase_remote_config
-        working-directory: ./firebase_remote_config
+        working-directory: ./packages/firebase_remote_config
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
         # Source: https://stackoverflow.com/a/58035262
