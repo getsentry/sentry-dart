@@ -525,18 +525,16 @@ void main() {
             Request('POST', Uri.parse('https://example.com/rest/v1/users'))
               ..body = 'not valid json';
 
-        expect(
-          () => SentrySupabaseRequest.fromRequest(request),
-          throwsA(isA<FormatException>()),
-        );
+        final supabaseRequest = SentrySupabaseRequest.fromRequest(request);
+        expect(supabaseRequest, isNull);
       });
 
       test('handles empty body', () {
         final request =
             Request('POST', Uri.parse('https://example.com/rest/v1/users'));
-        final supabaseRequest = SentrySupabaseRequest.fromRequest(request)!;
-
-        expect(supabaseRequest.body, isNull);
+        final supabaseRequest = SentrySupabaseRequest.fromRequest(request);
+        expect(supabaseRequest, isNotNull);
+        expect(supabaseRequest?.body, isNull);
       });
     });
   });

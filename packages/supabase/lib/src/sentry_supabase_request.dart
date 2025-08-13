@@ -30,15 +30,18 @@ class SentrySupabaseRequest {
     final table = url.pathSegments.last;
     final operation = _extractOperation(request.method, request.headers);
     final query = _readQuery(request);
-    final body = _readBody(table, request);
-
-    return SentrySupabaseRequest(
-      request: request,
-      table: table,
-      operation: operation,
-      query: query,
-      body: body,
-    );
+    try {
+      final body = _readBody(table, request);
+      return SentrySupabaseRequest(
+        request: request,
+        table: table,
+        operation: operation,
+        query: query,
+        body: body,
+      );
+    } catch (e) {
+      return null;
+    }
   }
 
   static Operation _extractOperation(
@@ -76,19 +79,15 @@ class SentrySupabaseRequest {
   static Map<String, dynamic>? _readBody(String table, BaseRequest request) {
     final bodyString =
         request is Request && request.body.isNotEmpty ? request.body : null;
-    
+
     if (bodyString == null) {
       return null;
     }
 
-    try {
-      final body = jsonDecode(bodyString);
-      if (body is Map<String, dynamic>) {
-        return body;
-      } else {
-        return null;
-      }
-    } catch (e) {
+    final body = jsonDecode(bodyString);
+    if (body is Map<String, dynamic>) {
+      return body;
+    } else {
       return null;
     }
   }
