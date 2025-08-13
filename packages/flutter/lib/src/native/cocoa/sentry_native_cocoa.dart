@@ -61,12 +61,14 @@ class SentryNativeCocoa extends SentryNativeChannel {
       final length = envelopeData.length;
       final buffer = malloc<Uint8>(length);
       buffer.asTypedList(length).setAll(0, envelopeData);
-      final nsData = NSData.dataWithBytesNoCopy$1(buffer.cast(), length: length, freeWhenDone: true);
+      final nsData = NSData.dataWithBytesNoCopy$1(buffer.cast(),
+          length: length, freeWhenDone: true);
       final envelope = cocoa.PrivateSentrySDKOnly.envelopeWithData(nsData);
       if (envelope != null) {
         cocoa.PrivateSentrySDKOnly.captureEnvelope(envelope);
       } else {
-        options.log(SentryLevel.error, 'Failed to capture envelope: envelope is null');
+        options.log(
+            SentryLevel.error, 'Failed to capture envelope: envelope is null');
       }
     } catch (exception, stackTrace) {
       options.log(SentryLevel.error, 'Failed to capture envelope',

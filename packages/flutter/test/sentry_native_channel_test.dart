@@ -264,7 +264,10 @@ void main() {
             } else {
               matcher = throwsA(predicate((e) =>
                   e is ArgumentError &&
-                  e.toString().contains('Failed to lookup symbol')));
+                  (e.toString().contains('undefined symbol: objc_msgSend') ||
+                      e.toString().contains(
+                          'Couldn\'t resolve native function \'objc_msgSend\'') ||
+                      e.toString().contains('Failed to lookup symbol'))));
             }
           }
 
