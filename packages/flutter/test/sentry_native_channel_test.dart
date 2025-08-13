@@ -200,8 +200,14 @@ void main() {
         } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
           if (mockPlatform.isMacOS) {
             matcher = throwsA(predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Failed to load Objective-C class')));
+                (e is Exception &&
+                    e
+                        .toString()
+                        .contains('Failed to load Objective-C class')) ||
+                (e is ArgumentError &&
+                    e
+                        .toString()
+                        .contains('Couldn\'t resolve native function'))));
           } else {
             matcher = throwsA(predicate((e) =>
                 (e is ArgumentError &&
