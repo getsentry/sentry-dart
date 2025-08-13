@@ -37,8 +37,10 @@ void main() {
     test('should not create span for auth requests', () async {
       final sut = fixture.getSut();
 
-      final request = Request('GET',
-          Uri.parse('https://example.com/auth/v1/token?grant_type=password'));
+      final request = Request(
+        'GET',
+        Uri.parse('https://example.com/auth/v1/token?grant_type=password'),
+      );
 
       await sut.send(request);
 
