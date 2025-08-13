@@ -57,10 +57,10 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    final length = envelopeData.length;
-    final buffer = malloc<Uint8>(length);
-    buffer.asTypedList(length).setAll(0, envelopeData);
     try {
+      final length = envelopeData.length;
+      final buffer = malloc<Uint8>(length);
+      buffer.asTypedList(length).setAll(0, envelopeData);
       final nsData = NSData.dataWithBytesNoCopy$1(buffer.cast(), length: length, freeWhenDone: true);
       final envelope = cocoa.PrivateSentrySDKOnly.envelopeWithData(nsData);
       if (envelope != null) {
