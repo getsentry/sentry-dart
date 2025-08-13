@@ -12,9 +12,9 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
-      - 'dart/**'
-      - 'flutter/**'
-      - 'supabase/**'
+      - 'packages/dart/**'
+      - 'packages/flutter/**'
+      - 'packages/supabase/**'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
@@ -37,7 +37,7 @@ jobs:
 
       - uses: ./.github/actions/flutter-test
         with:
-          directory: supabase
+          directory: packages/supabase
           web: false
 
 #       TODO: don't set coverage for now to finish publishing it
@@ -45,12 +45,12 @@ jobs:
 #        if: runner.os == 'Linux' && matrix.sdk == 'stable'
 #        with:
 #          token: ${{ secrets.CODECOV_TOKEN }}
-#          directory: supabase
+#          directory: packages/supabase
 #          coverage: sentry_supabase
 #          min-coverage: 55
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: supabase
+      package: packages/supabase
       sdk: flutter
