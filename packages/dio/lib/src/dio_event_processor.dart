@@ -50,7 +50,7 @@ class DioEventProcessor implements EventProcessor {
     // Get content length from request headers (similar to response handling)
     final contentLength = _getRequestContentLength(options.headers);
     final requestData = _getRequestData(dioError.requestOptions.data, options);
-    
+
     // Apply content-length filtering if we have both content-length and data
     final filteredData = _filterDataByContentLength(requestData, contentLength);
 
@@ -65,7 +65,7 @@ class DioEventProcessor implements EventProcessor {
   /// Returns the request data, if possible according to the users settings.
   /// Takes into account the content type to determine proper encoding.
   ///
-  Object? _getRequestData(Object? data, RequestOptions options) {
+  Object? _getRequestData(Object? data, RequestOptions requestOptions) {
     if (!_options.sendDefaultPii || data == null) {
       return null;
     }
@@ -75,7 +75,7 @@ class DioEventProcessor implements EventProcessor {
       if (_options.maxRequestBodySize.shouldAddBody(data.codeUnits.length)) {
         return data;
       }
-    } 
+    }
     // For List<int> data, we have exact size information
     else if (data is List<int>) {
       if (_options.maxRequestBodySize.shouldAddBody(data.length)) {
@@ -91,7 +91,7 @@ class DioEventProcessor implements EventProcessor {
         return data;
       }
     } else if (data is! String &&
-        Transformer.isJsonMimeType(options.contentType)) {
+        Transformer.isJsonMimeType(requestOptions.contentType)) {
       try {
         final jsonSize = jsonEncode(data).codeUnits.length;
         if (_options.maxRequestBodySize.shouldAddBody(jsonSize)) {
@@ -159,24 +159,24 @@ class DioEventProcessor implements EventProcessor {
     headers.forEach((key, value) {
       convertedHeaders[key] = [value?.toString() ?? ''];
     });
-    
+
     // ignore: invalid_use_of_internal_member
     return HttpHeaderUtils.getContentLength(convertedHeaders);
   }
-  
+
   /// Filter data based on content-length and maxRequestBodySize settings
   Object? _filterDataByContentLength(Object? data, int? contentLength) {
     if (data == null) {
       return null;
     }
-    
+
     // If we have content-length from headers, use it for size checking
     if (contentLength != null) {
       if (!_options.maxRequestBodySize.shouldAddBody(contentLength)) {
         return null; // Data too large according to content-length
       }
     }
-    
+
     return data;
   }
 
