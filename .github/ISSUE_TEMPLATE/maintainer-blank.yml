@@ -1,6 +1,6 @@
 name: Blank Issue
 description: Blank Issue. Reserved for maintainers.
-labels: ["Platform: Dart"]
+labels: ["Dart"]
 body:
   - type: textarea
     id: description

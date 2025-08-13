@@ -1,0 +1,33 @@
+# melos_managed_dependency_overrides: sentry,sentry_dio,sentry_drift,sentry_file,sentry_flutter,sentry_hive,sentry_isar,sentry_logging,sentry_sqflite,isar,isar_flutter_libs,isar_generator
+dependency_overrides:
+  sentry:
+    path: ../../dart
+  sentry_dio:
+    path: ../../dio
+  sentry_drift:
+    path: ../../drift
+  sentry_file:
+    path: ../../file
+  sentry_flutter:
+    path: ..
+  sentry_hive:
+    path: ../../hive
+  sentry_isar:
+    path: ../../isar
+  sentry_logging:
+    path: ../../logging
+  sentry_sqflite:
+    path: ../../sqflite
+  isar:
+    hosted: https://pub.isar-community.dev/
+    version: ^3.1.0
+  isar_flutter_libs:
+    hosted: https://pub.isar-community.dev/
+    version: ^3.1.0
+  isar_generator:
+    hosted: https://pub.isar-community.dev/
+<<<<<<< HEAD:flutter/example/pubspec_overrides.yaml
+
+=======
+    version: ^3.1.0
+>>>>>>> main:packages/flutter/example/pubspec_overrides.yaml

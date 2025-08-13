@@ -9,8 +9,8 @@ on:
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - '.github/workflows/flutter_test.yml'
-      - 'dart/**'
-      - 'flutter/**'
+      - 'packages/dart/**'
+      - 'packages/flutter/**'
 
 env:
   SENTRY_AUTH_TOKEN_E2E: ${{ secrets.SENTRY_AUTH_TOKEN_E2E }}
@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 30
     defaults:
       run:
-        working-directory: ./flutter/example
+        working-directory: packages/flutter/example
     strategy:
       fail-fast: false
       matrix:
@@ -61,13 +61,13 @@ jobs:
       # TODO: fix emulator caching, in ubuntu-latest emulator won't boot: https://github.com/ReactiveCircus/android-emulator-runner/issues/278
 
       - name: build apk
-        working-directory: ./flutter/example/android
+        working-directory: packages/flutter/example/android
         run: flutter build apk --debug --target-platform=android-x64
 
       - name: launch android emulator & run android native test
         uses: reactivecircus/android-emulator-runner@1dcd0090116d15e7c562f8db72807de5e036a4ed #pin@v2.34.0
         with:
-          working-directory: ./flutter/example/android
+          working-directory: packages/flutter/example/android
           api-level: 31
           profile: Nexus 6
           arch: x86_64
@@ -80,7 +80,7 @@ jobs:
       - name: launch android emulator & run android integration test
         uses: reactivecircus/android-emulator-runner@1dcd0090116d15e7c562f8db72807de5e036a4ed #pin@v2.34.0
         with:
-          working-directory: ./flutter/example
+          working-directory: packages/flutter/example
           api-level: 31
           profile: Nexus 6
           arch: x86_64
@@ -93,7 +93,7 @@ jobs:
       - name: launch android emulator & run android integration test in profile mode
         uses: reactivecircus/android-emulator-runner@1dcd0090116d15e7c562f8db72807de5e036a4ed #pin@v2.34.0
         with:
-          working-directory: ./flutter/example
+          working-directory: packages/flutter/example
           api-level: 31
           profile: Nexus 6
           arch: x86_64
@@ -109,7 +109,7 @@ jobs:
     timeout-minutes: 30
     defaults:
       run:
-        working-directory: ./flutter/example
+        working-directory: packages/flutter/example
     strategy:
       fail-fast: false
       matrix:
@@ -127,14 +127,14 @@ jobs:
       - run: flutter pub get
 
       - run: pod install
-        working-directory: ./flutter/example/${{ matrix.target }}
+        working-directory: packages/flutter/example/${{ matrix.target }}
 
       - name: prepare test device
         id: device
         run: |
           case "${{ matrix.target }}" in
             ios)
-            device=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-17-0)
+            device=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-16 com.apple.CoreSimulator.SimRuntime.iOS-18-0)
             xcrun simctl boot ${device}
             echo "platform=iOS Simulator,id=${device}" >> "$GITHUB_OUTPUT"
             ;;
@@ -156,7 +156,7 @@ jobs:
         # We only have the native unit test package in the iOS xcodeproj at the moment.
         # Should be OK because it will likely be removed after switching to FFI (see https://github.com/getsentry/sentry-dart/issues/1444).
         if: ${{ matrix.target != 'macos' }}
-        working-directory: ./flutter/example/${{ matrix.target }}
+        working-directory: packages/flutter/example/${{ matrix.target }}
         run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=$DEVICE_PLATFORM" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
         env:
           DEVICE_PLATFORM: ${{ steps.device.outputs.platform }}
@@ -166,7 +166,7 @@ jobs:
     timeout-minutes: 30
     defaults:
       run:
-        working-directory: ./flutter/example
+        working-directory: packages/flutter/example
     strategy:
       fail-fast: false
       matrix:

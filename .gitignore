@@ -4,7 +4,6 @@
 .packages
 .dart_tool/
 build/
-packages
 pubspec.lock
 .pub/
 .idea/libraries
@@ -17,18 +16,10 @@ build/
 .fvmrc
 
 .test_coverage.dart
-dart/coverage/*
-logging/coverage/*
-dio/coverage/*
-file/coverage/*
-flutter/coverage/*
-sqflite/coverage/*
-drift/coverage/*
-hive/coverage/*
-isar/coverage/*
+packages/**/coverage/*
 
 pubspec.lock
 Podfile.lock
 
 .gradle
-flutter/.gradle
+packages/flutter/.gradle
