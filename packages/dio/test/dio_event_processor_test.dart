@@ -364,6 +364,10 @@ void main() {
         'file content here',
         filename: 'test.txt',
         contentType: DioMediaType('text', 'plain'),
+        headers: {
+          'custom-header': ['custom-value'],
+          'x-file-id': ['12345'],
+        },
       );
       final request = requestOptions.copyWith(
         method: 'POST',
@@ -391,6 +395,12 @@ void main() {
       expect(capturedData['filename'], 'test.txt');
       expect(capturedData['length'], greaterThan(0));
       expect(capturedData['contentType'], contains('text/plain'));
+      
+      // Test headers
+      expect(capturedData['headers'], isA<Map<dynamic, dynamic>>());
+      final headers = capturedData['headers'] as Map;
+      expect(headers['custom-header'], ['custom-value']);
+      expect(headers['x-file-id'], ['12345']);
     });
 
     test('handles primitive types correctly', () {
