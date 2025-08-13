@@ -25,9 +25,8 @@ class RateLimiter {
           DiscardReason.rateLimitBackoff,
           DataCategory.fromItemType(item.header.type),
         );
-        _options.log(
-          SentryLevel.warning,
-          'Envelope item of type "${item.header.type}" was dropped due to rate limiting',
+        _logDebugWarning(
+          'Envelope item of type "${item.header.type}" was dropped due to rate limiting.',
         );
 
         final originalObject = item.originalObject;
@@ -52,9 +51,8 @@ class RateLimiter {
 
       // no reason to continue
       if (toSend.isEmpty) {
-        _options.log(
-          SentryLevel.warning,
-          'All envelope items were dropped due to rate limiting.',
+        _logDebugWarning(
+          'Envelope was dropped due to rate limiting.',
         );
         return null;
       }
@@ -127,6 +125,19 @@ class RateLimiter {
     // only overwrite its previous date if the limit is even longer
     if (oldDate == null || date.isAfter(oldDate)) {
       _rateLimitedUntil[dataCategory] = date;
+    }
+  }
+
+  // Enable debug mode to log warning messages
+  void _logDebugWarning(String message) {
+    var debug = _options.debug;
+    if (!debug) {
+      // Surface the log even if debug is disabled
+      _options.debug = true;
+    }
+    _options.log(SentryLevel.warning, message);
+    if (debug != _options.debug) {
+      _options.debug = debug;
     }
   }
 }

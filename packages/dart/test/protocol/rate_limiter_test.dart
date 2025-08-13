@@ -323,8 +323,8 @@ void main() {
   group('RateLimiter logging', () {
     test('logs warning for dropped item and full envelope', () {
       final options = defaultTestOptions();
-      options.debug = true;
-      options.diagnosticLevel = SentryLevel.debug;
+      options.debug = false;
+      options.diagnosticLevel = SentryLevel.warning;
 
       final logCalls = <_LogCall>[];
       void mockLogger(
@@ -370,15 +370,17 @@ void main() {
       expect(fullDropLog.level, SentryLevel.warning);
       expect(
         fullDropLog.message,
-        contains('All envelope items were dropped due to rate limiting'),
+        contains('Envelope was dropped due to rate limiting'),
       );
+
+      expect(options.debug, isFalse);
     });
 
     test('logs warning for each dropped item only when some items are sent',
         () {
       final options = defaultTestOptions();
-      options.debug = true;
-      options.diagnosticLevel = SentryLevel.debug;
+      options.debug = false;
+      options.diagnosticLevel = SentryLevel.warning;
 
       final logCalls = <_LogCall>[];
       void mockLogger(
@@ -423,6 +425,8 @@ void main() {
         contains(
             'Envelope item of type "event" was dropped due to rate limiting'),
       );
+
+      expect(options.debug, isFalse);
     });
   });
 }
