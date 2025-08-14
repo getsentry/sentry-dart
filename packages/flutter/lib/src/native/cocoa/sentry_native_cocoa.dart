@@ -1,8 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
-
-import 'package:ffi/ffi.dart';
-import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
 
