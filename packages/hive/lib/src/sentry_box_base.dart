@@ -16,62 +16,42 @@ class SentryBoxBase<E> implements BoxBase<E> {
 
   /// @nodoc
   SentryBoxBase(this._boxBase, this._hub) {
-    _spanHelper.setHub(this._hub);
+    _spanHelper.setHub(_hub);
   }
 
   @override
   Future<int> add(E value) async {
-    return _spanHelper.asyncWrapInSpan(
-      'add',
-      () {
-        return _boxBase.add(value);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('add', () {
+      return _boxBase.add(value);
+    }, dbName: name);
   }
 
   @override
   Future<Iterable<int>> addAll(Iterable<E> values) {
-    return _spanHelper.asyncWrapInSpan(
-      'addAll',
-      () {
-        return _boxBase.addAll(values);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('addAll', () {
+      return _boxBase.addAll(values);
+    }, dbName: name);
   }
 
   @override
   Future<int> clear() {
-    return _spanHelper.asyncWrapInSpan(
-      'clear',
-      () {
-        return _boxBase.clear();
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('clear', () {
+      return _boxBase.clear();
+    }, dbName: name);
   }
 
   @override
   Future<void> close() {
-    return _spanHelper.asyncWrapInSpan(
-      'close',
-      () {
-        return _boxBase.close();
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('close', () {
+      return _boxBase.close();
+    }, dbName: name);
   }
 
   @override
   Future<void> compact() {
-    return _spanHelper.asyncWrapInSpan(
-      'compact',
-      () {
-        return _boxBase.compact();
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('compact', () {
+      return _boxBase.compact();
+    }, dbName: name);
   }
 
   @override
@@ -81,57 +61,37 @@ class SentryBoxBase<E> implements BoxBase<E> {
 
   @override
   Future<void> delete(key) {
-    return _spanHelper.asyncWrapInSpan(
-      'delete',
-      () {
-        return _boxBase.delete(key);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('delete', () {
+      return _boxBase.delete(key);
+    }, dbName: name);
   }
 
   @override
   Future<void> deleteAll(Iterable<dynamic> keys) {
-    return _spanHelper.asyncWrapInSpan(
-      'deleteAll',
-      () {
-        return _boxBase.deleteAll(keys);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('deleteAll', () {
+      return _boxBase.deleteAll(keys);
+    }, dbName: name);
   }
 
   @override
   Future<void> deleteAt(int index) {
-    return _spanHelper.asyncWrapInSpan(
-      'deleteAt',
-      () {
-        return _boxBase.deleteAt(index);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('deleteAt', () {
+      return _boxBase.deleteAt(index);
+    }, dbName: name);
   }
 
   @override
   Future<void> deleteFromDisk() {
-    return _spanHelper.asyncWrapInSpan(
-      'deleteFromDisk',
-      () {
-        return _boxBase.deleteFromDisk();
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('deleteFromDisk', () {
+      return _boxBase.deleteFromDisk();
+    }, dbName: name);
   }
 
   @override
   Future<void> flush() {
-    return _spanHelper.asyncWrapInSpan(
-      'flush',
-      () {
-        return _boxBase.flush();
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('flush', () {
+      return _boxBase.flush();
+    }, dbName: name);
   }
 
   @override
@@ -165,35 +125,23 @@ class SentryBoxBase<E> implements BoxBase<E> {
 
   @override
   Future<void> put(key, value) {
-    return _spanHelper.asyncWrapInSpan(
-      'put',
-      () {
-        return _boxBase.put(key, value);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('put', () {
+      return _boxBase.put(key, value);
+    }, dbName: name);
   }
 
   @override
   Future<void> putAll(Map<dynamic, E> entries) {
-    return _spanHelper.asyncWrapInSpan(
-      'putAll',
-      () {
-        return _boxBase.putAll(entries);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('putAll', () {
+      return _boxBase.putAll(entries);
+    }, dbName: name);
   }
 
   @override
   Future<void> putAt(int index, value) {
-    return _spanHelper.asyncWrapInSpan(
-      'putAt',
-      () {
-        return _boxBase.putAt(index, value);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('putAt', () {
+      return _boxBase.putAt(index, value);
+    }, dbName: name);
   }
 
   @override
