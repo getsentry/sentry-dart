@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:ffi';
+import 'dart:typed_data';
+import 'package:ffi/ffi.dart';
 import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
 
@@ -48,6 +51,32 @@ class SentryNativeCocoa extends SentryNativeChannel {
     }
 
     return super.init(hub);
+  }
+
+  @override
+  FutureOr<void> captureEnvelope(
+      Uint8List envelopeData, bool containsUnhandledException) {
+    try {
+      final length = envelopeData.length;
+      final buffer = malloc<Uint8>(length);
+      buffer.asTypedList(length).setAll(0, envelopeData);
+      final nsData = NSData.dataWithBytesNoCopy$1(buffer.cast(),
+          length: length, freeWhenDone: true);
+      final envelope = cocoa.PrivateSentrySDKOnly.envelopeWithData(nsData);
+      if (envelope != null) {
+        cocoa.PrivateSentrySDKOnly.captureEnvelope(envelope);
+      } else {
+        options.log(
+            SentryLevel.error, 'Failed to capture envelope: envelope is null');
+      }
+    } catch (exception, stackTrace) {
+      options.log(SentryLevel.error, 'Failed to capture envelope',
+          exception: exception, stackTrace: stackTrace);
+
+      if (options.automatedTestMode) {
+        rethrow;
+      }
+    }
   }
 
   @override

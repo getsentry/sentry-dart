@@ -12,6 +12,7 @@
 
 - Add `DioException` response data to error breadcrumb ([#3164](https://github.com/getsentry/sentry-dart/pull/3164))
   - Bumped `dio` min verion to `5.2.0`
+- Use FFI/JNI for `captureEnvelope` on iOS and Android ([#3115](https://github.com/getsentry/sentry-dart/pull/3115))
 
 ### Dependencies
 
