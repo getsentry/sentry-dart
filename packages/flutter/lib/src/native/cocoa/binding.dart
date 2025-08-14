@@ -1022,7 +1022,7 @@ class SentryId$1 extends objc.NSObject {
         obj.ref.pointer, _sel_isKindOfClass_, _class_SentryId$1);
   }
 
-  /// A @c SentryId with an empty UUID “00000000000000000000000000000000”.
+  /// empty
   static SentryId$1 getEmpty() {
     final _ret = _objc_msgSend_151sglz(_class_SentryId$1, _sel_empty);
     return SentryId$1.castFromPointer(_ret, retain: true, release: true);
