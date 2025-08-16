@@ -1,3 +1,6 @@
+import 'dart:developer' as developer;
+
+import '../sentry.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 

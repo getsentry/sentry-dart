@@ -4432,3 +4432,138 @@ final class $Bitmap$Type extends jni$_.JObjType<Bitmap> {
     return other.runtimeType == ($Bitmap$Type) && other is $Bitmap$Type;
   }
 }
+
+/// from: `io.sentry.flutter.Heavy`
+class Heavy extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<Heavy> $type;
+
+  @jni$_.internal
+  Heavy.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(r'io/sentry/flutter/Heavy');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType = $Heavy$NullableType();
+  static const type = $Heavy$Type();
+  static final _id_new$ = _class.constructorId(
+    r'()V',
+  );
+
+  static final _new$ = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void <init>()`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory Heavy() {
+    return Heavy.fromReference(
+        _new$(_class.reference.pointer, _id_new$ as jni$_.JMethodIDPtr)
+            .reference);
+  }
+
+  static final _id_work = _class.instanceMethodId(
+    r'work',
+    r'()V',
+  );
+
+  static final _work = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final void work()`
+  void work() {
+    _work(reference.pointer, _id_work as jni$_.JMethodIDPtr).check();
+  }
+}
+
+final class $Heavy$NullableType extends jni$_.JObjType<Heavy?> {
+  @jni$_.internal
+  const $Heavy$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/flutter/Heavy;';
+
+  @jni$_.internal
+  @core$_.override
+  Heavy? fromReference(jni$_.JReference reference) => reference.isNull
+      ? null
+      : Heavy.fromReference(
+          reference,
+        );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<Heavy?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($Heavy$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($Heavy$NullableType) &&
+        other is $Heavy$NullableType;
+  }
+}
+
+final class $Heavy$Type extends jni$_.JObjType<Heavy> {
+  @jni$_.internal
+  const $Heavy$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/flutter/Heavy;';
+
+  @jni$_.internal
+  @core$_.override
+  Heavy fromReference(jni$_.JReference reference) => Heavy.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<Heavy?> get nullableType => const $Heavy$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($Heavy$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($Heavy$Type) && other is $Heavy$Type;
+  }
+}
