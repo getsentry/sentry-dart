@@ -7,21 +7,17 @@ on:
       - packages/dart/**
       - packages/flutter/**
       - metrics/**
-      - "!**/*.md"
+      - '!**/*.md'
     branches-ignore:
       - deps/**
       - dependabot/**
-    tags-ignore: ["**"]
+    tags-ignore: ['**']
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  cancel-previous-workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
-        with:
-          access_token: ${{ github.token }}
-
   metrics:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.host }}
@@ -60,8 +56,8 @@ jobs:
       - uses: actions/setup-java@v4
         if: ${{ matrix.platform == 'android' }}
         with:
-          java-version: "17"
-          distribution: "adopt"
+          java-version: '17'
+          distribution: 'adopt'
 
       - run: ./metrics/prepare.sh
 

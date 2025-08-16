@@ -15,15 +15,11 @@ on:
 env:
   SENTRY_AUTH_TOKEN_E2E: ${{ secrets.SENTRY_AUTH_TOKEN_E2E }}
 
-jobs:
-  cancel-previous-workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
-        with:
-          access_token: ${{ github.token }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
+jobs:
   test-android:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -170,7 +166,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ "stable", "beta" ]
+        sdk: ['stable', 'beta']
     steps:
       - name: checkout
         uses: actions/checkout@v4

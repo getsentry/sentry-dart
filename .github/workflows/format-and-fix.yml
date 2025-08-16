@@ -1,15 +1,11 @@
 on:
   workflow_dispatch:
 
-jobs:
-  cancel-previous-workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
-        with:
-          access_token: ${{ github.token }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
+jobs:
   format-and-fix:
     name: Format & fix code
     if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
@@ -17,14 +13,15 @@ jobs:
     timeout-minutes: 20
     strategy:
       matrix:
-        package: [
-          {name: dart, sdk: dart},
-          {name: dio, sdk: dart},
-          {name: file, sdk: dart},
-          {name: flutter, sdk: flutter},
-          {name: logging, sdk: dart},
-          {name: sqflite, sdk: flutter},
-        ]
+        package:
+          [
+            { name: dart, sdk: dart },
+            { name: dio, sdk: dart },
+            { name: file, sdk: dart },
+            { name: flutter, sdk: flutter },
+            { name: logging, sdk: dart },
+            { name: sqflite, sdk: flutter },
+          ]
     defaults:
       run:
         working-directory: ${{ matrix.package.name }}

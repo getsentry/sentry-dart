@@ -15,6 +15,10 @@ defaults:
   run:
     working-directory: scripts/flutter_symbol_collector
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest

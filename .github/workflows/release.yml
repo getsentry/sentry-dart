@@ -15,7 +15,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    name: "Release a new version"
+    name: 'Release a new version'
     steps:
       - name: Get auth token
         id: token

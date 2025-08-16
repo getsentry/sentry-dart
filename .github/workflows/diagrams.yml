@@ -2,10 +2,14 @@ name: diagrams
 on:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   diagrams:
     runs-on: ubuntu-latest
-    name: "Create class diagrams of all packages"
+    name: 'Create class diagrams of all packages'
     steps:
       - uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c # pin@v1
         with:

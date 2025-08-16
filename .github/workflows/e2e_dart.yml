@@ -6,29 +6,25 @@ on:
       - release/**
   pull_request:
     paths:
-      - "!**/*.md"
-      - "!**/class-diagram.svg"
-      - ".github/workflows/e2e_dart.yml"
-      - ".github/workflows/analyze.yml"
-      - "packages/dart/**"
-      - "e2e_test/**"
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      - '.github/workflows/e2e_dart.yml'
+      - '.github/workflows/analyze.yml'
+      - 'packages/dart/**'
+      - 'e2e_test/**'
 
 env:
   SENTRY_AUTH_TOKEN_E2E: ${{ secrets.SENTRY_AUTH_TOKEN_E2E }}
   SENTRY_DIST: 1
 
-jobs:
-  cancel-previous-workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
-        with:
-          access_token: ${{ github.token }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
+jobs:
   build:
     name: E2E
-    runs-on: "ubuntu-latest"
+    runs-on: 'ubuntu-latest'
     timeout-minutes: 30
     defaults:
       run:
