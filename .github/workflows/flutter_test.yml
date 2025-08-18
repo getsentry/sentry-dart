@@ -131,7 +131,6 @@ jobs:
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.0
-        if: ${{ matrix.target == 'ios' }}
         run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
       - name: prepare test device
