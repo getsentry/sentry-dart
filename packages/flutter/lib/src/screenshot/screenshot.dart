@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
+// backcompatibility for Flutter < 3.3
+// ignore: unnecessary_import
+import 'package:meta/meta.dart';
 
 import 'package:flutter/foundation.dart';
 
