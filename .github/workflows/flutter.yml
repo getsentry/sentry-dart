@@ -71,6 +71,11 @@ jobs:
           coverage: sentry_flutter
           min-coverage: 90
 
+      # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
+      - name: Switch to Xcode 16.4 for iOS 18.0
+        if: matrix.os == 'macos'
+        run: sudo xcode-select --switch /Applications/Xcode_16.4.app
+
       - name: Build example for ${{ matrix.target }}
         # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.
         if: matrix.target != 'wasm'
@@ -124,6 +129,10 @@ jobs:
           channel: main
 
       - run: flutter config --enable-swift-package-manager
+
+      # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
+      - name: Switch to Xcode 16.4 for iOS 18.0
+        run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
       - name: Run on iOS
         if: matrix.target == 'ios'
