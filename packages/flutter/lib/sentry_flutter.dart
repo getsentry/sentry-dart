@@ -26,3 +26,6 @@ export 'src/sentry_privacy_options.dart';
 export 'src/sentry_replay_options.dart';
 export 'src/sentry_widget.dart';
 export 'src/user_interaction/sentry_user_interaction_widget.dart';
+export 'src/replay/canvas/minimal_replay.dart';
+export 'src/replay/canvas/minimal_replay_flutter_impl.dart';
+export 'src/replay/segment_batcher.dart';

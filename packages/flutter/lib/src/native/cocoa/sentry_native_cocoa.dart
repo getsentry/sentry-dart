@@ -28,21 +28,21 @@ class SentryNativeCocoa extends SentryNativeChannel {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'captureReplayScreenshot':
-            _replayRecorder ??= CocoaReplayRecorder(options);
+          // _replayRecorder ??= CocoaReplayRecorder(options);
+          //
+          // final replayId = call.arguments['replayId'] == null
+          //     ? null
+          //     : SentryId.fromId(call.arguments['replayId'] as String);
+          //
+          // if (_replayId != replayId) {
+          //   _replayId = replayId;
+          //   hub.configureScope((s) {
+          //     // ignore: invalid_use_of_internal_member
+          //     s.replayId = replayId;
+          //   });
+          // }
 
-            final replayId = call.arguments['replayId'] == null
-                ? null
-                : SentryId.fromId(call.arguments['replayId'] as String);
-
-            if (_replayId != replayId) {
-              _replayId = replayId;
-              hub.configureScope((s) {
-                // ignore: invalid_use_of_internal_member
-                s.replayId = replayId;
-              });
-            }
-
-            return _replayRecorder!.captureScreenshot();
+          // return _replayRecorder!.captureScreenshot();
           default:
             throw UnimplementedError('Method ${call.method} not implemented');
         }

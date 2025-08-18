@@ -36,6 +36,7 @@ import 'utils/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 import 'web/javascript_transport.dart';
+import 'replay/canvas/minimal_replay.dart' as rec;
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
