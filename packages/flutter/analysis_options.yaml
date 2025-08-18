@@ -4,6 +4,7 @@ analyzer:
   exclude:
     - test/*.mocks.dart
     - microbenchmarks/**
+    - lib/src/native/cocoa/binding.dart
   language:
     strict-casts: true
     strict-inference: true

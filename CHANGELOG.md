@@ -15,6 +15,10 @@
 - Support additional request data types in `dio` package ([#3170](https://github.com/getsentry/sentry-dart/pull/3170))
   - Add support for `json`, `UInt8List`, `num`, `bool`, `FormData`, `Multipart` request data.
 
+### Dependencies
+
+- Pin `ffigen` to `19.0.0` and add `objective_c` version `8.0.0` package used in `ffigen` on iOS and macOS ([#3163](https://github.com/getsentry/sentry-dart/pull/3163))
+
 ## 9.7.0-beta.1
 
 ### Features
