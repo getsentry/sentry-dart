@@ -71,6 +71,11 @@ jobs:
           path: ${{ matrix.appPlain }}
           key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ matrix.platform }}-${{ hashFiles('metrics/perf-test-app-plain/pubspec.yaml') }}
 
+      # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
+      - name: Switch to Xcode 16.4 
+        if: ${{ matrix.host == 'macos-15' }}
+        run: sudo xcode-select --switch /Applications/Xcode_16.4.app
+
       - name: Build
         run: ./metrics/build.sh ${{ matrix.platform }}
         env:
@@ -83,7 +88,7 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
           APP_PLAIN: ${{ matrix.appPlain }}
-
+      
       - name: Collect apps metrics
         uses: getsentry/action-app-sdk-overhead-metrics@v1
         with:
