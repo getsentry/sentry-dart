@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_dio/sentry_dio.dart';
@@ -197,33 +196,6 @@ void main() {
       final sut = fixture.getSut(sendDefaultPii: true);
 
       final data = 'Hello, World!';
-      final request = requestOptions.copyWith(
-        method: 'POST',
-        data: data,
-      );
-      final throwable = Exception();
-      final dioError = DioError(
-        requestOptions: request,
-        response: Response<dynamic>(
-          requestOptions: request,
-        ),
-      );
-      final event = SentryEvent(
-        throwable: throwable,
-        exceptions: [
-          fixture.sentryError(throwable),
-          fixture.sentryError(dioError),
-        ],
-      );
-      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
-
-      expect(processedEvent.request?.data, data);
-    });
-
-    test('handles Uint8List data correctly', () {
-      final sut = fixture.getSut(sendDefaultPii: true);
-
-      final data = Uint8List.fromList([1, 2, 3, 4, 5]);
       final request = requestOptions.copyWith(
         method: 'POST',
         data: data,
@@ -543,30 +515,6 @@ void main() {
       );
       final processedListEvent = sut.apply(listEvent, Hint()) as SentryEvent;
       expect(processedListEvent.request?.data, isNull);
-    });
-
-    test('respects maxRequestBodySize.small for large Uint8List data', () {
-      final sut = fixture.getSut(
-        sendDefaultPii: true,
-        maxRequestBodySize: MaxRequestBodySize.small,
-      );
-
-      // Test Uint8List - should not be added due to size
-      final largeUint8List = Uint8List.fromList(
-        List<int>.filled(5000, 1),
-      ); // 5000 bytes > 4000 limit
-      final uint8ListRequest =
-          requestOptions.copyWith(method: 'POST', data: largeUint8List);
-      final uint8ListEvent = SentryEvent(
-        throwable: Exception(),
-        exceptions: [
-          fixture.sentryError(Exception()),
-          fixture.sentryError(DioError(requestOptions: uint8ListRequest)),
-        ],
-      );
-      final processedUint8ListEvent =
-          sut.apply(uint8ListEvent, Hint()) as SentryEvent;
-      expect(processedUint8ListEvent.request?.data, isNull);
     });
 
     test('respects maxRequestBodySize.small for large Map data', () {

@@ -3,7 +3,6 @@
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 
 /// This is an [EventProcessor], which improves crash reports of [DioError]s.
 /// It adds information about [DioError.requestOptions] if present and also about
@@ -69,13 +68,8 @@ class DioEventProcessor implements EventProcessor {
         return data;
       }
     }
-    // For List<int> data, we have exact size information
+    // For List<int> data (including Uint8List), we have exact size information
     else if (data is List<int>) {
-      if (_options.maxRequestBodySize.shouldAddBody(data.length)) {
-        return data;
-      }
-    } else if (data is Uint8List) {
-      // Handle Uint8List (typed byte array)
       if (_options.maxRequestBodySize.shouldAddBody(data.length)) {
         return data;
       }
