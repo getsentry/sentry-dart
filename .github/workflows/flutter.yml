@@ -105,7 +105,7 @@ jobs:
 
   spm:
     name: "SPM"
-    runs-on: macos-latest
+    runs-on: macos-15
     timeout-minutes: 30
     defaults:
       run:
