@@ -105,7 +105,7 @@ jobs:
 
   cocoa:
     name: '${{ matrix.target }} | ${{ matrix.sdk }}'
-    runs-on: macos-latest
+    runs-on: macos-latest-xlarge
     timeout-minutes: 30
     defaults:
       run:
@@ -134,7 +134,7 @@ jobs:
         run: |
           case "${{ matrix.target }}" in
             ios)
-            device=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-16 com.apple.CoreSimulator.SimRuntime.iOS-18-5)
+            device=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-16 com.apple.CoreSimulator.SimRuntime.iOS-18-0)
             xcrun simctl boot ${device}
             echo "platform=iOS Simulator,id=${device}" >> "$GITHUB_OUTPUT"
             ;;

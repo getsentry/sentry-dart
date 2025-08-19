@@ -16,7 +16,7 @@ class SentryBoxBase<E> implements BoxBase<E> {
 
   /// @nodoc
   SentryBoxBase(this._boxBase, this._hub) {
-    _spanHelper.setHub(_hub);
+    _spanHelper.setHub(this._hub);
   }
 
   @override
