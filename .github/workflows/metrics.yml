@@ -34,7 +34,7 @@ jobs:
           - platform: ios
             name: iOS
             appPlain: test-app-plain.ipa
-            host: macos-latest
+            host: macos-15
           - platform: android
             name: Android
             appPlain: metrics/perf-test-app-plain/build/app/outputs/apk/release/app-arm64-v8a-release.apk
@@ -70,6 +70,11 @@ jobs:
         with:
           path: ${{ matrix.appPlain }}
           key: ${{ github.workflow }}-${{ github.job }}-appplain-${{ matrix.platform }}-${{ hashFiles('metrics/perf-test-app-plain/pubspec.yaml') }}
+
+      # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
+      - name: Switch to Xcode 16.4 
+        if: ${{ matrix.host == 'macos-15' }}
+        run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
       - name: Build
         run: ./metrics/build.sh ${{ matrix.platform }}
