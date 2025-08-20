@@ -79,9 +79,9 @@ class DioEventProcessor implements EventProcessor {
       }
     } else if (data is! String &&
         Transformer.isJsonMimeType(requestOptions.contentType)) {
-      // ignore: invalid_use_of_internal_member
       if (_canEncodeJsonWithinLimit(
         data,
+        // ignore: invalid_use_of_internal_member
         hardLimit: _options.maxRequestBodySize.getSizeLimit(),
       )) {
         return data;
