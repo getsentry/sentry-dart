@@ -20,11 +20,7 @@ void main() {
       final mockBinding = MockSentryNativeBinding();
       when(mockBinding.supportsReplay).thenReturn(true);
       when(fixture.hub.scope).thenReturn(fixture.scope);
-      when(fixture.hub.configureScope(any)).thenAnswer((invocation) {
-        final callback = invocation.positionalArguments.first;
-        callback(fixture.scope);
-        return null;
-      });
+
       final replayId = SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
       when(mockBinding.captureReplay()).thenAnswer((_) async => replayId);
 
@@ -226,6 +222,59 @@ void main() {
       expect(find.byKey(const ValueKey('sentry_feedback_branding_logo')),
           findsNothing);
     });
+  });
+
+  group('$SentryFeedbackWidget prefills fields from sentryUser', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets('prefills form data if useSentryUser is true', (tester) async {
+      fixture.options.feedback.useSentryUser = true;
+      fixture.hub.configureScope((scope) {
+        scope.setUser(fixture.sentryUser);
+      });
+
+      await fixture.pumpFeedbackWidget(
+        tester,
+        (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      final nameField = tester.widget<TextFormField>(
+        find.byKey(ValueKey('sentry_feedback_name_textfield')),
+      );
+      final emailField = tester.widget<TextFormField>(
+        find.byKey(ValueKey('sentry_feedback_email_textfield')),
+      );
+
+      expect(nameField.controller?.text, "fixture-name");
+      expect(emailField.controller?.text, "fixture@example.com");
+    });
+
+    testWidgets('does not prefill form data if useSentryUser is false', (tester) async {
+      fixture.options.feedback.useSentryUser = false;
+      fixture.hub.configureScope((scope) {
+        scope.setUser(fixture.sentryUser);
+      });
+
+      await fixture.pumpFeedbackWidget(
+        tester,
+            (hub) => SentryFeedbackWidget(hub: hub),
+      );
+
+      final nameField = tester.widget<TextFormField>(
+        find.byKey(ValueKey('sentry_feedback_name_textfield')),
+      );
+      final emailField = tester.widget<TextFormField>(
+        find.byKey(ValueKey('sentry_feedback_email_textfield')),
+      );
+
+      expect(nameField.controller?.text, isEmpty);
+      expect(emailField.controller?.text, isEmpty);
+    });
+
   });
 
   group('$SentryFeedbackWidget uses naming from options', () {
@@ -759,6 +808,7 @@ class Fixture {
   var options = SentryFlutterOptions();
   var hub = MockHub();
   late var scope = Scope(options);
+  late SentryUser sentryUser;
 
   Fixture() {
     when(hub.options).thenReturn(options);
@@ -768,9 +818,20 @@ class Fixture {
       hint: anyNamed('hint'),
       withScope: anyNamed('withScope'),
     )).thenAnswer((_) async => SentryId.empty());
-
+    when(hub.configureScope(any)).thenAnswer((invocation) {
+      final callback = invocation.positionalArguments.first;
+      callback(scope);
+      return null;
+    });
     SentryFeedbackWidget.pendingAssociatedEventId = null;
     SentryFeedbackWidget.clearPreservedData();
+
+    sentryUser = SentryUser(
+      id: 'fixture-id',
+      username: 'fixture-username',
+      name: 'fixture-name',
+      email: 'fixture@example.com',
+    );
   }
 
   Future<void> pumpFeedbackWidget(
