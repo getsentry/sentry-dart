@@ -94,7 +94,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   void initState() {
     super.initState();
 
-    if(widget.options.useSentryUser) {
+    if (widget.options.useSentryUser) {
       _setSentryUserData();
     }
     _restorePreservedData();
@@ -420,14 +420,14 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
   void _setSentryUserData() {
     final user = _getUser();
-    if(user == null) return;
+    if (user == null) return;
 
     final userName = user.name;
-    if(userName != null) {
+    if (userName != null) {
       _nameController.text = userName;
     }
     final userEmail = user.email;
-    if(userEmail != null) {
+    if (userEmail != null) {
       _emailController.text = userEmail;
     }
   }
