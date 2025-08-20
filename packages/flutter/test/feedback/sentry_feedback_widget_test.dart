@@ -253,7 +253,8 @@ void main() {
       expect(emailField.controller?.text, "fixture@example.com");
     });
 
-    testWidgets('does not prefill form data if useSentryUser is false', (tester) async {
+    testWidgets('does not prefill form data if useSentryUser is false',
+        (tester) async {
       fixture.options.feedback.useSentryUser = false;
       fixture.hub.configureScope((scope) {
         scope.setUser(fixture.sentryUser);
@@ -261,7 +262,7 @@ void main() {
 
       await fixture.pumpFeedbackWidget(
         tester,
-            (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackWidget(hub: hub),
       );
 
       final nameField = tester.widget<TextFormField>(
@@ -274,7 +275,6 @@ void main() {
       expect(nameField.controller?.text, isEmpty);
       expect(emailField.controller?.text, isEmpty);
     });
-
   });
 
   group('$SentryFeedbackWidget uses naming from options', () {
