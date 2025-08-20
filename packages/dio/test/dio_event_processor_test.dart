@@ -626,6 +626,120 @@ void main() {
       final processedFileEvent = sut.apply(fileEvent, Hint()) as SentryEvent;
       expect(processedFileEvent.request?.data, isNull);
     });
+
+    test('adds small JSON data when within size limit', () {
+      final sut = fixture.getSut(
+        sendDefaultPii: true,
+        maxRequestBodySize: MaxRequestBodySize.small,
+      );
+
+      // Small JSON object - should be added
+      final smallJsonData = <String, dynamic>{
+        'name': 'John Doe',
+        'age': 30,
+        'city': 'New York',
+      };
+      final smallJsonRequest = requestOptions.copyWith(
+        method: 'POST',
+        data: smallJsonData,
+        contentType: 'application/json',
+      );
+      final smallJsonEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: smallJsonRequest)),
+        ],
+      );
+      final processedSmallJsonEvent =
+          sut.apply(smallJsonEvent, Hint()) as SentryEvent;
+      expect(processedSmallJsonEvent.request?.data, equals(smallJsonData));
+    });
+
+    test('rejects large JSON data when exceeding size limit', () {
+      final sut = fixture.getSut(
+        sendDefaultPii: true,
+        maxRequestBodySize: MaxRequestBodySize.small,
+      );
+
+      // Large JSON object - should not be added due to size
+      final largeJsonData = <String, dynamic>{
+        'users': List.generate(
+          100,
+          (i) => {
+            'id': i,
+            'name': 'User $i',
+            'email': 'user$i@example.com',
+            'description':
+                'This is a very long description for user $i that will make the JSON exceed the size limit',
+          },
+        ),
+      };
+      final largeJsonRequest = requestOptions.copyWith(
+        method: 'POST',
+        data: largeJsonData,
+        contentType: 'application/json',
+      );
+      final largeJsonEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: largeJsonRequest)),
+        ],
+      );
+      final processedLargeJsonEvent =
+          sut.apply(largeJsonEvent, Hint()) as SentryEvent;
+      expect(processedLargeJsonEvent.request?.data, isNull);
+    });
+
+    test('handles JSON encoding errors gracefully', () {
+      final sut = fixture.getSut(
+        sendDefaultPii: true,
+        maxRequestBodySize: MaxRequestBodySize.medium,
+      );
+
+      // Test circular reference - should not be added due to encoding error
+      final circularData = <String, dynamic>{};
+      circularData['self'] = circularData; // Creates circular reference
+
+      final circularRequest = requestOptions.copyWith(
+        method: 'POST',
+        data: circularData,
+        contentType: 'application/json',
+      );
+      final circularEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: circularRequest)),
+        ],
+      );
+      final processedCircularEvent =
+          sut.apply(circularEvent, Hint()) as SentryEvent;
+      expect(processedCircularEvent.request?.data, isNull);
+
+      // Test data with infinity - should not be added due to encoding error
+      final infinityData = <String, dynamic>{
+        'value': double.infinity,
+        'name': 'test',
+      };
+
+      final infinityRequest = requestOptions.copyWith(
+        method: 'POST',
+        data: infinityData,
+        contentType: 'application/json',
+      );
+      final infinityEvent = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          fixture.sentryError(Exception()),
+          fixture.sentryError(DioError(requestOptions: infinityRequest)),
+        ],
+      );
+      final processedInfinityEvent =
+          sut.apply(infinityEvent, Hint()) as SentryEvent;
+      expect(processedInfinityEvent.request?.data, isNull);
+    });
   });
 
   group('response', () {

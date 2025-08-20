@@ -79,13 +79,12 @@ class DioEventProcessor implements EventProcessor {
       }
     } else if (data is! String &&
         Transformer.isJsonMimeType(requestOptions.contentType)) {
-      try {
-        final jsonSize = jsonEncode(data).codeUnits.length;
-        if (_options.maxRequestBodySize.shouldAddBody(jsonSize)) {
-          return data;
-        }
-      } catch (e) {
-        return null;
+      // ignore: invalid_use_of_internal_member
+      if (_canEncodeJsonWithinLimit(
+        data,
+        hardLimit: _options.maxRequestBodySize.getSizeLimit(),
+      )) {
+        return data;
       }
     } else if (data is FormData) {
       // FormData has a built-in length property for size checking
@@ -172,4 +171,50 @@ class DioEventProcessor implements EventProcessor {
     }
     return data;
   }
+}
+
+/// Returns true if the data can be encoded as JSON within the given byte limit.
+bool _canEncodeJsonWithinLimit(Object? data, {int? hardLimit}) {
+  if (hardLimit == null) {
+    // No limit means always allow
+    return true;
+  }
+  if (hardLimit == 0) {
+    // Zero limit means never allow
+    return false;
+  }
+
+  // Only proceed with encoding if we have a positive limit
+  final sink = _CountingByteSink(hardLimit);
+  final conv = JsonUtf8Encoder().startChunkedConversion(sink);
+  try {
+    conv.add(data);
+    conv.close();
+    return true;
+  } on _SizeLimitExceeded {
+    return false;
+  } catch (_) {
+    return false;
+  }
+}
+
+/// Exception thrown when the hard limit is exceeded during counting.
+class _SizeLimitExceeded implements Exception {}
+
+/// A sink that counts bytes without storing them, with an optional hard limit.
+class _CountingByteSink implements Sink<List<int>> {
+  int count = 0;
+  final int? hardLimit;
+  _CountingByteSink([this.hardLimit]);
+
+  @override
+  void add(List<int> chunk) {
+    count += chunk.length;
+    if (hardLimit != null && count > hardLimit!) {
+      throw _SizeLimitExceeded();
+    }
+  }
+
+  @override
+  void close() {}
 }
