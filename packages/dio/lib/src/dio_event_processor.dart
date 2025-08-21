@@ -64,7 +64,12 @@ class DioEventProcessor implements EventProcessor {
 
     // Handle different data types based on Dio's encoding behavior and content type
     if (data is String) {
-      if (_options.maxRequestBodySize.shouldAddBody(data.codeUnits.length)) {
+      // For all strings, use UTF-8 encoding for accurate size validation
+      if (_canEncodeStringWithinLimit(
+        data,
+        // ignore: invalid_use_of_internal_member
+        hardLimit: _options.maxRequestBodySize.getSizeLimit(),
+      )) {
         return data;
       }
     }
@@ -77,8 +82,7 @@ class DioEventProcessor implements EventProcessor {
       if (_options.maxRequestBodySize != MaxRequestBodySize.never) {
         return data;
       }
-    } else if (data is! String &&
-        Transformer.isJsonMimeType(requestOptions.contentType)) {
+    } else if (Transformer.isJsonMimeType(requestOptions.contentType)) {
       if (_canEncodeJsonWithinLimit(
         data,
         // ignore: invalid_use_of_internal_member
@@ -196,6 +200,22 @@ bool _canEncodeJsonWithinLimit(Object? data, {int? hardLimit}) {
   } catch (_) {
     return false;
   }
+}
+
+/// Returns true if the string can be encoded as UTF-8 within the given byte limit.
+bool _canEncodeStringWithinLimit(String data, {int? hardLimit}) {
+  if (hardLimit == null) {
+    // No limit means always allow
+    return true;
+  }
+  if (hardLimit == 0) {
+    // Zero limit means never allow
+    return false;
+  }
+
+  // Only proceed with encoding if we have a positive limit
+  final utf8Bytes = utf8.encode(data);
+  return utf8Bytes.length <= hardLimit;
 }
 
 /// Exception thrown when the hard limit is exceeded during counting.
