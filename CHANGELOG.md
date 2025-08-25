@@ -18,6 +18,7 @@
   - Bumped `dio` min verion to `5.2.0`
 - Support additional request data types in `dio` package ([#3170](https://github.com/getsentry/sentry-dart/pull/3170))
   - Add support for `json`, `UInt8List`, `num`, `bool`, `FormData`, `Multipart` request data.
+- Log a warning when dropping envelope items ([#3165](https://github.com/getsentry/sentry-dart/pull/3165))
 
 ### Dependencies
 
