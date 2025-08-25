@@ -45,7 +45,7 @@ jobs:
           flutter build appbundle
 
   build-ios:
-    runs-on: macos-latest
+    runs-on: macos-15
     timeout-minutes: 30
 
     steps:
@@ -64,6 +64,10 @@ jobs:
           gem uninstall cocoapods -a
           sudo gem install cocoapods
           echo "$(which pod)"
+
+      # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
+      - name: Switch to Xcode 16.4 for iOS 18.5
+        run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
       - name: Build iOS
         run: |

@@ -23,137 +23,137 @@
 <path fill="none" stroke="black" stroke-width="2.6" d="M36,-24C36,-24 1205,-24 1205,-24 1211,-24 1217,-30 1217,-36 1217,-36 1217,-230 1217,-230 1217,-236 1211,-242 1205,-242 1205,-242 36,-242 36,-242 30,-242 24,-236 24,-230 24,-230 24,-36 24,-36 24,-30 30,-24 36,-24"/>
 <text text-anchor="middle" x="620.5" y="-227.6" font-family="Arial Black" font-size="13.00">src</text>
 </g>
-<!-- /lib/src/version.dart -->
+<!-- /lib/sentry_dio.dart -->
 <g id="node1" class="node">
-<title>/lib/src/version.dart</title>
-<path fill="Lavender" stroke="black" stroke-width="1.3" d="M1196.5,-140C1196.5,-140 1155.5,-140 1155.5,-140 1149.5,-140 1143.5,-134 1143.5,-128 1143.5,-128 1143.5,-116 1143.5,-116 1143.5,-110 1149.5,-104 1155.5,-104 1155.5,-104 1196.5,-104 1196.5,-104 1202.5,-104 1208.5,-110 1208.5,-116 1208.5,-116 1208.5,-128 1208.5,-128 1208.5,-134 1202.5,-140 1196.5,-140"/>
-<text text-anchor="middle" x="1176" y="-118.5" font-family="Arial" font-size="15.00">version</text>
+<title>/lib/sentry_dio.dart</title>
+<path fill="Lavender" stroke="black" stroke-width="1.3" d="M435,-286C435,-286 373,-286 373,-286 367,-286 361,-280 361,-274 361,-274 361,-262 361,-262 361,-256 367,-250 373,-250 373,-250 435,-250 435,-250 441,-250 447,-256 447,-262 447,-262 447,-274 447,-274 447,-280 441,-286 435,-286"/>
+<text text-anchor="middle" x="404" y="-264.5" font-family="Arial" font-size="15.00">sentry_dio</text>
 </g>
 <!-- /lib/src/dio_event_processor.dart -->
-<g id="node2" class="node">
+<g id="node4" class="node">
 <title>/lib/src/dio_event_processor.dart</title>
 <path fill="Lavender" stroke="black" stroke-width="1.3" d="M175.5,-140C175.5,-140 44.5,-140 44.5,-140 38.5,-140 32.5,-134 32.5,-128 32.5,-128 32.5,-116 32.5,-116 32.5,-110 38.5,-104 44.5,-104 44.5,-104 175.5,-104 175.5,-104 181.5,-104 187.5,-110 187.5,-116 187.5,-116 187.5,-128 187.5,-128 187.5,-134 181.5,-140 175.5,-140"/>
 <text text-anchor="middle" x="110" y="-118.5" font-family="Arial" font-size="15.00">dio_event_processor</text>
 </g>
-<!-- /lib/src/dio_stacktrace_extractor.dart -->
-<g id="node3" class="node">
-<title>/lib/src/dio_stacktrace_extractor.dart</title>
-<path fill="Lavender" stroke="black" stroke-width="1.3" d="M374.5,-140C374.5,-140 217.5,-140 217.5,-140 211.5,-140 205.5,-134 205.5,-128 205.5,-128 205.5,-116 205.5,-116 205.5,-110 211.5,-104 217.5,-104 217.5,-104 374.5,-104 374.5,-104 380.5,-104 386.5,-110 386.5,-116 386.5,-116 386.5,-128 386.5,-128 386.5,-134 380.5,-140 374.5,-140"/>
-<text text-anchor="middle" x="296" y="-118.5" font-family="Arial" font-size="15.00">dio_stacktrace_extractor</text>
+<!-- /lib/sentry_dio.dart&#45;&gt;/lib/src/dio_event_processor.dart -->
+<g id="edge2" class="edge">
+<title>/lib/sentry_dio.dart&#45;&gt;/lib/src/dio_event_processor.dart</title>
+<path fill="none" stroke="black" stroke-width="1.3" stroke-dasharray="5,2" d="M369.12,-249.92C315.41,-223.61 212.54,-173.22 153.86,-144.48"/>
+<polygon fill="black" stroke="black" stroke-width="1.3" points="155.35,-141.32 144.83,-140.06 152.28,-147.6 155.35,-141.32"/>
+</g>
+<!-- /lib/src/sentry_dio_extension.dart -->
+<g id="node11" class="node">
+<title>/lib/src/sentry_dio_extension.dart</title>
+<path fill="Lavender" stroke="black" stroke-width="1.3" d="M640,-212C640,-212 506,-212 506,-212 500,-212 494,-206 494,-200 494,-200 494,-188 494,-188 494,-182 500,-176 506,-176 506,-176 640,-176 640,-176 646,-176 652,-182 652,-188 652,-188 652,-200 652,-200 652,-206 646,-212 640,-212"/>
+<text text-anchor="middle" x="573" y="-190.5" font-family="Arial" font-size="15.00">sentry_dio_extension</text>
+</g>
+<!-- /lib/sentry_dio.dart&#45;&gt;/lib/src/sentry_dio_extension.dart -->
+<g id="edge1" class="edge">
+<title>/lib/sentry_dio.dart&#45;&gt;/lib/src/sentry_dio_extension.dart</title>
+<path fill="none" stroke="black" stroke-width="1.3" stroke-dasharray="5,2" d="M447.11,-256.58C461.04,-252.66 476.39,-247.74 490,-242 506.3,-235.13 523.45,-225.8 537.9,-217.28"/>
+<polygon fill="black" stroke="black" stroke-width="1.3" points="539.75,-220.25 546.52,-212.1 536.14,-214.25 539.75,-220.25"/>
+</g>
+<!-- /lib/src/failed_request_interceptor.dart -->
+<g id="node2" class="node">
+<title>/lib/src/failed_request_interceptor.dart</title>
+<path fill="Lavender" stroke="black" stroke-width="1.3" d="M1197,-140C1197,-140 1031,-140 1031,-140 1025,-140 1019,-134 1019,-128 1019,-128 1019,-116 1019,-116 1019,-110 1025,-104 1031,-104 1031,-104 1197,-104 1197,-104 1203,-104 1209,-110 1209,-116 1209,-116 1209,-128 1209,-128 1209,-134 1203,-140 1197,-140"/>
+<text text-anchor="middle" x="1114" y="-118.5" font-family="Arial" font-size="15.00">failed_request_interceptor</text>
 </g>
 <!-- /lib/src/sentry_dio_client_adapter.dart -->
-<g id="node4" class="node">
+<g id="node3" class="node">
 <title>/lib/src/sentry_dio_client_adapter.dart</title>
-<path fill="Lavender" stroke="black" stroke-width="1.3" d="M581,-140C581,-140 417,-140 417,-140 411,-140 405,-134 405,-128 405,-128 405,-116 405,-116 405,-110 411,-104 417,-104 417,-104 581,-104 581,-104 587,-104 593,-110 593,-116 593,-116 593,-128 593,-128 593,-134 587,-140 581,-140"/>
-<text text-anchor="middle" x="499" y="-118.5" font-family="Arial" font-size="15.00">sentry_dio_client_adapter</text>
+<path fill="Lavender" stroke="black" stroke-width="1.3" d="M382,-140C382,-140 218,-140 218,-140 212,-140 206,-134 206,-128 206,-128 206,-116 206,-116 206,-110 212,-104 218,-104 218,-104 382,-104 382,-104 388,-104 394,-110 394,-116 394,-116 394,-128 394,-128 394,-134 388,-140 382,-140"/>
+<text text-anchor="middle" x="300" y="-118.5" font-family="Arial" font-size="15.00">sentry_dio_client_adapter</text>
+</g>
+<!-- /lib/src/breadcrumb_client_adapter.dart -->
+<g id="node6" class="node">
+<title>/lib/src/breadcrumb_client_adapter.dart</title>
+<path fill="Lavender" stroke="black" stroke-width="1.3" d="M303.5,-68C303.5,-68 128.5,-68 128.5,-68 122.5,-68 116.5,-62 116.5,-56 116.5,-56 116.5,-44 116.5,-44 116.5,-38 122.5,-32 128.5,-32 128.5,-32 303.5,-32 303.5,-32 309.5,-32 315.5,-38 315.5,-44 315.5,-44 315.5,-56 315.5,-56 315.5,-62 309.5,-68 303.5,-68"/>
+<text text-anchor="middle" x="216" y="-46.5" font-family="Arial" font-size="15.00">breadcrumb_client_adapter</text>
+</g>
+<!-- /lib/src/sentry_dio_client_adapter.dart&#45;&gt;/lib/src/breadcrumb_client_adapter.dart -->
+<g id="edge3" class="edge">
+<title>/lib/src/sentry_dio_client_adapter.dart&#45;&gt;/lib/src/breadcrumb_client_adapter.dart</title>
+<path fill="none" stroke="black" stroke-width="1.3" d="M279.24,-103.7C268.76,-94.97 255.89,-84.24 244.5,-74.75"/>
+<polygon fill="black" stroke="black" stroke-width="1.3" points="246.45,-71.82 236.53,-68.1 241.97,-77.19 246.45,-71.82"/>
 </g>
 <!-- /lib/src/tracing_client_adapter.dart -->
 <g id="node7" class="node">
 <title>/lib/src/tracing_client_adapter.dart</title>
-<path fill="Lavender" stroke="black" stroke-width="1.3" d="M469,-68C469,-68 329,-68 329,-68 323,-68 317,-62 317,-56 317,-56 317,-44 317,-44 317,-38 323,-32 329,-32 329,-32 469,-32 469,-32 475,-32 481,-38 481,-44 481,-44 481,-56 481,-56 481,-62 475,-68 469,-68"/>
-<text text-anchor="middle" x="399" y="-46.5" font-family="Arial" font-size="15.00">tracing_client_adapter</text>
+<path fill="Lavender" stroke="black" stroke-width="1.3" d="M486,-68C486,-68 346,-68 346,-68 340,-68 334,-62 334,-56 334,-56 334,-44 334,-44 334,-38 340,-32 346,-32 346,-32 486,-32 486,-32 492,-32 498,-38 498,-44 498,-44 498,-56 498,-56 498,-62 492,-68 486,-68"/>
+<text text-anchor="middle" x="416" y="-46.5" font-family="Arial" font-size="15.00">tracing_client_adapter</text>
 </g>
 <!-- /lib/src/sentry_dio_client_adapter.dart&#45;&gt;/lib/src/tracing_client_adapter.dart -->
-<g id="edge1" class="edge">
+<g id="edge4" class="edge">
 <title>/lib/src/sentry_dio_client_adapter.dart&#45;&gt;/lib/src/tracing_client_adapter.dart</title>
-<path fill="none" stroke="black" stroke-width="1.3" d="M474.54,-103.88C461.7,-94.89 445.8,-83.76 431.91,-74.03"/>
-<polygon fill="black" stroke="black" stroke-width="1.3" points="433.76,-71.06 423.56,-68.19 429.74,-76.79 433.76,-71.06"/>
+<path fill="none" stroke="black" stroke-width="1.3" d="M328.38,-103.88C343.54,-94.72 362.41,-83.34 378.74,-73.48"/>
+<polygon fill="black" stroke="black" stroke-width="1.3" points="380.76,-76.35 387.51,-68.19 377.14,-70.36 380.76,-76.35"/>
 </g>
-<!-- /lib/src/breadcrumb_client_adapter.dart -->
-<g id="node8" class="node">
-<title>/lib/src/breadcrumb_client_adapter.dart</title>
-<path fill="Lavender" stroke="black" stroke-width="1.3" d="M686.5,-68C686.5,-68 511.5,-68 511.5,-68 505.5,-68 499.5,-62 499.5,-56 499.5,-56 499.5,-44 499.5,-44 499.5,-38 505.5,-32 511.5,-32 511.5,-32 686.5,-32 686.5,-32 692.5,-32 698.5,-38 698.5,-44 698.5,-44 698.5,-56 698.5,-56 698.5,-62 692.5,-68 686.5,-68"/>
-<text text-anchor="middle" x="599" y="-46.5" font-family="Arial" font-size="15.00">breadcrumb_client_adapter</text>
-</g>
-<!-- /lib/src/sentry_dio_client_adapter.dart&#45;&gt;/lib/src/breadcrumb_client_adapter.dart -->
-<g id="edge2" class="edge">
-<title>/lib/src/sentry_dio_client_adapter.dart&#45;&gt;/lib/src/breadcrumb_client_adapter.dart</title>
-<path fill="none" stroke="black" stroke-width="1.3" d="M523.46,-103.88C536.3,-94.89 552.2,-83.76 566.09,-74.03"/>
-<polygon fill="black" stroke="black" stroke-width="1.3" points="568.26,-76.79 574.44,-68.19 564.24,-71.06 568.26,-76.79"/>
-</g>
-<!-- /lib/src/sentry_transformer.dart -->
+<!-- /lib/src/dio_stacktrace_extractor.dart -->
 <g id="node5" class="node">
-<title>/lib/src/sentry_transformer.dart</title>
-<path fill="Lavender" stroke="black" stroke-width="1.3" d="M743,-140C743,-140 623,-140 623,-140 617,-140 611,-134 611,-128 611,-128 611,-116 611,-116 611,-110 617,-104 623,-104 623,-104 743,-104 743,-104 749,-104 755,-110 755,-116 755,-116 755,-128 755,-128 755,-134 749,-140 743,-140"/>
-<text text-anchor="middle" x="683" y="-118.5" font-family="Arial" font-size="15.00">sentry_transformer</text>
+<title>/lib/src/dio_stacktrace_extractor.dart</title>
+<path fill="Lavender" stroke="black" stroke-width="1.3" d="M581.5,-140C581.5,-140 424.5,-140 424.5,-140 418.5,-140 412.5,-134 412.5,-128 412.5,-128 412.5,-116 412.5,-116 412.5,-110 418.5,-104 424.5,-104 424.5,-104 581.5,-104 581.5,-104 587.5,-104 593.5,-110 593.5,-116 593.5,-116 593.5,-128 593.5,-128 593.5,-134 587.5,-140 581.5,-140"/>
+<text text-anchor="middle" x="503" y="-118.5" font-family="Arial" font-size="15.00">dio_stacktrace_extractor</text>
+</g>
+<!-- /lib/src/version.dart -->
+<g id="node8" class="node">
+<title>/lib/src/version.dart</title>
+<path fill="Lavender" stroke="black" stroke-width="1.3" d="M664.5,-140C664.5,-140 623.5,-140 623.5,-140 617.5,-140 611.5,-134 611.5,-128 611.5,-128 611.5,-116 611.5,-116 611.5,-110 617.5,-104 623.5,-104 623.5,-104 664.5,-104 664.5,-104 670.5,-104 676.5,-110 676.5,-116 676.5,-116 676.5,-128 676.5,-128 676.5,-134 670.5,-140 664.5,-140"/>
+<text text-anchor="middle" x="644" y="-118.5" font-family="Arial" font-size="15.00">version</text>
 </g>
 <!-- /lib/src/dio_error_extractor.dart -->
-<g id="node6" class="node">
-<title>/lib/src/dio_error_extractor.dart</title>
-<path fill="Lavender" stroke="black" stroke-width="1.3" d="M905,-140C905,-140 785,-140 785,-140 779,-140 773,-134 773,-128 773,-128 773,-116 773,-116 773,-110 779,-104 785,-104 785,-104 905,-104 905,-104 911,-104 917,-110 917,-116 917,-116 917,-128 917,-128 917,-134 911,-140 905,-140"/>
-<text text-anchor="middle" x="845" y="-118.5" font-family="Arial" font-size="15.00">dio_error_extractor</text>
-</g>
-<!-- /lib/src/sentry_dio_extension.dart -->
 <g id="node9" class="node">
-<title>/lib/src/sentry_dio_extension.dart</title>
-<path fill="Lavender" stroke="black" stroke-width="1.3" d="M658,-212C658,-212 524,-212 524,-212 518,-212 512,-206 512,-200 512,-200 512,-188 512,-188 512,-182 518,-176 524,-176 524,-176 658,-176 658,-176 664,-176 670,-182 670,-188 670,-188 670,-200 670,-200 670,-206 664,-212 658,-212"/>
-<text text-anchor="middle" x="591" y="-190.5" font-family="Arial" font-size="15.00">sentry_dio_extension</text>
+<title>/lib/src/dio_error_extractor.dart</title>
+<path fill="Lavender" stroke="black" stroke-width="1.3" d="M827,-140C827,-140 707,-140 707,-140 701,-140 695,-134 695,-128 695,-128 695,-116 695,-116 695,-110 701,-104 707,-104 707,-104 827,-104 827,-104 833,-104 839,-110 839,-116 839,-116 839,-128 839,-128 839,-134 833,-140 827,-140"/>
+<text text-anchor="middle" x="767" y="-118.5" font-family="Arial" font-size="15.00">dio_error_extractor</text>
 </g>
-<!-- /lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/version.dart -->
-<g id="edge9" class="edge">
-<title>/lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/version.dart</title>
-<path fill="none" stroke="black" stroke-width="1.3" d="M670.42,-192.34C775.25,-189.9 965.16,-180.05 1133.5,-139.67"/>
-<polygon fill="black" stroke="black" stroke-width="1.3" points="1134.4,-143.05 1143.28,-137.28 1132.74,-136.25 1134.4,-143.05"/>
-</g>
-<!-- /lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/dio_event_processor.dart -->
-<g id="edge4" class="edge">
-<title>/lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/dio_event_processor.dart</title>
-<path fill="none" stroke="black" stroke-width="1.3" d="M511.95,-176.65C510.63,-176.42 509.31,-176.21 508,-176 373.82,-154.53 336.24,-161.03 197.87,-140.06"/>
-<polygon fill="black" stroke="black" stroke-width="1.3" points="198.15,-136.56 187.74,-138.5 197.09,-143.48 198.15,-136.56"/>
-</g>
-<!-- /lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/dio_stacktrace_extractor.dart -->
-<g id="edge5" class="edge">
-<title>/lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/dio_stacktrace_extractor.dart</title>
-<path fill="none" stroke="black" stroke-width="1.3" d="M519.21,-175.97C476.48,-165.83 422.12,-152.93 377.74,-142.4"/>
-<polygon fill="black" stroke="black" stroke-width="1.3" points="378.39,-138.95 367.85,-140.05 376.78,-145.76 378.39,-138.95"/>
-</g>
-<!-- /lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/sentry_dio_client_adapter.dart -->
-<g id="edge8" class="edge">
-<title>/lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/sentry_dio_client_adapter.dart</title>
-<path fill="none" stroke="black" stroke-width="1.3" d="M568.26,-175.7C556.56,-166.8 542.14,-155.82 529.49,-146.2"/>
-<polygon fill="black" stroke="black" stroke-width="1.3" points="531.56,-143.37 521.48,-140.1 527.32,-148.94 531.56,-143.37"/>
-</g>
-<!-- /lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/sentry_transformer.dart -->
-<g id="edge7" class="edge">
-<title>/lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/sentry_transformer.dart</title>
-<path fill="none" stroke="black" stroke-width="1.3" d="M613.74,-175.7C625.44,-166.8 639.86,-155.82 652.51,-146.2"/>
-<polygon fill="black" stroke="black" stroke-width="1.3" points="654.68,-148.94 660.52,-140.1 650.44,-143.37 654.68,-148.94"/>
-</g>
-<!-- /lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/dio_error_extractor.dart -->
-<g id="edge3" class="edge">
-<title>/lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/dio_error_extractor.dart</title>
-<path fill="none" stroke="black" stroke-width="1.3" d="M652.81,-175.97C689.07,-165.97 735.06,-153.3 772.96,-142.85"/>
-<polygon fill="black" stroke="black" stroke-width="1.3" points="774.2,-146.14 782.91,-140.11 772.34,-139.39 774.2,-146.14"/>
-</g>
-<!-- /lib/src/failed_request_interceptor.dart -->
+<!-- /lib/src/sentry_transformer.dart -->
 <g id="node10" class="node">
-<title>/lib/src/failed_request_interceptor.dart</title>
-<path fill="Lavender" stroke="black" stroke-width="1.3" d="M1113,-140C1113,-140 947,-140 947,-140 941,-140 935,-134 935,-128 935,-128 935,-116 935,-116 935,-110 941,-104 947,-104 947,-104 1113,-104 1113,-104 1119,-104 1125,-110 1125,-116 1125,-116 1125,-128 1125,-128 1125,-134 1119,-140 1113,-140"/>
-<text text-anchor="middle" x="1030" y="-118.5" font-family="Arial" font-size="15.00">failed_request_interceptor</text>
+<title>/lib/src/sentry_transformer.dart</title>
+<path fill="Lavender" stroke="black" stroke-width="1.3" d="M989,-140C989,-140 869,-140 869,-140 863,-140 857,-134 857,-128 857,-128 857,-116 857,-116 857,-110 863,-104 869,-104 869,-104 989,-104 989,-104 995,-104 1001,-110 1001,-116 1001,-116 1001,-128 1001,-128 1001,-134 995,-140 989,-140"/>
+<text text-anchor="middle" x="929" y="-118.5" font-family="Arial" font-size="15.00">sentry_transformer</text>
 </g>
 <!-- /lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/failed_request_interceptor.dart -->
-<g id="edge6" class="edge">
+<g id="edge8" class="edge">
 <title>/lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/failed_request_interceptor.dart</title>
-<path fill="none" stroke="black" stroke-width="1.3" d="M670.21,-180.59C735.78,-170.28 831.68,-155.15 924.9,-140.17"/>
-<polygon fill="black" stroke="black" stroke-width="1.3" points="925.47,-143.63 934.79,-138.58 924.36,-136.72 925.47,-143.63"/>
+<path fill="none" stroke="black" stroke-width="1.3" d="M652.07,-184.4C737.48,-174.9 877.81,-158.62 1008.61,-140.17"/>
+<polygon fill="black" stroke="black" stroke-width="1.3" points="1009.4,-143.59 1018.81,-138.72 1008.42,-136.66 1009.4,-143.59"/>
 </g>
-<!-- /lib/sentry_dio.dart -->
-<g id="node11" class="node">
-<title>/lib/sentry_dio.dart</title>
-<path fill="Lavender" stroke="black" stroke-width="1.3" d="M432,-286C432,-286 370,-286 370,-286 364,-286 358,-280 358,-274 358,-274 358,-262 358,-262 358,-256 364,-250 370,-250 370,-250 432,-250 432,-250 438,-250 444,-256 444,-262 444,-262 444,-274 444,-274 444,-280 438,-286 432,-286"/>
-<text text-anchor="middle" x="401" y="-264.5" font-family="Arial" font-size="15.00">sentry_dio</text>
-</g>
-<!-- /lib/sentry_dio.dart&#45;&gt;/lib/src/dio_event_processor.dart -->
-<g id="edge11" class="edge">
-<title>/lib/sentry_dio.dart&#45;&gt;/lib/src/dio_event_processor.dart</title>
-<path fill="none" stroke="black" stroke-width="1.3" stroke-dasharray="5,2" d="M366.48,-249.92C313.42,-223.66 211.91,-173.43 153.77,-144.66"/>
-<polygon fill="black" stroke="black" stroke-width="1.3" points="154.99,-141.36 144.48,-140.06 151.89,-147.63 154.99,-141.36"/>
-</g>
-<!-- /lib/sentry_dio.dart&#45;&gt;/lib/src/sentry_dio_extension.dart -->
+<!-- /lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/sentry_dio_client_adapter.dart -->
 <g id="edge10" class="edge">
-<title>/lib/sentry_dio.dart&#45;&gt;/lib/src/sentry_dio_extension.dart</title>
-<path fill="none" stroke="black" stroke-width="1.3" stroke-dasharray="5,2" d="M444.03,-259.87C463.9,-255.84 487.57,-249.98 508,-242 524.73,-235.46 542.19,-226.03 556.75,-217.32"/>
-<polygon fill="black" stroke="black" stroke-width="1.3" points="558.7,-220.23 565.41,-212.03 555.05,-214.26 558.7,-220.23"/>
+<title>/lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/sentry_dio_client_adapter.dart</title>
+<path fill="none" stroke="black" stroke-width="1.3" d="M506.57,-175.97C467.34,-165.91 417.53,-153.14 376.65,-142.65"/>
+<polygon fill="black" stroke="black" stroke-width="1.3" points="377.29,-139.2 366.73,-140.11 375.55,-145.98 377.29,-139.2"/>
+</g>
+<!-- /lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/dio_event_processor.dart -->
+<g id="edge6" class="edge">
+<title>/lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/dio_event_processor.dart</title>
+<path fill="none" stroke="black" stroke-width="1.3" d="M493.95,-176.66C492.62,-176.43 491.31,-176.21 490,-176 363.68,-155.34 328.29,-160.33 197.72,-140.04"/>
+<polygon fill="black" stroke="black" stroke-width="1.3" points="198.16,-136.57 187.74,-138.47 197.07,-143.49 198.16,-136.57"/>
+</g>
+<!-- /lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/dio_stacktrace_extractor.dart -->
+<g id="edge7" class="edge">
+<title>/lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/dio_stacktrace_extractor.dart</title>
+<path fill="none" stroke="black" stroke-width="1.3" d="M555.7,-175.7C547.14,-167.14 536.66,-156.66 527.3,-147.3"/>
+<polygon fill="black" stroke="black" stroke-width="1.3" points="529.65,-144.7 520.1,-140.1 524.7,-149.65 529.65,-144.7"/>
+</g>
+<!-- /lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/version.dart -->
+<g id="edge11" class="edge">
+<title>/lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/version.dart</title>
+<path fill="none" stroke="black" stroke-width="1.3" d="M590.55,-175.7C599.23,-167.14 609.86,-156.66 619.35,-147.3"/>
+<polygon fill="black" stroke="black" stroke-width="1.3" points="621.99,-149.62 626.65,-140.1 617.07,-144.63 621.99,-149.62"/>
+</g>
+<!-- /lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/dio_error_extractor.dart -->
+<g id="edge5" class="edge">
+<title>/lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/dio_error_extractor.dart</title>
+<path fill="none" stroke="black" stroke-width="1.3" d="M620.46,-175.88C647.57,-166.09 681.74,-153.77 710.26,-143.47"/>
+<polygon fill="black" stroke="black" stroke-width="1.3" points="711.48,-146.75 719.7,-140.07 709.1,-140.17 711.48,-146.75"/>
+</g>
+<!-- /lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/sentry_transformer.dart -->
+<g id="edge9" class="edge">
+<title>/lib/src/sentry_dio_extension.dart&#45;&gt;/lib/src/sentry_transformer.dart</title>
+<path fill="none" stroke="black" stroke-width="1.3" d="M652.19,-178.1C704.71,-168.13 775.41,-154.55 846.55,-140.28"/>
+<polygon fill="black" stroke="black" stroke-width="1.3" points="847.47,-143.66 856.59,-138.26 846.1,-136.8 847.47,-143.66"/>
 </g>
 </g>
 </svg>

@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 
 @internal
-class AccessAwareMap<String, V> extends MapBase<String, V> {
+class AccessAwareMap<V> extends MapBase<String, V> {
   AccessAwareMap(this._map);
 
   final Map<String, V> _map;
