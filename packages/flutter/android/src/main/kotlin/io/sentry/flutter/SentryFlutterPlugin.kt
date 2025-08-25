@@ -63,7 +63,6 @@ class SentryFlutterPlugin :
   ) {
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
-      "captureEnvelope" -> captureEnvelope(call, result)
       "loadImageList" -> loadImageList(call, result)
       "closeNativeSdk" -> closeNativeSdk(result)
       "fetchNativeAppStart" -> fetchNativeAppStart(result)
@@ -368,32 +367,6 @@ class SentryFlutterPlugin :
 
     result.success("")
   }
-
-  private fun captureEnvelope(
-    call: MethodCall,
-    result: Result,
-  ) {
-    if (!Sentry.isEnabled()) {
-      result.error("1", "The Sentry Android SDK is disabled", null)
-      return
-    }
-    val args = call.arguments() as List<Any>? ?: listOf()
-    if (args.isNotEmpty()) {
-      val event = args.first() as ByteArray?
-      val containsUnhandledException = args[1] as Boolean
-      if (event != null && event.isNotEmpty()) {
-        val id = InternalSentrySdk.captureEnvelope(event, containsUnhandledException)
-        if (id != null) {
-          result.success("")
-        } else {
-          result.error("2", "Failed to capture envelope", null)
-        }
-        return
-      }
-    }
-    result.error("3", "Envelope is null or empty", null)
-  }
-
   private fun loadImageList(
     call: MethodCall,
     result: Result,
