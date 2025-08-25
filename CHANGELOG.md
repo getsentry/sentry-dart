@@ -4,11 +4,11 @@
 
 ### Features
 
-- Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
-  - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
 - Add `sentry.origin` to logs created by `LoggingIntegration` ([#3153](https://github.com/getsentry/sentry-dart/pull/3153))
 - Tag all spans with thread info on non-web platforms ([#3101](https://github.com/getsentry/sentry-dart/pull/3101), [#3144](https://github.com/getsentry/sentry-dart/pull/3144))
 - feat(feedback): Add option to disable keyboard resize ([#3154](https://github.com/getsentry/sentry-dart/pull/3154))
+- Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
+  - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
 
 ### Fixes
 
