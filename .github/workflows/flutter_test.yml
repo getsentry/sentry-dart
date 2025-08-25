@@ -36,7 +36,7 @@ jobs:
         sdk: [stable, beta]
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Enable KVM group perms
         run: |
@@ -118,7 +118,7 @@ jobs:
         sdk: [stable]
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
@@ -177,7 +177,7 @@ jobs:
         sdk: [ "stable", "beta" ]
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Chrome Browser
         uses: browser-actions/setup-chrome@b94431e051d1c52dcbe9a7092a4f10f827795416 # pin@v2.1.0
