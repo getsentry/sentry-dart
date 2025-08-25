@@ -21,6 +21,9 @@
 ### Dependencies
 
 - Pin `ffigen` to `19.0.0` and add `objective_c` version `8.0.0` package used in `ffigen` on iOS and macOS ([#3163](https://github.com/getsentry/sentry-dart/pull/3163))
+- Bump Native SDK from v0.9.1 to v0.10.0 ([#3158](https://github.com/getsentry/sentry-dart/pull/3158))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0100)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.9.1...0.10.0)
 
 ## 9.7.0-beta.1
 
