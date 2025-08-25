@@ -27,4 +27,5 @@ class SentryTraceOrigins {
   static const autoDbDriftQueryInterceptor = 'auto.db.drift.query.interceptor';
   static const autoUiTimeToDisplay = 'auto.ui.time_to_display';
   static const manualUiTimeToDisplay = 'manual.ui.time_to_display';
+  static const autoDbSupabase = 'auto.db.supabase';
 }
