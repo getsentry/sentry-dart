@@ -102,7 +102,14 @@ void main() {
       options.navigatorKey = navigatorKey;
 
       var hub = mocks.MockHub();
+      late var scope = Scope(options);
+
       when(hub.options).thenReturn(options);
+      when(hub.configureScope(any)).thenAnswer((invocation) {
+        final callback = invocation.positionalArguments.first;
+        callback(scope);
+        return null;
+      });
 
       await tester.pumpWidget(
         MaterialApp(
