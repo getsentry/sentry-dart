@@ -5,10 +5,12 @@ import 'dart:typed_data';
 // ignore: unnecessary_import
 import 'dart:ui';
 
+// ignore: unnecessary_import
+import 'package:meta/meta.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 /// An [AssetBundle] which creates automatic performance traces for loading

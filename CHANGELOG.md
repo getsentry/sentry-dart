@@ -10,10 +10,19 @@
 - Tag all spans with thread info on non-web platforms ([#3101](https://github.com/getsentry/sentry-dart/pull/3101), [#3144](https://github.com/getsentry/sentry-dart/pull/3144))
 - feat(feedback): Add option to disable keyboard resize ([#3154](https://github.com/getsentry/sentry-dart/pull/3154))
 
+### Fixes
+
+- Implement prefill logic in `SentryFeedbackWidget` for `useSentryUser` parameter to populate fields with current user data ([#3180](https://github.com/getsentry/sentry-dart/pull/3180))
+
 ### Enhancements
 
 - Add `DioException` response data to error breadcrumb ([#3164](https://github.com/getsentry/sentry-dart/pull/3164))
   - Bumped `dio` min verion to `5.2.0`
+- Log a warning when dropping envelope items ([#3165](https://github.com/getsentry/sentry-dart/pull/3165))
+
+### Dependencies
+
+- Pin `ffigen` to `19.0.0` and add `objective_c` version `8.0.0` package used in `ffigen` on iOS and macOS ([#3163](https://github.com/getsentry/sentry-dart/pull/3163))
 
 ## 9.7.0-beta.1
 

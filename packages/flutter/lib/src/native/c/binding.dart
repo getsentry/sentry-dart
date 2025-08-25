@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field
+﻿// ignore_for_file: unused_field
 
 // AUTO GENERATED FILE, DO NOT EDIT.
 //
@@ -131,16 +131,16 @@ class SentryNative {
       _value_new_objectPtr.asFunction<sentry_value_u Function()>();
 
   /// Returns the type of the value passed.
-  int value_get_type(
+  sentry_value_type_t value_get_type(
     sentry_value_u value,
   ) {
-    return _value_get_type(
+    return sentry_value_type_t.fromValue(_value_get_type(
       value,
-    );
+    ));
   }
 
   late final _value_get_typePtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(sentry_value_u)>>(
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(sentry_value_u)>>(
           'sentry_value_get_type');
   late final _value_get_type =
       _value_get_typePtr.asFunction<int Function(sentry_value_u)>();
@@ -499,7 +499,8 @@ class SentryNative {
   late final _options_get_dist = _options_get_distPtr.asFunction<
       ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
 
-  /// Enables or disables debug printing mode.
+  /// Enables or disables debug printing mode. To change the log level from the
+  /// default DEBUG level, use `sentry_options_set_logger_level`.
   void options_set_debug(
     ffi.Pointer<sentry_options_s> opts,
     int debug,
@@ -855,6 +856,32 @@ class SentryNative {
       _sdk_namePtr.asFunction<ffi.Pointer<ffi.Char> Function()>();
 }
 
+/// Type of a sentry value.
+enum sentry_value_type_t {
+  SENTRY_VALUE_TYPE_NULL(0),
+  SENTRY_VALUE_TYPE_BOOL(1),
+  SENTRY_VALUE_TYPE_INT32(2),
+  SENTRY_VALUE_TYPE_DOUBLE(3),
+  SENTRY_VALUE_TYPE_STRING(4),
+  SENTRY_VALUE_TYPE_LIST(5),
+  SENTRY_VALUE_TYPE_OBJECT(6);
+
+  final int value;
+  const sentry_value_type_t(this.value);
+
+  static sentry_value_type_t fromValue(int value) => switch (value) {
+        0 => SENTRY_VALUE_TYPE_NULL,
+        1 => SENTRY_VALUE_TYPE_BOOL,
+        2 => SENTRY_VALUE_TYPE_INT32,
+        3 => SENTRY_VALUE_TYPE_DOUBLE,
+        4 => SENTRY_VALUE_TYPE_STRING,
+        5 => SENTRY_VALUE_TYPE_LIST,
+        6 => SENTRY_VALUE_TYPE_OBJECT,
+        _ =>
+          throw ArgumentError('Unknown value for sentry_value_type_t: $value'),
+      };
+}
+
 /// Represents a sentry protocol value.
 ///
 /// The members of this type should never be accessed.  They are only here
@@ -875,17 +902,6 @@ final class sentry_value_u extends ffi.Union {
 
   @ffi.Double()
   external double _double;
-}
-
-/// Type of a sentry value.
-abstract class sentry_value_type_t {
-  static const int SENTRY_VALUE_TYPE_NULL = 0;
-  static const int SENTRY_VALUE_TYPE_BOOL = 1;
-  static const int SENTRY_VALUE_TYPE_INT32 = 2;
-  static const int SENTRY_VALUE_TYPE_DOUBLE = 3;
-  static const int SENTRY_VALUE_TYPE_STRING = 4;
-  static const int SENTRY_VALUE_TYPE_LIST = 5;
-  static const int SENTRY_VALUE_TYPE_OBJECT = 6;
 }
 
 /// The Sentry Client Options.
