@@ -6,7 +6,7 @@ import '../sentry_file.dart';
 /// If set to [IOOverrides.global], newly created [File] instances will be of
 /// type [SentryFile].
 /// Enable by adding [SentryIOOverridesIntegration] to [SentryOptions].
-class SentryIOOverrides extends IOOverrides {
+final class SentryIOOverrides extends IOOverrides {
   final Hub _hub;
 
   SentryIOOverrides(this._hub);

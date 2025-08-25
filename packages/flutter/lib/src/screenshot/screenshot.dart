@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:ui';
+// ignore: unnecessary_import
+import 'package:meta/meta.dart';
 
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
 
 @internal
 class Screenshot {
