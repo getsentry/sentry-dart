@@ -240,6 +240,13 @@ void main() {
       expect(fixture.scope.span, isA<SentryTracer>());
     });
 
+    test('added transaction has app_start_type data', () async {
+      await fixture.call(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
+      );
+      expect(fixture._enrichedTransaction?.data["app_start_type"], 'cold');
+    });
+
     test('added transaction is not bound to scope if already set', () async {
       final alreadySet = MockSentryTracer();
       fixture.scope.span = alreadySet;
@@ -402,6 +409,14 @@ void main() {
       expect(pluginRegistrationSpan, isNotNull);
       expect(sentrySetupSpan, isNotNull);
       expect(firstFrameRenderSpan, isNotNull);
+    });
+
+    test('have app_start_type data set', () async {
+      // Verify that app start spans have the app_start_type data set
+      expect(coldStartSpan?.data["app_start_type"], "cold");
+      expect(pluginRegistrationSpan?.data["app_start_type"], "cold");
+      expect(sentrySetupSpan?.data["app_start_type"], "cold");
+      expect(firstFrameRenderSpan?.data["app_start_type"], "cold");
     });
 
     test('have correct op', () async {

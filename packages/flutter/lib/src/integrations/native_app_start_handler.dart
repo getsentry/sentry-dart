@@ -56,6 +56,7 @@ class NativeAppStartHandler {
     } else {
       return;
     }
+    sentryTracer.setData("app_start_type", appStartInfo.type.name);
 
     // We need to add the measurements before we add the child spans
     // If the child span finish the transaction will finish and then we cannot add measurements
@@ -143,6 +144,7 @@ class NativeAppStartHandler {
       traceId: transactionTraceId,
       startTimestamp: appStartInfo.start,
       endTimestamp: appStartEnd,
+      appStartType: appStartInfo.type.name,
     );
 
     await _attachNativeSpans(appStartInfo, transaction, appStartSpan);
@@ -155,6 +157,7 @@ class NativeAppStartHandler {
       traceId: transactionTraceId,
       startTimestamp: appStartInfo.start,
       endTimestamp: appStartInfo.pluginRegistration,
+      appStartType: appStartInfo.type.name,
     );
 
     final sentrySetupSpan = await _createAndFinishSpan(
@@ -165,6 +168,7 @@ class NativeAppStartHandler {
       traceId: transactionTraceId,
       startTimestamp: appStartInfo.pluginRegistration,
       endTimestamp: appStartInfo.sentrySetupStart,
+      appStartType: appStartInfo.type.name,
     );
 
     final firstFrameRenderSpan = await _createAndFinishSpan(
@@ -175,6 +179,7 @@ class NativeAppStartHandler {
       traceId: transactionTraceId,
       startTimestamp: appStartInfo.sentrySetupStart,
       endTimestamp: appStartEnd,
+      appStartType: appStartInfo.type.name,
     );
 
     transaction.children.addAll([
@@ -201,6 +206,7 @@ class NativeAppStartHandler {
           traceId: transaction.context.traceId,
           startTimestamp: timeSpan.start,
           endTimestamp: timeSpan.end,
+          appStartType: appStartInfo.type.name,
         );
         span.data.putIfAbsent('native', () => true);
         transaction.children.add(span);
@@ -219,6 +225,7 @@ class NativeAppStartHandler {
     required SentryId traceId,
     required DateTime startTimestamp,
     required DateTime endTimestamp,
+    required String appStartType,
   }) async {
     final span = SentrySpan(
       tracer,
@@ -231,6 +238,7 @@ class NativeAppStartHandler {
       _hub,
       startTimestamp: startTimestamp,
     );
+    span.setData("app_start_type", appStartType);
     await span.finish(endTimestamp: endTimestamp);
     return span;
   }
