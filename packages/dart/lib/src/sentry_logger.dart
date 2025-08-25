@@ -102,15 +102,22 @@ class SentryLogger {
   String _formatAttributeValue(SentryLogAttribute attribute) {
     switch (attribute.type) {
       case 'string':
-        return '"${attribute.value}"';
+        if (attribute.value is String) {
+          return '"${attribute.value}"';
+        }
       case 'boolean':
-        return attribute.value.toString();
+        if (attribute.value is bool) {
+          return attribute.value.toString();
+        }
       case 'integer':
-        return attribute.value.toString();
+        if (attribute.value is int) {
+          return attribute.value.toString();
+        }
       case 'double':
-        return attribute.value.toString();
-      default:
-        return '"${attribute.value}"';
+        if (attribute.value is double) {
+          return attribute.value.toStringAsFixed(1);
+        }
     }
+    return attribute.value.toString();
   }
 }
