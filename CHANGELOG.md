@@ -17,6 +17,7 @@
 - Add `DioException` response data to error breadcrumb ([#3164](https://github.com/getsentry/sentry-dart/pull/3164))
   - Bumped `dio` min verion to `5.2.0`
 - Log a warning when dropping envelope items ([#3165](https://github.com/getsentry/sentry-dart/pull/3165))
+- Call options.log for structured logs ([#3187](https://github.com/getsentry/sentry-dart/pull/3187))
 
 ### Dependencies
 

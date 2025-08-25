@@ -8,9 +8,10 @@ import 'sentry_options.dart';
 import 'sentry_logger_formatter.dart';
 
 class SentryLogger {
-  SentryLogger(this._clock, {Hub? hub}) : _hub = hub ?? HubAdapter();
+  SentryLogger(this._clock, this._log, {Hub? hub}) : _hub = hub ?? HubAdapter();
 
   final ClockProvider _clock;
+  final SdkLogCallback _log;
   final Hub _hub;
 
   late final fmt = SentryLoggerFormatter(this);
@@ -70,6 +71,53 @@ class SentryLogger {
       body: body,
       attributes: attributes ?? {},
     );
+
+    _log(
+      level.toSentryLevel(),
+      _formatLogMessage(level, body, attributes),
+      logger: 'sentry_logger',
+    );
+
     return _hub.captureLog(log);
+  }
+
+  /// Format log message with level and attributes
+  String _formatLogMessage(
+    SentryLogLevel level,
+    String body,
+    Map<String, SentryLogAttribute>? attributes,
+  ) {
+    if (attributes == null || attributes.isEmpty) {
+      return body;
+    }
+
+    final attrsStr = attributes.entries
+        .map((e) => '"${e.key}": ${_formatAttributeValue(e.value)}')
+        .join(', ');
+
+    return '$body {$attrsStr}';
+  }
+
+  /// Format attribute value based on its type
+  String _formatAttributeValue(SentryLogAttribute attribute) {
+    switch (attribute.type) {
+      case 'string':
+        if (attribute.value is String) {
+          return '"${attribute.value}"';
+        }
+      case 'boolean':
+        if (attribute.value is bool) {
+          return attribute.value.toString();
+        }
+      case 'integer':
+        if (attribute.value is int) {
+          return attribute.value.toString();
+        }
+      case 'double':
+        if (attribute.value is double) {
+          return attribute.value.toStringAsFixed(1);
+        }
+    }
+    return attribute.value.toString();
   }
 }
