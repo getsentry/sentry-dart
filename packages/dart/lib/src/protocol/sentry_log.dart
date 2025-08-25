@@ -25,7 +25,7 @@ class SentryLog {
     return {
       'timestamp': timestamp.toIso8601String(),
       'trace_id': traceId.toString(),
-      'level': level.value,
+      'level': level.name,
       'body': body,
       'attributes':
           attributes.map((key, value) => MapEntry(key, value.toJson())),

@@ -75,6 +75,56 @@ void main() {
 
     verifyCaptureLog(SentryLogLevel.fatal);
   });
+
+  test('logs to injected callback when provided', () {
+    final mockLogCallback = _MockSdkLogCallback();
+    final logger = SentryLogger(
+      () => fixture.timestamp,
+      mockLogCallback.call,
+      hub: fixture.hub,
+    );
+
+    logger.trace('test message', attributes: fixture.attributes);
+
+    // Verify that both hub.captureLog and our callback were called
+    expect(fixture.hub.captureLogCalls.length, 1);
+    expect(mockLogCallback.calls.length, 1);
+
+    final logCall = mockLogCallback.calls[0];
+    expect(logCall.level, SentryLevel.debug);
+    expect(logCall.message,
+        'test message {"string": "string", "int": 1, "double": 1.0, "bool": true}');
+    expect(logCall.logger, 'sentry_logger');
+  });
+
+  test('bridges SentryLogLevel to SentryLevel correctly', () {
+    final mockLogCallback = _MockSdkLogCallback();
+    final logger = SentryLogger(
+      () => fixture.timestamp,
+      mockLogCallback.call,
+      hub: fixture.hub,
+    );
+
+    // Test all log levels to ensure proper bridging
+    logger.trace('trace message');
+    logger.debug('debug message');
+    logger.info('info message');
+    logger.warn('warn message');
+    logger.error('error message');
+    logger.fatal('fatal message');
+
+    // Verify that all calls were made to the log callback
+    expect(mockLogCallback.calls.length, 6);
+
+    // Verify the bridging is correct
+    expect(mockLogCallback.calls[0].level, SentryLevel.debug); // trace -> debug
+    expect(mockLogCallback.calls[1].level, SentryLevel.debug); // debug -> debug
+    expect(mockLogCallback.calls[2].level, SentryLevel.info); // info -> info
+    expect(
+        mockLogCallback.calls[3].level, SentryLevel.warning); // warn -> warning
+    expect(mockLogCallback.calls[4].level, SentryLevel.error); // error -> error
+    expect(mockLogCallback.calls[5].level, SentryLevel.fatal); // fatal -> fatal
+  });
 }
 
 class Fixture {
@@ -90,6 +140,33 @@ class Fixture {
   };
 
   SentryLogger getSut() {
-    return SentryLogger(() => timestamp, hub: hub);
+    return SentryLogger(() => timestamp, options.log, hub: hub);
   }
+}
+
+/// Simple mock for SdkLogCallback to track calls
+class _MockSdkLogCallback {
+  final List<_LogCall> calls = [];
+
+  void call(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    calls.add(_LogCall(level, message, logger, exception, stackTrace));
+  }
+}
+
+/// Data class to store log call information
+class _LogCall {
+  final SentryLevel level;
+  final String message;
+  final String? logger;
+  final Object? exception;
+  final StackTrace? stackTrace;
+
+  _LogCall(
+      this.level, this.message, this.logger, this.exception, this.stackTrace);
 }
