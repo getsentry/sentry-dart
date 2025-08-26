@@ -81,15 +81,29 @@ void main() {
       expect(processedEvent.request?.data, 'foobar');
     });
 
-    test('$DioEventProcessor adds request without pii', () {
+    test('$DioEventProcessor adds request/response without pii', () {
       final sut = fixture.getSut(sendDefaultPii: false);
+
+      // Create a request with headers to verify they get filtered out
+      final requestWithHeaders = requestOptions.copyWith(
+        headers: {
+          'content-type': 'application/json',
+          'user-agent': 'test-agent',
+          'x-custom-header': 'custom-value',
+        },
+      );
 
       final throwable = Exception();
       final dioError = DioError(
-        requestOptions: requestOptions,
+        requestOptions: requestWithHeaders,
         response: Response<dynamic>(
-          requestOptions: requestOptions,
+          requestOptions: requestWithHeaders,
           data: 'foobar',
+          headers: Headers.fromMap(<String, List<String>>{
+            'content-type': ['application/json'],
+            'server': ['test-server'],
+            'x-response-header': ['response-value'],
+          }),
         ),
       );
       final event = SentryEvent(
@@ -99,13 +113,19 @@ void main() {
           fixture.sentryError(dioError),
         ],
       );
-      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+      final hint = Hint();
+      final processedEvent = sut.apply(event, hint) as SentryEvent;
 
+      // Verify processed request has empty headers (filtered out due to sendDefaultPii: false)
       expect(processedEvent.throwable, event.throwable);
       expect(processedEvent.request?.method, 'GET');
       expect(processedEvent.request?.queryString, 'foo=bar');
       expect(processedEvent.request?.data, null);
       expect(processedEvent.request?.headers, <String, String>{});
+
+      // Verify response headers are also empty (filtered out due to sendDefaultPii: false)
+      final capturedResponse = hint.response;
+      expect(capturedResponse?.headers, <String, String>{});
     });
 
     test('$DioEventProcessor removes auth headers', () {
