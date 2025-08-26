@@ -75,6 +75,114 @@ void main() {
 
     verifyCaptureLog(SentryLogLevel.fatal);
   });
+
+  test('logs to hub options when provided', () {
+    final mockLogCallback = _MockSdkLogCallback();
+
+    // Set the mock log callback on the fixture hub
+    fixture.hub.options.log = mockLogCallback.call;
+    fixture.hub.options.debug = true;
+    fixture.hub.options.diagnosticLevel = SentryLevel.debug;
+
+    final logger = SentryLogger(
+      () => fixture.timestamp,
+      hub: fixture.hub,
+    );
+
+    logger.trace('test message', attributes: fixture.attributes);
+
+    // Verify that both hub.captureLog and our callback were called
+    expect(fixture.hub.captureLogCalls.length, 1);
+    expect(mockLogCallback.calls.length, 1);
+
+    // Verify the captured log has the right content
+    final capturedLog = fixture.hub.captureLogCalls[0].log;
+    expect(capturedLog.level, SentryLogLevel.trace);
+    expect(capturedLog.body, 'test message');
+    expect(capturedLog.attributes, fixture.attributes);
+
+    // Verify the log callback was called with the right parameters
+    final logCall = mockLogCallback.calls[0];
+    expect(logCall.level, SentryLevel.debug); // trace maps to debug
+    expect(logCall.message,
+        'test message {"string": "string", "int": 1, "double": 1.23456789, "bool": true, "double_int": 1.0, "nan": NaN, "positive_infinity": Infinity, "negative_infinity": -Infinity}');
+    expect(logCall.logger, 'sentry_logger');
+  });
+
+  test('bridges SentryLogLevel to SentryLevel correctly', () {
+    final mockLogCallback = _MockSdkLogCallback();
+
+    // Set the mock log callback on the fixture hub's options
+    fixture.hub.options.log = mockLogCallback.call;
+    fixture.hub.options.debug = true;
+    fixture.hub.options.diagnosticLevel = SentryLevel.debug;
+
+    final logger = SentryLogger(
+      () => fixture.timestamp,
+      hub: fixture.hub,
+    );
+
+    // Test all log levels to ensure proper bridging
+    logger.trace('trace message');
+    logger.debug('debug message');
+    logger.info('info message');
+    logger.warn('warn message');
+    logger.error('error message');
+    logger.fatal('fatal message');
+
+    // Verify that all calls were made to both the hub and the log callback
+    expect(fixture.hub.captureLogCalls.length, 6);
+    expect(mockLogCallback.calls.length, 6);
+
+    // Verify the bridging is correct
+    expect(mockLogCallback.calls[0].level, SentryLevel.debug); // trace -> debug
+    expect(mockLogCallback.calls[1].level, SentryLevel.debug); // debug -> debug
+    expect(mockLogCallback.calls[2].level, SentryLevel.info); // info -> info
+    expect(
+        mockLogCallback.calls[3].level, SentryLevel.warning); // warn -> warning
+    expect(mockLogCallback.calls[4].level, SentryLevel.error); // error -> error
+    expect(mockLogCallback.calls[5].level, SentryLevel.fatal); // fatal -> fatal
+  });
+
+  test('handles NaN and infinite values correctly', () {
+    final mockLogCallback = _MockSdkLogCallback();
+
+    // Set the mock log callback on the fixture hub's options
+    fixture.hub.options.log = mockLogCallback.call;
+    fixture.hub.options.debug = true;
+    fixture.hub.options.diagnosticLevel = SentryLevel.debug;
+
+    final logger = SentryLogger(
+      () => fixture.timestamp,
+      hub: fixture.hub,
+    );
+
+    // Test with special double values
+    final specialAttributes = <String, SentryLogAttribute>{
+      'nan': SentryLogAttribute.double(double.nan),
+      'positive_infinity': SentryLogAttribute.double(double.infinity),
+      'negative_infinity': SentryLogAttribute.double(double.negativeInfinity),
+    };
+
+    logger.info('special values', attributes: specialAttributes);
+
+    // Verify that both hub.captureLog and our callback were called
+    expect(fixture.hub.captureLogCalls.length, 1);
+    expect(mockLogCallback.calls.length, 1);
+
+    // Verify the captured log has the right content
+    final capturedLog = fixture.hub.captureLogCalls[0].log;
+    expect(capturedLog.level, SentryLogLevel.info);
+    expect(capturedLog.body, 'special values');
+    expect(capturedLog.attributes, specialAttributes);
+
+    // Verify the log callback was called with the right parameters
+    final logCall = mockLogCallback.calls[0];
+    expect(logCall.level, SentryLevel.info);
+    expect(logCall.message,
+        'special values {"nan": NaN, "positive_infinity": Infinity, "negative_infinity": -Infinity}');
+    expect(logCall.logger, 'sentry_logger');
+  });
 }
 
 class Fixture {
@@ -85,11 +193,42 @@ class Fixture {
   final attributes = <String, SentryLogAttribute>{
     'string': SentryLogAttribute.string('string'),
     'int': SentryLogAttribute.int(1),
-    'double': SentryLogAttribute.double(1.0),
+    'double': SentryLogAttribute.double(1.23456789),
     'bool': SentryLogAttribute.bool(true),
+    'double_int': SentryLogAttribute.double(1.0),
+    'nan': SentryLogAttribute.double(double.nan),
+    'positive_infinity': SentryLogAttribute.double(double.infinity),
+    'negative_infinity': SentryLogAttribute.double(double.negativeInfinity),
   };
 
   SentryLogger getSut() {
     return SentryLogger(() => timestamp, hub: hub);
   }
+}
+
+/// Simple mock for SdkLogCallback to track calls
+class _MockSdkLogCallback {
+  final List<_LogCall> calls = [];
+
+  void call(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    calls.add(_LogCall(level, message, logger, exception, stackTrace));
+  }
+}
+
+/// Data class to store log call information
+class _LogCall {
+  final SentryLevel level;
+  final String message;
+  final String? logger;
+  final Object? exception;
+  final StackTrace? stackTrace;
+
+  _LogCall(
+      this.level, this.message, this.logger, this.exception, this.stackTrace);
 }
