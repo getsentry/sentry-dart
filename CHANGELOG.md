@@ -21,6 +21,9 @@
 ### Dependencies
 
 - Pin `ffigen` to `19.0.0` and add `objective_c` version `8.0.0` package used in `ffigen` on iOS and macOS ([#3163](https://github.com/getsentry/sentry-dart/pull/3163))
+- Bump Android SDK from v8.18.0 to v8.20.0 ([#3196](https://github.com/getsentry/sentry-dart/pull/3196))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8200)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.18.0...8.20.0)
 
 ## 9.7.0-beta.1
 
