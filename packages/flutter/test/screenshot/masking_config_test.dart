@@ -306,10 +306,10 @@ void main() async {
         options.buildMaskingConfig(logger.call, MockRuntimeChecker());
 
     final rootElement = await pumpTestElement(tester, children: const [
-      PasswordInherited(child: Text('child')),
+      _PasswordInherited(child: Text('child')),
     ]);
 
-    final element = rootElement.findFirstOfType<PasswordInherited>();
+    final element = rootElement.findFirstOfType<_PasswordInherited>();
     expect(config.shouldMask(element, element.widget),
         SentryMaskingDecision.continueProcessing);
 
@@ -348,9 +348,9 @@ extension on Element {
   }
 }
 
-class PasswordInherited extends InheritedWidget {
-  const PasswordInherited({super.key, required super.child});
+class _PasswordInherited extends InheritedWidget {
+  const _PasswordInherited({required super.child});
 
   @override
-  bool updateShouldNotify(covariant PasswordInherited oldWidget) => false;
+  bool updateShouldNotify(covariant _PasswordInherited oldWidget) => false;
 }
