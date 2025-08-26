@@ -57,12 +57,20 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
+    Pointer<Uint8>? buffer;
+    var ownershipTransferredToNSData = false;
     try {
       final length = envelopeData.length;
-      final buffer = malloc<Uint8>(length);
+      buffer = malloc<Uint8>(length);
       buffer.asTypedList(length).setAll(0, envelopeData);
-      final nsData = NSData.dataWithBytesNoCopy$1(buffer.cast(),
-          length: length, freeWhenDone: true);
+
+      final nsData = NSData.dataWithBytesNoCopy$1(
+        buffer.cast(),
+        length: length,
+        freeWhenDone: true,
+      );
+      ownershipTransferredToNSData = true;
+
       final envelope = cocoa.PrivateSentrySDKOnly.envelopeWithData(nsData);
       if (envelope != null) {
         cocoa.PrivateSentrySDKOnly.captureEnvelope(envelope);
@@ -76,6 +84,10 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
       if (options.automatedTestMode) {
         rethrow;
+      }
+    } finally {
+      if (!ownershipTransferredToNSData && buffer != null) {
+        malloc.free(buffer);
       }
     }
   }

@@ -15,6 +15,14 @@ class FileSystemTransport implements Transport {
     await envelope.envelopeStream(_options).forEach(bytesBuilder.add);
     final envelopeData = bytesBuilder.takeBytes();
 
+    if (envelopeData.isEmpty) {
+      _options.log(
+        SentryLevel.warning,
+        'Skipping empty envelope data',
+      );
+      return SentryId.empty();
+    }
+
     try {
       await _native.captureEnvelope(
           envelopeData, envelope.containsUnhandledException);
