@@ -531,7 +531,7 @@ class SentryOptions {
   /// Enabling this option may change grouping.
   bool includeModuleInStackTrace = false;
 
-  late final SentryLogger logger = SentryLogger(clock, log);
+  late final SentryLogger logger = SentryLogger(clock);
 
   @internal
   SentryLogBatcher logBatcher = NoopLogBatcher();

@@ -8,10 +8,9 @@ import 'sentry_options.dart';
 import 'sentry_logger_formatter.dart';
 
 class SentryLogger {
-  SentryLogger(this._clock, this._log, {Hub? hub}) : _hub = hub ?? HubAdapter();
+  SentryLogger(this._clock, {Hub? hub}) : _hub = hub ?? HubAdapter();
 
   final ClockProvider _clock;
-  final SdkLogCallback _log;
   final Hub _hub;
 
   late final fmt = SentryLoggerFormatter(this);
@@ -72,7 +71,7 @@ class SentryLogger {
       attributes: attributes ?? {},
     );
 
-    _log(
+    _hub.options.log(
       level.toSentryLevel(),
       _formatLogMessage(level, body, attributes),
       logger: 'sentry_logger',

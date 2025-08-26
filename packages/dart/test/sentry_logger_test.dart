@@ -76,11 +76,16 @@ void main() {
     verifyCaptureLog(SentryLogLevel.fatal);
   });
 
-  test('logs to injected callback when provided', () {
+  test('logs to hub options when provided', () {
     final mockLogCallback = _MockSdkLogCallback();
+
+    // Set the mock log callback on the fixture hub
+    fixture.hub.options.log = mockLogCallback.call;
+    fixture.hub.options.debug = true;
+    fixture.hub.options.diagnosticLevel = SentryLevel.debug;
+
     final logger = SentryLogger(
       () => fixture.timestamp,
-      mockLogCallback.call,
       hub: fixture.hub,
     );
 
@@ -90,8 +95,15 @@ void main() {
     expect(fixture.hub.captureLogCalls.length, 1);
     expect(mockLogCallback.calls.length, 1);
 
+    // Verify the captured log has the right content
+    final capturedLog = fixture.hub.captureLogCalls[0].log;
+    expect(capturedLog.level, SentryLogLevel.trace);
+    expect(capturedLog.body, 'test message');
+    expect(capturedLog.attributes, fixture.attributes);
+
+    // Verify the log callback was called with the right parameters
     final logCall = mockLogCallback.calls[0];
-    expect(logCall.level, SentryLevel.debug);
+    expect(logCall.level, SentryLevel.debug); // trace maps to debug
     expect(logCall.message,
         'test message {"string": "string", "int": 1, "double": 1.0, "bool": true}');
     expect(logCall.logger, 'sentry_logger');
@@ -99,9 +111,14 @@ void main() {
 
   test('bridges SentryLogLevel to SentryLevel correctly', () {
     final mockLogCallback = _MockSdkLogCallback();
+
+    // Set the mock log callback on the fixture hub's options
+    fixture.hub.options.log = mockLogCallback.call;
+    fixture.hub.options.debug = true;
+    fixture.hub.options.diagnosticLevel = SentryLevel.debug;
+
     final logger = SentryLogger(
       () => fixture.timestamp,
-      mockLogCallback.call,
       hub: fixture.hub,
     );
 
@@ -113,7 +130,8 @@ void main() {
     logger.error('error message');
     logger.fatal('fatal message');
 
-    // Verify that all calls were made to the log callback
+    // Verify that all calls were made to both the hub and the log callback
+    expect(fixture.hub.captureLogCalls.length, 6);
     expect(mockLogCallback.calls.length, 6);
 
     // Verify the bridging is correct
@@ -140,7 +158,7 @@ class Fixture {
   };
 
   SentryLogger getSut() {
-    return SentryLogger(() => timestamp, options.log, hub: hub);
+    return SentryLogger(() => timestamp, hub: hub);
   }
 }
 
