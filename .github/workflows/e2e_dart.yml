@@ -41,7 +41,7 @@ jobs:
       - uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c # pin@v1
         with:
           sdk: ${{ matrix.sdk }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Run
         if: env.SENTRY_AUTH_TOKEN != null
         run: |
