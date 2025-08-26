@@ -104,23 +104,31 @@ class SentryLogger {
         if (attribute.value is String) {
           return '"${attribute.value}"';
         }
+        break;
       case 'boolean':
         if (attribute.value is bool) {
           return attribute.value.toString();
         }
+        break;
       case 'integer':
         if (attribute.value is int) {
           return attribute.value.toString();
         }
+        break;
       case 'double':
         if (attribute.value is double) {
           final value = attribute.value as double;
+          // Handle special double values
+          if (value.isNaN || value.isInfinite) {
+            return value.toString();
+          }
           // Ensure doubles always show decimal notation to distinguish from ints
           // Use toStringAsFixed(1) for whole numbers, toString() for decimals
           return value == value.toInt()
               ? value.toStringAsFixed(1)
               : value.toString();
         }
+        break;
     }
     return attribute.value.toString();
   }
