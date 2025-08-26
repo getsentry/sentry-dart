@@ -12,8 +12,8 @@ class MockClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     sendCalls.add(request);
-    if (throwException != null) {
-      throw throwException;
+    if (throwException != null && throwException is Object) {
+      throw throwException as Object;
     }
     return StreamedResponse(
       Stream.value(utf8.encode(jsonResponse)),
