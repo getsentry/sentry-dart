@@ -11,11 +11,6 @@ enum SentryLogLevel {
   final String value;
   const SentryLogLevel(this.value);
 
-  /// For use with Dart's
-  /// [`log`](https://api.dart.dev/stable/2.12.4/dart-developer/log.html)
-  /// function.
-  /// These levels are inspired by
-  /// https://pub.dev/documentation/logging/latest/logging/Level-class.html
   int toSeverityNumber() {
     switch (this) {
       case SentryLogLevel.trace:
