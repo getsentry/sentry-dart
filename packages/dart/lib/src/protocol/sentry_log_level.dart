@@ -28,24 +28,6 @@ enum SentryLogLevel {
     }
   }
 
-  factory SentryLogLevel.fromName(String name) {
-    switch (name) {
-      case 'fatal':
-        return SentryLogLevel.fatal;
-      case 'error':
-        return SentryLogLevel.error;
-      case 'warn':
-        return SentryLogLevel.warn;
-      case 'info':
-        return SentryLogLevel.info;
-      case 'debug':
-        return SentryLogLevel.debug;
-      case 'trace':
-        return SentryLogLevel.trace;
-    }
-    return SentryLogLevel.debug;
-  }
-
   /// For use with Dart's
   /// [`log`](https://api.dart.dev/stable/2.12.4/dart-developer/log.html)
   /// function.
