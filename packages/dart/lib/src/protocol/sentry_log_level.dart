@@ -11,23 +11,6 @@ enum SentryLogLevel {
   final String value;
   const SentryLogLevel(this.value);
 
-  int get ordinal {
-    switch (this) {
-      case SentryLogLevel.trace:
-        return 1;
-      case SentryLogLevel.debug:
-        return 5;
-      case SentryLogLevel.info:
-        return 9;
-      case SentryLogLevel.warn:
-        return 13;
-      case SentryLogLevel.error:
-        return 17;
-      case SentryLogLevel.fatal:
-        return 21;
-    }
-  }
-
   /// For use with Dart's
   /// [`log`](https://api.dart.dev/stable/2.12.4/dart-developer/log.html)
   /// function.
