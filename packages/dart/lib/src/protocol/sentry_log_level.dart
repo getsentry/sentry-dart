@@ -1,21 +1,32 @@
-import 'package:meta/meta.dart';
 import 'sentry_level.dart';
 
-/// Severity of the logged [Event].
-@immutable
-class SentryLogLevel {
-  const SentryLogLevel._(this.name, this.ordinal);
+enum SentryLogLevel {
+  trace('trace'),
+  debug('debug'),
+  info('info'),
+  warn('warn'),
+  error('error'),
+  fatal('fatal');
 
-  static const trace = SentryLogLevel._('trace', 1);
-  static const debug = SentryLogLevel._('debug', 5);
-  static const info = SentryLogLevel._('info', 9);
-  static const warn = SentryLogLevel._('warn', 13);
-  static const error = SentryLogLevel._('error', 17);
-  static const fatal = SentryLogLevel._('fatal', 21);
+  final String value;
+  const SentryLogLevel(this.value);
 
-  /// API name of the level as it is encoded in the JSON protocol.
-  final String name;
-  final int ordinal;
+  int get ordinal {
+    switch (this) {
+      case SentryLogLevel.trace:
+        return 1;
+      case SentryLogLevel.debug:
+        return 5;
+      case SentryLogLevel.info:
+        return 9;
+      case SentryLogLevel.warn:
+        return 13;
+      case SentryLogLevel.error:
+        return 17;
+      case SentryLogLevel.fatal:
+        return 21;
+    }
+  }
 
   factory SentryLogLevel.fromName(String name) {
     switch (name) {
@@ -55,7 +66,6 @@ class SentryLogLevel {
       case SentryLogLevel.fatal:
         return 21;
     }
-    throw StateError('Unreachable code');
   }
 }
 
@@ -78,6 +88,5 @@ extension SentryLogLevelExtension on SentryLogLevel {
       case SentryLogLevel.fatal:
         return SentryLevel.fatal;
     }
-    throw StateError('Unreachable code');
   }
 }
