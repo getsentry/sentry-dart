@@ -16,7 +16,6 @@ on:
       - 'packages/flutter/**'
       - 'packages/firebase_remote_config/**'
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -40,14 +39,14 @@ jobs:
           directory: packages/firebase_remote_config
           web: false
 
-#       TODO: don't set coverage for now to finish publishing it
-#      - uses: ./.github/actions/coverage
-#        if: runner.os == 'Linux' && matrix.sdk == 'stable'
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          directory: firebase_remote_config
-#          coverage: sentry_firebase_remote_config
-#          min-coverage: 55
+  #       TODO: don't set coverage for now to finish publishing it
+  #      - uses: ./.github/actions/coverage
+  #        if: runner.os == 'Linux' && matrix.sdk == 'stable'
+  #        with:
+  #          token: ${{ secrets.CODECOV_TOKEN }}
+  #          directory: firebase_remote_config
+  #          coverage: sentry_firebase_remote_config
+  #          min-coverage: 55
 
   analyze:
     uses: ./.github/workflows/analyze.yml

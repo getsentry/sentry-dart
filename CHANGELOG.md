@@ -19,10 +19,14 @@
 - Add `DioException` response data to error breadcrumb ([#3164](https://github.com/getsentry/sentry-dart/pull/3164))
   - Bumped `dio` min verion to `5.2.0`
 - Log a warning when dropping envelope items ([#3165](https://github.com/getsentry/sentry-dart/pull/3165))
+- Call options.log for structured logs ([#3187](https://github.com/getsentry/sentry-dart/pull/3187))
 
 ### Dependencies
 
 - Pin `ffigen` to `19.0.0` and add `objective_c` version `8.0.0` package used in `ffigen` on iOS and macOS ([#3163](https://github.com/getsentry/sentry-dart/pull/3163))
+- Bump JavaScript SDK from v9.40.0 to v10.5.0 ([#3167](https://github.com/getsentry/sentry-dart/pull/3167))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#1050)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/9.40.0...10.5.0)
 
 ## 9.7.0-beta.1
 
