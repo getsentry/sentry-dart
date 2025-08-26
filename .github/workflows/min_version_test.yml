@@ -6,22 +6,18 @@ on:
       - release/**
   pull_request:
     paths:
-      - "!**/*.md"
-      - "!**/class-diagram.svg"
-      - ".github/workflows/min_version_test.yml"
-      - "packages/dart/**"
-      - "packages/flutter/**"
-      - "min_version_test/**"
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      - '.github/workflows/min_version_test.yml'
+      - 'packages/dart/**'
+      - 'packages/flutter/**'
+      - 'min_version_test/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
-  cancel-previous-workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
-        with:
-          access_token: ${{ github.token }}
-
   build-android:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -31,12 +27,12 @@ jobs:
 
       - uses: actions/setup-java@v5
         with:
-          distribution: "adopt"
-          java-version: "17"
+          distribution: 'adopt'
+          java-version: '17'
 
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
-          flutter-version: "3.24.0"
+          flutter-version: '3.24.0'
 
       - name: Build Android
         run: |
@@ -53,11 +49,11 @@ jobs:
 
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
-          flutter-version: "3.24.0"
+          flutter-version: '3.24.0'
 
       - uses: ruby/setup-ruby@efbf473cab83af4468e8606cc33eca9281bb213f # pin@v1.256.0
         with:
-          ruby-version: "3.1.2" # https://github.com/flutter/flutter/issues/109385#issuecomment-1212614125
+          ruby-version: '3.1.2' # https://github.com/flutter/flutter/issues/109385#issuecomment-1212614125
 
       - name: Uninstall existing CocoaPods and install globally
         run: |
@@ -88,7 +84,7 @@ jobs:
 
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
-          flutter-version: "3.24.0"
+          flutter-version: '3.24.0'
 
       - name: Build web
         run: |
