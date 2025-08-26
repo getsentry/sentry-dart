@@ -57,7 +57,7 @@ jobs:
         with:
           flutter-version: ${{ steps.conf.outputs.flutter }}
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         if: ${{ matrix.platform == 'android' }}
         with:
           java-version: "17"
