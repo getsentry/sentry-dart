@@ -114,7 +114,12 @@ class SentryLogger {
         }
       case 'double':
         if (attribute.value is double) {
-          return attribute.value.toStringAsFixed(1);
+          final value = attribute.value as double;
+          // Ensure doubles always show decimal notation to distinguish from ints
+          // Use toStringAsFixed(1) for whole numbers, toString() for decimals
+          return value == value.toInt()
+              ? value.toStringAsFixed(1)
+              : value.toString();
         }
     }
     return attribute.value.toString();

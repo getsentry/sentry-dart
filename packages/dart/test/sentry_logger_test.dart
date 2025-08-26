@@ -105,7 +105,7 @@ void main() {
     final logCall = mockLogCallback.calls[0];
     expect(logCall.level, SentryLevel.debug); // trace maps to debug
     expect(logCall.message,
-        'test message {"string": "string", "int": 1, "double": 1.0, "bool": true}');
+        'test message {"string": "string", "int": 1, "double": 1.23456789, "bool": true, "double_int": 1.0}');
     expect(logCall.logger, 'sentry_logger');
   });
 
@@ -153,8 +153,9 @@ class Fixture {
   final attributes = <String, SentryLogAttribute>{
     'string': SentryLogAttribute.string('string'),
     'int': SentryLogAttribute.int(1),
-    'double': SentryLogAttribute.double(1.0),
+    'double': SentryLogAttribute.double(1.23456789),
     'bool': SentryLogAttribute.bool(true),
+    'double_int': SentryLogAttribute.double(1.0),
   };
 
   SentryLogger getSut() {
