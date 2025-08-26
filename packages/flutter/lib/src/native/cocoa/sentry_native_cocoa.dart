@@ -53,6 +53,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
     return super.init(hub);
   }
 
+  // coverage: ignore-start
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
@@ -78,6 +79,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
       }
     }
   }
+  // coverage: ignore-end
 
   @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {

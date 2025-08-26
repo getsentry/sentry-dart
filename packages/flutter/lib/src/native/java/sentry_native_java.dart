@@ -73,6 +73,7 @@ class SentryNativeJava extends SentryNativeChannel {
     return super.init(hub);
   }
 
+  // coverage: ignore-start
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
@@ -99,6 +100,7 @@ class SentryNativeJava extends SentryNativeChannel {
       id?.release();
     }
   }
+  // coverage: ignore-end
 
   @override
   Future<void> close() async {
