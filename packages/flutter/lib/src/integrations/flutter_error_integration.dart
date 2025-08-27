@@ -22,7 +22,7 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     _defaultOnError = FlutterError.onError;
-    _integrationOnError = (FlutterErrorDetails errorDetails) async {
+    _integrationOnError = (FlutterErrorDetails errorDetails) {
       final exception = errorDetails.exception;
 
       options.log(
@@ -88,7 +88,7 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
           stackTrace = getCurrentStackTrace();
           hint.addAll({TypeCheckHint.currentStackTrace: true});
         }
-        await hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
+        hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
         // we don't call Zone.current.handleUncaughtError because we'd like
         // to set a specific mechanism for FlutterError.onError.
       } else {
