@@ -9,6 +9,7 @@ import 'sentry_item_type.dart';
 import 'sentry_options.dart';
 import 'sentry_trace_context_header.dart';
 import 'utils.dart';
+import 'package:meta/meta.dart';
 
 /// Class representation of `Envelope` file.
 class SentryEnvelope {
@@ -92,6 +93,36 @@ class SentryEnvelope {
       ),
       [
         SentryEnvelopeItem.fromLogs(items),
+      ],
+    );
+  }
+
+  /// Create a [SentryEnvelope] containing raw log data payload.
+  /// This is used by the log batcher to send pre-encoded log batches.
+  @internal
+  factory SentryEnvelope.fromLogsData(
+    List<List<int>> encodedLogs,
+    SdkVersion sdkVersion,
+  ) {
+    // Create the payload in the format expected by Sentry
+    // Format: {"items": [log1, log2, ...]}
+    final payload = <int>[];
+    payload.addAll(utf8.encode('{"items":['));
+    for (int i = 0; i < encodedLogs.length; i++) {
+      if (i > 0) {
+        payload.addAll(utf8.encode(','));
+      }
+      payload.addAll(encodedLogs[i]);
+    }
+    payload.addAll(utf8.encode(']}'));
+
+    return SentryEnvelope(
+      SentryEnvelopeHeader(
+        null,
+        sdkVersion,
+      ),
+      [
+        SentryEnvelopeItem.fromLogsData(payload, encodedLogs.length),
       ],
     );
   }
