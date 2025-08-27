@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
@@ -88,7 +90,7 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
           stackTrace = getCurrentStackTrace();
           hint.addAll({TypeCheckHint.currentStackTrace: true});
         }
-        hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
+        unawaited(hub.captureEvent(event, stackTrace: stackTrace, hint: hint));
         // we don't call Zone.current.handleUncaughtError because we'd like
         // to set a specific mechanism for FlutterError.onError.
       } else {
