@@ -70,6 +70,66 @@ class SentryLogger {
       body: body,
       attributes: attributes ?? {},
     );
+
+    _hub.options.log(
+      level.toSentryLevel(),
+      _formatLogMessage(level, body, attributes),
+      logger: 'sentry_logger',
+    );
+
     return _hub.captureLog(log);
+  }
+
+  /// Format log message with level and attributes
+  String _formatLogMessage(
+    SentryLogLevel level,
+    String body,
+    Map<String, SentryLogAttribute>? attributes,
+  ) {
+    if (attributes == null || attributes.isEmpty) {
+      return body;
+    }
+
+    final attrsStr = attributes.entries
+        .map((e) => '"${e.key}": ${_formatAttributeValue(e.value)}')
+        .join(', ');
+
+    return '$body {$attrsStr}';
+  }
+
+  /// Format attribute value based on its type
+  String _formatAttributeValue(SentryLogAttribute attribute) {
+    switch (attribute.type) {
+      case 'string':
+        if (attribute.value is String) {
+          return '"${attribute.value}"';
+        }
+        break;
+      case 'boolean':
+        if (attribute.value is bool) {
+          return attribute.value.toString();
+        }
+        break;
+      case 'integer':
+        if (attribute.value is int) {
+          return attribute.value.toString();
+        }
+        break;
+      case 'double':
+        if (attribute.value is double) {
+          final value = attribute.value as double;
+          // Handle special double values
+          if (value.isNaN || value.isInfinite) {
+            return value.toString();
+          }
+          // Ensure doubles always show decimal notation to distinguish from ints
+          // Use toStringAsFixed(1) for whole numbers, toString() for decimals
+          return value == value.toInt()
+              ? value.toStringAsFixed(1)
+              : value.toString();
+        }
+        break;
+    }
+    return attribute.value.toString();
   }
 }
