@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
 
@@ -49,6 +50,30 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
     return super.init(hub);
   }
+
+  // coverage: ignore-start
+  @override
+  FutureOr<void> captureEnvelope(
+      Uint8List envelopeData, bool containsUnhandledException) {
+    try {
+      final nsData = envelopeData.toNSData();
+      final envelope = cocoa.PrivateSentrySDKOnly.envelopeWithData(nsData);
+      if (envelope != null) {
+        cocoa.PrivateSentrySDKOnly.captureEnvelope(envelope);
+      } else {
+        options.log(
+            SentryLevel.error, 'Failed to capture envelope: envelope is null');
+      }
+    } catch (exception, stackTrace) {
+      options.log(SentryLevel.error, 'Failed to capture envelope',
+          exception: exception, stackTrace: stackTrace);
+
+      if (options.automatedTestMode) {
+        rethrow;
+      }
+    }
+  }
+  // coverage: ignore-end
 
   @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
