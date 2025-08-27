@@ -37,7 +37,7 @@ class SentryLogBatcher {
       // Flush if size threshold is reached
       if (_encodedLogsSize >= _maxBufferSizeBytes) {
         // Buffer size exceeded, flush immediately
-        _performCaptureLogs();
+        _performFlushLogs();
       } else if (_flushTimer == null) {
         // Start timeout only when first item is added
         _startTimer();
@@ -53,7 +53,7 @@ class SentryLogBatcher {
 
   /// Flushes the buffer immediately, sending all buffered logs.
   void flush() {
-    _performCaptureLogs();
+    _performFlushLogs();
   }
 
   void _startTimer() {
@@ -62,11 +62,11 @@ class SentryLogBatcher {
         SentryLevel.debug,
         'SentryLogBatcher: Timer fired, calling performCaptureLogs().',
       );
-      _performCaptureLogs();
+      _performFlushLogs();
     });
   }
 
-  void _performCaptureLogs() {
+  void _performFlushLogs() {
     // Reset timer state first
     _flushTimer?.cancel();
     _flushTimer = null;
