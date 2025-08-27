@@ -1,9 +1,14 @@
+import 'dart:async';
+import 'dart:typed_data';
+
+import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/scheduled_recorder_config.dart';
 import '../sentry_native_channel.dart';
 import 'android_replay_recorder.dart';
+import 'binding.dart' as native;
 
 @internal
 class SentryNativeJava extends SentryNativeChannel {
@@ -67,6 +72,35 @@ class SentryNativeJava extends SentryNativeChannel {
 
     return super.init(hub);
   }
+
+  // coverage: ignore-start
+  @override
+  FutureOr<void> captureEnvelope(
+      Uint8List envelopeData, bool containsUnhandledException) {
+    JObject? id;
+    JByteArray? byteArray;
+    try {
+      byteArray = JByteArray.from(envelopeData);
+      id = native.InternalSentrySdk.captureEnvelope(
+          byteArray, containsUnhandledException);
+
+      if (id == null) {
+        options.log(SentryLevel.error,
+            'Native Android SDK returned null id when capturing envelope');
+      }
+    } catch (exception, stackTrace) {
+      options.log(SentryLevel.error, 'Failed to capture envelope',
+          exception: exception, stackTrace: stackTrace);
+
+      if (options.automatedTestMode) {
+        rethrow;
+      }
+    } finally {
+      byteArray?.release();
+      id?.release();
+    }
+  }
+  // coverage: ignore-end
 
   @override
   Future<void> close() async {
