@@ -8,7 +8,6 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
-import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'package:sentry_flutter/src/native/method_channel_helper.dart';
@@ -199,16 +198,27 @@ void main() {
         if (mockPlatform.isAndroid) {
           matcher = throwsUnsupportedError;
         } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
-          if (Platform().isMacOS) {
+          if (mockPlatform.isMacOS) {
             matcher = throwsA(predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Failed to load Objective-C class')));
+                (e is Exception &&
+                    e
+                        .toString()
+                        .contains('Failed to load Objective-C class')) ||
+                (e is ArgumentError &&
+                    e
+                        .toString()
+                        .contains('Couldn\'t resolve native function'))));
           } else {
             matcher = throwsA(predicate((e) =>
-                e is ArgumentError &&
-                (e.toString().contains('undefined symbol: objc_msgSend') ||
-                    e.toString().contains(
-                        'Couldn\'t resolve native function \'objc_msgSend\''))));
+                (e is ArgumentError &&
+                    (e.toString().contains('undefined symbol: objc_msgSend') ||
+                        e
+                            .toString()
+                            .contains('Couldn\'t resolve native function'))) ||
+                (e is Exception &&
+                    e
+                        .toString()
+                        .contains('Failed to load Objective-C class'))));
           }
         }
         expect(() => sut.startProfiler(SentryId.newId()), matcher);
@@ -245,18 +255,45 @@ void main() {
         }));
       });
 
-      test('captureEnvelope', () async {
-        final data = Uint8List.fromList([1, 2, 3]);
+      test(
+        'captureEnvelope',
+        () {
+          when(channel.invokeMethod('captureEnvelope', any))
+              .thenAnswer((_) async => {});
 
-        late Uint8List captured;
-        when(channel.invokeMethod('captureEnvelope', any)).thenAnswer(
-            (invocation) async =>
-                {captured = invocation.positionalArguments[1][0] as Uint8List});
+          late Matcher matcher;
+          if (mockPlatform.isAndroid) {
+            matcher = throwsA(predicate((e) =>
+                e is Error &&
+                e.toString().contains('Unable to locate the helper library')));
+          } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
+            if (mockPlatform.isMacOS) {
+              matcher = throwsA(predicate((e) =>
+                  (e is Exception &&
+                      (e
+                          .toString()
+                          .contains('Failed to load Objective-C class'))) ||
+                  (e is ArgumentError &&
+                      e
+                          .toString()
+                          .contains('Couldn\'t resolve native function'))));
+            } else {
+              matcher = throwsA(predicate((e) =>
+                  e is ArgumentError &&
+                  (e.toString().contains('undefined symbol: objc_msgSend') ||
+                      e
+                          .toString()
+                          .contains('Couldn\'t resolve native function') ||
+                      e.toString().contains('Failed to lookup symbol'))));
+            }
+          }
 
-        await sut.captureEnvelope(data, false);
+          final data = Uint8List.fromList([1, 2, 3]);
+          expect(() => sut.captureEnvelope(data, false), matcher);
 
-        expect(captured, data);
-      });
+          verifyZeroInteractions(channel);
+        },
+      );
 
       test('loadContexts', () async {
         when(channel.invokeMethod('loadContexts'))
