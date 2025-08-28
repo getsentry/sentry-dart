@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sentry/sentry.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/stacktrace_utils.dart';
@@ -83,8 +85,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
         stackTrace = getCurrentStackTrace();
         hint = Hint.withMap({TypeCheckHint.currentStackTrace: true});
       }
-      // unawaited future
-      hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
+      unawaited(hub.captureEvent(event, stackTrace: stackTrace, hint: hint));
 
       return handled;
     };
