@@ -103,8 +103,8 @@ class SentryNativeChannel
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    return channel.invokeMethod(
-        'captureEnvelope', [envelopeData, containsUnhandledException]);
+    assert(
+        false, "captureEnvelope should not be used through method channels.");
   }
 
   @override
