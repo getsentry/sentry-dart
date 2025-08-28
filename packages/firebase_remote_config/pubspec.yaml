@@ -20,7 +20,7 @@ platforms:
 dependencies:
   flutter:
     sdk: flutter
-  firebase_remote_config: ^5.4.3
+  firebase_remote_config: '>=5.4.3 <7.0.0'
   sentry: 9.7.0-beta.1
 
 dev_dependencies:

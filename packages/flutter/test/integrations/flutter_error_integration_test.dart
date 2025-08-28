@@ -41,8 +41,7 @@ void main() {
       _mockValues();
 
       // replace default error otherwise it fails on testing
-      FlutterError.onError =
-          handler ?? (FlutterErrorDetails errorDetails) async {};
+      FlutterError.onError = handler ?? (FlutterErrorDetails errorDetails) {};
 
       final sut = fixture.getSut();
       sut(fixture.hub, fixture.options);
@@ -169,7 +168,7 @@ void main() {
       _mockValues();
 
       var numberOfDefaultCalls = 0;
-      final defaultError = (FlutterErrorDetails errorDetails) async {
+      final defaultError = (FlutterErrorDetails errorDetails) {
         numberOfDefaultCalls++;
       };
       FlutterError.onError = defaultError;
