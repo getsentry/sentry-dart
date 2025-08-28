@@ -298,6 +298,26 @@ void main() async {
       });
     });
   });
+
+  testWidgets('ignores InheritedWidget and does not log', (tester) async {
+    final logger = MockLogger();
+    final options = SentryPrivacyOptions();
+    final config =
+        options.buildMaskingConfig(logger.call, MockRuntimeChecker());
+
+    final rootElement = await pumpTestElement(tester, children: const [
+      _PasswordInherited(child: Text('child')),
+    ]);
+
+    final element = rootElement.findFirstOfType<_PasswordInherited>();
+    expect(config.shouldMask(element, element.widget),
+        SentryMaskingDecision.continueProcessing);
+
+    // The debug rule contains a RegExp that matches 'password'. Our widget
+    // name contains it but because it's an InheritedWidget it should be
+    // ignored and thus no warning is logged.
+    expect(logger.items.where((i) => i.level == SentryLevel.warning), isEmpty);
+  });
 }
 
 extension on Element {
@@ -326,4 +346,11 @@ extension on Element {
     visitChildren((visitor));
     return result;
   }
+}
+
+class _PasswordInherited extends InheritedWidget {
+  const _PasswordInherited({required super.child});
+
+  @override
+  bool updateShouldNotify(covariant _PasswordInherited oldWidget) => false;
 }
