@@ -19,6 +19,7 @@
 - Use FFI/JNI for `captureEnvelope` on iOS and Android ([#3115](https://github.com/getsentry/sentry-dart/pull/3115))
 - Log a warning when dropping envelope items ([#3165](https://github.com/getsentry/sentry-dart/pull/3165))
 - Call options.log for structured logs ([#3187](https://github.com/getsentry/sentry-dart/pull/3187))
+- Remove async usage from `FlutterErrorIntegration` ([#3202](https://github.com/getsentry/sentry-dart/pull/3202))
 - Tag all spans during app start with start type info ([#3190](https://github.com/getsentry/sentry-dart/pull/3190))
 
 ### Dependencies
