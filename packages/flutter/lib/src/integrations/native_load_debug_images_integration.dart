@@ -50,8 +50,6 @@ class _LoadNativeDebugImagesIntegrationEventProcessor
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     // ignore: invalid_use_of_internal_member
     final stackTrace = event.stacktrace;
-    var images = await _native.loadDebugImages(stackTrace!);
-    print('my images: $images');
 
     // if the stacktrace has native frames, we load native debug images.
     if (stackTrace != null &&

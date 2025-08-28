@@ -122,16 +122,11 @@ class SentryNativeJava extends SentryNativeChannel {
           .toList(growable: false);
       jSet = jStrings.cast<JString?>().toJSet(JString.nullableType);
 
-      print('my jset');
       nativeOptions = native.ScopesAdapter.getInstance()
           ?.getOptions()
           .as(native.SentryAndroidOptions.type);
 
-      print('my options: $nativeOptions');
-
       if (instructionAddresses.isEmpty) {
-        print(
-            'my loader: ${nativeOptions?.getDebugImagesLoader().loadDebugImages()?.length}');
         nativeDebugImagesSet =
             nativeOptions?.getDebugImagesLoader().loadDebugImages()?.toSet();
       } else {
@@ -140,7 +135,6 @@ class SentryNativeJava extends SentryNativeChannel {
             .loadDebugImagesForAddresses(jSet);
       }
 
-      print('my length: ${nativeDebugImagesSet?.length}');
       if (nativeDebugImagesSet != null) {
         dartDebugImages = nativeDebugImagesSet
             .where((nativeImage) => nativeImage != null)
