@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'client_reports/client_report.dart';
 import 'protocol.dart';
@@ -106,15 +107,15 @@ class SentryEnvelope {
   ) {
     // Create the payload in the format expected by Sentry
     // Format: {"items": [log1, log2, ...]}
-    final payload = <int>[];
-    payload.addAll(utf8.encode('{"items":['));
+    final builder = BytesBuilder(copy: false);
+    builder.add(utf8.encode('{"items":['));
     for (int i = 0; i < encodedLogs.length; i++) {
       if (i > 0) {
-        payload.addAll(utf8.encode(','));
+        builder.add(utf8.encode(','));
       }
-      payload.addAll(encodedLogs[i]);
+      builder.add(encodedLogs[i]);
     }
-    payload.addAll(utf8.encode(']}'));
+    builder.add(utf8.encode(']}'));
 
     return SentryEnvelope(
       SentryEnvelopeHeader(
@@ -122,7 +123,7 @@ class SentryEnvelope {
         sdkVersion,
       ),
       [
-        SentryEnvelopeItem.fromLogsData(payload, encodedLogs.length),
+        SentryEnvelopeItem.fromLogsData(builder.takeBytes(), encodedLogs.length),
       ],
     );
   }
