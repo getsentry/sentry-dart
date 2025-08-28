@@ -214,7 +214,7 @@ class SentryNativeChannel
       });
 
   @override
-  Future<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
+  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
       tryCatchAsync('loadDebugImages', () async {
         Set<String> instructionAddresses = {};
         for (final frame in stackTrace.frames) {

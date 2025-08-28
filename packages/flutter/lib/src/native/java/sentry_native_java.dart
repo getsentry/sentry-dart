@@ -73,7 +73,6 @@ class SentryNativeJava extends SentryNativeChannel {
     return super.init(hub);
   }
 
-  // coverage: ignore-start
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
@@ -100,7 +99,101 @@ class SentryNativeJava extends SentryNativeChannel {
       id?.release();
     }
   }
-  // coverage: ignore-end
+
+  @override
+  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
+    native.SentryAndroidOptions? nativeOptions;
+    JSet<JString?>? jSet;
+    JSet<native.DebugImage?>? nativeDebugImagesSet;
+    List<JString>? jStrings;
+    List<DebugImage>? dartDebugImages;
+
+    try {
+      final instructionAddresses = <String>{};
+      for (final frame in stackTrace.frames) {
+        final addr = frame.instructionAddr;
+        if (addr != null) {
+          instructionAddresses.add(addr);
+        }
+      }
+
+      jStrings = instructionAddresses
+          .map((s) => s.toJString())
+          .toList(growable: false);
+      jSet = jStrings.cast<JString?>().toJSet(JString.nullableType);
+
+      print('my jset');
+      nativeOptions = native.ScopesAdapter.getInstance()
+          ?.getOptions()
+          .as(native.SentryAndroidOptions.type);
+
+      print('my options: $nativeOptions');
+
+      if (instructionAddresses.isEmpty) {
+        print(
+            'my loader: ${nativeOptions?.getDebugImagesLoader().loadDebugImages()?.length}');
+        nativeDebugImagesSet =
+            nativeOptions?.getDebugImagesLoader().loadDebugImages()?.toSet();
+      } else {
+        nativeDebugImagesSet = nativeOptions
+            ?.getDebugImagesLoader()
+            .loadDebugImagesForAddresses(jSet);
+      }
+
+      print('my length: ${nativeDebugImagesSet?.length}');
+      if (nativeDebugImagesSet != null) {
+        dartDebugImages = nativeDebugImagesSet
+            .where((nativeImage) => nativeImage != null)
+            .map((nativeImage) {
+              nativeImage = nativeImage!;
+              final type =
+                  nativeImage.getType()?.toDartString(releaseOriginal: true);
+              if (type == null) {
+                return null;
+              }
+              return DebugImage(
+                type: type,
+                imageAddr: nativeImage
+                    .getImageAddr()
+                    ?.toDartString(releaseOriginal: true),
+                imageSize: nativeImage
+                    .getImageSize()
+                    ?.longValue(releaseOriginal: true),
+                codeFile: nativeImage
+                    .getCodeFile()
+                    ?.toDartString(releaseOriginal: true),
+                debugId: nativeImage
+                    .getDebugId()
+                    ?.toDartString(releaseOriginal: true),
+                codeId: nativeImage
+                    .getCodeId()
+                    ?.toDartString(releaseOriginal: true),
+                debugFile: nativeImage
+                    .getDebugFile()
+                    ?.toDartString(releaseOriginal: true),
+              );
+            })
+            .whereType<DebugImage>()
+            .toList(growable: false);
+      }
+    } catch (exception, stackTrace) {
+      options.log(SentryLevel.error, 'Failed to load debug images',
+          exception: exception, stackTrace: stackTrace);
+      if (options.automatedTestMode) {
+        rethrow;
+      }
+    } finally {
+      // Release JNI refs
+      for (final js in jStrings ?? const <JString>[]) {
+        js.release();
+      }
+      jSet?.release();
+      nativeDebugImagesSet?.release();
+      nativeOptions?.release();
+    }
+
+    return dartDebugImages;
+  }
 
   @override
   Future<void> close() async {
