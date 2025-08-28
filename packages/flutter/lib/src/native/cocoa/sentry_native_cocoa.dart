@@ -106,20 +106,18 @@ class SentryNativeCocoa extends SentryNativeChannel {
           for (final addr in imageAddresses) {
             nsSet.addObject(NSString(addr));
           }
-          final debugImagesArray = dependencyContainer.debugImageProvider
-              .getDebugImagesForImageAddressesFromCache(nsSet)
-              .cast<cocoa.SentryDebugMeta>();
-          dartDebugImages.addAll(
-              _convertCocoaDebugImageToDartDebugImages(debugImagesArray));
+          final debugImagesArray = _castToSentryDebugMetaList(
+              dependencyContainer.debugImageProvider
+                  .getDebugImagesForImageAddressesFromCache(nsSet));
+          dartDebugImages.addAll(_convertDebugImages(debugImagesArray));
         }
       }
 
       // If no debug images found, fall back to getting all debug images
       if (dartDebugImages.isEmpty) {
-        final debugImagesArray = cocoa.PrivateSentrySDKOnly.getDebugImages()
-            .cast<cocoa.SentryDebugMeta>();
-        dartDebugImages
-            .addAll(_convertCocoaDebugImageToDartDebugImages(debugImagesArray));
+        final debugImagesArray = _castToSentryDebugMetaList(
+            cocoa.PrivateSentrySDKOnly.getDebugImages());
+        dartDebugImages.addAll(_convertDebugImages(debugImagesArray));
       }
 
       return dartDebugImages;
@@ -158,36 +156,52 @@ class SentryNativeCocoa extends SentryNativeChannel {
         },
       );
 
-  /// Converts NSArray of cocoa debug meta to a list of [DebugImage]
-  List<DebugImage> _convertCocoaDebugImageToDartDebugImages(
-      Iterable<cocoa.SentryDebugMeta> cocoaDebugImages) {
-    final List<DebugImage> debugImages = [];
-
-    try {
-      for (final image in cocoaDebugImages) {
-        final debugId = image.debugID?.toString() ?? image.uuid?.toString();
-        final type = image.type?.toString() ?? 'macho';
-        final codeFile = image.codeFile?.toString() ?? image.name?.toString();
-        final imageAddr = image.imageAddress?.toString();
-        final imageVmAddr = image.imageVmAddress?.toString();
-        final imageSize = image.imageSize?.intValue;
-
-        final debugImage = DebugImage(
-          debugId: debugId,
-          type: type,
-          codeFile: codeFile,
-          imageAddr: imageAddr,
-          imageVmAddr: imageVmAddr,
-          imageSize: imageSize,
-        );
-
-        debugImages.add(debugImage);
+  /// Safely casts NSArray items to SentryDebugMeta list
+  List<cocoa.SentryDebugMeta> _castToSentryDebugMetaList(NSArray nsArray) {
+    final result = <cocoa.SentryDebugMeta>[];
+    for (int i = 0; i < nsArray.length; i++) {
+      final item = nsArray[i];
+      try {
+        final debugMeta = item is cocoa.SentryDebugMeta
+            ? item
+            : cocoa.SentryDebugMeta.castFrom(item);
+        result.add(debugMeta);
+      } catch (e) {
+        // Skip items that can't be cast
+        options.log(SentryLevel.debug,
+            'Skipping debug image that cannot be cast to SentryDebugMeta: $e');
       }
-    } catch (exception, stackTrace) {
-      options.log(SentryLevel.error, 'Failed to convert debug images',
-          exception: exception, stackTrace: stackTrace);
     }
+    return result;
+  }
 
-    return debugImages;
+  /// Converts cocoa debug meta to [DebugImage]
+  DebugImage? _convertSingleDebugImage(cocoa.SentryDebugMeta image) {
+    try {
+      return DebugImage(
+        debugId: image.debugID?.toDartString() ?? image.uuid?.toDartString(),
+        type: image.type?.toDartString() ?? 'macho',
+        codeFile: image.codeFile?.toDartString() ?? image.name?.toDartString(),
+        imageAddr: image.imageAddress?.toDartString(),
+        imageVmAddr: image.imageVmAddress?.toDartString(),
+        imageSize: image.imageSize?.intValue,
+      );
+    } catch (exception, stackTrace) {
+      if (options.automatedTestMode) {
+        rethrow;
+      }
+      options.log(SentryLevel.error, 'Failed to convert debug image',
+          exception: exception, stackTrace: stackTrace);
+      return null;
+    }
+  }
+
+  /// Converts cocoa debug meta list to [DebugImage] list
+  List<DebugImage> _convertDebugImages(
+      List<cocoa.SentryDebugMeta> cocoaDebugImages) {
+    return cocoaDebugImages
+        .map(_convertSingleDebugImage)
+        .whereType<DebugImage>()
+        .toList();
   }
 }
