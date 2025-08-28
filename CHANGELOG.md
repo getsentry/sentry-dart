@@ -29,9 +29,9 @@
 - Bump Android SDK from v8.18.0 to v8.20.0 ([#3196](https://github.com/getsentry/sentry-dart/pull/3196))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8200)
   - [diff](https://github.com/getsentry/sentry-java/compare/8.18.0...8.20.0)
-- Bump JavaScript SDK from v9.40.0 to v10.6.0 ([#3167](https://github.com/getsentry/sentry-dart/pull/3167), [#3201](https://github.com/getsentry/sentry-dart/pull/3201))
-  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#1060)
-  - [diff](https://github.com/getsentry/sentry-javascript/compare/9.40.0...10.6.0)
+- Bump JavaScript SDK from v9.40.0 to v10.7.0 ([#3167](https://github.com/getsentry/sentry-dart/pull/3167), [#3201](https://github.com/getsentry/sentry-dart/pull/3201), [#3212](https://github.com/getsentry/sentry-dart/pull/3212))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#1070)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/9.40.0...10.7.0)
 
 ## 9.7.0-beta.1
 
