@@ -51,7 +51,6 @@ class SentryNativeCocoa extends SentryNativeChannel {
     return super.init(hub);
   }
 
-  // coverage: ignore-start
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
@@ -73,7 +72,67 @@ class SentryNativeCocoa extends SentryNativeChannel {
       }
     }
   }
-  // coverage: ignore-end
+
+  @override
+  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
+    try {
+      List<DebugImage> dartDebugImages = [];
+      Set<String> imageAddresses = <String>{};
+
+      final dependencyContainer =
+          cocoa.SentryDependencyContainer.sharedInstance();
+      final binaryImageCache = dependencyContainer.binaryImageCache;
+
+      final instructionAddresses = stackTrace.frames
+          .where((frame) => frame.instructionAddr != null)
+          .map((frame) => frame.instructionAddr!)
+          .toSet();
+
+      if (instructionAddresses.isNotEmpty) {
+        for (final addressStr in instructionAddresses) {
+          final hexDigits = addressStr.replaceFirst('0x', '');
+          final instructionAddress = int.tryParse(hexDigits, radix: 16);
+          if (instructionAddress != null) {
+            final image = binaryImageCache.imageByAddress(instructionAddress);
+            if (image != null) {
+              final imageAddress = '0x${image.address.toRadixString(16)}';
+              imageAddresses.add(imageAddress);
+            }
+          }
+        }
+
+        if (imageAddresses.isNotEmpty) {
+          final nsSet = NSMutableSet();
+          for (final addr in imageAddresses) {
+            nsSet.addObject(NSString(addr));
+          }
+          final debugImagesArray = dependencyContainer.debugImageProvider
+              .getDebugImagesForImageAddressesFromCache(nsSet)
+              .cast<cocoa.SentryDebugMeta>();
+          dartDebugImages.addAll(
+              _convertCocoaDebugImageToDartDebugImages(debugImagesArray));
+        }
+      }
+
+      // If no debug images found, fall back to getting all debug images
+      if (dartDebugImages.isEmpty) {
+        final debugImagesArray = cocoa.PrivateSentrySDKOnly.getDebugImages()
+            .cast<cocoa.SentryDebugMeta>();
+        dartDebugImages
+            .addAll(_convertCocoaDebugImageToDartDebugImages(debugImagesArray));
+      }
+
+      return dartDebugImages;
+    } catch (exception, stackTrace) {
+      options.log(SentryLevel.error, 'Failed to load debug images',
+          exception: exception, stackTrace: stackTrace);
+
+      if (options.automatedTestMode) {
+        rethrow;
+      }
+      return null;
+    }
+  }
 
   @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
@@ -98,4 +157,37 @@ class SentryNativeCocoa extends SentryNativeChannel {
           return startTime;
         },
       );
+
+  /// Converts NSArray of cocoa debug meta to a list of [DebugImage]
+  List<DebugImage> _convertCocoaDebugImageToDartDebugImages(
+      Iterable<cocoa.SentryDebugMeta> cocoaDebugImages) {
+    final List<DebugImage> debugImages = [];
+
+    try {
+      for (final image in cocoaDebugImages) {
+        final debugId = image.debugID?.toString() ?? image.uuid?.toString();
+        final type = image.type?.toString() ?? 'macho';
+        final codeFile = image.codeFile?.toString() ?? image.name?.toString();
+        final imageAddr = image.imageAddress?.toString();
+        final imageVmAddr = image.imageVmAddress?.toString();
+        final imageSize = image.imageSize?.intValue;
+
+        final debugImage = DebugImage(
+          debugId: debugId,
+          type: type,
+          codeFile: codeFile,
+          imageAddr: imageAddr,
+          imageVmAddr: imageVmAddr,
+          imageSize: imageSize,
+        );
+
+        debugImages.add(debugImage);
+      }
+    } catch (exception, stackTrace) {
+      options.log(SentryLevel.error, 'Failed to convert debug images',
+          exception: exception, stackTrace: stackTrace);
+    }
+
+    return debugImages;
+  }
 }
