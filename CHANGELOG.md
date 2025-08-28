@@ -9,6 +9,7 @@
 - feat(feedback): Add option to disable keyboard resize ([#3154](https://github.com/getsentry/sentry-dart/pull/3154))
 - Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
   - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
+- Support `firebase_remote_config: >=5.4.3 <7.0.0` ([#3213](https://github.com/getsentry/sentry-dart/pull/3213))
 
 ### Fixes
 
@@ -18,15 +19,21 @@
 
 - Add `DioException` response data to error breadcrumb ([#3164](https://github.com/getsentry/sentry-dart/pull/3164))
   - Bumped `dio` min verion to `5.2.0`
+- Use FFI/JNI for `captureEnvelope` on iOS and Android ([#3115](https://github.com/getsentry/sentry-dart/pull/3115))
 - Log a warning when dropping envelope items ([#3165](https://github.com/getsentry/sentry-dart/pull/3165))
 - Call options.log for structured logs ([#3187](https://github.com/getsentry/sentry-dart/pull/3187))
+- Remove async usage from `FlutterErrorIntegration` ([#3202](https://github.com/getsentry/sentry-dart/pull/3202))
+- Tag all spans during app start with start type info ([#3190](https://github.com/getsentry/sentry-dart/pull/3190))
 
 ### Dependencies
 
 - Pin `ffigen` to `19.0.0` and add `objective_c` version `8.0.0` package used in `ffigen` on iOS and macOS ([#3163](https://github.com/getsentry/sentry-dart/pull/3163))
-- Bump JavaScript SDK from v9.40.0 to v10.5.0 ([#3167](https://github.com/getsentry/sentry-dart/pull/3167))
-  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#1050)
-  - [diff](https://github.com/getsentry/sentry-javascript/compare/9.40.0...10.5.0)
+- Bump Android SDK from v8.18.0 to v8.20.0 ([#3196](https://github.com/getsentry/sentry-dart/pull/3196))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8200)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.18.0...8.20.0)
+- Bump JavaScript SDK from v9.40.0 to v10.6.0 ([#3167](https://github.com/getsentry/sentry-dart/pull/3167), [#3201](https://github.com/getsentry/sentry-dart/pull/3201))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#1060)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/9.40.0...10.6.0)
 
 ## 9.7.0-beta.1
 

@@ -81,9 +81,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         case "closeNativeSdk":
             closeNativeSdk(call, result: result)
 
-        case "captureEnvelope":
-            captureEnvelope(call, result: result)
-
         case "fetchNativeAppStart":
             fetchNativeAppStart(result: result)
 
@@ -410,24 +407,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             return false
         }
         return !name.isEmpty
-    }
-
-    private func captureEnvelope(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let arguments = call.arguments as? [Any],
-              !arguments.isEmpty,
-              let data = (arguments.first as? FlutterStandardTypedData)?.data else {
-            print("Envelope is null or empty!")
-            result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil))
-            return
-        }
-        guard let envelope = PrivateSentrySDKOnly.envelope(with: data) else {
-            print("Cannot parse the envelope data")
-            result(FlutterError(code: "3", message: "Cannot parse the envelope data", details: nil))
-            return
-        }
-        PrivateSentrySDKOnly.capture(envelope)
-        result("")
-        return
     }
 
     struct TimeSpan {
