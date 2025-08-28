@@ -162,6 +162,7 @@ void main() {
     final allDebugImages = await SentryFlutter.native
         ?.loadDebugImages(SentryStackTrace(frames: const []));
     // Typically loading all images results in a larger numbers
+    expect(allDebugImages, isNotNull);
     expect(allDebugImages!.length > 100, isTrue);
 
     // We can take any other random image for testing
