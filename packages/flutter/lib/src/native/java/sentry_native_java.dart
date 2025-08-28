@@ -102,67 +102,60 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
-    native.SentryAndroidOptions? nativeOptions;
-    JSet<JString?>? jSet;
-    JSet<native.DebugImage?>? nativeDebugImagesSet;
-    List<JString>? jStrings;
+    native.SentryAndroidOptions? androidOptions;
+    JSet<JString?>? jniAddressSet;
+    JSet<native.DebugImage?>? androidDebugImagesJniSet;
+    List<JString>? jniAddressStrings;
     List<DebugImage>? dartDebugImages;
 
     try {
-      final instructionAddresses = <String>{};
-      for (final frame in stackTrace.frames) {
-        final addr = frame.instructionAddr;
-        if (addr != null) {
-          instructionAddresses.add(addr);
-        }
-      }
-
-      jStrings = instructionAddresses
+      jniAddressStrings = stackTrace.frames
+          .map((f) => f.instructionAddr)
+          .whereType<String>()
+          .toSet()
           .map((s) => s.toJString())
           .toList(growable: false);
-      jSet = jStrings.cast<JString?>().toJSet(JString.nullableType);
+      jniAddressSet =
+          jniAddressStrings.cast<JString?>().toJSet(JString.nullableType);
 
-      nativeOptions = native.ScopesAdapter.getInstance()
+      androidOptions = native.ScopesAdapter.getInstance()
           ?.getOptions()
           .as(native.SentryAndroidOptions.type);
 
-      if (instructionAddresses.isEmpty) {
-        nativeDebugImagesSet =
-            nativeOptions?.getDebugImagesLoader().loadDebugImages()?.toSet();
-      } else {
-        nativeDebugImagesSet = nativeOptions
-            ?.getDebugImagesLoader()
-            .loadDebugImagesForAddresses(jSet);
-      }
+      androidDebugImagesJniSet = (jniAddressStrings.isEmpty)
+          ? androidOptions?.getDebugImagesLoader().loadDebugImages()?.toSet()
+          : androidOptions
+              ?.getDebugImagesLoader()
+              .loadDebugImagesForAddresses(jniAddressSet);
 
-      if (nativeDebugImagesSet != null) {
-        dartDebugImages = nativeDebugImagesSet
-            .where((nativeImage) => nativeImage != null)
-            .map((nativeImage) {
-              nativeImage = nativeImage!;
+      if (androidDebugImagesJniSet != null) {
+        dartDebugImages = androidDebugImagesJniSet
+            .where((img) => img != null)
+            .map((img) {
+              final androidImage = img!;
               final type =
-                  nativeImage.getType()?.toDartString(releaseOriginal: true);
+                  androidImage.getType()?.toDartString(releaseOriginal: true);
               if (type == null) {
                 return null;
               }
               return DebugImage(
                 type: type,
-                imageAddr: nativeImage
+                imageAddr: androidImage
                     .getImageAddr()
                     ?.toDartString(releaseOriginal: true),
-                imageSize: nativeImage
+                imageSize: androidImage
                     .getImageSize()
                     ?.longValue(releaseOriginal: true),
-                codeFile: nativeImage
+                codeFile: androidImage
                     .getCodeFile()
                     ?.toDartString(releaseOriginal: true),
-                debugId: nativeImage
+                debugId: androidImage
                     .getDebugId()
                     ?.toDartString(releaseOriginal: true),
-                codeId: nativeImage
+                codeId: androidImage
                     .getCodeId()
                     ?.toDartString(releaseOriginal: true),
-                debugFile: nativeImage
+                debugFile: androidImage
                     .getDebugFile()
                     ?.toDartString(releaseOriginal: true),
               );
@@ -178,12 +171,12 @@ class SentryNativeJava extends SentryNativeChannel {
       }
     } finally {
       // Release JNI refs
-      for (final js in jStrings ?? const <JString>[]) {
+      for (final js in jniAddressStrings ?? const <JString>[]) {
         js.release();
       }
-      jSet?.release();
-      nativeDebugImagesSet?.release();
-      nativeOptions?.release();
+      jniAddressSet?.release();
+      androidDebugImagesJniSet?.release();
+      androidOptions?.release();
     }
 
     return dartDebugImages;
