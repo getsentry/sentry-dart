@@ -18,6 +18,7 @@
   - Bumped `dio` min verion to `5.2.0`
 - Log a warning when dropping envelope items ([#3165](https://github.com/getsentry/sentry-dart/pull/3165))
 - Call options.log for structured logs ([#3187](https://github.com/getsentry/sentry-dart/pull/3187))
+- Remove async usage from `FlutterErrorIntegration` ([#3202](https://github.com/getsentry/sentry-dart/pull/3202))
 
 ### Dependencies
 
