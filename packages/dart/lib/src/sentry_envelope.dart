@@ -123,7 +123,8 @@ class SentryEnvelope {
         sdkVersion,
       ),
       [
-        SentryEnvelopeItem.fromLogsData(builder.takeBytes(), encodedLogs.length),
+        SentryEnvelopeItem.fromLogsData(
+            builder.takeBytes(), encodedLogs.length),
       ],
     );
   }
