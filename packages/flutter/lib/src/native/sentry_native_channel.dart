@@ -214,22 +214,11 @@ class SentryNativeChannel
       });
 
   @override
-  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
-      tryCatchAsync('loadDebugImages', () async {
-        Set<String> instructionAddresses = {};
-        for (final frame in stackTrace.frames) {
-          if (frame.instructionAddr != null) {
-            instructionAddresses.add(frame.instructionAddr!);
-          }
-        }
-
-        final images = await channel.invokeListMethod<Map<dynamic, dynamic>>(
-            'loadImageList', instructionAddresses.toList());
-        return images
-            ?.map((e) => e.cast<String, dynamic>())
-            .map(DebugImage.fromJson)
-            .toList();
-      });
+  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
+    assert(
+        false, "loadDebugImages should not be used through method channels.");
+    return null;
+  }
 
   @override
   Future<int?> displayRefreshRate() =>
