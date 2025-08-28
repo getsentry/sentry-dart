@@ -1,4 +1,4 @@
-﻿// ignore_for_file: unused_field
+// ignore_for_file: unused_field
 
 // AUTO GENERATED FILE, DO NOT EDIT.
 //
@@ -844,7 +844,6 @@ class SentryNative {
       _sdk_versionPtr.asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   /// Sentry SDK name set during build time.
-  /// Deprecated: Please use sentry_options_get_sdk_name instead.
   ffi.Pointer<ffi.Char> sdk_name() {
     return _sdk_name();
   }
@@ -861,10 +860,12 @@ enum sentry_value_type_t {
   SENTRY_VALUE_TYPE_NULL(0),
   SENTRY_VALUE_TYPE_BOOL(1),
   SENTRY_VALUE_TYPE_INT32(2),
-  SENTRY_VALUE_TYPE_DOUBLE(3),
-  SENTRY_VALUE_TYPE_STRING(4),
-  SENTRY_VALUE_TYPE_LIST(5),
-  SENTRY_VALUE_TYPE_OBJECT(6);
+  SENTRY_VALUE_TYPE_INT64(3),
+  SENTRY_VALUE_TYPE_UINT64(4),
+  SENTRY_VALUE_TYPE_DOUBLE(5),
+  SENTRY_VALUE_TYPE_STRING(6),
+  SENTRY_VALUE_TYPE_LIST(7),
+  SENTRY_VALUE_TYPE_OBJECT(8);
 
   final int value;
   const sentry_value_type_t(this.value);
@@ -873,10 +874,12 @@ enum sentry_value_type_t {
         0 => SENTRY_VALUE_TYPE_NULL,
         1 => SENTRY_VALUE_TYPE_BOOL,
         2 => SENTRY_VALUE_TYPE_INT32,
-        3 => SENTRY_VALUE_TYPE_DOUBLE,
-        4 => SENTRY_VALUE_TYPE_STRING,
-        5 => SENTRY_VALUE_TYPE_LIST,
-        6 => SENTRY_VALUE_TYPE_OBJECT,
+        3 => SENTRY_VALUE_TYPE_INT64,
+        4 => SENTRY_VALUE_TYPE_UINT64,
+        5 => SENTRY_VALUE_TYPE_DOUBLE,
+        6 => SENTRY_VALUE_TYPE_STRING,
+        7 => SENTRY_VALUE_TYPE_LIST,
+        8 => SENTRY_VALUE_TYPE_OBJECT,
         _ =>
           throw ArgumentError('Unknown value for sentry_value_type_t: $value'),
       };
