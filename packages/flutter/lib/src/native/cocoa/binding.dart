@@ -26,7 +26,6 @@ external ffi.Pointer<objc.ObjCBlockImpl> _SentryCocoa_wrapBlockingBlock_xtuoz7(
 @ffi.Native<
     ffi.Pointer<objc.ObjCObject> Function(
         ffi.Pointer<objc.ObjCObject>, ffi.Pointer<ffi.Void>)>()
-// ignore: unused_element
 external ffi.Pointer<objc.ObjCObject> _SentryCocoa_protocolTrampoline_1mbt9g9(
   ffi.Pointer<objc.ObjCObject> target,
   ffi.Pointer<ffi.Void> arg0,
@@ -1118,4 +1117,2117 @@ class SentryId$1 extends objc.NSObject {
 
   /// Returns a new instance of SentryId$1 constructed with the default `new` method.
   factory SentryId$1() => new$();
+}
+
+/// WARNING: SentrySerializable is a stub. To generate bindings for this class, include
+/// SentrySerializable in your config's objc-protocols list.
+///
+/// SentrySerializable
+interface class SentrySerializable extends objc.ObjCProtocolBase
+    implements objc.NSObjectProtocol {
+  SentrySerializable._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentrySerializable] that points to the same underlying object as [other].
+  SentrySerializable.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentrySerializable] that wraps the given raw object pointer.
+  SentrySerializable.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _class_SentryDebugMeta = objc.getClass("SentryDebugMeta");
+late final _sel_uuid = objc.registerName("uuid");
+late final _sel_setUuid_ = objc.registerName("setUuid:");
+late final _sel_debugID = objc.registerName("debugID");
+late final _sel_setDebugID_ = objc.registerName("setDebugID:");
+late final _sel_type = objc.registerName("type");
+late final _sel_setType_ = objc.registerName("setType:");
+late final _sel_name = objc.registerName("name");
+late final _sel_setName_ = objc.registerName("setName:");
+late final _sel_imageSize = objc.registerName("imageSize");
+late final _sel_setImageSize_ = objc.registerName("setImageSize:");
+late final _sel_imageAddress = objc.registerName("imageAddress");
+late final _sel_setImageAddress_ = objc.registerName("setImageAddress:");
+late final _sel_imageVmAddress = objc.registerName("imageVmAddress");
+late final _sel_setImageVmAddress_ = objc.registerName("setImageVmAddress:");
+late final _sel_codeFile = objc.registerName("codeFile");
+late final _sel_setCodeFile_ = objc.registerName("setCodeFile:");
+instancetype _ObjCBlock_instancetype_ffiVoid_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<
+                instancetype Function(ffi.Pointer<ffi.Void> arg0)>>()
+        .asFunction<instancetype Function(ffi.Pointer<ffi.Void>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_instancetype_ffiVoid_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                instancetype Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
+            _ObjCBlock_instancetype_ffiVoid_fnPtrTrampoline)
+        .cast();
+instancetype _ObjCBlock_instancetype_ffiVoid_closureTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
+    (objc.getBlockClosure(block) as instancetype Function(
+        ffi.Pointer<ffi.Void>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_instancetype_ffiVoid_closureCallable =
+    ffi.Pointer.fromFunction<
+                instancetype Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
+            _ObjCBlock_instancetype_ffiVoid_closureTrampoline)
+        .cast();
+
+/// Construction methods for `objc.ObjCBlock<objc.Retained<ffi.Pointer<objc.ObjCObject>> Function(ffi.Pointer<ffi.Void>)>`.
+abstract final class ObjCBlock_instancetype_ffiVoid {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<
+          objc.Retained<ffi.Pointer<objc.ObjCObject>> Function(
+              ffi.Pointer<ffi.Void>)>
+      castFromPointer(ffi.Pointer<objc.ObjCBlockImpl> pointer,
+              {bool retain = false, bool release = false}) =>
+          objc.ObjCBlock<
+                  objc.Retained<ffi.Pointer<objc.ObjCObject>> Function(
+                      ffi.Pointer<ffi.Void>)>(pointer,
+              retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<objc.Retained<ffi.Pointer<objc.ObjCObject>> Function(ffi.Pointer<ffi.Void>)>
+      fromFunctionPointer(
+              ffi.Pointer<ffi.NativeFunction<instancetype Function(ffi.Pointer<ffi.Void> arg0)>>
+                  ptr) =>
+          objc.ObjCBlock<
+                  objc.Retained<ffi.Pointer<objc.ObjCObject>> Function(
+                      ffi.Pointer<ffi.Void>)>(
+              objc.newPointerBlock(
+                  _ObjCBlock_instancetype_ffiVoid_fnPtrCallable, ptr.cast()),
+              retain: false,
+              release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<objc.Retained<ffi.Pointer<objc.ObjCObject>> Function(ffi.Pointer<ffi.Void>)>
+      fromFunction(Dartinstancetype Function(ffi.Pointer<ffi.Void>) fn,
+              {bool keepIsolateAlive = true}) =>
+          objc.ObjCBlock<
+                  objc.Retained<ffi.Pointer<objc.ObjCObject>> Function(
+                      ffi.Pointer<ffi.Void>)>(
+              objc.newClosureBlock(
+                  _ObjCBlock_instancetype_ffiVoid_closureCallable,
+                  (ffi.Pointer<ffi.Void> arg0) =>
+                      fn(arg0).ref.retainAndReturnPointer(),
+                  keepIsolateAlive),
+              retain: false,
+              release: true);
+}
+
+/// Call operator for `objc.ObjCBlock<objc.Retained<ffi.Pointer<objc.ObjCObject>> Function(ffi.Pointer<ffi.Void>)>`.
+extension ObjCBlock_instancetype_ffiVoid_CallExtension on objc.ObjCBlock<
+    objc.Retained<ffi.Pointer<objc.ObjCObject>> Function(
+        ffi.Pointer<ffi.Void>)> {
+  Dartinstancetype call(ffi.Pointer<ffi.Void> arg0) => objc.ObjCObjectBase(
+      ref.pointer.ref.invoke
+          .cast<
+              ffi.NativeFunction<
+                  instancetype Function(ffi.Pointer<objc.ObjCBlockImpl> block,
+                      ffi.Pointer<ffi.Void> arg0)>>()
+          .asFunction<
+              instancetype Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                  ffi.Pointer<ffi.Void>)>()(ref.pointer, arg0),
+      retain: false,
+      release: true);
+}
+
+late final _sel_serialize = objc.registerName("serialize");
+ffi.Pointer<objc.ObjCObject> _ObjCBlock_NSDictionary_ffiVoid_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<ffi.Void> arg0)>>()
+        .asFunction<
+            ffi.Pointer<objc.ObjCObject> Function(
+                ffi.Pointer<ffi.Void>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_NSDictionary_ffiVoid_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
+            _ObjCBlock_NSDictionary_ffiVoid_fnPtrTrampoline)
+        .cast();
+ffi.Pointer<objc.ObjCObject> _ObjCBlock_NSDictionary_ffiVoid_closureTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
+    (objc.getBlockClosure(block) as ffi.Pointer<objc.ObjCObject> Function(
+        ffi.Pointer<ffi.Void>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_NSDictionary_ffiVoid_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
+            _ObjCBlock_NSDictionary_ffiVoid_closureTrampoline)
+        .cast();
+
+/// Construction methods for `objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>`.
+abstract final class ObjCBlock_NSDictionary_ffiVoid {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>
+      castFromPointer(ffi.Pointer<objc.ObjCBlockImpl> pointer,
+              {bool retain = false, bool release = false}) =>
+          objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>(
+              pointer,
+              retain: retain,
+              release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>
+      fromFunctionPointer(
+              ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Pointer<objc.ObjCObject> Function(
+                              ffi.Pointer<ffi.Void> arg0)>>
+                  ptr) =>
+          objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>(
+              objc.newPointerBlock(_ObjCBlock_NSDictionary_ffiVoid_fnPtrCallable, ptr.cast()),
+              retain: false,
+              release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>
+      fromFunction(objc.NSDictionary Function(ffi.Pointer<ffi.Void>) fn,
+              {bool keepIsolateAlive = true}) =>
+          objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>(
+              objc.newClosureBlock(
+                  _ObjCBlock_NSDictionary_ffiVoid_closureCallable,
+                  (ffi.Pointer<ffi.Void> arg0) =>
+                      fn(arg0).ref.retainAndAutorelease(),
+                  keepIsolateAlive),
+              retain: false,
+              release: true);
+}
+
+/// Call operator for `objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>`.
+extension ObjCBlock_NSDictionary_ffiVoid_CallExtension
+    on objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)> {
+  objc.NSDictionary call(ffi.Pointer<ffi.Void> arg0) =>
+      objc.NSDictionary.castFromPointer(
+          ref.pointer.ref.invoke
+              .cast<
+                  ffi.NativeFunction<
+                      ffi.Pointer<objc.ObjCObject> Function(
+                          ffi.Pointer<objc.ObjCBlockImpl> block,
+                          ffi.Pointer<ffi.Void> arg0)>>()
+              .asFunction<
+                  ffi.Pointer<objc.ObjCObject> Function(
+                      ffi.Pointer<objc.ObjCBlockImpl>,
+                      ffi.Pointer<ffi.Void>)>()(ref.pointer, arg0),
+          retain: true,
+          release: true);
+}
+
+/// Contains information about a loaded library in the process and the memory address.
+/// @discussion Since 8.2.0, the SDK changed the debug image type from "apple" to "macho". For macho,
+/// the SDK now sends @c debugID instead of @c uuid , and @c codeFile instead of @c name . For more
+/// information check https://develop.sentry.dev/sdk/event-payloads/debugmeta/#mach-o-images.
+/// @todo This class is actually a DebugImage:
+/// https://develop.sentry.dev/sdk/event-payloads/debugmeta/#debug-images and should be renamed to
+/// @c SentryDebugImage in a future version.
+class SentryDebugMeta extends objc.NSObject implements SentrySerializable {
+  SentryDebugMeta._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryDebugMeta] that points to the same underlying object as [other].
+  SentryDebugMeta.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryDebugMeta] that wraps the given raw object pointer.
+  SentryDebugMeta.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+
+  /// Returns whether [obj] is an instance of [SentryDebugMeta].
+  static bool isInstance(objc.ObjCObjectBase obj) {
+    return _objc_msgSend_19nvye5(
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryDebugMeta);
+  }
+
+  /// The UUID of the image. Use @c debugID when using "macho" as the @c type .
+  objc.NSString? get uuid {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_uuid);
+    return _ret.address == 0
+        ? null
+        : objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// The UUID of the image. Use @c debugID when using "macho" as the @c type .
+  set uuid(objc.NSString? value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setUuid_, value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// Identifier of the dynamic library or executable. It is the value of the @c LC_UUID load command
+  /// in the Mach header, formatted as UUID.
+  objc.NSString? get debugID {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_debugID);
+    return _ret.address == 0
+        ? null
+        : objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Identifier of the dynamic library or executable. It is the value of the @c LC_UUID load command
+  /// in the Mach header, formatted as UUID.
+  set debugID(objc.NSString? value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setDebugID_, value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// Type of debug meta. We highly recommend using "macho"; was "apple" previously.
+  objc.NSString? get type {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_type);
+    return _ret.address == 0
+        ? null
+        : objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Type of debug meta. We highly recommend using "macho"; was "apple" previously.
+  set type(objc.NSString? value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setType_, value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// Name of the image. Use @c codeFile when using "macho" as the @c type .
+  objc.NSString? get name {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_name);
+    return _ret.address == 0
+        ? null
+        : objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Name of the image. Use @c codeFile when using "macho" as the @c type .
+  set name(objc.NSString? value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setName_, value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// The size of the image in virtual memory. If missing, Sentry will assume that the image spans up
+  /// to the next image, which might lead to invalid stack traces.
+  objc.NSNumber? get imageSize {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_imageSize);
+    return _ret.address == 0
+        ? null
+        : objc.NSNumber.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// The size of the image in virtual memory. If missing, Sentry will assume that the image spans up
+  /// to the next image, which might lead to invalid stack traces.
+  set imageSize(objc.NSNumber? value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setImageSize_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// Memory address, at which the image is mounted in the virtual address space of the process. Should
+  /// be a string in hex representation prefixed with "0x".
+  objc.NSString? get imageAddress {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_imageAddress);
+    return _ret.address == 0
+        ? null
+        : objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Memory address, at which the image is mounted in the virtual address space of the process. Should
+  /// be a string in hex representation prefixed with "0x".
+  set imageAddress(objc.NSString? value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setImageAddress_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// Preferred load address of the image in virtual memory, as declared in the headers of the image.
+  /// When loading an image, the operating system may still choose to place it at a different address.
+  objc.NSString? get imageVmAddress {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_imageVmAddress);
+    return _ret.address == 0
+        ? null
+        : objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Preferred load address of the image in virtual memory, as declared in the headers of the image.
+  /// When loading an image, the operating system may still choose to place it at a different address.
+  set imageVmAddress(objc.NSString? value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setImageVmAddress_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  ///
+  objc.NSString? get codeFile {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_codeFile);
+    return _ret.address == 0
+        ? null
+        : objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  ///
+  set codeFile(objc.NSString? value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setCodeFile_, value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// init
+  SentryDebugMeta init() {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
+    return SentryDebugMeta.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// new
+  static SentryDebugMeta new$() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryDebugMeta, _sel_new);
+    return SentryDebugMeta.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// allocWithZone:
+  static SentryDebugMeta allocWithZone(ffi.Pointer<objc.NSZone> zone) {
+    final _ret = _objc_msgSend_1cwp428(
+        _class_SentryDebugMeta, _sel_allocWithZone_, zone);
+    return SentryDebugMeta.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// alloc
+  static SentryDebugMeta alloc() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryDebugMeta, _sel_alloc);
+    return SentryDebugMeta.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// self
+  SentryDebugMeta self$1() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
+    return SentryDebugMeta.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// retain
+  SentryDebugMeta retain() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
+    return SentryDebugMeta.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// autorelease
+  SentryDebugMeta autorelease() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
+    return SentryDebugMeta.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Serialize the contents of the object into an NSDictionary. Make to copy all properties of the
+  /// original object so modifications to it don't have an impact on the serialized NSDictionary.
+  objc.NSDictionary serialize() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_serialize);
+    return objc.NSDictionary.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Returns a new instance of SentryDebugMeta constructed with the default `new` method.
+  factory SentryDebugMeta() => new$();
+}
+
+late final _class_SentryDependencyContainer =
+    objc.getClass("SentryDependencyContainer");
+late final _sel_sharedInstance = objc.registerName("sharedInstance");
+late final _sel_reset = objc.registerName("reset");
+final _objc_msgSend_1pl9qdv = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        void Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+
+/// WARNING: SentryDispatchQueueWrapper is a stub. To generate bindings for this class, include
+/// SentryDispatchQueueWrapper in your config's objc-interfaces list.
+///
+/// SentryDispatchQueueWrapper
+class SentryDispatchQueueWrapper extends objc.ObjCObjectBase {
+  SentryDispatchQueueWrapper._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryDispatchQueueWrapper] that points to the same underlying object as [other].
+  SentryDispatchQueueWrapper.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryDispatchQueueWrapper] that wraps the given raw object pointer.
+  SentryDispatchQueueWrapper.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_dispatchQueueWrapper =
+    objc.registerName("dispatchQueueWrapper");
+late final _sel_setDispatchQueueWrapper_ =
+    objc.registerName("setDispatchQueueWrapper:");
+
+/// WARNING: SentryRandom is a stub. To generate bindings for this class, include
+/// SentryRandom in your config's objc-protocols list.
+///
+/// SentryRandom
+interface class SentryRandom extends objc.ObjCProtocolBase {
+  SentryRandom._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryRandom] that points to the same underlying object as [other].
+  SentryRandom.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryRandom] that wraps the given raw object pointer.
+  SentryRandom.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_random = objc.registerName("random");
+late final _sel_setRandom_ = objc.registerName("setRandom:");
+
+/// WARNING: SentryThreadWrapper is a stub. To generate bindings for this class, include
+/// SentryThreadWrapper in your config's objc-interfaces list.
+///
+/// SentryThreadWrapper
+class SentryThreadWrapper extends objc.ObjCObjectBase {
+  SentryThreadWrapper._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryThreadWrapper] that points to the same underlying object as [other].
+  SentryThreadWrapper.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryThreadWrapper] that wraps the given raw object pointer.
+  SentryThreadWrapper.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_threadWrapper = objc.registerName("threadWrapper");
+late final _sel_setThreadWrapper_ = objc.registerName("setThreadWrapper:");
+late final _class_SentryBinaryImageCache =
+    objc.getClass("SentryBinaryImageCache");
+late final _sel_start_ = objc.registerName("start:");
+late final _sel_stop = objc.registerName("stop");
+late final _sel_getAllBinaryImages = objc.registerName("getAllBinaryImages");
+late final _class_SentryBinaryImageInfo =
+    objc.getClass("SentryBinaryImageInfo");
+late final _sel_UUID = objc.registerName("UUID");
+late final _sel_setUUID_ = objc.registerName("setUUID:");
+late final _sel_vmAddress = objc.registerName("vmAddress");
+final _objc_msgSend_9qbz9w = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Uint64 Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        int Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+late final _sel_setVmAddress_ = objc.registerName("setVmAddress:");
+final _objc_msgSend_1xsl7ae = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>, ffi.Uint64)>>()
+    .asFunction<
+        void Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, int)>();
+late final _sel_address = objc.registerName("address");
+late final _sel_setAddress_ = objc.registerName("setAddress:");
+late final _sel_size = objc.registerName("size");
+late final _sel_setSize_ = objc.registerName("setSize:");
+
+/// SentryBinaryImageInfo
+class SentryBinaryImageInfo extends objc.NSObject {
+  SentryBinaryImageInfo._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryBinaryImageInfo] that points to the same underlying object as [other].
+  SentryBinaryImageInfo.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryBinaryImageInfo] that wraps the given raw object pointer.
+  SentryBinaryImageInfo.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+
+  /// Returns whether [obj] is an instance of [SentryBinaryImageInfo].
+  static bool isInstance(objc.ObjCObjectBase obj) {
+    return _objc_msgSend_19nvye5(
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryBinaryImageInfo);
+  }
+
+  /// name
+  objc.NSString get name {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_name);
+    return objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// setName:
+  set name(objc.NSString value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setName_, value.ref.pointer);
+  }
+
+  /// UUID
+  objc.NSString get UUID {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_UUID);
+    return objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// setUUID:
+  set UUID(objc.NSString value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setUUID_, value.ref.pointer);
+  }
+
+  /// vmAddress
+  int get vmAddress {
+    return _objc_msgSend_9qbz9w(this.ref.pointer, _sel_vmAddress);
+  }
+
+  /// setVmAddress:
+  set vmAddress(int value) {
+    _objc_msgSend_1xsl7ae(this.ref.pointer, _sel_setVmAddress_, value);
+  }
+
+  /// address
+  int get address {
+    return _objc_msgSend_9qbz9w(this.ref.pointer, _sel_address);
+  }
+
+  /// setAddress:
+  set address(int value) {
+    _objc_msgSend_1xsl7ae(this.ref.pointer, _sel_setAddress_, value);
+  }
+
+  /// size
+  int get size {
+    return _objc_msgSend_9qbz9w(this.ref.pointer, _sel_size);
+  }
+
+  /// setSize:
+  set size(int value) {
+    _objc_msgSend_1xsl7ae(this.ref.pointer, _sel_setSize_, value);
+  }
+
+  /// init
+  SentryBinaryImageInfo init() {
+    objc.checkOsVersionInternal('SentryBinaryImageInfo.init',
+        iOS: (false, (2, 0, 0)), macOS: (false, (10, 0, 0)));
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
+    return SentryBinaryImageInfo.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// new
+  static SentryBinaryImageInfo new$() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryBinaryImageInfo, _sel_new);
+    return SentryBinaryImageInfo.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// allocWithZone:
+  static SentryBinaryImageInfo allocWithZone(ffi.Pointer<objc.NSZone> zone) {
+    final _ret = _objc_msgSend_1cwp428(
+        _class_SentryBinaryImageInfo, _sel_allocWithZone_, zone);
+    return SentryBinaryImageInfo.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// alloc
+  static SentryBinaryImageInfo alloc() {
+    final _ret =
+        _objc_msgSend_151sglz(_class_SentryBinaryImageInfo, _sel_alloc);
+    return SentryBinaryImageInfo.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// self
+  SentryBinaryImageInfo self$1() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
+    return SentryBinaryImageInfo.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// retain
+  SentryBinaryImageInfo retain() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
+    return SentryBinaryImageInfo.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// autorelease
+  SentryBinaryImageInfo autorelease() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
+    return SentryBinaryImageInfo.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// Returns a new instance of SentryBinaryImageInfo constructed with the default `new` method.
+  factory SentryBinaryImageInfo() => new$();
+}
+
+late final _sel_imageByAddress_ = objc.registerName("imageByAddress:");
+final _objc_msgSend_10euuey = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>, ffi.Uint64)>>()
+    .asFunction<
+        ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, int)>();
+late final _sel_imagePathsForInAppInclude_ =
+    objc.registerName("imagePathsForInAppInclude:");
+late final _sel_convertUUID_ = objc.registerName("convertUUID:");
+final _objc_msgSend_3koxn2 = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Pointer<objc.ObjCObject> Function(
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>,
+                ffi.Pointer<ffi.UnsignedChar>)>>()
+    .asFunction<
+        ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, ffi.Pointer<ffi.UnsignedChar>)>();
+
+/// SentryBinaryImageCache
+class SentryBinaryImageCache extends objc.NSObject {
+  SentryBinaryImageCache._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryBinaryImageCache] that points to the same underlying object as [other].
+  SentryBinaryImageCache.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryBinaryImageCache] that wraps the given raw object pointer.
+  SentryBinaryImageCache.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+
+  /// Returns whether [obj] is an instance of [SentryBinaryImageCache].
+  static bool isInstance(objc.ObjCObjectBase obj) {
+    return _objc_msgSend_19nvye5(
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryBinaryImageCache);
+  }
+
+  /// start:
+  void start(bool isDebug) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_start_, isDebug);
+  }
+
+  /// stop
+  void stop() {
+    _objc_msgSend_1pl9qdv(this.ref.pointer, _sel_stop);
+  }
+
+  /// getAllBinaryImages
+  objc.NSArray getAllBinaryImages() {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_getAllBinaryImages);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// imageByAddress:
+  SentryBinaryImageInfo? imageByAddress(int address) {
+    final _ret =
+        _objc_msgSend_10euuey(this.ref.pointer, _sel_imageByAddress_, address);
+    return _ret.address == 0
+        ? null
+        : SentryBinaryImageInfo.castFromPointer(_ret,
+            retain: true, release: true);
+  }
+
+  /// imagePathsForInAppInclude:
+  objc.NSSet imagePathsForInAppInclude(objc.NSString inAppInclude) {
+    final _ret = _objc_msgSend_1sotr3r(this.ref.pointer,
+        _sel_imagePathsForInAppInclude_, inAppInclude.ref.pointer);
+    return objc.NSSet.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// convertUUID:
+  static objc.NSString? convertUUID(ffi.Pointer<ffi.UnsignedChar> value) {
+    final _ret = _objc_msgSend_3koxn2(
+        _class_SentryBinaryImageCache, _sel_convertUUID_, value);
+    return _ret.address == 0
+        ? null
+        : objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// init
+  SentryBinaryImageCache init() {
+    objc.checkOsVersionInternal('SentryBinaryImageCache.init',
+        iOS: (false, (2, 0, 0)), macOS: (false, (10, 0, 0)));
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
+    return SentryBinaryImageCache.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// new
+  static SentryBinaryImageCache new$() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryBinaryImageCache, _sel_new);
+    return SentryBinaryImageCache.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// allocWithZone:
+  static SentryBinaryImageCache allocWithZone(ffi.Pointer<objc.NSZone> zone) {
+    final _ret = _objc_msgSend_1cwp428(
+        _class_SentryBinaryImageCache, _sel_allocWithZone_, zone);
+    return SentryBinaryImageCache.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// alloc
+  static SentryBinaryImageCache alloc() {
+    final _ret =
+        _objc_msgSend_151sglz(_class_SentryBinaryImageCache, _sel_alloc);
+    return SentryBinaryImageCache.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// self
+  SentryBinaryImageCache self$1() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
+    return SentryBinaryImageCache.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// retain
+  SentryBinaryImageCache retain() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
+    return SentryBinaryImageCache.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// autorelease
+  SentryBinaryImageCache autorelease() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
+    return SentryBinaryImageCache.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// Returns a new instance of SentryBinaryImageCache constructed with the default `new` method.
+  factory SentryBinaryImageCache() => new$();
+}
+
+late final _sel_binaryImageCache = objc.registerName("binaryImageCache");
+late final _sel_setBinaryImageCache_ =
+    objc.registerName("setBinaryImageCache:");
+
+/// WARNING: SentryCurrentDateProvider is a stub. To generate bindings for this class, include
+/// SentryCurrentDateProvider in your config's objc-protocols list.
+///
+/// SentryCurrentDateProvider
+interface class SentryCurrentDateProvider extends objc.ObjCProtocolBase {
+  SentryCurrentDateProvider._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryCurrentDateProvider] that points to the same underlying object as [other].
+  SentryCurrentDateProvider.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryCurrentDateProvider] that wraps the given raw object pointer.
+  SentryCurrentDateProvider.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_dateProvider = objc.registerName("dateProvider");
+late final _sel_setDateProvider_ = objc.registerName("setDateProvider:");
+
+/// WARNING: SentryExtraContextProvider is a stub. To generate bindings for this class, include
+/// SentryExtraContextProvider in your config's objc-interfaces list.
+///
+/// SentryExtraContextProvider
+class SentryExtraContextProvider extends objc.ObjCObjectBase {
+  SentryExtraContextProvider._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryExtraContextProvider] that points to the same underlying object as [other].
+  SentryExtraContextProvider.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryExtraContextProvider] that wraps the given raw object pointer.
+  SentryExtraContextProvider.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_extraContextProvider =
+    objc.registerName("extraContextProvider");
+late final _sel_setExtraContextProvider_ =
+    objc.registerName("setExtraContextProvider:");
+
+/// WARNING: SentryNSNotificationCenterWrapper is a stub. To generate bindings for this class, include
+/// SentryNSNotificationCenterWrapper in your config's objc-protocols list.
+///
+/// SentryNSNotificationCenterWrapper
+interface class SentryNSNotificationCenterWrapper
+    extends objc.ObjCProtocolBase {
+  SentryNSNotificationCenterWrapper._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryNSNotificationCenterWrapper] that points to the same underlying object as [other].
+  SentryNSNotificationCenterWrapper.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryNSNotificationCenterWrapper] that wraps the given raw object pointer.
+  SentryNSNotificationCenterWrapper.castFromPointer(
+      ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false,
+      bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_notificationCenterWrapper =
+    objc.registerName("notificationCenterWrapper");
+late final _sel_setNotificationCenterWrapper_ =
+    objc.registerName("setNotificationCenterWrapper:");
+
+/// WARNING: SentryCrashWrapper is a stub. To generate bindings for this class, include
+/// SentryCrashWrapper in your config's objc-interfaces list.
+///
+/// SentryCrashWrapper
+class SentryCrashWrapper extends objc.ObjCObjectBase {
+  SentryCrashWrapper._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryCrashWrapper] that points to the same underlying object as [other].
+  SentryCrashWrapper.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryCrashWrapper] that wraps the given raw object pointer.
+  SentryCrashWrapper.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_crashWrapper = objc.registerName("crashWrapper");
+late final _sel_setCrashWrapper_ = objc.registerName("setCrashWrapper:");
+
+/// WARNING: SentryNSProcessInfoWrapper is a stub. To generate bindings for this class, include
+/// SentryNSProcessInfoWrapper in your config's objc-interfaces list.
+///
+/// SentryNSProcessInfoWrapper
+class SentryNSProcessInfoWrapper extends objc.ObjCObjectBase {
+  SentryNSProcessInfoWrapper._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryNSProcessInfoWrapper] that points to the same underlying object as [other].
+  SentryNSProcessInfoWrapper.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryNSProcessInfoWrapper] that wraps the given raw object pointer.
+  SentryNSProcessInfoWrapper.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_processInfoWrapper = objc.registerName("processInfoWrapper");
+late final _sel_setProcessInfoWrapper_ =
+    objc.registerName("setProcessInfoWrapper:");
+
+/// WARNING: SentrySysctl is a stub. To generate bindings for this class, include
+/// SentrySysctl in your config's objc-interfaces list.
+///
+/// SentrySysctl
+class SentrySysctl extends objc.ObjCObjectBase {
+  SentrySysctl._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentrySysctl] that points to the same underlying object as [other].
+  SentrySysctl.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentrySysctl] that wraps the given raw object pointer.
+  SentrySysctl.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_sysctlWrapper = objc.registerName("sysctlWrapper");
+late final _sel_setSysctlWrapper_ = objc.registerName("setSysctlWrapper:");
+
+/// WARNING: SentryRateLimits is a stub. To generate bindings for this class, include
+/// SentryRateLimits in your config's objc-protocols list.
+///
+/// SentryRateLimits
+interface class SentryRateLimits extends objc.ObjCProtocolBase {
+  SentryRateLimits._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryRateLimits] that points to the same underlying object as [other].
+  SentryRateLimits.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryRateLimits] that wraps the given raw object pointer.
+  SentryRateLimits.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_rateLimits = objc.registerName("rateLimits");
+late final _sel_setRateLimits_ = objc.registerName("setRateLimits:");
+
+/// WARNING: SentryApplication is a stub. To generate bindings for this class, include
+/// SentryApplication in your config's objc-protocols list.
+///
+/// SentryApplication
+interface class SentryApplication extends objc.ObjCProtocolBase {
+  SentryApplication._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryApplication] that points to the same underlying object as [other].
+  SentryApplication.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryApplication] that wraps the given raw object pointer.
+  SentryApplication.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_application = objc.registerName("application");
+late final _sel_setApplication_ = objc.registerName("setApplication:");
+
+/// WARNING: SentryReachability is a stub. To generate bindings for this class, include
+/// SentryReachability in your config's objc-interfaces list.
+///
+/// SentryReachability
+class SentryReachability extends objc.ObjCObjectBase {
+  SentryReachability._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryReachability] that points to the same underlying object as [other].
+  SentryReachability.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryReachability] that wraps the given raw object pointer.
+  SentryReachability.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_reachability = objc.registerName("reachability");
+late final _sel_setReachability_ = objc.registerName("setReachability:");
+
+/// WARNING: SentryFileManager is a stub. To generate bindings for this class, include
+/// SentryFileManager in your config's objc-interfaces list.
+///
+/// SentryFileManager
+class SentryFileManager extends objc.ObjCObjectBase {
+  SentryFileManager._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryFileManager] that points to the same underlying object as [other].
+  SentryFileManager.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryFileManager] that wraps the given raw object pointer.
+  SentryFileManager.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_fileManager = objc.registerName("fileManager");
+late final _sel_setFileManager_ = objc.registerName("setFileManager:");
+
+/// WARNING: SentryAppStateManager is a stub. To generate bindings for this class, include
+/// SentryAppStateManager in your config's objc-interfaces list.
+///
+/// SentryAppStateManager
+class SentryAppStateManager extends objc.ObjCObjectBase {
+  SentryAppStateManager._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryAppStateManager] that points to the same underlying object as [other].
+  SentryAppStateManager.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryAppStateManager] that wraps the given raw object pointer.
+  SentryAppStateManager.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_appStateManager = objc.registerName("appStateManager");
+late final _sel_setAppStateManager_ = objc.registerName("setAppStateManager:");
+
+/// WARNING: SentryThreadInspector is a stub. To generate bindings for this class, include
+/// SentryThreadInspector in your config's objc-interfaces list.
+///
+/// SentryThreadInspector
+class SentryThreadInspector extends objc.ObjCObjectBase {
+  SentryThreadInspector._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryThreadInspector] that points to the same underlying object as [other].
+  SentryThreadInspector.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryThreadInspector] that wraps the given raw object pointer.
+  SentryThreadInspector.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_threadInspector = objc.registerName("threadInspector");
+late final _sel_setThreadInspector_ = objc.registerName("setThreadInspector:");
+
+/// WARNING: SentryFileIOTracker is a stub. To generate bindings for this class, include
+/// SentryFileIOTracker in your config's objc-interfaces list.
+///
+/// SentryFileIOTracker
+class SentryFileIOTracker extends objc.ObjCObjectBase {
+  SentryFileIOTracker._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryFileIOTracker] that points to the same underlying object as [other].
+  SentryFileIOTracker.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryFileIOTracker] that wraps the given raw object pointer.
+  SentryFileIOTracker.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_fileIOTracker = objc.registerName("fileIOTracker");
+late final _sel_setFileIOTracker_ = objc.registerName("setFileIOTracker:");
+
+/// WARNING: SentryCrash is a stub. To generate bindings for this class, include
+/// SentryCrash in your config's objc-interfaces list.
+///
+/// SentryCrash
+class SentryCrash extends objc.ObjCObjectBase {
+  SentryCrash._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryCrash] that points to the same underlying object as [other].
+  SentryCrash.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryCrash] that wraps the given raw object pointer.
+  SentryCrash.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_crashReporter = objc.registerName("crashReporter");
+late final _sel_setCrashReporter_ = objc.registerName("setCrashReporter:");
+
+/// WARNING: SentryScopePersistentStore is a stub. To generate bindings for this class, include
+/// SentryScopePersistentStore in your config's objc-interfaces list.
+///
+/// SentryScopePersistentStore
+class SentryScopePersistentStore extends objc.ObjCObjectBase {
+  SentryScopePersistentStore._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryScopePersistentStore] that points to the same underlying object as [other].
+  SentryScopePersistentStore.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryScopePersistentStore] that wraps the given raw object pointer.
+  SentryScopePersistentStore.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_scopePersistentStore =
+    objc.registerName("scopePersistentStore");
+late final _sel_setScopePersistentStore_ =
+    objc.registerName("setScopePersistentStore:");
+late final _class_SentryDebugImageProvider =
+    objc.getClass("SentryDebugImageProvider");
+
+///
+extension unnamed on SentryDebugImageProvider {}
+
+late final _sel_getDebugImagesForThreads_ =
+    objc.registerName("getDebugImagesForThreads:");
+late final _sel_getDebugImagesForThreads_isCrash_ =
+    objc.registerName("getDebugImagesForThreads:isCrash:");
+final _objc_msgSend_17amj0z = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Pointer<objc.ObjCObject> Function(
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>,
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Bool)>>()
+    .asFunction<
+        ffi.Pointer<objc.ObjCObject> Function(
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>,
+            ffi.Pointer<objc.ObjCObject>,
+            bool)>();
+late final _sel_getDebugImagesForFrames_ =
+    objc.registerName("getDebugImagesForFrames:");
+late final _sel_getDebugImagesForFrames_isCrash_ =
+    objc.registerName("getDebugImagesForFrames:isCrash:");
+late final _sel_getDebugImagesFromCacheForFrames_ =
+    objc.registerName("getDebugImagesFromCacheForFrames:");
+late final _sel_getDebugImagesFromCacheForThreads_ =
+    objc.registerName("getDebugImagesFromCacheForThreads:");
+late final _sel_getDebugImagesForImageAddressesFromCache_ =
+    objc.registerName("getDebugImagesForImageAddressesFromCache:");
+late final _sel_getDebugImagesFromCache =
+    objc.registerName("getDebugImagesFromCache");
+
+/// SentryDebugImageProvider
+class SentryDebugImageProvider extends objc.NSObject {
+  SentryDebugImageProvider._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryDebugImageProvider] that points to the same underlying object as [other].
+  SentryDebugImageProvider.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryDebugImageProvider] that wraps the given raw object pointer.
+  SentryDebugImageProvider.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+
+  /// Returns whether [obj] is an instance of [SentryDebugImageProvider].
+  static bool isInstance(objc.ObjCObjectBase obj) {
+    return _objc_msgSend_19nvye5(
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryDebugImageProvider);
+  }
+
+  /// init
+  SentryDebugImageProvider init() {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
+    return SentryDebugImageProvider.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// Returns a list of debug images that are being referenced in the given threads.
+  /// @param threads A list of @c SentryThread that may or may not contain stacktraces.
+  /// @warning This assumes a crash has occurred and attempts to read the crash information from each
+  /// image's data segment, which may not be present or be invalid if a crash has not actually
+  /// occurred. To avoid this, use the new @c -[getDebugImagesForThreads:isCrash:] instead.
+  /// @deprecated Use @c -[getDebugImagesForThreads:isCrash:] instead.
+  objc.NSArray getDebugImagesForThreads(objc.NSArray threads) {
+    final _ret = _objc_msgSend_1sotr3r(
+        this.ref.pointer, _sel_getDebugImagesForThreads_, threads.ref.pointer);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Returns a list of debug images that are being referenced in the given threads.
+  /// @param threads A list of @c SentryThread that may or may not contain stacktraces.
+  /// @param isCrash @c YES if we're collecting binary images for a crash report, @c NO if we're
+  /// gathering them for other backtrace information, like a performance transaction. If this is for a
+  /// crash, each image's data section crash info is also included.
+  objc.NSArray getDebugImagesForThreads$1(objc.NSArray threads,
+      {required bool isCrash}) {
+    final _ret = _objc_msgSend_17amj0z(this.ref.pointer,
+        _sel_getDebugImagesForThreads_isCrash_, threads.ref.pointer, isCrash);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Returns a list of debug images that are being referenced by the given frames.
+  /// @param frames A list of stack frames.
+  /// @warning This assumes a crash has occurred and attempts to read the crash information from each
+  /// image's data segment, which may not be present or be invalid if a crash has not actually
+  /// occurred. To avoid this, use the new @c -[getDebugImagesForFrames:isCrash:] instead.
+  /// @deprecated Use @c -[getDebugImagesForFrames:isCrash:] instead.
+  objc.NSArray getDebugImagesForFrames(objc.NSArray frames) {
+    final _ret = _objc_msgSend_1sotr3r(
+        this.ref.pointer, _sel_getDebugImagesForFrames_, frames.ref.pointer);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Returns a list of debug images that are being referenced by the given frames.
+  /// @param frames A list of stack frames.
+  /// @param isCrash @c YES if we're collecting binary images for a crash report, @c NO if we're
+  /// gathering them for other backtrace information, like a performance transaction. If this is for a
+  /// crash, each image's data section crash info is also included.
+  objc.NSArray getDebugImagesForFrames$1(objc.NSArray frames,
+      {required bool isCrash}) {
+    final _ret = _objc_msgSend_17amj0z(this.ref.pointer,
+        _sel_getDebugImagesForFrames_isCrash_, frames.ref.pointer, isCrash);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Returns the current list of debug images. Be aware that the @c SentryDebugMeta is actually
+  /// describing a debug image.
+  /// @warning This assumes a crash has occurred and attempts to read the crash information from each
+  /// image's data segment, which may not be present or be invalid if a crash has not actually
+  /// occurred. To avoid this, use the new @c -[getDebugImagesCrashed:] instead.
+  /// @deprecated Use @c -[getDebugImagesCrashed:] instead.
+  objc.NSArray getDebugImages() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_getDebugImages);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Returns the current list of debug images. Be aware that the @c SentryDebugMeta is actually
+  /// describing a debug image.
+  /// @param isCrash @c YES if we're collecting binary images for a crash report, @c NO if we're
+  /// gathering them for other backtrace information, like a performance transaction. If this is for a
+  /// crash, each image's data section crash info is also included.
+  ///
+  /// @warning This method is slow. Please consider using @c getDebugImagesFromCache.
+  objc.NSArray getDebugImagesCrashed(bool isCrash) {
+    final _ret = _objc_msgSend_1t6aok9(
+        this.ref.pointer, _sel_getDebugImagesCrashed_, isCrash);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// new
+  static SentryDebugImageProvider new$() {
+    final _ret =
+        _objc_msgSend_151sglz(_class_SentryDebugImageProvider, _sel_new);
+    return SentryDebugImageProvider.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// allocWithZone:
+  static SentryDebugImageProvider allocWithZone(ffi.Pointer<objc.NSZone> zone) {
+    final _ret = _objc_msgSend_1cwp428(
+        _class_SentryDebugImageProvider, _sel_allocWithZone_, zone);
+    return SentryDebugImageProvider.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// alloc
+  static SentryDebugImageProvider alloc() {
+    final _ret =
+        _objc_msgSend_151sglz(_class_SentryDebugImageProvider, _sel_alloc);
+    return SentryDebugImageProvider.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// self
+  SentryDebugImageProvider self$1() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
+    return SentryDebugImageProvider.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// retain
+  SentryDebugImageProvider retain() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
+    return SentryDebugImageProvider.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// autorelease
+  SentryDebugImageProvider autorelease() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
+    return SentryDebugImageProvider.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// Returns a list of debug images that are being referenced by the given frames.
+  /// This function uses the @c SentryBinaryImageCache which is significantly faster than @c
+  /// SentryCrashDefaultBinaryImageProvider for retrieving binary image information.
+  objc.NSArray getDebugImagesFromCacheForFrames(objc.NSArray frames) {
+    final _ret = _objc_msgSend_1sotr3r(this.ref.pointer,
+        _sel_getDebugImagesFromCacheForFrames_, frames.ref.pointer);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Returns a list of debug images that are being referenced in the given threads.
+  /// This function uses the @c SentryBinaryImageCache which is significantly faster than @c
+  /// SentryCrashDefaultBinaryImageProvider for retrieving binary image information.
+  objc.NSArray getDebugImagesFromCacheForThreads(objc.NSArray threads) {
+    final _ret = _objc_msgSend_1sotr3r(this.ref.pointer,
+        _sel_getDebugImagesFromCacheForThreads_, threads.ref.pointer);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Returns a list of debug images that are being referenced in the given image addresses.
+  /// This function uses the @c SentryBinaryImageCache which is significantly faster than @c
+  /// SentryCrashDefaultBinaryImageProvider for retrieving binary image information.
+  objc.NSArray getDebugImagesForImageAddressesFromCache(
+      objc.NSSet imageAddresses) {
+    final _ret = _objc_msgSend_1sotr3r(
+        this.ref.pointer,
+        _sel_getDebugImagesForImageAddressesFromCache_,
+        imageAddresses.ref.pointer);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// getDebugImagesFromCache
+  objc.NSArray getDebugImagesFromCache() {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_getDebugImagesFromCache);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Returns a new instance of SentryDebugImageProvider constructed with the default `new` method.
+  factory SentryDebugImageProvider() => new$();
+}
+
+late final _sel_debugImageProvider = objc.registerName("debugImageProvider");
+late final _sel_setDebugImageProvider_ =
+    objc.registerName("setDebugImageProvider:");
+
+/// WARNING: SentryANRTracker is a stub. To generate bindings for this class, include
+/// SentryANRTracker in your config's objc-protocols list.
+///
+/// SentryANRTracker
+interface class SentryANRTracker extends objc.ObjCProtocolBase {
+  SentryANRTracker._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryANRTracker] that points to the same underlying object as [other].
+  SentryANRTracker.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryANRTracker] that wraps the given raw object pointer.
+  SentryANRTracker.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_getANRTracker_ = objc.registerName("getANRTracker:");
+final _objc_msgSend_oa8mke = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>, ffi.Double)>>()
+    .asFunction<
+        ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, double)>();
+
+/// WARNING: SentrySystemWrapper is a stub. To generate bindings for this class, include
+/// SentrySystemWrapper in your config's objc-interfaces list.
+///
+/// SentrySystemWrapper
+class SentrySystemWrapper extends objc.ObjCObjectBase {
+  SentrySystemWrapper._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentrySystemWrapper] that points to the same underlying object as [other].
+  SentrySystemWrapper.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentrySystemWrapper] that wraps the given raw object pointer.
+  SentrySystemWrapper.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_systemWrapper = objc.registerName("systemWrapper");
+late final _sel_setSystemWrapper_ = objc.registerName("setSystemWrapper:");
+
+/// WARNING: SentryDispatchFactory is a stub. To generate bindings for this class, include
+/// SentryDispatchFactory in your config's objc-interfaces list.
+///
+/// SentryDispatchFactory
+class SentryDispatchFactory extends objc.ObjCObjectBase {
+  SentryDispatchFactory._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryDispatchFactory] that points to the same underlying object as [other].
+  SentryDispatchFactory.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryDispatchFactory] that wraps the given raw object pointer.
+  SentryDispatchFactory.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_dispatchFactory = objc.registerName("dispatchFactory");
+late final _sel_setDispatchFactory_ = objc.registerName("setDispatchFactory:");
+
+/// WARNING: SentryDispatchQueueProviderProtocol is a stub. To generate bindings for this class, include
+/// SentryDispatchQueueProviderProtocol in your config's objc-protocols list.
+///
+/// SentryDispatchQueueProviderProtocol
+interface class SentryDispatchQueueProviderProtocol
+    extends objc.ObjCProtocolBase {
+  SentryDispatchQueueProviderProtocol._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryDispatchQueueProviderProtocol] that points to the same underlying object as [other].
+  SentryDispatchQueueProviderProtocol.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryDispatchQueueProviderProtocol] that wraps the given raw object pointer.
+  SentryDispatchQueueProviderProtocol.castFromPointer(
+      ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false,
+      bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_dispatchQueueProvider =
+    objc.registerName("dispatchQueueProvider");
+late final _sel_setDispatchQueueProvider_ =
+    objc.registerName("setDispatchQueueProvider:");
+
+/// WARNING: SentryNSTimerFactory is a stub. To generate bindings for this class, include
+/// SentryNSTimerFactory in your config's objc-interfaces list.
+///
+/// SentryNSTimerFactory
+class SentryNSTimerFactory extends objc.ObjCObjectBase {
+  SentryNSTimerFactory._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryNSTimerFactory] that points to the same underlying object as [other].
+  SentryNSTimerFactory.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryNSTimerFactory] that wraps the given raw object pointer.
+  SentryNSTimerFactory.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_timerFactory = objc.registerName("timerFactory");
+late final _sel_setTimerFactory_ = objc.registerName("setTimerFactory:");
+
+/// WARNING: SentrySwizzleWrapper is a stub. To generate bindings for this class, include
+/// SentrySwizzleWrapper in your config's objc-interfaces list.
+///
+/// SentrySwizzleWrapper
+class SentrySwizzleWrapper extends objc.ObjCObjectBase {
+  SentrySwizzleWrapper._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentrySwizzleWrapper] that points to the same underlying object as [other].
+  SentrySwizzleWrapper.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentrySwizzleWrapper] that wraps the given raw object pointer.
+  SentrySwizzleWrapper.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_swizzleWrapper = objc.registerName("swizzleWrapper");
+late final _sel_setSwizzleWrapper_ = objc.registerName("setSwizzleWrapper:");
+
+/// WARNING: SentryMXManager is a stub. To generate bindings for this class, include
+/// SentryMXManager in your config's objc-interfaces list.
+///
+/// SentryMXManager
+class SentryMXManager extends objc.ObjCObjectBase {
+  SentryMXManager._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryMXManager] that points to the same underlying object as [other].
+  SentryMXManager.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryMXManager] that wraps the given raw object pointer.
+  SentryMXManager.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_metricKitManager = objc.registerName("metricKitManager");
+late final _sel_setMetricKitManager_ =
+    objc.registerName("setMetricKitManager:");
+
+/// WARNING: SentryObjCRuntimeWrapper is a stub. To generate bindings for this class, include
+/// SentryObjCRuntimeWrapper in your config's objc-protocols list.
+///
+/// SentryObjCRuntimeWrapper
+interface class SentryObjCRuntimeWrapper extends objc.ObjCProtocolBase {
+  SentryObjCRuntimeWrapper._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryObjCRuntimeWrapper] that points to the same underlying object as [other].
+  SentryObjCRuntimeWrapper.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryObjCRuntimeWrapper] that wraps the given raw object pointer.
+  SentryObjCRuntimeWrapper.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_objcRuntimeWrapper = objc.registerName("objcRuntimeWrapper");
+late final _sel_setObjcRuntimeWrapper_ =
+    objc.registerName("setObjcRuntimeWrapper:");
+
+/// WARNING: SentryGlobalEventProcessor is a stub. To generate bindings for this class, include
+/// SentryGlobalEventProcessor in your config's objc-interfaces list.
+///
+/// SentryGlobalEventProcessor
+class SentryGlobalEventProcessor extends objc.ObjCObjectBase {
+  SentryGlobalEventProcessor._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryGlobalEventProcessor] that points to the same underlying object as [other].
+  SentryGlobalEventProcessor.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryGlobalEventProcessor] that wraps the given raw object pointer.
+  SentryGlobalEventProcessor.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_globalEventProcessor =
+    objc.registerName("globalEventProcessor");
+late final _sel_setGlobalEventProcessor_ =
+    objc.registerName("setGlobalEventProcessor:");
+
+/// WARNING: SentrySessionTracker is a stub. To generate bindings for this class, include
+/// SentrySessionTracker in your config's objc-interfaces list.
+///
+/// SentrySessionTracker
+class SentrySessionTracker extends objc.ObjCObjectBase {
+  SentrySessionTracker._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentrySessionTracker] that points to the same underlying object as [other].
+  SentrySessionTracker.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentrySessionTracker] that wraps the given raw object pointer.
+  SentrySessionTracker.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_getSessionTrackerWithOptions_ =
+    objc.registerName("getSessionTrackerWithOptions:");
+
+/// The dependency container is optimized to use as few locks as possible and to only keep the
+/// required dependencies in memory. It splits its dependencies into two groups.
+///
+/// Init Dependencies: These are mandatory dependencies required to run the SDK, no matter the
+/// options. The dependency container initializes them in init and uses no locks for efficiency.
+///
+/// Lazy Dependencies: These dependencies either have some state or aren't always required and,
+/// therefore, get initialized lazily to minimize the memory footprint.
+class SentryDependencyContainer extends objc.NSObject {
+  SentryDependencyContainer._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryDependencyContainer] that points to the same underlying object as [other].
+  SentryDependencyContainer.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryDependencyContainer] that wraps the given raw object pointer.
+  SentryDependencyContainer.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+
+  /// Returns whether [obj] is an instance of [SentryDependencyContainer].
+  static bool isInstance(objc.ObjCObjectBase obj) {
+    return _objc_msgSend_19nvye5(
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryDependencyContainer);
+  }
+
+  /// init
+  SentryDependencyContainer init() {
+    objc.checkOsVersionInternal('SentryDependencyContainer.init',
+        iOS: (false, (2, 0, 0)), macOS: (false, (10, 0, 0)));
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
+    return SentryDependencyContainer.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// new
+  static SentryDependencyContainer new$() {
+    final _ret =
+        _objc_msgSend_151sglz(_class_SentryDependencyContainer, _sel_new);
+    return SentryDependencyContainer.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// sharedInstance
+  static SentryDependencyContainer sharedInstance() {
+    final _ret = _objc_msgSend_151sglz(
+        _class_SentryDependencyContainer, _sel_sharedInstance);
+    return SentryDependencyContainer.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// Resets all dependencies.
+  static void reset() {
+    _objc_msgSend_1pl9qdv(_class_SentryDependencyContainer, _sel_reset);
+  }
+
+  /// dispatchQueueWrapper
+  SentryDispatchQueueWrapper get dispatchQueueWrapper {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_dispatchQueueWrapper);
+    return SentryDispatchQueueWrapper.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setDispatchQueueWrapper:
+  set dispatchQueueWrapper(SentryDispatchQueueWrapper value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setDispatchQueueWrapper_, value.ref.pointer);
+  }
+
+  /// random
+  SentryRandom get random {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_random);
+    return SentryRandom.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// setRandom:
+  set random(SentryRandom value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setRandom_, value.ref.pointer);
+  }
+
+  /// threadWrapper
+  SentryThreadWrapper get threadWrapper {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_threadWrapper);
+    return SentryThreadWrapper.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setThreadWrapper:
+  set threadWrapper(SentryThreadWrapper value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setThreadWrapper_, value.ref.pointer);
+  }
+
+  /// binaryImageCache
+  SentryBinaryImageCache get binaryImageCache {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_binaryImageCache);
+    return SentryBinaryImageCache.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setBinaryImageCache:
+  set binaryImageCache(SentryBinaryImageCache value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setBinaryImageCache_, value.ref.pointer);
+  }
+
+  /// dateProvider
+  SentryCurrentDateProvider get dateProvider {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_dateProvider);
+    return SentryCurrentDateProvider.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setDateProvider:
+  set dateProvider(SentryCurrentDateProvider value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setDateProvider_, value.ref.pointer);
+  }
+
+  /// extraContextProvider
+  SentryExtraContextProvider get extraContextProvider {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_extraContextProvider);
+    return SentryExtraContextProvider.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setExtraContextProvider:
+  set extraContextProvider(SentryExtraContextProvider value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setExtraContextProvider_, value.ref.pointer);
+  }
+
+  /// notificationCenterWrapper
+  SentryNSNotificationCenterWrapper get notificationCenterWrapper {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_notificationCenterWrapper);
+    return SentryNSNotificationCenterWrapper.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setNotificationCenterWrapper:
+  set notificationCenterWrapper(SentryNSNotificationCenterWrapper value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setNotificationCenterWrapper_,
+        value.ref.pointer);
+  }
+
+  /// crashWrapper
+  SentryCrashWrapper get crashWrapper {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_crashWrapper);
+    return SentryCrashWrapper.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setCrashWrapper:
+  set crashWrapper(SentryCrashWrapper value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setCrashWrapper_, value.ref.pointer);
+  }
+
+  /// processInfoWrapper
+  SentryNSProcessInfoWrapper get processInfoWrapper {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_processInfoWrapper);
+    return SentryNSProcessInfoWrapper.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setProcessInfoWrapper:
+  set processInfoWrapper(SentryNSProcessInfoWrapper value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setProcessInfoWrapper_, value.ref.pointer);
+  }
+
+  /// sysctlWrapper
+  SentrySysctl get sysctlWrapper {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_sysctlWrapper);
+    return SentrySysctl.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// setSysctlWrapper:
+  set sysctlWrapper(SentrySysctl value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setSysctlWrapper_, value.ref.pointer);
+  }
+
+  /// rateLimits
+  SentryRateLimits get rateLimits {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_rateLimits);
+    return SentryRateLimits.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// setRateLimits:
+  set rateLimits(SentryRateLimits value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setRateLimits_, value.ref.pointer);
+  }
+
+  /// application
+  SentryApplication get application {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_application);
+    return SentryApplication.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// setApplication:
+  set application(SentryApplication value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setApplication_, value.ref.pointer);
+  }
+
+  /// reachability
+  SentryReachability get reachability {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_reachability);
+    return SentryReachability.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setReachability:
+  set reachability(SentryReachability value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setReachability_, value.ref.pointer);
+  }
+
+  /// fileManager
+  SentryFileManager? get fileManager {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_fileManager);
+    return _ret.address == 0
+        ? null
+        : SentryFileManager.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// setFileManager:
+  set fileManager(SentryFileManager? value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setFileManager_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// appStateManager
+  SentryAppStateManager get appStateManager {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_appStateManager);
+    return SentryAppStateManager.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setAppStateManager:
+  set appStateManager(SentryAppStateManager value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setAppStateManager_, value.ref.pointer);
+  }
+
+  /// threadInspector
+  SentryThreadInspector get threadInspector {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_threadInspector);
+    return SentryThreadInspector.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setThreadInspector:
+  set threadInspector(SentryThreadInspector value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setThreadInspector_, value.ref.pointer);
+  }
+
+  /// fileIOTracker
+  SentryFileIOTracker get fileIOTracker {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_fileIOTracker);
+    return SentryFileIOTracker.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setFileIOTracker:
+  set fileIOTracker(SentryFileIOTracker value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setFileIOTracker_, value.ref.pointer);
+  }
+
+  /// crashReporter
+  SentryCrash get crashReporter {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_crashReporter);
+    return SentryCrash.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// setCrashReporter:
+  set crashReporter(SentryCrash value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setCrashReporter_, value.ref.pointer);
+  }
+
+  /// scopePersistentStore
+  SentryScopePersistentStore get scopePersistentStore {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_scopePersistentStore);
+    return SentryScopePersistentStore.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setScopePersistentStore:
+  set scopePersistentStore(SentryScopePersistentStore value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setScopePersistentStore_, value.ref.pointer);
+  }
+
+  /// debugImageProvider
+  SentryDebugImageProvider get debugImageProvider {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_debugImageProvider);
+    return SentryDebugImageProvider.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setDebugImageProvider:
+  set debugImageProvider(SentryDebugImageProvider value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setDebugImageProvider_, value.ref.pointer);
+  }
+
+  /// getANRTracker:
+  SentryANRTracker getANRTracker(double timeout) {
+    final _ret =
+        _objc_msgSend_oa8mke(this.ref.pointer, _sel_getANRTracker_, timeout);
+    return SentryANRTracker.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// systemWrapper
+  SentrySystemWrapper get systemWrapper {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_systemWrapper);
+    return SentrySystemWrapper.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setSystemWrapper:
+  set systemWrapper(SentrySystemWrapper value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setSystemWrapper_, value.ref.pointer);
+  }
+
+  /// dispatchFactory
+  SentryDispatchFactory get dispatchFactory {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_dispatchFactory);
+    return SentryDispatchFactory.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setDispatchFactory:
+  set dispatchFactory(SentryDispatchFactory value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setDispatchFactory_, value.ref.pointer);
+  }
+
+  /// dispatchQueueProvider
+  SentryDispatchQueueProviderProtocol get dispatchQueueProvider {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_dispatchQueueProvider);
+    return SentryDispatchQueueProviderProtocol.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setDispatchQueueProvider:
+  set dispatchQueueProvider(SentryDispatchQueueProviderProtocol value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setDispatchQueueProvider_, value.ref.pointer);
+  }
+
+  /// timerFactory
+  SentryNSTimerFactory get timerFactory {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_timerFactory);
+    return SentryNSTimerFactory.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setTimerFactory:
+  set timerFactory(SentryNSTimerFactory value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setTimerFactory_, value.ref.pointer);
+  }
+
+  /// swizzleWrapper
+  SentrySwizzleWrapper get swizzleWrapper {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_swizzleWrapper);
+    return SentrySwizzleWrapper.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setSwizzleWrapper:
+  set swizzleWrapper(SentrySwizzleWrapper value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setSwizzleWrapper_, value.ref.pointer);
+  }
+
+  /// metricKitManager
+  SentryMXManager get metricKitManager {
+    objc.checkOsVersionInternal('SentryDependencyContainer.metricKitManager',
+        iOS: (false, (15, 0, 0)), macOS: (false, (12, 0, 0)));
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_metricKitManager);
+    return SentryMXManager.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// setMetricKitManager:
+  set metricKitManager(SentryMXManager value) {
+    objc.checkOsVersionInternal(
+        'SentryDependencyContainer.setMetricKitManager:',
+        iOS: (false, (15, 0, 0)),
+        macOS: (false, (12, 0, 0)));
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setMetricKitManager_, value.ref.pointer);
+  }
+
+  /// objcRuntimeWrapper
+  SentryObjCRuntimeWrapper get objcRuntimeWrapper {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_objcRuntimeWrapper);
+    return SentryObjCRuntimeWrapper.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setObjcRuntimeWrapper:
+  set objcRuntimeWrapper(SentryObjCRuntimeWrapper value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setObjcRuntimeWrapper_, value.ref.pointer);
+  }
+
+  /// globalEventProcessor
+  SentryGlobalEventProcessor get globalEventProcessor {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_globalEventProcessor);
+    return SentryGlobalEventProcessor.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// setGlobalEventProcessor:
+  set globalEventProcessor(SentryGlobalEventProcessor value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setGlobalEventProcessor_, value.ref.pointer);
+  }
+
+  /// getSessionTrackerWithOptions:
+  SentrySessionTracker getSessionTrackerWithOptions(SentryOptions options) {
+    final _ret = _objc_msgSend_1sotr3r(this.ref.pointer,
+        _sel_getSessionTrackerWithOptions_, options.ref.pointer);
+    return SentrySessionTracker.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// allocWithZone:
+  static SentryDependencyContainer allocWithZone(
+      ffi.Pointer<objc.NSZone> zone) {
+    final _ret = _objc_msgSend_1cwp428(
+        _class_SentryDependencyContainer, _sel_allocWithZone_, zone);
+    return SentryDependencyContainer.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// alloc
+  static SentryDependencyContainer alloc() {
+    final _ret =
+        _objc_msgSend_151sglz(_class_SentryDependencyContainer, _sel_alloc);
+    return SentryDependencyContainer.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// self
+  SentryDependencyContainer self$1() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
+    return SentryDependencyContainer.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// retain
+  SentryDependencyContainer retain() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
+    return SentryDependencyContainer.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// autorelease
+  SentryDependencyContainer autorelease() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
+    return SentryDependencyContainer.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// Returns a new instance of SentryDependencyContainer constructed with the default `new` method.
+  factory SentryDependencyContainer() => new$();
 }
