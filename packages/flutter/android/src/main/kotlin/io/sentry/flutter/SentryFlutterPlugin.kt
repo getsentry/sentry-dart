@@ -50,6 +50,7 @@ class SentryFlutterPlugin :
     pluginRegistrationTime = System.currentTimeMillis()
 
     context = flutterPluginBinding.applicationContext
+    applicationContext = context
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
     channel.setMethodCallHandler(this)
 
@@ -414,10 +415,16 @@ class SentryFlutterPlugin :
     @SuppressLint("StaticFieldLeak")
     private var replay: ReplayIntegration? = null
 
+    @SuppressLint("StaticFieldLeak")
+    private var applicationContext: Context? = null
+
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
     @JvmStatic
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
+
+    @JvmStatic
+    fun getApplicationContext(): Context? = applicationContext
 
     private fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")

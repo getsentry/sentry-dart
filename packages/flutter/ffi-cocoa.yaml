@@ -6,6 +6,7 @@ headers:
   entry-points:
     - ./temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h
     - ./temp/Sentry.framework/Headers/Sentry-Swift.h
+    - ./temp/Sentry.framework/Headers/SentryScope.h
     - ./temp/Sentry.framework/Headers/SentryDebugMeta.h
     - ./temp/Sentry.framework/PrivateHeaders/SentryDependencyContainer.h
     - ./temp/Sentry.framework/PrivateHeaders/SentryDebugImageProvider+HybridSDKs.h
@@ -19,11 +20,13 @@ exclude-all-by-default: true
 objc-interfaces:
   include:
     - PrivateSentrySDKOnly
+    - SentryScope
     - SentryId
     - SentryDependencyContainer
     - SentryDebugImageProvider
     - SentryBinaryImageCache
     - SentryBinaryImageInfo
     - SentryDebugMeta
-  module:
-    "SentryId": "Sentry"
+enums:
+  include:
+    - "^SentryLevel$"

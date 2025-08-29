@@ -120,6 +120,109 @@ class SentryNativeCocoa extends SentryNativeChannel {
   }
 
   @override
+  FutureOr<Map<String, dynamic>?> loadContexts() {
+    Map<String, dynamic>? result;
+
+    // cocoa.SentrySDK.configureScope(
+    //   cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction((scope) {
+    //     final serializedScope = scope.serialize();
+    //     final scopeDict = _nsObjectToMap(serializedScope);
+    //
+    //     // Initialize context map
+    //     Map<String, dynamic> context = {};
+    //     if (scopeDict['context'] is Map<String, dynamic>) {
+    //       context = Map<String, dynamic>.from(
+    //           scopeDict['context'] as Map<String, dynamic>);
+    //     }
+    //
+    //     // Initialize result map
+    //     Map<String, dynamic> infos = {};
+    //
+    //     // Extract basic scope data
+    //     if (scopeDict['tags'] != null) infos['tags'] = scopeDict['tags'];
+    //     if (scopeDict['extra'] != null) infos['extra'] = scopeDict['extra'];
+    //     if (scopeDict['dist'] != null) infos['dist'] = scopeDict['dist'];
+    //     if (scopeDict['environment'] != null)
+    //       infos['environment'] = scopeDict['environment'];
+    //     if (scopeDict['fingerprint'] != null)
+    //       infos['fingerprint'] = scopeDict['fingerprint'];
+    //     if (scopeDict['level'] != null) infos['level'] = scopeDict['level'];
+    //     if (scopeDict['breadcrumbs'] != null)
+    //       infos['breadcrumbs'] = scopeDict['breadcrumbs'];
+    //
+    //     // Handle user data
+    //     if (scopeDict['user'] != null) {
+    //       infos['user'] = scopeDict['user'];
+    //     } else {
+    //       final installationId = cocoa.PrivateSentrySDKOnly.getInstallationID();
+    //       infos['user'] = {'id': installationId.toString()};
+    //     }
+    //
+    //     // Get integrations from options
+    //     try {
+    //       final options = cocoa.PrivateSentrySDKOnly.getOptions();
+    //       // Note: We would need to access options.integrations here, but the binding might not expose it
+    //       // For now, we'll skip this part as it requires accessing specific properties of SentryOptions
+    //     } catch (e) {
+    //       // Skip if options access fails
+    //     }
+    //
+    //     // Merge extra context from PrivateSentrySDKOnly
+    //     try {
+    //       final extraContext = cocoa.PrivateSentrySDKOnly.getExtraContext();
+    //       final extraContextDict = _nsObjectToMap(extraContext);
+    //
+    //       // Merge device context
+    //       if (extraContextDict['device'] is Map<String, dynamic>) {
+    //         final extraDevice =
+    //             extraContextDict['device'] as Map<String, dynamic>;
+    //         if (context['device'] is Map<String, dynamic>) {
+    //           final currentDevice = Map<String, dynamic>.from(
+    //               context['device'] as Map<String, dynamic>);
+    //           currentDevice.addAll(extraDevice);
+    //           context['device'] = currentDevice;
+    //         } else {
+    //           context['device'] = extraDevice;
+    //         }
+    //       }
+    //
+    //       // Merge app context
+    //       if (extraContextDict['app'] is Map<String, dynamic>) {
+    //         final extraApp = extraContextDict['app'] as Map<String, dynamic>;
+    //         if (context['app'] is Map<String, dynamic>) {
+    //           final currentApp = Map<String, dynamic>.from(
+    //               context['app'] as Map<String, dynamic>);
+    //           currentApp.addAll(extraApp);
+    //           context['app'] = currentApp;
+    //         } else {
+    //           context['app'] = extraApp;
+    //         }
+    //       }
+    //     } catch (e) {
+    //       // Skip if extra context access fails
+    //     }
+    //
+    //     infos['contexts'] = context;
+    //
+    //     // Add package info
+    //     try {
+    //       final sdkVersion = cocoa.PrivateSentrySDKOnly.getSdkVersionString();
+    //       infos['package'] = {
+    //         'version': sdkVersion.toString(),
+    //         'sdk_name': 'cocoapods:sentry-cocoa'
+    //       };
+    //     } catch (e) {
+    //       // Skip if SDK version access fails
+    //     }
+    //
+    //     result = infos;
+    //   }),
+    // );
+
+    return result;
+  }
+
+  @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
     // Note: unused on iOS.
   }
@@ -190,5 +293,72 @@ class SentryNativeCocoa extends SentryNativeChannel {
         .map(_convertSingleDebugImage)
         .whereType<DebugImage>()
         .toList();
+  }
+
+  /// Converts NSObject to Dart Map, List, or primitive types
+  dynamic _nsObjectToMap(ObjCObjectBase obj) {
+    try {
+      // Try to cast to NSDictionary first
+      if (obj is NSDictionary) {
+        final result = <String, dynamic>{};
+        final keys = obj.allKeys;
+
+        for (int i = 0; i < keys.length; i++) {
+          final key = keys[i];
+          final value = obj[key];
+
+          String? keyString;
+          if (key is NSString) {
+            keyString = key.toDartString();
+          } else {
+            keyString = key.toString();
+          }
+
+          if (value != null) {
+            result[keyString] = _nsObjectToMap(value);
+          }
+        }
+        return result;
+      }
+
+      // Try to cast to NSArray
+      if (obj is NSArray) {
+        final result = <dynamic>[];
+        for (int i = 0; i < obj.length; i++) {
+          final item = obj[i];
+          if (item != null) {
+            result.add(_nsObjectToMap(item));
+          }
+        }
+        return result;
+      }
+
+      // Try to cast to NSString
+      if (obj is NSString) {
+        return obj.toDartString();
+      }
+
+      // Try to cast to NSNumber
+      if (obj is NSNumber) {
+        // NSNumber can represent various numeric types
+        // Try to determine the best Dart type
+        final doubleValue = obj.doubleValue;
+        final intValue = obj.intValue;
+
+        // If the double value equals the int value, it's likely an integer
+        if (doubleValue == intValue.toDouble()) {
+          return intValue;
+        } else {
+          return doubleValue;
+        }
+      }
+
+      // For other types, try to convert to string
+      return obj.toString();
+    } catch (e) {
+      // If conversion fails, return null or string representation
+      options.log(SentryLevel.debug, 'Failed to convert NSObject to Dart: $e');
+      return obj.toString();
+    }
   }
 }

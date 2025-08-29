@@ -3,6 +3,7 @@
 #import <objc/message.h>
 #import "../../../../temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h"
 #import "../../../../temp/Sentry.framework/Headers/Sentry-Swift.h"
+#import "../../../../temp/Sentry.framework/Headers/SentryScope.h"
 #import "../../../../temp/Sentry.framework/Headers/SentryDebugMeta.h"
 #import "../../../../temp/Sentry.framework/PrivateHeaders/SentryDependencyContainer.h"
 #import "../../../../temp/Sentry.framework/PrivateHeaders/SentryDebugImageProvider+HybridSDKs.h"
@@ -53,6 +54,8 @@ id objc_retainBlock(id);
     }                                                                          \
   };
 
+
+Protocol* _SentryCocoa_SentrySpan(void) { return @protocol(SentrySpan); }
 
 typedef void  (^ListenerTrampoline)(id arg0);
 __attribute__((visibility("default"))) __attribute__((used))

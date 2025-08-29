@@ -116,8 +116,10 @@ class SentryNativeChannel
   bool get supportsLoadContexts => true;
 
   @override
-  Future<Map<String, dynamic>?> loadContexts() =>
-      channel.invokeMapMethod<String, dynamic>('loadContexts');
+  FutureOr<Map<String, dynamic>?> loadContexts() {
+    assert(false, 'loadContexts should not be used through method channels.');
+    return null;
+  }
 
   @override
   Future<void> setUser(SentryUser? user) async {

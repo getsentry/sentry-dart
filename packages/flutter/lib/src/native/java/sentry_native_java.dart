@@ -183,7 +183,7 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  Future<Map<String, dynamic>?> loadContexts() {
+  FutureOr<Map<String, dynamic>?> loadContexts() {
     native.SentryAndroidOptions? androidOptions;
     native.ScopesAdapter? nativeScope;
     JObject? currentScope;
@@ -204,7 +204,6 @@ class SentryNativeJava extends SentryNativeChannel {
         jniContexts = native.InternalSentrySdk.serializeScope(
             applicationContext, androidOptions, currentScope);
         final result = _jniMapToDart(jniContexts);
-        jniContexts.release();
         return Future.value(result);
       }
     } catch (exception, stackTrace) {
