@@ -161,6 +161,7 @@ void main() {
     // By default it should load all debug images
     final allDebugImages = await SentryFlutter.native
         ?.loadDebugImages(SentryStackTrace(frames: const []));
+    expect(allDebugImages, isNotNull);
     // Typically loading all images results in a larger numbers
     expect(allDebugImages!.length > 100, isTrue);
 
