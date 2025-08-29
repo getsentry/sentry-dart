@@ -248,6 +248,128 @@ void main() {
       verifyTemplateWithMultipleArguments(message, attributes);
     });
   });
+
+  group('template with no arguments', () {
+    test('for trace', () {
+      final logger = MockLogger();
+      final sut = fixture.getSut(logger);
+
+      sut.trace(
+        "Hello, World!",
+        [],
+        attributes: {'foo': SentryLogAttribute.string('bar')},
+      );
+
+      expect(logger.traceCalls.length, 1);
+      final message = logger.traceCalls[0].message;
+      final attributes = logger.traceCalls[0].attributes!;
+
+      expect(message, 'Hello, World!');
+      expect(attributes['sentry.message.template'], isNull);
+      expect(attributes['sentry.message.parameter.0'], isNull);
+      verifyPassedAttributes(attributes);
+    });
+
+    test('for debug', () {
+      final logger = MockLogger();
+      final sut = fixture.getSut(logger);
+
+      sut.debug(
+        "Hello, World!",
+        [],
+        attributes: {'foo': SentryLogAttribute.string('bar')},
+      );
+
+      expect(logger.debugCalls.length, 1);
+      final message = logger.debugCalls[0].message;
+      final attributes = logger.debugCalls[0].attributes!;
+
+      expect(message, 'Hello, World!');
+      expect(attributes['sentry.message.template'], isNull);
+      expect(attributes['sentry.message.parameter.0'], isNull);
+      verifyPassedAttributes(attributes);
+    });
+
+    test('for info', () {
+      final logger = MockLogger();
+      final sut = fixture.getSut(logger);
+
+      sut.info(
+        "Hello, World!",
+        [],
+        attributes: {'foo': SentryLogAttribute.string('bar')},
+      );
+
+      expect(logger.infoCalls.length, 1);
+      final message = logger.infoCalls[0].message;
+      final attributes = logger.infoCalls[0].attributes!;
+
+      expect(message, 'Hello, World!');
+      expect(attributes['sentry.message.template'], isNull);
+      expect(attributes['sentry.message.parameter.0'], isNull);
+      verifyPassedAttributes(attributes);
+    });
+
+    test('for warn', () {
+      final logger = MockLogger();
+      final sut = fixture.getSut(logger);
+
+      sut.warn(
+        "Hello, World!",
+        [],
+        attributes: {'foo': SentryLogAttribute.string('bar')},
+      );
+
+      expect(logger.warnCalls.length, 1);
+      final message = logger.warnCalls[0].message;
+      final attributes = logger.warnCalls[0].attributes!;
+
+      expect(message, 'Hello, World!');
+      expect(attributes['sentry.message.template'], isNull);
+      expect(attributes['sentry.message.parameter.0'], isNull);
+      verifyPassedAttributes(attributes);
+    });
+
+    test('for error', () {
+      final logger = MockLogger();
+      final sut = fixture.getSut(logger);
+
+      sut.error(
+        "Hello, World!",
+        [],
+        attributes: {'foo': SentryLogAttribute.string('bar')},
+      );
+
+      expect(logger.errorCalls.length, 1);
+      final message = logger.errorCalls[0].message;
+      final attributes = logger.errorCalls[0].attributes!;
+
+      expect(message, 'Hello, World!');
+      expect(attributes['sentry.message.template'], isNull);
+      expect(attributes['sentry.message.parameter.0'], isNull);
+      verifyPassedAttributes(attributes);
+    });
+
+    test('for fatal', () {
+      final logger = MockLogger();
+      final sut = fixture.getSut(logger);
+
+      sut.fatal(
+        "Hello, World!",
+        [],
+        attributes: {'foo': SentryLogAttribute.string('bar')},
+      );
+
+      expect(logger.fatalCalls.length, 1);
+      final message = logger.fatalCalls[0].message;
+      final attributes = logger.fatalCalls[0].attributes!;
+
+      expect(message, 'Hello, World!');
+      expect(attributes['sentry.message.template'], isNull);
+      expect(attributes['sentry.message.parameter.0'], isNull);
+      verifyPassedAttributes(attributes);
+    });
+  });
 }
 
 class Fixture {
