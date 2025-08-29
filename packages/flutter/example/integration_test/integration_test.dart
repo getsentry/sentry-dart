@@ -3,6 +3,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -151,6 +152,73 @@ void main() {
     final context = SentryTransactionContext('transaction', 'test');
     final transaction = Sentry.startTransactionWithContext(context);
     await transaction.finish();
+  });
+
+  testWidgets('loads native contexts through loadContexts', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    final contexts = await SentryFlutter.native?.loadContexts();
+
+    // === BASIC VALIDATION ===
+    expect(contexts, isNotNull, reason: 'Loaded contexts are null');
+    expect(contexts, isNotEmpty, reason: 'Loaded contexts are empty');
+    expect(contexts!.containsKey('contexts'), isTrue,
+        reason: 'Contexts section missing');
+
+    final contextData = contexts['contexts'] as Map<String, dynamic>?;
+    expect(contextData, isNotNull, reason: 'Contexts data is null');
+    expect(contextData, isNotEmpty, reason: 'Contexts data is empty');
+
+    // === COMMON CONTEXT VALIDATION (All Platforms) ===
+    // Check for core context categories
+    expect(contextData!.containsKey('app'), isTrue,
+        reason: 'App context missing');
+    expect(contextData.containsKey('os'), isTrue, reason: 'OS context missing');
+    expect(contextData.containsKey('device'), isTrue,
+        reason: 'Device context missing');
+
+    // Verify app context has expected fields
+    final appContext = contextData['app'] as Map<String, dynamic>?;
+    expect(appContext, isNotNull, reason: 'App context is null');
+    expect(appContext!.containsKey('app_name'), isTrue,
+        reason: 'App name missing from app context');
+    expect(appContext.containsKey('app_version'), isTrue,
+        reason: 'App version missing from app context');
+
+    // Verify OS context has expected fields (common)
+    final osContext = contextData['os'] as Map<String, dynamic>?;
+    expect(osContext, isNotNull, reason: 'OS context is null');
+    expect(osContext!.containsKey('name'), isTrue,
+        reason: 'OS name missing from OS context');
+
+    // Verify device context has expected fields (common)
+    final deviceContext = contextData['device'] as Map<String, dynamic>?;
+    expect(deviceContext, isNotNull, reason: 'Device context is null');
+    expect(deviceContext!.containsKey('model'), isTrue,
+        reason: 'Device model missing from device context');
+
+    // Check for other top-level sections that should be present
+    expect(contexts.containsKey('user'), isTrue,
+        reason: 'User section missing');
+    expect(contexts.containsKey('breadcrumbs'), isTrue,
+        reason: 'Breadcrumbs section missing');
+    expect(contexts.containsKey('tags'), isTrue,
+        reason: 'Tags section missing');
+
+    // === PLATFORM-SPECIFIC VALIDATION ===
+    if (Platform.isAndroid) {
+      // Android-specific validation
+      expect(osContext['name'], equals('Android'),
+          reason: 'Expected Android OS name');
+      expect(deviceContext.containsKey('manufacturer'), isTrue,
+          reason: 'Device manufacturer missing from device context');
+    } else if (Platform.isIOS) {
+      // iOS-specific validation
+      expect(osContext['name'], equals('iOS'), reason: 'Expected iOS OS name');
+      // Add more iOS-specific checks here as needed
+    }
   });
 
   testWidgets('setup sentry and test loading debug image', (tester) async {
