@@ -12,6 +12,7 @@
 ### Fixes
 
 - Implement prefill logic in `SentryFeedbackWidget` for `useSentryUser` parameter to populate fields with current user data ([#3180](https://github.com/getsentry/sentry-dart/pull/3180))
+- Structured Logs: Don’t add template when there are no 'sentry.message.parameter.x’ attributes ([#3219](https://github.com/getsentry/sentry-dart/pull/3219))
 
 ### Enhancements
 
