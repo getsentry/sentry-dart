@@ -7,6 +7,7 @@ headers:
     - ./temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h
     - ./temp/Sentry.framework/Headers/Sentry-Swift.h
     - ./temp/Sentry.framework/Headers/SentryScope.h
+    - ./temp/Sentry.framework/Headers/SentryOptions.h
     - ./temp/Sentry.framework/Headers/SentryDebugMeta.h
     - ./temp/Sentry.framework/PrivateHeaders/SentryDependencyContainer.h
     - ./temp/Sentry.framework/PrivateHeaders/SentryDebugImageProvider+HybridSDKs.h
@@ -14,8 +15,8 @@ headers:
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
   - -DCOCOAPODS=1
-  - "-I./temp/Sentry.framework/Headers/"
-  - "-I./temp/Sentry.framework/PrivateHeaders/"
+  - '-I./temp/Sentry.framework/Headers/'
+  - '-I./temp/Sentry.framework/PrivateHeaders/'
 exclude-all-by-default: true
 objc-interfaces:
   include:
@@ -23,6 +24,7 @@ objc-interfaces:
     - SentrySDK
     - SentryScope
     - SentryId
+    - SentryOptions
     - SentryDependencyContainer
     - SentryDebugImageProvider
     - SentryBinaryImageCache
@@ -32,6 +34,27 @@ objc-interfaces:
     'SentryId': 'Sentry'
     'SentrySDK': 'Sentry'
     'SentryLevel': 'Sentry'
+  member-filter:
+    SentryOptions:
+      include:
+        - 'integrations'
+    SentryScope:
+      include:
+        - 'serialize'
+    SentrySDK:
+      include:
+        - 'configureScope:'
+    SentryDependencyContainer:
+      include:
+        - 'sharedInstance'
+        - 'binaryImageCache'
+        - 'debugImageProvider'
+    SentryBinaryImageCache:
+      include:
+        - 'imageByAddress:'
+    SentryDebugImageProvider:
+      include:
+        - 'getDebugImagesForImageAddressesFromCache:'
 enums:
   include:
-    - "^SentryLevel$"
+    - '^SentryLevel$'

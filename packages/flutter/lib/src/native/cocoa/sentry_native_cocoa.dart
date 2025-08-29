@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
 
@@ -96,7 +97,9 @@ class SentryNativeCocoa extends SentryNativeChannel {
       if (imageAddresses.isNotEmpty) {
         // Get debug images for specific addresses
         final nsSet = NSMutableSet();
-        imageAddresses.forEach((addr) => nsSet.addObject(NSString(addr)));
+        for (final addr in imageAddresses) {
+          nsSet.addObject(NSString(addr));
+        }
         debugImages = _convertDebugImages(_castToSentryDebugMetaList(
             dependencyContainer.debugImageProvider
                 .getDebugImagesForImageAddressesFromCache(nsSet)));
@@ -121,106 +124,126 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
   @override
   Future<Map<String, dynamic>?> loadContexts() async {
-    Map<String, dynamic>? result;
+    final result = <String, dynamic>{};
 
     cocoa.SentrySDK.configureScope(
-        cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction((scope) {
-      final serializedScope = scope.serialize();
-      final serialized = toDartObject(serializedScope);
-      print('serialized is Map: ${serialized is Map}');
-    }));
-    //     final scopeDict = _nsObjectToMap(serializedScope);
-    //
-    //     // Initialize context map
-    //     Map<String, dynamic> context = {};
-    //     if (scopeDict['context'] is Map<String, dynamic>) {
-    //       context = Map<String, dynamic>.from(
-    //           scopeDict['context'] as Map<String, dynamic>);
-    //     }
-    //
-    //     // Initialize result map
-    //     Map<String, dynamic> infos = {};
-    //
-    //     // Extract basic scope data
-    //     if (scopeDict['tags'] != null) infos['tags'] = scopeDict['tags'];
-    //     if (scopeDict['extra'] != null) infos['extra'] = scopeDict['extra'];
-    //     if (scopeDict['dist'] != null) infos['dist'] = scopeDict['dist'];
-    //     if (scopeDict['environment'] != null)
-    //       infos['environment'] = scopeDict['environment'];
-    //     if (scopeDict['fingerprint'] != null)
-    //       infos['fingerprint'] = scopeDict['fingerprint'];
-    //     if (scopeDict['level'] != null) infos['level'] = scopeDict['level'];
-    //     if (scopeDict['breadcrumbs'] != null)
-    //       infos['breadcrumbs'] = scopeDict['breadcrumbs'];
-    //
-    //     // Handle user data
-    //     if (scopeDict['user'] != null) {
-    //       infos['user'] = scopeDict['user'];
-    //     } else {
-    //       final installationId = cocoa.PrivateSentrySDKOnly.getInstallationID();
-    //       infos['user'] = {'id': installationId.toString()};
-    //     }
-    //
-    //     // Get integrations from options
-    //     try {
-    //       final options = cocoa.PrivateSentrySDKOnly.getOptions();
-    //       // Note: We would need to access options.integrations here, but the binding might not expose it
-    //       // For now, we'll skip this part as it requires accessing specific properties of SentryOptions
-    //     } catch (e) {
-    //       // Skip if options access fails
-    //     }
-    //
-    //     // Merge extra context from PrivateSentrySDKOnly
-    //     try {
-    //       final extraContext = cocoa.PrivateSentrySDKOnly.getExtraContext();
-    //       final extraContextDict = _nsObjectToMap(extraContext);
-    //
-    //       // Merge device context
-    //       if (extraContextDict['device'] is Map<String, dynamic>) {
-    //         final extraDevice =
-    //             extraContextDict['device'] as Map<String, dynamic>;
-    //         if (context['device'] is Map<String, dynamic>) {
-    //           final currentDevice = Map<String, dynamic>.from(
-    //               context['device'] as Map<String, dynamic>);
-    //           currentDevice.addAll(extraDevice);
-    //           context['device'] = currentDevice;
-    //         } else {
-    //           context['device'] = extraDevice;
-    //         }
-    //       }
-    //
-    //       // Merge app context
-    //       if (extraContextDict['app'] is Map<String, dynamic>) {
-    //         final extraApp = extraContextDict['app'] as Map<String, dynamic>;
-    //         if (context['app'] is Map<String, dynamic>) {
-    //           final currentApp = Map<String, dynamic>.from(
-    //               context['app'] as Map<String, dynamic>);
-    //           currentApp.addAll(extraApp);
-    //           context['app'] = currentApp;
-    //         } else {
-    //           context['app'] = extraApp;
-    //         }
-    //       }
-    //     } catch (e) {
-    //       // Skip if extra context access fails
-    //     }
-    //
-    //     infos['contexts'] = context;
-    //
-    //     // Add package info
-    //     try {
-    //       final sdkVersion = cocoa.PrivateSentrySDKOnly.getSdkVersionString();
-    //       infos['package'] = {
-    //         'version': sdkVersion.toString(),
-    //         'sdk_name': 'cocoapods:sentry-cocoa'
-    //       };
-    //     } catch (e) {
-    //       // Skip if SDK version access fails
-    //     }
-    //
-    //     result = infos;
-    //   }),
-    // );
+      cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction((scope) {
+        final serialized = scope.serialize().toDartMap();
+
+        Map<String, dynamic> stringKeyedMap(dynamic value) {
+          if (value is Map) {
+            final out = <String, dynamic>{};
+            value.forEach((k, v) => out[k.toString()] = v);
+            return out;
+          }
+          return <String, dynamic>{};
+        }
+
+        dynamic toDartStringIfNSString(dynamic value) {
+          return value is NSString ? value.toDartString() : value;
+        }
+
+        // contexts
+        final contexts = stringKeyedMap(serialized['context']);
+        if (contexts['device'] is Map) {
+          contexts['device'] = stringKeyedMap(contexts['device']);
+        }
+        if (contexts['app'] is Map) {
+          contexts['app'] = stringKeyedMap(contexts['app']);
+        }
+        if (contexts['os'] is Map) {
+          contexts['os'] = stringKeyedMap(contexts['os']);
+        }
+
+        // tags / extra / user / dist / environment / fingerprint / breadcrumbs
+        final tags = stringKeyedMap(serialized['tags']);
+        if (tags.isNotEmpty) result['tags'] = tags;
+
+        final extra = stringKeyedMap(serialized['extra']);
+        if (extra.isNotEmpty) result['extra'] = extra;
+
+        final user = stringKeyedMap(serialized['user']);
+        if (user.isNotEmpty) {
+          result['user'] = user;
+        } else {
+          result['user'] = {
+            'id': cocoa.PrivateSentrySDKOnly.getInstallationID().toDartString(),
+          };
+        }
+
+        final dist = serialized['dist'];
+        if (dist != null) result['dist'] = toDartStringIfNSString(dist);
+
+        final environment = serialized['environment'];
+        if (environment != null) {
+          result['environment'] = toDartStringIfNSString(environment);
+        }
+
+        final fingerprint = serialized['fingerprint'];
+        if (fingerprint is List) result['fingerprint'] = fingerprint;
+
+        final breadcrumbs = serialized['breadcrumbs'];
+        if (breadcrumbs is List) result['breadcrumbs'] = breadcrumbs;
+
+        // integrations from options (filter out SentrySessionReplayIntegration)
+        final nsIntegrations =
+            cocoa.PrivateSentrySDKOnly.getOptions().integrations;
+        if (nsIntegrations != null) {
+          final integrations = NSArray.castFrom(nsIntegrations).toDartList();
+          integrations.remove('SentrySessionReplayIntegration');
+          result['integrations'] = integrations;
+        }
+
+        // Merge extra device/app from Cocoa, preserving existing values
+        final extraContext =
+            cocoa.PrivateSentrySDKOnly.getExtraContext().toDartMap();
+        final extraDevice = stringKeyedMap(extraContext['device']);
+        if (extraDevice.isNotEmpty) {
+          final currentDevice = contexts['device'] is Map
+              ? Map<String, dynamic>.from(contexts['device'] as Map)
+              : <String, dynamic>{};
+          extraDevice.forEach((k, v) {
+            currentDevice.putIfAbsent(k, () => v);
+          });
+          contexts['device'] = currentDevice;
+        }
+        final extraApp = stringKeyedMap(extraContext['app']);
+        if (extraApp.isNotEmpty) {
+          final currentApp = contexts['app'] is Map
+              ? Map<String, dynamic>.from(contexts['app'] as Map)
+              : <String, dynamic>{};
+          extraApp.forEach((k, v) {
+            currentApp.putIfAbsent(k, () => v);
+          });
+          contexts['app'] = currentApp;
+        }
+
+        // Normalize NSNumber-encoded booleans for known flags
+        void normalizeBoolIn(Map<String, dynamic> map, String key) {
+          final value = map[key];
+          if (value is int) map[key] = value != 0;
+        }
+
+        if (contexts['device'] is Map) {
+          final device = Map<String, dynamic>.from(contexts['device'] as Map);
+          normalizeBoolIn(device, 'simulator');
+          contexts['device'] = device;
+        }
+        if (contexts['os'] is Map) {
+          final os = Map<String, dynamic>.from(contexts['os'] as Map);
+          normalizeBoolIn(os, 'rooted');
+          contexts['os'] = os;
+        }
+
+        result['contexts'] = contexts;
+
+        result['package'] = {
+          'version':
+              cocoa.PrivateSentrySDKOnly.getSdkVersionString().toDartString(),
+          'sdk_name': 'cocoapods:sentry-cocoa'
+        };
+      }),
+    );
 
     return result;
   }
@@ -297,111 +320,4 @@ class SentryNativeCocoa extends SentryNativeChannel {
         .whereType<DebugImage>()
         .toList();
   }
-
-  /// Converts Cocoa/Foundation objects (NSDictionary/NSArray/NSString/NSNumber)
-  /// or already-converted Dart collections/primitives into Dart-friendly types.
-  ///
-  /// Accepts any dynamic value to be resilient to partially-converted objects
-  /// and recursively converts nested structures.
-  dynamic _nsObjectToMap(dynamic obj) {
-    if (obj == null) {
-      return null;
-    }
-
-    // Handle objects already bridged to Dart types
-    if (obj is Map) {
-      final mapResult = <String, dynamic>{};
-      obj.forEach((key, value) {
-        final keyString = key is String ? key : key.toString();
-        mapResult[keyString] = _nsObjectToMap(value);
-      });
-      return mapResult;
-    }
-    if (obj is List) {
-      return obj.map((e) => _nsObjectToMap(e)).toList();
-    }
-    if (obj is String || obj is num || obj is bool) {
-      return obj;
-    }
-
-    // Handle Objective-C objects
-    if (obj is ObjCObjectBase) {
-      // Fast-path checks for Foundation container subclasses
-      if (obj is NSDictionary) {
-        return _convertNSDictionaryToMap(obj);
-      }
-      // Treat NSMutableDictionary like NSDictionary via cast fallback
-      try {
-        final dict = NSDictionary.castFromPointer(obj.ref.pointer,
-            retain: true, release: true);
-        return _convertNSDictionaryToMap(dict);
-      } catch (_) {}
-
-      if (obj is NSArray) {
-        final listResult = <dynamic>[];
-        for (int i = 0; i < obj.length; i++) {
-          listResult.add(_nsObjectToMap(obj[i]));
-        }
-        return listResult;
-      }
-      // Treat NSMutableArray like NSArray via cast fallback
-      try {
-        final array = NSArray.castFromPointer(obj.ref.pointer,
-            retain: true, release: true);
-        final listResult = <dynamic>[];
-        for (int i = 0; i < array.length; i++) {
-          final element = array[i];
-          listResult.add(_nsObjectToMap(element));
-        }
-        return listResult;
-      } catch (_) {}
-
-      // NSArray handled above (via is NSArray / cast fallback)
-
-      // NSString
-      if (obj is NSString) {
-        return obj.toDartString();
-      }
-
-      // NSNumber (try to preserve integer vs double; booleans are handled
-      // by upstream if bridged as Dart bools already)
-      if (obj is NSNumber) {
-        final doubleValue = obj.doubleValue;
-        final intValue = obj.intValue;
-        return doubleValue == intValue.toDouble() ? intValue : doubleValue;
-      }
-
-      // NSNull -> null
-      try {
-        // If NSNull is available in the runtime, detect it via toString match
-        // fallback without introducing a hard type dependency.
-        final className = obj.runtimeType.toString();
-        if (className.contains('NSNull')) {
-          return null;
-        }
-      } catch (_) {}
-
-      // Fallback: stringify unknown ObjC objects
-      return obj.toString();
-    }
-
-    // Final fallback for any other Dart object
-    return obj.toString();
-  }
-
-  Map<String, dynamic> _convertNSDictionaryToMap(NSDictionary dict) {
-    final result = <String, dynamic>{};
-    final keys = dict.allKeys;
-    final values = dict.allValues;
-    final count = keys.length < values.length ? keys.length : values.length;
-    for (int i = 0; i < count; i++) {
-      final key = keys[i];
-      final value = values[i];
-      final keyString = key is NSString ? key.toDartString() : key.toString();
-      result[keyString] = _nsObjectToMap(value);
-    }
-    return result;
-  }
-
-  // Intentionally left out: unused helper for NSArray conversion
 }
