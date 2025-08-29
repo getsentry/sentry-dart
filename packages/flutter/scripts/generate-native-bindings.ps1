@@ -7,12 +7,35 @@ Set-StrictMode -Version Latest
 if ($env:CI)
 {
     Write-Host "Running in CI so we need to set up Flutter SDK first"
-    $flutterZip = Join-Path $env:TEMP "flutter.zip"
-    $flutterDir = Join-Path $env:TEMP "flutter"
-    Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_3.27.3-stable.zip" -OutFile $flutterZip
+
+    $tempRoot = [System.IO.Path]::GetTempPath()
+    $flutterDir = Join-Path $tempRoot "flutter"
+
     if (Test-Path $flutterDir) { Remove-Item -Recurse -Force $flutterDir }
-    Expand-Archive -Path $flutterZip -DestinationPath $env:TEMP -Force
-    $env:PATH = "$flutterDir\bin;$env:PATH"
+
+    if ($IsLinux)
+    {
+        $flutterTar = Join-Path $tempRoot "flutter.tar.xz"
+        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.27.3-stable.tar.xz" -OutFile $flutterTar
+        tar xf $flutterTar -C $tempRoot
+    }
+    elseif ($IsMacOS)
+    {
+        $flutterZip = Join-Path $tempRoot "flutter.zip"
+        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_3.27.3-stable.zip" -OutFile $flutterZip
+        Expand-Archive -Path $flutterZip -DestinationPath $tempRoot -Force
+    }
+    else
+    {
+        $flutterZip = Join-Path $tempRoot "flutter.zip"
+        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_3.27.3-stable.zip" -OutFile $flutterZip
+        Expand-Archive -Path $flutterZip -DestinationPath $tempRoot -Force
+    }
+
+    $binDir = Join-Path $flutterDir "bin"
+    $pathSep = if ($IsWindows) { ';' } else { ':' }
+    $env:PATH = "$binDir$pathSep$env:PATH"
+
     Get-Command flutter | Out-Host
     flutter --version
 }
