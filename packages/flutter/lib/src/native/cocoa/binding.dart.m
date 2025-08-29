@@ -86,6 +86,31 @@ id  _SentryCocoa_protocolTrampoline_1mbt9g9(id target, void * sel) {
   return ((ProtocolTrampoline)((id (*)(id, SEL, SEL))objc_msgSend)(target, @selector(getDOBJCDartProtocolMethodForSelector:), sel))(sel);
 }
 
+Protocol* _SentryCocoa_SentrySpan(void) { return @protocol(SentrySpan); }
+
+typedef void  (^ListenerTrampoline_1)(int * arg0);
+__attribute__((visibility("default"))) __attribute__((used))
+ListenerTrampoline_1 _SentryCocoa_wrapListenerBlock_15zdkpa(ListenerTrampoline_1 block) NS_RETURNS_RETAINED {
+  return ^void(int * arg0) {
+    objc_retainBlock(block);
+    block(arg0);
+  };
+}
+
+typedef void  (^BlockingTrampoline_1)(void * waiter, int * arg0);
+__attribute__((visibility("default"))) __attribute__((used))
+ListenerTrampoline_1 _SentryCocoa_wrapBlockingBlock_15zdkpa(
+    BlockingTrampoline_1 block, BlockingTrampoline_1 listenerBlock,
+    DOBJC_Context* ctx) NS_RETURNS_RETAINED {
+  BLOCKING_BLOCK_IMPL(ctx, ^void(int * arg0), {
+    objc_retainBlock(block);
+    block(nil, arg0);
+  }, {
+    objc_retainBlock(listenerBlock);
+    listenerBlock(waiter, arg0);
+  });
+}
+
 Protocol* _SentryCocoa_SentrySerializable(void) { return @protocol(SentrySerializable); }
 
 Protocol* _SentryCocoa_SentryRandom(void) { return @protocol(SentryRandom); }

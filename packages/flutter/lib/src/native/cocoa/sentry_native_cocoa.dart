@@ -120,12 +120,15 @@ class SentryNativeCocoa extends SentryNativeChannel {
   }
 
   @override
-  FutureOr<Map<String, dynamic>?> loadContexts() {
+  Future<Map<String, dynamic>?> loadContexts() async {
     Map<String, dynamic>? result;
 
-    // cocoa.SentrySDK.configureScope(
-    //   cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction((scope) {
-    //     final serializedScope = scope.serialize();
+    cocoa.SentrySDK.configureScope(
+        cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction((scope) {
+      final serializedScope = scope.serialize();
+      final serialized = toDartObject(serializedScope);
+      print('serialized is Map: ${serialized is Map}');
+    }));
     //     final scopeDict = _nsObjectToMap(serializedScope);
     //
     //     // Initialize context map
@@ -295,70 +298,110 @@ class SentryNativeCocoa extends SentryNativeChannel {
         .toList();
   }
 
-  /// Converts NSObject to Dart Map, List, or primitive types
-  dynamic _nsObjectToMap(ObjCObjectBase obj) {
-    try {
-      // Try to cast to NSDictionary first
+  /// Converts Cocoa/Foundation objects (NSDictionary/NSArray/NSString/NSNumber)
+  /// or already-converted Dart collections/primitives into Dart-friendly types.
+  ///
+  /// Accepts any dynamic value to be resilient to partially-converted objects
+  /// and recursively converts nested structures.
+  dynamic _nsObjectToMap(dynamic obj) {
+    if (obj == null) {
+      return null;
+    }
+
+    // Handle objects already bridged to Dart types
+    if (obj is Map) {
+      final mapResult = <String, dynamic>{};
+      obj.forEach((key, value) {
+        final keyString = key is String ? key : key.toString();
+        mapResult[keyString] = _nsObjectToMap(value);
+      });
+      return mapResult;
+    }
+    if (obj is List) {
+      return obj.map((e) => _nsObjectToMap(e)).toList();
+    }
+    if (obj is String || obj is num || obj is bool) {
+      return obj;
+    }
+
+    // Handle Objective-C objects
+    if (obj is ObjCObjectBase) {
+      // Fast-path checks for Foundation container subclasses
       if (obj is NSDictionary) {
-        final result = <String, dynamic>{};
-        final keys = obj.allKeys;
-
-        for (int i = 0; i < keys.length; i++) {
-          final key = keys[i];
-          final value = obj[key];
-
-          String? keyString;
-          if (key is NSString) {
-            keyString = key.toDartString();
-          } else {
-            keyString = key.toString();
-          }
-
-          if (value != null) {
-            result[keyString] = _nsObjectToMap(value);
-          }
-        }
-        return result;
+        return _convertNSDictionaryToMap(obj);
       }
+      // Treat NSMutableDictionary like NSDictionary via cast fallback
+      try {
+        final dict = NSDictionary.castFromPointer(obj.ref.pointer,
+            retain: true, release: true);
+        return _convertNSDictionaryToMap(dict);
+      } catch (_) {}
 
-      // Try to cast to NSArray
       if (obj is NSArray) {
-        final result = <dynamic>[];
+        final listResult = <dynamic>[];
         for (int i = 0; i < obj.length; i++) {
-          final item = obj[i];
-          if (item != null) {
-            result.add(_nsObjectToMap(item));
-          }
+          listResult.add(_nsObjectToMap(obj[i]));
         }
-        return result;
+        return listResult;
       }
+      // Treat NSMutableArray like NSArray via cast fallback
+      try {
+        final array = NSArray.castFromPointer(obj.ref.pointer,
+            retain: true, release: true);
+        final listResult = <dynamic>[];
+        for (int i = 0; i < array.length; i++) {
+          final element = array[i];
+          listResult.add(_nsObjectToMap(element));
+        }
+        return listResult;
+      } catch (_) {}
 
-      // Try to cast to NSString
+      // NSArray handled above (via is NSArray / cast fallback)
+
+      // NSString
       if (obj is NSString) {
         return obj.toDartString();
       }
 
-      // Try to cast to NSNumber
+      // NSNumber (try to preserve integer vs double; booleans are handled
+      // by upstream if bridged as Dart bools already)
       if (obj is NSNumber) {
-        // NSNumber can represent various numeric types
-        // Try to determine the best Dart type
         final doubleValue = obj.doubleValue;
         final intValue = obj.intValue;
-
-        // If the double value equals the int value, it's likely an integer
-        if (doubleValue == intValue.toDouble()) {
-          return intValue;
-        } else {
-          return doubleValue;
-        }
+        return doubleValue == intValue.toDouble() ? intValue : doubleValue;
       }
 
-      // For other types, try to convert to string
-      return obj.toString();
-    } catch (e) {
-      // If conversion fails, return null or string representation
-      options.log(SentryLevel.debug, 'Failed to convert NSObject to Dart: $e');
+      // NSNull -> null
+      try {
+        // If NSNull is available in the runtime, detect it via toString match
+        // fallback without introducing a hard type dependency.
+        final className = obj.runtimeType.toString();
+        if (className.contains('NSNull')) {
+          return null;
+        }
+      } catch (_) {}
+
+      // Fallback: stringify unknown ObjC objects
       return obj.toString();
     }
+
+    // Final fallback for any other Dart object
+    return obj.toString();
   }
+
+  Map<String, dynamic> _convertNSDictionaryToMap(NSDictionary dict) {
+    final result = <String, dynamic>{};
+    final keys = dict.allKeys;
+    final values = dict.allValues;
+    final count = keys.length < values.length ? keys.length : values.length;
+    for (int i = 0; i < count; i++) {
+      final key = keys[i];
+      final value = values[i];
+      final keyString = key is NSString ? key.toDartString() : key.toString();
+      result[keyString] = _nsObjectToMap(value);
+    }
+    return result;
+  }
+
+  // Intentionally left out: unused helper for NSArray conversion
 }

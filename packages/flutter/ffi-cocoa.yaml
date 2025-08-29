@@ -20,6 +20,7 @@ exclude-all-by-default: true
 objc-interfaces:
   include:
     - PrivateSentrySDKOnly
+    - SentrySDK
     - SentryScope
     - SentryId
     - SentryDependencyContainer
@@ -27,6 +28,10 @@ objc-interfaces:
     - SentryBinaryImageCache
     - SentryBinaryImageInfo
     - SentryDebugMeta
+  module:
+    'SentryId': 'Sentry'
+    'SentrySDK': 'Sentry'
+    'SentryLevel': 'Sentry'
 enums:
   include:
     - "^SentryLevel$"
