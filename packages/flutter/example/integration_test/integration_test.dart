@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 // ignore_for_file: invalid_use_of_internal_member
+// ignore_for_file: unused_local_variable
 
 import 'dart:async';
 import 'dart:convert';
@@ -159,7 +160,6 @@ void main() {
       await setupSentryAndApp(tester);
     });
 
-    await Future.delayed(const Duration(seconds: 2));
     final contexts = await SentryFlutter.native?.loadContexts();
 
     // === BASIC VALIDATION ===
@@ -188,14 +188,14 @@ void main() {
     expect(appContext.containsKey('app_version'), isTrue,
         reason: 'App version missing from app context');
 
-    // Verify OS context has expected fields (common)
-    final osContext = contextData['os'] as Map<Object, Object>?;
+    // Verify OS context has expected fields
+    final osContext = contextData['os'] as Map<String, dynamic>?;
     expect(osContext, isNotNull, reason: 'OS context is null');
     expect(osContext!.containsKey('name'), isTrue,
         reason: 'OS name missing from OS context');
 
-    // Verify device context has expected fields (common)
-    final deviceContext = contextData['device'] as Map<Object, Object>?;
+    // Verify device context has expected fields
+    final deviceContext = contextData['device'] as Map<String, dynamic>?;
     expect(deviceContext, isNotNull, reason: 'Device context is null');
     expect(deviceContext!.containsKey('model'), isTrue,
         reason: 'Device model missing from device context');
@@ -205,7 +205,8 @@ void main() {
         reason: 'User section missing');
     expect(contexts.containsKey('breadcrumbs'), isTrue,
         reason: 'Breadcrumbs section missing');
-    expect(contexts.containsKey('tags'), isTrue,
+    // iOS doesn't have tags ootb
+    expect(contexts.containsKey('tags'), Platform.isAndroid ? isTrue : isFalse,
         reason: 'Tags section missing');
 
     // === PLATFORM-SPECIFIC VALIDATION ===
@@ -215,10 +216,314 @@ void main() {
           reason: 'Expected Android OS name');
       expect(deviceContext.containsKey('manufacturer'), isTrue,
           reason: 'Device manufacturer missing from device context');
+
+      // Top-level Android-specific sections
+      expect(contexts.containsKey('level'), isTrue,
+          reason: 'Top-level level missing');
+      final level = contexts['level'];
+      expect(level == null || level is String, isTrue,
+          reason: 'level must be null or String');
+
+      expect(contexts.containsKey('fingerprint'), isTrue,
+          reason: 'Top-level fingerprint missing');
+      expect(contexts['fingerprint'], isA<List>());
+
+      expect(contexts.containsKey('extras'), isTrue,
+          reason: 'Top-level extras missing');
+      expect(contexts['extras'], isA<Map>());
+
+      expect(contexts.containsKey('tags'), isTrue,
+          reason: 'Top-level tags missing');
+      expect(contexts['tags'], isA<Map>());
+
+      // user id
+      final userData = contexts['user'] as Map<String, dynamic>?;
+      expect(userData, isNotNull, reason: 'User data is null');
+      expect(userData!.containsKey('id'), isTrue, reason: 'User id missing');
+      expect(userData['id'], isA<String>());
+
+      // OS fields
+      expect(osContext.containsKey('kernel_version'), isTrue,
+          reason: 'OS kernel_version missing');
+      expect(osContext['kernel_version'], isA<String>());
+      expect(osContext.containsKey('build'), isTrue,
+          reason: 'OS build missing');
+      expect(osContext['build'], isA<String>());
+      expect(osContext.containsKey('rooted'), isTrue,
+          reason: 'OS rooted missing');
+      expect(osContext['rooted'], isA<bool>());
+      expect(osContext.containsKey('version'), isTrue,
+          reason: 'OS version missing');
+      final iosOsVersion = osContext['version'];
+      expect(iosOsVersion is String || iosOsVersion is num, isTrue,
+          reason: 'OS version must be String or num');
+
+      // App fields
+      expect(appContext.containsKey('app_name'), isTrue,
+          reason: 'App app_name missing');
+      expect(appContext['app_name'], isA<String>());
+      expect(appContext.containsKey('app_build'), isTrue,
+          reason: 'App app_build missing');
+      final androidAppBuild = appContext['app_build'];
+      expect(androidAppBuild is String || androidAppBuild is num, isTrue,
+          reason: 'App app_build must be String or num');
+      expect(appContext.containsKey('app_version'), isTrue,
+          reason: 'App app_version missing');
+      expect(appContext['app_version'], isA<String>());
+      expect(appContext.containsKey('app_start_time'), isTrue,
+          reason: 'App app_start_time missing');
+      expect(appContext['app_start_time'], isA<String>());
+      final androidAppStart = appContext['app_start_time'] as String?;
+      expect(androidAppStart, isNotNull);
+      expect(DateTime.tryParse(androidAppStart!), isNotNull,
+          reason: 'App app_start_time is not ISO-8601');
+      expect(appContext.containsKey('permissions'), isTrue,
+          reason: 'App permissions missing');
+      final permissions = appContext['permissions'];
+      expect(permissions, isA<Map>());
+      // Validate permissions entries are strings
+      final Map permMap = permissions as Map;
+      expect(permMap.keys, everyElement(isA<String>()));
+      expect(permMap.values, everyElement(isA<String>()));
+      expect(appContext.containsKey('app_identifier'), isTrue,
+          reason: 'App app_identifier missing');
+      expect(appContext['app_identifier'], isA<String>());
+      expect(appContext.containsKey('is_split_apks'), isTrue,
+          reason: 'App is_split_apks missing');
+      expect(appContext['is_split_apks'], isA<bool>());
+
+      // Device fields
+      expect(deviceContext.containsKey('processor_count'), isTrue,
+          reason: 'Device processor_count missing');
+      expect(deviceContext['processor_count'], isA<num>());
+      expect(deviceContext.containsKey('screen_width_pixels'), isTrue,
+          reason: 'Device screen_width_pixels missing');
+      expect(deviceContext['screen_width_pixels'], isA<num>());
+      expect(deviceContext.containsKey('timezone'), isTrue,
+          reason: 'Device timezone missing');
+      expect(deviceContext['timezone'], isA<String>());
+      expect(deviceContext.containsKey('low_memory'), isTrue,
+          reason: 'Device low_memory missing');
+      expect(deviceContext['low_memory'], isA<bool>());
+      expect(deviceContext.containsKey('locale'), isTrue,
+          reason: 'Device locale missing');
+      expect(deviceContext['locale'], isA<String>());
+      expect(deviceContext.containsKey('manufacturer'), isTrue,
+          reason: 'Device manufacturer missing');
+      expect(deviceContext['manufacturer'], isA<String>());
+      expect(deviceContext.containsKey('archs'), isTrue,
+          reason: 'Device archs missing');
+      expect(deviceContext['archs'], isA<List>());
+      final archs = deviceContext['archs'] as List<dynamic>;
+      if (archs.isNotEmpty) {
+        expect(archs.first, isA<String>());
+      }
+      expect(deviceContext.containsKey('model'), isTrue,
+          reason: 'Device model missing');
+      expect(deviceContext['model'], isA<String>());
+      expect(deviceContext.containsKey('id'), isTrue,
+          reason: 'Device id missing');
+      expect(deviceContext['id'], isA<String>());
+      expect(deviceContext.containsKey('brand'), isTrue,
+          reason: 'Device brand missing');
+      expect(deviceContext['brand'], isA<String>());
+      expect(deviceContext.containsKey('orientation'), isTrue,
+          reason: 'Device orientation missing');
+      expect(deviceContext['orientation'], isA<String>());
+      expect(deviceContext.containsKey('simulator'), isTrue,
+          reason: 'Device simulator missing');
+      expect(deviceContext['simulator'], isA<bool>());
+      expect(deviceContext.containsKey('battery_level'), isTrue,
+          reason: 'Device battery_level missing');
+      expect(deviceContext['battery_level'], isA<num>());
+      expect(deviceContext.containsKey('connection_type'), isTrue,
+          reason: 'Device connection_type missing');
+      expect(deviceContext['connection_type'], isA<String>());
+      expect(deviceContext.containsKey('charging'), isTrue,
+          reason: 'Device charging missing');
+      expect(deviceContext['charging'], isA<bool>());
+      expect(deviceContext.containsKey('free_memory'), isTrue,
+          reason: 'Device free_memory missing');
+      expect(deviceContext['free_memory'], isA<num>());
+      expect(deviceContext.containsKey('model_id'), isTrue,
+          reason: 'Device model_id missing');
+      expect(deviceContext['model_id'], isA<String>());
+      expect(deviceContext.containsKey('chipset'), isTrue,
+          reason: 'Device chipset missing');
+      expect(deviceContext['chipset'], isA<String>());
+      expect(deviceContext.containsKey('screen_dpi'), isTrue,
+          reason: 'Device screen_dpi missing');
+      expect(deviceContext['screen_dpi'], isA<num>());
+      expect(deviceContext.containsKey('memory_size'), isTrue,
+          reason: 'Device memory_size missing');
+      expect(deviceContext['memory_size'], isA<num>());
+      expect(deviceContext.containsKey('battery_temperature'), isTrue,
+          reason: 'Device battery_temperature missing');
+      expect(deviceContext['battery_temperature'], isA<num>());
+      expect(deviceContext.containsKey('free_storage'), isTrue,
+          reason: 'Device free_storage missing');
+      expect(deviceContext['free_storage'], isA<num>());
+      expect(deviceContext.containsKey('screen_height_pixels'), isTrue,
+          reason: 'Device screen_height_pixels missing');
+      expect(deviceContext['screen_height_pixels'], isA<num>());
+      expect(deviceContext.containsKey('boot_time'), isTrue,
+          reason: 'Device boot_time missing');
+      expect(deviceContext['boot_time'], isA<String>());
+      final bootTime = deviceContext['boot_time'] as String?;
+      expect(bootTime, isNotNull);
+      expect(DateTime.tryParse(bootTime!), isNotNull,
+          reason: 'Device boot_time is not ISO-8601');
+      expect(deviceContext.containsKey('screen_density'), isTrue,
+          reason: 'Device screen_density missing');
+      expect(deviceContext['screen_density'], isA<num>());
+      expect(deviceContext.containsKey('storage_size'), isTrue,
+          reason: 'Device storage_size missing');
+      expect(deviceContext['storage_size'], isA<num>());
+      expect(deviceContext.containsKey('online'), isTrue,
+          reason: 'Device online missing');
+      expect(deviceContext['online'], isA<bool>());
+      expect(deviceContext.containsKey('family'), isTrue,
+          reason: 'Device family missing');
+      expect(deviceContext['family'], isA<String>());
+      expect(deviceContext.containsKey('processor_frequency'), isTrue,
+          reason: 'Device processor_frequency missing');
+      expect(deviceContext['processor_frequency'], isA<num>());
+
+      // Breadcrumbs structure (Android)
+      final breadcrumbs = contexts['breadcrumbs'] as List<dynamic>?;
+      expect(breadcrumbs, isNotNull, reason: 'Breadcrumbs data is null');
+      expect(breadcrumbs, isA<List>());
+      if (breadcrumbs!.isNotEmpty) {
+        final firstCrumb = breadcrumbs.first;
+        expect(firstCrumb, isA<Map<String, dynamic>>());
+        final Map<String, dynamic> crumbMap =
+            firstCrumb as Map<String, dynamic>;
+        expect(crumbMap.containsKey('timestamp'), isTrue,
+            reason: 'Breadcrumb timestamp missing');
+        expect(crumbMap['timestamp'], isA<String>());
+        expect(crumbMap.containsKey('category'), isTrue,
+            reason: 'Breadcrumb category missing');
+        if (crumbMap.containsKey('level')) {
+          expect(crumbMap['level'], isA<String>());
+        }
+        if (crumbMap.containsKey('type')) {
+          expect(crumbMap['type'], isA<String>());
+        }
+        // message or data
+        expect(crumbMap.containsKey('message') || crumbMap.containsKey('data'),
+            isTrue,
+            reason: 'Breadcrumb missing message or data');
+      }
     } else if (Platform.isIOS) {
       // iOS-specific validation
       expect(osContext['name'], equals('iOS'), reason: 'Expected iOS OS name');
-      // Add more iOS-specific checks here as needed
+      // OS fields
+      expect(osContext.containsKey('build'), isTrue,
+          reason: 'OS build missing');
+      expect(osContext['build'], isA<String>());
+      expect(osContext.containsKey('rooted'), isTrue,
+          reason: 'OS rooted missing');
+      expect(osContext['rooted'], isA<bool>());
+      expect(osContext.containsKey('kernel_version'), isTrue,
+          reason: 'OS kernel_version missing');
+      expect(osContext['kernel_version'], isA<String>());
+      expect(osContext.containsKey('version'), isTrue,
+          reason: 'OS version missing');
+      expect(osContext['version'], isA<String>());
+
+      // Device fields
+      expect(deviceContext.containsKey('processor_count'), isTrue,
+          reason: 'Device processor_count missing');
+      expect(deviceContext['processor_count'], isA<num>());
+      expect(deviceContext.containsKey('locale'), isTrue,
+          reason: 'Device locale missing');
+      expect(deviceContext['locale'], isA<String>());
+      expect(deviceContext.containsKey('family'), isTrue,
+          reason: 'Device family missing');
+      expect(deviceContext['family'], isA<String>());
+      expect(deviceContext.containsKey('screen_height_pixels'), isTrue,
+          reason: 'Device screen_height_pixels missing');
+      expect(deviceContext['screen_height_pixels'], isA<num>());
+      expect(deviceContext.containsKey('screen_width_pixels'), isTrue,
+          reason: 'Device screen_width_pixels missing');
+      expect(deviceContext['screen_width_pixels'], isA<num>());
+      expect(deviceContext.containsKey('thermal_state'), isTrue,
+          reason: 'Device thermal_state missing');
+      expect(deviceContext['thermal_state'], isA<String>());
+      expect(deviceContext.containsKey('usable_memory'), isTrue,
+          reason: 'Device usable_memory missing');
+      expect(deviceContext['usable_memory'], isA<num>());
+      expect(deviceContext.containsKey('memory_size'), isTrue,
+          reason: 'Device memory_size missing');
+      expect(deviceContext['memory_size'], isA<num>());
+      expect(deviceContext.containsKey('free_memory'), isTrue,
+          reason: 'Device free_memory missing');
+      expect(deviceContext['free_memory'], isA<num>());
+      expect(deviceContext.containsKey('arch'), isTrue,
+          reason: 'Device arch missing');
+      expect(deviceContext['arch'], isA<String>());
+      expect(deviceContext.containsKey('simulator'), isTrue,
+          reason: 'Device simulator missing');
+      expect(deviceContext['simulator'], isA<bool>());
+      expect(deviceContext.containsKey('model_id'), isTrue,
+          reason: 'Device model_id missing');
+      expect(deviceContext['model_id'], isA<String>());
+
+      // App fields
+      expect(appContext.containsKey('build_type'), isTrue,
+          reason: 'App build_type missing');
+      expect(appContext['build_type'], isA<String>());
+      expect(appContext.containsKey('app_identifier'), isTrue,
+          reason: 'App app_identifier missing');
+      expect(appContext['app_identifier'], isA<String>());
+      expect(appContext.containsKey('app_build'), isTrue,
+          reason: 'App app_build missing');
+      final iosAppBuild = appContext['app_build'];
+      expect(iosAppBuild is String || iosAppBuild is num, isTrue,
+          reason: 'App app_build must be String or num');
+      expect(appContext.containsKey('app_start_time'), isTrue,
+          reason: 'App app_start_time missing');
+      expect(appContext['app_start_time'], isA<String>());
+      final appStartTime = appContext['app_start_time'] as String?;
+      expect(appStartTime, isNotNull);
+      expect(DateTime.tryParse(appStartTime!), isNotNull,
+          reason: 'App app_start_time is not ISO-8601');
+      expect(appContext.containsKey('device_app_hash'), isTrue,
+          reason: 'App device_app_hash missing');
+      expect(appContext['device_app_hash'], isA<String>());
+      expect(appContext.containsKey('app_id'), isTrue,
+          reason: 'App app_id missing');
+      expect(appContext['app_id'], isA<String>());
+      expect(appContext.containsKey('app_memory'), isTrue,
+          reason: 'App app_memory missing');
+      expect(appContext['app_memory'], isA<num>());
+
+      // Top-level iOS-specific sections
+      // integrations
+      expect(contexts.containsKey('integrations'), isTrue,
+          reason: 'Integrations section missing');
+      final integrations = contexts['integrations'];
+      expect(integrations, isA<List>());
+      expect((integrations as List), isNotEmpty);
+      expect(integrations.first, isA<String>());
+
+      // package info
+      expect(contexts.containsKey('package'), isTrue,
+          reason: 'Package section missing');
+      final packageInfo = contexts['package'] as Map<String, dynamic>?;
+      expect(packageInfo, isNotNull, reason: 'Package data is null');
+      expect(packageInfo!.containsKey('sdk_name'), isTrue,
+          reason: 'Package sdk_name missing');
+      expect(packageInfo['sdk_name'], isA<String>());
+      expect(packageInfo.containsKey('version'), isTrue,
+          reason: 'Package version missing');
+      expect(packageInfo['version'], isA<String>());
+
+      // user id
+      final userData = contexts['user'] as Map<String, dynamic>?;
+      expect(userData, isNotNull, reason: 'User data is null');
+      expect(userData!.containsKey('id'), isTrue, reason: 'User id missing');
+      expect(userData['id'], isA<String>());
     }
   });
 

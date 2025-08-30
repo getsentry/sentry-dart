@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
 
 import '../../../sentry_flutter.dart';
@@ -123,7 +121,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   }
 
   @override
-  Future<Map<String, dynamic>?> loadContexts() async {
+  Future<Map<String, dynamic>?> loadContexts() {
     final result = <String, dynamic>{};
 
     cocoa.SentrySDK.configureScope(

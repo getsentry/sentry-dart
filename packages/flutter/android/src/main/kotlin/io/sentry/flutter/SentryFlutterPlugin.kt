@@ -76,7 +76,6 @@ class SentryFlutterPlugin :
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
-      "loadContexts" -> loadContexts(result)
       "displayRefreshRate" -> displayRefreshRate(result)
       "nativeCrash" -> crash()
       "setReplayConfig" -> setReplayConfig(call, result)
@@ -441,22 +440,6 @@ class SentryFlutterPlugin :
         this + (VIDEO_BLOCK_SIZE - remainder)
       }
     }
-  }
-
-  private fun loadContexts(result: Result) {
-    val options = HubAdapter.getInstance().options
-    if (options !is SentryAndroidOptions) {
-      result.success(null)
-      return
-    }
-    val currentScope = InternalSentrySdk.getCurrentScope()
-    val serializedScope =
-      InternalSentrySdk.serializeScope(
-        context,
-        options,
-        currentScope,
-      )
-    result.success(serializedScope)
   }
 
   private fun setReplayConfig(
