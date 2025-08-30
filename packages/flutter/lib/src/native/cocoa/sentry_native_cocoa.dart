@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:jni/_internal.dart';
 import 'package:objective_c/objective_c.dart';
 
 import '../../../sentry_flutter.dart';
@@ -121,9 +122,14 @@ class SentryNativeCocoa extends SentryNativeChannel {
   }
 
   @override
-  Future<Map<String, dynamic>?> loadContexts() {
+  FutureOr<Map<String, dynamic>?> loadContexts() async {
     final result = <String, dynamic>{};
 
+    final channelStopwatch = Stopwatch()..start();
+    final channels = await super.loadContexts();
+    channelStopwatch.stop();
+
+    final ff1Stopwatch = Stopwatch()..start();
     cocoa.SentrySDK.configureScope(
       cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction((scope) {
         final serialized = scope.serialize().toDartMap();
@@ -234,6 +240,155 @@ class SentryNativeCocoa extends SentryNativeChannel {
         }
 
         result['contexts'] = contexts;
+
+        result['package'] = {
+          'version':
+              cocoa.PrivateSentrySDKOnly.getSdkVersionString().toDartString(),
+          'sdk_name': 'cocoapods:sentry-cocoa'
+        };
+      }),
+    );
+
+    ff1Stopwatch.stop();
+
+    final ffi2Stopwatch = Stopwatch()..start();
+    final haha = loadContexts2();
+    ffi2Stopwatch.stop();
+
+    print('res: ffi1: $result');
+    print('res: ffi2: $haha');
+
+    print('res: channels: $channels');
+
+    print('FFI1: ${ff1Stopwatch.elapsedMicroseconds} microseconds');
+    print('FFI2: ${ffi2Stopwatch.elapsedMicroseconds} microseconds');
+    print('Channel: ${channelStopwatch.elapsedMicroseconds} microseconds');
+
+    return loadContexts2();
+  }
+
+  Map<String, dynamic>? loadContexts2() {
+    final result = <String, dynamic>{};
+
+    cocoa.SentrySDK.configureScope(
+      cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction((scope) {
+        final serialized = scope.serialize();
+
+        Map<String, dynamic> stringKeyedMap(dynamic value) {
+          if (value is Map) {
+            final out = <String, dynamic>{};
+            value.forEach((k, v) => out[k.toString()] = v);
+            return out;
+          }
+          return <String, dynamic>{};
+        }
+
+        dynamic toDartStringIfNSString(dynamic value) {
+          return value is NSString ? value.toDartString() : value;
+        }
+
+        Map<String, dynamic> contextsMap = {};
+        final contexts = serialized.objectForKey(NSString('context'));
+        if (contexts != null && NSDictionary.isInstance(contexts)) {
+          final contextsDict = NSDictionary.castFrom(contexts);
+          contextsMap = stringKeyedMap(contextsDict.toDartMap());
+        }
+
+        // tags / extra / user / dist / environment / fingerprint / breadcrumbs
+        final tags = serialized.objectForKey(NSString('tags'));
+        if (tags != null && NSDictionary.isInstance(tags)) {
+          final tagsDict = NSDictionary.castFrom(tags);
+          result['tags'] = tagsDict.toDartMap();
+        }
+
+        final extra = serialized.objectForKey(NSString('extra'));
+        if (extra != null && NSDictionary.isInstance(extra)) {
+          final extraDict = NSDictionary.castFrom(extra);
+          result['extra'] = extraDict.toDartMap();
+        }
+
+        final user = serialized.objectForKey(NSString('user'));
+        if (user != null && NSDictionary.isInstance(user)) {
+          final userDict = NSDictionary.castFrom(user);
+          result['user'] = userDict.toDartMap();
+        } else {
+          result['user'] = {
+            'id': cocoa.PrivateSentrySDKOnly.getInstallationID().toDartString(),
+          };
+        }
+
+        final dist = serialized.objectForKey(NSString('dist'));
+        if (dist != null && NSString.isInstance(dist)) {
+          result['dist'] = NSString.castFrom(dist).toDartString();
+        }
+
+        final environment = serialized.objectForKey(NSString('environment'));
+        if (environment != null && NSString.isInstance(environment)) {
+          result['environment'] = NSString.castFrom(environment).toDartString();
+        }
+
+        final fingerprint = serialized.objectForKey(NSString('fingerprint'));
+        if (fingerprint != null && NSArray.isInstance(fingerprint)) {
+          result['fingerprint'] = NSArray.castFrom(fingerprint).toDartList();
+        }
+
+        final breadcrumbs = serialized.objectForKey(NSString('breadcrumbs'));
+        if (breadcrumbs != null && NSArray.isInstance(breadcrumbs)) {
+          result['breadcrumbs'] = NSArray.castFrom(breadcrumbs).toDartList();
+        }
+
+        // integrations from options (filter out SentrySessionReplayIntegration)
+        final nsIntegrations =
+            cocoa.PrivateSentrySDKOnly.getOptions().integrations;
+        if (nsIntegrations != null) {
+          final integrations = NSArray.castFrom(nsIntegrations).toDartList();
+          integrations.remove('SentrySessionReplayIntegration');
+          result['integrations'] = integrations;
+        }
+
+        // Merge extra device/app from Cocoa, preserving existing values
+        final extraContext =
+            cocoa.PrivateSentrySDKOnly.getExtraContext().toDartMap();
+        final extraDevice = stringKeyedMap(extraContext['device']);
+        if (extraDevice.isNotEmpty) {
+          final currentDevice = contextsMap['device'] is Map
+              ? Map<String, dynamic>.from(contextsMap['device'] as Map)
+              : <String, dynamic>{};
+          extraDevice.forEach((k, v) {
+            currentDevice.putIfAbsent(k, () => v);
+          });
+          contextsMap['device'] = currentDevice;
+        }
+        final extraApp = stringKeyedMap(extraContext['app']);
+        if (extraApp.isNotEmpty) {
+          final currentApp = contextsMap['app'] is Map
+              ? Map<String, dynamic>.from(contextsMap['app'] as Map)
+              : <String, dynamic>{};
+          extraApp.forEach((k, v) {
+            currentApp.putIfAbsent(k, () => v);
+          });
+          contextsMap['app'] = currentApp;
+        }
+
+        // Normalize NSNumber-encoded booleans for known flags
+        void normalizeBoolIn(Map<String, dynamic> map, String key) {
+          final value = map[key];
+          if (value is int) map[key] = value != 0;
+        }
+
+        if (contextsMap['device'] is Map) {
+          final device =
+              Map<String, dynamic>.from(contextsMap['device'] as Map);
+          normalizeBoolIn(device, 'simulator');
+          contextsMap['device'] = device;
+        }
+        if (contextsMap['os'] is Map) {
+          final os = Map<String, dynamic>.from(contextsMap['os'] as Map);
+          normalizeBoolIn(os, 'rooted');
+          contextsMap['os'] = os;
+        }
+
+        result['contexts'] = contextsMap;
 
         result['package'] = {
           'version':

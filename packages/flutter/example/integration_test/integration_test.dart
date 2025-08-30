@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
 
@@ -161,6 +162,13 @@ void main() {
     });
 
     final contexts = await SentryFlutter.native?.loadContexts();
+    final appPackageInfo = await PackageInfo.fromPlatform();
+    final expectedAppId = Platform.isAndroid
+        ? 'io.sentry.samples.flutter'
+        : 'io.sentry.flutter.sample';
+    final expectedSdkName =
+        Platform.isAndroid ? 'maven:sentry-android' : 'cocoapods:sentry-cocoa';
+    final expectedVersion = appPackageInfo.version;
 
     // === BASIC VALIDATION ===
     expect(contexts, isNotNull, reason: 'Loaded contexts are null');
@@ -168,7 +176,7 @@ void main() {
     expect(contexts!.containsKey('contexts'), isTrue,
         reason: 'Contexts section missing');
 
-    final contextData = contexts['contexts'] as Map<String, dynamic>?;
+    final contextData = contexts['contexts'] as Map?;
     expect(contextData, isNotNull, reason: 'Contexts data is null');
     expect(contextData, isNotEmpty, reason: 'Contexts data is empty');
 
@@ -181,7 +189,7 @@ void main() {
         reason: 'Device context missing');
 
     // Verify app context has expected fields
-    final appContext = contextData['app'] as Map<String, dynamic>?;
+    final appContext = contextData['app'] as Map?;
     expect(appContext, isNotNull, reason: 'App context is null');
     expect(appContext!.containsKey('app_name'), isTrue,
         reason: 'App name missing from app context');
@@ -189,13 +197,13 @@ void main() {
         reason: 'App version missing from app context');
 
     // Verify OS context has expected fields
-    final osContext = contextData['os'] as Map<String, dynamic>?;
+    final osContext = contextData['os'] as Map?;
     expect(osContext, isNotNull, reason: 'OS context is null');
     expect(osContext!.containsKey('name'), isTrue,
         reason: 'OS name missing from OS context');
 
     // Verify device context has expected fields
-    final deviceContext = contextData['device'] as Map<String, dynamic>?;
+    final deviceContext = contextData['device'] as Map?;
     expect(deviceContext, isNotNull, reason: 'Device context is null');
     expect(deviceContext!.containsKey('model'), isTrue,
         reason: 'Device model missing from device context');
@@ -209,8 +217,41 @@ void main() {
     expect(contexts.containsKey('tags'), Platform.isAndroid ? isTrue : isFalse,
         reason: 'Tags section missing');
 
+    // === BREADCRUMBS STRUCTURE (Common) ===
+    final breadcrumbs = contexts['breadcrumbs'] as List<dynamic>?;
+    expect(breadcrumbs, isNotNull, reason: 'Breadcrumbs data is null');
+    expect(breadcrumbs, isA<List>());
+    if (breadcrumbs!.isNotEmpty) {
+      final firstCrumb = breadcrumbs.first;
+      expect(firstCrumb, isA<Map<String, dynamic>>());
+      final Map<String, dynamic> crumbMap = firstCrumb as Map<String, dynamic>;
+      expect(crumbMap.containsKey('timestamp'), isTrue,
+          reason: 'Breadcrumb timestamp missing');
+      expect(crumbMap['timestamp'], isA<String>());
+      expect(crumbMap.containsKey('category'), isTrue,
+          reason: 'Breadcrumb category missing');
+      if (crumbMap.containsKey('level')) {
+        expect(crumbMap['level'], isA<String>());
+      }
+      if (crumbMap.containsKey('type')) {
+        expect(crumbMap['type'], isA<String>());
+      }
+      // message or data
+      expect(crumbMap.containsKey('message') || crumbMap.containsKey('data'),
+          isTrue,
+          reason: 'Breadcrumb missing message or data');
+    }
+
     // === PLATFORM-SPECIFIC VALIDATION ===
     if (Platform.isAndroid) {
+      // === ANDROID ===
+      // package (if available)
+      if (contexts.containsKey('package')) {
+        final androidPackage = contexts['package'] as Map?;
+        expect(androidPackage, isNotNull, reason: 'Package data is null');
+        expect(androidPackage!['sdk_name'], equals(expectedSdkName),
+            reason: 'Unexpected Android SDK package name');
+      }
       // Android-specific validation
       expect(osContext['name'], equals('Android'),
           reason: 'Expected Android OS name');
@@ -237,7 +278,7 @@ void main() {
       expect(contexts['tags'], isA<Map>());
 
       // user id
-      final userData = contexts['user'] as Map<String, dynamic>?;
+      final userData = contexts['user'] as Map?;
       expect(userData, isNotNull, reason: 'User data is null');
       expect(userData!.containsKey('id'), isTrue, reason: 'User id missing');
       expect(userData['id'], isA<String>());
@@ -287,7 +328,11 @@ void main() {
       expect(permMap.values, everyElement(isA<String>()));
       expect(appContext.containsKey('app_identifier'), isTrue,
           reason: 'App app_identifier missing');
-      expect(appContext['app_identifier'], isA<String>());
+      expect(appContext['app_identifier'], equals(expectedAppId));
+      // App version should match the platform app version
+      expect(appContext.containsKey('app_version'), isTrue,
+          reason: 'App app_version missing');
+      expect(appContext['app_version'], equals(expectedVersion));
       expect(appContext.containsKey('is_split_apks'), isTrue,
           reason: 'App is_split_apks missing');
       expect(appContext['is_split_apks'], isA<bool>());
@@ -388,33 +433,8 @@ void main() {
       expect(deviceContext.containsKey('processor_frequency'), isTrue,
           reason: 'Device processor_frequency missing');
       expect(deviceContext['processor_frequency'], isA<num>());
-
-      // Breadcrumbs structure (Android)
-      final breadcrumbs = contexts['breadcrumbs'] as List<dynamic>?;
-      expect(breadcrumbs, isNotNull, reason: 'Breadcrumbs data is null');
-      expect(breadcrumbs, isA<List>());
-      if (breadcrumbs!.isNotEmpty) {
-        final firstCrumb = breadcrumbs.first;
-        expect(firstCrumb, isA<Map<String, dynamic>>());
-        final Map<String, dynamic> crumbMap =
-            firstCrumb as Map<String, dynamic>;
-        expect(crumbMap.containsKey('timestamp'), isTrue,
-            reason: 'Breadcrumb timestamp missing');
-        expect(crumbMap['timestamp'], isA<String>());
-        expect(crumbMap.containsKey('category'), isTrue,
-            reason: 'Breadcrumb category missing');
-        if (crumbMap.containsKey('level')) {
-          expect(crumbMap['level'], isA<String>());
-        }
-        if (crumbMap.containsKey('type')) {
-          expect(crumbMap['type'], isA<String>());
-        }
-        // message or data
-        expect(crumbMap.containsKey('message') || crumbMap.containsKey('data'),
-            isTrue,
-            reason: 'Breadcrumb missing message or data');
-      }
     } else if (Platform.isIOS) {
+      // === IOS ===
       // iOS-specific validation
       expect(osContext['name'], equals('iOS'), reason: 'Expected iOS OS name');
       // OS fields
@@ -429,7 +449,9 @@ void main() {
       expect(osContext['kernel_version'], isA<String>());
       expect(osContext.containsKey('version'), isTrue,
           reason: 'OS version missing');
-      expect(osContext['version'], isA<String>());
+      final iosOsVersion = osContext['version'];
+      expect(iosOsVersion is String || iosOsVersion is num, isTrue,
+          reason: 'OS version must be String or num');
 
       // Device fields
       expect(deviceContext.containsKey('processor_count'), isTrue,
@@ -441,6 +463,9 @@ void main() {
       expect(deviceContext.containsKey('family'), isTrue,
           reason: 'Device family missing');
       expect(deviceContext['family'], isA<String>());
+      expect(deviceContext.containsKey('model'), isTrue,
+          reason: 'Device model missing');
+      expect(deviceContext['model'], isA<String>());
       expect(deviceContext.containsKey('screen_height_pixels'), isTrue,
           reason: 'Device screen_height_pixels missing');
       expect(deviceContext['screen_height_pixels'], isA<num>());
@@ -475,7 +500,7 @@ void main() {
       expect(appContext['build_type'], isA<String>());
       expect(appContext.containsKey('app_identifier'), isTrue,
           reason: 'App app_identifier missing');
-      expect(appContext['app_identifier'], isA<String>());
+      expect(appContext['app_identifier'], equals(expectedAppId));
       expect(appContext.containsKey('app_build'), isTrue,
           reason: 'App app_build missing');
       final iosAppBuild = appContext['app_build'];
@@ -488,6 +513,10 @@ void main() {
       expect(appStartTime, isNotNull);
       expect(DateTime.tryParse(appStartTime!), isNotNull,
           reason: 'App app_start_time is not ISO-8601');
+      // App version should match the platform app version
+      expect(appContext.containsKey('app_version'), isTrue,
+          reason: 'App app_version missing');
+      expect(appContext['app_version'], equals(expectedVersion));
       expect(appContext.containsKey('device_app_hash'), isTrue,
           reason: 'App device_app_hash missing');
       expect(appContext['device_app_hash'], isA<String>());
@@ -506,21 +535,28 @@ void main() {
       expect(integrations, isA<List>());
       expect((integrations as List), isNotEmpty);
       expect(integrations.first, isA<String>());
+      final List<dynamic> integrationsList = integrations;
+      expect(integrationsList.contains('SentryCrashIntegration'), isTrue,
+          reason: 'Critical integration SentryCrashIntegration missing');
+      expect(integrationsList.contains('SentryReplayIntegration'), isFalse,
+          reason: 'SentryReplayIntegration should not be present');
 
       // package info
       expect(contexts.containsKey('package'), isTrue,
           reason: 'Package section missing');
-      final packageInfo = contexts['package'] as Map<String, dynamic>?;
+      final packageInfo = contexts['package'] as Map?;
       expect(packageInfo, isNotNull, reason: 'Package data is null');
       expect(packageInfo!.containsKey('sdk_name'), isTrue,
           reason: 'Package sdk_name missing');
       expect(packageInfo['sdk_name'], isA<String>());
+      expect(packageInfo['sdk_name'], equals(expectedSdkName),
+          reason: 'Unexpected iOS SDK package name');
       expect(packageInfo.containsKey('version'), isTrue,
           reason: 'Package version missing');
       expect(packageInfo['version'], isA<String>());
 
       // user id
-      final userData = contexts['user'] as Map<String, dynamic>?;
+      final userData = contexts['user'] as Map?;
       expect(userData, isNotNull, reason: 'User data is null');
       expect(userData!.containsKey('id'), isTrue, reason: 'User id missing');
       expect(userData['id'], isA<String>());
