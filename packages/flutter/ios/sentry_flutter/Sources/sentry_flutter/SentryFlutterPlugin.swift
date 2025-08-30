@@ -245,6 +245,110 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         }
     }
 
+@objcMembers
+@objc(SentryFlutterFFI)
+public class SentryFlutterFFI: NSObject {
+    @objc public class func loadContextsJSON() -> String {
+        let dict = self.loadContexts()
+        if let data = try? JSONSerialization.data(withJSONObject: dict, options: []),
+           let json = String(data: data, encoding: .utf8) {
+            return json
+        }
+        return "{}"
+    }
+
+    // UTF-8 encoded JSON
+    @objc public class func loadContextsNSData() -> NSData {
+        let dict = self.loadContexts()
+        if let data = try? JSONSerialization.data(withJSONObject: dict, options: []) {
+            return data as NSData
+        }
+        return NSData()
+    }
+
+    @objc public class func loadContexts() -> [String: Any] {
+                    var infos: [String: Any] = [:]
+
+            SentrySDK.configureScope { scope in
+                let serializedScope = scope.serialize()
+
+                var context: [String: Any] = [:]
+                if let newContext = serializedScope["context"] as? [String: Any] {
+                    context = newContext
+                }
+
+                if let tags = serializedScope["tags"] as? [String: String] {
+                    infos["tags"] = tags
+                }
+                if let extra = serializedScope["extra"] as? [String: Any] {
+                    infos["extra"] = extra
+                }
+                if let user = serializedScope["user"] as? [String: Any] {
+                    infos["user"] = user
+                }
+                if let dist = serializedScope["dist"] as? String {
+                    infos["dist"] = dist
+                }
+                if let environment = serializedScope["environment"] as? String {
+                    infos["environment"] = environment
+                }
+                if let fingerprint = serializedScope["fingerprint"] as? [String] {
+                    infos["fingerprint"] = fingerprint
+                }
+                if let level = serializedScope["level"] as? String {
+                    infos["level"] = level
+                }
+                if let breadcrumbs = serializedScope["breadcrumbs"] as? [[String: Any]] {
+                    infos["breadcrumbs"] = breadcrumbs
+                }
+
+                if let user = serializedScope["user"] as? [String: Any] {
+                    infos["user"] = user
+                } else {
+                    infos["user"] = ["id": PrivateSentrySDKOnly.installationID]
+                }
+
+                if let integrations = PrivateSentrySDKOnly.options.integrations {
+                    infos["integrations"] = integrations.filter { $0 != "SentrySessionReplayIntegration" }
+                }
+
+                let deviceStr = "device"
+                let appStr = "app"
+                if let extraContext = PrivateSentrySDKOnly.getExtraContext() as? [String: Any] {
+                    // merge device
+                    if let extraDevice = extraContext[deviceStr] as? [String: Any] {
+                        if var currentDevice = context[deviceStr] as? [String: Any] {
+                            currentDevice.merge(extraDevice) { (current, _) in current }
+                            context[deviceStr] = currentDevice
+                        } else {
+                            context[deviceStr] = extraDevice
+                        }
+                    }
+
+                    // merge app
+                    if let extraApp = extraContext[appStr] as? [String: Any] {
+                        if var currentApp = context[appStr] as? [String: Any] {
+                            currentApp.merge(extraApp) { (current, _) in current }
+                            context[appStr] = currentApp
+                        } else {
+                            context[appStr] = extraApp
+                        }
+                    }
+                }
+
+                infos["contexts"] = context
+
+                // Not reading the name from PrivateSentrySDKOnly.getSdkName because
+                // this is added as a package and packages should follow the sentry-release-registry format
+                infos["package"] = ["version": PrivateSentrySDKOnly.getSdkVersionString(),
+                    "sdk_name": "cocoapods:sentry-cocoa"]
+
+            }
+                            return infos
+    }
+}
+
+
     private func loadImageList(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         var debugImages: [DebugMeta] = []
 

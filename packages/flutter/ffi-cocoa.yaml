@@ -12,11 +12,13 @@ headers:
     - ./temp/Sentry.framework/PrivateHeaders/SentryDependencyContainer.h
     - ./temp/Sentry.framework/PrivateHeaders/SentryDebugImageProvider+HybridSDKs.h
     - ./temp/Sentry.framework/PrivateHeaders/SentryBinaryImageCache.h
+    - ./ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterFFI.h
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
   - -DCOCOAPODS=1
-  - '-I./temp/Sentry.framework/Headers/'
-  - '-I./temp/Sentry.framework/PrivateHeaders/'
+  - "-I./temp/Sentry.framework/Headers/"
+  - "-I./temp/Sentry.framework/PrivateHeaders/"
+  - "-I./ios/sentry_flutter/Sources/sentry_flutter_objc/"
 exclude-all-by-default: true
 objc-interfaces:
   include:
@@ -30,31 +32,32 @@ objc-interfaces:
     - SentryBinaryImageCache
     - SentryBinaryImageInfo
     - SentryDebugMeta
+    - SentryFlutterFFI
   module:
-    'SentryId': 'Sentry'
-    'SentrySDK': 'Sentry'
-    'SentryLevel': 'Sentry'
+    "SentryId": "Sentry"
+    "SentrySDK": "Sentry"
+    "SentryLevel": "Sentry"
   member-filter:
     SentryOptions:
       include:
-        - 'integrations'
+        - "integrations"
     SentryScope:
       include:
-        - 'serialize'
+        - "serialize"
     SentrySDK:
       include:
-        - 'configureScope:'
+        - "configureScope:"
     SentryDependencyContainer:
       include:
-        - 'sharedInstance'
-        - 'binaryImageCache'
-        - 'debugImageProvider'
+        - "sharedInstance"
+        - "binaryImageCache"
+        - "debugImageProvider"
     SentryBinaryImageCache:
       include:
-        - 'imageByAddress:'
+        - "imageByAddress:"
     SentryDebugImageProvider:
       include:
-        - 'getDebugImagesForImageAddressesFromCache:'
+        - "getDebugImagesForImageAddressesFromCache:"
 enums:
   include:
-    - '^SentryLevel$'
+    - "^SentryLevel$"

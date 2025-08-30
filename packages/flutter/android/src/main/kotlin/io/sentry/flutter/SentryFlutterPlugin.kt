@@ -29,6 +29,7 @@ import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
+import org.json.JSONObject
 import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
 
@@ -65,6 +66,7 @@ class SentryFlutterPlugin :
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "loadImageList" -> loadImageList(call, result)
+      "loadContexts" -> loadContexts(result)
       "closeNativeSdk" -> closeNativeSdk(result)
       "fetchNativeAppStart" -> fetchNativeAppStart(result)
       "setContexts" -> setContexts(call.argument("key"), call.argument("value"), result)
@@ -102,6 +104,22 @@ class SentryFlutterPlugin :
 
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
     // Stub
+  }
+
+  private fun loadContexts(result: Result) {
+    val options = HubAdapter.getInstance().options
+    if (options !is SentryAndroidOptions) {
+      result.success(null)
+      return
+    }
+    val currentScope = InternalSentrySdk.getCurrentScope()
+    val serializedScope =
+      InternalSentrySdk.serializeScope(
+        context,
+        options,
+        currentScope,
+      )
+    result.success(serializedScope)
   }
 
   override fun onDetachedFromActivityForConfigChanges() {
@@ -424,6 +442,24 @@ class SentryFlutterPlugin :
 
     @JvmStatic
     fun getApplicationContext(): Context? = applicationContext
+
+    @JvmStatic
+    fun loadContextsAsBytes(): ByteArray? {
+      val options = HubAdapter.getInstance().options
+      val context = getApplicationContext();
+      if (options !is SentryAndroidOptions || context == null) {
+        return null;
+      }
+      val currentScope = InternalSentrySdk.getCurrentScope()
+      val serializedScope =
+        InternalSentrySdk.serializeScope(
+          context,
+          options,
+          currentScope,
+        )
+      val json = JSONObject(serializedScope).toString()
+      return json.toByteArray(Charsets.UTF_8)
+    }
 
     private fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")

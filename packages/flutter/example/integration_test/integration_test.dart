@@ -162,6 +162,11 @@ void main() {
     });
 
     final contexts = await SentryFlutter.native?.loadContexts();
+
+    for (var i = 0; i < 15; i++) {
+      await SentryFlutter.native?.loadContexts();
+    }
+
     final appPackageInfo = await PackageInfo.fromPlatform();
     final expectedAppId = Platform.isAndroid
         ? 'io.sentry.samples.flutter'

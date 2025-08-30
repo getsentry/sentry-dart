@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
@@ -183,29 +184,36 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  FutureOr<Map<String, dynamic>?> loadContexts() {
-    native.SentryAndroidOptions? androidOptions;
-    native.ScopesAdapter? nativeScope;
-    JObject? currentScope;
-    JObject? applicationContext;
-    JMap<JString?, JObject?>? jniContexts;
+  FutureOr<Map<String, dynamic>?> loadContexts() async {
+    final channelStopwatch = Stopwatch()..start();
+    await super.loadContexts();
+    channelStopwatch.stop();
 
+    JByteArray? jba;
+
+    final ffiStopwatch = Stopwatch()..start();
     try {
-      nativeScope = native.ScopesAdapter.getInstance();
-      androidOptions =
-          nativeScope?.getOptions().as(native.SentryAndroidOptions.type);
-      currentScope = native.InternalSentrySdk.getCurrentScope();
-      applicationContext =
-          native.SentryFlutterPlugin.Companion.getApplicationContext();
+      // Use a single JNI call to get contexts as UTF-8 encoded JSON instead of
+      // making multiple JNI calls to convert each object individually. This approach
+      // is significantly faster because contexts can be large and contain many nested
+      // objects. Local benchmarks show this method is ~4x faster than the alternative
+      // approach of converting JNI objects to Dart objects one by one.
+      jba = native.SentryFlutterPlugin.Companion.loadContextsAsBytes();
+      if (jba == null) return null;
 
-      if (currentScope != null &&
-          applicationContext != null &&
-          androidOptions != null) {
-        jniContexts = native.InternalSentrySdk.serializeScope(
-            applicationContext, androidOptions, currentScope);
-        final result = _jniMapToDart(jniContexts);
-        return Future.value(result);
-      }
+      // Copy from JVM -> native buffer as Int8List
+      final i8 = jba.getRange(0, jba.length);
+
+      // Zero-copy view as Uint8List
+      final u8 = Uint8List.view(i8.buffer, i8.offsetInBytes, i8.length);
+
+      final jsonStr = utf8.decode(u8);
+      ffiStopwatch.stop();
+      print(
+          'JNI loadContexts took ${ffiStopwatch.elapsedMicroseconds} microseconds');
+      print(
+          'Channel loadContexts took ${channelStopwatch.elapsedMicroseconds} microseconds');
+      return jsonDecode(jsonStr) as Map<String, dynamic>;
     } catch (exception, stackTrace) {
       options.log(SentryLevel.error, 'Failed to load contexts via JNI',
           exception: exception, stackTrace: stackTrace);
@@ -213,114 +221,10 @@ class SentryNativeJava extends SentryNativeChannel {
         rethrow;
       }
     } finally {
-      applicationContext?.release();
-      currentScope?.release();
-      androidOptions?.release();
-      nativeScope?.release();
-      jniContexts?.release();
+      jba?.release();
     }
 
-    return Future.value(null);
-  }
-
-  Map<String, dynamic> _jniMapToDart(JMap<JString?, JObject?> jmap) {
-    final dartMap = <String, dynamic>{};
-    final keys = jmap.keys;
-    try {
-      for (final jKey in keys) {
-        final jValue = jmap[jKey];
-        final dartValue = _javaToDart(jValue);
-        final keyString = jKey?.toDartString(releaseOriginal: true);
-        if (keyString != null) {
-          dartMap[keyString] = dartValue;
-        } else {
-          // Release key if not converted above.
-          jKey?.release();
-        }
-      }
-    } finally {
-      keys.release();
-    }
-    return dartMap;
-  }
-
-  dynamic _javaToDart(JObject? value) {
-    if (value == null) {
-      return null;
-    }
-
-    // String
-    if (value.isA(JString.type)) {
-      final s = value.as(JString.type, releaseOriginal: true);
-      return s.toDartString();
-    }
-
-    // Boolean
-    if (value.isA(JBoolean.type)) {
-      final b = value.as(JBoolean.type, releaseOriginal: true);
-      return b.booleanValue(releaseOriginal: true);
-    }
-
-    // Number (integral or floating)
-    if (value.isA(JNumber.type)) {
-      final isFloating = value.isA(JDouble.type) || value.isA(JFloat.type);
-      final n = value.as(JNumber.type, releaseOriginal: true);
-      if (isFloating) {
-        return n.doubleValue(releaseOriginal: true);
-      }
-      return n.longValue(releaseOriginal: true);
-    }
-
-    // Map<String, Object>
-    if (value.isA(JMap.type(JObject.nullableType, JObject.nullableType))) {
-      final m = value.as(
-        JMap.type<JString?, JObject?>(
-          JString.nullableType,
-          JObject.nullableType,
-        ),
-        releaseOriginal: true,
-      );
-      return m.use((map) => _jniMapToDart(map));
-    }
-
-    // List<Object>
-    if (value.isA(JList.type(JObject.nullableType))) {
-      final l = value.as(
-        JList.type<JObject?>(JObject.nullableType),
-        releaseOriginal: true,
-      );
-      return l.use((list) {
-        final result = <dynamic>[];
-        for (var i = 0; i < list.length; i++) {
-          final elem = list[i];
-          result.add(_javaToDart(elem));
-        }
-        return result;
-      });
-    }
-
-    // Set<Object> → List
-    if (value.isA(JSet.type(JObject.nullableType))) {
-      final s = value.as(
-        JSet.type<JObject?>(JObject.nullableType),
-        releaseOriginal: true,
-      );
-      return s.use((set) {
-        final result = <dynamic>[];
-        for (final e in set) {
-          result.add(_javaToDart(e));
-        }
-        return result;
-      });
-    }
-
-    // Fallback: stringify and release
-    try {
-      final str = value.toString();
-      return str;
-    } finally {
-      value.release();
-    }
+    return null;
   }
 
   @override

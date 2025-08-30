@@ -9,6 +9,7 @@
 #import "../../../../temp/Sentry.framework/PrivateHeaders/SentryDependencyContainer.h"
 #import "../../../../temp/Sentry.framework/PrivateHeaders/SentryDebugImageProvider+HybridSDKs.h"
 #import "../../../../temp/Sentry.framework/PrivateHeaders/SentryBinaryImageCache.h"
+#import "../../../../ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterFFI.h"
 
 #if !__has_feature(objc_arc)
 #error "This file must be compiled with ARC enabled"

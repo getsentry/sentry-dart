@@ -2144,3 +2144,100 @@ class SentryDependencyContainer extends objc.NSObject {
         retain: true, release: true);
   }
 }
+
+late final _class_SentryFlutterFFI = objc.getClass("SentryFlutterFFI");
+late final _sel_loadContextsJSON = objc.registerName("loadContextsJSON");
+late final _sel_loadContexts = objc.registerName("loadContexts");
+late final _sel_loadContextsNSData = objc.registerName("loadContextsNSData");
+
+/// SentryFlutterFFI
+class SentryFlutterFFI extends objc.NSObject {
+  SentryFlutterFFI._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryFlutterFFI] that points to the same underlying object as [other].
+  SentryFlutterFFI.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryFlutterFFI] that wraps the given raw object pointer.
+  SentryFlutterFFI.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+
+  /// Returns whether [obj] is an instance of [SentryFlutterFFI].
+  static bool isInstance(objc.ObjCObjectBase obj) {
+    return _objc_msgSend_19nvye5(
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryFlutterFFI);
+  }
+
+  /// loadContextsJSON
+  static objc.NSString loadContextsJSON() {
+    final _ret =
+        _objc_msgSend_151sglz(_class_SentryFlutterFFI, _sel_loadContextsJSON);
+    return objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// loadContexts
+  static objc.NSDictionary loadContexts() {
+    final _ret =
+        _objc_msgSend_151sglz(_class_SentryFlutterFFI, _sel_loadContexts);
+    return objc.NSDictionary.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// loadContextsNSData
+  static objc.NSData loadContextsNSData() {
+    final _ret =
+        _objc_msgSend_151sglz(_class_SentryFlutterFFI, _sel_loadContextsNSData);
+    return objc.NSData.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// init
+  SentryFlutterFFI init() {
+    objc.checkOsVersionInternal('SentryFlutterFFI.init',
+        iOS: (false, (2, 0, 0)), macOS: (false, (10, 0, 0)));
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// new
+  static SentryFlutterFFI new$() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryFlutterFFI, _sel_new);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// allocWithZone:
+  static SentryFlutterFFI allocWithZone(ffi.Pointer<objc.NSZone> zone) {
+    final _ret = _objc_msgSend_1cwp428(
+        _class_SentryFlutterFFI, _sel_allocWithZone_, zone);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// alloc
+  static SentryFlutterFFI alloc() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryFlutterFFI, _sel_alloc);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// self
+  SentryFlutterFFI self$1() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// retain
+  SentryFlutterFFI retain() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// autorelease
+  SentryFlutterFFI autorelease() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Returns a new instance of SentryFlutterFFI constructed with the default `new` method.
+  factory SentryFlutterFFI() => new$();
+}

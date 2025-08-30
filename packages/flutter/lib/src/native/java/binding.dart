@@ -4563,6 +4563,31 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
   }
 
+  static final _id_loadContextsAsBytes = _class.instanceMethodId(
+    r'loadContextsAsBytes',
+    r'()[B',
+  );
+
+  static final _loadContextsAsBytes = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final byte[] loadContextsAsBytes()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JByteArray? loadContextsAsBytes() {
+    return _loadContextsAsBytes(
+            reference.pointer, _id_loadContextsAsBytes as jni$_.JMethodIDPtr)
+        .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
   static final _id_new$ = _class.constructorId(
     r'(Lkotlin/jvm/internal/DefaultConstructorMarker;)V',
   );
@@ -4969,6 +4994,31 @@ class SentryFlutterPlugin extends jni$_.JObject {
     return _getApplicationContext(_class.reference.pointer,
             _id_getApplicationContext as jni$_.JMethodIDPtr)
         .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_loadContextsAsBytes = _class.staticMethodId(
+    r'loadContextsAsBytes',
+    r'()[B',
+  );
+
+  static final _loadContextsAsBytes = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public final byte[] loadContextsAsBytes()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JByteArray? loadContextsAsBytes() {
+    return _loadContextsAsBytes(_class.reference.pointer,
+            _id_loadContextsAsBytes as jni$_.JMethodIDPtr)
+        .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
   }
 }
 
