@@ -23,6 +23,7 @@
 - Call options.log for structured logs ([#3187](https://github.com/getsentry/sentry-dart/pull/3187))
 - Remove async usage from `FlutterErrorIntegration` ([#3202](https://github.com/getsentry/sentry-dart/pull/3202))
 - Tag all spans during app start with start type info ([#3190](https://github.com/getsentry/sentry-dart/pull/3190))
+- Improve `SentryLogBatcher` flush logic ([#3211](https://github.com/getsentry/sentry-dart/pull/3187))
 
 ### Dependencies
 

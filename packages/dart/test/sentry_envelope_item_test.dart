@@ -130,7 +130,32 @@ void main() {
 
       expect(sut.header.contentType, 'application/vnd.sentry.items.log+json');
       expect(sut.header.type, SentryItemType.log);
+      expect(sut.header.itemCount, 2);
       expect(actualData, expectedData);
+    });
+
+    test('fromLogsData', () async {
+      final payload =
+          utf8.encode('{"items":[{"test":"data1"},{"test":"data2"}]');
+      final logsCount = 2;
+
+      final sut = SentryEnvelopeItem.fromLogsData(payload, logsCount);
+
+      expect(sut.header.contentType, 'application/vnd.sentry.items.log+json');
+      expect(sut.header.type, SentryItemType.log);
+      expect(sut.header.itemCount, logsCount);
+
+      final actualData = await sut.dataFactory();
+      expect(actualData, payload);
+    });
+
+    test('fromLogsData null original object', () async {
+      final payload = utf8.encode('{"items":[{"test":"data"}]}');
+      final logsCount = 1;
+
+      final sut = SentryEnvelopeItem.fromLogsData(payload, logsCount);
+
+      expect(sut.originalObject, null);
     });
   });
 }

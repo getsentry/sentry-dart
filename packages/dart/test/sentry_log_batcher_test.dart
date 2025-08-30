@@ -1,8 +1,8 @@
-import 'package:test/test.dart';
+import 'dart:async';
+
+import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_log_batcher.dart';
-import 'package:sentry/src/sentry_options.dart';
-import 'package:sentry/src/protocol/sentry_log.dart';
-import 'package:sentry/src/protocol/sentry_log_level.dart';
+import 'package:test/test.dart';
 
 import 'mocks/mock_transport.dart';
 
@@ -48,8 +48,10 @@ void main() {
     expect(envelopePayloadJson['items'].last['body'], log2.body);
   });
 
-  test('max logs are flushed without timeout', () async {
-    final batcher = fixture.getSut(maxBufferSize: 10);
+  test('logs exeeding max size are flushed without timeout', () async {
+    // Use a buffer size that can hold multiple logs before triggering flush
+    // Each log is ~153 bytes, so 300 bytes can hold 1 log, triggering flush on 2nd
+    final batcher = fixture.getSut(maxBufferSizeBytes: 300);
 
     final log = SentryLog(
       timestamp: DateTime.now(),
@@ -58,9 +60,12 @@ void main() {
       attributes: {},
     );
 
-    for (var i = 0; i < 10; i++) {
-      batcher.addLog(log);
-    }
+    // Add first log - should fit in buffer
+    batcher.addLog(log);
+    expect(fixture.mockTransport.envelopes.length, 0);
+
+    // Add second log - should exceed buffer and trigger flush
+    batcher.addLog(log);
 
     // Just wait a little bit, as we call capture without awaiting internally.
     await Future.delayed(Duration(milliseconds: 1));
@@ -69,40 +74,7 @@ void main() {
     final envelopePayloadJson = (fixture.mockTransport).logs.first;
 
     expect(envelopePayloadJson, isNotNull);
-    expect(envelopePayloadJson['items'].length, 10);
-  });
-
-  test('more than max logs are flushed eventuelly', () async {
-    final flushTimeout = Duration(milliseconds: 100);
-    final batcher = fixture.getSut(
-      maxBufferSize: 10,
-      flushTimeout: flushTimeout,
-    );
-
-    final log = SentryLog(
-      timestamp: DateTime.now(),
-      level: SentryLogLevel.info,
-      body: 'test',
-      attributes: {},
-    );
-
-    for (var i = 0; i < 15; i++) {
-      batcher.addLog(log);
-    }
-
-    await Future.delayed(flushTimeout);
-
-    expect(fixture.mockTransport.envelopes.length, 2);
-
-    final firstEnvelopePayloadJson = (fixture.mockTransport).logs.first;
-
-    expect(firstEnvelopePayloadJson, isNotNull);
-    expect(firstEnvelopePayloadJson['items'].length, 10);
-
-    final secondEnvelopePayloadJson = (fixture.mockTransport).logs.last;
-
-    expect(secondEnvelopePayloadJson, isNotNull);
-    expect(secondEnvelopePayloadJson['items'].length, 5);
+    expect(envelopePayloadJson['items'].length, 2);
   });
 
   test('calling flush directly flushes logs', () async {
@@ -128,6 +100,35 @@ void main() {
     expect(envelopePayloadJson, isNotNull);
     expect(envelopePayloadJson['items'].length, 2);
   });
+
+  test('timeout is only started once and not restarted on subsequent additions',
+      () async {
+    final flushTimeout = Duration(milliseconds: 100);
+    final batcher = fixture.getSut(flushTimeout: flushTimeout);
+
+    final log = SentryLog(
+      timestamp: DateTime.now(),
+      level: SentryLogLevel.info,
+      body: 'test',
+      attributes: {},
+    );
+
+    // Add first log - should start timer
+    batcher.addLog(log);
+    expect(fixture.mockTransport.envelopes.length, 0);
+
+    // Add second log immediately - should NOT restart timer
+    batcher.addLog(log);
+    expect(fixture.mockTransport.envelopes.length, 0);
+
+    // Wait for timeout to fire
+    await Future.delayed(flushTimeout + Duration(milliseconds: 10));
+
+    // Should have sent both logs after timeout
+    expect(fixture.mockTransport.envelopes.length, 1);
+    final envelopePayloadJson = (fixture.mockTransport).logs.first;
+    expect(envelopePayloadJson['items'].length, 2);
+  });
 }
 
 class Fixture {
@@ -138,11 +139,11 @@ class Fixture {
     options.transport = mockTransport;
   }
 
-  SentryLogBatcher getSut({Duration? flushTimeout, int? maxBufferSize}) {
+  SentryLogBatcher getSut({Duration? flushTimeout, int? maxBufferSizeBytes}) {
     return SentryLogBatcher(
       options,
       flushTimeout: flushTimeout,
-      maxBufferSize: maxBufferSize,
+      maxBufferSizeBytes: maxBufferSizeBytes,
     );
   }
 }
