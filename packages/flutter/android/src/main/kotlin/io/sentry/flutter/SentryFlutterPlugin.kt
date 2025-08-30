@@ -30,6 +30,7 @@ import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import org.json.JSONObject
+import org.json.JSONArray
 import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
 
@@ -460,6 +461,41 @@ class SentryFlutterPlugin :
       val json = JSONObject(serializedScope).toString()
       return json.toByteArray(Charsets.UTF_8)
     }
+
+    @JvmStatic
+    fun loadDebugImagesAsBytes(addresses: Set<String>): ByteArray? {
+      val options = HubAdapter.getInstance().options as SentryAndroidOptions
+
+      val debugImages =
+        if (addresses.isEmpty()) {
+          options.debugImagesLoader
+            .loadDebugImages()
+            ?.toList()
+            .serialize()
+        } else {
+          options.debugImagesLoader
+            .loadDebugImagesForAddresses(addresses)
+            ?.ifEmpty { options.debugImagesLoader.loadDebugImages() }
+            ?.toList()
+            .serialize()
+        }
+
+      val json = JSONArray(debugImages).toString()
+      return json.toByteArray(Charsets.UTF_8)
+    }
+
+    private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
+
+    private fun DebugImage.serialize() =
+      mapOf(
+        "image_addr" to imageAddr,
+        "image_size" to imageSize,
+        "code_file" to codeFile,
+        "type" to type,
+        "debug_id" to debugId,
+        "code_id" to codeId,
+        "debug_file" to debugFile,
+      )
 
     private fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")

@@ -103,11 +103,9 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
-    native.SentryAndroidOptions? androidOptions;
-    JSet<JString?>? jniAddressSet;
-    JSet<native.DebugImage?>? androidDebugImagesJniSet;
+    JSet<JString>? jniAddressSet;
     List<JString>? jniAddressStrings;
-    List<DebugImage>? dartDebugImages;
+    JByteArray? imagesBytes;
 
     try {
       jniAddressStrings = stackTrace.frames
@@ -117,52 +115,22 @@ class SentryNativeJava extends SentryNativeChannel {
           .map((s) => s.toJString())
           .toList(growable: false);
       jniAddressSet =
-          jniAddressStrings.cast<JString?>().toJSet(JString.nullableType);
+          jniAddressStrings.nonNulls.cast<JString>().toJSet(JString.type);
 
-      androidOptions = native.ScopesAdapter.getInstance()
-          ?.getOptions()
-          .as(native.SentryAndroidOptions.type);
+      imagesBytes = native.SentryFlutterPlugin.Companion
+          .loadDebugImagesAsBytes(jniAddressSet);
+      if (imagesBytes != null) {
+        // Copy from JVM -> native buffer as Int8List
+        final i8 = imagesBytes.getRange(0, imagesBytes.length);
 
-      androidDebugImagesJniSet = (jniAddressStrings.isEmpty)
-          ? androidOptions?.getDebugImagesLoader().loadDebugImages()?.toSet()
-          : androidOptions
-              ?.getDebugImagesLoader()
-              .loadDebugImagesForAddresses(jniAddressSet);
+        // Zero-copy view as Uint8List
+        final u8 = Uint8List.view(i8.buffer, i8.offsetInBytes, i8.length);
 
-      if (androidDebugImagesJniSet != null) {
-        dartDebugImages = androidDebugImagesJniSet
-            .where((img) => img != null)
-            .map((img) {
-              final androidImage = img!;
-              final type =
-                  androidImage.getType()?.toDartString(releaseOriginal: true);
-              if (type == null) {
-                return null;
-              }
-              return DebugImage(
-                type: type,
-                imageAddr: androidImage
-                    .getImageAddr()
-                    ?.toDartString(releaseOriginal: true),
-                imageSize: androidImage
-                    .getImageSize()
-                    ?.longValue(releaseOriginal: true),
-                codeFile: androidImage
-                    .getCodeFile()
-                    ?.toDartString(releaseOriginal: true),
-                debugId: androidImage
-                    .getDebugId()
-                    ?.toDartString(releaseOriginal: true),
-                codeId: androidImage
-                    .getCodeId()
-                    ?.toDartString(releaseOriginal: true),
-                debugFile: androidImage
-                    .getDebugFile()
-                    ?.toDartString(releaseOriginal: true),
-              );
-            })
-            .whereType<DebugImage>()
-            .toList(growable: false);
+        final jsonStr = utf8.decode(u8);
+        final debugImagesMap = (jsonDecode(jsonStr) as List)
+            .map((x) => (x is Map) ? x as Map<String, dynamic> : null)
+            .nonNulls;
+        return debugImagesMap.map(DebugImage.fromJson).toList(growable: false);
       }
     } catch (exception, stackTrace) {
       options.log(SentryLevel.error, 'Failed to load debug images',
@@ -176,11 +144,10 @@ class SentryNativeJava extends SentryNativeChannel {
         js.release();
       }
       jniAddressSet?.release();
-      androidDebugImagesJniSet?.release();
-      androidOptions?.release();
+      imagesBytes?.release();
     }
 
-    return dartDebugImages;
+    return null;
   }
 
   @override

@@ -4588,6 +4588,33 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
   }
 
+  static final _id_loadDebugImagesAsBytes = _class.instanceMethodId(
+    r'loadDebugImagesAsBytes',
+    r'(Ljava/util/Set;)[B',
+  );
+
+  static final _loadDebugImagesAsBytes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final byte[] loadDebugImagesAsBytes(java.util.Set<java.lang.String> set)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JByteArray? loadDebugImagesAsBytes(
+    jni$_.JSet<jni$_.JString> set,
+  ) {
+    final _$set = set.reference;
+    return _loadDebugImagesAsBytes(reference.pointer,
+            _id_loadDebugImagesAsBytes as jni$_.JMethodIDPtr, _$set.pointer)
+        .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
   static final _id_new$ = _class.constructorId(
     r'(Lkotlin/jvm/internal/DefaultConstructorMarker;)V',
   );
@@ -5018,6 +5045,33 @@ class SentryFlutterPlugin extends jni$_.JObject {
   static jni$_.JByteArray? loadContextsAsBytes() {
     return _loadContextsAsBytes(_class.reference.pointer,
             _id_loadContextsAsBytes as jni$_.JMethodIDPtr)
+        .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
+  static final _id_loadDebugImagesAsBytes = _class.staticMethodId(
+    r'loadDebugImagesAsBytes',
+    r'(Ljava/util/Set;)[B',
+  );
+
+  static final _loadDebugImagesAsBytes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public final byte[] loadDebugImagesAsBytes(java.util.Set<java.lang.String> set)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JByteArray? loadDebugImagesAsBytes(
+    jni$_.JSet<jni$_.JString?> set,
+  ) {
+    final _$set = set.reference;
+    return _loadDebugImagesAsBytes(_class.reference.pointer,
+            _id_loadDebugImagesAsBytes as jni$_.JMethodIDPtr, _$set.pointer)
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
   }
 }
