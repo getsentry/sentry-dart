@@ -36,6 +36,9 @@
 - Bump Native SDK from v0.9.1 to v0.10.0 ([#3223](https://github.com/getsentry/sentry-dart/pull/3223))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0100)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.9.1...0.10.0)
+- Bump Cocoa SDK from v8.54.0 to v8.55.0 ([#3172](https://github.com/getsentry/sentry-dart/pull/3172))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8550)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.54.0...8.55.0)
 
 ## 9.7.0-beta.1
 
