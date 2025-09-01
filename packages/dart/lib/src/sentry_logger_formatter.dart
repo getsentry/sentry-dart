@@ -106,9 +106,20 @@ class SentryLoggerFormatter {
     Map<String, SentryLogAttribute>? attributes,
     FutureOr<void> Function(String, Map<String, SentryLogAttribute>) callback,
   ) {
-    final templateString = SentryTemplateString(templateBody, arguments);
-    final formattedBody = templateString.format();
-    final templateAttributes = _getAllAttributes(templateBody, arguments);
+    String formattedBody;
+    Map<String, SentryLogAttribute> templateAttributes;
+
+    if (arguments.isEmpty) {
+      // No arguments means no template processing needed
+      formattedBody = templateBody;
+      templateAttributes = <String, SentryLogAttribute>{};
+    } else {
+      // Process template with arguments
+      final templateString = SentryTemplateString(templateBody, arguments);
+      formattedBody = templateString.format();
+      templateAttributes = _getAllAttributes(templateBody, arguments);
+    }
+
     if (attributes != null) {
       templateAttributes.addAll(attributes);
     }
