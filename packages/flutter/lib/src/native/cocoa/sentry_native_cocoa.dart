@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
@@ -7,6 +6,7 @@ import 'package:objective_c/objective_c.dart';
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../sentry_native_channel.dart';
+import '../utils/utf8_json.dart';
 import 'binding.dart' as cocoa;
 import 'cocoa_replay_recorder.dart';
 
@@ -91,18 +91,15 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
       // NOTE: when instructionAddressSet is empty, loadDebugImagesAsBytes will return
       // all debug images as fallback.
-      final imagesJsonData =
+      final imagesUtf8JsonBytes =
           cocoa.SentryFlutterFFI.loadDebugImagesAsBytes(instructionAddressSet);
-      if (imagesJsonData == null) return null;
+      if (imagesUtf8JsonBytes == null) return null;
 
-      final bytes = imagesJsonData.toList();
-      final jsonString = utf8.decode(bytes);
-      final debugImageMaps = (json.decode(jsonString) as List)
-          .map((x) => (x is Map) ? x as Map<String, dynamic> : null)
-          .nonNulls;
+      final debugImageMaps =
+          decodeUtf8JsonListOfMaps(imagesUtf8JsonBytes.toList());
       return debugImageMaps.map(DebugImage.fromJson).toList(growable: false);
     } catch (exception, stackTrace) {
-      options.log(SentryLevel.error, 'Failed to load contexts',
+      options.log(SentryLevel.error, 'FFI: Failed to load debug images',
           exception: exception, stackTrace: stackTrace);
 
       if (options.automatedTestMode) {
@@ -120,14 +117,14 @@ class SentryNativeCocoa extends SentryNativeChannel {
       // is significantly faster because contexts can be large and contain many nested
       // objects. Local benchmarks show this method is ~4x faster than the alternative
       // approach of converting FFI objects to Dart objects one by one.
-      final contextsJsonData = cocoa.SentryFlutterFFI.loadContextsAsBytes();
-      if (contextsJsonData == null) return null;
+      final contextsUtf8JsonBytes =
+          cocoa.SentryFlutterFFI.loadContextsAsBytes();
+      if (contextsUtf8JsonBytes == null) return null;
 
-      final bytes = contextsJsonData.toList();
-      final jsonString = utf8.decode(bytes);
-      return json.decode(jsonString) as Map<String, dynamic>;
+      final contexts = decodeUtf8JsonMap(contextsUtf8JsonBytes.toList());
+      return contexts;
     } catch (exception, stackTrace) {
-      options.log(SentryLevel.error, 'Failed to load contexts',
+      options.log(SentryLevel.error, 'FFI: Failed to load contexts',
           exception: exception, stackTrace: stackTrace);
 
       if (options.automatedTestMode) {
