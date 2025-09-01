@@ -83,6 +83,12 @@ class SentryNativeCocoa extends SentryNativeChannel {
           .nonNulls
           .toSet()
           .toNSSet();
+
+      // Use a single FFI call to get images as UTF-8 encoded JSON instead of
+      // making multiple FFI calls to convert each object individually. This approach
+      // is significantly faster because images can be large.
+      // Local benchmarks show this method is ~4x faster than the alternative
+      // approach of converting FFI objects to Dart objects one by one.
       final nsData =
           cocoa.SentryFlutterFFI.loadDebugImagesAsBytes(instructionAddresses);
       final bytes = nsData.toList();
@@ -105,6 +111,11 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   FutureOr<Map<String, dynamic>?> loadContexts() {
     try {
+      // Use a single FFI call to get contexts as UTF-8 encoded JSON instead of
+      // making multiple FFI calls to convert each object individually. This approach
+      // is significantly faster because contexts can be large and contain many nested
+      // objects. Local benchmarks show this method is ~4x faster than the alternative
+      // approach of converting FFI objects to Dart objects one by one.
       final nsData = cocoa.SentryFlutterFFI.loadContextsAsBytes();
       final bytes = nsData.toList();
       final decoded = utf8.decode(bytes);
