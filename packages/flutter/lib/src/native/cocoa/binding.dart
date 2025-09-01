@@ -54,9 +54,6 @@ class NSUUID extends objc.NSObject
       : this._(other, retain: retain, release: release);
 }
 
-/// Sentry level.
-sealed class SentryLevel {}
-
 /// WARNING: SentryAppStartMeasurement is a stub. To generate bindings for this class, include
 /// SentryAppStartMeasurement in your config's objc-interfaces list.
 ///
@@ -490,10 +487,10 @@ late final _sel_installationID = objc.registerName("installationID");
 /// SentryOptions in your config's objc-interfaces list.
 ///
 /// SentryOptions
-class SentryOptions extends objc.NSObject {
+class SentryOptions extends objc.ObjCObjectBase {
   SentryOptions._(ffi.Pointer<objc.ObjCObject> pointer,
       {bool retain = false, bool release = false})
-      : super.castFromPointer(pointer, retain: retain, release: release);
+      : super(pointer, retain: retain, release: release);
 
   /// Constructs a [SentryOptions] that points to the same underlying object as [other].
   SentryOptions.castFrom(objc.ObjCObjectBase other)
@@ -1122,430 +1119,37 @@ class SentryId$1 extends objc.NSObject {
   factory SentryId$1() => new$();
 }
 
-enum SentryLevel$1 {
-  kSentryLevelNone(0),
-  kSentryLevelDebug(1),
-  kSentryLevelInfo(2),
-  kSentryLevelWarning(3),
-  kSentryLevelError(4),
-  kSentryLevelFatal(5);
-
-  final int value;
-  const SentryLevel$1(this.value);
-
-  static SentryLevel$1 fromValue(int value) => switch (value) {
-        0 => kSentryLevelNone,
-        1 => kSentryLevelDebug,
-        2 => kSentryLevelInfo,
-        3 => kSentryLevelWarning,
-        4 => kSentryLevelError,
-        5 => kSentryLevelFatal,
-        _ => throw ArgumentError('Unknown value for SentryLevel\$1: $value'),
-      };
-}
-
-late final _class_SentrySDK = objc.getClass("Sentry.SentrySDK");
-late final _class_SentryScope = objc.getClass("SentryScope");
-
-/// WARNING: SentrySerializable is a stub. To generate bindings for this class, include
-/// SentrySerializable in your config's objc-protocols list.
-///
-/// SentrySerializable
-interface class SentrySerializable extends objc.ObjCProtocolBase
-    implements objc.NSObjectProtocol {
-  SentrySerializable._(ffi.Pointer<objc.ObjCObject> pointer,
-      {bool retain = false, bool release = false})
-      : super(pointer, retain: retain, release: release);
-
-  /// Constructs a [SentrySerializable] that points to the same underlying object as [other].
-  SentrySerializable.castFrom(objc.ObjCObjectBase other)
-      : this._(other.ref.pointer, retain: true, release: true);
-
-  /// Constructs a [SentrySerializable] that wraps the given raw object pointer.
-  SentrySerializable.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
-      {bool retain = false, bool release = false})
-      : this._(other, retain: retain, release: release);
-}
-
-late final _sel_serialize = objc.registerName("serialize");
-ffi.Pointer<objc.ObjCObject> _ObjCBlock_NSDictionary_ffiVoid_fnPtrTrampoline(
-        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
-    block.ref.target
-        .cast<
-            ffi.NativeFunction<
-                ffi.Pointer<objc.ObjCObject> Function(
-                    ffi.Pointer<ffi.Void> arg0)>>()
-        .asFunction<
-            ffi.Pointer<objc.ObjCObject> Function(
-                ffi.Pointer<ffi.Void>)>()(arg0);
-ffi.Pointer<ffi.Void> _ObjCBlock_NSDictionary_ffiVoid_fnPtrCallable =
-    ffi.Pointer.fromFunction<
-                ffi.Pointer<objc.ObjCObject> Function(
-                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
-            _ObjCBlock_NSDictionary_ffiVoid_fnPtrTrampoline)
-        .cast();
-ffi.Pointer<objc.ObjCObject> _ObjCBlock_NSDictionary_ffiVoid_closureTrampoline(
-        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
-    (objc.getBlockClosure(block) as ffi.Pointer<objc.ObjCObject> Function(
-        ffi.Pointer<ffi.Void>))(arg0);
-ffi.Pointer<ffi.Void> _ObjCBlock_NSDictionary_ffiVoid_closureCallable =
-    ffi.Pointer.fromFunction<
-                ffi.Pointer<objc.ObjCObject> Function(
-                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
-            _ObjCBlock_NSDictionary_ffiVoid_closureTrampoline)
-        .cast();
-
-/// Construction methods for `objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>`.
-abstract final class ObjCBlock_NSDictionary_ffiVoid {
-  /// Returns a block that wraps the given raw block pointer.
-  static objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>
-      castFromPointer(ffi.Pointer<objc.ObjCBlockImpl> pointer,
-              {bool retain = false, bool release = false}) =>
-          objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>(
-              pointer,
-              retain: retain,
-              release: release);
-
-  /// Creates a block from a C function pointer.
-  ///
-  /// This block must be invoked by native code running on the same thread as
-  /// the isolate that registered it. Invoking the block on the wrong thread
-  /// will result in a crash.
-  static objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>
-      fromFunctionPointer(
-              ffi.Pointer<
-                      ffi.NativeFunction<
-                          ffi.Pointer<objc.ObjCObject> Function(
-                              ffi.Pointer<ffi.Void> arg0)>>
-                  ptr) =>
-          objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>(
-              objc.newPointerBlock(_ObjCBlock_NSDictionary_ffiVoid_fnPtrCallable, ptr.cast()),
-              retain: false,
-              release: true);
-
-  /// Creates a block from a Dart function.
-  ///
-  /// This block must be invoked by native code running on the same thread as
-  /// the isolate that registered it. Invoking the block on the wrong thread
-  /// will result in a crash.
-  ///
-  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
-  /// until it is garbage collected by both Dart and ObjC.
-  static objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>
-      fromFunction(objc.NSDictionary Function(ffi.Pointer<ffi.Void>) fn,
-              {bool keepIsolateAlive = true}) =>
-          objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>(
-              objc.newClosureBlock(
-                  _ObjCBlock_NSDictionary_ffiVoid_closureCallable,
-                  (ffi.Pointer<ffi.Void> arg0) =>
-                      fn(arg0).ref.retainAndAutorelease(),
-                  keepIsolateAlive),
-              retain: false,
-              release: true);
-}
-
-/// Call operator for `objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)>`.
-extension ObjCBlock_NSDictionary_ffiVoid_CallExtension
-    on objc.ObjCBlock<objc.NSDictionary Function(ffi.Pointer<ffi.Void>)> {
-  objc.NSDictionary call(ffi.Pointer<ffi.Void> arg0) =>
-      objc.NSDictionary.castFromPointer(
-          ref.pointer.ref.invoke
-              .cast<
-                  ffi.NativeFunction<
-                      ffi.Pointer<objc.ObjCObject> Function(
-                          ffi.Pointer<objc.ObjCBlockImpl> block,
-                          ffi.Pointer<ffi.Void> arg0)>>()
-              .asFunction<
-                  ffi.Pointer<objc.ObjCObject> Function(
-                      ffi.Pointer<objc.ObjCBlockImpl>,
-                      ffi.Pointer<ffi.Void>)>()(ref.pointer, arg0),
-          retain: true,
-          release: true);
-}
-
-/// SentryScope
-class SentryScope extends objc.NSObject implements SentrySerializable {
-  SentryScope._(ffi.Pointer<objc.ObjCObject> pointer,
-      {bool retain = false, bool release = false})
-      : super.castFromPointer(pointer, retain: retain, release: release);
-
-  /// Constructs a [SentryScope] that points to the same underlying object as [other].
-  SentryScope.castFrom(objc.ObjCObjectBase other)
-      : this._(other.ref.pointer, retain: true, release: true);
-
-  /// Constructs a [SentryScope] that wraps the given raw object pointer.
-  SentryScope.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
-      {bool retain = false, bool release = false})
-      : this._(other, retain: retain, release: release);
-
-  /// Returns whether [obj] is an instance of [SentryScope].
-  static bool isInstance(objc.ObjCObjectBase obj) {
-    return _objc_msgSend_19nvye5(
-        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryScope);
-  }
-
-  /// Serialize the contents of the object into an NSDictionary. Make to copy all properties of the
-  /// original object so modifications to it don't have an impact on the serialized NSDictionary.
-  objc.NSDictionary serialize() {
-    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_serialize);
-    return objc.NSDictionary.castFromPointer(_ret, retain: true, release: true);
-  }
-}
-
-void _ObjCBlock_ffiVoid_SentryScope_fnPtrTrampoline(
-        ffi.Pointer<objc.ObjCBlockImpl> block,
-        ffi.Pointer<objc.ObjCObject> arg0) =>
-    block.ref.target
-        .cast<
-            ffi.NativeFunction<
-                ffi.Void Function(ffi.Pointer<objc.ObjCObject> arg0)>>()
-        .asFunction<void Function(ffi.Pointer<objc.ObjCObject>)>()(arg0);
-ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_SentryScope_fnPtrCallable =
-    ffi.Pointer.fromFunction<
-                ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
-                    ffi.Pointer<objc.ObjCObject>)>(
-            _ObjCBlock_ffiVoid_SentryScope_fnPtrTrampoline)
-        .cast();
-void _ObjCBlock_ffiVoid_SentryScope_closureTrampoline(
-        ffi.Pointer<objc.ObjCBlockImpl> block,
-        ffi.Pointer<objc.ObjCObject> arg0) =>
-    (objc.getBlockClosure(block) as void Function(
-        ffi.Pointer<objc.ObjCObject>))(arg0);
-ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_SentryScope_closureCallable =
-    ffi.Pointer.fromFunction<
-                ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
-                    ffi.Pointer<objc.ObjCObject>)>(
-            _ObjCBlock_ffiVoid_SentryScope_closureTrampoline)
-        .cast();
-void _ObjCBlock_ffiVoid_SentryScope_listenerTrampoline(
-    ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<objc.ObjCObject> arg0) {
-  (objc.getBlockClosure(block) as void Function(
-      ffi.Pointer<objc.ObjCObject>))(arg0);
-  objc.objectRelease(block.cast());
-}
-
-ffi.NativeCallable<
-        ffi.Void Function(
-            ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>
-    _ObjCBlock_ffiVoid_SentryScope_listenerCallable = ffi.NativeCallable<
-            ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
-                ffi.Pointer<objc.ObjCObject>)>.listener(
-        _ObjCBlock_ffiVoid_SentryScope_listenerTrampoline)
-      ..keepIsolateAlive = false;
-void _ObjCBlock_ffiVoid_SentryScope_blockingTrampoline(
-    ffi.Pointer<objc.ObjCBlockImpl> block,
-    ffi.Pointer<ffi.Void> waiter,
-    ffi.Pointer<objc.ObjCObject> arg0) {
-  try {
-    (objc.getBlockClosure(block) as void Function(
-        ffi.Pointer<objc.ObjCObject>))(arg0);
-  } catch (e) {
-  } finally {
-    objc.signalWaiter(waiter);
-    objc.objectRelease(block.cast());
-  }
-}
-
-ffi.NativeCallable<
-        ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
-            ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>
-    _ObjCBlock_ffiVoid_SentryScope_blockingCallable = ffi.NativeCallable<
-            ffi.Void Function(
-                ffi.Pointer<objc.ObjCBlockImpl>,
-                ffi.Pointer<ffi.Void>,
-                ffi.Pointer<objc.ObjCObject>)>.isolateLocal(
-        _ObjCBlock_ffiVoid_SentryScope_blockingTrampoline)
-      ..keepIsolateAlive = false;
-ffi.NativeCallable<
-        ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
-            ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>
-    _ObjCBlock_ffiVoid_SentryScope_blockingListenerCallable = ffi
-        .NativeCallable<
-            ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
-                ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>.listener(
-        _ObjCBlock_ffiVoid_SentryScope_blockingTrampoline)
-      ..keepIsolateAlive = false;
-
-/// Construction methods for `objc.ObjCBlock<ffi.Void Function(SentryScope)>`.
-abstract final class ObjCBlock_ffiVoid_SentryScope {
-  /// Returns a block that wraps the given raw block pointer.
-  static objc.ObjCBlock<ffi.Void Function(SentryScope)> castFromPointer(
-          ffi.Pointer<objc.ObjCBlockImpl> pointer,
-          {bool retain = false,
-          bool release = false}) =>
-      objc.ObjCBlock<ffi.Void Function(SentryScope)>(pointer,
-          retain: retain, release: release);
-
-  /// Creates a block from a C function pointer.
-  ///
-  /// This block must be invoked by native code running on the same thread as
-  /// the isolate that registered it. Invoking the block on the wrong thread
-  /// will result in a crash.
-  static objc.ObjCBlock<ffi.Void Function(SentryScope)> fromFunctionPointer(
-          ffi.Pointer<
-                  ffi.NativeFunction<
-                      ffi.Void Function(ffi.Pointer<objc.ObjCObject> arg0)>>
-              ptr) =>
-      objc.ObjCBlock<ffi.Void Function(SentryScope)>(
-          objc.newPointerBlock(
-              _ObjCBlock_ffiVoid_SentryScope_fnPtrCallable, ptr.cast()),
-          retain: false,
-          release: true);
-
-  /// Creates a block from a Dart function.
-  ///
-  /// This block must be invoked by native code running on the same thread as
-  /// the isolate that registered it. Invoking the block on the wrong thread
-  /// will result in a crash.
-  ///
-  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
-  /// until it is garbage collected by both Dart and ObjC.
-  static objc.ObjCBlock<ffi.Void Function(SentryScope)> fromFunction(
-          void Function(SentryScope) fn,
-          {bool keepIsolateAlive = true}) =>
-      objc.ObjCBlock<ffi.Void Function(SentryScope)>(
-          objc.newClosureBlock(
-              _ObjCBlock_ffiVoid_SentryScope_closureCallable,
-              (ffi.Pointer<objc.ObjCObject> arg0) => fn(
-                  SentryScope.castFromPointer(arg0,
-                      retain: true, release: true)),
-              keepIsolateAlive),
-          retain: false,
-          release: true);
-
-  /// Creates a listener block from a Dart function.
-  ///
-  /// This is based on FFI's NativeCallable.listener, and has the same
-  /// capabilities and limitations. This block can be invoked from any thread,
-  /// but only supports void functions, and is not run synchronously. See
-  /// NativeCallable.listener for more details.
-  ///
-  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
-  /// until it is garbage collected by both Dart and ObjC.
-  static objc.ObjCBlock<ffi.Void Function(SentryScope)> listener(
-      void Function(SentryScope) fn,
-      {bool keepIsolateAlive = true}) {
-    final raw = objc.newClosureBlock(
-        _ObjCBlock_ffiVoid_SentryScope_listenerCallable.nativeFunction.cast(),
-        (ffi.Pointer<objc.ObjCObject> arg0) =>
-            fn(SentryScope.castFromPointer(arg0, retain: false, release: true)),
-        keepIsolateAlive);
-    final wrapper = _SentryCocoa_wrapListenerBlock_xtuoz7(raw);
-    objc.objectRelease(raw.cast());
-    return objc.ObjCBlock<ffi.Void Function(SentryScope)>(wrapper,
-        retain: false, release: true);
-  }
-
-  /// Creates a blocking block from a Dart function.
-  ///
-  /// This callback can be invoked from any native thread, and will block the
-  /// caller until the callback is handled by the Dart isolate that created
-  /// the block. Async functions are not supported.
-  ///
-  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
-  /// until it is garbage collected by both Dart and ObjC. If the owner isolate
-  /// has shut down, and the block is invoked by native code, it may block
-  /// indefinitely, or have other undefined behavior.
-  static objc.ObjCBlock<ffi.Void Function(SentryScope)> blocking(
-      void Function(SentryScope) fn,
-      {bool keepIsolateAlive = true}) {
-    final raw = objc.newClosureBlock(
-        _ObjCBlock_ffiVoid_SentryScope_blockingCallable.nativeFunction.cast(),
-        (ffi.Pointer<objc.ObjCObject> arg0) =>
-            fn(SentryScope.castFromPointer(arg0, retain: false, release: true)),
-        keepIsolateAlive);
-    final rawListener = objc.newClosureBlock(
-        _ObjCBlock_ffiVoid_SentryScope_blockingListenerCallable.nativeFunction
-            .cast(),
-        (ffi.Pointer<objc.ObjCObject> arg0) =>
-            fn(SentryScope.castFromPointer(arg0, retain: false, release: true)),
-        keepIsolateAlive);
-    final wrapper = _SentryCocoa_wrapBlockingBlock_xtuoz7(
-        raw, rawListener, objc.objCContext);
-    objc.objectRelease(raw.cast());
-    objc.objectRelease(rawListener.cast());
-    return objc.ObjCBlock<ffi.Void Function(SentryScope)>(wrapper,
-        retain: false, release: true);
-  }
-}
-
-/// Call operator for `objc.ObjCBlock<ffi.Void Function(SentryScope)>`.
-extension ObjCBlock_ffiVoid_SentryScope_CallExtension
-    on objc.ObjCBlock<ffi.Void Function(SentryScope)> {
-  void call(SentryScope arg0) => ref.pointer.ref.invoke
-      .cast<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl> block,
-                  ffi.Pointer<objc.ObjCObject> arg0)>>()
-      .asFunction<
-          void Function(ffi.Pointer<objc.ObjCBlockImpl>,
-              ffi.Pointer<objc.ObjCObject>)>()(ref.pointer, arg0.ref.pointer);
-}
-
-late final _sel_configureScope_ = objc.registerName("configureScope:");
-
-/// The main entry point for the Sentry SDK.
-/// We recommend using <code>start(configureOptions:)</code> to initialize Sentry.
-class SentrySDK extends objc.NSObject {
-  SentrySDK._(ffi.Pointer<objc.ObjCObject> pointer,
-      {bool retain = false, bool release = false})
-      : super.castFromPointer(pointer, retain: retain, release: release);
-
-  /// Constructs a [SentrySDK] that points to the same underlying object as [other].
-  SentrySDK.castFrom(objc.ObjCObjectBase other)
-      : this._(other.ref.pointer, retain: true, release: true);
-
-  /// Constructs a [SentrySDK] that wraps the given raw object pointer.
-  SentrySDK.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
-      {bool retain = false, bool release = false})
-      : this._(other, retain: retain, release: release);
-
-  /// Returns whether [obj] is an instance of [SentrySDK].
-  static bool isInstance(objc.ObjCObjectBase obj) {
-    return _objc_msgSend_19nvye5(
-        obj.ref.pointer, _sel_isKindOfClass_, _class_SentrySDK);
-  }
-
-  /// Use this method to modify the current <code>Scope</code> of the current <code>Hub</code>. The SDK uses the <code>Scope</code> to attach
-  /// contextual data to events.
-  /// \param callback The callback for configuring the current <code>Scope</code> of the current <code>Hub</code>.
-  static void configureScope(
-      objc.ObjCBlock<ffi.Void Function(SentryScope)> callback) {
-    _objc_msgSend_f167m6(
-        _class_SentrySDK, _sel_configureScope_, callback.ref.pointer);
-  }
-}
-
-late final _class_SentryFlutterFFI = objc.getClass("SentryFlutterFFI");
+late final _class_SentryFlutterFFIBridge =
+    objc.getClass("SentryFlutterFFIBridge");
 late final _sel_loadContextsAsBytes = objc.registerName("loadContextsAsBytes");
 late final _sel_loadDebugImagesAsBytes_ =
     objc.registerName("loadDebugImagesAsBytes:");
 
-/// SentryFlutterFFI
-class SentryFlutterFFI extends objc.NSObject {
-  SentryFlutterFFI._(ffi.Pointer<objc.ObjCObject> pointer,
+/// SentryFlutterFFIBridge
+class SentryFlutterFFIBridge extends objc.NSObject {
+  SentryFlutterFFIBridge._(ffi.Pointer<objc.ObjCObject> pointer,
       {bool retain = false, bool release = false})
       : super.castFromPointer(pointer, retain: retain, release: release);
 
-  /// Constructs a [SentryFlutterFFI] that points to the same underlying object as [other].
-  SentryFlutterFFI.castFrom(objc.ObjCObjectBase other)
+  /// Constructs a [SentryFlutterFFIBridge] that points to the same underlying object as [other].
+  SentryFlutterFFIBridge.castFrom(objc.ObjCObjectBase other)
       : this._(other.ref.pointer, retain: true, release: true);
 
-  /// Constructs a [SentryFlutterFFI] that wraps the given raw object pointer.
-  SentryFlutterFFI.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+  /// Constructs a [SentryFlutterFFIBridge] that wraps the given raw object pointer.
+  SentryFlutterFFIBridge.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
       {bool retain = false, bool release = false})
       : this._(other, retain: retain, release: release);
 
-  /// Returns whether [obj] is an instance of [SentryFlutterFFI].
+  /// Returns whether [obj] is an instance of [SentryFlutterFFIBridge].
   static bool isInstance(objc.ObjCObjectBase obj) {
     return _objc_msgSend_19nvye5(
-        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryFlutterFFI);
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryFlutterFFIBridge);
   }
 
   /// loadContextsAsBytes
   static objc.NSData? loadContextsAsBytes() {
     final _ret = _objc_msgSend_151sglz(
-        _class_SentryFlutterFFI, _sel_loadContextsAsBytes);
+        _class_SentryFlutterFFIBridge, _sel_loadContextsAsBytes);
     return _ret.address == 0
         ? null
         : objc.NSData.castFromPointer(_ret, retain: true, release: true);
@@ -1553,7 +1157,7 @@ class SentryFlutterFFI extends objc.NSObject {
 
   /// loadDebugImagesAsBytes:
   static objc.NSData? loadDebugImagesAsBytes(objc.NSSet instructionAddresses) {
-    final _ret = _objc_msgSend_1sotr3r(_class_SentryFlutterFFI,
+    final _ret = _objc_msgSend_1sotr3r(_class_SentryFlutterFFIBridge,
         _sel_loadDebugImagesAsBytes_, instructionAddresses.ref.pointer);
     return _ret.address == 0
         ? null
@@ -1561,51 +1165,59 @@ class SentryFlutterFFI extends objc.NSObject {
   }
 
   /// init
-  SentryFlutterFFI init() {
-    objc.checkOsVersionInternal('SentryFlutterFFI.init',
+  SentryFlutterFFIBridge init() {
+    objc.checkOsVersionInternal('SentryFlutterFFIBridge.init',
         iOS: (false, (2, 0, 0)), macOS: (false, (10, 0, 0)));
     final _ret =
         _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
+    return SentryFlutterFFIBridge.castFromPointer(_ret,
+        retain: false, release: true);
   }
 
   /// new
-  static SentryFlutterFFI new$() {
-    final _ret = _objc_msgSend_151sglz(_class_SentryFlutterFFI, _sel_new);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
+  static SentryFlutterFFIBridge new$() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryFlutterFFIBridge, _sel_new);
+    return SentryFlutterFFIBridge.castFromPointer(_ret,
+        retain: false, release: true);
   }
 
   /// allocWithZone:
-  static SentryFlutterFFI allocWithZone(ffi.Pointer<objc.NSZone> zone) {
+  static SentryFlutterFFIBridge allocWithZone(ffi.Pointer<objc.NSZone> zone) {
     final _ret = _objc_msgSend_1cwp428(
-        _class_SentryFlutterFFI, _sel_allocWithZone_, zone);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
+        _class_SentryFlutterFFIBridge, _sel_allocWithZone_, zone);
+    return SentryFlutterFFIBridge.castFromPointer(_ret,
+        retain: false, release: true);
   }
 
   /// alloc
-  static SentryFlutterFFI alloc() {
-    final _ret = _objc_msgSend_151sglz(_class_SentryFlutterFFI, _sel_alloc);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
+  static SentryFlutterFFIBridge alloc() {
+    final _ret =
+        _objc_msgSend_151sglz(_class_SentryFlutterFFIBridge, _sel_alloc);
+    return SentryFlutterFFIBridge.castFromPointer(_ret,
+        retain: false, release: true);
   }
 
   /// self
-  SentryFlutterFFI self$1() {
+  SentryFlutterFFIBridge self$1() {
     final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: true, release: true);
+    return SentryFlutterFFIBridge.castFromPointer(_ret,
+        retain: true, release: true);
   }
 
   /// retain
-  SentryFlutterFFI retain() {
+  SentryFlutterFFIBridge retain() {
     final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: true, release: true);
+    return SentryFlutterFFIBridge.castFromPointer(_ret,
+        retain: true, release: true);
   }
 
   /// autorelease
-  SentryFlutterFFI autorelease() {
+  SentryFlutterFFIBridge autorelease() {
     final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: true, release: true);
+    return SentryFlutterFFIBridge.castFromPointer(_ret,
+        retain: true, release: true);
   }
 
-  /// Returns a new instance of SentryFlutterFFI constructed with the default `new` method.
-  factory SentryFlutterFFI() => new$();
+  /// Returns a new instance of SentryFlutterFFIBridge constructed with the default `new` method.
+  factory SentryFlutterFFIBridge() => new$();
 }

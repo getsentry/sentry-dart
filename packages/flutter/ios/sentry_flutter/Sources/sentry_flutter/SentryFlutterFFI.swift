@@ -7,16 +7,19 @@ import sentry_flutter_objc
 
 /*
  Why this file exists
- - Provides a small, hand-written FFI/bridging surface for Cocoa when we need behavior that generated bindings can't express.
- - Use this only for custom needs such as serializing to JSON and guaranteeing UTF-8 encoding, or accessing Cocoa internals not exposed by generated APIs.
+ - Provides a small, hand-written FFI/bridging surface for Cocoa when we need behavior that generated bindings
+   can't express.
+ - Use this only for custom needs such as serializing to JSON and guaranteeing UTF-8 encoding, or accessing
+   Cocoa internals not exposed by generated APIs.
  - For everything else, prefer calling the generated FFI/APIs directly from Dart.
  - Keep `SentryFlutterFFI.h` in sync with the Swift `@objc` selectors (names/signatures).
  */
 
 @objcMembers
-@objc(SentryFlutterFFI)
+@objc(SentryFlutterFFIBridge)
 public class SentryFlutterFFI: NSObject {
-    @objc(loadDebugImagesAsBytes:) public class func loadDebugImagesAsBytes(instructionAddresses: Set<String>) -> NSData? {
+    @objc(loadDebugImagesAsBytes:)
+    public class func loadDebugImagesAsBytes(instructionAddresses: Set<String>) -> NSData? {
         var debugImages: [DebugMeta] = []
 
         var imagesAddresses: Set<String> = []
@@ -47,7 +50,8 @@ public class SentryFlutterFFI: NSObject {
         return nil
     }
 
-    @objc public class func loadContextsAsBytes() -> NSData? {
+    // swiftlint:disable function_body_length cyclomatic_complexity
+    public class func loadContextsAsBytes() -> NSData? {
             var infos: [String: Any] = [:]
 
             SentrySDK.configureScope { scope in
@@ -131,5 +135,3 @@ public class SentryFlutterFFI: NSObject {
             return nil
     }
 }
-
-

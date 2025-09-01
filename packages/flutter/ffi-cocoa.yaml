@@ -6,9 +6,7 @@ headers:
   entry-points:
     - ./temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h
     - ./temp/Sentry.framework/Headers/Sentry-Swift.h
-    - ./temp/Sentry.framework/Headers/SentryScope.h
-    - ./temp/Sentry.framework/Headers/SentryOptions.h
-    - ./ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterFFI.h
+    - ./ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterFFIBridge.h
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
   - -DCOCOAPODS=1
@@ -19,24 +17,7 @@ exclude-all-by-default: true
 objc-interfaces:
   include:
     - PrivateSentrySDKOnly
-    - SentrySDK
-    - SentryScope
     - SentryId
-    - SentryFlutterFFI
+    - SentryFlutterFFIBridge
   module:
     "SentryId": "Sentry"
-    "SentrySDK": "Sentry"
-    "SentryLevel": "Sentry"
-  member-filter:
-    SentryOptions:
-      include:
-        - "integrations"
-    SentryScope:
-      include:
-        - "serialize"
-    SentrySDK:
-      include:
-        - "configureScope:"
-enums:
-  include:
-    - "^SentryLevel$"

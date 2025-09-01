@@ -3,9 +3,7 @@
 #import <objc/message.h>
 #import "../../../../temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h"
 #import "../../../../temp/Sentry.framework/Headers/Sentry-Swift.h"
-#import "../../../../temp/Sentry.framework/Headers/SentryScope.h"
-#import "../../../../temp/Sentry.framework/Headers/SentryOptions.h"
-#import "../../../../ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterFFI.h"
+#import "../../../../ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterFFIBridge.h"
 
 #if !__has_feature(objc_arc)
 #error "This file must be compiled with ARC enabled"
@@ -81,8 +79,6 @@ __attribute__((visibility("default"))) __attribute__((used))
 id  _SentryCocoa_protocolTrampoline_1mbt9g9(id target, void * sel) {
   return ((ProtocolTrampoline)((id (*)(id, SEL, SEL))objc_msgSend)(target, @selector(getDOBJCDartProtocolMethodForSelector:), sel))(sel);
 }
-
-Protocol* _SentryCocoa_SentrySerializable(void) { return @protocol(SentrySerializable); }
 #undef BLOCKING_BLOCK_IMPL
 
 #pragma clang diagnostic pop
