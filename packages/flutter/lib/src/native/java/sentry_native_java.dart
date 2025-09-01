@@ -110,7 +110,7 @@ class SentryNativeJava extends SentryNativeChannel {
     try {
       instructionAddressStrings = stackTrace.frames
           .map((f) => f.instructionAddr)
-          .whereType<String>()
+          .nonNulls
           .toSet()
           .map((s) => s.toJString())
           .toList(growable: false);
