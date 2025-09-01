@@ -50,7 +50,7 @@ public class SentryFlutterFFI: NSObject {
         return nil
     }
 
-    // swiftlint:disable function_body_length cyclomatic_complexity
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
     public class func loadContextsAsBytes() -> NSData? {
             var infos: [String: Any] = [:]
 
