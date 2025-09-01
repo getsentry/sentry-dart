@@ -173,6 +173,42 @@ void main() {
       expect(actualItemData, expectedItemData);
     });
 
+    test('fromLogsData', () async {
+      final encodedLogs = [
+        utf8.encode(
+            '{"timestamp":"2023-01-01T00:00:00.000Z","level":"info","body":"test1","attributes":{}}'),
+        utf8.encode(
+            '{"timestamp":"2023-01-01T00:00:01.000Z","level":"info","body":"test2","attributes":{}}'),
+      ];
+
+      final sdkVersion =
+          SdkVersion(name: 'fixture-name', version: 'fixture-version');
+      final sut = SentryEnvelope.fromLogsData(encodedLogs, sdkVersion);
+
+      expect(sut.header.eventId, null);
+      expect(sut.header.sdkVersion, sdkVersion);
+      expect(sut.items.length, 1);
+
+      final expectedEnvelopeItem = SentryEnvelopeItem.fromLogsData(
+        // The envelope should create the final payload with {"items": [...]} wrapper
+        utf8.encode('{"items":[') +
+            encodedLogs[0] +
+            utf8.encode(',') +
+            encodedLogs[1] +
+            utf8.encode(']}'),
+        2, // logsCount
+      );
+
+      expect(sut.items[0].header.contentType,
+          expectedEnvelopeItem.header.contentType);
+      expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
+      expect(sut.items[0].header.itemCount, 2);
+
+      final actualItem = await sut.items[0].dataFactory();
+      final expectedItem = await expectedEnvelopeItem.dataFactory();
+      expect(actualItem, expectedItem);
+    });
+
     test('max attachment size', () async {
       final attachment = SentryAttachment.fromLoader(
         loader: () => Uint8List.fromList([1, 2, 3, 4]),
