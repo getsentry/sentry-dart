@@ -16,8 +16,8 @@ import sentry_flutter_objc
  */
 
 @objcMembers
-@objc(SentryFlutterFFIBridge)
-public class SentryFlutterFFI: NSObject {
+@objc(SentryFlutterFFI)
+class SentryFlutterFFI: NSObject {
     @objc(loadDebugImagesAsBytes:)
     public class func loadDebugImagesAsBytes(instructionAddresses: Set<String>) -> NSData? {
         var debugImages: [DebugMeta] = []

@@ -91,8 +91,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
       // NOTE: when instructionAddressSet is empty, loadDebugImagesAsBytes will return
       // all debug images as fallback.
       final imagesJsonData =
-          cocoa.SentryFlutterFFIBridge.loadDebugImagesAsBytes(
-              instructionAddressSet);
+          cocoa.SentryFlutterFFI.loadDebugImagesAsBytes(instructionAddressSet);
       if (imagesJsonData == null) return null;
 
       final bytes = imagesJsonData.toList();
@@ -120,8 +119,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
       // is significantly faster because contexts can be large and contain many nested
       // objects. Local benchmarks show this method is ~4x faster than the alternative
       // approach of converting FFI objects to Dart objects one by one.
-      final contextsJsonData =
-          cocoa.SentryFlutterFFIBridge.loadContextsAsBytes();
+      final contextsJsonData = cocoa.SentryFlutterFFI.loadContextsAsBytes();
       if (contextsJsonData == null) return null;
 
       final bytes = contextsJsonData.toList();

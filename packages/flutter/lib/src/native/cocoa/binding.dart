@@ -1119,37 +1119,36 @@ class SentryId$1 extends objc.NSObject {
   factory SentryId$1() => new$();
 }
 
-late final _class_SentryFlutterFFIBridge =
-    objc.getClass("SentryFlutterFFIBridge");
+late final _class_SentryFlutterFFI = objc.getClass("SentryFlutterFFI");
 late final _sel_loadContextsAsBytes = objc.registerName("loadContextsAsBytes");
 late final _sel_loadDebugImagesAsBytes_ =
     objc.registerName("loadDebugImagesAsBytes:");
 
-/// SentryFlutterFFIBridge
-class SentryFlutterFFIBridge extends objc.NSObject {
-  SentryFlutterFFIBridge._(ffi.Pointer<objc.ObjCObject> pointer,
+/// SentryFlutterFFI
+class SentryFlutterFFI extends objc.NSObject {
+  SentryFlutterFFI._(ffi.Pointer<objc.ObjCObject> pointer,
       {bool retain = false, bool release = false})
       : super.castFromPointer(pointer, retain: retain, release: release);
 
-  /// Constructs a [SentryFlutterFFIBridge] that points to the same underlying object as [other].
-  SentryFlutterFFIBridge.castFrom(objc.ObjCObjectBase other)
+  /// Constructs a [SentryFlutterFFI] that points to the same underlying object as [other].
+  SentryFlutterFFI.castFrom(objc.ObjCObjectBase other)
       : this._(other.ref.pointer, retain: true, release: true);
 
-  /// Constructs a [SentryFlutterFFIBridge] that wraps the given raw object pointer.
-  SentryFlutterFFIBridge.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+  /// Constructs a [SentryFlutterFFI] that wraps the given raw object pointer.
+  SentryFlutterFFI.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
       {bool retain = false, bool release = false})
       : this._(other, retain: retain, release: release);
 
-  /// Returns whether [obj] is an instance of [SentryFlutterFFIBridge].
+  /// Returns whether [obj] is an instance of [SentryFlutterFFI].
   static bool isInstance(objc.ObjCObjectBase obj) {
     return _objc_msgSend_19nvye5(
-        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryFlutterFFIBridge);
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryFlutterFFI);
   }
 
   /// loadContextsAsBytes
   static objc.NSData? loadContextsAsBytes() {
     final _ret = _objc_msgSend_151sglz(
-        _class_SentryFlutterFFIBridge, _sel_loadContextsAsBytes);
+        _class_SentryFlutterFFI, _sel_loadContextsAsBytes);
     return _ret.address == 0
         ? null
         : objc.NSData.castFromPointer(_ret, retain: true, release: true);
@@ -1157,7 +1156,7 @@ class SentryFlutterFFIBridge extends objc.NSObject {
 
   /// loadDebugImagesAsBytes:
   static objc.NSData? loadDebugImagesAsBytes(objc.NSSet instructionAddresses) {
-    final _ret = _objc_msgSend_1sotr3r(_class_SentryFlutterFFIBridge,
+    final _ret = _objc_msgSend_1sotr3r(_class_SentryFlutterFFI,
         _sel_loadDebugImagesAsBytes_, instructionAddresses.ref.pointer);
     return _ret.address == 0
         ? null
@@ -1165,59 +1164,51 @@ class SentryFlutterFFIBridge extends objc.NSObject {
   }
 
   /// init
-  SentryFlutterFFIBridge init() {
-    objc.checkOsVersionInternal('SentryFlutterFFIBridge.init',
+  SentryFlutterFFI init() {
+    objc.checkOsVersionInternal('SentryFlutterFFI.init',
         iOS: (false, (2, 0, 0)), macOS: (false, (10, 0, 0)));
     final _ret =
         _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
-    return SentryFlutterFFIBridge.castFromPointer(_ret,
-        retain: false, release: true);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
   }
 
   /// new
-  static SentryFlutterFFIBridge new$() {
-    final _ret = _objc_msgSend_151sglz(_class_SentryFlutterFFIBridge, _sel_new);
-    return SentryFlutterFFIBridge.castFromPointer(_ret,
-        retain: false, release: true);
+  static SentryFlutterFFI new$() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryFlutterFFI, _sel_new);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
   }
 
   /// allocWithZone:
-  static SentryFlutterFFIBridge allocWithZone(ffi.Pointer<objc.NSZone> zone) {
+  static SentryFlutterFFI allocWithZone(ffi.Pointer<objc.NSZone> zone) {
     final _ret = _objc_msgSend_1cwp428(
-        _class_SentryFlutterFFIBridge, _sel_allocWithZone_, zone);
-    return SentryFlutterFFIBridge.castFromPointer(_ret,
-        retain: false, release: true);
+        _class_SentryFlutterFFI, _sel_allocWithZone_, zone);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
   }
 
   /// alloc
-  static SentryFlutterFFIBridge alloc() {
-    final _ret =
-        _objc_msgSend_151sglz(_class_SentryFlutterFFIBridge, _sel_alloc);
-    return SentryFlutterFFIBridge.castFromPointer(_ret,
-        retain: false, release: true);
+  static SentryFlutterFFI alloc() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryFlutterFFI, _sel_alloc);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
   }
 
   /// self
-  SentryFlutterFFIBridge self$1() {
+  SentryFlutterFFI self$1() {
     final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
-    return SentryFlutterFFIBridge.castFromPointer(_ret,
-        retain: true, release: true);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: true, release: true);
   }
 
   /// retain
-  SentryFlutterFFIBridge retain() {
+  SentryFlutterFFI retain() {
     final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
-    return SentryFlutterFFIBridge.castFromPointer(_ret,
-        retain: true, release: true);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: true, release: true);
   }
 
   /// autorelease
-  SentryFlutterFFIBridge autorelease() {
+  SentryFlutterFFI autorelease() {
     final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
-    return SentryFlutterFFIBridge.castFromPointer(_ret,
-        retain: true, release: true);
+    return SentryFlutterFFI.castFromPointer(_ret, retain: true, release: true);
   }
 
-  /// Returns a new instance of SentryFlutterFFIBridge constructed with the default `new` method.
-  factory SentryFlutterFFIBridge() => new$();
+  /// Returns a new instance of SentryFlutterFFI constructed with the default `new` method.
+  factory SentryFlutterFFI() => new$();
 }
