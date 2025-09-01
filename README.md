@@ -2,7 +2,7 @@
   <a href="https://sentry.io/?utm_source=github&utm_medium=logo" target="_blank">
     <img src="https://sentry-brand.storage.googleapis.com/sentry-wordmark-dark-280x84.png" alt="Sentry" width="280" height="84">
   </a>
-  <a href="https://flutter.dev/docs/development/packages-and-plugins/favorites" target="_blank">
+  <a href="https://docs.flutter.dev/development/packages-and-plugins/favorites" target="_blank">
     <img src="https://github.com/getsentry/sentry-dart/raw/main/.github/flutter_favorite.svg" width="100">
   </a>
 </p>
