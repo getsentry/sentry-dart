@@ -157,7 +157,7 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  FutureOr<Map<String, dynamic>?> loadContexts() async {
+  FutureOr<Map<String, dynamic>?> loadContexts() {
     JByteArray? contextsJsonData;
 
     try {
