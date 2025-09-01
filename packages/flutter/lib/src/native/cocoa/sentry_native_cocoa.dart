@@ -78,56 +78,34 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
     try {
-      final dependencyContainer =
-          cocoa.SentryDependencyContainer.sharedInstance();
-
-      // Extract unique image addresses from stack trace
-      final imageAddresses = stackTrace.frames
-          .where((frame) => frame.instructionAddr != null)
-          .map((frame) => frame.instructionAddr!)
-          .map((addr) => int.tryParse(addr.replaceFirst('0x', ''), radix: 16))
-          .whereType<int>()
-          .map((addr) =>
-              dependencyContainer.binaryImageCache.imageByAddress(addr))
-          .whereType<cocoa.SentryBinaryImageInfo>()
-          .map((image) => '0x${image.address.toRadixString(16)}')
-          .toSet();
-
-      List<DebugImage> debugImages = [];
-
-      if (imageAddresses.isNotEmpty) {
-        // Get debug images for specific addresses
-        final nsSet = NSMutableSet();
-        for (final addr in imageAddresses) {
-          nsSet.addObject(NSString(addr));
-        }
-        debugImages = _convertDebugImages(_castToSentryDebugMetaList(
-            dependencyContainer.debugImageProvider
-                .getDebugImagesForImageAddressesFromCache(nsSet)));
-      }
-
-      // Return debug images referenced by stack trace addresses
-      // otherwise if none found, all debug images are returned.
-      return debugImages.isEmpty
-          ? _convertDebugImages(_castToSentryDebugMetaList(
-              cocoa.PrivateSentrySDKOnly.getDebugImages()))
-          : debugImages;
+      final instructionAddresses = stackTrace.frames
+          .map((frame) => frame.instructionAddr)
+          .nonNulls
+          .toSet()
+          .toNSSet();
+      final nsData =
+          cocoa.SentryFlutterFFI.loadDebugImagesAsBytes(instructionAddresses);
+      final bytes = nsData.toList();
+      final decoded = utf8.decode(bytes);
+      final debugImagesMap = (jsonDecode(decoded) as List)
+          .map((x) => (x is Map) ? x as Map<String, dynamic> : null)
+          .nonNulls;
+      return debugImagesMap.map(DebugImage.fromJson).toList(growable: false);
     } catch (exception, stackTrace) {
-      options.log(SentryLevel.error, 'Failed to load debug images',
+      options.log(SentryLevel.error, 'Failed to load contexts',
           exception: exception, stackTrace: stackTrace);
 
       if (options.automatedTestMode) {
         rethrow;
       }
-      return null;
     }
+    return null;
   }
 
   @override
-  FutureOr<Map<String, dynamic>?> loadContexts() async {
-    NSData? nsData;
+  FutureOr<Map<String, dynamic>?> loadContexts() {
     try {
-      nsData = cocoa.SentryFlutterFFI.loadContextsNSData();
+      final nsData = cocoa.SentryFlutterFFI.loadContextsAsBytes();
       final bytes = nsData.toList();
       final decoded = utf8.decode(bytes);
       return json.decode(decoded) as Map<String, dynamic>;
@@ -165,53 +143,4 @@ class SentryNativeCocoa extends SentryNativeChannel {
           return startTime;
         },
       );
-
-  /// Safely casts NSArray items to SentryDebugMeta list
-  List<cocoa.SentryDebugMeta> _castToSentryDebugMetaList(NSArray nsArray) {
-    final result = <cocoa.SentryDebugMeta>[];
-    for (int i = 0; i < nsArray.length; i++) {
-      final item = nsArray[i];
-      try {
-        final debugMeta = item is cocoa.SentryDebugMeta
-            ? item
-            : cocoa.SentryDebugMeta.castFrom(item);
-        result.add(debugMeta);
-      } catch (e) {
-        // Skip items that can't be cast
-        options.log(SentryLevel.debug,
-            'Skipping debug image that cannot be cast to SentryDebugMeta: $e');
-      }
-    }
-    return result;
-  }
-
-  /// Converts cocoa debug meta to [DebugImage]
-  DebugImage? _convertSingleDebugImage(cocoa.SentryDebugMeta image) {
-    try {
-      return DebugImage(
-        debugId: image.debugID?.toDartString() ?? image.uuid?.toDartString(),
-        type: image.type?.toDartString() ?? 'macho',
-        codeFile: image.codeFile?.toDartString() ?? image.name?.toDartString(),
-        imageAddr: image.imageAddress?.toDartString(),
-        imageVmAddr: image.imageVmAddress?.toDartString(),
-        imageSize: image.imageSize?.intValue,
-      );
-    } catch (exception, stackTrace) {
-      if (options.automatedTestMode) {
-        rethrow;
-      }
-      options.log(SentryLevel.error, 'Failed to convert debug image',
-          exception: exception, stackTrace: stackTrace);
-      return null;
-    }
-  }
-
-  /// Converts cocoa debug meta list to [DebugImage] list
-  List<DebugImage> _convertDebugImages(
-      List<cocoa.SentryDebugMeta> cocoaDebugImages) {
-    return cocoaDebugImages
-        .map(_convertSingleDebugImage)
-        .whereType<DebugImage>()
-        .toList();
-  }
 }

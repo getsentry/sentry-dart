@@ -564,7 +564,7 @@ void main() {
     }
   });
 
-  testWidgets('setup sentry and test loading debug image', (tester) async {
+  testWidgets('loads debug images through loadDebugImages', (tester) async {
     await restoreFlutterOnErrorAfter(() async {
       await setupSentryAndApp(tester);
     });

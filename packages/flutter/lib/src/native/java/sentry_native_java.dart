@@ -120,10 +120,7 @@ class SentryNativeJava extends SentryNativeChannel {
       imagesBytes = native.SentryFlutterPlugin.Companion
           .loadDebugImagesAsBytes(jniAddressSet);
       if (imagesBytes != null) {
-        // Copy from JVM -> native buffer as Int8List
         final i8 = imagesBytes.getRange(0, imagesBytes.length);
-
-        // Zero-copy view as Uint8List
         final u8 = Uint8List.view(i8.buffer, i8.offsetInBytes, i8.length);
 
         final jsonStr = utf8.decode(u8);

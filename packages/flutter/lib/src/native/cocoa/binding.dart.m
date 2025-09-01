@@ -5,10 +5,6 @@
 #import "../../../../temp/Sentry.framework/Headers/Sentry-Swift.h"
 #import "../../../../temp/Sentry.framework/Headers/SentryScope.h"
 #import "../../../../temp/Sentry.framework/Headers/SentryOptions.h"
-#import "../../../../temp/Sentry.framework/Headers/SentryDebugMeta.h"
-#import "../../../../temp/Sentry.framework/PrivateHeaders/SentryDependencyContainer.h"
-#import "../../../../temp/Sentry.framework/PrivateHeaders/SentryDebugImageProvider+HybridSDKs.h"
-#import "../../../../temp/Sentry.framework/PrivateHeaders/SentryBinaryImageCache.h"
 #import "../../../../ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterFFI.h"
 
 #if !__has_feature(objc_arc)

@@ -66,8 +66,6 @@ class SentryFlutterPlugin :
   ) {
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
-      "loadImageList" -> loadImageList(call, result)
-      "loadContexts" -> loadContexts(result)
       "closeNativeSdk" -> closeNativeSdk(result)
       "fetchNativeAppStart" -> fetchNativeAppStart(result)
       "setContexts" -> setContexts(call.argument("key"), call.argument("value"), result)
@@ -105,22 +103,6 @@ class SentryFlutterPlugin :
 
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
     // Stub
-  }
-
-  private fun loadContexts(result: Result) {
-    val options = HubAdapter.getInstance().options
-    if (options !is SentryAndroidOptions) {
-      result.success(null)
-      return
-    }
-    val currentScope = InternalSentrySdk.getCurrentScope()
-    val serializedScope =
-      InternalSentrySdk.serializeScope(
-        context,
-        options,
-        currentScope,
-      )
-    result.success(serializedScope)
   }
 
   override fun onDetachedFromActivityForConfigChanges() {
@@ -386,42 +368,6 @@ class SentryFlutterPlugin :
 
     result.success("")
   }
-  private fun loadImageList(
-    call: MethodCall,
-    result: Result,
-  ) {
-    val options = HubAdapter.getInstance().options as SentryAndroidOptions
-
-    val addresses = call.arguments() as List<String>? ?: listOf()
-    val debugImages =
-      if (addresses.isEmpty()) {
-        options.debugImagesLoader
-          .loadDebugImages()
-          ?.toList()
-          .serialize()
-      } else {
-        options.debugImagesLoader
-          .loadDebugImagesForAddresses(addresses.toSet())
-          ?.ifEmpty { options.debugImagesLoader.loadDebugImages() }
-          ?.toList()
-          .serialize()
-      }
-
-    result.success(debugImages)
-  }
-
-  private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
-
-  private fun DebugImage.serialize() =
-    mapOf(
-      "image_addr" to imageAddr,
-      "image_size" to imageSize,
-      "code_file" to codeFile,
-      "type" to type,
-      "debug_id" to debugId,
-      "code_id" to codeId,
-      "debug_file" to debugFile,
-    )
 
   private fun closeNativeSdk(result: Result) {
     HubAdapter.getInstance().close()

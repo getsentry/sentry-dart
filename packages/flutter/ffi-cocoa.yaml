@@ -8,10 +8,6 @@ headers:
     - ./temp/Sentry.framework/Headers/Sentry-Swift.h
     - ./temp/Sentry.framework/Headers/SentryScope.h
     - ./temp/Sentry.framework/Headers/SentryOptions.h
-    - ./temp/Sentry.framework/Headers/SentryDebugMeta.h
-    - ./temp/Sentry.framework/PrivateHeaders/SentryDependencyContainer.h
-    - ./temp/Sentry.framework/PrivateHeaders/SentryDebugImageProvider+HybridSDKs.h
-    - ./temp/Sentry.framework/PrivateHeaders/SentryBinaryImageCache.h
     - ./ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterFFI.h
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
@@ -26,12 +22,6 @@ objc-interfaces:
     - SentrySDK
     - SentryScope
     - SentryId
-    - SentryOptions
-    - SentryDependencyContainer
-    - SentryDebugImageProvider
-    - SentryBinaryImageCache
-    - SentryBinaryImageInfo
-    - SentryDebugMeta
     - SentryFlutterFFI
   module:
     "SentryId": "Sentry"
@@ -47,17 +37,6 @@ objc-interfaces:
     SentrySDK:
       include:
         - "configureScope:"
-    SentryDependencyContainer:
-      include:
-        - "sharedInstance"
-        - "binaryImageCache"
-        - "debugImageProvider"
-    SentryBinaryImageCache:
-      include:
-        - "imageByAddress:"
-    SentryDebugImageProvider:
-      include:
-        - "getDebugImagesForImageAddressesFromCache:"
 enums:
   include:
     - "^SentryLevel$"

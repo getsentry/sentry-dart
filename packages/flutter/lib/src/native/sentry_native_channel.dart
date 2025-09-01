@@ -117,8 +117,8 @@ class SentryNativeChannel
 
   @override
   FutureOr<Map<String, dynamic>?> loadContexts() {
-    assert(false, 'loadContexts should not be used through method channels.');
-    return null;
+    // assert(false, 'loadContexts should not be used through method channels.');
+    return channel.invokeMapMethod<String, dynamic>('loadContexts');
   }
 
   @override
