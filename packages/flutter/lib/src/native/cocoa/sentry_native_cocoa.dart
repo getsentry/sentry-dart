@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
+import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
 
 import '../../../sentry_flutter.dart';
