@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
-import 'package:jni/_internal.dart';
 import 'package:objective_c/objective_c.dart';
 
 import '../../../sentry_flutter.dart';
@@ -78,7 +76,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
     try {
-      final instructionAddresses = stackTrace.frames
+      final instructionAddressSet = stackTrace.frames
           .map((frame) => frame.instructionAddr)
           .nonNulls
           .toSet()
@@ -89,14 +87,19 @@ class SentryNativeCocoa extends SentryNativeChannel {
       // is significantly faster because images can be large.
       // Local benchmarks show this method is ~4x faster than the alternative
       // approach of converting FFI objects to Dart objects one by one.
-      final nsData =
-          cocoa.SentryFlutterFFI.loadDebugImagesAsBytes(instructionAddresses);
-      final bytes = nsData.toList();
-      final decoded = utf8.decode(bytes);
-      final debugImagesMap = (jsonDecode(decoded) as List)
+
+      // NOTE: when instructionAddressSet is empty, loadDebugImagesAsBytes will return
+      // all debug images as fallback.
+      final imagesJsonData =
+          cocoa.SentryFlutterFFI.loadDebugImagesAsBytes(instructionAddressSet);
+      if (imagesJsonData == null) return null;
+
+      final bytes = imagesJsonData.toList();
+      final jsonString = utf8.decode(bytes);
+      final debugImageMaps = (json.decode(jsonString) as List)
           .map((x) => (x is Map) ? x as Map<String, dynamic> : null)
           .nonNulls;
-      return debugImagesMap.map(DebugImage.fromJson).toList(growable: false);
+      return debugImageMaps.map(DebugImage.fromJson).toList(growable: false);
     } catch (exception, stackTrace) {
       options.log(SentryLevel.error, 'Failed to load contexts',
           exception: exception, stackTrace: stackTrace);
@@ -116,10 +119,12 @@ class SentryNativeCocoa extends SentryNativeChannel {
       // is significantly faster because contexts can be large and contain many nested
       // objects. Local benchmarks show this method is ~4x faster than the alternative
       // approach of converting FFI objects to Dart objects one by one.
-      final nsData = cocoa.SentryFlutterFFI.loadContextsAsBytes();
-      final bytes = nsData.toList();
-      final decoded = utf8.decode(bytes);
-      return json.decode(decoded) as Map<String, dynamic>;
+      final contextsJsonData = cocoa.SentryFlutterFFI.loadContextsAsBytes();
+      if (contextsJsonData == null) return null;
+
+      final bytes = contextsJsonData.toList();
+      final jsonString = utf8.decode(bytes);
+      return json.decode(jsonString) as Map<String, dynamic>;
     } catch (exception, stackTrace) {
       options.log(SentryLevel.error, 'Failed to load contexts',
           exception: exception, stackTrace: stackTrace);

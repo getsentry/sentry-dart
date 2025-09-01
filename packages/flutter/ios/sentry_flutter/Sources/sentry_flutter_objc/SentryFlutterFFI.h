@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
 
 @interface SentryFlutterFFI : NSObject
-+ (NSData *)loadContextsAsBytes;
-+ (NSData *)loadDebugImagesAsBytes:(NSSet<NSString *> *)instructionAddresses;
++ (nullable NSData *)loadContextsAsBytes;
++ (nullable NSData *)loadDebugImagesAsBytes:(NSSet<NSString *> *)instructionAddresses;
 @end
 
 

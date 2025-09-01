@@ -1543,17 +1543,21 @@ class SentryFlutterFFI extends objc.NSObject {
   }
 
   /// loadContextsAsBytes
-  static objc.NSData loadContextsAsBytes() {
+  static objc.NSData? loadContextsAsBytes() {
     final _ret = _objc_msgSend_151sglz(
         _class_SentryFlutterFFI, _sel_loadContextsAsBytes);
-    return objc.NSData.castFromPointer(_ret, retain: true, release: true);
+    return _ret.address == 0
+        ? null
+        : objc.NSData.castFromPointer(_ret, retain: true, release: true);
   }
 
   /// loadDebugImagesAsBytes:
-  static objc.NSData loadDebugImagesAsBytes(objc.NSSet instructionAddresses) {
+  static objc.NSData? loadDebugImagesAsBytes(objc.NSSet instructionAddresses) {
     final _ret = _objc_msgSend_1sotr3r(_class_SentryFlutterFFI,
         _sel_loadDebugImagesAsBytes_, instructionAddresses.ref.pointer);
-    return objc.NSData.castFromPointer(_ret, retain: true, release: true);
+    return _ret.address == 0
+        ? null
+        : objc.NSData.castFromPointer(_ret, retain: true, release: true);
   }
 
   /// init

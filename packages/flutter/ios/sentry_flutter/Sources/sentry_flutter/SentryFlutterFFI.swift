@@ -16,7 +16,7 @@ import sentry_flutter_objc
 @objcMembers
 @objc(SentryFlutterFFI)
 public class SentryFlutterFFI: NSObject {
-    @objc(loadDebugImagesAsBytes:) public class func loadDebugImagesAsBytes(instructionAddresses: Set<String>) -> NSData {
+    @objc(loadDebugImagesAsBytes:) public class func loadDebugImagesAsBytes(instructionAddresses: Set<String>) -> NSData? {
         var debugImages: [DebugMeta] = []
 
         var imagesAddresses: Set<String> = []
@@ -44,10 +44,10 @@ public class SentryFlutterFFI: NSObject {
         if let data = try? JSONSerialization.data(withJSONObject: serializedImages, options: []) {
             return data as NSData
         }
-        return NSData()
+        return nil
     }
 
-    @objc public class func loadContextsAsBytes() -> NSData {
+    @objc public class func loadContextsAsBytes() -> NSData? {
             var infos: [String: Any] = [:]
 
             SentrySDK.configureScope { scope in
@@ -128,7 +128,7 @@ public class SentryFlutterFFI: NSObject {
             if let data = try? JSONSerialization.data(withJSONObject: infos, options: []) {
                 return data as NSData
             }
-            return NSData()
+            return nil
     }
 }
 

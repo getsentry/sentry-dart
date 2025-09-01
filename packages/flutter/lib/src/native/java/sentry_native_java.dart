@@ -103,37 +103,41 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
-    JSet<JString>? jniAddressSet;
-    List<JString>? jniAddressStrings;
-    JByteArray? imagesBytes;
+    JSet<JString>? instructionAddressSet;
+    List<JString>? instructionAddressStrings;
+    JByteArray? imagesJsonData;
 
     try {
-      jniAddressStrings = stackTrace.frames
+      instructionAddressStrings = stackTrace.frames
           .map((f) => f.instructionAddr)
           .whereType<String>()
           .toSet()
           .map((s) => s.toJString())
           .toList(growable: false);
-      jniAddressSet =
-          jniAddressStrings.nonNulls.cast<JString>().toJSet(JString.type);
+      instructionAddressSet = instructionAddressStrings.nonNulls
+          .cast<JString>()
+          .toJSet(JString.type);
 
       // Use a single JNI call to get images as UTF-8 encoded JSON instead of
       // making multiple JNI calls to convert each object individually. This approach
       // is significantly faster because images can be large.
       // Local benchmarks show this method is ~4x faster than the alternative
       // approach of converting JNI objects to Dart objects one by one.
-      imagesBytes = native.SentryFlutterPlugin.Companion
-          .loadDebugImagesAsBytes(jniAddressSet);
-      if (imagesBytes != null) {
-        final i8 = imagesBytes.getRange(0, imagesBytes.length);
-        final u8 = Uint8List.view(i8.buffer, i8.offsetInBytes, i8.length);
 
-        final jsonStr = utf8.decode(u8);
-        final debugImagesMap = (jsonDecode(jsonStr) as List)
-            .map((x) => (x is Map) ? x as Map<String, dynamic> : null)
-            .nonNulls;
-        return debugImagesMap.map(DebugImage.fromJson).toList(growable: false);
-      }
+      // NOTE: when instructionAddressSet is empty, loadDebugImagesAsBytes will return
+      // all debug images as fallback.
+      imagesJsonData = native.SentryFlutterPlugin.Companion
+          .loadDebugImagesAsBytes(instructionAddressSet);
+      if (imagesJsonData == null) return null;
+
+      final byteRange = imagesJsonData.getRange(0, imagesJsonData.length);
+      final bytes = Uint8List.view(
+          byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
+      final jsonString = utf8.decode(bytes);
+      final debugImageMaps = (json.decode(jsonString) as List)
+          .map((x) => (x is Map) ? x as Map<String, dynamic> : null)
+          .nonNulls;
+      return debugImageMaps.map(DebugImage.fromJson).toList(growable: false);
     } catch (exception, stackTrace) {
       options.log(SentryLevel.error, 'Failed to load debug images',
           exception: exception, stackTrace: stackTrace);
@@ -142,11 +146,11 @@ class SentryNativeJava extends SentryNativeChannel {
       }
     } finally {
       // Release JNI refs
-      for (final js in jniAddressStrings ?? const <JString>[]) {
+      for (final js in instructionAddressStrings ?? const <JString>[]) {
         js.release();
       }
-      jniAddressSet?.release();
-      imagesBytes?.release();
+      instructionAddressSet?.release();
+      imagesJsonData?.release();
     }
 
     return null;
@@ -154,7 +158,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   FutureOr<Map<String, dynamic>?> loadContexts() async {
-    JByteArray? javaByteArray;
+    JByteArray? contextsJsonData;
 
     try {
       // Use a single JNI call to get contexts as UTF-8 encoded JSON instead of
@@ -162,13 +166,15 @@ class SentryNativeJava extends SentryNativeChannel {
       // is significantly faster because contexts can be large and contain many nested
       // objects. Local benchmarks show this method is ~4x faster than the alternative
       // approach of converting JNI objects to Dart objects one by one.
-      javaByteArray =
+      contextsJsonData =
           native.SentryFlutterPlugin.Companion.loadContextsAsBytes();
-      if (javaByteArray == null) return null;
-      final i8 = javaByteArray.getRange(0, javaByteArray.length);
-      final u8 = Uint8List.view(i8.buffer, i8.offsetInBytes, i8.length);
-      final jsonStr = utf8.decode(u8);
-      return jsonDecode(jsonStr) as Map<String, dynamic>;
+      if (contextsJsonData == null) return null;
+
+      final byteRange = contextsJsonData.getRange(0, contextsJsonData.length);
+      final bytes = Uint8List.view(
+          byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
+      final jsonString = utf8.decode(bytes);
+      return json.decode(jsonString) as Map<String, dynamic>;
     } catch (exception, stackTrace) {
       options.log(SentryLevel.error, 'Failed to load contexts via JNI',
           exception: exception, stackTrace: stackTrace);
@@ -176,7 +182,7 @@ class SentryNativeJava extends SentryNativeChannel {
         rethrow;
       }
     } finally {
-      javaByteArray?.release();
+      contextsJsonData?.release();
     }
 
     return null;
