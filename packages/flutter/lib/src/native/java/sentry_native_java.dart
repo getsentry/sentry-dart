@@ -104,16 +104,16 @@ class SentryNativeJava extends SentryNativeChannel {
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
     JSet<JString>? instructionAddressSet;
-    List<JString>? instructionAddressJStrings;
+    Set<JString>? instructionAddressJStrings;
     JByteArray? imagesUtf8JsonBytes;
 
     try {
       instructionAddressJStrings = stackTrace.frames
           .map((f) => f.instructionAddr)
           .nonNulls
-          .toSet()
           .map((s) => s.toJString())
-          .toList(growable: false);
+          .toSet();
+
       instructionAddressSet = instructionAddressJStrings.nonNulls
           .cast<JString>()
           .toJSet(JString.type);
