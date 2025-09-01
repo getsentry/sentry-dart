@@ -22,6 +22,7 @@
 - Call options.log for structured logs ([#3187](https://github.com/getsentry/sentry-dart/pull/3187))
 - Remove async usage from `FlutterErrorIntegration` ([#3202](https://github.com/getsentry/sentry-dart/pull/3202))
 - Tag all spans during app start with start type info ([#3190](https://github.com/getsentry/sentry-dart/pull/3190))
+- Refactor `loadContexts` and `loadDebugImages` to use JNI and FFI ([#3224](https://github.com/getsentry/sentry-dart/pull/3224))
 
 ### Dependencies
 
@@ -211,6 +212,7 @@ Note: this release might require updating your Android Gradle Plugin version to 
   - Capture a device screenshot for feedback
   - Customize tests and required fields
   - Customization moved from the `SentryFeedbackWidget` constructor to `SentryFlutterOptions`:
+
 ```dart
 // configure your feedback widget
 options.feedback.showBranding = false;
@@ -242,11 +244,12 @@ options.feedback.showBranding = false;
   - This only works if you use the Sentry Dart Plugin version `3.0.0` or higher
 - Improved TTID/TTFD API ([#2866](https://github.com/getsentry/sentry-dart/pull/2866))
   - This improves the stability and consistency of TTFD reporting by introducing new APIs
+
 ```dart
 // Prerequisite: `SentryNavigatorObserver` is set up and routes you navigate to have unique names, e.g configured via `RouteSettings`
 // Info: Stateless widgets will report TTFD automatically when wrapped with `SentryDisplayWidget` - no need to call `reportFullyDisplayed`.
 
-// Method 1: wrap your widget that you navigate to in `SentryDisplayWidget` 
+// Method 1: wrap your widget that you navigate to in `SentryDisplayWidget`
 SentryDisplayWidget(child: YourWidget())
 
 // Then report TTFD after long running work (File I/O, Network) within your widget.
@@ -273,6 +276,7 @@ void initState() {
   });
 }
 ```
+
 - Add `message` parameter to `captureException()` ([#2882](https://github.com/getsentry/sentry-dart/pull/2882))
 - Add module in SentryStackFrame ([#2931](https://github.com/getsentry/sentry-dart/pull/2931))
   - Set `SentryOptions.includeModuleInStackTrace = true` to enable this. This may change grouping of exceptions.
@@ -295,18 +299,20 @@ void initState() {
 Version 9.0.0 marks a major release of the Sentry Dart/Flutter SDKs containing breaking changes.
 
 The goal of this release is the following:
- - Bump the minimum Dart and Flutter versions to `3.5.0` and `3.24.0` respectively
- - Bump the minimum Android API version to 21
- - Add interoperability with the Sentry Javascript SDK in Flutter Web for features such as release health and reporting native JS errors
- - GA the [Session Replay](https://docs.sentry.io/product/explore/session-replay/) feature
- - Provide feature flag support as well as [Firebase Remote Config](https://firebase.google.com/docs/remote-config) support
- - Trim down unused and potentially confusing APIs
+
+- Bump the minimum Dart and Flutter versions to `3.5.0` and `3.24.0` respectively
+- Bump the minimum Android API version to 21
+- Add interoperability with the Sentry Javascript SDK in Flutter Web for features such as release health and reporting native JS errors
+- GA the [Session Replay](https://docs.sentry.io/product/explore/session-replay/) feature
+- Provide feature flag support as well as [Firebase Remote Config](https://firebase.google.com/docs/remote-config) support
+- Trim down unused and potentially confusing APIs
 
 ### How To Upgrade
 
 Please carefully read through the migration guide in the Sentry docs on how to upgrade from version 8 to version 9
- - [Dart migration guide](https://docs.sentry.io/platforms/dart/migration/#migrating-from-sentry-8x-to-sentry-9x)
- - [Flutter migration guide](https://docs.sentry.io/platforms/dart/guides/flutter/migration/#migrating-from-sentry_flutter-8x-to-sentry_flutter-9x)
+
+- [Dart migration guide](https://docs.sentry.io/platforms/dart/migration/#migrating-from-sentry-8x-to-sentry-9x)
+- [Flutter migration guide](https://docs.sentry.io/platforms/dart/guides/flutter/migration/#migrating-from-sentry_flutter-8x-to-sentry_flutter-9x)
 
 ### Breaking changes
 
@@ -337,6 +343,7 @@ Please carefully read through the migration guide in the Sentry docs on how to u
 - Mutable Data Classes ([#2818](https://github.com/getsentry/sentry-dart/pull/2818))
   - Some SDK classes do not have `const` constructors anymore.
   - The `copyWith` and `clone` methods of SDK classes were deprecated.
+
 ```dart
 // old
 options.beforeSend = (event, hint) {
@@ -355,6 +362,7 @@ options.beforeSend = (event, hint) {
 - Sentry Structured Logs Beta ([#2919](https://github.com/getsentry/sentry-dart/pull/2919))
   - The old `SentryLogger` has been renamed to `SdkLogCallback` and can be accessed through `options.log` now.
   - Adds support for structured logging though `Sentry.logger`:
+
 ```dart
 // Enable in `SentryOptions`:
 options.enableLogs = true;
@@ -368,7 +376,9 @@ Sentry.logger.warn("This is a warning log with attributes.", attributes: {
   'bool-attribute': SentryLogAttribute.bool(true),
 });
 ```
+
 - Add support for feature flags and integration with Firebase Remote Config ([#2825](https://github.com/getsentry/sentry-dart/pull/2825), [#2837](https://github.com/getsentry/sentry-dart/pull/2837))
+
 ```dart
 // Manually track a feature flag
 Sentry.addFeatureFlag('my-feature', true);
@@ -386,6 +396,7 @@ await SentryFlutter.init(
   },
 );
 ```
+
 - Properly generates and links trace IDs for errors and spans ([#2869](https://github.com/getsentry/sentry-dart/pull/2869), [#2861](https://github.com/getsentry/sentry-dart/pull/2861)):
   - **With `SentryNavigatorObserver`** - each navigation event starts a new trace.
   - **Without `SentryNavigatorObserver` on non-web platforms** - a new trace is started from app
@@ -445,6 +456,7 @@ await SentryFlutter.init(
 - Sentry Structured Logs ([#2919](https://github.com/getsentry/sentry-dart/pull/2919))
   - The old `SentryLogger` has been renamed to `SdkLogCallback` and can be accessed through `options.log` now.
   - Adds support for structured logging though `Sentry.logger`:
+
 ```dart
 // Enable in `SentryOptions`:
 options.enableLogs = true;
@@ -506,11 +518,14 @@ Sentry.logger.warn("This is a warning log with attributes.", attributes: {
   - **Web without `SentryNavigatorObserver`** - the same trace ID is reused until the page is
     refreshed or closed.
 - Add `FeatureFlagIntegration` ([#2825](https://github.com/getsentry/sentry-dart/pull/2825))
+
 ```dart
 // Manually track a feature flag
 Sentry.addFeatureFlag('my-feature', true);
 ```
+
 - Firebase Remote Config Integration ([#2837](https://github.com/getsentry/sentry-dart/pull/2837))
+
 ```dart
 // Add the integration to automatically track feature flags from firebase remote config.
 await SentryFlutter.init(
@@ -524,8 +539,8 @@ await SentryFlutter.init(
   },
 );
 ```
-- Make hierarchical exception grouping opt-in ([#2858](https://github.com/getsentry/sentry-dart/pull/2858))
 
+- Make hierarchical exception grouping opt-in ([#2858](https://github.com/getsentry/sentry-dart/pull/2858))
 
 ### Fixes
 
@@ -581,7 +596,7 @@ await SentryFlutter.init(
 
 - Add support for Flutter Web release health ([#2794](https://github.com/getsentry/sentry-dart/pull/2794))
   - Requires using `SentryNavigatorObserver`;
- 
+
 ### Dependencies
 
 - Bump Native SDK from v0.7.20 to v0.8.2 ([#2761](https://github.com/getsentry/sentry-dart/pull/2761), [#2807](https://github.com/getsentry/sentry-dart/pull/2807))
@@ -596,7 +611,7 @@ await SentryFlutter.init(
 - Set sentry-native backend to `crashpad` by default and `breakpad` for Windows ARM64 ([#2791](https://github.com/getsentry/sentry-dart/pull/2791))
   - Setting the `SENTRY_NATIVE_BACKEND` environment variable will override the defaults.
 - Remove renderer from `flutter_context` ([#2751](https://github.com/getsentry/sentry-dart/pull/2751))
-  
+
 ### API changes
 
 - Move replay and privacy from experimental to options ([#2755](https://github.com/getsentry/sentry-dart/pull/2755))
@@ -652,6 +667,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 
 - Deprecate Drift `SentryQueryExecutor` ([#2715](https://github.com/getsentry/sentry-dart/pull/2715))
   - This will be replace by `SentryQueryInterceptor` in the next major v9
+
 ```dart
 // Example usage in Sentry Flutter v9
 final executor = NativeDatabase.memory().interceptWith(
@@ -660,6 +676,7 @@ final executor = NativeDatabase.memory().interceptWith(
 
 final db = AppDatabase(executor);
 ```
+
 - Deprecate `autoAppStart` and `setAppStartEnd` ([#2681](https://github.com/getsentry/sentry-dart/pull/2681))
 
 ### Dependencies
@@ -694,7 +711,7 @@ final db = AppDatabase(executor);
   - Responses are attached to the `Hint` object, which can be read in `beforeSend`/`beforeSendTransaction` callbacks via `hint.response`.
   - For now, only the `dio` integration is supported.
 - Enable privacy masking for screenshots by default ([#2728](https://github.com/getsentry/sentry-dart/pull/2728))
-  
+
 ### Enhancements
 
 - Replay: improve Android native interop performance by using JNI ([#2670](https://github.com/getsentry/sentry-dart/pull/2670))
@@ -732,6 +749,7 @@ final db = AppDatabase(executor);
 
 - Deprecate Drift `SentryQueryExecutor` ([#2715](https://github.com/getsentry/sentry-dart/pull/2715))
   - This will be replace by `SentryQueryInterceptor` in the next major v9
+
 ```dart
 // Example usage in Sentry Flutter v9
 final executor = NativeDatabase.memory().interceptWith(
@@ -740,6 +758,7 @@ final executor = NativeDatabase.memory().interceptWith(
 
 final db = AppDatabase(executor);
 ```
+
 - Deprecate `autoAppStart` and `setAppStartEnd` ([#2681](https://github.com/getsentry/sentry-dart/pull/2681))
 
 ### Other
@@ -956,6 +975,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 
 - Replay: device orientation change support & improve video size fit on Android ([#2462](https://github.com/getsentry/sentry-dart/pull/2462))
 - Support custom `Sentry.runZoneGuarded` zone creation ([#2088](https://github.com/getsentry/sentry-dart/pull/2088))
+
   - Sentry will not create a custom zone anymore if it is started within a custom one.
   - This fixes Zone miss-match errors when trying to initialize WidgetsBinding before Sentry on Flutter Web
   - `Sentry.runZonedGuarded` creates a zone and also captures exceptions & breadcrumbs automatically.
@@ -1048,9 +1068,11 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 
 - Replay: device orientation change support & improve video size fit on Android ([#2462](https://github.com/getsentry/sentry-dart/pull/2462))
 - Support custom `Sentry.runZoneGuarded` zone creation ([#2088](https://github.com/getsentry/sentry-dart/pull/2088))
+
   - Sentry will not create a custom zone anymore if it is started within a custom one.
   - This fixes Zone miss-match errors when trying to initialize WidgetsBinding before Sentry on Flutter Web
   - `Sentry.runZonedGuarded` creates a zone and also captures exceptions & breadcrumbs automatically.
+
   ```dart
   Sentry.runZonedGuarded(() {
     WidgetsBinding.ensureInitialized();
@@ -1112,6 +1134,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 - Linux native error & obfuscation support ([#2431](https://github.com/getsentry/sentry-dart/pull/2431))
 - Improve Device context on plain Dart and Flutter desktop apps ([#2441](https://github.com/getsentry/sentry-dart/pull/2441))
 - Add debounce to capturing screenshots ([#2368](https://github.com/getsentry/sentry-dart/pull/2368))
+
   - Per default, screenshots are debounced for 2 seconds.
   - If you need more granular screenshots, you can opt out of debouncing:
 
@@ -1134,6 +1157,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 - Improve app start measurements by using `addTimingsCallback` instead of `addPostFrameCallback` to determine app start end ([#2405](https://github.com/getsentry/sentry-dart/pull/2405))
   - ⚠️ This change may result in reporting of shorter app start durations
 - Improve frame tracking accuracy ([#2372](https://github.com/getsentry/sentry-dart/pull/2372))
+
   - Introduces `SentryWidgetsFlutterBinding` that tracks a frame starting from `handleBeginFrame` and ending in `handleDrawFrame`, this is approximately the [buildDuration](https://api.flutter.dev/flutter/dart-ui/FrameTiming/buildDuration.html) time
   - By default, `SentryFlutter.init()` automatically initializes `SentryWidgetsFlutterBinding` through the `WidgetsFlutterBindingIntegration`
   - If you need to initialize the binding before `SentryFlutter.init`, use `SentryWidgetsFlutterBinding.ensureInitialized` instead of `WidgetsFlutterBinding.ensureInitialized`:
@@ -1258,9 +1282,11 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 - Improve app start measurements by using `addTimingsCallback` instead of `addPostFrameCallback` to determine app start end ([#2405](https://github.com/getsentry/sentry-dart/pull/2405))
   - ⚠️ This change may result in reporting of shorter app start durations
 - Improve frame tracking accuracy ([#2372](https://github.com/getsentry/sentry-dart/pull/2372))
+
   - Introduces `SentryWidgetsFlutterBinding` that tracks a frame starting from `handleBeginFrame` and ending in `handleDrawFrame`, this is approximately the [buildDuration](https://api.flutter.dev/flutter/dart-ui/FrameTiming/buildDuration.html) time
   - By default, `SentryFlutter.init()` automatically initializes `SentryWidgetsFlutterBinding` through the `WidgetsFlutterBindingIntegration`
   - If you need to initialize the binding before `SentryFlutter.init`, use `SentryWidgetsFlutterBinding.ensureInitialized` instead of `WidgetsFlutterBinding.ensureInitialized`:
+
   ```dart
   void main() async {
     // Replace WidgetsFlutterBinding.ensureInitialized()
@@ -1270,6 +1296,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
     runApp(MyApp());
   }
   ```
+
   - ⚠️ Frame tracking will be disabled if a different binding is used
 
 ### Enhancements
@@ -1354,6 +1381,7 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
   ```
 
 - Add screenshot to `SentryFeedbackWidget` ([#2369](https://github.com/getsentry/sentry-dart/pull/2369))
+
   - Use `SentryFlutter.captureScreenshot` to create a screenshot attachment
   - Call `SentryFeedbackWidget` with this attachment to add it to the user feedback
 
@@ -1564,8 +1592,9 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 - Add `SentryFlutter.nativeCrash()` using MethodChannels for Android and iOS ([#2239](https://github.com/getsentry/sentry-dart/pull/2239))
   - This can be used to test if native crash reporting works
 - Add `ignoreRoutes` parameter to `SentryNavigatorObserver`. ([#2218](https://github.com/getsentry/sentry-dart/pull/2218))
-    - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
-    - Ignored routes will also create no TTID and TTFD spans.
+  - This will ignore the Routes and prevent the Route from being pushed to the Sentry server.
+  - Ignored routes will also create no TTID and TTFD spans.
+
 ```dart
 SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
 ```
@@ -1623,6 +1652,7 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
   ```
 
 - Add proxy support ([#2192](https://github.com/getsentry/sentry-dart/pull/2192))
+
   - Configure a `SentryProxy` object and set it on `SentryFlutter.init`
 
   ```dart
@@ -1660,6 +1690,7 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
 ### Improvements
 
 - Add error type identifier to improve obfuscated Flutter issue titles ([#2170](https://github.com/getsentry/sentry-dart/pull/2170))
+
   - Example: transforms issue titles from `GA` to `FlutterError` or `minified:nE` to `FlutterError`
   - This is enabled automatically and will change grouping if you already have issues with obfuscated titles
   - If you want to disable this feature, set `enableExceptionTypeIdentification` to `false` in your Sentry options
@@ -1881,7 +1912,7 @@ SentryNavigatorObserver(ignoreRoutes: ["/ignoreThisRoute"]),
 
 This release contains breaking changes, please read the changelog carefully.
 
-*Changes from the latest v7 release are included in this major release*
+_Changes from the latest v7 release are included in this major release_
 
 ### Breaking Changes
 
