@@ -15,9 +15,6 @@ log_level: all
 classes:
   - io.sentry.android.core.InternalSentrySdk
   - io.sentry.android.core.SentryAndroidOptions
-  - io.sentry.android.core.IDebugImagesLoader
-  - io.sentry.protocol.DebugImage
   - io.sentry.android.replay.ReplayIntegration
   - io.sentry.flutter.SentryFlutterPlugin
-  - io.sentry.ScopesAdapter
   - android.graphics.Bitmap
