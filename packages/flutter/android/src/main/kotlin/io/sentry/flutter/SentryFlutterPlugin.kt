@@ -393,9 +393,9 @@ class SentryFlutterPlugin :
     @JvmStatic
     fun loadContextsAsBytes(): ByteArray? {
       val options = HubAdapter.getInstance().options
-      val context = getApplicationContext();
+      val context = getApplicationContext()
       if (options !is SentryAndroidOptions || context == null) {
-        return null;
+        return null
       }
       val currentScope = InternalSentrySdk.getCurrentScope()
       val serializedScope =
