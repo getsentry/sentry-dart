@@ -214,7 +214,9 @@ class SentryDevice {
           : null,
       processorCount: json['processor_count'],
       cpuDescription: json['cpu_description'],
-      processorFrequency: json['processor_frequency'],
+      processorFrequency: (json['processor_frequency'] is num)
+          ? (json['processor_frequency'] as num).toDouble()
+          : null,
       deviceType: json['device_type'],
       batteryStatus: json['battery_status'],
       deviceUniqueIdentifier: json['device_unique_identifier'],

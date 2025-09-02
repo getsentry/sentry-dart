@@ -18,14 +18,12 @@
 
 - Add `DioException` response data to error breadcrumb ([#3164](https://github.com/getsentry/sentry-dart/pull/3164))
   - Bumped `dio` min verion to `5.2.0`
-- Support additional request data types in `dio` package ([#3170](https://github.com/getsentry/sentry-dart/pull/3170))
-  - Add support for `json`, `UInt8List`, `num`, `bool`, `FormData`, `Multipart` request data.
 - Use FFI/JNI for `captureEnvelope` on iOS and Android ([#3115](https://github.com/getsentry/sentry-dart/pull/3115))
 - Log a warning when dropping envelope items ([#3165](https://github.com/getsentry/sentry-dart/pull/3165))
 - Call options.log for structured logs ([#3187](https://github.com/getsentry/sentry-dart/pull/3187))
 - Remove async usage from `FlutterErrorIntegration` ([#3202](https://github.com/getsentry/sentry-dart/pull/3202))
 - Tag all spans during app start with start type info ([#3190](https://github.com/getsentry/sentry-dart/pull/3190))
-- Improve `SentryLogBatcher` flush logic ([#3211](https://github.com/getsentry/sentry-dart/pull/3187))
+- Refactor `loadContexts` and `loadDebugImages` to use JNI and FFI ([#3224](https://github.com/getsentry/sentry-dart/pull/3224))
 
 ### Dependencies
 
