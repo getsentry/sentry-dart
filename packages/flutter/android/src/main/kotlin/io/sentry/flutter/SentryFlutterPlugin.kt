@@ -91,6 +91,7 @@ class SentryFlutterPlugin :
     }
 
     channel.setMethodCallHandler(null)
+    applicationContext = null
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
