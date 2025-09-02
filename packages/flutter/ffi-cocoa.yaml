@@ -21,3 +21,6 @@ objc-interfaces:
     - SentryFlutterPlugin
   module:
     'SentryId': 'Sentry'
+preamble: |
+  // ignore_for_file: type=lint, unused_element
+
