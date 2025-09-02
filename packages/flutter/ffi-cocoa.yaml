@@ -6,7 +6,7 @@ headers:
   entry-points:
     - ./temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h
     - ./temp/Sentry.framework/Headers/Sentry-Swift.h
-    - ./ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterFFI.h
+    - ./ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterPlugin.h
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
   - -DCOCOAPODS=1
@@ -18,6 +18,6 @@ objc-interfaces:
   include:
     - PrivateSentrySDKOnly
     - SentryId
-    - SentryFlutterFFI
+    - SentryFlutterPlugin
   module:
     "SentryId": "Sentry"

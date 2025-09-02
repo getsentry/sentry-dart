@@ -17,6 +17,7 @@ import CoreVideo
 // swiftlint:disable file_length function_body_length
 
 // swiftlint:disable:next type_body_length
+@objc(SentryFlutterPlugin)
 public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     private let channel: FlutterMethodChannel
 
@@ -562,6 +563,128 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     private func crash() {
         SentrySDK.crash()
     }
+
+  // MARK: - Objective-C interoperability
+  //
+  // Group of methods exposed to the Objective-C runtime via `@objc`.
+  //
+  // Purpose: Called from the Flutter plugin's native bridge (FFI) - bindings are created from SentryFlutterPlugin.h
+  @objc(loadDebugImagesAsBytes:)
+  public class func loadDebugImagesAsBytes(instructionAddresses: Set<String>) -> NSData? {
+          var debugImages: [DebugMeta] = []
+
+          var imagesAddresses: Set<String> = []
+
+          for address in instructionAddresses {
+              let hexDigits = address.replacingOccurrences(of: "0x", with: "")
+              if let instructionAddress = UInt64(hexDigits, radix: 16) {
+                  let image = SentryDependencyContainer.sharedInstance().binaryImageCache.image(
+                      byAddress: instructionAddress)
+                  if let image = image {
+                      let imageAddress = sentry_formatHexAddressUInt64(image.address)!
+                      imagesAddresses.insert(imageAddress)
+                  }
+              }
+          }
+          debugImages =
+            SentryDependencyContainer.sharedInstance().debugImageProvider
+            .getDebugImagesForImageAddressesFromCache(imageAddresses: imagesAddresses) as [DebugMeta]
+
+          if debugImages.isEmpty {
+              debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
+          }
+
+          let serializedImages = debugImages.map { $0.serialize() }
+          if let data = try? JSONSerialization.data(withJSONObject: serializedImages, options: []) {
+              return data as NSData
+          }
+          return nil
+  }
+
+  // swiftlint:disable:next function_body_length cyclomatic_complexity
+  @objc public class func loadContextsAsBytes() -> NSData? {
+        var infos: [String: Any] = [:]
+
+        SentrySDK.configureScope { scope in
+            let serializedScope = scope.serialize()
+
+            var context: [String: Any] = [:]
+            if let newContext = serializedScope["context"] as? [String: Any] {
+                context = newContext
+            }
+
+            if let tags = serializedScope["tags"] as? [String: String] {
+                infos["tags"] = tags
+            }
+            if let extra = serializedScope["extra"] as? [String: Any] {
+                infos["extra"] = extra
+            }
+            if let user = serializedScope["user"] as? [String: Any] {
+                infos["user"] = user
+            }
+            if let dist = serializedScope["dist"] as? String {
+                infos["dist"] = dist
+            }
+            if let environment = serializedScope["environment"] as? String {
+                infos["environment"] = environment
+            }
+            if let fingerprint = serializedScope["fingerprint"] as? [String] {
+                infos["fingerprint"] = fingerprint
+            }
+            if let level = serializedScope["level"] as? String {
+                infos["level"] = level
+            }
+            if let breadcrumbs = serializedScope["breadcrumbs"] as? [[String: Any]] {
+                infos["breadcrumbs"] = breadcrumbs
+            }
+
+            if let user = serializedScope["user"] as? [String: Any] {
+                infos["user"] = user
+            } else {
+                infos["user"] = ["id": PrivateSentrySDKOnly.installationID]
+            }
+
+            if let integrations = PrivateSentrySDKOnly.options.integrations {
+                infos["integrations"] = integrations.filter { $0 != "SentrySessionReplayIntegration" }
+            }
+
+            let deviceStr = "device"
+            let appStr = "app"
+            if let extraContext = PrivateSentrySDKOnly.getExtraContext() as? [String: Any] {
+                // merge device
+                if let extraDevice = extraContext[deviceStr] as? [String: Any] {
+                    if var currentDevice = context[deviceStr] as? [String: Any] {
+                        currentDevice.merge(extraDevice) { (current, _) in current }
+                        context[deviceStr] = currentDevice
+                    } else {
+                        context[deviceStr] = extraDevice
+                    }
+                }
+
+                // merge app
+                if let extraApp = extraContext[appStr] as? [String: Any] {
+                    if var currentApp = context[appStr] as? [String: Any] {
+                        currentApp.merge(extraApp) { (current, _) in current }
+                        context[appStr] = currentApp
+                    } else {
+                        context[appStr] = extraApp
+                    }
+                }
+            }
+
+            infos["contexts"] = context
+
+            // Not reading the name from PrivateSentrySDKOnly.getSdkName because
+            // this is added as a package and packages should follow the sentry-release-registry format
+            infos["package"] = ["version": PrivateSentrySDKOnly.getSdkVersionString(),
+                "sdk_name": "cocoapods:sentry-cocoa"]
+
+        }
+        if let data = try? JSONSerialization.data(withJSONObject: infos, options: []) {
+            return data as NSData
+        }
+        return nil
+  }
 }
 
 // swiftlint:enable function_body_length

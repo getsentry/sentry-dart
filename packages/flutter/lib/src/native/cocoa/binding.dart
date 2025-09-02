@@ -1119,36 +1119,36 @@ class SentryId$1 extends objc.NSObject {
   factory SentryId$1() => new$();
 }
 
-late final _class_SentryFlutterFFI = objc.getClass("SentryFlutterFFI");
+late final _class_SentryFlutterPlugin = objc.getClass("SentryFlutterPlugin");
 late final _sel_loadContextsAsBytes = objc.registerName("loadContextsAsBytes");
 late final _sel_loadDebugImagesAsBytes_ =
     objc.registerName("loadDebugImagesAsBytes:");
 
-/// SentryFlutterFFI
-class SentryFlutterFFI extends objc.NSObject {
-  SentryFlutterFFI._(ffi.Pointer<objc.ObjCObject> pointer,
+/// SentryFlutterPlugin
+class SentryFlutterPlugin extends objc.NSObject {
+  SentryFlutterPlugin._(ffi.Pointer<objc.ObjCObject> pointer,
       {bool retain = false, bool release = false})
       : super.castFromPointer(pointer, retain: retain, release: release);
 
-  /// Constructs a [SentryFlutterFFI] that points to the same underlying object as [other].
-  SentryFlutterFFI.castFrom(objc.ObjCObjectBase other)
+  /// Constructs a [SentryFlutterPlugin] that points to the same underlying object as [other].
+  SentryFlutterPlugin.castFrom(objc.ObjCObjectBase other)
       : this._(other.ref.pointer, retain: true, release: true);
 
-  /// Constructs a [SentryFlutterFFI] that wraps the given raw object pointer.
-  SentryFlutterFFI.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+  /// Constructs a [SentryFlutterPlugin] that wraps the given raw object pointer.
+  SentryFlutterPlugin.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
       {bool retain = false, bool release = false})
       : this._(other, retain: retain, release: release);
 
-  /// Returns whether [obj] is an instance of [SentryFlutterFFI].
+  /// Returns whether [obj] is an instance of [SentryFlutterPlugin].
   static bool isInstance(objc.ObjCObjectBase obj) {
     return _objc_msgSend_19nvye5(
-        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryFlutterFFI);
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryFlutterPlugin);
   }
 
   /// loadContextsAsBytes
   static objc.NSData? loadContextsAsBytes() {
     final _ret = _objc_msgSend_151sglz(
-        _class_SentryFlutterFFI, _sel_loadContextsAsBytes);
+        _class_SentryFlutterPlugin, _sel_loadContextsAsBytes);
     return _ret.address == 0
         ? null
         : objc.NSData.castFromPointer(_ret, retain: true, release: true);
@@ -1156,7 +1156,7 @@ class SentryFlutterFFI extends objc.NSObject {
 
   /// loadDebugImagesAsBytes:
   static objc.NSData? loadDebugImagesAsBytes(objc.NSSet instructionAddresses) {
-    final _ret = _objc_msgSend_1sotr3r(_class_SentryFlutterFFI,
+    final _ret = _objc_msgSend_1sotr3r(_class_SentryFlutterPlugin,
         _sel_loadDebugImagesAsBytes_, instructionAddresses.ref.pointer);
     return _ret.address == 0
         ? null
@@ -1164,51 +1164,58 @@ class SentryFlutterFFI extends objc.NSObject {
   }
 
   /// init
-  SentryFlutterFFI init() {
-    objc.checkOsVersionInternal('SentryFlutterFFI.init',
+  SentryFlutterPlugin init() {
+    objc.checkOsVersionInternal('SentryFlutterPlugin.init',
         iOS: (false, (2, 0, 0)), macOS: (false, (10, 0, 0)));
     final _ret =
         _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
+    return SentryFlutterPlugin.castFromPointer(_ret,
+        retain: false, release: true);
   }
 
   /// new
-  static SentryFlutterFFI new$() {
-    final _ret = _objc_msgSend_151sglz(_class_SentryFlutterFFI, _sel_new);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
+  static SentryFlutterPlugin new$() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryFlutterPlugin, _sel_new);
+    return SentryFlutterPlugin.castFromPointer(_ret,
+        retain: false, release: true);
   }
 
   /// allocWithZone:
-  static SentryFlutterFFI allocWithZone(ffi.Pointer<objc.NSZone> zone) {
+  static SentryFlutterPlugin allocWithZone(ffi.Pointer<objc.NSZone> zone) {
     final _ret = _objc_msgSend_1cwp428(
-        _class_SentryFlutterFFI, _sel_allocWithZone_, zone);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
+        _class_SentryFlutterPlugin, _sel_allocWithZone_, zone);
+    return SentryFlutterPlugin.castFromPointer(_ret,
+        retain: false, release: true);
   }
 
   /// alloc
-  static SentryFlutterFFI alloc() {
-    final _ret = _objc_msgSend_151sglz(_class_SentryFlutterFFI, _sel_alloc);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: false, release: true);
+  static SentryFlutterPlugin alloc() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryFlutterPlugin, _sel_alloc);
+    return SentryFlutterPlugin.castFromPointer(_ret,
+        retain: false, release: true);
   }
 
   /// self
-  SentryFlutterFFI self$1() {
+  SentryFlutterPlugin self$1() {
     final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: true, release: true);
+    return SentryFlutterPlugin.castFromPointer(_ret,
+        retain: true, release: true);
   }
 
   /// retain
-  SentryFlutterFFI retain() {
+  SentryFlutterPlugin retain() {
     final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: true, release: true);
+    return SentryFlutterPlugin.castFromPointer(_ret,
+        retain: true, release: true);
   }
 
   /// autorelease
-  SentryFlutterFFI autorelease() {
+  SentryFlutterPlugin autorelease() {
     final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
-    return SentryFlutterFFI.castFromPointer(_ret, retain: true, release: true);
+    return SentryFlutterPlugin.castFromPointer(_ret,
+        retain: true, release: true);
   }
 
-  /// Returns a new instance of SentryFlutterFFI constructed with the default `new` method.
-  factory SentryFlutterFFI() => new$();
+  /// Returns a new instance of SentryFlutterPlugin constructed with the default `new` method.
+  factory SentryFlutterPlugin() => new$();
 }

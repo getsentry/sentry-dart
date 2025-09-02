@@ -3,7 +3,7 @@
 #import <objc/message.h>
 #import "../../../../temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h"
 #import "../../../../temp/Sentry.framework/Headers/Sentry-Swift.h"
-#import "../../../../ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterFFI.h"
+#import "../../../../ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterPlugin.h"
 
 #if !__has_feature(objc_arc)
 #error "This file must be compiled with ARC enabled"
