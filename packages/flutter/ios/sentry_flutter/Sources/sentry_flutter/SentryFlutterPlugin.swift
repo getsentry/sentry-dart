@@ -16,7 +16,7 @@ import CoreVideo
 
 // swiftlint:disable file_length function_body_length
 
-// swiftlint:disable:next type_body_length
+// swiftlint:disable type_body_length
 @objc(SentryFlutterPlugin)
 public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     private let channel: FlutterMethodChannel
@@ -601,7 +601,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
           return nil
   }
 
-  // swiftlint:disable:next function_body_length cyclomatic_complexity
+  // swiftlint:disable:next cyclomatic_complexity
   @objc public class func loadContextsAsBytes() -> NSData? {
         var infos: [String: Any] = [:]
 
@@ -686,6 +686,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         return nil
   }
 }
+// swiftlint:enable type_body_length
 
 // swiftlint:enable function_body_length
 
