@@ -35,7 +35,7 @@ import 'sentry_supabase_error_client.dart';
 /// ```
 ///
 /// You can also pass a custom [Client] to the constructor, just like you'd
-/// pass it to the [SupabaseClient] constructor.
+/// pass it to the SupabaseClient constructor.
 ///
 /// ```dart
 /// var supabase = SupabaseClient(
