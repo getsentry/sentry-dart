@@ -20,4 +20,4 @@ objc-interfaces:
     - SentryId
     - SentryFlutterPlugin
   module:
-    "SentryId": "Sentry"
+    'SentryId': 'Sentry'
