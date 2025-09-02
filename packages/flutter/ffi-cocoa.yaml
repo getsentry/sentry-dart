@@ -10,9 +10,9 @@ headers:
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
   - -DCOCOAPODS=1
-  - "-I./temp/Sentry.framework/Headers/"
-  - "-I./temp/Sentry.framework/PrivateHeaders/"
-  - "-I./ios/sentry_flutter/Sources/sentry_flutter_objc/"
+  - '-I./temp/Sentry.framework/Headers/'
+  - '-I./temp/Sentry.framework/PrivateHeaders/'
+  - '-I./ios/sentry_flutter/Sources/sentry_flutter_objc/'
 exclude-all-by-default: true
 objc-interfaces:
   include:
