@@ -163,7 +163,7 @@ jobs:
         # For some reason running native unit tests directly after Flutter integration tests fails
         # running flutter build ios before works: https://stackoverflow.com/a/77487525/22813624
         run: |
-          flutter build ios
+          flutter build ios --no-codesign
           xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=$DEVICE_PLATFORM" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
         env:
           DEVICE_PLATFORM: ${{ steps.device.outputs.platform }}
