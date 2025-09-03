@@ -6,16 +6,17 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/scheduled_recorder_config.dart';
-import '../../worker_isolate.dart';
 import '../sentry_native_channel.dart';
 import '../utils/utf8_json.dart';
-import 'android_envelope_worker.dart';
+import 'android_envelope_sender.dart';
 import 'android_replay_recorder.dart';
 import 'binding.dart' as native;
 
 @internal
 class SentryNativeJava extends SentryNativeChannel {
   AndroidReplayRecorder? _replayRecorder;
+  AndroidEnvelopeSender? _envelopeSender;
+
   SentryNativeJava(super.options);
 
   @override
@@ -73,13 +74,13 @@ class SentryNativeJava extends SentryNativeChannel {
       });
     }
 
-    envelopeWorker = AndroidEnvelopeWorker.factory(options);
-    await envelopeWorker.start();
+    _envelopeSender = AndroidEnvelopeSender.factory(options);
+    await _envelopeSender?.start();
 
     return super.init(hub);
   }
 
-  late AndroidEnvelopeWorker envelopeWorker;
+  late AndroidEnvelopeSender envelopeWorker;
 
   @override
   FutureOr<void> captureEnvelope(

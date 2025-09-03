@@ -9,12 +9,12 @@ import '../sentry_native_channel.dart';
 import '../utils/utf8_json.dart';
 import 'binding.dart' as cocoa;
 import 'cocoa_replay_recorder.dart';
-import 'cococa_envelope_worker.dart';
+import 'cocoa_envelope_sender.dart';
 
 @internal
 class SentryNativeCocoa extends SentryNativeChannel {
   CocoaReplayRecorder? _replayRecorder;
-  CocoaEnvelopeWorker? _envelopeWorker;
+  CocoaEnvelopeSender? _envelopeSender;
   SentryId? _replayId;
 
   SentryNativeCocoa(super.options);
@@ -51,8 +51,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
       });
     }
 
-    _envelopeWorker = CocoaEnvelopeWorker(options);
-    _envelopeWorker?.start();
+    _envelopeSender = CocoaEnvelopeSender(options);
+    await _envelopeSender?.start();
 
     return super.init(hub);
   }
@@ -60,7 +60,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    _envelopeWorker?.captureEnvelope(envelopeData);
+    _envelopeSender?.captureEnvelope(envelopeData);
   }
 
   @override

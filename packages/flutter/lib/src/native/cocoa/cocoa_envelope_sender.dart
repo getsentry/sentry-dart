@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:isolate';
 import 'dart:typed_data';
 
-import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
 
@@ -11,54 +10,55 @@ import '../../worker_isolate.dart';
 import '../../isolate_diagnostic_log.dart';
 import 'binding.dart' as cocoa;
 
-class CocoaEnvelopeWorker implements Worker {
+class CocoaEnvelopeSender implements WorkerHost {
   final SentryFlutterOptions _options;
-  final IsolateConfig _config;
-  IsolateClient? _client;
+  final WorkerConfig _config;
+  Worker? _worker;
 
-  CocoaEnvelopeWorker(this._options)
-      : _config = IsolateConfig(
-          debug: _options.debug,
-          logLevel: _options.diagnosticLevel,
-          debugName: 'SentryCocoaEnvelopeWorker',
+  static final String name = 'SentryCocoaEnvelopeSender';
+
+  CocoaEnvelopeSender(this._options)
+      : _config = WorkerConfig(
+          debugName: name,
         );
 
   @internal // visible for testing/mocking
-  static CocoaEnvelopeWorker Function(SentryFlutterOptions) factory =
-      CocoaEnvelopeWorker.new;
+  static CocoaEnvelopeSender Function(SentryFlutterOptions) factory =
+      CocoaEnvelopeSender.new;
 
   @override
   FutureOr<void> start() async {
-    if (_client != null) return;
-    _client = await spawnIsolate(_config, _entryPoint);
+    if (_worker != null) return;
+    _worker = await spawnWorker(_config, _entryPoint);
   }
 
-  static void _entryPoint((SendPort, IsolateConfig) init) {
-    final (host, config) = init;
-    runIsolate(config, host, _CocoaEnvelopeMessageHandler());
+  @override
+  FutureOr<void> close() {
+    _worker?.close();
+    _worker = null;
   }
 
   /// Fire-and-forget send of envelope bytes to the worker.
   void captureEnvelope(Uint8List envelopeData) {
-    final client = _client;
+    final client = _worker;
     if (client == null) {
       _options.log(
         SentryLevel.warning,
-        'CocoaEnvelopeWorker.captureEnvelope called before start; dropping',
+        'captureEnvelope called before start; dropping',
+        logger: name,
       );
       return;
     }
     client.send(TransferableTypedData.fromList([envelopeData]));
   }
 
-  @override
-  FutureOr<void> close() {
-    _client?.close();
-    _client = null;
+  static void _entryPoint((SendPort, WorkerConfig) init) {
+    final (host, config) = init;
+    runWorker(config, host, _CocoaEnvelopeHandler());
   }
 }
 
-class _CocoaEnvelopeMessageHandler extends IsolateMessageHandler {
+class _CocoaEnvelopeHandler extends WorkerHandler {
   @override
   FutureOr<void> onMessage(Object? msg) {
     if (msg is TransferableTypedData) {
@@ -67,13 +67,11 @@ class _CocoaEnvelopeMessageHandler extends IsolateMessageHandler {
     } else {
       IsolateDiagnosticLog.log(SentryLevel.warning,
           'Unexpected message type while handling a message: $msg',
-          logger: 'SentryCocoaEnvelopeWorker');
+          logger: CocoaEnvelopeSender.name);
     }
   }
 
   void _captureEnvelope(Uint8List envelopeData) {
-    JObject? id;
-    JByteArray? byteArray;
     try {
       final nsData = envelopeData.toNSData();
       final envelope = cocoa.PrivateSentrySDKOnly.envelopeWithData(nsData);
@@ -82,20 +80,13 @@ class _CocoaEnvelopeMessageHandler extends IsolateMessageHandler {
       } else {
         IsolateDiagnosticLog.log(SentryLevel.error,
             'Native Cocoa SDK returned null when capturing envelope',
-            logger: 'SentryCocoaEnvelopeWorker');
+            logger: CocoaEnvelopeSender.name);
       }
     } catch (exception, stackTrace) {
       IsolateDiagnosticLog.log(SentryLevel.error, 'Failed to capture envelope',
           exception: exception,
           stackTrace: stackTrace,
-          logger: 'SentryCocoaEnvelopeWorker');
-      // TODO:
-      // if (options.automatedTestMode) {
-      //   rethrow;
-      // }
-    } finally {
-      byteArray?.release();
-      id?.release();
+          logger: CocoaEnvelopeSender.name);
     }
   }
 }

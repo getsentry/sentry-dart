@@ -1,8 +1,5 @@
-import 'dart:developer' as developer;
 import 'dart:async';
 import 'dart:isolate';
-
-import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
 import 'isolate_diagnostic_log.dart';
@@ -11,28 +8,27 @@ import 'isolate_diagnostic_log.dart';
 // HOST-SIDE API (runs on the main isolate)
 // -------------------------------------------
 
-/// Uniform lifecycle for any host-facing worker facade.
-abstract class WorkerHandle {
+/// Host-side lifecycle interface for a worker isolate.
+///
+/// Responsible for spawning the worker isolate, sending messages,
+/// and shutting it down. It does not define the worker logic.
+abstract class WorkerHost {
   FutureOr<void> start();
   FutureOr<void> close();
 }
 
 /// Minimal config passed to isolates. Extend as needed.
-class IsolateConfig {
-  final bool debug;
-  final SentryLevel logLevel;
+class WorkerConfig {
   final String? debugName;
 
-  const IsolateConfig({
-    required this.debug,
-    required this.logLevel,
-    this.debugName,
+  const WorkerConfig({
+    required this.debugName,
   });
 }
 
 /// Host-side helper for workers to perform minimal request/response.
-class IsolateClient {
-  IsolateClient(this._workerPort) {
+class Worker {
+  Worker(this._workerPort) {
     _responses.listen(_handleResponse);
   }
 
@@ -50,7 +46,7 @@ class IsolateClient {
 
   /// Send a request to the worker and await a response.
   Future<Object?> request(Object? payload) {
-    if (_closed) throw StateError('IsolateClient is closed');
+    if (_closed) throw StateError('WorkerClient is closed');
     final id = _idCounter++;
     final completer = Completer<Object?>.sync();
     _pending[id] = completer;
@@ -88,46 +84,47 @@ class _Ctl {
   static const shutdown = '_shutdown_';
 }
 
-/// Isolate entry-point signature.
-typedef IsolateEntry = void Function((SendPort, IsolateConfig));
+/// Worker (isolate) entry-point signature.
+typedef WorkerEntry = void Function((SendPort, WorkerConfig));
 
-/// Spawn an isolate and handshake to obtain its SendPort.
-Future<IsolateClient> spawnIsolate(
-  IsolateConfig config,
-  IsolateEntry entry,
+/// Spawn a worker isolate and handshake to obtain its SendPort.
+Future<Worker> spawnWorker(
+  WorkerConfig config,
+  WorkerEntry entry,
 ) async {
   final receivePort = ReceivePort();
-  await Isolate.spawn<(SendPort, IsolateConfig)>(
+  await Isolate.spawn<(SendPort, WorkerConfig)>(
     entry,
     (receivePort.sendPort, config),
     debugName: config.debugName,
   );
   final workerPort = await receivePort.first as SendPort;
-  return IsolateClient(workerPort);
+  return Worker(workerPort);
 }
 
 // -------------------------------------------
 // ISOLATE-SIDE API (runs inside the worker isolate)
 // -------------------------------------------
 
-/// Domain behavior contract implemented INSIDE the worker isolate.
-abstract class IsolateMessageHandler {
+/// Message/request handler that runs inside the worker isolate.
+///
+/// This does not represent the isolate lifecycle; it only defines how
+/// the worker processes incoming messages and optional request/response.
+abstract class WorkerHandler {
+  /// Handle fire-and-forget messages sent from the host.
   FutureOr<void> onMessage(Object? message);
-  FutureOr<Object?> onRequest(Object? payload) => null;
+
+  /// Handle request/response payloads sent from the host.
+  /// Return value is sent back to the host. Default: no-op.
+  FutureOr<Object?> onRequest(Object? payload) => {};
 }
 
-/// Generic isolate runtime. Reuse for every Sentry worker.
-void runIsolate(
-  IsolateConfig config,
+/// Generic worker runtime. Reuse for every Sentry worker.
+void runWorker(
+  WorkerConfig config,
   SendPort host,
-  IsolateMessageHandler logic,
+  WorkerHandler handler,
 ) {
-  // TODO: we might want to configure this at init overall since we shouldn't need isolate specific log setups
-  IsolateDiagnosticLog.configure(
-    debug: config.debug,
-    level: config.logLevel,
-  );
-
   final inbox = ReceivePort();
   host.send(inbox.sendPort);
 
@@ -146,7 +143,7 @@ void runIsolate(
     if (msg is (int, Object?, SendPort)) {
       final (id, payload, replyTo) = msg;
       try {
-        final result = await logic.onRequest(payload);
+        final result = await handler.onRequest(payload);
         replyTo.send((id, result));
       } catch (e, st) {
         replyTo.send((id, RemoteError(e.toString(), st.toString())));
@@ -156,7 +153,7 @@ void runIsolate(
 
     // Fire-and-forget
     try {
-      await logic.onMessage(msg);
+      await handler.onMessage(msg);
     } catch (exception, stackTrace) {
       IsolateDiagnosticLog.log(
           SentryLevel.error, 'Isolate error while handling message',
