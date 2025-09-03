@@ -9,10 +9,12 @@ import '../sentry_native_channel.dart';
 import '../utils/utf8_json.dart';
 import 'binding.dart' as cocoa;
 import 'cocoa_replay_recorder.dart';
+import 'cococa_envelope_worker.dart';
 
 @internal
 class SentryNativeCocoa extends SentryNativeChannel {
   CocoaReplayRecorder? _replayRecorder;
+  CocoaEnvelopeWorker? _envelopeWorker;
   SentryId? _replayId;
 
   SentryNativeCocoa(super.options);
@@ -49,29 +51,16 @@ class SentryNativeCocoa extends SentryNativeChannel {
       });
     }
 
+    _envelopeWorker = CocoaEnvelopeWorker(options);
+    _envelopeWorker?.start();
+
     return super.init(hub);
   }
 
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    try {
-      final nsData = envelopeData.toNSData();
-      final envelope = cocoa.PrivateSentrySDKOnly.envelopeWithData(nsData);
-      if (envelope != null) {
-        cocoa.PrivateSentrySDKOnly.captureEnvelope(envelope);
-      } else {
-        options.log(
-            SentryLevel.error, 'Failed to capture envelope: envelope is null');
-      }
-    } catch (exception, stackTrace) {
-      options.log(SentryLevel.error, 'Failed to capture envelope',
-          exception: exception, stackTrace: stackTrace);
-
-      if (options.automatedTestMode) {
-        rethrow;
-      }
-    }
+    _envelopeWorker?.captureEnvelope(envelopeData);
   }
 
   @override

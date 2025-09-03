@@ -4,27 +4,28 @@ import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
+import 'package:objective_c/objective_c.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../worker_isolate.dart';
 import '../../isolate_diagnostic_log.dart';
-import 'binding.dart' as native;
+import 'binding.dart' as cocoa;
 
-class AndroidEnvelopeWorker implements Worker {
+class CocoaEnvelopeWorker implements Worker {
   final SentryFlutterOptions _options;
   final IsolateConfig _config;
   IsolateClient? _client;
 
-  AndroidEnvelopeWorker(this._options)
+  CocoaEnvelopeWorker(this._options)
       : _config = IsolateConfig(
           debug: _options.debug,
           logLevel: _options.diagnosticLevel,
-          debugName: 'SentryAndroidEnvelopeWorker',
+          debugName: 'SentryCocoaEnvelopeWorker',
         );
 
   @internal // visible for testing/mocking
-  static AndroidEnvelopeWorker Function(SentryFlutterOptions) factory =
-      AndroidEnvelopeWorker.new;
+  static CocoaEnvelopeWorker Function(SentryFlutterOptions) factory =
+      CocoaEnvelopeWorker.new;
 
   @override
   FutureOr<void> start() async {
@@ -34,24 +35,20 @@ class AndroidEnvelopeWorker implements Worker {
 
   static void _entryPoint((SendPort, IsolateConfig) init) {
     final (host, config) = init;
-    runIsolate(config, host, _AndroidEnvelopeMessageHandler());
+    runIsolate(config, host, _CocoaEnvelopeMessageHandler());
   }
 
   /// Fire-and-forget send of envelope bytes to the worker.
-  void captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
+  void captureEnvelope(Uint8List envelopeData) {
     final client = _client;
     if (client == null) {
       _options.log(
         SentryLevel.warning,
-        'AndroidEnvelopeWorker.captureEnvelope called before start; dropping',
+        'CocoaEnvelopeWorker.captureEnvelope called before start; dropping',
       );
       return;
     }
-    client.send((
-      TransferableTypedData.fromList([envelopeData]),
-      containsUnhandledException
-    ));
+    client.send(TransferableTypedData.fromList([envelopeData]));
   }
 
   @override
@@ -61,39 +58,37 @@ class AndroidEnvelopeWorker implements Worker {
   }
 }
 
-class _AndroidEnvelopeMessageHandler extends IsolateMessageHandler {
+class _CocoaEnvelopeMessageHandler extends IsolateMessageHandler {
   @override
   FutureOr<void> onMessage(Object? msg) {
-    if (msg is (TransferableTypedData, bool)) {
-      final (transferable, containsUnhandledException) = msg;
-      final data = transferable.materialize().asUint8List();
-      _captureEnvelope(data, containsUnhandledException);
+    if (msg is TransferableTypedData) {
+      final data = msg.materialize().asUint8List();
+      _captureEnvelope(data);
     } else {
       IsolateDiagnosticLog.log(SentryLevel.warning,
           'Unexpected message type while handling a message: $msg',
-          logger: 'SentryAndroidEnvelopeWorker');
+          logger: 'SentryCocoaEnvelopeWorker');
     }
   }
 
-  void _captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
+  void _captureEnvelope(Uint8List envelopeData) {
     JObject? id;
     JByteArray? byteArray;
     try {
-      byteArray = JByteArray.from(envelopeData);
-      id = native.InternalSentrySdk.captureEnvelope(
-          byteArray, containsUnhandledException);
-
-      if (id == null) {
+      final nsData = envelopeData.toNSData();
+      final envelope = cocoa.PrivateSentrySDKOnly.envelopeWithData(nsData);
+      if (envelope != null) {
+        cocoa.PrivateSentrySDKOnly.captureEnvelope(envelope);
+      } else {
         IsolateDiagnosticLog.log(SentryLevel.error,
-            'Native Android SDK returned null id when capturing envelope',
-            logger: 'SentryAndroidEnvelopeWorker');
+            'Native Cocoa SDK returned null when capturing envelope',
+            logger: 'SentryCocoaEnvelopeWorker');
       }
     } catch (exception, stackTrace) {
       IsolateDiagnosticLog.log(SentryLevel.error, 'Failed to capture envelope',
           exception: exception,
           stackTrace: stackTrace,
-          logger: 'SentryAndroidEnvelopeWorker');
+          logger: 'SentryCocoaEnvelopeWorker');
       // TODO:
       // if (options.automatedTestMode) {
       //   rethrow;
