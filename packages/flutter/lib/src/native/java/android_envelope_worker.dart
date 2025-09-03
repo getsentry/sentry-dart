@@ -1,38 +1,69 @@
-class AndroidEnvelopeWorker extends WorkerIsolate {
-  AndroidEnvelopeWorker(super.config);
+import 'dart:async';
+import 'dart:isolate';
+import 'dart:typed_data';
 
-  static Future<SendPort> spawn(WorkerConfig config) async {
-    // 1) Create a ReceivePort the worker can talk to immediately.
-    final init = ReceivePort();
+import 'package:jni/jni.dart';
+import 'package:meta/meta.dart';
 
-    // 2) Pass BOTH the config and init.sendPort into the isolate.
-    await Isolate.spawn<(WorkerConfig, SendPort)>(
-      AndroidEnvelopeWorker.entryPoint,
-      (config, init.sendPort),
+import '../../../sentry_flutter.dart';
+import '../../worker_isolate.dart';
+import 'binding.dart' as native;
+
+/// Host-side proxy for the Android envelope worker isolate.
+class AndroidEnvelopeWorker {
+  AndroidEnvelopeWorker(this._options);
+
+  final SentryFlutterOptions _options;
+
+  WorkerClient? _client;
+
+  @internal // visible for testing/mocking
+  static AndroidEnvelopeWorker Function(SentryFlutterOptions) factory =
+      AndroidEnvelopeWorker.new;
+
+  Future<void> start() async {
+    if (_client != null) return;
+    final config = WorkerConfig(
+      debug: _options.debug,
+      logLevel: _options.diagnosticLevel,
       debugName: 'SentryAndroidEnvelopeWorker',
     );
-
-    // 3) First message from worker is its inbox SendPort.
-    final SendPort workerInbox = await init.first as SendPort;
-    return workerInbox;
+    final (_, port) = await WorkerIsolate.spawn(
+      config,
+      AndroidEnvelopeWorkerIsolate.entryPoint,
+    );
+    _client = WorkerClient(port);
   }
 
-  void startMessageLoop() {
-    final receivePort = ReceivePort();
-
-    // Handshake: tell host how to send messages to this worker.
-    hostPort.send(receivePort.sendPort);
-
-    receivePort.listen((message) {
-      try {
-        processMessage(message);
-      } catch (e, st) {
-        // sendError(e, st);
-      }
-    });
+  Future<void> stop() async {
+    _close();
   }
 
-  void processMessage(dynamic message) {
+  /// Fire-and-forget send of envelope bytes to the worker.
+  void captureEnvelope(Uint8List envelopeData) {
+    final client = _client;
+    if (client == null) {
+      _options.log(
+        SentryLevel.warning,
+        'AndroidEnvelopeWorker.captureEnvelope called before start; dropping',
+      );
+      return;
+    }
+    client.send(TransferableTypedData.fromList([envelopeData]));
+  }
+
+  void _close() {
+    _client?.close();
+    _client = null;
+  }
+}
+
+/// Worker isolate implementation handling envelope capture via JNI.
+class AndroidEnvelopeWorkerIsolate extends WorkerIsolate {
+  AndroidEnvelopeWorkerIsolate(super.host);
+
+  @override
+  FutureOr<void> handleMessage(Object? message) {
     IsolateDiagnosticLog.log(SentryLevel.warning,
         'EnvelopeWorker invoked; starting captureEnvelope');
 
@@ -67,30 +98,8 @@ class AndroidEnvelopeWorker extends WorkerIsolate {
     }
   }
 
-  void send(Object message) => hostPort.send(message);
-
   static void entryPoint((WorkerConfig, SendPort) args) {
-    final (config, hostPort) = args;
-
-    final level = config.environment['logLevel'] as SentryLevel;
-    final debug = config.environment['debug'] as bool;
-    IsolateDiagnosticLog.configure(debug: debug, level: level);
-    IsolateDiagnosticLog.log(
-        SentryLevel.warning, 'AndroidEnvelopeWorker started');
-
-    // Construct worker with the hostPort we just received.
-    final worker = AndroidEnvelopeWorker(config);
-
-    // Start loop and complete the handshake by sending our inbox SendPort.
-    final receivePort = ReceivePort();
-    hostPort.send(receivePort.sendPort); // <- completes init.first in spawn()
-
-    // Option A: reuse startMessageLoop’s listener:
-    receivePort.listen(worker.processMessage);
-
-    // Option B: if you prefer your existing method, you can:
-    // worker.startMessageLoop();
-    // but then remove the duplicate handshake above from startMessageLoop, or
-    // let startMessageLoop accept the already-created receivePort.
+    final (config, host) = args;
+    WorkerIsolate.bootstrap(config, host, AndroidEnvelopeWorkerIsolate(host));
   }
 }
