@@ -174,7 +174,7 @@ class SentryNativeJava extends SentryNativeChannel {
   @override
   Future<void> close() async {
     await _replayRecorder?.stop();
-    envelopeWorker.close();
+    await _envelopeSender?.close();
     return super.close();
   }
 }
