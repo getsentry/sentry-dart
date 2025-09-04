@@ -15,15 +15,11 @@ on:
       - 'packages/dart/**'
       - 'packages/file/**'
 
-jobs:
-  cancel-previous-workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
-        with:
-          access_token: ${{ github.token }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
+jobs:
   build:
     name: '${{ matrix.os }} | ${{ matrix.sdk }}'
     runs-on: ${{ matrix.os }}-latest
@@ -35,7 +31,7 @@ jobs:
         sdk: [stable, beta]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: ./.github/actions/dart-test
         with:

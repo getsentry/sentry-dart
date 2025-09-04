@@ -36,6 +36,7 @@ class BreadcrumbClientAdapter implements HttpClientAdapter {
     final stopwatch = Stopwatch();
     stopwatch.start();
 
+    DioException? dioException;
     try {
       final response =
           await _client.fetch(options, requestStream, cancelFuture);
@@ -46,6 +47,10 @@ class BreadcrumbClientAdapter implements HttpClientAdapter {
       responseBodySize = HttpHeaderUtils.getContentLength(response.headers);
 
       return response;
+    } on DioException catch (e) {
+      requestHadException = true;
+      dioException = e;
+      rethrow;
     } catch (_) {
       requestHadException = true;
       rethrow;
@@ -57,8 +62,18 @@ class BreadcrumbClientAdapter implements HttpClientAdapter {
           HttpSanitizer.sanitizeUrl(options.uri.toString()) ?? UrlDetails();
 
       SentryLevel? level;
+
       if (requestHadException) {
         level = SentryLevel.error;
+        final dioExceptionResponse = dioException?.response;
+        if (dioExceptionResponse != null) {
+          statusCode = dioExceptionResponse.statusCode;
+          reason = dioExceptionResponse.statusMessage;
+          // ignore: invalid_use_of_internal_member
+          responseBodySize = HttpHeaderUtils.getContentLength(
+            dioExceptionResponse.headers.map,
+          );
+        }
       } else if (statusCode != null) {
         // ignore: invalid_use_of_internal_member
         level = getBreadcrumbLogLevelFromHttpStatusCode(statusCode);

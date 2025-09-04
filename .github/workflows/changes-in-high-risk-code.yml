@@ -2,7 +2,6 @@ name: Changes In High Risk Code
 on:
   pull_request:
 
-# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -16,7 +15,7 @@ jobs:
       high_risk_code: ${{ steps.changes.outputs.high_risk_code }}
       high_risk_code_files: ${{ steps.changes.outputs.high_risk_code_files }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Get changed files
         id: changes
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -41,19 +40,19 @@ jobs:
           script: |
             const highRiskFiles = process.env.high_risk_code;
             const fileList = highRiskFiles.split(',').map(file => `- [ ] ${file}`).join('\n');
-            
+
             // Get existing comments
             const comments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo
             });
-            
+
             // Check if we already have a high risk code comment
             const hasExistingComment = comments.data.some(comment => 
               comment.body.includes('🚨 Detected changes in high risk code 🚨')
             );
-            
+
             // Only create comment if we don't already have one
             if (!hasExistingComment) {
               await github.rest.issues.createComment({

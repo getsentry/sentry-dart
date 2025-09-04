@@ -6,6 +6,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_envelope_item_header.dart';
 import 'sentry_item_type.dart';
 import 'utils.dart';
+import 'package:meta/meta.dart';
 
 /// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
@@ -75,6 +76,21 @@ class SentryEnvelopeItem {
       ),
       () => utf8JsonEncoder.convert(payload),
       originalObject: payload,
+    );
+  }
+
+  /// Create a [SentryEnvelopeItem] which holds pre-encoded log data.
+  /// This is used by the log batcher to send pre-encoded log batches.
+  @internal
+  factory SentryEnvelopeItem.fromLogsData(List<int> payload, int logsCount) {
+    return SentryEnvelopeItem(
+      SentryEnvelopeItemHeader(
+        SentryItemType.log,
+        itemCount: logsCount,
+        contentType: 'application/vnd.sentry.items.log+json',
+      ),
+      () => payload,
+      originalObject: null,
     );
   }
 
