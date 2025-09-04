@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:sqflite/sqflite.dart' as sqflite show databaseFactory;
+import 'package:sqflite/sqflite.dart' as sqflite;
 // ignore: implementation_imports
 import 'package:sqflite_common/src/factory_mixin.dart';
 // ignore: implementation_imports
@@ -34,22 +33,22 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
   /// final database = await openDatabase('path/to/db');
   /// ```
   SentrySqfliteDatabaseFactory({
-    DatabaseFactory? databaseFactory,
+    sqflite.DatabaseFactory? databaseFactory,
     @internal Hub? hub,
   })  : _databaseFactory = databaseFactory ?? sqflite.databaseFactory,
         _hub = hub ?? HubAdapter();
 
   final Hub _hub;
-  final DatabaseFactory _databaseFactory;
+  final sqflite.DatabaseFactory _databaseFactory;
 
   @override
   Future<T> invokeMethod<T>(String method, [Object? arguments]) =>
       impl.invokeMethod(method, arguments);
 
   @override
-  Future<Database> openDatabase(
+  Future<sqflite.Database> openDatabase(
     String path, {
-    OpenDatabaseOptions? options,
+    sqflite.OpenDatabaseOptions? options,
   }) async {
     final databaseFactory = _databaseFactory;
 
@@ -58,7 +57,7 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
       return databaseFactory.openDatabase(path, options: options);
     }
 
-    return Future<Database>(() async {
+    return Future<sqflite.Database>(() async {
       final currentSpan = _hub.getSpan();
       final description = 'Open DB: $path';
       final span = currentSpan?.startChild(
