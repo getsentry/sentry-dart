@@ -6,13 +6,13 @@ on:
       - release/**
   pull_request:
     paths:
-      - "!**/*.md"
-      - "!**/class-diagram.svg"
-      - ".github/workflows/dart.yml"
-      - ".github/workflows/analyze.yml"
-      - ".github/actions/dart-test/**"
-      - ".github/actions/coverage/**"
-      - "packages/dart/**"
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      - '.github/workflows/dart.yml'
+      - '.github/workflows/analyze.yml'
+      - '.github/actions/dart-test/**'
+      - '.github/actions/coverage/**'
+      - 'packages/dart/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   build:
-    name: "${{ matrix.os }} | ${{ matrix.sdk }}"
+    name: '${{ matrix.os }} | ${{ matrix.sdk }}'
     runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     strategy:
@@ -28,7 +28,7 @@ jobs:
       matrix:
         os: [ubuntu]
         sdk:
-          - "3.5"
+          - '3.5'
           - stable
           - beta
         include:
@@ -52,12 +52,12 @@ jobs:
           min-coverage: 85
 
       - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
+        if: matrix.sdk == 'stable'
         uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # pin@v1.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: dart-tests-${{ runner.os }}-${{ matrix.sdk }}
-          flags: dart
+          flags: dart-${{ matrix.os }}
           verbose: true
 
       - name: Build example
