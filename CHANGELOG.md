@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Recursion in `openDatabase` when using `SentrySqfliteDatabaseFactory` ([#3231](https://github.com/getsentry/sentry-dart/pull/3231))
+
 ### Enhancements
 
 - Replay: continue processing if encountering `InheritedWidget` ([#3200](https://github.com/getsentry/sentry-dart/pull/3200))
