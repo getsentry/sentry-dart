@@ -19,9 +19,13 @@ abstract class WorkerHost {
 
 /// Minimal config passed to isolates. Extend as needed.
 class WorkerConfig {
+  final bool debug;
+  final SentryLevel diagnosticLevel;
   final String? debugName;
 
   const WorkerConfig({
+    required this.debug,
+    required this.diagnosticLevel,
     required this.debugName,
   });
 }
@@ -125,6 +129,11 @@ void runWorker(
   SendPort host,
   WorkerHandler handler,
 ) {
+  IsolateDiagnosticLog.configure(
+    debug: config.debug,
+    level: config.diagnosticLevel,
+  );
+
   final inbox = ReceivePort();
   host.send(inbox.sendPort);
 

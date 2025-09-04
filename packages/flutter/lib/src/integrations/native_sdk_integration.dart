@@ -26,12 +26,6 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
       return;
     }
 
-    // Configure static Isolate logger before spawning isolates
-    IsolateDiagnosticLog.configure(
-      debug: options.debug,
-      level: options.diagnosticLevel,
-    );
-
     try {
       await _native.init(hub);
       options.sdk.addIntegration('nativeSdkIntegration');
