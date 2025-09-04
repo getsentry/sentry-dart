@@ -12,7 +12,7 @@ import 'binding.dart' as native;
 
 typedef SpawnWorkerFn = Future<Worker> Function(WorkerConfig, WorkerEntry);
 
-class AndroidEnvelopeSender implements WorkerHost {
+class AndroidEnvelopeSender {
   final SentryFlutterOptions _options;
   final WorkerConfig _config;
   final SpawnWorkerFn _spawn;
@@ -30,13 +30,11 @@ class AndroidEnvelopeSender implements WorkerHost {
   static AndroidEnvelopeSender Function(SentryFlutterOptions) factory =
       AndroidEnvelopeSender.new;
 
-  @override
   FutureOr<void> start() async {
     if (_worker != null) return;
     _worker = await _spawn(_config, _entryPoint);
   }
 
-  @override
   FutureOr<void> close() {
     _worker?.close();
     _worker = null;

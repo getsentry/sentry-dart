@@ -23,15 +23,6 @@ class WorkerConfig {
   });
 }
 
-/// Host-side lifecycle interface for a worker isolate.
-///
-/// Responsible for spawning the worker isolate, and shutting it down.
-/// It does not define the worker logic.
-abstract class WorkerHost {
-  FutureOr<void> start();
-  FutureOr<void> close();
-}
-
 /// Host-side helper for workers to perform minimal request/response.
 /// Adapted from https://dart.dev/language/isolates#robust-ports-example
 class Worker {
