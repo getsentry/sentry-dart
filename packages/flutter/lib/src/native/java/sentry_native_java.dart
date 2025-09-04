@@ -80,12 +80,10 @@ class SentryNativeJava extends SentryNativeChannel {
     return super.init(hub);
   }
 
-  late AndroidEnvelopeSender envelopeWorker;
-
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    envelopeWorker.captureEnvelope(envelopeData, containsUnhandledException);
+    _envelopeSender?.captureEnvelope(envelopeData, containsUnhandledException);
   }
 
   @override
