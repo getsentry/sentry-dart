@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:isolate';
 
-import '../sentry_flutter.dart';
-import 'isolate_diagnostic_log.dart';
+import '../../sentry_flutter.dart';
+import 'isolate_logger.dart';
 
 // -------------------------------------------
 // HOST-SIDE API (runs on the main isolate)
@@ -50,7 +50,7 @@ class Worker {
 
   /// Send a request to the worker and await a response.
   Future<Object?> request(Object? payload) {
-    if (_closed) throw StateError('WorkerClient is closed');
+    if (_closed) throw StateError('Worker is closed');
     final id = _idCounter++;
     final completer = Completer<Object?>.sync();
     _pending[id] = completer;
@@ -129,9 +129,10 @@ void runWorker(
   SendPort host,
   WorkerHandler handler,
 ) {
-  IsolateDiagnosticLog.configure(
+  IsolateLogger.configure(
     debug: config.debug,
     level: config.diagnosticLevel,
+    loggerName: config.debugName ?? 'SentryIsolateWorker',
   );
 
   final inbox = ReceivePort();
@@ -139,12 +140,9 @@ void runWorker(
 
   inbox.listen((msg) async {
     if (msg == _Ctl.shutdown) {
-      IsolateDiagnosticLog.log(
-          SentryLevel.debug, 'Isolate received shutdown request',
-          logger: config.debugName);
+      IsolateLogger.log(SentryLevel.debug, 'Isolate received shutdown');
       inbox.close();
-      IsolateDiagnosticLog.log(SentryLevel.debug, 'Isolate closed.',
-          logger: config.debugName);
+      IsolateLogger.log(SentryLevel.debug, 'Isolate closed');
       return;
     }
 
@@ -164,11 +162,8 @@ void runWorker(
     try {
       await handler.onMessage(msg);
     } catch (exception, stackTrace) {
-      IsolateDiagnosticLog.log(
-          SentryLevel.error, 'Isolate error while handling message',
-          exception: exception,
-          stackTrace: stackTrace,
-          logger: config.debugName);
+      IsolateLogger.log(SentryLevel.error, 'Isolate failed to handle message',
+          exception: exception, stackTrace: stackTrace);
     }
   });
 }

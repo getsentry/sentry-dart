@@ -6,8 +6,8 @@ import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
 
 import '../../../sentry_flutter.dart';
-import '../../worker_isolate.dart';
-import '../../isolate_diagnostic_log.dart';
+import '../../isolate/isolate_worker.dart';
+import '../../isolate/isolate_logger.dart';
 import 'binding.dart' as cocoa;
 
 class CocoaEnvelopeSender implements WorkerHost {
@@ -15,11 +15,11 @@ class CocoaEnvelopeSender implements WorkerHost {
   final WorkerConfig _config;
   Worker? _worker;
 
-  static final String name = 'SentryCocoaEnvelopeSender';
-
   CocoaEnvelopeSender(this._options)
       : _config = WorkerConfig(
-          debugName: name,
+          debugName: 'SentryCocoaEnvelopeSender',
+          debug: _options.debug,
+          diagnosticLevel: _options.diagnosticLevel,
         );
 
   @internal // visible for testing/mocking
@@ -45,7 +45,6 @@ class CocoaEnvelopeSender implements WorkerHost {
       _options.log(
         SentryLevel.warning,
         'captureEnvelope called before start; dropping',
-        logger: name,
       );
       return;
     }
@@ -65,9 +64,7 @@ class _CocoaEnvelopeHandler extends WorkerHandler {
       final data = msg.materialize().asUint8List();
       _captureEnvelope(data);
     } else {
-      IsolateDiagnosticLog.log(SentryLevel.warning,
-          'Unexpected message type while handling a message: $msg',
-          logger: CocoaEnvelopeSender.name);
+      IsolateLogger.log(SentryLevel.warning, 'Unexpected message type: $msg');
     }
   }
 
@@ -78,15 +75,12 @@ class _CocoaEnvelopeHandler extends WorkerHandler {
       if (envelope != null) {
         cocoa.PrivateSentrySDKOnly.captureEnvelope(envelope);
       } else {
-        IsolateDiagnosticLog.log(SentryLevel.error,
-            'Native Cocoa SDK returned null when capturing envelope',
-            logger: CocoaEnvelopeSender.name);
+        IsolateLogger.log(SentryLevel.error,
+            'Native Cocoa SDK returned null when capturing envelope');
       }
     } catch (exception, stackTrace) {
-      IsolateDiagnosticLog.log(SentryLevel.error, 'Failed to capture envelope',
-          exception: exception,
-          stackTrace: stackTrace,
-          logger: CocoaEnvelopeSender.name);
+      IsolateLogger.log(SentryLevel.error, 'Failed to capture envelope',
+          exception: exception, stackTrace: stackTrace);
     }
   }
 }

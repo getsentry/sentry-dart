@@ -6,8 +6,8 @@ import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
-import '../../worker_isolate.dart';
-import '../../isolate_diagnostic_log.dart';
+import '../../isolate/isolate_worker.dart';
+import '../../isolate/isolate_logger.dart';
 import 'binding.dart' as native;
 
 class AndroidEnvelopeSender implements WorkerHost {
@@ -15,11 +15,11 @@ class AndroidEnvelopeSender implements WorkerHost {
   final WorkerConfig _config;
   Worker? _worker;
 
-  static final String name = 'SentryAndroidEnvelopeSender';
-
   AndroidEnvelopeSender(this._options)
       : _config = WorkerConfig(
-          debugName: name,
+          debugName: 'SentryAndroidEnvelopeSender',
+          debug: _options.debug,
+          diagnosticLevel: _options.diagnosticLevel,
         );
 
   @internal // visible for testing/mocking
@@ -46,7 +46,6 @@ class AndroidEnvelopeSender implements WorkerHost {
       _options.log(
         SentryLevel.warning,
         'captureEnvelope called before worker started; dropping',
-        logger: name,
       );
       return;
     }
@@ -70,9 +69,7 @@ class _AndroidEnvelopeHandler extends WorkerHandler {
       final data = transferable.materialize().asUint8List();
       _captureEnvelope(data, containsUnhandledException);
     } else {
-      IsolateDiagnosticLog.log(SentryLevel.warning,
-          'Unexpected message type while handling a message: $msg',
-          logger: AndroidEnvelopeSender.name);
+      IsolateLogger.log(SentryLevel.warning, 'Unexpected message type: $msg');
     }
   }
 
@@ -86,15 +83,12 @@ class _AndroidEnvelopeHandler extends WorkerHandler {
           byteArray, containsUnhandledException);
 
       if (id == null) {
-        IsolateDiagnosticLog.log(SentryLevel.error,
-            'Native Android SDK returned null id when capturing envelope',
-            logger: AndroidEnvelopeSender.name);
+        IsolateLogger.log(SentryLevel.error,
+            'Native Android SDK returned null when capturing envelope');
       }
     } catch (exception, stackTrace) {
-      IsolateDiagnosticLog.log(SentryLevel.error, 'Failed to capture envelope',
-          exception: exception,
-          stackTrace: stackTrace,
-          logger: AndroidEnvelopeSender.name);
+      IsolateLogger.log(SentryLevel.error, 'Failed to capture envelope',
+          exception: exception, stackTrace: stackTrace);
       // TODO:
       // if (options.automatedTestMode) {
       //   rethrow;
