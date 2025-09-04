@@ -4,18 +4,11 @@ import 'dart:isolate';
 import '../../sentry_flutter.dart';
 import 'isolate_logger.dart';
 
+const _shutdownCommand = '_shutdown_';
+
 // -------------------------------------------
 // HOST-SIDE API (runs on the main isolate)
 // -------------------------------------------
-
-/// Host-side lifecycle interface for a worker isolate.
-///
-/// Responsible for spawning the worker isolate, and shutting it down.
-/// It does not define the worker logic.
-abstract class WorkerHost {
-  FutureOr<void> start();
-  FutureOr<void> close();
-}
 
 /// Minimal config passed to isolates. Extend as needed.
 class WorkerConfig {
@@ -28,6 +21,15 @@ class WorkerConfig {
     required this.diagnosticLevel,
     required this.debugName,
   });
+}
+
+/// Host-side lifecycle interface for a worker isolate.
+///
+/// Responsible for spawning the worker isolate, and shutting it down.
+/// It does not define the worker logic.
+abstract class WorkerHost {
+  FutureOr<void> start();
+  FutureOr<void> close();
 }
 
 /// Host-side helper for workers to perform minimal request/response.
@@ -60,7 +62,7 @@ class Worker {
 
   void close() {
     if (_closed) return;
-    _workerPort.send(_Ctl.shutdown);
+    _workerPort.send(_shutdownCommand);
     _closed = true;
     if (_pending.isEmpty) {
       _responses.close();
@@ -82,10 +84,6 @@ class Worker {
       _responses.close();
     }
   }
-}
-
-class _Ctl {
-  static const shutdown = '_shutdown_';
 }
 
 /// Worker (isolate) entry-point signature.
@@ -123,7 +121,11 @@ abstract class WorkerHandler {
   FutureOr<Object?> onRequest(Object? payload) => {};
 }
 
-/// Generic worker runtime. Reuse for every Sentry worker.
+/// Runs the Sentry worker loop inside a background isolate.
+///
+/// Call this only from the worker isolate entry-point spawned via
+/// [spawnWorker]. It configures logging, handshakes with the host, and routes
+/// messages
 void runWorker(
   WorkerConfig config,
   SendPort host,
@@ -139,7 +141,7 @@ void runWorker(
   host.send(inbox.sendPort);
 
   inbox.listen((msg) async {
-    if (msg == _Ctl.shutdown) {
+    if (msg == _shutdownCommand) {
       IsolateLogger.log(SentryLevel.debug, 'Isolate received shutdown');
       inbox.close();
       IsolateLogger.log(SentryLevel.debug, 'Isolate closed');
