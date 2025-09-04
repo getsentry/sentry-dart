@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqflite.dart' as sqflite show databaseFactory;
 // ignore: implementation_imports
 import 'package:sqflite_common/src/factory_mixin.dart';
 // ignore: implementation_imports
@@ -35,11 +36,11 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
   SentrySqfliteDatabaseFactory({
     DatabaseFactory? databaseFactory,
     @internal Hub? hub,
-  })  : _databaseFactory = databaseFactory,
+  })  : _databaseFactory = databaseFactory ?? sqflite.databaseFactory,
         _hub = hub ?? HubAdapter();
 
   final Hub _hub;
-  final DatabaseFactory? _databaseFactory;
+  final DatabaseFactory _databaseFactory;
 
   @override
   Future<T> invokeMethod<T>(String method, [Object? arguments]) =>
@@ -50,7 +51,7 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
     String path, {
     OpenDatabaseOptions? options,
   }) async {
-    final databaseFactory = _databaseFactory ?? this;
+    final databaseFactory = _databaseFactory;
 
     // ignore: invalid_use_of_internal_member
     if (!_hub.options.isTracingEnabled()) {

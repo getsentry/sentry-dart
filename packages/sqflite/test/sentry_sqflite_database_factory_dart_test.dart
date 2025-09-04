@@ -88,6 +88,32 @@ void main() {
     });
   });
 
+  group('openDatabase without delegate', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+
+      // using ffi for testing on vm
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    });
+
+    test('does not recurse when calling instance openDatabase', () async {
+      final wrapper = SentrySqfliteDatabaseFactory(hub: fixture.hub);
+
+      final db = await wrapper.openDatabase(inMemoryDatabasePath);
+
+      expect(db is SentryDatabase, true);
+
+      await db.close();
+    });
+  });
+
   tearDown(() {
     databaseFactory = sqfliteDatabaseFactoryDefault;
   });
