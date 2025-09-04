@@ -10,8 +10,8 @@ import 'isolate_diagnostic_log.dart';
 
 /// Host-side lifecycle interface for a worker isolate.
 ///
-/// Responsible for spawning the worker isolate, sending messages,
-/// and shutting it down. It does not define the worker logic.
+/// Responsible for spawning the worker isolate, and shutting it down.
+/// It does not define the worker logic.
 abstract class WorkerHost {
   FutureOr<void> start();
   FutureOr<void> close();
