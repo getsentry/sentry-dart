@@ -10,17 +10,21 @@ import '../../isolate/isolate_worker.dart';
 import '../../isolate/isolate_logger.dart';
 import 'binding.dart' as native;
 
+typedef SpawnWorkerFn = Future<Worker> Function(WorkerConfig, WorkerEntry);
+
 class AndroidEnvelopeSender implements WorkerHost {
   final SentryFlutterOptions _options;
   final WorkerConfig _config;
+  final SpawnWorkerFn _spawn;
   Worker? _worker;
 
-  AndroidEnvelopeSender(this._options)
+  AndroidEnvelopeSender(this._options, {SpawnWorkerFn? spawn})
       : _config = WorkerConfig(
           debugName: 'SentryAndroidEnvelopeSender',
           debug: _options.debug,
           diagnosticLevel: _options.diagnosticLevel,
-        );
+        ),
+        _spawn = spawn ?? spawnWorker;
 
   @internal // visible for testing/mocking
   static AndroidEnvelopeSender Function(SentryFlutterOptions) factory =
@@ -29,7 +33,7 @@ class AndroidEnvelopeSender implements WorkerHost {
   @override
   FutureOr<void> start() async {
     if (_worker != null) return;
-    _worker = await spawnWorker(_config, _entryPoint);
+    _worker = await _spawn(_config, _entryPoint);
   }
 
   @override

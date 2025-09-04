@@ -14,7 +14,7 @@ const _shutdownCommand = '_shutdown_';
 class WorkerConfig {
   final bool debug;
   final SentryLevel diagnosticLevel;
-  final String? debugName;
+  final String debugName;
 
   const WorkerConfig({
     required this.debug,
@@ -134,7 +134,7 @@ void runWorker(
   IsolateLogger.configure(
     debug: config.debug,
     level: config.diagnosticLevel,
-    loggerName: config.debugName ?? 'SentryIsolateWorker',
+    loggerName: config.debugName,
   );
 
   final inbox = ReceivePort();
