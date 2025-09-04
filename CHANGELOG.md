@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+
+- Offload `captureEnvelope` to background isolate for iOS and Android ([#3232](https://github.com/getsentry/sentry-dart/pull/3232))
+
 ## 9.7.0-beta.2
 
 ### Features
