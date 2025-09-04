@@ -36,6 +36,298 @@ import 'dart:core' as core$_;
 import 'package:jni/_internal.dart' as jni$_;
 import 'package:jni/jni.dart' as jni$_;
 
+/// from: `io.sentry.android.core.InternalSentrySdk`
+class InternalSentrySdk extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<InternalSentrySdk> $type;
+
+  @jni$_.internal
+  InternalSentrySdk.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class =
+      jni$_.JClass.forName(r'io/sentry/android/core/InternalSentrySdk');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType = $InternalSentrySdk$NullableType();
+  static const type = $InternalSentrySdk$Type();
+  static final _id_new$ = _class.constructorId(
+    r'()V',
+  );
+
+  static final _new$ = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void <init>()`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory InternalSentrySdk() {
+    return InternalSentrySdk.fromReference(
+        _new$(_class.reference.pointer, _id_new$ as jni$_.JMethodIDPtr)
+            .reference);
+  }
+
+  static final _id_getCurrentScope = _class.staticMethodId(
+    r'getCurrentScope',
+    r'()Lio/sentry/IScope;',
+  );
+
+  static final _getCurrentScope = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.IScope getCurrentScope()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject? getCurrentScope() {
+    return _getCurrentScope(
+            _class.reference.pointer, _id_getCurrentScope as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_serializeScope = _class.staticMethodId(
+    r'serializeScope',
+    r'(Landroid/content/Context;Lio/sentry/android/core/SentryAndroidOptions;Lio/sentry/IScope;)Ljava/util/Map;',
+  );
+
+  static final _serializeScope = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public java.util.Map<java.lang.String, java.lang.Object> serializeScope(android.content.Context context, io.sentry.android.core.SentryAndroidOptions sentryAndroidOptions, io.sentry.IScope iScope)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JMap<jni$_.JString?, jni$_.JObject?> serializeScope(
+    jni$_.JObject context,
+    jni$_.JObject sentryAndroidOptions,
+    jni$_.JObject? iScope,
+  ) {
+    final _$context = context.reference;
+    final _$sentryAndroidOptions = sentryAndroidOptions.reference;
+    final _$iScope = iScope?.reference ?? jni$_.jNullReference;
+    return _serializeScope(
+            _class.reference.pointer,
+            _id_serializeScope as jni$_.JMethodIDPtr,
+            _$context.pointer,
+            _$sentryAndroidOptions.pointer,
+            _$iScope.pointer)
+        .object<jni$_.JMap<jni$_.JString?, jni$_.JObject?>>(
+            const jni$_.JMapType<jni$_.JString?, jni$_.JObject?>(
+                jni$_.JStringNullableType(), jni$_.JObjectNullableType()));
+  }
+
+  static final _id_captureEnvelope = _class.staticMethodId(
+    r'captureEnvelope',
+    r'([BZ)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureEnvelope = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_
+                          .VarArgs<(jni$_.Pointer<jni$_.Void>, jni$_.Int32)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureEnvelope(byte[] bs, boolean z)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject? captureEnvelope(
+    jni$_.JByteArray bs,
+    bool z,
+  ) {
+    final _$bs = bs.reference;
+    return _captureEnvelope(_class.reference.pointer,
+            _id_captureEnvelope as jni$_.JMethodIDPtr, _$bs.pointer, z ? 1 : 0)
+        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_getAppStartMeasurement = _class.staticMethodId(
+    r'getAppStartMeasurement',
+    r'()Ljava/util/Map;',
+  );
+
+  static final _getAppStartMeasurement = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public java.util.Map<java.lang.String, java.lang.Object> getAppStartMeasurement()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JMap<jni$_.JString?, jni$_.JObject?>? getAppStartMeasurement() {
+    return _getAppStartMeasurement(_class.reference.pointer,
+            _id_getAppStartMeasurement as jni$_.JMethodIDPtr)
+        .object<jni$_.JMap<jni$_.JString?, jni$_.JObject?>?>(
+            const jni$_.JMapNullableType<jni$_.JString?, jni$_.JObject?>(
+                jni$_.JStringNullableType(), jni$_.JObjectNullableType()));
+  }
+
+  static final _id_setTrace = _class.staticMethodId(
+    r'setTrace',
+    r'(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;)V',
+  );
+
+  static final _setTrace = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void setTrace(java.lang.String string, java.lang.String string1, java.lang.Double double, java.lang.Double double1)`
+  static void setTrace(
+    jni$_.JString string,
+    jni$_.JString string1,
+    jni$_.JDouble? double,
+    jni$_.JDouble? double1,
+  ) {
+    final _$string = string.reference;
+    final _$string1 = string1.reference;
+    final _$double = double?.reference ?? jni$_.jNullReference;
+    final _$double1 = double1?.reference ?? jni$_.jNullReference;
+    _setTrace(
+            _class.reference.pointer,
+            _id_setTrace as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$string1.pointer,
+            _$double.pointer,
+            _$double1.pointer)
+        .check();
+  }
+}
+
+final class $InternalSentrySdk$NullableType
+    extends jni$_.JObjType<InternalSentrySdk?> {
+  @jni$_.internal
+  const $InternalSentrySdk$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/android/core/InternalSentrySdk;';
+
+  @jni$_.internal
+  @core$_.override
+  InternalSentrySdk? fromReference(jni$_.JReference reference) =>
+      reference.isNull
+          ? null
+          : InternalSentrySdk.fromReference(
+              reference,
+            );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<InternalSentrySdk?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($InternalSentrySdk$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($InternalSentrySdk$NullableType) &&
+        other is $InternalSentrySdk$NullableType;
+  }
+}
+
+final class $InternalSentrySdk$Type extends jni$_.JObjType<InternalSentrySdk> {
+  @jni$_.internal
+  const $InternalSentrySdk$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/android/core/InternalSentrySdk;';
+
+  @jni$_.internal
+  @core$_.override
+  InternalSentrySdk fromReference(jni$_.JReference reference) =>
+      InternalSentrySdk.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<InternalSentrySdk?> get nullableType =>
+      const $InternalSentrySdk$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($InternalSentrySdk$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($InternalSentrySdk$Type) &&
+        other is $InternalSentrySdk$Type;
+  }
+}
+
 /// from: `io.sentry.android.replay.ReplayIntegration`
 class ReplayIntegration extends jni$_.JObject {
   @jni$_.internal
@@ -1013,6 +1305,83 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<ReplayIntegration?>(const $ReplayIntegration$NullableType());
   }
 
+  static final _id_getApplicationContext = _class.instanceMethodId(
+    r'getApplicationContext',
+    r'()Landroid/content/Context;',
+  );
+
+  static final _getApplicationContext = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final android.content.Context getApplicationContext()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getApplicationContext() {
+    return _getApplicationContext(
+            reference.pointer, _id_getApplicationContext as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_loadContextsAsBytes = _class.instanceMethodId(
+    r'loadContextsAsBytes',
+    r'()[B',
+  );
+
+  static final _loadContextsAsBytes = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final byte[] loadContextsAsBytes()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JByteArray? loadContextsAsBytes() {
+    return _loadContextsAsBytes(
+            reference.pointer, _id_loadContextsAsBytes as jni$_.JMethodIDPtr)
+        .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
+  static final _id_loadDebugImagesAsBytes = _class.instanceMethodId(
+    r'loadDebugImagesAsBytes',
+    r'(Ljava/util/Set;)[B',
+  );
+
+  static final _loadDebugImagesAsBytes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final byte[] loadDebugImagesAsBytes(java.util.Set<java.lang.String> set)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JByteArray? loadDebugImagesAsBytes(
+    jni$_.JSet<jni$_.JString> set,
+  ) {
+    final _$set = set.reference;
+    return _loadDebugImagesAsBytes(reference.pointer,
+            _id_loadDebugImagesAsBytes as jni$_.JMethodIDPtr, _$set.pointer)
+        .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
   static final _id_new$ = _class.constructorId(
     r'(Lkotlin/jvm/internal/DefaultConstructorMarker;)V',
   );
@@ -1394,6 +1763,83 @@ class SentryFlutterPlugin extends jni$_.JObject {
     return _privateSentryGetReplayIntegration(_class.reference.pointer,
             _id_privateSentryGetReplayIntegration as jni$_.JMethodIDPtr)
         .object<ReplayIntegration?>(const $ReplayIntegration$NullableType());
+  }
+
+  static final _id_getApplicationContext = _class.staticMethodId(
+    r'getApplicationContext',
+    r'()Landroid/content/Context;',
+  );
+
+  static final _getApplicationContext = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public final android.content.Context getApplicationContext()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject? getApplicationContext() {
+    return _getApplicationContext(_class.reference.pointer,
+            _id_getApplicationContext as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_loadContextsAsBytes = _class.staticMethodId(
+    r'loadContextsAsBytes',
+    r'()[B',
+  );
+
+  static final _loadContextsAsBytes = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public final byte[] loadContextsAsBytes()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JByteArray? loadContextsAsBytes() {
+    return _loadContextsAsBytes(_class.reference.pointer,
+            _id_loadContextsAsBytes as jni$_.JMethodIDPtr)
+        .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
+  static final _id_loadDebugImagesAsBytes = _class.staticMethodId(
+    r'loadDebugImagesAsBytes',
+    r'(Ljava/util/Set;)[B',
+  );
+
+  static final _loadDebugImagesAsBytes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public final byte[] loadDebugImagesAsBytes(java.util.Set<java.lang.String> set)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JByteArray? loadDebugImagesAsBytes(
+    jni$_.JSet<jni$_.JString?> set,
+  ) {
+    final _$set = set.reference;
+    return _loadDebugImagesAsBytes(_class.reference.pointer,
+            _id_loadDebugImagesAsBytes as jni$_.JMethodIDPtr, _$set.pointer)
+        .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
   }
 }
 

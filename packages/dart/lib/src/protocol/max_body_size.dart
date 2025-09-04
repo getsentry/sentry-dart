@@ -1,5 +1,7 @@
 // See https://docs.sentry.io/platforms/dotnet/guides/aspnetcore/configuration/options/#max-request-body-size
 
+import 'package:meta/meta.dart';
+
 const _mediumSize = 10000;
 const _smallSize = 4000;
 
@@ -21,19 +23,30 @@ enum MaxRequestBodySize {
 }
 
 extension MaxRequestBodySizeX on MaxRequestBodySize {
-  bool shouldAddBody(int contentLength) {
+  /// Returns the size limit in bytes for this setting, or null if no limit.
+  @internal
+  int? getSizeLimit() {
     switch (this) {
       case MaxRequestBodySize.never:
-        break;
+        return 0;
       case MaxRequestBodySize.small:
-        return contentLength <= _smallSize;
+        return _smallSize;
       case MaxRequestBodySize.medium:
-        return contentLength <= _mediumSize;
+        return _mediumSize;
       case MaxRequestBodySize.always:
-        return true;
-      // No default here to get a warning when a new enum value is added.
+        return null; // No limit
     }
-    return false;
+  }
+
+  bool shouldAddBody(int contentLength) {
+    if (this == MaxRequestBodySize.never) {
+      return false; // Never add body regardless of size
+    }
+    final limit = getSizeLimit();
+    if (limit == null) {
+      return true; // No limit means always allow
+    }
+    return contentLength <= limit;
   }
 }
 
@@ -56,18 +69,29 @@ enum MaxResponseBodySize {
 }
 
 extension MaxResponseBodySizeX on MaxResponseBodySize {
-  bool shouldAddBody(int contentLength) {
+  /// Returns the size limit in bytes for this setting, or null if no limit.
+  @internal
+  int? getSizeLimit() {
     switch (this) {
       case MaxResponseBodySize.never:
-        break;
+        return 0;
       case MaxResponseBodySize.small:
-        return contentLength <= _smallSize;
+        return _smallSize;
       case MaxResponseBodySize.medium:
-        return contentLength <= _mediumSize;
+        return _mediumSize;
       case MaxResponseBodySize.always:
-        return true;
-      // No default here to get a warning when a new enum value is added.
+        return null; // No limit
     }
-    return false;
+  }
+
+  bool shouldAddBody(int contentLength) {
+    if (this == MaxResponseBodySize.never) {
+      return false; // Never add body regardless of size
+    }
+    final limit = getSizeLimit();
+    if (limit == null) {
+      return true; // No limit means always allow
+    }
+    return contentLength <= limit;
   }
 }
