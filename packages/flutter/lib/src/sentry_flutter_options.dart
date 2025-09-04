@@ -291,6 +291,22 @@ class SentryFlutterOptions extends SentryOptions {
   /// Screen content masking is enabled by default.
   final privacy = SentryPrivacyOptions();
 
+  /// Sets the path to the Sentry Database Directory used in the Sentry Native SDK.
+  ///
+  /// **Default behavior**: When `null` (the default), the path defaults to
+  /// `.sentry-native` in the current working directory (CWD).
+  ///
+  /// **Important**: While using the default is convenient for development, we
+  /// strongly recommend providing an explicit database path for production
+  /// deployments to ensure predictable behavior.
+  ///
+  /// This option is only used on platforms that utilize the Sentry Native SDK directly,
+  /// specifically Desktop Linux and Windows.
+  ///
+  /// For more information, see:
+  /// https://docs.sentry.io/platforms/native/configuration/options/#database-path
+  String? nativeDatabasePath;
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.

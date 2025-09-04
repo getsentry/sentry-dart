@@ -349,8 +349,10 @@ class SentryOptions {
   double? get tracesSampleRate => _tracesSampleRate;
 
   set tracesSampleRate(double? tracesSampleRate) {
-    assert(tracesSampleRate == null ||
-        (tracesSampleRate >= 0 && tracesSampleRate <= 1));
+    assert(
+      tracesSampleRate == null ||
+          (tracesSampleRate >= 0 && tracesSampleRate <= 1),
+    );
     _tracesSampleRate = tracesSampleRate;
   }
 
@@ -482,15 +484,20 @@ class SentryOptions {
       List.unmodifiable(_exceptionTypeIdentifiers);
 
   void addExceptionTypeIdentifierByIndex(
-      int index, ExceptionTypeIdentifier exceptionTypeIdentifier) {
+    int index,
+    ExceptionTypeIdentifier exceptionTypeIdentifier,
+  ) {
     _exceptionTypeIdentifiers.insert(
-        index, exceptionTypeIdentifier.withCache());
+      index,
+      exceptionTypeIdentifier.withCache(),
+    );
   }
 
   /// Adds an exception type identifier to the beginning of the list.
   /// This ensures it is processed first and takes precedence over existing identifiers.
   void prependExceptionTypeIdentifier(
-      ExceptionTypeIdentifier exceptionTypeIdentifier) {
+    ExceptionTypeIdentifier exceptionTypeIdentifier,
+  ) {
     addExceptionTypeIdentifierByIndex(0, exceptionTypeIdentifier);
   }
 
@@ -606,8 +613,9 @@ class SentryOptions {
   late SentryExceptionFactory exceptionFactory = SentryExceptionFactory(this);
 
   @internal
-  late SentryStackTraceFactory stackTraceFactory =
-      SentryStackTraceFactory(this);
+  late SentryStackTraceFactory stackTraceFactory = SentryStackTraceFactory(
+    this,
+  );
 
   @visibleForTesting
   void debugLog(
@@ -639,31 +647,26 @@ void noOpLog(
 
 /// This function is called with an SDK specific event object and can return a modified event
 /// object or nothing to skip reporting the event
-typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
-  SentryEvent event,
-  Hint hint,
-);
+typedef BeforeSendCallback =
+    FutureOr<SentryEvent?> Function(SentryEvent event, Hint hint);
 
 /// This function is called with an SDK specific transaction object and can return a modified transaction
 /// object or nothing to skip reporting the transaction
-typedef BeforeSendTransactionCallback = FutureOr<SentryTransaction?> Function(
-  SentryTransaction transaction,
-  Hint hint,
-);
+typedef BeforeSendTransactionCallback =
+    FutureOr<SentryTransaction?> Function(
+      SentryTransaction transaction,
+      Hint hint,
+    );
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
-typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
-  Breadcrumb? breadcrumb,
-  Hint hint,
-);
+typedef BeforeBreadcrumbCallback =
+    Breadcrumb? Function(Breadcrumb? breadcrumb, Hint hint);
 
 /// This function is called right before a metric is about to be emitted.
 /// Can return true to emit the metric, or false to drop it.
-typedef BeforeMetricCallback = bool Function(
-  String key, {
-  Map<String, String>? tags,
-});
+typedef BeforeMetricCallback =
+    bool Function(String key, {Map<String, String>? tags});
 
 /// This function is called right before a log is about to be sent.
 /// Can return a modified log or null to drop the log.
@@ -673,13 +676,14 @@ typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
 typedef ClockProvider = DateTime Function();
 
 /// Logger callback to log useful debugging information if debug is enabled
-typedef SdkLogCallback = void Function(
-  SentryLevel level,
-  String message, {
-  String? logger,
-  Object? exception,
-  StackTrace? stackTrace,
-});
+typedef SdkLogCallback =
+    void Function(
+      SentryLevel level,
+      String message, {
+      String? logger,
+      Object? exception,
+      StackTrace? stackTrace,
+    });
 
-typedef TracesSamplerCallback = double? Function(
-    SentrySamplingContext samplingContext);
+typedef TracesSamplerCallback =
+    double? Function(SentrySamplingContext samplingContext);
