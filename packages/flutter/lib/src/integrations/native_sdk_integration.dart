@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 
-import '../isolate_logger.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 
