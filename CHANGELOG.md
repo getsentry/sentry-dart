@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Recursion in `openDatabase` when using `SentrySqfliteDatabaseFactory` ([#3231](https://github.com/getsentry/sentry-dart/pull/3231))
+
 ## 9.7.0-beta.2
 
 ### Features
