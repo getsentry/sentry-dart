@@ -56,7 +56,8 @@ void main() {
             inbox.close();
           }
         });
-        return Worker(inbox.sendPort);
+        final replies = ReceivePort();
+        return Worker(inbox.sendPort, replies);
       }
 
       final sender = CocoaEnvelopeSender(options, spawn: fakeSpawn);
@@ -109,7 +110,8 @@ void main() {
         final inbox = ReceivePort();
         inboxes.add(inbox);
         addTearDown(() => inbox.close());
-        return Worker(inbox.sendPort);
+        final replies = ReceivePort();
+        return Worker(inbox.sendPort, replies);
       }
 
       final sender = CocoaEnvelopeSender(options, spawn: fakeSpawn);
@@ -144,7 +146,8 @@ void main() {
         final inbox = ReceivePort();
         inboxes.add(inbox);
         addTearDown(() => inbox.close());
-        return Worker(inbox.sendPort);
+        final replies = ReceivePort();
+        return Worker(inbox.sendPort, replies);
       }
 
       final sender = CocoaEnvelopeSender(options, spawn: fakeSpawn);
@@ -171,7 +174,8 @@ void main() {
         seenConfig = config;
         final inbox = ReceivePort();
         addTearDown(() => inbox.close());
-        return Worker(inbox.sendPort);
+        final replies = ReceivePort();
+        return Worker(inbox.sendPort, replies);
       }
 
       final sender = CocoaEnvelopeSender(options, spawn: fakeSpawn);

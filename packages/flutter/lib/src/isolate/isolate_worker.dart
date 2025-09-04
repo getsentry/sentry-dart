@@ -33,14 +33,15 @@ abstract class WorkerHost {
 }
 
 /// Host-side helper for workers to perform minimal request/response.
+/// Adapted from https://dart.dev/language/isolates#robust-ports-example
 class Worker {
-  Worker(this._workerPort) {
+  Worker(this._workerPort, this._responses) {
     _responses.listen(_handleResponse);
   }
 
   final SendPort _workerPort;
   SendPort get port => _workerPort;
-  final ReceivePort _responses = ReceivePort();
+  final ReceivePort _responses;
   final Map<int, Completer<Object?>> _pending = {};
   int _idCounter = 0;
   bool _closed = false;
@@ -56,7 +57,7 @@ class Worker {
     final id = _idCounter++;
     final completer = Completer<Object?>.sync();
     _pending[id] = completer;
-    _workerPort.send((id, payload, _responses.sendPort));
+    _workerPort.send((id, payload));
     return completer.future;
   }
 
@@ -94,14 +95,23 @@ Future<Worker> spawnWorker(
   WorkerConfig config,
   WorkerEntry entry,
 ) async {
-  final receivePort = ReceivePort();
+  final initPort = RawReceivePort();
+  final connection = Completer<(ReceivePort, SendPort)>.sync();
+  initPort.handler = (SendPort commandPort) {
+    connection.complete((
+      ReceivePort.fromRawReceivePort(initPort),
+      commandPort,
+    ));
+  };
+
   await Isolate.spawn<(SendPort, WorkerConfig)>(
     entry,
-    (receivePort.sendPort, config),
+    (initPort.sendPort, config),
     debugName: config.debugName,
   );
-  final workerPort = await receivePort.first as SendPort;
-  return Worker(workerPort);
+
+  final (ReceivePort receivePort, SendPort sendPort) = await connection.future;
+  return Worker(sendPort, receivePort);
 }
 
 // -------------------------------------------
@@ -148,14 +158,14 @@ void runWorker(
       return;
     }
 
-    // RPC: (id, payload, replyTo)
-    if (msg is (int, Object?, SendPort)) {
-      final (id, payload, replyTo) = msg;
+    // RPC: (id, payload)
+    if (msg is (int, Object?)) {
+      final (id, payload) = msg;
       try {
         final result = await handler.onRequest(payload);
-        replyTo.send((id, result));
+        host.send((id, result));
       } catch (e, st) {
-        replyTo.send((id, RemoteError(e.toString(), st.toString())));
+        host.send((id, RemoteError(e.toString(), st.toString())));
       }
       return;
     }
