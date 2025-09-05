@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add `options_set_native_database_path` option to set the database path for Sentry Native ([#3236](https://github.com/getsentry/sentry-dart/pull/3236))
+- Add `nativeDatabasePath` option to `SentryFlutterOptions` to set the database path for Sentry Native ([#3236](https://github.com/getsentry/sentry-dart/pull/3236))
 
 ## 9.7.0-beta.3
 
