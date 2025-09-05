@@ -291,19 +291,27 @@ class SentryFlutterOptions extends SentryOptions {
   /// Screen content masking is enabled by default.
   final privacy = SentryPrivacyOptions();
 
-  /// Sets the path to the Sentry Database Directory used in the Sentry Native SDK.
+  /// Specifies the file system path to the Sentry database directory
+  /// used by the Sentry Native SDK.
   ///
-  /// **Default behavior**: When `null` (the default), the path defaults to
+  /// ### Default
+  /// If `null` (the default), the database directory is created at
   /// `.sentry-native` in the current working directory (CWD).
   ///
-  /// **Important**: While using the default is convenient for development, we
-  /// strongly recommend providing an explicit database path for production
-  /// deployments to ensure predictable behavior.
+  /// ### Recommendation
+  /// While relying on the default path may be sufficient during development,
+  /// **it is strongly recommended** to provide an explicit path in production
+  /// environments. Doing so ensures consistent and predictable behavior across
+  /// deployments.
   ///
-  /// This option is only used on platforms that utilize the Sentry Native SDK directly,
-  /// specifically Desktop Linux and Windows.
+  /// ### Platform Support
+  /// This option only applies to platforms that integrate the Sentry Native SDK
+  /// directly:
+  /// - **Linux (Desktop)**
+  /// - **Windows (Desktop)**
   ///
-  /// For more information, see:
+  /// ### References
+  /// For additional details, see:
   /// https://docs.sentry.io/platforms/native/configuration/options/#database-path
   String? nativeDatabasePath;
 
