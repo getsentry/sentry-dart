@@ -69,6 +69,10 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
           cOptions, options.enableAutoSessionTracking ? 1 : 0);
       native.options_set_dist(cOptions, c.str(options.dist));
       native.options_set_max_breadcrumbs(cOptions, options.maxBreadcrumbs);
+      if (options.nativeDatabasePath != null) {
+        native.options_set_database_path(
+            cOptions, c.str(options.nativeDatabasePath));
+      }
       if (options.proxy != null) {
         // sentry-native expects a single string and it doesn't support different types or authentication
         options.log(SentryLevel.warning,

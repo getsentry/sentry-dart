@@ -139,6 +139,28 @@ void main() {
         await sut.init(MockHub());
       });
 
+      test('init creates native database path directory when configured',
+          () async {
+        final dbDir = Directory(
+            '${helper.nativeTestRoot}/db-${backend.actualValue.name}');
+        if (dbDir.existsSync()) {
+          dbDir.deleteSync(recursive: true);
+        }
+
+        options.nativeDatabasePath = dbDir.path;
+
+        addTearDown(() {
+          if (dbDir.existsSync()) {
+            dbDir.deleteSync(recursive: true);
+          }
+        });
+        addTearDown(sut.close);
+
+        await sut.init(MockHub());
+
+        expect(dbDir.existsSync(), isTrue);
+      });
+
       test('app start', () {
         expect(sut.fetchNativeAppStart(), null);
       });
