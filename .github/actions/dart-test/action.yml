@@ -25,7 +25,9 @@ runs:
     - name: Install flutter_junitreport
       shell: bash
       run: |
-        dart pub global activate --source git https://github.com/waffiqaziz/flutter-junitreport.git --git-ref main
+        if [[ "${{ matrix.sdk }}" != 3.5* ]]; then
+          dart pub global activate --source git https://github.com/waffiqaziz/flutter-junitreport.git --git-ref main
+        fi
 
     - name: Test VM
       working-directory: ${{ inputs.directory }}
