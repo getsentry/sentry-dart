@@ -640,6 +640,52 @@ class SentryNative {
           void Function(
               ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
 
+  /// Sets the path to the Sentry Database Directory.
+  ///
+  /// Sentry will use this path to persist user consent, sessions, and other
+  /// artifacts in case of a crash. This will also be used by the crashpad backend
+  /// if it is configured.
+  ///
+  /// The directory is used for "cached" data, which needs to persist across
+  /// application restarts to ensure proper flagging of release-health sessions,
+  /// but might otherwise be safely purged regularly.
+  ///
+  /// It is roughly equivalent to the type of `AppData/Local` on Windows and
+  /// `XDG_CACHE_HOME` on Linux, and equivalent runtime directories on other
+  /// platforms.
+  ///
+  /// It is recommended that users set an explicit absolute path, depending
+  /// on their apps runtime directory. The path will be created if it does not
+  /// exist, and will be resolved to an absolute path inside of `sentry_init`. The
+  /// directory should not be shared with other application data/configuration, as
+  /// sentry-native will enumerate and possibly delete files in that directory. An
+  /// example might be `$XDG_CACHE_HOME/your-app/sentry`
+  ///
+  /// If no explicit path it set, sentry-native will default to `.sentry-native` in
+  /// the current working directory, with no specific platform-specific handling.
+  ///
+  /// `path` is assumed to be in platform-specific filesystem path encoding.
+  /// API Users on windows are encouraged to use
+  /// `sentry_options_set_database_pathw` instead.
+  void options_set_database_path(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> path,
+  ) {
+    return _options_set_database_path(
+      opts,
+      path,
+    );
+  }
+
+  late final _options_set_database_pathPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_options_set_database_path');
+  late final _options_set_database_path =
+      _options_set_database_pathPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+
   /// Initializes the Sentry SDK with the specified options.
   ///
   /// This takes ownership of the options.  After the options have been set
