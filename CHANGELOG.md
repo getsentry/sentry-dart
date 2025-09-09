@@ -2,9 +2,20 @@
 
 ## Unreleased
 
+### Features
+
+- Add `nativeDatabasePath` option to `SentryFlutterOptions` to set the database path for Sentry Native ([#3236](https://github.com/getsentry/sentry-dart/pull/3236))
+
+## 9.7.0-beta.3
+
 ### Fixes
 
 - Recursion in `openDatabase` when using `SentrySqfliteDatabaseFactory` ([#3231](https://github.com/getsentry/sentry-dart/pull/3231))
+
+### Enhancements
+
+- Replay: continue processing if encountering `InheritedWidget` ([#3200](https://github.com/getsentry/sentry-dart/pull/3200))
+  - Prevents false debug warnings when using [provider](https://pub.dev/packages/provider) for example which extensively uses `InheritedWidget`
 
 ## 9.7.0-beta.2
 
