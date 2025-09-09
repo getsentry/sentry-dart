@@ -6,6 +6,12 @@
 
 - Add `nativeDatabasePath` option to `SentryFlutterOptions` to set the database path for Sentry Native ([#3236](https://github.com/getsentry/sentry-dart/pull/3236))
 
+### Dependencies
+
+- Bump JavaScript SDK from v10.6.0 to v10.10.0 ([#3233](https://github.com/getsentry/sentry-dart/pull/3233))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#10100)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/10.6.0...10.10.0)
+
 ## 9.7.0-beta.3
 
 ### Fixes
