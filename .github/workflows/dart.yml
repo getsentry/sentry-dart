@@ -52,7 +52,7 @@ jobs:
           min-coverage: 85
 
       - name: Upload test results to Codecov
-        if: matrix.sdk == 'stable'
+        if: ${{ !cancelled() && matrix.sdk == 'stable' }}
         uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # pin@v1.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
