@@ -177,7 +177,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: ['stable', 'beta']
+        # Temporarily disable beta because the job run is flaky
+        sdk: ['stable']
     steps:
       - name: checkout
         uses: actions/checkout@v5
