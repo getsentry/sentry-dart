@@ -248,7 +248,11 @@ void main() {
   });
 
   group(addTracingHeadersToHttpHeader, () {
-    final fixture = Fixture();
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
 
     test(
         'adds W3C traceparent header from span when propagateTraceparent is true',
@@ -269,10 +273,9 @@ void main() {
         () {
       final headers = <String, dynamic>{};
       final hub = fixture._hub;
-      final span = fixture.getSut();
       // propagateTraceparent is false by default
 
-      addTracingHeadersToHttpHeader(headers, hub, span: span);
+      addTracingHeadersToHttpHeader(headers, hub);
 
       expect(headers['traceparent'], isNull);
     });
