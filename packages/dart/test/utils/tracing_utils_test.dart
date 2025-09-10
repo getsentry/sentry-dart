@@ -292,7 +292,7 @@ void main() {
       expect(parts.length, 4);
       expect(parts[0], '00');
       expect(parts[1], hub.scope.propagationContext.traceId.toString());
-      expect(parts[2], hasLength(16)); // spanId length
+      expect(parts[2], hasLength(16)); // just check length since it's random
       expect(parts[3], '00'); // not sampled for scope context
     });
 
