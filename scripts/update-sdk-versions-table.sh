@@ -56,7 +56,7 @@ NATIVE_VERSION="$(${REPO_ROOT}/packages/flutter/scripts/update-native.sh get-ver
 
 ROW="| ${FLUTTER_VERSION} | ${ANDROID_VERSION} | ${COCOA_VERSION} | ${JS_VERSION} | ${NATIVE_VERSION} |"
 
-# Task 6: Bootstrap docs file if missing
+# Bootstrap docs file if missing
 if [[ ! -f "${DOC}" ]]; then
   {
     echo '# SDK Versions'
