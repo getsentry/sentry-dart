@@ -269,7 +269,7 @@ void main() {
     });
 
     test(
-        'does not add W3c traceparent header from span when propagateTraceparent is false',
+        'does not add W3C traceparent header from span when propagateTraceparent is false',
         () {
       final headers = <String, dynamic>{};
       final hub = fixture._hub;
