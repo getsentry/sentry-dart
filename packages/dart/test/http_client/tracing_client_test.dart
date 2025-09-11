@@ -120,57 +120,87 @@ void main() {
       expect(span.throwable, exception);
     });
 
-    test('should add tracing headers from span when tracing enabled', () async {
-      final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK'),
-      );
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+    for (final propagate in <bool>[true, false]) {
+      test(
+          'should add tracing headers from span when tracing enabled (propagateTraceparent: $propagate)',
+          () async {
+        final sut = fixture.getSut(
+          client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        );
+        fixture._hub.options.propagateTraceparent = propagate;
 
-      final response = await sut.get(requestUri);
+        final tr = fixture._hub.startTransaction(
+          'name',
+          'op',
+          bindToScope: true,
+        );
 
-      await tr.finish();
+        final response = await sut.get(requestUri);
 
-      final tracer = (tr as SentryTracer);
-      expect(tracer.children.length, 1);
-      final span = tracer.children.first;
-      final baggageHeader = span.toBaggageHeader();
-      final sentryTraceHeader = span.toSentryTrace();
+        await tr.finish();
 
-      expect(
-          response.request!.headers[baggageHeader!.name], baggageHeader.value);
-      expect(response.request!.headers[sentryTraceHeader.name],
-          sentryTraceHeader.value);
-    });
+        final tracer = (tr as SentryTracer);
+        final span = tracer.children.first;
+        final baggageHeader = span.toBaggageHeader();
+        final sentryTraceHeader = span.toSentryTrace();
 
-    test(
-        'should add tracing headers from propagation context when tracing disabled',
-        () async {
-      fixture._hub.options.tracesSampleRate = null;
-      fixture._hub.options.tracesSampler = null;
-      final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK'),
-      );
-      final propagationContext = fixture._hub.scope.propagationContext;
-      propagationContext.baggage = SentryBaggage({'foo': 'bar'});
+        expect(response.request!.headers[baggageHeader!.name],
+            baggageHeader.value);
+        expect(response.request!.headers[sentryTraceHeader.name],
+            sentryTraceHeader.value);
 
-      final response = await sut.get(requestUri);
+        final traceHeader = span.toSentryTrace();
+        final expected =
+            '00-${traceHeader.traceId}-${traceHeader.spanId}-${traceHeader.sampled == true ? '01' : '00'}';
 
-      final baggageHeader = propagationContext.toBaggageHeader();
+        if (propagate) {
+          expect(response.request!.headers['traceparent'], expected);
+        } else {
+          expect(response.request!.headers['traceparent'], isNull);
+        }
+      });
+    }
 
-      expect(propagationContext.toBaggageHeader(), isNotNull);
-      expect(
-          response.request!.headers[baggageHeader!.name], baggageHeader.value);
+    for (final propagate in <bool>[true, false]) {
+      test(
+          'should add tracing headers from propagation context when tracing disabled (propagateTraceparent: $propagate)',
+          () async {
+        fixture._hub.options.tracesSampleRate = null;
+        fixture._hub.options.tracesSampler = null;
+        fixture._hub.options.propagateTraceparent = propagate;
 
-      final traceHeader = SentryTraceHeader.fromTraceHeader(
-        response.request!.headers['sentry-trace'] as String,
-      );
-      expect(traceHeader.traceId, propagationContext.traceId);
-      // can't check span id as it is always generated new
-    });
+        final sut = fixture.getSut(
+          client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        );
+        final propagationContext = fixture._hub.scope.propagationContext;
+        propagationContext.baggage = SentryBaggage({'foo': 'bar'});
+
+        final response = await sut.get(requestUri);
+
+        final baggageHeader = propagationContext.toBaggageHeader();
+
+        expect(propagationContext.toBaggageHeader(), isNotNull);
+        expect(response.request!.headers[baggageHeader!.name],
+            baggageHeader.value);
+
+        final traceHeader = SentryTraceHeader.fromTraceHeader(
+          response.request!.headers['sentry-trace'] as String,
+        );
+        expect(traceHeader.traceId, propagationContext.traceId);
+
+        if (propagate) {
+          final headerValue = response.request!.headers['traceparent']!;
+          final parts = headerValue.split('-');
+          expect(parts.length, 4);
+          expect(parts[0], '00');
+          expect(parts[1], propagationContext.traceId.toString());
+          expect(parts[2].length, 16);
+          expect(parts[3], '00');
+        } else {
+          expect(response.request!.headers['traceparent'], isNull);
+        }
+      });
+    }
 
     test(
         'tracing header from propagation context should generate new span ids for new events',
@@ -221,6 +251,7 @@ void main() {
 
       expect(response.request!.headers[baggageHeader!.name], isNull);
       expect(response.request!.headers[sentryTraceHeader.name], isNull);
+      expect(response.request!.headers['traceparent'], isNull);
     });
 
     test(
@@ -242,6 +273,7 @@ void main() {
 
       expect(response.request!.headers[baggageHeader!.name], isNull);
       expect(response.request!.headers[sentryTraceHeader.name], isNull);
+      expect(response.request!.headers['traceparent'], isNull);
     });
 
     test('do not throw if no span bound to the scope', () async {

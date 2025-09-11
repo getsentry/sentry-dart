@@ -424,6 +424,13 @@ class SentryOptions {
   /// array, and only attach tracing headers if a match was found.
   final List<String> tracePropagationTargets = ['.*'];
 
+  /// This option is used to enable the propagation of the
+  /// W3C Trace Context HTTP header traceparent on outgoing HTTP requests.
+  /// This is useful when the receiving services only support OTel/W3C propagation
+  ///
+  /// The default is `false`.
+  bool propagateTraceparent = false;
+
   /// The idle time to wait until the transaction will be finished.
   /// The transaction will use the end timestamp of the last finished span as
   /// the endtime for the transaction.
