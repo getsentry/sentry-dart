@@ -26,12 +26,12 @@ void main() {
 
     test('session replay is captured', () async {
       // TODO add when the beforeSend callback is implemented for replays.
-    }, skip: true);
+    });
 
     test('replay is captured on errors', () async {
       // TODO we may need an HTTP server for this because Android sends replays
       // in a separate envelope.
-    }, skip: true);
+    });
   },
       skip: Platform.isAndroid
           ? false
