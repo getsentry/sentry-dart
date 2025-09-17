@@ -1885,6 +1885,52 @@ void main() {
       );
     });
 
+    test('should add replay id to attributes when available', () async {
+      fixture.options.enableLogs = true;
+
+      final log = givenLog();
+      final scope = Scope(fixture.options);
+      final replayId = SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+      scope.replayId = replayId;
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      await client.captureLog(log, scope: scope);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+
+      expect(
+        capturedLog.attributes['sentry.replay_id']?.value,
+        replayId.toString(),
+      );
+      expect(
+        capturedLog.attributes['sentry.replay_id']?.type,
+        'string',
+      );
+    });
+
+    test('should not add replay id to attributes when not available', () async {
+      fixture.options.enableLogs = true;
+
+      final log = givenLog();
+      final scope = Scope(fixture.options);
+      // replayId is null by default
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+
+      await client.captureLog(log, scope: scope);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+
+      expect(capturedLog.attributes['sentry.replay_id'], isNull);
+    });
+
     test('should set trace id from propagation context', () async {
       fixture.options.enableLogs = true;
 

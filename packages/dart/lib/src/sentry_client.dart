@@ -532,6 +532,13 @@ class SentryClient {
       );
     }
 
+    final replayId = scope?.replayId;
+    if (replayId != null) {
+      log.attributes['sentry.replay_id'] = SentryLogAttribute.string(
+        replayId.toString(),
+      );
+    }
+
     final user = scope?.user;
     final id = user?.id;
     final email = user?.email;
