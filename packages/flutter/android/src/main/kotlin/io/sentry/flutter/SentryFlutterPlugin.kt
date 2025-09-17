@@ -29,6 +29,8 @@ import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
+import org.json.JSONObject
+import org.json.JSONArray
 import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
 
@@ -50,6 +52,7 @@ class SentryFlutterPlugin :
     pluginRegistrationTime = System.currentTimeMillis()
 
     context = flutterPluginBinding.applicationContext
+    applicationContext = context
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
     channel.setMethodCallHandler(this)
 
@@ -63,7 +66,6 @@ class SentryFlutterPlugin :
   ) {
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
-      "loadImageList" -> loadImageList(call, result)
       "closeNativeSdk" -> closeNativeSdk(result)
       "fetchNativeAppStart" -> fetchNativeAppStart(result)
       "setContexts" -> setContexts(call.argument("key"), call.argument("value"), result)
@@ -75,7 +77,6 @@ class SentryFlutterPlugin :
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
-      "loadContexts" -> loadContexts(result)
       "displayRefreshRate" -> displayRefreshRate(result)
       "nativeCrash" -> crash()
       "setReplayConfig" -> setReplayConfig(call, result)
@@ -90,6 +91,7 @@ class SentryFlutterPlugin :
     }
 
     channel.setMethodCallHandler(null)
+    applicationContext = null
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -367,42 +369,6 @@ class SentryFlutterPlugin :
 
     result.success("")
   }
-  private fun loadImageList(
-    call: MethodCall,
-    result: Result,
-  ) {
-    val options = HubAdapter.getInstance().options as SentryAndroidOptions
-
-    val addresses = call.arguments() as List<String>? ?: listOf()
-    val debugImages =
-      if (addresses.isEmpty()) {
-        options.debugImagesLoader
-          .loadDebugImages()
-          ?.toList()
-          .serialize()
-      } else {
-        options.debugImagesLoader
-          .loadDebugImagesForAddresses(addresses.toSet())
-          ?.ifEmpty { options.debugImagesLoader.loadDebugImages() }
-          ?.toList()
-          .serialize()
-      }
-
-    result.success(debugImages)
-  }
-
-  private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
-
-  private fun DebugImage.serialize() =
-    mapOf(
-      "image_addr" to imageAddr,
-      "image_size" to imageSize,
-      "code_file" to codeFile,
-      "type" to type,
-      "debug_id" to debugId,
-      "code_id" to codeId,
-      "debug_file" to debugFile,
-    )
 
   private fun closeNativeSdk(result: Result) {
     HubAdapter.getInstance().close()
@@ -414,10 +380,69 @@ class SentryFlutterPlugin :
     @SuppressLint("StaticFieldLeak")
     private var replay: ReplayIntegration? = null
 
+    @SuppressLint("StaticFieldLeak")
+    private var applicationContext: Context? = null
+
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
     @JvmStatic
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
+
+    @JvmStatic
+    fun getApplicationContext(): Context? = applicationContext
+
+    @JvmStatic
+    fun loadContextsAsBytes(): ByteArray? {
+      val options = HubAdapter.getInstance().options
+      val context = getApplicationContext()
+      if (options !is SentryAndroidOptions || context == null) {
+        return null
+      }
+      val currentScope = InternalSentrySdk.getCurrentScope()
+      val serializedScope =
+        InternalSentrySdk.serializeScope(
+          context,
+          options,
+          currentScope,
+        )
+      val json = JSONObject(serializedScope).toString()
+      return json.toByteArray(Charsets.UTF_8)
+    }
+
+    @JvmStatic
+    fun loadDebugImagesAsBytes(addresses: Set<String>): ByteArray? {
+      val options = HubAdapter.getInstance().options as SentryAndroidOptions
+
+      val debugImages =
+        if (addresses.isEmpty()) {
+          options.debugImagesLoader
+            .loadDebugImages()
+            ?.toList()
+            .serialize()
+        } else {
+          options.debugImagesLoader
+            .loadDebugImagesForAddresses(addresses)
+            ?.ifEmpty { options.debugImagesLoader.loadDebugImages() }
+            ?.toList()
+            .serialize()
+        }
+
+      val json = JSONArray(debugImages).toString()
+      return json.toByteArray(Charsets.UTF_8)
+    }
+
+    private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
+
+    private fun DebugImage.serialize() =
+      mapOf(
+        "image_addr" to imageAddr,
+        "image_size" to imageSize,
+        "code_file" to codeFile,
+        "type" to type,
+        "debug_id" to debugId,
+        "code_id" to codeId,
+        "debug_file" to debugFile,
+      )
 
     private fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
@@ -434,22 +459,6 @@ class SentryFlutterPlugin :
         this + (VIDEO_BLOCK_SIZE - remainder)
       }
     }
-  }
-
-  private fun loadContexts(result: Result) {
-    val options = HubAdapter.getInstance().options
-    if (options !is SentryAndroidOptions) {
-      result.success(null)
-      return
-    }
-    val currentScope = InternalSentrySdk.getCurrentScope()
-    val serializedScope =
-      InternalSentrySdk.serializeScope(
-        context,
-        options,
-        currentScope,
-      )
-    result.success(serializedScope)
   }
 
   private fun setReplayConfig(

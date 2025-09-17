@@ -21,3 +21,6 @@ done
 perl -pi -e "s/sdkVersion = '.*'/sdkVersion = '$NEW_VERSION'/" packages/*/lib/src/version.dart
 # Bump version in flutter example
 perl -pi -e "s/^version: .*/version: $NEW_VERSION/" packages/flutter/example/pubspec.yaml
+
+# Update SDK versions table mapping for this Flutter release
+"${SCRIPT_DIR}/update-sdk-versions-table.sh" "$NEW_VERSION"

@@ -83,6 +83,9 @@ class SentryPrivacyOptions {
 
       rules.add(SentryMaskingCustomRule<Widget>(
           callback: (Element element, Widget widget) {
+            if (widget is InheritedWidget) {
+              return SentryMaskingDecision.continueProcessing;
+            }
             final type = widget.runtimeType.toString();
             if (regexp.hasMatch(type)) {
               logger(

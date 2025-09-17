@@ -194,33 +194,10 @@ void main() {
       });
 
       test('startProfiler', () {
-        late Matcher matcher;
-        if (mockPlatform.isAndroid) {
-          matcher = throwsUnsupportedError;
-        } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
-          if (mockPlatform.isMacOS) {
-            matcher = throwsA(predicate((e) =>
-                (e is Exception &&
-                    e
-                        .toString()
-                        .contains('Failed to load Objective-C class')) ||
-                (e is ArgumentError &&
-                    e
-                        .toString()
-                        .contains('Couldn\'t resolve native function'))));
-          } else {
-            matcher = throwsA(predicate((e) =>
-                (e is ArgumentError &&
-                    (e.toString().contains('undefined symbol: objc_msgSend') ||
-                        e
-                            .toString()
-                            .contains('Couldn\'t resolve native function'))) ||
-                (e is Exception &&
-                    e
-                        .toString()
-                        .contains('Failed to load Objective-C class'))));
-          }
-        }
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          androidUnsupported: true,
+        );
         expect(() => sut.startProfiler(SentryId.newId()), matcher);
 
         verifyZeroInteractions(channel);
@@ -261,32 +238,10 @@ void main() {
           when(channel.invokeMethod('captureEnvelope', any))
               .thenAnswer((_) async => {});
 
-          late Matcher matcher;
-          if (mockPlatform.isAndroid) {
-            matcher = throwsA(predicate((e) =>
-                e is Error &&
-                e.toString().contains('Unable to locate the helper library')));
-          } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
-            if (mockPlatform.isMacOS) {
-              matcher = throwsA(predicate((e) =>
-                  (e is Exception &&
-                      (e
-                          .toString()
-                          .contains('Failed to load Objective-C class'))) ||
-                  (e is ArgumentError &&
-                      e
-                          .toString()
-                          .contains('Couldn\'t resolve native function'))));
-            } else {
-              matcher = throwsA(predicate((e) =>
-                  e is ArgumentError &&
-                  (e.toString().contains('undefined symbol: objc_msgSend') ||
-                      e
-                          .toString()
-                          .contains('Couldn\'t resolve native function') ||
-                      e.toString().contains('Failed to lookup symbol'))));
-            }
-          }
+          final matcher = _nativeUnavailableMatcher(
+            mockPlatform,
+            includeLookupSymbol: true,
+          );
 
           final data = Uint8List.fromList([1, 2, 3]);
           expect(() => sut.captureEnvelope(data, false), matcher);
@@ -296,39 +251,27 @@ void main() {
       );
 
       test('loadContexts', () async {
-        when(channel.invokeMethod('loadContexts'))
-            .thenAnswer((invocation) async => {
-                  'foo': [1, 2, 3],
-                  'bar': {'a': 'b'},
-                });
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
 
-        final data = await sut.loadContexts();
+        expect(() => sut.loadContexts(), matcher);
 
-        expect(data, {
-          'foo': [1, 2, 3],
-          'bar': {'a': 'b'},
-        });
+        verifyZeroInteractions(channel);
       });
 
       test('loadDebugImages', () async {
-        final json = [
-          {
-            'code_file': '/apex/com.android.art/javalib/arm64/boot.oat',
-            'code_id': '13577ce71153c228ecf0eb73fc39f45010d487f8',
-            'image_addr': '0x6f80b000',
-            'image_size': 3092480,
-            'type': 'elf',
-            'debug_id': 'e77c5713-5311-28c2-ecf0-eb73fc39f450',
-            'debug_file': 'test'
-          }
-        ];
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+        );
 
-        when(channel.invokeMethod('loadImageList', any))
-            .thenAnswer((invocation) async => json);
+        expect(
+            () => sut.loadDebugImages(SentryStackTrace(frames: [])), matcher);
 
-        final data = await sut.loadDebugImages(SentryStackTrace(frames: []));
-
-        expect(data?.map((v) => v.toJson()), json);
+        verifyZeroInteractions(channel);
       });
 
       test('pauseAppHangTracking', () async {
@@ -414,4 +357,58 @@ void main() {
       });
     });
   }
+}
+
+/// Returns a matcher for the platform-specific failures we expect when native
+/// FFI/ObjC code is unavailable in unit tests.
+/// We will need this until we can mock FFI/JNI code in unit tests.
+/// The actual functionality is tested via integration tests.
+/// https://github.com/dart-lang/native/issues/1877
+Matcher _nativeUnavailableMatcher(
+  MockPlatform mockPlatform, {
+  bool androidUnsupported = false,
+  bool includeLookupSymbol = false,
+  bool includeFailedToLoadClassException = false,
+}) {
+  if (mockPlatform.isAndroid) {
+    if (androidUnsupported) {
+      return throwsUnsupportedError;
+    }
+    return throwsA(predicate((e) =>
+        e is Error &&
+        e.toString().contains('Unable to locate the helper library')));
+  }
+
+  // iOS and macOS
+  return throwsA(predicate((e) {
+    final message = e.toString();
+    final isArgError = e is ArgumentError;
+    final isException = e is Exception;
+
+    final hasObjcLoadFail =
+        isException && message.contains('Failed to load Objective-C class');
+    final hasCustomLoadFail = isException &&
+        includeFailedToLoadClassException &&
+        message.contains('FailedToLoadClassException');
+
+    if (mockPlatform.isMacOS) {
+      final hasArgFn =
+          isArgError && message.contains('Couldn\'t resolve native function');
+      return hasObjcLoadFail || hasCustomLoadFail || hasArgFn;
+    } else {
+      // iOS
+      final hasUndefinedSymbol =
+          isArgError && message.contains('undefined symbol: objc_msgSend');
+      final hasCouldNotResolve =
+          isArgError && message.contains('Couldn\'t resolve native function');
+      final hasFailedLookup = isArgError &&
+          includeLookupSymbol &&
+          message.contains('Failed to lookup symbol');
+      return hasObjcLoadFail ||
+          hasCustomLoadFail ||
+          hasUndefinedSymbol ||
+          hasCouldNotResolve ||
+          hasFailedLookup;
+    }
+  }));
 }
