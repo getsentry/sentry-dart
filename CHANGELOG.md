@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
+  - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
+
 ## 9.7.0-beta.5
 
 ### Dependencies
@@ -35,8 +42,6 @@
 - Add `sentry.origin` to logs created by `LoggingIntegration` ([#3153](https://github.com/getsentry/sentry-dart/pull/3153))
 - Tag all spans with thread info on non-web platforms ([#3101](https://github.com/getsentry/sentry-dart/pull/3101), [#3144](https://github.com/getsentry/sentry-dart/pull/3144))
 - feat(feedback): Add option to disable keyboard resize ([#3154](https://github.com/getsentry/sentry-dart/pull/3154))
-- Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
-  - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
 - Support `firebase_remote_config: >=5.4.3 <7.0.0` ([#3213](https://github.com/getsentry/sentry-dart/pull/3213))
 
 ### Fixes
