@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Dependencies
+
+- Bump Native SDK from v0.10.0 to v0.10.1 ([#3228](https://github.com/getsentry/sentry-dart/pull/3228))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0101)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.10.0...0.10.1)
+
 ## 9.7.0-beta.5
 
 ### Dependencies
