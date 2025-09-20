@@ -31,7 +31,7 @@ class SentryFirebaseRemoteConfigIntegration extends Integration<SentryOptions> {
     for (final updatedKey in updatedKeys) {
       final value = _firebaseRemoteConfig.getBoolOrNull(updatedKey);
       if (value != null) {
-        await Sentry.addFeatureFlag(updatedKey, value);
+        await Sentry.addFeatureFlag('firebase:$updatedKey', value);
       }
     }
   }
