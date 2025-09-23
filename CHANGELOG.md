@@ -15,6 +15,12 @@
 
 - Safely access browser `navigator.deviceMemory` ([#3268](https://github.com/getsentry/sentry-dart/pull/3268))
 
+### Dependencies
+
+- Bump Cocoa SDK from v8.55.1 to v8.56.0 ([#3252](https://github.com/getsentry/sentry-dart/pull/3252))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8560)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.55.1...8.56.0)
+
 ## 9.7.0-beta.5
 
 ### Dependencies
