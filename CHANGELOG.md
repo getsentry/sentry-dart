@@ -7,6 +7,21 @@
 - Add W3C `traceparent` header support ([#3246](https://github.com/getsentry/sentry-dart/pull/3246))
   - Enable the option `propagateTraceparent` to allow the propagation of the W3C Trace Context HTTP header `traceparent` on outgoing HTTP requests.
 
+### Enhancements
+
+- Prefix firebase remote config feature flags with `firebase:` ([#3258](https://github.com/getsentry/sentry-dart/pull/3258))
+
+## 9.7.0-beta.5
+
+### Dependencies
+
+- Bump Android SDK from v8.20.0 to v8.21.1 ([#3243](https://github.com/getsentry/sentry-dart/pull/3243))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8211)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.20.0...8.21.1)
+- Bump Cocoa SDK from v8.54.0 to v8.55.1 ([#3234](https://github.com/getsentry/sentry-dart/pull/3234))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8551)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.54.0...8.55.1)
+
 ## 9.7.0-beta.4
 
 ### Features
@@ -1104,6 +1119,8 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 
 ### Features
 
+- Android 15: Add support for 16KB page sizes ([#3620](https://github.com/getsentry/sentry-java/pull/3620))
+  - See https://developer.android.com/guide/practices/page-sizes for more details
 - Support for screenshot PII content masking ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
   By default, masking is enabled for SessionReplay. To also enable it for screenshots captured with events, you can specify `options.experimental.privacy`:
 
