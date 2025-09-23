@@ -15,6 +15,12 @@
 
 - Safely access browser `navigator.deviceMemory` ([#3268](https://github.com/getsentry/sentry-dart/pull/3268))
 
+### Dependencies
+
+- Bump Native SDK from v0.10.0 to v0.11.0 ([#3261](https://github.com/getsentry/sentry-dart/pull/3261))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0110)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.10.0...0.11.0)
+
 ## 9.7.0-beta.5
 
 ### Dependencies
