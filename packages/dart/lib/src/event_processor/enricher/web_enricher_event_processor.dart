@@ -1,4 +1,5 @@
 import 'package:web/web.dart' as web show window, Window, Navigator;
+import 'dart:js_interop';
 
 import '../../../sentry.dart';
 import 'enricher_event_processor.dart';
@@ -69,7 +70,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
 
   int? _getMemorySize() {
     // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/deviceMemory
-    final size = _window.navigator.browserSafeDeviceMemory?.toDouble();
+    final size = _window.navigator.safeDeviceMemory?.toDouble();
     final memoryByteSize = size != null ? size * 1024 * 1024 * 1024 : null;
     return memoryByteSize?.toInt();
   }
@@ -115,7 +116,15 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
   }
 }
 
-// https://github.com/dart-lang/web/issues/326#issuecomment-2549140296
-extension on web.Navigator {
-  external double? get browserSafeDeviceMemory;
+/// Some Navigator properties are not fully supported in all browsers.
+/// However, package:web does not provide a safe way to access these properties,
+/// and assumes they are always not null.
+///
+/// This extension provides a safe way to access these properties.
+///
+/// See: https://github.com/dart-lang/web/issues/326
+///      https://github.com/fluttercommunity/plus_plugins/issues/3391
+extension SafeNavigationGetterExtensions on web.Navigator {
+  @JS('deviceMemory')
+  external double? get safeDeviceMemory;
 }
