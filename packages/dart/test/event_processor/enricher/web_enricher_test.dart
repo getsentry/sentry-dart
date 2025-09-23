@@ -200,10 +200,10 @@ void main() {
     test('SafeNavigationGetterExtensions safely accesses deviceMemory', () {
       // Test that the extension can safely access deviceMemory without throwing
       final navigator = web.window.navigator;
-      
+
       // This should not throw an exception even if deviceMemory is not supported
       final deviceMemory = navigator.safeDeviceMemory;
-      
+
       // deviceMemory can be null if not supported by the browser
       // or a double value if supported
       expect(deviceMemory == null || deviceMemory > 0, isTrue);
