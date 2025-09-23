@@ -69,8 +69,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
 
   int? _getMemorySize() {
     // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/deviceMemory
-    // ignore: invalid_null_aware_operator
-    final size = _window.navigator.deviceMemory?.toDouble();
+    final size = _window.navigator.browserSafeDeviceMemory?.toDouble();
     final memoryByteSize = size != null ? size * 1024 * 1024 * 1024 : null;
     return memoryByteSize?.toInt();
   }
@@ -116,7 +115,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
   }
 }
 
+// https://github.com/dart-lang/web/issues/326#issuecomment-2549140296
 extension on web.Navigator {
-  // ignore: unused_element
-  external double? get deviceMemory;
+  external double? get browserSafeDeviceMemory;
 }
