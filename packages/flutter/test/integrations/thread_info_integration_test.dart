@@ -204,8 +204,6 @@ void main() {
     test(
         'does not set blocked_main_thread when sync span finishes on background isolate',
         () async {
-      fixture.mockHelper.setIsRootIsolate(false);
-
       final hub = fixture.createHub();
       final integration = fixture.getSut();
       final span = fixture.createMockSpanWithData({
@@ -228,29 +226,12 @@ void main() {
       expect(span.removeDataCalls.first.key, equals('sync'));
     });
 
-    test('does not process non-sync spans', () async {
-      fixture.mockHelper.setIsRootIsolate(true);
-
-      final hub = fixture.createHub();
-      final integration = fixture.getSut();
-      final span = fixture.createMockSpanWithData({'async': true});
-
-      integration.call(hub, fixture.options);
-      // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanFinish(span));
-
-      // Should not add any data or remove anything
-      expect(span.setDataCalls, isEmpty);
-      expect(span.removeDataCalls, isEmpty);
-    });
-
     test('does not process spans without sync data', () async {
-      fixture.mockHelper.setIsRootIsolate(true);
-
       final hub = fixture.createHub();
       final integration = fixture.getSut();
-      final span = fixture.createMockSpanWithData({});
+      final span = fixture.createMockSpanWithData({
+        SpanDataConvention.threadName: 'main',
+      });
 
       integration.call(hub, fixture.options);
       // ignore: invalid_use_of_internal_member
@@ -263,8 +244,6 @@ void main() {
     });
 
     test('removes sync flag even when sync is false', () async {
-      fixture.mockHelper.setIsRootIsolate(true);
-
       final hub = fixture.createHub();
       final integration = fixture.getSut();
       final span = fixture.createMockSpanWithData({
@@ -289,8 +268,6 @@ void main() {
 
     test('does not set blocked_main_thread when sync span has no thread name',
         () async {
-      fixture.mockHelper.setIsRootIsolate(true);
-
       final hub = fixture.createHub();
       final integration = fixture.getSut();
       final span = fixture.createMockSpanWithData({'sync': true});
