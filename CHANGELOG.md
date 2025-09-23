@@ -11,6 +11,10 @@
 
 - Prefix firebase remote config feature flags with `firebase:` ([#3258](https://github.com/getsentry/sentry-dart/pull/3258))
 
+### Fixes
+
+- Safely access browser `navigator.deviceMemory` ([#3268](https://github.com/getsentry/sentry-dart/pull/3268))
+
 ## 9.7.0-beta.5
 
 ### Dependencies
