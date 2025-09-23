@@ -4,7 +4,6 @@ import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
 import '../sentry_tracer.dart';
-import '../sdk_lifecycle_hooks.dart';
 
 typedef OnFinishedCallback = Future<void> Function(
     {DateTime? endTimestamp, Hint? hint});

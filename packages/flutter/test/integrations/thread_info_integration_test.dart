@@ -287,7 +287,8 @@ void main() {
       expect(span.removeDataCalls.first.key, equals('sync'));
     });
 
-    test('does not set blocked_main_thread when sync span has no thread name', () async {
+    test('does not set blocked_main_thread when sync span has no thread name',
+        () async {
       fixture.mockHelper.setIsRootIsolate(true);
 
       final hub = fixture.createHub();
@@ -300,8 +301,8 @@ void main() {
           .dispatchCallback(OnSpanFinish(span));
 
       // Should not set blocked_main_thread (no thread name)
-      final blockedMainThreadCalls = span.setDataCalls
-          .where((call) => call.key == 'blocked_main_thread');
+      final blockedMainThreadCalls =
+          span.setDataCalls.where((call) => call.key == 'blocked_main_thread');
       expect(blockedMainThreadCalls, isEmpty);
 
       // But should still remove sync

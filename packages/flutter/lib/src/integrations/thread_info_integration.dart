@@ -5,9 +5,7 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../isolate_helper.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/sdk_lifecycle_hooks.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/protocol/sentry_span.dart';
 
 /// Integration for adding thread information to spans.
 ///
@@ -79,16 +77,17 @@ class ThreadInfoIntegration implements Integration<SentryFlutterOptions> {
     if (span is! SentrySpan) {
       return;
     }
-    
+
     final data = span.data;
-    
+
     // Check if this is a sync operation
     if (data.containsKey('sync')) {
       // Check if we're on the main isolate by looking at thread name
-      if (data['sync'] == true && data[SpanDataConvention.threadName] == 'main') {
+      if (data['sync'] == true &&
+          data[SpanDataConvention.threadName] == 'main') {
         span.setData('blocked_main_thread', true);
       }
-      
+
       // Always remove the sync flag
       span.removeData('sync');
     }
