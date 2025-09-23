@@ -171,6 +171,144 @@ void main() {
       expect(span.setDataCalls, isEmpty);
     });
   });
+
+  group('OnSpanFinish sync processing', () {
+    test('sets blocked_main_thread when sync span finishes on main isolate',
+        () async {
+      fixture.mockHelper.setIsRootIsolate(true);
+
+      final hub = fixture.createHub();
+      final integration = fixture.getSut();
+      final span = fixture.createMockSpanWithData({
+        'sync': true,
+        SpanDataConvention.threadName: 'main',
+      });
+
+      integration.call(hub, fixture.options);
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanFinish(span));
+
+      final setDataCalls = span.setDataCalls;
+      expect(setDataCalls.length, equals(1));
+
+      final blockedMainThreadCall =
+          setDataCalls.firstWhere((call) => call.key == 'blocked_main_thread');
+      expect(blockedMainThreadCall.value, equals(true));
+
+      // Check that sync was removed
+      expect(span.removeDataCalls.length, equals(1));
+      expect(span.removeDataCalls.first.key, equals('sync'));
+    });
+
+    test(
+        'does not set blocked_main_thread when sync span finishes on background isolate',
+        () async {
+      fixture.mockHelper.setIsRootIsolate(false);
+
+      final hub = fixture.createHub();
+      final integration = fixture.getSut();
+      final span = fixture.createMockSpanWithData({
+        'sync': true,
+        SpanDataConvention.threadName: 'worker-thread',
+      });
+
+      integration.call(hub, fixture.options);
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanFinish(span));
+
+      // Should not set blocked_main_thread
+      final blockedMainThreadCalls =
+          span.setDataCalls.where((call) => call.key == 'blocked_main_thread');
+      expect(blockedMainThreadCalls, isEmpty);
+
+      // But should still remove sync
+      expect(span.removeDataCalls.length, equals(1));
+      expect(span.removeDataCalls.first.key, equals('sync'));
+    });
+
+    test('does not process non-sync spans', () async {
+      fixture.mockHelper.setIsRootIsolate(true);
+
+      final hub = fixture.createHub();
+      final integration = fixture.getSut();
+      final span = fixture.createMockSpanWithData({'async': true});
+
+      integration.call(hub, fixture.options);
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanFinish(span));
+
+      // Should not add any data or remove anything
+      expect(span.setDataCalls, isEmpty);
+      expect(span.removeDataCalls, isEmpty);
+    });
+
+    test('does not process spans without sync data', () async {
+      fixture.mockHelper.setIsRootIsolate(true);
+
+      final hub = fixture.createHub();
+      final integration = fixture.getSut();
+      final span = fixture.createMockSpanWithData({});
+
+      integration.call(hub, fixture.options);
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanFinish(span));
+
+      // Should not add any data or remove anything
+      expect(span.setDataCalls, isEmpty);
+      expect(span.removeDataCalls, isEmpty);
+    });
+
+    test('removes sync flag even when sync is false', () async {
+      fixture.mockHelper.setIsRootIsolate(true);
+
+      final hub = fixture.createHub();
+      final integration = fixture.getSut();
+      final span = fixture.createMockSpanWithData({
+        'sync': false,
+        SpanDataConvention.threadName: 'main',
+      });
+
+      integration.call(hub, fixture.options);
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanFinish(span));
+
+      // Should not set blocked_main_thread (sync is false)
+      final blockedMainThreadCalls =
+          span.setDataCalls.where((call) => call.key == 'blocked_main_thread');
+      expect(blockedMainThreadCalls, isEmpty);
+
+      // But should still remove sync
+      expect(span.removeDataCalls.length, equals(1));
+      expect(span.removeDataCalls.first.key, equals('sync'));
+    });
+
+    test('does not set blocked_main_thread when sync span has no thread name', () async {
+      fixture.mockHelper.setIsRootIsolate(true);
+
+      final hub = fixture.createHub();
+      final integration = fixture.getSut();
+      final span = fixture.createMockSpanWithData({'sync': true});
+
+      integration.call(hub, fixture.options);
+      // ignore: invalid_use_of_internal_member
+      await fixture.options.lifecycleRegistry
+          .dispatchCallback(OnSpanFinish(span));
+
+      // Should not set blocked_main_thread (no thread name)
+      final blockedMainThreadCalls = span.setDataCalls
+          .where((call) => call.key == 'blocked_main_thread');
+      expect(blockedMainThreadCalls, isEmpty);
+
+      // But should still remove sync
+      expect(span.removeDataCalls.length, equals(1));
+      expect(span.removeDataCalls.first.key, equals('sync'));
+    });
+  });
 }
 
 class _Fixture {
@@ -192,6 +330,10 @@ class _Fixture {
 
   _MockSpan createMockSpan() {
     return _MockSpan();
+  }
+
+  _MockSpan createMockSpanWithData(Map<String, dynamic> data) {
+    return _MockSpan.withData(data);
   }
 
   MockHub createHub() {
@@ -218,13 +360,31 @@ class _MockIsolateHelper extends Mock implements IsolateHelper {
 class _MockSpan extends Mock implements SentrySpan {
   final SentrySpanContext _context = SentrySpanContext(operation: 'test');
   final List<_SetDataCall> setDataCalls = [];
+  final List<_RemoveDataCall> removeDataCalls = [];
+  final Map<String, dynamic> _data = {};
+
+  _MockSpan();
+
+  _MockSpan.withData(Map<String, dynamic> data) {
+    _data.addAll(data);
+  }
 
   @override
   SentrySpanContext get context => _context;
 
   @override
+  Map<String, dynamic> get data => _data;
+
+  @override
   void setData(String key, dynamic value) {
     setDataCalls.add(_SetDataCall(key, value));
+    _data[key] = value;
+  }
+
+  @override
+  void removeData(String key) {
+    removeDataCalls.add(_RemoveDataCall(key));
+    _data.remove(key);
   }
 }
 
@@ -233,4 +393,10 @@ class _SetDataCall {
   final dynamic value;
 
   _SetDataCall(this.key, this.value);
+}
+
+class _RemoveDataCall {
+  final String key;
+
+  _RemoveDataCall(this.key);
 }
