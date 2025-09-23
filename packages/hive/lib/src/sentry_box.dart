@@ -50,12 +50,12 @@ class SentryBox<E> extends SentryBoxBase<E> implements Box<E> {
 
   @override
   Iterable<E> get values => _spanHelper.syncWrapInSpan(
-    'values',
-    () {
-      return _box.values;
-    },
-    dbName: name,
-  );
+        'values',
+        () {
+          return _box.values;
+        },
+        dbName: name,
+      );
 
   @override
   Iterable<E> valuesBetween({startKey, endKey}) {
