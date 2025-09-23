@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Add W3C `traceparent` header support ([#3246](https://github.com/getsentry/sentry-dart/pull/3246))
+  - Enable the option `propagateTraceparent` to allow the propagation of the W3C Trace Context HTTP header `traceparent` on outgoing HTTP requests.
+
 ### Enhancements
 
 - Prefix firebase remote config feature flags with `firebase:` ([#3258](https://github.com/getsentry/sentry-dart/pull/3258))
