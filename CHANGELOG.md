@@ -11,6 +11,12 @@
 
 - Prefix firebase remote config feature flags with `firebase:` ([#3258](https://github.com/getsentry/sentry-dart/pull/3258))
 
+### Dependencies
+
+- Bump JavaScript SDK from v10.6.0 to v10.13.0 ([#3265](https://github.com/getsentry/sentry-dart/pull/3265))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#10130)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/10.6.0...10.13.0)
+
 ## 9.7.0-beta.5
 
 ### Dependencies
