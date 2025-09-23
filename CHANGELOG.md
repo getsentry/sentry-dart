@@ -10,6 +10,7 @@
 ### Enhancements
 
 - Prefix firebase remote config feature flags with `firebase:` ([#3258](https://github.com/getsentry/sentry-dart/pull/3258))
+- Mark file sync spans run in the main isolate with `blocked_main_thread` ([#3270](https://github.com/getsentry/sentry-dart/pull/3270))
 
 ### Fixes
 
