@@ -83,7 +83,7 @@ class SentrySpan extends ISentrySpan {
     // The finished flag depends on the _endTimestamp
     // If we set this earlier then finished is true and then we cannot use setData etc...
     _endTimestamp = endTimestamp;
-    
+
     // associate error
     if (_throwable != null) {
       _hub.setSpanContext(_throwable, this, _tracer.name);
