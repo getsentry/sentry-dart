@@ -5,6 +5,18 @@
 ### Enhancements
 
 - Add `sentry.replay_id` to flutter logs ([#3257](https://github.com/getsentry/sentry-dart/pull/3257))
+### Features
+
+- Add W3C `traceparent` header support ([#3246](https://github.com/getsentry/sentry-dart/pull/3246))
+  - Enable the option `propagateTraceparent` to allow the propagation of the W3C Trace Context HTTP header `traceparent` on outgoing HTTP requests.
+
+### Enhancements
+
+- Prefix firebase remote config feature flags with `firebase:` ([#3258](https://github.com/getsentry/sentry-dart/pull/3258))
+
+### Fixes
+
+- Safely access browser `navigator.deviceMemory` ([#3268](https://github.com/getsentry/sentry-dart/pull/3268))
 
 ## 9.7.0-beta.5
 
@@ -1114,6 +1126,8 @@ This release fixes an issue where Cold starts can be incorrectly reported as War
 
 ### Features
 
+- Android 15: Add support for 16KB page sizes ([#3620](https://github.com/getsentry/sentry-java/pull/3620))
+  - See https://developer.android.com/guide/practices/page-sizes for more details
 - Support for screenshot PII content masking ([#2361](https://github.com/getsentry/sentry-dart/pull/2361))
   By default, masking is enabled for SessionReplay. To also enable it for screenshots captured with events, you can specify `options.experimental.privacy`:
 
