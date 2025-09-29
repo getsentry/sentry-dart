@@ -53,7 +53,8 @@ void main() {
           'boolean');
     });
 
-    test('does not add attributes when replay is disabled', () async {
+    test('does not add buffering flag when onErrorSampleRate is disabled',
+        () async {
       final integration = fixture.getSut();
       fixture.options.replay.onErrorSampleRate = 0.0;
 
@@ -67,7 +68,27 @@ void main() {
           false);
     });
 
-    test('does not add attributes when replay sample rate is null', () async {
+    test(
+        'adds replay_id but not buffering flag when onErrorSampleRate is disabled',
+        () async {
+      final integration = fixture.getSut();
+      fixture.options.replay.onErrorSampleRate = 0.0;
+      fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
+
+      await integration.call(fixture.hub, fixture.options);
+
+      final log = fixture.createTestLog();
+      await fixture.hub.captureLog(log);
+
+      expect(log.attributes['sentry.replay_id']?.value, 'testreplayid');
+      expect(log.attributes['sentry.replay_id']?.type, 'string');
+
+      expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
+          false);
+    });
+
+    test('does not add buffering flag when onErrorSampleRate is null',
+        () async {
       final integration = fixture.getSut();
 
       fixture.options.replay.onErrorSampleRate = null;
@@ -78,6 +99,25 @@ void main() {
       await fixture.hub.captureLog(log);
 
       expect(log.attributes.containsKey('sentry.replay_id'), false);
+      expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
+          false);
+    });
+
+    test(
+        'adds replay_id but not buffering flag when onErrorSampleRate is null',
+        () async {
+      final integration = fixture.getSut();
+      fixture.options.replay.onErrorSampleRate = null;
+      fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
+
+      await integration.call(fixture.hub, fixture.options);
+
+      final log = fixture.createTestLog();
+      await fixture.hub.captureLog(log);
+
+      expect(log.attributes['sentry.replay_id']?.value, 'testreplayid');
+      expect(log.attributes['sentry.replay_id']?.type, 'string');
+
       expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
           false);
     });

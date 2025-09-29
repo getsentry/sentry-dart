@@ -14,10 +14,6 @@ class ReplayLogIntegration implements Integration<SentryFlutterOptions> {
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
     _options = options;
     _addReplayInformation = (OnBeforeCaptureLog event) {
-      final isReplayEnabled = (options.replay.onErrorSampleRate ?? 0) > 0;
-      if (!isReplayEnabled) {
-        return;
-      }
       final hasActiveReplay = hub.scope.replayId != null;
 
       if (hasActiveReplay) {
@@ -25,10 +21,14 @@ class ReplayLogIntegration implements Integration<SentryFlutterOptions> {
           hub.scope.replayId.toString(),
         );
       }
-      event.log.attributes['sentry._internal.replay_is_buffering'] =
-          SentryLogAttribute.bool(
-        !hasActiveReplay,
-      );
+
+      final isReplayEnabled = (options.replay.onErrorSampleRate ?? 0) > 0;
+      if (isReplayEnabled) {
+        event.log.attributes['sentry._internal.replay_is_buffering'] =
+            SentryLogAttribute.bool(
+          !hasActiveReplay,
+        );
+      }
     };
     options.lifecycleRegistry
         .registerCallback<OnBeforeCaptureLog>(_addReplayInformation!);
