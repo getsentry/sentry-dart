@@ -103,8 +103,7 @@ void main() {
           false);
     });
 
-    test(
-        'adds replay_id but not buffering flag when onErrorSampleRate is null',
+    test('adds replay_id but not buffering flag when onErrorSampleRate is null',
         () async {
       final integration = fixture.getSut();
       fixture.options.replay.onErrorSampleRate = null;
