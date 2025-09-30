@@ -15,6 +15,12 @@
 
 - Safely access browser `navigator.deviceMemory` ([#3268](https://github.com/getsentry/sentry-dart/pull/3268))
 
+### Dependencies
+
+- Bump JavaScript SDK from v10.6.0 to v10.16.0 ([#3279](https://github.com/getsentry/sentry-dart/pull/3279))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#10160)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/10.6.0...10.16.0)
+
 ## 9.7.0-beta.5
 
 ### Dependencies
