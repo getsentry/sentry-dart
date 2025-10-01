@@ -1,4 +1,4 @@
-import Sentry
+@_spi(Private) import Sentry
 
 #if SWIFT_PACKAGE
 import Sentry._Hybrid
@@ -578,8 +578,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
           for address in instructionAddresses {
               let hexDigits = address.replacingOccurrences(of: "0x", with: "")
               if let instructionAddress = UInt64(hexDigits, radix: 16) {
-                  let image = SentryDependencyContainer.sharedInstance().binaryImageCache.image(
-                      byAddress: instructionAddress)
+                  let image = SentryDependencyContainer.sharedInstance().binaryImageCache.imageByAddress(instructionAddress)
                   if let image = image {
                       let imageAddress = sentry_formatHexAddressUInt64(image.address)!
                       imagesAddresses.insert(imageAddress)
