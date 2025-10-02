@@ -20,6 +20,9 @@
 - Bump Cocoa SDK from v8.55.1 to v8.56.2 ([#3276](https://github.com/getsentry/sentry-dart/pull/3276))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8562)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.55.1...8.56.2)
+- Bump JavaScript SDK from v10.6.0 to v10.17.0 ([#3280](https://github.com/getsentry/sentry-dart/pull/3280))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#10170)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/10.6.0...10.17.0)
 
 ## 9.7.0-beta.5
 
