@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Enhancements
+
+- Add `sentry.replay_id` to flutter logs ([#3257](https://github.com/getsentry/sentry-dart/pull/3257))
 ### Features
 
 - Add W3C `traceparent` header support ([#3246](https://github.com/getsentry/sentry-dart/pull/3246))
