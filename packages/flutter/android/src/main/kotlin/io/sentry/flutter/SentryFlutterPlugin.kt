@@ -15,10 +15,9 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.Breadcrumb
 import io.sentry.DateUtils
-import io.sentry.HubAdapter
+import io.sentry.ScopesAdapter
 import io.sentry.Sentry
 import io.sentry.android.core.InternalSentrySdk
-import io.sentry.android.core.LoadClass
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.android.core.performance.AppStartMetrics
@@ -26,7 +25,6 @@ import io.sentry.android.core.performance.TimeSpan
 import io.sentry.android.replay.ReplayIntegration
 import io.sentry.android.replay.ScreenshotRecorderConfig
 import io.sentry.protocol.DebugImage
-import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import org.json.JSONObject
@@ -289,7 +287,7 @@ class SentryFlutterPlugin :
     result: Result,
   ) {
     if (user != null) {
-      val options = HubAdapter.getInstance().options
+      val options = ScopesAdapter.getInstance().options
       val userInstance = User.fromMap(user, options)
       Sentry.setUser(userInstance)
     } else {
@@ -303,7 +301,7 @@ class SentryFlutterPlugin :
     result: Result,
   ) {
     if (breadcrumb != null) {
-      val options = HubAdapter.getInstance().options
+      val options = ScopesAdapter.getInstance().options
       val breadcrumbInstance = Breadcrumb.fromMap(breadcrumb, options)
       Sentry.addBreadcrumb(breadcrumbInstance)
     }
@@ -371,7 +369,7 @@ class SentryFlutterPlugin :
   }
 
   private fun closeNativeSdk(result: Result) {
-    HubAdapter.getInstance().close()
+    ScopesAdapter.getInstance().close()
 
     result.success("")
   }
@@ -385,15 +383,17 @@ class SentryFlutterPlugin :
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
+    @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
 
     @JvmStatic
     fun getApplicationContext(): Context? = applicationContext
 
+    @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun loadContextsAsBytes(): ByteArray? {
-      val options = HubAdapter.getInstance().options
+      val options = ScopesAdapter.getInstance().options
       val context = getApplicationContext()
       if (options !is SentryAndroidOptions || context == null) {
         return null
@@ -409,9 +409,10 @@ class SentryFlutterPlugin :
       return json.toByteArray(Charsets.UTF_8)
     }
 
+    @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun loadDebugImagesAsBytes(addresses: Set<String>): ByteArray? {
-      val options = HubAdapter.getInstance().options as SentryAndroidOptions
+      val options = ScopesAdapter.getInstance().options as SentryAndroidOptions
 
       val debugImages =
         if (addresses.isEmpty()) {
@@ -447,7 +448,7 @@ class SentryFlutterPlugin :
     private fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
       val mainThread = Looper.getMainLooper().thread
-      mainThread.uncaughtExceptionHandler.uncaughtException(mainThread, exception)
+      mainThread.uncaughtExceptionHandler?.uncaughtException(mainThread, exception)
       mainThread.join(NATIVE_CRASH_WAIT_TIME)
     }
 
