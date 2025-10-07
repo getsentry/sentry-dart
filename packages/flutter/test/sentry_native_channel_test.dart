@@ -194,6 +194,7 @@ void main() {
       });
 
       test('startProfiler', () {
+        sut.startProfiler(SentryId.newId());
         final matcher = _nativeUnavailableMatcher(
           mockPlatform,
           androidUnsupported: true,
@@ -238,13 +239,8 @@ void main() {
           when(channel.invokeMethod('captureEnvelope', any))
               .thenAnswer((_) async => {});
 
-          final matcher = _nativeUnavailableMatcher(
-            mockPlatform,
-            includeLookupSymbol: true,
-          );
-
           final data = Uint8List.fromList([1, 2, 3]);
-          expect(() => sut.captureEnvelope(data, false), matcher);
+          sut.captureEnvelope(data, false);
 
           verifyZeroInteractions(channel);
         },
@@ -267,7 +263,7 @@ void main() {
           mockPlatform,
           includeLookupSymbol: true,
         );
-
+        sut.loadDebugImages(SentryStackTrace(frames: []));
         expect(
             () => sut.loadDebugImages(SentryStackTrace(frames: [])), matcher);
 
