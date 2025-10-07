@@ -17,6 +17,10 @@ void _entryUnconfigured(SendPort sendPort) {
 }
 
 void main() {
+  setUp(() {
+    IsolateLogger.reset();
+  });
+
   test('configure required before log (debug builds)', () async {
     final rp = ReceivePort();
     await Isolate.spawn<SendPort>(_entryUnconfigured, rp.sendPort,
@@ -24,8 +28,7 @@ void main() {
     final result = await rp.first;
     rp.close();
 
-    // In debug mode, assert triggers AssertionError before any late fields are read.
-    expect(result, 'AssertionError');
+    expect(result, '_AssertionError');
   });
 
   test('fatal logs even when debug=false', () {
@@ -48,5 +51,20 @@ void main() {
         () => IsolateLogger.log(SentryLevel.info, 'info ok'), returnsNormally);
     expect(() => IsolateLogger.log(SentryLevel.warning, 'warn ok'),
         returnsNormally);
+  });
+
+  test('prevents reconfiguration without reset', () {
+    IsolateLogger.configure(
+      debug: true,
+      level: SentryLevel.info,
+      loggerName: 't',
+    );
+    expect(
+        () => IsolateLogger.configure(
+              debug: false,
+              level: SentryLevel.error,
+              loggerName: 't2',
+            ),
+        throwsStateError);
   });
 }

@@ -1,5 +1,7 @@
 import 'dart:developer' as developer;
 
+import 'package:meta/meta.dart';
+
 import '../../sentry_flutter.dart';
 
 /// Static logger for Isolates that writes diagnostic messages to `dart:developer.log`.
@@ -10,14 +12,15 @@ import '../../sentry_flutter.dart';
 class IsolateLogger {
   IsolateLogger._();
 
-  static late final bool _debug;
-  static late final SentryLevel _level;
-  static late final String _loggerName;
+  static late bool _debug;
+  static late SentryLevel _level;
+  static late String _loggerName;
   static bool _isConfigured = false;
 
   /// Configures this logger for the current isolate.
   ///
   /// Must be called once per isolate before invoking [log].
+  /// Throws [StateError] if called more than once without calling [reset] first.
   ///
   /// - [debug]: when false, suppresses all logs except [SentryLevel.fatal].
   /// - [level]: minimum severity threshold (inclusive) when [debug] is true.
@@ -26,10 +29,22 @@ class IsolateLogger {
       {required bool debug,
       required SentryLevel level,
       required String loggerName}) {
+    if (_isConfigured) {
+      throw StateError(
+          'IsolateLogger.configure has already been called. It can only be configured once per isolate.');
+    }
     _debug = debug;
     _level = level;
     _loggerName = loggerName;
     _isConfigured = true;
+  }
+
+  /// Resets the logger state to allow reconfiguration.
+  ///
+  /// This is intended for testing purposes only.
+  @visibleForTesting
+  static void reset() {
+    _isConfigured = false;
   }
 
   /// Emits a log entry if enabled.
