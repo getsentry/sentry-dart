@@ -50,6 +50,16 @@
     - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0100)
     - [diff](https://github.com/getsentry/sentry-native/compare/0.9.1...0.10.0)
 
+## 9.7.0-beta.5
+
+### Dependencies
+
+- Bump Android SDK from v8.20.0 to v8.21.1 ([#3243](https://github.com/getsentry/sentry-dart/pull/3243))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8211)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.20.0...8.21.1)
+- Bump Cocoa SDK from v8.54.0 to v8.55.1 ([#3234](https://github.com/getsentry/sentry-dart/pull/3234))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8551)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.54.0...8.55.1)
 
 ## 9.7.0-beta.4
 
