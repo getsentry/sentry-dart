@@ -2,6 +2,14 @@
 
 ## 9.7.0
 
+## Unreleased
+
+### Dependencies
+
+- Bump JavaScript SDK from v10.6.0 to v10.17.0 ([#3280](https://github.com/getsentry/sentry-dart/pull/3280))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#10170)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/10.6.0...10.17.0)
+
 ### Features
 
 - Add W3C `traceparent` header support ([#3246](https://github.com/getsentry/sentry-dart/pull/3246))
