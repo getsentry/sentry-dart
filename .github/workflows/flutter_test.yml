@@ -56,6 +56,7 @@ jobs:
 
       # TODO: fix emulator caching, in ubuntu-latest emulator won't boot: https://github.com/ReactiveCircus/android-emulator-runner/issues/278
 
+      # TODO: Building the APK leads to an error where the emulator won't boot: Not enough space to create userdata partition - let's fix it in another PR
       # - name: build apk
       #   working-directory: packages/flutter/example/android
       #   run: flutter build apk --debug --target-platform=android-x64
