@@ -10,7 +10,7 @@ const _shutdownCommand = '_shutdown_';
 // HOST-SIDE API (runs on the main isolate)
 // -------------------------------------------
 
-/// Minimal config passed to isolates. Extend as needed.
+/// Minimal config passed to isolates - extend as needed.
 class WorkerConfig {
   final bool debug;
   final SentryLevel diagnosticLevel;
@@ -149,7 +149,6 @@ void runWorker(
       return;
     }
 
-    // RPC: (id, payload)
     if (msg is (int, Object?)) {
       final (id, payload) = msg;
       try {
@@ -161,7 +160,6 @@ void runWorker(
       return;
     }
 
-    // Fire-and-forget
     try {
       await handler.onMessage(msg);
     } catch (exception, stackTrace) {

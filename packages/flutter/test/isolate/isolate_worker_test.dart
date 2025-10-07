@@ -1,7 +1,6 @@
 @TestOn('vm')
 library;
 
-import 'dart:async';
 import 'dart:isolate';
 
 import 'package:flutter_test/flutter_test.dart';

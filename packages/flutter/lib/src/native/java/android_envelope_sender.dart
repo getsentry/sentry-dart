@@ -26,7 +26,7 @@ class AndroidEnvelopeSender {
         ),
         _spawn = spawn ?? spawnWorker;
 
-  @internal // visible for testing/mocking
+  @internal
   static AndroidEnvelopeSender Function(SentryFlutterOptions) factory =
       AndroidEnvelopeSender.new;
 

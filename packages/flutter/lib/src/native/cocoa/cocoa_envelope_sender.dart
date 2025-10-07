@@ -26,7 +26,7 @@ class CocoaEnvelopeSender {
         ),
         _spawn = spawn ?? spawnWorker;
 
-  @internal // visible for testing/mocking
+  @internal
   static CocoaEnvelopeSender Function(SentryFlutterOptions) factory =
       CocoaEnvelopeSender.new;
 

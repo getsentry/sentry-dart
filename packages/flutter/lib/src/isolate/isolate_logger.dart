@@ -2,7 +2,7 @@ import 'dart:developer' as developer;
 
 import '../../sentry_flutter.dart';
 
-/// Isolate-local logger that writes diagnostic messages to `dart:developer.log`.
+/// Static logger for Isolates that writes diagnostic messages to `dart:developer.log`.
 ///
 /// Intended for worker/background isolates where a `SentryOptions` instance
 /// or hub may not be available. Because Dart statics are isolate-local,
@@ -32,7 +32,7 @@ class IsolateLogger {
     _isConfigured = true;
   }
 
-  /// Emits a log entry if enabled for this isolate.
+  /// Emits a log entry if enabled.
   ///
   /// Messages are forwarded to [developer.log]. The provided [level] is
   /// mapped via [SentryLevel.toDartLogLevel] to a `developer.log` numeric level.
