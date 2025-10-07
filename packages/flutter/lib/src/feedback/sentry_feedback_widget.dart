@@ -94,6 +94,9 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   void initState() {
     super.initState();
 
+    if (widget.options.useSentryUser) {
+      _setSentryUserData();
+    }
     _restorePreservedData();
     _captureReplay();
 
@@ -117,6 +120,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: widget.options.resizeToAvoidBottomInset,
       appBar: AppBar(
         title: Text(widget.options.title),
         actions: [
@@ -403,6 +407,28 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
     if (mounted) {
       Navigator.maybePop(context);
+    }
+  }
+
+  SentryUser? _getUser() {
+    SentryUser? user;
+    widget._hub.configureScope((scope) {
+      user = scope.user;
+    });
+    return user;
+  }
+
+  void _setSentryUserData() {
+    final user = _getUser();
+    if (user == null) return;
+
+    final userName = user.name;
+    if (userName != null) {
+      _nameController.text = userName;
+    }
+    final userEmail = user.email;
+    if (userEmail != null) {
+      _emailController.text = userEmail;
     }
   }
 

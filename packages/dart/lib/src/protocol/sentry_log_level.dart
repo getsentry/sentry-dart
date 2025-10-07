@@ -1,3 +1,5 @@
+import 'sentry_level.dart';
+
 enum SentryLogLevel {
   trace('trace'),
   debug('debug'),
@@ -23,6 +25,28 @@ enum SentryLogLevel {
         return 17;
       case SentryLogLevel.fatal:
         return 21;
+    }
+  }
+}
+
+/// Extension to bridge SentryLogLevel to SentryLevel
+extension SentryLogLevelExtension on SentryLogLevel {
+  /// Converts this SentryLogLevel to the corresponding SentryLevel
+  /// for use with the diagnostic logging system.
+  SentryLevel toSentryLevel() {
+    switch (this) {
+      case SentryLogLevel.trace:
+        return SentryLevel.debug;
+      case SentryLogLevel.debug:
+        return SentryLevel.debug;
+      case SentryLogLevel.info:
+        return SentryLevel.info;
+      case SentryLogLevel.warn:
+        return SentryLevel.warning;
+      case SentryLogLevel.error:
+        return SentryLevel.error;
+      case SentryLogLevel.fatal:
+        return SentryLevel.fatal;
     }
   }
 }

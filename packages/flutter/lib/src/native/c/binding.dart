@@ -131,16 +131,16 @@ class SentryNative {
       _value_new_objectPtr.asFunction<sentry_value_u Function()>();
 
   /// Returns the type of the value passed.
-  int value_get_type(
+  sentry_value_type_t value_get_type(
     sentry_value_u value,
   ) {
-    return _value_get_type(
+    return sentry_value_type_t.fromValue(_value_get_type(
       value,
-    );
+    ));
   }
 
   late final _value_get_typePtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(sentry_value_u)>>(
+      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(sentry_value_u)>>(
           'sentry_value_get_type');
   late final _value_get_type =
       _value_get_typePtr.asFunction<int Function(sentry_value_u)>();
@@ -499,7 +499,8 @@ class SentryNative {
   late final _options_get_dist = _options_get_distPtr.asFunction<
       ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
 
-  /// Enables or disables debug printing mode.
+  /// Enables or disables debug printing mode. To change the log level from the
+  /// default DEBUG level, use `sentry_options_set_logger_level`.
   void options_set_debug(
     ffi.Pointer<sentry_options_s> opts,
     int debug,
@@ -636,6 +637,52 @@ class SentryNative {
               ffi.Pointer<ffi.Char>)>>('sentry_options_set_handler_path');
   late final _options_set_handler_path =
       _options_set_handler_pathPtr.asFunction<
+          void Function(
+              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+
+  /// Sets the path to the Sentry Database Directory.
+  ///
+  /// Sentry will use this path to persist user consent, sessions, and other
+  /// artifacts in case of a crash. This will also be used by the crashpad backend
+  /// if it is configured.
+  ///
+  /// The directory is used for "cached" data, which needs to persist across
+  /// application restarts to ensure proper flagging of release-health sessions,
+  /// but might otherwise be safely purged regularly.
+  ///
+  /// It is roughly equivalent to the type of `AppData/Local` on Windows and
+  /// `XDG_CACHE_HOME` on Linux, and equivalent runtime directories on other
+  /// platforms.
+  ///
+  /// It is recommended that users set an explicit absolute path, depending
+  /// on their apps runtime directory. The path will be created if it does not
+  /// exist, and will be resolved to an absolute path inside of `sentry_init`. The
+  /// directory should not be shared with other application data/configuration, as
+  /// sentry-native will enumerate and possibly delete files in that directory. An
+  /// example might be `$XDG_CACHE_HOME/your-app/sentry`
+  ///
+  /// If no explicit path it set, sentry-native will default to `.sentry-native` in
+  /// the current working directory, with no specific platform-specific handling.
+  ///
+  /// `path` is assumed to be in platform-specific filesystem path encoding.
+  /// API Users on windows are encouraged to use
+  /// `sentry_options_set_database_pathw` instead.
+  void options_set_database_path(
+    ffi.Pointer<sentry_options_s> opts,
+    ffi.Pointer<ffi.Char> path,
+  ) {
+    return _options_set_database_path(
+      opts,
+      path,
+    );
+  }
+
+  late final _options_set_database_pathPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Pointer<ffi.Char>)>>('sentry_options_set_database_path');
+  late final _options_set_database_path =
+      _options_set_database_pathPtr.asFunction<
           void Function(
               ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
 
@@ -843,7 +890,6 @@ class SentryNative {
       _sdk_versionPtr.asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   /// Sentry SDK name set during build time.
-  /// Deprecated: Please use sentry_options_get_sdk_name instead.
   ffi.Pointer<ffi.Char> sdk_name() {
     return _sdk_name();
   }
@@ -853,6 +899,36 @@ class SentryNative {
           'sentry_sdk_name');
   late final _sdk_name =
       _sdk_namePtr.asFunction<ffi.Pointer<ffi.Char> Function()>();
+}
+
+/// Type of a sentry value.
+enum sentry_value_type_t {
+  SENTRY_VALUE_TYPE_NULL(0),
+  SENTRY_VALUE_TYPE_BOOL(1),
+  SENTRY_VALUE_TYPE_INT32(2),
+  SENTRY_VALUE_TYPE_INT64(3),
+  SENTRY_VALUE_TYPE_UINT64(4),
+  SENTRY_VALUE_TYPE_DOUBLE(5),
+  SENTRY_VALUE_TYPE_STRING(6),
+  SENTRY_VALUE_TYPE_LIST(7),
+  SENTRY_VALUE_TYPE_OBJECT(8);
+
+  final int value;
+  const sentry_value_type_t(this.value);
+
+  static sentry_value_type_t fromValue(int value) => switch (value) {
+        0 => SENTRY_VALUE_TYPE_NULL,
+        1 => SENTRY_VALUE_TYPE_BOOL,
+        2 => SENTRY_VALUE_TYPE_INT32,
+        3 => SENTRY_VALUE_TYPE_INT64,
+        4 => SENTRY_VALUE_TYPE_UINT64,
+        5 => SENTRY_VALUE_TYPE_DOUBLE,
+        6 => SENTRY_VALUE_TYPE_STRING,
+        7 => SENTRY_VALUE_TYPE_LIST,
+        8 => SENTRY_VALUE_TYPE_OBJECT,
+        _ =>
+          throw ArgumentError('Unknown value for sentry_value_type_t: $value'),
+      };
 }
 
 /// Represents a sentry protocol value.
@@ -875,17 +951,6 @@ final class sentry_value_u extends ffi.Union {
 
   @ffi.Double()
   external double _double;
-}
-
-/// Type of a sentry value.
-abstract class sentry_value_type_t {
-  static const int SENTRY_VALUE_TYPE_NULL = 0;
-  static const int SENTRY_VALUE_TYPE_BOOL = 1;
-  static const int SENTRY_VALUE_TYPE_INT32 = 2;
-  static const int SENTRY_VALUE_TYPE_DOUBLE = 3;
-  static const int SENTRY_VALUE_TYPE_STRING = 4;
-  static const int SENTRY_VALUE_TYPE_LIST = 5;
-  static const int SENTRY_VALUE_TYPE_OBJECT = 6;
 }
 
 /// The Sentry Client Options.

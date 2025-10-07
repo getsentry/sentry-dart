@@ -16,18 +16,14 @@ on:
       - 'packages/flutter/**'
       - 'metrics/flutter.properties'
 
-jobs:
-  cancel-previous-workflow:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@85880fa0301c86cca9da44039ee3bb12d3bedbfa # pin@0.12.1
-        with:
-          access_token: ${{ github.token }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
+jobs:
   build:
     name: '${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}'
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os == 'macos' && 'macos-15' || matrix.os == 'ubuntu' && 'ubuntu-latest' || matrix.os == 'windows' && 'windows-latest' }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -57,7 +53,7 @@ jobs:
             sdk: beta
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: ./.github/actions/flutter-test
         with:
@@ -70,6 +66,11 @@ jobs:
           directory: packages/flutter
           coverage: sentry_flutter
           min-coverage: 90
+
+      # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
+      - name: Switch to Xcode 16.4 for iOS 18.5
+        if: matrix.os == 'macos'
+        run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
       - name: Build example for ${{ matrix.target }}
         # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.
@@ -104,7 +105,7 @@ jobs:
           esac
 
   spm:
-    name: "SPM"
+    name: 'SPM'
     runs-on: macos-15
     timeout-minutes: 30
     defaults:
@@ -117,13 +118,17 @@ jobs:
         target: [ios, macos]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
           channel: main
 
       - run: flutter config --enable-swift-package-manager
+
+      # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
+      - name: Switch to Xcode 16.4 for iOS 18.5
+        run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
       - name: Run on iOS
         if: matrix.target == 'ios'
@@ -141,14 +146,19 @@ jobs:
       panaThreshold: 87
 
   pod-lint:
-    runs-on: macos-latest
+    runs-on: macos-15
     timeout-minutes: 20
     defaults:
       run:
         working-directory: packages/flutter
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
+
+      # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
+      - name: Switch to Xcode 16.4 for iOS 18.5
+        run: sudo xcode-select --switch /Applications/Xcode_16.4.app
+
       - run: pod lib lint ios/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings --verbose
 
   swift-lint:
@@ -158,7 +168,7 @@ jobs:
       run:
         working-directory: packages/flutter
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@3.2.1
         with:
           args: --strict
@@ -170,7 +180,7 @@ jobs:
       run:
         working-directory: packages/flutter
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: ktlint
         uses: ScaCap/action-ktlint@26c5e9b625966139d9956cbbb6217375480d4e14 # pin@1.9.0
@@ -184,7 +194,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # To recreate baseline run: detekt -i packages/flutter/android,packages/flutter/example/android -b packages/flutter/config/detekt-bl.xml -cb
       - uses: natiginfo/action-detekt-all@45229fbbe47eaff1160b6c956d7ffe14dc23c206 # pin@1.23.8
         with:

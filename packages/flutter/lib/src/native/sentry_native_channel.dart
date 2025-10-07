@@ -101,10 +101,10 @@ class SentryNativeChannel
   bool get supportsCaptureEnvelope => true;
 
   @override
-  Future<void> captureEnvelope(
+  FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    return channel.invokeMethod(
-        'captureEnvelope', [envelopeData, containsUnhandledException]);
+    assert(
+        false, "captureEnvelope should not be used through method channels.");
   }
 
   @override
@@ -116,8 +116,10 @@ class SentryNativeChannel
   bool get supportsLoadContexts => true;
 
   @override
-  Future<Map<String, dynamic>?> loadContexts() =>
-      channel.invokeMapMethod<String, dynamic>('loadContexts');
+  FutureOr<Map<String, dynamic>?> loadContexts() {
+    assert(false, 'loadContexts should not be used through method channels.');
+    return null;
+  }
 
   @override
   Future<void> setUser(SentryUser? user) async {
@@ -214,22 +216,11 @@ class SentryNativeChannel
       });
 
   @override
-  Future<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
-      tryCatchAsync('loadDebugImages', () async {
-        Set<String> instructionAddresses = {};
-        for (final frame in stackTrace.frames) {
-          if (frame.instructionAddr != null) {
-            instructionAddresses.add(frame.instructionAddr!);
-          }
-        }
-
-        final images = await channel.invokeListMethod<Map<dynamic, dynamic>>(
-            'loadImageList', instructionAddresses.toList());
-        return images
-            ?.map((e) => e.cast<String, dynamic>())
-            .map(DebugImage.fromJson)
-            .toList();
-      });
+  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
+    assert(
+        false, "loadDebugImages should not be used through method channels.");
+    return null;
+  }
 
   @override
   Future<int?> displayRefreshRate() =>
