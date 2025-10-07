@@ -58,6 +58,12 @@ class SentryNativeCocoa extends SentryNativeChannel {
   }
 
   @override
+  Future<void> close() async {
+    await _envelopeSender?.close();
+    return super.close();
+  }
+
+  @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
     _envelopeSender?.captureEnvelope(envelopeData);
