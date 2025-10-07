@@ -194,7 +194,6 @@ void main() {
       });
 
       test('startProfiler', () {
-        sut.startProfiler(SentryId.newId());
         final matcher = _nativeUnavailableMatcher(
           mockPlatform,
           androidUnsupported: true,
@@ -263,7 +262,7 @@ void main() {
           mockPlatform,
           includeLookupSymbol: true,
         );
-        sut.loadDebugImages(SentryStackTrace(frames: []));
+
         expect(
             () => sut.loadDebugImages(SentryStackTrace(frames: [])), matcher);
 
