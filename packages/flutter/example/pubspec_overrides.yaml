@@ -21,4 +21,3 @@ dependency_overrides:
   isar_flutter_libs:
     git:
       url: https://github.com/MrLittleWhite/isar_flutter_libs.git
-
