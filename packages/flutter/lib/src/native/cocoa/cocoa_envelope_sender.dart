@@ -23,6 +23,7 @@ class CocoaEnvelopeSender {
           debugName: 'SentryCocoaEnvelopeSender',
           debug: _options.debug,
           diagnosticLevel: _options.diagnosticLevel,
+          automatedTestMode: _options.automatedTestMode,
         ),
         _spawn = spawn ?? spawnWorker;
 
@@ -55,11 +56,15 @@ class CocoaEnvelopeSender {
 
   static void _entryPoint((SendPort, WorkerConfig) init) {
     final (host, config) = init;
-    runWorker(config, host, _CocoaEnvelopeHandler());
+    runWorker(config, host, _CocoaEnvelopeHandler(config));
   }
 }
 
 class _CocoaEnvelopeHandler extends WorkerHandler {
+  final WorkerConfig _config;
+
+  _CocoaEnvelopeHandler(this._config);
+
   @override
   FutureOr<void> onMessage(Object? msg) {
     if (msg is TransferableTypedData) {
@@ -83,6 +88,9 @@ class _CocoaEnvelopeHandler extends WorkerHandler {
     } catch (exception, stackTrace) {
       IsolateLogger.log(SentryLevel.error, 'Failed to capture envelope',
           exception: exception, stackTrace: stackTrace);
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
     }
   }
 }

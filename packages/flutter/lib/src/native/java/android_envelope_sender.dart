@@ -23,6 +23,7 @@ class AndroidEnvelopeSender {
           debugName: 'SentryAndroidEnvelopeSender',
           debug: _options.debug,
           diagnosticLevel: _options.diagnosticLevel,
+          automatedTestMode: _options.automatedTestMode,
         ),
         _spawn = spawn ?? spawnWorker;
 
@@ -59,11 +60,15 @@ class AndroidEnvelopeSender {
 
   static void _entryPoint((SendPort, WorkerConfig) init) {
     final (host, config) = init;
-    runWorker(config, host, _AndroidEnvelopeHandler());
+    runWorker(config, host, _AndroidEnvelopeHandler(config));
   }
 }
 
 class _AndroidEnvelopeHandler extends WorkerHandler {
+  final WorkerConfig _config;
+
+  _AndroidEnvelopeHandler(this._config);
+
   @override
   FutureOr<void> onMessage(Object? msg) {
     if (msg is (TransferableTypedData, bool)) {
@@ -91,10 +96,9 @@ class _AndroidEnvelopeHandler extends WorkerHandler {
     } catch (exception, stackTrace) {
       IsolateLogger.log(SentryLevel.error, 'Failed to capture envelope',
           exception: exception, stackTrace: stackTrace);
-      // TODO:
-      // if (options.automatedTestMode) {
-      //   rethrow;
-      // }
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
     } finally {
       byteArray?.release();
       id?.release();

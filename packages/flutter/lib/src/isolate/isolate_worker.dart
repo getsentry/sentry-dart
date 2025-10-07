@@ -15,11 +15,13 @@ class WorkerConfig {
   final bool debug;
   final SentryLevel diagnosticLevel;
   final String debugName;
+  final bool automatedTestMode;
 
   const WorkerConfig({
     required this.debug,
     required this.diagnosticLevel,
     required this.debugName,
+    this.automatedTestMode = false,
   });
 }
 
