@@ -4,8 +4,8 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/src/integrations/thread_info_integration.dart';
-import 'package:sentry_flutter/src/isolate_helper.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/isolate/isolate_helper.dart';
 
 import '../mocks.mocks.dart';
 
