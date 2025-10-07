@@ -2,7 +2,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 library;
 
-import 'dart:async';
 import 'dart:isolate';
 import 'dart:typed_data';
 
