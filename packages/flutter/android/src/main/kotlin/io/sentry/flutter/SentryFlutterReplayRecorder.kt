@@ -4,6 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import io.flutter.plugin.common.MethodChannel
+import io.sentry.Sentry
 import io.sentry.android.replay.Recorder
 import io.sentry.android.replay.ReplayIntegration
 import io.sentry.android.replay.ScreenshotRecorderConfig
@@ -15,9 +16,15 @@ internal class SentryFlutterReplayRecorder(
   override fun start() {
     Handler(Looper.getMainLooper()).post {
       try {
+        var scopeReplayId: String? = null
+        Sentry.configureScope { scope ->
+          scopeReplayId = scope.replayId?.toString()
+        }
+        
         channel.invokeMethod(
           "ReplayRecorder.start",
           mapOf(
+            "scope.replayId" to scopeReplayId,
             "replayId" to integration.getReplayId().toString(),
           ),
         )

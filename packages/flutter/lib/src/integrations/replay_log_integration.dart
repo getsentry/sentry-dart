@@ -2,10 +2,14 @@
 
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
+import '../native/sentry_native_binding.dart';
 
 /// Integration that adds replay-related information to logs using lifecycle callbacks
 class ReplayLogIntegration implements Integration<SentryFlutterOptions> {
   static const String integrationName = 'ReplayLog';
+
+  final SentryNativeBinding? _native;
+  ReplayLogIntegration(this._native);
 
   SentryFlutterOptions? _options;
   SdkLifecycleCallback<OnBeforeCaptureLog>? _addReplayInformation;
@@ -14,20 +18,19 @@ class ReplayLogIntegration implements Integration<SentryFlutterOptions> {
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
     _options = options;
     _addReplayInformation = (OnBeforeCaptureLog event) {
-      final hasActiveReplay = hub.scope.replayId != null;
+      final scopeReplayId = hub.scope.replayId;
+      final replayId = _native?.replayId;
 
-      if (hasActiveReplay) {
+      if (scopeReplayId != null) {
         event.log.attributes['sentry.replay_id'] = SentryLogAttribute.string(
-          hub.scope.replayId.toString(),
+          scopeReplayId.toString(),
         );
-      }
-
-      final isReplayEnabled = (options.replay.onErrorSampleRate ?? 0) > 0;
-      if (isReplayEnabled) {
+      } else if (replayId != null) {
+        event.log.attributes['sentry.replay_id'] = SentryLogAttribute.string(
+          replayId.toString(),
+        );
         event.log.attributes['sentry._internal.replay_is_buffering'] =
-            SentryLogAttribute.bool(
-          !hasActiveReplay,
-        );
+            SentryLogAttribute.bool(true);
       }
     };
     options.lifecycleRegistry

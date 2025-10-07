@@ -15,7 +15,8 @@ void main() {
   });
 
   group('ReplayLogIntegration', () {
-    test('adds replay_id attribute when replay is active', () async {
+    test('adds replay_id attribute when replay is active (scope replayId set)',
+        () async {
       final integration = fixture.getSut();
 
       fixture.options.replay.onErrorSampleRate = 0.5;
@@ -29,23 +30,29 @@ void main() {
       expect(log.attributes['sentry.replay_id']?.value, 'testreplayid');
       expect(log.attributes['sentry.replay_id']?.type, 'string');
 
-      expect(
-          log.attributes['sentry._internal.replay_is_buffering']?.value, false);
-      expect(log.attributes['sentry._internal.replay_is_buffering']?.type,
-          'boolean');
+      // When scope replayId is set, no buffering flag should be added
+      expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
+          false);
     });
 
-    test('adds replay buffering flag when replay is enabled but not active',
+    test(
+        'adds replay_id and buffering flag when replay is in buffer mode (native replayId set)',
         () async {
       final integration = fixture.getSut();
       fixture.options.replay.onErrorSampleRate = 0.5;
+
+      // Mock native replayId to simulate buffering mode (Android)
+      final nativeReplayId = SentryId.fromId('native-replay-id');
+      when(fixture.nativeBinding.replayId).thenReturn(nativeReplayId);
 
       await integration.call(fixture.hub, fixture.options);
 
       final log = fixture.createTestLog();
       await fixture.hub.captureLog(log);
 
-      expect(log.attributes.containsKey('sentry.replay_id'), false);
+      // In buffering mode, both replay_id and buffering flag should be present
+      expect(log.attributes['sentry.replay_id']?.value, 'nativereplayid');
+      expect(log.attributes['sentry.replay_id']?.type, 'string');
 
       expect(
           log.attributes['sentry._internal.replay_is_buffering']?.value, true);
@@ -160,6 +167,7 @@ class Fixture {
   final options =
       SentryFlutterOptions(dsn: 'https://abc@def.ingest.sentry.io/1234567');
   final hub = MockHub();
+  final nativeBinding = MockSentryNativeBinding();
 
   Fixture() {
     options.enableLogs = true;
@@ -174,6 +182,9 @@ class Fixture {
       // Trigger the lifecycle callback
       await options.lifecycleRegistry.dispatchCallback(OnBeforeCaptureLog(log));
     });
+
+    // Default: no native replayId
+    when(nativeBinding.replayId).thenReturn(null);
   }
 
   SentryLog createTestLog() {
@@ -187,6 +198,6 @@ class Fixture {
   }
 
   ReplayLogIntegration getSut() {
-    return ReplayLogIntegration();
+    return ReplayLogIntegration(nativeBinding);
   }
 }

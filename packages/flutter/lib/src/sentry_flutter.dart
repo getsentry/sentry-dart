@@ -233,7 +233,7 @@ mixin SentryFlutter {
 
     // Only add ReplayLogIntegration on platforms that support replay
     if (native != null && native.supportsReplay) {
-      integrations.add(ReplayLogIntegration());
+      integrations.add(ReplayLogIntegration(native));
     }
 
     if (!platform.isWeb) {
