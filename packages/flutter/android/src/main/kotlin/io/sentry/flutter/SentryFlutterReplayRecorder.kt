@@ -20,7 +20,6 @@ internal class SentryFlutterReplayRecorder(
         Sentry.configureScope { scope ->
           scopeReplayId = scope.replayId?.toString()
         }
-        
         channel.invokeMethod(
           "ReplayRecorder.start",
           mapOf(
