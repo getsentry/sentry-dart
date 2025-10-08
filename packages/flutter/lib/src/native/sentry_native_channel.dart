@@ -223,8 +223,11 @@ class SentryNativeChannel
   }
 
   @override
-  Future<int?> displayRefreshRate() =>
-      channel.invokeMethod('displayRefreshRate');
+  FutureOr<int?> displayRefreshRate() {
+    assert(false,
+        'displayRefreshRate should not be used through method channels.');
+    return null;
+  }
 
   @override
   Future<void> pauseAppHangTracking() =>

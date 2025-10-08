@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
@@ -151,6 +152,17 @@ class SentryNativeCocoa extends SentryNativeChannel {
           final startTime =
               cocoa.PrivateSentrySDKOnly.startProfilerForTrace(sentryId);
           return startTime;
+        },
+      );
+
+  @override
+  int? displayRefreshRate() => tryCatchSync(
+        'displayRefreshRate',
+        () {
+          final refreshRate = cocoa.SentryFlutterPlugin.getDisplayRefreshRate();
+          if (refreshRate == null) return null;
+
+          return refreshRate.intValue;
         },
       );
 }

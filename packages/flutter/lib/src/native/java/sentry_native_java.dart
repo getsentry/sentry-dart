@@ -172,6 +172,13 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
+  int? displayRefreshRate() {
+    return native.SentryFlutterPlugin.Companion
+        .getDisplayRefreshRate()
+        ?.intValue();
+  }
+
+  @override
   Future<void> close() async {
     await _replayRecorder?.stop();
     await _envelopeSender?.close();

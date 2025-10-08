@@ -133,9 +133,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             collectProfile(call, result)
         #endif
 
-        case "displayRefreshRate":
-            displayRefreshRate(result)
-
         case "pauseAppHangTracking":
             pauseAppHangTracking(result)
 
@@ -514,42 +511,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         result(nil)
     }
 
-    #if os(iOS)
-    // Taken from the Flutter engine:
-    // https://github.com/flutter/engine/blob/main/shell/platform/darwin/ios/framework/Source/vsync_waiter_ios.mm#L150
-    private func displayRefreshRate(_ result: @escaping FlutterResult) {
-        let displayLink = CADisplayLink(target: self, selector: #selector(onDisplayLink(_:)))
-        displayLink.add(to: .main, forMode: .common)
-        displayLink.isPaused = true
-
-        let preferredFPS = displayLink.preferredFramesPerSecond
-        displayLink.invalidate()
-
-        if preferredFPS != 0 {
-            result(preferredFPS)
-            return
-        }
-
-        if #available(iOS 13.0, *) {
-            guard let windowScene = UIApplication.shared.windows.first?.windowScene else {
-                result(nil)
-                return
-            }
-            result(windowScene.screen.maximumFramesPerSecond)
-        } else {
-            result(UIScreen.main.maximumFramesPerSecond)
-        }
-    }
-
-    @objc private func onDisplayLink(_ displayLink: CADisplayLink) {
-        // No-op
-    }
-    #elseif os(macOS)
-    private func displayRefreshRate(_ result: @escaping FlutterResult) {
-        result(nil)
-    }
-    #endif
-
     private func pauseAppHangTracking(_ result: @escaping FlutterResult) {
         SentrySDK.pauseAppHangTracking()
         result("")
@@ -569,6 +530,41 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   // Group of methods exposed to the Objective-C runtime via `@objc`.
   //
   // Purpose: Called from the Flutter plugin's native bridge (FFI) - bindings are created from SentryFlutterPlugin.h
+
+  #if os(iOS)
+  // Taken from the Flutter engine:
+  // https://github.com/flutter/engine/blob/main/shell/platform/darwin/ios/framework/Source/vsync_waiter_ios.mm#L150
+  @objc public class func getDisplayRefreshRate() -> NSNumber? {
+      let displayLink = CADisplayLink(target: self, selector: #selector(onDisplayLinkStatic(_:)))
+      displayLink.add(to: .main, forMode: .common)
+      displayLink.isPaused = true
+
+      let preferredFPS = displayLink.preferredFramesPerSecond
+      displayLink.invalidate()
+
+      if preferredFPS != 0 {
+          return NSNumber(value: preferredFPS)
+      }
+
+      if #available(iOS 13.0, *) {
+          guard let windowScene = UIApplication.shared.windows.first?.windowScene else {
+              return nil
+          }
+          return NSNumber(value: windowScene.screen.maximumFramesPerSecond)
+      } else {
+          return NSNumber(value: UIScreen.main.maximumFramesPerSecond)
+      }
+  }
+
+  @objc private class func onDisplayLinkStatic(_ displayLink: CADisplayLink) {
+      // No-op
+  }
+  #elseif os(macOS)
+  @objc public class func getDisplayRefreshRate() -> NSNumber? {
+      return nil
+  }
+  #endif
+
   @objc(loadDebugImagesAsBytes:)
   public class func loadDebugImagesAsBytes(instructionAddresses: Set<String>) -> NSData? {
           var debugImages: [DebugMeta] = []

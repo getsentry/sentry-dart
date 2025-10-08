@@ -43,7 +43,6 @@ class SentryFlutterPlugin :
   private lateinit var context: Context
   private lateinit var sentryFlutter: SentryFlutter
 
-  private var activity: WeakReference<Activity>? = null
   private var pluginRegistrationTime: Long? = null
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -75,7 +74,6 @@ class SentryFlutterPlugin :
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
-      "displayRefreshRate" -> displayRefreshRate(result)
       "nativeCrash" -> crash()
       "setReplayConfig" -> setReplayConfig(call, result)
       "captureReplay" -> captureReplay(result)
@@ -215,29 +213,6 @@ class SentryFlutterPlugin :
 
       result.success(item)
     }
-  }
-
-  private fun displayRefreshRate(result: Result) {
-    var refreshRate: Int? = null
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-      val display = activity?.get()?.display
-      if (display != null) {
-        refreshRate = display.refreshRate.toInt()
-      }
-    } else {
-      val display =
-        activity
-          ?.get()
-          ?.window
-          ?.windowManager
-          ?.defaultDisplay
-      if (display != null) {
-        refreshRate = display.refreshRate.toInt()
-      }
-    }
-
-    result.success(refreshRate)
   }
 
   private fun TimeSpan.addToMap(map: MutableMap<String, Any?>) {
@@ -381,11 +356,39 @@ class SentryFlutterPlugin :
     @SuppressLint("StaticFieldLeak")
     private var applicationContext: Context? = null
 
+    @SuppressLint("StaticFieldLeak")
+    private var activity: WeakReference<Activity>? = null
+
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun getDisplayRefreshRate(): Int? {
+      var refreshRate: Int? = null
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val display = activity?.get()?.display
+        if (display != null) {
+          refreshRate = display.refreshRate.toInt()
+        }
+      } else {
+        val display =
+          activity
+            ?.get()
+            ?.window
+            ?.windowManager
+            ?.defaultDisplay
+        if (display != null) {
+          refreshRate = display.refreshRate.toInt()
+        }
+      }
+
+      return refreshRate
+    }
 
     @JvmStatic
     fun getApplicationContext(): Context? = applicationContext

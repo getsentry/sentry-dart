@@ -1305,6 +1305,31 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<ReplayIntegration?>(const $ReplayIntegration$NullableType());
   }
 
+  static final _id_getDisplayRefreshRate = _class.instanceMethodId(
+    r'getDisplayRefreshRate',
+    r'()Ljava/lang/Integer;',
+  );
+
+  static final _getDisplayRefreshRate = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final java.lang.Integer getDisplayRefreshRate()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JInteger? getDisplayRefreshRate() {
+    return _getDisplayRefreshRate(
+            reference.pointer, _id_getDisplayRefreshRate as jni$_.JMethodIDPtr)
+        .object<jni$_.JInteger?>(const jni$_.JIntegerNullableType());
+  }
+
   static final _id_getApplicationContext = _class.instanceMethodId(
     r'getApplicationContext',
     r'()Landroid/content/Context;',
@@ -1763,6 +1788,31 @@ class SentryFlutterPlugin extends jni$_.JObject {
     return _privateSentryGetReplayIntegration(_class.reference.pointer,
             _id_privateSentryGetReplayIntegration as jni$_.JMethodIDPtr)
         .object<ReplayIntegration?>(const $ReplayIntegration$NullableType());
+  }
+
+  static final _id_getDisplayRefreshRate = _class.staticMethodId(
+    r'getDisplayRefreshRate',
+    r'()Ljava/lang/Integer;',
+  );
+
+  static final _getDisplayRefreshRate = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public final java.lang.Integer getDisplayRefreshRate()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JInteger? getDisplayRefreshRate() {
+    return _getDisplayRefreshRate(_class.reference.pointer,
+            _id_getDisplayRefreshRate as jni$_.JMethodIDPtr)
+        .object<jni$_.JInteger?>(const jni$_.JIntegerNullableType());
   }
 
   static final _id_getApplicationContext = _class.staticMethodId(
