@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-### Enhancements
-
-- Add `sentry.replay_id` to flutter logs ([#3257](https://github.com/getsentry/sentry-dart/pull/3257))
 ### Features
 
 - Add W3C `traceparent` header support ([#3246](https://github.com/getsentry/sentry-dart/pull/3246))
@@ -13,6 +10,7 @@
 ### Enhancements
 
 - Prefix firebase remote config feature flags with `firebase:` ([#3258](https://github.com/getsentry/sentry-dart/pull/3258))
+- Add `sentry.replay_id` to flutter logs ([#3257](https://github.com/getsentry/sentry-dart/pull/3257))
 
 ### Fixes
 
