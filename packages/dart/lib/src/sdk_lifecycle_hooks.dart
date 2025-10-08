@@ -45,7 +45,6 @@ class SdkLifecycleRegistry {
 
   Future<void> _dispatchCallbackAsync<T extends SdkLifecycleEvent>(
       T event, List<Function> callbacks) async {
-    final callbacks = _lifecycleCallbacks[event.runtimeType] ?? [];
     for (final cb in callbacks) {
       try {
         final result = (cb as SdkLifecycleCallback<T>)(event);
