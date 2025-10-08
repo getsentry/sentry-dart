@@ -21,6 +21,9 @@ class SentryNativeCocoa extends SentryNativeChannel {
   bool get supportsReplay => options.platform.isIOS;
 
   @override
+  SentryId? get replayId => _replayId;
+
+  @override
   Future<void> init(Hub hub) async {
     // We only need these when replay is enabled (session or error capture)
     // so let's set it up conditionally. This allows Dart to trim the code.
@@ -30,15 +33,17 @@ class SentryNativeCocoa extends SentryNativeChannel {
           case 'captureReplayScreenshot':
             _replayRecorder ??= CocoaReplayRecorder(options);
 
-            final replayId = call.arguments['replayId'] == null
+            final scopeReplayId = call.arguments['scope.replayId'] == null
                 ? null
-                : SentryId.fromId(call.arguments['replayId'] as String);
+                : SentryId.fromId(call.arguments['scope.replayId'] as String);
 
-            if (_replayId != replayId) {
-              _replayId = replayId;
+            // TODO: We need the replayId from cocoa integration, so we can determine if we are in buffer mode.
+
+            if (_replayId != scopeReplayId) {
+              _replayId = scopeReplayId;
               hub.configureScope((s) {
                 // ignore: invalid_use_of_internal_member
-                s.replayId = replayId;
+                s.replayId = scopeReplayId;
               });
             }
 
@@ -50,6 +55,13 @@ class SentryNativeCocoa extends SentryNativeChannel {
     }
 
     return super.init(hub);
+  }
+
+  @override
+  FutureOr<SentryId> captureReplay() async {
+    final replayId = await super.captureReplay();
+    _replayId = replayId;
+    return replayId;
   }
 
   @override

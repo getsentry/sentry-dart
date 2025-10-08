@@ -20,6 +20,10 @@ class SentryNativeJava extends SentryNativeChannel {
   bool get supportsReplay => true;
 
   @override
+  SentryId? get replayId => _replayId;
+  SentryId? _replayId;
+
+  @override
   Future<void> init(Hub hub) async {
     // We only need these when replay is enabled (session or error capture)
     // so let's set it up conditionally. This allows Dart to trim the code.
@@ -27,14 +31,21 @@ class SentryNativeJava extends SentryNativeChannel {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'ReplayRecorder.start':
-            final replayId =
-                SentryId.fromId(call.arguments['replayId'] as String);
+            final scopeReplayIdArg = call.arguments['scope.replayId'];
+            final replayIdArg = call.arguments['replayId'];
+
+            final scopeReplayId = scopeReplayIdArg != null
+                ? SentryId.fromId(scopeReplayIdArg as String)
+                : null;
+            _replayId = replayIdArg != null
+                ? SentryId.fromId(replayIdArg as String)
+                : null;
 
             _replayRecorder = AndroidReplayRecorder.factory(options);
             await _replayRecorder!.start();
             hub.configureScope((s) {
               // ignore: invalid_use_of_internal_member
-              s.replayId = replayId;
+              s.replayId = scopeReplayId;
             });
             break;
           case 'ReplayRecorder.onConfigurationChanged':
@@ -72,6 +83,13 @@ class SentryNativeJava extends SentryNativeChannel {
     }
 
     return super.init(hub);
+  }
+
+  @override
+  FutureOr<SentryId> captureReplay() async {
+    final replayId = await super.captureReplay();
+    _replayId = replayId;
+    return replayId;
   }
 
   @override

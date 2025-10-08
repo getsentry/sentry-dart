@@ -24,10 +24,10 @@
            onComplete:(void (^_Nonnull)(UIImage *_Nonnull))onComplete {
   // Replay ID may be null if session replay is disabled.
   // Replay is still captured for on-error replays.
-  NSString *replayId = [PrivateSentrySDKOnly getReplayId];
+  NSString *scopeReplayId = [PrivateSentrySDKOnly getReplayId];
   [self->channel
       invokeMethod:@"captureReplayScreenshot"
-         arguments:@{@"replayId" : replayId ? replayId : [NSNull null]}
+         arguments:@{@"scope.replayId" : scopeReplayId ? scopeReplayId : [NSNull null]}
             result:^(id value) {
               if (value == nil) {
                 NSLog(@"SentryFlutterReplayScreenshotProvider received null "
