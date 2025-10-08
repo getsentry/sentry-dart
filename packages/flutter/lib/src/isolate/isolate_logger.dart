@@ -75,7 +75,7 @@ class IsolateLogger {
   }
 
   static bool _isEnabled(SentryLevel level) {
-    return _debug && level.ordinal >= _level.ordinal ||
+    return (_debug && level.ordinal >= _level.ordinal) ||
         level == SentryLevel.fatal;
   }
 }
