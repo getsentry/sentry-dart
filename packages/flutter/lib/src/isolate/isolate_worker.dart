@@ -45,19 +45,19 @@ class Worker {
   }
 
   /// Send a request to the worker and await a response.
-  Future<Object?> request(Object? payload) {
+  Future<Object?> request(Object? payload) async {
     if (_closed) throw StateError('Worker is closed');
     final id = _idCounter++;
     final completer = Completer<Object?>.sync();
     _pending[id] = completer;
     _workerPort.send((id, payload));
-    return completer.future;
+    return await completer.future;
   }
 
   void close() {
     if (_closed) return;
-    _workerPort.send(_shutdownCommand);
     _closed = true;
+    _workerPort.send(_shutdownCommand);
     if (_pending.isEmpty) {
       _responses.close();
     }
@@ -97,11 +97,16 @@ Future<Worker> spawnWorker(
     ));
   };
 
-  await Isolate.spawn<(SendPort, WorkerConfig)>(
-    entry,
-    (initPort.sendPort, config),
-    debugName: config.debugName,
-  );
+  try {
+    await Isolate.spawn<(SendPort, WorkerConfig)>(
+      entry,
+      (initPort.sendPort, config),
+      debugName: config.debugName,
+    );
+  } on Object {
+    initPort.close();
+    rethrow;
+  }
 
   final (ReceivePort receivePort, SendPort sendPort) = await connection.future;
   return Worker(sendPort, receivePort);
