@@ -3,7 +3,7 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../isolate_helper.dart';
+import '../isolate/isolate_helper.dart';
 
 /// Integration for adding thread information to spans.
 ///
