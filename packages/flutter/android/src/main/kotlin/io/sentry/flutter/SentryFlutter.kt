@@ -72,7 +72,7 @@ class SentryFlutter {
     }
     data.getIfNotNull<String>("diagnosticLevel") {
       if (options.isDebug) {
-        val sentryLevel = SentryLevel.valueOf(it.toUpperCase(Locale.ROOT))
+        val sentryLevel = SentryLevel.valueOf(it.uppercase())
         options.setDiagnosticLevel(sentryLevel)
       }
     }
@@ -165,7 +165,7 @@ class SentryFlutter {
               ?.let {
                 type =
                   try {
-                    Type.valueOf(it.toUpperCase(Locale.ROOT))
+                    Type.valueOf(it.uppercase())
                   } catch (_: IllegalArgumentException) {
                     Log.w("Sentry", "Could not parse `type` from proxy json: $proxyJson")
                     null
