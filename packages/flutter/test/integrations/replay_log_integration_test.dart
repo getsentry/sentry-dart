@@ -15,11 +15,23 @@ void main() {
   });
 
   group('ReplayLogIntegration', () {
-    test('adds replay_id attribute when replay is active (scope replayId set)',
+    test('does not register when replay is disabled', () async {
+      final integration = fixture.getSut();
+      fixture.options.replay.sessionSampleRate = 0.0;
+      fixture.options.replay.onErrorSampleRate = 0.0;
+
+      await integration.call(fixture.hub, fixture.options);
+
+      // Integration should not be registered when replay is disabled
+      expect(fixture.options.sdk.integrations.contains('ReplayLog'), false);
+    });
+
+    test(
+        'adds replay_id attribute when sessionSampleRate > 0 and scope replayId is set',
         () async {
       final integration = fixture.getSut();
 
-      fixture.options.replay.onErrorSampleRate = 0.5;
+      fixture.options.replay.sessionSampleRate = 0.5;
       fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
 
       await integration.call(fixture.hub, fixture.options);
@@ -30,7 +42,72 @@ void main() {
       expect(log.attributes['sentry.replay_id']?.value, 'testreplayid');
       expect(log.attributes['sentry.replay_id']?.type, 'string');
 
-      // When scope replayId is set, no buffering flag should be added
+      // When scope replayId is set via session sample rate, no buffering flag should be added
+      expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
+          false);
+    });
+
+    test(
+        'does not add replay_id when sessionSampleRate is 0 even if scope replayId is set',
+        () async {
+      final integration = fixture.getSut();
+
+      fixture.options.replay.sessionSampleRate = 0.0;
+      fixture.options.replay.onErrorSampleRate = 0.5; // Needed to enable replay
+      fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
+
+      await integration.call(fixture.hub, fixture.options);
+
+      final log = fixture.createTestLog();
+      await fixture.hub.captureLog(log);
+
+      expect(log.attributes.containsKey('sentry.replay_id'), false);
+      expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
+          false);
+    });
+
+    test(
+        'does not add replay_id when sessionSampleRate is null even if scope replayId is set',
+        () async {
+      final integration = fixture.getSut();
+
+      fixture.options.replay.sessionSampleRate = null;
+      fixture.options.replay.onErrorSampleRate = 0.5; // Needed to enable replay
+      fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
+
+      await integration.call(fixture.hub, fixture.options);
+
+      final log = fixture.createTestLog();
+      await fixture.hub.captureLog(log);
+
+      expect(log.attributes.containsKey('sentry.replay_id'), false);
+      expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
+          false);
+    });
+
+    test(
+        'scope replayId takes precedence over native replayId when sessionSampleRate > 0',
+        () async {
+      final integration = fixture.getSut();
+
+      fixture.options.replay.sessionSampleRate = 0.5;
+      fixture.options.replay.onErrorSampleRate = 0.5;
+      fixture.hub.scope.replayId = SentryId.fromId('scope-replay-id');
+
+      // Mock native replayId to simulate buffering mode
+      final nativeReplayId = SentryId.fromId('native-replay-id');
+      when(fixture.nativeBinding.replayId).thenReturn(nativeReplayId);
+
+      await integration.call(fixture.hub, fixture.options);
+
+      final log = fixture.createTestLog();
+      await fixture.hub.captureLog(log);
+
+      // Should use scope replayId, not native replayId
+      expect(log.attributes['sentry.replay_id']?.value, 'scopereplayid');
+      expect(log.attributes['sentry.replay_id']?.type, 'string');
+
+      // Should NOT add buffering flag when scope replayId is used
       expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
           false);
     });
@@ -60,79 +137,95 @@ void main() {
           'boolean');
     });
 
-    test('does not add buffering flag when onErrorSampleRate is disabled',
+    test(
+        'does not add anything when onErrorSampleRate is 0 and no scope replayId',
         () async {
       final integration = fixture.getSut();
+      fixture.options.replay.sessionSampleRate = 0.5; // Needed to enable replay
       fixture.options.replay.onErrorSampleRate = 0.0;
+
+      // Mock native replayId to simulate buffering mode
+      final nativeReplayId = SentryId.fromId('native-replay-id');
+      when(fixture.nativeBinding.replayId).thenReturn(nativeReplayId);
 
       await integration.call(fixture.hub, fixture.options);
 
       final log = fixture.createTestLog();
       await fixture.hub.captureLog(log);
 
+      // When onErrorSampleRate is 0, native replayId should be ignored
       expect(log.attributes.containsKey('sentry.replay_id'), false);
       expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
           false);
     });
 
     test(
-        'adds replay_id but not buffering flag when onErrorSampleRate is disabled',
+        'does not add anything when onErrorSampleRate is null and no scope replayId',
         () async {
       final integration = fixture.getSut();
-      fixture.options.replay.onErrorSampleRate = 0.0;
-      fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
-
-      await integration.call(fixture.hub, fixture.options);
-
-      final log = fixture.createTestLog();
-      await fixture.hub.captureLog(log);
-
-      expect(log.attributes['sentry.replay_id']?.value, 'testreplayid');
-      expect(log.attributes['sentry.replay_id']?.type, 'string');
-
-      expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
-          false);
-    });
-
-    test('does not add buffering flag when onErrorSampleRate is null',
-        () async {
-      final integration = fixture.getSut();
-
+      fixture.options.replay.sessionSampleRate = 0.5; // Needed to enable replay
       fixture.options.replay.onErrorSampleRate = null;
 
+      // Mock native replayId to simulate buffering mode
+      final nativeReplayId = SentryId.fromId('native-replay-id');
+      when(fixture.nativeBinding.replayId).thenReturn(nativeReplayId);
+
       await integration.call(fixture.hub, fixture.options);
 
       final log = fixture.createTestLog();
       await fixture.hub.captureLog(log);
 
+      // When onErrorSampleRate is null, native replayId should be ignored
       expect(log.attributes.containsKey('sentry.replay_id'), false);
       expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
           false);
     });
 
-    test('adds replay_id but not buffering flag when onErrorSampleRate is null',
+    test(
+        'does not add native replayId when scope replayId is not set and sessionSampleRate is 0',
         () async {
       final integration = fixture.getSut();
-      fixture.options.replay.onErrorSampleRate = null;
-      fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
+      fixture.options.replay.sessionSampleRate = 0.0;
+      fixture.options.replay.onErrorSampleRate = 0.5;
+
+      // Mock native replayId to simulate buffering mode
+      final nativeReplayId = SentryId.fromId('native-replay-id');
+      when(fixture.nativeBinding.replayId).thenReturn(nativeReplayId);
 
       await integration.call(fixture.hub, fixture.options);
 
       final log = fixture.createTestLog();
       await fixture.hub.captureLog(log);
 
-      expect(log.attributes['sentry.replay_id']?.value, 'testreplayid');
+      // When scope replayId is not set but onErrorSampleRate > 0, should use native replayId
+      expect(log.attributes['sentry.replay_id']?.value, 'nativereplayid');
       expect(log.attributes['sentry.replay_id']?.type, 'string');
-
-      expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
-          false);
+      expect(
+          log.attributes['sentry._internal.replay_is_buffering']?.value, true);
+      expect(log.attributes['sentry._internal.replay_is_buffering']?.type,
+          'boolean');
     });
 
-    test('registers integration name in SDK', () async {
+    test('registers integration name in SDK with sessionSampleRate', () async {
+      final integration = fixture.getSut();
+
+      fixture.options.replay.sessionSampleRate = 0.5;
+      fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
+
+      await integration.call(fixture.hub, fixture.options);
+
+      // Integration name is registered in SDK
+      expect(fixture.options.sdk.integrations.contains('ReplayLog'), true);
+    });
+
+    test('registers integration name in SDK with onErrorSampleRate', () async {
       final integration = fixture.getSut();
 
       fixture.options.replay.onErrorSampleRate = 0.5;
-      fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
+
+      // Mock native replayId
+      final nativeReplayId = SentryId.fromId('native-replay-id');
+      when(fixture.nativeBinding.replayId).thenReturn(nativeReplayId);
 
       await integration.call(fixture.hub, fixture.options);
 
@@ -143,7 +236,7 @@ void main() {
     test('removes callback on close', () async {
       final integration = fixture.getSut();
 
-      fixture.options.replay.onErrorSampleRate = 0.5;
+      fixture.options.replay.sessionSampleRate = 0.5;
       fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
 
       await integration.call(fixture.hub, fixture.options);

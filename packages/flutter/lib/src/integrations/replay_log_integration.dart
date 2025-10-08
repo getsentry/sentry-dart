@@ -16,16 +16,22 @@ class ReplayLogIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
+    if (!options.replay.isEnabled) {
+      return;
+    }
+    final sessionSampleRate = options.replay.sessionSampleRate ?? 0;
+    final onErrorSampleRate = options.replay.onErrorSampleRate ?? 0;
+
     _options = options;
     _addReplayInformation = (OnBeforeCaptureLog event) {
       final scopeReplayId = hub.scope.replayId;
       final replayId = _native?.replayId;
 
-      if (scopeReplayId != null) {
+      if (sessionSampleRate > 0 && scopeReplayId != null) {
         event.log.attributes['sentry.replay_id'] = SentryLogAttribute.string(
           scopeReplayId.toString(),
         );
-      } else if (replayId != null) {
+      } else if (onErrorSampleRate > 0 && replayId != null) {
         event.log.attributes['sentry.replay_id'] = SentryLogAttribute.string(
           replayId.toString(),
         );
