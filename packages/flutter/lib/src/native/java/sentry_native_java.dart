@@ -31,9 +31,15 @@ class SentryNativeJava extends SentryNativeChannel {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'ReplayRecorder.start':
-            final scopeReplayId =
-                SentryId.fromId(call.arguments['scope.replayId'] as String);
-            _replayId = SentryId.fromId(call.arguments['replayId'] as String);
+            final scopeReplayIdArg = call.arguments['scope.replayId'];
+            final replayIdArg = call.arguments['replayId'];
+
+            final scopeReplayId = scopeReplayIdArg != null
+                ? SentryId.fromId(scopeReplayIdArg as String)
+                : null;
+            _replayId = replayIdArg != null
+                ? SentryId.fromId(replayIdArg as String)
+                : null;
 
             _replayRecorder = AndroidReplayRecorder.factory(options);
             await _replayRecorder!.start();
