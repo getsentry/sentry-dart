@@ -78,7 +78,10 @@ class SentrySpan extends ISentrySpan {
     }
 
     // Dispatch OnSpanFinish lifecycle event
-    await _hub.options.lifecycleRegistry.dispatchCallback(OnSpanFinish(this));
+    final callback = _hub.options.lifecycleRegistry.dispatchCallback(OnSpanFinish(this));
+    if (callback is Future) {
+      await callback;
+    }
 
     // The finished flag depends on the _endTimestamp
     // If we set this earlier then finished is true and then we cannot use setData etc...

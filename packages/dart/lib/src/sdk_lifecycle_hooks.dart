@@ -34,7 +34,17 @@ class SdkLifecycleRegistry {
     callbacks?.remove(callback);
   }
 
-  FutureOr<void> dispatchCallback<T extends SdkLifecycleEvent>(T event) async {
+  FutureOr<void> dispatchCallback<T extends SdkLifecycleEvent>(T event) {
+    final callbacks = _lifecycleCallbacks[event.runtimeType];
+    if (callbacks == null || callbacks.isEmpty) {
+      // Return synchronously when there are no callbacks to avoid unnecessary async boundary
+      return null;
+    }
+    return _dispatchCallbackAsync(event, callbacks);
+  }
+
+  Future<void> _dispatchCallbackAsync<T extends SdkLifecycleEvent>(
+      T event, List<Function> callbacks) async {
     final callbacks = _lifecycleCallbacks[event.runtimeType] ?? [];
     for (final cb in callbacks) {
       try {
