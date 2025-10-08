@@ -73,4 +73,60 @@ class SentrySpanHelper {
       await _hub.scope.addBreadcrumb(breadcrumb);
     }
   }
+
+  /// @nodoc
+  @internal
+  T syncWrapInSpan<T>(
+    String description,
+    T Function() execute, {
+    String? dbName,
+  }) {
+    final currentSpan = _hub.getSpan();
+    final span = currentSpan?.startChild(
+      SentryHiveImpl.dbOp,
+      description: description,
+    );
+
+    // ignore: invalid_use_of_internal_member
+    span?.origin = _origin;
+    span?.setData('sync', true);
+
+    final breadcrumb = Breadcrumb(
+      message: description,
+      data: {},
+      type: 'query',
+    );
+
+    span?.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
+    if (dbName != null) {
+      span?.setData(SentryHiveImpl.dbNameKey, dbName);
+    }
+
+    breadcrumb.data?[SentryHiveImpl.dbSystemKey] = SentryHiveImpl.dbSystem;
+    if (dbName != null) {
+      breadcrumb.data?[SentryHiveImpl.dbNameKey] = dbName;
+    }
+
+    try {
+      final result = execute();
+
+      span?.status = SpanStatus.ok();
+      breadcrumb.data?['status'] = 'ok';
+
+      return result;
+    } catch (exception) {
+      span?.throwable = exception;
+      span?.status = SpanStatus.internalError();
+
+      breadcrumb.data?['status'] = 'internal_error';
+      breadcrumb.level = SentryLevel.warning;
+
+      rethrow;
+    } finally {
+      span?.finish();
+
+      // ignore: invalid_use_of_internal_member
+      _hub.scope.addBreadcrumb(breadcrumb);
+    }
+  }
 }
