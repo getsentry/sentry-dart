@@ -108,6 +108,7 @@ class SentryFlutter {
     data.getIfNotNull<Boolean>("enableAutoPerformanceTracing") { enableAutoPerformanceTracing ->
       if (enableAutoPerformanceTracing) {
         autoPerformanceTracingEnabled = true
+        SentryFlutterPlugin.setAutoPerformanceTracingEnabled(true)
       }
     }
 

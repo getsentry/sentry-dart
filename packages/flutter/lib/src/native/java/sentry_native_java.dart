@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/scheduled_recorder_config.dart';
+import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
 import '../utils/utf8_json.dart';
 import 'android_envelope_sender.dart';
@@ -176,6 +177,34 @@ class SentryNativeJava extends SentryNativeChannel {
     return native.SentryFlutterPlugin.Companion
         .getDisplayRefreshRate()
         ?.intValue();
+  }
+
+  @override
+  NativeAppStart? fetchNativeAppStart() {
+    JByteArray? appStartUtf8JsonBytes;
+
+    try {
+      appStartUtf8JsonBytes =
+          native.SentryFlutterPlugin.Companion.fetchNativeAppStartAsBytes();
+      if (appStartUtf8JsonBytes == null) return null;
+
+      final byteRange =
+          appStartUtf8JsonBytes.getRange(0, appStartUtf8JsonBytes.length);
+      final bytes = Uint8List.view(
+          byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
+      final appStartMap = decodeUtf8JsonMap(bytes);
+      return NativeAppStart.fromJson(appStartMap);
+    } catch (exception, stackTrace) {
+      options.log(SentryLevel.error, 'JNI: Failed to fetch native app start',
+          exception: exception, stackTrace: stackTrace);
+      if (options.automatedTestMode) {
+        rethrow;
+      }
+    } finally {
+      appStartUtf8JsonBytes?.release();
+    }
+
+    return null;
   }
 
   @override

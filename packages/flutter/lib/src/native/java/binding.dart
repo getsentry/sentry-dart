@@ -1330,6 +1330,32 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<jni$_.JInteger?>(const jni$_.JIntegerNullableType());
   }
 
+  static final _id_fetchNativeAppStartAsBytes = _class.instanceMethodId(
+    r'fetchNativeAppStartAsBytes',
+    r'()[B',
+  );
+
+  static final _fetchNativeAppStartAsBytes =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallObjectMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public final byte[] fetchNativeAppStartAsBytes()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JByteArray? fetchNativeAppStartAsBytes() {
+    return _fetchNativeAppStartAsBytes(reference.pointer,
+            _id_fetchNativeAppStartAsBytes as jni$_.JMethodIDPtr)
+        .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
   static final _id_getApplicationContext = _class.instanceMethodId(
     r'getApplicationContext',
     r'()Landroid/content/Context;',
@@ -1353,6 +1379,32 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
     return _getApplicationContext(
             reference.pointer, _id_getApplicationContext as jni$_.JMethodIDPtr)
         .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_setAutoPerformanceTracingEnabled = _class.instanceMethodId(
+    r'setAutoPerformanceTracingEnabled',
+    r'(Z)V',
+  );
+
+  static final _setAutoPerformanceTracingEnabled =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int32,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public final void setAutoPerformanceTracingEnabled(boolean z)`
+  void setAutoPerformanceTracingEnabled(
+    bool z,
+  ) {
+    _setAutoPerformanceTracingEnabled(
+            reference.pointer,
+            _id_setAutoPerformanceTracingEnabled as jni$_.JMethodIDPtr,
+            z ? 1 : 0)
+        .check();
   }
 
   static final _id_loadContextsAsBytes = _class.instanceMethodId(
@@ -1815,6 +1867,32 @@ class SentryFlutterPlugin extends jni$_.JObject {
         .object<jni$_.JInteger?>(const jni$_.JIntegerNullableType());
   }
 
+  static final _id_fetchNativeAppStartAsBytes = _class.staticMethodId(
+    r'fetchNativeAppStartAsBytes',
+    r'()[B',
+  );
+
+  static final _fetchNativeAppStartAsBytes =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallStaticObjectMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `static public final byte[] fetchNativeAppStartAsBytes()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JByteArray? fetchNativeAppStartAsBytes() {
+    return _fetchNativeAppStartAsBytes(_class.reference.pointer,
+            _id_fetchNativeAppStartAsBytes as jni$_.JMethodIDPtr)
+        .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
   static final _id_getApplicationContext = _class.staticMethodId(
     r'getApplicationContext',
     r'()Landroid/content/Context;',
@@ -1838,6 +1916,32 @@ class SentryFlutterPlugin extends jni$_.JObject {
     return _getApplicationContext(_class.reference.pointer,
             _id_getApplicationContext as jni$_.JMethodIDPtr)
         .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_setAutoPerformanceTracingEnabled = _class.staticMethodId(
+    r'setAutoPerformanceTracingEnabled',
+    r'(Z)V',
+  );
+
+  static final _setAutoPerformanceTracingEnabled =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int32,)>)>>(
+              'globalEnv_CallStaticVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `static public final void setAutoPerformanceTracingEnabled(boolean z)`
+  static void setAutoPerformanceTracingEnabled(
+    bool z,
+  ) {
+    _setAutoPerformanceTracingEnabled(
+            _class.reference.pointer,
+            _id_setAutoPerformanceTracingEnabled as jni$_.JMethodIDPtr,
+            z ? 1 : 0)
+        .check();
   }
 
   static final _id_loadContextsAsBytes = _class.staticMethodId(

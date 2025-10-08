@@ -43,10 +43,8 @@ class SentryFlutterPlugin :
   private lateinit var context: Context
   private lateinit var sentryFlutter: SentryFlutter
 
-  private var pluginRegistrationTime: Long? = null
-
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    pluginRegistrationTime = System.currentTimeMillis()
+    Companion.pluginRegistrationTime = System.currentTimeMillis()
 
     context = flutterPluginBinding.applicationContext
     applicationContext = context
@@ -64,7 +62,6 @@ class SentryFlutterPlugin :
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "closeNativeSdk" -> closeNativeSdk(result)
-      "fetchNativeAppStart" -> fetchNativeAppStart(result)
       "setContexts" -> setContexts(call.argument("key"), call.argument("value"), result)
       "removeContexts" -> removeContexts(call.argument("key"), result)
       "setUser" -> setUser(call.argument("user"), result)
@@ -149,83 +146,6 @@ class SentryFlutterPlugin :
     }
   }
 
-  private fun fetchNativeAppStart(result: Result) {
-    if (!sentryFlutter.autoPerformanceTracingEnabled) {
-      result.success(null)
-      return
-    }
-
-    val appStartMetrics = AppStartMetrics.getInstance()
-
-    if (!appStartMetrics.isAppLaunchedInForeground ||
-      appStartMetrics.appStartTimeSpan.durationMs > APP_START_MAX_DURATION_MS
-    ) {
-      Log.w(
-        "Sentry",
-        "Invalid app start data: app not launched in foreground or app start took too long (>60s)",
-      )
-      result.success(null)
-      return
-    }
-
-    val appStartTimeSpan = appStartMetrics.appStartTimeSpan
-    val appStartTime = appStartTimeSpan.startTimestamp
-    val isColdStart = appStartMetrics.appStartType == AppStartMetrics.AppStartType.COLD
-
-    if (appStartTime == null) {
-      Log.w("Sentry", "App start won't be sent due to missing appStartTime")
-      result.success(null)
-    } else {
-      val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
-      val item =
-
-        mutableMapOf<String, Any?>(
-          "pluginRegistrationTime" to pluginRegistrationTime,
-          "appStartTime" to appStartTimeMillis,
-          "isColdStart" to isColdStart,
-        )
-
-      val androidNativeSpans = mutableMapOf<String, Any?>()
-
-      val processInitSpan =
-        TimeSpan().apply {
-          description = "Process Initialization"
-          setStartUnixTimeMs(appStartTimeSpan.startTimestampMs)
-          setStartedAt(appStartTimeSpan.startUptimeMs)
-          setStoppedAt(appStartMetrics.classLoadedUptimeMs)
-        }
-      processInitSpan.addToMap(androidNativeSpans)
-
-      val applicationOnCreateSpan = appStartMetrics.applicationOnCreateTimeSpan
-      applicationOnCreateSpan.addToMap(androidNativeSpans)
-
-      val contentProviderSpans = appStartMetrics.contentProviderOnCreateTimeSpans
-      contentProviderSpans.forEach { span ->
-        span.addToMap(androidNativeSpans)
-      }
-
-      appStartMetrics.activityLifecycleTimeSpans.forEach { span ->
-        span.onCreate.addToMap(androidNativeSpans)
-        span.onStart.addToMap(androidNativeSpans)
-      }
-
-      item["nativeSpanTimes"] = androidNativeSpans
-
-      result.success(item)
-    }
-  }
-
-  private fun TimeSpan.addToMap(map: MutableMap<String, Any?>) {
-    if (startTimestamp == null) return
-
-    description?.let { description ->
-      map[description] =
-        mapOf<String, Any?>(
-          "startTimestampMsSinceEpoch" to startTimestampMs,
-          "stopTimestampMsSinceEpoch" to projectedStopTimestampMs,
-        )
-    }
-  }
   private fun setContexts(
     key: String?,
     value: Any?,
@@ -359,6 +279,9 @@ class SentryFlutterPlugin :
     @SuppressLint("StaticFieldLeak")
     private var activity: WeakReference<Activity>? = null
 
+    private var pluginRegistrationTime: Long? = null
+    private var autoPerformanceTracingEnabled: Boolean = false
+
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
     @Suppress("unused") // Used by native/jni bindings
@@ -390,8 +313,88 @@ class SentryFlutterPlugin :
       return refreshRate
     }
 
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun fetchNativeAppStartAsBytes(): ByteArray? {
+      if (!autoPerformanceTracingEnabled) {
+        return null
+      }
+
+      val appStartMetrics = AppStartMetrics.getInstance()
+
+      if (!appStartMetrics.isAppLaunchedInForeground ||
+        appStartMetrics.appStartTimeSpan.durationMs > APP_START_MAX_DURATION_MS
+      ) {
+        Log.w(
+          "Sentry",
+          "Invalid app start data: app not launched in foreground or app start took too long (>60s)",
+        )
+        return null
+      }
+
+      val appStartTimeSpan = appStartMetrics.appStartTimeSpan
+      val appStartTime = appStartTimeSpan.startTimestamp
+      val isColdStart = appStartMetrics.appStartType == AppStartMetrics.AppStartType.COLD
+
+      if (appStartTime == null) {
+        Log.w("Sentry", "App start won't be sent due to missing appStartTime")
+        return null
+      }
+
+      val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
+      val item = mutableMapOf<String, Any?>(
+        "pluginRegistrationTime" to pluginRegistrationTime,
+        "appStartTime" to appStartTimeMillis,
+        "isColdStart" to isColdStart,
+      )
+
+      val androidNativeSpans = mutableMapOf<String, Any?>()
+
+      val processInitSpan = TimeSpan().apply {
+        description = "Process Initialization"
+        setStartUnixTimeMs(appStartTimeSpan.startTimestampMs)
+        setStartedAt(appStartTimeSpan.startUptimeMs)
+        setStoppedAt(appStartMetrics.classLoadedUptimeMs)
+      }
+      addTimeSpanToMap(processInitSpan, androidNativeSpans)
+
+      val applicationOnCreateSpan = appStartMetrics.applicationOnCreateTimeSpan
+      addTimeSpanToMap(applicationOnCreateSpan, androidNativeSpans)
+
+      val contentProviderSpans = appStartMetrics.contentProviderOnCreateTimeSpans
+      contentProviderSpans.forEach { span ->
+        addTimeSpanToMap(span, androidNativeSpans)
+      }
+
+      appStartMetrics.activityLifecycleTimeSpans.forEach { span ->
+        addTimeSpanToMap(span.onCreate, androidNativeSpans)
+        addTimeSpanToMap(span.onStart, androidNativeSpans)
+      }
+
+      item["nativeSpanTimes"] = androidNativeSpans
+
+      val json = JSONObject(item).toString()
+      return json.toByteArray(Charsets.UTF_8)
+    }
+
+    private fun addTimeSpanToMap(span: TimeSpan, map: MutableMap<String, Any?>) {
+      if (span.startTimestamp == null) return
+
+      span.description?.let { description ->
+        map[description] = mapOf<String, Any?>(
+          "startTimestampMsSinceEpoch" to span.startTimestampMs,
+          "stopTimestampMsSinceEpoch" to span.projectedStopTimestampMs,
+        )
+      }
+    }
+
     @JvmStatic
     fun getApplicationContext(): Context? = applicationContext
+
+    @JvmStatic
+    fun setAutoPerformanceTracingEnabled(enabled: Boolean) {
+      autoPerformanceTracingEnabled = enabled
+    }
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
