@@ -1128,7 +1128,9 @@ late final _sel_fetchNativeAppStartAsBytes =
 late final _sel_loadContextsAsBytes = objc.registerName("loadContextsAsBytes");
 late final _sel_loadDebugImagesAsBytes_ =
     objc.registerName("loadDebugImagesAsBytes:");
-late final _sel_nativeCrash = objc.registerName("nativeCrash");
+late final _sel_addBreadcrumbAsBytes_ =
+    objc.registerName("addBreadcrumbAsBytes:");
+late final _sel_clearBreadcrumbs = objc.registerName("clearBreadcrumbs");
 final _objc_msgSend_1pl9qdv = objc.msgSendPointer
     .cast<
         ffi.NativeFunction<
@@ -1137,6 +1139,7 @@ final _objc_msgSend_1pl9qdv = objc.msgSendPointer
     .asFunction<
         void Function(
             ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+late final _sel_nativeCrash = objc.registerName("nativeCrash");
 late final _sel_pauseAppHangTracking =
     objc.registerName("pauseAppHangTracking");
 late final _sel_resumeAppHangTracking =
@@ -1197,6 +1200,17 @@ class SentryFlutterPlugin extends objc.NSObject {
     return _ret.address == 0
         ? null
         : objc.NSData.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// addBreadcrumbAsBytes:
+  static void addBreadcrumbAsBytes(objc.NSData breadcrumbBytes) {
+    _objc_msgSend_xtuoz7(_class_SentryFlutterPlugin, _sel_addBreadcrumbAsBytes_,
+        breadcrumbBytes.ref.pointer);
+  }
+
+  /// clearBreadcrumbs
+  static void clearBreadcrumbs() {
+    _objc_msgSend_1pl9qdv(_class_SentryFlutterPlugin, _sel_clearBreadcrumbs);
   }
 
   /// nativeCrash

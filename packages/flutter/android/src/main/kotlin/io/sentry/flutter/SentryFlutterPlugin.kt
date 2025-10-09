@@ -15,8 +15,12 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.Breadcrumb
 import io.sentry.DateUtils
+import io.sentry.JsonObjectDeserializer
+import io.sentry.JsonObjectReader
+import io.sentry.ObjectReader
 import io.sentry.ScopesAdapter
 import io.sentry.Sentry
+import io.sentry.SentryOptions
 import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
@@ -29,6 +33,7 @@ import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import org.json.JSONObject
 import org.json.JSONArray
+import java.io.StringReader
 import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
 
@@ -66,7 +71,6 @@ class SentryFlutterPlugin :
       "removeContexts" -> removeContexts(call.argument("key"), result)
       "setUser" -> setUser(call.argument("user"), result)
       "addBreadcrumb" -> addBreadcrumb(call.argument("breadcrumb"), result)
-      "clearBreadcrumbs" -> clearBreadcrumbs(result)
       "setExtra" -> setExtra(call.argument("key"), call.argument("value"), result)
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
@@ -199,12 +203,6 @@ class SentryFlutterPlugin :
       val breadcrumbInstance = Breadcrumb.fromMap(breadcrumb, options)
       Sentry.addBreadcrumb(breadcrumbInstance)
     }
-    result.success("")
-  }
-
-  private fun clearBreadcrumbs(result: Result) {
-    Sentry.clearBreadcrumbs()
-
     result.success("")
   }
 
@@ -446,6 +444,22 @@ class SentryFlutterPlugin :
 
       val json = JSONArray(debugImages).toString()
       return json.toByteArray(Charsets.UTF_8)
+    }
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun addBreadcrumbAsBytes(breadcrumbBytes: ByteArray) {
+      val logger = ScopesAdapter.getInstance().options.logger
+      val breadcrumbJson = breadcrumbBytes.toString(Charsets.UTF_8)
+      val reader = JsonObjectReader(StringReader(breadcrumbJson))
+      val breadcrumb = Breadcrumb.Deserializer().deserialize(reader, logger)
+      Sentry.addBreadcrumb(breadcrumb)
+    }
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun clearBreadcrumbs() {
+      Sentry.clearBreadcrumbs()
     }
 
     internal fun setAutoPerformanceTracingEnabled(enabled: Boolean) {

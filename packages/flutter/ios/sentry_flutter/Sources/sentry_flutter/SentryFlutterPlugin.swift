@@ -646,6 +646,22 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         }
         return nil
   }
+
+  @objc public class func addBreadcrumbAsBytes(_ breadcrumbBytes: NSData) {
+      guard let breadcrumbString = String(data: breadcrumbBytes as Data, encoding: .utf8),
+            let jsonData = breadcrumbString.data(using: .utf8),
+            let breadcrumbDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+          return
+      }
+      let breadcrumbInstance = PrivateSentrySDKOnly.breadcrumb(with: breadcrumbDict)
+      SentrySDK.addBreadcrumb(breadcrumbInstance)
+  }
+
+  @objc public class func clearBreadcrumbs() {
+      SentrySDK.configureScope { scope in
+          scope.clearBreadcrumbs()
+      }
+  }
 }
 // swiftlint:enable type_body_length
 

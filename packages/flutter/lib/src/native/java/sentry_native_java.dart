@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
@@ -219,5 +220,41 @@ class SentryNativeJava extends SentryNativeChannel {
     await _replayRecorder?.stop();
     await _envelopeSender?.close();
     return super.close();
+  }
+
+  @override
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+    JByteArray? breadcrumbBytes;
+
+    tryCatchSync('addBreadcrumb', () {
+      final normalizedBreadcrumb = Breadcrumb(
+        message: breadcrumb.message,
+        category: breadcrumb.category,
+        data: breadcrumb.data != null
+            ? Map<String, dynamic>.from(breadcrumb.data!)
+            : null,
+        level: breadcrumb.level,
+        type: breadcrumb.type,
+        timestamp: breadcrumb.timestamp,
+        // ignore: invalid_use_of_internal_member
+        unknown: breadcrumb.unknown,
+      );
+
+      final jsonString = json.encode(normalizedBreadcrumb.toJson());
+      final bytes = utf8.encode(jsonString);
+      breadcrumbBytes = JByteArray.from(bytes);
+
+      native.SentryFlutterPlugin.Companion
+          .addBreadcrumbAsBytes(breadcrumbBytes!);
+    }, finallyFn: () {
+      breadcrumbBytes?.release();
+    });
+  }
+
+  @override
+  Future<void> clearBreadcrumbs() async {
+    tryCatchSync('clearBreadcrumbs', () {
+      native.SentryFlutterPlugin.Companion.clearBreadcrumbs();
+    });
   }
 }

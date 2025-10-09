@@ -1456,6 +1456,56 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
   }
 
+  static final _id_addBreadcrumbAsBytes = _class.instanceMethodId(
+    r'addBreadcrumbAsBytes',
+    r'([B)V',
+  );
+
+  static final _addBreadcrumbAsBytes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final void addBreadcrumbAsBytes(byte[] bs)`
+  void addBreadcrumbAsBytes(
+    jni$_.JByteArray bs,
+  ) {
+    final _$bs = bs.reference;
+    _addBreadcrumbAsBytes(reference.pointer,
+            _id_addBreadcrumbAsBytes as jni$_.JMethodIDPtr, _$bs.pointer)
+        .check();
+  }
+
+  static final _id_clearBreadcrumbs = _class.instanceMethodId(
+    r'clearBreadcrumbs',
+    r'()V',
+  );
+
+  static final _clearBreadcrumbs = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final void clearBreadcrumbs()`
+  void clearBreadcrumbs() {
+    _clearBreadcrumbs(
+            reference.pointer, _id_clearBreadcrumbs as jni$_.JMethodIDPtr)
+        .check();
+  }
+
   static final _id_new$ = _class.constructorId(
     r'(Lkotlin/jvm/internal/DefaultConstructorMarker;)V',
   );
@@ -1989,6 +2039,56 @@ class SentryFlutterPlugin extends jni$_.JObject {
     return _loadDebugImagesAsBytes(_class.reference.pointer,
             _id_loadDebugImagesAsBytes as jni$_.JMethodIDPtr, _$set.pointer)
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
+  static final _id_addBreadcrumbAsBytes = _class.staticMethodId(
+    r'addBreadcrumbAsBytes',
+    r'([B)V',
+  );
+
+  static final _addBreadcrumbAsBytes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public final void addBreadcrumbAsBytes(byte[] bs)`
+  static void addBreadcrumbAsBytes(
+    jni$_.JByteArray bs,
+  ) {
+    final _$bs = bs.reference;
+    _addBreadcrumbAsBytes(_class.reference.pointer,
+            _id_addBreadcrumbAsBytes as jni$_.JMethodIDPtr, _$bs.pointer)
+        .check();
+  }
+
+  static final _id_clearBreadcrumbs = _class.staticMethodId(
+    r'clearBreadcrumbs',
+    r'()V',
+  );
+
+  static final _clearBreadcrumbs = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public final void clearBreadcrumbs()`
+  static void clearBreadcrumbs() {
+    _clearBreadcrumbs(_class.reference.pointer,
+            _id_clearBreadcrumbs as jni$_.JMethodIDPtr)
+        .check();
   }
 }
 

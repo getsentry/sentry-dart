@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
@@ -195,6 +196,38 @@ class SentryNativeCocoa extends SentryNativeChannel {
   void resumeAppHangTracking() {
     tryCatchSync('resumeAppHangTracking', () {
       cocoa.SentryFlutterPlugin.resumeAppHangTracking();
+    });
+  }
+
+  @override
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+    tryCatchSync('addBreadcrumb', () {
+      // Normalize breadcrumb data like the method channel does
+      final normalizedBreadcrumb = Breadcrumb(
+        message: breadcrumb.message,
+        category: breadcrumb.category,
+        data: breadcrumb.data != null
+            ? Map<String, dynamic>.from(breadcrumb.data!)
+            : null,
+        level: breadcrumb.level,
+        type: breadcrumb.type,
+        timestamp: breadcrumb.timestamp,
+        // ignore: invalid_use_of_internal_member
+        unknown: breadcrumb.unknown,
+      );
+
+      final jsonString = json.encode(normalizedBreadcrumb.toJson());
+      final bytes = utf8.encode(jsonString);
+      final nsData = bytes.toNSData();
+
+      cocoa.SentryFlutterPlugin.addBreadcrumbAsBytes(nsData);
+    });
+  }
+
+  @override
+  Future<void> clearBreadcrumbs() async {
+    tryCatchSync('clearBreadcrumbs', () {
+      cocoa.SentryFlutterPlugin.clearBreadcrumbs();
     });
   }
 }
