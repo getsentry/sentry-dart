@@ -1381,32 +1381,6 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
   }
 
-  static final _id_setAutoPerformanceTracingEnabled = _class.instanceMethodId(
-    r'setAutoPerformanceTracingEnabled',
-    r'(Z)V',
-  );
-
-  static final _setAutoPerformanceTracingEnabled =
-      jni$_.ProtectedJniExtensions.lookup<
-                  jni$_.NativeFunction<
-                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int32,)>)>>(
-              'globalEnv_CallVoidMethod')
-          .asFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
-
-  /// from: `public final void setAutoPerformanceTracingEnabled(boolean z)`
-  void setAutoPerformanceTracingEnabled(
-    bool z,
-  ) {
-    _setAutoPerformanceTracingEnabled(
-            reference.pointer,
-            _id_setAutoPerformanceTracingEnabled as jni$_.JMethodIDPtr,
-            z ? 1 : 0)
-        .check();
-  }
-
   static final _id_loadContextsAsBytes = _class.instanceMethodId(
     r'loadContextsAsBytes',
     r'()[B',
@@ -1916,32 +1890,6 @@ class SentryFlutterPlugin extends jni$_.JObject {
     return _getApplicationContext(_class.reference.pointer,
             _id_getApplicationContext as jni$_.JMethodIDPtr)
         .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
-  }
-
-  static final _id_setAutoPerformanceTracingEnabled = _class.staticMethodId(
-    r'setAutoPerformanceTracingEnabled',
-    r'(Z)V',
-  );
-
-  static final _setAutoPerformanceTracingEnabled =
-      jni$_.ProtectedJniExtensions.lookup<
-                  jni$_.NativeFunction<
-                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int32,)>)>>(
-              'globalEnv_CallStaticVoidMethod')
-          .asFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
-
-  /// from: `static public final void setAutoPerformanceTracingEnabled(boolean z)`
-  static void setAutoPerformanceTracingEnabled(
-    bool z,
-  ) {
-    _setAutoPerformanceTracingEnabled(
-            _class.reference.pointer,
-            _id_setAutoPerformanceTracingEnabled as jni$_.JMethodIDPtr,
-            z ? 1 : 0)
-        .check();
   }
 
   static final _id_loadContextsAsBytes = _class.staticMethodId(

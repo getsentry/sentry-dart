@@ -397,11 +397,6 @@ class SentryFlutterPlugin :
     @JvmStatic
     fun getApplicationContext(): Context? = applicationContext
 
-    @JvmStatic
-    fun setAutoPerformanceTracingEnabled(enabled: Boolean) {
-      autoPerformanceTracingEnabled = enabled
-    }
-
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun loadContextsAsBytes(): ByteArray? {
