@@ -173,38 +173,30 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  int? displayRefreshRate() {
-    return native.SentryFlutterPlugin.Companion
-        .getDisplayRefreshRate()
-        ?.intValue();
-  }
+  int? displayRefreshRate() => tryCatchSync('displayRefreshRate', () {
+        return native.SentryFlutterPlugin.Companion
+            .getDisplayRefreshRate()
+            ?.intValue();
+      });
 
   @override
   NativeAppStart? fetchNativeAppStart() {
     JByteArray? appStartUtf8JsonBytes;
 
-    try {
+    return tryCatchSync('fetchNativeAppStart', () {
       appStartUtf8JsonBytes =
           native.SentryFlutterPlugin.Companion.fetchNativeAppStartAsBytes();
       if (appStartUtf8JsonBytes == null) return null;
 
       final byteRange =
-          appStartUtf8JsonBytes.getRange(0, appStartUtf8JsonBytes.length);
+          appStartUtf8JsonBytes!.getRange(0, appStartUtf8JsonBytes!.length);
       final bytes = Uint8List.view(
           byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
       final appStartMap = decodeUtf8JsonMap(bytes);
       return NativeAppStart.fromJson(appStartMap);
-    } catch (exception, stackTrace) {
-      options.log(SentryLevel.error, 'JNI: Failed to fetch native app start',
-          exception: exception, stackTrace: stackTrace);
-      if (options.automatedTestMode) {
-        rethrow;
-      }
-    } finally {
+    }, finallyFn: () {
       appStartUtf8JsonBytes?.release();
-    }
-
-    return null;
+    });
   }
 
   @override
