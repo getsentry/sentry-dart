@@ -44,7 +44,7 @@ class SentryFlutterPlugin :
   private lateinit var sentryFlutter: SentryFlutter
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    Companion.pluginRegistrationTime = System.currentTimeMillis()
+    pluginRegistrationTime = System.currentTimeMillis()
 
     context = flutterPluginBinding.applicationContext
     applicationContext = context
@@ -281,7 +281,6 @@ class SentryFlutterPlugin :
     private var activity: WeakReference<Activity>? = null
 
     private var pluginRegistrationTime: Long? = null
-    private var autoPerformanceTracingEnabled: Boolean = false
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
