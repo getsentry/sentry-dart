@@ -38,34 +38,15 @@ void main() {
       // TODO move other methods here, e.g. init_native_sdk_test.dart
 
       test('fetchNativeAppStart', () async {
-        when(channel.invokeMethod('fetchNativeAppStart'))
-            .thenAnswer((_) async => {
-                  'pluginRegistrationTime': 1,
-                  'appStartTime': 0.1,
-                  'isColdStart': true,
-                  // ignore: inference_failure_on_collection_literal
-                  'nativeSpanTimes': {},
-                });
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
 
-        final actual = await sut.fetchNativeAppStart();
+        expect(() => sut.fetchNativeAppStart(), matcher);
 
-        expect(actual?.appStartTime, 0.1);
-        expect(actual?.isColdStart, true);
-      });
-
-      test('invalid fetchNativeAppStart returns null', () async {
-        when(channel.invokeMethod('fetchNativeAppStart'))
-            .thenAnswer((_) async => {
-                  'pluginRegistrationTime': 'invalid',
-                  'appStartTime': 'invalid',
-                  'isColdStart': 'invalid',
-                  // ignore: inference_failure_on_collection_literal
-                  'nativeSpanTimes': 'invalid',
-                });
-
-        final actual = await sut.fetchNativeAppStart();
-
-        expect(actual, isNull);
+        verifyZeroInteractions(channel);
       });
 
       test('setUser', () async {
@@ -265,6 +246,18 @@ void main() {
 
         expect(
             () => sut.loadDebugImages(SentryStackTrace(frames: [])), matcher);
+
+        verifyZeroInteractions(channel);
+      });
+
+      test('displayRefreshRate', () async {
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
+
+        expect(() => sut.displayRefreshRate(), matcher);
 
         verifyZeroInteractions(channel);
       });
