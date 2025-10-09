@@ -9,7 +9,7 @@ class NativeAppStart {
       required this.isColdStart,
       required this.nativeSpanTimes});
 
-  double appStartTime;
+  int appStartTime;
   int pluginRegistrationTime;
   bool isColdStart;
   Map<dynamic, dynamic> nativeSpanTimes;
@@ -20,7 +20,7 @@ class NativeAppStart {
     final isColdStart = json['isColdStart'];
     final nativeSpanTimes = json['nativeSpanTimes'];
 
-    if (appStartTime is! double ||
+    if (appStartTime is! int ||
         pluginRegistrationTime is! int ||
         isColdStart is! bool ||
         nativeSpanTimes is! Map) {
