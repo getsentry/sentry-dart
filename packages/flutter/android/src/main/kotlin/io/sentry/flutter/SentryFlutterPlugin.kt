@@ -281,7 +281,7 @@ class SentryFlutterPlugin :
     private var activity: WeakReference<Activity>? = null
 
     private var pluginRegistrationTime: Long? = null
-    
+
     var autoPerformanceTracingEnabled: Boolean = false
       internal set
 
