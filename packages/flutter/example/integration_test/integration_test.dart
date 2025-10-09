@@ -599,6 +599,60 @@ void main() {
     expect(debugImageByStacktrace.first.imageAddr, expectedImage.imageAddr);
   });
 
+  testWidgets('fetchNativeAppStart returns app start data', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+      // fetchNativeAppStart should return data on mobile platforms
+      final appStart = await SentryFlutter.native?.fetchNativeAppStart();
+
+      expect(appStart, isNotNull, reason: 'App start data should be available');
+
+      if (appStart != null) {
+        expect(appStart.appStartTime, greaterThan(0),
+            reason: 'App start time should be positive');
+        expect(appStart.pluginRegistrationTime, greaterThan(0),
+            reason: 'Plugin registration time should be positive');
+        expect(appStart.isColdStart, isA<bool>(),
+            reason: 'isColdStart should be a boolean');
+        expect(appStart.nativeSpanTimes, isA<Map>(),
+            reason: 'Native span times should be a map');
+      }
+    } else {
+      // On other platforms, it should return null
+      final appStart = await SentryFlutter.native?.fetchNativeAppStart();
+      expect(appStart, isNull,
+          reason: 'App start should be null on non-mobile platforms');
+    }
+  });
+
+  testWidgets('displayRefreshRate returns valid refresh rate', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      final refreshRate = await SentryFlutter.native?.displayRefreshRate();
+
+      // Refresh rate should be available on mobile platforms
+      expect(refreshRate, isNotNull,
+          reason: 'Display refresh rate should be available');
+
+      if (refreshRate != null) {
+        expect(refreshRate, greaterThan(0),
+            reason: 'Refresh rate should be positive');
+        expect(refreshRate, lessThanOrEqualTo(1000),
+            reason: 'Refresh rate should be reasonable (<=1000Hz)');
+      }
+    } else {
+      final refreshRate = await SentryFlutter.native?.displayRefreshRate();
+      expect(refreshRate, isNull,
+          reason: 'Refresh rate should be null or positive on other platforms');
+    }
+  });
+
   group('e2e', () {
     var output = find.byKey(const Key('output'));
     late Fixture fixture;
