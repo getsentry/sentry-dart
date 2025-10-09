@@ -281,7 +281,9 @@ class SentryFlutterPlugin :
     private var activity: WeakReference<Activity>? = null
 
     private var pluginRegistrationTime: Long? = null
-    private var autoPerformanceTracingEnabled: Boolean = false
+    
+    var autoPerformanceTracingEnabled: Boolean = false
+      internal set
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
@@ -438,10 +440,6 @@ class SentryFlutterPlugin :
 
       val json = JSONArray(debugImages).toString()
       return json.toByteArray(Charsets.UTF_8)
-    }
-
-    internal fun setAutoPerformanceTracingEnabled(enabled: Boolean) {
-      autoPerformanceTracingEnabled = enabled
     }
 
     private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
