@@ -178,4 +178,23 @@ class SentryNativeCocoa extends SentryNativeChannel {
           return NativeAppStart.fromJson(json);
         },
       );
+
+  @override
+  void nativeCrash() {
+    cocoa.SentryFlutterPlugin.nativeCrash();
+  }
+
+  @override
+  void pauseAppHangTracking() {
+    tryCatchSync('pauseAppHangTracking', () {
+      cocoa.SentryFlutterPlugin.pauseAppHangTracking();
+    });
+  }
+
+  @override
+  void resumeAppHangTracking() {
+    tryCatchSync('resumeAppHangTracking', () {
+      cocoa.SentryFlutterPlugin.resumeAppHangTracking();
+    });
+  }
 }
