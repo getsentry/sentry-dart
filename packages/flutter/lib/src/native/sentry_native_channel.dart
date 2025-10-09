@@ -230,15 +230,21 @@ class SentryNativeChannel
   }
 
   @override
-  Future<void> pauseAppHangTracking() =>
-      channel.invokeMethod('pauseAppHangTracking');
+  FutureOr<void> pauseAppHangTracking() {
+    assert(false,
+        'pauseAppHangTracking should not be used through method channels.');
+  }
 
   @override
-  Future<void> resumeAppHangTracking() =>
-      channel.invokeMethod('resumeAppHangTracking');
+  FutureOr<void> resumeAppHangTracking() {
+    assert(false,
+        'resumeAppHangTracking should not be used through method channels.');
+  }
 
   @override
-  Future<void> nativeCrash() => channel.invokeMethod('nativeCrash');
+  FutureOr<void> nativeCrash() {
+    assert(false, 'nativeCrash should not be used through method channels.');
+  }
 
   @override
   bool get supportsReplay => false;

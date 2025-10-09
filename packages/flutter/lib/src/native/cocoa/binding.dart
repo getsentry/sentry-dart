@@ -1128,6 +1128,19 @@ late final _sel_fetchNativeAppStartAsBytes =
 late final _sel_loadContextsAsBytes = objc.registerName("loadContextsAsBytes");
 late final _sel_loadDebugImagesAsBytes_ =
     objc.registerName("loadDebugImagesAsBytes:");
+late final _sel_nativeCrash = objc.registerName("nativeCrash");
+final _objc_msgSend_1pl9qdv = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        void Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+late final _sel_pauseAppHangTracking =
+    objc.registerName("pauseAppHangTracking");
+late final _sel_resumeAppHangTracking =
+    objc.registerName("resumeAppHangTracking");
 
 /// SentryFlutterPlugin
 class SentryFlutterPlugin extends objc.NSObject {
@@ -1184,6 +1197,23 @@ class SentryFlutterPlugin extends objc.NSObject {
     return _ret.address == 0
         ? null
         : objc.NSData.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// nativeCrash
+  static void nativeCrash() {
+    _objc_msgSend_1pl9qdv(_class_SentryFlutterPlugin, _sel_nativeCrash);
+  }
+
+  /// pauseAppHangTracking
+  static void pauseAppHangTracking() {
+    _objc_msgSend_1pl9qdv(
+        _class_SentryFlutterPlugin, _sel_pauseAppHangTracking);
+  }
+
+  /// resumeAppHangTracking
+  static void resumeAppHangTracking() {
+    _objc_msgSend_1pl9qdv(
+        _class_SentryFlutterPlugin, _sel_resumeAppHangTracking);
   }
 
   /// init

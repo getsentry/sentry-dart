@@ -71,7 +71,6 @@ class SentryFlutterPlugin :
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
-      "nativeCrash" -> crash()
       "setReplayConfig" -> setReplayConfig(call, result)
       "captureReplay" -> captureReplay(result)
       else -> result.notImplemented()
@@ -291,6 +290,15 @@ class SentryFlutterPlugin :
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
+    fun nativeCrash() {
+      val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
+      val mainThread = Looper.getMainLooper().thread
+      mainThread.uncaughtExceptionHandler?.uncaughtException(mainThread, exception)
+      mainThread.join(NATIVE_CRASH_WAIT_TIME)
+    }
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
     fun getDisplayRefreshRate(): Int? {
       var refreshRate: Int? = null
 
@@ -456,13 +464,6 @@ class SentryFlutterPlugin :
         "code_id" to codeId,
         "debug_file" to debugFile,
       )
-
-    private fun crash() {
-      val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
-      val mainThread = Looper.getMainLooper().thread
-      mainThread.uncaughtExceptionHandler?.uncaughtException(mainThread, exception)
-      mainThread.join(NATIVE_CRASH_WAIT_TIME)
-    }
 
     private fun Double.adjustReplaySizeToBlockSize(): Double {
       val remainder = this % VIDEO_BLOCK_SIZE

@@ -200,6 +200,21 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
+  void nativeCrash() {
+    native.SentryFlutterPlugin.Companion.nativeCrash();
+  }
+
+  @override
+  void pauseAppHangTracking() {
+    assert(false, 'pauseAppHangTracking is not supported on Android.');
+  }
+
+  @override
+  void resumeAppHangTracking() {
+    assert(false, 'resumeAppHangTracking is not supported on Android.');
+  }
+
+  @override
   Future<void> close() async {
     await _replayRecorder?.stop();
     await _envelopeSender?.close();

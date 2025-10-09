@@ -263,30 +263,49 @@ void main() {
       });
 
       test('pauseAppHangTracking', () async {
-        when(channel.invokeMethod('pauseAppHangTracking'))
-            .thenAnswer((_) => Future.value());
+        if (mockPlatform.isAndroid) {
+          // Android doesn't support app hang tracking, so it should hit the assertion
+          expect(() => sut.pauseAppHangTracking(), throwsAssertionError);
+        } else {
+          // iOS/macOS should throw FFI exceptions in tests
+          final matcher = _nativeUnavailableMatcher(
+            mockPlatform,
+            includeLookupSymbol: true,
+            includeFailedToLoadClassException: true,
+          );
+          expect(() => sut.pauseAppHangTracking(), matcher);
+        }
 
-        await sut.pauseAppHangTracking();
-
-        verify(channel.invokeMethod('pauseAppHangTracking'));
+        verifyZeroInteractions(channel);
       });
 
       test('resumeAppHangTracking', () async {
-        when(channel.invokeMethod('resumeAppHangTracking'))
-            .thenAnswer((_) => Future.value());
+        if (mockPlatform.isAndroid) {
+          // Android doesn't support app hang tracking, so it should hit the assertion
+          expect(() => sut.resumeAppHangTracking(), throwsAssertionError);
+        } else {
+          // iOS/macOS should throw FFI exceptions in tests
+          final matcher = _nativeUnavailableMatcher(
+            mockPlatform,
+            includeLookupSymbol: true,
+            includeFailedToLoadClassException: true,
+          );
+          expect(() => sut.resumeAppHangTracking(), matcher);
+        }
 
-        await sut.resumeAppHangTracking();
-
-        verify(channel.invokeMethod('resumeAppHangTracking'));
+        verifyZeroInteractions(channel);
       });
 
       test('nativeCrash', () async {
-        when(channel.invokeMethod('nativeCrash'))
-            .thenAnswer((_) => Future.value());
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
 
-        await sut.nativeCrash();
+        expect(() => sut.nativeCrash(), matcher);
 
-        verify(channel.invokeMethod('nativeCrash'));
+        verifyZeroInteractions(channel);
       });
 
       test('setReplayConfig', () async {
