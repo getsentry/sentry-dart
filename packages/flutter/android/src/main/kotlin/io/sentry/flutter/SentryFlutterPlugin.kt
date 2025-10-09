@@ -342,20 +342,22 @@ class SentryFlutterPlugin :
       }
 
       val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
-      val item = mutableMapOf<String, Any?>(
-        "pluginRegistrationTime" to pluginRegistrationTime,
-        "appStartTime" to appStartTimeMillis,
-        "isColdStart" to isColdStart,
-      )
+      val item =
+        mutableMapOf<String, Any?>(
+          "pluginRegistrationTime" to pluginRegistrationTime,
+          "appStartTime" to appStartTimeMillis,
+          "isColdStart" to isColdStart,
+        )
 
       val androidNativeSpans = mutableMapOf<String, Any?>()
 
-      val processInitSpan = TimeSpan().apply {
-        description = "Process Initialization"
-        setStartUnixTimeMs(appStartTimeSpan.startTimestampMs)
-        setStartedAt(appStartTimeSpan.startUptimeMs)
-        setStoppedAt(appStartMetrics.classLoadedUptimeMs)
-      }
+      val processInitSpan =
+        TimeSpan().apply {
+          description = "Process Initialization"
+          setStartUnixTimeMs(appStartTimeSpan.startTimestampMs)
+          setStartedAt(appStartTimeSpan.startUptimeMs)
+          setStoppedAt(appStartMetrics.classLoadedUptimeMs)
+        }
       addTimeSpanToMap(processInitSpan, androidNativeSpans)
 
       val applicationOnCreateSpan = appStartMetrics.applicationOnCreateTimeSpan
@@ -377,14 +379,18 @@ class SentryFlutterPlugin :
       return json.toByteArray(Charsets.UTF_8)
     }
 
-    private fun addTimeSpanToMap(span: TimeSpan, map: MutableMap<String, Any?>) {
+    private fun addTimeSpanToMap(
+      span: TimeSpan,
+      map: MutableMap<String, Any?>,
+    ) {
       if (span.startTimestamp == null) return
 
       span.description?.let { description ->
-        map[description] = mapOf<String, Any?>(
-          "startTimestampMsSinceEpoch" to span.startTimestampMs,
-          "stopTimestampMsSinceEpoch" to span.projectedStopTimestampMs,
-        )
+        map[description] =
+          mapOf<String, Any?>(
+            "startTimestampMsSinceEpoch" to span.startTimestampMs,
+            "stopTimestampMsSinceEpoch" to span.projectedStopTimestampMs,
+          )
       }
     }
 

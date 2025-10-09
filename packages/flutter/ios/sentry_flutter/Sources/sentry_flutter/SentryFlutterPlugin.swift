@@ -76,9 +76,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         case "closeNativeSdk":
             closeNativeSdk(call, result: result)
 
-        case "fetchNativeAppStart":
-            fetchNativeAppStart(result: result)
-
         case "setContexts":
             let arguments = call.arguments as? [String: Any?]
             let key = arguments?["key"] as? String
@@ -291,83 +288,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         return !name.isEmpty
     }
 
-    struct TimeSpan {
-        var startTimestampMsSinceEpoch: NSNumber
-        var stopTimestampMsSinceEpoch: NSNumber
-        var description: String
-
-        func addToMap(_ map: inout [String: Any]) {
-            map[description] = [
-                "startTimestampMsSinceEpoch": startTimestampMsSinceEpoch,
-                "stopTimestampMsSinceEpoch": stopTimestampMsSinceEpoch
-            ]
-        }
-    }
-
-    private func fetchNativeAppStart(result: @escaping FlutterResult) {
-        #if os(iOS) || os(tvOS)
-        guard let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement else {
-            print("warning: appStartMeasurement is null")
-            result(nil)
-            return
-        }
-
-        var nativeSpanTimes: [String: Any] = [:]
-
-        let appStartTimeMs = appStartMeasurement.appStartTimestamp.timeIntervalSince1970.toMilliseconds()
-        let runtimeInitTimeMs = appStartMeasurement.runtimeInitTimestamp.timeIntervalSince1970.toMilliseconds()
-        let moduleInitializationTimeMs =
-            appStartMeasurement.moduleInitializationTimestamp.timeIntervalSince1970.toMilliseconds()
-        let sdkStartTimeMs = appStartMeasurement.sdkStartTimestamp.timeIntervalSince1970.toMilliseconds()
-
-        if !appStartMeasurement.isPreWarmed {
-            let preRuntimeInitDescription = "Pre Runtime Init"
-            let preRuntimeInitSpan = TimeSpan(
-                startTimestampMsSinceEpoch: NSNumber(value: appStartTimeMs),
-                stopTimestampMsSinceEpoch: NSNumber(value: runtimeInitTimeMs),
-                description: preRuntimeInitDescription
-            )
-            preRuntimeInitSpan.addToMap(&nativeSpanTimes)
-
-            let moduleInitializationDescription = "Runtime init to Pre Main initializers"
-            let moduleInitializationSpan = TimeSpan(
-                startTimestampMsSinceEpoch: NSNumber(value: runtimeInitTimeMs),
-                stopTimestampMsSinceEpoch: NSNumber(value: moduleInitializationTimeMs),
-                description: moduleInitializationDescription
-            )
-            moduleInitializationSpan.addToMap(&nativeSpanTimes)
-        }
-
-        let uiKitInitDescription = "UIKit init"
-        let uiKitInitSpan = TimeSpan(
-            startTimestampMsSinceEpoch: NSNumber(value: moduleInitializationTimeMs),
-            stopTimestampMsSinceEpoch: NSNumber(value: sdkStartTimeMs),
-            description: uiKitInitDescription
-        )
-        uiKitInitSpan.addToMap(&nativeSpanTimes)
-
-        // Info: We don't have access to didFinishLaunchingTimestamp,
-        // On HybridSDKs, the Cocoa SDK misses the didFinishLaunchNotification and the
-        // didBecomeVisibleNotification. Therefore, we can't set the
-        // didFinishLaunchingTimestamp
-
-        let appStartTime = appStartMeasurement.appStartTimestamp.timeIntervalSince1970 * 1000
-        let isColdStart = appStartMeasurement.type == .cold
-
-        let item: [String: Any] = [
-            "pluginRegistrationTime": SentryFlutterPlugin.pluginRegistrationTime,
-            "appStartTime": appStartTime,
-            "isColdStart": isColdStart,
-            "nativeSpanTimes": nativeSpanTimes
-        ]
-
-        result(item)
-        #else
-        print("note: appStartMeasurement not available on this platform")
-        result(nil)
-        #endif
-    }
-
     private func setContexts(key: String?, value: Any?, result: @escaping FlutterResult) {
       guard let key = key else {
         result("")
@@ -564,6 +484,62 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
       return nil
   }
   #endif
+
+  @objc public class func fetchNativeAppStartAsBytes() -> NSData? {
+      #if os(iOS) || os(tvOS)
+      guard let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement else {
+          return nil
+      }
+
+      var nativeSpanTimes: [String: Any] = [:]
+
+      let appStartTimeMs = appStartMeasurement.appStartTimestamp.timeIntervalSince1970.toMilliseconds()
+      let runtimeInitTimeMs = appStartMeasurement.runtimeInitTimestamp.timeIntervalSince1970.toMilliseconds()
+      let moduleInitializationTimeMs =
+          appStartMeasurement.moduleInitializationTimestamp.timeIntervalSince1970.toMilliseconds()
+      let sdkStartTimeMs = appStartMeasurement.sdkStartTimestamp.timeIntervalSince1970.toMilliseconds()
+
+      if !appStartMeasurement.isPreWarmed {
+          let preRuntimeInitDescription = "Pre Runtime Init"
+          let preRuntimeInitSpan: [String: Any] = [
+              "startTimestampMsSinceEpoch": NSNumber(value: appStartTimeMs),
+              "stopTimestampMsSinceEpoch": NSNumber(value: runtimeInitTimeMs)
+          ]
+          nativeSpanTimes[preRuntimeInitDescription] = preRuntimeInitSpan
+
+          let moduleInitializationDescription = "Runtime init to Pre Main initializers"
+          let moduleInitializationSpan: [String: Any] = [
+              "startTimestampMsSinceEpoch": NSNumber(value: runtimeInitTimeMs),
+              "stopTimestampMsSinceEpoch": NSNumber(value: moduleInitializationTimeMs)
+          ]
+          nativeSpanTimes[moduleInitializationDescription] = moduleInitializationSpan
+      }
+
+      let uiKitInitDescription = "UIKit init"
+      let uiKitInitSpan: [String: Any] = [
+          "startTimestampMsSinceEpoch": NSNumber(value: moduleInitializationTimeMs),
+          "stopTimestampMsSinceEpoch": NSNumber(value: sdkStartTimeMs)
+      ]
+      nativeSpanTimes[uiKitInitDescription] = uiKitInitSpan
+
+      let appStartTime = appStartMeasurement.appStartTimestamp.timeIntervalSince1970 * 1000
+      let isColdStart = appStartMeasurement.type == .cold
+
+      let item: [String: Any] = [
+          "pluginRegistrationTime": pluginRegistrationTime,
+          "appStartTime": appStartTime,
+          "isColdStart": isColdStart,
+          "nativeSpanTimes": nativeSpanTimes
+      ]
+
+      if let data = try? JSONSerialization.data(withJSONObject: item, options: []) {
+          return data as NSData
+      }
+      return nil
+      #else
+      return nil
+      #endif
+  }
 
   @objc(loadDebugImagesAsBytes:)
   public class func loadDebugImagesAsBytes(instructionAddresses: Set<String>) -> NSData? {

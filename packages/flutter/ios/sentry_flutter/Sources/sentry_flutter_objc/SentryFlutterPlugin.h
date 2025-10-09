@@ -5,6 +5,7 @@
 #else
 @interface SentryFlutterPlugin : NSObject
 + (nullable NSNumber *)getDisplayRefreshRate;
++ (nullable NSData *)fetchNativeAppStartAsBytes;
 + (nullable NSData *)loadContextsAsBytes;
 + (nullable NSData *)loadDebugImagesAsBytes:(NSSet<NSString *> *)instructionAddresses;
 @end

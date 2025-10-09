@@ -1123,6 +1123,8 @@ class SentryId$1 extends objc.NSObject {
 late final _class_SentryFlutterPlugin = objc.getClass("SentryFlutterPlugin");
 late final _sel_getDisplayRefreshRate =
     objc.registerName("getDisplayRefreshRate");
+late final _sel_fetchNativeAppStartAsBytes =
+    objc.registerName("fetchNativeAppStartAsBytes");
 late final _sel_loadContextsAsBytes = objc.registerName("loadContextsAsBytes");
 late final _sel_loadDebugImagesAsBytes_ =
     objc.registerName("loadDebugImagesAsBytes:");
@@ -1155,6 +1157,15 @@ class SentryFlutterPlugin extends objc.NSObject {
     return _ret.address == 0
         ? null
         : objc.NSNumber.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// fetchNativeAppStartAsBytes
+  static objc.NSData? fetchNativeAppStartAsBytes() {
+    final _ret = _objc_msgSend_151sglz(
+        _class_SentryFlutterPlugin, _sel_fetchNativeAppStartAsBytes);
+    return _ret.address == 0
+        ? null
+        : objc.NSData.castFromPointer(_ret, retain: true, release: true);
   }
 
   /// loadContextsAsBytes
