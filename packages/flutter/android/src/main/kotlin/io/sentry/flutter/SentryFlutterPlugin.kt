@@ -269,6 +269,7 @@ class SentryFlutterPlugin :
     result.success("")
   }
 
+  @Suppress("TooManyFunctions")
   companion object {
     @SuppressLint("StaticFieldLeak")
     private var replay: ReplayIntegration? = null
@@ -313,7 +314,7 @@ class SentryFlutterPlugin :
       return refreshRate
     }
 
-    @Suppress("unused") // Used by native/jni bindings
+    @Suppress("unused", "ReturnCount") // Used by native/jni bindings
     @JvmStatic
     fun fetchNativeAppStartAsBytes(): ByteArray? {
       if (!autoPerformanceTracingEnabled) {
