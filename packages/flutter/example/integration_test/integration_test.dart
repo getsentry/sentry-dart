@@ -604,7 +604,7 @@ void main() {
       await setupSentryAndApp(tester);
     });
 
-    if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+    if (Platform.isAndroid || Platform.isIOS) {
       // fetchNativeAppStart should return data on mobile platforms
       final appStart = await SentryFlutter.native?.fetchNativeAppStart();
 
