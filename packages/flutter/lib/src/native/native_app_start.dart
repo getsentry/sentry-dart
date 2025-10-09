@@ -15,12 +15,22 @@ class NativeAppStart {
   Map<dynamic, dynamic> nativeSpanTimes;
 
   static NativeAppStart? fromJson(Map<String, dynamic> json) {
-    final appStartTime = json['appStartTime'];
+    final appStartTimeValue = json['appStartTime'];
     final pluginRegistrationTime = json['pluginRegistrationTime'];
     final isColdStart = json['isColdStart'];
     final nativeSpanTimes = json['nativeSpanTimes'];
 
-    if (appStartTime is! int ||
+    // Convert appStartTime to int (iOS returns double, Android returns int)
+    final int? appStartTime;
+    if (appStartTimeValue is int) {
+      appStartTime = appStartTimeValue;
+    } else if (appStartTimeValue is double) {
+      appStartTime = appStartTimeValue.toInt();
+    } else {
+      appStartTime = null;
+    }
+
+    if (appStartTime == null ||
         pluginRegistrationTime is! int ||
         isColdStart is! bool ||
         nativeSpanTimes is! Map) {
