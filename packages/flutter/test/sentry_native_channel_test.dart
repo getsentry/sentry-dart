@@ -77,36 +77,31 @@ void main() {
       });
 
       test('addBreadcrumb', () async {
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
+
         final breadcrumb = Breadcrumb(
           data: {'object': Object()},
         );
-        final normalizedBreadcrumb = Breadcrumb(
-          message: breadcrumb.message,
-          category: breadcrumb.category,
-          data: normalizeMap(breadcrumb.data),
-          level: breadcrumb.level,
-          type: breadcrumb.type,
-          timestamp: breadcrumb.timestamp,
-          // ignore: invalid_use_of_internal_member
-          unknown: breadcrumb.unknown,
-        );
-        when(channel.invokeMethod(
-                'addBreadcrumb', {'breadcrumb': normalizedBreadcrumb.toJson()}))
-            .thenAnswer((_) => Future.value());
 
-        await sut.addBreadcrumb(breadcrumb);
+        expect(() => sut.addBreadcrumb(breadcrumb), matcher);
 
-        verify(channel.invokeMethod(
-            'addBreadcrumb', {'breadcrumb': normalizedBreadcrumb.toJson()}));
+        verifyZeroInteractions(channel);
       });
 
       test('clearBreadcrumbs', () async {
-        when(channel.invokeMethod('clearBreadcrumbs'))
-            .thenAnswer((_) => Future.value());
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
 
-        await sut.clearBreadcrumbs();
+        expect(() => sut.clearBreadcrumbs(), matcher);
 
-        verify(channel.invokeMethod('clearBreadcrumbs'));
+        verifyZeroInteractions(channel);
       });
 
       test('setContexts', () async {
