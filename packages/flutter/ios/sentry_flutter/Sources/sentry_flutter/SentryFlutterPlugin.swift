@@ -87,11 +87,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             let key = arguments?["key"] as? String
             removeContexts(key: key, result: result)
 
-        case "setUser":
-            let arguments = call.arguments as? [String: Any?]
-            let user = arguments?["user"] as? [String: Any]
-            setUser(user: user, result: result)
-
         case "setExtra":
             let arguments = call.arguments as? [String: Any?]
             let key = arguments?["key"] as? String
@@ -302,16 +297,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         scope.removeContext(key: key)
         result("")
       }
-    }
-
-    private func setUser(user: [String: Any]?, result: @escaping FlutterResult) {
-      if let user = user {
-        let userInstance = PrivateSentrySDKOnly.user(with: user)
-        SentrySDK.setUser(userInstance)
-      } else {
-        SentrySDK.setUser(nil)
-      }
-      result("")
     }
 
     private func setExtra(key: String?, value: Any?, result: @escaping FlutterResult) {
@@ -628,7 +613,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
           SentrySDK.setUser(nil)
           return
       }
-      
+
       guard let userString = String(data: userBytes as Data, encoding: .utf8),
             let jsonData = userString.data(using: .utf8),
             let userDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
