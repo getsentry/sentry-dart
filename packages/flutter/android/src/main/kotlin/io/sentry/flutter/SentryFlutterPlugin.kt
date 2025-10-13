@@ -265,7 +265,9 @@ class SentryFlutterPlugin :
     private var activity: WeakReference<Activity>? = null
 
     private var pluginRegistrationTime: Long? = null
-    private var autoPerformanceTracingEnabled: Boolean = false
+
+    var autoPerformanceTracingEnabled: Boolean = false
+      internal set
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
