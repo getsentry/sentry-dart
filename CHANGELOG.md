@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Mark file sync spans run in the main isolate with `blocked_main_thread` ([#3270](https://github.com/getsentry/sentry-dart/pull/3270))
+ - This allows Sentry to create issues automatically out of file spans running a certain time on the main thread: https://docs.sentry.io/product/issues/issue-details/performance-issues/file-main-thread-io/
+
 ### Enhancements
 
 - Refactor `AndroidReplayRecorder` to use the new worker isolate api [#3296](https://github.com/getsentry/sentry-dart/pull/3296/)
