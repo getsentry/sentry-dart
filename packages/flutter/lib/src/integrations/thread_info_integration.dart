@@ -84,7 +84,7 @@ class ThreadInfoIntegration implements Integration<SentryFlutterOptions> {
       // Check if we're on the main isolate by looking at thread name
       if (data['sync'] == true &&
           data[SpanDataConvention.threadName] == 'main') {
-        span.setData('blocked_main_thread', true);
+        span.setData(SpanDataConvention.blockedMainThread, true);
       }
 
       // Always remove the sync flag

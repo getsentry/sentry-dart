@@ -192,8 +192,8 @@ void main() {
       final setDataCalls = span.setDataCalls;
       expect(setDataCalls.length, equals(1));
 
-      final blockedMainThreadCall =
-          setDataCalls.firstWhere((call) => call.key == 'blocked_main_thread');
+      final blockedMainThreadCall = setDataCalls.firstWhere(
+          (call) => call.key == SpanDataConvention.blockedMainThread);
       expect(blockedMainThreadCall.value, equals(true));
 
       // Check that sync was removed
@@ -217,8 +217,8 @@ void main() {
           .dispatchCallback(OnSpanFinish(span));
 
       // Should not set blocked_main_thread
-      final blockedMainThreadCalls =
-          span.setDataCalls.where((call) => call.key == 'blocked_main_thread');
+      final blockedMainThreadCalls = span.setDataCalls
+          .where((call) => call.key == SpanDataConvention.blockedMainThread);
       expect(blockedMainThreadCalls, isEmpty);
 
       // But should still remove sync
@@ -257,8 +257,8 @@ void main() {
           .dispatchCallback(OnSpanFinish(span));
 
       // Should not set blocked_main_thread (sync is false)
-      final blockedMainThreadCalls =
-          span.setDataCalls.where((call) => call.key == 'blocked_main_thread');
+      final blockedMainThreadCalls = span.setDataCalls
+          .where((call) => call.key == SpanDataConvention.blockedMainThread);
       expect(blockedMainThreadCalls, isEmpty);
 
       // But should still remove sync
@@ -278,8 +278,8 @@ void main() {
           .dispatchCallback(OnSpanFinish(span));
 
       // Should not set blocked_main_thread (no thread name)
-      final blockedMainThreadCalls =
-          span.setDataCalls.where((call) => call.key == 'blocked_main_thread');
+      final blockedMainThreadCalls = span.setDataCalls
+          .where((call) => call.key == SpanDataConvention.blockedMainThread);
       expect(blockedMainThreadCalls, isEmpty);
 
       // But should still remove sync
