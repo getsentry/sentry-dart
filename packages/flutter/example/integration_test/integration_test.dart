@@ -605,7 +605,7 @@ void main() {
     // 4. Verify they're cleared in native
     contexts = await SentryFlutter.native?.loadContexts();
     breadcrumbs = contexts!['breadcrumbs'] as List<dynamic>?;
-    expect(breadcrumbs == null || breadcrumbs!.isEmpty, isTrue,
+    expect(breadcrumbs == null || breadcrumbs.isEmpty, isTrue,
         reason: 'Breadcrumbs should be null or empty after clearing');
   });
 
