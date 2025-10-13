@@ -229,7 +229,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
     tryCatchSync('setUser', () {
       if (user == null) {
-        // native.SentryFlutterPlugin.Companion.setUserAsBytes(null);
+        native.SentryFlutterPlugin.Companion.setUserAsBytes(null);
         return;
       }
 
@@ -251,7 +251,7 @@ class SentryNativeJava extends SentryNativeChannel {
       final bytes = utf8.encode(jsonString);
       userBytes = JByteArray.from(bytes);
 
-      // native.SentryFlutterPlugin.Companion.setUserAsBytes(userBytes!);
+      native.SentryFlutterPlugin.Companion.setUserAsBytes(userBytes!);
     }, finallyFn: () {
       userBytes?.release();
     });
