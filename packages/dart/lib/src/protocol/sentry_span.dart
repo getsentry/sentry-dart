@@ -78,7 +78,8 @@ class SentrySpan extends ISentrySpan {
     }
 
     // Dispatch OnSpanFinish lifecycle event
-    final callback = _hub.options.lifecycleRegistry.dispatchCallback(OnSpanFinish(this));
+    final callback =
+        _hub.options.lifecycleRegistry.dispatchCallback(OnSpanFinish(this));
     if (callback is Future) {
       await callback;
     }
