@@ -10,8 +10,8 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
-import 'package:sentry_flutter/src/native/method_channel_helper.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
+import 'package:sentry_flutter/src/native/utils/data_normalizer.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
 
 import 'mocks.dart';
@@ -59,7 +59,7 @@ void main() {
           username: user.username,
           email: user.email,
           ipAddress: user.ipAddress,
-          data: MethodChannelHelper.normalizeMap(user.data),
+          data: normalizeMap(user.data),
           // ignore: deprecated_member_use
           extras: user.extras,
           geo: user.geo,
@@ -83,7 +83,7 @@ void main() {
         final normalizedBreadcrumb = Breadcrumb(
           message: breadcrumb.message,
           category: breadcrumb.category,
-          data: MethodChannelHelper.normalizeMap(breadcrumb.data),
+          data: normalizeMap(breadcrumb.data),
           level: breadcrumb.level,
           type: breadcrumb.type,
           timestamp: breadcrumb.timestamp,
@@ -111,7 +111,7 @@ void main() {
 
       test('setContexts', () async {
         final value = {'object': Object()};
-        final normalizedValue = MethodChannelHelper.normalize(value);
+        final normalizedValue = normalize(value);
         when(channel.invokeMethod('setContexts', {
           'key': 'fixture-key',
           'value': normalizedValue
@@ -134,7 +134,7 @@ void main() {
 
       test('setExtra', () async {
         final value = {'object': Object()};
-        final normalizedValue = MethodChannelHelper.normalize(value);
+        final normalizedValue = normalize(value);
         when(channel.invokeMethod(
                 'setExtra', {'key': 'fixture-key', 'value': normalizedValue}))
             .thenAnswer((_) => Future.value());
