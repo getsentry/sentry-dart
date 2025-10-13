@@ -5,12 +5,11 @@
   <br />
 </p>
 
-Sentry integration for `drift` package
-===========
+# Sentry integration for `drift` package
 
-| package     | build                                                                                                                                                                             | pub                                                                                                  | likes                                                                                                | popularity                                                                                                     | pub points |
-|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------| ------- |
-| sentry_drift | [![build](https://github.com/getsentry/sentry-dart/actions/workflows/drift.yml/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-drift) | [![pub package](https://img.shields.io/pub/v/sentry_drift.svg)](https://pub.dev/packages/sentry_drift) | [![likes](https://img.shields.io/pub/likes/sentry_drift)](https://pub.dev/packages/sentry_drift/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_drift)](https://pub.dev/packages/sentry_drift/score) | [![pub points](https://img.shields.io/pub/points/sentry_drift)](https://pub.dev/packages/sentry_drift/score)
+| package      | build                                                                                                                                                                                  | pub                                                                                                    | likes                                                                                                  | popularity                                                                                                       | pub points                                                                                                   |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| sentry_drift | [![build](https://github.com/getsentry/sentry-dart/actions/workflows/drift.yml/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-drift) | [![pub package](https://img.shields.io/pub/v/sentry_drift.svg)](https://pub.dev/packages/sentry_drift) | [![likes](https://img.shields.io/pub/likes/sentry_drift)](https://pub.dev/packages/sentry_drift/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_drift)](https://pub.dev/packages/sentry_drift/score) | [![pub points](https://img.shields.io/pub/points/sentry_drift)](https://pub.dev/packages/sentry_drift/score) |
 
 Integration for the [`drift`](https://pub.dev/packages/drift) package.
 
@@ -50,9 +49,8 @@ Future<void> main() async {
 Future<void> runApp() async {
   final tr =
       Sentry.startTransaction('drift', 'op', bindToScope: true);
-  final executor = SentryQueryExecutor(
-    () => NativeDatabase.memory(),
-    databaseName: 'my_db_name',
+  final executor = NativeDatabase.memory().interceptWith(
+    SentryQueryInterceptor(databaseName: 'my_db_name'),
   );
   final db = AppDatabase(executor);
 
@@ -74,9 +72,9 @@ Future<void> runApp() async {
 
 #### Resources
 
-* [![Flutter docs](https://img.shields.io/badge/documentation-sentry.io-green.svg?label=flutter%20docs)](https://docs.sentry.io/platforms/flutter/)
-* [![Dart docs](https://img.shields.io/badge/documentation-sentry.io-green.svg?label=dart%20docs)](https://docs.sentry.io/platforms/dart/)
-* [![Discussions](https://img.shields.io/github/discussions/getsentry/sentry-dart.svg)](https://github.com/getsentry/sentry-dart/discussions)
-* [![Discord Chat](https://img.shields.io/discord/621778831602221064?logo=discord&logoColor=ffffff&color=7389D8)](https://discord.gg/gB6ja9uZuN)
-* [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-sentry-green.svg)](https://stackoverflow.com/questions/tagged/sentry)
-* [![Twitter Follow](https://img.shields.io/twitter/follow/getsentry?label=getsentry&style=social)](https://twitter.com/intent/follow?screen_name=getsentry)
+- [![Flutter docs](https://img.shields.io/badge/documentation-sentry.io-green.svg?label=flutter%20docs)](https://docs.sentry.io/platforms/flutter/)
+- [![Dart docs](https://img.shields.io/badge/documentation-sentry.io-green.svg?label=dart%20docs)](https://docs.sentry.io/platforms/dart/)
+- [![Discussions](https://img.shields.io/github/discussions/getsentry/sentry-dart.svg)](https://github.com/getsentry/sentry-dart/discussions)
+- [![Discord Chat](https://img.shields.io/discord/621778831602221064?logo=discord&logoColor=ffffff&color=7389D8)](https://discord.gg/gB6ja9uZuN)
+- [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-sentry-green.svg)](https://stackoverflow.com/questions/tagged/sentry)
+- [![Twitter Follow](https://img.shields.io/twitter/follow/getsentry?label=getsentry&style=social)](https://twitter.com/intent/follow?screen_name=getsentry)
