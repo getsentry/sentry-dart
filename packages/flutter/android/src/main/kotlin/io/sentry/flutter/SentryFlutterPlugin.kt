@@ -451,10 +451,6 @@ class SentryFlutterPlugin :
       Sentry.clearBreadcrumbs()
     }
 
-    internal fun setAutoPerformanceTracingEnabled(enabled: Boolean) {
-      autoPerformanceTracingEnabled = enabled
-    }
-
     private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
 
     private fun DebugImage.serialize() =
