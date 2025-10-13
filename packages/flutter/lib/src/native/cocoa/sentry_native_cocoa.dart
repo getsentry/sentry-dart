@@ -8,6 +8,7 @@ import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
+import '../utils/data_normalizer.dart';
 import '../utils/utf8_json.dart';
 import 'binding.dart' as cocoa;
 import 'cocoa_replay_recorder.dart';
@@ -206,9 +207,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
       final normalizedBreadcrumb = Breadcrumb(
         message: breadcrumb.message,
         category: breadcrumb.category,
-        data: breadcrumb.data != null
-            ? Map<String, dynamic>.from(breadcrumb.data!)
-            : null,
+        data: normalizeMap(breadcrumb.data),
         level: breadcrumb.level,
         type: breadcrumb.type,
         timestamp: breadcrumb.timestamp,
