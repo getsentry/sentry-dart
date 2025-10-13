@@ -1279,6 +1279,31 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
   /// The type which includes information such as the signature of this class.
   static const nullableType = $SentryFlutterPlugin$Companion$NullableType();
   static const type = $SentryFlutterPlugin$Companion$Type();
+  static final _id_getAutoPerformanceTracingEnabled = _class.instanceMethodId(
+    r'getAutoPerformanceTracingEnabled',
+    r'()Z',
+  );
+
+  static final _getAutoPerformanceTracingEnabled =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallBooleanMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public final boolean getAutoPerformanceTracingEnabled()`
+  bool getAutoPerformanceTracingEnabled() {
+    return _getAutoPerformanceTracingEnabled(reference.pointer,
+            _id_getAutoPerformanceTracingEnabled as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
   static final _id_privateSentryGetReplayIntegration = _class.instanceMethodId(
     r'privateSentryGetReplayIntegration',
     r'()Lio/sentry/android/replay/ReplayIntegration;',
@@ -1454,6 +1479,32 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
     return _loadDebugImagesAsBytes(reference.pointer,
             _id_loadDebugImagesAsBytes as jni$_.JMethodIDPtr, _$set.pointer)
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
+  static final _id_setUserAsBytes = _class.instanceMethodId(
+    r'setUserAsBytes',
+    r'([B)V',
+  );
+
+  static final _setUserAsBytes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final void setUserAsBytes(byte[] bs)`
+  void setUserAsBytes(
+    jni$_.JByteArray? bs,
+  ) {
+    final _$bs = bs?.reference ?? jni$_.jNullReference;
+    _setUserAsBytes(reference.pointer, _id_setUserAsBytes as jni$_.JMethodIDPtr,
+            _$bs.pointer)
+        .check();
   }
 
   static final _id_addBreadcrumbAsBytes = _class.instanceMethodId(
@@ -2039,6 +2090,32 @@ class SentryFlutterPlugin extends jni$_.JObject {
     return _loadDebugImagesAsBytes(_class.reference.pointer,
             _id_loadDebugImagesAsBytes as jni$_.JMethodIDPtr, _$set.pointer)
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
+  static final _id_setUserAsBytes = _class.staticMethodId(
+    r'setUserAsBytes',
+    r'([B)V',
+  );
+
+  static final _setUserAsBytes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public final void setUserAsBytes(byte[] bs)`
+  static void setUserAsBytes(
+    jni$_.JByteArray? bs,
+  ) {
+    final _$bs = bs?.reference ?? jni$_.jNullReference;
+    _setUserAsBytes(_class.reference.pointer,
+            _id_setUserAsBytes as jni$_.JMethodIDPtr, _$bs.pointer)
+        .check();
   }
 
   static final _id_addBreadcrumbAsBytes = _class.staticMethodId(

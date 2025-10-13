@@ -122,31 +122,8 @@ class SentryNativeChannel
   }
 
   @override
-  Future<void> setUser(SentryUser? user) async {
-    if (user == null) {
-      await channel.invokeMethod(
-        'setUser',
-        {'user': null},
-      );
-    } else {
-      final normalizedUser = SentryUser(
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        ipAddress: user.ipAddress,
-        data: normalizeMap(user.data),
-        // ignore: deprecated_member_use
-        extras: user.extras,
-        geo: user.geo,
-        name: user.name,
-        // ignore: invalid_use_of_internal_member
-        unknown: user.unknown,
-      );
-      await channel.invokeMethod(
-        'setUser',
-        {'user': normalizedUser.toJson()},
-      );
-    }
+  FutureOr<void> setUser(SentryUser? user) async {
+    assert(false, "setUser should not be used through method channels.");
   }
 
   @override

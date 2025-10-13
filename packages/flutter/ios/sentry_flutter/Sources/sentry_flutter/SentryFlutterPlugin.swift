@@ -623,6 +623,21 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         return nil
   }
 
+  @objc public class func setUserAsBytes(_ userBytes: NSData?) {
+      guard let userBytes = userBytes else {
+          SentrySDK.setUser(nil)
+          return
+      }
+      
+      guard let userString = String(data: userBytes as Data, encoding: .utf8),
+            let jsonData = userString.data(using: .utf8),
+            let userDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+          return
+      }
+      let userInstance = PrivateSentrySDKOnly.user(with: userDict)
+      SentrySDK.setUser(userInstance)
+  }
+
   @objc public class func addBreadcrumbAsBytes(_ breadcrumbBytes: NSData) {
       guard let breadcrumbString = String(data: breadcrumbBytes as Data, encoding: .utf8),
             let jsonData = breadcrumbString.data(using: .utf8),

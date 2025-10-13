@@ -224,6 +224,40 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
+  Future<void> setUser(SentryUser? user) async {
+    JByteArray? userBytes;
+
+    tryCatchSync('setUser', () {
+      if (user == null) {
+        // native.SentryFlutterPlugin.Companion.setUserAsBytes(null);
+        return;
+      }
+
+      final normalizedUser = SentryUser(
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        ipAddress: user.ipAddress,
+        data: normalizeMap(user.data),
+        // ignore: deprecated_member_use
+        extras: user.extras,
+        geo: user.geo,
+        name: user.name,
+        // ignore: invalid_use_of_internal_member
+        unknown: user.unknown,
+      );
+
+      final jsonString = json.encode(normalizedUser.toJson());
+      final bytes = utf8.encode(jsonString);
+      userBytes = JByteArray.from(bytes);
+
+      // native.SentryFlutterPlugin.Companion.setUserAsBytes(userBytes!);
+    }, finallyFn: () {
+      userBytes?.release();
+    });
+  }
+
+  @override
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
     JByteArray? breadcrumbBytes;
 
