@@ -2,6 +2,7 @@
 
 ## 9.7.0
 
+
 ### Features
 
 - Add W3C `traceparent` header support ([#3246](https://github.com/getsentry/sentry-dart/pull/3246))
