@@ -47,12 +47,7 @@ import 'sentry_supabase_error_client.dart';
 /// Body data will not be sent by default. You can enable it by setting the
 /// `sendDefaultPii` option in the [SentryOptions].
 class SentrySupabaseClient extends BaseClient {
-  final bool _enableBreadcrumbs;
-  final bool _enableTracing;
-  final bool _enableErrors;
-
-  Client _innerClient;
-  final Hub _hub;
+  final Client _innerClient;
 
   SentrySupabaseClient({
     bool enableBreadcrumbs = true,
@@ -60,21 +55,34 @@ class SentrySupabaseClient extends BaseClient {
     bool enableErrors = true,
     Client? client,
     Hub? hub,
-  })  : _enableBreadcrumbs = enableBreadcrumbs,
-        _enableTracing = enableTracing,
-        _enableErrors = enableErrors,
-        _hub = hub ?? HubAdapter(),
-        _innerClient = client ?? Client() {
-    // Wrap the client with the appropriate layers during construction
-    if (_enableBreadcrumbs) {
-      _innerClient = SentrySupabaseBreadcrumbClient(_innerClient, _hub);
+  }) : _innerClient = _buildWrappedClient(
+          client ?? Client(),
+          enableBreadcrumbs,
+          enableTracing,
+          enableErrors,
+          hub ?? HubAdapter(),
+        );
+
+  static Client _buildWrappedClient(
+    Client baseClient,
+    bool enableBreadcrumbs,
+    bool enableTracing,
+    bool enableErrors,
+    Hub hub,
+  ) {
+    Client wrappedClient = baseClient;
+
+    if (enableBreadcrumbs) {
+      wrappedClient = SentrySupabaseBreadcrumbClient(wrappedClient, hub);
     }
-    if (_enableTracing) {
-      _innerClient = SentrySupabaseTracingClient(_innerClient, _hub);
+    if (enableTracing) {
+      wrappedClient = SentrySupabaseTracingClient(wrappedClient, hub);
     }
-    if (_enableErrors) {
-      _innerClient = SentrySupabaseErrorClient(_innerClient, _hub);
+    if (enableErrors) {
+      wrappedClient = SentrySupabaseErrorClient(wrappedClient, hub);
     }
+
+    return wrappedClient;
   }
 
   @override
