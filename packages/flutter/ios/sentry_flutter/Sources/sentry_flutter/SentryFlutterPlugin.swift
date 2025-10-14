@@ -569,8 +569,8 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   // Group of methods exposed to the Objective-C runtime via `@objc`.
   //
   // Purpose: Called from the Flutter plugin's native bridge (FFI) - bindings are created from SentryFlutterPlugin.h
-  @objc(loadDebugImagesAsBytes:)
-  public class func loadDebugImagesAsBytes(instructionAddresses: Set<String>) -> NSData? {
+  @objc(loadDebugImages:)
+  public class func loadDebugImages(instructionAddresses: Set<String>) -> [[String: Any]] {
           var debugImages: [DebugMeta] = []
 
           var imagesAddresses: Set<String> = []
@@ -594,15 +594,11 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
               debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
           }
 
-          let serializedImages = debugImages.map { $0.serialize() }
-          if let data = try? JSONSerialization.data(withJSONObject: serializedImages, options: []) {
-              return data as NSData
-          }
-          return nil
+          return debugImages.map { $0.serialize() }
   }
 
   // swiftlint:disable:next cyclomatic_complexity
-  @objc public class func loadContextsAsBytes() -> NSData? {
+  @objc public class func loadContexts() -> [String: Any] {
         var infos: [String: Any] = [:]
 
         SentrySDK.configureScope { scope in
@@ -680,10 +676,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
                 "sdk_name": "cocoapods:sentry-cocoa"]
 
         }
-        if let data = try? JSONSerialization.data(withJSONObject: infos, options: []) {
-            return data as NSData
-        }
-        return nil
+        return infos
   }
 }
 // swiftlint:enable type_body_length

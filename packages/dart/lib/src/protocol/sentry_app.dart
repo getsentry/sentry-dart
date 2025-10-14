@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/converter.dart';
 
 /// App context describes the application.
 ///
@@ -76,7 +77,7 @@ class SentryApp {
           : null,
       deviceAppHash: json['device_app_hash'],
       appMemory: json['app_memory'],
-      inForeground: json['in_foreground'],
+      inForeground: asBool(json['in_foreground']),
       viewNames: viewNamesJson?.map((e) => e as String).toList(),
       textScale: json['text_scale'],
       unknown: json.notAccessed(),

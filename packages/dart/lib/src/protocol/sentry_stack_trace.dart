@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'sentry_stack_frame.dart';
 import 'access_aware_map.dart';
+import '../utils/converter.dart';
 
 /// Stacktrace holds information about the frames of the stack.
 class SentryStackTrace {
@@ -68,7 +69,7 @@ class SentryStackTrace {
           : [],
       registers: json['registers'],
       lang: json['lang'],
-      snapshot: json['snapshot'],
+      snapshot: asBool(json['snapshot']),
       unknown: json.notAccessed(),
     );
   }

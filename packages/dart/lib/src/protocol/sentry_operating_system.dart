@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/converter.dart';
 
 /// Describes the operating system on which the event was created.
 ///
@@ -58,7 +59,7 @@ class SentryOperatingSystem {
       version: json['version'],
       build: json['build'],
       kernelVersion: json['kernel_version'],
-      rooted: json['rooted'],
+      rooted: asBool(json['rooted']),
       rawDescription: json['raw_description'],
       theme: json['theme'],
       unknown: json.notAccessed(),

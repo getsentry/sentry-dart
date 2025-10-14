@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'access_aware_map.dart';
+import '../utils/converter.dart';
 
 /// Frames belong to a StackTrace
 /// It should contain at least a filename, function or instruction_addr
@@ -140,9 +141,9 @@ class SentryStackFrame {
       lineNo: json['lineno'],
       colNo: json['colno'],
       contextLine: json['context_line'],
-      inApp: json['in_app'],
+      inApp: asBool(json['in_app']),
       package: json['package'],
-      native: json['native'],
+      native: asBool(json['native']),
       platform: json['platform'],
       imageAddr: json['image_addr'],
       symbolAddr: json['symbol_addr'],
@@ -153,7 +154,7 @@ class SentryStackFrame {
       postContext: json['post_context'],
       vars: json['vars'],
       symbol: json['symbol'],
-      stackStart: json['stack_start'],
+      stackStart: asBool(json['stack_start']),
       unknown: json.notAccessed(),
     );
   }

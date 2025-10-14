@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/converter.dart';
 
 /// Sentry Exception Mechanism
 /// The exception mechanism is an optional field residing
@@ -146,11 +147,11 @@ class Mechanism {
       type: json['type'],
       description: json['description'],
       helpLink: json['help_link'],
-      handled: json['handled'],
+      handled: asBool(json['handled']),
       meta: meta,
       data: data,
-      synthetic: json['synthetic'],
-      isExceptionGroup: json['is_exception_group'],
+      synthetic: asBool(json['synthetic']),
+      isExceptionGroup: asBool(json['is_exception_group']),
       source: json['source'],
       exceptionId: json['exception_id'],
       parentId: json['parent_id'],

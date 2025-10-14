@@ -13,6 +13,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/converter.dart';
 
 /// GPU context describes the GPU of the device.
 class SentryGpu {
@@ -98,15 +99,15 @@ class SentryGpu {
       vendorName: json['vendor_name'],
       memorySize: json['memory_size'],
       apiType: json['api_type'],
-      multiThreadedRendering: json['multi_threaded_rendering'],
+      multiThreadedRendering: asBool(json['multi_threaded_rendering']),
       version: json['version'],
       npotSupport: json['npot_support'],
       graphicsShaderLevel: json['graphics_shader_level'],
       maxTextureSize: json['max_texture_size'],
-      supportsComputeShaders: json['supports_compute_shaders'],
-      supportsDrawCallInstancing: json['supports_draw_call_instancing'],
-      supportsGeometryShaders: json['supports_geometry_shaders'],
-      supportsRayTracing: json['supports_ray_tracing'],
+      supportsComputeShaders: asBool(json['supports_compute_shaders']),
+      supportsDrawCallInstancing: asBool(json['supports_draw_call_instancing']),
+      supportsGeometryShaders: asBool(json['supports_geometry_shaders']),
+      supportsRayTracing: asBool(json['supports_ray_tracing']),
       unknown: json.notAccessed(),
     );
   }

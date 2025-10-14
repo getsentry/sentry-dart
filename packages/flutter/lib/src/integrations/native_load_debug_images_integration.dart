@@ -23,13 +23,9 @@ class LoadNativeDebugImagesIntegration
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     // ignore: invalid_use_of_internal_member
-    if (options.runtimeChecker.isAppObfuscated() ||
-        options.runtimeChecker.isSplitDebugInfoBuild()) {
-      options.addEventProcessor(
-        _LoadNativeDebugImagesIntegrationEventProcessor(options, _native),
-      );
-      options.sdk.addIntegration(integrationName);
-    }
+    options.addEventProcessor(
+      _LoadNativeDebugImagesIntegrationEventProcessor(options, _native),
+    );
   }
 }
 

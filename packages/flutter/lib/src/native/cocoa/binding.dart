@@ -1121,9 +1121,8 @@ class SentryId$1 extends objc.NSObject {
 }
 
 late final _class_SentryFlutterPlugin = objc.getClass("SentryFlutterPlugin");
-late final _sel_loadContextsAsBytes = objc.registerName("loadContextsAsBytes");
-late final _sel_loadDebugImagesAsBytes_ =
-    objc.registerName("loadDebugImagesAsBytes:");
+late final _sel_loadContexts = objc.registerName("loadContexts");
+late final _sel_loadDebugImages_ = objc.registerName("loadDebugImages:");
 
 /// SentryFlutterPlugin
 class SentryFlutterPlugin extends objc.NSObject {
@@ -1146,22 +1145,18 @@ class SentryFlutterPlugin extends objc.NSObject {
         obj.ref.pointer, _sel_isKindOfClass_, _class_SentryFlutterPlugin);
   }
 
-  /// loadContextsAsBytes
-  static objc.NSData? loadContextsAsBytes() {
-    final _ret = _objc_msgSend_151sglz(
-        _class_SentryFlutterPlugin, _sel_loadContextsAsBytes);
-    return _ret.address == 0
-        ? null
-        : objc.NSData.castFromPointer(_ret, retain: true, release: true);
+  /// loadContexts
+  static objc.NSDictionary loadContexts() {
+    final _ret =
+        _objc_msgSend_151sglz(_class_SentryFlutterPlugin, _sel_loadContexts);
+    return objc.NSDictionary.castFromPointer(_ret, retain: true, release: true);
   }
 
-  /// loadDebugImagesAsBytes:
-  static objc.NSData? loadDebugImagesAsBytes(objc.NSSet instructionAddresses) {
+  /// loadDebugImages:
+  static objc.NSArray loadDebugImages(objc.NSSet instructionAddresses) {
     final _ret = _objc_msgSend_1sotr3r(_class_SentryFlutterPlugin,
-        _sel_loadDebugImagesAsBytes_, instructionAddresses.ref.pointer);
-    return _ret.address == 0
-        ? null
-        : objc.NSData.castFromPointer(_ret, retain: true, release: true);
+        _sel_loadDebugImages_, instructionAddresses.ref.pointer);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
   }
 
   /// init

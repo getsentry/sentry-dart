@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import '../sentry_options.dart';
+import '../utils/converter.dart';
 import 'access_aware_map.dart';
 
 /// If a device is on portrait or landscape mode
@@ -198,10 +199,10 @@ class SentryDevice {
       screenWidthPixels: json['screen_width_pixels']?.toInt(),
       screenDensity: json['screen_density'],
       screenDpi: json['screen_dpi'],
-      online: json['online'],
-      charging: json['charging'],
-      lowMemory: json['low_memory'],
-      simulator: json['simulator'],
+      online: asBool(json['online']),
+      charging: asBool(json['charging']),
+      lowMemory: asBool(json['low_memory']),
+      simulator: asBool(json['simulator']),
       memorySize: json['memory_size'],
       freeMemory: json['free_memory'],
       usableMemory: json['usable_memory'],
@@ -220,11 +221,11 @@ class SentryDevice {
       deviceType: json['device_type'],
       batteryStatus: json['battery_status'],
       deviceUniqueIdentifier: json['device_unique_identifier'],
-      supportsVibration: json['supports_vibration'],
-      supportsAccelerometer: json['supports_accelerometer'],
-      supportsGyroscope: json['supports_gyroscope'],
-      supportsAudio: json['supports_audio'],
-      supportsLocationService: json['supports_location_service'],
+      supportsVibration: asBool(json['supports_vibration']),
+      supportsAccelerometer: asBool(json['supports_accelerometer']),
+      supportsGyroscope: asBool(json['supports_gyroscope']),
+      supportsAudio: asBool(json['supports_audio']),
+      supportsLocationService: asBool(json['supports_location_service']),
       unknown: json.notAccessed(),
     );
   }
