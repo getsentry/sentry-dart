@@ -10,8 +10,6 @@ import '../../isolate/isolate_worker.dart';
 import '../../isolate/isolate_logger.dart';
 import 'binding.dart' as native;
 
-typedef SpawnWorkerFn = Future<Worker> Function(WorkerConfig, WorkerEntry);
-
 class AndroidEnvelopeSender {
   final SentryFlutterOptions _options;
   final WorkerConfig _config;
