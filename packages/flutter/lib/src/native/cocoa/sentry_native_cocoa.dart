@@ -6,7 +6,6 @@ import 'package:objective_c/objective_c.dart';
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../sentry_native_channel.dart';
-import '../utils/utf8_json.dart';
 import 'binding.dart' as cocoa;
 import 'cocoa_replay_recorder.dart';
 import 'cocoa_envelope_sender.dart';
@@ -78,13 +77,16 @@ class SentryNativeCocoa extends SentryNativeChannel {
           .toSet()
           .toNSSet();
 
-      // NOTE: when instructionAddressSet is empty, loadDebugImagesAsBytes will return
+      // NOTE: when instructionAddressSet is empty, loadDebugImages will return
       // all debug images as fallback.
-      final debugImagesList =
+      final debugImages =
           cocoa.SentryFlutterPlugin.loadDebugImages(instructionAddressSet)
               .toDartList()
-              .map((e) => e as Map<String, dynamic>);
-      return debugImagesList.map(DebugImage.fromJson).toList(growable: false);
+              .map<Map<String, dynamic>>(
+                  (e) => castFfiMap(e as Map<Object?, Object?>))
+              .map<DebugImage>(DebugImage.fromJson)
+              .toList(growable: false);
+      return debugImages;
     } catch (exception, stackTrace) {
       options.log(SentryLevel.error, 'FFI: Failed to load debug images',
           exception: exception, stackTrace: stackTrace);
@@ -96,18 +98,17 @@ class SentryNativeCocoa extends SentryNativeChannel {
     return null;
   }
 
+  void printWrapped(String text) {
+    final pattern = new RegExp('.{1,800}'); // 800 is the size of each chunk
+    pattern.allMatches(text).forEach((match) => print(match.group(0)));
+  }
+
   @override
   FutureOr<Map<String, dynamic>?> loadContexts() {
     try {
-      // Use a single FFI call to get contexts as UTF-8 encoded JSON instead of
-      // making multiple FFI calls to convert each object individually. This approach
-      // is significantly faster because contexts can be large and contain many nested
-      // objects. Local benchmarks show this method is ~4x faster than the alternative
-      // approach of converting FFI objects to Dart objects one by one.
-      print(
-          'hello?: ${cocoa.SentryFlutterPlugin.loadContexts().toDartMap() is Map<String, dynamic>}');
-      return cocoa.SentryFlutterPlugin.loadContexts().toDartMap()
-          as Map<String, dynamic>;
+      return cocoa.SentryFlutterPlugin.loadContexts()
+          .toDartMap()
+          .map((key, value) => MapEntry(key.toString(), value));
     } catch (exception, stackTrace) {
       options.log(SentryLevel.error, 'FFI: Failed to load contexts',
           exception: exception, stackTrace: stackTrace);
@@ -117,6 +118,36 @@ class SentryNativeCocoa extends SentryNativeChannel {
       }
       return null;
     }
+  }
+
+  // Recursively convert any int 0/1 values to bool to compensate for
+  // Objective-C NSNumber -> Dart conversions that lose boolean typing.
+  dynamic _normalizeObjectiveCBools(dynamic value) {
+    if (value is Map) {
+      final result = <String, dynamic>{};
+      value.forEach((k, v) {
+        final key = k is String ? k : k.toString();
+        result[key] = _normalizeObjectiveCBools(v);
+      });
+      return result;
+    }
+    if (value is List) {
+      return value.map(_normalizeObjectiveCBools).toList(growable: false);
+    }
+    if (value is int) {
+      if (value == 0) return false;
+      if (value == 1) return true;
+    }
+    return value;
+  }
+
+  // Casts a loosely typed FFI map into a standard Dart map with string keys.
+  Map<String, dynamic> castFfiMap(Map<Object?, Object?> map) {
+    final result = <String, dynamic>{};
+    map.forEach((key, value) {
+      result[key?.toString() ?? ''] = value;
+    });
+    return result;
   }
 
   @override
