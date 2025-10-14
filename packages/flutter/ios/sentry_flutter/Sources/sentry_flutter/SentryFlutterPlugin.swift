@@ -614,10 +614,9 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
           return
       }
 
-      guard let userString = String(data: userBytes as Data, encoding: .utf8),
-            let jsonData = userString.data(using: .utf8),
-            let userDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
-          return
+      guard let userDict = try? JSONSerialization.jsonObject(with: userBytes as Data) as? [String: Any] else {
+        print("setUser failed in native cocoa: could not parse bytes")
+        return
       }
       let userInstance = PrivateSentrySDKOnly.user(with: userDict)
       SentrySDK.setUser(userInstance)
@@ -625,8 +624,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
   @objc public class func addBreadcrumbAsBytes(_ breadcrumbBytes: NSData) {
       guard let breadcrumbDict = try? JSONSerialization.jsonObject(
-          with: breadcrumbBytes as Data,
-          options: []
+          with: breadcrumbBytes as Data
       ) as? [String: Any] else {
           print("addBreadcrumb failed in native cocoa: could not parse bytes")
           return
