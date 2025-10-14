@@ -69,56 +69,29 @@ class SentryNativeCocoa extends SentryNativeChannel {
   }
 
   @override
-  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
-    try {
-      final instructionAddressSet = stackTrace.frames
-          .map((frame) => frame.instructionAddr)
-          .nonNulls
-          .toSet()
-          .toNSSet();
+  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
+      tryCatchSync('loadDebugImages', () {
+        final instructionAddressSet = stackTrace.frames
+            .map((frame) => frame.instructionAddr)
+            .nonNulls
+            .toSet()
+            .toNSSet();
 
-      // NOTE: when instructionAddressSet is empty, loadDebugImages will return
-      // all debug images as fallback.
-      final debugImages =
-          cocoa.SentryFlutterPlugin.loadDebugImages(instructionAddressSet)
-              .toDartList()
-              .map<Map<String, dynamic>>(
-                  (e) => castFfiMap(e as Map<Object?, Object?>))
-              .map<DebugImage>(DebugImage.fromJson)
-              .toList(growable: false);
-      return debugImages;
-    } catch (exception, stackTrace) {
-      options.log(SentryLevel.error, 'FFI: Failed to load debug images',
-          exception: exception, stackTrace: stackTrace);
-
-      if (options.automatedTestMode) {
-        rethrow;
-      }
-    }
-    return null;
-  }
-
-  void printWrapped(String text) {
-    final pattern = new RegExp('.{1,800}'); // 800 is the size of each chunk
-    pattern.allMatches(text).forEach((match) => print(match.group(0)));
-  }
+        // NOTE: when instructionAddressSet is empty, loadDebugImages will return
+        // all debug images as fallback.
+        return cocoa.SentryFlutterPlugin.loadDebugImages(instructionAddressSet)
+            .toDartList()
+            .map(
+                (e) => DebugImage.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList(growable: false);
+      });
 
   @override
-  FutureOr<Map<String, dynamic>?> loadContexts() {
-    try {
-      return cocoa.SentryFlutterPlugin.loadContexts()
-          .toDartMap()
-          .map((key, value) => MapEntry(key.toString(), value));
-    } catch (exception, stackTrace) {
-      options.log(SentryLevel.error, 'FFI: Failed to load contexts',
-          exception: exception, stackTrace: stackTrace);
-
-      if (options.automatedTestMode) {
-        rethrow;
-      }
-      return null;
-    }
-  }
+  FutureOr<Map<String, dynamic>?> loadContexts() =>
+      tryCatchSync('loadContexts', () {
+        return Map<String, dynamic>.from(
+            cocoa.SentryFlutterPlugin.loadContexts().toDartMap());
+      });
 
   @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
@@ -144,3 +117,5 @@ class SentryNativeCocoa extends SentryNativeChannel {
         },
       );
 }
+
+// (removed) _castFfiMap; using inline map conversion matching loadContexts
