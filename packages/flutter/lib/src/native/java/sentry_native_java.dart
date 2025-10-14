@@ -262,18 +262,7 @@ class SentryNativeJava extends SentryNativeChannel {
     JByteArray? breadcrumbBytes;
 
     tryCatchSync('addBreadcrumb', () {
-      final normalizedBreadcrumb = Breadcrumb(
-        message: breadcrumb.message,
-        category: breadcrumb.category,
-        data: normalizeMap(breadcrumb.data),
-        level: breadcrumb.level,
-        type: breadcrumb.type,
-        timestamp: breadcrumb.timestamp,
-        // ignore: invalid_use_of_internal_member
-        unknown: breadcrumb.unknown,
-      );
-
-      final jsonString = json.encode(normalizedBreadcrumb.toJson());
+      final jsonString = json.encode(breadcrumb.toJson());
       final bytes = utf8.encode(jsonString);
       breadcrumbBytes = JByteArray.from(bytes);
 

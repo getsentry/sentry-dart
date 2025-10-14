@@ -233,19 +233,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
     tryCatchSync('addBreadcrumb', () {
-      // Normalize breadcrumb data like the method channel does
-      final normalizedBreadcrumb = Breadcrumb(
-        message: breadcrumb.message,
-        category: breadcrumb.category,
-        data: normalizeMap(breadcrumb.data),
-        level: breadcrumb.level,
-        type: breadcrumb.type,
-        timestamp: breadcrumb.timestamp,
-        // ignore: invalid_use_of_internal_member
-        unknown: breadcrumb.unknown,
-      );
-
-      final jsonString = json.encode(normalizedBreadcrumb.toJson());
+      final jsonString = json.encode(breadcrumb.toJson());
       final bytes = utf8.encode(jsonString);
       final nsData = bytes.toNSData();
 
