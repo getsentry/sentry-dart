@@ -233,21 +233,7 @@ class SentryNativeJava extends SentryNativeChannel {
         return;
       }
 
-      final normalizedUser = SentryUser(
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        ipAddress: user.ipAddress,
-        data: normalizeMap(user.data),
-        // ignore: deprecated_member_use
-        extras: user.extras,
-        geo: user.geo,
-        name: user.name,
-        // ignore: invalid_use_of_internal_member
-        unknown: user.unknown,
-      );
-
-      final jsonString = json.encode(normalizedUser.toJson());
+      final jsonString = json.encode(user.toJson());
       final bytes = utf8.encode(jsonString);
       userBytes = JByteArray.from(bytes);
 
