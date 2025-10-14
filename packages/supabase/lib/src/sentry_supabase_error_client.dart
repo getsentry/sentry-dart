@@ -12,32 +12,26 @@ class SentrySupabaseErrorClient extends BaseClient {
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
-    StreamedResponse? response;
-    dynamic exception;
-    StackTrace? stackTrace;
-    int? statusCode;
-
     try {
-      response = await _innerClient.send(request);
-      statusCode = response.statusCode;
-    } catch (e, st) {
-      exception = e;
-      stackTrace = st;
-      rethrow;
-    } finally {
-      final hasException = exception != null;
-      final hasErrorResponse = statusCode != null && statusCode >= 400;
-
-      if (hasException || hasErrorResponse) {
+      final response = await _innerClient.send(request);
+      if (response.statusCode >= 400) {
         _captureException(
-          exception,
-          stackTrace,
+          null,
+          null,
           request,
           response,
         );
       }
+      return response;
+    } catch (e, st) {
+      _captureException(
+        e,
+        st,
+        request,
+        null,
+      );
+      rethrow;
     }
-    return response;
   }
 
   @override
