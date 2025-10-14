@@ -214,6 +214,73 @@ void main() {
     });
   });
 
+  group('add sync spans', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
+      when(fixture.isarCollection.name).thenReturn(Fixture.dbCollection);
+
+      // Mock sync methods
+      when(fixture.isarCollection.clearSync()).thenReturn(null);
+      when(fixture.isarCollection.countSync()).thenReturn(5);
+      when(fixture.isarCollection.deleteSync(any)).thenReturn(true);
+      when(fixture.isarCollection.getSync(any)).thenReturn(Person());
+      when(fixture.isarCollection.putSync(any)).thenReturn(1);
+
+      await fixture.setUp();
+    });
+
+    tearDown(() async {
+      await fixture.tearDown();
+    });
+
+    void verifySyncSpan(String description, SentrySpan? span) {
+      expect(span?.context.operation, SentryIsar.dbOp);
+      expect(span?.context.description, description);
+      expect(span?.status, SpanStatus.ok());
+      // ignore: invalid_use_of_internal_member
+      expect(span?.origin, SentryTraceOrigins.autoDbIsarCollection);
+      expect(span?.data[SentryIsar.dbNameKey], Fixture.dbName);
+      expect(span?.data[SentryIsar.dbCollectionKey], Fixture.dbCollection);
+      expect(span?.data['sync'], true);
+    }
+
+    test('clearSync adds span', () {
+      fixture.getSut(injectMock: true).clearSync();
+      final span = fixture.getCreatedSpan();
+      verifySyncSpan('clearSync', span);
+    });
+
+    test('countSync adds span', () {
+      fixture.getSut(injectMock: true).countSync();
+      final span = fixture.getCreatedSpan();
+      verifySyncSpan('countSync', span);
+    });
+
+    test('deleteSync adds span', () {
+      fixture.getSut(injectMock: true).deleteSync(1);
+      final span = fixture.getCreatedSpan();
+      verifySyncSpan('deleteSync', span);
+    });
+
+    test('getSync adds span', () {
+      fixture.getSut(injectMock: true).getSync(1);
+      final span = fixture.getCreatedSpan();
+      verifySyncSpan('getSync', span);
+    });
+
+    test('putSync adds span', () {
+      fixture.getSut(injectMock: true).putSync(Person());
+      final span = fixture.getCreatedSpan();
+      verifySyncSpan('putSync', span);
+    });
+  });
+
   group('add error spans', () {
     late Fixture fixture;
 

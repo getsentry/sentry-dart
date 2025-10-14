@@ -4,6 +4,8 @@ import 'dart:isolate';
 import '../../sentry_flutter.dart';
 import 'isolate_logger.dart';
 
+typedef SpawnWorkerFn = Future<Worker> Function(WorkerConfig, WorkerEntry);
+
 const _shutdownCommand = '_shutdown_';
 
 // -------------------------------------------
