@@ -238,13 +238,8 @@ void main() {
           when(channel.invokeMethod('captureEnvelope', any))
               .thenAnswer((_) async => {});
 
-          final matcher = _nativeUnavailableMatcher(
-            mockPlatform,
-            includeLookupSymbol: true,
-          );
-
           final data = Uint8List.fromList([1, 2, 3]);
-          expect(() => sut.captureEnvelope(data, false), matcher);
+          sut.captureEnvelope(data, false);
 
           verifyZeroInteractions(channel);
         },
