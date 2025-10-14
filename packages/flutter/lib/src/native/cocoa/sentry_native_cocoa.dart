@@ -120,36 +120,6 @@ class SentryNativeCocoa extends SentryNativeChannel {
     }
   }
 
-  // Recursively convert any int 0/1 values to bool to compensate for
-  // Objective-C NSNumber -> Dart conversions that lose boolean typing.
-  dynamic _normalizeObjectiveCBools(dynamic value) {
-    if (value is Map) {
-      final result = <String, dynamic>{};
-      value.forEach((k, v) {
-        final key = k is String ? k : k.toString();
-        result[key] = _normalizeObjectiveCBools(v);
-      });
-      return result;
-    }
-    if (value is List) {
-      return value.map(_normalizeObjectiveCBools).toList(growable: false);
-    }
-    if (value is int) {
-      if (value == 0) return false;
-      if (value == 1) return true;
-    }
-    return value;
-  }
-
-  // Casts a loosely typed FFI map into a standard Dart map with string keys.
-  Map<String, dynamic> castFfiMap(Map<Object?, Object?> map) {
-    final result = <String, dynamic>{};
-    map.forEach((key, value) {
-      result[key?.toString() ?? ''] = value;
-    });
-    return result;
-  }
-
   @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
     // Note: unused on iOS.
