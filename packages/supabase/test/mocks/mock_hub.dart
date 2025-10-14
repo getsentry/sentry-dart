@@ -78,6 +78,7 @@ class _MockSpan implements ISentrySpan {
   var setStatusCalls = <SpanStatus?>[];
   var startChildCalls = <(String, String?)>[];
   _MockSpan? _childSpan;
+  String? _origin;
 
   _MockSpan get childSpan {
     _childSpan ??= _MockSpan();
@@ -97,6 +98,14 @@ class _MockSpan implements ISentrySpan {
   @override
   set status(SpanStatus? value) {
     setStatusCalls.add(value);
+  }
+
+  @override
+  String? get origin => _origin;
+
+  @override
+  set origin(String? value) {
+    _origin = value;
   }
 
   @override

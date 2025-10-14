@@ -79,9 +79,9 @@ class SentrySupabaseTracingClient extends BaseClient {
     }
     span.setData('db.operation', supabaseRequest.operation.value);
     span.setData('db.sql.query', supabaseRequest.generateSqlQuery());
-    // ignore: invalid_use_of_internal_member
-    span.setData('origin', SentryTraceOrigins.autoDbSupabase);
     span.setData('db.system', 'postgres');
+    // ignore: invalid_use_of_internal_member
+    span.origin = SentryTraceOrigins.autoDbSupabase;
     return span;
   }
 }
