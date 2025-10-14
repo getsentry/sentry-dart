@@ -624,9 +624,11 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   }
 
   @objc public class func addBreadcrumbAsBytes(_ breadcrumbBytes: NSData) {
-      guard let breadcrumbString = String(data: breadcrumbBytes as Data, encoding: .utf8),
-            let jsonData = breadcrumbString.data(using: .utf8),
-            let breadcrumbDict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+      guard let breadcrumbDict = try? JSONSerialization.jsonObject(
+          with: breadcrumbBytes as Data,
+          options: []
+      ) as? [String: Any] else {
+          print("addBreadcrumb failed in native cocoa: could not parse bytes")
           return
       }
       let breadcrumbInstance = PrivateSentrySDKOnly.breadcrumb(with: breadcrumbDict)
