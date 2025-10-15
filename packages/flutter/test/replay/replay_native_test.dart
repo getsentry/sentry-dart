@@ -77,16 +77,12 @@ void main() {
             verifyNever(hub.configureScope(any));
             when(hub.configureScope(captureAny)).thenReturn(null);
 
-            // Android expects both 'scope.replayId' and 'replayId'
-            // iOS expects 'scope.replayId'
-            final replayConfig = mockPlatform.isAndroid
-                ? {
-                    'scope.replayId': '123',
-                    'replayId': '456', // internal replay ID for buffering
-                  }
-                : {
-                    'scope.replayId': '123',
-                  };
+            // Both platforms now use 'replayId' and 'replayIsBuffering'
+            // replayIsBuffering: false means replay ID should be set on scope (active session)
+            final replayConfig = {
+              'replayId': '123',
+              'replayIsBuffering': false,
+            };
 
             // emulate the native platform invoking the method
             final future = native.invokeFromNative(

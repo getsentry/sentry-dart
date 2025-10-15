@@ -35,17 +35,20 @@ class SentryNativeCocoa extends SentryNativeChannel {
           case 'captureReplayScreenshot':
             _replayRecorder ??= CocoaReplayRecorder(options);
 
-            final scopeReplayId = call.arguments['scope.replayId'] == null
+            final replayIdArg = call.arguments['replayId'];
+            final replayIsBuffering =
+                call.arguments['replayIsBuffering'] as bool? ?? false;
+
+            final replayId = replayIdArg == null
                 ? null
-                : SentryId.fromId(call.arguments['scope.replayId'] as String);
+                : SentryId.fromId(replayIdArg as String);
 
-            // TODO: We need the replayId from cocoa integration, so we can determine if we are in buffer mode.
-
-            if (_replayId != scopeReplayId) {
-              _replayId = scopeReplayId;
+            if (_replayId != replayId) {
+              _replayId = replayId;
               hub.configureScope((s) {
+                // Only set replay ID on scope if not buffering (active session mode)
                 // ignore: invalid_use_of_internal_member
-                s.replayId = scopeReplayId;
+                s.replayId = !replayIsBuffering ? replayId : null;
               });
             }
 

@@ -16,15 +16,17 @@ internal class SentryFlutterReplayRecorder(
   override fun start() {
     Handler(Looper.getMainLooper()).post {
       try {
-        var scopeReplayId: String? = null
+        val replayId = integration.getReplayId().toString()
+        var replayIsBuffering = false
         Sentry.configureScope { scope ->
-          scopeReplayId = scope.replayId?.toString()
+          // Buffering mode: we have a replay ID but it's not set on scope yet
+          replayIsBuffering = replayId != null && scope.replayId == null
         }
         channel.invokeMethod(
           "ReplayRecorder.start",
           mapOf(
-            "scope.replayId" to scopeReplayId,
-            "replayId" to integration.getReplayId().toString(),
+            "replayId" to replayId,
+            "replayIsBuffering" to replayIsBuffering,
           ),
         )
       } catch (ignored: Exception) {

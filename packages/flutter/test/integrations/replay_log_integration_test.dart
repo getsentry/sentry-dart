@@ -61,6 +61,8 @@ void main() {
       final log = fixture.createTestLog();
       await fixture.hub.captureLog(log);
 
+      // With sessionSampleRate = 0, scope replay ID should not be used
+      // (even though it's set, we're not in session mode)
       expect(log.attributes.containsKey('sentry.replay_id'), false);
       expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
           false);
@@ -80,55 +82,57 @@ void main() {
       final log = fixture.createTestLog();
       await fixture.hub.captureLog(log);
 
+      // With sessionSampleRate = null (treated as 0), scope replay ID should not be used
       expect(log.attributes.containsKey('sentry.replay_id'), false);
       expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
           false);
     });
 
     test(
-        'scope replayId takes precedence over native replayId when sessionSampleRate > 0',
+        'uses replay_id when set on scope and sessionSampleRate > 0 (active session mode)',
         () async {
       final integration = fixture.getSut();
 
       fixture.options.replay.sessionSampleRate = 0.5;
       fixture.options.replay.onErrorSampleRate = 0.5;
-      fixture.hub.scope.replayId = SentryId.fromId('scope-replay-id');
+      final replayId = SentryId.fromId('test-replay-id');
+      fixture.hub.scope.replayId = replayId;
 
-      // Mock native replayId to simulate buffering mode
-      final nativeReplayId = SentryId.fromId('native-replay-id');
-      when(fixture.nativeBinding.replayId).thenReturn(nativeReplayId);
+      // Mock native replayId with the same value (same replay, just also set on scope)
+      when(fixture.nativeBinding.replayId).thenReturn(replayId);
 
       await integration.call(fixture.hub, fixture.options);
 
       final log = fixture.createTestLog();
       await fixture.hub.captureLog(log);
 
-      // Should use scope replayId, not native replayId
-      expect(log.attributes['sentry.replay_id']?.value, 'scopereplayid');
+      // Should use the replay ID from scope (active session mode)
+      expect(log.attributes['sentry.replay_id']?.value, 'testreplayid');
       expect(log.attributes['sentry.replay_id']?.type, 'string');
 
-      // Should NOT add buffering flag when scope replayId is used
+      // Should NOT add buffering flag when replay is active on scope
       expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
           false);
     });
 
     test(
-        'adds replay_id and buffering flag when replay is in buffer mode (native replayId set)',
+        'adds replay_id and buffering flag when replay is in buffer mode (scope null, native has ID)',
         () async {
       final integration = fixture.getSut();
       fixture.options.replay.onErrorSampleRate = 0.5;
+      // Scope replay ID is null (default), so we're in buffer mode
 
-      // Mock native replayId to simulate buffering mode (Android)
-      final nativeReplayId = SentryId.fromId('native-replay-id');
-      when(fixture.nativeBinding.replayId).thenReturn(nativeReplayId);
+      // Mock native replayId to simulate buffering mode (same replay, not on scope yet)
+      final replayId = SentryId.fromId('test-replay-id');
+      when(fixture.nativeBinding.replayId).thenReturn(replayId);
 
       await integration.call(fixture.hub, fixture.options);
 
       final log = fixture.createTestLog();
       await fixture.hub.captureLog(log);
 
-      // In buffering mode, both replay_id and buffering flag should be present
-      expect(log.attributes['sentry.replay_id']?.value, 'nativereplayid');
+      // In buffering mode, use native replay ID and add buffering flag
+      expect(log.attributes['sentry.replay_id']?.value, 'testreplayid');
       expect(log.attributes['sentry.replay_id']?.type, 'string');
 
       expect(
@@ -143,17 +147,18 @@ void main() {
       final integration = fixture.getSut();
       fixture.options.replay.sessionSampleRate = 0.5; // Needed to enable replay
       fixture.options.replay.onErrorSampleRate = 0.0;
+      // Scope replay ID is null (default)
 
-      // Mock native replayId to simulate buffering mode
-      final nativeReplayId = SentryId.fromId('native-replay-id');
-      when(fixture.nativeBinding.replayId).thenReturn(nativeReplayId);
+      // Mock native replayId to simulate what would be buffering mode
+      final replayId = SentryId.fromId('test-replay-id');
+      when(fixture.nativeBinding.replayId).thenReturn(replayId);
 
       await integration.call(fixture.hub, fixture.options);
 
       final log = fixture.createTestLog();
       await fixture.hub.captureLog(log);
 
-      // When onErrorSampleRate is 0, native replayId should be ignored
+      // When onErrorSampleRate is 0, native replayId should be ignored even if it exists
       expect(log.attributes.containsKey('sentry.replay_id'), false);
       expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
           false);
@@ -165,40 +170,42 @@ void main() {
       final integration = fixture.getSut();
       fixture.options.replay.sessionSampleRate = 0.5; // Needed to enable replay
       fixture.options.replay.onErrorSampleRate = null;
+      // Scope replay ID is null (default)
 
-      // Mock native replayId to simulate buffering mode
-      final nativeReplayId = SentryId.fromId('native-replay-id');
-      when(fixture.nativeBinding.replayId).thenReturn(nativeReplayId);
+      // Mock native replayId to simulate what would be buffering mode
+      final replayId = SentryId.fromId('test-replay-id');
+      when(fixture.nativeBinding.replayId).thenReturn(replayId);
 
       await integration.call(fixture.hub, fixture.options);
 
       final log = fixture.createTestLog();
       await fixture.hub.captureLog(log);
 
-      // When onErrorSampleRate is null, native replayId should be ignored
+      // When onErrorSampleRate is null (treated as 0), native replayId should be ignored
       expect(log.attributes.containsKey('sentry.replay_id'), false);
       expect(log.attributes.containsKey('sentry._internal.replay_is_buffering'),
           false);
     });
 
     test(
-        'does not add native replayId when scope replayId is not set and sessionSampleRate is 0',
+        'adds replay_id when scope is null but native has ID and onErrorSampleRate > 0 (buffer mode)',
         () async {
       final integration = fixture.getSut();
       fixture.options.replay.sessionSampleRate = 0.0;
       fixture.options.replay.onErrorSampleRate = 0.5;
+      // Scope replay ID is null (default), so we're in buffer mode
 
-      // Mock native replayId to simulate buffering mode
-      final nativeReplayId = SentryId.fromId('native-replay-id');
-      when(fixture.nativeBinding.replayId).thenReturn(nativeReplayId);
+      // Mock native replayId to simulate buffering mode (replay exists but not on scope)
+      final replayId = SentryId.fromId('test-replay-id');
+      when(fixture.nativeBinding.replayId).thenReturn(replayId);
 
       await integration.call(fixture.hub, fixture.options);
 
       final log = fixture.createTestLog();
       await fixture.hub.captureLog(log);
 
-      // When scope replayId is not set but onErrorSampleRate > 0, should use native replayId
-      expect(log.attributes['sentry.replay_id']?.value, 'nativereplayid');
+      // When scope is null but native has replay ID, use it in buffer mode
+      expect(log.attributes['sentry.replay_id']?.value, 'testreplayid');
       expect(log.attributes['sentry.replay_id']?.type, 'string');
       expect(
           log.attributes['sentry._internal.replay_is_buffering']?.value, true);
@@ -224,8 +231,8 @@ void main() {
       fixture.options.replay.onErrorSampleRate = 0.5;
 
       // Mock native replayId
-      final nativeReplayId = SentryId.fromId('native-replay-id');
-      when(fixture.nativeBinding.replayId).thenReturn(nativeReplayId);
+      final replayId = SentryId.fromId('test-replay-id');
+      when(fixture.nativeBinding.replayId).thenReturn(replayId);
 
       await integration.call(fixture.hub, fixture.options);
 

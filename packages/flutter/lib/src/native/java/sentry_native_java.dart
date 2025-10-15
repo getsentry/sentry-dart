@@ -34,21 +34,21 @@ class SentryNativeJava extends SentryNativeChannel {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'ReplayRecorder.start':
-            final scopeReplayIdArg = call.arguments['scope.replayId'];
             final replayIdArg = call.arguments['replayId'];
+            final replayIsBuffering =
+                call.arguments['replayIsBuffering'] as bool? ?? false;
 
-            final scopeReplayId = scopeReplayIdArg != null
-                ? SentryId.fromId(scopeReplayIdArg as String)
-                : null;
-            _replayId = replayIdArg != null
+            final replayId = replayIdArg != null
                 ? SentryId.fromId(replayIdArg as String)
                 : null;
+            _replayId = replayId;
 
             _replayRecorder = AndroidReplayRecorder.factory(options);
             await _replayRecorder!.start();
             hub.configureScope((s) {
+              // Only set replay ID on scope if not buffering (active session mode)
               // ignore: invalid_use_of_internal_member
-              s.replayId = scopeReplayId;
+              s.replayId = !replayIsBuffering ? replayId : null;
             });
             break;
           case 'ReplayRecorder.onConfigurationChanged':
