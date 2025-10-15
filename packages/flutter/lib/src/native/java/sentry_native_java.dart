@@ -35,12 +35,16 @@ class SentryNativeJava extends SentryNativeChannel {
         switch (call.method) {
           case 'ReplayRecorder.start':
             final replayIdArg = call.arguments['replayId'];
-            final replayIsBuffering =
-                call.arguments['replayIsBuffering'] as bool? ?? false;
+            final replayIsBufferingArg = call.arguments['replayIsBuffering'];
 
             final replayId = replayIdArg != null
                 ? SentryId.fromId(replayIdArg as String)
                 : null;
+
+            final replayIsBuffering = replayIsBufferingArg != null
+                ? replayIsBufferingArg as bool
+                : false;
+
             _replayId = replayId;
 
             _replayRecorder = AndroidReplayRecorder.factory(options);
