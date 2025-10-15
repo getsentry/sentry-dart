@@ -11,6 +11,7 @@
 
 - Refactor `AndroidReplayRecorder` to use the new worker isolate api [#3296](https://github.com/getsentry/sentry-dart/pull/3296/)
 - Offload `captureEnvelope` to background isolate for Cocoa and Android [#3232](https://github.com/getsentry/sentry-dart/pull/3232)
+- Add `sentry.replay_id` to flutter logs ([#3257](https://github.com/getsentry/sentry-dart/pull/3257))
 
 ## 9.7.0
 
@@ -27,7 +28,6 @@
 ### Enhancements
 
 - Prefix firebase remote config feature flags with `firebase:` ([#3258](https://github.com/getsentry/sentry-dart/pull/3258))
-- Add `sentry.replay_id` to flutter logs ([#3257](https://github.com/getsentry/sentry-dart/pull/3257))
 - Replay: continue processing if encountering `InheritedWidget` ([#3200](https://github.com/getsentry/sentry-dart/pull/3200))
     - Prevents false debug warnings when using [provider](https://pub.dev/packages/provider) for example which extensively uses `InheritedWidget`
 - Add `DioException` response data to error breadcrumb ([#3164](https://github.com/getsentry/sentry-dart/pull/3164))
