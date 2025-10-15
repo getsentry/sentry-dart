@@ -72,6 +72,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
     return replayId;
   }
 
+  @override
   Future<void> close() async {
     await _envelopeSender?.close();
     return super.close();
