@@ -10,6 +10,7 @@ import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
 import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
+import 'package:sentry_flutter/src/integrations/replay_log_integration.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/integrations/generic_app_start_integration.dart';
 import 'package:sentry_flutter/src/integrations/thread_info_integration.dart';
@@ -47,6 +48,11 @@ final linuxWindowsAndWebIntegrations = [
 final nonWebIntegrations = [
   OnErrorIntegration,
   ThreadInfoIntegration,
+];
+
+// These platforms support replay functionality
+final replaySupportedIntegrations = [
+  ReplayLogIntegration,
 ];
 
 // These should be added to Android
@@ -106,6 +112,7 @@ void main() {
           ...androidIntegrations,
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
+          ...replaySupportedIntegrations,
           ReplayIntegration,
         ],
         shouldNotHaveIntegrations: [
@@ -164,6 +171,7 @@ void main() {
           ...iOsAndMacOsIntegrations,
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
+          ...replaySupportedIntegrations,
           ReplayIntegration,
         ],
         shouldNotHaveIntegrations: [
@@ -220,6 +228,7 @@ void main() {
       ], shouldNotHaveIntegrations: [
         ...androidIntegrations,
         ...nonWebIntegrations,
+        ...replaySupportedIntegrations,
       ]);
 
       testBefore(
@@ -270,6 +279,7 @@ void main() {
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...webIntegrations,
+          ...replaySupportedIntegrations,
         ],
       );
 
@@ -319,6 +329,7 @@ void main() {
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...webIntegrations,
+          ...replaySupportedIntegrations,
         ],
       );
 
@@ -369,6 +380,7 @@ void main() {
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...nonWebIntegrations,
+          ...replaySupportedIntegrations,
         ],
       );
 
@@ -440,6 +452,7 @@ void main() {
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...nonWebIntegrations,
+          ...replaySupportedIntegrations,
         ],
       );
 
@@ -485,6 +498,7 @@ void main() {
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...nonWebIntegrations,
+          ...replaySupportedIntegrations,
         ],
       );
 
@@ -530,6 +544,7 @@ void main() {
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...nonWebIntegrations,
+          ...replaySupportedIntegrations,
         ],
       );
 

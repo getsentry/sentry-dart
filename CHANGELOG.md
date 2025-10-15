@@ -11,6 +11,7 @@
 
 - Refactor `AndroidReplayRecorder` to use the new worker isolate api [#3296](https://github.com/getsentry/sentry-dart/pull/3296/)
 - Offload `captureEnvelope` to background isolate for Cocoa and Android [#3232](https://github.com/getsentry/sentry-dart/pull/3232)
+- Add `sentry.replay_id` to flutter logs ([#3257](https://github.com/getsentry/sentry-dart/pull/3257))
 
 ## 9.7.0
 
