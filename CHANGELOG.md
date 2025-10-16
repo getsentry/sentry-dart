@@ -1,7 +1,12 @@
 # Changelog
 
-## 9.7.0
+## Unreleased
 
+### Enhancements
+
+- Move app hang and crash apis to use FFI/JNI ([#3289](https://github.com/getsentry/sentry-dart/pull/3289/))
+
+## 9.7.0
 
 ### Features
 
