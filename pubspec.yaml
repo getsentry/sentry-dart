@@ -4,6 +4,11 @@ repository: https://github.com/getsentry/sentry-dart/
 
 environment:
   sdk: '>=3.5.0 <4.0.0'
-
+  
+dependencies:
+  jni: ^0.14.2
+  objective_c: ^8.0.0
+  sentry: ^9.7.0
+  
 dev_dependencies:
   melos: ^6.3.3
