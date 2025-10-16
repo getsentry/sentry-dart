@@ -61,7 +61,14 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
 
   @override
   void clearSync() {
-    _isarCollection.clearSync();
+    _spanHelper.syncWrapInSpan(
+      'clearSync',
+      () {
+        return _isarCollection.clearSync();
+      },
+      dbName: _dbName,
+      collectionName: name,
+    );
   }
 
   @override
@@ -78,7 +85,14 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
 
   @override
   int countSync() {
-    return _isarCollection.countSync();
+    return _spanHelper.syncWrapInSpan(
+      'countSync',
+      () {
+        return _isarCollection.countSync();
+      },
+      dbName: _dbName,
+      collectionName: name,
+    );
   }
 
   @override
@@ -146,7 +160,14 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
 
   @override
   bool deleteSync(Id id) {
-    return _isarCollection.deleteSync(id);
+    return _spanHelper.syncWrapInSpan(
+      'deleteSync',
+      () {
+        return _isarCollection.deleteSync(id);
+      },
+      dbName: _dbName,
+      collectionName: name,
+    );
   }
 
   @override
@@ -245,7 +266,14 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
 
   @override
   OBJ? getSync(Id id) {
-    return _isarCollection.getSync(id);
+    return _spanHelper.syncWrapInSpan(
+      'getSync',
+      () {
+        return _isarCollection.getSync(id);
+      },
+      dbName: _dbName,
+      collectionName: name,
+    );
   }
 
   @override
@@ -365,7 +393,14 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
 
   @override
   Id putSync(OBJ object, {bool saveLinks = true}) {
-    return _isarCollection.putSync(object, saveLinks: saveLinks);
+    return _spanHelper.syncWrapInSpan(
+      'putSync',
+      () {
+        return _isarCollection.putSync(object, saveLinks: saveLinks);
+      },
+      dbName: _dbName,
+      collectionName: name,
+    );
   }
 
   @override

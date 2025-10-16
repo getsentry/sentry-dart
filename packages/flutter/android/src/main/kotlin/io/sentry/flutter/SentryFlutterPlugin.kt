@@ -41,7 +41,6 @@ class SentryFlutterPlugin :
   ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
-  private lateinit var sentryFlutter: SentryFlutter
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     pluginRegistrationTime = System.currentTimeMillis()
@@ -281,8 +280,7 @@ class SentryFlutterPlugin :
 
     private var pluginRegistrationTime: Long? = null
 
-    var autoPerformanceTracingEnabled: Boolean = false
-      internal set
+    private lateinit var sentryFlutter: SentryFlutter
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
@@ -324,10 +322,10 @@ class SentryFlutterPlugin :
       return refreshRate
     }
 
-    @Suppress("unused", "ReturnCount") // Used by native/jni bindings
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun fetchNativeAppStartAsBytes(): ByteArray? {
-      if (!autoPerformanceTracingEnabled) {
+      if (!sentryFlutter.autoPerformanceTracingEnabled) {
         return null
       }
 
@@ -408,7 +406,7 @@ class SentryFlutterPlugin :
     @JvmStatic
     fun getApplicationContext(): Context? = applicationContext
 
-    @Suppress("unused") // Used by native/jni bindings
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun loadContextsAsBytes(): ByteArray? {
       val options = ScopesAdapter.getInstance().options
@@ -423,11 +421,16 @@ class SentryFlutterPlugin :
           options,
           currentScope,
         )
-      val json = JSONObject(serializedScope).toString()
-      return json.toByteArray(Charsets.UTF_8)
+      try {
+        val json = JSONObject(serializedScope).toString()
+        return json.toByteArray(Charsets.UTF_8)
+      } catch (e: Exception) {
+        Log.e("Sentry", "Failed to serialize scope", e)
+        return null
+      }
     }
 
-    @Suppress("unused") // Used by native/jni bindings
+    @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun loadDebugImagesAsBytes(addresses: Set<String>): ByteArray? {
       val options = ScopesAdapter.getInstance().options as SentryAndroidOptions
@@ -446,8 +449,13 @@ class SentryFlutterPlugin :
             .serialize()
         }
 
-      val json = JSONArray(debugImages).toString()
-      return json.toByteArray(Charsets.UTF_8)
+      try {
+        val json = JSONArray(debugImages).toString()
+        return json.toByteArray(Charsets.UTF_8)
+      } catch (e: Exception) {
+        Log.e("Sentry", "Failed to serialize debug images", e)
+        return null
+      }
     }
 
     private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }

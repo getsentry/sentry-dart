@@ -114,6 +114,72 @@ void main() {
     });
   });
 
+  group('add sync spans', () {
+    late Fixture fixture;
+
+    setUp(() async {
+      fixture = Fixture();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+      when(fixture.hub.scope).thenReturn(fixture.scope);
+
+      when(fixture.isar.clearSync()).thenReturn(null);
+      when(fixture.isar.getSizeSync()).thenReturn(1024);
+      when(fixture.isar.txnSync<dynamic>(any)).thenAnswer((invocation) {
+        final callback =
+            invocation.positionalArguments.first as dynamic Function();
+        return callback();
+      });
+      when(fixture.isar.writeTxnSync<dynamic>(any)).thenAnswer((invocation) {
+        final callback =
+            invocation.positionalArguments.first as dynamic Function();
+        return callback();
+      });
+      when(fixture.isar.name).thenReturn(Fixture.dbName);
+
+      await fixture.setUp(injectMock: true);
+    });
+
+    tearDown(() async {
+      await fixture.tearDown();
+    });
+
+    void verifySyncSpan(String description, SentrySpan? span) {
+      expect(span?.context.operation, SentryIsar.dbOp);
+      expect(span?.context.description, description);
+      expect(span?.status, SpanStatus.ok());
+      // ignore: invalid_use_of_internal_member
+      expect(span?.origin, SentryTraceOrigins.autoDbIsar);
+      expect(span?.data[SentryIsar.dbNameKey], Fixture.dbName);
+      expect(span?.data['sync'], true);
+    }
+
+    test('clearSync adds span', () {
+      fixture.sut.clearSync();
+      final span = fixture.getCreatedSpan();
+      verifySyncSpan('clearSync', span);
+    });
+
+    test('getSizeSync adds span', () {
+      fixture.sut.getSizeSync();
+      final span = fixture.getCreatedSpan();
+      verifySyncSpan('getSizeSync', span);
+    });
+
+    test('txnSync adds span', () {
+      fixture.sut.txnSync(() {});
+      final span = fixture.getCreatedSpan();
+      verifySyncSpan('txnSync', span);
+    });
+
+    test('writeTxnSync adds span', () {
+      fixture.sut.writeTxnSync(() {});
+      final span = fixture.getCreatedSpan();
+      verifySyncSpan('writeTxnSync', span);
+    });
+  });
+
   group('add error spans', () {
     late Fixture fixture;
 
