@@ -1131,6 +1131,8 @@ late final _sel_loadDebugImagesAsBytes_ =
 late final _sel_addBreadcrumbAsBytes_ =
     objc.registerName("addBreadcrumbAsBytes:");
 late final _sel_clearBreadcrumbs = objc.registerName("clearBreadcrumbs");
+late final _class_SentrySDK = objc.getClass("Sentry.SentrySDK");
+late final _sel_crash = objc.registerName("crash");
 final _objc_msgSend_1pl9qdv = objc.msgSendPointer
     .cast<
         ffi.NativeFunction<
@@ -1144,6 +1146,59 @@ late final _sel_pauseAppHangTracking =
     objc.registerName("pauseAppHangTracking");
 late final _sel_resumeAppHangTracking =
     objc.registerName("resumeAppHangTracking");
+
+/// The main entry point for the Sentry SDK.
+/// We recommend using <code>start(configureOptions:)</code> to initialize Sentry.
+class SentrySDK extends objc.NSObject {
+  SentrySDK._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentrySDK] that points to the same underlying object as [other].
+  SentrySDK.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentrySDK] that wraps the given raw object pointer.
+  SentrySDK.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+
+  /// Returns whether [obj] is an instance of [SentrySDK].
+  static bool isInstance(objc.ObjCObjectBase obj) {
+    return _objc_msgSend_19nvye5(
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentrySDK);
+  }
+
+  /// This forces a crash, useful to test the <code>SentryCrash</code> integration.
+  /// note:
+  /// The SDK can’t report a crash when a debugger is attached. Your application needs to run
+  /// without a debugger attached to capture the crash and send it to Sentry the next time you launch
+  /// your application.
+  static void crash() {
+    _objc_msgSend_1pl9qdv(_class_SentrySDK, _sel_crash);
+  }
+
+  /// Pauses sending detected app hangs to Sentry.
+  /// This method doesn’t close the detection of app hangs. Instead, the app hang detection
+  /// will ignore detected app hangs until you call <code>resumeAppHangTracking</code>.
+  static void pauseAppHangTracking() {
+    _objc_msgSend_1pl9qdv(_class_SentrySDK, _sel_pauseAppHangTracking);
+  }
+
+  /// Resumes sending detected app hangs to Sentry.
+  static void resumeAppHangTracking() {
+    _objc_msgSend_1pl9qdv(_class_SentrySDK, _sel_resumeAppHangTracking);
+  }
+}
+
+late final _class_SentryFlutterPlugin = objc.getClass("SentryFlutterPlugin");
+late final _sel_getDisplayRefreshRate =
+    objc.registerName("getDisplayRefreshRate");
+late final _sel_fetchNativeAppStartAsBytes =
+    objc.registerName("fetchNativeAppStartAsBytes");
+late final _sel_loadContextsAsBytes = objc.registerName("loadContextsAsBytes");
+late final _sel_loadDebugImagesAsBytes_ =
+    objc.registerName("loadDebugImagesAsBytes:");
 
 /// SentryFlutterPlugin
 class SentryFlutterPlugin extends objc.NSObject {

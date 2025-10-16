@@ -488,22 +488,11 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
       if let data = try? JSONSerialization.data(withJSONObject: item, options: []) {
           return data as NSData
       }
+      print("Failed to load native app start as bytes")
       return nil
       #else
       return nil
       #endif
-  }
-
-  @objc public class func nativeCrash() {
-      SentrySDK.crash()
-  }
-
-  @objc public class func pauseAppHangTracking() {
-      SentrySDK.pauseAppHangTracking()
-  }
-
-  @objc public class func resumeAppHangTracking() {
-      SentrySDK.resumeAppHangTracking()
   }
 
   @objc(loadDebugImagesAsBytes:)
@@ -535,6 +524,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
           if let data = try? JSONSerialization.data(withJSONObject: serializedImages, options: []) {
               return data as NSData
           }
+          print("Failed to load debug images as bytes")
           return nil
   }
 
@@ -620,6 +610,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         if let data = try? JSONSerialization.data(withJSONObject: infos, options: []) {
             return data as NSData
         }
+        print("Failed to load contexts as bytes")
         return nil
   }
 

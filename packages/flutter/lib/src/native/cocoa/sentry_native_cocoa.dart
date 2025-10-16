@@ -182,16 +182,12 @@ class SentryNativeCocoa extends SentryNativeChannel {
       );
 
   @override
-  void nativeCrash() {
-    cocoa.SentryFlutterPlugin.nativeCrash();
-  }
+  void nativeCrash() => cocoa.SentrySDK.crash();
 
   @override
-  void pauseAppHangTracking() {
-    tryCatchSync('pauseAppHangTracking', () {
-      cocoa.SentryFlutterPlugin.pauseAppHangTracking();
-    });
-  }
+  void pauseAppHangTracking() => tryCatchSync('pauseAppHangTracking', () {
+        cocoa.SentrySDK.pauseAppHangTracking();
+      });
 
   @override
   void resumeAppHangTracking() {
@@ -217,4 +213,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
       cocoa.SentryFlutterPlugin.clearBreadcrumbs();
     });
   }
+  void resumeAppHangTracking() => tryCatchSync('resumeAppHangTracking', () {
+        cocoa.SentrySDK.resumeAppHangTracking();
+      });
 }

@@ -9,9 +9,5 @@
 + (nullable NSData *)loadContextsAsBytes;
 + (nullable NSData *)loadDebugImagesAsBytes:(NSSet<NSString *> *)instructionAddresses;
 + (void)addBreadcrumbAsBytes:(NSData *)breadcrumbBytes;
-+ (void)clearBreadcrumbs;
-+ (void)nativeCrash;
-+ (void)pauseAppHangTracking;
-+ (void)resumeAppHangTracking;
 @end
 #endif
