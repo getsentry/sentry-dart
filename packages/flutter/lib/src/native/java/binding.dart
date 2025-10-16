@@ -1279,6 +1279,31 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
   /// The type which includes information such as the signature of this class.
   static const nullableType = $SentryFlutterPlugin$Companion$NullableType();
   static const type = $SentryFlutterPlugin$Companion$Type();
+  static final _id_getAutoPerformanceTracingEnabled = _class.instanceMethodId(
+    r'getAutoPerformanceTracingEnabled',
+    r'()Z',
+  );
+
+  static final _getAutoPerformanceTracingEnabled =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallBooleanMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public final boolean getAutoPerformanceTracingEnabled()`
+  bool getAutoPerformanceTracingEnabled() {
+    return _getAutoPerformanceTracingEnabled(reference.pointer,
+            _id_getAutoPerformanceTracingEnabled as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
   static final _id_privateSentryGetReplayIntegration = _class.instanceMethodId(
     r'privateSentryGetReplayIntegration',
     r'()Lio/sentry/android/replay/ReplayIntegration;',
@@ -1305,12 +1330,12 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<ReplayIntegration?>(const $ReplayIntegration$NullableType());
   }
 
-  static final _id_nativeCrash = _class.instanceMethodId(
-    r'nativeCrash',
+  static final _id_crash = _class.instanceMethodId(
+    r'crash',
     r'()V',
   );
 
-  static final _nativeCrash = jni$_.ProtectedJniExtensions.lookup<
+  static final _crash = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JThrowablePtr Function(
                 jni$_.Pointer<jni$_.Void>,
@@ -1322,10 +1347,9 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
             jni$_.JMethodIDPtr,
           )>();
 
-  /// from: `public final void nativeCrash()`
-  void nativeCrash() {
-    _nativeCrash(reference.pointer, _id_nativeCrash as jni$_.JMethodIDPtr)
-        .check();
+  /// from: `public final void crash()`
+  void crash() {
+    _crash(reference.pointer, _id_crash as jni$_.JMethodIDPtr).check();
   }
 
   static final _id_getDisplayRefreshRate = _class.instanceMethodId(
@@ -1839,12 +1863,12 @@ class SentryFlutterPlugin extends jni$_.JObject {
         .object<ReplayIntegration?>(const $ReplayIntegration$NullableType());
   }
 
-  static final _id_nativeCrash = _class.staticMethodId(
-    r'nativeCrash',
+  static final _id_crash = _class.staticMethodId(
+    r'crash',
     r'()V',
   );
 
-  static final _nativeCrash = jni$_.ProtectedJniExtensions.lookup<
+  static final _crash = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JThrowablePtr Function(
                 jni$_.Pointer<jni$_.Void>,
@@ -1856,11 +1880,9 @@ class SentryFlutterPlugin extends jni$_.JObject {
             jni$_.JMethodIDPtr,
           )>();
 
-  /// from: `static public final void nativeCrash()`
-  static void nativeCrash() {
-    _nativeCrash(
-            _class.reference.pointer, _id_nativeCrash as jni$_.JMethodIDPtr)
-        .check();
+  /// from: `static public final void crash()`
+  static void crash() {
+    _crash(_class.reference.pointer, _id_crash as jni$_.JMethodIDPtr).check();
   }
 
   static final _id_getDisplayRefreshRate = _class.staticMethodId(
