@@ -392,7 +392,7 @@ class SentryFlutterPlugin :
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
-    fun loadContexts(): Map<String, Any>?{
+    fun loadContexts(): Map<String, Any?>? {
       val options = ScopesAdapter.getInstance().options
       val context = getApplicationContext()
       if (options !is SentryAndroidOptions || context == null) {
@@ -406,6 +406,25 @@ class SentryFlutterPlugin :
           currentScope,
         )
       return serializedScope
+    }
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun loadContextsBytes(): ByteArray? {
+      val options = ScopesAdapter.getInstance().options
+      val context = getApplicationContext()
+      if (options !is SentryAndroidOptions || context == null) {
+        return null
+      }
+      val currentScope = InternalSentrySdk.getCurrentScope()
+      val serializedScope =
+        InternalSentrySdk.serializeScope(
+          context,
+          options,
+          currentScope,
+        )
+      val json = JSONObject(serializedScope).toString()
+      return json.toByteArray(Charsets.UTF_8)
     }
 
     @Suppress("unused") // Used by native/jni bindings
