@@ -422,7 +422,7 @@ class SentryFlutterPlugin :
       }
     }
 
-    @Suppress("unused") // Used by native/jni bindings
+    @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun loadDebugImagesAsBytes(addresses: Set<String>): ByteArray? {
       val options = ScopesAdapter.getInstance().options as SentryAndroidOptions
