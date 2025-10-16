@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:jni/jni.dart';
+import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/scheduled_recorder_config.dart';
