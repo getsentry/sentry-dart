@@ -456,7 +456,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   // https://github.com/flutter/engine/blob/main/shell/platform/darwin/ios/framework/Source/vsync_waiter_ios.mm#L150
   @objc public class func getDisplayRefreshRate() -> NSNumber? {
       let displayLink = CADisplayLink(target: self, selector: #selector(onDisplayLinkStatic(_:)))
-      displayLink.add(to: .main, forMode: .common)
       displayLink.isPaused = true
 
       let preferredFPS = displayLink.preferredFramesPerSecond

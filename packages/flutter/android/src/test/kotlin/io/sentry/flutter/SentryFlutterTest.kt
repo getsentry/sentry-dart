@@ -62,7 +62,7 @@ class SentryFlutterTest {
     )
     assertEquals("sentry.native.android.flutter", fixture.options.nativeSdkName)
 
-    assertEquals(true, SentryFlutterPlugin.autoPerformanceTracingEnabled)
+    assertEquals(true, sut.autoPerformanceTracingEnabled)
 
     assertEquals(9006, fixture.options.connectionTimeoutMillis)
     assertEquals(9007, fixture.options.readTimeoutMillis)

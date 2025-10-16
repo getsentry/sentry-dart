@@ -41,7 +41,6 @@ class SentryFlutterPlugin :
   ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
-  private lateinit var sentryFlutter: SentryFlutter
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     pluginRegistrationTime = System.currentTimeMillis()
@@ -282,8 +281,7 @@ class SentryFlutterPlugin :
 
     private var pluginRegistrationTime: Long? = null
 
-    var autoPerformanceTracingEnabled: Boolean = false
-      internal set
+    private lateinit var sentryFlutter: SentryFlutter
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
@@ -319,7 +317,7 @@ class SentryFlutterPlugin :
     @Suppress("unused", "ReturnCount") // Used by native/jni bindings
     @JvmStatic
     fun fetchNativeAppStartAsBytes(): ByteArray? {
-      if (!autoPerformanceTracingEnabled) {
+      if (!sentryFlutter.autoPerformanceTracingEnabled) {
         return null
       }
 
