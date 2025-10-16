@@ -119,12 +119,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
           cocoa.SentryFlutterPlugin.loadContextsAsBytes();
       if (contextsUtf8JsonBytes == null) return null;
 
-      // Use Flutter's compute to decode the UTF-8 JSON off the main isolate.
-      final contexts = await compute<List<int>, Map<String, dynamic>?>(
-        // top-level or static function required by compute; use decode helper wrapper
-        _decodeUtf8JsonMapEntryPoint,
-        contextsUtf8JsonBytes.toList(),
-      );
+      final contexts = decodeUtf8JsonMap(contextsUtf8JsonBytes.toList());
       return contexts;
     } catch (exception, stackTrace) {
       options.log(SentryLevel.error, 'FFI: Failed to load contexts',
