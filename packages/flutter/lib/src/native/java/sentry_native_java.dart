@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
