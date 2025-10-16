@@ -314,7 +314,7 @@ class SentryFlutterPlugin :
       return refreshRate
     }
 
-    @Suppress("unused", "ReturnCount") // Used by native/jni bindings
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun fetchNativeAppStartAsBytes(): ByteArray? {
       if (!sentryFlutter.autoPerformanceTracingEnabled) {
@@ -398,7 +398,7 @@ class SentryFlutterPlugin :
     @JvmStatic
     fun getApplicationContext(): Context? = applicationContext
 
-    @Suppress("unused") // Used by native/jni bindings
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun loadContextsAsBytes(): ByteArray? {
       val options = ScopesAdapter.getInstance().options
