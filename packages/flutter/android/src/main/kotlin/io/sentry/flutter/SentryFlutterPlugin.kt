@@ -41,10 +41,6 @@ class SentryFlutterPlugin :
   ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
-  private lateinit var sentryFlutter: SentryFlutter
-
-  private var activity: WeakReference<Activity>? = null
-  private var pluginRegistrationTime: Long? = null
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     pluginRegistrationTime = System.currentTimeMillis()
@@ -65,7 +61,6 @@ class SentryFlutterPlugin :
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "closeNativeSdk" -> closeNativeSdk(result)
-      "fetchNativeAppStart" -> fetchNativeAppStart(result)
       "setContexts" -> setContexts(call.argument("key"), call.argument("value"), result)
       "removeContexts" -> removeContexts(call.argument("key"), result)
       "setUser" -> setUser(call.argument("user"), result)
@@ -75,7 +70,6 @@ class SentryFlutterPlugin :
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
-      "displayRefreshRate" -> displayRefreshRate(result)
       "nativeCrash" -> crash()
       "setReplayConfig" -> setReplayConfig(call, result)
       "captureReplay" -> captureReplay(result)
@@ -151,106 +145,6 @@ class SentryFlutterPlugin :
     }
   }
 
-  private fun fetchNativeAppStart(result: Result) {
-    if (!sentryFlutter.autoPerformanceTracingEnabled) {
-      result.success(null)
-      return
-    }
-
-    val appStartMetrics = AppStartMetrics.getInstance()
-
-    if (!appStartMetrics.isAppLaunchedInForeground ||
-      appStartMetrics.appStartTimeSpan.durationMs > APP_START_MAX_DURATION_MS
-    ) {
-      Log.w(
-        "Sentry",
-        "Invalid app start data: app not launched in foreground or app start took too long (>60s)",
-      )
-      result.success(null)
-      return
-    }
-
-    val appStartTimeSpan = appStartMetrics.appStartTimeSpan
-    val appStartTime = appStartTimeSpan.startTimestamp
-    val isColdStart = appStartMetrics.appStartType == AppStartMetrics.AppStartType.COLD
-
-    if (appStartTime == null) {
-      Log.w("Sentry", "App start won't be sent due to missing appStartTime")
-      result.success(null)
-    } else {
-      val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
-      val item =
-
-        mutableMapOf<String, Any?>(
-          "pluginRegistrationTime" to pluginRegistrationTime,
-          "appStartTime" to appStartTimeMillis,
-          "isColdStart" to isColdStart,
-        )
-
-      val androidNativeSpans = mutableMapOf<String, Any?>()
-
-      val processInitSpan =
-        TimeSpan().apply {
-          description = "Process Initialization"
-          setStartUnixTimeMs(appStartTimeSpan.startTimestampMs)
-          setStartedAt(appStartTimeSpan.startUptimeMs)
-          setStoppedAt(appStartMetrics.classLoadedUptimeMs)
-        }
-      processInitSpan.addToMap(androidNativeSpans)
-
-      val applicationOnCreateSpan = appStartMetrics.applicationOnCreateTimeSpan
-      applicationOnCreateSpan.addToMap(androidNativeSpans)
-
-      val contentProviderSpans = appStartMetrics.contentProviderOnCreateTimeSpans
-      contentProviderSpans.forEach { span ->
-        span.addToMap(androidNativeSpans)
-      }
-
-      appStartMetrics.activityLifecycleTimeSpans.forEach { span ->
-        span.onCreate.addToMap(androidNativeSpans)
-        span.onStart.addToMap(androidNativeSpans)
-      }
-
-      item["nativeSpanTimes"] = androidNativeSpans
-
-      result.success(item)
-    }
-  }
-
-  private fun displayRefreshRate(result: Result) {
-    var refreshRate: Int? = null
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-      val display = activity?.get()?.display
-      if (display != null) {
-        refreshRate = display.refreshRate.toInt()
-      }
-    } else {
-      val display =
-        activity
-          ?.get()
-          ?.window
-          ?.windowManager
-          ?.defaultDisplay
-      if (display != null) {
-        refreshRate = display.refreshRate.toInt()
-      }
-    }
-
-    result.success(refreshRate)
-  }
-
-  private fun TimeSpan.addToMap(map: MutableMap<String, Any?>) {
-    if (startTimestamp == null) return
-
-    description?.let { description ->
-      map[description] =
-        mapOf<String, Any?>(
-          "startTimestampMsSinceEpoch" to startTimestampMs,
-          "stopTimestampMsSinceEpoch" to projectedStopTimestampMs,
-        )
-    }
-  }
   private fun setContexts(
     key: String?,
     value: Any?,
@@ -374,6 +268,7 @@ class SentryFlutterPlugin :
     result.success("")
   }
 
+  @Suppress("TooManyFunctions")
   companion object {
     @SuppressLint("StaticFieldLeak")
     private var replay: ReplayIntegration? = null
@@ -381,16 +276,129 @@ class SentryFlutterPlugin :
     @SuppressLint("StaticFieldLeak")
     private var applicationContext: Context? = null
 
+    @SuppressLint("StaticFieldLeak")
+    private var activity: WeakReference<Activity>? = null
+
+    private var pluginRegistrationTime: Long? = null
+
+    private lateinit var sentryFlutter: SentryFlutter
+
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
 
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun getDisplayRefreshRate(): Int? {
+      var refreshRate: Int? = null
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val display = activity?.get()?.display
+        if (display != null) {
+          refreshRate = display.refreshRate.toInt()
+        }
+      } else {
+        val display =
+          activity
+            ?.get()
+            ?.window
+            ?.windowManager
+            ?.defaultDisplay
+        if (display != null) {
+          refreshRate = display.refreshRate.toInt()
+        }
+      }
+
+      return refreshRate
+    }
+
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
+    @JvmStatic
+    fun fetchNativeAppStartAsBytes(): ByteArray? {
+      if (!sentryFlutter.autoPerformanceTracingEnabled) {
+        return null
+      }
+
+      val appStartMetrics = AppStartMetrics.getInstance()
+
+      if (!appStartMetrics.isAppLaunchedInForeground ||
+        appStartMetrics.appStartTimeSpan.durationMs > APP_START_MAX_DURATION_MS
+      ) {
+        Log.w(
+          "Sentry",
+          "Invalid app start data: app not launched in foreground or app start took too long (>60s)",
+        )
+        return null
+      }
+
+      val appStartTimeSpan = appStartMetrics.appStartTimeSpan
+      val appStartTime = appStartTimeSpan.startTimestamp
+      val isColdStart = appStartMetrics.appStartType == AppStartMetrics.AppStartType.COLD
+
+      if (appStartTime == null) {
+        Log.w("Sentry", "App start won't be sent due to missing appStartTime")
+        return null
+      }
+
+      val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
+      val item =
+        mutableMapOf<String, Any?>(
+          "pluginRegistrationTime" to pluginRegistrationTime,
+          "appStartTime" to appStartTimeMillis,
+          "isColdStart" to isColdStart,
+        )
+
+      val androidNativeSpans = mutableMapOf<String, Any?>()
+
+      val processInitSpan =
+        TimeSpan().apply {
+          description = "Process Initialization"
+          setStartUnixTimeMs(appStartTimeSpan.startTimestampMs)
+          setStartedAt(appStartTimeSpan.startUptimeMs)
+          setStoppedAt(appStartMetrics.classLoadedUptimeMs)
+        }
+      addTimeSpanToMap(processInitSpan, androidNativeSpans)
+
+      val applicationOnCreateSpan = appStartMetrics.applicationOnCreateTimeSpan
+      addTimeSpanToMap(applicationOnCreateSpan, androidNativeSpans)
+
+      val contentProviderSpans = appStartMetrics.contentProviderOnCreateTimeSpans
+      contentProviderSpans.forEach { span ->
+        addTimeSpanToMap(span, androidNativeSpans)
+      }
+
+      appStartMetrics.activityLifecycleTimeSpans.forEach { span ->
+        addTimeSpanToMap(span.onCreate, androidNativeSpans)
+        addTimeSpanToMap(span.onStart, androidNativeSpans)
+      }
+
+      item["nativeSpanTimes"] = androidNativeSpans
+
+      val json = JSONObject(item).toString()
+      return json.toByteArray(Charsets.UTF_8)
+    }
+
+    private fun addTimeSpanToMap(
+      span: TimeSpan,
+      map: MutableMap<String, Any?>,
+    ) {
+      if (span.startTimestamp == null) return
+
+      span.description?.let { description ->
+        map[description] =
+          mapOf<String, Any?>(
+            "startTimestampMsSinceEpoch" to span.startTimestampMs,
+            "stopTimestampMsSinceEpoch" to span.projectedStopTimestampMs,
+          )
+      }
+    }
+
     @JvmStatic
     fun getApplicationContext(): Context? = applicationContext
 
-    @Suppress("unused") // Used by native/jni bindings
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun loadContextsAsBytes(): ByteArray? {
       val options = ScopesAdapter.getInstance().options
@@ -405,11 +413,16 @@ class SentryFlutterPlugin :
           options,
           currentScope,
         )
-      val json = JSONObject(serializedScope).toString()
-      return json.toByteArray(Charsets.UTF_8)
+      try {
+        val json = JSONObject(serializedScope).toString()
+        return json.toByteArray(Charsets.UTF_8)
+      } catch (e: Exception) {
+        Log.e("Sentry", "Failed to serialize scope", e)
+        return null
+      }
     }
 
-    @Suppress("unused") // Used by native/jni bindings
+    @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun loadDebugImagesAsBytes(addresses: Set<String>): ByteArray? {
       val options = ScopesAdapter.getInstance().options as SentryAndroidOptions
@@ -428,8 +441,13 @@ class SentryFlutterPlugin :
             .serialize()
         }
 
-      val json = JSONArray(debugImages).toString()
-      return json.toByteArray(Charsets.UTF_8)
+      try {
+        val json = JSONArray(debugImages).toString()
+        return json.toByteArray(Charsets.UTF_8)
+      } catch (e: Exception) {
+        Log.e("Sentry", "Failed to serialize debug images", e)
+        return null
+      }
     }
 
     private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
