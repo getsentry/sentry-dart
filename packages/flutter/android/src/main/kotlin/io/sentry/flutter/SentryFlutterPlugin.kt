@@ -437,6 +437,21 @@ class SentryFlutterPlugin :
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
+    fun setUserAsBytes(userBytes: ByteArray?) {
+      if (userBytes == null) {
+        Sentry.setUser(null)
+        return
+      }
+
+      val logger = ScopesAdapter.getInstance().options.logger
+      val userJson = userBytes.toString(Charsets.UTF_8)
+      val reader = JsonObjectReader(StringReader(userJson))
+      val user = User.Deserializer().deserialize(reader, logger)
+      Sentry.setUser(user)
+    }
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
     fun addBreadcrumbAsBytes(breadcrumbBytes: ByteArray) {
       val logger = ScopesAdapter.getInstance().options.logger
       val breadcrumbJson = breadcrumbBytes.toString(Charsets.UTF_8)

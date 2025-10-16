@@ -197,6 +197,22 @@ class SentryNativeCocoa extends SentryNativeChannel {
   }
 
   @override
+  void setUser(SentryUser? user) {
+    tryCatchSync('setUser', () {
+      if (user == null) {
+        cocoa.SentryFlutterPlugin.setUserAsBytes(null);
+        return;
+      }
+
+      final jsonString = json.encode(user.toJson());
+      final bytes = utf8.encode(jsonString);
+      final nsData = bytes.toNSData();
+
+      cocoa.SentryFlutterPlugin.setUserAsBytes(nsData);
+    });
+  }
+
+  @override
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
     tryCatchSync('addBreadcrumb', () {
       final jsonString = json.encode(breadcrumb.toJson());

@@ -87,11 +87,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             let key = arguments?["key"] as? String
             removeContexts(key: key, result: result)
 
-        case "setUser":
-            let arguments = call.arguments as? [String: Any?]
-            let user = arguments?["user"] as? [String: Any]
-            setUser(user: user, result: result)
-
         case "setExtra":
             let arguments = call.arguments as? [String: Any?]
             let key = arguments?["key"] as? String
@@ -302,16 +297,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         scope.removeContext(key: key)
         result("")
       }
-    }
-
-    private func setUser(user: [String: Any]?, result: @escaping FlutterResult) {
-      if let user = user {
-        let userInstance = PrivateSentrySDKOnly.user(with: user)
-        SentrySDK.setUser(userInstance)
-      } else {
-        SentrySDK.setUser(nil)
-      }
-      result("")
     }
 
     private func setExtra(key: String?, value: Any?, result: @escaping FlutterResult) {
@@ -614,10 +599,23 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         return nil
   }
 
+  @objc public class func setUserAsBytes(_ userBytes: NSData?) {
+      guard let userBytes = userBytes else {
+          SentrySDK.setUser(nil)
+          return
+      }
+
+      guard let userDict = try? JSONSerialization.jsonObject(with: userBytes as Data) as? [String: Any] else {
+        print("setUser failed in native cocoa: could not parse bytes")
+        return
+      }
+      let userInstance = PrivateSentrySDKOnly.user(with: userDict)
+      SentrySDK.setUser(userInstance)
+  }
+
   @objc public class func addBreadcrumbAsBytes(_ breadcrumbBytes: NSData) {
       guard let breadcrumbDict = try? JSONSerialization.jsonObject(
-          with: breadcrumbBytes as Data,
-          options: []
+          with: breadcrumbBytes as Data
       ) as? [String: Any] else {
           print("addBreadcrumb failed in native cocoa: could not parse bytes")
           return

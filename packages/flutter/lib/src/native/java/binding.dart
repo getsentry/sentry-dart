@@ -1480,6 +1480,32 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
   }
 
+  static final _id_setUserAsBytes = _class.instanceMethodId(
+    r'setUserAsBytes',
+    r'([B)V',
+  );
+
+  static final _setUserAsBytes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final void setUserAsBytes(byte[] bs)`
+  void setUserAsBytes(
+    jni$_.JByteArray? bs,
+  ) {
+    final _$bs = bs?.reference ?? jni$_.jNullReference;
+    _setUserAsBytes(reference.pointer, _id_setUserAsBytes as jni$_.JMethodIDPtr,
+            _$bs.pointer)
+        .check();
+  }
+
   static final _id_addBreadcrumbAsBytes = _class.instanceMethodId(
     r'addBreadcrumbAsBytes',
     r'([B)V',
@@ -2061,6 +2087,32 @@ class SentryFlutterPlugin extends jni$_.JObject {
     return _loadDebugImagesAsBytes(_class.reference.pointer,
             _id_loadDebugImagesAsBytes as jni$_.JMethodIDPtr, _$set.pointer)
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
+  static final _id_setUserAsBytes = _class.staticMethodId(
+    r'setUserAsBytes',
+    r'([B)V',
+  );
+
+  static final _setUserAsBytes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public final void setUserAsBytes(byte[] bs)`
+  static void setUserAsBytes(
+    jni$_.JByteArray? bs,
+  ) {
+    final _$bs = bs?.reference ?? jni$_.jNullReference;
+    _setUserAsBytes(_class.reference.pointer,
+            _id_setUserAsBytes as jni$_.JMethodIDPtr, _$bs.pointer)
+        .check();
   }
 
   static final _id_addBreadcrumbAsBytes = _class.staticMethodId(

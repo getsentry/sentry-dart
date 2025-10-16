@@ -609,6 +609,45 @@ void main() {
         reason: 'Breadcrumbs should be null or empty after clearing');
   });
 
+  testWidgets('setUser syncs to native', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    // 1. Set a user via Dart
+    final testUser = SentryUser(
+      id: 'test-user-id',
+      email: 'test@example.com',
+      username: 'test-username',
+    );
+    await Sentry.configureScope((scope) async {
+      await scope.setUser(testUser);
+    });
+
+    // 2. Verify it appears in native via loadContexts
+    var contexts = await SentryFlutter.native?.loadContexts();
+    expect(contexts, isNotNull);
+
+    var user = contexts!['user'] as Map<dynamic, dynamic>?;
+    expect(user, isNotNull, reason: 'User should not be null after setting');
+    expect(user!['id'], equals('test-user-id'));
+    expect(user['email'], equals('test@example.com'));
+    expect(user['username'], equals('test-username'));
+
+    // 3. Clear user (after clearing the id should remain)
+    await Sentry.configureScope((scope) async {
+      await scope.setUser(null);
+    });
+
+    // 4. Verify it's cleared in native
+    contexts = await SentryFlutter.native?.loadContexts();
+    user = contexts!['user'] as Map<dynamic, dynamic>?;
+    expect(user!['email'], isNull);
+    expect(user['username'], isNull);
+    expect(user['id'], isNotNull);
+    expect(user['id'], isNotEmpty);
+  });
+
   testWidgets('loads debug images through loadDebugImages', (tester) async {
     await restoreFlutterOnErrorAfter(() async {
       await setupSentryAndApp(tester);
