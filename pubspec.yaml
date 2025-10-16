@@ -1,4 +1,4 @@
-name: sentry_dart_workspace
+name: sentry_dart
 publish_to: 'none'
 repository: https://github.com/getsentry/sentry-dart/
 
