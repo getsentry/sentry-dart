@@ -1382,6 +1382,31 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
   }
 
+  static final _id_loadContextsStr = _class.instanceMethodId(
+    r'loadContextsStr',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _loadContextsStr = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final java.lang.String loadContextsStr()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? loadContextsStr() {
+    return _loadContextsStr(
+            reference.pointer, _id_loadContextsStr as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.JStringNullableType());
+  }
+
   static final _id_loadDebugImages = _class.instanceMethodId(
     r'loadDebugImages',
     r'(Ljava/util/Set;)Ljava/util/List;',
@@ -1871,6 +1896,31 @@ class SentryFlutterPlugin extends jni$_.JObject {
     return _loadContextsBytes(_class.reference.pointer,
             _id_loadContextsBytes as jni$_.JMethodIDPtr)
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
+  static final _id_loadContextsStr = _class.staticMethodId(
+    r'loadContextsStr',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _loadContextsStr = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public final java.lang.String loadContextsStr()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? loadContextsStr() {
+    return _loadContextsStr(
+            _class.reference.pointer, _id_loadContextsStr as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.JStringNullableType());
   }
 
   static final _id_loadDebugImages = _class.staticMethodId(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
@@ -132,8 +133,17 @@ class SentryNativeJava extends SentryNativeChannel {
           byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
       final decoded = decodeUtf8JsonMap(bytes);
       stopwatch2.stop();
+
+      final stopwatch3 = Stopwatch()..start();
+      final ctx = native.SentryFlutterPlugin.Companion.loadContextsStr();
+      final str = json.decode(ctx!.toDartString()) as Map<String, dynamic>;
+      stopwatch3.stop();
+
       print(
           'loadContexts and mapping took (1) ${stopwatch.elapsedMilliseconds}ms and (2) ${stopwatch2.elapsedMilliseconds}ms');
+      print(
+          'loadContexts and mapping took (3) ${stopwatch3.elapsedMilliseconds}ms');
+
       return null;
 
       print('loadCONtexts and mapping took ${stopwatch.elapsedMilliseconds}ms');

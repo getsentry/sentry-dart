@@ -429,6 +429,24 @@ class SentryFlutterPlugin :
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
+    fun loadContextsStr(): String? {
+      val options = ScopesAdapter.getInstance().options
+      val context = getApplicationContext()
+      if (options !is SentryAndroidOptions || context == null) {
+        return null
+      }
+      val currentScope = InternalSentrySdk.getCurrentScope()
+      val serializedScope =
+        InternalSentrySdk.serializeScope(
+          context,
+          options,
+          currentScope,
+        )
+      return JSONObject(serializedScope).toString()
+    }
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
     fun loadDebugImages(addresses: Set<String>): List<Map<String, Any?>>? {
       val options = ScopesAdapter.getInstance().options as SentryAndroidOptions
 
