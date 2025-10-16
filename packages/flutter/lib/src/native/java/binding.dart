@@ -1330,12 +1330,12 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
   }
 
-  static final _id_loadContextsAsBytes = _class.instanceMethodId(
-    r'loadContextsAsBytes',
-    r'()[B',
+  static final _id_loadContexts = _class.instanceMethodId(
+    r'loadContexts',
+    r'()Ljava/util/Map;',
   );
 
-  static final _loadContextsAsBytes = jni$_.ProtectedJniExtensions.lookup<
+  static final _loadContexts = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                 jni$_.Pointer<jni$_.Void>,
@@ -1347,20 +1347,47 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
             jni$_.JMethodIDPtr,
           )>();
 
-  /// from: `public final byte[] loadContextsAsBytes()`
+  /// from: `public final java.util.Map<java.lang.String, java.lang.Object> loadContexts()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JByteArray? loadContextsAsBytes() {
-    return _loadContextsAsBytes(
-            reference.pointer, _id_loadContextsAsBytes as jni$_.JMethodIDPtr)
+  jni$_.JMap<jni$_.JString, jni$_.JObject?>? loadContexts() {
+    return _loadContexts(
+            reference.pointer, _id_loadContexts as jni$_.JMethodIDPtr)
+        .object<jni$_.JMap<jni$_.JString, jni$_.JObject?>?>(
+            const jni$_.JMapNullableType<jni$_.JString, jni$_.JObject?>(
+                jni$_.JStringType(), jni$_.JObjectNullableType()));
+  }
+
+  static final _id_loadContextsBytes = _class.instanceMethodId(
+    r'loadContextsBytes',
+    r'()[B',
+  );
+
+  static final _loadContextsBytes = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final byte[] loadContextsBytes()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JByteArray? loadContextsBytes() {
+    return _loadContextsBytes(
+            reference.pointer, _id_loadContextsBytes as jni$_.JMethodIDPtr)
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
   }
 
-  static final _id_loadDebugImagesAsBytes = _class.instanceMethodId(
-    r'loadDebugImagesAsBytes',
-    r'(Ljava/util/Set;)[B',
+  static final _id_loadDebugImages = _class.instanceMethodId(
+    r'loadDebugImages',
+    r'(Ljava/util/Set;)Ljava/util/List;',
   );
 
-  static final _loadDebugImagesAsBytes = jni$_.ProtectedJniExtensions.lookup<
+  static final _loadDebugImages = jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
                   jni$_.JniResult Function(
                       jni$_.Pointer<jni$_.Void>,
@@ -1371,15 +1398,19 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
           jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public final byte[] loadDebugImagesAsBytes(java.util.Set<java.lang.String> set)`
+  /// from: `public final java.util.List<java.util.Map<java.lang.String, java.lang.Object>> loadDebugImages(java.util.Set<java.lang.String> set)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JByteArray? loadDebugImagesAsBytes(
+  jni$_.JList<jni$_.JMap<jni$_.JString, jni$_.JObject?>>? loadDebugImages(
     jni$_.JSet<jni$_.JString> set,
   ) {
     final _$set = set.reference;
-    return _loadDebugImagesAsBytes(reference.pointer,
-            _id_loadDebugImagesAsBytes as jni$_.JMethodIDPtr, _$set.pointer)
-        .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+    return _loadDebugImages(reference.pointer,
+            _id_loadDebugImages as jni$_.JMethodIDPtr, _$set.pointer)
+        .object<jni$_.JList<jni$_.JMap<jni$_.JString, jni$_.JObject?>>?>(
+            const jni$_
+                .JListNullableType<jni$_.JMap<jni$_.JString, jni$_.JObject?>>(
+                jni$_.JMapType<jni$_.JString, jni$_.JObject?>(
+                    jni$_.JStringType(), jni$_.JObjectNullableType())));
   }
 
   static final _id_new$ = _class.constructorId(
@@ -1790,12 +1821,12 @@ class SentryFlutterPlugin extends jni$_.JObject {
         .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
   }
 
-  static final _id_loadContextsAsBytes = _class.staticMethodId(
-    r'loadContextsAsBytes',
-    r'()[B',
+  static final _id_loadContexts = _class.staticMethodId(
+    r'loadContexts',
+    r'()Ljava/util/Map;',
   );
 
-  static final _loadContextsAsBytes = jni$_.ProtectedJniExtensions.lookup<
+  static final _loadContexts = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                 jni$_.Pointer<jni$_.Void>,
@@ -1807,20 +1838,47 @@ class SentryFlutterPlugin extends jni$_.JObject {
             jni$_.JMethodIDPtr,
           )>();
 
-  /// from: `static public final byte[] loadContextsAsBytes()`
+  /// from: `static public final java.util.Map<java.lang.String, java.lang.Object> loadContexts()`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JByteArray? loadContextsAsBytes() {
-    return _loadContextsAsBytes(_class.reference.pointer,
-            _id_loadContextsAsBytes as jni$_.JMethodIDPtr)
+  static jni$_.JMap<jni$_.JString?, jni$_.JObject?>? loadContexts() {
+    return _loadContexts(
+            _class.reference.pointer, _id_loadContexts as jni$_.JMethodIDPtr)
+        .object<jni$_.JMap<jni$_.JString?, jni$_.JObject?>?>(
+            const jni$_.JMapNullableType<jni$_.JString?, jni$_.JObject?>(
+                jni$_.JStringNullableType(), jni$_.JObjectNullableType()));
+  }
+
+  static final _id_loadContextsBytes = _class.staticMethodId(
+    r'loadContextsBytes',
+    r'()[B',
+  );
+
+  static final _loadContextsBytes = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public final byte[] loadContextsBytes()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JByteArray? loadContextsBytes() {
+    return _loadContextsBytes(_class.reference.pointer,
+            _id_loadContextsBytes as jni$_.JMethodIDPtr)
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
   }
 
-  static final _id_loadDebugImagesAsBytes = _class.staticMethodId(
-    r'loadDebugImagesAsBytes',
-    r'(Ljava/util/Set;)[B',
+  static final _id_loadDebugImages = _class.staticMethodId(
+    r'loadDebugImages',
+    r'(Ljava/util/Set;)Ljava/util/List;',
   );
 
-  static final _loadDebugImagesAsBytes = jni$_.ProtectedJniExtensions.lookup<
+  static final _loadDebugImages = jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
                   jni$_.JniResult Function(
                       jni$_.Pointer<jni$_.Void>,
@@ -1831,15 +1889,20 @@ class SentryFlutterPlugin extends jni$_.JObject {
           jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `static public final byte[] loadDebugImagesAsBytes(java.util.Set<java.lang.String> set)`
+  /// from: `static public final java.util.List<java.util.Map<java.lang.String, java.lang.Object>> loadDebugImages(java.util.Set<java.lang.String> set)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JByteArray? loadDebugImagesAsBytes(
+  static jni$_.JList<jni$_.JMap<jni$_.JString?, jni$_.JObject?>?>?
+      loadDebugImages(
     jni$_.JSet<jni$_.JString?> set,
   ) {
     final _$set = set.reference;
-    return _loadDebugImagesAsBytes(_class.reference.pointer,
-            _id_loadDebugImagesAsBytes as jni$_.JMethodIDPtr, _$set.pointer)
-        .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+    return _loadDebugImages(_class.reference.pointer,
+            _id_loadDebugImages as jni$_.JMethodIDPtr, _$set.pointer)
+        .object<jni$_.JList<jni$_.JMap<jni$_.JString?, jni$_.JObject?>?>?>(
+            const jni$_
+                .JListNullableType<jni$_.JMap<jni$_.JString?, jni$_.JObject?>?>(
+                jni$_.JMapNullableType<jni$_.JString?, jni$_.JObject?>(
+                    jni$_.JStringNullableType(), jni$_.JObjectNullableType())));
   }
 }
 

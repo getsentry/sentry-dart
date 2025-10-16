@@ -392,7 +392,7 @@ class SentryFlutterPlugin :
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
-    fun loadContextsAsBytes(): ByteArray? {
+    fun loadContexts(): Map<String, Any>?{
       val options = ScopesAdapter.getInstance().options
       val context = getApplicationContext()
       if (options !is SentryAndroidOptions || context == null) {
@@ -405,17 +405,15 @@ class SentryFlutterPlugin :
           options,
           currentScope,
         )
-      val json = JSONObject(serializedScope).toString()
-      return json.toByteArray(Charsets.UTF_8)
+      return serializedScope
     }
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
-    fun loadDebugImagesAsBytes(addresses: Set<String>): ByteArray? {
+    fun loadDebugImages(addresses: Set<String>): List<Map<String, Any?>>? {
       val options = ScopesAdapter.getInstance().options as SentryAndroidOptions
 
-      val debugImages =
-        if (addresses.isEmpty()) {
+      return if (addresses.isEmpty()) {
           options.debugImagesLoader
             .loadDebugImages()
             ?.toList()
@@ -427,9 +425,6 @@ class SentryFlutterPlugin :
             ?.toList()
             .serialize()
         }
-
-      val json = JSONArray(debugImages).toString()
-      return json.toByteArray(Charsets.UTF_8)
     }
 
     private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
