@@ -285,7 +285,7 @@ class SentryFlutterOptions extends SentryOptions {
   bool enableFramesTracking = true;
 
   /// Replay recording configuration.
-  final replay = SentryReplayOptions();
+  SentryReplayOptions replay = SentryReplayOptions();
 
   /// Privacy configuration for masking sensitive data in screenshots and Session Replay.
   /// Screen content masking is enabled by default.
