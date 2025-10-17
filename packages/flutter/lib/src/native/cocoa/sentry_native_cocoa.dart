@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
@@ -8,7 +7,6 @@ import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
-import '../utils/data_normalizer.dart';
 import '../utils/utf8_json.dart';
 import 'binding.dart' as cocoa;
 import 'cocoa_replay_recorder.dart';
@@ -192,46 +190,46 @@ class SentryNativeCocoa extends SentryNativeChannel {
       tryCatchSync('addBreadcrumb', () {
         final nativeBreadcrumb =
             cocoa.PrivateSentrySDKOnly.breadcrumbWithDictionary(
-                deepConvertMapNonNull(breadcrumb.toJson()).toNSDictionary());
+                _deepConvertMapNonNull(breadcrumb.toJson()).toNSDictionary());
         cocoa.SentrySDK.addBreadcrumb(nativeBreadcrumb);
       });
 
-  Map<Object, Object> deepConvertMapNonNull(Map<String, dynamic> input) {
-    final out = <Object, Object>{};
-
-    for (final entry in input.entries) {
-      final value = entry.value;
-      if (value == null) continue;
-
-      out[entry.key] = switch (value) {
-        Map<String, dynamic> m => deepConvertMapNonNull(m),
-        List<dynamic> l => [
-            for (final e in l)
-              if (e != null)
-                e is Map<String, dynamic>
-                    ? deepConvertMapNonNull(e)
-                    : e as Object
-          ],
-        _ => value as Object,
-      };
-    }
-
-    return out;
-  }
-
   @override
-  void clearBreadcrumbs() {
-    tryCatchSync('clearBreadcrumbs', () {
-      cocoa.SentrySDK.configureScope(
-          cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
-              (cocoa.SentryScope scope) {
-        scope.clearBreadcrumbs();
-      }));
-    });
-  }
+  void clearBreadcrumbs() => tryCatchSync('clearBreadcrumbs', () {
+        cocoa.SentrySDK.configureScope(
+            cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
+                (cocoa.SentryScope scope) {
+          scope.clearBreadcrumbs();
+        }));
+      });
 
   @override
   void resumeAppHangTracking() => tryCatchSync('resumeAppHangTracking', () {
         cocoa.SentrySDK.resumeAppHangTracking();
       });
+}
+
+/// This map conversion is needed so we can use the toNSDictionary extension function
+/// provided by the objective_c package.
+Map<Object, Object> _deepConvertMapNonNull(Map<String, dynamic> input) {
+  final out = <Object, Object>{};
+
+  for (final entry in input.entries) {
+    final value = entry.value;
+    if (value == null) continue;
+
+    out[entry.key] = switch (value) {
+      Map<String, dynamic> m => _deepConvertMapNonNull(m),
+      List<dynamic> l => [
+          for (final e in l)
+            if (e != null)
+              e is Map<String, dynamic>
+                  ? _deepConvertMapNonNull(e)
+                  : e as Object
+        ],
+      _ => value as Object,
+    };
+  }
+
+  return out;
 }

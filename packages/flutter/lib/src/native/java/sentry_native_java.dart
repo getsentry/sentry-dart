@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
@@ -9,7 +8,6 @@ import '../../../sentry_flutter.dart';
 import '../../replay/scheduled_recorder_config.dart';
 import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
-import '../utils/data_normalizer.dart';
 import '../utils/utf8_json.dart';
 import 'android_envelope_sender.dart';
 import 'android_replay_recorder.dart';
@@ -223,17 +221,21 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void addBreadcrumb(Breadcrumb breadcrumb) {
-    JByteArray? breadcrumbBytes;
+    native.Breadcrumb? nativeBreadcrumb;
+    JObject? nativeOptions;
 
     tryCatchSync('addBreadcrumb', () {
-      final jsonString = json.encode(breadcrumb.toJson());
-      final bytes = utf8.encode(jsonString);
-      breadcrumbBytes = JByteArray.from(bytes);
+      nativeOptions = native.ScopesAdapter.getInstance()?.getOptions();
+      if (nativeOptions == null) return;
 
-      native.SentryFlutterPlugin.Companion
-          .addBreadcrumbAsBytes(breadcrumbBytes!);
+      nativeBreadcrumb = native.Breadcrumb.fromMap(
+          _dartToJMap(breadcrumb.toJson()), nativeOptions!);
+      if (nativeBreadcrumb == null) return;
+
+      native.Sentry.addBreadcrumb$1(nativeBreadcrumb!);
     }, finallyFn: () {
-      breadcrumbBytes?.release();
+      nativeOptions?.release();
+      nativeBreadcrumb?.release();
     });
   }
 
@@ -241,4 +243,29 @@ class SentryNativeJava extends SentryNativeChannel {
   void clearBreadcrumbs() => tryCatchSync('clearBreadcrumbs', () {
         native.Sentry.clearBreadcrumbs();
       });
+}
+
+JObject? _dartToJObject(Object? value) => switch (value) {
+      null => null,
+      String s => s.toJString(),
+      bool b => b.toJBoolean(),
+      int i => i.toJLong(), // safer for 64-bit
+      double d => d.toJDouble(),
+      List<dynamic> l => _dartToJList(l),
+      Map<String, dynamic> m => _dartToJMap(m),
+      _ => null
+    };
+
+JList<JObject?> _dartToJList(List<dynamic> values) {
+  final jlist = JList.array(JObject.nullableType);
+  jlist.addAll(values.map(_dartToJObject));
+  return jlist;
+}
+
+JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json) {
+  final jmap = JMap.hash(JString.type, JObject.nullableType);
+  for (final entry in json.entries) {
+    jmap[entry.key.toJString()] = _dartToJObject(entry.value);
+  }
+  return jmap;
 }

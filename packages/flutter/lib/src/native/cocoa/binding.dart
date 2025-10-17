@@ -1447,8 +1447,6 @@ late final _sel_fetchNativeAppStartAsBytes =
 late final _sel_loadContextsAsBytes = objc.registerName("loadContextsAsBytes");
 late final _sel_loadDebugImagesAsBytes_ =
     objc.registerName("loadDebugImagesAsBytes:");
-late final _sel_addBreadcrumbAsBytes_ =
-    objc.registerName("addBreadcrumbAsBytes:");
 
 /// SentryFlutterPlugin
 class SentryFlutterPlugin extends objc.NSObject {
@@ -1505,12 +1503,6 @@ class SentryFlutterPlugin extends objc.NSObject {
     return _ret.address == 0
         ? null
         : objc.NSData.castFromPointer(_ret, retain: true, release: true);
-  }
-
-  /// addBreadcrumbAsBytes:
-  static void addBreadcrumbAsBytes(objc.NSData breadcrumbBytes) {
-    _objc_msgSend_xtuoz7(_class_SentryFlutterPlugin, _sel_addBreadcrumbAsBytes_,
-        breadcrumbBytes.ref.pointer);
   }
 
   /// init

@@ -2,6 +2,9 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+// We need to add this file until we update the objective_c package due to a bug
+// See the issue: https://github.com/dart-lang/native/pull/2581
+
 #import "ns_number.h"
 
 @implementation NSNumber (NSNumberIsFloat)

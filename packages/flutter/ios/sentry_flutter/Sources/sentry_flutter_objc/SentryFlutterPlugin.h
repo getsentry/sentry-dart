@@ -8,6 +8,5 @@
 + (nullable NSData *)fetchNativeAppStartAsBytes;
 + (nullable NSData *)loadContextsAsBytes;
 + (nullable NSData *)loadDebugImagesAsBytes:(NSSet<NSString *> *)instructionAddresses;
-+ (void)addBreadcrumbAsBytes:(NSData *)breadcrumbBytes;
 @end
 #endif

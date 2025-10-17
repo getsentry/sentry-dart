@@ -443,16 +443,6 @@ class SentryFlutterPlugin :
       }
     }
 
-    @Suppress("unused") // Used by native/jni bindings
-    @JvmStatic
-    fun addBreadcrumbAsBytes(breadcrumbBytes: ByteArray) {
-      val logger = ScopesAdapter.getInstance().options.logger
-      val breadcrumbJson = breadcrumbBytes.toString(Charsets.UTF_8)
-      val reader = JsonObjectReader(StringReader(breadcrumbJson))
-      val breadcrumb = Breadcrumb.Deserializer().deserialize(reader, logger)
-      Sentry.addBreadcrumb(breadcrumb)
-    }
-
     private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
 
     private fun DebugImage.serialize() =

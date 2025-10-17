@@ -17,4 +17,6 @@ classes:
   - io.sentry.android.replay.ReplayIntegration
   - io.sentry.flutter.SentryFlutterPlugin
   - io.sentry.Sentry
+  - io.sentry.Breadcrumb
+  - io.sentry.ScopesAdapter
   - android.graphics.Bitmap
