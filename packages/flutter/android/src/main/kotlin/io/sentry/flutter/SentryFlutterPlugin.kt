@@ -453,12 +453,6 @@ class SentryFlutterPlugin :
       Sentry.addBreadcrumb(breadcrumb)
     }
 
-    @Suppress("unused") // Used by native/jni bindings
-    @JvmStatic
-    fun clearBreadcrumbs() {
-      Sentry.clearBreadcrumbs()
-    }
-
     private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
 
     private fun DebugImage.serialize() =

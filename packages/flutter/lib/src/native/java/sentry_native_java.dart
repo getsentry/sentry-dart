@@ -222,7 +222,7 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+  void addBreadcrumb(Breadcrumb breadcrumb) {
     JByteArray? breadcrumbBytes;
 
     tryCatchSync('addBreadcrumb', () {
@@ -238,9 +238,7 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  Future<void> clearBreadcrumbs() async {
-    tryCatchSync('clearBreadcrumbs', () {
-      native.SentryFlutterPlugin.Companion.clearBreadcrumbs();
-    });
-  }
+  void clearBreadcrumbs() => tryCatchSync('clearBreadcrumbs', () {
+        native.Sentry.clearBreadcrumbs();
+      });
 }

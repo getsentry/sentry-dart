@@ -2166,6 +2166,2700 @@ final class $SentryFlutterPlugin$Type
   }
 }
 
+/// from: `io.sentry.Sentry$OptionsConfiguration`
+class Sentry$OptionsConfiguration<$T extends jni$_.JObject?>
+    extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<Sentry$OptionsConfiguration<$T>> $type;
+
+  @jni$_.internal
+  final jni$_.JObjType<$T> T;
+
+  @jni$_.internal
+  Sentry$OptionsConfiguration.fromReference(
+    this.T,
+    jni$_.JReference reference,
+  )   : $type = type<$T>(T),
+        super.fromReference(reference);
+
+  static final _class =
+      jni$_.JClass.forName(r'io/sentry/Sentry$OptionsConfiguration');
+
+  /// The type which includes information such as the signature of this class.
+  static $Sentry$OptionsConfiguration$NullableType<$T>
+      nullableType<$T extends jni$_.JObject?>(
+    jni$_.JObjType<$T> T,
+  ) {
+    return $Sentry$OptionsConfiguration$NullableType<$T>(
+      T,
+    );
+  }
+
+  static $Sentry$OptionsConfiguration$Type<$T> type<$T extends jni$_.JObject?>(
+    jni$_.JObjType<$T> T,
+  ) {
+    return $Sentry$OptionsConfiguration$Type<$T>(
+      T,
+    );
+  }
+
+  static final _id_configure = _class.instanceMethodId(
+    r'configure',
+    r'(Lio/sentry/SentryOptions;)V',
+  );
+
+  static final _configure = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void configure(T sentryOptions)`
+  void configure(
+    $T sentryOptions,
+  ) {
+    final _$sentryOptions = sentryOptions?.reference ?? jni$_.jNullReference;
+    _configure(reference.pointer, _id_configure as jni$_.JMethodIDPtr,
+            _$sentryOptions.pointer)
+        .check();
+  }
+
+  /// Maps a specific port to the implemented interface.
+  static final core$_.Map<int, $Sentry$OptionsConfiguration> _$impls = {};
+  static jni$_.JObjectPtr _$invoke(
+    int port,
+    jni$_.JObjectPtr descriptor,
+    jni$_.JObjectPtr args,
+  ) {
+    return _$invokeMethod(
+      port,
+      jni$_.MethodInvocation.fromAddresses(
+        0,
+        descriptor.address,
+        args.address,
+      ),
+    );
+  }
+
+  static final jni$_.Pointer<
+          jni$_.NativeFunction<
+              jni$_.JObjectPtr Function(
+                  jni$_.Int64, jni$_.JObjectPtr, jni$_.JObjectPtr)>>
+      _$invokePointer = jni$_.Pointer.fromFunction(_$invoke);
+
+  static jni$_.Pointer<jni$_.Void> _$invokeMethod(
+    int $p,
+    jni$_.MethodInvocation $i,
+  ) {
+    try {
+      final $d = $i.methodDescriptor.toDartString(releaseOriginal: true);
+      final $a = $i.args;
+      if ($d == r'configure(Lio/sentry/SentryOptions;)V') {
+        _$impls[$p]!.configure(
+          $a![0]?.as(_$impls[$p]!.T, releaseOriginal: true),
+        );
+        return jni$_.nullptr;
+      }
+    } catch (e) {
+      return jni$_.ProtectedJniExtensions.newDartException(e);
+    }
+    return jni$_.nullptr;
+  }
+
+  static void implementIn<$T extends jni$_.JObject?>(
+    jni$_.JImplementer implementer,
+    $Sentry$OptionsConfiguration<$T> $impl,
+  ) {
+    late final jni$_.RawReceivePort $p;
+    $p = jni$_.RawReceivePort(($m) {
+      if ($m == null) {
+        _$impls.remove($p.sendPort.nativePort);
+        $p.close();
+        return;
+      }
+      final $i = jni$_.MethodInvocation.fromMessage($m);
+      final $r = _$invokeMethod($p.sendPort.nativePort, $i);
+      jni$_.ProtectedJniExtensions.returnResult($i.result, $r);
+    });
+    implementer.add(
+      r'io.sentry.Sentry$OptionsConfiguration',
+      $p,
+      _$invokePointer,
+      [
+        if ($impl.configure$async) r'configure(Lio/sentry/SentryOptions;)V',
+      ],
+    );
+    final $a = $p.sendPort.nativePort;
+    _$impls[$a] = $impl;
+  }
+
+  factory Sentry$OptionsConfiguration.implement(
+    $Sentry$OptionsConfiguration<$T> $impl,
+  ) {
+    final $i = jni$_.JImplementer();
+    implementIn($i, $impl);
+    return Sentry$OptionsConfiguration<$T>.fromReference(
+      $impl.T,
+      $i.implementReference(),
+    );
+  }
+}
+
+abstract base mixin class $Sentry$OptionsConfiguration<
+    $T extends jni$_.JObject?> {
+  factory $Sentry$OptionsConfiguration({
+    required jni$_.JObjType<$T> T,
+    required void Function($T sentryOptions) configure,
+    bool configure$async,
+  }) = _$Sentry$OptionsConfiguration<$T>;
+
+  jni$_.JObjType<$T> get T;
+
+  void configure($T sentryOptions);
+  bool get configure$async => false;
+}
+
+final class _$Sentry$OptionsConfiguration<$T extends jni$_.JObject?>
+    with $Sentry$OptionsConfiguration<$T> {
+  _$Sentry$OptionsConfiguration({
+    required this.T,
+    required void Function($T sentryOptions) configure,
+    this.configure$async = false,
+  }) : _configure = configure;
+
+  @core$_.override
+  final jni$_.JObjType<$T> T;
+
+  final void Function($T sentryOptions) _configure;
+  final bool configure$async;
+
+  void configure($T sentryOptions) {
+    return _configure(sentryOptions);
+  }
+}
+
+final class $Sentry$OptionsConfiguration$NullableType<$T extends jni$_.JObject?>
+    extends jni$_.JObjType<Sentry$OptionsConfiguration<$T>?> {
+  @jni$_.internal
+  final jni$_.JObjType<$T> T;
+
+  @jni$_.internal
+  const $Sentry$OptionsConfiguration$NullableType(
+    this.T,
+  );
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/Sentry$OptionsConfiguration;';
+
+  @jni$_.internal
+  @core$_.override
+  Sentry$OptionsConfiguration<$T>? fromReference(jni$_.JReference reference) =>
+      reference.isNull
+          ? null
+          : Sentry$OptionsConfiguration<$T>.fromReference(
+              T,
+              reference,
+            );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<Sentry$OptionsConfiguration<$T>?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => Object.hash($Sentry$OptionsConfiguration$NullableType, T);
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType ==
+            ($Sentry$OptionsConfiguration$NullableType<$T>) &&
+        other is $Sentry$OptionsConfiguration$NullableType<$T> &&
+        T == other.T;
+  }
+}
+
+final class $Sentry$OptionsConfiguration$Type<$T extends jni$_.JObject?>
+    extends jni$_.JObjType<Sentry$OptionsConfiguration<$T>> {
+  @jni$_.internal
+  final jni$_.JObjType<$T> T;
+
+  @jni$_.internal
+  const $Sentry$OptionsConfiguration$Type(
+    this.T,
+  );
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/Sentry$OptionsConfiguration;';
+
+  @jni$_.internal
+  @core$_.override
+  Sentry$OptionsConfiguration<$T> fromReference(jni$_.JReference reference) =>
+      Sentry$OptionsConfiguration<$T>.fromReference(
+        T,
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<Sentry$OptionsConfiguration<$T>?> get nullableType =>
+      $Sentry$OptionsConfiguration$NullableType<$T>(T);
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => Object.hash($Sentry$OptionsConfiguration$Type, T);
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($Sentry$OptionsConfiguration$Type<$T>) &&
+        other is $Sentry$OptionsConfiguration$Type<$T> &&
+        T == other.T;
+  }
+}
+
+/// from: `io.sentry.Sentry`
+class Sentry extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<Sentry> $type;
+
+  @jni$_.internal
+  Sentry.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(r'io/sentry/Sentry');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType = $Sentry$NullableType();
+  static const type = $Sentry$Type();
+  static final _id_APP_START_PROFILING_CONFIG_FILE_NAME = _class.staticFieldId(
+    r'APP_START_PROFILING_CONFIG_FILE_NAME',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String APP_START_PROFILING_CONFIG_FILE_NAME`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString get APP_START_PROFILING_CONFIG_FILE_NAME =>
+      _id_APP_START_PROFILING_CONFIG_FILE_NAME.get(
+          _class, const jni$_.JStringType());
+
+  static final _id_getCurrentHub = _class.staticMethodId(
+    r'getCurrentHub',
+    r'()Lio/sentry/IHub;',
+  );
+
+  static final _getCurrentHub = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.IHub getCurrentHub()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject getCurrentHub() {
+    return _getCurrentHub(
+            _class.reference.pointer, _id_getCurrentHub as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_getCurrentScopes = _class.staticMethodId(
+    r'getCurrentScopes',
+    r'()Lio/sentry/IScopes;',
+  );
+
+  static final _getCurrentScopes = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.IScopes getCurrentScopes()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject getCurrentScopes() {
+    return _getCurrentScopes(_class.reference.pointer,
+            _id_getCurrentScopes as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_forkedRootScopes = _class.staticMethodId(
+    r'forkedRootScopes',
+    r'(Ljava/lang/String;)Lio/sentry/IScopes;',
+  );
+
+  static final _forkedRootScopes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.IScopes forkedRootScopes(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject forkedRootScopes(
+    jni$_.JString string,
+  ) {
+    final _$string = string.reference;
+    return _forkedRootScopes(_class.reference.pointer,
+            _id_forkedRootScopes as jni$_.JMethodIDPtr, _$string.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_forkedScopes = _class.staticMethodId(
+    r'forkedScopes',
+    r'(Ljava/lang/String;)Lio/sentry/IScopes;',
+  );
+
+  static final _forkedScopes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.IScopes forkedScopes(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject forkedScopes(
+    jni$_.JString string,
+  ) {
+    final _$string = string.reference;
+    return _forkedScopes(_class.reference.pointer,
+            _id_forkedScopes as jni$_.JMethodIDPtr, _$string.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_forkedCurrentScope = _class.staticMethodId(
+    r'forkedCurrentScope',
+    r'(Ljava/lang/String;)Lio/sentry/IScopes;',
+  );
+
+  static final _forkedCurrentScope = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.IScopes forkedCurrentScope(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject forkedCurrentScope(
+    jni$_.JString string,
+  ) {
+    final _$string = string.reference;
+    return _forkedCurrentScope(_class.reference.pointer,
+            _id_forkedCurrentScope as jni$_.JMethodIDPtr, _$string.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_setCurrentHub = _class.staticMethodId(
+    r'setCurrentHub',
+    r'(Lio/sentry/IHub;)Lio/sentry/ISentryLifecycleToken;',
+  );
+
+  static final _setCurrentHub = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.ISentryLifecycleToken setCurrentHub(io.sentry.IHub iHub)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject setCurrentHub(
+    jni$_.JObject iHub,
+  ) {
+    final _$iHub = iHub.reference;
+    return _setCurrentHub(_class.reference.pointer,
+            _id_setCurrentHub as jni$_.JMethodIDPtr, _$iHub.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_setCurrentScopes = _class.staticMethodId(
+    r'setCurrentScopes',
+    r'(Lio/sentry/IScopes;)Lio/sentry/ISentryLifecycleToken;',
+  );
+
+  static final _setCurrentScopes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.ISentryLifecycleToken setCurrentScopes(io.sentry.IScopes iScopes)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject setCurrentScopes(
+    jni$_.JObject iScopes,
+  ) {
+    final _$iScopes = iScopes.reference;
+    return _setCurrentScopes(_class.reference.pointer,
+            _id_setCurrentScopes as jni$_.JMethodIDPtr, _$iScopes.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_getGlobalScope = _class.staticMethodId(
+    r'getGlobalScope',
+    r'()Lio/sentry/IScope;',
+  );
+
+  static final _getGlobalScope = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.IScope getGlobalScope()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject getGlobalScope() {
+    return _getGlobalScope(
+            _class.reference.pointer, _id_getGlobalScope as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_isEnabled = _class.staticMethodId(
+    r'isEnabled',
+    r'()Z',
+  );
+
+  static final _isEnabled = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public boolean isEnabled()`
+  static bool isEnabled() {
+    return _isEnabled(
+            _class.reference.pointer, _id_isEnabled as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_init = _class.staticMethodId(
+    r'init',
+    r'()V',
+  );
+
+  static final _init = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public void init()`
+  static void init() {
+    _init(_class.reference.pointer, _id_init as jni$_.JMethodIDPtr).check();
+  }
+
+  static final _id_init$1 = _class.staticMethodId(
+    r'init',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _init$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void init(java.lang.String string)`
+  static void init$1(
+    jni$_.JString string,
+  ) {
+    final _$string = string.reference;
+    _init$1(_class.reference.pointer, _id_init$1 as jni$_.JMethodIDPtr,
+            _$string.pointer)
+        .check();
+  }
+
+  static final _id_init$2 = _class.staticMethodId(
+    r'init',
+    r'(Lio/sentry/OptionsContainer;Lio/sentry/Sentry$OptionsConfiguration;)V',
+  );
+
+  static final _init$2 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void init(io.sentry.OptionsContainer<T> optionsContainer, io.sentry.Sentry$OptionsConfiguration<T> optionsConfiguration)`
+  static void init$2<$T extends jni$_.JObject?>(
+    jni$_.JObject optionsContainer,
+    Sentry$OptionsConfiguration<$T?> optionsConfiguration, {
+    jni$_.JObjType<$T>? T,
+  }) {
+    T ??= jni$_.lowestCommonSuperType([
+      (optionsConfiguration.$type
+              as $Sentry$OptionsConfiguration$Type<core$_.dynamic>)
+          .T,
+    ]) as jni$_.JObjType<$T>;
+    final _$optionsContainer = optionsContainer.reference;
+    final _$optionsConfiguration = optionsConfiguration.reference;
+    _init$2(_class.reference.pointer, _id_init$2 as jni$_.JMethodIDPtr,
+            _$optionsContainer.pointer, _$optionsConfiguration.pointer)
+        .check();
+  }
+
+  static final _id_init$3 = _class.staticMethodId(
+    r'init',
+    r'(Lio/sentry/OptionsContainer;Lio/sentry/Sentry$OptionsConfiguration;Z)V',
+  );
+
+  static final _init$3 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              int)>();
+
+  /// from: `static public void init(io.sentry.OptionsContainer<T> optionsContainer, io.sentry.Sentry$OptionsConfiguration<T> optionsConfiguration, boolean z)`
+  static void init$3<$T extends jni$_.JObject?>(
+    jni$_.JObject optionsContainer,
+    Sentry$OptionsConfiguration<$T?> optionsConfiguration,
+    bool z, {
+    jni$_.JObjType<$T>? T,
+  }) {
+    T ??= jni$_.lowestCommonSuperType([
+      (optionsConfiguration.$type
+              as $Sentry$OptionsConfiguration$Type<core$_.dynamic>)
+          .T,
+    ]) as jni$_.JObjType<$T>;
+    final _$optionsContainer = optionsContainer.reference;
+    final _$optionsConfiguration = optionsConfiguration.reference;
+    _init$3(
+            _class.reference.pointer,
+            _id_init$3 as jni$_.JMethodIDPtr,
+            _$optionsContainer.pointer,
+            _$optionsConfiguration.pointer,
+            z ? 1 : 0)
+        .check();
+  }
+
+  static final _id_init$4 = _class.staticMethodId(
+    r'init',
+    r'(Lio/sentry/Sentry$OptionsConfiguration;)V',
+  );
+
+  static final _init$4 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void init(io.sentry.Sentry$OptionsConfiguration<io.sentry.SentryOptions> optionsConfiguration)`
+  static void init$4(
+    Sentry$OptionsConfiguration<jni$_.JObject?> optionsConfiguration,
+  ) {
+    final _$optionsConfiguration = optionsConfiguration.reference;
+    _init$4(_class.reference.pointer, _id_init$4 as jni$_.JMethodIDPtr,
+            _$optionsConfiguration.pointer)
+        .check();
+  }
+
+  static final _id_init$5 = _class.staticMethodId(
+    r'init',
+    r'(Lio/sentry/Sentry$OptionsConfiguration;Z)V',
+  );
+
+  static final _init$5 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_
+                          .VarArgs<(jni$_.Pointer<jni$_.Void>, jni$_.Int32)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
+
+  /// from: `static public void init(io.sentry.Sentry$OptionsConfiguration<io.sentry.SentryOptions> optionsConfiguration, boolean z)`
+  static void init$5(
+    Sentry$OptionsConfiguration<jni$_.JObject?> optionsConfiguration,
+    bool z,
+  ) {
+    final _$optionsConfiguration = optionsConfiguration.reference;
+    _init$5(_class.reference.pointer, _id_init$5 as jni$_.JMethodIDPtr,
+            _$optionsConfiguration.pointer, z ? 1 : 0)
+        .check();
+  }
+
+  static final _id_init$6 = _class.staticMethodId(
+    r'init',
+    r'(Lio/sentry/SentryOptions;)V',
+  );
+
+  static final _init$6 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void init(io.sentry.SentryOptions sentryOptions)`
+  static void init$6(
+    jni$_.JObject sentryOptions,
+  ) {
+    final _$sentryOptions = sentryOptions.reference;
+    _init$6(_class.reference.pointer, _id_init$6 as jni$_.JMethodIDPtr,
+            _$sentryOptions.pointer)
+        .check();
+  }
+
+  static final _id_close = _class.staticMethodId(
+    r'close',
+    r'()V',
+  );
+
+  static final _close = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public void close()`
+  static void close() {
+    _close(_class.reference.pointer, _id_close as jni$_.JMethodIDPtr).check();
+  }
+
+  static final _id_captureEvent = _class.staticMethodId(
+    r'captureEvent',
+    r'(Lio/sentry/SentryEvent;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureEvent = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureEvent(io.sentry.SentryEvent sentryEvent)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureEvent(
+    jni$_.JObject sentryEvent,
+  ) {
+    final _$sentryEvent = sentryEvent.reference;
+    return _captureEvent(_class.reference.pointer,
+            _id_captureEvent as jni$_.JMethodIDPtr, _$sentryEvent.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureEvent$1 = _class.staticMethodId(
+    r'captureEvent',
+    r'(Lio/sentry/SentryEvent;Lio/sentry/ScopeCallback;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureEvent$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureEvent(io.sentry.SentryEvent sentryEvent, io.sentry.ScopeCallback scopeCallback)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureEvent$1(
+    jni$_.JObject sentryEvent,
+    jni$_.JObject scopeCallback,
+  ) {
+    final _$sentryEvent = sentryEvent.reference;
+    final _$scopeCallback = scopeCallback.reference;
+    return _captureEvent$1(
+            _class.reference.pointer,
+            _id_captureEvent$1 as jni$_.JMethodIDPtr,
+            _$sentryEvent.pointer,
+            _$scopeCallback.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureEvent$2 = _class.staticMethodId(
+    r'captureEvent',
+    r'(Lio/sentry/SentryEvent;Lio/sentry/Hint;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureEvent$2 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureEvent(io.sentry.SentryEvent sentryEvent, io.sentry.Hint hint)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureEvent$2(
+    jni$_.JObject sentryEvent,
+    jni$_.JObject? hint,
+  ) {
+    final _$sentryEvent = sentryEvent.reference;
+    final _$hint = hint?.reference ?? jni$_.jNullReference;
+    return _captureEvent$2(
+            _class.reference.pointer,
+            _id_captureEvent$2 as jni$_.JMethodIDPtr,
+            _$sentryEvent.pointer,
+            _$hint.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureEvent$3 = _class.staticMethodId(
+    r'captureEvent',
+    r'(Lio/sentry/SentryEvent;Lio/sentry/Hint;Lio/sentry/ScopeCallback;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureEvent$3 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureEvent(io.sentry.SentryEvent sentryEvent, io.sentry.Hint hint, io.sentry.ScopeCallback scopeCallback)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureEvent$3(
+    jni$_.JObject sentryEvent,
+    jni$_.JObject? hint,
+    jni$_.JObject scopeCallback,
+  ) {
+    final _$sentryEvent = sentryEvent.reference;
+    final _$hint = hint?.reference ?? jni$_.jNullReference;
+    final _$scopeCallback = scopeCallback.reference;
+    return _captureEvent$3(
+            _class.reference.pointer,
+            _id_captureEvent$3 as jni$_.JMethodIDPtr,
+            _$sentryEvent.pointer,
+            _$hint.pointer,
+            _$scopeCallback.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureMessage = _class.staticMethodId(
+    r'captureMessage',
+    r'(Ljava/lang/String;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureMessage = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureMessage(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureMessage(
+    jni$_.JString string,
+  ) {
+    final _$string = string.reference;
+    return _captureMessage(_class.reference.pointer,
+            _id_captureMessage as jni$_.JMethodIDPtr, _$string.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureMessage$1 = _class.staticMethodId(
+    r'captureMessage',
+    r'(Ljava/lang/String;Lio/sentry/ScopeCallback;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureMessage$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureMessage(java.lang.String string, io.sentry.ScopeCallback scopeCallback)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureMessage$1(
+    jni$_.JString string,
+    jni$_.JObject scopeCallback,
+  ) {
+    final _$string = string.reference;
+    final _$scopeCallback = scopeCallback.reference;
+    return _captureMessage$1(
+            _class.reference.pointer,
+            _id_captureMessage$1 as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$scopeCallback.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureMessage$2 = _class.staticMethodId(
+    r'captureMessage',
+    r'(Ljava/lang/String;Lio/sentry/SentryLevel;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureMessage$2 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureMessage(java.lang.String string, io.sentry.SentryLevel sentryLevel)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureMessage$2(
+    jni$_.JString string,
+    jni$_.JObject sentryLevel,
+  ) {
+    final _$string = string.reference;
+    final _$sentryLevel = sentryLevel.reference;
+    return _captureMessage$2(
+            _class.reference.pointer,
+            _id_captureMessage$2 as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$sentryLevel.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureMessage$3 = _class.staticMethodId(
+    r'captureMessage',
+    r'(Ljava/lang/String;Lio/sentry/SentryLevel;Lio/sentry/ScopeCallback;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureMessage$3 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureMessage(java.lang.String string, io.sentry.SentryLevel sentryLevel, io.sentry.ScopeCallback scopeCallback)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureMessage$3(
+    jni$_.JString string,
+    jni$_.JObject sentryLevel,
+    jni$_.JObject scopeCallback,
+  ) {
+    final _$string = string.reference;
+    final _$sentryLevel = sentryLevel.reference;
+    final _$scopeCallback = scopeCallback.reference;
+    return _captureMessage$3(
+            _class.reference.pointer,
+            _id_captureMessage$3 as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$sentryLevel.pointer,
+            _$scopeCallback.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureFeedback = _class.staticMethodId(
+    r'captureFeedback',
+    r'(Lio/sentry/protocol/Feedback;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureFeedback = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureFeedback(io.sentry.protocol.Feedback feedback)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureFeedback(
+    jni$_.JObject feedback,
+  ) {
+    final _$feedback = feedback.reference;
+    return _captureFeedback(_class.reference.pointer,
+            _id_captureFeedback as jni$_.JMethodIDPtr, _$feedback.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureFeedback$1 = _class.staticMethodId(
+    r'captureFeedback',
+    r'(Lio/sentry/protocol/Feedback;Lio/sentry/Hint;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureFeedback$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureFeedback(io.sentry.protocol.Feedback feedback, io.sentry.Hint hint)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureFeedback$1(
+    jni$_.JObject feedback,
+    jni$_.JObject? hint,
+  ) {
+    final _$feedback = feedback.reference;
+    final _$hint = hint?.reference ?? jni$_.jNullReference;
+    return _captureFeedback$1(
+            _class.reference.pointer,
+            _id_captureFeedback$1 as jni$_.JMethodIDPtr,
+            _$feedback.pointer,
+            _$hint.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureFeedback$2 = _class.staticMethodId(
+    r'captureFeedback',
+    r'(Lio/sentry/protocol/Feedback;Lio/sentry/Hint;Lio/sentry/ScopeCallback;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureFeedback$2 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureFeedback(io.sentry.protocol.Feedback feedback, io.sentry.Hint hint, io.sentry.ScopeCallback scopeCallback)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureFeedback$2(
+    jni$_.JObject feedback,
+    jni$_.JObject? hint,
+    jni$_.JObject? scopeCallback,
+  ) {
+    final _$feedback = feedback.reference;
+    final _$hint = hint?.reference ?? jni$_.jNullReference;
+    final _$scopeCallback = scopeCallback?.reference ?? jni$_.jNullReference;
+    return _captureFeedback$2(
+            _class.reference.pointer,
+            _id_captureFeedback$2 as jni$_.JMethodIDPtr,
+            _$feedback.pointer,
+            _$hint.pointer,
+            _$scopeCallback.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureException = _class.staticMethodId(
+    r'captureException',
+    r'(Ljava/lang/Throwable;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureException = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureException(java.lang.Throwable throwable)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureException(
+    jni$_.JObject throwable,
+  ) {
+    final _$throwable = throwable.reference;
+    return _captureException(_class.reference.pointer,
+            _id_captureException as jni$_.JMethodIDPtr, _$throwable.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureException$1 = _class.staticMethodId(
+    r'captureException',
+    r'(Ljava/lang/Throwable;Lio/sentry/ScopeCallback;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureException$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureException(java.lang.Throwable throwable, io.sentry.ScopeCallback scopeCallback)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureException$1(
+    jni$_.JObject throwable,
+    jni$_.JObject scopeCallback,
+  ) {
+    final _$throwable = throwable.reference;
+    final _$scopeCallback = scopeCallback.reference;
+    return _captureException$1(
+            _class.reference.pointer,
+            _id_captureException$1 as jni$_.JMethodIDPtr,
+            _$throwable.pointer,
+            _$scopeCallback.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureException$2 = _class.staticMethodId(
+    r'captureException',
+    r'(Ljava/lang/Throwable;Lio/sentry/Hint;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureException$2 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureException(java.lang.Throwable throwable, io.sentry.Hint hint)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureException$2(
+    jni$_.JObject throwable,
+    jni$_.JObject? hint,
+  ) {
+    final _$throwable = throwable.reference;
+    final _$hint = hint?.reference ?? jni$_.jNullReference;
+    return _captureException$2(
+            _class.reference.pointer,
+            _id_captureException$2 as jni$_.JMethodIDPtr,
+            _$throwable.pointer,
+            _$hint.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureException$3 = _class.staticMethodId(
+    r'captureException',
+    r'(Ljava/lang/Throwable;Lio/sentry/Hint;Lio/sentry/ScopeCallback;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureException$3 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureException(java.lang.Throwable throwable, io.sentry.Hint hint, io.sentry.ScopeCallback scopeCallback)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureException$3(
+    jni$_.JObject throwable,
+    jni$_.JObject? hint,
+    jni$_.JObject scopeCallback,
+  ) {
+    final _$throwable = throwable.reference;
+    final _$hint = hint?.reference ?? jni$_.jNullReference;
+    final _$scopeCallback = scopeCallback.reference;
+    return _captureException$3(
+            _class.reference.pointer,
+            _id_captureException$3 as jni$_.JMethodIDPtr,
+            _$throwable.pointer,
+            _$hint.pointer,
+            _$scopeCallback.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_captureUserFeedback = _class.staticMethodId(
+    r'captureUserFeedback',
+    r'(Lio/sentry/UserFeedback;)V',
+  );
+
+  static final _captureUserFeedback = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void captureUserFeedback(io.sentry.UserFeedback userFeedback)`
+  static void captureUserFeedback(
+    jni$_.JObject userFeedback,
+  ) {
+    final _$userFeedback = userFeedback.reference;
+    _captureUserFeedback(
+            _class.reference.pointer,
+            _id_captureUserFeedback as jni$_.JMethodIDPtr,
+            _$userFeedback.pointer)
+        .check();
+  }
+
+  static final _id_addBreadcrumb = _class.staticMethodId(
+    r'addBreadcrumb',
+    r'(Lio/sentry/Breadcrumb;Lio/sentry/Hint;)V',
+  );
+
+  static final _addBreadcrumb = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void addBreadcrumb(io.sentry.Breadcrumb breadcrumb, io.sentry.Hint hint)`
+  static void addBreadcrumb(
+    jni$_.JObject breadcrumb,
+    jni$_.JObject? hint,
+  ) {
+    final _$breadcrumb = breadcrumb.reference;
+    final _$hint = hint?.reference ?? jni$_.jNullReference;
+    _addBreadcrumb(
+            _class.reference.pointer,
+            _id_addBreadcrumb as jni$_.JMethodIDPtr,
+            _$breadcrumb.pointer,
+            _$hint.pointer)
+        .check();
+  }
+
+  static final _id_addBreadcrumb$1 = _class.staticMethodId(
+    r'addBreadcrumb',
+    r'(Lio/sentry/Breadcrumb;)V',
+  );
+
+  static final _addBreadcrumb$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void addBreadcrumb(io.sentry.Breadcrumb breadcrumb)`
+  static void addBreadcrumb$1(
+    jni$_.JObject breadcrumb,
+  ) {
+    final _$breadcrumb = breadcrumb.reference;
+    _addBreadcrumb$1(_class.reference.pointer,
+            _id_addBreadcrumb$1 as jni$_.JMethodIDPtr, _$breadcrumb.pointer)
+        .check();
+  }
+
+  static final _id_addBreadcrumb$2 = _class.staticMethodId(
+    r'addBreadcrumb',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _addBreadcrumb$2 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void addBreadcrumb(java.lang.String string)`
+  static void addBreadcrumb$2(
+    jni$_.JString string,
+  ) {
+    final _$string = string.reference;
+    _addBreadcrumb$2(_class.reference.pointer,
+            _id_addBreadcrumb$2 as jni$_.JMethodIDPtr, _$string.pointer)
+        .check();
+  }
+
+  static final _id_addBreadcrumb$3 = _class.staticMethodId(
+    r'addBreadcrumb',
+    r'(Ljava/lang/String;Ljava/lang/String;)V',
+  );
+
+  static final _addBreadcrumb$3 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void addBreadcrumb(java.lang.String string, java.lang.String string1)`
+  static void addBreadcrumb$3(
+    jni$_.JString string,
+    jni$_.JString string1,
+  ) {
+    final _$string = string.reference;
+    final _$string1 = string1.reference;
+    _addBreadcrumb$3(
+            _class.reference.pointer,
+            _id_addBreadcrumb$3 as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$string1.pointer)
+        .check();
+  }
+
+  static final _id_setLevel = _class.staticMethodId(
+    r'setLevel',
+    r'(Lio/sentry/SentryLevel;)V',
+  );
+
+  static final _setLevel = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void setLevel(io.sentry.SentryLevel sentryLevel)`
+  static void setLevel(
+    jni$_.JObject? sentryLevel,
+  ) {
+    final _$sentryLevel = sentryLevel?.reference ?? jni$_.jNullReference;
+    _setLevel(_class.reference.pointer, _id_setLevel as jni$_.JMethodIDPtr,
+            _$sentryLevel.pointer)
+        .check();
+  }
+
+  static final _id_setTransaction = _class.staticMethodId(
+    r'setTransaction',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _setTransaction = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void setTransaction(java.lang.String string)`
+  static void setTransaction(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _setTransaction(_class.reference.pointer,
+            _id_setTransaction as jni$_.JMethodIDPtr, _$string.pointer)
+        .check();
+  }
+
+  static final _id_setUser = _class.staticMethodId(
+    r'setUser',
+    r'(Lio/sentry/protocol/User;)V',
+  );
+
+  static final _setUser = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void setUser(io.sentry.protocol.User user)`
+  static void setUser(
+    jni$_.JObject? user,
+  ) {
+    final _$user = user?.reference ?? jni$_.jNullReference;
+    _setUser(_class.reference.pointer, _id_setUser as jni$_.JMethodIDPtr,
+            _$user.pointer)
+        .check();
+  }
+
+  static final _id_setFingerprint = _class.staticMethodId(
+    r'setFingerprint',
+    r'(Ljava/util/List;)V',
+  );
+
+  static final _setFingerprint = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void setFingerprint(java.util.List<java.lang.String> list)`
+  static void setFingerprint(
+    jni$_.JList<jni$_.JString?> list,
+  ) {
+    final _$list = list.reference;
+    _setFingerprint(_class.reference.pointer,
+            _id_setFingerprint as jni$_.JMethodIDPtr, _$list.pointer)
+        .check();
+  }
+
+  static final _id_clearBreadcrumbs = _class.staticMethodId(
+    r'clearBreadcrumbs',
+    r'()V',
+  );
+
+  static final _clearBreadcrumbs = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public void clearBreadcrumbs()`
+  static void clearBreadcrumbs() {
+    _clearBreadcrumbs(_class.reference.pointer,
+            _id_clearBreadcrumbs as jni$_.JMethodIDPtr)
+        .check();
+  }
+
+  static final _id_setTag = _class.staticMethodId(
+    r'setTag',
+    r'(Ljava/lang/String;Ljava/lang/String;)V',
+  );
+
+  static final _setTag = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void setTag(java.lang.String string, java.lang.String string1)`
+  static void setTag(
+    jni$_.JString? string,
+    jni$_.JString? string1,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$string1 = string1?.reference ?? jni$_.jNullReference;
+    _setTag(_class.reference.pointer, _id_setTag as jni$_.JMethodIDPtr,
+            _$string.pointer, _$string1.pointer)
+        .check();
+  }
+
+  static final _id_removeTag = _class.staticMethodId(
+    r'removeTag',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _removeTag = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void removeTag(java.lang.String string)`
+  static void removeTag(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _removeTag(_class.reference.pointer, _id_removeTag as jni$_.JMethodIDPtr,
+            _$string.pointer)
+        .check();
+  }
+
+  static final _id_setExtra = _class.staticMethodId(
+    r'setExtra',
+    r'(Ljava/lang/String;Ljava/lang/String;)V',
+  );
+
+  static final _setExtra = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void setExtra(java.lang.String string, java.lang.String string1)`
+  static void setExtra(
+    jni$_.JString? string,
+    jni$_.JString? string1,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$string1 = string1?.reference ?? jni$_.jNullReference;
+    _setExtra(_class.reference.pointer, _id_setExtra as jni$_.JMethodIDPtr,
+            _$string.pointer, _$string1.pointer)
+        .check();
+  }
+
+  static final _id_removeExtra = _class.staticMethodId(
+    r'removeExtra',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _removeExtra = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void removeExtra(java.lang.String string)`
+  static void removeExtra(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _removeExtra(_class.reference.pointer,
+            _id_removeExtra as jni$_.JMethodIDPtr, _$string.pointer)
+        .check();
+  }
+
+  static final _id_getLastEventId = _class.staticMethodId(
+    r'getLastEventId',
+    r'()Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _getLastEventId = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.protocol.SentryId getLastEventId()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject getLastEventId() {
+    return _getLastEventId(
+            _class.reference.pointer, _id_getLastEventId as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_pushScope = _class.staticMethodId(
+    r'pushScope',
+    r'()Lio/sentry/ISentryLifecycleToken;',
+  );
+
+  static final _pushScope = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.ISentryLifecycleToken pushScope()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject pushScope() {
+    return _pushScope(
+            _class.reference.pointer, _id_pushScope as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_pushIsolationScope = _class.staticMethodId(
+    r'pushIsolationScope',
+    r'()Lio/sentry/ISentryLifecycleToken;',
+  );
+
+  static final _pushIsolationScope = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.ISentryLifecycleToken pushIsolationScope()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject pushIsolationScope() {
+    return _pushIsolationScope(_class.reference.pointer,
+            _id_pushIsolationScope as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_popScope = _class.staticMethodId(
+    r'popScope',
+    r'()V',
+  );
+
+  static final _popScope = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public void popScope()`
+  static void popScope() {
+    _popScope(_class.reference.pointer, _id_popScope as jni$_.JMethodIDPtr)
+        .check();
+  }
+
+  static final _id_withScope = _class.staticMethodId(
+    r'withScope',
+    r'(Lio/sentry/ScopeCallback;)V',
+  );
+
+  static final _withScope = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void withScope(io.sentry.ScopeCallback scopeCallback)`
+  static void withScope(
+    jni$_.JObject scopeCallback,
+  ) {
+    final _$scopeCallback = scopeCallback.reference;
+    _withScope(_class.reference.pointer, _id_withScope as jni$_.JMethodIDPtr,
+            _$scopeCallback.pointer)
+        .check();
+  }
+
+  static final _id_withIsolationScope = _class.staticMethodId(
+    r'withIsolationScope',
+    r'(Lio/sentry/ScopeCallback;)V',
+  );
+
+  static final _withIsolationScope = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void withIsolationScope(io.sentry.ScopeCallback scopeCallback)`
+  static void withIsolationScope(
+    jni$_.JObject scopeCallback,
+  ) {
+    final _$scopeCallback = scopeCallback.reference;
+    _withIsolationScope(
+            _class.reference.pointer,
+            _id_withIsolationScope as jni$_.JMethodIDPtr,
+            _$scopeCallback.pointer)
+        .check();
+  }
+
+  static final _id_configureScope = _class.staticMethodId(
+    r'configureScope',
+    r'(Lio/sentry/ScopeCallback;)V',
+  );
+
+  static final _configureScope = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void configureScope(io.sentry.ScopeCallback scopeCallback)`
+  static void configureScope(
+    jni$_.JObject scopeCallback,
+  ) {
+    final _$scopeCallback = scopeCallback.reference;
+    _configureScope(_class.reference.pointer,
+            _id_configureScope as jni$_.JMethodIDPtr, _$scopeCallback.pointer)
+        .check();
+  }
+
+  static final _id_configureScope$1 = _class.staticMethodId(
+    r'configureScope',
+    r'(Lio/sentry/ScopeType;Lio/sentry/ScopeCallback;)V',
+  );
+
+  static final _configureScope$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void configureScope(io.sentry.ScopeType scopeType, io.sentry.ScopeCallback scopeCallback)`
+  static void configureScope$1(
+    jni$_.JObject? scopeType,
+    jni$_.JObject scopeCallback,
+  ) {
+    final _$scopeType = scopeType?.reference ?? jni$_.jNullReference;
+    final _$scopeCallback = scopeCallback.reference;
+    _configureScope$1(
+            _class.reference.pointer,
+            _id_configureScope$1 as jni$_.JMethodIDPtr,
+            _$scopeType.pointer,
+            _$scopeCallback.pointer)
+        .check();
+  }
+
+  static final _id_bindClient = _class.staticMethodId(
+    r'bindClient',
+    r'(Lio/sentry/ISentryClient;)V',
+  );
+
+  static final _bindClient = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void bindClient(io.sentry.ISentryClient iSentryClient)`
+  static void bindClient(
+    jni$_.JObject iSentryClient,
+  ) {
+    final _$iSentryClient = iSentryClient.reference;
+    _bindClient(_class.reference.pointer, _id_bindClient as jni$_.JMethodIDPtr,
+            _$iSentryClient.pointer)
+        .check();
+  }
+
+  static final _id_isHealthy = _class.staticMethodId(
+    r'isHealthy',
+    r'()Z',
+  );
+
+  static final _isHealthy = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public boolean isHealthy()`
+  static bool isHealthy() {
+    return _isHealthy(
+            _class.reference.pointer, _id_isHealthy as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_flush = _class.staticMethodId(
+    r'flush',
+    r'(J)V',
+  );
+
+  static final _flush = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int64,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `static public void flush(long j)`
+  static void flush(
+    int j,
+  ) {
+    _flush(_class.reference.pointer, _id_flush as jni$_.JMethodIDPtr, j)
+        .check();
+  }
+
+  static final _id_startSession = _class.staticMethodId(
+    r'startSession',
+    r'()V',
+  );
+
+  static final _startSession = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public void startSession()`
+  static void startSession() {
+    _startSession(
+            _class.reference.pointer, _id_startSession as jni$_.JMethodIDPtr)
+        .check();
+  }
+
+  static final _id_endSession = _class.staticMethodId(
+    r'endSession',
+    r'()V',
+  );
+
+  static final _endSession = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public void endSession()`
+  static void endSession() {
+    _endSession(_class.reference.pointer, _id_endSession as jni$_.JMethodIDPtr)
+        .check();
+  }
+
+  static final _id_startTransaction = _class.staticMethodId(
+    r'startTransaction',
+    r'(Ljava/lang/String;Ljava/lang/String;)Lio/sentry/ITransaction;',
+  );
+
+  static final _startTransaction = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.ITransaction startTransaction(java.lang.String string, java.lang.String string1)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject startTransaction(
+    jni$_.JString string,
+    jni$_.JString string1,
+  ) {
+    final _$string = string.reference;
+    final _$string1 = string1.reference;
+    return _startTransaction(
+            _class.reference.pointer,
+            _id_startTransaction as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$string1.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_startTransaction$1 = _class.staticMethodId(
+    r'startTransaction',
+    r'(Ljava/lang/String;Ljava/lang/String;Lio/sentry/TransactionOptions;)Lio/sentry/ITransaction;',
+  );
+
+  static final _startTransaction$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.ITransaction startTransaction(java.lang.String string, java.lang.String string1, io.sentry.TransactionOptions transactionOptions)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject startTransaction$1(
+    jni$_.JString string,
+    jni$_.JString string1,
+    jni$_.JObject transactionOptions,
+  ) {
+    final _$string = string.reference;
+    final _$string1 = string1.reference;
+    final _$transactionOptions = transactionOptions.reference;
+    return _startTransaction$1(
+            _class.reference.pointer,
+            _id_startTransaction$1 as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$string1.pointer,
+            _$transactionOptions.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_startTransaction$2 = _class.staticMethodId(
+    r'startTransaction',
+    r'(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lio/sentry/TransactionOptions;)Lio/sentry/ITransaction;',
+  );
+
+  static final _startTransaction$2 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.ITransaction startTransaction(java.lang.String string, java.lang.String string1, java.lang.String string2, io.sentry.TransactionOptions transactionOptions)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject startTransaction$2(
+    jni$_.JString string,
+    jni$_.JString string1,
+    jni$_.JString? string2,
+    jni$_.JObject transactionOptions,
+  ) {
+    final _$string = string.reference;
+    final _$string1 = string1.reference;
+    final _$string2 = string2?.reference ?? jni$_.jNullReference;
+    final _$transactionOptions = transactionOptions.reference;
+    return _startTransaction$2(
+            _class.reference.pointer,
+            _id_startTransaction$2 as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$string1.pointer,
+            _$string2.pointer,
+            _$transactionOptions.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_startTransaction$3 = _class.staticMethodId(
+    r'startTransaction',
+    r'(Lio/sentry/TransactionContext;)Lio/sentry/ITransaction;',
+  );
+
+  static final _startTransaction$3 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.ITransaction startTransaction(io.sentry.TransactionContext transactionContext)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject startTransaction$3(
+    jni$_.JObject transactionContext,
+  ) {
+    final _$transactionContext = transactionContext.reference;
+    return _startTransaction$3(
+            _class.reference.pointer,
+            _id_startTransaction$3 as jni$_.JMethodIDPtr,
+            _$transactionContext.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_startTransaction$4 = _class.staticMethodId(
+    r'startTransaction',
+    r'(Lio/sentry/TransactionContext;Lio/sentry/TransactionOptions;)Lio/sentry/ITransaction;',
+  );
+
+  static final _startTransaction$4 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.ITransaction startTransaction(io.sentry.TransactionContext transactionContext, io.sentry.TransactionOptions transactionOptions)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject startTransaction$4(
+    jni$_.JObject transactionContext,
+    jni$_.JObject transactionOptions,
+  ) {
+    final _$transactionContext = transactionContext.reference;
+    final _$transactionOptions = transactionOptions.reference;
+    return _startTransaction$4(
+            _class.reference.pointer,
+            _id_startTransaction$4 as jni$_.JMethodIDPtr,
+            _$transactionContext.pointer,
+            _$transactionOptions.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_startProfiler = _class.staticMethodId(
+    r'startProfiler',
+    r'()V',
+  );
+
+  static final _startProfiler = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public void startProfiler()`
+  static void startProfiler() {
+    _startProfiler(
+            _class.reference.pointer, _id_startProfiler as jni$_.JMethodIDPtr)
+        .check();
+  }
+
+  static final _id_stopProfiler = _class.staticMethodId(
+    r'stopProfiler',
+    r'()V',
+  );
+
+  static final _stopProfiler = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public void stopProfiler()`
+  static void stopProfiler() {
+    _stopProfiler(
+            _class.reference.pointer, _id_stopProfiler as jni$_.JMethodIDPtr)
+        .check();
+  }
+
+  static final _id_getSpan = _class.staticMethodId(
+    r'getSpan',
+    r'()Lio/sentry/ISpan;',
+  );
+
+  static final _getSpan = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.ISpan getSpan()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject? getSpan() {
+    return _getSpan(_class.reference.pointer, _id_getSpan as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_isCrashedLastRun = _class.staticMethodId(
+    r'isCrashedLastRun',
+    r'()Ljava/lang/Boolean;',
+  );
+
+  static final _isCrashedLastRun = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public java.lang.Boolean isCrashedLastRun()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JBoolean? isCrashedLastRun() {
+    return _isCrashedLastRun(_class.reference.pointer,
+            _id_isCrashedLastRun as jni$_.JMethodIDPtr)
+        .object<jni$_.JBoolean?>(const jni$_.JBooleanNullableType());
+  }
+
+  static final _id_reportFullyDisplayed = _class.staticMethodId(
+    r'reportFullyDisplayed',
+    r'()V',
+  );
+
+  static final _reportFullyDisplayed = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public void reportFullyDisplayed()`
+  static void reportFullyDisplayed() {
+    _reportFullyDisplayed(_class.reference.pointer,
+            _id_reportFullyDisplayed as jni$_.JMethodIDPtr)
+        .check();
+  }
+
+  static final _id_continueTrace = _class.staticMethodId(
+    r'continueTrace',
+    r'(Ljava/lang/String;Ljava/util/List;)Lio/sentry/TransactionContext;',
+  );
+
+  static final _continueTrace = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.TransactionContext continueTrace(java.lang.String string, java.util.List<java.lang.String> list)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject? continueTrace(
+    jni$_.JString? string,
+    jni$_.JList<jni$_.JString?>? list,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$list = list?.reference ?? jni$_.jNullReference;
+    return _continueTrace(
+            _class.reference.pointer,
+            _id_continueTrace as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$list.pointer)
+        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_getTraceparent = _class.staticMethodId(
+    r'getTraceparent',
+    r'()Lio/sentry/SentryTraceHeader;',
+  );
+
+  static final _getTraceparent = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.SentryTraceHeader getTraceparent()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject? getTraceparent() {
+    return _getTraceparent(
+            _class.reference.pointer, _id_getTraceparent as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_getBaggage = _class.staticMethodId(
+    r'getBaggage',
+    r'()Lio/sentry/BaggageHeader;',
+  );
+
+  static final _getBaggage = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.BaggageHeader getBaggage()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject? getBaggage() {
+    return _getBaggage(
+            _class.reference.pointer, _id_getBaggage as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_captureCheckIn = _class.staticMethodId(
+    r'captureCheckIn',
+    r'(Lio/sentry/CheckIn;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureCheckIn = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureCheckIn(io.sentry.CheckIn checkIn)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject captureCheckIn(
+    jni$_.JObject checkIn,
+  ) {
+    final _$checkIn = checkIn.reference;
+    return _captureCheckIn(_class.reference.pointer,
+            _id_captureCheckIn as jni$_.JMethodIDPtr, _$checkIn.pointer)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_logger = _class.staticMethodId(
+    r'logger',
+    r'()Lio/sentry/logger/ILoggerApi;',
+  );
+
+  static final _logger = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.logger.ILoggerApi logger()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject logger() {
+    return _logger(_class.reference.pointer, _id_logger as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_replay = _class.staticMethodId(
+    r'replay',
+    r'()Lio/sentry/IReplayApi;',
+  );
+
+  static final _replay = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.IReplayApi replay()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject replay() {
+    return _replay(_class.reference.pointer, _id_replay as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_showUserFeedbackDialog = _class.staticMethodId(
+    r'showUserFeedbackDialog',
+    r'()V',
+  );
+
+  static final _showUserFeedbackDialog = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public void showUserFeedbackDialog()`
+  static void showUserFeedbackDialog() {
+    _showUserFeedbackDialog(_class.reference.pointer,
+            _id_showUserFeedbackDialog as jni$_.JMethodIDPtr)
+        .check();
+  }
+
+  static final _id_showUserFeedbackDialog$1 = _class.staticMethodId(
+    r'showUserFeedbackDialog',
+    r'(Lio/sentry/SentryFeedbackOptions$OptionsConfigurator;)V',
+  );
+
+  static final _showUserFeedbackDialog$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void showUserFeedbackDialog(io.sentry.SentryFeedbackOptions$OptionsConfigurator optionsConfigurator)`
+  static void showUserFeedbackDialog$1(
+    jni$_.JObject? optionsConfigurator,
+  ) {
+    final _$optionsConfigurator =
+        optionsConfigurator?.reference ?? jni$_.jNullReference;
+    _showUserFeedbackDialog$1(
+            _class.reference.pointer,
+            _id_showUserFeedbackDialog$1 as jni$_.JMethodIDPtr,
+            _$optionsConfigurator.pointer)
+        .check();
+  }
+
+  static final _id_showUserFeedbackDialog$2 = _class.staticMethodId(
+    r'showUserFeedbackDialog',
+    r'(Lio/sentry/protocol/SentryId;Lio/sentry/SentryFeedbackOptions$OptionsConfigurator;)V',
+  );
+
+  static final _showUserFeedbackDialog$2 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public void showUserFeedbackDialog(io.sentry.protocol.SentryId sentryId, io.sentry.SentryFeedbackOptions$OptionsConfigurator optionsConfigurator)`
+  static void showUserFeedbackDialog$2(
+    jni$_.JObject? sentryId,
+    jni$_.JObject? optionsConfigurator,
+  ) {
+    final _$sentryId = sentryId?.reference ?? jni$_.jNullReference;
+    final _$optionsConfigurator =
+        optionsConfigurator?.reference ?? jni$_.jNullReference;
+    _showUserFeedbackDialog$2(
+            _class.reference.pointer,
+            _id_showUserFeedbackDialog$2 as jni$_.JMethodIDPtr,
+            _$sentryId.pointer,
+            _$optionsConfigurator.pointer)
+        .check();
+  }
+}
+
+final class $Sentry$NullableType extends jni$_.JObjType<Sentry?> {
+  @jni$_.internal
+  const $Sentry$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/Sentry;';
+
+  @jni$_.internal
+  @core$_.override
+  Sentry? fromReference(jni$_.JReference reference) => reference.isNull
+      ? null
+      : Sentry.fromReference(
+          reference,
+        );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<Sentry?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($Sentry$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($Sentry$NullableType) &&
+        other is $Sentry$NullableType;
+  }
+}
+
+final class $Sentry$Type extends jni$_.JObjType<Sentry> {
+  @jni$_.internal
+  const $Sentry$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/Sentry;';
+
+  @jni$_.internal
+  @core$_.override
+  Sentry fromReference(jni$_.JReference reference) => Sentry.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<Sentry?> get nullableType => const $Sentry$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($Sentry$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($Sentry$Type) && other is $Sentry$Type;
+  }
+}
+
 /// from: `android.graphics.Bitmap$CompressFormat`
 class Bitmap$CompressFormat extends jni$_.JObject {
   @jni$_.internal

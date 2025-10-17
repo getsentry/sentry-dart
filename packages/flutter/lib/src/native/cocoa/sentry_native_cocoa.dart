@@ -197,28 +197,26 @@ class SentryNativeCocoa extends SentryNativeChannel {
       });
 
   Map<Object, Object> deepConvertMapNonNull(Map<String, dynamic> input) {
-    return input.entries.where((e) => e.value != null).map((e) {
-      final key = e.key as Object;
-      final value = e.value;
-      if (value is Map<String, dynamic>) {
-        return MapEntry<Object, Object>(key, deepConvertMapNonNull(value));
-      } else if (value is List) {
-        return MapEntry<Object, Object>(
-          key,
-          value
-              .where((item) => item != null)
-              .map((item) => item is Map<String, dynamic>
-                  ? deepConvertMapNonNull(item)
-                  : item as Object)
-              .toList(),
-        );
-      } else {
-        return MapEntry<Object, Object>(key, value as Object);
-      }
-    }).fold<Map<Object, Object>>({}, (map, entry) {
-      map[entry.key] = entry.value;
-      return map;
-    });
+    final out = <Object, Object>{};
+
+    for (final entry in input.entries) {
+      final value = entry.value;
+      if (value == null) continue;
+
+      out[entry.key] = switch (value) {
+        Map<String, dynamic> m => deepConvertMapNonNull(m),
+        List<dynamic> l => [
+            for (final e in l)
+              if (e != null)
+                e is Map<String, dynamic>
+                    ? deepConvertMapNonNull(e)
+                    : e as Object
+          ],
+        _ => value as Object,
+      };
+    }
+
+    return out;
   }
 
   @override
