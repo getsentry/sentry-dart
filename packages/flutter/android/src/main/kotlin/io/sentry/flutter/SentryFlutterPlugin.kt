@@ -64,8 +64,6 @@ class SentryFlutterPlugin :
       "setContexts" -> setContexts(call.argument("key"), call.argument("value"), result)
       "removeContexts" -> removeContexts(call.argument("key"), result)
       "setUser" -> setUser(call.argument("user"), result)
-      "addBreadcrumb" -> addBreadcrumb(call.argument("breadcrumb"), result)
-      "clearBreadcrumbs" -> clearBreadcrumbs(result)
       "setExtra" -> setExtra(call.argument("key"), call.argument("value"), result)
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
@@ -189,24 +187,6 @@ class SentryFlutterPlugin :
     result.success("")
   }
 
-  private fun addBreadcrumb(
-    breadcrumb: Map<String, Any?>?,
-    result: Result,
-  ) {
-    if (breadcrumb != null) {
-      val options = ScopesAdapter.getInstance().options
-      val breadcrumbInstance = Breadcrumb.fromMap(breadcrumb, options)
-      Sentry.addBreadcrumb(breadcrumbInstance)
-    }
-    result.success("")
-  }
-
-  private fun clearBreadcrumbs(result: Result) {
-    Sentry.clearBreadcrumbs()
-
-    result.success("")
-  }
-
   private fun setExtra(
     key: String?,
     value: String?,
@@ -290,7 +270,7 @@ class SentryFlutterPlugin :
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
-    fun nativeCrash() {
+    fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
       val mainThread = Looper.getMainLooper().thread
       mainThread.uncaughtExceptionHandler?.uncaughtException(mainThread, exception)

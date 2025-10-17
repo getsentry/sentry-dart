@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/native/method_channel_helper.dart';
 import 'package:collection/collection.dart';
+import 'package:sentry_flutter/src/native/utils/data_normalizer.dart';
 
 void main() {
   group('normalize', () {
@@ -13,21 +13,21 @@ void main() {
         'string': 'Foo',
       };
 
-      var actual = MethodChannelHelper.normalizeMap(expected);
+      var actual = normalizeMap(expected);
       expect(
         DeepCollectionEquality().equals(actual, expected),
         true,
       );
 
-      expect(MethodChannelHelper.normalize(null), null);
-      expect(MethodChannelHelper.normalize(1), 1);
-      expect(MethodChannelHelper.normalize(1.1), 1.1);
-      expect(MethodChannelHelper.normalize(true), true);
-      expect(MethodChannelHelper.normalize('Foo'), 'Foo');
+      expect(normalize(null), null);
+      expect(normalize(1), 1);
+      expect(normalize(1.1), 1.1);
+      expect(normalize(true), true);
+      expect(normalize('Foo'), 'Foo');
     });
 
     test('object', () {
-      expect(MethodChannelHelper.normalize(_CustomObject()), 'CustomObject()');
+      expect(normalize(_CustomObject()), 'CustomObject()');
     });
 
     test('object in list', () {
@@ -38,7 +38,7 @@ void main() {
         'object': ['CustomObject()']
       };
 
-      var actual = MethodChannelHelper.normalize(input);
+      var actual = normalize(input);
       expect(
         DeepCollectionEquality().equals(actual, expected),
         true,
@@ -53,7 +53,7 @@ void main() {
         'object': <String, dynamic>{'object': 'CustomObject()'}
       };
 
-      var actual = MethodChannelHelper.normalize(input);
+      var actual = normalize(input);
       expect(
         DeepCollectionEquality().equals(actual, expected),
         true,
@@ -71,7 +71,7 @@ void main() {
         'string': 'Foo',
       };
 
-      var actual = MethodChannelHelper.normalizeMap(expected);
+      var actual = normalizeMap(expected);
       expect(
         DeepCollectionEquality().equals(actual, expected),
         true,
@@ -83,7 +83,7 @@ void main() {
         'list': [null, 1, 1.1, true, 'Foo'],
       };
 
-      var actual = MethodChannelHelper.normalizeMap(expected);
+      var actual = normalizeMap(expected);
       expect(
         DeepCollectionEquality().equals(actual, expected),
         true,
@@ -101,7 +101,7 @@ void main() {
         },
       };
 
-      var actual = MethodChannelHelper.normalizeMap(expected);
+      var actual = normalizeMap(expected);
       expect(
         DeepCollectionEquality().equals(actual, expected),
         true,
@@ -112,7 +112,7 @@ void main() {
       var input = <String, dynamic>{'object': _CustomObject()};
       var expected = <String, dynamic>{'object': 'CustomObject()'};
 
-      var actual = MethodChannelHelper.normalizeMap(input);
+      var actual = normalizeMap(input);
       expect(
         DeepCollectionEquality().equals(actual, expected),
         true,
@@ -127,7 +127,7 @@ void main() {
         'object': ['CustomObject()']
       };
 
-      var actual = MethodChannelHelper.normalizeMap(input);
+      var actual = normalizeMap(input);
       expect(
         DeepCollectionEquality().equals(actual, expected),
         true,
@@ -142,7 +142,7 @@ void main() {
         'object': <String, dynamic>{'object': 'CustomObject()'}
       };
 
-      var actual = MethodChannelHelper.normalizeMap(input);
+      var actual = normalizeMap(input);
       expect(
         DeepCollectionEquality().equals(actual, expected),
         true,

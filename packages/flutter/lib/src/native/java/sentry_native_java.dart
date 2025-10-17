@@ -200,9 +200,7 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  void nativeCrash() {
-    native.SentryFlutterPlugin.Companion.nativeCrash();
-  }
+  void nativeCrash() => native.SentryFlutterPlugin.Companion.crash();
 
   @override
   void pauseAppHangTracking() {
@@ -220,4 +218,54 @@ class SentryNativeJava extends SentryNativeChannel {
     await _envelopeSender?.close();
     return super.close();
   }
+
+  @override
+  void addBreadcrumb(Breadcrumb breadcrumb) {
+    native.Breadcrumb? nativeBreadcrumb;
+    JObject? nativeOptions;
+
+    tryCatchSync('addBreadcrumb', () {
+      nativeOptions = native.ScopesAdapter.getInstance()?.getOptions();
+      if (nativeOptions == null) return;
+
+      nativeBreadcrumb = native.Breadcrumb.fromMap(
+          _dartToJMap(breadcrumb.toJson()), nativeOptions!);
+      if (nativeBreadcrumb == null) return;
+
+      native.Sentry.addBreadcrumb$1(nativeBreadcrumb!);
+    }, finallyFn: () {
+      nativeOptions?.release();
+      nativeBreadcrumb?.release();
+    });
+  }
+
+  @override
+  void clearBreadcrumbs() => tryCatchSync('clearBreadcrumbs', () {
+        native.Sentry.clearBreadcrumbs();
+      });
+}
+
+JObject? _dartToJObject(Object? value) => switch (value) {
+      null => null,
+      String s => s.toJString(),
+      bool b => b.toJBoolean(),
+      int i => i.toJLong(), // safer for 64-bit
+      double d => d.toJDouble(),
+      List<dynamic> l => _dartToJList(l),
+      Map<String, dynamic> m => _dartToJMap(m),
+      _ => null
+    };
+
+JList<JObject?> _dartToJList(List<dynamic> values) {
+  final jlist = JList.array(JObject.nullableType);
+  jlist.addAll(values.map(_dartToJObject));
+  return jlist;
+}
+
+JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json) {
+  final jmap = JMap.hash(JString.type, JObject.nullableType);
+  for (final entry in json.entries) {
+    jmap[entry.key.toJString()] = _dartToJObject(entry.value);
+  }
+  return jmap;
 }
