@@ -15,12 +15,8 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.Breadcrumb
 import io.sentry.DateUtils
-import io.sentry.JsonObjectDeserializer
-import io.sentry.JsonObjectReader
-import io.sentry.ObjectReader
 import io.sentry.ScopesAdapter
 import io.sentry.Sentry
-import io.sentry.SentryOptions
 import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
@@ -33,7 +29,6 @@ import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import org.json.JSONObject
 import org.json.JSONArray
-import java.io.StringReader
 import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
 
