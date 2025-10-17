@@ -188,29 +188,51 @@ class SentryNativeCocoa extends SentryNativeChannel {
       });
 
   @override
-  void resumeAppHangTracking() {
-    tryCatchSync('resumeAppHangTracking', () {
-      cocoa.SentryFlutterPlugin.resumeAppHangTracking();
+  void addBreadcrumb(Breadcrumb breadcrumb) =>
+      tryCatchSync('addBreadcrumb', () {
+        final nativeBreadcrumb =
+            cocoa.PrivateSentrySDKOnly.breadcrumbWithDictionary(
+                deepConvertMapNonNull(breadcrumb.toJson()).toNSDictionary());
+        cocoa.SentrySDK.addBreadcrumb(nativeBreadcrumb);
+      });
+
+  Map<Object, Object> deepConvertMapNonNull(Map<String, dynamic> input) {
+    return input.entries.where((e) => e.value != null).map((e) {
+      final key = e.key as Object;
+      final value = e.value;
+      if (value is Map<String, dynamic>) {
+        return MapEntry<Object, Object>(key, deepConvertMapNonNull(value));
+      } else if (value is List) {
+        return MapEntry<Object, Object>(
+          key,
+          value
+              .where((item) => item != null)
+              .map((item) => item is Map<String, dynamic>
+                  ? deepConvertMapNonNull(item)
+                  : item as Object)
+              .toList(),
+        );
+      } else {
+        return MapEntry<Object, Object>(key, value as Object);
+      }
+    }).fold<Map<Object, Object>>({}, (map, entry) {
+      map[entry.key] = entry.value;
+      return map;
     });
   }
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
-    tryCatchSync('addBreadcrumb', () {
-      final jsonString = json.encode(breadcrumb.toJson());
-      final bytes = utf8.encode(jsonString);
-      final nsData = bytes.toNSData();
-
-      cocoa.SentryFlutterPlugin.addBreadcrumbAsBytes(nsData);
-    });
-  }
-
-  @override
-  Future<void> clearBreadcrumbs() async {
+  void clearBreadcrumbs() {
     tryCatchSync('clearBreadcrumbs', () {
-      cocoa.SentryFlutterPlugin.clearBreadcrumbs();
+      cocoa.SentrySDK.configureScope(
+          cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
+              (cocoa.SentryScope scope) {
+        scope.clearBreadcrumbs();
+      }));
     });
   }
+
+  @override
   void resumeAppHangTracking() => tryCatchSync('resumeAppHangTracking', () {
         cocoa.SentrySDK.resumeAppHangTracking();
       });

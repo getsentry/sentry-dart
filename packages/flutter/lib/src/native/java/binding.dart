@@ -1279,31 +1279,6 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
   /// The type which includes information such as the signature of this class.
   static const nullableType = $SentryFlutterPlugin$Companion$NullableType();
   static const type = $SentryFlutterPlugin$Companion$Type();
-  static final _id_getAutoPerformanceTracingEnabled = _class.instanceMethodId(
-    r'getAutoPerformanceTracingEnabled',
-    r'()Z',
-  );
-
-  static final _getAutoPerformanceTracingEnabled =
-      jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                    jni$_.Pointer<jni$_.Void>,
-                    jni$_.JMethodIDPtr,
-                  )>>('globalEnv_CallBooleanMethod')
-          .asFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>();
-
-  /// from: `public final boolean getAutoPerformanceTracingEnabled()`
-  bool getAutoPerformanceTracingEnabled() {
-    return _getAutoPerformanceTracingEnabled(reference.pointer,
-            _id_getAutoPerformanceTracingEnabled as jni$_.JMethodIDPtr)
-        .boolean;
-  }
-
   static final _id_privateSentryGetReplayIntegration = _class.instanceMethodId(
     r'privateSentryGetReplayIntegration',
     r'()Lio/sentry/android/replay/ReplayIntegration;',
