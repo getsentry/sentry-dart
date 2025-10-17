@@ -409,7 +409,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   // https://github.com/flutter/engine/blob/main/shell/platform/darwin/ios/framework/Source/vsync_waiter_ios.mm#L150
   @objc public class func getDisplayRefreshRate() -> NSNumber? {
       let displayLink = CADisplayLink(target: self, selector: #selector(onDisplayLinkStatic(_:)))
-      displayLink.add(to: .main, forMode: .common)
       displayLink.isPaused = true
 
       let preferredFPS = displayLink.preferredFramesPerSecond
@@ -485,11 +484,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
           "nativeSpanTimes": nativeSpanTimes
       ]
 
-      if let data = try? JSONSerialization.data(withJSONObject: item, options: []) {
+      do {
+          let data = try JSONSerialization.data(withJSONObject: item, options: [])
           return data as NSData
+      } catch {
+          print("Failed to load native app start as bytes: \(error)")
+          return nil
       }
-      print("Failed to load native app start as bytes")
-      return nil
       #else
       return nil
       #endif
@@ -521,11 +522,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
           }
 
           let serializedImages = debugImages.map { $0.serialize() }
-          if let data = try? JSONSerialization.data(withJSONObject: serializedImages, options: []) {
+          do {
+              let data = try JSONSerialization.data(withJSONObject: serializedImages, options: [])
               return data as NSData
+          } catch {
+              print("Failed to load debug images as bytes: \(error)")
+              return nil
           }
-          print("Failed to load debug images as bytes")
-          return nil
   }
 
   // swiftlint:disable:next cyclomatic_complexity
@@ -607,11 +610,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
                 "sdk_name": "cocoapods:sentry-cocoa"]
 
         }
-        if let data = try? JSONSerialization.data(withJSONObject: infos, options: []) {
+        do {
+            let data = try JSONSerialization.data(withJSONObject: infos, options: [])
             return data as NSData
+        } catch {
+            print("Failed to load contexts as bytes: \(error)")
+            return nil
         }
-        print("Failed to load contexts as bytes")
-        return nil
   }
 
   @objc public class func addBreadcrumbAsBytes(_ breadcrumbBytes: NSData) {

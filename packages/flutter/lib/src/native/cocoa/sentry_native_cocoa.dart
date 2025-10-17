@@ -162,9 +162,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
         'displayRefreshRate',
         () {
           final refreshRate = cocoa.SentryFlutterPlugin.getDisplayRefreshRate();
-          if (refreshRate == null) return null;
-
-          return refreshRate.intValue;
+          return refreshRate?.intValue;
         },
       );
 

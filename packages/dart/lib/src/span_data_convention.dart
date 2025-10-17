@@ -10,6 +10,7 @@ class SpanDataConvention {
   // https://develop.sentry.dev/sdk/telemetry/traces/span-data-conventions/#thread
   static const threadId = 'thread.id';
   static const threadName = 'thread.name';
+  static const blockedMainThread = 'blocked_main_thread';
 
   // TODO: eventually add other data keys here as well
 }
