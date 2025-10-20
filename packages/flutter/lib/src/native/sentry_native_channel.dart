@@ -127,12 +127,12 @@ class SentryNativeChannel
   }
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) async {
     assert(false, "addBreadcrumb should not be used through method channels.");
   }
 
   @override
-  Future<void> clearBreadcrumbs() async {
+  FutureOr<void> clearBreadcrumbs() async {
     assert(
         false, "clearBreadcrumbs should not be used through method channels.");
   }

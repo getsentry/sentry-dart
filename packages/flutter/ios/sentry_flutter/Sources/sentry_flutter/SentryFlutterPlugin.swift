@@ -394,7 +394,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   // https://github.com/flutter/engine/blob/main/shell/platform/darwin/ios/framework/Source/vsync_waiter_ios.mm#L150
   @objc public class func getDisplayRefreshRate() -> NSNumber? {
       let displayLink = CADisplayLink(target: self, selector: #selector(onDisplayLinkStatic(_:)))
-      displayLink.add(to: .main, forMode: .common)
       displayLink.isPaused = true
 
       let preferredFPS = displayLink.preferredFramesPerSecond
@@ -470,25 +469,16 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
           "nativeSpanTimes": nativeSpanTimes
       ]
 
-      if let data = try? JSONSerialization.data(withJSONObject: item, options: []) {
+      do {
+          let data = try JSONSerialization.data(withJSONObject: item, options: [])
           return data as NSData
+      } catch {
+          print("Failed to load native app start as bytes: \(error)")
+          return nil
       }
-      return nil
       #else
       return nil
       #endif
-  }
-
-  @objc public class func nativeCrash() {
-      SentrySDK.crash()
-  }
-
-  @objc public class func pauseAppHangTracking() {
-      SentrySDK.pauseAppHangTracking()
-  }
-
-  @objc public class func resumeAppHangTracking() {
-      SentrySDK.resumeAppHangTracking()
   }
 
   @objc(loadDebugImagesAsBytes:)
@@ -517,10 +507,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
           }
 
           let serializedImages = debugImages.map { $0.serialize() }
-          if let data = try? JSONSerialization.data(withJSONObject: serializedImages, options: []) {
+          do {
+              let data = try JSONSerialization.data(withJSONObject: serializedImages, options: [])
               return data as NSData
+          } catch {
+              print("Failed to load debug images as bytes: \(error)")
+              return nil
           }
-          return nil
   }
 
   // swiftlint:disable:next cyclomatic_complexity
@@ -602,41 +595,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
                 "sdk_name": "cocoapods:sentry-cocoa"]
 
         }
-        if let data = try? JSONSerialization.data(withJSONObject: infos, options: []) {
+        do {
+            let data = try JSONSerialization.data(withJSONObject: infos, options: [])
             return data as NSData
+        } catch {
+            print("Failed to load contexts as bytes: \(error)")
+            return nil
         }
-        return nil
-  }
-
-  @objc public class func setUserAsBytes(_ userBytes: NSData?) {
-      guard let userBytes = userBytes else {
-          SentrySDK.setUser(nil)
-          return
-      }
-
-      guard let userDict = try? JSONSerialization.jsonObject(with: userBytes as Data) as? [String: Any] else {
-        print("setUser failed in native cocoa: could not parse bytes")
-        return
-      }
-      let userInstance = PrivateSentrySDKOnly.user(with: userDict)
-      SentrySDK.setUser(userInstance)
-  }
-
-  @objc public class func addBreadcrumbAsBytes(_ breadcrumbBytes: NSData) {
-      guard let breadcrumbDict = try? JSONSerialization.jsonObject(
-          with: breadcrumbBytes as Data
-      ) as? [String: Any] else {
-          print("addBreadcrumb failed in native cocoa: could not parse bytes")
-          return
-      }
-      let breadcrumbInstance = PrivateSentrySDKOnly.breadcrumb(with: breadcrumbDict)
-      SentrySDK.addBreadcrumb(breadcrumbInstance)
-  }
-
-  @objc public class func clearBreadcrumbs() {
-      SentrySDK.configureScope { scope in
-          scope.clearBreadcrumbs()
-      }
   }
 }
 // swiftlint:enable type_body_length

@@ -21,6 +21,8 @@ class SentryFlutter {
     internal const val NATIVE_SDK = "sentry.native.android.flutter"
   }
 
+  var autoPerformanceTracingEnabled = false
+
   fun updateOptions(
     options: SentryAndroidOptions,
     data: Map<String, Any>,
@@ -105,7 +107,7 @@ class SentryFlutter {
 
     data.getIfNotNull<Boolean>("enableAutoPerformanceTracing") { enableAutoPerformanceTracing ->
       if (enableAutoPerformanceTracing) {
-        SentryFlutterPlugin.autoPerformanceTracingEnabled = true
+        autoPerformanceTracingEnabled = true
       }
     }
 

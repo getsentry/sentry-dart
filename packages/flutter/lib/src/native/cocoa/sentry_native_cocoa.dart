@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
@@ -8,7 +7,6 @@ import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
-import '../utils/data_normalizer.dart';
 import '../utils/utf8_json.dart';
 import 'binding.dart' as cocoa;
 import 'cocoa_replay_recorder.dart';
@@ -162,9 +160,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
         'displayRefreshRate',
         () {
           final refreshRate = cocoa.SentryFlutterPlugin.getDisplayRefreshRate();
-          if (refreshRate == null) return null;
-
-          return refreshRate.intValue;
+          return refreshRate?.intValue;
         },
       );
 
@@ -182,55 +178,58 @@ class SentryNativeCocoa extends SentryNativeChannel {
       );
 
   @override
-  void nativeCrash() {
-    cocoa.SentryFlutterPlugin.nativeCrash();
-  }
+  void addBreadcrumb(Breadcrumb breadcrumb) =>
+      tryCatchSync('addBreadcrumb', () {
+        final nativeBreadcrumb =
+            cocoa.PrivateSentrySDKOnly.breadcrumbWithDictionary(
+                _deepConvertMapNonNull(breadcrumb.toJson()).toNSDictionary());
+        cocoa.SentrySDK.addBreadcrumb(nativeBreadcrumb);
+      });
 
   @override
-  void pauseAppHangTracking() {
-    tryCatchSync('pauseAppHangTracking', () {
-      cocoa.SentryFlutterPlugin.pauseAppHangTracking();
-    });
-  }
+  void clearBreadcrumbs() => tryCatchSync('clearBreadcrumbs', () {
+        cocoa.SentrySDK.configureScope(
+            cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
+                (cocoa.SentryScope scope) {
+          scope.clearBreadcrumbs();
+        }));
+      });
 
   @override
-  void resumeAppHangTracking() {
-    tryCatchSync('resumeAppHangTracking', () {
-      cocoa.SentryFlutterPlugin.resumeAppHangTracking();
-    });
-  }
+  void nativeCrash() => cocoa.SentrySDK.crash();
 
   @override
-  void setUser(SentryUser? user) {
-    tryCatchSync('setUser', () {
-      if (user == null) {
-        cocoa.SentryFlutterPlugin.setUserAsBytes(null);
-        return;
-      }
-
-      final jsonString = json.encode(user.toJson());
-      final bytes = utf8.encode(jsonString);
-      final nsData = bytes.toNSData();
-
-      cocoa.SentryFlutterPlugin.setUserAsBytes(nsData);
-    });
-  }
+  void pauseAppHangTracking() => tryCatchSync('pauseAppHangTracking', () {
+        cocoa.SentrySDK.pauseAppHangTracking();
+      });
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
-    tryCatchSync('addBreadcrumb', () {
-      final jsonString = json.encode(breadcrumb.toJson());
-      final bytes = utf8.encode(jsonString);
-      final nsData = bytes.toNSData();
+  void resumeAppHangTracking() => tryCatchSync('resumeAppHangTracking', () {
+        cocoa.SentrySDK.resumeAppHangTracking();
+      });
+}
 
-      cocoa.SentryFlutterPlugin.addBreadcrumbAsBytes(nsData);
-    });
+/// This map conversion is needed so we can use the toNSDictionary extension function
+/// provided by the objective_c package.
+Map<Object, Object> _deepConvertMapNonNull(Map<String, dynamic> input) {
+  final out = <Object, Object>{};
+
+  for (final entry in input.entries) {
+    final value = entry.value;
+    if (value == null) continue;
+
+    out[entry.key] = switch (value) {
+      Map<String, dynamic> m => _deepConvertMapNonNull(m),
+      List<dynamic> l => [
+          for (final e in l)
+            if (e != null)
+              e is Map<String, dynamic>
+                  ? _deepConvertMapNonNull(e)
+                  : e as Object
+        ],
+      _ => value as Object,
+    };
   }
 
-  @override
-  Future<void> clearBreadcrumbs() async {
-    tryCatchSync('clearBreadcrumbs', () {
-      cocoa.SentryFlutterPlugin.clearBreadcrumbs();
-    });
-  }
+  return out;
 }

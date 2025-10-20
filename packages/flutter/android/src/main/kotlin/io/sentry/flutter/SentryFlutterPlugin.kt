@@ -15,12 +15,8 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.Breadcrumb
 import io.sentry.DateUtils
-import io.sentry.JsonObjectDeserializer
-import io.sentry.JsonObjectReader
-import io.sentry.ObjectReader
 import io.sentry.ScopesAdapter
 import io.sentry.Sentry
-import io.sentry.SentryOptions
 import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
@@ -33,7 +29,6 @@ import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import org.json.JSONObject
 import org.json.JSONArray
-import java.io.StringReader
 import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
 
@@ -46,7 +41,6 @@ class SentryFlutterPlugin :
   ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
-  private lateinit var sentryFlutter: SentryFlutter
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     pluginRegistrationTime = System.currentTimeMillis()
@@ -266,8 +260,7 @@ class SentryFlutterPlugin :
 
     private var pluginRegistrationTime: Long? = null
 
-    var autoPerformanceTracingEnabled: Boolean = false
-      internal set
+    private lateinit var sentryFlutter: SentryFlutter
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
@@ -277,7 +270,7 @@ class SentryFlutterPlugin :
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
-    fun nativeCrash() {
+    fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
       val mainThread = Looper.getMainLooper().thread
       mainThread.uncaughtExceptionHandler?.uncaughtException(mainThread, exception)
@@ -309,10 +302,10 @@ class SentryFlutterPlugin :
       return refreshRate
     }
 
-    @Suppress("unused", "ReturnCount") // Used by native/jni bindings
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun fetchNativeAppStartAsBytes(): ByteArray? {
-      if (!autoPerformanceTracingEnabled) {
+      if (!sentryFlutter.autoPerformanceTracingEnabled) {
         return null
       }
 
@@ -393,7 +386,7 @@ class SentryFlutterPlugin :
     @JvmStatic
     fun getApplicationContext(): Context? = applicationContext
 
-    @Suppress("unused") // Used by native/jni bindings
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun loadContextsAsBytes(): ByteArray? {
       val options = ScopesAdapter.getInstance().options
@@ -408,11 +401,16 @@ class SentryFlutterPlugin :
           options,
           currentScope,
         )
-      val json = JSONObject(serializedScope).toString()
-      return json.toByteArray(Charsets.UTF_8)
+      try {
+        val json = JSONObject(serializedScope).toString()
+        return json.toByteArray(Charsets.UTF_8)
+      } catch (e: Exception) {
+        Log.e("Sentry", "Failed to serialize scope", e)
+        return null
+      }
     }
 
-    @Suppress("unused") // Used by native/jni bindings
+    @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun loadDebugImagesAsBytes(addresses: Set<String>): ByteArray? {
       val options = ScopesAdapter.getInstance().options as SentryAndroidOptions
@@ -431,39 +429,13 @@ class SentryFlutterPlugin :
             .serialize()
         }
 
-      val json = JSONArray(debugImages).toString()
-      return json.toByteArray(Charsets.UTF_8)
-    }
-
-    @Suppress("unused") // Used by native/jni bindings
-    @JvmStatic
-    fun setUserAsBytes(userBytes: ByteArray?) {
-      if (userBytes == null) {
-        Sentry.setUser(null)
-        return
+      try {
+        val json = JSONArray(debugImages).toString()
+        return json.toByteArray(Charsets.UTF_8)
+      } catch (e: Exception) {
+        Log.e("Sentry", "Failed to serialize debug images", e)
+        return null
       }
-
-      val logger = ScopesAdapter.getInstance().options.logger
-      val userJson = userBytes.toString(Charsets.UTF_8)
-      val reader = JsonObjectReader(StringReader(userJson))
-      val user = User.Deserializer().deserialize(reader, logger)
-      Sentry.setUser(user)
-    }
-
-    @Suppress("unused") // Used by native/jni bindings
-    @JvmStatic
-    fun addBreadcrumbAsBytes(breadcrumbBytes: ByteArray) {
-      val logger = ScopesAdapter.getInstance().options.logger
-      val breadcrumbJson = breadcrumbBytes.toString(Charsets.UTF_8)
-      val reader = JsonObjectReader(StringReader(breadcrumbJson))
-      val breadcrumb = Breadcrumb.Deserializer().deserialize(reader, logger)
-      Sentry.addBreadcrumb(breadcrumb)
-    }
-
-    @Suppress("unused") // Used by native/jni bindings
-    @JvmStatic
-    fun clearBreadcrumbs() {
-      Sentry.clearBreadcrumbs()
     }
 
     private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }

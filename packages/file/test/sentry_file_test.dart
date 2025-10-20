@@ -28,6 +28,9 @@ void main() {
       expect(span.context.operation, 'file.copy');
       expect(span.data['file.size'], 7);
       expect(span.data['file.async'], async);
+      if (!async) {
+        expect(span.data['sync'], true);
+      }
       expect(span.context.description, 'testfile.txt');
       expect(
           (span.data['file.path'] as String)
@@ -115,6 +118,9 @@ void main() {
       expect(span.context.operation, 'file.write');
       expect(span.data['file.size'], size);
       expect(span.data['file.async'], async);
+      if (!async) {
+        expect(span.data['sync'], true);
+      }
       expect(span.context.description, 'testfile_create.txt');
       expect(
           (span.data['file.path'] as String)
@@ -200,6 +206,9 @@ void main() {
       expect(span.context.operation, 'file.delete');
       expect(span.data['file.size'], size);
       expect(span.data['file.async'], async);
+      if (!async) {
+        expect(span.data['sync'], true);
+      }
       expect(span.context.description, 'testfile_delete.txt');
       expect(
           (span.data['file.path'] as String)
@@ -341,6 +350,9 @@ void main() {
       expect(span.context.operation, 'file.read');
       expect(span.data['file.size'], size);
       expect(span.data['file.async'], async);
+      if (!async) {
+        expect(span.data['sync'], true);
+      }
       expect(span.context.description, fileName);
       expect(
           (span.data['file.path'] as String)
@@ -492,6 +504,9 @@ void main() {
       expect(span.context.operation, 'file.rename');
       expect(span.data['file.size'], 0);
       expect(span.data['file.async'], async);
+      if (!async) {
+        expect(span.data['sync'], true);
+      }
       expect(span.context.description, name);
       expect(
           (span.data['file.path'] as String).endsWith('test_resources/$name'),
@@ -580,6 +595,9 @@ void main() {
       final span = call.transaction.spans.first;
 
       expect(span.data['file.async'], async);
+      if (!async) {
+        expect(span.data['sync'], true);
+      }
       expect(span.data['file.path'], null);
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
