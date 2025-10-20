@@ -258,12 +258,48 @@ class SentryNativeJava extends SentryNativeChannel {
           if (nativeOptions == null) return;
 
           nativeUser =
-              native.User.fromMap(_dartToJMap(user.toJson()), nativeOptions);
+              native.User.fromMap(_dartToJMap(user.toJson()), nativeOptions!);
           if (nativeUser == null) return;
-
-          native.Sentry.setUser(nativeUser);
         }
       });
+
+  @override
+  void setContexts(String key, value) {
+    JString jKey = key.toJString();
+    JObject? jVal = _dartToJObject(value);
+
+    if (jVal == null) return;
+
+    tryCatchSync('setContexts', () {
+      native.Sentry.configureScope(
+        native.ScopeCallback.implement(
+          native.$ScopeCallback(
+            run: (iScope) {
+              final scope = iScope.as(const native.$Scope$Type());
+              scope.setContexts(jKey, jVal);
+            },
+          ),
+        ),
+      );
+    }, finallyFn: () {
+      jKey.release();
+      jVal.release();
+    });
+  }
+
+  @override
+  void removeContexts(String key) {
+    JString jKey = key.toJString();
+
+    tryCatchSync('removeContexts', () {
+      native.Sentry.configureScope(
+          native.ScopeCallback.implement(native.$ScopeCallback(run: (iScope) {
+        final scope = iScope.as(const native.$Scope$Type());
+      })));
+    }, finallyFn: () {
+      jKey.release();
+    });
+  }
 }
 
 JObject? _dartToJObject(Object? value) => switch (value) {
