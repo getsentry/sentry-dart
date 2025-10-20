@@ -178,14 +178,6 @@ class SentryNativeCocoa extends SentryNativeChannel {
       );
 
   @override
-  void nativeCrash() => cocoa.SentrySDK.crash();
-
-  @override
-  void pauseAppHangTracking() => tryCatchSync('pauseAppHangTracking', () {
-        cocoa.SentrySDK.pauseAppHangTracking();
-      });
-
-  @override
   void addBreadcrumb(Breadcrumb breadcrumb) =>
       tryCatchSync('addBreadcrumb', () {
         final nativeBreadcrumb =
@@ -201,6 +193,14 @@ class SentryNativeCocoa extends SentryNativeChannel {
                 (cocoa.SentryScope scope) {
           scope.clearBreadcrumbs();
         }));
+      });
+
+  @override
+  void nativeCrash() => cocoa.SentrySDK.crash();
+
+  @override
+  void pauseAppHangTracking() => tryCatchSync('pauseAppHangTracking', () {
+        cocoa.SentrySDK.pauseAppHangTracking();
       });
 
   @override
