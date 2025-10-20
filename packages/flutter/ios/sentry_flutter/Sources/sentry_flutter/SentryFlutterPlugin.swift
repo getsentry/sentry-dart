@@ -520,18 +520,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
       #endif
   }
 
-  @objc public class func nativeCrash() {
-      SentrySDK.crash()
-  }
-
-  @objc public class func pauseAppHangTracking() {
-      SentrySDK.pauseAppHangTracking()
-  }
-
-  @objc public class func resumeAppHangTracking() {
-      SentrySDK.resumeAppHangTracking()
-  }
-
   @objc(loadDebugImagesAsBytes:)
   public class func loadDebugImagesAsBytes(instructionAddresses: Set<String>) -> NSData? {
           var debugImages: [DebugMeta] = []

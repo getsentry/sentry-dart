@@ -8,8 +8,5 @@
 + (nullable NSData *)fetchNativeAppStartAsBytes;
 + (nullable NSData *)loadContextsAsBytes;
 + (nullable NSData *)loadDebugImagesAsBytes:(NSSet<NSString *> *)instructionAddresses;
-+ (void)nativeCrash;
-+ (void)pauseAppHangTracking;
-+ (void)resumeAppHangTracking;
 @end
 #endif
