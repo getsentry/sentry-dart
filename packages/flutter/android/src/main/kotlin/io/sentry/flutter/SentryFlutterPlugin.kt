@@ -290,7 +290,7 @@ class SentryFlutterPlugin :
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
-    fun nativeCrash() {
+    fun crash() {
       val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
       val mainThread = Looper.getMainLooper().thread
       mainThread.uncaughtExceptionHandler?.uncaughtException(mainThread, exception)

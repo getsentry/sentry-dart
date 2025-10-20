@@ -201,7 +201,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void nativeCrash() {
-    native.SentryFlutterPlugin.Companion.nativeCrash();
+    native.SentryFlutterPlugin.Companion.crash();
   }
 
   @override
