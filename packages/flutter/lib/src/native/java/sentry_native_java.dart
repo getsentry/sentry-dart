@@ -200,7 +200,9 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  void nativeCrash() => native.SentryFlutterPlugin.Companion.crash();
+  void nativeCrash() {
+    native.SentryFlutterPlugin.Companion.crash();
+  }
 
   @override
   void pauseAppHangTracking() {
