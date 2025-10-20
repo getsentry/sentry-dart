@@ -245,6 +245,25 @@ class SentryNativeJava extends SentryNativeChannel {
   void clearBreadcrumbs() => tryCatchSync('clearBreadcrumbs', () {
         native.Sentry.clearBreadcrumbs();
       });
+
+  @override
+  void setUser(SentryUser? user) => tryCatchSync('setUser', () {
+        native.User? nativeUser;
+        JObject? nativeOptions;
+
+        if (user == null) {
+          native.Sentry.setUser(null);
+        } else {
+          nativeOptions = native.ScopesAdapter.getInstance()?.getOptions();
+          if (nativeOptions == null) return;
+
+          nativeUser =
+              native.User.fromMap(_dartToJMap(user.toJson()), nativeOptions!);
+          if (nativeUser == null) return;
+
+          native.Sentry.setUser(nativeUser);
+        }
+      });
 }
 
 JObject? _dartToJObject(Object? value) => switch (value) {
