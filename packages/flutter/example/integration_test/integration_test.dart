@@ -564,6 +564,49 @@ void main() {
     }
   });
 
+  testWidgets('setContexts and removedContexts sync to native', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    await Sentry.configureScope((scope) async {
+      scope.setContexts('key1', 'randomValue');
+      scope.setContexts('key2', {'Key': 'Value'});
+      scope.setContexts('key3', true);
+      scope.setContexts('key4', 12);
+      scope.setContexts('key5', 12.3);
+    });
+
+    var contexts = await SentryFlutter.native?.loadContexts();
+    final values = contexts!['contexts'];
+    expect(values, isNotNull, reason: 'Contexts are null');
+
+    expect(values['key1'], {'value': 'randomValue'}, reason: 'key1 mismatch');
+    expect(values['key2'], {'Key': 'Value'}, reason: 'key2 mismatch');
+    // bool values are mapped to num values of 1 or 0 during objc conversion
+    expect(values['key3'], {'value': 1}, reason: 'key3 mismatch');
+    expect(values['key4'], {'value': 12}, reason: 'key4 mismatch');
+    expect(values['key5'], {'value': 12.3}, reason: 'key5 mismatch');
+
+    await Sentry.configureScope((scope) async {
+      scope.removeContexts('key1');
+      scope.removeContexts('key2');
+      scope.removeContexts('key3');
+      scope.removeContexts('key4');
+      scope.removeContexts('key5');
+    });
+
+    contexts = await SentryFlutter.native?.loadContexts();
+    final removedValues = contexts!['contexts'];
+    expect(removedValues, isNotNull, reason: 'Contexts are null');
+
+    expect(removedValues['key1'], isNull, reason: 'key1 should be removed');
+    expect(removedValues['key2'], isNull, reason: 'key2 should be removed');
+    expect(removedValues['key3'], isNull, reason: 'key3 should be removed');
+    expect(removedValues['key4'], isNull, reason: 'key4 should be removed');
+    expect(removedValues['key5'], isNull, reason: 'key5 should be removed');
+  });
+
   testWidgets('addBreadcrumb and clearBreadcrumbs sync to native',
       (tester) async {
     await restoreFlutterOnErrorAfter(() async {

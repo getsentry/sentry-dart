@@ -38,6 +38,8 @@ objc-interfaces:
     SentryScope:
       include:
         - 'clearBreadcrumbs'
+        - 'setContextValue:forKey:'
+        - 'removeContextForKey:'
 preamble: |
   // ignore_for_file: type=lint, unused_element
 

@@ -7,6 +7,7 @@ import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
+import '../utils/data_normalizer.dart';
 import '../utils/utf8_json.dart';
 import 'binding.dart' as cocoa;
 import 'cocoa_replay_recorder.dart';
@@ -219,6 +220,41 @@ class SentryNativeCocoa extends SentryNativeChannel {
               cocoa.PrivateSentrySDKOnly.userWithDictionary(dictionary);
           cocoa.SentrySDK.setUser(cUser);
         }
+      });
+
+  @override
+  void setContexts(String key, dynamic value) =>
+      tryCatchSync('setContexts', () {
+        NSDictionary? dictionary;
+
+        final normalizedValue = normalize(value);
+        dictionary = switch (normalizedValue) {
+          Map<String, dynamic> m => _deepConvertMapNonNull(m).toNSDictionary(),
+          bool b => NSDictionary.fromEntries([
+              MapEntry(
+                  'value'.toNSString(), b ? 1.toNSNumber() : 0.toNSNumber())
+            ]),
+          Object o => NSDictionary.fromEntries(
+              [MapEntry('value'.toNSString(), toObjCObject(o))]),
+          _ => null
+        };
+
+        cocoa.SentrySDK.configureScope(
+            cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
+                (cocoa.SentryScope scope) {
+          if (dictionary != null) {
+            scope.setContextValue(dictionary, forKey: key.toNSString());
+          }
+        }));
+      });
+
+  @override
+  void removeContexts(String key) => tryCatchSync('removeContexts', () {
+        cocoa.SentrySDK.configureScope(
+            cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
+                (cocoa.SentryScope scope) {
+          scope.removeContextForKey(key.toNSString());
+        }));
       });
 }
 

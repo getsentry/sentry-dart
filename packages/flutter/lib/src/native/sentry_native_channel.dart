@@ -138,14 +138,14 @@ class SentryNativeChannel
   }
 
   @override
-  Future<void> setContexts(String key, dynamic value) => channel.invokeMethod(
-        'setContexts',
-        {'key': key, 'value': normalize(value)},
-      );
+  FutureOr<void> setContexts(String key, dynamic value) {
+    assert(false, "setContexts should not be used through method channels.");
+  }
 
   @override
-  Future<void> removeContexts(String key) =>
-      channel.invokeMethod('removeContexts', {'key': key});
+  FutureOr<void> removeContexts(String key) {
+    assert(false, "removeContexts should not be used through method channels.");
+  }
 
   @override
   Future<void> setExtra(String key, dynamic value) => channel.invokeMethod(
