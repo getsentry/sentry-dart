@@ -67,7 +67,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         ?? iso8601Formatter.date(from: iso8601String) // Parse date with low precision formatter for backward compatible
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method as String {
         case "initNativeSdk":
@@ -437,7 +436,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
           }
   }
 
-  // swiftlint:disable:next cyclomatic_complexity
   @objc public class func loadContextsAsBytes() -> NSData? {
         var infos: [String: Any] = [:]
 
