@@ -629,7 +629,8 @@ void main() {
     });
 
     var contexts = await SentryFlutter.native?.loadContexts();
-    final extras = contexts!['extra'];
+
+    final extras = Platform.isIOS ? contexts!['extra'] : contexts!['extras'];
     expect(extras, isNotNull, reason: 'Extras are null');
 
     if (Platform.isIOS) {
@@ -640,11 +641,12 @@ void main() {
       expect(extras['key4'], 12, reason: 'key4 mismatch');
       expect(extras['key5'], 12.3, reason: 'key5 mismatch');
     } else if (Platform.isAndroid) {
+      // Sentry Java's setExtra only allows String values so this is after normalization
       expect(extras['key1'], 'randomValue', reason: 'key1 mismatch');
-      expect(extras['key2'], {'Key': 'Value'}, reason: 'key2 mismatch');
-      expect(extras['key3'], true, reason: 'key3 mismatch');
-      expect(extras['key4'], 12, reason: 'key4 mismatch');
-      expect(extras['key5'], 12.3, reason: 'key5 mismatch');
+      expect(extras['key2'], '{Key: Value}', reason: 'key2 mismatch');
+      expect(extras['key3'], 'true', reason: 'key3 mismatch');
+      expect(extras['key4'], '12', reason: 'key4 mismatch');
+      expect(extras['key5'], '12.3', reason: 'key5 mismatch');
     }
 
     await Sentry.configureScope((scope) async {

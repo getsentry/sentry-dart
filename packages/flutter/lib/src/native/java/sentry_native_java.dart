@@ -8,6 +8,7 @@ import '../../../sentry_flutter.dart';
 import '../../replay/scheduled_recorder_config.dart';
 import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
+import '../utils/data_normalizer.dart';
 import '../utils/utf8_json.dart';
 import 'android_envelope_sender.dart';
 import 'android_replay_recorder.dart';
@@ -296,6 +297,43 @@ class SentryNativeJava extends SentryNativeChannel {
           native.ScopeCallback.implement(native.$ScopeCallback(run: (iScope) {
         final scope = iScope.as(const native.$Scope$Type());
         scope.removeContexts(jKey);
+      })));
+    }, finallyFn: () {
+      jKey.release();
+    });
+  }
+
+  @override
+  void setExtra(String key, dynamic value) {
+    JString jKey = key.toJString();
+    JString jVal = normalize(value).toString().toJString();
+
+    tryCatchSync('setExtra', () {
+      native.Sentry.configureScope(
+        native.ScopeCallback.implement(
+          native.$ScopeCallback(
+            run: (iScope) {
+              final scope = iScope.as(const native.$Scope$Type());
+              scope.setExtra(jKey, jVal);
+            },
+          ),
+        ),
+      );
+    }, finallyFn: () {
+      jKey.release();
+      jVal.release();
+    });
+  }
+
+  @override
+  FutureOr<void> removeExtra(String key) {
+    JString jKey = key.toJString();
+
+    tryCatchSync('removeExtra', () {
+      native.Sentry.configureScope(
+          native.ScopeCallback.implement(native.$ScopeCallback(run: (iScope) {
+        final scope = iScope.as(const native.$Scope$Type());
+        scope.removeExtra(jKey);
       })));
     }, finallyFn: () {
       jKey.release();
