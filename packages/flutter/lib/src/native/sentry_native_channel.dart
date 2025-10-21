@@ -12,7 +12,6 @@ import 'native_app_start.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
 import 'sentry_safe_method_channel.dart';
-import 'utils/data_normalizer.dart';
 
 /// Provide typed methods to access native layer via MethodChannel.
 @internal

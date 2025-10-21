@@ -11,7 +11,6 @@ import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
-import 'package:sentry_flutter/src/native/utils/data_normalizer.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
 
 import 'mocks.dart';
