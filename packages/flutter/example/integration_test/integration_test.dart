@@ -690,6 +690,7 @@ void main() {
       expect(contexts!['tags'], isEmpty, reason: 'Tags are not empty');
     }
   });
+
   testWidgets('addBreadcrumb and clearBreadcrumbs sync to native',
       (tester) async {
     await restoreFlutterOnErrorAfter(() async {

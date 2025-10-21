@@ -61,8 +61,6 @@ class SentryFlutterPlugin :
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "closeNativeSdk" -> closeNativeSdk(result)
-      "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
-      "removeTag" -> removeTag(call.argument("key"), result)
       "setReplayConfig" -> setReplayConfig(call, result)
       "captureReplay" -> captureReplay(result)
       else -> result.notImplemented()
@@ -135,33 +133,6 @@ class SentryFlutterPlugin :
     } else {
       options.setReplayController(null)
     }
-  }
-
-  private fun setTag(
-    key: String?,
-    value: String?,
-    result: Result,
-  ) {
-    if (key == null || value == null) {
-      result.success("")
-      return
-    }
-    Sentry.setTag(key, value)
-
-    result.success("")
-  }
-
-  private fun removeTag(
-    key: String?,
-    result: Result,
-  ) {
-    if (key == null) {
-      result.success("")
-      return
-    }
-    Sentry.removeTag(key)
-
-    result.success("")
   }
 
   private fun closeNativeSdk(result: Result) {

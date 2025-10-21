@@ -75,17 +75,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         case "closeNativeSdk":
             closeNativeSdk(call, result: result)
 
-        case "setTag":
-            let arguments = call.arguments as? [String: Any?]
-            let key = arguments?["key"] as? String
-            let value = arguments?["value"] as? String
-            setTag(key: key, value: value, result: result)
-
-        case "removeTag":
-            let arguments = call.arguments as? [String: Any?]
-            let key = arguments?["key"] as? String
-            removeTag(key: key, result: result)
-
         #if !os(tvOS) && !os(watchOS)
         case "discardProfiler":
             discardProfiler(call, result)
@@ -241,30 +230,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             return false
         }
         return !name.isEmpty
-    }
-
-    private func setTag(key: String?, value: String?, result: @escaping FlutterResult) {
-      guard let key = key, let value = value else {
-        result("")
-        return
-      }
-      SentrySDK.configureScope { scope in
-        scope.setTag(value: value, key: key)
-
-        result("")
-      }
-    }
-
-    private func removeTag(key: String?, result: @escaping FlutterResult) {
-      guard let key = key else {
-        result("")
-        return
-      }
-      SentrySDK.configureScope { scope in
-        scope.removeTag(key: key)
-
-        result("")
-      }
     }
 
     private func collectProfile(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
