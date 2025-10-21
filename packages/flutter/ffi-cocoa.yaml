@@ -42,6 +42,8 @@ objc-interfaces:
         - 'removeContextForKey:'
         - 'setExtraValue:forKey:'
         - 'removeExtraForKey:'
+        - 'setTagValue:forKey:'
+        - 'removeTagForKey:'
 preamble: |
   // ignore_for_file: type=lint, unused_element
 

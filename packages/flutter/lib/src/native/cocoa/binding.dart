@@ -1148,6 +1148,8 @@ interface class SentrySerializable extends objc.ObjCProtocolBase
       : this._(other, retain: retain, release: release);
 }
 
+late final _sel_setTagValue_forKey_ = objc.registerName("setTagValue:forKey:");
+late final _sel_removeTagForKey_ = objc.registerName("removeTagForKey:");
 late final _sel_setExtraValue_forKey_ =
     objc.registerName("setExtraValue:forKey:");
 late final _sel_removeExtraForKey_ = objc.registerName("removeExtraForKey:");
@@ -1184,6 +1186,19 @@ class SentryScope extends objc.NSObject implements SentrySerializable {
   static bool isInstance(objc.ObjCObjectBase obj) {
     return _objc_msgSend_19nvye5(
         obj.ref.pointer, _sel_isKindOfClass_, _class_SentryScope);
+  }
+
+  /// Set a global tag. Tags are searchable key/value string pairs attached to
+  /// every event.
+  void setTagValue(objc.NSString value, {required objc.NSString forKey}) {
+    _objc_msgSend_pfv6jd(this.ref.pointer, _sel_setTagValue_forKey_,
+        value.ref.pointer, forKey.ref.pointer);
+  }
+
+  /// Remove the tag for the specified key.
+  void removeTagForKey(objc.NSString key) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_removeTagForKey_, key.ref.pointer);
   }
 
   /// Set global extra -> these will be sent with every event

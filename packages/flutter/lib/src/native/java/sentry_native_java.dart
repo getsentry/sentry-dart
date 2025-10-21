@@ -346,6 +346,43 @@ class SentryNativeJava extends SentryNativeChannel {
       jKey.release();
     });
   }
+
+  @override
+  void setTag(String key, String value) {
+    JString jKey = key.toJString();
+    JString jVal = value.toJString();
+
+    tryCatchSync('setTag', () {
+      native.Sentry.configureScope(
+        native.ScopeCallback.implement(
+          native.$ScopeCallback(
+            run: (iScope) {
+              final scope = iScope.as(const native.$Scope$Type());
+              scope.setTag(jKey, jVal);
+            },
+          ),
+        ),
+      );
+    }, finallyFn: () {
+      jKey.release();
+      jVal.release();
+    });
+  }
+
+  @override
+  void removeTag(String key) {
+    JString jKey = key.toJString();
+
+    tryCatchSync('removeTag', () {
+      native.Sentry.configureScope(
+          native.ScopeCallback.implement(native.$ScopeCallback(run: (iScope) {
+        final scope = iScope.as(const native.$Scope$Type());
+        scope.removeTag(jKey);
+      })));
+    }, finallyFn: () {
+      jKey.release();
+    });
+  }
 }
 
 JObject? _dartToJObject(Object? value) => switch (value) {

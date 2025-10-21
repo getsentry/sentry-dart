@@ -661,6 +661,35 @@ void main() {
     expect(contexts!['extra'], isNull, reason: 'Extra are not null');
   });
 
+  testWidgets('setTag and removeTag sync to native', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    await Sentry.configureScope((scope) async {
+      scope.setTag('key1', 'randomValue');
+      scope.setTag('key2', '12');
+    });
+
+    var contexts = await SentryFlutter.native?.loadContexts();
+    final tags = contexts!['tags'];
+    expect(tags, isNotNull, reason: 'Tags are null');
+
+    expect(tags['key1'], 'randomValue', reason: 'key1 mismatch');
+    expect(tags['key2'], '12', reason: 'key2 mismatch');
+
+    await Sentry.configureScope((scope) async {
+      scope.removeTag('key1');
+      scope.removeTag('key2');
+    });
+
+    contexts = await SentryFlutter.native?.loadContexts();
+    if (Platform.isIOS) {
+      expect(contexts!['tags'], isNull, reason: 'Tags are not null');
+    } else if (Platform.isAndroid) {
+      expect(contexts!['tags'], isEmpty, reason: 'Tags are not empty');
+    }
+  });
   testWidgets('addBreadcrumb and clearBreadcrumbs sync to native',
       (tester) async {
     await restoreFlutterOnErrorAfter(() async {

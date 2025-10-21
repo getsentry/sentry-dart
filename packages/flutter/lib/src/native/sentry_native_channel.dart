@@ -158,11 +158,11 @@ class SentryNativeChannel
   }
 
   @override
-  Future<void> setTag(String key, String value) =>
+  FutureOr<void> setTag(String key, String value) =>
       channel.invokeMethod('setTag', {'key': key, 'value': value});
 
   @override
-  Future<void> removeTag(String key) =>
+  FutureOr<void> removeTag(String key) =>
       channel.invokeMethod('removeTag', {'key': key});
 
   @override
