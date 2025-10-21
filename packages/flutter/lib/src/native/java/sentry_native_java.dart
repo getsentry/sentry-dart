@@ -5,6 +5,7 @@ import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
+import '../../replay/replay_config.dart';
 import '../../replay/scheduled_recorder_config.dart';
 import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
@@ -409,6 +410,19 @@ class SentryNativeJava extends SentryNativeChannel {
     }
     return id;
   }
+
+  @override
+  void setReplayConfig(ReplayConfig config) =>
+      tryCatchSync('setReplayConfig', () {
+        native.SentryFlutterPlugin.setReplayConfig(
+          config.windowWidth,
+          config.windowHeight,
+          config.width,
+          config.height,
+          config.frameRate,
+          0, // we don't use bitRate currently
+        );
+      });
 }
 
 JObject? _dartToJObject(Object? value) => switch (value) {

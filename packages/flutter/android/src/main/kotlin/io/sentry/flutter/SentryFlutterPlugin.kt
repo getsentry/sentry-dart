@@ -61,8 +61,6 @@ class SentryFlutterPlugin :
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "closeNativeSdk" -> closeNativeSdk(result)
-      "setReplayConfig" -> setReplayConfig(call, result)
-      "captureReplay" -> captureReplay(result)
       else -> result.notImplemented()
     }
   }
@@ -332,6 +330,73 @@ class SentryFlutterPlugin :
       }
     }
 
+    @JvmStatic
+    fun setReplayConfig(
+      windowWidth: Double,
+      windowHeight: Double,
+      width: Double,
+      height: Double,
+      frameRate: Int,
+      bitRate: Int,
+    ) {
+      // Since codec block size is 16, so we have to adjust the width and height to it,
+      // otherwise the codec might fail to configure on some devices, see
+      // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
+      val invalidConfig =
+        width == 0.0 ||
+          height == 0.0 ||
+          windowWidth == 0.0 ||
+          windowHeight == 0.0
+
+      if (invalidConfig) {
+        Log.e(
+          "Sentry",
+          "Replay config is not valid: width: $width, height: $height, " +
+            "windowWidth: $windowWidth, windowHeight: $windowHeight",
+        )
+        return
+      }
+
+      var adjWidth = width
+      var adjHeight = height
+
+      // First update the smaller dimension, as changing that will affect the screen ratio more.
+      if (adjWidth < adjHeight) {
+        val newWidth = adjWidth.adjustReplaySizeToBlockSize()
+        val scale = newWidth / adjWidth
+        val newHeight = (adjHeight * scale).adjustReplaySizeToBlockSize()
+        adjWidth = newWidth
+        adjHeight = newHeight
+      } else {
+        val newHeight = adjHeight.adjustReplaySizeToBlockSize()
+        val scale = newHeight / adjHeight
+        val newWidth = (adjWidth * scale).adjustReplaySizeToBlockSize()
+        adjHeight = newHeight
+        adjWidth = newWidth
+      }
+
+      val replayConfig =
+        ScreenshotRecorderConfig(
+          recordingWidth = adjWidth.roundToInt(),
+          recordingHeight = adjHeight.roundToInt(),
+          scaleFactorX = adjWidth.toFloat() / windowWidth.toFloat(),
+          scaleFactorY = adjHeight.toFloat() / windowHeight.toFloat(),
+          frameRate = frameRate,
+          bitRate = bitRate,
+        )
+
+      Log.i(
+        "Sentry",
+        "Configuring replay: %dx%d at %d FPS, %d BPS".format(
+          replayConfig.recordingWidth,
+          replayConfig.recordingHeight,
+          replayConfig.frameRate,
+          replayConfig.bitRate,
+        ),
+      )
+      replay?.onConfigurationChanged(replayConfig)
+    }
+
     private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
 
     private fun DebugImage.serialize() =
@@ -353,74 +418,5 @@ class SentryFlutterPlugin :
         this + (VIDEO_BLOCK_SIZE - remainder)
       }
     }
-  }
-
-  private fun setReplayConfig(
-    call: MethodCall,
-    result: Result,
-  ) {
-    // Since codec block size is 16, so we have to adjust the width and height to it,
-    // otherwise the codec might fail to configure on some devices, see
-    // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
-    val windowWidth = call.argument("windowWidth") as? Double ?: 0.0
-    val windowHeight = call.argument("windowHeight") as? Double ?: 0.0
-
-    var width = call.argument("width") as? Double ?: 0.0
-    var height = call.argument("height") as? Double ?: 0.0
-
-    val invalidConfig =
-      width == 0.0 ||
-        height == 0.0 ||
-        windowWidth == 0.0 ||
-        windowHeight == 0.0
-
-    if (invalidConfig) {
-      result.error(
-        "5",
-        "Replay config is not valid: width: $width, height: $height, " +
-          "windowWidth: $windowWidth, windowHeight: $windowHeight",
-        null,
-      )
-      return
-    }
-
-    // First update the smaller dimension, as changing that will affect the screen ratio more.
-    if (width < height) {
-      val newWidth = width.adjustReplaySizeToBlockSize()
-      height = (height * (newWidth / width)).adjustReplaySizeToBlockSize()
-      width = newWidth
-    } else {
-      val newHeight = height.adjustReplaySizeToBlockSize()
-      width = (width * (newHeight / height)).adjustReplaySizeToBlockSize()
-      height = newHeight
-    }
-
-    val replayConfig =
-      ScreenshotRecorderConfig(
-        recordingWidth = width.roundToInt(),
-        recordingHeight = height.roundToInt(),
-        scaleFactorX = width.toFloat() / windowWidth.toFloat(),
-        scaleFactorY = height.toFloat() / windowHeight.toFloat(),
-        frameRate = call.argument("frameRate") as? Int ?: 0,
-        bitRate = call.argument("bitRate") as? Int ?: 0,
-      )
-    Log.i(
-      "Sentry",
-      "Configuring replay: %dx%d at %d FPS, %d BPS".format(
-        replayConfig.recordingWidth,
-        replayConfig.recordingHeight,
-        replayConfig.frameRate,
-        replayConfig.bitRate,
-      ),
-    )
-    replay?.onConfigurationChanged(replayConfig)
-    result.success("")
-  }
-
-  private fun captureReplay(
-    result: Result,
-  ) {
-    replay!!.captureReplay(isTerminating = false)
-    result.success(replay!!.getReplayId().toString())
   }
 }

@@ -83,14 +83,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             collectProfile(call, result)
         #endif
 
-        case "captureReplay":
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-            PrivateSentrySDKOnly.captureReplay()
-            result(PrivateSentrySDKOnly.getReplayId())
-#else
-            result(nil)
-#endif
-
         default:
             result(FlutterMethodNotImplemented)
         }

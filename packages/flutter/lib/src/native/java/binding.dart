@@ -1455,6 +1455,43 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
   }
 
+  static final _id_setReplayConfig = _class.instanceMethodId(
+    r'setReplayConfig',
+    r'(DDDDII)V',
+  );
+
+  static final _setReplayConfig = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Double,
+                        jni$_.Double,
+                        jni$_.Double,
+                        jni$_.Double,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, double, double, double, double, int, int)>();
+
+  /// from: `public final void setReplayConfig(double d, double d1, double d2, double d3, int i, int i1)`
+  void setReplayConfig(
+    double d,
+    double d1,
+    double d2,
+    double d3,
+    int i,
+    int i1,
+  ) {
+    _setReplayConfig(reference.pointer,
+            _id_setReplayConfig as jni$_.JMethodIDPtr, d, d1, d2, d3, i, i1)
+        .check();
+  }
+
   static final _id_new$ = _class.constructorId(
     r'(Lkotlin/jvm/internal/DefaultConstructorMarker;)V',
   );
@@ -1986,6 +2023,43 @@ class SentryFlutterPlugin extends jni$_.JObject {
     return _loadDebugImagesAsBytes(_class.reference.pointer,
             _id_loadDebugImagesAsBytes as jni$_.JMethodIDPtr, _$set.pointer)
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
+  }
+
+  static final _id_setReplayConfig = _class.staticMethodId(
+    r'setReplayConfig',
+    r'(DDDDII)V',
+  );
+
+  static final _setReplayConfig = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Double,
+                        jni$_.Double,
+                        jni$_.Double,
+                        jni$_.Double,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, double, double, double, double, int, int)>();
+
+  /// from: `static public final void setReplayConfig(double d, double d1, double d2, double d3, int i, int i1)`
+  static void setReplayConfig(
+    double d,
+    double d1,
+    double d2,
+    double d3,
+    int i,
+    int i1,
+  ) {
+    _setReplayConfig(_class.reference.pointer,
+            _id_setReplayConfig as jni$_.JMethodIDPtr, d, d1, d2, d3, i, i1)
+        .check();
   }
 }
 
