@@ -15,6 +15,8 @@ import 'android_envelope_sender.dart';
 import 'android_replay_recorder.dart';
 import 'binding.dart' as native;
 
+const _videoBlockSize = 16;
+
 @internal
 class SentryNativeJava extends SentryNativeChannel {
   AndroidReplayRecorder? _replayRecorder;
@@ -414,14 +416,49 @@ class SentryNativeJava extends SentryNativeChannel {
   @override
   void setReplayConfig(ReplayConfig config) =>
       tryCatchSync('setReplayConfig', () {
-        native.SentryFlutterPlugin.setReplayConfig(
-          config.windowWidth,
-          config.windowHeight,
-          config.width,
-          config.height,
+        final invalidConfig = config.width == 0.0 ||
+            config.height == 0.0 ||
+            config.windowWidth == 0.0 ||
+            config.windowHeight == 0.0;
+        if (invalidConfig) {
+          options.log(
+              SentryLevel.error,
+              'Replay config is not valid: '
+              'width: ${config.width}, '
+              'height: ${config.height}, '
+              'windowWidth: ${config.windowWidth}, '
+              'windowHeight: ${config.windowHeight}');
+          return;
+        }
+
+        var adjWidth = config.width;
+        var adjHeight = config.height;
+
+        // First update the smaller dimension, as changing that will affect the screen ratio more.
+        if (adjWidth < adjHeight) {
+          final newWidth = adjWidth.adjustReplaySizeToBlockSize();
+          final scale = newWidth / adjWidth;
+          final newHeight = (adjHeight * scale).adjustReplaySizeToBlockSize();
+          adjWidth = newWidth;
+          adjHeight = newHeight;
+        } else {
+          final newHeight = adjHeight.adjustReplaySizeToBlockSize();
+          final scale = newHeight / adjHeight;
+          final newWidth = (adjWidth * scale).adjustReplaySizeToBlockSize();
+          adjHeight = newHeight;
+          adjWidth = newWidth;
+        }
+
+        final replayConfig = native.ScreenshotRecorderConfig(
+          adjWidth.toInt(),
+          adjHeight.toInt(),
+          adjWidth / config.windowWidth,
+          adjHeight / config.windowHeight,
           config.frameRate,
-          0, // we don't use bitRate currently
+          0, // bitRate is currently not used
         );
+
+        _nativeReplay?.onConfigurationChanged(replayConfig);
       });
 }
 
@@ -448,4 +485,15 @@ JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json) {
     jmap[entry.key.toJString()] = _dartToJObject(entry.value);
   }
   return jmap;
+}
+
+extension _ReplaySizeAdjustment on double {
+  double adjustReplaySizeToBlockSize() {
+    final remainder = this % _videoBlockSize;
+    if (remainder <= _videoBlockSize / 2) {
+      return this - remainder;
+    } else {
+      return this + (_videoBlockSize - remainder);
+    }
+  }
 }

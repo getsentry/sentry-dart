@@ -1174,7 +1174,7 @@ class ReplayIntegration extends jni$_.JObject {
 
   /// from: `public final void onConfigurationChanged(io.sentry.android.replay.ScreenshotRecorderConfig screenshotRecorderConfig)`
   void onConfigurationChanged(
-    jni$_.JObject screenshotRecorderConfig,
+    ScreenshotRecorderConfig screenshotRecorderConfig,
   ) {
     final _$screenshotRecorderConfig = screenshotRecorderConfig.reference;
     _onConfigurationChanged(
@@ -1258,6 +1258,751 @@ final class $ReplayIntegration$Type extends jni$_.JObjType<ReplayIntegration> {
   bool operator ==(Object other) {
     return other.runtimeType == ($ReplayIntegration$Type) &&
         other is $ReplayIntegration$Type;
+  }
+}
+
+/// from: `io.sentry.android.replay.ScreenshotRecorderConfig$Companion`
+class ScreenshotRecorderConfig$Companion extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<ScreenshotRecorderConfig$Companion> $type;
+
+  @jni$_.internal
+  ScreenshotRecorderConfig$Companion.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(
+      r'io/sentry/android/replay/ScreenshotRecorderConfig$Companion');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType =
+      $ScreenshotRecorderConfig$Companion$NullableType();
+  static const type = $ScreenshotRecorderConfig$Companion$Type();
+  static final _id_fromSize = _class.instanceMethodId(
+    r'fromSize',
+    r'(Landroid/content/Context;Lio/sentry/SentryReplayOptions;II)Lio/sentry/android/replay/ScreenshotRecorderConfig;',
+  );
+
+  static final _fromSize = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              int)>();
+
+  /// from: `public final io.sentry.android.replay.ScreenshotRecorderConfig fromSize(android.content.Context context, io.sentry.SentryReplayOptions sentryReplayOptions, int i, int i1)`
+  /// The returned object must be released after use, by calling the [release] method.
+  ScreenshotRecorderConfig fromSize(
+    jni$_.JObject context,
+    jni$_.JObject sentryReplayOptions,
+    int i,
+    int i1,
+  ) {
+    final _$context = context.reference;
+    final _$sentryReplayOptions = sentryReplayOptions.reference;
+    return _fromSize(reference.pointer, _id_fromSize as jni$_.JMethodIDPtr,
+            _$context.pointer, _$sentryReplayOptions.pointer, i, i1)
+        .object<ScreenshotRecorderConfig>(
+            const $ScreenshotRecorderConfig$Type());
+  }
+
+  static final _id_new$ = _class.constructorId(
+    r'(Lkotlin/jvm/internal/DefaultConstructorMarker;)V',
+  );
+
+  static final _new$ = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `synthetic public void <init>(kotlin.jvm.internal.DefaultConstructorMarker defaultConstructorMarker)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ScreenshotRecorderConfig$Companion(
+    jni$_.JObject? defaultConstructorMarker,
+  ) {
+    final _$defaultConstructorMarker =
+        defaultConstructorMarker?.reference ?? jni$_.jNullReference;
+    return ScreenshotRecorderConfig$Companion.fromReference(_new$(
+            _class.reference.pointer,
+            _id_new$ as jni$_.JMethodIDPtr,
+            _$defaultConstructorMarker.pointer)
+        .reference);
+  }
+}
+
+final class $ScreenshotRecorderConfig$Companion$NullableType
+    extends jni$_.JObjType<ScreenshotRecorderConfig$Companion?> {
+  @jni$_.internal
+  const $ScreenshotRecorderConfig$Companion$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature =>
+      r'Lio/sentry/android/replay/ScreenshotRecorderConfig$Companion;';
+
+  @jni$_.internal
+  @core$_.override
+  ScreenshotRecorderConfig$Companion? fromReference(
+          jni$_.JReference reference) =>
+      reference.isNull
+          ? null
+          : ScreenshotRecorderConfig$Companion.fromReference(
+              reference,
+            );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<ScreenshotRecorderConfig$Companion?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode =>
+      ($ScreenshotRecorderConfig$Companion$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType ==
+            ($ScreenshotRecorderConfig$Companion$NullableType) &&
+        other is $ScreenshotRecorderConfig$Companion$NullableType;
+  }
+}
+
+final class $ScreenshotRecorderConfig$Companion$Type
+    extends jni$_.JObjType<ScreenshotRecorderConfig$Companion> {
+  @jni$_.internal
+  const $ScreenshotRecorderConfig$Companion$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature =>
+      r'Lio/sentry/android/replay/ScreenshotRecorderConfig$Companion;';
+
+  @jni$_.internal
+  @core$_.override
+  ScreenshotRecorderConfig$Companion fromReference(
+          jni$_.JReference reference) =>
+      ScreenshotRecorderConfig$Companion.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<ScreenshotRecorderConfig$Companion?> get nullableType =>
+      const $ScreenshotRecorderConfig$Companion$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($ScreenshotRecorderConfig$Companion$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($ScreenshotRecorderConfig$Companion$Type) &&
+        other is $ScreenshotRecorderConfig$Companion$Type;
+  }
+}
+
+/// from: `io.sentry.android.replay.ScreenshotRecorderConfig`
+class ScreenshotRecorderConfig extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<ScreenshotRecorderConfig> $type;
+
+  @jni$_.internal
+  ScreenshotRecorderConfig.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(
+      r'io/sentry/android/replay/ScreenshotRecorderConfig');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType = $ScreenshotRecorderConfig$NullableType();
+  static const type = $ScreenshotRecorderConfig$Type();
+  static final _id_Companion = _class.staticFieldId(
+    r'Companion',
+    r'Lio/sentry/android/replay/ScreenshotRecorderConfig$Companion;',
+  );
+
+  /// from: `static public final io.sentry.android.replay.ScreenshotRecorderConfig$Companion Companion`
+  /// The returned object must be released after use, by calling the [release] method.
+  static ScreenshotRecorderConfig$Companion get Companion => _id_Companion.get(
+      _class, const $ScreenshotRecorderConfig$Companion$Type());
+
+  static final _id_new$ = _class.constructorId(
+    r'(IIFFII)V',
+  );
+
+  static final _new$ = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Double,
+                        jni$_.Double,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, int, int, double, double, int, int)>();
+
+  /// from: `public void <init>(int i, int i1, float f, float f1, int i2, int i3)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ScreenshotRecorderConfig(
+    int i,
+    int i1,
+    double f,
+    double f1,
+    int i2,
+    int i3,
+  ) {
+    return ScreenshotRecorderConfig.fromReference(_new$(
+            _class.reference.pointer,
+            _id_new$ as jni$_.JMethodIDPtr,
+            i,
+            i1,
+            f,
+            f1,
+            i2,
+            i3)
+        .reference);
+  }
+
+  static final _id_getRecordingWidth = _class.instanceMethodId(
+    r'getRecordingWidth',
+    r'()I',
+  );
+
+  static final _getRecordingWidth = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final int getRecordingWidth()`
+  int getRecordingWidth() {
+    return _getRecordingWidth(
+            reference.pointer, _id_getRecordingWidth as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_getRecordingHeight = _class.instanceMethodId(
+    r'getRecordingHeight',
+    r'()I',
+  );
+
+  static final _getRecordingHeight = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final int getRecordingHeight()`
+  int getRecordingHeight() {
+    return _getRecordingHeight(
+            reference.pointer, _id_getRecordingHeight as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_getScaleFactorX = _class.instanceMethodId(
+    r'getScaleFactorX',
+    r'()F',
+  );
+
+  static final _getScaleFactorX = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallFloatMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final float getScaleFactorX()`
+  double getScaleFactorX() {
+    return _getScaleFactorX(
+            reference.pointer, _id_getScaleFactorX as jni$_.JMethodIDPtr)
+        .float;
+  }
+
+  static final _id_getScaleFactorY = _class.instanceMethodId(
+    r'getScaleFactorY',
+    r'()F',
+  );
+
+  static final _getScaleFactorY = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallFloatMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final float getScaleFactorY()`
+  double getScaleFactorY() {
+    return _getScaleFactorY(
+            reference.pointer, _id_getScaleFactorY as jni$_.JMethodIDPtr)
+        .float;
+  }
+
+  static final _id_getFrameRate = _class.instanceMethodId(
+    r'getFrameRate',
+    r'()I',
+  );
+
+  static final _getFrameRate = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final int getFrameRate()`
+  int getFrameRate() {
+    return _getFrameRate(
+            reference.pointer, _id_getFrameRate as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_getBitRate = _class.instanceMethodId(
+    r'getBitRate',
+    r'()I',
+  );
+
+  static final _getBitRate = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final int getBitRate()`
+  int getBitRate() {
+    return _getBitRate(reference.pointer, _id_getBitRate as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_new$1 = _class.constructorId(
+    r'(FF)V',
+  );
+
+  static final _new$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Double, jni$_.Double)>)>>(
+          'globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, double, double)>();
+
+  /// from: `public void <init>(float f, float f1)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory ScreenshotRecorderConfig.new$1(
+    double f,
+    double f1,
+  ) {
+    return ScreenshotRecorderConfig.fromReference(
+        _new$1(_class.reference.pointer, _id_new$1 as jni$_.JMethodIDPtr, f, f1)
+            .reference);
+  }
+
+  static final _id_component1 = _class.instanceMethodId(
+    r'component1',
+    r'()I',
+  );
+
+  static final _component1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final int component1()`
+  int component1() {
+    return _component1(reference.pointer, _id_component1 as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_component2 = _class.instanceMethodId(
+    r'component2',
+    r'()I',
+  );
+
+  static final _component2 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final int component2()`
+  int component2() {
+    return _component2(reference.pointer, _id_component2 as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_component3 = _class.instanceMethodId(
+    r'component3',
+    r'()F',
+  );
+
+  static final _component3 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallFloatMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final float component3()`
+  double component3() {
+    return _component3(reference.pointer, _id_component3 as jni$_.JMethodIDPtr)
+        .float;
+  }
+
+  static final _id_component4 = _class.instanceMethodId(
+    r'component4',
+    r'()F',
+  );
+
+  static final _component4 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallFloatMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final float component4()`
+  double component4() {
+    return _component4(reference.pointer, _id_component4 as jni$_.JMethodIDPtr)
+        .float;
+  }
+
+  static final _id_component5 = _class.instanceMethodId(
+    r'component5',
+    r'()I',
+  );
+
+  static final _component5 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final int component5()`
+  int component5() {
+    return _component5(reference.pointer, _id_component5 as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_component6 = _class.instanceMethodId(
+    r'component6',
+    r'()I',
+  );
+
+  static final _component6 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final int component6()`
+  int component6() {
+    return _component6(reference.pointer, _id_component6 as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_copy = _class.instanceMethodId(
+    r'copy',
+    r'(IIFFII)Lio/sentry/android/replay/ScreenshotRecorderConfig;',
+  );
+
+  static final _copy = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Double,
+                        jni$_.Double,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, int, int, double, double, int, int)>();
+
+  /// from: `public final io.sentry.android.replay.ScreenshotRecorderConfig copy(int i, int i1, float f, float f1, int i2, int i3)`
+  /// The returned object must be released after use, by calling the [release] method.
+  ScreenshotRecorderConfig copy(
+    int i,
+    int i1,
+    double f,
+    double f1,
+    int i2,
+    int i3,
+  ) {
+    return _copy(reference.pointer, _id_copy as jni$_.JMethodIDPtr, i, i1, f,
+            f1, i2, i3)
+        .object<ScreenshotRecorderConfig>(
+            const $ScreenshotRecorderConfig$Type());
+  }
+
+  static final _id_toString$1 = _class.instanceMethodId(
+    r'toString',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _toString$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String toString()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString toString$1() {
+    return _toString$1(reference.pointer, _id_toString$1 as jni$_.JMethodIDPtr)
+        .object<jni$_.JString>(const jni$_.JStringType());
+  }
+
+  static final _id_hashCode$1 = _class.instanceMethodId(
+    r'hashCode',
+    r'()I',
+  );
+
+  static final _hashCode$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public int hashCode()`
+  int hashCode$1() {
+    return _hashCode$1(reference.pointer, _id_hashCode$1 as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_equals = _class.instanceMethodId(
+    r'equals',
+    r'(Ljava/lang/Object;)Z',
+  );
+
+  static final _equals = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public boolean equals(java.lang.Object object)`
+  bool equals(
+    jni$_.JObject? object,
+  ) {
+    final _$object = object?.reference ?? jni$_.jNullReference;
+    return _equals(reference.pointer, _id_equals as jni$_.JMethodIDPtr,
+            _$object.pointer)
+        .boolean;
+  }
+}
+
+final class $ScreenshotRecorderConfig$NullableType
+    extends jni$_.JObjType<ScreenshotRecorderConfig?> {
+  @jni$_.internal
+  const $ScreenshotRecorderConfig$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature =>
+      r'Lio/sentry/android/replay/ScreenshotRecorderConfig;';
+
+  @jni$_.internal
+  @core$_.override
+  ScreenshotRecorderConfig? fromReference(jni$_.JReference reference) =>
+      reference.isNull
+          ? null
+          : ScreenshotRecorderConfig.fromReference(
+              reference,
+            );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<ScreenshotRecorderConfig?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($ScreenshotRecorderConfig$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($ScreenshotRecorderConfig$NullableType) &&
+        other is $ScreenshotRecorderConfig$NullableType;
+  }
+}
+
+final class $ScreenshotRecorderConfig$Type
+    extends jni$_.JObjType<ScreenshotRecorderConfig> {
+  @jni$_.internal
+  const $ScreenshotRecorderConfig$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature =>
+      r'Lio/sentry/android/replay/ScreenshotRecorderConfig;';
+
+  @jni$_.internal
+  @core$_.override
+  ScreenshotRecorderConfig fromReference(jni$_.JReference reference) =>
+      ScreenshotRecorderConfig.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<ScreenshotRecorderConfig?> get nullableType =>
+      const $ScreenshotRecorderConfig$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($ScreenshotRecorderConfig$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($ScreenshotRecorderConfig$Type) &&
+        other is $ScreenshotRecorderConfig$Type;
   }
 }
 
@@ -1453,43 +2198,6 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
     return _loadDebugImagesAsBytes(reference.pointer,
             _id_loadDebugImagesAsBytes as jni$_.JMethodIDPtr, _$set.pointer)
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
-  }
-
-  static final _id_setReplayConfig = _class.instanceMethodId(
-    r'setReplayConfig',
-    r'(DDDDII)V',
-  );
-
-  static final _setReplayConfig = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Double,
-                        jni$_.Double,
-                        jni$_.Double,
-                        jni$_.Double,
-                        jni$_.Int32,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, double, double, double, double, int, int)>();
-
-  /// from: `public final void setReplayConfig(double d, double d1, double d2, double d3, int i, int i1)`
-  void setReplayConfig(
-    double d,
-    double d1,
-    double d2,
-    double d3,
-    int i,
-    int i1,
-  ) {
-    _setReplayConfig(reference.pointer,
-            _id_setReplayConfig as jni$_.JMethodIDPtr, d, d1, d2, d3, i, i1)
-        .check();
   }
 
   static final _id_new$ = _class.constructorId(
@@ -2023,43 +2731,6 @@ class SentryFlutterPlugin extends jni$_.JObject {
     return _loadDebugImagesAsBytes(_class.reference.pointer,
             _id_loadDebugImagesAsBytes as jni$_.JMethodIDPtr, _$set.pointer)
         .object<jni$_.JByteArray?>(const jni$_.JByteArrayNullableType());
-  }
-
-  static final _id_setReplayConfig = _class.staticMethodId(
-    r'setReplayConfig',
-    r'(DDDDII)V',
-  );
-
-  static final _setReplayConfig = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Double,
-                        jni$_.Double,
-                        jni$_.Double,
-                        jni$_.Double,
-                        jni$_.Int32,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallStaticVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, double, double, double, double, int, int)>();
-
-  /// from: `static public final void setReplayConfig(double d, double d1, double d2, double d3, int i, int i1)`
-  static void setReplayConfig(
-    double d,
-    double d1,
-    double d2,
-    double d3,
-    int i,
-    int i1,
-  ) {
-    _setReplayConfig(_class.reference.pointer,
-            _id_setReplayConfig as jni$_.JMethodIDPtr, d, d1, d2, d3, i, i1)
-        .check();
   }
 }
 
