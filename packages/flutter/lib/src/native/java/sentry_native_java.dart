@@ -18,6 +18,7 @@ import 'binding.dart' as native;
 class SentryNativeJava extends SentryNativeChannel {
   AndroidReplayRecorder? _replayRecorder;
   AndroidEnvelopeSender? _envelopeSender;
+  native.ReplayIntegration? _nativeReplay;
 
   SentryNativeJava(super.options);
 
@@ -34,7 +35,8 @@ class SentryNativeJava extends SentryNativeChannel {
           case 'ReplayRecorder.start':
             final replayId =
                 SentryId.fromId(call.arguments['replayId'] as String);
-
+            _nativeReplay = native.SentryFlutterPlugin.Companion
+                .privateSentryGetReplayIntegration();
             _replayRecorder = AndroidReplayRecorder.factory(options);
             await _replayRecorder!.start();
             hub.configureScope((s) {
@@ -382,6 +384,30 @@ class SentryNativeJava extends SentryNativeChannel {
     }, finallyFn: () {
       jKey.release();
     });
+  }
+
+  @override
+  SentryId captureReplay() {
+    JString? jString;
+
+    final id = tryCatchSync('captureReplay', () {
+      // The passed parameter is `isTerminating`
+      _nativeReplay?.captureReplay(false.toJBoolean());
+      jString = _nativeReplay?.getReplayId().toString$1();
+
+      if (jString == null) {
+        return SentryId.empty();
+      } else {
+        return SentryId.fromId(jString!.toDartString());
+      }
+    }, finallyFn: () {
+      jString?.release();
+    });
+
+    if (id == null) {
+      return SentryId.empty();
+    }
+    return id;
   }
 }
 

@@ -274,6 +274,15 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   //
   // Purpose: Called from the Flutter plugin's native bridge (FFI) - bindings are created from SentryFlutterPlugin.h
 
+  @objc public class func captureReplay() -> String? {
+    #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+    PrivateSentrySDKOnly.captureReplay()
+    return PrivateSentrySDKOnly.getReplayId()
+    #else
+    return nil
+    #endif
+  }
+
   #if os(iOS)
   // Taken from the Flutter engine:
   // https://github.com/flutter/engine/blob/main/shell/platform/darwin/ios/framework/Source/vsync_waiter_ios.mm#L150

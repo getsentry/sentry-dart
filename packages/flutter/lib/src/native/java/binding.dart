@@ -167,14 +167,14 @@ class InternalSentrySdk extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureEnvelope(byte[] bs, boolean z)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject? captureEnvelope(
+  static SentryId? captureEnvelope(
     jni$_.JByteArray bs,
     bool z,
   ) {
     final _$bs = bs.reference;
     return _captureEnvelope(_class.reference.pointer,
             _id_captureEnvelope as jni$_.JMethodIDPtr, _$bs.pointer, z ? 1 : 0)
-        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+        .object<SentryId?>(const $SentryId$NullableType());
   }
 
   static final _id_getAppStartMeasurement = _class.staticMethodId(
@@ -797,10 +797,10 @@ class ReplayIntegration extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId getReplayId()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject getReplayId() {
+  SentryId getReplayId() {
     return _getReplayId(
             reference.pointer, _id_getReplayId as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_setBreadcrumbConverter = _class.instanceMethodId(
@@ -2853,13 +2853,13 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureEvent(io.sentry.SentryEvent sentryEvent)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureEvent(
+  static SentryId captureEvent(
     jni$_.JObject sentryEvent,
   ) {
     final _$sentryEvent = sentryEvent.reference;
     return _captureEvent(_class.reference.pointer,
             _id_captureEvent as jni$_.JMethodIDPtr, _$sentryEvent.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureEvent$1 = _class.staticMethodId(
@@ -2886,7 +2886,7 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureEvent(io.sentry.SentryEvent sentryEvent, io.sentry.ScopeCallback scopeCallback)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureEvent$1(
+  static SentryId captureEvent$1(
     jni$_.JObject sentryEvent,
     ScopeCallback scopeCallback,
   ) {
@@ -2897,7 +2897,7 @@ class Sentry extends jni$_.JObject {
             _id_captureEvent$1 as jni$_.JMethodIDPtr,
             _$sentryEvent.pointer,
             _$scopeCallback.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureEvent$2 = _class.staticMethodId(
@@ -2924,7 +2924,7 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureEvent(io.sentry.SentryEvent sentryEvent, io.sentry.Hint hint)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureEvent$2(
+  static SentryId captureEvent$2(
     jni$_.JObject sentryEvent,
     jni$_.JObject? hint,
   ) {
@@ -2935,7 +2935,7 @@ class Sentry extends jni$_.JObject {
             _id_captureEvent$2 as jni$_.JMethodIDPtr,
             _$sentryEvent.pointer,
             _$hint.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureEvent$3 = _class.staticMethodId(
@@ -2964,7 +2964,7 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureEvent(io.sentry.SentryEvent sentryEvent, io.sentry.Hint hint, io.sentry.ScopeCallback scopeCallback)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureEvent$3(
+  static SentryId captureEvent$3(
     jni$_.JObject sentryEvent,
     jni$_.JObject? hint,
     ScopeCallback scopeCallback,
@@ -2978,7 +2978,7 @@ class Sentry extends jni$_.JObject {
             _$sentryEvent.pointer,
             _$hint.pointer,
             _$scopeCallback.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureMessage = _class.staticMethodId(
@@ -2999,13 +2999,13 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureMessage(java.lang.String string)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureMessage(
+  static SentryId captureMessage(
     jni$_.JString string,
   ) {
     final _$string = string.reference;
     return _captureMessage(_class.reference.pointer,
             _id_captureMessage as jni$_.JMethodIDPtr, _$string.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureMessage$1 = _class.staticMethodId(
@@ -3032,7 +3032,7 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureMessage(java.lang.String string, io.sentry.ScopeCallback scopeCallback)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureMessage$1(
+  static SentryId captureMessage$1(
     jni$_.JString string,
     ScopeCallback scopeCallback,
   ) {
@@ -3043,7 +3043,7 @@ class Sentry extends jni$_.JObject {
             _id_captureMessage$1 as jni$_.JMethodIDPtr,
             _$string.pointer,
             _$scopeCallback.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureMessage$2 = _class.staticMethodId(
@@ -3070,7 +3070,7 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureMessage(java.lang.String string, io.sentry.SentryLevel sentryLevel)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureMessage$2(
+  static SentryId captureMessage$2(
     jni$_.JString string,
     jni$_.JObject sentryLevel,
   ) {
@@ -3081,7 +3081,7 @@ class Sentry extends jni$_.JObject {
             _id_captureMessage$2 as jni$_.JMethodIDPtr,
             _$string.pointer,
             _$sentryLevel.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureMessage$3 = _class.staticMethodId(
@@ -3110,7 +3110,7 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureMessage(java.lang.String string, io.sentry.SentryLevel sentryLevel, io.sentry.ScopeCallback scopeCallback)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureMessage$3(
+  static SentryId captureMessage$3(
     jni$_.JString string,
     jni$_.JObject sentryLevel,
     ScopeCallback scopeCallback,
@@ -3124,7 +3124,7 @@ class Sentry extends jni$_.JObject {
             _$string.pointer,
             _$sentryLevel.pointer,
             _$scopeCallback.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureFeedback = _class.staticMethodId(
@@ -3145,13 +3145,13 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureFeedback(io.sentry.protocol.Feedback feedback)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureFeedback(
+  static SentryId captureFeedback(
     jni$_.JObject feedback,
   ) {
     final _$feedback = feedback.reference;
     return _captureFeedback(_class.reference.pointer,
             _id_captureFeedback as jni$_.JMethodIDPtr, _$feedback.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureFeedback$1 = _class.staticMethodId(
@@ -3178,7 +3178,7 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureFeedback(io.sentry.protocol.Feedback feedback, io.sentry.Hint hint)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureFeedback$1(
+  static SentryId captureFeedback$1(
     jni$_.JObject feedback,
     jni$_.JObject? hint,
   ) {
@@ -3189,7 +3189,7 @@ class Sentry extends jni$_.JObject {
             _id_captureFeedback$1 as jni$_.JMethodIDPtr,
             _$feedback.pointer,
             _$hint.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureFeedback$2 = _class.staticMethodId(
@@ -3218,7 +3218,7 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureFeedback(io.sentry.protocol.Feedback feedback, io.sentry.Hint hint, io.sentry.ScopeCallback scopeCallback)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureFeedback$2(
+  static SentryId captureFeedback$2(
     jni$_.JObject feedback,
     jni$_.JObject? hint,
     ScopeCallback? scopeCallback,
@@ -3232,7 +3232,7 @@ class Sentry extends jni$_.JObject {
             _$feedback.pointer,
             _$hint.pointer,
             _$scopeCallback.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureException = _class.staticMethodId(
@@ -3253,13 +3253,13 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureException(java.lang.Throwable throwable)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureException(
+  static SentryId captureException(
     jni$_.JObject throwable,
   ) {
     final _$throwable = throwable.reference;
     return _captureException(_class.reference.pointer,
             _id_captureException as jni$_.JMethodIDPtr, _$throwable.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureException$1 = _class.staticMethodId(
@@ -3286,7 +3286,7 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureException(java.lang.Throwable throwable, io.sentry.ScopeCallback scopeCallback)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureException$1(
+  static SentryId captureException$1(
     jni$_.JObject throwable,
     ScopeCallback scopeCallback,
   ) {
@@ -3297,7 +3297,7 @@ class Sentry extends jni$_.JObject {
             _id_captureException$1 as jni$_.JMethodIDPtr,
             _$throwable.pointer,
             _$scopeCallback.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureException$2 = _class.staticMethodId(
@@ -3324,7 +3324,7 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureException(java.lang.Throwable throwable, io.sentry.Hint hint)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureException$2(
+  static SentryId captureException$2(
     jni$_.JObject throwable,
     jni$_.JObject? hint,
   ) {
@@ -3335,7 +3335,7 @@ class Sentry extends jni$_.JObject {
             _id_captureException$2 as jni$_.JMethodIDPtr,
             _$throwable.pointer,
             _$hint.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureException$3 = _class.staticMethodId(
@@ -3364,7 +3364,7 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureException(java.lang.Throwable throwable, io.sentry.Hint hint, io.sentry.ScopeCallback scopeCallback)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureException$3(
+  static SentryId captureException$3(
     jni$_.JObject throwable,
     jni$_.JObject? hint,
     ScopeCallback scopeCallback,
@@ -3378,7 +3378,7 @@ class Sentry extends jni$_.JObject {
             _$throwable.pointer,
             _$hint.pointer,
             _$scopeCallback.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureUserFeedback = _class.staticMethodId(
@@ -3802,10 +3802,10 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId getLastEventId()`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject getLastEventId() {
+  static SentryId getLastEventId() {
     return _getLastEventId(
             _class.reference.pointer, _id_getLastEventId as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_pushScope = _class.staticMethodId(
@@ -4540,13 +4540,13 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.protocol.SentryId captureCheckIn(io.sentry.CheckIn checkIn)`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject captureCheckIn(
+  static SentryId captureCheckIn(
     jni$_.JObject checkIn,
   ) {
     final _$checkIn = checkIn.reference;
     return _captureCheckIn(_class.reference.pointer,
             _id_captureCheckIn as jni$_.JMethodIDPtr, _$checkIn.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_logger = _class.staticMethodId(
@@ -4674,7 +4674,7 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public void showUserFeedbackDialog(io.sentry.protocol.SentryId sentryId, io.sentry.SentryFeedbackOptions$OptionsConfigurator optionsConfigurator)`
   static void showUserFeedbackDialog$2(
-    jni$_.JObject? sentryId,
+    SentryId? sentryId,
     jni$_.JObject? optionsConfigurator,
   ) {
     final _$sentryId = sentryId?.reference ?? jni$_.jNullReference;
@@ -6588,7 +6588,7 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureEvent(io.sentry.SentryEvent sentryEvent, io.sentry.Hint hint)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureEvent(
+  SentryId captureEvent(
     jni$_.JObject sentryEvent,
     jni$_.JObject? hint,
   ) {
@@ -6599,7 +6599,7 @@ class ScopesAdapter extends jni$_.JObject {
             _id_captureEvent as jni$_.JMethodIDPtr,
             _$sentryEvent.pointer,
             _$hint.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureEvent$1 = _class.instanceMethodId(
@@ -6628,7 +6628,7 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureEvent(io.sentry.SentryEvent sentryEvent, io.sentry.Hint hint, io.sentry.ScopeCallback scopeCallback)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureEvent$1(
+  SentryId captureEvent$1(
     jni$_.JObject sentryEvent,
     jni$_.JObject? hint,
     ScopeCallback scopeCallback,
@@ -6642,7 +6642,7 @@ class ScopesAdapter extends jni$_.JObject {
             _$sentryEvent.pointer,
             _$hint.pointer,
             _$scopeCallback.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureMessage = _class.instanceMethodId(
@@ -6669,7 +6669,7 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureMessage(java.lang.String string, io.sentry.SentryLevel sentryLevel)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureMessage(
+  SentryId captureMessage(
     jni$_.JString string,
     jni$_.JObject sentryLevel,
   ) {
@@ -6680,7 +6680,7 @@ class ScopesAdapter extends jni$_.JObject {
             _id_captureMessage as jni$_.JMethodIDPtr,
             _$string.pointer,
             _$sentryLevel.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureMessage$1 = _class.instanceMethodId(
@@ -6709,7 +6709,7 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureMessage(java.lang.String string, io.sentry.SentryLevel sentryLevel, io.sentry.ScopeCallback scopeCallback)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureMessage$1(
+  SentryId captureMessage$1(
     jni$_.JString string,
     jni$_.JObject sentryLevel,
     ScopeCallback scopeCallback,
@@ -6723,7 +6723,7 @@ class ScopesAdapter extends jni$_.JObject {
             _$string.pointer,
             _$sentryLevel.pointer,
             _$scopeCallback.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureFeedback = _class.instanceMethodId(
@@ -6744,13 +6744,13 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureFeedback(io.sentry.protocol.Feedback feedback)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureFeedback(
+  SentryId captureFeedback(
     jni$_.JObject feedback,
   ) {
     final _$feedback = feedback.reference;
     return _captureFeedback(reference.pointer,
             _id_captureFeedback as jni$_.JMethodIDPtr, _$feedback.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureFeedback$1 = _class.instanceMethodId(
@@ -6777,7 +6777,7 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureFeedback(io.sentry.protocol.Feedback feedback, io.sentry.Hint hint)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureFeedback$1(
+  SentryId captureFeedback$1(
     jni$_.JObject feedback,
     jni$_.JObject? hint,
   ) {
@@ -6788,7 +6788,7 @@ class ScopesAdapter extends jni$_.JObject {
             _id_captureFeedback$1 as jni$_.JMethodIDPtr,
             _$feedback.pointer,
             _$hint.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureFeedback$2 = _class.instanceMethodId(
@@ -6817,7 +6817,7 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureFeedback(io.sentry.protocol.Feedback feedback, io.sentry.Hint hint, io.sentry.ScopeCallback scopeCallback)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureFeedback$2(
+  SentryId captureFeedback$2(
     jni$_.JObject feedback,
     jni$_.JObject? hint,
     ScopeCallback? scopeCallback,
@@ -6831,7 +6831,7 @@ class ScopesAdapter extends jni$_.JObject {
             _$feedback.pointer,
             _$hint.pointer,
             _$scopeCallback.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureEnvelope = _class.instanceMethodId(
@@ -6858,7 +6858,7 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureEnvelope(io.sentry.SentryEnvelope sentryEnvelope, io.sentry.Hint hint)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureEnvelope(
+  SentryId captureEnvelope(
     jni$_.JObject sentryEnvelope,
     jni$_.JObject? hint,
   ) {
@@ -6869,7 +6869,7 @@ class ScopesAdapter extends jni$_.JObject {
             _id_captureEnvelope as jni$_.JMethodIDPtr,
             _$sentryEnvelope.pointer,
             _$hint.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureException = _class.instanceMethodId(
@@ -6896,7 +6896,7 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureException(java.lang.Throwable throwable, io.sentry.Hint hint)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureException(
+  SentryId captureException(
     jni$_.JObject throwable,
     jni$_.JObject? hint,
   ) {
@@ -6907,7 +6907,7 @@ class ScopesAdapter extends jni$_.JObject {
             _id_captureException as jni$_.JMethodIDPtr,
             _$throwable.pointer,
             _$hint.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureException$1 = _class.instanceMethodId(
@@ -6936,7 +6936,7 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureException(java.lang.Throwable throwable, io.sentry.Hint hint, io.sentry.ScopeCallback scopeCallback)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureException$1(
+  SentryId captureException$1(
     jni$_.JObject throwable,
     jni$_.JObject? hint,
     ScopeCallback scopeCallback,
@@ -6950,7 +6950,7 @@ class ScopesAdapter extends jni$_.JObject {
             _$throwable.pointer,
             _$hint.pointer,
             _$scopeCallback.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureUserFeedback = _class.instanceMethodId(
@@ -7399,10 +7399,10 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId getLastEventId()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject getLastEventId() {
+  SentryId getLastEventId() {
     return _getLastEventId(
             reference.pointer, _id_getLastEventId as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_pushScope = _class.instanceMethodId(
@@ -7918,7 +7918,7 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureTransaction(io.sentry.protocol.SentryTransaction sentryTransaction, io.sentry.TraceContext traceContext, io.sentry.Hint hint, io.sentry.ProfilingTraceData profilingTraceData)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureTransaction(
+  SentryId captureTransaction(
     jni$_.JObject sentryTransaction,
     jni$_.JObject? traceContext,
     jni$_.JObject? hint,
@@ -7936,7 +7936,7 @@ class ScopesAdapter extends jni$_.JObject {
             _$traceContext.pointer,
             _$hint.pointer,
             _$profilingTraceData.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_captureProfileChunk = _class.instanceMethodId(
@@ -7957,7 +7957,7 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureProfileChunk(io.sentry.ProfileChunk profileChunk)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureProfileChunk(
+  SentryId captureProfileChunk(
     jni$_.JObject profileChunk,
   ) {
     final _$profileChunk = profileChunk.reference;
@@ -7965,7 +7965,7 @@ class ScopesAdapter extends jni$_.JObject {
             reference.pointer,
             _id_captureProfileChunk as jni$_.JMethodIDPtr,
             _$profileChunk.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_startTransaction = _class.instanceMethodId(
@@ -8343,13 +8343,13 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureCheckIn(io.sentry.CheckIn checkIn)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureCheckIn(
+  SentryId captureCheckIn(
     jni$_.JObject checkIn,
   ) {
     final _$checkIn = checkIn.reference;
     return _captureCheckIn(reference.pointer,
             _id_captureCheckIn as jni$_.JMethodIDPtr, _$checkIn.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_getRateLimiter = _class.instanceMethodId(
@@ -8401,7 +8401,7 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId captureReplay(io.sentry.SentryReplayEvent sentryReplayEvent, io.sentry.Hint hint)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject captureReplay(
+  SentryId captureReplay(
     jni$_.JObject sentryReplayEvent,
     jni$_.JObject? hint,
   ) {
@@ -8412,7 +8412,7 @@ class ScopesAdapter extends jni$_.JObject {
             _id_captureReplay as jni$_.JMethodIDPtr,
             _$sentryReplayEvent.pointer,
             _$hint.pointer)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_logger = _class.instanceMethodId(
@@ -9304,10 +9304,10 @@ class Scope extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId getReplayId()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject getReplayId() {
+  SentryId getReplayId() {
     return _getReplayId(
             reference.pointer, _id_getReplayId as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_setReplayId = _class.instanceMethodId(
@@ -9328,7 +9328,7 @@ class Scope extends jni$_.JObject {
 
   /// from: `public void setReplayId(io.sentry.protocol.SentryId sentryId)`
   void setReplayId(
-    jni$_.JObject sentryId,
+    SentryId sentryId,
   ) {
     final _$sentryId = sentryId.reference;
     _setReplayId(reference.pointer, _id_setReplayId as jni$_.JMethodIDPtr,
@@ -10535,7 +10535,7 @@ class Scope extends jni$_.JObject {
 
   /// from: `public void setLastEventId(io.sentry.protocol.SentryId sentryId)`
   void setLastEventId(
-    jni$_.JObject sentryId,
+    SentryId sentryId,
   ) {
     final _$sentryId = sentryId.reference;
     _setLastEventId(reference.pointer, _id_setLastEventId as jni$_.JMethodIDPtr,
@@ -10562,10 +10562,10 @@ class Scope extends jni$_.JObject {
 
   /// from: `public io.sentry.protocol.SentryId getLastEventId()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject getLastEventId() {
+  SentryId getLastEventId() {
     return _getLastEventId(
             reference.pointer, _id_getLastEventId as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject>(const jni$_.JObjectType());
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_bindClient = _class.instanceMethodId(
@@ -12002,6 +12002,446 @@ final class $User$Type extends jni$_.JObjType<User> {
   @core$_.override
   bool operator ==(Object other) {
     return other.runtimeType == ($User$Type) && other is $User$Type;
+  }
+}
+
+/// from: `io.sentry.protocol.SentryId$Deserializer`
+class SentryId$Deserializer extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<SentryId$Deserializer> $type;
+
+  @jni$_.internal
+  SentryId$Deserializer.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class =
+      jni$_.JClass.forName(r'io/sentry/protocol/SentryId$Deserializer');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType = $SentryId$Deserializer$NullableType();
+  static const type = $SentryId$Deserializer$Type();
+  static final _id_new$ = _class.constructorId(
+    r'()V',
+  );
+
+  static final _new$ = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void <init>()`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory SentryId$Deserializer() {
+    return SentryId$Deserializer.fromReference(
+        _new$(_class.reference.pointer, _id_new$ as jni$_.JMethodIDPtr)
+            .reference);
+  }
+
+  static final _id_deserialize = _class.instanceMethodId(
+    r'deserialize',
+    r'(Lio/sentry/ObjectReader;Lio/sentry/ILogger;)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _deserialize = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public io.sentry.protocol.SentryId deserialize(io.sentry.ObjectReader objectReader, io.sentry.ILogger iLogger)`
+  /// The returned object must be released after use, by calling the [release] method.
+  SentryId deserialize(
+    jni$_.JObject objectReader,
+    jni$_.JObject iLogger,
+  ) {
+    final _$objectReader = objectReader.reference;
+    final _$iLogger = iLogger.reference;
+    return _deserialize(
+            reference.pointer,
+            _id_deserialize as jni$_.JMethodIDPtr,
+            _$objectReader.pointer,
+            _$iLogger.pointer)
+        .object<SentryId>(const $SentryId$Type());
+  }
+}
+
+final class $SentryId$Deserializer$NullableType
+    extends jni$_.JObjType<SentryId$Deserializer?> {
+  @jni$_.internal
+  const $SentryId$Deserializer$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/protocol/SentryId$Deserializer;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryId$Deserializer? fromReference(jni$_.JReference reference) =>
+      reference.isNull
+          ? null
+          : SentryId$Deserializer.fromReference(
+              reference,
+            );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<SentryId$Deserializer?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($SentryId$Deserializer$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($SentryId$Deserializer$NullableType) &&
+        other is $SentryId$Deserializer$NullableType;
+  }
+}
+
+final class $SentryId$Deserializer$Type
+    extends jni$_.JObjType<SentryId$Deserializer> {
+  @jni$_.internal
+  const $SentryId$Deserializer$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/protocol/SentryId$Deserializer;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryId$Deserializer fromReference(jni$_.JReference reference) =>
+      SentryId$Deserializer.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<SentryId$Deserializer?> get nullableType =>
+      const $SentryId$Deserializer$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($SentryId$Deserializer$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($SentryId$Deserializer$Type) &&
+        other is $SentryId$Deserializer$Type;
+  }
+}
+
+/// from: `io.sentry.protocol.SentryId`
+class SentryId extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<SentryId> $type;
+
+  @jni$_.internal
+  SentryId.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(r'io/sentry/protocol/SentryId');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType = $SentryId$NullableType();
+  static const type = $SentryId$Type();
+  static final _id_EMPTY_ID = _class.staticFieldId(
+    r'EMPTY_ID',
+    r'Lio/sentry/protocol/SentryId;',
+  );
+
+  /// from: `static public final io.sentry.protocol.SentryId EMPTY_ID`
+  /// The returned object must be released after use, by calling the [release] method.
+  static SentryId? get EMPTY_ID =>
+      _id_EMPTY_ID.get(_class, const $SentryId$NullableType());
+
+  static final _id_new$ = _class.constructorId(
+    r'()V',
+  );
+
+  static final _new$ = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void <init>()`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory SentryId() {
+    return SentryId.fromReference(
+        _new$(_class.reference.pointer, _id_new$ as jni$_.JMethodIDPtr)
+            .reference);
+  }
+
+  static final _id_new$1 = _class.constructorId(
+    r'(Ljava/util/UUID;)V',
+  );
+
+  static final _new$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void <init>(java.util.UUID uUID)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory SentryId.new$1(
+    jni$_.JObject? uUID,
+  ) {
+    final _$uUID = uUID?.reference ?? jni$_.jNullReference;
+    return SentryId.fromReference(_new$1(_class.reference.pointer,
+            _id_new$1 as jni$_.JMethodIDPtr, _$uUID.pointer)
+        .reference);
+  }
+
+  static final _id_new$2 = _class.constructorId(
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _new$2 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void <init>(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory SentryId.new$2(
+    jni$_.JString string,
+  ) {
+    final _$string = string.reference;
+    return SentryId.fromReference(_new$2(_class.reference.pointer,
+            _id_new$2 as jni$_.JMethodIDPtr, _$string.pointer)
+        .reference);
+  }
+
+  static final _id_toString$1 = _class.instanceMethodId(
+    r'toString',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _toString$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String toString()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? toString$1() {
+    return _toString$1(reference.pointer, _id_toString$1 as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.JStringNullableType());
+  }
+
+  static final _id_equals = _class.instanceMethodId(
+    r'equals',
+    r'(Ljava/lang/Object;)Z',
+  );
+
+  static final _equals = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public boolean equals(java.lang.Object object)`
+  bool equals(
+    jni$_.JObject? object,
+  ) {
+    final _$object = object?.reference ?? jni$_.jNullReference;
+    return _equals(reference.pointer, _id_equals as jni$_.JMethodIDPtr,
+            _$object.pointer)
+        .boolean;
+  }
+
+  static final _id_hashCode$1 = _class.instanceMethodId(
+    r'hashCode',
+    r'()I',
+  );
+
+  static final _hashCode$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public int hashCode()`
+  int hashCode$1() {
+    return _hashCode$1(reference.pointer, _id_hashCode$1 as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_serialize = _class.instanceMethodId(
+    r'serialize',
+    r'(Lio/sentry/ObjectWriter;Lio/sentry/ILogger;)V',
+  );
+
+  static final _serialize = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void serialize(io.sentry.ObjectWriter objectWriter, io.sentry.ILogger iLogger)`
+  void serialize(
+    jni$_.JObject objectWriter,
+    jni$_.JObject iLogger,
+  ) {
+    final _$objectWriter = objectWriter.reference;
+    final _$iLogger = iLogger.reference;
+    _serialize(reference.pointer, _id_serialize as jni$_.JMethodIDPtr,
+            _$objectWriter.pointer, _$iLogger.pointer)
+        .check();
+  }
+}
+
+final class $SentryId$NullableType extends jni$_.JObjType<SentryId?> {
+  @jni$_.internal
+  const $SentryId$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/protocol/SentryId;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryId? fromReference(jni$_.JReference reference) => reference.isNull
+      ? null
+      : SentryId.fromReference(
+          reference,
+        );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<SentryId?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($SentryId$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($SentryId$NullableType) &&
+        other is $SentryId$NullableType;
+  }
+}
+
+final class $SentryId$Type extends jni$_.JObjType<SentryId> {
+  @jni$_.internal
+  const $SentryId$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/protocol/SentryId;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryId fromReference(jni$_.JReference reference) => SentryId.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<SentryId?> get nullableType => const $SentryId$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($SentryId$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($SentryId$Type) && other is $SentryId$Type;
   }
 }
 

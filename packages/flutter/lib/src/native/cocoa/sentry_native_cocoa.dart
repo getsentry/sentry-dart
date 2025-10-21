@@ -301,6 +301,15 @@ class SentryNativeCocoa extends SentryNativeChannel {
           scope.removeTagForKey(key.toNSString());
         }));
       });
+
+  @override
+  SentryId captureReplay() {
+    final value = cocoa.SentryFlutterPlugin.captureReplay()?.toDartString();
+    if (value == null) {
+      return SentryId.empty();
+    }
+    return SentryId.fromId(value);
+  }
 }
 
 /// This map conversion is needed so we can use the toNSDictionary extension function
