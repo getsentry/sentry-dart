@@ -295,6 +295,7 @@ class SentryNativeJava extends SentryNativeChannel {
       native.Sentry.configureScope(
           native.ScopeCallback.implement(native.$ScopeCallback(run: (iScope) {
         final scope = iScope.as(const native.$Scope$Type());
+        scope.removeContexts(jKey);
       })));
     }, finallyFn: () {
       jKey.release();

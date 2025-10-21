@@ -581,12 +581,20 @@ void main() {
     final values = contexts!['contexts'];
     expect(values, isNotNull, reason: 'Contexts are null');
 
-    expect(values['key1'], {'value': 'randomValue'}, reason: 'key1 mismatch');
-    expect(values['key2'], {'Key': 'Value'}, reason: 'key2 mismatch');
-    // bool values are mapped to num values of 1 or 0 during objc conversion
-    expect(values['key3'], {'value': 1}, reason: 'key3 mismatch');
-    expect(values['key4'], {'value': 12}, reason: 'key4 mismatch');
-    expect(values['key5'], {'value': 12.3}, reason: 'key5 mismatch');
+    if (Platform.isIOS) {
+      expect(values['key1'], {'value': 'randomValue'}, reason: 'key1 mismatch');
+      expect(values['key2'], {'Key': 'Value'}, reason: 'key2 mismatch');
+      // bool values are mapped to num values of 1 or 0 during objc conversion
+      expect(values['key3'], {'value': 1}, reason: 'key3 mismatch');
+      expect(values['key4'], {'value': 12}, reason: 'key4 mismatch');
+      expect(values['key5'], {'value': 12.3}, reason: 'key5 mismatch');
+    } else if (Platform.isAndroid) {
+      expect(values['key1'], 'randomValue', reason: 'key1 mismatch');
+      expect(values['key2'], {'Key': 'Value'}, reason: 'key2 mismatch');
+      expect(values['key3'], true, reason: 'key3 mismatch');
+      expect(values['key4'], 12, reason: 'key4 mismatch');
+      expect(values['key5'], 12.3, reason: 'key5 mismatch');
+    }
 
     await Sentry.configureScope((scope) async {
       scope.removeContexts('key1');
