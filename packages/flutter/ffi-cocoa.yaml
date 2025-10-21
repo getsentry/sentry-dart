@@ -40,6 +40,8 @@ objc-interfaces:
         - 'clearBreadcrumbs'
         - 'setContextValue:forKey:'
         - 'removeContextForKey:'
+        - 'setExtraValue:forKey:'
+        - 'removeExtraForKey:'
 preamble: |
   // ignore_for_file: type=lint, unused_element
 
