@@ -615,6 +615,50 @@ void main() {
     expect(removedValues['key5'], isNull, reason: 'key5 should be removed');
   });
 
+  testWidgets('setExtra and removeExtra sync to native', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    await Sentry.configureScope((scope) async {
+      scope.setExtra('key1', 'randomValue');
+      scope.setExtra('key2', {'Key': 'Value'});
+      scope.setExtra('key3', true);
+      scope.setExtra('key4', 12);
+      scope.setExtra('key5', 12.3);
+    });
+
+    var contexts = await SentryFlutter.native?.loadContexts();
+    final extras = contexts!['extra'];
+    expect(extras, isNotNull, reason: 'Extras are null');
+
+    if (Platform.isIOS) {
+      expect(extras['key1'], 'randomValue', reason: 'key1 mismatch');
+      expect(extras['key2'], {'Key': 'Value'}, reason: 'key2 mismatch');
+      // bool values are mapped to num values of 1 or 0 during objc conversion
+      expect(extras['key3'], 1, reason: 'key3 mismatch');
+      expect(extras['key4'], 12, reason: 'key4 mismatch');
+      expect(extras['key5'], 12.3, reason: 'key5 mismatch');
+    } else if (Platform.isAndroid) {
+      expect(extras['key1'], 'randomValue', reason: 'key1 mismatch');
+      expect(extras['key2'], {'Key': 'Value'}, reason: 'key2 mismatch');
+      expect(extras['key3'], true, reason: 'key3 mismatch');
+      expect(extras['key4'], 12, reason: 'key4 mismatch');
+      expect(extras['key5'], 12.3, reason: 'key5 mismatch');
+    }
+
+    await Sentry.configureScope((scope) async {
+      scope.removeExtra('key1');
+      scope.removeExtra('key2');
+      scope.removeExtra('key3');
+      scope.removeExtra('key4');
+      scope.removeExtra('key5');
+    });
+
+    contexts = await SentryFlutter.native?.loadContexts();
+    expect(contexts!['extra'], isNull, reason: 'Extra are not null');
+  });
+
   testWidgets('addBreadcrumb and clearBreadcrumbs sync to native',
       (tester) async {
     await restoreFlutterOnErrorAfter(() async {
