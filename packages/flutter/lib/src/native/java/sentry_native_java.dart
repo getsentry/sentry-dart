@@ -176,7 +176,7 @@ class SentryNativeJava extends SentryNativeChannel {
   int? displayRefreshRate() => tryCatchSync('displayRefreshRate', () {
         return native.SentryFlutterPlugin.Companion
             .getDisplayRefreshRate()
-            ?.intValue();
+            ?.intValue(releaseOriginal: true);
       });
 
   @override
