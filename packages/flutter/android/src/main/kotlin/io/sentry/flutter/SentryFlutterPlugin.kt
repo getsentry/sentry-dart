@@ -61,9 +61,6 @@ class SentryFlutterPlugin :
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "closeNativeSdk" -> closeNativeSdk(result)
-      "setContexts" -> setContexts(call.argument("key"), call.argument("value"), result)
-      "removeContexts" -> removeContexts(call.argument("key"), result)
-      "setUser" -> setUser(call.argument("user"), result)
       "setExtra" -> setExtra(call.argument("key"), call.argument("value"), result)
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
@@ -140,51 +137,6 @@ class SentryFlutterPlugin :
     } else {
       options.setReplayController(null)
     }
-  }
-
-  private fun setContexts(
-    key: String?,
-    value: Any?,
-    result: Result,
-  ) {
-    if (key == null || value == null) {
-      result.success("")
-      return
-    }
-    Sentry.configureScope { scope ->
-      scope.setContexts(key, value)
-
-      result.success("")
-    }
-  }
-
-  private fun removeContexts(
-    key: String?,
-    result: Result,
-  ) {
-    if (key == null) {
-      result.success("")
-      return
-    }
-    Sentry.configureScope { scope ->
-      scope.removeContexts(key)
-
-      result.success("")
-    }
-  }
-
-  private fun setUser(
-    user: Map<String, Any?>?,
-    result: Result,
-  ) {
-    if (user != null) {
-      val options = ScopesAdapter.getInstance().options
-      val userInstance = User.fromMap(user, options)
-      Sentry.setUser(userInstance)
-    } else {
-      Sentry.setUser(null)
-    }
-    result.success("")
   }
 
   private fun setExtra(
