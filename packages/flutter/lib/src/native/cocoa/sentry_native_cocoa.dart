@@ -303,13 +303,15 @@ class SentryNativeCocoa extends SentryNativeChannel {
       });
 
   @override
-  SentryId captureReplay() {
-    final value = cocoa.SentryFlutterPlugin.captureReplay()?.toDartString();
-    if (value == null) {
-      return SentryId.empty();
-    }
-    return SentryId.fromId(value);
-  }
+  SentryId captureReplay() =>
+      tryCatchSync('captureReplay', () {
+        final value = cocoa.SentryFlutterPlugin.captureReplay()?.toDartString();
+        if (value == null) {
+          return SentryId.empty();
+        }
+        return SentryId.fromId(value);
+      }) ??
+      SentryId.empty();
 }
 
 /// This map conversion is needed so we can use the toNSDictionary extension function
