@@ -1148,6 +1148,9 @@ interface class SentrySerializable extends objc.ObjCProtocolBase
       : this._(other, retain: retain, release: release);
 }
 
+late final _sel_setExtraValue_forKey_ =
+    objc.registerName("setExtraValue:forKey:");
+late final _sel_removeExtraForKey_ = objc.registerName("removeExtraForKey:");
 late final _sel_clearBreadcrumbs = objc.registerName("clearBreadcrumbs");
 final _objc_msgSend_1pl9qdv = objc.msgSendPointer
     .cast<
@@ -1181,6 +1184,19 @@ class SentryScope extends objc.NSObject implements SentrySerializable {
   static bool isInstance(objc.ObjCObjectBase obj) {
     return _objc_msgSend_19nvye5(
         obj.ref.pointer, _sel_isKindOfClass_, _class_SentryScope);
+  }
+
+  /// Set global extra -> these will be sent with every event
+  void setExtraValue(objc.ObjCObjectBase? value,
+      {required objc.NSString forKey}) {
+    _objc_msgSend_pfv6jd(this.ref.pointer, _sel_setExtraValue_forKey_,
+        value?.ref.pointer ?? ffi.nullptr, forKey.ref.pointer);
+  }
+
+  /// Remove the extra for the specified key.
+  void removeExtraForKey(objc.NSString key) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_removeExtraForKey_, key.ref.pointer);
   }
 
   /// Clears all breadcrumbs in the scope

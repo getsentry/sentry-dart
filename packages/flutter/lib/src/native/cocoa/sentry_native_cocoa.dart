@@ -256,6 +256,33 @@ class SentryNativeCocoa extends SentryNativeChannel {
           scope.removeContextForKey(key.toNSString());
         }));
       });
+
+  @override
+  void setExtra(String key, dynamic value) => tryCatchSync('setExtra', () {
+        ObjCObjectBase? cValue = switch (value) {
+          Map<String, dynamic> m => _deepConvertMapNonNull(m).toNSDictionary(),
+          bool b => b ? 1.toNSNumber() : 0.toNSNumber(),
+          Object o => toObjCObject(o),
+          _ => null
+        };
+
+        cocoa.SentrySDK.configureScope(
+            cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
+                (cocoa.SentryScope scope) {
+          if (cValue != null) {
+            scope.setExtraValue(cValue, forKey: key.toNSString());
+          }
+        }));
+      });
+
+  @override
+  void removeExtra(String key) => tryCatchSync('removeExtra', () {
+        cocoa.SentrySDK.configureScope(
+            cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
+                (cocoa.SentryScope scope) {
+          scope.removeExtraForKey(key.toNSString());
+        }));
+      });
 }
 
 /// This map conversion is needed so we can use the toNSDictionary extension function

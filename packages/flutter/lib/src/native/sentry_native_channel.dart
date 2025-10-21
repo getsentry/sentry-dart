@@ -148,13 +148,13 @@ class SentryNativeChannel
   }
 
   @override
-  Future<void> setExtra(String key, dynamic value) => channel.invokeMethod(
+  FutureOr<void> setExtra(String key, dynamic value) => channel.invokeMethod(
         'setExtra',
         {'key': key, 'value': normalize(value)},
       );
 
   @override
-  Future<void> removeExtra(String key) =>
+  FutureOr<void> removeExtra(String key) =>
       channel.invokeMethod('removeExtra', {'key': key});
 
   @override
