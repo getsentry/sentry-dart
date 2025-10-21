@@ -1,6 +1,4 @@
-// ignore_for_file: avoid_print
-// ignore_for_file: invalid_use_of_internal_member
-// ignore_for_file: unused_local_variable
+// ignore_for_file: avoid_print, invalid_use_of_internal_member, unused_local_variable, deprecated_member_use
 
 import 'dart:async';
 import 'dart:convert';
@@ -130,9 +128,7 @@ void main() {
       await scope.addBreadcrumb(breadcrumb);
       await scope.clearBreadcrumbs();
 
-      // ignore: deprecated_member_use
       await scope.setExtra('extra-key', 'extra-value');
-      // ignore: deprecated_member_use
       await scope.removeExtra('extra-key');
 
       await scope.setTag('tag-key', 'tag-value');

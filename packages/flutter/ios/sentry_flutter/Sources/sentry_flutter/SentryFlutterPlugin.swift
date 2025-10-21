@@ -401,6 +401,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
           }
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   @objc public class func loadContextsAsBytes() -> NSData? {
         var infos: [String: Any] = [:]
 
