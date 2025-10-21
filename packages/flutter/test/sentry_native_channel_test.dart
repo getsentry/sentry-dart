@@ -327,15 +327,19 @@ void main() {
       });
 
       test('captureReplay', () async {
-        final sentryId = SentryId.newId();
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
 
-        when(channel.invokeMethod('captureReplay', any))
-            .thenAnswer((_) => Future.value(sentryId.toString()));
+        if (!mockPlatform.isAndroid) {
+          expect(() => sut.captureReplay(), matcher);
+        } else {
+          expect(() => sut.captureReplay(), returnsNormally);
+        }
 
-        final returnedId = await sut.captureReplay();
-
-        verify(channel.invokeMethod('captureReplay'));
-        expect(returnedId, sentryId);
+        verifyZeroInteractions(channel);
       });
 
       test('getSession is no-op', () async {
