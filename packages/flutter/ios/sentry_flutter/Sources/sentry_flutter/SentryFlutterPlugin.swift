@@ -76,17 +76,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         case "closeNativeSdk":
             closeNativeSdk(call, result: result)
 
-        case "setContexts":
-            let arguments = call.arguments as? [String: Any?]
-            let key = arguments?["key"] as? String
-            let value = arguments?["value"] as? Any
-            setContexts(key: key, value: value, result: result)
-
-        case "removeContexts":
-            let arguments = call.arguments as? [String: Any?]
-            let key = arguments?["key"] as? String
-            removeContexts(key: key, result: result)
-
         case "setExtra":
             let arguments = call.arguments as? [String: Any?]
             let key = arguments?["key"] as? String
@@ -264,39 +253,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             return false
         }
         return !name.isEmpty
-    }
-
-    private func setContexts(key: String?, value: Any?, result: @escaping FlutterResult) {
-      guard let key = key else {
-        result("")
-        return
-      }
-
-      SentrySDK.configureScope { scope in
-        if let dictionary = value as? [String: Any] {
-          scope.setContext(value: dictionary, key: key)
-        } else if let string = value as? String {
-          scope.setContext(value: ["value": string], key: key)
-        } else if let int = value as? Int {
-          scope.setContext(value: ["value": int], key: key)
-        } else if let double = value as? Double {
-          scope.setContext(value: ["value": double], key: key)
-        } else if let bool = value as? Bool {
-          scope.setContext(value: ["value": bool], key: key)
-        }
-        result("")
-      }
-    }
-
-    private func removeContexts(key: String?, result: @escaping FlutterResult) {
-      guard let key = key else {
-        result("")
-        return
-      }
-      SentrySDK.configureScope { scope in
-        scope.removeContext(key: key)
-        result("")
-      }
     }
 
     private func setExtra(key: String?, value: Any?, result: @escaping FlutterResult) {

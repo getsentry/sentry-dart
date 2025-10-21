@@ -141,6 +141,7 @@ class SentryFlutterPlugin :
     }
   }
 
+<<<<<<< HEAD
   private fun setContexts(
     key: String?,
     value: Any?,
