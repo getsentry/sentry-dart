@@ -5,6 +5,7 @@ import 'package:objective_c/objective_c.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
+import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
 import '../utils/utf8_json.dart';
 import 'binding.dart' as cocoa;
@@ -166,6 +167,28 @@ class SentryNativeCocoa extends SentryNativeChannel {
           final startTime =
               cocoa.PrivateSentrySDKOnly.startProfilerForTrace(sentryId);
           return startTime;
+        },
+      );
+
+  @override
+  int? displayRefreshRate() => tryCatchSync(
+        'displayRefreshRate',
+        () {
+          final refreshRate = cocoa.SentryFlutterPlugin.getDisplayRefreshRate();
+          return refreshRate?.intValue;
+        },
+      );
+
+  @override
+  NativeAppStart? fetchNativeAppStart() => tryCatchSync(
+        'fetchNativeAppStart',
+        () {
+          final appStartUtf8JsonBytes =
+              cocoa.SentryFlutterPlugin.fetchNativeAppStartAsBytes();
+          if (appStartUtf8JsonBytes == null) return null;
+
+          final json = decodeUtf8JsonMap(appStartUtf8JsonBytes.toList());
+          return NativeAppStart.fromJson(json);
         },
       );
 }

@@ -91,10 +91,10 @@ class SentryNativeChannel
   Future<void> close() async => channel.invokeMethod('closeNativeSdk');
 
   @override
-  Future<NativeAppStart?> fetchNativeAppStart() async {
-    final json =
-        await channel.invokeMapMethod<String, dynamic>('fetchNativeAppStart');
-    return (json != null) ? NativeAppStart.fromJson(json) : null;
+  FutureOr<NativeAppStart?> fetchNativeAppStart() async {
+    assert(false,
+        'fetchNativeAppStart should not be used through method channels.');
+    return null;
   }
 
   @override
@@ -223,8 +223,11 @@ class SentryNativeChannel
   }
 
   @override
-  Future<int?> displayRefreshRate() =>
-      channel.invokeMethod('displayRefreshRate');
+  FutureOr<int?> displayRefreshRate() {
+    assert(false,
+        'displayRefreshRate should not be used through method channels.');
+    return null;
+  }
 
   @override
   Future<void> pauseAppHangTracking() =>
