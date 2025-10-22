@@ -10,6 +10,7 @@
 ### Enhancements
 
 - Refactor `AndroidReplayRecorder` to use the new worker isolate api [#3296](https://github.com/getsentry/sentry-dart/pull/3296/)
+- Refactor fetching app start and display refresh rate to use FFI and JNI [#3288](https://github.com/getsentry/sentry-dart/pull/3288/)
 - Offload `captureEnvelope` to background isolate for Cocoa and Android [#3232](https://github.com/getsentry/sentry-dart/pull/3232)
 
 ## 9.7.0
