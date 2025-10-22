@@ -77,7 +77,12 @@ void main() {
             verifyNever(hub.configureScope(any));
             when(hub.configureScope(captureAny)).thenReturn(null);
 
-            final replayConfig = {'replayId': '123'};
+            // Both platforms now use 'replayId' and 'replayIsBuffering'
+            // replayIsBuffering: false means replay ID should be set on scope (active session)
+            final replayConfig = {
+              'replayId': '123',
+              'replayIsBuffering': false,
+            };
 
             // emulate the native platform invoking the method
             final future = native.invokeFromNative(
@@ -94,7 +99,7 @@ void main() {
             final scope = Scope(options);
             expect(scope.replayId, isNull);
             await closure(scope);
-            expect(scope.replayId.toString(), replayConfig['replayId']);
+            expect(scope.replayId.toString(), '123');
 
             if (mockPlatform.isAndroid) {
               await native.invokeFromNative('ReplayRecorder.stop');
@@ -138,7 +143,10 @@ void main() {
                 await tester.pumpAndWaitUntil(future, requiredToComplete: wait);
               }
 
-              final Map<String, dynamic> replayConfig = {'replayId': '123'};
+              final Map<String, dynamic> replayConfig = {
+                'scope.replayId': '123',
+                'replayId': '456',
+              };
               final configuration = {
                 'width': 800,
                 'height': 600,
@@ -177,7 +185,9 @@ void main() {
               await nextFrame(wait: false);
               expect(mockAndroidRecorder.captured.length, equals(count));
             } else if (mockPlatform.isIOS) {
-              final Map<String, dynamic> replayConfig = {'replayId': '123'};
+              final Map<String, dynamic> replayConfig = {
+                'scope.replayId': '123'
+              };
 
               Future<void> captureAndVerify() async {
                 final future = native.invokeFromNative(
@@ -196,7 +206,7 @@ void main() {
 
               // Check everything works if session-replay rate is 0,
               // which causes replayId to be 0 as well.
-              replayConfig['replayId'] = null;
+              replayConfig['scope.replayId'] = null;
               await captureAndVerify();
             } else {
               fail('unsupported platform');
