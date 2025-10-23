@@ -37,11 +37,17 @@ extension TypeSafeMapExtension on Map<String, dynamic> {
     return null;
   }
 
-  /// Type-safe bool extraction
+  /// Type-safe bool extraction with support for 0/1 as false/true
   bool? getBool(String key) {
     final value = this[key];
     if (value == null) return null;
     if (value is bool) return value;
+
+    // Handle numeric 0 and 1 as boolean values
+    if (value is num) {
+      if (value == 0) return false;
+      if (value == 1) return true;
+    }
 
     _logTypeMismatch(key, 'bool', value.runtimeType.toString());
     return null;

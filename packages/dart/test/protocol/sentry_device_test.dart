@@ -240,15 +240,37 @@ void main() {
     test('bool fields return null for non-boolean values', () {
       final map = {
         'online': 'true',
-        'charging': 1,
         'simulator': 'false',
-        'low_memory': 0,
       };
       final sentryDevice = SentryDevice.fromJson(map);
       expect(sentryDevice.online, isNull);
-      expect(sentryDevice.charging, isNull);
       expect(sentryDevice.simulator, isNull);
+    });
+
+    test('bool fields accept numeric 0 and 1 as false and true', () {
+      final map = {
+        'charging': 1,
+        'low_memory': 0,
+        'online': 1.0,
+        'simulator': 0.0,
+      };
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.charging, true);
+      expect(sentryDevice.lowMemory, false);
+      expect(sentryDevice.online, true);
+      expect(sentryDevice.simulator, false);
+    });
+
+    test('bool fields return null for other numeric values', () {
+      final map = {
+        'charging': 2,
+        'low_memory': -1,
+        'online': 0.5,
+      };
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.charging, isNull);
       expect(sentryDevice.lowMemory, isNull);
+      expect(sentryDevice.online, isNull);
     });
 
     test('mixed valid and invalid data deserializes partially', () {

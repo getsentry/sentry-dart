@@ -105,6 +105,31 @@ void main() {
         expect(map.getBool('key'), false);
       });
 
+      test('returns true when value is numeric 1', () {
+        final map = <String, dynamic>{'key': 1};
+        expect(map.getBool('key'), true);
+      });
+
+      test('returns false when value is numeric 0', () {
+        final map = <String, dynamic>{'key': 0};
+        expect(map.getBool('key'), false);
+      });
+
+      test('returns true when value is double 1.0', () {
+        final map = <String, dynamic>{'key': 1.0};
+        expect(map.getBool('key'), true);
+      });
+
+      test('returns false when value is double 0.0', () {
+        final map = <String, dynamic>{'key': 0.0};
+        expect(map.getBool('key'), false);
+      });
+
+      test('returns null for other numeric values', () {
+        final map = <String, dynamic>{'key': 2};
+        expect(map.getBool('key'), isNull);
+      });
+
       test('returns null when key does not exist', () {
         final map = <String, dynamic>{};
         expect(map.getBool('key'), isNull);
@@ -117,11 +142,6 @@ void main() {
 
       test('returns null when value is not a boolean', () {
         final map = <String, dynamic>{'key': 'true'};
-        expect(map.getBool('key'), isNull);
-      });
-
-      test('returns null for numeric value', () {
-        final map = <String, dynamic>{'key': 1};
         expect(map.getBool('key'), isNull);
       });
     });
