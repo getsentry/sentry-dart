@@ -11,7 +11,9 @@
 
 - Move app hang and crash apis to use FFI/JNI ([#3289](https://github.com/getsentry/sentry-dart/pull/3289/))
 - Refactor `AndroidReplayRecorder` to use the new worker isolate api [#3296](https://github.com/getsentry/sentry-dart/pull/3296/)
+- Refactor fetching app start and display refresh rate to use FFI and JNI [#3288](https://github.com/getsentry/sentry-dart/pull/3288/)
 - Offload `captureEnvelope` to background isolate for Cocoa and Android [#3232](https://github.com/getsentry/sentry-dart/pull/3232)
+- Add `sentry.replay_id` to flutter logs ([#3257](https://github.com/getsentry/sentry-dart/pull/3257))
 
 ## 9.7.0
 

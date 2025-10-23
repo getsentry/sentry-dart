@@ -273,5 +273,8 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   bool get supportsReplay => false;
 
   @override
+  SentryId? get replayId => null;
+
+  @override
   SentryFlutterOptions get options => _options;
 }
