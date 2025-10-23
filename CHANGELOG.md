@@ -9,6 +9,7 @@
 
 ### Enhancements
 
+- Refactor `setUser` to use FFI/JNI ([#3295](https://github.com/getsentry/sentry-dart/pull/3295/))
 - Refactor native breadcrumbs sync to use FFI/JNI ([#3293](https://github.com/getsentry/sentry-dart/pull/3293/))
 - Refactor app hang and crash apis to use FFI/JNI ([#3289](https://github.com/getsentry/sentry-dart/pull/3289/))
 - Refactor `AndroidReplayRecorder` to use the new worker isolate api ([#3296](https://github.com/getsentry/sentry-dart/pull/3296/))
