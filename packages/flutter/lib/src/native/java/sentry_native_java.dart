@@ -250,7 +250,6 @@ class SentryNativeJava extends SentryNativeChannel {
         final nativeOptions = native.ScopesAdapter.getInstance()?.getOptions()
           ?..releasedBy(arena);
         if (nativeOptions == null) return;
-        // Wrap the entire conversion in arena to auto-cleanup all JObjects
         final jMap = _dartToJMap(breadcrumb.toJson(), arena);
         final nativeBreadcrumb = native.Breadcrumb.fromMap(jMap, nativeOptions)
           ?..releasedBy(arena);
