@@ -17,6 +17,10 @@
 - Offload `captureEnvelope` to background isolate for Cocoa and Android ([#3232](https://github.com/getsentry/sentry-dart/pull/3232))
 - Add `sentry.replay_id` to flutter logs ([#3257](https://github.com/getsentry/sentry-dart/pull/3257))
 
+### Fixes
+
+- Fix unsafe json access in `sentry_device` ([#3309](https://github.com/getsentry/sentry-dart/pull/3309))
+
 ## 9.7.0
 
 ### Features
