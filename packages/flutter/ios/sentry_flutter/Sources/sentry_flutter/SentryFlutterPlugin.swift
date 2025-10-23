@@ -130,15 +130,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             collectProfile(call, result)
         #endif
 
-        case "pauseAppHangTracking":
-            pauseAppHangTracking(result)
-
-        case "resumeAppHangTracking":
-            resumeAppHangTracking(result)
-
-        case "nativeCrash":
-            crash()
-
         case "captureReplay":
 #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
             PrivateSentrySDKOnly.captureReplay()
@@ -429,20 +420,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
         PrivateSentrySDKOnly.discardProfiler(forTrace: SentryId(uuidString: traceId))
         result(nil)
-    }
-
-    private func pauseAppHangTracking(_ result: @escaping FlutterResult) {
-        SentrySDK.pauseAppHangTracking()
-        result("")
-    }
-
-    private func resumeAppHangTracking(_ result: @escaping FlutterResult) {
-        SentrySDK.resumeAppHangTracking()
-        result("")
-    }
-
-    private func crash() {
-        SentrySDK.crash()
     }
 
   // MARK: - Objective-C interoperability
