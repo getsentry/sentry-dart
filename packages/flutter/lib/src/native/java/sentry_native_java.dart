@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:ffi/ffi.dart';
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 
@@ -245,21 +246,18 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void addBreadcrumb(Breadcrumb breadcrumb) {
-    native.Breadcrumb? nativeBreadcrumb;
-    JObject? nativeOptions;
-
     tryCatchSync('addBreadcrumb', () {
-      nativeOptions = native.ScopesAdapter.getInstance()?.getOptions();
-      if (nativeOptions == null) return;
-
-      nativeBreadcrumb = native.Breadcrumb.fromMap(
-          _dartToJMap(breadcrumb.toJson()), nativeOptions!);
-      if (nativeBreadcrumb == null) return;
-
-      native.Sentry.addBreadcrumb$1(nativeBreadcrumb!);
-    }, finallyFn: () {
-      nativeOptions?.release();
-      nativeBreadcrumb?.release();
+      using((arena) {
+        final nativeOptions = native.ScopesAdapter.getInstance()?.getOptions()
+          ?..releasedBy(arena);
+        if (nativeOptions == null) return;
+        // Wrap the entire conversion in arena to auto-cleanup all JObjects
+        final jMap = _dartToJMap(breadcrumb.toJson(), arena);
+        final nativeBreadcrumb = native.Breadcrumb.fromMap(jMap, nativeOptions)
+          ?..releasedBy(arena);
+        if (nativeBreadcrumb == null) return;
+        native.Sentry.addBreadcrumb$1(nativeBreadcrumb);
+      });
     });
   }
 
@@ -269,27 +267,36 @@ class SentryNativeJava extends SentryNativeChannel {
       });
 }
 
-JObject? _dartToJObject(Object? value) => switch (value) {
+JObject? _dartToJObject(Object? value, Arena arena) => switch (value) {
       null => null,
-      String s => s.toJString(),
-      bool b => b.toJBoolean(),
-      int i => i.toJLong(), // safer for 64-bit
-      double d => d.toJDouble(),
-      List<dynamic> l => _dartToJList(l),
-      Map<String, dynamic> m => _dartToJMap(m),
+      String s => s.toJString()..releasedBy(arena),
+      bool b => b.toJBoolean()..releasedBy(arena),
+      int i => i.toJLong()..releasedBy(arena),
+      double d => d.toJDouble()..releasedBy(arena),
+      List<dynamic> l => _dartToJList(l, arena),
+      Map<String, dynamic> m => _dartToJMap(m, arena),
       _ => null
     };
 
-JList<JObject?> _dartToJList(List<dynamic> values) {
-  final jlist = JList.array(JObject.nullableType);
-  jlist.addAll(values.map(_dartToJObject));
+JList<JObject?> _dartToJList(List<dynamic> values, Arena arena) {
+  final jlist = JList.array(JObject.nullableType)..releasedBy(arena);
+
+  for (final value in values) {
+    final jObj = _dartToJObject(value, arena);
+    jlist.add(jObj);
+  }
+
   return jlist;
 }
 
-JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json) {
-  final jmap = JMap.hash(JString.type, JObject.nullableType);
+JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json, Arena arena) {
+  final jmap = JMap.hash(JString.type, JObject.nullableType)..releasedBy(arena);
+
   for (final entry in json.entries) {
-    jmap[entry.key.toJString()] = _dartToJObject(entry.value);
+    final key = entry.key.toJString()..releasedBy(arena);
+    final value = _dartToJObject(entry.value, arena);
+    jmap[key] = value;
   }
+
   return jmap;
 }
