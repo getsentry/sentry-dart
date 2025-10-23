@@ -6,6 +6,7 @@ headers:
   entry-points:
     - ./temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h
     - ./temp/Sentry.framework/Headers/Sentry-Swift.h
+    - ./temp/Sentry.framework/Headers/SentryScope.h
     - ./ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterPlugin.h
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
@@ -19,6 +20,7 @@ objc-interfaces:
     - PrivateSentrySDKOnly
     - SentryId
     - SentryFlutterPlugin
+    - SentryScope
     - SentrySDK
   module:
     'SentryId': 'Sentry'
@@ -29,6 +31,11 @@ objc-interfaces:
         - 'crash'
         - 'pauseAppHangTracking'
         - 'resumeAppHangTracking'
+        - 'configureScope:'
+        - 'addBreadcrumb:'
+    SentryScope:
+      include:
+        - 'clearBreadcrumbs'
 preamble: |
   // ignore_for_file: type=lint, unused_element
 

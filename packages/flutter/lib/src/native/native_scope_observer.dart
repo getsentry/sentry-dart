@@ -39,12 +39,12 @@ class NativeScopeObserver implements ScopeObserver {
   }
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) async {
     await _native.addBreadcrumb(breadcrumb);
   }
 
   @override
-  Future<void> clearBreadcrumbs() async {
+  FutureOr<void> clearBreadcrumbs() async {
     await _native.clearBreadcrumbs();
   }
 

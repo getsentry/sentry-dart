@@ -9,6 +9,7 @@
 
 ### Enhancements
 
+- Refactor native breadcrumbs sync to use FFI/JNI ([#3293](https://github.com/getsentry/sentry-dart/pull/3293/))
 - Refactor app hang and crash apis to use FFI/JNI ([#3289](https://github.com/getsentry/sentry-dart/pull/3289/))
 - Refactor `AndroidReplayRecorder` to use the new worker isolate api ([#3296](https://github.com/getsentry/sentry-dart/pull/3296/))
 - Refactor fetching app start and display refresh rate to use FFI and JNI ([#3288](https://github.com/getsentry/sentry-dart/pull/3288/))

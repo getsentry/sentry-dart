@@ -564,6 +564,51 @@ void main() {
     }
   });
 
+  testWidgets('addBreadcrumb and clearBreadcrumbs sync to native',
+      (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    // 1. Add a breadcrumb via Dart
+    final testBreadcrumb = Breadcrumb(
+      message: 'test-breadcrumb-message',
+      category: 'test-category',
+      level: SentryLevel.info,
+    );
+    await Sentry.addBreadcrumb(testBreadcrumb);
+
+    // 2. Verify it appears in native via loadContexts
+    var contexts = await SentryFlutter.native?.loadContexts();
+    expect(contexts, isNotNull);
+
+    var breadcrumbs = contexts!['breadcrumbs'] as List<dynamic>?;
+    expect(breadcrumbs, isNotNull,
+        reason: 'Breadcrumbs should not be null after adding');
+    expect(breadcrumbs!.isNotEmpty, isTrue,
+        reason: 'Breadcrumbs should not be empty after adding');
+
+    // Find our test breadcrumb
+    final testCrumb = breadcrumbs.firstWhere(
+      (b) => b['message'] == 'test-breadcrumb-message',
+      orElse: () => null,
+    );
+    expect(testCrumb, isNotNull,
+        reason: 'Test breadcrumb should exist in native breadcrumbs');
+    expect(testCrumb['category'], equals('test-category'));
+
+    // 3. Clear breadcrumbs
+    await Sentry.configureScope((scope) async {
+      await scope.clearBreadcrumbs();
+    });
+
+    // 4. Verify they're cleared in native
+    contexts = await SentryFlutter.native?.loadContexts();
+    breadcrumbs = contexts!['breadcrumbs'] as List<dynamic>?;
+    expect(breadcrumbs == null || breadcrumbs.isEmpty, isTrue,
+        reason: 'Breadcrumbs should be null or empty after clearing');
+  });
+
   testWidgets('loads debug images through loadDebugImages', (tester) async {
     await restoreFlutterOnErrorAfter(() async {
       await setupSentryAndApp(tester);
