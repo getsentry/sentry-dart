@@ -222,6 +222,19 @@ class SentryNativeCocoa extends SentryNativeChannel {
   void resumeAppHangTracking() => tryCatchSync('resumeAppHangTracking', () {
         cocoa.SentrySDK.resumeAppHangTracking();
       });
+
+  @override
+  void setUser(SentryUser? user) => tryCatchSync('setUser', () {
+        if (user == null) {
+          cocoa.SentrySDK.setUser(null);
+        } else {
+          final dictionary =
+              _deepConvertMapNonNull(user.toJson()).toNSDictionary();
+          final cUser =
+              cocoa.PrivateSentrySDKOnly.userWithDictionary(dictionary);
+          cocoa.SentrySDK.setUser(cUser);
+        }
+      });
 }
 
 /// This map conversion is needed so we can use the toNSDictionary extension function

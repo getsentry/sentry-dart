@@ -526,10 +526,8 @@ final _objc_msgSend_1s56lr9 = objc.msgSendPointer
             ffi.Pointer<objc.ObjCSelector>, bool)>();
 late final _sel_appStartMeasurementWithSpans =
     objc.registerName("appStartMeasurementWithSpans");
+late final _class_SentryUser = objc.getClass("SentryUser");
 
-/// WARNING: SentryUser is a stub. To generate bindings for this class, include
-/// SentryUser in your config's objc-interfaces list.
-///
 /// SentryUser
 class SentryUser extends objc.ObjCObjectBase {
   SentryUser._(ffi.Pointer<objc.ObjCObject> pointer,
@@ -544,6 +542,12 @@ class SentryUser extends objc.ObjCObjectBase {
   SentryUser.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
       {bool retain = false, bool release = false})
       : this._(other, retain: retain, release: release);
+
+  /// Returns whether [obj] is an instance of [SentryUser].
+  static bool isInstance(objc.ObjCObjectBase obj) {
+    return _objc_msgSend_19nvye5(
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryUser);
+  }
 }
 
 late final _sel_userWithDictionary_ = objc.registerName("userWithDictionary:");
@@ -1372,6 +1376,7 @@ extension ObjCBlock_ffiVoid_SentryScope_CallExtension
 }
 
 late final _sel_configureScope_ = objc.registerName("configureScope:");
+late final _sel_setUser_ = objc.registerName("setUser:");
 late final _sel_crash = objc.registerName("crash");
 late final _sel_pauseAppHangTracking =
     objc.registerName("pauseAppHangTracking");
@@ -1415,6 +1420,15 @@ class SentrySDK extends objc.NSObject {
       objc.ObjCBlock<ffi.Void Function(SentryScope)> callback) {
     _objc_msgSend_f167m6(
         _class_SentrySDK, _sel_configureScope_, callback.ref.pointer);
+  }
+
+  /// Set <code>user</code> to the current <code>Scope</code> of the current <code>Hub</code>.
+  /// note:
+  /// You must start the SDK before calling this method, otherwise it doesn’t set the user.
+  /// \param user The user to set to the current <code>Scope</code>.
+  static void setUser(SentryUser? user) {
+    _objc_msgSend_xtuoz7(
+        _class_SentrySDK, _sel_setUser_, user?.ref.pointer ?? ffi.nullptr);
   }
 
   /// This forces a crash, useful to test the <code>SentryCrash</code> integration.

@@ -3605,7 +3605,7 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public void setUser(io.sentry.protocol.User user)`
   static void setUser(
-    jni$_.JObject? user,
+    User? user,
   ) {
     final _$user = user?.reference ?? jni$_.jNullReference;
     _setUser(_class.reference.pointer, _id_setUser as jni$_.JMethodIDPtr,
@@ -7202,7 +7202,7 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public void setUser(io.sentry.protocol.User user)`
   void setUser(
-    jni$_.JObject? user,
+    User? user,
   ) {
     final _$user = user?.reference ?? jni$_.jNullReference;
     _setUser(reference.pointer, _id_setUser as jni$_.JMethodIDPtr,
@@ -8511,6 +8511,1011 @@ final class $ScopesAdapter$Type extends jni$_.JObjType<ScopesAdapter> {
   bool operator ==(Object other) {
     return other.runtimeType == ($ScopesAdapter$Type) &&
         other is $ScopesAdapter$Type;
+  }
+}
+
+/// from: `io.sentry.protocol.User$Deserializer`
+class User$Deserializer extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<User$Deserializer> $type;
+
+  @jni$_.internal
+  User$Deserializer.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class =
+      jni$_.JClass.forName(r'io/sentry/protocol/User$Deserializer');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType = $User$Deserializer$NullableType();
+  static const type = $User$Deserializer$Type();
+  static final _id_new$ = _class.constructorId(
+    r'()V',
+  );
+
+  static final _new$ = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void <init>()`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory User$Deserializer() {
+    return User$Deserializer.fromReference(
+        _new$(_class.reference.pointer, _id_new$ as jni$_.JMethodIDPtr)
+            .reference);
+  }
+
+  static final _id_deserialize = _class.instanceMethodId(
+    r'deserialize',
+    r'(Lio/sentry/ObjectReader;Lio/sentry/ILogger;)Lio/sentry/protocol/User;',
+  );
+
+  static final _deserialize = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public io.sentry.protocol.User deserialize(io.sentry.ObjectReader objectReader, io.sentry.ILogger iLogger)`
+  /// The returned object must be released after use, by calling the [release] method.
+  User deserialize(
+    jni$_.JObject objectReader,
+    jni$_.JObject iLogger,
+  ) {
+    final _$objectReader = objectReader.reference;
+    final _$iLogger = iLogger.reference;
+    return _deserialize(
+            reference.pointer,
+            _id_deserialize as jni$_.JMethodIDPtr,
+            _$objectReader.pointer,
+            _$iLogger.pointer)
+        .object<User>(const $User$Type());
+  }
+}
+
+final class $User$Deserializer$NullableType
+    extends jni$_.JObjType<User$Deserializer?> {
+  @jni$_.internal
+  const $User$Deserializer$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/protocol/User$Deserializer;';
+
+  @jni$_.internal
+  @core$_.override
+  User$Deserializer? fromReference(jni$_.JReference reference) =>
+      reference.isNull
+          ? null
+          : User$Deserializer.fromReference(
+              reference,
+            );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<User$Deserializer?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($User$Deserializer$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($User$Deserializer$NullableType) &&
+        other is $User$Deserializer$NullableType;
+  }
+}
+
+final class $User$Deserializer$Type extends jni$_.JObjType<User$Deserializer> {
+  @jni$_.internal
+  const $User$Deserializer$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/protocol/User$Deserializer;';
+
+  @jni$_.internal
+  @core$_.override
+  User$Deserializer fromReference(jni$_.JReference reference) =>
+      User$Deserializer.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<User$Deserializer?> get nullableType =>
+      const $User$Deserializer$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($User$Deserializer$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($User$Deserializer$Type) &&
+        other is $User$Deserializer$Type;
+  }
+}
+
+/// from: `io.sentry.protocol.User$JsonKeys`
+class User$JsonKeys extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<User$JsonKeys> $type;
+
+  @jni$_.internal
+  User$JsonKeys.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class =
+      jni$_.JClass.forName(r'io/sentry/protocol/User$JsonKeys');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType = $User$JsonKeys$NullableType();
+  static const type = $User$JsonKeys$Type();
+  static final _id_EMAIL = _class.staticFieldId(
+    r'EMAIL',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String EMAIL`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get EMAIL =>
+      _id_EMAIL.get(_class, const jni$_.JStringNullableType());
+
+  static final _id_ID = _class.staticFieldId(
+    r'ID',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String ID`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get ID =>
+      _id_ID.get(_class, const jni$_.JStringNullableType());
+
+  static final _id_USERNAME = _class.staticFieldId(
+    r'USERNAME',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String USERNAME`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get USERNAME =>
+      _id_USERNAME.get(_class, const jni$_.JStringNullableType());
+
+  static final _id_IP_ADDRESS = _class.staticFieldId(
+    r'IP_ADDRESS',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String IP_ADDRESS`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get IP_ADDRESS =>
+      _id_IP_ADDRESS.get(_class, const jni$_.JStringNullableType());
+
+  static final _id_NAME = _class.staticFieldId(
+    r'NAME',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String NAME`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get NAME =>
+      _id_NAME.get(_class, const jni$_.JStringNullableType());
+
+  static final _id_GEO = _class.staticFieldId(
+    r'GEO',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String GEO`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get GEO =>
+      _id_GEO.get(_class, const jni$_.JStringNullableType());
+
+  static final _id_DATA = _class.staticFieldId(
+    r'DATA',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String DATA`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get DATA =>
+      _id_DATA.get(_class, const jni$_.JStringNullableType());
+
+  static final _id_new$ = _class.constructorId(
+    r'()V',
+  );
+
+  static final _new$ = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void <init>()`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory User$JsonKeys() {
+    return User$JsonKeys.fromReference(
+        _new$(_class.reference.pointer, _id_new$ as jni$_.JMethodIDPtr)
+            .reference);
+  }
+}
+
+final class $User$JsonKeys$NullableType extends jni$_.JObjType<User$JsonKeys?> {
+  @jni$_.internal
+  const $User$JsonKeys$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/protocol/User$JsonKeys;';
+
+  @jni$_.internal
+  @core$_.override
+  User$JsonKeys? fromReference(jni$_.JReference reference) => reference.isNull
+      ? null
+      : User$JsonKeys.fromReference(
+          reference,
+        );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<User$JsonKeys?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($User$JsonKeys$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($User$JsonKeys$NullableType) &&
+        other is $User$JsonKeys$NullableType;
+  }
+}
+
+final class $User$JsonKeys$Type extends jni$_.JObjType<User$JsonKeys> {
+  @jni$_.internal
+  const $User$JsonKeys$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/protocol/User$JsonKeys;';
+
+  @jni$_.internal
+  @core$_.override
+  User$JsonKeys fromReference(jni$_.JReference reference) =>
+      User$JsonKeys.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<User$JsonKeys?> get nullableType =>
+      const $User$JsonKeys$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($User$JsonKeys$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($User$JsonKeys$Type) &&
+        other is $User$JsonKeys$Type;
+  }
+}
+
+/// from: `io.sentry.protocol.User`
+class User extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<User> $type;
+
+  @jni$_.internal
+  User.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(r'io/sentry/protocol/User');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType = $User$NullableType();
+  static const type = $User$Type();
+  static final _id_new$ = _class.constructorId(
+    r'()V',
+  );
+
+  static final _new$ = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void <init>()`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory User() {
+    return User.fromReference(
+        _new$(_class.reference.pointer, _id_new$ as jni$_.JMethodIDPtr)
+            .reference);
+  }
+
+  static final _id_new$1 = _class.constructorId(
+    r'(Lio/sentry/protocol/User;)V',
+  );
+
+  static final _new$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void <init>(io.sentry.protocol.User user)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory User.new$1(
+    User user,
+  ) {
+    final _$user = user.reference;
+    return User.fromReference(_new$1(_class.reference.pointer,
+            _id_new$1 as jni$_.JMethodIDPtr, _$user.pointer)
+        .reference);
+  }
+
+  static final _id_fromMap = _class.staticMethodId(
+    r'fromMap',
+    r'(Ljava/util/Map;Lio/sentry/SentryOptions;)Lio/sentry/protocol/User;',
+  );
+
+  static final _fromMap = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.User fromMap(java.util.Map<java.lang.String, java.lang.Object> map, io.sentry.SentryOptions sentryOptions)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static User? fromMap(
+    jni$_.JMap<jni$_.JString?, jni$_.JObject?> map,
+    jni$_.JObject sentryOptions,
+  ) {
+    final _$map = map.reference;
+    final _$sentryOptions = sentryOptions.reference;
+    return _fromMap(_class.reference.pointer, _id_fromMap as jni$_.JMethodIDPtr,
+            _$map.pointer, _$sentryOptions.pointer)
+        .object<User?>(const $User$NullableType());
+  }
+
+  static final _id_getEmail = _class.instanceMethodId(
+    r'getEmail',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getEmail = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getEmail()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getEmail() {
+    return _getEmail(reference.pointer, _id_getEmail as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.JStringNullableType());
+  }
+
+  static final _id_setEmail = _class.instanceMethodId(
+    r'setEmail',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _setEmail = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setEmail(java.lang.String string)`
+  void setEmail(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _setEmail(reference.pointer, _id_setEmail as jni$_.JMethodIDPtr,
+            _$string.pointer)
+        .check();
+  }
+
+  static final _id_getId = _class.instanceMethodId(
+    r'getId',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getId = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getId()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getId() {
+    return _getId(reference.pointer, _id_getId as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.JStringNullableType());
+  }
+
+  static final _id_setId = _class.instanceMethodId(
+    r'setId',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _setId = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setId(java.lang.String string)`
+  void setId(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _setId(reference.pointer, _id_setId as jni$_.JMethodIDPtr, _$string.pointer)
+        .check();
+  }
+
+  static final _id_getUsername = _class.instanceMethodId(
+    r'getUsername',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getUsername = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getUsername()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getUsername() {
+    return _getUsername(
+            reference.pointer, _id_getUsername as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.JStringNullableType());
+  }
+
+  static final _id_setUsername = _class.instanceMethodId(
+    r'setUsername',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _setUsername = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setUsername(java.lang.String string)`
+  void setUsername(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _setUsername(reference.pointer, _id_setUsername as jni$_.JMethodIDPtr,
+            _$string.pointer)
+        .check();
+  }
+
+  static final _id_getIpAddress = _class.instanceMethodId(
+    r'getIpAddress',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getIpAddress = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getIpAddress()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getIpAddress() {
+    return _getIpAddress(
+            reference.pointer, _id_getIpAddress as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.JStringNullableType());
+  }
+
+  static final _id_setIpAddress = _class.instanceMethodId(
+    r'setIpAddress',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _setIpAddress = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setIpAddress(java.lang.String string)`
+  void setIpAddress(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _setIpAddress(reference.pointer, _id_setIpAddress as jni$_.JMethodIDPtr,
+            _$string.pointer)
+        .check();
+  }
+
+  static final _id_getName = _class.instanceMethodId(
+    r'getName',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getName = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getName()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getName() {
+    return _getName(reference.pointer, _id_getName as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.JStringNullableType());
+  }
+
+  static final _id_setName = _class.instanceMethodId(
+    r'setName',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _setName = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setName(java.lang.String string)`
+  void setName(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _setName(reference.pointer, _id_setName as jni$_.JMethodIDPtr,
+            _$string.pointer)
+        .check();
+  }
+
+  static final _id_getGeo = _class.instanceMethodId(
+    r'getGeo',
+    r'()Lio/sentry/protocol/Geo;',
+  );
+
+  static final _getGeo = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.protocol.Geo getGeo()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getGeo() {
+    return _getGeo(reference.pointer, _id_getGeo as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_setGeo = _class.instanceMethodId(
+    r'setGeo',
+    r'(Lio/sentry/protocol/Geo;)V',
+  );
+
+  static final _setGeo = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setGeo(io.sentry.protocol.Geo geo)`
+  void setGeo(
+    jni$_.JObject? geo,
+  ) {
+    final _$geo = geo?.reference ?? jni$_.jNullReference;
+    _setGeo(reference.pointer, _id_setGeo as jni$_.JMethodIDPtr, _$geo.pointer)
+        .check();
+  }
+
+  static final _id_getData = _class.instanceMethodId(
+    r'getData',
+    r'()Ljava/util/Map;',
+  );
+
+  static final _getData = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.util.Map<java.lang.String, java.lang.String> getData()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JMap<jni$_.JString?, jni$_.JString>? getData() {
+    return _getData(reference.pointer, _id_getData as jni$_.JMethodIDPtr)
+        .object<jni$_.JMap<jni$_.JString?, jni$_.JString>?>(
+            const jni$_.JMapNullableType<jni$_.JString?, jni$_.JString>(
+                jni$_.JStringNullableType(), jni$_.JStringType()));
+  }
+
+  static final _id_setData = _class.instanceMethodId(
+    r'setData',
+    r'(Ljava/util/Map;)V',
+  );
+
+  static final _setData = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setData(java.util.Map<java.lang.String, java.lang.String> map)`
+  void setData(
+    jni$_.JMap<jni$_.JString?, jni$_.JString>? map,
+  ) {
+    final _$map = map?.reference ?? jni$_.jNullReference;
+    _setData(
+            reference.pointer, _id_setData as jni$_.JMethodIDPtr, _$map.pointer)
+        .check();
+  }
+
+  static final _id_equals = _class.instanceMethodId(
+    r'equals',
+    r'(Ljava/lang/Object;)Z',
+  );
+
+  static final _equals = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public boolean equals(java.lang.Object object)`
+  bool equals(
+    jni$_.JObject? object,
+  ) {
+    final _$object = object?.reference ?? jni$_.jNullReference;
+    return _equals(reference.pointer, _id_equals as jni$_.JMethodIDPtr,
+            _$object.pointer)
+        .boolean;
+  }
+
+  static final _id_hashCode$1 = _class.instanceMethodId(
+    r'hashCode',
+    r'()I',
+  );
+
+  static final _hashCode$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public int hashCode()`
+  int hashCode$1() {
+    return _hashCode$1(reference.pointer, _id_hashCode$1 as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_getUnknown = _class.instanceMethodId(
+    r'getUnknown',
+    r'()Ljava/util/Map;',
+  );
+
+  static final _getUnknown = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.util.Map<java.lang.String, java.lang.Object> getUnknown()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JMap<jni$_.JString?, jni$_.JObject?>? getUnknown() {
+    return _getUnknown(reference.pointer, _id_getUnknown as jni$_.JMethodIDPtr)
+        .object<jni$_.JMap<jni$_.JString?, jni$_.JObject?>?>(
+            const jni$_.JMapNullableType<jni$_.JString?, jni$_.JObject?>(
+                jni$_.JStringNullableType(), jni$_.JObjectNullableType()));
+  }
+
+  static final _id_setUnknown = _class.instanceMethodId(
+    r'setUnknown',
+    r'(Ljava/util/Map;)V',
+  );
+
+  static final _setUnknown = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setUnknown(java.util.Map<java.lang.String, java.lang.Object> map)`
+  void setUnknown(
+    jni$_.JMap<jni$_.JString?, jni$_.JObject?>? map,
+  ) {
+    final _$map = map?.reference ?? jni$_.jNullReference;
+    _setUnknown(reference.pointer, _id_setUnknown as jni$_.JMethodIDPtr,
+            _$map.pointer)
+        .check();
+  }
+
+  static final _id_serialize = _class.instanceMethodId(
+    r'serialize',
+    r'(Lio/sentry/ObjectWriter;Lio/sentry/ILogger;)V',
+  );
+
+  static final _serialize = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void serialize(io.sentry.ObjectWriter objectWriter, io.sentry.ILogger iLogger)`
+  void serialize(
+    jni$_.JObject objectWriter,
+    jni$_.JObject iLogger,
+  ) {
+    final _$objectWriter = objectWriter.reference;
+    final _$iLogger = iLogger.reference;
+    _serialize(reference.pointer, _id_serialize as jni$_.JMethodIDPtr,
+            _$objectWriter.pointer, _$iLogger.pointer)
+        .check();
+  }
+}
+
+final class $User$NullableType extends jni$_.JObjType<User?> {
+  @jni$_.internal
+  const $User$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/protocol/User;';
+
+  @jni$_.internal
+  @core$_.override
+  User? fromReference(jni$_.JReference reference) => reference.isNull
+      ? null
+      : User.fromReference(
+          reference,
+        );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<User?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($User$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($User$NullableType) &&
+        other is $User$NullableType;
+  }
+}
+
+final class $User$Type extends jni$_.JObjType<User> {
+  @jni$_.internal
+  const $User$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/protocol/User;';
+
+  @jni$_.internal
+  @core$_.override
+  User fromReference(jni$_.JReference reference) => User.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<User?> get nullableType => const $User$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($User$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($User$Type) && other is $User$Type;
   }
 }
 

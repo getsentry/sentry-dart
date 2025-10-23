@@ -50,30 +50,20 @@ void main() {
       });
 
       test('setUser', () async {
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
+
         final user = SentryUser(
           id: "fixture-id",
           data: {'object': Object()},
         );
-        final normalizedUser = SentryUser(
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          ipAddress: user.ipAddress,
-          data: normalizeMap(user.data),
-          // ignore: deprecated_member_use
-          extras: user.extras,
-          geo: user.geo,
-          name: user.name,
-          // ignore: invalid_use_of_internal_member
-          unknown: user.unknown,
-        );
-        when(channel.invokeMethod('setUser', {'user': normalizedUser.toJson()}))
-            .thenAnswer((_) => Future.value());
 
-        await sut.setUser(user);
+        expect(() => sut.setUser(user), matcher);
 
-        verify(
-            channel.invokeMethod('setUser', {'user': normalizedUser.toJson()}));
+        verifyZeroInteractions(channel);
       });
 
       test('addBreadcrumb', () async {

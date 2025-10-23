@@ -22,6 +22,7 @@ objc-interfaces:
     - SentryFlutterPlugin
     - SentryScope
     - SentrySDK
+    - SentryUser
   module:
     'SentryId': 'Sentry'
     'SentrySDK': 'Sentry'
@@ -33,6 +34,7 @@ objc-interfaces:
         - 'resumeAppHangTracking'
         - 'configureScope:'
         - 'addBreadcrumb:'
+        - 'setUser:'
     SentryScope:
       include:
         - 'clearBreadcrumbs'
