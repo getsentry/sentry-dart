@@ -265,28 +265,24 @@ class SentryNativeJava extends SentryNativeChannel {
       });
 
   @override
-  void setUser(SentryUser? user) {
-    native.User? nativeUser;
-    JObject? nativeOptions;
+  void setUser(SentryUser? user) => tryCatchSync('setUser', () {
+        using((arena) {
+          if (user == null) {
+            native.Sentry.setUser(null);
+          } else {
+            final nativeOptions = native.ScopesAdapter.getInstance()
+                ?.getOptions()
+              ?..releasedBy(arena);
+            if (nativeOptions == null) return;
 
-    tryCatchSync('setUser', () {
-      if (user == null) {
-        native.Sentry.setUser(null);
-      } else {
-        nativeOptions = native.ScopesAdapter.getInstance()?.getOptions();
-        if (nativeOptions == null) return;
+            final nativeUser = native.User.fromMap(
+                _dartToJMap(user.toJson(), arena), nativeOptions);
+            if (nativeUser == null) return;
 
-        nativeUser =
-            native.User.fromMap(_dartToJMap(user.toJson()), nativeOptions!);
-        if (nativeUser == null) return;
-
-        native.Sentry.setUser(nativeUser);
-      }
-    }, finallyFn: () {
-      nativeUser?.release();
-      nativeOptions?.release();
-    });
-  }
+            native.Sentry.setUser(nativeUser);
+          }
+        });
+      });
 }
 
 JObject? _dartToJObject(Object? value, Arena arena) => switch (value) {
