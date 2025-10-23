@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import '../protocol/sentry_level.dart';
 
-/// Extension providing type-safe value extraction from Map<String, dynamic>
+/// Extension providing type-safe value extraction from JSON maps
 @internal
 extension TypeSafeMapExtension on Map<String, dynamic> {
   /// Type-safe string extraction
