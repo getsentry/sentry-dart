@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import '../sentry_options.dart';
+import '../utils/type_safe_map_access.dart';
 import 'access_aware_map.dart';
 
 /// If a device is on portrait or landscape mode
@@ -179,52 +180,46 @@ class SentryDevice {
   factory SentryDevice.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryDevice(
-      name: json['name'],
-      family: json['family'],
-      model: json['model'],
-      modelId: json['model_id'],
-      arch: json['arch'],
-      batteryLevel:
-          (json['battery_level'] is num ? json['battery_level'] as num : null)
-              ?.toDouble(),
-      orientation: json['orientation'] == 'portrait'
-          ? SentryOrientation.portrait
-          : json['orientation'] == 'landscape'
-              ? SentryOrientation.landscape
-              : null,
-      manufacturer: json['manufacturer'],
-      brand: json['brand'],
-      screenHeightPixels: json['screen_height_pixels']?.toInt(),
-      screenWidthPixels: json['screen_width_pixels']?.toInt(),
-      screenDensity: json['screen_density'],
-      screenDpi: json['screen_dpi'],
-      online: json['online'],
-      charging: json['charging'],
-      lowMemory: json['low_memory'],
-      simulator: json['simulator'],
-      memorySize: json['memory_size'],
-      freeMemory: json['free_memory'],
-      usableMemory: json['usable_memory'],
-      storageSize: json['storage_size'],
-      freeStorage: json['free_storage'],
-      externalStorageSize: json['external_storage_size'],
-      externalFreeStorage: json['external_free_storage'],
-      bootTime: json['boot_time'] != null
-          ? DateTime.tryParse(json['boot_time'])
-          : null,
-      processorCount: json['processor_count'],
-      cpuDescription: json['cpu_description'],
-      processorFrequency: (json['processor_frequency'] is num)
-          ? (json['processor_frequency'] as num).toDouble()
-          : null,
-      deviceType: json['device_type'],
-      batteryStatus: json['battery_status'],
-      deviceUniqueIdentifier: json['device_unique_identifier'],
-      supportsVibration: json['supports_vibration'],
-      supportsAccelerometer: json['supports_accelerometer'],
-      supportsGyroscope: json['supports_gyroscope'],
-      supportsAudio: json['supports_audio'],
-      supportsLocationService: json['supports_location_service'],
+      name: json.getString('name'),
+      family: json.getString('family'),
+      model: json.getString('model'),
+      modelId: json.getString('model_id'),
+      arch: json.getString('arch'),
+      batteryLevel: json.getDouble('battery_level'),
+      orientation: switch (json.getString('orientation')) {
+        'portrait' => SentryOrientation.portrait,
+        'landscape' => SentryOrientation.landscape,
+        _ => null,
+      },
+      manufacturer: json.getString('manufacturer'),
+      brand: json.getString('brand'),
+      screenHeightPixels: json.getInt('screen_height_pixels'),
+      screenWidthPixels: json.getInt('screen_width_pixels'),
+      screenDensity: json.getDouble('screen_density'),
+      screenDpi: json.getInt('screen_dpi'),
+      online: json.getBool('online'),
+      charging: json.getBool('charging'),
+      lowMemory: json.getBool('low_memory'),
+      simulator: json.getBool('simulator'),
+      memorySize: json.getInt('memory_size'),
+      freeMemory: json.getInt('free_memory'),
+      usableMemory: json.getInt('usable_memory'),
+      storageSize: json.getInt('storage_size'),
+      freeStorage: json.getInt('free_storage'),
+      externalStorageSize: json.getInt('external_storage_size'),
+      externalFreeStorage: json.getInt('external_free_storage'),
+      bootTime: json.getDateTime('boot_time'),
+      processorCount: json.getInt('processor_count'),
+      cpuDescription: json.getString('cpu_description'),
+      processorFrequency: json.getDouble('processor_frequency'),
+      deviceType: json.getString('device_type'),
+      batteryStatus: json.getString('battery_status'),
+      deviceUniqueIdentifier: json.getString('device_unique_identifier'),
+      supportsVibration: json.getBool('supports_vibration'),
+      supportsAccelerometer: json.getBool('supports_accelerometer'),
+      supportsGyroscope: json.getBool('supports_gyroscope'),
+      supportsAudio: json.getBool('supports_audio'),
+      supportsLocationService: json.getBool('supports_location_service'),
       unknown: json.notAccessed(),
     );
   }
