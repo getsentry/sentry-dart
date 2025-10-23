@@ -384,6 +384,120 @@ class SentryFlutterPlugin :
     }
 
     @JvmStatic
+    fun crash() {
+      val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
+      val mainThread = Looper.getMainLooper().thread
+      mainThread.uncaughtExceptionHandler?.uncaughtException(mainThread, exception)
+      mainThread.join(NATIVE_CRASH_WAIT_TIME)
+    }
+
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
+    @JvmStatic
+    fun getDisplayRefreshRate(): Int? {
+      var refreshRate: Int? = null
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val display = activity?.get()?.display
+        if (display != null) {
+          refreshRate = display.refreshRate.toInt()
+        }
+      } else {
+        val display =
+          activity
+            ?.get()
+            ?.window
+            ?.windowManager
+            ?.defaultDisplay
+        if (display != null) {
+          refreshRate = display.refreshRate.toInt()
+        }
+      }
+
+      return refreshRate
+    }
+
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
+    @JvmStatic
+    fun fetchNativeAppStartAsBytes(): ByteArray? {
+      if (!sentryFlutter.autoPerformanceTracingEnabled) {
+        return null
+      }
+
+      val appStartMetrics = AppStartMetrics.getInstance()
+
+      if (!appStartMetrics.isAppLaunchedInForeground ||
+        appStartMetrics.appStartTimeSpan.durationMs > APP_START_MAX_DURATION_MS
+      ) {
+        Log.w(
+          "Sentry",
+          "Invalid app start data: app not launched in foreground or app start took too long (>60s)",
+        )
+        return null
+      }
+
+      val appStartTimeSpan = appStartMetrics.appStartTimeSpan
+      val appStartTime = appStartTimeSpan.startTimestamp
+      val isColdStart = appStartMetrics.appStartType == AppStartMetrics.AppStartType.COLD
+
+      if (appStartTime == null) {
+        Log.w("Sentry", "App start won't be sent due to missing appStartTime")
+        return null
+      }
+
+      val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
+      val item =
+        mutableMapOf<String, Any?>(
+          "pluginRegistrationTime" to pluginRegistrationTime,
+          "appStartTime" to appStartTimeMillis,
+          "isColdStart" to isColdStart,
+        )
+
+      val androidNativeSpans = mutableMapOf<String, Any?>()
+
+      val processInitSpan =
+        TimeSpan().apply {
+          description = "Process Initialization"
+          setStartUnixTimeMs(appStartTimeSpan.startTimestampMs)
+          setStartedAt(appStartTimeSpan.startUptimeMs)
+          setStoppedAt(appStartMetrics.classLoadedUptimeMs)
+        }
+      addTimeSpanToMap(processInitSpan, androidNativeSpans)
+
+      val applicationOnCreateSpan = appStartMetrics.applicationOnCreateTimeSpan
+      addTimeSpanToMap(applicationOnCreateSpan, androidNativeSpans)
+
+      val contentProviderSpans = appStartMetrics.contentProviderOnCreateTimeSpans
+      contentProviderSpans.forEach { span ->
+        addTimeSpanToMap(span, androidNativeSpans)
+      }
+
+      appStartMetrics.activityLifecycleTimeSpans.forEach { span ->
+        addTimeSpanToMap(span.onCreate, androidNativeSpans)
+        addTimeSpanToMap(span.onStart, androidNativeSpans)
+      }
+
+      item["nativeSpanTimes"] = androidNativeSpans
+
+      val json = JSONObject(item).toString()
+      return json.toByteArray(Charsets.UTF_8)
+    }
+
+    private fun addTimeSpanToMap(
+      span: TimeSpan,
+      map: MutableMap<String, Any?>,
+    ) {
+      if (span.startTimestamp == null) return
+
+      span.description?.let { description ->
+        map[description] =
+          mapOf<String, Any?>(
+            "startTimestampMsSinceEpoch" to span.startTimestampMs,
+            "stopTimestampMsSinceEpoch" to span.projectedStopTimestampMs,
+          )
+      }
+    }
+
+    @JvmStatic
     fun getApplicationContext(): Context? = applicationContext
 
     @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
