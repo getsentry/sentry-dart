@@ -1157,6 +1157,10 @@ final _objc_msgSend_1pl9qdv = objc.msgSendPointer
     .asFunction<
         void Function(
             ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+late final _sel_setContextValue_forKey_ =
+    objc.registerName("setContextValue:forKey:");
+late final _sel_removeContextForKey_ =
+    objc.registerName("removeContextForKey:");
 
 /// SentryScope
 class SentryScope extends objc.NSObject implements SentrySerializable {
@@ -1182,6 +1186,20 @@ class SentryScope extends objc.NSObject implements SentrySerializable {
   /// Clears all breadcrumbs in the scope
   void clearBreadcrumbs() {
     _objc_msgSend_1pl9qdv(this.ref.pointer, _sel_clearBreadcrumbs);
+  }
+
+  /// Sets context values which will overwrite SentryEvent.context when event is
+  /// "enriched" with scope before sending event.
+  void setContextValue(objc.NSDictionary value,
+      {required objc.NSString forKey}) {
+    _objc_msgSend_pfv6jd(this.ref.pointer, _sel_setContextValue_forKey_,
+        value.ref.pointer, forKey.ref.pointer);
+  }
+
+  /// Remove the context for the specified key.
+  void removeContextForKey(objc.NSString key) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_removeContextForKey_, key.ref.pointer);
   }
 }
 
