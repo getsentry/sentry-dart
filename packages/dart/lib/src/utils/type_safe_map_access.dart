@@ -65,13 +65,11 @@ extension TypeSafeMapExtension on Map<String, dynamic> {
     return null;
   }
 
-  String _typeName<T>() => T.toString();
-
   String _expectedTypeFor<T>() {
     if (T == DateTime) {
       return 'String (for DateTime)';
     }
-    return _typeName<T>();
+    return T.toString();
   }
 
   void _logTypeMismatch(String key, String expected, String actual) {
