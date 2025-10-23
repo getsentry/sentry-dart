@@ -24,6 +24,10 @@ class SentryNativeJava extends SentryNativeChannel {
   bool get supportsReplay => true;
 
   @override
+  SentryId? get replayId => _replayId;
+  SentryId? _replayId;
+
+  @override
   Future<void> init(Hub hub) async {
     // We only need these when replay is enabled (session or error capture)
     // so let's set it up conditionally. This allows Dart to trim the code.
@@ -31,14 +35,25 @@ class SentryNativeJava extends SentryNativeChannel {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'ReplayRecorder.start':
-            final replayId =
-                SentryId.fromId(call.arguments['replayId'] as String);
+            final replayIdArg = call.arguments['replayId'];
+            final replayIsBufferingArg = call.arguments['replayIsBuffering'];
+
+            final replayId = replayIdArg != null
+                ? SentryId.fromId(replayIdArg as String)
+                : null;
+
+            final replayIsBuffering = replayIsBufferingArg != null
+                ? replayIsBufferingArg as bool
+                : false;
+
+            _replayId = replayId;
 
             _replayRecorder = AndroidReplayRecorder.factory(options);
             await _replayRecorder!.start();
             hub.configureScope((s) {
+              // Only set replay ID on scope if not buffering (active session mode)
               // ignore: invalid_use_of_internal_member
-              s.replayId = replayId;
+              s.replayId = !replayIsBuffering ? replayId : null;
             });
             break;
           case 'ReplayRecorder.onConfigurationChanged':
@@ -79,6 +94,13 @@ class SentryNativeJava extends SentryNativeChannel {
     await _envelopeSender?.start();
 
     return super.init(hub);
+  }
+
+  @override
+  FutureOr<SentryId> captureReplay() async {
+    final replayId = await super.captureReplay();
+    _replayId = replayId;
+    return replayId;
   }
 
   @override
@@ -176,7 +198,7 @@ class SentryNativeJava extends SentryNativeChannel {
   int? displayRefreshRate() => tryCatchSync('displayRefreshRate', () {
         return native.SentryFlutterPlugin.Companion
             .getDisplayRefreshRate()
-            ?.intValue();
+            ?.intValue(releaseOriginal: true);
       });
 
   @override
@@ -222,24 +244,20 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  void addBreadcrumb(Breadcrumb breadcrumb) {
-    native.Breadcrumb? nativeBreadcrumb;
-    JObject? nativeOptions;
-
-    tryCatchSync('addBreadcrumb', () {
-      nativeOptions = native.ScopesAdapter.getInstance()?.getOptions();
-      if (nativeOptions == null) return;
-
-      nativeBreadcrumb = native.Breadcrumb.fromMap(
-          _dartToJMap(breadcrumb.toJson()), nativeOptions!);
-      if (nativeBreadcrumb == null) return;
-
-      native.Sentry.addBreadcrumb$1(nativeBreadcrumb!);
-    }, finallyFn: () {
-      nativeOptions?.release();
-      nativeBreadcrumb?.release();
-    });
-  }
+  void addBreadcrumb(Breadcrumb breadcrumb) =>
+      tryCatchSync('addBreadcrumb', () {
+        using((arena) {
+          final nativeOptions = native.ScopesAdapter.getInstance()?.getOptions()
+            ?..releasedBy(arena);
+          if (nativeOptions == null) return;
+          final jMap = _dartToJMap(breadcrumb.toJson(), arena);
+          final nativeBreadcrumb =
+              native.Breadcrumb.fromMap(jMap, nativeOptions)
+                ?..releasedBy(arena);
+          if (nativeBreadcrumb == null) return;
+          native.Sentry.addBreadcrumb$1(nativeBreadcrumb);
+        });
+      });
 
   @override
   void clearBreadcrumbs() => tryCatchSync('clearBreadcrumbs', () {
@@ -271,27 +289,36 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 }
 
-JObject? _dartToJObject(Object? value) => switch (value) {
+JObject? _dartToJObject(Object? value, Arena arena) => switch (value) {
       null => null,
-      String s => s.toJString(),
-      bool b => b.toJBoolean(),
-      int i => i.toJLong(), // safer for 64-bit
-      double d => d.toJDouble(),
-      List<dynamic> l => _dartToJList(l),
-      Map<String, dynamic> m => _dartToJMap(m),
+      String s => s.toJString()..releasedBy(arena),
+      bool b => b.toJBoolean()..releasedBy(arena),
+      int i => i.toJLong()..releasedBy(arena),
+      double d => d.toJDouble()..releasedBy(arena),
+      List<dynamic> l => _dartToJList(l, arena),
+      Map<String, dynamic> m => _dartToJMap(m, arena),
       _ => null
     };
 
-JList<JObject?> _dartToJList(List<dynamic> values) {
-  final jlist = JList.array(JObject.nullableType);
-  jlist.addAll(values.map(_dartToJObject));
+JList<JObject?> _dartToJList(List<dynamic> values, Arena arena) {
+  final jlist = JList.array(JObject.nullableType)..releasedBy(arena);
+
+  for (final value in values) {
+    final jObj = _dartToJObject(value, arena);
+    jlist.add(jObj);
+  }
+
   return jlist;
 }
 
-JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json) {
-  final jmap = JMap.hash(JString.type, JObject.nullableType);
+JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json, Arena arena) {
+  final jmap = JMap.hash(JString.type, JObject.nullableType)..releasedBy(arena);
+
   for (final entry in json.entries) {
-    jmap[entry.key.toJString()] = _dartToJObject(entry.value);
+    final key = entry.key.toJString()..releasedBy(arena);
+    final value = _dartToJObject(entry.value, arena);
+    jmap[key] = value;
   }
+
   return jmap;
 }

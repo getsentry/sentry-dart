@@ -262,7 +262,7 @@ class SentryFlutterPlugin :
       mainThread.join(NATIVE_CRASH_WAIT_TIME)
     }
 
-    @Suppress("unused") // Used by native/jni bindings
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun getDisplayRefreshRate(): Int? {
       var refreshRate: Int? = null

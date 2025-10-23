@@ -217,6 +217,9 @@ class SentryNativeChannel
   bool get supportsReplay => false;
 
   @override
+  SentryId? get replayId => null;
+
+  @override
   FutureOr<void> setReplayConfig(ReplayConfig config) =>
       channel.invokeMethod('setReplayConfig', {
         'windowWidth': config.windowWidth,
@@ -227,7 +230,7 @@ class SentryNativeChannel
       });
 
   @override
-  Future<SentryId> captureReplay() => channel
+  FutureOr<SentryId> captureReplay() => channel
       .invokeMethod('captureReplay')
       .then((value) => SentryId.fromId(value as String));
 
