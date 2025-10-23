@@ -244,20 +244,20 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  void addBreadcrumb(Breadcrumb breadcrumb) {
-    tryCatchSync('addBreadcrumb', () {
-      using((arena) {
-        final nativeOptions = native.ScopesAdapter.getInstance()?.getOptions()
-          ?..releasedBy(arena);
-        if (nativeOptions == null) return;
-        final jMap = _dartToJMap(breadcrumb.toJson(), arena);
-        final nativeBreadcrumb = native.Breadcrumb.fromMap(jMap, nativeOptions)
-          ?..releasedBy(arena);
-        if (nativeBreadcrumb == null) return;
-        native.Sentry.addBreadcrumb$1(nativeBreadcrumb);
+  void addBreadcrumb(Breadcrumb breadcrumb) =>
+      tryCatchSync('addBreadcrumb', () {
+        using((arena) {
+          final nativeOptions = native.ScopesAdapter.getInstance()?.getOptions()
+            ?..releasedBy(arena);
+          if (nativeOptions == null) return;
+          final jMap = _dartToJMap(breadcrumb.toJson(), arena);
+          final nativeBreadcrumb =
+              native.Breadcrumb.fromMap(jMap, nativeOptions)
+                ?..releasedBy(arena);
+          if (nativeBreadcrumb == null) return;
+          native.Sentry.addBreadcrumb$1(nativeBreadcrumb);
+        });
       });
-    });
-  }
 
   @override
   void clearBreadcrumbs() => tryCatchSync('clearBreadcrumbs', () {
