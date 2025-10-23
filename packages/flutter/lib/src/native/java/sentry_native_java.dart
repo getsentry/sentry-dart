@@ -276,7 +276,8 @@ class SentryNativeJava extends SentryNativeChannel {
             if (nativeOptions == null) return;
 
             final nativeUser = native.User.fromMap(
-                _dartToJMap(user.toJson(), arena), nativeOptions);
+                _dartToJMap(user.toJson(), arena), nativeOptions)
+              ?..releasedBy(arena);
             if (nativeUser == null) return;
 
             native.Sentry.setUser(nativeUser);
