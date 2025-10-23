@@ -63,14 +63,10 @@ class SentryFlutterPlugin :
       "closeNativeSdk" -> closeNativeSdk(result)
       "setContexts" -> setContexts(call.argument("key"), call.argument("value"), result)
       "removeContexts" -> removeContexts(call.argument("key"), result)
-      "setUser" -> setUser(call.argument("user"), result)
-      "addBreadcrumb" -> addBreadcrumb(call.argument("breadcrumb"), result)
-      "clearBreadcrumbs" -> clearBreadcrumbs(result)
       "setExtra" -> setExtra(call.argument("key"), call.argument("value"), result)
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
-      "nativeCrash" -> crash()
       "setReplayConfig" -> setReplayConfig(call, result)
       "captureReplay" -> captureReplay(result)
       else -> result.notImplemented()
@@ -176,38 +172,6 @@ class SentryFlutterPlugin :
     }
   }
 
-  private fun setUser(
-    user: Map<String, Any?>?,
-    result: Result,
-  ) {
-    if (user != null) {
-      val options = ScopesAdapter.getInstance().options
-      val userInstance = User.fromMap(user, options)
-      Sentry.setUser(userInstance)
-    } else {
-      Sentry.setUser(null)
-    }
-    result.success("")
-  }
-
-  private fun addBreadcrumb(
-    breadcrumb: Map<String, Any?>?,
-    result: Result,
-  ) {
-    if (breadcrumb != null) {
-      val options = ScopesAdapter.getInstance().options
-      val breadcrumbInstance = Breadcrumb.fromMap(breadcrumb, options)
-      Sentry.addBreadcrumb(breadcrumbInstance)
-    }
-    result.success("")
-  }
-
-  private fun clearBreadcrumbs(result: Result) {
-    Sentry.clearBreadcrumbs()
-
-    result.success("")
-  }
-
   private fun setExtra(
     key: String?,
     value: String?,
@@ -290,6 +254,15 @@ class SentryFlutterPlugin :
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
 
     @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun crash() {
+      val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
+      val mainThread = Looper.getMainLooper().thread
+      mainThread.uncaughtExceptionHandler?.uncaughtException(mainThread, exception)
+      mainThread.join(NATIVE_CRASH_WAIT_TIME)
+    }
+
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun getDisplayRefreshRate(): Int? {
       var refreshRate: Int? = null
@@ -462,13 +435,6 @@ class SentryFlutterPlugin :
         "code_id" to codeId,
         "debug_file" to debugFile,
       )
-
-    private fun crash() {
-      val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
-      val mainThread = Looper.getMainLooper().thread
-      mainThread.uncaughtExceptionHandler?.uncaughtException(mainThread, exception)
-      mainThread.join(NATIVE_CRASH_WAIT_TIME)
-    }
 
     private fun Double.adjustReplaySizeToBlockSize(): Double {
       val remainder = this % VIDEO_BLOCK_SIZE

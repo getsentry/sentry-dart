@@ -222,9 +222,100 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
+  void nativeCrash() {
+    native.SentryFlutterPlugin.Companion.crash();
+  }
+
+  @override
+  void pauseAppHangTracking() {
+    assert(false, 'pauseAppHangTracking is not supported on Android.');
+  }
+
+  @override
+  void resumeAppHangTracking() {
+    assert(false, 'resumeAppHangTracking is not supported on Android.');
+  }
+
+  @override
   Future<void> close() async {
     await _replayRecorder?.stop();
     await _envelopeSender?.close();
     return super.close();
   }
+
+  @override
+  void addBreadcrumb(Breadcrumb breadcrumb) =>
+      tryCatchSync('addBreadcrumb', () {
+        using((arena) {
+          final nativeOptions = native.ScopesAdapter.getInstance()?.getOptions()
+            ?..releasedBy(arena);
+          if (nativeOptions == null) return;
+          final jMap = _dartToJMap(breadcrumb.toJson(), arena);
+          final nativeBreadcrumb =
+              native.Breadcrumb.fromMap(jMap, nativeOptions)
+                ?..releasedBy(arena);
+          if (nativeBreadcrumb == null) return;
+          native.Sentry.addBreadcrumb$1(nativeBreadcrumb);
+        });
+      });
+
+  @override
+  void clearBreadcrumbs() => tryCatchSync('clearBreadcrumbs', () {
+        native.Sentry.clearBreadcrumbs();
+      });
+
+  @override
+  void setUser(SentryUser? user) => tryCatchSync('setUser', () {
+        using((arena) {
+          if (user == null) {
+            native.Sentry.setUser(null);
+          } else {
+            final nativeOptions = native.ScopesAdapter.getInstance()
+                ?.getOptions()
+              ?..releasedBy(arena);
+            if (nativeOptions == null) return;
+
+            final nativeUser = native.User.fromMap(
+                _dartToJMap(user.toJson(), arena), nativeOptions)
+              ?..releasedBy(arena);
+            if (nativeUser == null) return;
+
+            native.Sentry.setUser(nativeUser);
+          }
+        });
+      });
+}
+
+JObject? _dartToJObject(Object? value, Arena arena) => switch (value) {
+      null => null,
+      String s => s.toJString()..releasedBy(arena),
+      bool b => b.toJBoolean()..releasedBy(arena),
+      int i => i.toJLong()..releasedBy(arena),
+      double d => d.toJDouble()..releasedBy(arena),
+      List<dynamic> l => _dartToJList(l, arena),
+      Map<String, dynamic> m => _dartToJMap(m, arena),
+      _ => null
+    };
+
+JList<JObject?> _dartToJList(List<dynamic> values, Arena arena) {
+  final jlist = JList.array(JObject.nullableType)..releasedBy(arena);
+
+  for (final value in values) {
+    final jObj = _dartToJObject(value, arena);
+    jlist.add(jObj);
+  }
+
+  return jlist;
+}
+
+JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json, Arena arena) {
+  final jmap = JMap.hash(JString.type, JObject.nullableType)..releasedBy(arena);
+
+  for (final entry in json.entries) {
+    final key = entry.key.toJString()..releasedBy(arena);
+    final value = _dartToJObject(entry.value, arena);
+    jmap[key] = value;
+  }
+
+  return jmap;
 }

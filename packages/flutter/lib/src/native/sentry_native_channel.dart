@@ -8,11 +8,11 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../replay/replay_config.dart';
-import 'method_channel_helper.dart';
 import 'native_app_start.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
 import 'sentry_safe_method_channel.dart';
+import 'utils/data_normalizer.dart';
 
 /// Provide typed methods to access native layer via MethodChannel.
 @internal
@@ -122,58 +122,25 @@ class SentryNativeChannel
   }
 
   @override
-  Future<void> setUser(SentryUser? user) async {
-    if (user == null) {
-      await channel.invokeMethod(
-        'setUser',
-        {'user': null},
-      );
-    } else {
-      final normalizedUser = SentryUser(
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        ipAddress: user.ipAddress,
-        data: MethodChannelHelper.normalizeMap(user.data),
-        // ignore: deprecated_member_use
-        extras: user.extras,
-        geo: user.geo,
-        name: user.name,
-        // ignore: invalid_use_of_internal_member
-        unknown: user.unknown,
-      );
-      await channel.invokeMethod(
-        'setUser',
-        {'user': normalizedUser.toJson()},
-      );
-    }
+  FutureOr<void> setUser(SentryUser? user) async {
+    assert(false, "setUser should not be used through method channels.");
   }
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
-    final normalizedBreadcrumb = Breadcrumb(
-      message: breadcrumb.message,
-      category: breadcrumb.category,
-      data: MethodChannelHelper.normalizeMap(breadcrumb.data),
-      level: breadcrumb.level,
-      type: breadcrumb.type,
-      timestamp: breadcrumb.timestamp,
-      // ignore: invalid_use_of_internal_member
-      unknown: breadcrumb.unknown,
-    );
-    await channel.invokeMethod(
-      'addBreadcrumb',
-      {'breadcrumb': normalizedBreadcrumb.toJson()},
-    );
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+    assert(false, "addBreadcrumb should not be used through method channels.");
   }
 
   @override
-  Future<void> clearBreadcrumbs() => channel.invokeMethod('clearBreadcrumbs');
+  FutureOr<void> clearBreadcrumbs() async {
+    assert(
+        false, "clearBreadcrumbs should not be used through method channels.");
+  }
 
   @override
   Future<void> setContexts(String key, dynamic value) => channel.invokeMethod(
         'setContexts',
-        {'key': key, 'value': MethodChannelHelper.normalize(value)},
+        {'key': key, 'value': normalize(value)},
       );
 
   @override
@@ -183,7 +150,7 @@ class SentryNativeChannel
   @override
   Future<void> setExtra(String key, dynamic value) => channel.invokeMethod(
         'setExtra',
-        {'key': key, 'value': MethodChannelHelper.normalize(value)},
+        {'key': key, 'value': normalize(value)},
       );
 
   @override
@@ -230,15 +197,21 @@ class SentryNativeChannel
   }
 
   @override
-  Future<void> pauseAppHangTracking() =>
-      channel.invokeMethod('pauseAppHangTracking');
+  FutureOr<void> pauseAppHangTracking() {
+    assert(false,
+        'pauseAppHangTracking should not be used through method channels.');
+  }
 
   @override
-  Future<void> resumeAppHangTracking() =>
-      channel.invokeMethod('resumeAppHangTracking');
+  FutureOr<void> resumeAppHangTracking() {
+    assert(false,
+        'resumeAppHangTracking should not be used through method channels.');
+  }
 
   @override
-  Future<void> nativeCrash() => channel.invokeMethod('nativeCrash');
+  FutureOr<void> nativeCrash() {
+    assert(false, 'nativeCrash should not be used through method channels.');
+  }
 
   @override
   bool get supportsReplay => false;

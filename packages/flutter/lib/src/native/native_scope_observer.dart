@@ -34,18 +34,18 @@ class NativeScopeObserver implements ScopeObserver {
   }
 
   @override
-  Future<void> setUser(SentryUser? user) async {
-    await _native.setUser(user);
+  FutureOr<void> setUser(SentryUser? user) {
+    return _native.setUser(user);
   }
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
-    await _native.addBreadcrumb(breadcrumb);
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
+    return _native.addBreadcrumb(breadcrumb);
   }
 
   @override
-  Future<void> clearBreadcrumbs() async {
-    await _native.clearBreadcrumbs();
+  FutureOr<void> clearBreadcrumbs() {
+    return _native.clearBreadcrumbs();
   }
 
   @override

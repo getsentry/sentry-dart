@@ -87,19 +87,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             let key = arguments?["key"] as? String
             removeContexts(key: key, result: result)
 
-        case "setUser":
-            let arguments = call.arguments as? [String: Any?]
-            let user = arguments?["user"] as? [String: Any]
-            setUser(user: user, result: result)
-
-        case "addBreadcrumb":
-            let arguments = call.arguments as? [String: Any?]
-            let breadcrumb = arguments?["breadcrumb"] as? [String: Any]
-            addBreadcrumb(breadcrumb: breadcrumb, result: result)
-
-        case "clearBreadcrumbs":
-            clearBreadcrumbs(result: result)
-
         case "setExtra":
             let arguments = call.arguments as? [String: Any?]
             let key = arguments?["key"] as? String
@@ -129,15 +116,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         case "collectProfile":
             collectProfile(call, result)
         #endif
-
-        case "pauseAppHangTracking":
-            pauseAppHangTracking(result)
-
-        case "resumeAppHangTracking":
-            resumeAppHangTracking(result)
-
-        case "nativeCrash":
-            crash()
 
         case "captureReplay":
 #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
@@ -321,32 +299,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
       }
     }
 
-    private func setUser(user: [String: Any]?, result: @escaping FlutterResult) {
-      if let user = user {
-        let userInstance = PrivateSentrySDKOnly.user(with: user)
-        SentrySDK.setUser(userInstance)
-      } else {
-        SentrySDK.setUser(nil)
-      }
-      result("")
-    }
-
-    private func addBreadcrumb(breadcrumb: [String: Any]?, result: @escaping FlutterResult) {
-      if let breadcrumb = breadcrumb {
-        let breadcrumbInstance = PrivateSentrySDKOnly.breadcrumb(with: breadcrumb)
-        SentrySDK.addBreadcrumb(breadcrumbInstance)
-      }
-      result("")
-    }
-
-    private func clearBreadcrumbs(result: @escaping FlutterResult) {
-      SentrySDK.configureScope { scope in
-        scope.clearBreadcrumbs()
-
-        result("")
-      }
-    }
-
     private func setExtra(key: String?, value: Any?, result: @escaping FlutterResult) {
       guard let key = key else {
         result("")
@@ -429,20 +381,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
         PrivateSentrySDKOnly.discardProfiler(forTrace: SentryId(uuidString: traceId))
         result(nil)
-    }
-
-    private func pauseAppHangTracking(_ result: @escaping FlutterResult) {
-        SentrySDK.pauseAppHangTracking()
-        result("")
-    }
-
-    private func resumeAppHangTracking(_ result: @escaping FlutterResult) {
-        SentrySDK.resumeAppHangTracking()
-        result("")
-    }
-
-    private func crash() {
-        SentrySDK.crash()
     }
 
   // MARK: - Objective-C interoperability
