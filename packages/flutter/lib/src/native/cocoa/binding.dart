@@ -1145,7 +1145,6 @@ interface class SentrySerializable extends objc.ObjCProtocolBase
 }
 
 late final _sel_clearBreadcrumbs = objc.registerName("clearBreadcrumbs");
-late final _sel_crash = objc.registerName("crash");
 final _objc_msgSend_1pl9qdv = objc.msgSendPointer
     .cast<
         ffi.NativeFunction<
