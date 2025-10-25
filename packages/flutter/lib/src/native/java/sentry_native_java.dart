@@ -319,6 +319,23 @@ class SentryNativeJava extends SentryNativeChannel {
           });
         })));
       });
+
+  @override
+  void setTag(String key, String value) => tryCatchSync('setTag', () {
+        using((arena) {
+          final jKey = key.toJString()..releasedBy(arena);
+          final jVal = value.toJString()..releasedBy(arena);
+          native.Sentry.setTag(jKey, jVal);
+        });
+      });
+
+  @override
+  void removeTag(String key) => tryCatchSync('removeTag', () {
+        using((arena) {
+          final jKey = key.toJString()..releasedBy(arena);
+          native.Sentry.removeTag(jKey);
+        });
+      });
 }
 
 JObject? _dartToJObject(Object? value, Arena arena) => switch (value) {

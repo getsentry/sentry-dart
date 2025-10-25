@@ -158,12 +158,14 @@ class SentryNativeChannel
       channel.invokeMethod('removeExtra', {'key': key});
 
   @override
-  Future<void> setTag(String key, String value) =>
-      channel.invokeMethod('setTag', {'key': key, 'value': value});
+  FutureOr<void> setTag(String key, String value) {
+    assert(false, 'setTag should not be used through method channels.');
+  }
 
   @override
-  Future<void> removeTag(String key) =>
-      channel.invokeMethod('removeTag', {'key': key});
+  FutureOr<void> removeTag(String key) {
+    assert(false, 'removeTag should not be used through method channels.');
+  }
 
   @override
   int? startProfiler(SentryId traceId) =>

@@ -142,23 +142,27 @@ void main() {
       });
 
       test('setTag', () async {
-        when(channel.invokeMethod(
-                'setTag', {'key': 'fixture-key', 'value': 'fixture-value'}))
-            .thenAnswer((_) => Future.value());
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
 
-        await sut.setTag('fixture-key', 'fixture-value');
+        expect(() => sut.setTag('fixture-key', 'fixture-value'), matcher);
 
-        verify(channel.invokeMethod(
-            'setTag', {'key': 'fixture-key', 'value': 'fixture-value'}));
+        verifyZeroInteractions(channel);
       });
 
       test('removeTag', () async {
-        when(channel.invokeMethod('removeTag', {'key': 'fixture-key'}))
-            .thenAnswer((_) => Future.value());
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
 
-        await sut.removeTag('fixture-key');
+        expect(() => sut.removeTag('fixture-key'), matcher);
 
-        verify(channel.invokeMethod('removeTag', {'key': 'fixture-key'}));
+        verifyZeroInteractions(channel);
       });
 
       test('startProfiler', () {
