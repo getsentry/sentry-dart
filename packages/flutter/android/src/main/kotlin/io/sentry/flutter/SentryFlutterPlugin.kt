@@ -63,8 +63,6 @@ class SentryFlutterPlugin :
       "closeNativeSdk" -> closeNativeSdk(result)
       "setExtra" -> setExtra(call.argument("key"), call.argument("value"), result)
       "removeExtra" -> removeExtra(call.argument("key"), result)
-      "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
-      "removeTag" -> removeTag(call.argument("key"), result)
       "setReplayConfig" -> setReplayConfig(call, result)
       "captureReplay" -> captureReplay(result)
       else -> result.notImplemented()
@@ -162,33 +160,6 @@ class SentryFlutterPlugin :
       return
     }
     Sentry.removeExtra(key)
-
-    result.success("")
-  }
-
-  private fun setTag(
-    key: String?,
-    value: String?,
-    result: Result,
-  ) {
-    if (key == null || value == null) {
-      result.success("")
-      return
-    }
-    Sentry.setTag(key, value)
-
-    result.success("")
-  }
-
-  private fun removeTag(
-    key: String?,
-    result: Result,
-  ) {
-    if (key == null) {
-      result.success("")
-      return
-    }
-    Sentry.removeTag(key)
 
     result.success("")
   }
