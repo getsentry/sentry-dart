@@ -7,6 +7,7 @@ import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
+import '../utils/data_normalizer.dart';
 import '../utils/utf8_json.dart';
 import 'binding.dart' as cocoa;
 import 'cocoa_replay_recorder.dart';
@@ -197,7 +198,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
       tryCatchSync('addBreadcrumb', () {
         final nativeBreadcrumb =
             cocoa.PrivateSentrySDKOnly.breadcrumbWithDictionary(
-                _deepConvertMapNonNull(breadcrumb.toJson()).toNSDictionary());
+                _dartToNSDictionary(breadcrumb.toJson()));
         cocoa.SentrySDK.addBreadcrumb(nativeBreadcrumb);
       });
 
@@ -228,13 +229,63 @@ class SentryNativeCocoa extends SentryNativeChannel {
         if (user == null) {
           cocoa.SentrySDK.setUser(null);
         } else {
-          final dictionary =
-              _deepConvertMapNonNull(user.toJson()).toNSDictionary();
+          final dictionary = _dartToNSDictionary(user.toJson());
           final cUser =
               cocoa.PrivateSentrySDKOnly.userWithDictionary(dictionary);
           cocoa.SentrySDK.setUser(cUser);
         }
       });
+
+  @override
+  void setContexts(String key, dynamic value) =>
+      tryCatchSync('setContexts', () {
+        NSDictionary? dictionary;
+
+        final normalizedValue = normalize(value);
+        dictionary = switch (normalizedValue) {
+          Map<String, dynamic> m => _dartToNSDictionary(m),
+          Object o => NSDictionary.fromEntries(
+              [MapEntry('value'.toNSString(), _dartToNSObject(o))]),
+          _ => null
+        };
+
+        cocoa.SentrySDK.configureScope(
+            cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
+                (cocoa.SentryScope scope) {
+          if (dictionary != null) {
+            scope.setContextValue(dictionary, forKey: key.toNSString());
+          }
+        }));
+      });
+
+  @override
+  void removeContexts(String key) => tryCatchSync('removeContexts', () {
+        cocoa.SentrySDK.configureScope(
+            cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
+                (cocoa.SentryScope scope) {
+          scope.removeContextForKey(key.toNSString());
+        }));
+      });
+}
+
+// The default conversion does not handle bool so we will add it ourselves
+final ObjCObjectBase Function(Object) _defaultObjcConverter = (obj) {
+  return switch (obj) {
+    bool b => b ? 1.toNSNumber() : 0.toNSNumber(),
+    _ => toObjCObject(obj)
+  };
+};
+
+NSDictionary _dartToNSDictionary(Map<String, dynamic> json) {
+  return _deepConvertMapNonNull(json)
+      .toNSDictionary(convertOther: _defaultObjcConverter);
+}
+
+ObjCObjectBase _dartToNSObject(Object value) {
+  return switch (value) {
+    Map<String, dynamic> m => _dartToNSDictionary(m),
+    _ => toObjCObject(value, convertOther: _defaultObjcConverter)
+  };
 }
 
 /// This map conversion is needed so we can use the toNSDictionary extension function

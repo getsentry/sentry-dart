@@ -284,6 +284,41 @@ class SentryNativeJava extends SentryNativeChannel {
           }
         });
       });
+
+  @override
+  void setContexts(String key, value) => tryCatchSync('setContexts', () {
+        native.Sentry.configureScope(
+          native.ScopeCallback.implement(
+            native.$ScopeCallback(
+              run: (iScope) {
+                using((arena) {
+                  final jKey = key.toJString()..releasedBy(arena);
+                  final jVal = _dartToJObject(value, arena);
+
+                  if (jVal == null) return;
+
+                  final scope = iScope.as(const native.$Scope$Type())
+                    ..releasedBy(arena);
+                  scope.setContexts(jKey, jVal);
+                });
+              },
+            ),
+          ),
+        );
+      });
+
+  @override
+  void removeContexts(String key) => tryCatchSync('removeContexts', () {
+        native.Sentry.configureScope(
+            native.ScopeCallback.implement(native.$ScopeCallback(run: (iScope) {
+          using((arena) {
+            final jKey = key.toJString()..releasedBy(arena);
+            final scope = iScope.as(const native.$Scope$Type())
+              ..releasedBy(arena);
+            scope.removeContexts(jKey);
+          });
+        })));
+      });
 }
 
 JObject? _dartToJObject(Object? value, Arena arena) => switch (value) {

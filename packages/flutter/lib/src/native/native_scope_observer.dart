@@ -11,12 +11,12 @@ class NativeScopeObserver implements ScopeObserver {
   final SentryOptions _options;
 
   @override
-  Future<void> setContexts(String key, value) async {
+  FutureOr<void> setContexts(String key, value) {
     // ignore: invalid_use_of_internal_member
     if (Contexts.defaultFields.contains(key)) {
       try {
         final json = (value as dynamic).toJson();
-        await _native.setContexts(key, json);
+        return _native.setContexts(key, json);
       } catch (_) {
         _options.log(
           SentryLevel.error,
@@ -24,13 +24,13 @@ class NativeScopeObserver implements ScopeObserver {
         );
       }
     } else {
-      await _native.setContexts(key, value);
+      return _native.setContexts(key, value);
     }
   }
 
   @override
-  Future<void> removeContexts(String key) async {
-    await _native.removeContexts(key);
+  FutureOr<void> removeContexts(String key) {
+    return _native.removeContexts(key);
   }
 
   @override
