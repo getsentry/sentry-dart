@@ -128,9 +128,7 @@ void main() {
       await scope.addBreadcrumb(breadcrumb);
       await scope.clearBreadcrumbs();
 
-      // ignore: deprecated_member_use
       await scope.setExtra('extra-key', 'extra-value');
-      // ignore: deprecated_member_use
       await scope.removeExtra('extra-key');
 
       await scope.setTag('tag-key', 'tag-value');
