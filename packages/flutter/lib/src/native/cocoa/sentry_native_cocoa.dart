@@ -266,6 +266,24 @@ class SentryNativeCocoa extends SentryNativeChannel {
           scope.removeContextForKey(key.toNSString());
         }));
       });
+
+  @override
+  void setTag(String key, String value) => tryCatchSync('setTag', () {
+        cocoa.SentrySDK.configureScope(
+            cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
+                (cocoa.SentryScope scope) {
+          scope.setTagValue(value.toNSString(), forKey: key.toNSString());
+        }));
+      });
+
+  @override
+  void removeTag(String key) => tryCatchSync('removeTag', () {
+        cocoa.SentrySDK.configureScope(
+            cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
+                (cocoa.SentryScope scope) {
+          scope.removeTagForKey(key.toNSString());
+        }));
+      });
 }
 
 // The default conversion does not handle bool so we will add it ourselves
