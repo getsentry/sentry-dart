@@ -342,42 +342,21 @@ class SentryNativeJava extends SentryNativeChannel {
   void setExtra(String key, dynamic value) => tryCatchSync('setExtra', () {
         if (value == null) return;
 
-        native.Sentry.configureScope(
-          native.ScopeCallback.implement(
-            native.$ScopeCallback(
-              run: (iScope) {
-                using((arena) {
-                  final jKey = key.toJString()..releasedBy(arena);
-                  final jVal = normalize(value).toString().toJString()
-                    ..releasedBy(arena);
+        using((arena) {
+          final jKey = key.toJString()..releasedBy(arena);
+          final jVal = normalize(value).toString().toJString()
+            ..releasedBy(arena);
 
-                  final scope = iScope.as(const native.$Scope$Type())
-                    ..releasedBy(arena);
-                  scope.setExtra(jKey, jVal);
-                });
-              },
-            ),
-          ),
-        );
+          native.Sentry.setExtra(jKey, jVal);
+        });
       });
 
   @override
   void removeExtra(String key) => tryCatchSync('removeExtra', () {
-        native.Sentry.configureScope(
-          native.ScopeCallback.implement(
-            native.$ScopeCallback(
-              run: (iScope) {
-                using((arena) {
-                  final jKey = key.toJString()..releasedBy(arena);
-
-                  final scope = iScope.as(const native.$Scope$Type())
-                    ..releasedBy(arena);
-                  scope.removeExtra(jKey);
-                });
-              },
-            ),
-          ),
-        );
+        using((arena) {
+          final jKey = key.toJString()..releasedBy(arena);
+          native.Sentry.removeExtra(jKey);
+        });
       });
 }
 
