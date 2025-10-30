@@ -11,7 +11,6 @@ import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
-import 'package:sentry_flutter/src/native/utils/data_normalizer.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
 
 import 'mocks.dart';
@@ -119,26 +118,29 @@ void main() {
         verifyZeroInteractions(channel);
       });
 
-      test('setExtra', () async {
+      test('setExtra', () {
         final value = {'object': Object()};
-        final normalizedValue = normalize(value);
-        when(channel.invokeMethod(
-                'setExtra', {'key': 'fixture-key', 'value': normalizedValue}))
-            .thenAnswer((_) => Future.value());
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
 
-        await sut.setExtra('fixture-key', value);
+        expect(() => sut.setExtra('fixture-key', value), matcher);
 
-        verify(channel.invokeMethod(
-            'setExtra', {'key': 'fixture-key', 'value': normalizedValue}));
+        verifyZeroInteractions(channel);
       });
 
-      test('removeExtra', () async {
-        when(channel.invokeMethod('removeExtra', {'key': 'fixture-key'}))
-            .thenAnswer((_) => Future.value());
+      test('removeExtra', () {
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
 
-        await sut.removeExtra('fixture-key');
+        expect(() => sut.removeExtra('fixture-key'), matcher);
 
-        verify(channel.invokeMethod('removeExtra', {'key': 'fixture-key'}));
+        verifyZeroInteractions(channel);
       });
 
       test('setTag', () async {

@@ -12,7 +12,6 @@ import 'native_app_start.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
 import 'sentry_safe_method_channel.dart';
-import 'utils/data_normalizer.dart';
 
 /// Provide typed methods to access native layer via MethodChannel.
 @internal
@@ -148,14 +147,14 @@ class SentryNativeChannel
   }
 
   @override
-  Future<void> setExtra(String key, dynamic value) => channel.invokeMethod(
-        'setExtra',
-        {'key': key, 'value': normalize(value)},
-      );
+  FutureOr<void> setExtra(String key, dynamic value) {
+    assert(false, 'setExtra should not be used through method channels.');
+  }
 
   @override
-  Future<void> removeExtra(String key) =>
-      channel.invokeMethod('removeExtra', {'key': key});
+  FutureOr<void> removeExtra(String key) {
+    assert(false, 'removeExtra should not be used through method channels.');
+  }
 
   @override
   FutureOr<void> setTag(String key, String value) {

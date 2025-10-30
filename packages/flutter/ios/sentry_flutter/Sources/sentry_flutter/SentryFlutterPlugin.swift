@@ -75,17 +75,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         case "closeNativeSdk":
             closeNativeSdk(call, result: result)
 
-        case "setExtra":
-            let arguments = call.arguments as? [String: Any?]
-            let key = arguments?["key"] as? String
-            let value = arguments?["value"] as? Any
-            setExtra(key: key, value: value, result: result)
-
-        case "removeExtra":
-            let arguments = call.arguments as? [String: Any?]
-            let key = arguments?["key"] as? String
-            removeExtra(key: key, result: result)
-
         #if !os(tvOS) && !os(watchOS)
         case "discardProfiler":
             discardProfiler(call, result)
@@ -241,30 +230,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             return false
         }
         return !name.isEmpty
-    }
-
-    private func setExtra(key: String?, value: Any?, result: @escaping FlutterResult) {
-      guard let key = key else {
-        result("")
-        return
-      }
-      SentrySDK.configureScope { scope in
-        scope.setExtra(value: value, key: key)
-
-        result("")
-      }
-    }
-
-    private func removeExtra(key: String?, result: @escaping FlutterResult) {
-      guard let key = key else {
-        result("")
-        return
-      }
-      SentrySDK.configureScope { scope in
-        scope.removeExtra(key: key)
-
-        result("")
-      }
     }
 
     private func collectProfile(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {

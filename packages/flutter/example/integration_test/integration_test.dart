@@ -1,6 +1,4 @@
-// ignore_for_file: avoid_print
-// ignore_for_file: invalid_use_of_internal_member
-// ignore_for_file: unused_local_variable
+// ignore_for_file: avoid_print, invalid_use_of_internal_member, unused_local_variable, deprecated_member_use
 
 import 'dart:async';
 import 'dart:convert';
@@ -130,9 +128,7 @@ void main() {
       await scope.addBreadcrumb(breadcrumb);
       await scope.clearBreadcrumbs();
 
-      // ignore: deprecated_member_use
       await scope.setExtra('extra-key', 'extra-value');
-      // ignore: deprecated_member_use
       await scope.removeExtra('extra-key');
 
       await scope.setTag('tag-key', 'tag-value');
@@ -820,6 +816,64 @@ void main() {
       expect(contexts!['tags'], isNull, reason: 'Tags are not null');
     } else if (Platform.isAndroid) {
       expect(contexts!['tags'], isEmpty, reason: 'Tags are not empty');
+    }
+  });
+
+  testWidgets('setExtra and removeExtra sync to native', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    await Sentry.configureScope((scope) async {
+      scope.setExtra('key1', 'randomValue');
+      scope.setExtra('key2',
+          {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3});
+      scope.setExtra('key3', true);
+      scope.setExtra('key4', 12);
+      scope.setExtra('key5', 12.3);
+    });
+
+    var contexts = await SentryFlutter.native?.loadContexts();
+
+    final extras = (Platform.isIOS || Platform.isMacOS)
+        ? contexts!['extra']
+        : contexts!['extras'];
+    expect(extras, isNotNull, reason: 'Extras are null');
+
+    if (Platform.isIOS || Platform.isMacOS) {
+      expect(extras['key1'], 'randomValue', reason: 'key1 mismatch');
+      expect(extras['key2'],
+          {'String': 'Value', 'Bool': 1, 'Int': 123, 'Double': 12.3},
+          reason: 'key2 mismatch');
+      // bool values are mapped to num values of 1 or 0 during objc conversion
+      expect(extras['key3'], 1, reason: 'key3 mismatch');
+      expect(extras['key4'], 12, reason: 'key4 mismatch');
+      expect(extras['key5'], 12.3, reason: 'key5 mismatch');
+    } else if (Platform.isAndroid) {
+      // Sentry Java's setExtra only allows String values so this is after normalization
+      expect(extras['key1'], 'randomValue', reason: 'key1 mismatch');
+      expect(
+          extras['key2'], '{String: Value, Bool: true, Int: 123, Double: 12.3}',
+          reason: 'key2 mismatch');
+      expect(extras['key3'], 'true', reason: 'key3 mismatch');
+      expect(extras['key4'], '12', reason: 'key4 mismatch');
+      expect(extras['key5'], '12.3', reason: 'key5 mismatch');
+    }
+
+    await Sentry.configureScope((scope) async {
+      scope.removeExtra('key1');
+      scope.removeExtra('key2');
+      scope.removeExtra('key3');
+      scope.removeExtra('key4');
+      scope.removeExtra('key5');
+    });
+
+    contexts = await SentryFlutter.native?.loadContexts();
+    final extraKey = (Platform.isIOS || Platform.isMacOS) ? 'extra' : 'extras';
+    if (Platform.isIOS || Platform.isMacOS) {
+      expect(contexts![extraKey], isNull, reason: 'Extra are not null');
+    } else {
+      expect(contexts![extraKey], {}, reason: 'Extra are not empty');
     }
   });
 

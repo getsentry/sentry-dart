@@ -8,6 +8,7 @@ import '../../../sentry_flutter.dart';
 import '../../replay/scheduled_recorder_config.dart';
 import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
+import '../utils/data_normalizer.dart';
 import '../utils/utf8_json.dart';
 import 'android_envelope_sender.dart';
 import 'android_replay_recorder.dart';
@@ -334,6 +335,27 @@ class SentryNativeJava extends SentryNativeChannel {
         using((arena) {
           final jKey = key.toJString()..releasedBy(arena);
           native.Sentry.removeTag(jKey);
+        });
+      });
+
+  @override
+  void setExtra(String key, dynamic value) => tryCatchSync('setExtra', () {
+        if (value == null) return;
+
+        using((arena) {
+          final jKey = key.toJString()..releasedBy(arena);
+          final jVal = normalize(value).toString().toJString()
+            ..releasedBy(arena);
+
+          native.Sentry.setExtra(jKey, jVal);
+        });
+      });
+
+  @override
+  void removeExtra(String key) => tryCatchSync('removeExtra', () {
+        using((arena) {
+          final jKey = key.toJString()..releasedBy(arena);
+          native.Sentry.removeExtra(jKey);
         });
       });
 }
