@@ -19,5 +19,7 @@ classes:
   - io.sentry.Sentry
   - io.sentry.Breadcrumb
   - io.sentry.ScopesAdapter
+  - io.sentry.Scope
+  - io.sentry.ScopeCallback
   - io.sentry.protocol.User
   - android.graphics.Bitmap

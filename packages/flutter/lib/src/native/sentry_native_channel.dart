@@ -104,12 +104,12 @@ class SentryNativeChannel
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
     assert(
-        false, "captureEnvelope should not be used through method channels.");
+        false, 'captureEnvelope should not be used through method channels.');
   }
 
   @override
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) {
-    throw UnsupportedError("Not supported on this platform");
+    throw UnsupportedError('Not supported on this platform');
   }
 
   @override
@@ -123,29 +123,29 @@ class SentryNativeChannel
 
   @override
   FutureOr<void> setUser(SentryUser? user) async {
-    assert(false, "setUser should not be used through method channels.");
+    assert(false, 'setUser should not be used through method channels.');
   }
 
   @override
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) async {
-    assert(false, "addBreadcrumb should not be used through method channels.");
+    assert(false, 'addBreadcrumb should not be used through method channels.');
   }
 
   @override
   FutureOr<void> clearBreadcrumbs() async {
     assert(
-        false, "clearBreadcrumbs should not be used through method channels.");
+        false, 'clearBreadcrumbs should not be used through method channels.');
   }
 
   @override
-  Future<void> setContexts(String key, dynamic value) => channel.invokeMethod(
-        'setContexts',
-        {'key': key, 'value': normalize(value)},
-      );
+  FutureOr<void> setContexts(String key, dynamic value) {
+    assert(false, 'setContexts should not be used through method channels.');
+  }
 
   @override
-  Future<void> removeContexts(String key) =>
-      channel.invokeMethod('removeContexts', {'key': key});
+  FutureOr<void> removeContexts(String key) {
+    assert(false, 'removeContexts should not be used through method channels.');
+  }
 
   @override
   Future<void> setExtra(String key, dynamic value) => channel.invokeMethod(
@@ -167,7 +167,7 @@ class SentryNativeChannel
 
   @override
   int? startProfiler(SentryId traceId) =>
-      throw UnsupportedError("Not supported on this platform");
+      throw UnsupportedError('Not supported on this platform');
 
   @override
   Future<void> discardProfiler(SentryId traceId) =>
@@ -185,7 +185,7 @@ class SentryNativeChannel
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
     assert(
-        false, "loadDebugImages should not be used through method channels.");
+        false, 'loadDebugImages should not be used through method channels.');
     return null;
   }
 

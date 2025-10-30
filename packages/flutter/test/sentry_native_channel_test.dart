@@ -96,25 +96,27 @@ void main() {
 
       test('setContexts', () async {
         final value = {'object': Object()};
-        final normalizedValue = normalize(value);
-        when(channel.invokeMethod('setContexts', {
-          'key': 'fixture-key',
-          'value': normalizedValue
-        })).thenAnswer((_) => Future.value());
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
 
-        await sut.setContexts('fixture-key', value);
+        expect(() => sut.setContexts('fixture-key', value), matcher);
 
-        verify(channel.invokeMethod(
-            'setContexts', {'key': 'fixture-key', 'value': normalizedValue}));
+        verifyZeroInteractions(channel);
       });
 
       test('removeContexts', () async {
-        when(channel.invokeMethod('removeContexts', {'key': 'fixture-key'}))
-            .thenAnswer((_) => Future.value());
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
 
-        await sut.removeContexts('fixture-key');
+        expect(() => sut.removeContexts('fixture-key'), matcher);
 
-        verify(channel.invokeMethod('removeContexts', {'key': 'fixture-key'}));
+        verifyZeroInteractions(channel);
       });
 
       test('setExtra', () async {
