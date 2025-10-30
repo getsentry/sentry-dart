@@ -288,6 +288,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   void setExtra(String key, dynamic value) => tryCatchSync('setExtra', () {
         if (value == null) return;
+
         cocoa.SentrySDK.configureScope(
             cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
                 (cocoa.SentryScope scope) {
