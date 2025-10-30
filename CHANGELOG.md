@@ -9,6 +9,7 @@
 
 ### Enhancements
 
+- Refactor `setExtra` and `removeExtra` to use FFI/JNI ([#3314](https://github.com/getsentry/sentry-dart/pull/3314))
 - Refactor `setContexts` and `removeContexts` to use FFI/JNI ([#3312](https://github.com/getsentry/sentry-dart/pull/3312))
 - Refactor `setUser` to use FFI/JNI ([#3295](https://github.com/getsentry/sentry-dart/pull/3295/))
 - Refactor native breadcrumbs sync to use FFI/JNI ([#3293](https://github.com/getsentry/sentry-dart/pull/3293/))
