@@ -835,10 +835,12 @@ void main() {
 
     var contexts = await SentryFlutter.native?.loadContexts();
 
-    final extras = Platform.isIOS ? contexts!['extra'] : contexts!['extras'];
+    final extras = (Platform.isIOS || Platform.isMacOS)
+        ? contexts!['extra']
+        : contexts!['extras'];
     expect(extras, isNotNull, reason: 'Extras are null');
 
-    if (Platform.isIOS) {
+    if (Platform.isIOS || Platform.isMacOS) {
       expect(extras['key1'], 'randomValue', reason: 'key1 mismatch');
       expect(extras['key2'],
           {'String': 'Value', 'Bool': 1, 'Int': 123, 'Double': 12.3},
@@ -867,7 +869,8 @@ void main() {
     });
 
     contexts = await SentryFlutter.native?.loadContexts();
-    expect(contexts!['extra'], isNull, reason: 'Extra are not null');
+    final extraKey = (Platform.isIOS || Platform.isMacOS) ? 'extra' : 'extras';
+    expect(contexts![extraKey], isNull, reason: 'Extra are not null');
   });
 
   group('e2e', () {
