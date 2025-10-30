@@ -870,7 +870,11 @@ void main() {
 
     contexts = await SentryFlutter.native?.loadContexts();
     final extraKey = (Platform.isIOS || Platform.isMacOS) ? 'extra' : 'extras';
-    expect(contexts![extraKey], isNull, reason: 'Extra are not null');
+    if (Platform.isIOS || Platform.isMacOS) {
+      expect(contexts![extraKey], isNull, reason: 'Extra are not null');
+    } else {
+      expect(contexts![extraKey], {}, reason: 'Extra are not empty');
+    }
   });
 
   group('e2e', () {
