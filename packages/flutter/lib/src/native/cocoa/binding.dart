@@ -1201,6 +1201,19 @@ class SentryScope extends objc.NSObject implements SentrySerializable {
         this.ref.pointer, _sel_removeTagForKey_, key.ref.pointer);
   }
 
+  /// Set global extra -> these will be sent with every event
+  void setExtraValue(objc.ObjCObjectBase? value,
+      {required objc.NSString forKey}) {
+    _objc_msgSend_pfv6jd(this.ref.pointer, _sel_setExtraValue_forKey_,
+        value?.ref.pointer ?? ffi.nullptr, forKey.ref.pointer);
+  }
+
+  /// Remove the extra for the specified key.
+  void removeExtraForKey(objc.NSString key) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_removeExtraForKey_, key.ref.pointer);
+  }
+
   /// Clears all breadcrumbs in the scope
   void clearBreadcrumbs() {
     _objc_msgSend_1pl9qdv(this.ref.pointer, _sel_clearBreadcrumbs);
