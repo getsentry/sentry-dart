@@ -358,7 +358,7 @@ class SentryNativeJava extends SentryNativeChannel {
   @override
   SentryId captureReplay() {
     final id = tryCatchSync<SentryId>('captureReplay', () {
-      using((arena) {
+      return using((arena) {
         // The passed parameter is `isTerminating`
         _nativeReplay?.captureReplay(false.toJBoolean()..releasedBy(arena));
         final jString = _nativeReplay?.getReplayId().toString$1()
