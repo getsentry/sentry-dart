@@ -221,19 +221,16 @@ class SentryNativeChannel
   SentryId? get replayId => null;
 
   @override
-  FutureOr<void> setReplayConfig(ReplayConfig config) =>
-      channel.invokeMethod('setReplayConfig', {
-        'windowWidth': config.windowWidth,
-        'windowHeight': config.windowHeight,
-        'width': config.width,
-        'height': config.height,
-        'frameRate': config.frameRate,
-      });
+  FutureOr<void> setReplayConfig(ReplayConfig config) {
+    assert(
+        false, 'setReplayConfig should not be used through method channels.');
+  }
 
   @override
-  FutureOr<SentryId> captureReplay() => channel
-      .invokeMethod('captureReplay')
-      .then((value) => SentryId.fromId(value as String));
+  FutureOr<SentryId> captureReplay() {
+    assert(false, 'captureReplay should not be used through method channels.');
+    return SentryId.empty();
+  }
 
   @override
   FutureOr<void> captureSession() {

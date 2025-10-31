@@ -101,13 +101,6 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  FutureOr<SentryId> captureReplay() async {
-    final replayId = await super.captureReplay();
-    _replayId = replayId;
-    return replayId;
-  }
-
-  @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
     _envelopeSender?.captureEnvelope(envelopeData, containsUnhandledException);
