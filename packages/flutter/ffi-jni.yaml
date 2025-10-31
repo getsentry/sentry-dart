@@ -23,4 +23,5 @@ classes:
   - io.sentry.Scope
   - io.sentry.ScopeCallback
   - io.sentry.protocol.User
+  - io.sentry.protocol.SentryId
   - android.graphics.Bitmap
