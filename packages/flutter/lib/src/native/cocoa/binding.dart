@@ -1510,6 +1510,7 @@ late final _sel_fetchNativeAppStartAsBytes =
 late final _sel_loadContextsAsBytes = objc.registerName("loadContextsAsBytes");
 late final _sel_loadDebugImagesAsBytes_ =
     objc.registerName("loadDebugImagesAsBytes:");
+late final _sel_captureReplay = objc.registerName("captureReplay");
 
 /// SentryFlutterPlugin
 class SentryFlutterPlugin extends objc.NSObject {
@@ -1566,6 +1567,15 @@ class SentryFlutterPlugin extends objc.NSObject {
     return _ret.address == 0
         ? null
         : objc.NSData.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// captureReplay
+  static objc.NSString? captureReplay() {
+    final _ret =
+        _objc_msgSend_151sglz(_class_SentryFlutterPlugin, _sel_captureReplay);
+    return _ret.address == 0
+        ? null
+        : objc.NSString.castFromPointer(_ret, retain: true, release: true);
   }
 
   /// init

@@ -302,8 +302,11 @@ void main() {
       });
 
       test('setReplayConfig', () async {
-        when(channel.invokeMethod('setReplayConfig', any))
-            .thenAnswer((_) => Future.value());
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
 
         final config = ReplayConfig(
             windowWidth: 110,
@@ -311,31 +314,26 @@ void main() {
             width: 1.1,
             height: 2.2,
             frameRate: 3);
-        await sut.setReplayConfig(config);
 
         if (mockPlatform.isAndroid) {
-          verify(channel.invokeMethod('setReplayConfig', {
-            'windowWidth': config.windowWidth,
-            'windowHeight': config.windowHeight,
-            'width': config.width,
-            'height': config.height,
-            'frameRate': config.frameRate,
-          }));
+          expect(() => sut.setReplayConfig(config), matcher);
         } else {
-          verifyNever(channel.invokeMethod('setReplayConfig', any));
+          expect(() => sut.setReplayConfig(config), returnsNormally);
         }
+
+        verifyZeroInteractions(channel);
       });
 
       test('captureReplay', () async {
-        final sentryId = SentryId.newId();
+        final matcher = _nativeUnavailableMatcher(
+          mockPlatform,
+          includeLookupSymbol: true,
+          includeFailedToLoadClassException: true,
+        );
 
-        when(channel.invokeMethod('captureReplay', any))
-            .thenAnswer((_) => Future.value(sentryId.toString()));
+        expect(() => sut.captureReplay(), matcher);
 
-        final returnedId = await sut.captureReplay();
-
-        verify(channel.invokeMethod('captureReplay'));
-        expect(returnedId, sentryId);
+        verifyZeroInteractions(channel);
       });
 
       test('getSession is no-op', () async {

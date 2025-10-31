@@ -8,5 +8,6 @@
 + (nullable NSData *)fetchNativeAppStartAsBytes;
 + (nullable NSData *)loadContextsAsBytes;
 + (nullable NSData *)loadDebugImagesAsBytes:(NSSet<NSString *> *)instructionAddresses;
++ (nullable NSString *)captureReplay;
 @end
 #endif

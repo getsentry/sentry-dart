@@ -83,14 +83,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             collectProfile(call, result)
         #endif
 
-        case "captureReplay":
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-            PrivateSentrySDKOnly.captureReplay()
-            result(PrivateSentrySDKOnly.getReplayId())
-#else
-            result(nil)
-#endif
-
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -273,6 +265,15 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   // Group of methods exposed to the Objective-C runtime via `@objc`.
   //
   // Purpose: Called from the Flutter plugin's native bridge (FFI) - bindings are created from SentryFlutterPlugin.h
+
+  @objc public class func captureReplay() -> String? {
+    #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+    PrivateSentrySDKOnly.captureReplay()
+    return PrivateSentrySDKOnly.getReplayId()
+    #else
+    return nil
+    #endif
+  }
 
   #if os(iOS)
   // Taken from the Flutter engine:
