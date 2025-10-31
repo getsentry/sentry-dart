@@ -52,7 +52,7 @@ jobs:
           FLUTTER_VERSION: ${{ inputs.flutter_version || '3.*.*' }}
 
       - name: Upload updated status cache of processed files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: flutter-symbol-collector-database
