@@ -5,6 +5,7 @@ import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
+import '../../replay/replay_config.dart';
 import '../../replay/scheduled_recorder_config.dart';
 import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
@@ -18,6 +19,7 @@ import 'binding.dart' as native;
 class SentryNativeJava extends SentryNativeChannel {
   AndroidReplayRecorder? _replayRecorder;
   AndroidEnvelopeSender? _envelopeSender;
+  native.ReplayIntegration? _nativeReplay;
 
   SentryNativeJava(super.options);
 
@@ -48,7 +50,8 @@ class SentryNativeJava extends SentryNativeChannel {
                 : false;
 
             _replayId = replayId;
-
+            _nativeReplay = native.SentryFlutterPlugin.Companion
+                .privateSentryGetReplayIntegration();
             _replayRecorder = AndroidReplayRecorder.factory(options);
             await _replayRecorder!.start();
             hub.configureScope((s) {
@@ -358,6 +361,54 @@ class SentryNativeJava extends SentryNativeChannel {
           native.Sentry.removeExtra(jKey);
         });
       });
+
+  @override
+  void setReplayConfig(ReplayConfig config) =>
+      tryCatchSync('setReplayConfig', () {
+        final invalidConfig = config.width == 0.0 ||
+            config.height == 0.0 ||
+            config.windowWidth == 0.0 ||
+            config.windowHeight == 0.0;
+        if (invalidConfig) {
+          options.log(
+              SentryLevel.error,
+              'Replay config is not valid: '
+              'width: ${config.width}, '
+              'height: ${config.height}, '
+              'windowWidth: ${config.windowWidth}, '
+              'windowHeight: ${config.windowHeight}');
+          return;
+        }
+
+        var adjWidth = config.width;
+        var adjHeight = config.height;
+
+        // First update the smaller dimension, as changing that will affect the screen ratio more.
+        if (adjWidth < adjHeight) {
+          final newWidth = adjWidth.adjustReplaySizeToBlockSize();
+          final scale = newWidth / adjWidth;
+          final newHeight = (adjHeight * scale).adjustReplaySizeToBlockSize();
+          adjWidth = newWidth;
+          adjHeight = newHeight;
+        } else {
+          final newHeight = adjHeight.adjustReplaySizeToBlockSize();
+          final scale = newHeight / adjHeight;
+          final newWidth = (adjWidth * scale).adjustReplaySizeToBlockSize();
+          adjHeight = newHeight;
+          adjWidth = newWidth;
+        }
+
+        final replayConfig = native.ScreenshotRecorderConfig(
+          adjWidth.toInt(),
+          adjHeight.toInt(),
+          adjWidth / config.windowWidth,
+          adjHeight / config.windowHeight,
+          config.frameRate,
+          0, // bitRate is currently not used
+        );
+
+        _nativeReplay?.onConfigurationChanged(replayConfig);
+      });
 }
 
 JObject? _dartToJObject(Object? value, Arena arena) => switch (value) {
@@ -392,4 +443,17 @@ JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json, Arena arena) {
   }
 
   return jmap;
+}
+
+const _videoBlockSize = 16;
+
+extension _ReplaySizeAdjustment on double {
+  double adjustReplaySizeToBlockSize() {
+    final remainder = this % _videoBlockSize;
+    if (remainder <= _videoBlockSize / 2) {
+      return this - remainder;
+    } else {
+      return this + (_videoBlockSize - remainder);
+    }
+  }
 }
