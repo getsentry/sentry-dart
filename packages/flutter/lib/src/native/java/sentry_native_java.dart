@@ -460,7 +460,8 @@ JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json, Arena arena) {
 
 const _videoBlockSize = 16;
 
-extension _ReplaySizeAdjustment on double {
+@visibleForTesting
+extension ReplaySizeAdjustment on double {
   double adjustReplaySizeToBlockSize() {
     final remainder = this % _videoBlockSize;
     if (remainder <= _videoBlockSize / 2) {
