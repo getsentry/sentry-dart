@@ -403,6 +403,9 @@ class SentryNativeJava extends SentryNativeChannel {
   @override
   void setReplayConfig(ReplayConfig config) =>
       tryCatchSync('setReplayConfig', () {
+        // Since codec block size is 16, so we have to adjust the width and height to it,
+        // otherwise the codec might fail to configure on some devices, see
+        // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
         final invalidConfig = config.width == 0.0 ||
             config.height == 0.0 ||
             config.windowWidth == 0.0 ||
