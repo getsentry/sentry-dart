@@ -30,6 +30,29 @@ class SentryNativeJava extends SentryNativeChannel {
   SentryId? get replayId => _replayId;
   SentryId? _replayId;
 
+  @visibleForTesting
+  AndroidReplayRecorder get testRecorder {
+    return _replayRecorder ??= AndroidReplayRecorder.factory(options);
+  }
+
+  @visibleForTesting
+  Future<void> testSetReplayId(String? id,
+      {bool replayIsBuffering = false}) async {
+    _replayId = id == null ? null : SentryId.fromId(id);
+    await Sentry.configureScope((s) async {
+      // ignore: invalid_use_of_internal_member
+      s.replayId = !replayIsBuffering ? _replayId : null;
+    });
+  }
+
+  @visibleForTesting
+  Future<void> testClearReplayId() async {
+    await Sentry.configureScope((s) async {
+      // ignore: invalid_use_of_internal_member
+      s.replayId = null;
+    });
+  }
+
   @override
   Future<void> init(Hub hub) async {
     // We only need these when replay is enabled (session or error capture)
@@ -359,6 +382,8 @@ class SentryNativeJava extends SentryNativeChannel {
   SentryId captureReplay() {
     final id = tryCatchSync<SentryId>('captureReplay', () {
       return using((arena) {
+        _nativeReplay ??= native.SentryFlutterPlugin.Companion
+            .privateSentryGetReplayIntegration();
         // The passed parameter is `isTerminating`
         _nativeReplay?.captureReplay(false.toJBoolean()..releasedBy(arena));
         final jString = _nativeReplay?.getReplayId().toString$1()
@@ -420,6 +445,8 @@ class SentryNativeJava extends SentryNativeChannel {
           0, // bitRate is currently not used
         );
 
+        _nativeReplay ??= native.SentryFlutterPlugin.Companion
+            .privateSentryGetReplayIntegration();
         _nativeReplay?.onConfigurationChanged(replayConfig);
       });
 }
