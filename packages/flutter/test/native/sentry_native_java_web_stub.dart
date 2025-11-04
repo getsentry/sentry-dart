@@ -1,5 +1,5 @@
 // Web stub for sentry_native_java.dart
-// This file provides only the parts needed for testing on web platform
+// This file provides only the parts needed for being able to compile on Web
 // without importing JNI or other FFI dependencies.
 
 import 'package:meta/meta.dart';
