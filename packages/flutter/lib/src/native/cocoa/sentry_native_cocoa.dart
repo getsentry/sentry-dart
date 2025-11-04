@@ -27,24 +27,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   SentryId? get replayId => _replayId;
 
-  // Test-only: expose recorder without MethodChannel.
   @visibleForTesting
-  CocoaReplayRecorder get testRecorder {
-    return _replayRecorder ??= CocoaReplayRecorder(options);
-  }
-
-  @visibleForTesting
-  Future<void> testSetReplayId(String? id,
-      {bool replayIsBuffering = false}) async {
-    final newId = id == null ? null : SentryId.fromId(id);
-    if (_replayId != newId) {
-      _replayId = newId;
-      await Sentry.configureScope((s) async {
-        // ignore: invalid_use_of_internal_member
-        s.replayId = !replayIsBuffering ? _replayId : null;
-      });
-    }
-  }
+  CocoaReplayRecorder? get testRecorder => _replayRecorder;
 
   @override
   Future<void> init(Hub hub) async {

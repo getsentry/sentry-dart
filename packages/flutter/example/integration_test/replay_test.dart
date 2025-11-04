@@ -168,8 +168,8 @@ void main() {
       expect(frameCount, equals(afterStopCount));
     }, skip: !Platform.isAndroid);
 
-    testWidgets('setReplayConfig applies without error on iOS', (tester) async {
-      if (!Platform.isAndroid) return;
+    testWidgets('setReplayConfig applies without error on Android',
+        (tester) async {
       await setupSentryAndApp(tester);
       const config = ReplayConfig(
         windowWidth: 1080,
@@ -188,7 +188,7 @@ void main() {
       await setupSentryAndApp(tester);
       final native = SentryFlutter.native as SentryNativeCocoa?;
       expect(native, isNotNull);
-      final json = await native!.testRecorder.captureScreenshot();
+      final json = await native!.testRecorder?.captureScreenshot();
       expect(json, isNotNull);
       expect(json!['length'], isNotNull);
       expect(json['address'], isNotNull);
@@ -198,7 +198,7 @@ void main() {
       expect((json['height'] as int) > 0, isTrue);
 
       // Capture again to ensure subsequent captures still succeed
-      final json2 = await native.testRecorder.captureScreenshot();
+      final json2 = await native.testRecorder?.captureScreenshot();
       expect(json2, isNotNull);
     }, skip: !Platform.isIOS);
   });

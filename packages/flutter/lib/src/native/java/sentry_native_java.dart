@@ -367,14 +367,22 @@ class SentryNativeJava extends SentryNativeChannel {
             .privateSentryGetReplayIntegration();
         // The passed parameter is `isTerminating`
         _nativeReplay?.captureReplay(false.toJBoolean()..releasedBy(arena));
-        final jString = _nativeReplay?.getReplayId().toString$1()
-          ?..releasedBy(arena);
 
-        if (jString == null) {
-          return SentryId.empty();
-        } else {
-          return SentryId.fromId(jString.toDartString());
+        final nativeReplayId = _nativeReplay?.getReplayId();
+        nativeReplayId?.releasedBy(arena);
+
+        JString? jString;
+        if (nativeReplayId != null) {
+          jString = nativeReplayId.toString$1();
+          jString?.releasedBy(arena);
         }
+
+        final result = jString == null
+            ? SentryId.empty()
+            : SentryId.fromId(jString.toDartString());
+
+        _replayId = result;
+        return result;
       });
     });
 
