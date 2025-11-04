@@ -31,9 +31,7 @@ class SentryNativeJava extends SentryNativeChannel {
   SentryId? _replayId;
 
   @visibleForTesting
-  AndroidReplayRecorder? get testRecorder {
-    return _replayRecorder;
-  }
+  AndroidReplayRecorder? get testRecorder => _replayRecorder;
 
   @override
   Future<void> init(Hub hub) async {
