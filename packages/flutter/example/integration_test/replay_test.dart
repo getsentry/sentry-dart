@@ -63,6 +63,9 @@ void main() {
       }
     });
 
+    // We would like to add a test that ensures a native-initiated replay stop
+    // clears the replay ID from the scope. Currently we can't add that test
+    // because FFI/JNI cannot be mocked in this environment.
     testWidgets('sets replay ID after capturing exception', (tester) async {
       await setupSentryAndApp(tester);
 
