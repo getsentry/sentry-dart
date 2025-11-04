@@ -61,6 +61,15 @@ void main() {
       }
     });
 
+    testWidgets('captureReplay sets native replay ID', (tester) async {
+      if (!(Platform.isAndroid || Platform.isIOS)) return;
+      await setupSentryAndApp(tester);
+      final id = await SentryFlutter.native?.captureReplay();
+      expect(id, isA<SentryId>());
+      expect(SentryFlutter.native?.replayId, isNotNull);
+      expect(SentryFlutter.native?.replayId, isNot(const SentryId.empty()));
+    });
+
     // We would like to add a test that ensures a native-initiated replay stop
     // clears the replay ID from the scope. Currently we can't add that test
     // because FFI/JNI cannot be mocked in this environment.
