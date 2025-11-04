@@ -27,6 +27,9 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   SentryId? get replayId => _replayId;
 
+  @visibleForTesting
+  CocoaReplayRecorder? get testRecorder => _replayRecorder;
+
   @override
   Future<void> init(Hub hub) async {
     // We only need these when replay is enabled (session or error capture)
@@ -65,13 +68,6 @@ class SentryNativeCocoa extends SentryNativeChannel {
     await _envelopeSender?.start();
 
     return super.init(hub);
-  }
-
-  @override
-  FutureOr<SentryId> captureReplay() async {
-    final replayId = await super.captureReplay();
-    _replayId = replayId;
-    return replayId;
   }
 
   @override
@@ -305,6 +301,21 @@ class SentryNativeCocoa extends SentryNativeChannel {
           scope.removeExtraForKey(key.toNSString());
         }));
       });
+
+  @override
+  SentryId captureReplay() =>
+      tryCatchSync('captureReplay', () {
+        final value = cocoa.SentryFlutterPlugin.captureReplay()?.toDartString();
+        SentryId id;
+        if (value == null) {
+          id = SentryId.empty();
+        } else {
+          id = SentryId.fromId(value);
+        }
+        _replayId = id;
+        return id;
+      }) ??
+      SentryId.empty();
 }
 
 // The default conversion does not handle bool so we will add it ourselves

@@ -5,6 +5,7 @@ import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
+import '../../replay/replay_config.dart';
 import '../../replay/scheduled_recorder_config.dart';
 import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
@@ -18,6 +19,7 @@ import 'binding.dart' as native;
 class SentryNativeJava extends SentryNativeChannel {
   AndroidReplayRecorder? _replayRecorder;
   AndroidEnvelopeSender? _envelopeSender;
+  native.ReplayIntegration? _nativeReplay;
 
   SentryNativeJava(super.options);
 
@@ -27,6 +29,9 @@ class SentryNativeJava extends SentryNativeChannel {
   @override
   SentryId? get replayId => _replayId;
   SentryId? _replayId;
+
+  @visibleForTesting
+  AndroidReplayRecorder? get testRecorder => _replayRecorder;
 
   @override
   Future<void> init(Hub hub) async {
@@ -48,7 +53,8 @@ class SentryNativeJava extends SentryNativeChannel {
                 : false;
 
             _replayId = replayId;
-
+            _nativeReplay = native.SentryFlutterPlugin.Companion
+                .privateSentryGetReplayIntegration();
             _replayRecorder = AndroidReplayRecorder.factory(options);
             await _replayRecorder!.start();
             hub.configureScope((s) {
@@ -95,13 +101,6 @@ class SentryNativeJava extends SentryNativeChannel {
     await _envelopeSender?.start();
 
     return super.init(hub);
-  }
-
-  @override
-  FutureOr<SentryId> captureReplay() async {
-    final replayId = await super.captureReplay();
-    _replayId = replayId;
-    return replayId;
   }
 
   @override
@@ -241,6 +240,7 @@ class SentryNativeJava extends SentryNativeChannel {
   Future<void> close() async {
     await _replayRecorder?.stop();
     await _envelopeSender?.close();
+    _nativeReplay?.release();
     return super.close();
   }
 
@@ -358,6 +358,91 @@ class SentryNativeJava extends SentryNativeChannel {
           native.Sentry.removeExtra(jKey);
         });
       });
+
+  @override
+  SentryId captureReplay() {
+    final id = tryCatchSync<SentryId>('captureReplay', () {
+      return using((arena) {
+        _nativeReplay ??= native.SentryFlutterPlugin.Companion
+            .privateSentryGetReplayIntegration();
+        // The passed parameter is `isTerminating`
+        _nativeReplay?.captureReplay(false.toJBoolean()..releasedBy(arena));
+
+        final nativeReplayId = _nativeReplay?.getReplayId();
+        nativeReplayId?.releasedBy(arena);
+
+        JString? jString;
+        if (nativeReplayId != null) {
+          jString = nativeReplayId.toString$1();
+          jString?.releasedBy(arena);
+        }
+
+        final result = jString == null
+            ? SentryId.empty()
+            : SentryId.fromId(jString.toDartString());
+
+        _replayId = result;
+        return result;
+      });
+    });
+
+    return id ?? SentryId.empty();
+  }
+
+  @override
+  void setReplayConfig(ReplayConfig config) =>
+      tryCatchSync('setReplayConfig', () {
+        // Since codec block size is 16, so we have to adjust the width and height to it,
+        // otherwise the codec might fail to configure on some devices, see
+        // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
+        final invalidConfig = config.width == 0.0 ||
+            config.height == 0.0 ||
+            config.windowWidth == 0.0 ||
+            config.windowHeight == 0.0;
+        if (invalidConfig) {
+          options.log(
+              SentryLevel.error,
+              'Replay config is not valid: '
+              'width: ${config.width}, '
+              'height: ${config.height}, '
+              'windowWidth: ${config.windowWidth}, '
+              'windowHeight: ${config.windowHeight}');
+          return;
+        }
+
+        var adjWidth = config.width;
+        var adjHeight = config.height;
+
+        // First update the smaller dimension, as changing that will affect the screen ratio more.
+        if (adjWidth < adjHeight) {
+          final newWidth = adjWidth.adjustReplaySizeToBlockSize();
+          final scale = newWidth / adjWidth;
+          final newHeight = (adjHeight * scale).adjustReplaySizeToBlockSize();
+          adjWidth = newWidth;
+          adjHeight = newHeight;
+        } else {
+          final newHeight = adjHeight.adjustReplaySizeToBlockSize();
+          final scale = newHeight / adjHeight;
+          final newWidth = (adjWidth * scale).adjustReplaySizeToBlockSize();
+          adjHeight = newHeight;
+          adjWidth = newWidth;
+        }
+
+        final replayConfig = native.ScreenshotRecorderConfig(
+          adjWidth.round(),
+          adjHeight.round(),
+          adjWidth / config.windowWidth,
+          adjHeight / config.windowHeight,
+          config.frameRate,
+          0, // bitRate is currently not used
+        );
+
+        _nativeReplay ??= native.SentryFlutterPlugin.Companion
+            .privateSentryGetReplayIntegration();
+        _nativeReplay?.onConfigurationChanged(replayConfig);
+
+        replayConfig.release();
+      });
 }
 
 JObject? _dartToJObject(Object? value, Arena arena) => switch (value) {
@@ -392,4 +477,18 @@ JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json, Arena arena) {
   }
 
   return jmap;
+}
+
+const _videoBlockSize = 16;
+
+@visibleForTesting
+extension ReplaySizeAdjustment on double {
+  double adjustReplaySizeToBlockSize() {
+    final remainder = this % _videoBlockSize;
+    if (remainder <= _videoBlockSize / 2) {
+      return this - remainder;
+    } else {
+      return this + (_videoBlockSize - remainder);
+    }
+  }
 }
