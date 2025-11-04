@@ -25,7 +25,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
       AndroidReplayRecorder.new;
 
   @visibleForTesting
-  static void Function()? onScreenshotAddedForTest;
+  void Function()? onScreenshotAddedForTest;
 
   AndroidReplayRecorder(super.options, {SpawnWorkerFn? spawn})
       : _config = WorkerConfig(

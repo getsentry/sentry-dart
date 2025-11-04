@@ -22,7 +22,6 @@ void main() {
   const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
   tearDown(() async {
-    AndroidReplayRecorder.onScreenshotAddedForTest = null;
     await Sentry.close();
   });
 
@@ -109,7 +108,7 @@ void main() {
 
       var frameCount = 0;
       final firstFrame = Completer<void>();
-      AndroidReplayRecorder.onScreenshotAddedForTest = () {
+      recorder.onScreenshotAddedForTest = () {
         frameCount++;
         if (!firstFrame.isCompleted) firstFrame.complete();
       };
@@ -161,7 +160,7 @@ void main() {
       // Hook: count frames and capture first
       var frameCount = 0;
       final firstFrame = Completer<void>();
-      AndroidReplayRecorder.onScreenshotAddedForTest = () {
+      recorder.onScreenshotAddedForTest = () {
         frameCount++;
         if (!firstFrame.isCompleted) firstFrame.complete();
       };
