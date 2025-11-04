@@ -171,6 +171,8 @@ class _MockAndroidReplayRecorder extends ScheduledScreenshotRecorder
   final captured = <Screenshot>[];
   var completer = Completer<void>();
 
+  void Function()? onScreenshotAddedForTest;
+
   _MockAndroidReplayRecorder(super.options) {
     super.callback = (screenshot, _) async {
       captured.add(screenshot);

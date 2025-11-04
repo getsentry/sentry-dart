@@ -11,7 +11,6 @@ import 'package:sentry_flutter_example/main.dart';
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
 import 'package:sentry_flutter/src/native/cocoa/sentry_native_cocoa.dart';
-import 'package:sentry_flutter/src/native/java/android_replay_recorder.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
 
 void main() {
@@ -94,7 +93,6 @@ void main() {
       final native = SentryFlutter.native as SentryNativeJava?;
       expect(native, isNotNull);
 
-      // Wait for replay setup to finish triggered by init
       await Future.delayed(const Duration(seconds: 2));
       final recorder = native!.testRecorder;
       expect(recorder, isNotNull);
@@ -113,29 +111,14 @@ void main() {
         if (!firstFrame.isCompleted) firstFrame.complete();
       };
 
-      const frameDuration = Duration(seconds: 1); // 1 FPS
-      Future<void> waitForSilenceByCount(
-          {required Duration quietFor, required Duration maxWait}) async {
-        final deadline = DateTime.now().add(maxWait);
-        var prev = frameCount;
-        while (DateTime.now().isBefore(deadline)) {
-          await Future<void>.delayed(quietFor);
-          if (frameCount == prev) return; // no new frames in quiet window
-          prev = frameCount; // frames arrived; try another window
-        }
-        fail('Expected no frames for $quietFor but count kept changing');
-      }
-
-      // START: expect first frame from init (replay enabled). If setup is slow,
-      // allow a slightly longer timeout.
       await tester.pump();
       await firstFrame.future.timeout(const Duration(seconds: 5));
 
-      // STOP: wait until a quiet window without frames
       await recorder.stop();
       await tester.pump();
-      await waitForSilenceByCount(
-          quietFor: frameDuration * 2, maxWait: frameDuration * 12);
+      final afterStopCount = frameCount;
+      await Future<void>.delayed(const Duration(seconds: 2));
+      expect(frameCount, equals(afterStopCount));
     }, skip: !Platform.isAndroid);
 
     testWidgets(
@@ -145,7 +128,6 @@ void main() {
       final native = SentryFlutter.native as SentryNativeJava?;
       expect(native, isNotNull);
 
-      // Wait for replay setup to finish triggered by init
       await Future.delayed(const Duration(seconds: 2));
       final recorder = native!.testRecorder;
       expect(recorder, isNotNull);
@@ -157,7 +139,6 @@ void main() {
         frameRate: 1,
       ));
 
-      // Hook: count frames and capture first
       var frameCount = 0;
       final firstFrame = Completer<void>();
       recorder.onScreenshotAddedForTest = () {
@@ -165,49 +146,26 @@ void main() {
         if (!firstFrame.isCompleted) firstFrame.complete();
       };
 
-      const frameDuration = Duration(seconds: 1); // 1 FPS
-      Future<void> waitForSilenceByCount({
-        required Duration quietFor,
-        required Duration maxWait,
-      }) async {
-        final deadline = DateTime.now().add(maxWait);
-        var prev = frameCount;
-        while (DateTime.now().isBefore(deadline)) {
-          await Future<void>.delayed(quietFor);
-          if (frameCount == prev) return; // no new frames in quiet window
-          prev = frameCount; // frames arrived; try another window
-        }
-        fail('Expected no frames for $quietFor but count kept changing');
-      }
-
-      // Ensure recording is running: wait for first frame from init
       await tester.pump();
       await firstFrame.future.timeout(const Duration(seconds: 5));
 
-      // PAUSE: expect silence
       await recorder.pause();
       await tester.pump();
       final pausedCount = frameCount;
-      await waitForSilenceByCount(
-          quietFor: frameDuration * 2, maxWait: frameDuration * 12);
+      await Future<void>.delayed(const Duration(seconds: 2));
       expect(frameCount, equals(pausedCount));
 
-      // RESUME: expect count to increase
       await recorder.resume();
       await tester.pump();
       final resumedBaseline = frameCount;
-      final resumeDeadline = DateTime.now().add(const Duration(seconds: 6));
-      while (DateTime.now().isBefore(resumeDeadline) &&
-          frameCount == resumedBaseline) {
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      }
+      await Future<void>.delayed(const Duration(seconds: 3));
       expect(frameCount, greaterThan(resumedBaseline));
 
-      // STOP: final silence
       await recorder.stop();
       await tester.pump();
-      await waitForSilenceByCount(
-          quietFor: frameDuration * 2, maxWait: frameDuration * 12);
+      final afterStopCount = frameCount;
+      await Future<void>.delayed(const Duration(seconds: 2));
+      expect(frameCount, equals(afterStopCount));
     }, skip: !Platform.isAndroid);
 
     testWidgets('setReplayConfig applies without error on iOS', (tester) async {
