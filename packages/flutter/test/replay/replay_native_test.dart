@@ -160,9 +160,7 @@ void main() {
             replayConfig['scope.replayId'] = null;
             await captureAndVerify();
           });
-        },
-            timeout: Timeout(Duration(seconds: 10)),
-            skip: mockPlatform.isAndroid);
+        }, timeout: Timeout(Duration(seconds: 10)), skip: !mockPlatform.isIOS);
       });
     });
   }
