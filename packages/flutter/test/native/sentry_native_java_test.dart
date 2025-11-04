@@ -1,5 +1,9 @@
+@TestOn('vm')
+library;
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
+import 'sentry_native_java_web_stub.dart'
+    if (dart.library.io) 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 
 void main() {
   // the ReplaySizeAdjustment tests assumes a constant video block size of 16
