@@ -109,7 +109,8 @@ void main() {
             await tester.pumpWidget(Container());
             await tester.pumpAndSettle();
           });
-        });
+          // Skip on Android since JNI cannot be unit tested yet
+        }, skip: mockPlatform.isAndroid);
 
         test(
             'clears replay ID from context on ${mockPlatform.operatingSystem.name}',
@@ -137,82 +138,31 @@ void main() {
             when(hub.configureScope(captureAny)).thenReturn(null);
 
             await pumpTestElement(tester);
-            if (mockPlatform.isAndroid) {
-              nextFrame({bool wait = true}) async {
-                final future = mockAndroidRecorder.completer.future;
-                await tester.pumpAndWaitUntil(future, requiredToComplete: wait);
-              }
+            final Map<String, dynamic> replayConfig = {'scope.replayId': '123'};
 
-              final Map<String, dynamic> replayConfig = {
-                'scope.replayId': '123',
-                'replayId': '456',
-              };
-              final configuration = {
-                'width': 800,
-                'height': 600,
-                'frameRate': 1,
-              };
-              await native.invokeFromNative(
-                  'ReplayRecorder.start', replayConfig);
+            Future<void> captureAndVerify() async {
+              final future = native.invokeFromNative(
+                  'captureReplayScreenshot', replayConfig);
+              final json = (await tester.pumpAndWaitUntil(future))
+                  as Map<dynamic, dynamic>;
 
-              await native.invokeFromNative(
-                  'ReplayRecorder.onConfigurationChanged', configuration);
-
-              await nextFrame();
-              expect(mockAndroidRecorder.captured, isNotEmpty);
-              final screenshot = mockAndroidRecorder.captured.first;
-              expect(screenshot.width, configuration['width']);
-              expect(screenshot.height, configuration['height']);
-
-              await native.invokeFromNative('ReplayRecorder.pause');
-              var count = mockAndroidRecorder.captured.length;
-
-              await nextFrame(wait: false);
-              await Future<void>.delayed(const Duration(milliseconds: 100));
-              expect(mockAndroidRecorder.captured.length, equals(count));
-
-              await nextFrame(wait: false);
-              expect(mockAndroidRecorder.captured.length, equals(count));
-
-              await native.invokeFromNative('ReplayRecorder.resume');
-
-              await nextFrame();
-              expect(mockAndroidRecorder.captured.length, greaterThan(count));
-
-              await native.invokeFromNative('ReplayRecorder.stop');
-              count = mockAndroidRecorder.captured.length;
-              await Future<void>.delayed(const Duration(milliseconds: 100));
-              await nextFrame(wait: false);
-              expect(mockAndroidRecorder.captured.length, equals(count));
-            } else if (mockPlatform.isIOS) {
-              final Map<String, dynamic> replayConfig = {
-                'scope.replayId': '123'
-              };
-
-              Future<void> captureAndVerify() async {
-                final future = native.invokeFromNative(
-                    'captureReplayScreenshot', replayConfig);
-                final json = (await tester.pumpAndWaitUntil(future))
-                    as Map<dynamic, dynamic>;
-
-                expect(json['length'], greaterThan(3000));
-                expect(json['address'], greaterThan(0));
-                expect(json['width'], 640);
-                expect(json['height'], 480);
-                NativeMemory.fromJson(json).free();
-              }
-
-              await captureAndVerify();
-
-              // Check everything works if session-replay rate is 0,
-              // which causes replayId to be 0 as well.
-              replayConfig['scope.replayId'] = null;
-              await captureAndVerify();
-            } else {
-              fail('unsupported platform');
+              expect(json['length'], greaterThan(3000));
+              expect(json['address'], greaterThan(0));
+              expect(json['width'], 640);
+              expect(json['height'], 480);
+              NativeMemory.fromJson(json).free();
             }
+
+            await captureAndVerify();
+
+            // Check everything works if session-replay rate is 0,
+            // which causes replayId to be 0 as well.
+            replayConfig['scope.replayId'] = null;
+            await captureAndVerify();
           });
-        }, timeout: Timeout(Duration(seconds: 10)));
+        },
+            timeout: Timeout(Duration(seconds: 10)),
+            skip: mockPlatform.isAndroid);
       });
     });
   }

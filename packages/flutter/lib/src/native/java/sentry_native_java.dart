@@ -31,26 +31,8 @@ class SentryNativeJava extends SentryNativeChannel {
   SentryId? _replayId;
 
   @visibleForTesting
-  AndroidReplayRecorder get testRecorder {
-    return _replayRecorder ??= AndroidReplayRecorder.factory(options);
-  }
-
-  @visibleForTesting
-  Future<void> testSetReplayId(String? id,
-      {bool replayIsBuffering = false}) async {
-    _replayId = id == null ? null : SentryId.fromId(id);
-    await Sentry.configureScope((s) async {
-      // ignore: invalid_use_of_internal_member
-      s.replayId = !replayIsBuffering ? _replayId : null;
-    });
-  }
-
-  @visibleForTesting
-  Future<void> testClearReplayId() async {
-    await Sentry.configureScope((s) async {
-      // ignore: invalid_use_of_internal_member
-      s.replayId = null;
-    });
+  AndroidReplayRecorder? get testRecorder {
+    return _replayRecorder;
   }
 
   @override

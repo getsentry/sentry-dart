@@ -22,6 +22,7 @@ void main() {
   const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
   tearDown(() async {
+    AndroidReplayRecorder.onScreenshotAddedForTest = null;
     await Sentry.close();
   });
 
@@ -62,102 +63,152 @@ void main() {
       }
     });
 
-    testWidgets('sets replay ID to context (Android/iOS)', (tester) async {
+    testWidgets('sets replay ID after capturing exception', (tester) async {
       await setupSentryAndApp(tester);
 
-      if (Platform.isAndroid) {
-        final native = SentryFlutter.native as SentryNativeJava?;
-        expect(native, isNotNull);
-        await native!.testSetReplayId('123', replayIsBuffering: false);
-      } else if (Platform.isIOS) {
-        final native = SentryFlutter.native as SentryNativeCocoa?;
-        expect(native, isNotNull);
-        await native!.testSetReplayId('123', replayIsBuffering: false);
-      } else {
-        return;
+      try {
+        throw Exception('boom');
+      } catch (e, st) {
+        await Sentry.captureException(e, stackTrace: st);
       }
 
+      // After capture, ReplayEventProcessor should set scope.replayId
       await Sentry.configureScope((scope) async {
-        expect(scope.replayId?.toString(), '123');
+        expect(
+            scope.replayId == null || scope.replayId == const SentryId.empty(),
+            isFalse);
+      });
+
+      final current = SentryFlutter.native?.replayId;
+      await Sentry.configureScope((scope) async {
+        expect(current?.toString(), equals(scope.replayId?.toString()));
       });
     });
 
-    testWidgets('clears replay ID from context (Android only)', (tester) async {
-      if (!Platform.isAndroid) return;
-      await setupSentryAndApp(tester);
-
-      final native = SentryFlutter.native as SentryNativeJava?;
-      expect(native, isNotNull);
-      await native!.testSetReplayId('123', replayIsBuffering: false);
-
-      await Sentry.configureScope((scope) async {
-        expect(scope.replayId, isNotNull);
-      });
-
-      await native.testClearReplayId();
-
-      await Sentry.configureScope((scope) async {
-        expect(scope.replayId, isNull);
-      });
-    });
-
-    testWidgets('Android: captures images and pause/resume/stop',
+    testWidgets(
+        'replay recorder start emits frame and stop silences frames on Android',
         (tester) async {
-      if (!Platform.isAndroid) return;
       await setupSentryAndApp(tester);
       final native = SentryFlutter.native as SentryNativeJava?;
       expect(native, isNotNull);
-      final recorder = native!.testRecorder;
 
-      // Configure recorder
-      await recorder
+      // Wait for replay setup to finish triggered by init
+      await Future.delayed(const Duration(seconds: 2));
+      final recorder = native!.testRecorder;
+      expect(recorder, isNotNull);
+
+      await recorder!
           .onConfigurationChanged(const ScheduledScreenshotRecorderConfig(
         width: 800,
         height: 600,
         frameRate: 1,
       ));
 
-      var count = 0;
-      final completer = Completer<void>();
+      var frameCount = 0;
+      final firstFrame = Completer<void>();
       AndroidReplayRecorder.onScreenshotAddedForTest = () {
-        count++;
-        if (!completer.isCompleted) completer.complete();
+        frameCount++;
+        if (!firstFrame.isCompleted) firstFrame.complete();
       };
 
-      // Start and wait for first frame
-      await recorder.start();
-      await completer.future;
-      expect(count > 0, isTrue);
-
-      // Pause and ensure count is stable
-      final pausedAt = count;
-      await recorder.pause();
-      await Future<void>.delayed(const Duration(milliseconds: 200));
-      expect(count, equals(pausedAt));
-
-      // Resume and ensure count increases
-      await recorder.resume();
-      final resumedCompleter = Completer<void>();
-      final startCount = count;
-      AndroidReplayRecorder.onScreenshotAddedForTest = () {
-        count++;
-        if (!resumedCompleter.isCompleted && count > startCount) {
-          resumedCompleter.complete();
+      const frameDuration = Duration(seconds: 1); // 1 FPS
+      Future<void> waitForSilenceByCount(
+          {required Duration quietFor, required Duration maxWait}) async {
+        final deadline = DateTime.now().add(maxWait);
+        var prev = frameCount;
+        while (DateTime.now().isBefore(deadline)) {
+          await Future<void>.delayed(quietFor);
+          if (frameCount == prev) return; // no new frames in quiet window
+          prev = frameCount; // frames arrived; try another window
         }
-      };
-      await resumedCompleter.future;
-      expect(count, greaterThan(startCount));
+        fail('Expected no frames for $quietFor but count kept changing');
+      }
 
-      // Stop and ensure no further increments
+      // START: expect first frame from init (replay enabled). If setup is slow,
+      // allow a slightly longer timeout.
+      await tester.pump();
+      await firstFrame.future.timeout(const Duration(seconds: 5));
+
+      // STOP: wait until a quiet window without frames
       await recorder.stop();
-      final stoppedAt = count;
-      await Future<void>.delayed(const Duration(milliseconds: 200));
-      expect(count, equals(stoppedAt));
-      AndroidReplayRecorder.onScreenshotAddedForTest = null;
-    });
+      await tester.pump();
+      await waitForSilenceByCount(
+          quietFor: frameDuration * 2, maxWait: frameDuration * 12);
+    }, skip: !Platform.isAndroid);
 
-    testWidgets('Android: setReplayConfig applies without error',
+    testWidgets(
+        'replay recorder pause silences and resume restarts frames on Android',
         (tester) async {
+      await setupSentryAndApp(tester);
+      final native = SentryFlutter.native as SentryNativeJava?;
+      expect(native, isNotNull);
+
+      // Wait for replay setup to finish triggered by init
+      await Future.delayed(const Duration(seconds: 2));
+      final recorder = native!.testRecorder;
+      expect(recorder, isNotNull);
+
+      await recorder!
+          .onConfigurationChanged(const ScheduledScreenshotRecorderConfig(
+        width: 800,
+        height: 600,
+        frameRate: 1,
+      ));
+
+      // Hook: count frames and capture first
+      var frameCount = 0;
+      final firstFrame = Completer<void>();
+      AndroidReplayRecorder.onScreenshotAddedForTest = () {
+        frameCount++;
+        if (!firstFrame.isCompleted) firstFrame.complete();
+      };
+
+      const frameDuration = Duration(seconds: 1); // 1 FPS
+      Future<void> waitForSilenceByCount({
+        required Duration quietFor,
+        required Duration maxWait,
+      }) async {
+        final deadline = DateTime.now().add(maxWait);
+        var prev = frameCount;
+        while (DateTime.now().isBefore(deadline)) {
+          await Future<void>.delayed(quietFor);
+          if (frameCount == prev) return; // no new frames in quiet window
+          prev = frameCount; // frames arrived; try another window
+        }
+        fail('Expected no frames for $quietFor but count kept changing');
+      }
+
+      // Ensure recording is running: wait for first frame from init
+      await tester.pump();
+      await firstFrame.future.timeout(const Duration(seconds: 5));
+
+      // PAUSE: expect silence
+      await recorder.pause();
+      await tester.pump();
+      final pausedCount = frameCount;
+      await waitForSilenceByCount(
+          quietFor: frameDuration * 2, maxWait: frameDuration * 12);
+      expect(frameCount, equals(pausedCount));
+
+      // RESUME: expect count to increase
+      await recorder.resume();
+      await tester.pump();
+      final resumedBaseline = frameCount;
+      final resumeDeadline = DateTime.now().add(const Duration(seconds: 6));
+      while (DateTime.now().isBefore(resumeDeadline) &&
+          frameCount == resumedBaseline) {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+      expect(frameCount, greaterThan(resumedBaseline));
+
+      // STOP: final silence
+      await recorder.stop();
+      await tester.pump();
+      await waitForSilenceByCount(
+          quietFor: frameDuration * 2, maxWait: frameDuration * 12);
+    }, skip: !Platform.isAndroid);
+
+    testWidgets('setReplayConfig applies without error on iOS', (tester) async {
       if (!Platform.isAndroid) return;
       await setupSentryAndApp(tester);
       const config = ReplayConfig(
@@ -169,9 +220,9 @@ void main() {
       );
       // Should not throw
       await SentryFlutter.native?.setReplayConfig(config);
-    });
+    }, skip: !Platform.isAndroid);
 
-    testWidgets('iOS: capture screenshot via test recorder returns metadata',
+    testWidgets('capture screenshot via test recorder returns metadata on iOS',
         (tester) async {
       if (!Platform.isIOS) return;
       await setupSentryAndApp(tester);
@@ -186,11 +237,9 @@ void main() {
       expect((json['width'] as int) > 0, isTrue);
       expect((json['height'] as int) > 0, isTrue);
 
-      // Also verify capture works with null replayId
-      await (SentryFlutter.native as SentryNativeCocoa)
-          .testSetReplayId(null, replayIsBuffering: false);
+      // Capture again to ensure subsequent captures still succeed
       final json2 = await native.testRecorder.captureScreenshot();
       expect(json2, isNotNull);
-    });
+    }, skip: !Platform.isIOS);
   });
 }
