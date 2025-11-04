@@ -420,8 +420,8 @@ class SentryNativeJava extends SentryNativeChannel {
         }
 
         final replayConfig = native.ScreenshotRecorderConfig(
-          adjWidth.toInt(),
-          adjHeight.toInt(),
+          adjWidth.round(),
+          adjHeight.round(),
           adjWidth / config.windowWidth,
           adjHeight / config.windowHeight,
           config.frameRate,
