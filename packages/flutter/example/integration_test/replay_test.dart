@@ -187,16 +187,19 @@ void main() {
         height: 600,
         frameRate: 1,
       );
+      await Future.delayed(const Duration(seconds: 2));
+
       // Should not throw
       await SentryFlutter.native?.setReplayConfig(config);
     }, skip: !Platform.isAndroid);
 
     testWidgets('capture screenshot via test recorder returns metadata on iOS',
         (tester) async {
-      if (!Platform.isIOS) return;
       await setupSentryAndApp(tester);
       final native = SentryFlutter.native as SentryNativeCocoa?;
       expect(native, isNotNull);
+
+      await Future.delayed(const Duration(seconds: 2));
       final json = await native!.testRecorder?.captureScreenshot();
       expect(json, isNotNull);
       expect(json!['length'], isNotNull);
