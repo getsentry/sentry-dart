@@ -240,6 +240,7 @@ class SentryNativeJava extends SentryNativeChannel {
   Future<void> close() async {
     await _replayRecorder?.stop();
     await _envelopeSender?.close();
+    _nativeReplay?.release();
     return super.close();
   }
 
@@ -431,6 +432,8 @@ class SentryNativeJava extends SentryNativeChannel {
         _nativeReplay ??= native.SentryFlutterPlugin.Companion
             .privateSentryGetReplayIntegration();
         _nativeReplay?.onConfigurationChanged(replayConfig);
+
+        replayConfig.release();
       });
 }
 
