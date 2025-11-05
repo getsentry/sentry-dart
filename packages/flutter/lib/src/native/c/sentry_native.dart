@@ -277,6 +277,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   bool get supportsReplay => false;
 
   @override
+  SentryId? get replayId => null;
+
+  @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
     _logNotSupported('replay config');
   }

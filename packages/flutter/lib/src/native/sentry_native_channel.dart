@@ -8,7 +8,6 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../replay/replay_config.dart';
-import 'method_channel_helper.dart';
 import 'native_app_start.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
@@ -91,10 +90,10 @@ class SentryNativeChannel
   Future<void> close() async => channel.invokeMethod('closeNativeSdk');
 
   @override
-  Future<NativeAppStart?> fetchNativeAppStart() async {
-    final json =
-        await channel.invokeMapMethod<String, dynamic>('fetchNativeAppStart');
-    return (json != null) ? NativeAppStart.fromJson(json) : null;
+  FutureOr<NativeAppStart?> fetchNativeAppStart() async {
+    assert(false,
+        'fetchNativeAppStart should not be used through method channels.');
+    return null;
   }
 
   @override
@@ -104,12 +103,12 @@ class SentryNativeChannel
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
     assert(
-        false, "captureEnvelope should not be used through method channels.");
+        false, 'captureEnvelope should not be used through method channels.');
   }
 
   @override
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) {
-    throw UnsupportedError("Not supported on this platform");
+    throw UnsupportedError('Not supported on this platform');
   }
 
   @override
@@ -122,85 +121,54 @@ class SentryNativeChannel
   }
 
   @override
-  Future<void> setUser(SentryUser? user) async {
-    if (user == null) {
-      await channel.invokeMethod(
-        'setUser',
-        {'user': null},
-      );
-    } else {
-      final normalizedUser = SentryUser(
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        ipAddress: user.ipAddress,
-        data: MethodChannelHelper.normalizeMap(user.data),
-        // ignore: deprecated_member_use
-        extras: user.extras,
-        geo: user.geo,
-        name: user.name,
-        // ignore: invalid_use_of_internal_member
-        unknown: user.unknown,
-      );
-      await channel.invokeMethod(
-        'setUser',
-        {'user': normalizedUser.toJson()},
-      );
-    }
+  FutureOr<void> setUser(SentryUser? user) async {
+    assert(false, 'setUser should not be used through method channels.');
   }
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
-    final normalizedBreadcrumb = Breadcrumb(
-      message: breadcrumb.message,
-      category: breadcrumb.category,
-      data: MethodChannelHelper.normalizeMap(breadcrumb.data),
-      level: breadcrumb.level,
-      type: breadcrumb.type,
-      timestamp: breadcrumb.timestamp,
-      // ignore: invalid_use_of_internal_member
-      unknown: breadcrumb.unknown,
-    );
-    await channel.invokeMethod(
-      'addBreadcrumb',
-      {'breadcrumb': normalizedBreadcrumb.toJson()},
-    );
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+    assert(false, 'addBreadcrumb should not be used through method channels.');
   }
 
   @override
-  Future<void> clearBreadcrumbs() => channel.invokeMethod('clearBreadcrumbs');
+  FutureOr<void> clearBreadcrumbs() async {
+    assert(
+        false, 'clearBreadcrumbs should not be used through method channels.');
+  }
 
   @override
-  Future<void> setContexts(String key, dynamic value) => channel.invokeMethod(
-        'setContexts',
-        {'key': key, 'value': MethodChannelHelper.normalize(value)},
-      );
+  FutureOr<void> setContexts(String key, dynamic value) {
+    assert(false, 'setContexts should not be used through method channels.');
+  }
 
   @override
-  Future<void> removeContexts(String key) =>
-      channel.invokeMethod('removeContexts', {'key': key});
+  FutureOr<void> removeContexts(String key) {
+    assert(false, 'removeContexts should not be used through method channels.');
+  }
 
   @override
-  Future<void> setExtra(String key, dynamic value) => channel.invokeMethod(
-        'setExtra',
-        {'key': key, 'value': MethodChannelHelper.normalize(value)},
-      );
+  FutureOr<void> setExtra(String key, dynamic value) {
+    assert(false, 'setExtra should not be used through method channels.');
+  }
 
   @override
-  Future<void> removeExtra(String key) =>
-      channel.invokeMethod('removeExtra', {'key': key});
+  FutureOr<void> removeExtra(String key) {
+    assert(false, 'removeExtra should not be used through method channels.');
+  }
 
   @override
-  Future<void> setTag(String key, String value) =>
-      channel.invokeMethod('setTag', {'key': key, 'value': value});
+  FutureOr<void> setTag(String key, String value) {
+    assert(false, 'setTag should not be used through method channels.');
+  }
 
   @override
-  Future<void> removeTag(String key) =>
-      channel.invokeMethod('removeTag', {'key': key});
+  FutureOr<void> removeTag(String key) {
+    assert(false, 'removeTag should not be used through method channels.');
+  }
 
   @override
   int? startProfiler(SentryId traceId) =>
-      throw UnsupportedError("Not supported on this platform");
+      throw UnsupportedError('Not supported on this platform');
 
   @override
   Future<void> discardProfiler(SentryId traceId) =>
@@ -218,42 +186,51 @@ class SentryNativeChannel
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
     assert(
-        false, "loadDebugImages should not be used through method channels.");
+        false, 'loadDebugImages should not be used through method channels.');
     return null;
   }
 
   @override
-  Future<int?> displayRefreshRate() =>
-      channel.invokeMethod('displayRefreshRate');
+  FutureOr<int?> displayRefreshRate() {
+    assert(false,
+        'displayRefreshRate should not be used through method channels.');
+    return null;
+  }
 
   @override
-  Future<void> pauseAppHangTracking() =>
-      channel.invokeMethod('pauseAppHangTracking');
+  FutureOr<void> pauseAppHangTracking() {
+    assert(false,
+        'pauseAppHangTracking should not be used through method channels.');
+  }
 
   @override
-  Future<void> resumeAppHangTracking() =>
-      channel.invokeMethod('resumeAppHangTracking');
+  FutureOr<void> resumeAppHangTracking() {
+    assert(false,
+        'resumeAppHangTracking should not be used through method channels.');
+  }
 
   @override
-  Future<void> nativeCrash() => channel.invokeMethod('nativeCrash');
+  FutureOr<void> nativeCrash() {
+    assert(false, 'nativeCrash should not be used through method channels.');
+  }
 
   @override
   bool get supportsReplay => false;
 
   @override
-  FutureOr<void> setReplayConfig(ReplayConfig config) =>
-      channel.invokeMethod('setReplayConfig', {
-        'windowWidth': config.windowWidth,
-        'windowHeight': config.windowHeight,
-        'width': config.width,
-        'height': config.height,
-        'frameRate': config.frameRate,
-      });
+  SentryId? get replayId => null;
 
   @override
-  Future<SentryId> captureReplay() => channel
-      .invokeMethod('captureReplay')
-      .then((value) => SentryId.fromId(value as String));
+  FutureOr<void> setReplayConfig(ReplayConfig config) {
+    assert(
+        false, 'setReplayConfig should not be used through method channels.');
+  }
+
+  @override
+  FutureOr<SentryId> captureReplay() {
+    assert(false, 'captureReplay should not be used through method channels.');
+    return SentryId.empty();
+  }
 
   @override
   FutureOr<void> captureSession() {

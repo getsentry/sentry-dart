@@ -4,6 +4,8 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import io.flutter.plugin.common.MethodChannel
+import io.sentry.Sentry
+import io.sentry.protocol.SentryId
 import io.sentry.android.replay.Recorder
 import io.sentry.android.replay.ReplayIntegration
 import io.sentry.android.replay.ScreenshotRecorderConfig
@@ -15,10 +17,17 @@ internal class SentryFlutterReplayRecorder(
   override fun start() {
     Handler(Looper.getMainLooper()).post {
       try {
+        val replayId = integration.getReplayId().toString()
+        var replayIsBuffering = false
+        Sentry.configureScope { scope ->
+          // Buffering mode: we have a replay ID but it's not set on scope yet
+          replayIsBuffering = scope.replayId == SentryId.EMPTY_ID
+        }
         channel.invokeMethod(
           "ReplayRecorder.start",
           mapOf(
-            "replayId" to integration.getReplayId().toString(),
+            "replayId" to replayId,
+            "replayIsBuffering" to replayIsBuffering,
           ),
         )
       } catch (ignored: Exception) {

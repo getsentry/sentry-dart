@@ -24,6 +24,9 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   static AndroidReplayRecorder Function(SentryFlutterOptions) factory =
       AndroidReplayRecorder.new;
 
+  @visibleForTesting
+  void Function()? onScreenshotAddedForTest;
+
   AndroidReplayRecorder(super.options, {SpawnWorkerFn? spawn})
       : _config = WorkerConfig(
           debugName: 'SentryAndroidReplayRecorder',
@@ -32,7 +35,10 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
           automatedTestMode: options.automatedTestMode,
         ),
         _spawn = spawn ?? spawnWorker {
-    super.callback = _addReplayScreenshot;
+    super.callback = (screenshot, isNewlyCaptured) {
+      onScreenshotAddedForTest?.call();
+      return _addReplayScreenshot(screenshot, isNewlyCaptured);
+    };
   }
 
   @override

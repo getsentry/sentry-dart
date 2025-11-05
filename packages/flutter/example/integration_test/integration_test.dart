@@ -1,6 +1,4 @@
-// ignore_for_file: avoid_print
-// ignore_for_file: invalid_use_of_internal_member
-// ignore_for_file: unused_local_variable
+// ignore_for_file: avoid_print, invalid_use_of_internal_member, unused_local_variable, deprecated_member_use
 
 import 'dart:async';
 import 'dart:convert';
@@ -130,9 +128,7 @@ void main() {
       await scope.addBreadcrumb(breadcrumb);
       await scope.clearBreadcrumbs();
 
-      // ignore: deprecated_member_use
       await scope.setExtra('extra-key', 'extra-value');
-      // ignore: deprecated_member_use
       await scope.removeExtra('extra-key');
 
       await scope.setTag('tag-key', 'tag-value');
@@ -564,6 +560,90 @@ void main() {
     }
   });
 
+  testWidgets('addBreadcrumb and clearBreadcrumbs sync to native',
+      (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    // 1. Add a breadcrumb via Dart
+    final testBreadcrumb = Breadcrumb(
+      message: 'test-breadcrumb-message',
+      category: 'test-category',
+      level: SentryLevel.info,
+    );
+    await Sentry.addBreadcrumb(testBreadcrumb);
+
+    // 2. Verify it appears in native via loadContexts
+    var contexts = await SentryFlutter.native?.loadContexts();
+    expect(contexts, isNotNull);
+
+    var breadcrumbs = contexts!['breadcrumbs'] as List<dynamic>?;
+    expect(breadcrumbs, isNotNull,
+        reason: 'Breadcrumbs should not be null after adding');
+    expect(breadcrumbs!.isNotEmpty, isTrue,
+        reason: 'Breadcrumbs should not be empty after adding');
+
+    // Find our test breadcrumb
+    final testCrumb = breadcrumbs.firstWhere(
+      (b) => b['message'] == 'test-breadcrumb-message',
+      orElse: () => null,
+    );
+    expect(testCrumb, isNotNull,
+        reason: 'Test breadcrumb should exist in native breadcrumbs');
+    expect(testCrumb['category'], equals('test-category'));
+
+    // 3. Clear breadcrumbs
+    await Sentry.configureScope((scope) async {
+      await scope.clearBreadcrumbs();
+    });
+
+    // 4. Verify they're cleared in native
+    contexts = await SentryFlutter.native?.loadContexts();
+    breadcrumbs = contexts!['breadcrumbs'] as List<dynamic>?;
+    expect(breadcrumbs == null || breadcrumbs.isEmpty, isTrue,
+        reason: 'Breadcrumbs should be null or empty after clearing');
+  });
+
+  testWidgets('setUser syncs to native', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    // 1. Set a user via Dart
+    final testUser = SentryUser(
+      id: 'test-user-id',
+      email: 'test@example.com',
+      username: 'test-username',
+    );
+    await Sentry.configureScope((scope) async {
+      await scope.setUser(testUser);
+    });
+
+    // 2. Verify it appears in native via loadContexts
+    var contexts = await SentryFlutter.native?.loadContexts();
+    expect(contexts, isNotNull);
+
+    var user = contexts!['user'] as Map<dynamic, dynamic>?;
+    expect(user, isNotNull, reason: 'User should not be null after setting');
+    expect(user!['id'], equals('test-user-id'));
+    expect(user['email'], equals('test@example.com'));
+    expect(user['username'], equals('test-username'));
+
+    // 3. Clear user (after clearing the id should remain)
+    await Sentry.configureScope((scope) async {
+      await scope.setUser(null);
+    });
+
+    // 4. Verify it's cleared in native
+    contexts = await SentryFlutter.native?.loadContexts();
+    user = contexts!['user'] as Map<dynamic, dynamic>?;
+    expect(user!['email'], isNull);
+    expect(user['username'], isNull);
+    expect(user['id'], isNotNull);
+    expect(user['id'], isNotEmpty);
+  });
+
   testWidgets('loads debug images through loadDebugImages', (tester) async {
     await restoreFlutterOnErrorAfter(() async {
       await setupSentryAndApp(tester);
@@ -597,6 +677,204 @@ void main() {
     expect(debugImageByStacktrace.first.imageAddr, isNotNull);
     expect(debugImageByStacktrace.first.imageAddr, isNotEmpty);
     expect(debugImageByStacktrace.first.imageAddr, expectedImage.imageAddr);
+  });
+
+  testWidgets('fetchNativeAppStart returns app start data', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      // fetchNativeAppStart should return data on mobile platforms
+      final appStart = await SentryFlutter.native?.fetchNativeAppStart();
+
+      expect(appStart, isNotNull, reason: 'App start data should be available');
+
+      if (appStart != null) {
+        expect(appStart.appStartTime, greaterThan(0),
+            reason: 'App start time should be positive');
+        expect(appStart.pluginRegistrationTime, greaterThan(0),
+            reason: 'Plugin registration time should be positive');
+        expect(appStart.isColdStart, isA<bool>(),
+            reason: 'isColdStart should be a boolean');
+        expect(appStart.nativeSpanTimes, isA<Map>(),
+            reason: 'Native span times should be a map');
+      }
+    } else {
+      // On other platforms, it should return null
+      final appStart = await SentryFlutter.native?.fetchNativeAppStart();
+      expect(appStart, isNull,
+          reason: 'App start should be null on non-mobile platforms');
+    }
+  });
+
+  testWidgets('displayRefreshRate returns valid refresh rate', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      final refreshRate = await SentryFlutter.native?.displayRefreshRate();
+
+      // Refresh rate should be available on mobile platforms
+      expect(refreshRate, isNotNull,
+          reason: 'Display refresh rate should be available');
+
+      if (refreshRate != null) {
+        expect(refreshRate, greaterThan(0),
+            reason: 'Refresh rate should be positive');
+        expect(refreshRate, lessThanOrEqualTo(1000),
+            reason: 'Refresh rate should be reasonable (<=1000Hz)');
+      }
+    } else {
+      final refreshRate = await SentryFlutter.native?.displayRefreshRate();
+      expect(refreshRate, isNull,
+          reason: 'Refresh rate should be null or positive on other platforms');
+    }
+  });
+
+  testWidgets('setContexts and removedContexts sync to native', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    await Sentry.configureScope((scope) async {
+      scope.setContexts('key1', 'randomValue');
+      scope.setContexts('key2',
+          {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3});
+      scope.setContexts('key3', true);
+      scope.setContexts('key4', 12);
+      scope.setContexts('key5', 12.3);
+    });
+
+    var contexts = await SentryFlutter.native?.loadContexts();
+    final values = contexts!['contexts'];
+    expect(values, isNotNull, reason: 'Contexts are null');
+
+    if (Platform.isIOS) {
+      expect(values['key1'], {'value': 'randomValue'}, reason: 'key1 mismatch');
+      expect(values['key2'],
+          {'String': 'Value', 'Bool': 1, 'Int': 123, 'Double': 12.3},
+          reason: 'key2 mismatch');
+      // bool values are mapped to num values of 1 or 0 during objc conversion
+      expect(values['key3'], {'value': 1}, reason: 'key3 mismatch');
+      expect(values['key4'], {'value': 12}, reason: 'key4 mismatch');
+      expect(values['key5'], {'value': 12.3}, reason: 'key5 mismatch');
+    } else if (Platform.isAndroid) {
+      expect(values['key1'], 'randomValue', reason: 'key1 mismatch');
+      expect(values['key2'],
+          {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3},
+          reason: 'key2 mismatch');
+      expect(values['key3'], true, reason: 'key3 mismatch');
+      expect(values['key4'], 12, reason: 'key4 mismatch');
+      expect(values['key5'], 12.3, reason: 'key5 mismatch');
+    }
+
+    await Sentry.configureScope((scope) async {
+      scope.removeContexts('key1');
+      scope.removeContexts('key2');
+      scope.removeContexts('key3');
+      scope.removeContexts('key4');
+      scope.removeContexts('key5');
+    });
+
+    contexts = await SentryFlutter.native?.loadContexts();
+    final removedValues = contexts!['contexts'];
+    expect(removedValues, isNotNull, reason: 'Contexts are null');
+
+    expect(removedValues['key1'], isNull, reason: 'key1 should be removed');
+    expect(removedValues['key2'], isNull, reason: 'key2 should be removed');
+    expect(removedValues['key3'], isNull, reason: 'key3 should be removed');
+    expect(removedValues['key4'], isNull, reason: 'key4 should be removed');
+    expect(removedValues['key5'], isNull, reason: 'key5 should be removed');
+  });
+
+  testWidgets('setTag and removeTag sync to native', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    await Sentry.configureScope((scope) async {
+      scope.setTag('key1', 'randomValue');
+      scope.setTag('key2', '12');
+    });
+
+    var contexts = await SentryFlutter.native?.loadContexts();
+    final tags = contexts!['tags'];
+    expect(tags, isNotNull, reason: 'Tags are null');
+
+    expect(tags['key1'], 'randomValue', reason: 'key1 mismatch');
+    expect(tags['key2'], '12', reason: 'key2 mismatch');
+
+    await Sentry.configureScope((scope) async {
+      scope.removeTag('key1');
+      scope.removeTag('key2');
+    });
+
+    contexts = await SentryFlutter.native?.loadContexts();
+    if (Platform.isIOS) {
+      expect(contexts!['tags'], isNull, reason: 'Tags are not null');
+    } else if (Platform.isAndroid) {
+      expect(contexts!['tags'], isEmpty, reason: 'Tags are not empty');
+    }
+  });
+
+  testWidgets('setExtra and removeExtra sync to native', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    await Sentry.configureScope((scope) async {
+      scope.setExtra('key1', 'randomValue');
+      scope.setExtra('key2',
+          {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3});
+      scope.setExtra('key3', true);
+      scope.setExtra('key4', 12);
+      scope.setExtra('key5', 12.3);
+    });
+
+    var contexts = await SentryFlutter.native?.loadContexts();
+
+    final extras = (Platform.isIOS || Platform.isMacOS)
+        ? contexts!['extra']
+        : contexts!['extras'];
+    expect(extras, isNotNull, reason: 'Extras are null');
+
+    if (Platform.isIOS || Platform.isMacOS) {
+      expect(extras['key1'], 'randomValue', reason: 'key1 mismatch');
+      expect(extras['key2'],
+          {'String': 'Value', 'Bool': 1, 'Int': 123, 'Double': 12.3},
+          reason: 'key2 mismatch');
+      // bool values are mapped to num values of 1 or 0 during objc conversion
+      expect(extras['key3'], 1, reason: 'key3 mismatch');
+      expect(extras['key4'], 12, reason: 'key4 mismatch');
+      expect(extras['key5'], 12.3, reason: 'key5 mismatch');
+    } else if (Platform.isAndroid) {
+      // Sentry Java's setExtra only allows String values so this is after normalization
+      expect(extras['key1'], 'randomValue', reason: 'key1 mismatch');
+      expect(
+          extras['key2'], '{String: Value, Bool: true, Int: 123, Double: 12.3}',
+          reason: 'key2 mismatch');
+      expect(extras['key3'], 'true', reason: 'key3 mismatch');
+      expect(extras['key4'], '12', reason: 'key4 mismatch');
+      expect(extras['key5'], '12.3', reason: 'key5 mismatch');
+    }
+
+    await Sentry.configureScope((scope) async {
+      scope.removeExtra('key1');
+      scope.removeExtra('key2');
+      scope.removeExtra('key3');
+      scope.removeExtra('key4');
+      scope.removeExtra('key5');
+    });
+
+    contexts = await SentryFlutter.native?.loadContexts();
+    final extraKey = (Platform.isIOS || Platform.isMacOS) ? 'extra' : 'extras';
+    if (Platform.isIOS || Platform.isMacOS) {
+      expect(contexts![extraKey], isNull, reason: 'Extra are not null');
+    } else {
+      expect(contexts![extraKey], {}, reason: 'Extra are not empty');
+    }
   });
 
   group('e2e', () {
