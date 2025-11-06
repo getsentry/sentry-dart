@@ -37,9 +37,6 @@ Future<void> initSentryAndroid({
       ),
     ),
   );
-
-  owner._envelopeSender = AndroidEnvelopeSender.factory(options);
-  await owner._envelopeSender?.start();
 }
 
 /// Builds the general beforeSend callback to tag events with origin/environment
