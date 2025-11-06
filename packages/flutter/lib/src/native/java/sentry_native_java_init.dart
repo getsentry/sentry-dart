@@ -15,10 +15,16 @@ Future<void> initSentryAndroid({
   final beforeSendReplayCallback = createBeforeSendReplayCallback(options);
   final beforeSendEventCallback = createBeforeSendCallback();
 
-  final context = native.SentryFlutterPlugin.getApplicationContext()!;
-  native.SentryAndroid.init$2(
-    context,
-    native.Sentry$OptionsConfiguration.implement(
+  using((arena) {
+    final context = native.SentryFlutterPlugin.getApplicationContext()
+      ?..releasedBy(arena);
+    if (context == null) {
+      options.log(SentryLevel.error,
+          'Failed to initialize Sentry Android, application context is null.');
+      return;
+    }
+
+    final optionsConfiguration = native.Sentry$OptionsConfiguration.implement(
       native.$Sentry$OptionsConfiguration(
         T: native.SentryAndroidOptions.nullableType,
         configure: (native.SentryAndroidOptions? androidOptions) {
@@ -31,12 +37,18 @@ Future<void> initSentryAndroid({
             beforeSendReplay: beforeSendReplayCallback,
           );
 
-          native.SentryFlutterPlugin.Companion
-              .setupReplayJni(androidOptions, replayCallbacks);
+          replayCallbacks.use((cb) {
+            native.SentryFlutterPlugin.Companion
+                .setupReplayJni(androidOptions, cb);
+          });
         },
       ),
-    ),
-  );
+    );
+
+    optionsConfiguration.use((cb) {
+      native.SentryAndroid.init$2(context, cb);
+    });
+  });
 }
 
 /// Builds the general beforeSend callback to tag events with origin/environment
@@ -45,31 +57,35 @@ native.SentryOptions$BeforeSendCallback createBeforeSendCallback() {
   return native.SentryOptions$BeforeSendCallback.implement(
     native.$SentryOptions$BeforeSendCallback(
       execute: (sentryEvent, hint) {
-        final sdk = sentryEvent.getSdk();
-        if (sdk != null) {
-          switch (sdk.getName().toDartString()) {
+        using((arena) {
+          final sdk = sentryEvent.getSdk()?..releasedBy(arena);
+          if (sdk == null) return;
+
+          final originKey = 'event.origin'.toJString()..releasedBy(arena);
+          final environmentKey = 'event.environment'.toJString()
+            ..releasedBy(arena);
+
+          void setTagPair(String origin, String environment) {
+            final originVal = origin.toJString()..releasedBy(arena);
+            final envVal = environment.toJString()..releasedBy(arena);
+            sentryEvent.setTag(originKey, originVal);
+            sentryEvent.setTag(environmentKey, envVal);
+          }
+
+          switch (sdk.getName().toDartString(releaseOriginal: true)) {
             case flutterSdkName:
-              sentryEvent.setTag(
-                  'event.origin'.toJString(), 'flutter'.toJString());
-              sentryEvent.setTag(
-                  'event.environment'.toJString(), 'dart'.toJString());
+              setTagPair('flutter', 'dart');
               break;
             case androidSdkName:
-              sentryEvent.setTag(
-                  'event.origin'.toJString(), 'android'.toJString());
-              sentryEvent.setTag(
-                  'event.environment'.toJString(), 'java'.toJString());
+              setTagPair('android', 'java');
               break;
             case nativeSdkName:
-              sentryEvent.setTag(
-                  'event.origin'.toJString(), 'android'.toJString());
-              sentryEvent.setTag(
-                  'event.environment'.toJString(), 'native'.toJString());
+              setTagPair('android', 'native');
               break;
             default:
               break;
           }
-        }
+        });
         return sentryEvent;
       },
     ),
@@ -83,31 +99,42 @@ native.SentryOptions$BeforeSendReplayCallback createBeforeSendReplayCallback(
   return native.SentryOptions$BeforeSendReplayCallback.implement(
     native.$SentryOptions$BeforeSendReplayCallback(
       execute: (sentryReplayEvent, hint) {
-        final data = hint.getReplayRecording()?.getPayload()?.firstOrNull;
-        if (data is native.$RRWebOptionsEvent$Type) {
-          final payload =
-              data?.as(native.RRWebOptionsEvent.type).getOptionsPayload();
-          payload?.removeWhere((key, value) =>
-              key?.toDartString(releaseOriginal: true).contains('mask') ??
-              false);
+        using((arena) {
+          final data = hint
+              .getReplayRecording()
+              ?.getPayload()
+              ?.use((l) => l.firstOrNull)
+            ?..releasedBy(arena);
+          if (data is native.$RRWebOptionsEvent$Type) {
+            final payload = data
+                ?.as(native.RRWebOptionsEvent.type)
+                .getOptionsPayload()
+              ?..releasedBy(arena);
+            payload?.removeWhere((key, value) {
+              final shouldRemove =
+                  key?.toDartString(releaseOriginal: true).contains('mask') ??
+                      false;
+              value?.release(); // release the materialized value handle
+              return shouldRemove;
+            });
 
-          using((arena) {
             payload?.addAll({
-              'maskAllText'.toJString():
-                  options.privacy.maskAllText.toJBoolean(),
-              'maskAllImages'.toJString():
-                  options.privacy.maskAllImages.toJBoolean(),
-              'maskAssetImages'.toJString():
-                  options.privacy.maskAssetImages.toJBoolean(),
+              'maskAllText'.toJString()..releasedBy(arena):
+                  options.privacy.maskAllText.toJBoolean()..releasedBy(arena),
+              'maskAllImages'.toJString()..releasedBy(arena):
+                  options.privacy.maskAllImages.toJBoolean()..releasedBy(arena),
+              'maskAssetImages'.toJString()..releasedBy(arena):
+                  options.privacy.maskAssetImages.toJBoolean()
+                    ..releasedBy(arena),
               if (options.privacy.userMaskingRules.isNotEmpty)
-                'maskingRules'.toJString(): _dartToJList(
+                'maskingRules'.toJString()..releasedBy(arena): _dartToJList(
                     options.privacy.userMaskingRules
                         .map((rule) => '${rule.name}: ${rule.description}')
                         .toList(growable: false),
                     arena),
             });
-          });
-        }
+          }
+        });
         return sentryReplayEvent;
       },
     ),
@@ -178,106 +205,121 @@ void configureAndroidOptions({
   required native.SentryOptions$BeforeSendCallback beforeSend,
   required native.SentryOptions$BeforeSendReplayCallback beforeSendReplay,
 }) {
-  androidOptions.setDsn(options.dsn?.toJString());
-  androidOptions.setDebug(options.debug);
-  androidOptions.setEnvironment(options.environment?.toJString());
-  androidOptions.setRelease(options.release?.toJString());
-  androidOptions.setDist(options.dist?.toJString());
-  androidOptions
-      .setEnableAutoSessionTracking(options.enableAutoSessionTracking);
-  androidOptions.setSessionTrackingIntervalMillis(
-      options.autoSessionTrackingInterval.inMilliseconds);
-  androidOptions
-      .setAnrTimeoutIntervalMillis(options.anrTimeoutInterval.inMilliseconds);
-  androidOptions.setAnrEnabled(options.anrEnabled);
-  androidOptions.setAttachThreads(options.attachThreads);
-  androidOptions.setAttachStacktrace(options.attachStacktrace);
+  using((arena) {
+    androidOptions.setDsn(options.dsn?.toJString()?..releasedBy(arena));
+    androidOptions.setDebug(options.debug);
+    androidOptions
+        .setEnvironment(options.environment?.toJString()?..releasedBy(arena));
+    androidOptions.setRelease(options.release?.toJString()?..releasedBy(arena));
+    androidOptions.setDist(options.dist?.toJString()?..releasedBy(arena));
+    androidOptions
+        .setEnableAutoSessionTracking(options.enableAutoSessionTracking);
+    androidOptions.setSessionTrackingIntervalMillis(
+        options.autoSessionTrackingInterval.inMilliseconds);
+    androidOptions
+        .setAnrTimeoutIntervalMillis(options.anrTimeoutInterval.inMilliseconds);
+    androidOptions.setAnrEnabled(options.anrEnabled);
+    androidOptions.setAttachThreads(options.attachThreads);
+    androidOptions.setAttachStacktrace(options.attachStacktrace);
 
-  final enableNativeBreadcrumbs = options.enableAutoNativeBreadcrumbs;
-  androidOptions.setEnableActivityLifecycleBreadcrumbs(enableNativeBreadcrumbs);
-  androidOptions.setEnableAppLifecycleBreadcrumbs(enableNativeBreadcrumbs);
-  androidOptions.setEnableSystemEventBreadcrumbs(enableNativeBreadcrumbs);
-  androidOptions.setEnableAppComponentBreadcrumbs(enableNativeBreadcrumbs);
-  androidOptions.setEnableUserInteractionBreadcrumbs(enableNativeBreadcrumbs);
+    final enableNativeBreadcrumbs = options.enableAutoNativeBreadcrumbs;
+    androidOptions
+        .setEnableActivityLifecycleBreadcrumbs(enableNativeBreadcrumbs);
+    androidOptions.setEnableAppLifecycleBreadcrumbs(enableNativeBreadcrumbs);
+    androidOptions.setEnableSystemEventBreadcrumbs(enableNativeBreadcrumbs);
+    androidOptions.setEnableAppComponentBreadcrumbs(enableNativeBreadcrumbs);
+    androidOptions.setEnableUserInteractionBreadcrumbs(enableNativeBreadcrumbs);
 
-  androidOptions.setMaxBreadcrumbs(options.maxBreadcrumbs);
-  androidOptions.setMaxCacheItems(options.maxCacheItems);
-  if (options.debug) {
-    final androidLevel = native.SentryLevel.valueOf(
-        options.diagnosticLevel.name.toUpperCase().toJString());
-    androidOptions.setDiagnosticLevel(androidLevel);
-  }
-  androidOptions.setSendDefaultPii(options.sendDefaultPii);
-  androidOptions.setEnableScopeSync(options.enableNdkScopeSync);
-  androidOptions.setProguardUuid(options.proguardUuid?.toJString());
-  androidOptions.setEnableSpotlight(options.spotlight.enabled);
-  androidOptions.setSpotlightConnectionUrl(options.spotlight.url?.toJString());
+    androidOptions.setMaxBreadcrumbs(options.maxBreadcrumbs);
+    androidOptions.setMaxCacheItems(options.maxCacheItems);
+    if (options.debug) {
+      final levelName = options.diagnosticLevel.name.toUpperCase().toJString()
+        ..releasedBy(arena);
+      final androidLevel = native.SentryLevel.valueOf(levelName)
+        ?..releasedBy(arena);
+      if (androidLevel != null) {
+        androidOptions.setDiagnosticLevel(androidLevel);
+      }
+    }
+    androidOptions.setSendDefaultPii(options.sendDefaultPii);
+    androidOptions.setEnableScopeSync(options.enableNdkScopeSync);
+    androidOptions
+        .setProguardUuid(options.proguardUuid?.toJString()?..releasedBy(arena));
+    androidOptions.setEnableSpotlight(options.spotlight.enabled);
+    androidOptions.setSpotlightConnectionUrl(
+        options.spotlight.url?.toJString()?..releasedBy(arena));
 
-  if (!options.enableNativeCrashHandling) {
-    androidOptions.setEnableUncaughtExceptionHandler(false);
-    androidOptions.setAnrEnabled(false);
-  }
+    if (!options.enableNativeCrashHandling) {
+      androidOptions.setEnableUncaughtExceptionHandler(false);
+      androidOptions.setAnrEnabled(false);
+    }
 
-  androidOptions.setSendClientReports(options.sendClientReports);
-  androidOptions.setMaxAttachmentSize(options.maxAttachmentSize);
-  androidOptions
-      .setConnectionTimeoutMillis(options.connectionTimeout.inMilliseconds);
-  androidOptions.setReadTimeoutMillis(options.readTimeout.inMilliseconds);
+    androidOptions.setSendClientReports(options.sendClientReports);
+    androidOptions.setMaxAttachmentSize(options.maxAttachmentSize);
+    androidOptions
+        .setConnectionTimeoutMillis(options.connectionTimeout.inMilliseconds);
+    androidOptions.setReadTimeoutMillis(options.readTimeout.inMilliseconds);
 
-  native.SentryFlutterPlugin.Companion.setProxy(
-    androidOptions,
-    options.proxy?.user?.toJString(),
-    options.proxy?.pass?.toJString(),
-    options.proxy?.host?.toJString(),
-    options.proxy?.port?.toString().toJString(),
-    options.proxy?.type.toString().split('.').last.toUpperCase().toJString(),
-  );
-
-  native.SdkVersion? sdkVersion = androidOptions.getSdkVersion();
-  if (sdkVersion == null) {
-    sdkVersion = native.SdkVersion(
-      androidSdkName.toJString(),
-      native.BuildConfig.VERSION_NAME!,
+    native.SentryFlutterPlugin.Companion.setProxy(
+      androidOptions,
+      options.proxy?.user?.toJString()?..releasedBy(arena),
+      options.proxy?.pass?.toJString()?..releasedBy(arena),
+      options.proxy?.host?.toJString()?..releasedBy(arena),
+      options.proxy?.port?.toString().toJString()?..releasedBy(arena),
+      options.proxy?.type.toString().split('.').last.toUpperCase().toJString()
+        ?..releasedBy(arena),
     );
-  } else {
-    sdkVersion.setName(androidSdkName.toJString());
-  }
-  for (final integration in options.sdk.integrations) {
-    sdkVersion.addIntegration(integration.toJString());
-  }
-  for (final package in options.sdk.packages) {
-    sdkVersion.addPackage(
-      package.name.toJString(),
-      package.version.toJString(),
-    );
-  }
 
-  androidOptions.setBeforeSend(beforeSend);
+    native.SdkVersion? sdkVersion = androidOptions.getSdkVersion()
+      ?..releasedBy(arena);
+    if (sdkVersion == null) {
+      sdkVersion = native.SdkVersion(
+        androidSdkName.toJString()..releasedBy(arena),
+        native.BuildConfig.VERSION_NAME!..releasedBy(arena),
+      )..releasedBy(arena);
+    } else {
+      sdkVersion.setName(androidSdkName.toJString()..releasedBy(arena));
+    }
+    for (final integration in options.sdk.integrations) {
+      sdkVersion.addIntegration(integration.toJString()..releasedBy(arena));
+    }
+    for (final package in options.sdk.packages) {
+      sdkVersion.addPackage(
+        package.name.toJString()..releasedBy(arena),
+        package.version.toJString()..releasedBy(arena),
+      );
+    }
 
-  switch (options.replay.quality) {
-    case SentryReplayQuality.low:
-      androidOptions
-          .getSessionReplay()
-          .setQuality(native.SentryReplayOptions$SentryReplayQuality.LOW);
-      break;
-    case SentryReplayQuality.high:
-      androidOptions
-          .getSessionReplay()
-          .setQuality(native.SentryReplayOptions$SentryReplayQuality.HIGH);
-      break;
-    default:
-      androidOptions
-          .getSessionReplay()
-          .setQuality(native.SentryReplayOptions$SentryReplayQuality.MEDIUM);
-  }
-  androidOptions
-      .getSessionReplay()
-      .setSessionSampleRate(options.replay.sessionSampleRate?.toJDouble());
-  androidOptions
-      .getSessionReplay()
-      .setOnErrorSampleRate(options.replay.onErrorSampleRate?.toJDouble());
+    beforeSend.use((cb) {
+      androidOptions.setBeforeSend(cb);
+    });
 
-  androidOptions.getSessionReplay().setTrackConfiguration(false);
-  androidOptions.setBeforeSendReplay(beforeSendReplay);
-  androidOptions.getSessionReplay().setSdkVersion(sdkVersion);
+    final sessionReplay = androidOptions.getSessionReplay()..releasedBy(arena);
+    switch (options.replay.quality) {
+      case SentryReplayQuality.low:
+        sessionReplay.setQuality(
+            native.SentryReplayOptions$SentryReplayQuality.LOW
+              ..releasedBy(arena));
+        break;
+      case SentryReplayQuality.high:
+        sessionReplay.setQuality(
+            native.SentryReplayOptions$SentryReplayQuality.HIGH
+              ..releasedBy(arena));
+        break;
+      default:
+        sessionReplay.setQuality(
+            native.SentryReplayOptions$SentryReplayQuality.MEDIUM
+              ..releasedBy(arena));
+    }
+    sessionReplay.setSessionSampleRate(
+        options.replay.sessionSampleRate?.toJDouble()?..releasedBy(arena));
+    sessionReplay.setOnErrorSampleRate(
+        options.replay.onErrorSampleRate?.toJDouble()?..releasedBy(arena));
+
+    sessionReplay.setTrackConfiguration(false);
+    beforeSendReplay.use((cb) {
+      androidOptions.setBeforeSendReplay(cb);
+    });
+    sessionReplay.setSdkVersion(sdkVersion);
+  });
 }
