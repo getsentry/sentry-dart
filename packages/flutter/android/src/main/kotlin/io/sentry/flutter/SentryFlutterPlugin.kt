@@ -17,6 +17,8 @@ import io.sentry.Breadcrumb
 import io.sentry.DateUtils
 import io.sentry.ScopesAdapter
 import io.sentry.Sentry
+import io.sentry.SentryOptions.Proxy
+import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
@@ -24,12 +26,16 @@ import io.sentry.android.core.performance.AppStartMetrics
 import io.sentry.android.core.performance.TimeSpan
 import io.sentry.android.replay.ReplayIntegration
 import io.sentry.android.replay.ScreenshotRecorderConfig
+import io.sentry.flutter.SentryFlutter.Companion.ANDROID_SDK
+import io.sentry.flutter.SentryFlutter.Companion.NATIVE_SDK
 import io.sentry.protocol.DebugImage
+import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import org.json.JSONObject
 import org.json.JSONArray
 import java.lang.ref.WeakReference
+import java.net.Proxy.Type
 import kotlin.math.roundToInt
 
 private const val APP_START_MAX_DURATION_MS = 60000
@@ -160,6 +166,86 @@ class SentryFlutterPlugin :
     @JvmStatic
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
 
+    @JvmStatic
+    fun setProxy(options: SentryAndroidOptions, user: String?, pass: String?, host: String?, port: String?, type: String?) {
+      options.proxy =
+        Proxy()
+          .apply {
+            this.host = host
+            this.port = port
+            (type)
+              ?.let {
+                this.type =
+                  try {
+                    Type.valueOf(it.uppercase())
+                  } catch (_: IllegalArgumentException) {
+                    Log.w("Sentry", "Could not parse `type` ")
+                    null
+                  }
+              }
+            this.user = user
+            this.pass = pass
+          }
+    }
+
+    @JvmStatic
+    fun setSdkVersionName(options: SentryAndroidOptions) {
+      var sdkVersion = options.sdkVersion
+      if (sdkVersion == null) {
+        sdkVersion = SdkVersion(ANDROID_SDK, BuildConfig.VERSION_NAME)
+      } else {
+        sdkVersion.name = ANDROID_SDK
+      }
+
+      options.sdkVersion = sdkVersion
+      options.sentryClientName = "$ANDROID_SDK/${BuildConfig.VERSION_NAME}"
+      options.nativeSdkName = NATIVE_SDK
+    }
+
+    @JvmStatic
+    fun initNativeSdk(dartOptions: Map<String, Any>, replayCallbacks: ReplayRecorderCallbacks?) {
+      val context = getApplicationContext()
+      if (context == null) {
+        Log.e("Sentry", "initNativeSdk called before applicationContext initialized")
+        return
+      }
+
+      SentryAndroid.init(context) { nativeOptions ->
+        sentryFlutter.updateOptions(nativeOptions, dartOptions)
+
+        setupReplayJni(nativeOptions, replayCallbacks)
+      }
+    }
+
+    @JvmStatic
+    fun setupReplayJni(options: SentryAndroidOptions, replayCallbacks: ReplayRecorderCallbacks?) {
+      // Replace the default ReplayIntegration with a Flutter-specific recorder.
+      options.integrations.removeAll { it is ReplayIntegration }
+      val replayOptions = options.sessionReplay
+      if ((replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled) && replayCallbacks != null) {
+        val ctx = applicationContext
+        if (ctx == null) {
+          Log.w("Sentry", "setupReplayJni called before applicationContext initialized")
+          return
+        }
+
+        replay =
+          ReplayIntegration(
+            ctx.applicationContext,
+            dateProvider = CurrentDateProvider.getInstance(),
+            recorderProvider = {
+              SentryFlutterReplayRecorderJni(replayCallbacks, replay!!)
+            },
+            replayCacheProvider = null,
+          )
+        replay!!.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+        options.addIntegration(replay!!)
+        options.setReplayController(replay)
+      } else {
+        options.setReplayController(null)
+      }
+    }
+
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun crash() {
@@ -197,10 +283,6 @@ class SentryFlutterPlugin :
     @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun fetchNativeAppStartAsBytes(): ByteArray? {
-      if (!sentryFlutter.autoPerformanceTracingEnabled) {
-        return null
-      }
-
       val appStartMetrics = AppStartMetrics.getInstance()
 
       if (!appStartMetrics.isAppLaunchedInForeground ||

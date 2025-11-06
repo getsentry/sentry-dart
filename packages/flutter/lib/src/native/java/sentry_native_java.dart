@@ -15,6 +15,10 @@ import 'android_envelope_sender.dart';
 import 'android_replay_recorder.dart';
 import 'binding.dart' as native;
 
+const flutterSdkName = 'sentry.dart.flutter';
+const androidSdkName = 'sentry.java.android.flutter';
+const nativeSdkName = 'sentry.native.android.flutter';
+
 @internal
 class SentryNativeJava extends SentryNativeChannel {
   AndroidReplayRecorder? _replayRecorder;
@@ -35,72 +39,247 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   Future<void> init(Hub hub) async {
-    // We only need these when replay is enabled (session or error capture)
-    // so let's set it up conditionally. This allows Dart to trim the code.
-    if (options.replay.isEnabled) {
-      channel.setMethodCallHandler((call) async {
-        switch (call.method) {
-          case 'ReplayRecorder.start':
-            final replayIdArg = call.arguments['replayId'];
-            final replayIsBufferingArg = call.arguments['replayIsBuffering'];
+    final replayCallbacks = options.replay.isEnabled
+        ? native.ReplayRecorderCallbacks.implement(
+            native.$ReplayRecorderCallbacks(
+              replayStarted:
+                  (JString replayIdString, bool replayIsBuffering) async {
+                final replayId = SentryId.fromId(replayIdString.toDartString());
 
-            final replayId = replayIdArg != null
-                ? SentryId.fromId(replayIdArg as String)
-                : null;
+                _replayId = replayId;
+                _nativeReplay = native.SentryFlutterPlugin.Companion
+                    .privateSentryGetReplayIntegration();
+                _replayRecorder = AndroidReplayRecorder.factory(options);
+                await _replayRecorder!.start();
+                hub.configureScope((s) {
+                  // Only set replay ID on scope if not buffering (active session mode)
+                  // ignore: invalid_use_of_internal_member
+                  s.replayId = !replayIsBuffering ? replayId : null;
+                });
+              },
+              replayResumed: () async {
+                await _replayRecorder?.resume();
+              },
+              replayPaused: () async {
+                await _replayRecorder?.pause();
+              },
+              replayStopped: () async {
+                hub.configureScope((s) {
+                  // ignore: invalid_use_of_internal_member
+                  s.replayId = null;
+                });
 
-            final replayIsBuffering = replayIsBufferingArg != null
-                ? replayIsBufferingArg as bool
-                : false;
+                final future = _replayRecorder?.stop();
+                _replayRecorder = null;
+                await future;
+              },
+              replayReset: () {
+                // ignored
+              },
+              replayConfigChanged:
+                  (int width, int height, int frameRate) async {
+                final config = ScheduledScreenshotRecorderConfig(
+                    width: width.toDouble(),
+                    height: height.toDouble(),
+                    frameRate: frameRate);
 
-            _replayId = replayId;
-            _nativeReplay = native.SentryFlutterPlugin.Companion
-                .privateSentryGetReplayIntegration();
-            _replayRecorder = AndroidReplayRecorder.factory(options);
-            await _replayRecorder!.start();
-            hub.configureScope((s) {
-              // Only set replay ID on scope if not buffering (active session mode)
-              // ignore: invalid_use_of_internal_member
-              s.replayId = !replayIsBuffering ? replayId : null;
+                await _replayRecorder?.onConfigurationChanged(config);
+              },
+            ),
+          )
+        : null;
+
+    final beforeSendReplayCallback =
+        native.SentryOptions$BeforeSendReplayCallback.implement(
+      native.$SentryOptions$BeforeSendReplayCallback(
+        execute: (sentryReplayEvent, hint) {
+          final data = hint.getReplayRecording()?.getPayload()?.firstOrNull;
+          if (data is native.$RRWebOptionsEvent$Type) {
+            final payload =
+                data?.as(native.RRWebOptionsEvent.type).getOptionsPayload();
+            payload?.removeWhere((key, value) =>
+                key?.toDartString(releaseOriginal: true).contains('mask') ??
+                false);
+
+            using((arena) {
+              payload?.addAll({
+                'maskAllText'.toJString():
+                    options.privacy.maskAllText.toJBoolean(),
+                'maskAllImages'.toJString():
+                    options.privacy.maskAllImages.toJBoolean(),
+                'maskAssetImages'.toJString():
+                    options.privacy.maskAssetImages.toJBoolean(),
+                if (options.privacy.userMaskingRules.isNotEmpty)
+                  'maskingRules'.toJString(): _dartToJList(
+                      options.privacy.userMaskingRules
+                          .map((rule) => '${rule.name}: ${rule.description}')
+                          .toList(growable: false),
+                      arena)
+              });
             });
+          }
+          return sentryReplayEvent;
+        },
+      ),
+    );
+    final beforeSendEventCallback =
+        native.SentryOptions$BeforeSendCallback.implement(native
+            .$SentryOptions$BeforeSendCallback(execute: (sentryEvent, hint) {
+      final sdk = sentryEvent.getSdk();
+      if (sdk != null) {
+        switch (sdk.getName().toDartString()) {
+          case flutterSdkName:
+            sentryEvent.setTag(
+                'event.origin'.toJString(), 'flutter'.toJString());
+            sentryEvent.setTag(
+                'event.environment'.toJString(), 'dart'.toJString());
             break;
-          case 'ReplayRecorder.onConfigurationChanged':
-            final config = ScheduledScreenshotRecorderConfig(
-                width: (call.arguments['width'] as num).toDouble(),
-                height: (call.arguments['height'] as num).toDouble(),
-                frameRate: call.arguments['frameRate'] as int);
-
-            await _replayRecorder?.onConfigurationChanged(config);
+          case androidSdkName:
+            sentryEvent.setTag(
+                'event.origin'.toJString(), 'android'.toJString());
+            sentryEvent.setTag(
+                'event.environment'.toJString(), 'java'.toJString());
             break;
-          case 'ReplayRecorder.stop':
-            hub.configureScope((s) {
-              // ignore: invalid_use_of_internal_member
-              s.replayId = null;
-            });
-
-            final future = _replayRecorder?.stop();
-            _replayRecorder = null;
-            await future;
-
-            break;
-          case 'ReplayRecorder.pause':
-            await _replayRecorder?.pause();
-            break;
-          case 'ReplayRecorder.resume':
-            await _replayRecorder?.resume();
-            break;
-          case 'ReplayRecorder.reset':
-            // ignored
+          case nativeSdkName:
+            sentryEvent.setTag(
+                'event.origin'.toJString(), 'android'.toJString());
+            sentryEvent.setTag(
+                'event.environment'.toJString(), 'native'.toJString());
             break;
           default:
-            throw UnimplementedError('Method ${call.method} not implemented');
+            // TODO: log unrecognized value
+            break;
         }
-      });
-    }
+      }
+      return sentryEvent;
+    }));
+    final context = native.SentryFlutterPlugin.getApplicationContext()!;
+    native.SentryAndroid.init$2(
+        context,
+        native.Sentry$OptionsConfiguration.implement(
+          native.$Sentry$OptionsConfiguration(
+            T: native.SentryAndroidOptions.nullableType,
+            configure: (native.SentryAndroidOptions? androidOptions) {
+              if (androidOptions == null) return;
+
+              androidOptions.setDsn(options.dsn?.toJString());
+              androidOptions.setDebug(options.debug);
+              androidOptions.setEnvironment(options.environment?.toJString());
+              androidOptions.setRelease(options.release?.toJString());
+              androidOptions.setDist(options.dist?.toJString());
+              androidOptions.setEnableAutoSessionTracking(
+                  options.enableAutoSessionTracking);
+              androidOptions.setSessionTrackingIntervalMillis(
+                  options.autoSessionTrackingInterval.inMilliseconds);
+              androidOptions.setAnrTimeoutIntervalMillis(
+                  options.anrTimeoutInterval.inMilliseconds);
+              androidOptions.setAnrEnabled(options.anrEnabled);
+              androidOptions.setAttachThreads(options.attachThreads);
+              androidOptions.setAttachStacktrace(options.attachStacktrace);
+              final enableNativeBreadcrumbs =
+                  options.enableAutoNativeBreadcrumbs;
+              androidOptions.setEnableActivityLifecycleBreadcrumbs(
+                  enableNativeBreadcrumbs);
+              androidOptions
+                  .setEnableAppLifecycleBreadcrumbs(enableNativeBreadcrumbs);
+              androidOptions
+                  .setEnableSystemEventBreadcrumbs(enableNativeBreadcrumbs);
+              androidOptions
+                  .setEnableAppComponentBreadcrumbs(enableNativeBreadcrumbs);
+              androidOptions
+                  .setEnableUserInteractionBreadcrumbs(enableNativeBreadcrumbs);
+              androidOptions.setMaxBreadcrumbs(options.maxBreadcrumbs);
+              androidOptions.setMaxCacheItems(options.maxCacheItems);
+              if (options.debug) {
+                final androidLevel = native.SentryLevel.valueOf(
+                    options.diagnosticLevel.name.toUpperCase().toJString());
+                androidOptions.setDiagnosticLevel(androidLevel);
+              }
+              androidOptions.setSendDefaultPii(options.sendDefaultPii);
+              androidOptions.setEnableScopeSync(options.enableNdkScopeSync);
+              androidOptions.setProguardUuid(options.proguardUuid?.toJString());
+              androidOptions.setEnableSpotlight(options.spotlight.enabled);
+              androidOptions.setSpotlightConnectionUrl(
+                  options.spotlight.url?.toJString());
+              // nativeCrashHandling has priority over anrEnabled
+              if (!options.enableNativeCrashHandling) {
+                androidOptions.setEnableUncaughtExceptionHandler(false);
+                androidOptions.setAnrEnabled(false);
+                // If split-symbols packaging is enabled, native NDK integration is required
+                // to upload/native-process the symbol files. In that case we cannot offer
+                // the option to disable NDK support here (would break symbol handling).
+              }
+              androidOptions.setSendClientReports(options.sendClientReports);
+              androidOptions.setMaxAttachmentSize(options.maxAttachmentSize);
+              androidOptions.setConnectionTimeoutMillis(
+                  options.connectionTimeout.inMilliseconds);
+              androidOptions
+                  .setReadTimeoutMillis(options.readTimeout.inMilliseconds);
+              native.SentryFlutterPlugin.Companion.setProxy(
+                  androidOptions,
+                  options.proxy?.user?.toJString(),
+                  options.proxy?.pass?.toJString(),
+                  options.proxy?.host?.toJString(),
+                  options.proxy?.port?.toString().toJString(),
+                  options.proxy?.type
+                      .toString()
+                      .split('.')
+                      .last
+                      .toUpperCase()
+                      .toJString());
+
+              native.SdkVersion? sdkVersion = androidOptions.getSdkVersion();
+              if (sdkVersion == null) {
+                // TODO: force unwrap of version name
+                sdkVersion = native.SdkVersion(androidSdkName.toJString(),
+                    native.BuildConfig.VERSION_NAME!);
+              } else {
+                sdkVersion.setName(androidSdkName.toJString());
+              }
+              for (final integration in options.sdk.integrations) {
+                sdkVersion.addIntegration(integration.toJString());
+              }
+              for (final package in options.sdk.packages) {
+                sdkVersion.addPackage(
+                    package.name.toJString(), package.version.toJString());
+              }
+
+              androidOptions.setBeforeSend(beforeSendEventCallback);
+
+              // Replay
+              switch (options.replay.quality) {
+                case SentryReplayQuality.low:
+                  androidOptions.getSessionReplay().setQuality(
+                      native.SentryReplayOptions$SentryReplayQuality.LOW);
+                  break;
+                case SentryReplayQuality.high:
+                  androidOptions.getSessionReplay().setQuality(
+                      native.SentryReplayOptions$SentryReplayQuality.HIGH);
+                  break;
+                default:
+                  androidOptions.getSessionReplay().setQuality(
+                      native.SentryReplayOptions$SentryReplayQuality.MEDIUM);
+              }
+              androidOptions.getSessionReplay().setSessionSampleRate(
+                  options.replay.sessionSampleRate?.toJDouble());
+              androidOptions.getSessionReplay().setOnErrorSampleRate(
+                  options.replay.onErrorSampleRate?.toJDouble());
+
+              // Disable native tracking of window sizes
+              // because we don't have the new size from Flutter yet. Instead, we'll
+              // trigger onConfigurationChanged() manually in setReplayConfig().
+              androidOptions.getSessionReplay().setTrackConfiguration(false);
+              androidOptions.setBeforeSendReplay(beforeSendReplayCallback);
+              androidOptions.getSessionReplay().setSdkVersion(sdkVersion);
+
+              native.SentryFlutterPlugin.Companion
+                  .setupReplayJni(androidOptions, replayCallbacks);
+            },
+          ),
+        ));
 
     _envelopeSender = AndroidEnvelopeSender.factory(options);
     await _envelopeSender?.start();
-
-    return super.init(hub);
   }
 
   @override
@@ -206,6 +385,9 @@ class SentryNativeJava extends SentryNativeChannel {
     JByteArray? appStartUtf8JsonBytes;
 
     return tryCatchSync('fetchNativeAppStart', () {
+      if (!options.enableAutoPerformanceTracing) {
+        return null;
+      }
       appStartUtf8JsonBytes =
           native.SentryFlutterPlugin.Companion.fetchNativeAppStartAsBytes();
       if (appStartUtf8JsonBytes == null) return null;
