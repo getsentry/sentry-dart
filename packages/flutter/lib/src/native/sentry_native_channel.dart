@@ -12,7 +12,6 @@ import 'native_app_start.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
 import 'sentry_safe_method_channel.dart';
-import 'sentry_flutter_options_json.dart';
 
 /// Provide typed methods to access native layer via MethodChannel.
 @internal
