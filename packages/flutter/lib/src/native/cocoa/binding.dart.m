@@ -3,6 +3,7 @@
 #import <objc/message.h>
 #import "../../../../temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h"
 #import "../../../../temp/Sentry.framework/Headers/Sentry-Swift.h"
+#import "../../../../temp/Sentry.framework/Headers/SentryOptions.h"
 #import "../../../../temp/Sentry.framework/Headers/SentryScope.h"
 #import "../../../../ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterPlugin.h"
 
@@ -52,19 +53,46 @@ id objc_retainBlock(id);
   };
 
 
-typedef void  (^ListenerTrampoline)(id arg0);
+typedef void  (^ListenerTrampoline)();
 __attribute__((visibility("default"))) __attribute__((used))
-ListenerTrampoline _SentryCocoa_wrapListenerBlock_xtuoz7(ListenerTrampoline block) NS_RETURNS_RETAINED {
+ListenerTrampoline _SentryCocoa_wrapListenerBlock_1pl9qdv(ListenerTrampoline block) NS_RETURNS_RETAINED {
+  return ^void() {
+    objc_retainBlock(block);
+    block();
+  };
+}
+
+typedef void  (^BlockingTrampoline)(void * waiter);
+__attribute__((visibility("default"))) __attribute__((used))
+ListenerTrampoline _SentryCocoa_wrapBlockingBlock_1pl9qdv(
+    BlockingTrampoline block, BlockingTrampoline listenerBlock,
+    DOBJC_Context* ctx) NS_RETURNS_RETAINED {
+  BLOCKING_BLOCK_IMPL(ctx, ^void(), {
+    objc_retainBlock(block);
+    block(nil);
+  }, {
+    objc_retainBlock(listenerBlock);
+    listenerBlock(waiter);
+  });
+}
+
+Protocol* _SentryCocoa_NSURLSessionDelegate(void) { return @protocol(NSURLSessionDelegate); }
+
+Protocol* _SentryCocoa_SentrySpan(void) { return @protocol(SentrySpan); }
+
+typedef void  (^ListenerTrampoline_1)(id arg0);
+__attribute__((visibility("default"))) __attribute__((used))
+ListenerTrampoline_1 _SentryCocoa_wrapListenerBlock_xtuoz7(ListenerTrampoline_1 block) NS_RETURNS_RETAINED {
   return ^void(id arg0) {
     objc_retainBlock(block);
     block((__bridge id)(__bridge_retained void*)(arg0));
   };
 }
 
-typedef void  (^BlockingTrampoline)(void * waiter, id arg0);
+typedef void  (^BlockingTrampoline_1)(void * waiter, id arg0);
 __attribute__((visibility("default"))) __attribute__((used))
-ListenerTrampoline _SentryCocoa_wrapBlockingBlock_xtuoz7(
-    BlockingTrampoline block, BlockingTrampoline listenerBlock,
+ListenerTrampoline_1 _SentryCocoa_wrapBlockingBlock_xtuoz7(
+    BlockingTrampoline_1 block, BlockingTrampoline_1 listenerBlock,
     DOBJC_Context* ctx) NS_RETURNS_RETAINED {
   BLOCKING_BLOCK_IMPL(ctx, ^void(id arg0), {
     objc_retainBlock(block);
@@ -75,13 +103,36 @@ ListenerTrampoline _SentryCocoa_wrapBlockingBlock_xtuoz7(
   });
 }
 
+Protocol* _SentryCocoa_SentrySerializable(void) { return @protocol(SentrySerializable); }
+
 typedef id  (^ProtocolTrampoline)(void * sel);
 __attribute__((visibility("default"))) __attribute__((used))
 id  _SentryCocoa_protocolTrampoline_1mbt9g9(id target, void * sel) {
   return ((ProtocolTrampoline)((id (*)(id, SEL, SEL))objc_msgSend)(target, @selector(getDOBJCDartProtocolMethodForSelector:), sel))(sel);
 }
 
-Protocol* _SentryCocoa_SentrySerializable(void) { return @protocol(SentrySerializable); }
+typedef void  (^ListenerTrampoline_2)(int * arg0);
+__attribute__((visibility("default"))) __attribute__((used))
+ListenerTrampoline_2 _SentryCocoa_wrapListenerBlock_15zdkpa(ListenerTrampoline_2 block) NS_RETURNS_RETAINED {
+  return ^void(int * arg0) {
+    objc_retainBlock(block);
+    block(arg0);
+  };
+}
+
+typedef void  (^BlockingTrampoline_2)(void * waiter, int * arg0);
+__attribute__((visibility("default"))) __attribute__((used))
+ListenerTrampoline_2 _SentryCocoa_wrapBlockingBlock_15zdkpa(
+    BlockingTrampoline_2 block, BlockingTrampoline_2 listenerBlock,
+    DOBJC_Context* ctx) NS_RETURNS_RETAINED {
+  BLOCKING_BLOCK_IMPL(ctx, ^void(int * arg0), {
+    objc_retainBlock(block);
+    block(nil, arg0);
+  }, {
+    objc_retainBlock(listenerBlock);
+    listenerBlock(waiter, arg0);
+  });
+}
 #undef BLOCKING_BLOCK_IMPL
 
 #pragma clang diagnostic pop

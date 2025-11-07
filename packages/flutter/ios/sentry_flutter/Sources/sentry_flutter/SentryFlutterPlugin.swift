@@ -266,6 +266,91 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   //
   // Purpose: Called from the Flutter plugin's native bridge (FFI) - bindings are created from SentryFlutterPlugin.h
 
+  @objc(setProxyOptions:user:pass:host:port:type:)
+  public class func setProxyOptions(
+    options: Options,
+    user: String?,
+    pass: String?,
+    host: String,
+    port: String,
+    type: String
+  ) {
+    guard let portInt = Int(port) else {
+      print("Could not parse proxy port")
+      return
+    }
+
+    var connectionProxyDictionary: [String: Any] = [:]
+    if type.lowercased() == "http" {
+      connectionProxyDictionary[kCFNetworkProxiesHTTPEnable as String] = true
+      connectionProxyDictionary[kCFNetworkProxiesHTTPProxy as String] = host
+      connectionProxyDictionary[kCFNetworkProxiesHTTPPort as String] = portInt
+    } else if type.lowercased() == "socks" {
+      #if os(macOS)
+        connectionProxyDictionary[kCFNetworkProxiesSOCKSEnable as String] = true
+        connectionProxyDictionary[kCFNetworkProxiesSOCKSProxy as String] = host
+        connectionProxyDictionary[kCFNetworkProxiesSOCKSPort as String] = portInt
+      #else
+        return
+      #endif
+    } else {
+      return
+    }
+
+    if let user = user, let pass = pass {
+      connectionProxyDictionary[kCFProxyUsernameKey as String] = user
+      connectionProxyDictionary[kCFProxyPasswordKey as String] = pass
+    }
+
+    let configuration = URLSessionConfiguration.default
+    configuration.connectionProxyDictionary = connectionProxyDictionary
+
+    options.urlSession = URLSession(configuration: configuration)
+  }
+
+  @objc(updateReplayOptions:quality:sessionSampleRate:onErrorSampleRate:sdkName:sdkVersion:)
+  public class func setReplayOptions(
+    options: Options,
+    quality: Int,
+    sessionSampleRate: Float,
+    onErrorSampleRate: Float,
+    sdkName: String,
+    sdkVersion: String
+  ) {
+    #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+    options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: quality) ?? .medium
+    options.sessionReplay.sessionSampleRate = sessionSampleRate
+    options.sessionReplay.onErrorSampleRate = onErrorSampleRate
+
+    options.sessionReplay.setValue(
+      [
+        "name": sdkName,
+        "version": sdkVersion
+      ], forKey: "sdkInfo")
+    #endif
+  }
+
+  @objc public class func setReplayOptions(
+    options: Options,
+    quality: SentryReplayOptions.SentryReplayQuality,
+    sessionSampleRate: Float,
+    onErrorSampleRate: Float,
+    sdkName: String,
+    sdkVersion: String
+  ) {
+    #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+    options.sessionReplay.quality = quality
+    options.sessionReplay.sessionSampleRate = sessionSampleRate
+    options.sessionReplay.onErrorSampleRate = onErrorSampleRate
+
+    options.sessionReplay.setValue(
+      [
+        "name": sdkName,
+        "version": sdkVersion
+      ], forKey: "sdkInfo")
+    #endif
+  }
+
   @objc public class func captureReplay() -> String? {
     #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
     PrivateSentrySDKOnly.captureReplay()

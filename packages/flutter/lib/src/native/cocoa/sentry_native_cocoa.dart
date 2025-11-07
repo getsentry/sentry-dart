@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi' as ffi;
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
@@ -32,6 +33,84 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
   @override
   Future<void> init(Hub hub) async {
+    cocoa.SentrySDK.startWithConfigureOptions(
+      cocoa.ObjCBlock_ffiVoid_ffiInt.fromFunction(
+          (ffi.Pointer<ffi.Int> pointer) {
+        final cocoaOptions = cocoa.SentryOptions.castFromPointer(
+          pointer.cast<ObjCObject>(),
+          retain: true,
+          release: true,
+        );
+        cocoaOptions.dsn = options.dsn?.toNSString();
+        cocoaOptions.debug = options.debug;
+        if (options.environment != null) {
+          cocoaOptions.environment = options.environment!.toNSString();
+        }
+        if (options.release != null) {
+          cocoaOptions.releaseName = options.release!.toNSString();
+        }
+        if (options.dist != null) {
+          cocoaOptions.dist = options.dist!.toNSString();
+        }
+        cocoaOptions.sendDefaultPii = options.sendDefaultPii;
+        cocoaOptions.sendClientReports = options.sendClientReports;
+        cocoaOptions.attachStacktrace = options.attachStacktrace;
+        if (options.debug) {
+          cocoaOptions.diagnosticLevel =
+              cocoa.SentryLevel.fromValue(options.diagnosticLevel.ordinal);
+        }
+        cocoaOptions.enableWatchdogTerminationTracking =
+            options.enableWatchdogTerminationTracking;
+        cocoaOptions.enableAutoSessionTracking =
+            options.enableAutoSessionTracking;
+        cocoaOptions.sessionTrackingIntervalMillis =
+            options.autoSessionTrackingInterval.inMilliseconds;
+        cocoaOptions.enableAutoBreadcrumbTracking =
+            options.enableAutoNativeBreadcrumbs;
+        cocoaOptions.enableCrashHandler = options.enableNativeCrashHandling;
+        cocoaOptions.maxBreadcrumbs = options.maxBreadcrumbs;
+        cocoaOptions.maxCacheItems = options.maxCacheItems;
+        cocoaOptions.maxAttachmentSize = options.maxAttachmentSize;
+        cocoaOptions.enableNetworkBreadcrumbs = options.recordHttpBreadcrumbs;
+        cocoaOptions.enableCaptureFailedRequests =
+            options.captureFailedRequests;
+        cocoaOptions.enableAppHangTracking = options.enableAppHangTracking;
+        cocoaOptions.appHangTimeoutInterval =
+            options.appHangTimeoutInterval.inSeconds.toDouble();
+        cocoaOptions.enableSpotlight = options.spotlight.enabled;
+        if (options.spotlight.url != null) {
+          cocoaOptions.spotlightUrl = options.spotlight.url!.toNSString();
+        }
+        cocoa.SentryFlutterPlugin.setReplayOptions(cocoaOptions,
+            quality: 0, // TODO
+            sessionSampleRate: options.replay.sessionSampleRate ?? 0,
+            onErrorSampleRate: options.replay.onErrorSampleRate ?? 0,
+            sdkName: options.sdk.name.toNSString(),
+            sdkVersion: options.sdk.version.toNSString());
+        if (options.proxy != null) {
+          final host = options.proxy!.host?.toNSString();
+          final port = options.proxy!.port?.toString().toNSString();
+          final type = options.proxy!.type
+              .toString()
+              .split('.')
+              .last
+              .toUpperCase()
+              .toNSString();
+
+          if (host != null && port != null) {
+            cocoa.SentryFlutterPlugin.setProxyOptions(
+              cocoaOptions,
+              user: options.proxy!.user?.toNSString(),
+              pass: options.proxy!.pass?.toNSString(),
+              host: host,
+              port: port,
+              type: type,
+            );
+          }
+        }
+      }),
+    );
+
     // We only need these when replay is enabled (session or error capture)
     // so let's set it up conditionally. This allows Dart to trim the code.
     if (options.replay.isEnabled) {
@@ -66,8 +145,6 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
     _envelopeSender = CocoaEnvelopeSender(options);
     await _envelopeSender?.start();
-
-    return super.init(hub);
   }
 
   @override

@@ -6,14 +6,15 @@ headers:
   entry-points:
     - ./temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h
     - ./temp/Sentry.framework/Headers/Sentry-Swift.h
+    - ./temp/Sentry.framework/Headers/SentryOptions.h
     - ./temp/Sentry.framework/Headers/SentryScope.h
     - ./ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterPlugin.h
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
   - -DCOCOAPODS=1
-  - '-I./temp/Sentry.framework/Headers/'
-  - '-I./temp/Sentry.framework/PrivateHeaders/'
-  - '-I./ios/sentry_flutter/Sources/sentry_flutter_objc/'
+  - "-I./temp/Sentry.framework/Headers/"
+  - "-I./temp/Sentry.framework/PrivateHeaders/"
+  - "-I./ios/sentry_flutter/Sources/sentry_flutter_objc/"
 exclude-all-by-default: true
 objc-interfaces:
   include:
@@ -23,27 +24,32 @@ objc-interfaces:
     - SentryScope
     - SentrySDK
     - SentryUser
+    - SentryOptions
+    - NSProgress # We need this since the binding generates code that requires NSProgress
   module:
-    'SentryId': 'Sentry'
-    'SentrySDK': 'Sentry'
+    "SentryId": "Sentry"
+    "SentrySDK": "Sentry"
   member-filter:
     SentrySDK:
       include:
-        - 'crash'
-        - 'pauseAppHangTracking'
-        - 'resumeAppHangTracking'
-        - 'configureScope:'
-        - 'addBreadcrumb:'
-        - 'setUser:'
+        - "crash"
+        - "pauseAppHangTracking"
+        - "resumeAppHangTracking"
+        - "configureScope:"
+        - "addBreadcrumb:"
+        - "setUser:"
+        - "startWithConfigureOptions:"
     SentryScope:
       include:
-        - 'clearBreadcrumbs'
-        - 'setContextValue:forKey:'
-        - 'removeContextForKey:'
-        - 'setTagValue:forKey:'
-        - 'removeTagForKey:'
-        - 'setExtraValue:forKey:'
-        - 'removeExtraForKey:'
+        - "clearBreadcrumbs"
+        - "setContextValue:forKey:"
+        - "removeContextForKey:"
+        - "setTagValue:forKey:"
+        - "removeTagForKey:"
+        - "setExtraValue:forKey:"
+        - "removeExtraForKey:"
+enums:
+  include:
+    - SentryLevel
 preamble: |
   // ignore_for_file: type=lint, unused_element
-
