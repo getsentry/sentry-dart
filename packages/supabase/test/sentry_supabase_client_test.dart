@@ -1,4 +1,5 @@
 import 'package:sentry_supabase/sentry_supabase.dart';
+import 'package:sentry_supabase/src/constants.dart';
 import 'package:test/test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:http/http.dart';
@@ -103,6 +104,51 @@ void main() {
       expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
       expect(fixture.mockHub.getSpanCallCount, 1);
       expect(fixture.mockHub.captureEventCalls.length, 1);
+    });
+  });
+
+  group('Integration', () {
+    test('adds integration when client is created', () {
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains(integrationName)),
+      );
+
+      fixture.getSut(
+        enableBreadcrumbs: true,
+        enableTracing: true,
+        enableErrors: true,
+      );
+
+      expect(
+        fixture.options.sdk.integrations,
+        contains(integrationName),
+      );
+    });
+
+    test('does not duplicate integration if already added', () {
+      fixture.getSut(
+        enableBreadcrumbs: true,
+        enableTracing: true,
+        enableErrors: true,
+      );
+
+      final integrationCount = fixture.options.sdk.integrations
+          .where((integration) => integration == integrationName)
+          .length;
+
+      fixture.getSut(
+        enableBreadcrumbs: true,
+        enableTracing: true,
+        enableErrors: true,
+      );
+
+      final newIntegrationCount = fixture.options.sdk.integrations
+          .where((integration) => integration == integrationName)
+          .length;
+
+      expect(integrationCount, equals(1));
+      expect(newIntegrationCount, equals(1));
     });
   });
 }

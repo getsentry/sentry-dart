@@ -1,6 +1,9 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
 
+import 'constants.dart';
 import 'sentry_supabase_request.dart';
 
 class SentrySupabaseTracingClient extends BaseClient {
@@ -13,7 +16,6 @@ class SentrySupabaseTracingClient extends BaseClient {
   Future<StreamedResponse> send(BaseRequest request) async {
     final supabaseRequest = SentrySupabaseRequest.fromRequest(
       request,
-      // ignore: invalid_use_of_internal_member
       options: _hub.options,
     );
     if (supabaseRequest == null) {
@@ -27,8 +29,14 @@ class SentrySupabaseTracingClient extends BaseClient {
     try {
       response = await _innerClient.send(request);
 
-      span?.setData('http.response.status_code', response.statusCode);
-      span?.setData('http.response_content_length', response.contentLength);
+      span?.setData(
+        SentrySpanData.httpResponseStatusCodeKey,
+        response.statusCode,
+      );
+      span?.setData(
+        SentrySpanData.httpResponseContentLengthKey,
+        response.contentLength,
+      );
       span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
     } catch (e) {
       span?.throwable = e;
@@ -51,6 +59,11 @@ class SentrySupabaseTracingClient extends BaseClient {
   ISentrySpan? _createSpan(SentrySupabaseRequest supabaseRequest) {
     final currentSpan = _hub.getSpan();
     if (currentSpan == null) {
+      _hub.options.log(
+        SentryLevel.warning,
+        'Active Sentry transaction does not exist, could not start span for the Supabase operation: from(${supabaseRequest.table})',
+        logger: loggerName,
+      );
       return null;
     }
     final span = currentSpan.startChild(
@@ -61,26 +74,29 @@ class SentrySupabaseTracingClient extends BaseClient {
     final dbSchema = supabaseRequest.request.headers['Accept-Profile'] ??
         supabaseRequest.request.headers['Content-Profile'];
     if (dbSchema != null) {
-      span.setData('db.schema', dbSchema);
+      span.setData(SentrySpanData.dbSchemaKey, dbSchema);
     }
-    span.setData('db.table', supabaseRequest.table);
-    span.setData('db.url', supabaseRequest.request.url.origin);
+    span.setData(SentrySpanData.dbTableKey, supabaseRequest.table);
+    span.setData(SentrySpanData.dbUrlKey, supabaseRequest.request.url.origin);
     final dbSdk = supabaseRequest.request.headers['X-Client-Info'];
     if (dbSdk != null) {
-      span.setData('db.sdk', dbSdk);
+      span.setData(SentrySpanData.dbSdkKey, dbSdk);
     }
-    // ignore: invalid_use_of_internal_member
     if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii) {
-      span.setData('db.query', supabaseRequest.query);
+      span.setData(SentrySpanData.dbQueryKey, supabaseRequest.query);
     }
-    // ignore: invalid_use_of_internal_member
     if (supabaseRequest.body != null && _hub.options.sendDefaultPii) {
-      span.setData('db.body', supabaseRequest.body);
+      span.setData(SentrySpanData.dbBodyKey, supabaseRequest.body);
     }
-    span.setData('db.operation', supabaseRequest.operation.value);
-    span.setData('db.sql.query', supabaseRequest.generateSqlQuery());
-    span.setData('db.system', 'postgres');
-    // ignore: invalid_use_of_internal_member
+    span.setData(
+      SentrySpanData.dbOperationKey,
+      supabaseRequest.operation.value,
+    );
+    span.setData(
+      SentrySpanOperations.dbSqlQuery,
+      supabaseRequest.generateSqlQuery(),
+    );
+    span.setData(SentrySpanData.dbSystemKey, SentrySpanData.dbSystemPostgresql);
     span.origin = SentryTraceOrigins.autoDbSupabase;
     return span;
   }

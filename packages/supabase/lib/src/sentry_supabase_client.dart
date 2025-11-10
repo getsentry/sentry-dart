@@ -1,6 +1,9 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
 
+import 'constants.dart';
 import 'sentry_supabase_breadcrumb_client.dart';
 import 'sentry_supabase_tracing_client.dart';
 import 'sentry_supabase_error_client.dart';
@@ -70,6 +73,8 @@ class SentrySupabaseClient extends BaseClient {
     bool enableErrors,
     Hub hub,
   ) {
+    hub.options.sdk.addIntegration(integrationName);
+
     Client wrappedClient = baseClient;
 
     if (enableBreadcrumbs) {
