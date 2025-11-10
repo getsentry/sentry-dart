@@ -2,18 +2,16 @@
 
 ## Unreleased
 
-### Enhancements
-
-- Refactor `captureReplay` and `setReplayConfig` to use FFI/JNI ([#3318](https://github.com/getsentry/sentry-dart/pull/3318))
-
-## 9.8.0
-
 ### Features
 
 - Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
   - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
 
-## 9.7.0
+### Enhancements
+
+- Refactor `captureReplay` and `setReplayConfig` to use FFI/JNI ([#3318](https://github.com/getsentry/sentry-dart/pull/3318))
+
+## 9.8.0
 
 ### Features
 
