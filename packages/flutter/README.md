@@ -84,7 +84,7 @@ MaterialApp(
 )
 // ...
 ```
-For a more throughout example see the [example](https://github.com/getsentry/sentry-dart/blob/main/flutter/example/lib/main.dart).
+For a more throughout example see the [example](https://github.com/getsentry/sentry-dart/blob/main/packages/flutter/example/lib/main.dart).
 
 ##### Performance tracing for `AssetBundle`s
 
