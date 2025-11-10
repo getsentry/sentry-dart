@@ -12,6 +12,16 @@ class SentrySupabaseErrorClient extends BaseClient {
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
+    final supabaseRequest = SentrySupabaseRequest.fromRequest(
+      request,
+      // ignore: invalid_use_of_internal_member
+      options: _hub.options,
+    );
+
+    if (supabaseRequest == null) {
+      return _innerClient.send(request);
+    }
+
     try {
       final response = await _innerClient.send(request);
       if (response.statusCode >= 400) {
@@ -20,6 +30,7 @@ class SentrySupabaseErrorClient extends BaseClient {
           null,
           request,
           response,
+          supabaseRequest,
         );
       }
       return response;
@@ -29,6 +40,7 @@ class SentrySupabaseErrorClient extends BaseClient {
         st,
         request,
         null,
+        supabaseRequest,
       );
       rethrow;
     }
@@ -44,6 +56,7 @@ class SentrySupabaseErrorClient extends BaseClient {
     StackTrace? stackTrace,
     BaseRequest request,
     StreamedResponse? response,
+    SentrySupabaseRequest supabaseRequest,
   ) {
     exception ??= SentrySupabaseClientError(
       'Supabase HTTP Client Error with Status Code: ${response?.statusCode}',
@@ -54,23 +67,16 @@ class SentrySupabaseErrorClient extends BaseClient {
     final event = SentryEvent(throwable: throwable);
     final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
 
-    final supabaseRequest = SentrySupabaseRequest.fromRequest(
-      request,
+    event.contexts['supabase'] = {
+      'table': supabaseRequest.table,
+      'operation': supabaseRequest.operation.value,
       // ignore: invalid_use_of_internal_member
-      options: _hub.options,
-    );
-    if (supabaseRequest != null) {
-      event.contexts['supabase'] = {
-        'table': supabaseRequest.table,
-        'operation': supabaseRequest.operation.value,
-        // ignore: invalid_use_of_internal_member
-        if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii)
-          'query': supabaseRequest.query,
-        // ignore: invalid_use_of_internal_member
-        if (supabaseRequest.body != null && _hub.options.sendDefaultPii)
-          'body': supabaseRequest.body,
-      };
-    }
+      if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii)
+        'query': supabaseRequest.query,
+      // ignore: invalid_use_of_internal_member
+      if (supabaseRequest.body != null && _hub.options.sendDefaultPii)
+        'body': supabaseRequest.body,
+    };
 
     _hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
   }

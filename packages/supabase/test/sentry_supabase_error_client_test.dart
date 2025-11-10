@@ -247,6 +247,65 @@ void main() {
       expect(updateSupabaseContext['body'], isNull);
     });
   });
+
+  group('Non-database requests', () {
+    test('should not capture error for auth requests', () async {
+      fixture.mockClient.statusCode = 400;
+
+      final sut = fixture.getSut();
+
+      // Simulate an auth request (not a database request)
+      final authRequest = Request(
+        'POST',
+        Uri.parse('https://example.com/auth/v1/token?grant_type=password'),
+      );
+
+      await sut.send(authRequest);
+
+      // Should not capture any errors for non-database requests
+      expect(fixture.mockHub.captureEventCalls.length, 0);
+    });
+
+    test('should not capture error for non-rest API requests', () async {
+      fixture.mockClient.statusCode = 404;
+
+      final sut = fixture.getSut();
+
+      // Simulate a non-database request
+      final otherRequest = Request(
+        'GET',
+        Uri.parse('https://example.com/storage/v1/bucket'),
+      );
+
+      await sut.send(otherRequest);
+
+      // Should not capture any errors for non-database requests
+      expect(fixture.mockHub.captureEventCalls.length, 0);
+    });
+
+    test('should not capture error for exceptions on non-database requests',
+        () async {
+      final error = Exception('test');
+      fixture.mockClient.throwException = error;
+
+      final sut = fixture.getSut();
+
+      // Simulate an auth request that throws
+      final authRequest = Request(
+        'POST',
+        Uri.parse('https://example.com/auth/v1/token?grant_type=password'),
+      );
+
+      try {
+        await sut.send(authRequest);
+      } catch (e) {
+        expect(e, error); // Error is rethrown
+      }
+
+      // Should not capture any errors for non-database requests
+      expect(fixture.mockHub.captureEventCalls.length, 0);
+    });
+  });
 }
 
 class Fixture {
