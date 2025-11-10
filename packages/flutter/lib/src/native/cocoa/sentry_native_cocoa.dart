@@ -16,6 +16,8 @@ import 'binding.dart' as cocoa;
 import 'cocoa_replay_recorder.dart';
 import 'cocoa_envelope_sender.dart';
 
+part 'sentry_native_cocoa_init.dart';
+
 @internal
 class SentryNativeCocoa extends SentryNativeChannel {
   CocoaReplayRecorder? _replayRecorder;
@@ -35,149 +37,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
   @override
   Future<void> init(Hub hub) async {
-    cocoa.SentrySDK.startWithConfigureOptions(
-      cocoa.ObjCBlock_ffiVoid_SentryOptions.fromFunction(
-          (cocoa.SentryOptions cocoaOptions) {
-        cocoaOptions.dsn = options.dsn?.toNSString();
-        cocoaOptions.debug = options.debug;
-        if (options.environment != null) {
-          cocoaOptions.environment = options.environment!.toNSString();
-        }
-        if (options.release != null) {
-          cocoaOptions.releaseName = options.release!.toNSString();
-        }
-        if (options.dist != null) {
-          cocoaOptions.dist = options.dist!.toNSString();
-        }
-        cocoaOptions.sendDefaultPii = options.sendDefaultPii;
-        cocoaOptions.sendClientReports = options.sendClientReports;
-        cocoaOptions.attachStacktrace = options.attachStacktrace;
-        if (options.debug) {
-          cocoaOptions.diagnosticLevel =
-              cocoa.SentryLevel.fromValue(options.diagnosticLevel.ordinal);
-        }
-        cocoaOptions.enableWatchdogTerminationTracking =
-            options.enableWatchdogTerminationTracking;
-        cocoaOptions.enableAutoSessionTracking =
-            options.enableAutoSessionTracking;
-        cocoaOptions.sessionTrackingIntervalMillis =
-            options.autoSessionTrackingInterval.inMilliseconds;
-        cocoaOptions.enableAutoBreadcrumbTracking =
-            options.enableAutoNativeBreadcrumbs;
-        cocoaOptions.enableCrashHandler = options.enableNativeCrashHandling;
-        cocoaOptions.maxBreadcrumbs = options.maxBreadcrumbs;
-        cocoaOptions.maxCacheItems = options.maxCacheItems;
-        cocoaOptions.maxAttachmentSize = options.maxAttachmentSize;
-        cocoaOptions.enableNetworkBreadcrumbs = options.recordHttpBreadcrumbs;
-        cocoaOptions.enableCaptureFailedRequests =
-            options.captureFailedRequests;
-        cocoaOptions.enableAppHangTracking = options.enableAppHangTracking;
-        cocoaOptions.appHangTimeoutInterval =
-            options.appHangTimeoutInterval.inSeconds.toDouble();
-        cocoaOptions.enableSpotlight = options.spotlight.enabled;
-        if (options.spotlight.url != null) {
-          cocoaOptions.spotlightUrl = options.spotlight.url!.toNSString();
-        }
-        cocoa.SentryFlutterPlugin.setReplayOptions(cocoaOptions,
-            quality: 0, // TODO
-            sessionSampleRate: options.replay.sessionSampleRate ?? 0,
-            onErrorSampleRate: options.replay.onErrorSampleRate ?? 0,
-            sdkName: options.sdk.name.toNSString(),
-            sdkVersion: options.sdk.version.toNSString());
-        if (options.proxy != null) {
-          final host = options.proxy!.host?.toNSString();
-          final port = options.proxy!.port?.toString().toNSString();
-          final type = options.proxy!.type
-              .toString()
-              .split('.')
-              .last
-              .toUpperCase()
-              .toNSString();
-
-          if (host != null && port != null) {
-            cocoa.SentryFlutterPlugin.setProxyOptions(
-              cocoaOptions,
-              user: options.proxy!.user?.toNSString(),
-              pass: options.proxy!.pass?.toNSString(),
-              host: host,
-              port: port,
-              type: type,
-            );
-          }
-        }
-        cocoa.SentryFlutterPlugin.setAutoPerformanceFeatures(
-            options.enableAutoPerformanceTracing);
-
-        final version = cocoa.PrivateSentrySDKOnly.getSdkVersionString();
-        cocoa.PrivateSentrySDKOnly.setSdkName(
-            'sentry.cocoa.flutter'.toNSString(),
-            andVersionString: version);
-
-        // Currently using beforeSend in Dart crashes when capturing a native event
-        // So instead we should set it in native for now
-        final packages =
-            options.sdk.packages.map((e) => e.toJson()).toList(growable: false);
-        cocoa.SentryFlutterPlugin.setBeforeSend(cocoaOptions,
-            packages: _dartToNSArray(packages),
-            integrations: _dartToNSArray(options.sdk.integrations));
-      }),
-    );
-
-    // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, to mimic
-    // the didBecomeActiveNotification notification. This is needed for session, OOM tracking, replays, etc.
-    cocoa.SentryFlutterPlugin.setupHybridSdkNotifications();
-
-    final cocoa.DartSentryReplayCaptureCallback callback =
-        cocoa.ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject.listener(
-            (NSString? replayIdPtr,
-                bool replayIsBuffering,
-                objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>
-                    result) {
-      _replayRecorder ??= CocoaReplayRecorder(options);
-
-      final replayIdStr = replayIdPtr?.toDartString();
-      final replayId =
-          replayIdStr == null ? null : SentryId.fromId(replayIdStr);
-
-      if (_replayId != replayId) {
-        _replayId = replayId;
-        hub.configureScope((s) {
-          // Only set replay ID on scope if not buffering (active session mode)
-          // ignore: invalid_use_of_internal_member
-          s.replayId = !replayIsBuffering ? replayId : null;
-        });
-      }
-
-      _replayRecorder!.captureScreenshot().then((data) {
-        if (data == null) {
-          result(null);
-          return;
-        }
-
-        final nsDict = _dartToNSDictionary(Map<String, dynamic>.from(data));
-        result(nsDict);
-      }).catchError((Object exception, StackTrace stackTrace) {
-        options.log(
-            SentryLevel.error, 'FFI: Failed to capture replay screenshot',
-            exception: exception, stackTrace: stackTrace);
-        result(null);
-      });
-    });
-    cocoa.SentryFlutterPlugin.setupReplay(callback,
-        tags: _dartToNSDictionary({
-          'maskAllText': options.privacy.maskAllText,
-          'maskAllImages': options.privacy.maskAllImages,
-          'maskAssetImages': options.privacy.maskAssetImages,
-          if (options.privacy.userMaskingRules.isNotEmpty)
-            'maskingRules': options.privacy.userMaskingRules
-                .map((rule) => '${rule.name}: ${rule.description}')
-                .toList(growable: false),
-        }));
-
-    // callback('aa'.toNSString(), true, (result) {});
-
-    // // We only need these when replay is enabled (session or error capture)
-    // // so let's set it up conditionally. This allows Dart to trim the code.
+    initSentryCocoa(hub: hub, options: options, owner: this);
 
     _envelopeSender = CocoaEnvelopeSender(options);
     await _envelopeSender?.start();

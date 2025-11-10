@@ -1,11 +1,11 @@
 part of 'sentry_native_java.dart';
 
 /// Initializes the Sentry Android SDK.
-Future<void> initSentryAndroid({
+void initSentryAndroid({
   required Hub hub,
   required SentryFlutterOptions options,
   required SentryNativeJava owner,
-}) async {
+}) {
   final replayCallbacks = createReplayRecorderCallbacks(
     options: options,
     hub: hub,

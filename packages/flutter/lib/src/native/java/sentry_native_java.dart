@@ -41,7 +41,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   Future<void> init(Hub hub) async {
-    await initSentryAndroid(hub: hub, options: options, owner: this);
+    initSentryAndroid(hub: hub, options: options, owner: this);
 
     _envelopeSender = AndroidEnvelopeSender.factory(options);
     await _envelopeSender?.start();

@@ -11,13 +11,6 @@ typedef void (^SentryReplayCaptureCallback)(
 @interface SentryFlutterReplayScreenshotProvider
     : NSObject <SentryViewScreenshotProvider>
 
-- (instancetype)initWithChannel:(id)FlutterMethodChannel;
-
-@end
-
-@interface SentryFlutterReplayRecorderFFI
-    : NSObject <SentryViewScreenshotProvider>
-
 - (instancetype)initWithCallback:(SentryReplayCaptureCallback)callback;
 
 @end

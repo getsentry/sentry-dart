@@ -65,7 +65,6 @@ class SentryFlutterPlugin :
     result: Result,
   ) {
     when (call.method) {
-      "initNativeSdk" -> initNativeSdk(call, result)
       "closeNativeSdk" -> closeNativeSdk(result)
       else -> result.notImplemented()
     }
@@ -95,50 +94,6 @@ class SentryFlutterPlugin :
   override fun onDetachedFromActivityForConfigChanges() {
     // Stub
   }
-
-  private fun initNativeSdk(
-    call: MethodCall,
-    result: Result,
-  ) {
-    if (!this::context.isInitialized) {
-      result.error("1", "Context is null", null)
-      return
-    }
-
-    val args = call.arguments() as Map<String, Any>? ?: mapOf<String, Any>()
-    if (args.isEmpty()) {
-      result.error("4", "Arguments is null or empty", null)
-      return
-    }
-
-    SentryAndroid.init(context) { options ->
-      sentryFlutter.updateOptions(options, args)
-
-      setupReplay(options)
-    }
-    result.success("")
-  }
-
-  private fun setupReplay(options: SentryAndroidOptions) {
-    // Replace the default ReplayIntegration with a Flutter-specific recorder.
-    options.integrations.removeAll { it is ReplayIntegration }
-    val replayOptions = options.sessionReplay
-    if (replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled) {
-      replay =
-        ReplayIntegration(
-          context.applicationContext,
-          dateProvider = CurrentDateProvider.getInstance(),
-          recorderProvider = { SentryFlutterReplayRecorder(channel, replay!!) },
-          replayCacheProvider = null,
-        )
-      replay!!.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
-      options.addIntegration(replay!!)
-      options.setReplayController(replay)
-    } else {
-      options.setReplayController(null)
-    }
-  }
-
   private fun closeNativeSdk(result: Result) {
     ScopesAdapter.getInstance().close()
 
@@ -203,29 +158,14 @@ class SentryFlutterPlugin :
     }
 
     @JvmStatic
-    fun initNativeSdk(dartOptions: Map<String, Any>, replayCallbacks: ReplayRecorderCallbacks?) {
-      val context = getApplicationContext()
-      if (context == null) {
-        Log.e("Sentry", "initNativeSdk called before applicationContext initialized")
-        return
-      }
-
-      SentryAndroid.init(context) { nativeOptions ->
-        sentryFlutter.updateOptions(nativeOptions, dartOptions)
-
-        setupReplayJni(nativeOptions, replayCallbacks)
-      }
-    }
-
-    @JvmStatic
-    fun setupReplayJni(options: SentryAndroidOptions, replayCallbacks: ReplayRecorderCallbacks?) {
+    fun setupReplay(options: SentryAndroidOptions, replayCallbacks: ReplayRecorderCallbacks?) {
       // Replace the default ReplayIntegration with a Flutter-specific recorder.
       options.integrations.removeAll { it is ReplayIntegration }
       val replayOptions = options.sessionReplay
       if ((replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled) && replayCallbacks != null) {
         val ctx = applicationContext
         if (ctx == null) {
-          Log.w("Sentry", "setupReplayJni called before applicationContext initialized")
+          Log.w("Sentry", "setupReplay called before applicationContext initialized")
           return
         }
 
@@ -234,7 +174,7 @@ class SentryFlutterPlugin :
             ctx.applicationContext,
             dateProvider = CurrentDateProvider.getInstance(),
             recorderProvider = {
-              SentryFlutterReplayRecorderJni(replayCallbacks, replay!!)
+              SentryFlutterReplayRecorder(replayCallbacks, replay!!)
             },
             replayCacheProvider = null,
           )
