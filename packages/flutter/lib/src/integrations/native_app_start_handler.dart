@@ -80,8 +80,8 @@ class NativeAppStartHandler {
       return null;
     }
 
-    final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(
-        nativeAppStart.appStartTime.toInt());
+    final appStartDateTime =
+        DateTime.fromMillisecondsSinceEpoch(nativeAppStart.appStartTime);
     final pluginRegistrationDateTime = DateTime.fromMillisecondsSinceEpoch(
         nativeAppStart.pluginRegistrationTime);
 

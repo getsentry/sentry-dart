@@ -4,11 +4,11 @@ import 'protocol/breadcrumb.dart';
 import 'protocol/sentry_user.dart';
 
 abstract class ScopeObserver {
-  Future<void> setContexts(String key, dynamic value);
-  Future<void> removeContexts(String key);
-  Future<void> setUser(SentryUser? user);
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb);
-  Future<void> clearBreadcrumbs();
+  FutureOr<void> setContexts(String key, dynamic value);
+  FutureOr<void> removeContexts(String key);
+  FutureOr<void> setUser(SentryUser? user);
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb);
+  FutureOr<void> clearBreadcrumbs();
   Future<void> setExtra(String key, dynamic value);
   Future<void> removeExtra(String key);
   Future<void> setTag(String key, String value);
