@@ -139,7 +139,17 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             }
         }
 
-        SentryFlutterPlugin.setupHybridSdkNotifications()
+        #if os(iOS) || targetEnvironment(macCatalyst)
+        let appIsActive = UIApplication.shared.applicationState == .active
+        #else
+        let appIsActive = NSApplication.shared.isActive
+        #endif
+
+        // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, to mimic
+        // the didBecomeActiveNotification notification. This is needed for session, OOM tracking, replays, etc.
+        if appIsActive {
+            NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
+        }
 
         configureReplay(arguments)
 
@@ -256,6 +266,26 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   //
   // Purpose: Called from the Flutter plugin's native bridge (FFI) - bindings are created from SentryFlutterPlugin.h
 
+  @objc(setupReplay:tags:)
+  public class func setupReplay(callback: @escaping SentryReplayCaptureCallback, tags: [String: Any]) {
+    #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+      let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+      let screenshotProvider = SentryFlutterReplayRecorderFFI(callback: callback)
+      PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
+      let sessionReplayOptions = PrivateSentrySDKOnly.options.sessionReplay
+      var newTags: [String: Any] = [
+        "sessionSampleRate": sessionReplayOptions.sessionSampleRate,
+        "errorSampleRate": sessionReplayOptions.onErrorSampleRate,
+        "quality": String(describing: sessionReplayOptions.quality),
+        "nativeSdkName": PrivateSentrySDKOnly.getSdkName(),
+        "nativeSdkVersion": PrivateSentrySDKOnly.getSdkVersionString()
+      ]
+      for (key, value) in tags {
+        newTags[key] = value
+      }
+      PrivateSentrySDKOnly.setReplayTags(newTags)
+    #endif
+  }
   @objc(setBeforeSend:packages:integrations:)
   public class func setBeforeSend(options: Options, packages: [[String: String]], integrations: [String]) {
     options.beforeSend = { event in
@@ -289,8 +319,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     }
   }
 
-  @objc(setupHybridSdkNotifications)
-  public class func setupHybridSdkNotifications() {
+  @objc public class func setupHybridSdkNotifications() {
     #if os(iOS) || targetEnvironment(macCatalyst)
     let appIsActive = UIApplication.shared.applicationState == .active
     #else

@@ -3,7 +3,13 @@
 #if __has_include(<sentry_flutter/sentry_flutter-Swift.h>)
 #import <sentry_flutter/sentry_flutter-Swift.h>
 #else
+typedef void (^SentryReplayCaptureCallback)(
+        NSString *_Nullable replayId,
+        BOOL replayIsBuffering,
+        void (^_Nonnull result)(id _Nullable value));
+
 @class SentryOptions;
+@class SentryEvent;
 
 @interface SentryFlutterPlugin : NSObject
 + (nullable NSNumber *)getDisplayRefreshRate;
@@ -23,5 +29,16 @@
                     onErrorSampleRate:(float)onErrorSampleRate
                    sdkName:(NSString *)sdkName
                    sdkVersion:(NSString *)sdkVersion;
-@end
++ (void)setAutoPerformanceFeatures:(BOOL)enableAutoPerformanceTracing;
++ (void)setEventOriginTag:(SentryEvent *)event;
++ (void)setSdkMetaData:(SentryEvent *)event
+              packages:(NSArray<NSDictionary<NSString *, NSString *> *> *)packages
+        integrations:(NSArray<NSString *> *)integrations;
++ (void)setBeforeSend:(SentryOptions *)options
+        packages:(NSArray<NSDictionary<NSString *, NSString *> *> *)packages
+        integrations:(NSArray<NSString *> *)integrations;
++ (void)setupHybridSdkNotifications;
++ (void)setupReplay:(SentryReplayCaptureCallback)callback
+        tags:(NSDictionary<NSString *, NSString *> *)tags;
 #endif
+@end

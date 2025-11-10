@@ -3,6 +3,8 @@ import 'dart:ffi' as ffi;
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
+import 'package:objective_c/objective_c.dart' as objc
+    show ObjCBlock, ObjCObject;
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
@@ -34,13 +36,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   Future<void> init(Hub hub) async {
     cocoa.SentrySDK.startWithConfigureOptions(
-      cocoa.ObjCBlock_ffiVoid_ffiInt.fromFunction(
-          (ffi.Pointer<ffi.Int> pointer) {
-        final cocoaOptions = cocoa.SentryOptions.castFromPointer(
-          pointer.cast<ObjCObject>(),
-          retain: true,
-          release: true,
-        );
+      cocoa.ObjCBlock_ffiVoid_SentryOptions.fromFunction(
+          (cocoa.SentryOptions cocoaOptions) {
         cocoaOptions.dsn = options.dsn?.toNSString();
         cocoaOptions.debug = options.debug;
         if (options.environment != null) {
@@ -108,40 +105,79 @@ class SentryNativeCocoa extends SentryNativeChannel {
             );
           }
         }
+        cocoa.SentryFlutterPlugin.setAutoPerformanceFeatures(
+            options.enableAutoPerformanceTracing);
+
+        final version = cocoa.PrivateSentrySDKOnly.getSdkVersionString();
+        cocoa.PrivateSentrySDKOnly.setSdkName(
+            'sentry.cocoa.flutter'.toNSString(),
+            andVersionString: version);
+
+        // Currently using beforeSend in Dart crashes when capturing a native event
+        // So instead we should set it in native for now
+        final packages =
+            options.sdk.packages.map((e) => e.toJson()).toList(growable: false);
+        cocoa.SentryFlutterPlugin.setBeforeSend(cocoaOptions,
+            packages: _dartToNSArray(packages),
+            integrations: _dartToNSArray(options.sdk.integrations));
       }),
     );
 
-    // We only need these when replay is enabled (session or error capture)
-    // so let's set it up conditionally. This allows Dart to trim the code.
-    if (options.replay.isEnabled) {
-      channel.setMethodCallHandler((call) async {
-        switch (call.method) {
-          case 'captureReplayScreenshot':
-            _replayRecorder ??= CocoaReplayRecorder(options);
+    // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, to mimic
+    // the didBecomeActiveNotification notification. This is needed for session, OOM tracking, replays, etc.
+    cocoa.SentryFlutterPlugin.setupHybridSdkNotifications();
 
-            final replayIdArg = call.arguments['replayId'];
-            final replayIsBuffering =
-                call.arguments['replayIsBuffering'] as bool? ?? false;
+    final cocoa.DartSentryReplayCaptureCallback callback =
+        cocoa.ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject.listener(
+            (NSString? replayIdPtr,
+                bool replayIsBuffering,
+                objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>
+                    result) {
+      _replayRecorder ??= CocoaReplayRecorder(options);
 
-            final replayId = replayIdArg == null
-                ? null
-                : SentryId.fromId(replayIdArg as String);
+      final replayIdStr = replayIdPtr?.toDartString();
+      final replayId =
+          replayIdStr == null ? null : SentryId.fromId(replayIdStr);
 
-            if (_replayId != replayId) {
-              _replayId = replayId;
-              hub.configureScope((s) {
-                // Only set replay ID on scope if not buffering (active session mode)
-                // ignore: invalid_use_of_internal_member
-                s.replayId = !replayIsBuffering ? replayId : null;
-              });
-            }
+      if (_replayId != replayId) {
+        _replayId = replayId;
+        hub.configureScope((s) {
+          // Only set replay ID on scope if not buffering (active session mode)
+          // ignore: invalid_use_of_internal_member
+          s.replayId = !replayIsBuffering ? replayId : null;
+        });
+      }
 
-            return _replayRecorder!.captureScreenshot();
-          default:
-            throw UnimplementedError('Method ${call.method} not implemented');
+      _replayRecorder!.captureScreenshot().then((data) {
+        if (data == null) {
+          result(null);
+          return;
         }
+
+        final nsDict = _dartToNSDictionary(Map<String, dynamic>.from(data));
+        result(nsDict);
+      }).catchError((Object exception, StackTrace stackTrace) {
+        options.log(
+            SentryLevel.error, 'FFI: Failed to capture replay screenshot',
+            exception: exception, stackTrace: stackTrace);
+        result(null);
       });
-    }
+    });
+    cocoa.SentryFlutterPlugin.setupReplay(callback,
+        tags: _dartToNSDictionary({
+          'maskAllText': options.privacy.maskAllText,
+          'maskAllImages': options.privacy.maskAllImages,
+          'maskAssetImages': options.privacy.maskAssetImages,
+          if (options.privacy.userMaskingRules.isNotEmpty)
+            'maskingRules': options.privacy.userMaskingRules
+                .map((rule) => '${rule.name}: ${rule.description}')
+                .toList(growable: false),
+        }));
+
+    // callback('aa'.toNSString(), true, (result) {});
+
+    // // We only need these when replay is enabled (session or error capture)
+    // // so let's set it up conditionally. This allows Dart to trim the code.
 
     _envelopeSender = CocoaEnvelopeSender(options);
     await _envelopeSender?.start();
@@ -229,7 +265,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   int? startProfiler(SentryId traceId) => tryCatchSync(
         'startProfiler',
         () {
-          final sentryId$1 = cocoa.SentryId$1.alloc()
+          final sentryId$1 = cocoa.SentryId.alloc()
               .initWithUUIDString(NSString(traceId.toString()));
 
           final sentryId = cocoa.SentryId.castFromPointer(
@@ -382,6 +418,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   SentryId captureReplay() =>
       tryCatchSync('captureReplay', () {
+        print('capture replay');
         final value = cocoa.SentryFlutterPlugin.captureReplay()?.toDartString();
         SentryId id;
         if (value == null) {
@@ -408,12 +445,28 @@ NSDictionary _dartToNSDictionary(Map<String, dynamic> json) {
       .toNSDictionary(convertOther: _defaultObjcConverter);
 }
 
+NSArray _dartToNSArray(List<dynamic> list) {
+  return _deepConvertListNonNull(list)
+      .toNSArray(convertOther: _defaultObjcConverter);
+}
+
 ObjCObjectBase _dartToNSObject(Object value) {
   return switch (value) {
     Map<String, dynamic> m => _dartToNSDictionary(m),
+    List<dynamic> l => _dartToNSArray(l),
     _ => toObjCObject(value, convertOther: _defaultObjcConverter)
   };
 }
+
+List<Object> _deepConvertListNonNull(List<dynamic> list) => [
+      for (final e in list)
+        if (e case Map<String, dynamic> m)
+          _deepConvertMapNonNull(m)
+        else if (e case List<dynamic> l)
+          _deepConvertListNonNull(l)
+        else if (e case Object o)
+          o,
+    ];
 
 /// This map conversion is needed so we can use the toNSDictionary extension function
 /// provided by the objective_c package.
@@ -426,13 +479,7 @@ Map<Object, Object> _deepConvertMapNonNull(Map<String, dynamic> input) {
 
     out[entry.key] = switch (value) {
       Map<String, dynamic> m => _deepConvertMapNonNull(m),
-      List<dynamic> l => [
-          for (final e in l)
-            if (e != null)
-              e is Map<String, dynamic>
-                  ? _deepConvertMapNonNull(e)
-                  : e as Object
-        ],
+      List<dynamic> l => _deepConvertListNonNull(l),
       _ => value as Object,
     };
   }
