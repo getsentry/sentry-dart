@@ -234,12 +234,11 @@ void main() {
     });
 
     if (Platform.isIOS || Platform.isMacOS) {
-      final cocoaOptions =
-          (SentryFlutter.native as SentryNativeCocoa).testNativeOptions;
+      final cocoaOptions = cocoa.PrivateSentrySDKOnly.getOptions();
       expect(cocoaOptions, isNotNull);
       if (Platform.isIOS) {
         final nativeReplayOptions =
-            (SentryFlutter.native as SentryNativeCocoa).testNativeReplayOptions;
+            cocoa.SentryFlutterPlugin.getReplayOptions();
         expect(nativeReplayOptions, isNotNull);
         expect(nativeReplayOptions!.quality,
             cocoa.SentryReplayQuality.SentryReplayQualityHigh);
@@ -247,7 +246,7 @@ void main() {
         expect(nativeReplayOptions.sessionSampleRate, closeTo(0.4, 0.001));
         expect(nativeReplayOptions.onErrorSampleRate, closeTo(0.8, 0.001));
       }
-      expect(cocoaOptions!.dsn?.toDartString(), fakeDsn);
+      expect(cocoaOptions.dsn?.toDartString(), fakeDsn);
       expect(cocoaOptions.debug, isTrue);
       expect(cocoaOptions.diagnosticLevel.value, SentryLevel.error.ordinal);
       expect(cocoaOptions.environment.toDartString(), 'init-test-env');
@@ -276,10 +275,12 @@ void main() {
       // currently cannot assert the sdk package and integration since it's attached only
       // to the event
     } else if (Platform.isAndroid) {
-      final androidOptions =
-          (SentryFlutter.native as SentryNativeJava).testNativeOptions;
+      final ref = native.ScopesAdapter.getInstance()?.getOptions().reference;
+      expect(ref, isNotNull);
+      final androidOptions = native.SentryAndroidOptions.fromReference(ref!);
+
       expect(androidOptions, isNotNull);
-      expect(androidOptions!.getDsn()?.toDartString(), fakeDsn);
+      expect(androidOptions.getDsn()?.toDartString(), fakeDsn);
       expect(androidOptions.isDebug(), isTrue);
       final diagnostic = androidOptions.getDiagnosticLevel();
       expect(
