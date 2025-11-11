@@ -48,7 +48,7 @@ internal class SentryFlutterReplayRecorder(
           config.frameRate,
         )
       } catch (ignored: Exception) {
-        Log.w("Sentry", "Failed to propagate configuration", ignored)
+        Log.w("Sentry", "Failed to propagate configuration change to Flutter", ignored)
       }
     }
   }
