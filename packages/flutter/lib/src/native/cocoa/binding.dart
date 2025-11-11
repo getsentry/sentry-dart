@@ -50,6 +50,13 @@ external ffi.Pointer<objc.ObjCObject> _SentryCocoa_protocolTrampoline_1mbt9g9(
   ffi.Pointer<ffi.Void> arg0,
 );
 
+@ffi.Native<
+    ffi.Bool Function(ffi.Pointer<objc.ObjCObject>, ffi.Pointer<ffi.Void>)>()
+external bool _SentryCocoa_protocolTrampoline_e3qsqz(
+  ffi.Pointer<objc.ObjCObject> target,
+  ffi.Pointer<ffi.Void> arg0,
+);
+
 void _ObjCBlock_ffiVoid_objcObjCObject_fnPtrTrampoline(
         ffi.Pointer<objc.ObjCBlockImpl> block,
         ffi.Pointer<objc.ObjCObject> arg0) =>
@@ -4070,6 +4077,775 @@ final _objc_msgSend_1f7ydyk = objc.msgSendPointer
             ffi.Pointer<objc.ObjCSelector>,
             ffi.Pointer<objc.ObjCBlockImpl>,
             ffi.Pointer<objc.ObjCObject>)>();
+late final _class_SentryReplayOptions = objc.getClass("SentryReplayOptions");
+
+/// WARNING: SentryRedactOptions is a stub. To generate bindings for this class, include
+/// SentryRedactOptions in your config's objc-protocols list.
+///
+/// SentryRedactOptions
+interface class SentryRedactOptions extends objc.ObjCProtocolBase {
+  SentryRedactOptions._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryRedactOptions] that points to the same underlying object as [other].
+  SentryRedactOptions.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryRedactOptions] that wraps the given raw object pointer.
+  SentryRedactOptions.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_sessionSampleRate = objc.registerName("sessionSampleRate");
+final _objc_msgSend_2cgrxl = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Float Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        double Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+final _objc_msgSend_2cgrxlFpret = objc.msgSendFpretPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Float Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        double Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+late final _sel_setSessionSampleRate_ =
+    objc.registerName("setSessionSampleRate:");
+final _objc_msgSend_v5hmet = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>, ffi.Float)>>()
+    .asFunction<
+        void Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, double)>();
+late final _sel_onErrorSampleRate = objc.registerName("onErrorSampleRate");
+late final _sel_setOnErrorSampleRate_ =
+    objc.registerName("setOnErrorSampleRate:");
+late final _sel_maskAllText = objc.registerName("maskAllText");
+bool _ObjCBlock_bool_ffiVoid_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void> arg0)>>()
+        .asFunction<bool Function(ffi.Pointer<ffi.Void>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_bool_ffiVoid_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Bool Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
+            _ObjCBlock_bool_ffiVoid_fnPtrTrampoline, false)
+        .cast();
+bool _ObjCBlock_bool_ffiVoid_closureTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
+    (objc.getBlockClosure(block) as bool Function(ffi.Pointer<ffi.Void>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_bool_ffiVoid_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Bool Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
+            _ObjCBlock_bool_ffiVoid_closureTrampoline, false)
+        .cast();
+
+/// Construction methods for `objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>`.
+abstract final class ObjCBlock_bool_ffiVoid {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>
+      castFromPointer(ffi.Pointer<objc.ObjCBlockImpl> pointer,
+              {bool retain = false, bool release = false}) =>
+          objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>(pointer,
+              retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>
+      fromFunctionPointer(
+              ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Bool Function(ffi.Pointer<ffi.Void> arg0)>>
+                  ptr) =>
+          objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>(
+              objc.newPointerBlock(_ObjCBlock_bool_ffiVoid_fnPtrCallable, ptr.cast()),
+              retain: false,
+              release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)> fromFunction(
+          bool Function(ffi.Pointer<ffi.Void>) fn,
+          {bool keepIsolateAlive = true}) =>
+      objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>(
+          objc.newClosureBlock(_ObjCBlock_bool_ffiVoid_closureCallable,
+              (ffi.Pointer<ffi.Void> arg0) => fn(arg0), keepIsolateAlive),
+          retain: false,
+          release: true);
+}
+
+/// Call operator for `objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>`.
+extension ObjCBlock_bool_ffiVoid_CallExtension
+    on objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)> {
+  bool call(ffi.Pointer<ffi.Void> arg0) => ref.pointer.ref.invoke
+      .cast<
+          ffi.NativeFunction<
+              ffi.Bool Function(ffi.Pointer<objc.ObjCBlockImpl> block,
+                  ffi.Pointer<ffi.Void> arg0)>>()
+      .asFunction<
+          bool Function(ffi.Pointer<objc.ObjCBlockImpl>,
+              ffi.Pointer<ffi.Void>)>()(ref.pointer, arg0);
+}
+
+late final _sel_setMaskAllText_ = objc.registerName("setMaskAllText:");
+late final _sel_maskAllImages = objc.registerName("maskAllImages");
+late final _sel_setMaskAllImages_ = objc.registerName("setMaskAllImages:");
+
+/// Enum to define the quality of the session replay.
+enum SentryReplayQuality {
+  /// Video Scale: 80%
+  /// Bit Rate: 20.000
+  SentryReplayQualityLow(0),
+
+  /// Video Scale: 100%
+  /// Bit Rate: 40.000
+  SentryReplayQualityMedium(1),
+
+  /// Video Scale: 100%
+  /// Bit Rate: 60.000
+  SentryReplayQualityHigh(2);
+
+  final int value;
+  const SentryReplayQuality(this.value);
+
+  static SentryReplayQuality fromValue(int value) => switch (value) {
+        0 => SentryReplayQualityLow,
+        1 => SentryReplayQualityMedium,
+        2 => SentryReplayQualityHigh,
+        _ =>
+          throw ArgumentError('Unknown value for SentryReplayQuality: $value'),
+      };
+}
+
+late final _sel_quality = objc.registerName("quality");
+final _objc_msgSend_pke8ca = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Long Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        int Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+late final _sel_setQuality_ = objc.registerName("setQuality:");
+final _objc_msgSend_1c33mxk = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>, ffi.Long)>>()
+    .asFunction<
+        void Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, int)>();
+late final _sel_maskedViewClasses = objc.registerName("maskedViewClasses");
+ffi.Pointer<objc.ObjCObject> _ObjCBlock_NSArray_ffiVoid_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<ffi.Void> arg0)>>()
+        .asFunction<
+            ffi.Pointer<objc.ObjCObject> Function(
+                ffi.Pointer<ffi.Void>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_NSArray_ffiVoid_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
+            _ObjCBlock_NSArray_ffiVoid_fnPtrTrampoline)
+        .cast();
+ffi.Pointer<objc.ObjCObject> _ObjCBlock_NSArray_ffiVoid_closureTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
+    (objc.getBlockClosure(block) as ffi.Pointer<objc.ObjCObject> Function(
+        ffi.Pointer<ffi.Void>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_NSArray_ffiVoid_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
+            _ObjCBlock_NSArray_ffiVoid_closureTrampoline)
+        .cast();
+
+/// Construction methods for `objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>`.
+abstract final class ObjCBlock_NSArray_ffiVoid {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>
+      castFromPointer(ffi.Pointer<objc.ObjCBlockImpl> pointer,
+              {bool retain = false, bool release = false}) =>
+          objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>(pointer,
+              retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>
+      fromFunctionPointer(
+              ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Pointer<objc.ObjCObject> Function(
+                              ffi.Pointer<ffi.Void> arg0)>>
+                  ptr) =>
+          objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>(
+              objc.newPointerBlock(_ObjCBlock_NSArray_ffiVoid_fnPtrCallable, ptr.cast()),
+              retain: false,
+              release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>
+      fromFunction(objc.NSArray Function(ffi.Pointer<ffi.Void>) fn,
+              {bool keepIsolateAlive = true}) =>
+          objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>(
+              objc.newClosureBlock(
+                  _ObjCBlock_NSArray_ffiVoid_closureCallable,
+                  (ffi.Pointer<ffi.Void> arg0) =>
+                      fn(arg0).ref.retainAndAutorelease(),
+                  keepIsolateAlive),
+              retain: false,
+              release: true);
+}
+
+/// Call operator for `objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>`.
+extension ObjCBlock_NSArray_ffiVoid_CallExtension
+    on objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)> {
+  objc.NSArray call(ffi.Pointer<ffi.Void> arg0) => objc.NSArray.castFromPointer(
+      ref.pointer.ref.invoke
+          .cast<
+              ffi.NativeFunction<
+                  ffi.Pointer<objc.ObjCObject> Function(
+                      ffi.Pointer<objc.ObjCBlockImpl> block,
+                      ffi.Pointer<ffi.Void> arg0)>>()
+          .asFunction<
+              ffi.Pointer<objc.ObjCObject> Function(
+                  ffi.Pointer<objc.ObjCBlockImpl>,
+                  ffi.Pointer<ffi.Void>)>()(ref.pointer, arg0),
+      retain: true,
+      release: true);
+}
+
+late final _sel_setMaskedViewClasses_ =
+    objc.registerName("setMaskedViewClasses:");
+late final _sel_unmaskedViewClasses = objc.registerName("unmaskedViewClasses");
+late final _sel_setUnmaskedViewClasses_ =
+    objc.registerName("setUnmaskedViewClasses:");
+late final _sel_enableExperimentalViewRenderer =
+    objc.registerName("enableExperimentalViewRenderer");
+late final _sel_setEnableExperimentalViewRenderer_ =
+    objc.registerName("setEnableExperimentalViewRenderer:");
+late final _sel_enableViewRendererV2 =
+    objc.registerName("enableViewRendererV2");
+late final _sel_setEnableViewRendererV2_ =
+    objc.registerName("setEnableViewRendererV2:");
+late final _sel_enableFastViewRendering =
+    objc.registerName("enableFastViewRendering");
+late final _sel_setEnableFastViewRendering_ =
+    objc.registerName("setEnableFastViewRendering:");
+late final _sel_replayBitRate = objc.registerName("replayBitRate");
+final _objc_msgSend_1hz7y9r = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Long Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        int Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+late final _sel_sizeScale = objc.registerName("sizeScale");
+late final _sel_frameRate = objc.registerName("frameRate");
+late final _sel_setFrameRate_ = objc.registerName("setFrameRate:");
+late final _sel_errorReplayDuration = objc.registerName("errorReplayDuration");
+late final _sel_setErrorReplayDuration_ =
+    objc.registerName("setErrorReplayDuration:");
+late final _sel_sessionSegmentDuration =
+    objc.registerName("sessionSegmentDuration");
+late final _sel_setSessionSegmentDuration_ =
+    objc.registerName("setSessionSegmentDuration:");
+late final _sel_maximumDuration = objc.registerName("maximumDuration");
+late final _sel_setMaximumDuration_ = objc.registerName("setMaximumDuration:");
+late final _sel_initWithDictionary_ = objc.registerName("initWithDictionary:");
+late final _sel_initWithSessionSampleRate_onErrorSampleRate_maskAllText_maskAllImages_enableViewRendererV2_enableFastViewRendering_ =
+    objc.registerName(
+        "initWithSessionSampleRate:onErrorSampleRate:maskAllText:maskAllImages:enableViewRendererV2:enableFastViewRendering:");
+final _objc_msgSend_151cvqp = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Pointer<objc.ObjCObject> Function(
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>,
+                ffi.Float,
+                ffi.Float,
+                ffi.Bool,
+                ffi.Bool,
+                ffi.Bool,
+                ffi.Bool)>>()
+    .asFunction<
+        ffi.Pointer<objc.ObjCObject> Function(
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>,
+            double,
+            double,
+            bool,
+            bool,
+            bool,
+            bool)>();
+
+/// SentryReplayOptions
+class SentryReplayOptions extends objc.NSObject implements SentryRedactOptions {
+  SentryReplayOptions._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryReplayOptions] that points to the same underlying object as [other].
+  SentryReplayOptions.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryReplayOptions] that wraps the given raw object pointer.
+  SentryReplayOptions.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+
+  /// Returns whether [obj] is an instance of [SentryReplayOptions].
+  static bool isInstance(objc.ObjCObjectBase obj) {
+    return _objc_msgSend_19nvye5(
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryReplayOptions);
+  }
+
+  /// Indicates the percentage in which the replay for the session will be created.
+  /// note:
+  /// The value needs to be <code>>= 0.0</code> and <code><= 1.0</code>. When setting a value out of range the SDK sets it
+  /// to the default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.sessionSegmentDuration</code> for the default duration of the replay.
+  /// <ul>
+  /// <li>
+  /// Specifying @c 0 means never, @c 1.0 means always.
+  /// </li>
+  /// </ul>
+  double get sessionSampleRate {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_2cgrxlFpret(this.ref.pointer, _sel_sessionSampleRate)
+        : _objc_msgSend_2cgrxl(this.ref.pointer, _sel_sessionSampleRate);
+  }
+
+  /// Indicates the percentage in which the replay for the session will be created.
+  /// note:
+  /// The value needs to be <code>>= 0.0</code> and <code><= 1.0</code>. When setting a value out of range the SDK sets it
+  /// to the default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.sessionSegmentDuration</code> for the default duration of the replay.
+  /// <ul>
+  /// <li>
+  /// Specifying @c 0 means never, @c 1.0 means always.
+  /// </li>
+  /// </ul>
+  set sessionSampleRate(double value) {
+    _objc_msgSend_v5hmet(this.ref.pointer, _sel_setSessionSampleRate_, value);
+  }
+
+  /// Indicates the percentage in which a 30 seconds replay will be send with error events.
+  /// note:
+  /// The value needs to be >= 0.0 and <= 1.0. When setting a value out of range the SDK sets it
+  /// to the default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.errorReplayDuration</code> for the default duration of the replay.
+  /// <ul>
+  /// <li>
+  /// Specifying 0 means never, 1.0 means always.
+  /// </li>
+  /// </ul>
+  double get onErrorSampleRate {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_2cgrxlFpret(this.ref.pointer, _sel_onErrorSampleRate)
+        : _objc_msgSend_2cgrxl(this.ref.pointer, _sel_onErrorSampleRate);
+  }
+
+  /// Indicates the percentage in which a 30 seconds replay will be send with error events.
+  /// note:
+  /// The value needs to be >= 0.0 and <= 1.0. When setting a value out of range the SDK sets it
+  /// to the default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.errorReplayDuration</code> for the default duration of the replay.
+  /// <ul>
+  /// <li>
+  /// Specifying 0 means never, 1.0 means always.
+  /// </li>
+  /// </ul>
+  set onErrorSampleRate(double value) {
+    _objc_msgSend_v5hmet(this.ref.pointer, _sel_setOnErrorSampleRate_, value);
+  }
+
+  /// maskAllText
+  bool get maskAllText {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_maskAllText);
+  }
+
+  /// Indicates whether session replay should redact all text in the app
+  /// by drawing a black rectangle over it.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.maskAllText</code> for the default value.
+  set maskAllText$1(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setMaskAllText_, value);
+  }
+
+  /// maskAllImages
+  bool get maskAllImages {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_maskAllImages);
+  }
+
+  /// Indicates whether session replay should redact all non-bundled image
+  /// in the app by drawing a black rectangle over it.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.maskAllImages</code> for the default value.
+  set maskAllImages$1(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setMaskAllImages_, value);
+  }
+
+  /// Indicates the quality of the replay.
+  /// The higher the quality, the higher the CPU and bandwidth usage.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.quality</code> for the default value.
+  SentryReplayQuality get quality {
+    final _ret = _objc_msgSend_pke8ca(this.ref.pointer, _sel_quality);
+    return SentryReplayQuality.fromValue(_ret);
+  }
+
+  /// Indicates the quality of the replay.
+  /// The higher the quality, the higher the CPU and bandwidth usage.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.quality</code> for the default value.
+  set quality(SentryReplayQuality value) {
+    _objc_msgSend_1c33mxk(this.ref.pointer, _sel_setQuality_, value.value);
+  }
+
+  /// maskedViewClasses
+  objc.NSArray get maskedViewClasses {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_maskedViewClasses);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// A list of custom UIView subclasses that need
+  /// to be masked during session replay.
+  /// By default Sentry already mask text and image elements from UIKit
+  /// Every child of a view that is redacted will also be redacted.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.maskedViewClasses</code> for the default value.
+  set maskedViewClasses$1(objc.NSArray value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setMaskedViewClasses_, value.ref.pointer);
+  }
+
+  /// unmaskedViewClasses
+  objc.NSArray get unmaskedViewClasses {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_unmaskedViewClasses);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// A list of custom UIView subclasses to be ignored
+  /// during masking step of the session replay.
+  /// The views of given classes will not be redacted but their children may be.
+  /// This property has precedence over <code>redactViewTypes</code>.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.unmaskedViewClasses</code> for the default value.
+  set unmaskedViewClasses$1(objc.NSArray value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setUnmaskedViewClasses_, value.ref.pointer);
+  }
+
+  /// Alias for <code>enableViewRendererV2</code>.
+  /// This flag is deprecated and will be removed in a future version.
+  /// Please use <code>enableViewRendererV2</code> instead.
+  bool get enableExperimentalViewRenderer {
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enableExperimentalViewRenderer);
+  }
+
+  /// Alias for <code>enableViewRendererV2</code>.
+  /// This flag is deprecated and will be removed in a future version.
+  /// Please use <code>enableViewRendererV2</code> instead.
+  set enableExperimentalViewRenderer(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableExperimentalViewRenderer_, value);
+  }
+
+  /// Enables the up to 5x faster new view renderer used by the Session Replay integration.
+  /// Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing
+  /// interruptions and visual lag. <a href="https://github.com/getsentry/sentry-cocoa/pull/4940">Our benchmarks</a> have shown a significant improvement of
+  /// <em>up to 4-5x faster rendering</em> (reducing <code>~160ms</code> to <code>~36ms</code> per frame) on older devices.
+  /// experiment:
+  /// In case you are noticing issues with the new view renderer, please report the issue on <a href="https://github.com/getsentry/sentry-cocoa">GitHub</a>.
+  /// Eventually, we will remove this feature flag and use the new view renderer by default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.enableViewRendererV2</code> for the default value.
+  bool get enableViewRendererV2 {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableViewRendererV2);
+  }
+
+  /// Enables the up to 5x faster new view renderer used by the Session Replay integration.
+  /// Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing
+  /// interruptions and visual lag. <a href="https://github.com/getsentry/sentry-cocoa/pull/4940">Our benchmarks</a> have shown a significant improvement of
+  /// <em>up to 4-5x faster rendering</em> (reducing <code>~160ms</code> to <code>~36ms</code> per frame) on older devices.
+  /// experiment:
+  /// In case you are noticing issues with the new view renderer, please report the issue on <a href="https://github.com/getsentry/sentry-cocoa">GitHub</a>.
+  /// Eventually, we will remove this feature flag and use the new view renderer by default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.enableViewRendererV2</code> for the default value.
+  set enableViewRendererV2(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableViewRendererV2_, value);
+  }
+
+  /// Enables up to 5x faster but incomplete view rendering used by the Session Replay integration.
+  /// Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing
+  /// interruptions and visual lag. <a href="https://github.com/getsentry/sentry-cocoa/pull/4940">Our benchmarks</a> have shown a significant improvement of
+  /// up to <em>5x faster render times</em> (reducing <code>~160ms</code> to <code>~30ms</code> per frame).
+  /// This flag controls the way the view hierarchy is drawn into a graphics context for the session replay. By default, the view hierarchy is drawn using
+  /// the <code>UIView.drawHierarchy(in:afterScreenUpdates:)</code> method, which is the most complete way to render the view hierarchy. However,
+  /// this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying <code>CALayer</code> instead.
+  /// note:
+  /// This flag can only be used together with <code>enableViewRendererV2</code> with up to 20% faster render times.
+  /// warning:
+  /// Rendering the view hiearchy using the <code>CALayer.render(in:)</code> method can lead to rendering issues, especially when using custom views.
+  /// For complete rendering, it is recommended to set this option to <code>false</code>. In case you prefer performance over completeness, you can
+  /// set this option to <code>true</code>.
+  /// experiment:
+  /// This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
+  /// view renderer, please report the issue on <a href="https://github.com/getsentry/sentry-cocoa">GitHub</a>. Eventually, we will
+  /// mark this feature as stable and remove the experimental flag, but will keep it disabled by default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.enableFastViewRendering</code> for the default value.
+  bool get enableFastViewRendering {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableFastViewRendering);
+  }
+
+  /// Enables up to 5x faster but incomplete view rendering used by the Session Replay integration.
+  /// Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing
+  /// interruptions and visual lag. <a href="https://github.com/getsentry/sentry-cocoa/pull/4940">Our benchmarks</a> have shown a significant improvement of
+  /// up to <em>5x faster render times</em> (reducing <code>~160ms</code> to <code>~30ms</code> per frame).
+  /// This flag controls the way the view hierarchy is drawn into a graphics context for the session replay. By default, the view hierarchy is drawn using
+  /// the <code>UIView.drawHierarchy(in:afterScreenUpdates:)</code> method, which is the most complete way to render the view hierarchy. However,
+  /// this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying <code>CALayer</code> instead.
+  /// note:
+  /// This flag can only be used together with <code>enableViewRendererV2</code> with up to 20% faster render times.
+  /// warning:
+  /// Rendering the view hiearchy using the <code>CALayer.render(in:)</code> method can lead to rendering issues, especially when using custom views.
+  /// For complete rendering, it is recommended to set this option to <code>false</code>. In case you prefer performance over completeness, you can
+  /// set this option to <code>true</code>.
+  /// experiment:
+  /// This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
+  /// view renderer, please report the issue on <a href="https://github.com/getsentry/sentry-cocoa">GitHub</a>. Eventually, we will
+  /// mark this feature as stable and remove the experimental flag, but will keep it disabled by default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.enableFastViewRendering</code> for the default value.
+  set enableFastViewRendering(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableFastViewRendering_, value);
+  }
+
+  /// Defines the quality of the session replay.
+  /// Higher bit rates better quality, but also bigger files to transfer.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.quality</code> for the default value.
+  int get replayBitRate {
+    return _objc_msgSend_1hz7y9r(this.ref.pointer, _sel_replayBitRate);
+  }
+
+  /// The scale related to the window size at which the replay will be created
+  /// note:
+  /// The scale is used to reduce the size of the replay.
+  double get sizeScale {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_2cgrxlFpret(this.ref.pointer, _sel_sizeScale)
+        : _objc_msgSend_2cgrxl(this.ref.pointer, _sel_sizeScale);
+  }
+
+  /// Number of frames per second of the replay.
+  /// The more the havier the process is.
+  /// The minimum is 1, if set to zero this will change to 1.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.frameRate</code> for the default value.
+  int get frameRate {
+    return _objc_msgSend_xw2lbc(this.ref.pointer, _sel_frameRate);
+  }
+
+  /// Number of frames per second of the replay.
+  /// The more the havier the process is.
+  /// The minimum is 1, if set to zero this will change to 1.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.frameRate</code> for the default value.
+  set frameRate(int value) {
+    _objc_msgSend_1i9r4xy(this.ref.pointer, _sel_setFrameRate_, value);
+  }
+
+  /// The maximum duration of replays for error events.
+  double get errorReplayDuration {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_1ukqyt8Fpret(this.ref.pointer, _sel_errorReplayDuration)
+        : _objc_msgSend_1ukqyt8(this.ref.pointer, _sel_errorReplayDuration);
+  }
+
+  /// The maximum duration of replays for error events.
+  set errorReplayDuration(double value) {
+    _objc_msgSend_hwm8nu(this.ref.pointer, _sel_setErrorReplayDuration_, value);
+  }
+
+  /// The maximum duration of the segment of a session replay.
+  double get sessionSegmentDuration {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_1ukqyt8Fpret(
+            this.ref.pointer, _sel_sessionSegmentDuration)
+        : _objc_msgSend_1ukqyt8(this.ref.pointer, _sel_sessionSegmentDuration);
+  }
+
+  /// The maximum duration of the segment of a session replay.
+  set sessionSegmentDuration(double value) {
+    _objc_msgSend_hwm8nu(
+        this.ref.pointer, _sel_setSessionSegmentDuration_, value);
+  }
+
+  /// The maximum duration of a replay session.
+  /// note:
+  /// See  <code>SentryReplayOptions.DefaultValues.maximumDuration</code> for the default value.
+  double get maximumDuration {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_1ukqyt8Fpret(this.ref.pointer, _sel_maximumDuration)
+        : _objc_msgSend_1ukqyt8(this.ref.pointer, _sel_maximumDuration);
+  }
+
+  /// The maximum duration of a replay session.
+  /// note:
+  /// See  <code>SentryReplayOptions.DefaultValues.maximumDuration</code> for the default value.
+  set maximumDuration(double value) {
+    _objc_msgSend_hwm8nu(this.ref.pointer, _sel_setMaximumDuration_, value);
+  }
+
+  /// init
+  SentryReplayOptions init() {
+    objc.checkOsVersionInternal('SentryReplayOptions.init',
+        iOS: (false, (2, 0, 0)), macOS: (false, (10, 0, 0)));
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// Initializes a new instance of <code>SentryReplayOptions</code> using a dictionary.
+  /// warning:
+  /// This initializer is primarily used by Hybrid SDKs and is not intended for public use.
+  /// \param dictionary A dictionary containing the configuration options for the session replay.
+  SentryReplayOptions initWithDictionary(objc.NSDictionary dictionary) {
+    final _ret = _objc_msgSend_1sotr3r(this.ref.retainAndReturnPointer(),
+        _sel_initWithDictionary_, dictionary.ref.pointer);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// Initializes a new instance of <code>SentryReplayOptions</code> with the specified parameters.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues</code> for the default values of each parameter.
+  /// \param sessionSampleRate Sample rate used to determine the percentage of replays of sessions that will be uploaded.
+  ///
+  /// \param onErrorSampleRate Sample rate used to determine the percentage of replays of error events that will be uploaded.
+  ///
+  /// \param maskAllText Flag to redact all text in the app by drawing a rectangle over it.
+  ///
+  /// \param maskAllImages Flag to redact all images in the app by drawing a rectangle over it.
+  ///
+  /// \param enableViewRendererV2 Enables the up to 5x faster view renderer.
+  ///
+  /// \param enableFastViewRendering Enables faster but incomplete view rendering. See <code>SentryReplayOptions.enableFastViewRendering</code> for more information.
+  SentryReplayOptions initWithSessionSampleRate(double sessionSampleRate$1,
+      {required double onErrorSampleRate$1,
+      required bool maskAllText$2,
+      required bool maskAllImages$2,
+      required bool enableViewRendererV2$1,
+      required bool enableFastViewRendering$1}) {
+    final _ret = _objc_msgSend_151cvqp(
+        this.ref.retainAndReturnPointer(),
+        _sel_initWithSessionSampleRate_onErrorSampleRate_maskAllText_maskAllImages_enableViewRendererV2_enableFastViewRendering_,
+        sessionSampleRate$1,
+        onErrorSampleRate$1,
+        maskAllText$2,
+        maskAllImages$2,
+        enableViewRendererV2$1,
+        enableFastViewRendering$1);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// new
+  static SentryReplayOptions new$() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryReplayOptions, _sel_new);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// allocWithZone:
+  static SentryReplayOptions allocWithZone(ffi.Pointer<objc.NSZone> zone) {
+    final _ret = _objc_msgSend_1cwp428(
+        _class_SentryReplayOptions, _sel_allocWithZone_, zone);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// alloc
+  static SentryReplayOptions alloc() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryReplayOptions, _sel_alloc);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// self
+  SentryReplayOptions self$1() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// retain
+  SentryReplayOptions retain() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// autorelease
+  SentryReplayOptions autorelease() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// Returns a new instance of SentryReplayOptions constructed with the default `new` method.
+  factory SentryReplayOptions() => new$();
+}
+
+late final _sel_getReplayOptions = objc.registerName("getReplayOptions");
 
 /// SentryFlutterPlugin
 class SentryFlutterPlugin extends objc.NSObject {
@@ -4218,6 +4994,16 @@ class SentryFlutterPlugin extends objc.NSObject {
       {required objc.NSDictionary tags}) {
     _objc_msgSend_1f7ydyk(_class_SentryFlutterPlugin, _sel_setupReplay_tags_,
         callback.ref.pointer, tags.ref.pointer);
+  }
+
+  /// getReplayOptions
+  static SentryReplayOptions? getReplayOptions() {
+    final _ret = _objc_msgSend_151sglz(
+        _class_SentryFlutterPlugin, _sel_getReplayOptions);
+    return _ret.address == 0
+        ? null
+        : SentryReplayOptions.castFromPointer(_ret,
+            retain: true, release: true);
   }
 
   /// init
@@ -5177,32 +5963,6 @@ enum SentryReplayType {
         0 => SentryReplayTypeSession,
         1 => SentryReplayTypeBuffer,
         _ => throw ArgumentError('Unknown value for SentryReplayType: $value'),
-      };
-}
-
-/// Enum to define the quality of the session replay.
-enum SentryReplayQuality {
-  /// Video Scale: 80%
-  /// Bit Rate: 20.000
-  SentryReplayQualityLow(0),
-
-  /// Video Scale: 100%
-  /// Bit Rate: 40.000
-  SentryReplayQualityMedium(1),
-
-  /// Video Scale: 100%
-  /// Bit Rate: 60.000
-  SentryReplayQualityHigh(2);
-
-  final int value;
-  const SentryReplayQuality(this.value);
-
-  static SentryReplayQuality fromValue(int value) => switch (value) {
-        0 => SentryReplayQualityLow,
-        1 => SentryReplayQualityMedium,
-        2 => SentryReplayQualityHigh,
-        _ =>
-          throw ArgumentError('Unknown value for SentryReplayQuality: $value'),
       };
 }
 

@@ -7,6 +7,7 @@
 // Forward protocol declarations to avoid hard dependency on Sentry SDK at build time.
 @protocol SentrySpan;
 @protocol SentrySerializable;
+@protocol SentryRedactOptions;
 
 #ifdef FFIGEN
 // Only included while running ffigen (provide -I paths in compiler-opts).

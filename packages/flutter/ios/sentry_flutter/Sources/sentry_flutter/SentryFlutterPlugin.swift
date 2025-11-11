@@ -275,6 +275,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     options.urlSession = URLSession(configuration: configuration)
   }
 
+  @objc public class func getReplayOptions() -> SentryReplayOptions? {
+    #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+      return PrivateSentrySDKOnly.options.sessionReplay
+    #endif
+    return nil
+  }
+
   @objc(setReplayOptions:quality:sessionSampleRate:onErrorSampleRate:sdkName:sdkVersion:)
   public class func setReplayOptions(
     options: Options,

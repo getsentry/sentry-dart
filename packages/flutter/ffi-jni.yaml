@@ -37,6 +37,7 @@ classes:
   - io.sentry.protocol.User
   - io.sentry.protocol.SentryId
   - io.sentry.protocol.SdkVersion
+  - io.sentry.protocol.SentryPackage
   - io.sentry.rrweb.RRWebOptionsEvent
   - io.sentry.rrweb.RRWebEvent
   - android.graphics.Bitmap

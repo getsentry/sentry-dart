@@ -10,6 +10,7 @@ typedef void (^SentryReplayCaptureCallback)(
 
 @class SentryOptions;
 @class SentryEvent;
+@class SentryReplayOptions;
 
 @interface SentryFlutterPlugin : NSObject
 + (nullable NSNumber *)getDisplayRefreshRate;
@@ -40,5 +41,6 @@ typedef void (^SentryReplayCaptureCallback)(
 + (void)setupHybridSdkNotifications;
 + (void)setupReplay:(SentryReplayCaptureCallback)callback
         tags:(NSDictionary<NSString *, NSString *> *)tags;
++ (nullable SentryReplayOptions *)getReplayOptions;
 #endif
 @end

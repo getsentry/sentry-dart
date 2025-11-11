@@ -35,6 +35,14 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @visibleForTesting
   CocoaReplayRecorder? get testRecorder => _replayRecorder;
 
+  @visibleForTesting
+  cocoa.SentryOptions? get testNativeOptions =>
+      cocoa.PrivateSentrySDKOnly.getOptions();
+
+  @visibleForTesting
+  cocoa.SentryReplayOptions? get testNativeReplayOptions =>
+      cocoa.SentryFlutterPlugin.getReplayOptions();
+
   @override
   Future<void> init(Hub hub) async {
     initSentryCocoa(hub: hub, options: options, owner: this);
@@ -278,7 +286,6 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   SentryId captureReplay() =>
       tryCatchSync('captureReplay', () {
-        print('capture replay');
         final value = cocoa.SentryFlutterPlugin.captureReplay()?.toDartString();
         SentryId id;
         if (value == null) {

@@ -36,6 +36,7 @@ objc-interfaces:
     - SentrySDK
     - SentryUser
     - SentryOptions
+    - SentryReplayOptions
   module:
     'SentryId': 'Sentry'
     'SentrySDK': 'Sentry'

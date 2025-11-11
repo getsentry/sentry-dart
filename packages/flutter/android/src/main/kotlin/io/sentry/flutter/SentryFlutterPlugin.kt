@@ -26,8 +26,6 @@ import io.sentry.android.core.performance.AppStartMetrics
 import io.sentry.android.core.performance.TimeSpan
 import io.sentry.android.replay.ReplayIntegration
 import io.sentry.android.replay.ScreenshotRecorderConfig
-import io.sentry.flutter.SentryFlutter.Companion.ANDROID_SDK
-import io.sentry.flutter.SentryFlutter.Companion.NATIVE_SDK
 import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.User
@@ -55,8 +53,6 @@ class SentryFlutterPlugin :
     applicationContext = context
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
     channel.setMethodCallHandler(this)
-
-    sentryFlutter = SentryFlutter()
   }
 
   @Suppress("CyclomaticComplexMethod")
@@ -113,8 +109,6 @@ class SentryFlutterPlugin :
 
     private var pluginRegistrationTime: Long? = null
 
-    private lateinit var sentryFlutter: SentryFlutter
-
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
     @Suppress("unused") // Used by native/jni bindings
@@ -142,21 +136,6 @@ class SentryFlutterPlugin :
             this.pass = pass
           }
     }
-
-    @JvmStatic
-    fun setSdkVersionName(options: SentryAndroidOptions) {
-      var sdkVersion = options.sdkVersion
-      if (sdkVersion == null) {
-        sdkVersion = SdkVersion(ANDROID_SDK, BuildConfig.VERSION_NAME)
-      } else {
-        sdkVersion.name = ANDROID_SDK
-      }
-
-      options.sdkVersion = sdkVersion
-      options.sentryClientName = "$ANDROID_SDK/${BuildConfig.VERSION_NAME}"
-      options.nativeSdkName = NATIVE_SDK
-    }
-
     @JvmStatic
     fun setupReplay(options: SentryAndroidOptions, replayCallbacks: ReplayRecorderCallbacks?) {
       // Replace the default ReplayIntegration with a Flutter-specific recorder.

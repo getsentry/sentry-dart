@@ -1,5 +1,13 @@
 part of 'sentry_native_java.dart';
 
+const _flutterSdkName = 'sentry.dart.flutter';
+
+@internal
+const androidSdkName = 'sentry.java.android.flutter';
+
+@internal
+const nativeSdkName = 'sentry.native.android.flutter';
+
 /// Initializes the Sentry Android SDK.
 void initSentryAndroid({
   required Hub hub,
@@ -39,7 +47,7 @@ void initSentryAndroid({
 
           replayCallbacks.use((cb) {
             native.SentryFlutterPlugin.Companion
-                .setupReplayJni(androidOptions, cb);
+                .setupReplay(androidOptions, cb);
           });
         },
       ),
@@ -73,7 +81,7 @@ native.SentryOptions$BeforeSendCallback createBeforeSendCallback() {
           }
 
           switch (sdk.getName().toDartString(releaseOriginal: true)) {
-            case flutterSdkName:
+            case _flutterSdkName:
               setTagPair('flutter', 'dart');
               break;
             case androidSdkName:
@@ -280,6 +288,11 @@ void configureAndroidOptions({
     } else {
       sdkVersion.setName(androidSdkName.toJString()..releasedBy(arena));
     }
+    androidOptions.setSentryClientName(
+        '$androidSdkName/${native.BuildConfig.VERSION_NAME}'.toJString()
+          ..releasedBy(arena));
+    androidOptions
+        .setNativeSdkName(nativeSdkName.toJString()..releasedBy(arena));
     for (final integration in options.sdk.integrations) {
       sdkVersion.addIntegration(integration.toJString()..releasedBy(arena));
     }

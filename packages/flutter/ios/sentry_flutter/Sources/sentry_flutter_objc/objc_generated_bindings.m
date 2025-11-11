@@ -106,6 +106,14 @@ __attribute__((visibility("default"))) __attribute__((used))
 id  _SentryCocoa_protocolTrampoline_1mbt9g9(id target, void * sel) {
   return ((ProtocolTrampoline)((id (*)(id, SEL, SEL))objc_msgSend)(target, @selector(getDOBJCDartProtocolMethodForSelector:), sel))(sel);
 }
+
+Protocol* _SentryCocoa_SentryRedactOptions(void) { return @protocol(SentryRedactOptions); }
+
+typedef BOOL  (^ProtocolTrampoline_1)(void * sel);
+__attribute__((visibility("default"))) __attribute__((used))
+BOOL  _SentryCocoa_protocolTrampoline_e3qsqz(id target, void * sel) {
+  return ((ProtocolTrampoline_1)((id (*)(id, SEL, SEL))objc_msgSend)(target, @selector(getDOBJCDartProtocolMethodForSelector:), sel))(sel);
+}
 #undef BLOCKING_BLOCK_IMPL
 
 #pragma clang diagnostic pop
