@@ -1,4 +1,3 @@
-// ios/sentry_flutter/Sources/sentry_flutter_objc/ffigen_objc_imports.h
 #include <stdint.h>
 #import <Foundation/Foundation.h>
 #import <objc/message.h>
