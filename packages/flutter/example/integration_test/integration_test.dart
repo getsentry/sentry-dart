@@ -117,7 +117,6 @@ void main() {
   ) async {
     await SentryFlutter.init(
       (opts) {
-        opts.dsn = fakeDsn;
         configure(opts);
       },
       appRunner: appRunner,
@@ -185,6 +184,7 @@ void main() {
         );
       }, (options) {
         // Common (both platforms)
+        options.dsn = fakeDsn;
         options.debug = true;
         options.diagnosticLevel = SentryLevel.error;
         options.environment = 'init-test-env';
@@ -233,8 +233,6 @@ void main() {
         }
       });
     });
-
-    // TODO in this PR: test replayTagsAreCopiedFromFlutter
 
     if (Platform.isIOS || Platform.isMacOS) {
       final cocoaOptions =
