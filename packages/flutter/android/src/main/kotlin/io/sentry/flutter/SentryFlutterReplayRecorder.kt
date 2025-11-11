@@ -19,11 +19,12 @@ internal class SentryFlutterReplayRecorder(
     main.post {
       try {
         val replayId = integration.getReplayId().toString()
-        var buffering = false
+        var replayIsBuffering = false
         Sentry.configureScope { scope ->
-          buffering = scope.replayId == SentryId.EMPTY_ID
+          // Buffering mode: we have a replay ID but it's not set on scope yet
+          replayIsBuffering = scope.replayId == SentryId.EMPTY_ID
         }
-        callbacks.replayStarted(replayId, buffering)
+        callbacks.replayStarted(replayId, replayIsBuffering)
       } catch (t: Throwable) {
         Log.w("Sentry", "Failed to start replay recorder (JNI)", t)
       }
