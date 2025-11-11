@@ -333,11 +333,12 @@ void main() {
             (p) => p.name == package.name && p.version == package.version);
         expect(findMatchingPackage, isNotNull);
       }
-      final p = androidOptions.getProxy()!;
-      expect(p.getHost()?.toDartString(), 'proxy.local');
-      expect(p.getPort()?.toDartString(), '8084');
-      expect(p.getUser()?.toDartString(), 'u');
-      expect(p.getPass()?.toDartString(), 'p');
+      final androidProxy = androidOptions.getProxy();
+      expect(androidProxy, isNotNull);
+      expect(androidProxy!.getHost()?.toDartString(), 'proxy.local');
+      expect(androidProxy.getPort()?.toDartString(), '8084');
+      expect(androidProxy.getUser()?.toDartString(), 'u');
+      expect(androidProxy.getPass()?.toDartString(), 'p');
       final r = androidOptions.getSessionReplay();
       expect(
           r.getQuality(), native.SentryReplayOptions$SentryReplayQuality.HIGH);

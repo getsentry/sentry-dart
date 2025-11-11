@@ -254,15 +254,18 @@ void configureAndroidOptions({
         .setConnectionTimeoutMillis(options.connectionTimeout.inMilliseconds);
     androidOptions.setReadTimeoutMillis(options.readTimeout.inMilliseconds);
 
-    native.SentryFlutterPlugin.Companion.setProxy(
-      androidOptions,
-      options.proxy?.user?.toJString()?..releasedBy(arena),
-      options.proxy?.pass?.toJString()?..releasedBy(arena),
-      options.proxy?.host?.toJString()?..releasedBy(arena),
-      options.proxy?.port?.toString().toJString()?..releasedBy(arena),
-      options.proxy?.type.toString().split('.').last.toUpperCase().toJString()
-        ?..releasedBy(arena),
-    );
+    final sentryProxy = native.SentryOptions$Proxy()..releasedBy(arena);
+    sentryProxy.setHost(options.proxy?.host?.toJString()?..releasedBy(arena));
+    sentryProxy.setPort(
+        options.proxy?.port?.toString().toJString()?..releasedBy(arena));
+    sentryProxy.setUser(options.proxy?.user?.toJString()?..releasedBy(arena));
+    sentryProxy.setPass(options.proxy?.pass?.toJString()?..releasedBy(arena));
+    final type = options.proxy?.type.name.toUpperCase().toJString()
+      ?..releasedBy(arena);
+    if (type != null) {
+      sentryProxy.setType(native.Proxy$Type.valueOf(type)?..releasedBy(arena));
+    }
+    androidOptions.setProxy(sentryProxy);
 
     native.SdkVersion? sdkVersion = androidOptions.getSdkVersion()
       ?..releasedBy(arena);

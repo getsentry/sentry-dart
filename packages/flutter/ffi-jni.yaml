@@ -40,5 +40,6 @@ classes:
   - io.sentry.protocol.SentryPackage
   - io.sentry.rrweb.RRWebOptionsEvent
   - io.sentry.rrweb.RRWebEvent
+  - java.net.Proxy
   - android.graphics.Bitmap
   - android.content.Context

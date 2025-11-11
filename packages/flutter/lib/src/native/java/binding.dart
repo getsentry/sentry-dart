@@ -4277,63 +4277,6 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<ReplayIntegration?>(const $ReplayIntegration$NullableType());
   }
 
-  static final _id_setProxy = _class.instanceMethodId(
-    r'setProxy',
-    r'(Lio/sentry/android/core/SentryAndroidOptions;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V',
-  );
-
-  static final _setProxy = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public final void setProxy(io.sentry.android.core.SentryAndroidOptions sentryAndroidOptions, java.lang.String string, java.lang.String string1, java.lang.String string2, java.lang.String string3, java.lang.String string4)`
-  void setProxy(
-    SentryAndroidOptions sentryAndroidOptions,
-    jni$_.JString? string,
-    jni$_.JString? string1,
-    jni$_.JString? string2,
-    jni$_.JString? string3,
-    jni$_.JString? string4,
-  ) {
-    final _$sentryAndroidOptions = sentryAndroidOptions.reference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$string1 = string1?.reference ?? jni$_.jNullReference;
-    final _$string2 = string2?.reference ?? jni$_.jNullReference;
-    final _$string3 = string3?.reference ?? jni$_.jNullReference;
-    final _$string4 = string4?.reference ?? jni$_.jNullReference;
-    _setProxy(
-            reference.pointer,
-            _id_setProxy as jni$_.JMethodIDPtr,
-            _$sentryAndroidOptions.pointer,
-            _$string.pointer,
-            _$string1.pointer,
-            _$string2.pointer,
-            _$string3.pointer,
-            _$string4.pointer)
-        .check();
-  }
-
   static final _id_setupReplay = _class.instanceMethodId(
     r'setupReplay',
     r'(Lio/sentry/android/core/SentryAndroidOptions;Lio/sentry/flutter/ReplayRecorderCallbacks;)V',
@@ -4900,63 +4843,6 @@ class SentryFlutterPlugin extends jni$_.JObject {
     return _privateSentryGetReplayIntegration(_class.reference.pointer,
             _id_privateSentryGetReplayIntegration as jni$_.JMethodIDPtr)
         .object<ReplayIntegration?>(const $ReplayIntegration$NullableType());
-  }
-
-  static final _id_setProxy = _class.staticMethodId(
-    r'setProxy',
-    r'(Lio/sentry/android/core/SentryAndroidOptions;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V',
-  );
-
-  static final _setProxy = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallStaticVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `static public final void setProxy(io.sentry.android.core.SentryAndroidOptions sentryAndroidOptions, java.lang.String string, java.lang.String string1, java.lang.String string2, java.lang.String string3, java.lang.String string4)`
-  static void setProxy(
-    SentryAndroidOptions sentryAndroidOptions,
-    jni$_.JString? string,
-    jni$_.JString? string1,
-    jni$_.JString? string2,
-    jni$_.JString? string3,
-    jni$_.JString? string4,
-  ) {
-    final _$sentryAndroidOptions = sentryAndroidOptions.reference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$string1 = string1?.reference ?? jni$_.jNullReference;
-    final _$string2 = string2?.reference ?? jni$_.jNullReference;
-    final _$string3 = string3?.reference ?? jni$_.jNullReference;
-    final _$string4 = string4?.reference ?? jni$_.jNullReference;
-    _setProxy(
-            _class.reference.pointer,
-            _id_setProxy as jni$_.JMethodIDPtr,
-            _$sentryAndroidOptions.pointer,
-            _$string.pointer,
-            _$string1.pointer,
-            _$string2.pointer,
-            _$string3.pointer,
-            _$string4.pointer)
-        .check();
   }
 
   static final _id_setupReplay = _class.staticMethodId(
@@ -11261,7 +11147,7 @@ class SentryOptions$Proxy extends jni$_.JObject {
   factory SentryOptions$Proxy.new$2(
     jni$_.JString? string,
     jni$_.JString? string1,
-    jni$_.JObject? type,
+    Proxy$Type? type,
   ) {
     final _$string = string?.reference ?? jni$_.jNullReference;
     final _$string1 = string1?.reference ?? jni$_.jNullReference;
@@ -11354,7 +11240,7 @@ class SentryOptions$Proxy extends jni$_.JObject {
   factory SentryOptions$Proxy.new$4(
     jni$_.JString? string,
     jni$_.JString? string1,
-    jni$_.JObject? type,
+    Proxy$Type? type,
     jni$_.JString? string2,
     jni$_.JString? string3,
   ) {
@@ -11593,9 +11479,9 @@ class SentryOptions$Proxy extends jni$_.JObject {
 
   /// from: `public java.net.Proxy$Type getType()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getType() {
+  Proxy$Type? getType() {
     return _getType(reference.pointer, _id_getType as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+        .object<Proxy$Type?>(const $Proxy$Type$NullableType());
   }
 
   static final _id_setType = _class.instanceMethodId(
@@ -11616,7 +11502,7 @@ class SentryOptions$Proxy extends jni$_.JObject {
 
   /// from: `public void setType(java.net.Proxy$Type type)`
   void setType(
-    jni$_.JObject? type,
+    Proxy$Type? type,
   ) {
     final _$type = type?.reference ?? jni$_.jNullReference;
     _setType(reference.pointer, _id_setType as jni$_.JMethodIDPtr,
@@ -36731,6 +36617,436 @@ final class $RRWebEvent$Type extends jni$_.JObjType<RRWebEvent> {
   @core$_.override
   bool operator ==(Object other) {
     return other.runtimeType == ($RRWebEvent$Type) && other is $RRWebEvent$Type;
+  }
+}
+
+/// from: `java.net.Proxy$Type`
+class Proxy$Type extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<Proxy$Type> $type;
+
+  @jni$_.internal
+  Proxy$Type.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(r'java/net/Proxy$Type');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType = $Proxy$Type$NullableType();
+  static const type = $Proxy$Type$Type();
+  static final _id_DIRECT = _class.staticFieldId(
+    r'DIRECT',
+    r'Ljava/net/Proxy$Type;',
+  );
+
+  /// from: `static public final java.net.Proxy$Type DIRECT`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Proxy$Type get DIRECT =>
+      _id_DIRECT.get(_class, const $Proxy$Type$Type());
+
+  static final _id_HTTP = _class.staticFieldId(
+    r'HTTP',
+    r'Ljava/net/Proxy$Type;',
+  );
+
+  /// from: `static public final java.net.Proxy$Type HTTP`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Proxy$Type get HTTP => _id_HTTP.get(_class, const $Proxy$Type$Type());
+
+  static final _id_SOCKS = _class.staticFieldId(
+    r'SOCKS',
+    r'Ljava/net/Proxy$Type;',
+  );
+
+  /// from: `static public final java.net.Proxy$Type SOCKS`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Proxy$Type get SOCKS =>
+      _id_SOCKS.get(_class, const $Proxy$Type$Type());
+
+  static final _id_values = _class.staticMethodId(
+    r'values',
+    r'()[Ljava/net/Proxy$Type;',
+  );
+
+  static final _values = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public java.net.Proxy$Type[] values()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JArray<Proxy$Type?>? values() {
+    return _values(_class.reference.pointer, _id_values as jni$_.JMethodIDPtr)
+        .object<jni$_.JArray<Proxy$Type?>?>(
+            const jni$_.JArrayNullableType<Proxy$Type?>(
+                $Proxy$Type$NullableType()));
+  }
+
+  static final _id_valueOf = _class.staticMethodId(
+    r'valueOf',
+    r'(Ljava/lang/String;)Ljava/net/Proxy$Type;',
+  );
+
+  static final _valueOf = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public java.net.Proxy$Type valueOf(java.lang.String synthetic)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Proxy$Type? valueOf(
+    jni$_.JString? synthetic,
+  ) {
+    final _$synthetic = synthetic?.reference ?? jni$_.jNullReference;
+    return _valueOf(_class.reference.pointer, _id_valueOf as jni$_.JMethodIDPtr,
+            _$synthetic.pointer)
+        .object<Proxy$Type?>(const $Proxy$Type$NullableType());
+  }
+}
+
+final class $Proxy$Type$NullableType extends jni$_.JObjType<Proxy$Type?> {
+  @jni$_.internal
+  const $Proxy$Type$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Ljava/net/Proxy$Type;';
+
+  @jni$_.internal
+  @core$_.override
+  Proxy$Type? fromReference(jni$_.JReference reference) => reference.isNull
+      ? null
+      : Proxy$Type.fromReference(
+          reference,
+        );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<Proxy$Type?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($Proxy$Type$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($Proxy$Type$NullableType) &&
+        other is $Proxy$Type$NullableType;
+  }
+}
+
+final class $Proxy$Type$Type extends jni$_.JObjType<Proxy$Type> {
+  @jni$_.internal
+  const $Proxy$Type$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Ljava/net/Proxy$Type;';
+
+  @jni$_.internal
+  @core$_.override
+  Proxy$Type fromReference(jni$_.JReference reference) =>
+      Proxy$Type.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<Proxy$Type?> get nullableType =>
+      const $Proxy$Type$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($Proxy$Type$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($Proxy$Type$Type) && other is $Proxy$Type$Type;
+  }
+}
+
+/// from: `java.net.Proxy`
+class Proxy extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<Proxy> $type;
+
+  @jni$_.internal
+  Proxy.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(r'java/net/Proxy');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType = $Proxy$NullableType();
+  static const type = $Proxy$Type();
+  static final _id_NO_PROXY = _class.staticFieldId(
+    r'NO_PROXY',
+    r'Ljava/net/Proxy;',
+  );
+
+  /// from: `static public final java.net.Proxy NO_PROXY`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Proxy? get NO_PROXY =>
+      _id_NO_PROXY.get(_class, const $Proxy$NullableType());
+
+  static final _id_new$ = _class.constructorId(
+    r'(Ljava/net/Proxy$Type;Ljava/net/SocketAddress;)V',
+  );
+
+  static final _new$ = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void <init>(java.net.Proxy$Type type, java.net.SocketAddress socketAddress)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory Proxy(
+    Proxy$Type? type,
+    jni$_.JObject? socketAddress,
+  ) {
+    final _$type = type?.reference ?? jni$_.jNullReference;
+    final _$socketAddress = socketAddress?.reference ?? jni$_.jNullReference;
+    return Proxy.fromReference(_new$(
+            _class.reference.pointer,
+            _id_new$ as jni$_.JMethodIDPtr,
+            _$type.pointer,
+            _$socketAddress.pointer)
+        .reference);
+  }
+
+  static final _id_type$1 = _class.instanceMethodId(
+    r'type',
+    r'()Ljava/net/Proxy$Type;',
+  );
+
+  static final _type$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.net.Proxy$Type type()`
+  /// The returned object must be released after use, by calling the [release] method.
+  Proxy$Type? type$1() {
+    return _type$1(reference.pointer, _id_type$1 as jni$_.JMethodIDPtr)
+        .object<Proxy$Type?>(const $Proxy$Type$NullableType());
+  }
+
+  static final _id_address = _class.instanceMethodId(
+    r'address',
+    r'()Ljava/net/SocketAddress;',
+  );
+
+  static final _address = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.net.SocketAddress address()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? address() {
+    return _address(reference.pointer, _id_address as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_toString$1 = _class.instanceMethodId(
+    r'toString',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _toString$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String toString()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? toString$1() {
+    return _toString$1(reference.pointer, _id_toString$1 as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.JStringNullableType());
+  }
+
+  static final _id_equals = _class.instanceMethodId(
+    r'equals',
+    r'(Ljava/lang/Object;)Z',
+  );
+
+  static final _equals = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final boolean equals(java.lang.Object object)`
+  bool equals(
+    jni$_.JObject? object,
+  ) {
+    final _$object = object?.reference ?? jni$_.jNullReference;
+    return _equals(reference.pointer, _id_equals as jni$_.JMethodIDPtr,
+            _$object.pointer)
+        .boolean;
+  }
+
+  static final _id_hashCode$1 = _class.instanceMethodId(
+    r'hashCode',
+    r'()I',
+  );
+
+  static final _hashCode$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public final int hashCode()`
+  int hashCode$1() {
+    return _hashCode$1(reference.pointer, _id_hashCode$1 as jni$_.JMethodIDPtr)
+        .integer;
+  }
+}
+
+final class $Proxy$NullableType extends jni$_.JObjType<Proxy?> {
+  @jni$_.internal
+  const $Proxy$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Ljava/net/Proxy;';
+
+  @jni$_.internal
+  @core$_.override
+  Proxy? fromReference(jni$_.JReference reference) => reference.isNull
+      ? null
+      : Proxy.fromReference(
+          reference,
+        );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<Proxy?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($Proxy$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($Proxy$NullableType) &&
+        other is $Proxy$NullableType;
+  }
+}
+
+final class $Proxy$Type extends jni$_.JObjType<Proxy> {
+  @jni$_.internal
+  const $Proxy$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Ljava/net/Proxy;';
+
+  @jni$_.internal
+  @core$_.override
+  Proxy fromReference(jni$_.JReference reference) => Proxy.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<Proxy?> get nullableType => const $Proxy$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($Proxy$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($Proxy$Type) && other is $Proxy$Type;
   }
 }
 

@@ -116,28 +116,6 @@ class SentryFlutterPlugin :
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
 
     @JvmStatic
-    fun setProxy(options: SentryAndroidOptions, user: String?, pass: String?, host: String?, port: String?, type: String?) {
-      options.proxy =
-        Proxy()
-          .apply {
-            this.host = host
-            this.port = port
-            (type)
-              ?.let {
-                this.type =
-                  try {
-                    Type.valueOf(it.uppercase())
-                  } catch (_: IllegalArgumentException) {
-                    Log.w("Sentry", "Could not parse `type` ")
-                    null
-                  }
-              }
-            this.user = user
-            this.pass = pass
-          }
-    }
-
-    @JvmStatic
     fun setupReplay(options: SentryAndroidOptions, replayCallbacks: ReplayRecorderCallbacks?) {
       // Replace the default ReplayIntegration with a Flutter-specific recorder.
       options.integrations.removeAll { it is ReplayIntegration }
