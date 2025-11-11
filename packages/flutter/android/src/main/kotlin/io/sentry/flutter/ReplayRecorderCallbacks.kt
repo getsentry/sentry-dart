@@ -3,7 +3,7 @@ package io.sentry.flutter
 interface ReplayRecorderCallbacks {
   fun replayStarted(
     replayId: String,
-    replayIsBuffering: Boolean
+    replayIsBuffering: Boolean,
   )
 
   fun replayResumed()
@@ -17,6 +17,6 @@ interface ReplayRecorderCallbacks {
   fun replayConfigChanged(
     width: Int,
     height: Int,
-    frameRate: Int
+    frameRate: Int,
   )
 }
