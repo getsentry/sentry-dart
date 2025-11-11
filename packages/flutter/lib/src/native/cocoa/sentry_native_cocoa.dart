@@ -295,7 +295,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
 // The default conversion does not handle bool so we will add it ourselves
 final ObjCObjectBase Function(Object) _defaultObjcConverter = (obj) {
   return switch (obj) {
-    bool b => b ? 1.toNSNumber() : 0.toNSNumber(),
+    bool b => NSNumberCreation.numberWithBool(b),
     _ => toObjCObject(obj)
   };
 };

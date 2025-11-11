@@ -43,8 +43,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         super.init()
     }
 
-    private lazy var sentryFlutter = SentryFlutter()
-
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method as String {
         case "closeNativeSdk":

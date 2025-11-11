@@ -20,14 +20,12 @@ void initSentryCocoa({
   // Mimic didBecomeActiveNotification for session, OOM tracking, replays, etc.
   cocoa.SentryFlutterPlugin.setupHybridSdkNotifications();
 
-  final callback = createReplayCaptureCallback(
-    options: options,
-    hub: hub,
-    owner: owner,
-  );
-
   cocoa.SentryFlutterPlugin.setupReplay(
-    callback,
+    createReplayCaptureCallback(
+      options: options,
+      hub: hub,
+      owner: owner,
+    ),
     tags: _dartToNSDictionary({
       'maskAllText': options.privacy.maskAllText,
       'maskAllImages': options.privacy.maskAllImages,
