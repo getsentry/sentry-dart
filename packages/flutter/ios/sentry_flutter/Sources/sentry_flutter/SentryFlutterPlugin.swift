@@ -133,20 +133,17 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   public class func setBeforeSend(options: Options, packages: [[String: String]], integrations: [String]) {
     options.beforeSend = { event in
       setEventOriginTag(event: event)
-      setSdkMetaData(event, packages: packages, integrations: integrations)
+      setSdkMetaData(event: event, packages: packages, integrations: integrations)
 
       return event
     }
   }
 
-  @objc(setAutoPerformanceFeatures:)
-  public class func setAutoPerformanceFeatures(enableAutoPerformanceTracing: Bool) {
-    if (enableAutoPerformanceTracing) {
-      PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
-      #if os(iOS) || targetEnvironment(macCatalyst)
-        PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
-      #endif
-    }
+  @objc public class func setAutoPerformanceFeatures() {
+    PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+    #if os(iOS) || targetEnvironment(macCatalyst)
+      PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
+    #endif
   }
 
   @objc public class func setupHybridSdkNotifications() {

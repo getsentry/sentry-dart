@@ -95,9 +95,9 @@ class SentryPrivacyOptions {
                   'widget comes from a third-party plugin or your code, Sentry '
                   "doesn't recognize it and can't reliably mask it in release "
                   'builds (due to obfuscation). '
-                  'Please mask it explicitly using mask<$type>(). '
+                  'Please mask it explicitly using options.privacy.mask<$type>(). '
                   'If you want to silence this warning and keep the widget '
-                  'visible in captures, you can use unmask<$type>(). '
+                  'visible in captures, you can use options.privacy.unmask<$type>(). '
                   'Note: the RegExp matched is: $regexp (case insensitive).');
             }
             return SentryMaskingDecision.continueProcessing;

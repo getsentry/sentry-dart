@@ -30,7 +30,7 @@ typedef void (^SentryReplayCaptureCallback)(
                     onErrorSampleRate:(float)onErrorSampleRate
                    sdkName:(NSString *)sdkName
                    sdkVersion:(NSString *)sdkVersion;
-+ (void)setAutoPerformanceFeatures:(BOOL)enableAutoPerformanceTracing;
++ (void)setAutoPerformanceFeatures;
 + (void)setEventOriginTag:(SentryEvent *)event;
 + (void)setSdkMetaData:(SentryEvent *)event
               packages:(NSArray<NSDictionary<NSString *, NSString *> *> *)packages

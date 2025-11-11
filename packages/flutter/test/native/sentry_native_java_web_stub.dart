@@ -10,5 +10,3 @@ extension ReplaySizeAdjustment on double {
     return 0;
   }
 }
-
-

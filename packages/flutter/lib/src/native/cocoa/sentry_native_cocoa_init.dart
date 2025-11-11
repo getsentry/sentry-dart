@@ -108,9 +108,9 @@ void configureCocoaOptions({
     }
   }
 
-  cocoa.SentryFlutterPlugin.setAutoPerformanceFeatures(
-    options.enableAutoPerformanceTracing,
-  );
+  if (options.enableAutoPerformanceTracing) {
+    cocoa.SentryFlutterPlugin.setAutoPerformanceFeatures();
+  }
 
   final version = cocoa.PrivateSentrySDKOnly.getSdkVersionString();
   cocoa.PrivateSentrySDKOnly.setSdkName(
@@ -118,7 +118,10 @@ void configureCocoaOptions({
     andVersionString: version,
   );
 
-  // Use native beforeSend to avoid crashes when capturing a native event.
+  // We currently cannot implement beforeSend in Dart.
+  // Blocks created using fromFunction must be invoked on the owner isolate's thread, otherwise they will crash
+  // There is no guarantee that this is the case for beforeSend and in local tests it consistently crashed.
+  // See https://github.com/dart-lang/native/blob/main/pkgs/ffigen/doc/objc_threading.md
   final packages =
       options.sdk.packages.map((e) => e.toJson()).toList(growable: false);
   cocoa.SentryFlutterPlugin.setBeforeSend(
@@ -135,6 +138,7 @@ cocoa.DartSentryReplayCaptureCallback createReplayCaptureCallback({
   required Hub hub,
   required SentryNativeCocoa owner,
 }) {
+  // listener can be invoked from any thread and is therefore safe unlike fromFunction
   return cocoa.ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject.listener(
     (NSString? replayIdPtr,
         bool replayIsBuffering,

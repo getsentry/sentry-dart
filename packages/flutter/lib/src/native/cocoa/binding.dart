@@ -4037,8 +4037,8 @@ final _objc_msgSend_10i8pd9 = objc.msgSendPointer
             double,
             ffi.Pointer<objc.ObjCObject>,
             ffi.Pointer<objc.ObjCObject>)>();
-late final _sel_setAutoPerformanceFeatures_ =
-    objc.registerName("setAutoPerformanceFeatures:");
+late final _sel_setAutoPerformanceFeatures =
+    objc.registerName("setAutoPerformanceFeatures");
 late final _sel_setEventOriginTag_ = objc.registerName("setEventOriginTag:");
 late final _sel_setSdkMetaData_packages_integrations_ =
     objc.registerName("setSdkMetaData:packages:integrations:");
@@ -4949,10 +4949,10 @@ class SentryFlutterPlugin extends objc.NSObject {
         sdkVersion.ref.pointer);
   }
 
-  /// setAutoPerformanceFeatures:
-  static void setAutoPerformanceFeatures(bool enableAutoPerformanceTracing) {
-    _objc_msgSend_1s56lr9(_class_SentryFlutterPlugin,
-        _sel_setAutoPerformanceFeatures_, enableAutoPerformanceTracing);
+  /// setAutoPerformanceFeatures
+  static void setAutoPerformanceFeatures() {
+    _objc_msgSend_1pl9qdv(
+        _class_SentryFlutterPlugin, _sel_setAutoPerformanceFeatures);
   }
 
   /// setEventOriginTag:
