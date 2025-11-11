@@ -1,5 +1,35 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+
+- Refactor `captureReplay` and `setReplayConfig` to use FFI/JNI ([#3318](https://github.com/getsentry/sentry-dart/pull/3318))
+
+## 9.8.0
+
+### Features
+
+- Mark file sync spans run in the main isolate with `blocked_main_thread` ([#3270](https://github.com/getsentry/sentry-dart/pull/3270))
+ - This allows Sentry to create issues automatically out of file spans running a certain time on the main thread: https://docs.sentry.io/product/issues/issue-details/performance-issues/file-main-thread-io/
+
+### Enhancements
+
+- Refactor `setExtra` and `removeExtra` to use FFI/JNI ([#3314](https://github.com/getsentry/sentry-dart/pull/3314))
+- Refactor `setTag` and `removeTag` to use FFI/JNI ([#3313](https://github.com/getsentry/sentry-dart/pull/3313))
+- Refactor `setContexts` and `removeContexts` to use FFI/JNI ([#3312](https://github.com/getsentry/sentry-dart/pull/3312))
+- Refactor `setUser` to use FFI/JNI ([#3295](https://github.com/getsentry/sentry-dart/pull/3295/))
+- Refactor native breadcrumbs sync to use FFI/JNI ([#3293](https://github.com/getsentry/sentry-dart/pull/3293/))
+- Refactor app hang and crash apis to use FFI/JNI ([#3289](https://github.com/getsentry/sentry-dart/pull/3289/))
+- Refactor `AndroidReplayRecorder` to use the new worker isolate api ([#3296](https://github.com/getsentry/sentry-dart/pull/3296/))
+- Refactor fetching app start and display refresh rate to use FFI and JNI ([#3288](https://github.com/getsentry/sentry-dart/pull/3288/))
+- Offload `captureEnvelope` to background isolate for Cocoa and Android ([#3232](https://github.com/getsentry/sentry-dart/pull/3232))
+- Add `sentry.replay_id` to flutter logs ([#3257](https://github.com/getsentry/sentry-dart/pull/3257))
+
+### Fixes
+
+- Fix unsafe json access in `sentry_device` ([#3309](https://github.com/getsentry/sentry-dart/pull/3309))
+
 ## 9.7.0
 
 ### Features

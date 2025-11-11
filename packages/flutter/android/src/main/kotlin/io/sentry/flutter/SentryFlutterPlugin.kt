@@ -41,10 +41,6 @@ class SentryFlutterPlugin :
   ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
-  private lateinit var sentryFlutter: SentryFlutter
-
-  private var activity: WeakReference<Activity>? = null
-  private var pluginRegistrationTime: Long? = null
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     pluginRegistrationTime = System.currentTimeMillis()
@@ -65,20 +61,6 @@ class SentryFlutterPlugin :
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "closeNativeSdk" -> closeNativeSdk(result)
-      "fetchNativeAppStart" -> fetchNativeAppStart(result)
-      "setContexts" -> setContexts(call.argument("key"), call.argument("value"), result)
-      "removeContexts" -> removeContexts(call.argument("key"), result)
-      "setUser" -> setUser(call.argument("user"), result)
-      "addBreadcrumb" -> addBreadcrumb(call.argument("breadcrumb"), result)
-      "clearBreadcrumbs" -> clearBreadcrumbs(result)
-      "setExtra" -> setExtra(call.argument("key"), call.argument("value"), result)
-      "removeExtra" -> removeExtra(call.argument("key"), result)
-      "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
-      "removeTag" -> removeTag(call.argument("key"), result)
-      "displayRefreshRate" -> displayRefreshRate(result)
-      "nativeCrash" -> crash()
-      "setReplayConfig" -> setReplayConfig(call, result)
-      "captureReplay" -> captureReplay(result)
       else -> result.notImplemented()
     }
   }
@@ -151,36 +133,97 @@ class SentryFlutterPlugin :
     }
   }
 
-  private fun fetchNativeAppStart(result: Result) {
-    if (!sentryFlutter.autoPerformanceTracingEnabled) {
-      result.success(null)
-      return
+  private fun closeNativeSdk(result: Result) {
+    ScopesAdapter.getInstance().close()
+
+    result.success("")
+  }
+
+  @Suppress("TooManyFunctions")
+  companion object {
+    @SuppressLint("StaticFieldLeak")
+    private var replay: ReplayIntegration? = null
+
+    @SuppressLint("StaticFieldLeak")
+    private var applicationContext: Context? = null
+
+    @SuppressLint("StaticFieldLeak")
+    private var activity: WeakReference<Activity>? = null
+
+    private var pluginRegistrationTime: Long? = null
+
+    private lateinit var sentryFlutter: SentryFlutter
+
+    private const val NATIVE_CRASH_WAIT_TIME = 500L
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun crash() {
+      val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
+      val mainThread = Looper.getMainLooper().thread
+      mainThread.uncaughtExceptionHandler?.uncaughtException(mainThread, exception)
+      mainThread.join(NATIVE_CRASH_WAIT_TIME)
     }
 
-    val appStartMetrics = AppStartMetrics.getInstance()
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
+    @JvmStatic
+    fun getDisplayRefreshRate(): Int? {
+      var refreshRate: Int? = null
 
-    if (!appStartMetrics.isAppLaunchedInForeground ||
-      appStartMetrics.appStartTimeSpan.durationMs > APP_START_MAX_DURATION_MS
-    ) {
-      Log.w(
-        "Sentry",
-        "Invalid app start data: app not launched in foreground or app start took too long (>60s)",
-      )
-      result.success(null)
-      return
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val display = activity?.get()?.display
+        if (display != null) {
+          refreshRate = display.refreshRate.toInt()
+        }
+      } else {
+        val display =
+          activity
+            ?.get()
+            ?.window
+            ?.windowManager
+            ?.defaultDisplay
+        if (display != null) {
+          refreshRate = display.refreshRate.toInt()
+        }
+      }
+
+      return refreshRate
     }
 
-    val appStartTimeSpan = appStartMetrics.appStartTimeSpan
-    val appStartTime = appStartTimeSpan.startTimestamp
-    val isColdStart = appStartMetrics.appStartType == AppStartMetrics.AppStartType.COLD
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
+    @JvmStatic
+    fun fetchNativeAppStartAsBytes(): ByteArray? {
+      if (!sentryFlutter.autoPerformanceTracingEnabled) {
+        return null
+      }
 
-    if (appStartTime == null) {
-      Log.w("Sentry", "App start won't be sent due to missing appStartTime")
-      result.success(null)
-    } else {
+      val appStartMetrics = AppStartMetrics.getInstance()
+
+      if (!appStartMetrics.isAppLaunchedInForeground ||
+        appStartMetrics.appStartTimeSpan.durationMs > APP_START_MAX_DURATION_MS
+      ) {
+        Log.w(
+          "Sentry",
+          "Invalid app start data: app not launched in foreground or app start took too long (>60s)",
+        )
+        return null
+      }
+
+      val appStartTimeSpan = appStartMetrics.appStartTimeSpan
+      val appStartTime = appStartTimeSpan.startTimestamp
+      val isColdStart = appStartMetrics.appStartType == AppStartMetrics.AppStartType.COLD
+
+      if (appStartTime == null) {
+        Log.w("Sentry", "App start won't be sent due to missing appStartTime")
+        return null
+      }
+
       val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
       val item =
-
         mutableMapOf<String, Any?>(
           "pluginRegistrationTime" to pluginRegistrationTime,
           "appStartTime" to appStartTimeMillis,
@@ -196,201 +239,46 @@ class SentryFlutterPlugin :
           setStartedAt(appStartTimeSpan.startUptimeMs)
           setStoppedAt(appStartMetrics.classLoadedUptimeMs)
         }
-      processInitSpan.addToMap(androidNativeSpans)
+      addTimeSpanToMap(processInitSpan, androidNativeSpans)
 
       val applicationOnCreateSpan = appStartMetrics.applicationOnCreateTimeSpan
-      applicationOnCreateSpan.addToMap(androidNativeSpans)
+      addTimeSpanToMap(applicationOnCreateSpan, androidNativeSpans)
 
       val contentProviderSpans = appStartMetrics.contentProviderOnCreateTimeSpans
       contentProviderSpans.forEach { span ->
-        span.addToMap(androidNativeSpans)
+        addTimeSpanToMap(span, androidNativeSpans)
       }
 
       appStartMetrics.activityLifecycleTimeSpans.forEach { span ->
-        span.onCreate.addToMap(androidNativeSpans)
-        span.onStart.addToMap(androidNativeSpans)
+        addTimeSpanToMap(span.onCreate, androidNativeSpans)
+        addTimeSpanToMap(span.onStart, androidNativeSpans)
       }
 
       item["nativeSpanTimes"] = androidNativeSpans
 
-      result.success(item)
+      val json = JSONObject(item).toString()
+      return json.toByteArray(Charsets.UTF_8)
     }
-  }
 
-  private fun displayRefreshRate(result: Result) {
-    var refreshRate: Int? = null
+    private fun addTimeSpanToMap(
+      span: TimeSpan,
+      map: MutableMap<String, Any?>,
+    ) {
+      if (span.startTimestamp == null) return
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-      val display = activity?.get()?.display
-      if (display != null) {
-        refreshRate = display.refreshRate.toInt()
-      }
-    } else {
-      val display =
-        activity
-          ?.get()
-          ?.window
-          ?.windowManager
-          ?.defaultDisplay
-      if (display != null) {
-        refreshRate = display.refreshRate.toInt()
+      span.description?.let { description ->
+        map[description] =
+          mapOf<String, Any?>(
+            "startTimestampMsSinceEpoch" to span.startTimestampMs,
+            "stopTimestampMsSinceEpoch" to span.projectedStopTimestampMs,
+          )
       }
     }
-
-    result.success(refreshRate)
-  }
-
-  private fun TimeSpan.addToMap(map: MutableMap<String, Any?>) {
-    if (startTimestamp == null) return
-
-    description?.let { description ->
-      map[description] =
-        mapOf<String, Any?>(
-          "startTimestampMsSinceEpoch" to startTimestampMs,
-          "stopTimestampMsSinceEpoch" to projectedStopTimestampMs,
-        )
-    }
-  }
-  private fun setContexts(
-    key: String?,
-    value: Any?,
-    result: Result,
-  ) {
-    if (key == null || value == null) {
-      result.success("")
-      return
-    }
-    Sentry.configureScope { scope ->
-      scope.setContexts(key, value)
-
-      result.success("")
-    }
-  }
-
-  private fun removeContexts(
-    key: String?,
-    result: Result,
-  ) {
-    if (key == null) {
-      result.success("")
-      return
-    }
-    Sentry.configureScope { scope ->
-      scope.removeContexts(key)
-
-      result.success("")
-    }
-  }
-
-  private fun setUser(
-    user: Map<String, Any?>?,
-    result: Result,
-  ) {
-    if (user != null) {
-      val options = ScopesAdapter.getInstance().options
-      val userInstance = User.fromMap(user, options)
-      Sentry.setUser(userInstance)
-    } else {
-      Sentry.setUser(null)
-    }
-    result.success("")
-  }
-
-  private fun addBreadcrumb(
-    breadcrumb: Map<String, Any?>?,
-    result: Result,
-  ) {
-    if (breadcrumb != null) {
-      val options = ScopesAdapter.getInstance().options
-      val breadcrumbInstance = Breadcrumb.fromMap(breadcrumb, options)
-      Sentry.addBreadcrumb(breadcrumbInstance)
-    }
-    result.success("")
-  }
-
-  private fun clearBreadcrumbs(result: Result) {
-    Sentry.clearBreadcrumbs()
-
-    result.success("")
-  }
-
-  private fun setExtra(
-    key: String?,
-    value: String?,
-    result: Result,
-  ) {
-    if (key == null || value == null) {
-      result.success("")
-      return
-    }
-    Sentry.setExtra(key, value)
-
-    result.success("")
-  }
-
-  private fun removeExtra(
-    key: String?,
-    result: Result,
-  ) {
-    if (key == null) {
-      result.success("")
-      return
-    }
-    Sentry.removeExtra(key)
-
-    result.success("")
-  }
-
-  private fun setTag(
-    key: String?,
-    value: String?,
-    result: Result,
-  ) {
-    if (key == null || value == null) {
-      result.success("")
-      return
-    }
-    Sentry.setTag(key, value)
-
-    result.success("")
-  }
-
-  private fun removeTag(
-    key: String?,
-    result: Result,
-  ) {
-    if (key == null) {
-      result.success("")
-      return
-    }
-    Sentry.removeTag(key)
-
-    result.success("")
-  }
-
-  private fun closeNativeSdk(result: Result) {
-    ScopesAdapter.getInstance().close()
-
-    result.success("")
-  }
-
-  companion object {
-    @SuppressLint("StaticFieldLeak")
-    private var replay: ReplayIntegration? = null
-
-    @SuppressLint("StaticFieldLeak")
-    private var applicationContext: Context? = null
-
-    private const val NATIVE_CRASH_WAIT_TIME = 500L
-
-    @Suppress("unused") // Used by native/jni bindings
-    @JvmStatic
-    fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
 
     @JvmStatic
     fun getApplicationContext(): Context? = applicationContext
 
-    @Suppress("unused") // Used by native/jni bindings
+    @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun loadContextsAsBytes(): ByteArray? {
       val options = ScopesAdapter.getInstance().options
@@ -405,11 +293,16 @@ class SentryFlutterPlugin :
           options,
           currentScope,
         )
-      val json = JSONObject(serializedScope).toString()
-      return json.toByteArray(Charsets.UTF_8)
+      try {
+        val json = JSONObject(serializedScope).toString()
+        return json.toByteArray(Charsets.UTF_8)
+      } catch (e: Exception) {
+        Log.e("Sentry", "Failed to serialize scope", e)
+        return null
+      }
     }
 
-    @Suppress("unused") // Used by native/jni bindings
+    @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun loadDebugImagesAsBytes(addresses: Set<String>): ByteArray? {
       val options = ScopesAdapter.getInstance().options as SentryAndroidOptions
@@ -428,8 +321,13 @@ class SentryFlutterPlugin :
             .serialize()
         }
 
-      val json = JSONArray(debugImages).toString()
-      return json.toByteArray(Charsets.UTF_8)
+      try {
+        val json = JSONArray(debugImages).toString()
+        return json.toByteArray(Charsets.UTF_8)
+      } catch (e: Exception) {
+        Log.e("Sentry", "Failed to serialize debug images", e)
+        return null
+      }
     }
 
     private fun List<DebugImage>?.serialize() = this?.map { it.serialize() }
@@ -445,13 +343,6 @@ class SentryFlutterPlugin :
         "debug_file" to debugFile,
       )
 
-    private fun crash() {
-      val exception = RuntimeException("FlutterSentry Native Integration: Sample RuntimeException")
-      val mainThread = Looper.getMainLooper().thread
-      mainThread.uncaughtExceptionHandler?.uncaughtException(mainThread, exception)
-      mainThread.join(NATIVE_CRASH_WAIT_TIME)
-    }
-
     private fun Double.adjustReplaySizeToBlockSize(): Double {
       val remainder = this % VIDEO_BLOCK_SIZE
       return if (remainder <= VIDEO_BLOCK_SIZE / 2) {
@@ -460,74 +351,5 @@ class SentryFlutterPlugin :
         this + (VIDEO_BLOCK_SIZE - remainder)
       }
     }
-  }
-
-  private fun setReplayConfig(
-    call: MethodCall,
-    result: Result,
-  ) {
-    // Since codec block size is 16, so we have to adjust the width and height to it,
-    // otherwise the codec might fail to configure on some devices, see
-    // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
-    val windowWidth = call.argument("windowWidth") as? Double ?: 0.0
-    val windowHeight = call.argument("windowHeight") as? Double ?: 0.0
-
-    var width = call.argument("width") as? Double ?: 0.0
-    var height = call.argument("height") as? Double ?: 0.0
-
-    val invalidConfig =
-      width == 0.0 ||
-        height == 0.0 ||
-        windowWidth == 0.0 ||
-        windowHeight == 0.0
-
-    if (invalidConfig) {
-      result.error(
-        "5",
-        "Replay config is not valid: width: $width, height: $height, " +
-          "windowWidth: $windowWidth, windowHeight: $windowHeight",
-        null,
-      )
-      return
-    }
-
-    // First update the smaller dimension, as changing that will affect the screen ratio more.
-    if (width < height) {
-      val newWidth = width.adjustReplaySizeToBlockSize()
-      height = (height * (newWidth / width)).adjustReplaySizeToBlockSize()
-      width = newWidth
-    } else {
-      val newHeight = height.adjustReplaySizeToBlockSize()
-      width = (width * (newHeight / height)).adjustReplaySizeToBlockSize()
-      height = newHeight
-    }
-
-    val replayConfig =
-      ScreenshotRecorderConfig(
-        recordingWidth = width.roundToInt(),
-        recordingHeight = height.roundToInt(),
-        scaleFactorX = width.toFloat() / windowWidth.toFloat(),
-        scaleFactorY = height.toFloat() / windowHeight.toFloat(),
-        frameRate = call.argument("frameRate") as? Int ?: 0,
-        bitRate = call.argument("bitRate") as? Int ?: 0,
-      )
-    Log.i(
-      "Sentry",
-      "Configuring replay: %dx%d at %d FPS, %d BPS".format(
-        replayConfig.recordingWidth,
-        replayConfig.recordingHeight,
-        replayConfig.frameRate,
-        replayConfig.bitRate,
-      ),
-    )
-    replay?.onConfigurationChanged(replayConfig)
-    result.success("")
-  }
-
-  private fun captureReplay(
-    result: Result,
-  ) {
-    replay!!.captureReplay(isTerminating = false)
-    result.success(replay!!.getReplayId().toString())
   }
 }

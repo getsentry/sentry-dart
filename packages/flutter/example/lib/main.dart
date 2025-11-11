@@ -87,7 +87,7 @@ Future<void> setupSentry(
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.navigatorKey = navigatorKey;
 
-      options.replay.sessionSampleRate = 1.0;
+      options.replay.sessionSampleRate = 0.0;
       options.replay.onErrorSampleRate = 1.0;
 
       options.enableLogs = true;

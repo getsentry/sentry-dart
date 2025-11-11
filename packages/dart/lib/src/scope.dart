@@ -138,17 +138,17 @@ class Scope {
   }
 
   /// add an entry to the Scope's contexts
-  Future<void> setContexts(String key, dynamic value) async {
+  FutureOr<void> setContexts(String key, dynamic value) {
     _setContextsSync(key, value);
-    await _callScopeObservers(
+    return _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setContexts(key, value));
   }
 
   /// Removes a value from the Scope's contexts
-  Future<void> removeContexts(String key) async {
+  FutureOr<void> removeContexts(String key) {
     _contexts.remove(key);
 
-    await _callScopeObservers(
+    return _callScopeObservers(
         (scopeObserver) async => await scopeObserver.removeContexts(key));
   }
 
