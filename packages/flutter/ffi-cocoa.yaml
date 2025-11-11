@@ -7,15 +7,14 @@ output:
   objc-bindings: ios/sentry_flutter/Sources/sentry_flutter_objc/objc_generated_bindings.m
 
 headers:
-  # Only the shim is imported at the top of the generated .m
   entry-points:
     - ios/sentry_flutter/Sources/sentry_flutter_objc/ffigen_objc_imports.h
 
-  # Allow ffigen to parse all Sentry headers (via the shim) and the plugin header
   include-directives:
     - '**/ffigen_objc_imports.h'
     - '**/Sentry.framework/**.h'
     - '**/SentryFlutterPlugin.h'
+    - '**/SentryFlutterReplayScreenshotProvider.h'
 
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
