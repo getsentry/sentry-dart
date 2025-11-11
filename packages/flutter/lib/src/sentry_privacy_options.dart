@@ -95,9 +95,9 @@ class SentryPrivacyOptions {
                   'widget comes from a third-party plugin or your code, Sentry '
                   "doesn't recognize it and can't reliably mask it in release "
                   'builds (due to obfuscation). '
-                  'Please mask it explicitly using options.privacy.mask<$type>(). '
+                  'Please mask it explicitly using mask<$type>(). '
                   'If you want to silence this warning and keep the widget '
-                  'visible in captures, you can use options.privacy.unmask<$type>(). '
+                  'visible in captures, you can use unmask<$type>(). '
                   'Note: the RegExp matched is: $regexp (case insensitive).');
             }
             return SentryMaskingDecision.continueProcessing;
@@ -160,6 +160,16 @@ class SentryPrivacyOptions {
           description ?? 'Custom callback-based rule (description unspecified)',
     ));
   }
+
+  Map<String, dynamic> toJson() => {
+        'maskAllText': maskAllText,
+        'maskAllImages': maskAllImages,
+        'maskAssetImages': maskAssetImages,
+        if (userMaskingRules.isNotEmpty)
+          'maskingRules': userMaskingRules
+              .map((rule) => '${rule.name}: ${rule.description}')
+              .toList(growable: false),
+      };
 }
 
 SentryMaskingDecision _maskImagesExceptAssets(Element element, Image widget) {

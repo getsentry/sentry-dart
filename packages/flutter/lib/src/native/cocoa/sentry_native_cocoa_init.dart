@@ -29,15 +29,7 @@ void initSentryCocoa({
       hub: hub,
       owner: owner,
     ),
-    tags: _dartToNSDictionary({
-      'maskAllText': options.privacy.maskAllText,
-      'maskAllImages': options.privacy.maskAllImages,
-      'maskAssetImages': options.privacy.maskAssetImages,
-      if (options.privacy.userMaskingRules.isNotEmpty)
-        'maskingRules': options.privacy.userMaskingRules
-            .map((rule) => '${rule.name}: ${rule.description}')
-            .toList(growable: false),
-    }),
+    tags: _dartToNSDictionary(options.privacy.toJson()),
   );
 }
 

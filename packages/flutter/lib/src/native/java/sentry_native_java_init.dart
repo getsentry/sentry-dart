@@ -126,21 +126,7 @@ native.SentryOptions$BeforeSendReplayCallback createBeforeSendReplayCallback(
               return shouldRemove;
             });
 
-            payload?.addAll({
-              'maskAllText'.toJString()..releasedBy(arena):
-                  options.privacy.maskAllText.toJBoolean()..releasedBy(arena),
-              'maskAllImages'.toJString()..releasedBy(arena):
-                  options.privacy.maskAllImages.toJBoolean()..releasedBy(arena),
-              'maskAssetImages'.toJString()..releasedBy(arena):
-                  options.privacy.maskAssetImages.toJBoolean()
-                    ..releasedBy(arena),
-              if (options.privacy.userMaskingRules.isNotEmpty)
-                'maskingRules'.toJString()..releasedBy(arena): _dartToJList(
-                    options.privacy.userMaskingRules
-                        .map((rule) => '${rule.name}: ${rule.description}')
-                        .toList(growable: false),
-                    arena),
-            });
+            payload?.addAll(_dartToJMap(options.privacy.toJson(), arena));
           }
         });
         return sentryReplayEvent;
