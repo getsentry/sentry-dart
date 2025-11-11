@@ -2,7 +2,7 @@
 #import <Foundation/Foundation.h>
 #import <objc/message.h>
 #import "SentryFlutterPlugin.h"
-#import "include/SentryFlutterReplayScreenshotProvider.h"
+#import "SentryFlutterReplayScreenshotProvider.h"
 
 // Forward protocol declarations to avoid hard dependency on Sentry SDK at build time.
 @protocol SentrySpan;

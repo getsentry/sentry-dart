@@ -11,10 +11,10 @@ headers:
     - ios/sentry_flutter/Sources/sentry_flutter_objc/ffigen_objc_imports.h
 
   include-directives:
-    - '**/ffigen_objc_imports.h'
-    - '**/Sentry.framework/**.h'
-    - '**/SentryFlutterPlugin.h'
-    - '**/SentryFlutterReplayScreenshotProvider.h'
+    - "**/ffigen_objc_imports.h"
+    - "**/Sentry.framework/**.h"
+    - "**/SentryFlutterPlugin.h"
+    - "**/SentryFlutterReplayScreenshotProvider.h"
 
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
@@ -23,6 +23,7 @@ compiler-opts:
   - "-I./temp/Sentry.framework/Headers/"
   - "-I./temp/Sentry.framework/PrivateHeaders/"
   - "-I./ios/sentry_flutter/Sources/sentry_flutter_objc/"
+  - "-I./ios/sentry_flutter/Sources/sentry_flutter_objc/include/"
 
 exclude-all-by-default: true
 
@@ -37,8 +38,8 @@ objc-interfaces:
     - SentryOptions
     - SentryReplayOptions
   module:
-    'SentryId': 'Sentry'
-    'SentrySDK': 'Sentry'
+    "SentryId": "Sentry"
+    "SentrySDK": "Sentry"
   member-filter:
     SentrySDK:
       include:

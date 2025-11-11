@@ -1,10 +1,5 @@
 #import <Foundation/Foundation.h>
-
-#if __has_include(<sentry_flutter/sentry_flutter-Swift.h>)
-#import <sentry_flutter/sentry_flutter-Swift.h>
-#else
-
-#import "include/SentryFlutterReplayScreenshotProvider.h"
+#import "SentryFlutterReplayScreenshotProvider.h"
 
 @class SentryOptions;
 @class SentryEvent;
@@ -40,5 +35,4 @@
 + (void)setupReplay:(SentryReplayCaptureCallback)callback
         tags:(NSDictionary<NSString *, NSString *> *)tags;
 + (nullable SentryReplayOptions *)getReplayOptions;
-#endif
 @end
