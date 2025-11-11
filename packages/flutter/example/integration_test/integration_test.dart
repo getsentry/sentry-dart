@@ -215,7 +215,7 @@ void main() {
         options.replay.sessionSampleRate = 0.4;
         options.replay.onErrorSampleRate = 0.8;
 
-        // iOS-only
+        // Cocoa-only
         if (Platform.isIOS || Platform.isMacOS) {
           options.recordHttpBreadcrumbs = false;
           options.captureFailedRequests = false;
