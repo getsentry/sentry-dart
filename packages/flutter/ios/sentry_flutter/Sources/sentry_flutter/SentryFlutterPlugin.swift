@@ -133,20 +133,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   public class func setBeforeSend(options: Options, packages: [[String: String]], integrations: [String]) {
     options.beforeSend = { event in
       setEventOriginTag(event: event)
-
-      if var sdk = event.sdk, self.isValidSdk(sdk: sdk) {
-        if let sdkPackages = sdk["packages"] as? [[String: String]] {
-          sdk["packages"] = sdkPackages + packages
-        } else {
-          sdk["packages"] = packages
-        }
-        if let sdkIntegrations = sdk["integrations"] as? [String] {
-          sdk["integrations"] = sdkIntegrations + integrations
-        } else {
-          sdk["integrations"] = integrations
-        }
-        event.sdk = sdk
-      }
+      setSdkMetaData(event, packages: packages, integrations: integrations)
 
       return event
     }
