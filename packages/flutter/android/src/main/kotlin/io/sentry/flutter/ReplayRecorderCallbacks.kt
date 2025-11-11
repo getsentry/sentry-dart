@@ -14,5 +14,9 @@ interface ReplayRecorderCallbacks {
 
   fun replayReset()
 
-  fun replayConfigChanged(width: Int, height: Int, frameRate: Int)
+  fun replayConfigChanged(
+    width: Int,
+    height: Int,
+    frameRate: Int
+  )
 }
