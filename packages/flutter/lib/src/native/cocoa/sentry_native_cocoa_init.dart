@@ -1,5 +1,8 @@
 part of 'sentry_native_cocoa.dart';
 
+@internal
+const cocoaSdkName = 'sentry.cocoa.flutter';
+
 /// Initializes the Sentry Cocoa SDK and sets up Replay bridging.
 void initSentryCocoa({
   required Hub hub,
@@ -119,7 +122,7 @@ void configureCocoaOptions({
 
   final version = cocoa.PrivateSentrySDKOnly.getSdkVersionString();
   cocoa.PrivateSentrySDKOnly.setSdkName(
-    'sentry.cocoa.flutter'.toNSString(),
+    cocoaSdkName.toNSString(),
     andVersionString: version,
   );
 

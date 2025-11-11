@@ -268,10 +268,10 @@ void main() {
       expect(cocoaOptions.appHangTimeoutInterval, 1);
       expect(cocoaOptions.enableSpotlight, isTrue);
       expect(cocoaOptions.spotlightUrl.toDartString(),
-          'http://localhost:8999/stream');
+          Sentry.currentHub.options.spotlight.url);
       expect(cocoaOptions.sendClientReports, isFalse);
-      expect(cocoa.PrivateSentrySDKOnly.getSdkName().toDartString(),
-          'sentry.cocoa.flutter');
+      expect(
+          cocoa.PrivateSentrySDKOnly.getSdkName().toDartString(), cocoaSdkName);
       expect(cocoa.PrivateSentrySDKOnly.getAppStartMeasurementHybridSDKMode(),
           isFalse);
       // currently cannot assert the sdk package and integration since it's attached only
