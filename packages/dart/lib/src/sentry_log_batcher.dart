@@ -52,9 +52,7 @@ class SentryLogBatcher {
   }
 
   /// Flushes the buffer immediately, sending all buffered logs.
-  void flush() {
-    _performFlushLogs();
-  }
+  FutureOr<void> flush() => _performFlushLogs();
 
   void _startTimer() {
     _flushTimer = Timer(_flushTimeout, () {
@@ -66,7 +64,7 @@ class SentryLogBatcher {
     });
   }
 
-  void _performFlushLogs() {
+  FutureOr<void> _performFlushLogs() async {
     // Reset timer state first
     _flushTimer?.cancel();
     _flushTimer = null;
@@ -86,7 +84,7 @@ class SentryLogBatcher {
 
     try {
       final envelope = SentryEnvelope.fromLogsData(logsToSend, _options.sdk);
-      _options.transport.send(envelope);
+      await _options.transport.send(envelope);
     } catch (error) {
       _options.log(
         SentryLevel.error,
