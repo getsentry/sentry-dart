@@ -234,6 +234,8 @@ void main() {
       });
     });
 
+    // TODO in this PR: test replayTagsAreCopiedFromFlutter
+
     if (Platform.isIOS || Platform.isMacOS) {
       final cocoaOptions =
           (SentryFlutter.native as SentryNativeCocoa).testNativeOptions;
