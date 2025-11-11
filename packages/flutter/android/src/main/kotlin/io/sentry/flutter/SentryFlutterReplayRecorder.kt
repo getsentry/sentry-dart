@@ -13,10 +13,8 @@ internal class SentryFlutterReplayRecorder(
   private val callbacks: ReplayRecorderCallbacks,
   private val integration: ReplayIntegration,
 ) : Recorder {
-  private val main = Handler(Looper.getMainLooper())
-
   override fun start() {
-    main.post {
+    Handler(Looper.getMainLooper()).post {
       try {
         val replayId = integration.getReplayId().toString()
         var replayIsBuffering = false
@@ -32,7 +30,7 @@ internal class SentryFlutterReplayRecorder(
   }
 
   override fun resume() {
-    main.post {
+    Handler(Looper.getMainLooper()).post {
       try {
         callbacks.replayResumed()
       } catch (ignored: Exception) {
@@ -42,7 +40,7 @@ internal class SentryFlutterReplayRecorder(
   }
 
   override fun onConfigurationChanged(config: ScreenshotRecorderConfig) {
-    main.post {
+    Handler(Looper.getMainLooper()).post {
       try {
         callbacks.replayConfigChanged(
           config.recordingWidth,
@@ -56,7 +54,7 @@ internal class SentryFlutterReplayRecorder(
   }
 
   override fun reset() {
-    main.post {
+    Handler(Looper.getMainLooper()).post {
       try {
         callbacks.replayReset()
       } catch (ignored: Exception) {
@@ -66,7 +64,7 @@ internal class SentryFlutterReplayRecorder(
   }
 
   override fun pause() {
-    main.post {
+    Handler(Looper.getMainLooper()).post {
       try {
         callbacks.replayPaused()
       } catch (ignored: Exception) {
@@ -76,7 +74,7 @@ internal class SentryFlutterReplayRecorder(
   }
 
   override fun stop() {
-    main.post {
+    Handler(Looper.getMainLooper()).post {
       try {
         callbacks.replayStopped()
       } catch (ignored: Exception) {
