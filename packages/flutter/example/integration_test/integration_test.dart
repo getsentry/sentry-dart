@@ -183,7 +183,6 @@ void main() {
           ),
         );
       }, (options) {
-        // Common (both platforms)
         options.dsn = fakeDsn;
         options.debug = true;
         options.diagnosticLevel = SentryLevel.error;
