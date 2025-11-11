@@ -136,6 +136,7 @@ class SentryFlutterPlugin :
             this.pass = pass
           }
     }
+
     @JvmStatic
     fun setupReplay(options: SentryAndroidOptions, replayCallbacks: ReplayRecorderCallbacks?) {
       // Replace the default ReplayIntegration with a Flutter-specific recorder.
