@@ -87,5 +87,3 @@ internal class SentryFlutterReplayRecorder(
     stop()
   }
 }
-
-
