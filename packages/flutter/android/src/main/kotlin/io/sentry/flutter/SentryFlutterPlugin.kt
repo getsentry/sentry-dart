@@ -116,7 +116,10 @@ class SentryFlutterPlugin :
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
 
     @JvmStatic
-    fun setupReplay(options: SentryAndroidOptions, replayCallbacks: ReplayRecorderCallbacks?) {
+    fun setupReplay(
+      options: SentryAndroidOptions,
+      replayCallbacks: ReplayRecorderCallbacks?
+    ) {
       // Replace the default ReplayIntegration with a Flutter-specific recorder.
       options.integrations.removeAll { it is ReplayIntegration }
       val replayOptions = options.sessionReplay
