@@ -25,8 +25,8 @@ internal class SentryFlutterReplayRecorder(
           replayIsBuffering = scope.replayId == SentryId.EMPTY_ID
         }
         callbacks.replayStarted(replayId, replayIsBuffering)
-      } catch (t: Throwable) {
-        Log.w("Sentry", "Failed to start replay recorder (JNI)", t)
+      } catch (ignored: Exception) {
+        Log.w("Sentry", "Failed to start replay recorder", ignored)
       }
     }
   }
@@ -35,8 +35,8 @@ internal class SentryFlutterReplayRecorder(
     main.post {
       try {
         callbacks.replayResumed()
-      } catch (t: Throwable) {
-        Log.w("Sentry", "Failed to resume replay recorder (JNI)", t)
+      } catch (ignored: Exception) {
+        Log.w("Sentry", "Failed to resume replay recorder", ignored)
       }
     }
   }
@@ -49,8 +49,8 @@ internal class SentryFlutterReplayRecorder(
           config.recordingHeight,
           config.frameRate,
         )
-      } catch (t: Throwable) {
-        Log.w("Sentry", "Failed to propagate configuration (JNI)", t)
+      } catch (ignored: Exception) {
+        Log.w("Sentry", "Failed to propagate configuration", ignored)
       }
     }
   }
@@ -59,8 +59,8 @@ internal class SentryFlutterReplayRecorder(
     main.post {
       try {
         callbacks.replayReset()
-      } catch (t: Throwable) {
-        Log.w("Sentry", "Failed to reset replay recorder (JNI)", t)
+      } catch (ignored: Exception) {
+        Log.w("Sentry", "Failed to reset replay recorder", ignored)
       }
     }
   }
@@ -69,8 +69,8 @@ internal class SentryFlutterReplayRecorder(
     main.post {
       try {
         callbacks.replayPaused()
-      } catch (t: Throwable) {
-        Log.w("Sentry", "Failed to pause replay recorder (JNI)", t)
+      } catch (ignored: Exception) {
+        Log.w("Sentry", "Failed to pause replay recorder", ignored)
       }
     }
   }
@@ -79,8 +79,8 @@ internal class SentryFlutterReplayRecorder(
     main.post {
       try {
         callbacks.replayStopped()
-      } catch (t: Throwable) {
-        Log.w("Sentry", "Failed to stop replay recorder (JNI)", t)
+      } catch (ignored: Exception) {
+        Log.w("Sentry", "Failed to stop replay recorder", ignored)
       }
     }
   }
