@@ -13,7 +13,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 import 'package:sentry_flutter/src/native/cocoa/sentry_native_cocoa.dart';
-import 'package:sentry_flutter/src/native/java/binding.dart' as native;
+import 'jni_binding.dart' as jni;
 import 'package:sentry_flutter/src/native/cocoa/binding.dart' as cocoa;
 import 'package:objective_c/objective_c.dart';
 
@@ -275,9 +275,9 @@ void main() {
       // currently cannot assert the sdk package and integration since it's attached only
       // to the event
     } else if (Platform.isAndroid) {
-      final ref = native.ScopesAdapter.getInstance()?.getOptions().reference;
+      final ref = jni.ScopesAdapter.getInstance()?.getOptions().reference;
       expect(ref, isNotNull);
-      final androidOptions = native.SentryAndroidOptions.fromReference(ref!);
+      final androidOptions = jni.SentryAndroidOptions.fromReference(ref!);
 
       expect(androidOptions, isNotNull);
       expect(androidOptions.getDsn()?.toDartString(), fakeDsn);
@@ -285,7 +285,7 @@ void main() {
       final diagnostic = androidOptions.getDiagnosticLevel();
       expect(
         diagnostic,
-        native.SentryLevel.ERROR,
+        jni.SentryLevel.ERROR,
       );
       expect(androidOptions.getEnvironment()?.toDartString(), 'init-test-env');
       expect(androidOptions.getRelease()?.toDartString(), '1.2.3+9');
@@ -313,12 +313,12 @@ void main() {
         Sentry.currentHub.options.spotlight.url,
       );
       expect(androidOptions.getSentryClientName()?.toDartString(),
-          '$androidSdkName/${native.BuildConfig.VERSION_NAME?.toDartString()}');
+          '$androidSdkName/${jni.BuildConfig.VERSION_NAME?.toDartString()}');
       expect(androidOptions.getNativeSdkName()?.toDartString(), nativeSdkName);
       expect(androidOptions.getSdkVersion()?.getName().toDartString(),
           androidSdkName);
       expect(androidOptions.getSdkVersion()?.getVersion().toDartString(),
-          native.BuildConfig.VERSION_NAME?.toDartString());
+          jni.BuildConfig.VERSION_NAME?.toDartString());
       final allPackages = androidOptions
           .getSdkVersion()
           ?.getPackageSet()
@@ -341,8 +341,7 @@ void main() {
       expect(androidProxy.getUser()?.toDartString(), 'u');
       expect(androidProxy.getPass()?.toDartString(), 'p');
       final r = androidOptions.getSessionReplay();
-      expect(
-          r.getQuality(), native.SentryReplayOptions$SentryReplayQuality.HIGH);
+      expect(r.getQuality(), jni.SentryReplayOptions$SentryReplayQuality.HIGH);
       expect(r.getSessionSampleRate(), isNotNull);
       expect(r.getOnErrorSampleRate(), isNotNull);
       expect(r.isTrackConfiguration(), isFalse);
