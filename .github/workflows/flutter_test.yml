@@ -111,14 +111,14 @@ jobs:
         with:
           channel: ${{ matrix.sdk }}
 
+      # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
+      - name: Switch to Xcode 16.4 for iOS 18.5
+        run: sudo xcode-select --switch /Applications/Xcode_16.4.app
+
       - run: flutter pub get
 
       - run: pod install
         working-directory: packages/flutter/example/${{ matrix.target }}
-
-      # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
-      - name: Switch to Xcode 16.4 for iOS 18.5
-        run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
       - name: prepare test device
         id: device
