@@ -148,9 +148,9 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
   @objc public class func setupHybridSdkNotifications() {
     #if os(iOS) || targetEnvironment(macCatalyst)
-    let appIsActive = UIApplication.shared.applicationState == .active
+      let appIsActive = UIApplication.shared.applicationState == .active
     #else
-    let appIsActive = NSApplication.shared.isActive
+      let appIsActive = NSApplication.shared.isActive
     #endif
 
     // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, to mimic
