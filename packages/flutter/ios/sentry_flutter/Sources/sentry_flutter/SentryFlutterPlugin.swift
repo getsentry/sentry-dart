@@ -14,7 +14,7 @@ import AppKit
 import CoreVideo
 #endif
 
-// swiftlint:disable file_length function_body_length
+// swiftlint:disable file_length function_body_length function_parameter_count
 
 // swiftlint:disable type_body_length
 @objc(SentryFlutterPlugin)
