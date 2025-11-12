@@ -89,7 +89,7 @@ void configureCocoaOptions({
 
   if (options.proxy != null) {
     final host = options.proxy!.host?.toNSString();
-    final port = options.proxy!.port?.toString().toNSString();
+    final port = options.proxy!.port?.toNSNumber();
     final type = options.proxy!.type
         .toString()
         .split('.')

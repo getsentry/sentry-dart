@@ -223,24 +223,19 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     user: String?,
     pass: String?,
     host: String,
-    port: String,
+    port: Int,
     type: String
   ) {
-    guard let portInt = Int(port) else {
-      print("Could not parse proxy port")
-      return
-    }
-
     var connectionProxyDictionary: [String: Any] = [:]
     if type.lowercased() == "http" {
       connectionProxyDictionary[kCFNetworkProxiesHTTPEnable as String] = true
       connectionProxyDictionary[kCFNetworkProxiesHTTPProxy as String] = host
-      connectionProxyDictionary[kCFNetworkProxiesHTTPPort as String] = portInt
+      connectionProxyDictionary[kCFNetworkProxiesHTTPPort as String] = port
     } else if type.lowercased() == "socks" {
       #if os(macOS)
         connectionProxyDictionary[kCFNetworkProxiesSOCKSEnable as String] = true
         connectionProxyDictionary[kCFNetworkProxiesSOCKSProxy as String] = host
-        connectionProxyDictionary[kCFNetworkProxiesSOCKSPort as String] = portInt
+        connectionProxyDictionary[kCFNetworkProxiesSOCKSPort as String] = port
       #else
         return
       #endif

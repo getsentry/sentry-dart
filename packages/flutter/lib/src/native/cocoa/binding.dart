@@ -4918,7 +4918,7 @@ class SentryFlutterPlugin extends objc.NSObject {
       {objc.NSString? user,
       objc.NSString? pass,
       required objc.NSString host,
-      required objc.NSString port,
+      required objc.NSNumber port,
       required objc.NSString type}) {
     _objc_msgSend_1oqpg7l(
         _class_SentryFlutterPlugin,

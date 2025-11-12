@@ -15,7 +15,7 @@
                         user:(NSString * _Nullable)user
                         pass:(NSString * _Nullable)pass
                         host:(NSString *)host
-                        port:(NSString *)port
+                        port:(NSNumber *)port
                         type:(NSString *)type;
 + (void)setReplayOptions:(SentryOptions *)options
                     quality:(NSInteger)quality
