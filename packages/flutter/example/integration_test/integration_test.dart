@@ -170,6 +170,10 @@ void main() {
   });
 
   testWidgets('init maps Dart options into native SDK options', (tester) async {
+    // Since this is a static var previous test might have overridden this so
+    // we should set this back to the default (false).
+    cocoa.PrivateSentrySDKOnly.setAppStartMeasurementHybridSDKMode(false);
+
     await restoreFlutterOnErrorAfter(() async {
       await setupSentryWithCustomInit(() async {
         await tester.pumpWidget(
@@ -273,7 +277,7 @@ void main() {
       expect(cocoa.PrivateSentrySDKOnly.getAppStartMeasurementHybridSDKMode(),
           isFalse);
       // currently cannot assert the sdk package and integration since it's attached only
-      // to the event
+      // to the event and we don't have a convenient way to access beforeSend
     } else if (Platform.isAndroid) {
       final ref = jni.ScopesAdapter.getInstance()?.getOptions().reference;
       expect(ref, isNotNull);
@@ -950,10 +954,10 @@ void main() {
     if (Platform.isIOS) {
       expect(values['key1'], {'value': 'randomValue'}, reason: 'key1 mismatch');
       expect(values['key2'],
-          {'String': 'Value', 'Bool': 1, 'Int': 123, 'Double': 12.3},
+          {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3},
           reason: 'key2 mismatch');
       // bool values are mapped to num values of 1 or 0 during objc conversion
-      expect(values['key3'], {'value': 1}, reason: 'key3 mismatch');
+      expect(values['key3'], {'value': true}, reason: 'key3 mismatch');
       expect(values['key4'], {'value': 12}, reason: 'key4 mismatch');
       expect(values['key5'], {'value': 12.3}, reason: 'key5 mismatch');
     } else if (Platform.isAndroid) {
@@ -1039,10 +1043,10 @@ void main() {
     if (Platform.isIOS || Platform.isMacOS) {
       expect(extras['key1'], 'randomValue', reason: 'key1 mismatch');
       expect(extras['key2'],
-          {'String': 'Value', 'Bool': 1, 'Int': 123, 'Double': 12.3},
+          {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3},
           reason: 'key2 mismatch');
       // bool values are mapped to num values of 1 or 0 during objc conversion
-      expect(extras['key3'], 1, reason: 'key3 mismatch');
+      expect(extras['key3'], isTrue, reason: 'key3 mismatch');
       expect(extras['key4'], 12, reason: 'key4 mismatch');
       expect(extras['key5'], 12.3, reason: 'key5 mismatch');
     } else if (Platform.isAndroid) {
