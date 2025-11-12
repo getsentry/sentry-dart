@@ -1,1 +1,1 @@
-../ios/sentry_flutter/Sources/sentry_flutter_objc/objc_generated_bindings.m
+../../../../ios/sentry_flutter/Sources/sentry_flutter_objc/objc_generated_bindings.m

@@ -1,1 +1,1 @@
-../ios/sentry_flutter/Sources/sentry_flutter_objc/ffigen_objc_imports.h
+../../../../ios/sentry_flutter/Sources/sentry_flutter_objc/ffigen_objc_imports.h
