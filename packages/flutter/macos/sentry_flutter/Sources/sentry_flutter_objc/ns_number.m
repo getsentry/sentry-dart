@@ -1,0 +1,1 @@
+../ios/sentry_flutter/Sources/sentry_flutter_objc/ns_number.m
