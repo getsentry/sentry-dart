@@ -2625,7 +2625,7 @@ void main() {
       // Create a mock HTTP client that tracks when close is called
       final mockHttpClient = MockHttpClient();
       fixture.options.httpClient = mockHttpClient;
-      
+
       fixture.options.enableLogs = true;
       final client = fixture.getSut();
 
