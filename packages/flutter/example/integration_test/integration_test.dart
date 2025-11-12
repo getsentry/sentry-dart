@@ -170,9 +170,11 @@ void main() {
   });
 
   testWidgets('init maps Dart options into native SDK options', (tester) async {
-    // Since this is a static var previous test might have overridden this so
-    // we should set this back to the default (false).
-    cocoa.PrivateSentrySDKOnly.setAppStartMeasurementHybridSDKMode(false);
+    if (Platform.isIOS || Platform.isMacOS) {
+      // Since this is a static var previous test might have overridden this so
+      // we should set this back to the default (false).
+      cocoa.PrivateSentrySDKOnly.setAppStartMeasurementHybridSDKMode(false);
+    }
 
     await restoreFlutterOnErrorAfter(() async {
       await setupSentryWithCustomInit(() async {
