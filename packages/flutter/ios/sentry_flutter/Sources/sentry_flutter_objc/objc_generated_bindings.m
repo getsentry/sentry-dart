@@ -1,7 +1,7 @@
 #include <stdint.h>
 #import <Foundation/Foundation.h>
 #import <objc/message.h>
-#import "ffigen_objc_imports.h"
+#import "SentryFlutterFFI.h"
 
 #if !__has_feature(objc_arc)
 #error "This file must be compiled with ARC enabled"
@@ -97,15 +97,15 @@ ListenerTrampoline_1 _SentryCocoa_wrapBlockingBlock_na2nx0(
 
 Protocol* _SentryCocoa_SentrySpan(void) { return @protocol(SentrySpan); }
 
-Protocol* _SentryCocoa_SentrySerializable(void) { return @protocol(SentrySerializable); }
-
-Protocol* _SentryCocoa_NSURLSessionDelegate(void) { return @protocol(NSURLSessionDelegate); }
-
 typedef id  (^ProtocolTrampoline)(void * sel);
 __attribute__((visibility("default"))) __attribute__((used))
 id  _SentryCocoa_protocolTrampoline_1mbt9g9(id target, void * sel) {
   return ((ProtocolTrampoline)((id (*)(id, SEL, SEL))objc_msgSend)(target, @selector(getDOBJCDartProtocolMethodForSelector:), sel))(sel);
 }
+
+Protocol* _SentryCocoa_SentrySerializable(void) { return @protocol(SentrySerializable); }
+
+Protocol* _SentryCocoa_NSURLSessionDelegate(void) { return @protocol(NSURLSessionDelegate); }
 
 Protocol* _SentryCocoa_SentryRedactOptions(void) { return @protocol(SentryRedactOptions); }
 

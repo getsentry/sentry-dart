@@ -8,11 +8,11 @@ output:
 
 headers:
   entry-points:
-    - ios/sentry_flutter/Sources/sentry_flutter_objc/ffigen_objc_imports.h
+    - ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterFFI.h
 
   include-directives:
+    - "**/SentryFlutterFFI.h"
     - "**/Sentry.framework/**.h"
-    - "**/SentryFlutterPlugin.h"
     - "**/SentryFlutterReplayScreenshotProvider.h"
 
 compiler-opts:
@@ -67,10 +67,6 @@ enums:
 typedefs:
   include:
     - SentryReplayCaptureCallback
-
-globals:
-  include:
-    - kCFNetworkProxiesHTTPEnable
 
 preamble: |
   // ignore_for_file: type=lint, unused_element

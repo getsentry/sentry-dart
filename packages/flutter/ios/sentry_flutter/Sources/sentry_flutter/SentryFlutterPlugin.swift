@@ -106,7 +106,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   //
   // Group of methods exposed to the Objective-C runtime via `@objc`.
   //
-  // Purpose: Called from the Flutter plugin's native bridge (FFI) - bindings are created from SentryFlutterPlugin.h
+  // Purpose: Called from the Flutter plugin's native bridge (FFI) - bindings are created from SentryFlutterFFI.h
 
   @objc(setupReplay:tags:)
   public class func setupReplay(callback: @escaping SentryReplayCaptureCallback, tags: [String: Any]) {

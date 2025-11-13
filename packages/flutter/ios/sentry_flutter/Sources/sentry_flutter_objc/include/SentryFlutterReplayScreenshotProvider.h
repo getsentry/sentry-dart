@@ -1,3 +1,5 @@
+#import <Foundation/Foundation.h>
+
 @import Sentry;
 
 typedef void (^SentryReplayCaptureCallback)(
@@ -11,7 +13,7 @@ typedef void (^SentryReplayCaptureCallback)(
 @interface SentryFlutterReplayScreenshotProvider
     : NSObject <SentryViewScreenshotProvider>
 
-- (instancetype)initWithCallback:(SentryReplayCaptureCallback)callback;
+- (instancetype)initWithCallback:(SentryReplayCaptureCallback _Nonnull)callback;
 
 @end
 #endif
