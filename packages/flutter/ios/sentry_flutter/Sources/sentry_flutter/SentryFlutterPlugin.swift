@@ -14,7 +14,7 @@ import AppKit
 import CoreVideo
 #endif
 
-// swiftlint:disable file_length function_body_length function_parameter_count
+// swiftlint:disable file_length function_body_length
 
 // swiftlint:disable type_body_length
 @objc(SentryFlutterPlugin)
@@ -217,6 +217,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     return !name.isEmpty
   }
 
+  // swiftlint:disable:next function_parameter_count
   @objc(setProxyOptions:user:pass:host:port:type:)
   public class func setProxyOptions(
     options: Options,
