@@ -2,9 +2,14 @@
 
 ## Unreleased
 
+### Fixes
+
+- Apply proguard rules to debug builds as well ([#3339](https://github.com/getsentry/sentry-dart/pull/3339))
+
 ### Enhancements
 
 - Refactor `captureReplay` and `setReplayConfig` to use FFI/JNI ([#3318](https://github.com/getsentry/sentry-dart/pull/3318))
+- 
 
 ## 9.8.0
 
