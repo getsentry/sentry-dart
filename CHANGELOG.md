@@ -5,6 +5,7 @@
 ### Enhancements
 
 - Refactor `captureReplay` and `setReplayConfig` to use FFI/JNI ([#3318](https://github.com/getsentry/sentry-dart/pull/3318))
+- Refactor `init` to use FFI/JNI ([#3324](https://github.com/getsentry/sentry-dart/pull/3324))
 
 ## 9.8.0
 
