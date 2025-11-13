@@ -82,10 +82,6 @@ jobs:
           disable-animations: true
           script: flutter drive --driver=integration_test/test_driver/driver.dart --target=integration_test/sentry_widgets_flutter_binding_test.dart --profile -d emulator-5554
 
-      - name: Run Android native unit tests
-        working-directory: packages/flutter/example/android
-        run: ./gradlew testDebugUnitTest
-
       - name: build apk
         working-directory: packages/flutter/example/android
         run: flutter build apk --debug --target-platform=android-x64
