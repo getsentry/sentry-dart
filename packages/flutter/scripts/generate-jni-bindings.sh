@@ -20,10 +20,8 @@ cd example
 flutter build apk
 cd -
 
-# Regenerate the bindings for production.
-dart run tool/generate_jni_bindings.dart
-# Generate test bindings.
-dart run tool/generate_jni_bindings.dart --test
+# Regenerate the bindings.
+dart run jnigen --config ffi-jni.yaml
 
 # Format the generated code so that it passes CI linters.
 dart format "$binding_path"
