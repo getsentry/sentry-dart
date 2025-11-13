@@ -78,9 +78,21 @@ void configureCocoaOptions({
     cocoaOptions.spotlightUrl = options.spotlight.url!.toNSString();
   }
 
+  int replayQualityLevel;
+  switch (options.replay.quality) {
+    case SentryReplayQuality.high:
+      replayQualityLevel = 2;
+      break;
+    case SentryReplayQuality.low:
+      replayQualityLevel = 0;
+      break;
+    default:
+      replayQualityLevel = 1;
+      break;
+  }
   cocoa.SentryFlutterPlugin.setReplayOptions(
     cocoaOptions,
-    quality: options.replay.quality.level,
+    quality: replayQualityLevel,
     sessionSampleRate: options.replay.sessionSampleRate ?? 0,
     onErrorSampleRate: options.replay.onErrorSampleRate ?? 0,
     sdkName: options.sdk.name.toNSString(),
