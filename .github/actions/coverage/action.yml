@@ -33,4 +33,4 @@ runs:
       with:
         path: './${{ inputs.directory }}/coverage/lcov.info'
         min_coverage: ${{ inputs.min-coverage }}
-        exclude: 'lib/src/native/**/binding.dart lib/src/native/java/**/*.dart lib/src/native/cocoa/**/*.dart'
+        exclude: 'lib/src/native/**/binding.dart lib/src/native/java/**/*.dart lib/src/native/cocoa/**/*.dart lib/src/native/sentry_native_channel.dart'
