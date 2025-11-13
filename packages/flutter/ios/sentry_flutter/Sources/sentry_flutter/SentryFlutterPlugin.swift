@@ -217,8 +217,8 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     return !name.isEmpty
   }
 
-  // swiftlint:disable:next function_parameter_count
   @objc(setProxyOptions:user:pass:host:port:type:)
+  // swiftlint:disable:next function_parameter_count
   public class func setProxyOptions(
     options: Options,
     user: String?,
@@ -263,6 +263,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   }
 
   @objc(setReplayOptions:quality:sessionSampleRate:onErrorSampleRate:sdkName:sdkVersion:)
+  // swiftlint:disable:next function_parameter_count
   public class func setReplayOptions(
     options: Options,
     quality: Int,
