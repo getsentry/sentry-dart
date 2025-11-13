@@ -35,14 +35,6 @@ class SentryNativeJava extends SentryNativeChannel {
   @visibleForTesting
   AndroidReplayRecorder? get testRecorder => _replayRecorder;
 
-  @visibleForTesting
-  native.SentryAndroidOptions? get testNativeOptions {
-    // ignore: invalid_use_of_internal_member
-    final ref = native.ScopesAdapter.getInstance()?.getOptions().reference;
-    if (ref == null) return null;
-    return native.SentryAndroidOptions.fromReference(ref);
-  }
-
   @override
   Future<void> init(Hub hub) async {
     initSentryAndroid(hub: hub, options: options, owner: this);
