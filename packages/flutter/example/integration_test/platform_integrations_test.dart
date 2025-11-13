@@ -224,21 +224,19 @@ void main() {
 
         final options = _currentOptions();
         final transportType = options.transport.runtimeType.toString();
+        expect(transportType, 'ClientReportTransport');
+        // Access innerTransport via dynamic to avoid importing platform types.
+        final dynamic dynTransport = options.transport;
+        final innerType = dynTransport.innerTransport.runtimeType.toString();
+        final isAndroid = defaultTargetPlatform == TargetPlatform.android;
+        final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
+        final isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
         if (kIsWeb) {
-          expect(transportType, 'JavascriptTransport');
+          expect(innerType, 'JavascriptTransport');
+        } else if (isAndroid || isIOS || isMacOS) {
+          expect(innerType, 'FileSystemTransport');
         } else {
-          expect(transportType, 'ClientReportTransport');
-          // Access innerTransport via dynamic to avoid importing platform types.
-          final dynamic dynTransport = options.transport;
-          final innerType = dynTransport.innerTransport.runtimeType.toString();
-          final isAndroid = defaultTargetPlatform == TargetPlatform.android;
-          final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
-          final isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
-          if (isAndroid || isIOS || isMacOS) {
-            expect(innerType, 'FileSystemTransport');
-          } else {
-            expect(innerType, 'HttpTransport');
-          }
+          expect(innerType, 'HttpTransport');
         }
       });
     });
