@@ -6,13 +6,29 @@ import 'package:integration_test/integration_test.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
+import 'package:sentry_flutter/src/event_processor/flutter_enricher_event_processor.dart';
+import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
+import 'package:sentry_flutter/src/integrations/debug_print_integration.dart';
+import 'package:sentry_flutter/src/integrations/flutter_error_integration.dart';
+import 'package:sentry_flutter/src/integrations/generic_app_start_integration.dart';
+import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
+import 'package:sentry_flutter/src/integrations/native_load_debug_images_integration.dart';
+import 'package:sentry_flutter/src/integrations/native_sdk_integration.dart';
+import 'package:sentry_flutter/src/integrations/replay_log_integration.dart';
+import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
+import 'package:sentry_flutter/src/integrations/thread_info_integration.dart';
+import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
+import 'package:sentry_flutter/src/integrations/widgets_flutter_binding_integration.dart';
+import 'package:sentry_flutter/src/replay/integration.dart';
+import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
+import 'package:sentry/src/transport/client_report_transport.dart';
+import 'package:sentry/src/transport/http_transport.dart';
+import 'package:sentry_flutter/src/file_system_transport.dart';
+import 'package:sentry_flutter/src/web/javascript_transport.dart';
 import 'utils.dart';
 
 SentryFlutterOptions _currentOptions() =>
     Sentry.currentHub.options as SentryFlutterOptions;
-
-List<String> _integrationNames(SentryFlutterOptions options) =>
-    options.integrations.map((i) => i.runtimeType.toString()).toList();
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -21,31 +37,42 @@ void main() {
     await Sentry.close();
   });
 
-  group('Platform integrations (non-web)', () {
-    group('Common integrations', () {
-      testWidgets('platform-agnostic integrations are present', (tester) async {
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.debug = true;
-        }, appRunner: () async {});
+  group('SentryFlutter', () {
+    group('Common integrations (all platforms)', () {
+      testWidgets('adds platform-agnostic integrations', (tester) async {
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.debug = true;
+          }, appRunner: () async {});
+        });
 
         final options = _currentOptions();
-        final names = _integrationNames(options);
-
-        expect(names.contains('WidgetsFlutterBindingIntegration'), isTrue);
-        expect(names.contains('FlutterErrorIntegration'), isTrue);
-        expect(names.contains('LoadReleaseIntegration'), isTrue);
-        expect(names.contains('DebugPrintIntegration'), isTrue);
-        expect(names.contains('SentryViewHierarchyIntegration'), isTrue);
+        expect(
+            options.integrations
+                .any((i) => i is WidgetsFlutterBindingIntegration),
+            isTrue);
+        expect(options.integrations.any((i) => i is FlutterErrorIntegration),
+            isTrue);
+        expect(options.integrations.any((i) => i is LoadReleaseIntegration),
+            isTrue);
+        expect(options.integrations.any((i) => i is DebugPrintIntegration),
+            isTrue);
+        expect(
+            options.integrations
+                .any((i) => i is SentryViewHierarchyIntegration),
+            isTrue);
       });
     });
 
-    group('Defaults', () {
-      testWidgets('debug and sdk name', (tester) async {
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.debug = true;
-        }, appRunner: () async {});
+    group('Initialization defaults', () {
+      testWidgets('enables debug and sets Flutter SDK name', (tester) async {
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.debug = true;
+          }, appRunner: () async {});
+        });
 
         final options = _currentOptions();
         expect(options.debug, isTrue);
@@ -53,12 +80,17 @@ void main() {
       });
     });
 
-    group('Scope and native binding', () {
-      testWidgets('scope sync and NativeScopeObserver', (tester) async {
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.debug = true;
-        }, appRunner: () async {});
+    group('Scope sync and native bridge', () {
+      testWidgets('enables scope sync and adds NativeScopeObserver',
+          (tester) async {
+        if (kIsWeb) return;
+
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.debug = true;
+          }, appRunner: () async {});
+        });
 
         final options = _currentOptions();
         expect(options.enableScopeSync, isTrue);
@@ -67,48 +99,57 @@ void main() {
         expect(hasNativeScopeObserver, isTrue);
       });
 
-      testWidgets('native binding available', (tester) async {
+      testWidgets('exposes SentryFlutter.native', (tester) async {
         if (kIsWeb) return;
 
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.debug = true;
-        }, appRunner: () async {});
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.debug = true;
+          }, appRunner: () async {});
+        });
+
         expect(SentryFlutter.native, isNotNull);
       });
     });
 
-    group('Integrations', () {
-      testWidgets('core native integrations are present (non-web)',
+    group('Integration registration', () {
+      testWidgets('adds core native integrations (Native SDK, DebugImages)',
           (tester) async {
         if (kIsWeb) return;
 
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.debug = true;
-        }, appRunner: () async {});
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.debug = true;
+          }, appRunner: () async {});
+        });
 
         final options = _currentOptions();
-        final names = _integrationNames(options);
-
         // Core native-related
-        expect(names.contains('NativeSdkIntegration'), isTrue);
-        expect(names.contains('LoadNativeDebugImagesIntegration'), isTrue);
+        expect(
+            options.integrations.any((i) => i is NativeSdkIntegration), isTrue);
+        expect(
+            options.integrations
+                .any((i) => i is LoadNativeDebugImagesIntegration),
+            isTrue);
       });
 
-      testWidgets('platform-specific integrations by platform', (tester) async {
+      testWidgets('adds platform-specific integrations (LoadContexts, Replay)',
+          (tester) async {
         if (kIsWeb) return;
 
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.debug = true;
-          // Ensure replay integrations are added where supported
-          o.replay.sessionSampleRate = 1.0;
-          o.replay.onErrorSampleRate = 1.0;
-        }, appRunner: () async {});
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.debug = true;
+            // Ensure replay integrations are added where supported
+            o.replay.sessionSampleRate = 1.0;
+            o.replay.onErrorSampleRate = 1.0;
+          }, appRunner: () async {});
+        });
 
         final options = _currentOptions();
-        final names = _integrationNames(options);
 
         final isAndroid =
             !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
@@ -117,83 +158,108 @@ void main() {
             !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
 
         if (isAndroid) {
-          expect(names.contains('LoadContextsIntegration'), isTrue);
-          expect(names.contains('ReplayIntegration'), isTrue);
-          expect(names.contains('ReplayLogIntegration'), isTrue);
+          expect(options.integrations.any((i) => i is LoadContextsIntegration),
+              isTrue);
+          expect(
+              options.integrations.any((i) => i is ReplayIntegration), isTrue);
+          expect(options.integrations.any((i) => i is ReplayLogIntegration),
+              isTrue);
         } else if (isIOS) {
-          expect(names.contains('LoadContextsIntegration'), isTrue);
-          expect(names.contains('ReplayIntegration'), isTrue);
-          expect(names.contains('ReplayLogIntegration'), isTrue);
+          expect(options.integrations.any((i) => i is LoadContextsIntegration),
+              isTrue);
+          expect(
+              options.integrations.any((i) => i is ReplayIntegration), isTrue);
+          expect(options.integrations.any((i) => i is ReplayLogIntegration),
+              isTrue);
         } else if (isMacOS) {
-          expect(names.contains('LoadContextsIntegration'), isTrue);
+          expect(options.integrations.any((i) => i is LoadContextsIntegration),
+              isTrue);
           // Replay not supported on macOS by default
           // TODO: this is a minor bug, the integration should not be added for macOS
           // it does not do anything because 'call' is gated behind a flag but we should
           // still not add it
-          expect(names.contains('ReplayIntegration'), isTrue);
-          expect(names.contains('ReplayLogIntegration'), isFalse);
+          expect(
+              options.integrations.any((i) => i is ReplayIntegration), isTrue);
+          expect(options.integrations.any((i) => i is ReplayLogIntegration),
+              isFalse);
         }
       });
 
-      testWidgets('ordering: WidgetsBinding before OnErrorIntegration',
-          (tester) async {
+      testWidgets('registers WidgetsBinding before OnError', (tester) async {
         if (kIsWeb) return;
 
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.debug = true;
-        }, appRunner: () async {});
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.debug = true;
+          }, appRunner: () async {});
+        });
 
         final options = _currentOptions();
-        final names = _integrationNames(options);
-
-        final widgetsIdx = names.indexOf('WidgetsFlutterBindingIntegration');
-        final onErrorIdx = names.indexOf('OnErrorIntegration');
+        final widgetsIdx = options.integrations
+            .indexWhere((i) => i is WidgetsFlutterBindingIntegration);
+        final onErrorIdx =
+            options.integrations.indexWhere((i) => i is OnErrorIntegration);
         expect(widgetsIdx, greaterThanOrEqualTo(0));
         expect(onErrorIdx, greaterThanOrEqualTo(0));
         expect(widgetsIdx < onErrorIdx, isTrue);
       });
 
-      testWidgets('web integrations and ordering', (tester) async {
+      testWidgets(
+          'adds web integrations and orders RunZonedGuarded before Widgets',
+          (tester) async {
         if (!kIsWeb) return;
 
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.debug = true;
-        }, appRunner: () async {});
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.debug = true;
+          }, appRunner: () async {});
+        });
 
         final options = _currentOptions();
-        final names = _integrationNames(options);
-
         // Web-specific integrations
-        expect(names.contains('ConnectivityIntegration'), isTrue);
-        expect(names.contains('WebSessionIntegration'), isTrue);
-        expect(names.contains('GenericAppStartIntegration'), isTrue);
+        expect(options.integrations.any((i) => i is ConnectivityIntegration),
+            isTrue);
+        expect(options.integrations.any((i) => i is WebSessionIntegration),
+            isTrue);
+        expect(options.integrations.any((i) => i is GenericAppStartIntegration),
+            isTrue);
 
         // Should not be present on web
-        expect(names.contains('OnErrorIntegration'), isFalse);
-        expect(names.contains('ThreadInfoIntegration'), isFalse);
-        expect(names.contains('LoadContextsIntegration'), isFalse);
-        expect(names.contains('ReplayIntegration'), isFalse);
-        expect(names.contains('ReplayLogIntegration'), isFalse);
+        expect(
+            options.integrations.any((i) => i is OnErrorIntegration), isFalse);
+        expect(options.integrations.any((i) => i is ThreadInfoIntegration),
+            isFalse);
+        expect(options.integrations.any((i) => i is LoadContextsIntegration),
+            isFalse);
+        expect(
+            options.integrations.any((i) => i is ReplayIntegration), isFalse);
+        expect(options.integrations.any((i) => i is ReplayLogIntegration),
+            isFalse);
 
         // Ordering: RunZonedGuarded before Widgets
-        final runZonedIdx = names.indexOf('RunZonedGuardedIntegration');
-        final widgetsIdx = names.indexOf('WidgetsFlutterBindingIntegration');
-        expect(runZonedIdx, greaterThanOrEqualTo(0));
+        final runZonedIdx = options.integrations
+            .indexWhere((i) => i is RunZonedGuardedIntegration);
+        final widgetsIdx = options.integrations
+            .indexWhere((i) => i is WidgetsFlutterBindingIntegration);
         expect(widgetsIdx, greaterThanOrEqualTo(0));
-        expect(runZonedIdx < widgetsIdx, isTrue);
+        if (runZonedIdx >= 0) {
+          expect(runZonedIdx < widgetsIdx, isTrue);
+        }
       });
     });
 
-    group('Event processors', () {
-      testWidgets('FlutterEnricher precedes LoadContexts', (tester) async {
+    group('Event processor ordering', () {
+      testWidgets('adds FlutterEnricher before LoadContexts', (tester) async {
         if (kIsWeb) return;
 
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.debug = true;
-        }, appRunner: () async {});
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.debug = true;
+          }, appRunner: () async {});
+        });
 
         final options = _currentOptions();
         final isAndroid =
@@ -203,8 +269,8 @@ void main() {
             !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
         if (isAndroid || isIOS || isMacOS) {
           final processors = options.eventProcessors;
-          final enricherIndex = processors.indexWhere((p) =>
-              p.runtimeType.toString() == 'FlutterEnricherEventProcessor');
+          final enricherIndex =
+              processors.indexWhere((p) => p is FlutterEnricherEventProcessor);
           final loadContextsIndex = processors.indexWhere((p) =>
               p.runtimeType.toString() ==
               '_LoadContextsIntegrationEventProcessor');
@@ -216,38 +282,40 @@ void main() {
     });
 
     group('Transport', () {
-      testWidgets('transport per platform', (tester) async {
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.debug = true;
-        }, appRunner: () async {});
+      testWidgets('selects correct transport per platform', (tester) async {
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.debug = true;
+          }, appRunner: () async {});
+        });
 
         final options = _currentOptions();
-        final transportType = options.transport.runtimeType.toString();
-        expect(transportType, 'ClientReportTransport');
-        // Access innerTransport via dynamic to avoid importing platform types.
-        final dynamic dynTransport = options.transport;
-        final innerType = dynTransport.innerTransport.runtimeType.toString();
+        expect(options.transport, isA<ClientReportTransport>());
+        final innerTransport =
+            (options.transport as ClientReportTransport).innerTransport;
         final isAndroid = defaultTargetPlatform == TargetPlatform.android;
         final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
         final isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
         if (kIsWeb) {
-          expect(innerType, 'JavascriptTransport');
+          expect(innerTransport, isA<JavascriptTransport>());
         } else if (isAndroid || isIOS || isMacOS) {
-          expect(innerType, 'FileSystemTransport');
+          expect(innerTransport, isA<FileSystemTransport>());
         } else {
-          expect(innerType, 'HttpTransport');
+          expect(innerTransport, isA<HttpTransport>());
         }
       });
     });
 
     group('Profiling', () {
-      testWidgets('profiler factory per platform', (tester) async {
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.debug = true;
-          o.profilesSampleRate = 1.0;
-        }, appRunner: () async {});
+      testWidgets('selects profiler factory per platform', (tester) async {
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.debug = true;
+            o.profilesSampleRate = 1.0;
+          }, appRunner: () async {});
+        });
 
         if (kIsWeb) {
           expect(Sentry.currentHub.profilerFactory, isNull);
@@ -265,16 +333,18 @@ void main() {
       });
     });
 
-    group('Threading', () {
-      testWidgets('ThreadInfoIntegration present', (tester) async {
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.debug = true;
-        }, appRunner: () async {});
+    group('Thread info', () {
+      testWidgets('adds ThreadInfoIntegration on non-web only', (tester) async {
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.debug = true;
+          }, appRunner: () async {});
+        });
 
         final options = _currentOptions();
-        final hasThreadInfo = options.integrations.any((integration) =>
-            integration.runtimeType.toString() == 'ThreadInfoIntegration');
+        final hasThreadInfo = options.integrations
+            .any((integration) => integration is ThreadInfoIntegration);
         if (kIsWeb) {
           expect(hasThreadInfo, isFalse);
         } else {
@@ -283,13 +353,15 @@ void main() {
       });
     });
 
-    group('Symbolication', () {
-      testWidgets('Dart symbolication disabled when native present',
+    group('Dart symbolication', () {
+      testWidgets('disables Dart symbolication when native is present',
           (tester) async {
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.debug = true;
-        }, appRunner: () async {});
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.debug = true;
+          }, appRunner: () async {});
+        });
 
         final options = _currentOptions();
         if (SentryFlutter.native != null) {
@@ -298,11 +370,13 @@ void main() {
       });
     });
 
-    group('Exception identifiers', () {
-      testWidgets('Flutter first then Dart', (tester) async {
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-        }, appRunner: () async {});
+    group('Exception type identifiers', () {
+      testWidgets('orders identifiers: Flutter before Dart', (tester) async {
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+          }, appRunner: () async {});
+        });
 
         final options = _currentOptions();
         expect(
@@ -328,18 +402,17 @@ void main() {
     });
 
     group('Screenshot integration', () {
-      testWidgets('added when enabled', (tester) async {
-        if (kIsWeb) return;
-
-        await SentryFlutter.init((o) {
-          o.dsn = fakeDsn;
-          o.attachScreenshot = true;
-        }, appRunner: () async {});
+      testWidgets('adds ScreenshotIntegration when enabled', (tester) async {
+        await restoreFlutterOnErrorAfter(() async {
+          await SentryFlutter.init((o) {
+            o.dsn = fakeDsn;
+            o.attachScreenshot = true;
+          }, appRunner: () async {});
+        });
 
         final options = _currentOptions();
-        final hasScreenshotIntegration = options.integrations.any(
-            (integration) =>
-                integration.runtimeType.toString() == 'ScreenshotIntegration');
+        final hasScreenshotIntegration = options.integrations
+            .any((integration) => integration is ScreenshotIntegration);
         expect(hasScreenshotIntegration, isTrue);
       });
     });

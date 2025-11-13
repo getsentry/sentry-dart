@@ -1079,69 +1079,69 @@ void main() {
     }
   });
 
-  // group('e2e', () {
-  //   var output = find.byKey(const Key('output'));
-  //   late Fixture fixture;
-  //
-  //   setUp(() {
-  //     fixture = Fixture();
-  //   });
-  //
-  //   testWidgets('captureException', (tester) async {
-  //     late Uri uri;
-  //
-  //     await restoreFlutterOnErrorAfter(() async {
-  //       await setupSentryAndApp(tester,
-  //           dsn: exampleDsn, beforeSendCallback: fixture.beforeSend);
-  //
-  //       await tester.tap(find.text('captureException'));
-  //       await tester.pumpAndSettle();
-  //
-  //       final text = output.evaluate().single.widget as Text;
-  //       final id = text.data!;
-  //
-  //       uri = Uri.parse(
-  //         'https://sentry.io/api/0/projects/$org/$slug/events/$id/',
-  //       );
-  //     });
-  //
-  //     expect(authToken, isNotEmpty);
-  //
-  //     final event = await fixture.poll(uri, authToken);
-  //     expect(event, isNotNull);
-  //
-  //     final sentEvents = fixture.sentEvents
-  //         .where((el) => el!.eventId.toString() == event!['id']);
-  //     expect(
-  //         sentEvents.length, 1); // one button click should only send one error
-  //     final sentEvent = sentEvents.first;
-  //
-  //     final tags = event!['tags'] as List<dynamic>;
-  //
-  //     print('event id: ${event['id']}');
-  //     print('event title: ${event['title']}');
-  //     expect(sentEvent!.eventId.toString(), event['id']);
-  //     expect('_Exception: Exception: captureException', event['title']);
-  //     expect(sentEvent.release, event['release']['version']);
-  //     expect(
-  //         2,
-  //         (tags.firstWhere((e) => e['value'] == sentEvent.environment) as Map)
-  //             .length);
-  //     expect(sentEvent.fingerprint, event['fingerprint'] ?? []);
-  //     expect(
-  //         2,
-  //         (tags.firstWhere((e) => e['value'] == SentryLevel.error.name) as Map)
-  //             .length);
-  //     expect(sentEvent.logger, event['logger']);
-  //
-  //     final dist = tags.firstWhere((element) => element['key'] == 'dist');
-  //     expect('1', dist['value']);
-  //
-  //     final environment =
-  //         tags.firstWhere((element) => element['key'] == 'environment');
-  //     expect('integration', environment['value']);
-  //   });
-  // });
+  group('e2e', () {
+    var output = find.byKey(const Key('output'));
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets('captureException', (tester) async {
+      late Uri uri;
+
+      await restoreFlutterOnErrorAfter(() async {
+        await setupSentryAndApp(tester,
+            dsn: exampleDsn, beforeSendCallback: fixture.beforeSend);
+
+        await tester.tap(find.text('captureException'));
+        await tester.pumpAndSettle();
+
+        final text = output.evaluate().single.widget as Text;
+        final id = text.data!;
+
+        uri = Uri.parse(
+          'https://sentry.io/api/0/projects/$org/$slug/events/$id/',
+        );
+      });
+
+      expect(authToken, isNotEmpty);
+
+      final event = await fixture.poll(uri, authToken);
+      expect(event, isNotNull);
+
+      final sentEvents = fixture.sentEvents
+          .where((el) => el!.eventId.toString() == event!['id']);
+      expect(
+          sentEvents.length, 1); // one button click should only send one error
+      final sentEvent = sentEvents.first;
+
+      final tags = event!['tags'] as List<dynamic>;
+
+      print('event id: ${event['id']}');
+      print('event title: ${event['title']}');
+      expect(sentEvent!.eventId.toString(), event['id']);
+      expect('_Exception: Exception: captureException', event['title']);
+      expect(sentEvent.release, event['release']['version']);
+      expect(
+          2,
+          (tags.firstWhere((e) => e['value'] == sentEvent.environment) as Map)
+              .length);
+      expect(sentEvent.fingerprint, event['fingerprint'] ?? []);
+      expect(
+          2,
+          (tags.firstWhere((e) => e['value'] == SentryLevel.error.name) as Map)
+              .length);
+      expect(sentEvent.logger, event['logger']);
+
+      final dist = tags.firstWhere((element) => element['key'] == 'dist');
+      expect('1', dist['value']);
+
+      final environment =
+          tags.firstWhere((element) => element['key'] == 'environment');
+      expect('integration', environment['value']);
+    });
+  });
 }
 
 class Fixture {
