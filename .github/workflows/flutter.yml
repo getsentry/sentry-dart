@@ -190,12 +190,13 @@ jobs:
           android: true
           fail_on_error: true
 
-  detekt:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v5
-      # To recreate baseline run: detekt -i packages/flutter/android,packages/flutter/example/android -b packages/flutter/config/detekt-bl.xml -cb
-      - uses: natiginfo/action-detekt-all@45229fbbe47eaff1160b6c956d7ffe14dc23c206 # pin@1.23.8
-        with:
-          args: -i packages/flutter/android,packages/flutter/example/android --baseline packages/flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules
+# TODO: disabled until the following is fixed https://github.com/natiginfo/action-detekt-all/issues/73
+#  detekt:
+#    runs-on: ubuntu-latest
+#    timeout-minutes: 20
+#    steps:
+#      - uses: actions/checkout@v5
+#      # To recreate baseline run: detekt -i packages/flutter/android,packages/flutter/example/android -b packages/flutter/config/detekt-bl.xml -cb
+#      - uses: natiginfo/action-detekt-all@45229fbbe47eaff1160b6c956d7ffe14dc23c206 # pin@1.23.8
+#        with:
+#          args: -i packages/flutter/android,packages/flutter/example/android --baseline packages/flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules
