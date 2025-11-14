@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Added `consumerProguardFiles 'proguard-rules.pro'` to the debug build configuration to ensure ProGuard rules are consistently applied across both release and debug variants. ([#3339](https://github.com/getsentry/sentry-dart/pull/3339))
+
 ### Enhancements
 
 - Refactor `captureReplay` and `setReplayConfig` to use FFI/JNI ([#3318](https://github.com/getsentry/sentry-dart/pull/3318))
