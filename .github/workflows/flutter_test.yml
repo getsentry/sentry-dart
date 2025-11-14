@@ -197,8 +197,8 @@ jobs:
           flutter drive \
             --driver=integration_test/test_driver/driver.dart \
             --target=integration_test/web_sdk_test.dart \
-            -d chrome
+            -d chrome --no-keep-app-running
           flutter drive \
             --driver=integration_test/test_driver/driver.dart \
             --target=integration_test/platform_integrations_test.dart \
-            -d chrome
+            -d chrome --no-keep-app-running
