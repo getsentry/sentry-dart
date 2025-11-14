@@ -193,12 +193,17 @@ jobs:
           # Wait for services to start
           sleep 5
 
-          # Run the tests
+      - name: Run web SDK tests
+        run: |
           flutter drive \
             --driver=integration_test/test_driver/driver.dart \
             --target=integration_test/web_sdk_test.dart \
-            -d chrome --no-keep-app-running
+            -d chrome
+
+      - name: Run platform integrations tests
+        run: |
           flutter drive \
             --driver=integration_test/test_driver/driver.dart \
             --target=integration_test/platform_integrations_test.dart \
-            -d chrome --no-keep-app-running
+            -d chrome
+
