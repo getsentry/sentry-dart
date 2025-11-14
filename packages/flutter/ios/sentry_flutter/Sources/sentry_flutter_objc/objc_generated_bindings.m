@@ -1,10 +1,7 @@
 #include <stdint.h>
 #import <Foundation/Foundation.h>
 #import <objc/message.h>
-#import "../../../../temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h"
-#import "../../../../temp/Sentry.framework/Headers/Sentry-Swift.h"
-#import "../../../../temp/Sentry.framework/Headers/SentryScope.h"
-#import "../../../../ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterPlugin.h"
+#import "SentryFlutterFFI.h"
 
 #if !__has_feature(objc_arc)
 #error "This file must be compiled with ARC enabled"
@@ -75,6 +72,31 @@ ListenerTrampoline _SentryCocoa_wrapBlockingBlock_xtuoz7(
   });
 }
 
+typedef void  (^ListenerTrampoline_1)(id arg0, BOOL arg1, id arg2);
+__attribute__((visibility("default"))) __attribute__((used))
+ListenerTrampoline_1 _SentryCocoa_wrapListenerBlock_na2nx0(ListenerTrampoline_1 block) NS_RETURNS_RETAINED {
+  return ^void(id arg0, BOOL arg1, id arg2) {
+    objc_retainBlock(block);
+    block((__bridge id)(__bridge_retained void*)(arg0), arg1, objc_retainBlock(arg2));
+  };
+}
+
+typedef void  (^BlockingTrampoline_1)(void * waiter, id arg0, BOOL arg1, id arg2);
+__attribute__((visibility("default"))) __attribute__((used))
+ListenerTrampoline_1 _SentryCocoa_wrapBlockingBlock_na2nx0(
+    BlockingTrampoline_1 block, BlockingTrampoline_1 listenerBlock,
+    DOBJC_Context* ctx) NS_RETURNS_RETAINED {
+  BLOCKING_BLOCK_IMPL(ctx, ^void(id arg0, BOOL arg1, id arg2), {
+    objc_retainBlock(block);
+    block(nil, (__bridge id)(__bridge_retained void*)(arg0), arg1, objc_retainBlock(arg2));
+  }, {
+    objc_retainBlock(listenerBlock);
+    listenerBlock(waiter, (__bridge id)(__bridge_retained void*)(arg0), arg1, objc_retainBlock(arg2));
+  });
+}
+
+Protocol* _SentryCocoa_SentrySpan(void) { return @protocol(SentrySpan); }
+
 typedef id  (^ProtocolTrampoline)(void * sel);
 __attribute__((visibility("default"))) __attribute__((used))
 id  _SentryCocoa_protocolTrampoline_1mbt9g9(id target, void * sel) {
@@ -82,6 +104,16 @@ id  _SentryCocoa_protocolTrampoline_1mbt9g9(id target, void * sel) {
 }
 
 Protocol* _SentryCocoa_SentrySerializable(void) { return @protocol(SentrySerializable); }
+
+Protocol* _SentryCocoa_NSURLSessionDelegate(void) { return @protocol(NSURLSessionDelegate); }
+
+Protocol* _SentryCocoa_SentryRedactOptions(void) { return @protocol(SentryRedactOptions); }
+
+typedef BOOL  (^ProtocolTrampoline_1)(void * sel);
+__attribute__((visibility("default"))) __attribute__((used))
+BOOL  _SentryCocoa_protocolTrampoline_e3qsqz(id target, void * sel) {
+  return ((ProtocolTrampoline_1)((id (*)(id, SEL, SEL))objc_msgSend)(target, @selector(getDOBJCDartProtocolMethodForSelector:), sel))(sel);
+}
 #undef BLOCKING_BLOCK_IMPL
 
 #pragma clang diagnostic pop

@@ -32,58 +32,7 @@ class SentryNativeChannel
 
   @override
   Future<void> init(Hub hub) async {
-    return channel.invokeMethod('initNativeSdk', <String, dynamic>{
-      'dsn': options.dsn,
-      'debug': options.debug,
-      'environment': options.environment,
-      'release': options.release,
-      'enableAutoSessionTracking': options.enableAutoSessionTracking,
-      'enableNativeCrashHandling': options.enableNativeCrashHandling,
-      'attachStacktrace': options.attachStacktrace,
-      'attachThreads': options.attachThreads,
-      'autoSessionTrackingIntervalMillis':
-          options.autoSessionTrackingInterval.inMilliseconds,
-      'dist': options.dist,
-      'sdk': options.sdk.toJson(),
-      'diagnosticLevel': options.diagnosticLevel.name,
-      'maxBreadcrumbs': options.maxBreadcrumbs,
-      'anrEnabled': options.anrEnabled,
-      'anrTimeoutIntervalMillis': options.anrTimeoutInterval.inMilliseconds,
-      'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
-      'maxCacheItems': options.maxCacheItems,
-      'sendDefaultPii': options.sendDefaultPii,
-      'enableWatchdogTerminationTracking':
-          options.enableWatchdogTerminationTracking,
-      'enableNdkScopeSync': options.enableNdkScopeSync,
-      'enableAutoPerformanceTracing': options.enableAutoPerformanceTracing,
-      'sendClientReports': options.sendClientReports,
-      'proguardUuid': options.proguardUuid,
-      'maxAttachmentSize': options.maxAttachmentSize,
-      'recordHttpBreadcrumbs': options.recordHttpBreadcrumbs,
-      'captureFailedRequests': options.captureFailedRequests,
-      'enableAppHangTracking': options.enableAppHangTracking,
-      'connectionTimeoutMillis': options.connectionTimeout.inMilliseconds,
-      'readTimeoutMillis': options.readTimeout.inMilliseconds,
-      'appHangTimeoutIntervalMillis':
-          options.appHangTimeoutInterval.inMilliseconds,
-      if (options.proxy != null) 'proxy': options.proxy?.toJson(),
-      'replay': <String, dynamic>{
-        'quality': options.replay.quality.name,
-        'sessionSampleRate': options.replay.sessionSampleRate,
-        'onErrorSampleRate': options.replay.onErrorSampleRate,
-        'tags': <String, dynamic>{
-          'maskAllText': options.privacy.maskAllText,
-          'maskAllImages': options.privacy.maskAllImages,
-          'maskAssetImages': options.privacy.maskAssetImages,
-          if (options.privacy.userMaskingRules.isNotEmpty)
-            'maskingRules': options.privacy.userMaskingRules
-                .map((rule) => '${rule.name}: ${rule.description}')
-                .toList(growable: false),
-        },
-      },
-      'enableSpotlight': options.spotlight.enabled,
-      'spotlightUrl': options.spotlight.url,
-    });
+    assert(false, 'init should not be used through method channels.');
   }
 
   @override

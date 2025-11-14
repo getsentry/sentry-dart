@@ -1,20 +1,31 @@
 name: SentryCocoa
 description: Sentry Cocoa SDK FFI binding.
 language: objc
-output: lib/src/native/cocoa/binding.dart
+
+output:
+  bindings: lib/src/native/cocoa/binding.dart
+  objc-bindings: ios/sentry_flutter/Sources/sentry_flutter_objc/objc_generated_bindings.m
+
 headers:
   entry-points:
-    - ./temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h
-    - ./temp/Sentry.framework/Headers/Sentry-Swift.h
-    - ./temp/Sentry.framework/Headers/SentryScope.h
-    - ./ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterPlugin.h
+    - ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterFFI.h
+
+  include-directives:
+    - "**/SentryFlutterFFI.h"
+    - "**/Sentry.framework/**.h"
+    - "**/SentryFlutterReplayScreenshotProvider.h"
+
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
   - -DCOCOAPODS=1
-  - '-I./temp/Sentry.framework/Headers/'
-  - '-I./temp/Sentry.framework/PrivateHeaders/'
-  - '-I./ios/sentry_flutter/Sources/sentry_flutter_objc/'
+  - -DFFIGEN=1
+  - "-I./temp/Sentry.framework/Headers/"
+  - "-I./temp/Sentry.framework/PrivateHeaders/"
+  - "-I./ios/sentry_flutter/Sources/sentry_flutter_objc/"
+  - "-I./ios/sentry_flutter/Sources/sentry_flutter_objc/include/"
+
 exclude-all-by-default: true
+
 objc-interfaces:
   include:
     - PrivateSentrySDKOnly
@@ -23,27 +34,39 @@ objc-interfaces:
     - SentryScope
     - SentrySDK
     - SentryUser
+    - SentryOptions
+    - SentryReplayOptions
   module:
-    'SentryId': 'Sentry'
-    'SentrySDK': 'Sentry'
+    "SentryId": "Sentry"
+    "SentrySDK": "Sentry"
   member-filter:
     SentrySDK:
       include:
-        - 'crash'
-        - 'pauseAppHangTracking'
-        - 'resumeAppHangTracking'
-        - 'configureScope:'
-        - 'addBreadcrumb:'
-        - 'setUser:'
+        - "crash"
+        - "pauseAppHangTracking"
+        - "resumeAppHangTracking"
+        - "configureScope:"
+        - "addBreadcrumb:"
+        - "setUser:"
+        - "startWithConfigureOptions:"
     SentryScope:
       include:
-        - 'clearBreadcrumbs'
-        - 'setContextValue:forKey:'
-        - 'removeContextForKey:'
-        - 'setTagValue:forKey:'
-        - 'removeTagForKey:'
-        - 'setExtraValue:forKey:'
-        - 'removeExtraForKey:'
+        - "clearBreadcrumbs"
+        - "setContextValue:forKey:"
+        - "removeContextForKey:"
+        - "setTagValue:forKey:"
+        - "removeTagForKey:"
+        - "setExtraValue:forKey:"
+        - "removeExtraForKey:"
+
+enums:
+  include:
+    - SentryLevel
+    - SentryReplayQuality
+
+typedefs:
+  include:
+    - SentryReplayCaptureCallback
+
 preamble: |
   // ignore_for_file: type=lint, unused_element
-

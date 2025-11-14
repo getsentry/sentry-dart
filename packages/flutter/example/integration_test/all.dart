@@ -2,9 +2,11 @@
 import 'integration_test.dart' as a;
 import 'profiling_test.dart' as b;
 import 'replay_test.dart' as c;
+import 'platform_integrations_test.dart' as d;
 
 void main() {
   a.main();
   b.main();
   c.main();
+  d.main();
 }

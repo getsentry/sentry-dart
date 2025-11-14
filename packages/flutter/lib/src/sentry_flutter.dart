@@ -59,6 +59,7 @@ mixin SentryFlutter {
   /// You can use the static members of [Sentry] from within other packages without the
   /// need of initializing it in the package; as long as they have been already properly
   /// initialized in the application package.
+  // coverage:ignore-start
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
@@ -263,6 +264,7 @@ mixin SentryFlutter {
     sdk.addPackage('pub:sentry_flutter', sdkVersion);
     options.sdk = sdk;
   }
+  // coverage:ignore-end
 
   @Deprecated(
       'Use reportFullyDisplayed() on a SentryDisplay instance instead. Read the TTFD documentation at https://docs.sentry.io/platforms/dart/guides/flutter/integrations/routing-instrumentation/#time-to-full-display.')

@@ -82,10 +82,6 @@ jobs:
           disable-animations: true
           script: flutter drive --driver=integration_test/test_driver/driver.dart --target=integration_test/sentry_widgets_flutter_binding_test.dart --profile -d emulator-5554
 
-      - name: Run Android native unit tests
-        working-directory: packages/flutter/example/android
-        run: ./gradlew testDebugUnitTest
-
       - name: build apk
         working-directory: packages/flutter/example/android
         run: flutter build apk --debug --target-platform=android-x64
@@ -146,19 +142,6 @@ jobs:
         run: |
           flutter drive --driver=integration_test/test_driver/driver.dart --target=integration_test/sentry_widgets_flutter_binding_test.dart --profile -d "${{ steps.device.outputs.name }}"
 
-      - name: run native test
-        # We only have the native unit test package in the iOS xcodeproj at the moment.
-        # Should be OK because it will likely be removed after switching to FFI (see https://github.com/getsentry/sentry-dart/issues/1444).
-        if: ${{ matrix.target != 'macos' }}
-        working-directory: packages/flutter/example/${{ matrix.target }}
-        # For some reason running native unit tests directly after Flutter integration tests fails
-        # running flutter build ios before works: https://stackoverflow.com/a/77487525/22813624
-        run: |
-          flutter build ios --no-codesign
-          xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=$DEVICE_PLATFORM" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
-        env:
-          DEVICE_PLATFORM: ${{ steps.device.outputs.platform }}
-
   web:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -198,7 +181,7 @@ jobs:
       - name: Setup ChromeDriver
         uses: nanasess/setup-chromedriver@e93e57b843c0c92788f22483f1a31af8ee48db25 # pin@2.3.0
 
-      - name: Start Xvfb and run tests
+      - name: Start Xvfb and ChromeDriver and run tests
         run: |
           # Start Xvfb with specific screen settings
           Xvfb -ac :99 -screen 0 1280x1024x16 &
@@ -209,9 +192,12 @@ jobs:
 
           # Wait for services to start
           sleep 5
-
-          # Run the tests
+          
           flutter drive \
-            --driver=integration_test/test_driver/driver.dart \
-            --target=integration_test/web_sdk_test.dart \
-            -d chrome
+          --driver=integration_test/test_driver/driver.dart \
+          --target=integration_test/platform_integrations_test.dart \
+          -d chrome
+          flutter drive \
+          --driver=integration_test/test_driver/driver.dart \
+          --target=integration_test/web_sdk_test.dart \
+          -d chrome
