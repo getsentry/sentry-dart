@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Apply proguard rules to debug builds as well ([#3339](https://github.com/getsentry/sentry-dart/pull/3339))
+- Added `consumerProguardFiles 'proguard-rules.pro'` to the debug build configuration to ensure ProGuard rules are consistently applied across both release and debug variants. ([#3339](https://github.com/getsentry/sentry-dart/pull/3339))
 
 ### Enhancements
 
