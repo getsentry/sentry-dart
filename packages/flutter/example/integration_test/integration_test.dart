@@ -958,7 +958,6 @@ void main() {
       expect(values['key2'],
           {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3},
           reason: 'key2 mismatch');
-      // bool values are mapped to num values of 1 or 0 during objc conversion
       expect(values['key3'], {'value': true}, reason: 'key3 mismatch');
       expect(values['key4'], {'value': 12}, reason: 'key4 mismatch');
       expect(values['key5'], {'value': 12.3}, reason: 'key5 mismatch');
@@ -1047,7 +1046,6 @@ void main() {
       expect(extras['key2'],
           {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3},
           reason: 'key2 mismatch');
-      // bool values are mapped to num values of 1 or 0 during objc conversion
       expect(extras['key3'], isTrue, reason: 'key3 mismatch');
       expect(extras['key4'], 12, reason: 'key4 mismatch');
       expect(extras['key5'], 12.3, reason: 'key5 mismatch');
