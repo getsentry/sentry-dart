@@ -181,7 +181,7 @@ jobs:
       - name: Setup ChromeDriver
         uses: nanasess/setup-chromedriver@e93e57b843c0c92788f22483f1a31af8ee48db25 # pin@2.3.0
 
-      - name: Start Xvfb and run tests
+      - name: Start Xvfb and chromedriver
         run: |
           # Start Xvfb with specific screen settings
           Xvfb -ac :99 -screen 0 1280x1024x16 &
