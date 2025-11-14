@@ -47,6 +47,14 @@ runs:
 
         if ${{ (matrix.target == 'linux' && matrix.sdk == 'stable' && 'true') || 'false' }} ; then
           $testCmd --coverage
+          if [[ "$INPUT_DIRECTORY" == 'packages/flutter' ]]; then
+            # Remove native binding/bridge files from coverage.
+            # These FFI/JNI bindings are currently not unit tested due to limitations of FFI/JNI mocking.
+            dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
+            dart run remove_from_coverage -f coverage/lcov.info -r 'lib/src/native/sentry_native_channel.dart'
+            dart run remove_from_coverage -f coverage/lcov.info -r '^lib/src/native/java/.*\.dart$'
+            dart run remove_from_coverage -f coverage/lcov.info -r '^lib/src/native/cocoa/.*\.dart$'
+          fi
         else
           $testCmd
         fi
