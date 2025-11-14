@@ -147,7 +147,8 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
   return native.ReplayRecorderCallbacks.implement(
     native.$ReplayRecorderCallbacks(
       replayStarted: (JString replayIdString, bool replayIsBuffering) async {
-        final replayId = SentryId.fromId(replayIdString.toDartString());
+        final replayId =
+            SentryId.fromId(replayIdString.toDartString(releaseOriginal: true));
 
         owner._replayId = replayId;
         owner._nativeReplay = native.SentryFlutterPlugin.Companion
