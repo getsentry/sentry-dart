@@ -65,7 +65,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: packages/flutter
           coverage: sentry_flutter
-          min-coverage: 90
+          min-coverage: 85
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5

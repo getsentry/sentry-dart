@@ -25,6 +25,24 @@ external ffi.Pointer<objc.ObjCBlockImpl> _SentryCocoa_wrapBlockingBlock_xtuoz7(
 );
 
 @ffi.Native<
+    ffi.Pointer<objc.ObjCBlockImpl> Function(
+        ffi.Pointer<objc.ObjCBlockImpl>)>(isLeaf: true)
+external ffi.Pointer<objc.ObjCBlockImpl> _SentryCocoa_wrapListenerBlock_na2nx0(
+  ffi.Pointer<objc.ObjCBlockImpl> block,
+);
+
+@ffi.Native<
+    ffi.Pointer<objc.ObjCBlockImpl> Function(
+        ffi.Pointer<objc.ObjCBlockImpl>,
+        ffi.Pointer<objc.ObjCBlockImpl>,
+        ffi.Pointer<objc.DOBJC_Context>)>(isLeaf: true)
+external ffi.Pointer<objc.ObjCBlockImpl> _SentryCocoa_wrapBlockingBlock_na2nx0(
+  ffi.Pointer<objc.ObjCBlockImpl> block,
+  ffi.Pointer<objc.ObjCBlockImpl> listnerBlock,
+  ffi.Pointer<objc.DOBJC_Context> context,
+);
+
+@ffi.Native<
     ffi.Pointer<objc.ObjCObject> Function(
         ffi.Pointer<objc.ObjCObject>, ffi.Pointer<ffi.Void>)>()
 external ffi.Pointer<objc.ObjCObject> _SentryCocoa_protocolTrampoline_1mbt9g9(
@@ -32,27 +50,1459 @@ external ffi.Pointer<objc.ObjCObject> _SentryCocoa_protocolTrampoline_1mbt9g9(
   ffi.Pointer<ffi.Void> arg0,
 );
 
-/// WARNING: NSUUID is a stub. To generate bindings for this class, include
-/// NSUUID in your config's objc-interfaces list.
-///
-/// NSUUID
-class NSUUID extends objc.NSObject
-    implements objc.NSCopying, objc.NSSecureCoding {
-  NSUUID._(ffi.Pointer<objc.ObjCObject> pointer,
-      {bool retain = false, bool release = false})
-      : super.castFromPointer(pointer, retain: retain, release: release) {
-    objc.checkOsVersionInternal('NSUUID',
-        iOS: (false, (6, 0, 0)), macOS: (false, (10, 8, 0)));
+@ffi.Native<
+    ffi.Bool Function(ffi.Pointer<objc.ObjCObject>, ffi.Pointer<ffi.Void>)>()
+external bool _SentryCocoa_protocolTrampoline_e3qsqz(
+  ffi.Pointer<objc.ObjCObject> target,
+  ffi.Pointer<ffi.Void> arg0,
+);
+
+void _ObjCBlock_ffiVoid_objcObjCObject_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<
+                ffi.Void Function(ffi.Pointer<objc.ObjCObject> arg0)>>()
+        .asFunction<void Function(ffi.Pointer<objc.ObjCObject>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_objcObjCObject_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_ffiVoid_objcObjCObject_fnPtrTrampoline)
+        .cast();
+void _ObjCBlock_ffiVoid_objcObjCObject_closureTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    (objc.getBlockClosure(block) as void Function(
+        ffi.Pointer<objc.ObjCObject>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_objcObjCObject_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_ffiVoid_objcObjCObject_closureTrampoline)
+        .cast();
+void _ObjCBlock_ffiVoid_objcObjCObject_listenerTrampoline(
+    ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<objc.ObjCObject> arg0) {
+  (objc.getBlockClosure(block) as void Function(
+      ffi.Pointer<objc.ObjCObject>))(arg0);
+  objc.objectRelease(block.cast());
+}
+
+ffi.NativeCallable<
+        ffi.Void Function(
+            ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>
+    _ObjCBlock_ffiVoid_objcObjCObject_listenerCallable = ffi.NativeCallable<
+            ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<objc.ObjCObject>)>.listener(
+        _ObjCBlock_ffiVoid_objcObjCObject_listenerTrampoline)
+      ..keepIsolateAlive = false;
+void _ObjCBlock_ffiVoid_objcObjCObject_blockingTrampoline(
+    ffi.Pointer<objc.ObjCBlockImpl> block,
+    ffi.Pointer<ffi.Void> waiter,
+    ffi.Pointer<objc.ObjCObject> arg0) {
+  try {
+    (objc.getBlockClosure(block) as void Function(
+        ffi.Pointer<objc.ObjCObject>))(arg0);
+  } catch (e) {
+  } finally {
+    objc.signalWaiter(waiter);
+    objc.objectRelease(block.cast());
+  }
+}
+
+ffi.NativeCallable<
+        ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+            ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>
+    _ObjCBlock_ffiVoid_objcObjCObject_blockingCallable = ffi.NativeCallable<
+            ffi.Void Function(
+                ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<ffi.Void>,
+                ffi.Pointer<objc.ObjCObject>)>.isolateLocal(
+        _ObjCBlock_ffiVoid_objcObjCObject_blockingTrampoline)
+      ..keepIsolateAlive = false;
+ffi.NativeCallable<
+        ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+            ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>
+    _ObjCBlock_ffiVoid_objcObjCObject_blockingListenerCallable = ffi
+        .NativeCallable<
+            ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>.listener(
+        _ObjCBlock_ffiVoid_objcObjCObject_blockingTrampoline)
+      ..keepIsolateAlive = false;
+
+/// Construction methods for `objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>`.
+abstract final class ObjCBlock_ffiVoid_objcObjCObject {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>
+      castFromPointer(ffi.Pointer<objc.ObjCBlockImpl> pointer,
+              {bool retain = false, bool release = false}) =>
+          objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>(
+              pointer,
+              retain: retain,
+              release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)> fromFunctionPointer(
+          ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Void Function(ffi.Pointer<objc.ObjCObject> arg0)>>
+              ptr) =>
+      objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>(
+          objc.newPointerBlock(
+              _ObjCBlock_ffiVoid_objcObjCObject_fnPtrCallable, ptr.cast()),
+          retain: false,
+          release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>
+      fromFunction(void Function(objc.ObjCObjectBase?) fn,
+              {bool keepIsolateAlive = true}) =>
+          objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>(
+              objc.newClosureBlock(
+                  _ObjCBlock_ffiVoid_objcObjCObject_closureCallable,
+                  (ffi.Pointer<objc.ObjCObject> arg0) => fn(arg0.address == 0
+                      ? null
+                      : objc.ObjCObjectBase(arg0, retain: true, release: true)),
+                  keepIsolateAlive),
+              retain: false,
+              release: true);
+
+  /// Creates a listener block from a Dart function.
+  ///
+  /// This is based on FFI's NativeCallable.listener, and has the same
+  /// capabilities and limitations. This block can be invoked from any thread,
+  /// but only supports void functions, and is not run synchronously. See
+  /// NativeCallable.listener for more details.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>
+      listener(void Function(objc.ObjCObjectBase?) fn,
+          {bool keepIsolateAlive = true}) {
+    final raw = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_objcObjCObject_listenerCallable.nativeFunction
+            .cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0) => fn(arg0.address == 0
+            ? null
+            : objc.ObjCObjectBase(arg0, retain: false, release: true)),
+        keepIsolateAlive);
+    final wrapper = _SentryCocoa_wrapListenerBlock_xtuoz7(raw);
+    objc.objectRelease(raw.cast());
+    return objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>(
+        wrapper,
+        retain: false,
+        release: true);
   }
 
-  /// Constructs a [NSUUID] that points to the same underlying object as [other].
-  NSUUID.castFrom(objc.ObjCObjectBase other)
+  /// Creates a blocking block from a Dart function.
+  ///
+  /// This callback can be invoked from any native thread, and will block the
+  /// caller until the callback is handled by the Dart isolate that created
+  /// the block. Async functions are not supported.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC. If the owner isolate
+  /// has shut down, and the block is invoked by native code, it may block
+  /// indefinitely, or have other undefined behavior.
+  static objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>
+      blocking(void Function(objc.ObjCObjectBase?) fn,
+          {bool keepIsolateAlive = true}) {
+    final raw = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_objcObjCObject_blockingCallable.nativeFunction
+            .cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0) => fn(arg0.address == 0
+            ? null
+            : objc.ObjCObjectBase(arg0, retain: false, release: true)),
+        keepIsolateAlive);
+    final rawListener = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_objcObjCObject_blockingListenerCallable
+            .nativeFunction
+            .cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0) => fn(arg0.address == 0
+            ? null
+            : objc.ObjCObjectBase(arg0, retain: false, release: true)),
+        keepIsolateAlive);
+    final wrapper = _SentryCocoa_wrapBlockingBlock_xtuoz7(
+        raw, rawListener, objc.objCContext);
+    objc.objectRelease(raw.cast());
+    objc.objectRelease(rawListener.cast());
+    return objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>(
+        wrapper,
+        retain: false,
+        release: true);
+  }
+}
+
+/// Call operator for `objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>`.
+extension ObjCBlock_ffiVoid_objcObjCObject_CallExtension
+    on objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)> {
+  void call(objc.ObjCObjectBase? arg0) => ref.pointer.ref.invoke
+          .cast<
+              ffi.NativeFunction<
+                  ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl> block,
+                      ffi.Pointer<objc.ObjCObject> arg0)>>()
+          .asFunction<
+              void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                  ffi.Pointer<objc.ObjCObject>)>()(
+      ref.pointer, arg0?.ref.pointer ?? ffi.nullptr);
+}
+
+void _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0,
+        bool arg1,
+        ffi.Pointer<objc.ObjCBlockImpl> arg2) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<
+                ffi.Void Function(ffi.Pointer<objc.ObjCObject> arg0,
+                    ffi.Bool arg1, ffi.Pointer<objc.ObjCBlockImpl> arg2)>>()
+        .asFunction<
+            void Function(ffi.Pointer<objc.ObjCObject>, bool,
+                ffi.Pointer<objc.ObjCBlockImpl>)>()(arg0, arg1, arg2);
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Void Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>,
+                    ffi.Bool,
+                    ffi.Pointer<objc.ObjCBlockImpl>)>(
+            _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_fnPtrTrampoline)
+        .cast();
+void _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_closureTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0,
+        bool arg1,
+        ffi.Pointer<objc.ObjCBlockImpl> arg2) =>
+    (objc.getBlockClosure(block) as void Function(ffi.Pointer<objc.ObjCObject>,
+        bool, ffi.Pointer<objc.ObjCBlockImpl>))(arg0, arg1, arg2);
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Void Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>,
+                    ffi.Bool,
+                    ffi.Pointer<objc.ObjCBlockImpl>)>(
+            _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_closureTrampoline)
+        .cast();
+void _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_listenerTrampoline(
+    ffi.Pointer<objc.ObjCBlockImpl> block,
+    ffi.Pointer<objc.ObjCObject> arg0,
+    bool arg1,
+    ffi.Pointer<objc.ObjCBlockImpl> arg2) {
+  (objc.getBlockClosure(block) as void Function(ffi.Pointer<objc.ObjCObject>,
+      bool, ffi.Pointer<objc.ObjCBlockImpl>))(arg0, arg1, arg2);
+  objc.objectRelease(block.cast());
+}
+
+ffi.NativeCallable<
+        ffi.Void Function(
+            ffi.Pointer<objc.ObjCBlockImpl>,
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Bool,
+            ffi.Pointer<objc.ObjCBlockImpl>)>
+    _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_listenerCallable =
+    ffi.NativeCallable<
+            ffi.Void Function(
+                ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Bool,
+                ffi.Pointer<objc.ObjCBlockImpl>)>.listener(
+        _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_listenerTrampoline)
+      ..keepIsolateAlive = false;
+void _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_blockingTrampoline(
+    ffi.Pointer<objc.ObjCBlockImpl> block,
+    ffi.Pointer<ffi.Void> waiter,
+    ffi.Pointer<objc.ObjCObject> arg0,
+    bool arg1,
+    ffi.Pointer<objc.ObjCBlockImpl> arg2) {
+  try {
+    (objc.getBlockClosure(block) as void Function(ffi.Pointer<objc.ObjCObject>,
+        bool, ffi.Pointer<objc.ObjCBlockImpl>))(arg0, arg1, arg2);
+  } catch (e) {
+  } finally {
+    objc.signalWaiter(waiter);
+    objc.objectRelease(block.cast());
+  }
+}
+
+ffi.NativeCallable<
+        ffi.Void Function(
+            ffi.Pointer<objc.ObjCBlockImpl>,
+            ffi.Pointer<ffi.Void>,
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Bool,
+            ffi.Pointer<objc.ObjCBlockImpl>)>
+    _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_blockingCallable =
+    ffi.NativeCallable<
+            ffi.Void Function(
+                ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<ffi.Void>,
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Bool,
+                ffi.Pointer<objc.ObjCBlockImpl>)>.isolateLocal(
+        _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_blockingTrampoline)
+      ..keepIsolateAlive = false;
+ffi.NativeCallable<
+        ffi.Void Function(
+            ffi.Pointer<objc.ObjCBlockImpl>,
+            ffi.Pointer<ffi.Void>,
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Bool,
+            ffi.Pointer<objc.ObjCBlockImpl>)>
+    _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_blockingListenerCallable =
+    ffi.NativeCallable<
+            ffi.Void Function(
+                ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<ffi.Void>,
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Bool,
+                ffi.Pointer<objc.ObjCBlockImpl>)>.listener(
+        _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_blockingTrampoline)
+      ..keepIsolateAlive = false;
+
+/// Construction methods for `objc.ObjCBlock<ffi.Void Function(objc.NSString?, ffi.Bool, objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)>`.
+abstract final class ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<
+          ffi.Void Function(
+              objc.NSString?, ffi.Bool, objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)>
+      castFromPointer(ffi.Pointer<objc.ObjCBlockImpl> pointer,
+              {bool retain = false, bool release = false}) =>
+          objc.ObjCBlock<
+                  ffi.Void Function(objc.NSString?, ffi.Bool,
+                      objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)>(pointer,
+              retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<
+          ffi.Void Function(objc.NSString?, ffi.Bool,
+              objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)>
+      fromFunctionPointer(ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<objc.ObjCObject> arg0, ffi.Bool arg1, ffi.Pointer<objc.ObjCBlockImpl> arg2)>> ptr) =>
+          objc.ObjCBlock<
+                  ffi.Void Function(objc.NSString?, ffi.Bool,
+                      objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)>(
+              objc.newPointerBlock(_ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_fnPtrCallable, ptr.cast()),
+              retain: false,
+              release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<ffi.Void Function(objc.NSString?, ffi.Bool, objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)>
+      fromFunction(void Function(objc.NSString?, bool, objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>) fn,
+              {bool keepIsolateAlive = true}) =>
+          objc.ObjCBlock<ffi.Void Function(objc.NSString?, ffi.Bool, objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)>(
+              objc.newClosureBlock(
+                  _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_closureCallable,
+                  (ffi.Pointer<objc.ObjCObject> arg0, bool arg1, ffi.Pointer<objc.ObjCBlockImpl> arg2) => fn(
+                      arg0.address == 0 ? null : objc.NSString.castFromPointer(arg0, retain: true, release: true),
+                      arg1,
+                      ObjCBlock_ffiVoid_objcObjCObject.castFromPointer(arg2, retain: true, release: true)),
+                  keepIsolateAlive),
+              retain: false,
+              release: true);
+
+  /// Creates a listener block from a Dart function.
+  ///
+  /// This is based on FFI's NativeCallable.listener, and has the same
+  /// capabilities and limitations. This block can be invoked from any thread,
+  /// but only supports void functions, and is not run synchronously. See
+  /// NativeCallable.listener for more details.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<
+      ffi.Void Function(
+          objc.NSString?,
+          ffi.Bool,
+          objc.ObjCBlock<
+              ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)> listener(
+      void Function(objc.NSString?, bool,
+              objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)
+          fn,
+      {bool keepIsolateAlive = true}) {
+    final raw = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_listenerCallable
+            .nativeFunction
+            .cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0, bool arg1,
+                ffi.Pointer<objc.ObjCBlockImpl> arg2) =>
+            fn(
+                arg0.address == 0
+                    ? null
+                    : objc.NSString.castFromPointer(arg0,
+                        retain: false, release: true),
+                arg1,
+                ObjCBlock_ffiVoid_objcObjCObject.castFromPointer(arg2,
+                    retain: false, release: true)),
+        keepIsolateAlive);
+    final wrapper = _SentryCocoa_wrapListenerBlock_na2nx0(raw);
+    objc.objectRelease(raw.cast());
+    return objc.ObjCBlock<
+            ffi.Void Function(
+                objc.NSString?,
+                ffi.Bool,
+                objc.ObjCBlock<
+                    ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)>(wrapper,
+        retain: false, release: true);
+  }
+
+  /// Creates a blocking block from a Dart function.
+  ///
+  /// This callback can be invoked from any native thread, and will block the
+  /// caller until the callback is handled by the Dart isolate that created
+  /// the block. Async functions are not supported.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC. If the owner isolate
+  /// has shut down, and the block is invoked by native code, it may block
+  /// indefinitely, or have other undefined behavior.
+  static objc.ObjCBlock<
+      ffi.Void Function(
+          objc.NSString?,
+          ffi.Bool,
+          objc.ObjCBlock<
+              ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)> blocking(
+      void Function(objc.NSString?, bool,
+              objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)
+          fn,
+      {bool keepIsolateAlive = true}) {
+    final raw = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_blockingCallable
+            .nativeFunction
+            .cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0, bool arg1,
+                ffi.Pointer<objc.ObjCBlockImpl> arg2) =>
+            fn(
+                arg0.address == 0
+                    ? null
+                    : objc.NSString.castFromPointer(arg0,
+                        retain: false, release: true),
+                arg1,
+                ObjCBlock_ffiVoid_objcObjCObject.castFromPointer(arg2,
+                    retain: false, release: true)),
+        keepIsolateAlive);
+    final rawListener = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_blockingListenerCallable
+            .nativeFunction
+            .cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0, bool arg1,
+                ffi.Pointer<objc.ObjCBlockImpl> arg2) =>
+            fn(
+                arg0.address == 0
+                    ? null
+                    : objc.NSString.castFromPointer(arg0,
+                        retain: false, release: true),
+                arg1,
+                ObjCBlock_ffiVoid_objcObjCObject.castFromPointer(arg2,
+                    retain: false, release: true)),
+        keepIsolateAlive);
+    final wrapper = _SentryCocoa_wrapBlockingBlock_na2nx0(
+        raw, rawListener, objc.objCContext);
+    objc.objectRelease(raw.cast());
+    objc.objectRelease(rawListener.cast());
+    return objc.ObjCBlock<
+            ffi.Void Function(
+                objc.NSString?,
+                ffi.Bool,
+                objc.ObjCBlock<
+                    ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)>(wrapper,
+        retain: false, release: true);
+  }
+}
+
+/// Call operator for `objc.ObjCBlock<ffi.Void Function(objc.NSString?, ffi.Bool, objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)>`.
+extension ObjCBlock_ffiVoid_NSString_bool_ffiVoidobjcObjCObject_CallExtension
+    on objc.ObjCBlock<
+        ffi.Void Function(objc.NSString?, ffi.Bool,
+            objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)> {
+  void call(
+          objc.NSString? arg0,
+          bool arg1,
+          objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>
+              arg2) =>
+      ref.pointer.ref.invoke
+              .cast<
+                  ffi.NativeFunction<
+                      ffi.Void Function(
+                          ffi.Pointer<objc.ObjCBlockImpl> block,
+                          ffi.Pointer<objc.ObjCObject> arg0,
+                          ffi.Bool arg1,
+                          ffi.Pointer<objc.ObjCBlockImpl> arg2)>>()
+              .asFunction<
+                  void Function(
+                      ffi.Pointer<objc.ObjCBlockImpl>,
+                      ffi.Pointer<objc.ObjCObject>,
+                      bool,
+                      ffi.Pointer<objc.ObjCBlockImpl>)>()(ref.pointer,
+          arg0?.ref.pointer ?? ffi.nullptr, arg1, arg2.ref.pointer);
+}
+
+typedef SentryReplayCaptureCallback = ffi.Pointer<objc.ObjCBlockImpl>;
+typedef DartSentryReplayCaptureCallback = objc.ObjCBlock<
+    ffi.Void Function(objc.NSString?, ffi.Bool,
+        objc.ObjCBlock<ffi.Void Function(ffi.Pointer<objc.ObjCObject>?)>)>;
+
+/// WARNING: SentryBreadcrumb is a stub. To generate bindings for this class, include
+/// SentryBreadcrumb in your config's objc-interfaces list.
+///
+/// SentryBreadcrumb
+class SentryBreadcrumb extends objc.ObjCObjectBase {
+  SentryBreadcrumb._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryBreadcrumb] that points to the same underlying object as [other].
+  SentryBreadcrumb.castFrom(objc.ObjCObjectBase other)
       : this._(other.ref.pointer, retain: true, release: true);
 
-  /// Constructs a [NSUUID] that wraps the given raw object pointer.
-  NSUUID.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+  /// Constructs a [SentryBreadcrumb] that wraps the given raw object pointer.
+  SentryBreadcrumb.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
       {bool retain = false, bool release = false})
       : this._(other, retain: retain, release: release);
+}
+
+ffi.Pointer<objc.ObjCObject>
+    _ObjCBlock_SentryBreadcrumb_SentryBreadcrumb_fnPtrTrampoline(
+            ffi.Pointer<objc.ObjCBlockImpl> block,
+            ffi.Pointer<objc.ObjCObject> arg0) =>
+        block.ref.target
+            .cast<
+                ffi.NativeFunction<
+                    ffi.Pointer<objc.ObjCObject> Function(
+                        ffi.Pointer<objc.ObjCObject> arg0)>>()
+            .asFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCObject>)>()(arg0);
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_SentryBreadcrumb_SentryBreadcrumb_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_SentryBreadcrumb_SentryBreadcrumb_fnPtrTrampoline)
+        .cast();
+ffi.Pointer<objc.ObjCObject>
+    _ObjCBlock_SentryBreadcrumb_SentryBreadcrumb_closureTrampoline(
+            ffi.Pointer<objc.ObjCBlockImpl> block,
+            ffi.Pointer<objc.ObjCObject> arg0) =>
+        (objc.getBlockClosure(block) as ffi.Pointer<objc.ObjCObject> Function(
+            ffi.Pointer<objc.ObjCObject>))(arg0);
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_SentryBreadcrumb_SentryBreadcrumb_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_SentryBreadcrumb_SentryBreadcrumb_closureTrampoline)
+        .cast();
+
+/// Construction methods for `objc.ObjCBlock<SentryBreadcrumb? Function(SentryBreadcrumb)>`.
+abstract final class ObjCBlock_SentryBreadcrumb_SentryBreadcrumb {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<SentryBreadcrumb? Function(SentryBreadcrumb)>
+      castFromPointer(ffi.Pointer<objc.ObjCBlockImpl> pointer,
+              {bool retain = false, bool release = false}) =>
+          objc.ObjCBlock<SentryBreadcrumb? Function(SentryBreadcrumb)>(pointer,
+              retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<SentryBreadcrumb? Function(SentryBreadcrumb)>
+      fromFunctionPointer(
+              ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Pointer<objc.ObjCObject> Function(
+                              ffi.Pointer<objc.ObjCObject> arg0)>>
+                  ptr) =>
+          objc.ObjCBlock<SentryBreadcrumb? Function(SentryBreadcrumb)>(
+              objc.newPointerBlock(
+                  _ObjCBlock_SentryBreadcrumb_SentryBreadcrumb_fnPtrCallable,
+                  ptr.cast()),
+              retain: false,
+              release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<SentryBreadcrumb? Function(SentryBreadcrumb)> fromFunction(
+          SentryBreadcrumb? Function(SentryBreadcrumb) fn,
+          {bool keepIsolateAlive = true}) =>
+      objc.ObjCBlock<SentryBreadcrumb? Function(SentryBreadcrumb)>(
+          objc.newClosureBlock(
+              _ObjCBlock_SentryBreadcrumb_SentryBreadcrumb_closureCallable,
+              (ffi.Pointer<objc.ObjCObject> arg0) =>
+                  fn(SentryBreadcrumb.castFromPointer(arg0,
+                          retain: true, release: true))
+                      ?.ref
+                      .retainAndAutorelease() ??
+                  ffi.nullptr,
+              keepIsolateAlive),
+          retain: false,
+          release: true);
+}
+
+/// Call operator for `objc.ObjCBlock<SentryBreadcrumb? Function(SentryBreadcrumb)>`.
+extension ObjCBlock_SentryBreadcrumb_SentryBreadcrumb_CallExtension
+    on objc.ObjCBlock<SentryBreadcrumb? Function(SentryBreadcrumb)> {
+  SentryBreadcrumb? call(SentryBreadcrumb arg0) => ref.pointer.ref.invoke
+              .cast<
+                  ffi.NativeFunction<
+                      ffi.Pointer<objc.ObjCObject> Function(
+                          ffi.Pointer<objc.ObjCBlockImpl> block,
+                          ffi.Pointer<objc.ObjCObject> arg0)>>()
+              .asFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>()
+              (ref.pointer, arg0.ref.pointer)
+              .address ==
+          0
+      ? null
+      : SentryBreadcrumb.castFromPointer(
+          ref.pointer.ref.invoke
+              .cast<ffi.NativeFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<objc.ObjCObject> arg0)>>()
+              .asFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>()(ref.pointer, arg0.ref.pointer),
+          retain: true,
+          release: true);
+}
+
+/// WARNING: SentryEvent is a stub. To generate bindings for this class, include
+/// SentryEvent in your config's objc-interfaces list.
+///
+/// SentryEvent
+class SentryEvent extends objc.ObjCObjectBase {
+  SentryEvent._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryEvent] that points to the same underlying object as [other].
+  SentryEvent.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryEvent] that wraps the given raw object pointer.
+  SentryEvent.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+ffi.Pointer<objc.ObjCObject> _ObjCBlock_SentryEvent_SentryEvent_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCObject> arg0)>>()
+        .asFunction<
+            ffi.Pointer<objc.ObjCObject> Function(
+                ffi.Pointer<objc.ObjCObject>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_SentryEvent_SentryEvent_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_SentryEvent_SentryEvent_fnPtrTrampoline)
+        .cast();
+ffi.Pointer<objc.ObjCObject>
+    _ObjCBlock_SentryEvent_SentryEvent_closureTrampoline(
+            ffi.Pointer<objc.ObjCBlockImpl> block,
+            ffi.Pointer<objc.ObjCObject> arg0) =>
+        (objc.getBlockClosure(block) as ffi.Pointer<objc.ObjCObject> Function(
+            ffi.Pointer<objc.ObjCObject>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_SentryEvent_SentryEvent_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_SentryEvent_SentryEvent_closureTrampoline)
+        .cast();
+
+/// Construction methods for `objc.ObjCBlock<SentryEvent? Function(SentryEvent)>`.
+abstract final class ObjCBlock_SentryEvent_SentryEvent {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<SentryEvent? Function(SentryEvent)> castFromPointer(
+          ffi.Pointer<objc.ObjCBlockImpl> pointer,
+          {bool retain = false,
+          bool release = false}) =>
+      objc.ObjCBlock<SentryEvent? Function(SentryEvent)>(pointer,
+          retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<SentryEvent? Function(SentryEvent)> fromFunctionPointer(
+          ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Pointer<objc.ObjCObject> Function(
+                          ffi.Pointer<objc.ObjCObject> arg0)>>
+              ptr) =>
+      objc.ObjCBlock<SentryEvent? Function(SentryEvent)>(
+          objc.newPointerBlock(
+              _ObjCBlock_SentryEvent_SentryEvent_fnPtrCallable, ptr.cast()),
+          retain: false,
+          release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<SentryEvent? Function(SentryEvent)> fromFunction(
+          SentryEvent? Function(SentryEvent) fn,
+          {bool keepIsolateAlive = true}) =>
+      objc.ObjCBlock<SentryEvent? Function(SentryEvent)>(
+          objc.newClosureBlock(
+              _ObjCBlock_SentryEvent_SentryEvent_closureCallable,
+              (ffi.Pointer<objc.ObjCObject> arg0) =>
+                  fn(SentryEvent.castFromPointer(arg0,
+                          retain: true, release: true))
+                      ?.ref
+                      .retainAndAutorelease() ??
+                  ffi.nullptr,
+              keepIsolateAlive),
+          retain: false,
+          release: true);
+}
+
+/// Call operator for `objc.ObjCBlock<SentryEvent? Function(SentryEvent)>`.
+extension ObjCBlock_SentryEvent_SentryEvent_CallExtension
+    on objc.ObjCBlock<SentryEvent? Function(SentryEvent)> {
+  SentryEvent? call(SentryEvent arg0) => ref.pointer.ref.invoke
+              .cast<
+                  ffi.NativeFunction<
+                      ffi.Pointer<objc.ObjCObject> Function(
+                          ffi.Pointer<objc.ObjCBlockImpl> block,
+                          ffi.Pointer<objc.ObjCObject> arg0)>>()
+              .asFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>()
+              (ref.pointer, arg0.ref.pointer)
+              .address ==
+          0
+      ? null
+      : SentryEvent.castFromPointer(
+          ref.pointer.ref.invoke
+              .cast<ffi.NativeFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<objc.ObjCObject> arg0)>>()
+              .asFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>()(ref.pointer, arg0.ref.pointer),
+          retain: true,
+          release: true);
+}
+
+/// WARNING: SentrySpan is a stub. To generate bindings for this class, include
+/// SentrySpan in your config's objc-protocols list.
+///
+/// SentrySpan
+interface class SentrySpan extends objc.ObjCProtocolBase
+    implements SentrySerializable {
+  SentrySpan._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentrySpan] that points to the same underlying object as [other].
+  SentrySpan.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentrySpan] that wraps the given raw object pointer.
+  SentrySpan.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+ffi.Pointer<objc.ObjCObject>
+    _ObjCBlock_idSentrySpan_idSentrySpan_fnPtrTrampoline(
+            ffi.Pointer<objc.ObjCBlockImpl> block,
+            ffi.Pointer<objc.ObjCObject> arg0) =>
+        block.ref.target
+            .cast<
+                ffi.NativeFunction<
+                    ffi.Pointer<objc.ObjCObject> Function(
+                        ffi.Pointer<objc.ObjCObject> arg0)>>()
+            .asFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCObject>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_idSentrySpan_idSentrySpan_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_idSentrySpan_idSentrySpan_fnPtrTrampoline)
+        .cast();
+ffi.Pointer<objc.ObjCObject>
+    _ObjCBlock_idSentrySpan_idSentrySpan_closureTrampoline(
+            ffi.Pointer<objc.ObjCBlockImpl> block,
+            ffi.Pointer<objc.ObjCObject> arg0) =>
+        (objc.getBlockClosure(block) as ffi.Pointer<objc.ObjCObject> Function(
+            ffi.Pointer<objc.ObjCObject>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_idSentrySpan_idSentrySpan_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_idSentrySpan_idSentrySpan_closureTrampoline)
+        .cast();
+
+/// Construction methods for `objc.ObjCBlock<ffi.Pointer<objc.ObjCObject>? Function(ffi.Pointer<objc.ObjCObject>)>`.
+abstract final class ObjCBlock_idSentrySpan_idSentrySpan {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<
+          ffi.Pointer<objc.ObjCObject>? Function(ffi.Pointer<objc.ObjCObject>)>
+      castFromPointer(ffi.Pointer<objc.ObjCBlockImpl> pointer,
+              {bool retain = false, bool release = false}) =>
+          objc.ObjCBlock<
+                  ffi.Pointer<objc.ObjCObject>? Function(
+                      ffi.Pointer<objc.ObjCObject>)>(pointer,
+              retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<ffi.Pointer<objc.ObjCObject>? Function(ffi.Pointer<objc.ObjCObject>)>
+      fromFunctionPointer(
+              ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Pointer<objc.ObjCObject> Function(
+                              ffi.Pointer<objc.ObjCObject> arg0)>>
+                  ptr) =>
+          objc.ObjCBlock<ffi.Pointer<objc.ObjCObject>? Function(ffi.Pointer<objc.ObjCObject>)>(
+              objc.newPointerBlock(_ObjCBlock_idSentrySpan_idSentrySpan_fnPtrCallable, ptr.cast()),
+              retain: false,
+              release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc
+      .ObjCBlock<ffi.Pointer<objc.ObjCObject>? Function(ffi.Pointer<objc.ObjCObject>)>
+      fromFunction(SentrySpan? Function(SentrySpan) fn,
+              {bool keepIsolateAlive = true}) =>
+          objc.ObjCBlock<ffi.Pointer<objc.ObjCObject>? Function(ffi.Pointer<objc.ObjCObject>)>(
+              objc.newClosureBlock(
+                  _ObjCBlock_idSentrySpan_idSentrySpan_closureCallable,
+                  (ffi.Pointer<objc.ObjCObject> arg0) =>
+                      fn(SentrySpan.castFromPointer(arg0, retain: true, release: true))
+                          ?.ref
+                          .retainAndAutorelease() ??
+                      ffi.nullptr,
+                  keepIsolateAlive),
+              retain: false,
+              release: true);
+}
+
+/// Call operator for `objc.ObjCBlock<ffi.Pointer<objc.ObjCObject>? Function(ffi.Pointer<objc.ObjCObject>)>`.
+extension ObjCBlock_idSentrySpan_idSentrySpan_CallExtension on objc.ObjCBlock<
+    ffi.Pointer<objc.ObjCObject>? Function(ffi.Pointer<objc.ObjCObject>)> {
+  SentrySpan? call(SentrySpan arg0) => ref.pointer.ref.invoke
+              .cast<
+                  ffi.NativeFunction<
+                      ffi.Pointer<objc.ObjCObject> Function(
+                          ffi.Pointer<objc.ObjCBlockImpl> block,
+                          ffi.Pointer<objc.ObjCObject> arg0)>>()
+              .asFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>()
+              (ref.pointer, arg0.ref.pointer)
+              .address ==
+          0
+      ? null
+      : SentrySpan.castFromPointer(
+          ref.pointer.ref.invoke
+              .cast<ffi.NativeFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<objc.ObjCObject> arg0)>>()
+              .asFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>()(ref.pointer, arg0.ref.pointer),
+          retain: true,
+          release: true);
+}
+
+/// WARNING: SentryLog is a stub. To generate bindings for this class, include
+/// SentryLog in your config's objc-interfaces list.
+///
+/// A structured log entry that captures log data with associated attribute metadata.
+/// Use the <code>options.beforeSendLog</code> callback to modify or filter log data.
+class SentryLog extends objc.NSObject {
+  SentryLog._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryLog] that points to the same underlying object as [other].
+  SentryLog.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryLog] that wraps the given raw object pointer.
+  SentryLog.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+ffi.Pointer<objc.ObjCObject> _ObjCBlock_SentryLog_SentryLog_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCObject> arg0)>>()
+        .asFunction<
+            ffi.Pointer<objc.ObjCObject> Function(
+                ffi.Pointer<objc.ObjCObject>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_SentryLog_SentryLog_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_SentryLog_SentryLog_fnPtrTrampoline)
+        .cast();
+ffi.Pointer<objc.ObjCObject> _ObjCBlock_SentryLog_SentryLog_closureTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    (objc.getBlockClosure(block) as ffi.Pointer<objc.ObjCObject> Function(
+        ffi.Pointer<objc.ObjCObject>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_SentryLog_SentryLog_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_SentryLog_SentryLog_closureTrampoline)
+        .cast();
+
+/// Construction methods for `objc.ObjCBlock<SentryLog? Function(SentryLog)>`.
+abstract final class ObjCBlock_SentryLog_SentryLog {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<SentryLog? Function(SentryLog)> castFromPointer(
+          ffi.Pointer<objc.ObjCBlockImpl> pointer,
+          {bool retain = false,
+          bool release = false}) =>
+      objc.ObjCBlock<SentryLog? Function(SentryLog)>(pointer,
+          retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<SentryLog? Function(SentryLog)> fromFunctionPointer(
+          ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Pointer<objc.ObjCObject> Function(
+                          ffi.Pointer<objc.ObjCObject> arg0)>>
+              ptr) =>
+      objc.ObjCBlock<SentryLog? Function(SentryLog)>(
+          objc.newPointerBlock(
+              _ObjCBlock_SentryLog_SentryLog_fnPtrCallable, ptr.cast()),
+          retain: false,
+          release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<SentryLog? Function(SentryLog)> fromFunction(
+          SentryLog? Function(SentryLog) fn,
+          {bool keepIsolateAlive = true}) =>
+      objc.ObjCBlock<SentryLog? Function(SentryLog)>(
+          objc.newClosureBlock(
+              _ObjCBlock_SentryLog_SentryLog_closureCallable,
+              (ffi.Pointer<objc.ObjCObject> arg0) =>
+                  fn(SentryLog.castFromPointer(arg0,
+                          retain: true, release: true))
+                      ?.ref
+                      .retainAndAutorelease() ??
+                  ffi.nullptr,
+              keepIsolateAlive),
+          retain: false,
+          release: true);
+}
+
+/// Call operator for `objc.ObjCBlock<SentryLog? Function(SentryLog)>`.
+extension ObjCBlock_SentryLog_SentryLog_CallExtension
+    on objc.ObjCBlock<SentryLog? Function(SentryLog)> {
+  SentryLog? call(SentryLog arg0) => ref.pointer.ref.invoke
+              .cast<
+                  ffi.NativeFunction<
+                      ffi.Pointer<objc.ObjCObject> Function(
+                          ffi.Pointer<objc.ObjCBlockImpl> block,
+                          ffi.Pointer<objc.ObjCObject> arg0)>>()
+              .asFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>()
+              (ref.pointer, arg0.ref.pointer)
+              .address ==
+          0
+      ? null
+      : SentryLog.castFromPointer(
+          ref.pointer.ref.invoke
+              .cast<ffi.NativeFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<objc.ObjCObject> arg0)>>()
+              .asFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>()(ref.pointer, arg0.ref.pointer),
+          retain: true,
+          release: true);
+}
+
+bool _ObjCBlock_bool_SentryEvent_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<
+                ffi.Bool Function(ffi.Pointer<objc.ObjCObject> arg0)>>()
+        .asFunction<bool Function(ffi.Pointer<objc.ObjCObject>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_bool_SentryEvent_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Bool Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_bool_SentryEvent_fnPtrTrampoline, false)
+        .cast();
+bool _ObjCBlock_bool_SentryEvent_closureTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    (objc.getBlockClosure(block) as bool Function(
+        ffi.Pointer<objc.ObjCObject>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_bool_SentryEvent_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Bool Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_bool_SentryEvent_closureTrampoline, false)
+        .cast();
+
+/// Construction methods for `objc.ObjCBlock<ffi.Bool Function(SentryEvent)>`.
+abstract final class ObjCBlock_bool_SentryEvent {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<ffi.Bool Function(SentryEvent)> castFromPointer(
+          ffi.Pointer<objc.ObjCBlockImpl> pointer,
+          {bool retain = false,
+          bool release = false}) =>
+      objc.ObjCBlock<ffi.Bool Function(SentryEvent)>(pointer,
+          retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<ffi.Bool Function(SentryEvent)> fromFunctionPointer(
+          ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Bool Function(ffi.Pointer<objc.ObjCObject> arg0)>>
+              ptr) =>
+      objc.ObjCBlock<ffi.Bool Function(SentryEvent)>(
+          objc.newPointerBlock(
+              _ObjCBlock_bool_SentryEvent_fnPtrCallable, ptr.cast()),
+          retain: false,
+          release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<ffi.Bool Function(SentryEvent)> fromFunction(
+          bool Function(SentryEvent) fn,
+          {bool keepIsolateAlive = true}) =>
+      objc.ObjCBlock<ffi.Bool Function(SentryEvent)>(
+          objc.newClosureBlock(
+              _ObjCBlock_bool_SentryEvent_closureCallable,
+              (ffi.Pointer<objc.ObjCObject> arg0) => fn(
+                  SentryEvent.castFromPointer(arg0,
+                      retain: true, release: true)),
+              keepIsolateAlive),
+          retain: false,
+          release: true);
+}
+
+/// Call operator for `objc.ObjCBlock<ffi.Bool Function(SentryEvent)>`.
+extension ObjCBlock_bool_SentryEvent_CallExtension
+    on objc.ObjCBlock<ffi.Bool Function(SentryEvent)> {
+  bool call(SentryEvent arg0) => ref.pointer.ref.invoke
+      .cast<
+          ffi.NativeFunction<
+              ffi.Bool Function(ffi.Pointer<objc.ObjCBlockImpl> block,
+                  ffi.Pointer<objc.ObjCObject> arg0)>>()
+      .asFunction<
+          bool Function(ffi.Pointer<objc.ObjCBlockImpl>,
+              ffi.Pointer<objc.ObjCObject>)>()(ref.pointer, arg0.ref.pointer);
+}
+
+void _ObjCBlock_ffiVoid_SentryEvent_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<
+                ffi.Void Function(ffi.Pointer<objc.ObjCObject> arg0)>>()
+        .asFunction<void Function(ffi.Pointer<objc.ObjCObject>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_SentryEvent_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_ffiVoid_SentryEvent_fnPtrTrampoline)
+        .cast();
+void _ObjCBlock_ffiVoid_SentryEvent_closureTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    (objc.getBlockClosure(block) as void Function(
+        ffi.Pointer<objc.ObjCObject>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_SentryEvent_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_ffiVoid_SentryEvent_closureTrampoline)
+        .cast();
+void _ObjCBlock_ffiVoid_SentryEvent_listenerTrampoline(
+    ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<objc.ObjCObject> arg0) {
+  (objc.getBlockClosure(block) as void Function(
+      ffi.Pointer<objc.ObjCObject>))(arg0);
+  objc.objectRelease(block.cast());
+}
+
+ffi.NativeCallable<
+        ffi.Void Function(
+            ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>
+    _ObjCBlock_ffiVoid_SentryEvent_listenerCallable = ffi.NativeCallable<
+            ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<objc.ObjCObject>)>.listener(
+        _ObjCBlock_ffiVoid_SentryEvent_listenerTrampoline)
+      ..keepIsolateAlive = false;
+void _ObjCBlock_ffiVoid_SentryEvent_blockingTrampoline(
+    ffi.Pointer<objc.ObjCBlockImpl> block,
+    ffi.Pointer<ffi.Void> waiter,
+    ffi.Pointer<objc.ObjCObject> arg0) {
+  try {
+    (objc.getBlockClosure(block) as void Function(
+        ffi.Pointer<objc.ObjCObject>))(arg0);
+  } catch (e) {
+  } finally {
+    objc.signalWaiter(waiter);
+    objc.objectRelease(block.cast());
+  }
+}
+
+ffi.NativeCallable<
+        ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+            ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>
+    _ObjCBlock_ffiVoid_SentryEvent_blockingCallable = ffi.NativeCallable<
+            ffi.Void Function(
+                ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<ffi.Void>,
+                ffi.Pointer<objc.ObjCObject>)>.isolateLocal(
+        _ObjCBlock_ffiVoid_SentryEvent_blockingTrampoline)
+      ..keepIsolateAlive = false;
+ffi.NativeCallable<
+        ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+            ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>
+    _ObjCBlock_ffiVoid_SentryEvent_blockingListenerCallable = ffi
+        .NativeCallable<
+            ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>.listener(
+        _ObjCBlock_ffiVoid_SentryEvent_blockingTrampoline)
+      ..keepIsolateAlive = false;
+
+/// Construction methods for `objc.ObjCBlock<ffi.Void Function(SentryEvent)>`.
+abstract final class ObjCBlock_ffiVoid_SentryEvent {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<ffi.Void Function(SentryEvent)> castFromPointer(
+          ffi.Pointer<objc.ObjCBlockImpl> pointer,
+          {bool retain = false,
+          bool release = false}) =>
+      objc.ObjCBlock<ffi.Void Function(SentryEvent)>(pointer,
+          retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<ffi.Void Function(SentryEvent)> fromFunctionPointer(
+          ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Void Function(ffi.Pointer<objc.ObjCObject> arg0)>>
+              ptr) =>
+      objc.ObjCBlock<ffi.Void Function(SentryEvent)>(
+          objc.newPointerBlock(
+              _ObjCBlock_ffiVoid_SentryEvent_fnPtrCallable, ptr.cast()),
+          retain: false,
+          release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<ffi.Void Function(SentryEvent)> fromFunction(
+          void Function(SentryEvent) fn,
+          {bool keepIsolateAlive = true}) =>
+      objc.ObjCBlock<ffi.Void Function(SentryEvent)>(
+          objc.newClosureBlock(
+              _ObjCBlock_ffiVoid_SentryEvent_closureCallable,
+              (ffi.Pointer<objc.ObjCObject> arg0) => fn(
+                  SentryEvent.castFromPointer(arg0,
+                      retain: true, release: true)),
+              keepIsolateAlive),
+          retain: false,
+          release: true);
+
+  /// Creates a listener block from a Dart function.
+  ///
+  /// This is based on FFI's NativeCallable.listener, and has the same
+  /// capabilities and limitations. This block can be invoked from any thread,
+  /// but only supports void functions, and is not run synchronously. See
+  /// NativeCallable.listener for more details.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<ffi.Void Function(SentryEvent)> listener(
+      void Function(SentryEvent) fn,
+      {bool keepIsolateAlive = true}) {
+    final raw = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_SentryEvent_listenerCallable.nativeFunction.cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0) =>
+            fn(SentryEvent.castFromPointer(arg0, retain: false, release: true)),
+        keepIsolateAlive);
+    final wrapper = _SentryCocoa_wrapListenerBlock_xtuoz7(raw);
+    objc.objectRelease(raw.cast());
+    return objc.ObjCBlock<ffi.Void Function(SentryEvent)>(wrapper,
+        retain: false, release: true);
+  }
+
+  /// Creates a blocking block from a Dart function.
+  ///
+  /// This callback can be invoked from any native thread, and will block the
+  /// caller until the callback is handled by the Dart isolate that created
+  /// the block. Async functions are not supported.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC. If the owner isolate
+  /// has shut down, and the block is invoked by native code, it may block
+  /// indefinitely, or have other undefined behavior.
+  static objc.ObjCBlock<ffi.Void Function(SentryEvent)> blocking(
+      void Function(SentryEvent) fn,
+      {bool keepIsolateAlive = true}) {
+    final raw = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_SentryEvent_blockingCallable.nativeFunction.cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0) =>
+            fn(SentryEvent.castFromPointer(arg0, retain: false, release: true)),
+        keepIsolateAlive);
+    final rawListener = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_SentryEvent_blockingListenerCallable.nativeFunction
+            .cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0) =>
+            fn(SentryEvent.castFromPointer(arg0, retain: false, release: true)),
+        keepIsolateAlive);
+    final wrapper = _SentryCocoa_wrapBlockingBlock_xtuoz7(
+        raw, rawListener, objc.objCContext);
+    objc.objectRelease(raw.cast());
+    objc.objectRelease(rawListener.cast());
+    return objc.ObjCBlock<ffi.Void Function(SentryEvent)>(wrapper,
+        retain: false, release: true);
+  }
+}
+
+/// Call operator for `objc.ObjCBlock<ffi.Void Function(SentryEvent)>`.
+extension ObjCBlock_ffiVoid_SentryEvent_CallExtension
+    on objc.ObjCBlock<ffi.Void Function(SentryEvent)> {
+  void call(SentryEvent arg0) => ref.pointer.ref.invoke
+      .cast<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl> block,
+                  ffi.Pointer<objc.ObjCObject> arg0)>>()
+      .asFunction<
+          void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+              ffi.Pointer<objc.ObjCObject>)>()(ref.pointer, arg0.ref.pointer);
+}
+
+/// WARNING: SentrySamplingContext is a stub. To generate bindings for this class, include
+/// SentrySamplingContext in your config's objc-interfaces list.
+///
+/// SentrySamplingContext
+class SentrySamplingContext extends objc.ObjCObjectBase {
+  SentrySamplingContext._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentrySamplingContext] that points to the same underlying object as [other].
+  SentrySamplingContext.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentrySamplingContext] that wraps the given raw object pointer.
+  SentrySamplingContext.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+ffi.Pointer<objc.ObjCObject>
+    _ObjCBlock_NSNumber_SentrySamplingContext_fnPtrTrampoline(
+            ffi.Pointer<objc.ObjCBlockImpl> block,
+            ffi.Pointer<objc.ObjCObject> arg0) =>
+        block.ref.target
+            .cast<
+                ffi.NativeFunction<
+                    ffi.Pointer<objc.ObjCObject> Function(
+                        ffi.Pointer<objc.ObjCObject> arg0)>>()
+            .asFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCObject>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_NSNumber_SentrySamplingContext_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_NSNumber_SentrySamplingContext_fnPtrTrampoline)
+        .cast();
+ffi.Pointer<objc.ObjCObject>
+    _ObjCBlock_NSNumber_SentrySamplingContext_closureTrampoline(
+            ffi.Pointer<objc.ObjCBlockImpl> block,
+            ffi.Pointer<objc.ObjCObject> arg0) =>
+        (objc.getBlockClosure(block) as ffi.Pointer<objc.ObjCObject> Function(
+            ffi.Pointer<objc.ObjCObject>))(arg0);
+ffi.Pointer<ffi.Void>
+    _ObjCBlock_NSNumber_SentrySamplingContext_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_NSNumber_SentrySamplingContext_closureTrampoline)
+        .cast();
+
+/// Construction methods for `objc.ObjCBlock<objc.NSNumber? Function(SentrySamplingContext)>`.
+abstract final class ObjCBlock_NSNumber_SentrySamplingContext {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<objc.NSNumber? Function(SentrySamplingContext)>
+      castFromPointer(ffi.Pointer<objc.ObjCBlockImpl> pointer,
+              {bool retain = false, bool release = false}) =>
+          objc.ObjCBlock<objc.NSNumber? Function(SentrySamplingContext)>(
+              pointer,
+              retain: retain,
+              release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<objc.NSNumber? Function(SentrySamplingContext)>
+      fromFunctionPointer(
+              ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Pointer<objc.ObjCObject> Function(
+                              ffi.Pointer<objc.ObjCObject> arg0)>>
+                  ptr) =>
+          objc.ObjCBlock<objc.NSNumber? Function(SentrySamplingContext)>(
+              objc.newPointerBlock(
+                  _ObjCBlock_NSNumber_SentrySamplingContext_fnPtrCallable,
+                  ptr.cast()),
+              retain: false,
+              release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<
+      objc.NSNumber? Function(SentrySamplingContext)> fromFunction(
+          objc.NSNumber? Function(SentrySamplingContext) fn,
+          {bool keepIsolateAlive = true}) =>
+      objc.ObjCBlock<objc.NSNumber? Function(SentrySamplingContext)>(
+          objc.newClosureBlock(
+              _ObjCBlock_NSNumber_SentrySamplingContext_closureCallable,
+              (ffi.Pointer<objc.ObjCObject> arg0) =>
+                  fn(SentrySamplingContext.castFromPointer(arg0, retain: true, release: true))
+                      ?.ref
+                      .retainAndAutorelease() ??
+                  ffi.nullptr,
+              keepIsolateAlive),
+          retain: false,
+          release: true);
+}
+
+/// Call operator for `objc.ObjCBlock<objc.NSNumber? Function(SentrySamplingContext)>`.
+extension ObjCBlock_NSNumber_SentrySamplingContext_CallExtension
+    on objc.ObjCBlock<objc.NSNumber? Function(SentrySamplingContext)> {
+  objc.NSNumber? call(SentrySamplingContext arg0) => ref.pointer.ref.invoke
+              .cast<
+                  ffi.NativeFunction<
+                      ffi.Pointer<objc.ObjCObject> Function(
+                          ffi.Pointer<objc.ObjCBlockImpl> block,
+                          ffi.Pointer<objc.ObjCObject> arg0)>>()
+              .asFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>()
+              (ref.pointer, arg0.ref.pointer)
+              .address ==
+          0
+      ? null
+      : objc.NSNumber.castFromPointer(
+          ref.pointer.ref.invoke
+              .cast<ffi.NativeFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<objc.ObjCObject> arg0)>>()
+              .asFunction<ffi.Pointer<objc.ObjCObject> Function(ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>()(ref.pointer, arg0.ref.pointer),
+          retain: true,
+          release: true);
+}
+
+/// Sentry level.
+enum SentryLevel {
+  kSentryLevelNone(0),
+  kSentryLevelDebug(1),
+  kSentryLevelInfo(2),
+  kSentryLevelWarning(3),
+  kSentryLevelError(4),
+  kSentryLevelFatal(5);
+
+  final int value;
+  const SentryLevel(this.value);
+
+  static SentryLevel fromValue(int value) => switch (value) {
+        0 => kSentryLevelNone,
+        1 => kSentryLevelDebug,
+        2 => kSentryLevelInfo,
+        3 => kSentryLevelWarning,
+        4 => kSentryLevelError,
+        5 => kSentryLevelFatal,
+        _ => throw ArgumentError('Unknown value for SentryLevel: $value'),
+      };
 }
 
 /// WARNING: SentryAppStartMeasurement is a stub. To generate bindings for this class, include
@@ -303,10 +1753,10 @@ final _objc_msgSend_19nvye5 = objc.msgSendPointer
 /// SentryEnvelope in your config's objc-interfaces list.
 ///
 /// SentryEnvelope
-class SentryEnvelope extends objc.ObjCObjectBase {
+class SentryEnvelope extends objc.NSObject {
   SentryEnvelope._(ffi.Pointer<objc.ObjCObject> pointer,
       {bool retain = false, bool release = false})
-      : super(pointer, retain: retain, release: release);
+      : super.castFromPointer(pointer, retain: retain, release: release);
 
   /// Constructs a [SentryEnvelope] that points to the same underlying object as [other].
   SentryEnvelope.castFrom(objc.ObjCObjectBase other)
@@ -383,199 +1833,48 @@ late final _sel_addSdkPackage_version_ =
     objc.registerName("addSdkPackage:version:");
 late final _sel_getExtraContext = objc.registerName("getExtraContext");
 late final _class_SentryId = objc.getClass("Sentry.SentryId");
-
-/// SentryId
-class SentryId extends objc.ObjCObjectBase {
-  SentryId._(ffi.Pointer<objc.ObjCObject> pointer,
-      {bool retain = false, bool release = false})
-      : super(pointer, retain: retain, release: release);
-
-  /// Constructs a [SentryId] that points to the same underlying object as [other].
-  SentryId.castFrom(objc.ObjCObjectBase other)
-      : this._(other.ref.pointer, retain: true, release: true);
-
-  /// Constructs a [SentryId] that wraps the given raw object pointer.
-  SentryId.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
-      {bool retain = false, bool release = false})
-      : this._(other, retain: retain, release: release);
-
-  /// Returns whether [obj] is an instance of [SentryId].
-  static bool isInstance(objc.ObjCObjectBase obj) {
-    return _objc_msgSend_19nvye5(
-        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryId);
-  }
-}
-
-/// WARNING: SentrySpanId is a stub. To generate bindings for this class, include
-/// SentrySpanId in your config's objc-interfaces list.
-///
-/// SentrySpanId
-class SentrySpanId extends objc.ObjCObjectBase {
-  SentrySpanId._(ffi.Pointer<objc.ObjCObject> pointer,
-      {bool retain = false, bool release = false})
-      : super(pointer, retain: retain, release: release);
-
-  /// Constructs a [SentrySpanId] that points to the same underlying object as [other].
-  SentrySpanId.castFrom(objc.ObjCObjectBase other)
-      : this._(other.ref.pointer, retain: true, release: true);
-
-  /// Constructs a [SentrySpanId] that wraps the given raw object pointer.
-  SentrySpanId.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
-      {bool retain = false, bool release = false})
-      : this._(other, retain: retain, release: release);
-}
-
-late final _sel_setTrace_spanId_ = objc.registerName("setTrace:spanId:");
-late final _sel_startProfilerForTrace_ =
-    objc.registerName("startProfilerForTrace:");
-final _objc_msgSend_1om1bna = objc.msgSendPointer
-    .cast<
-        ffi.NativeFunction<
-            ffi.Uint64 Function(
-                ffi.Pointer<objc.ObjCObject>,
-                ffi.Pointer<objc.ObjCSelector>,
-                ffi.Pointer<objc.ObjCObject>)>>()
-    .asFunction<
-        int Function(ffi.Pointer<objc.ObjCObject>,
-            ffi.Pointer<objc.ObjCSelector>, ffi.Pointer<objc.ObjCObject>)>();
-late final _sel_collectProfileBetween_and_forTrace_ =
-    objc.registerName("collectProfileBetween:and:forTrace:");
-final _objc_msgSend_l3zifn = objc.msgSendPointer
-    .cast<
-        ffi.NativeFunction<
-            ffi.Pointer<objc.ObjCObject> Function(
-                ffi.Pointer<objc.ObjCObject>,
-                ffi.Pointer<objc.ObjCSelector>,
-                ffi.Uint64,
-                ffi.Uint64,
-                ffi.Pointer<objc.ObjCObject>)>>()
-    .asFunction<
-        ffi.Pointer<objc.ObjCObject> Function(
-            ffi.Pointer<objc.ObjCObject>,
-            ffi.Pointer<objc.ObjCSelector>,
-            int,
-            int,
-            ffi.Pointer<objc.ObjCObject>)>();
-late final _sel_discardProfilerForTrace_ =
-    objc.registerName("discardProfilerForTrace:");
-late final _sel_onAppStartMeasurementAvailable =
-    objc.registerName("onAppStartMeasurementAvailable");
-final _objc_msgSend_uwvaik = objc.msgSendPointer
-    .cast<
-        ffi.NativeFunction<
-            ffi.Pointer<objc.ObjCBlockImpl> Function(
-                ffi.Pointer<objc.ObjCObject>,
-                ffi.Pointer<objc.ObjCSelector>)>>()
-    .asFunction<
-        ffi.Pointer<objc.ObjCBlockImpl> Function(
-            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
-late final _sel_setOnAppStartMeasurementAvailable_ =
-    objc.registerName("setOnAppStartMeasurementAvailable:");
-final _objc_msgSend_f167m6 = objc.msgSendPointer
-    .cast<
-        ffi.NativeFunction<
-            ffi.Void Function(
-                ffi.Pointer<objc.ObjCObject>,
-                ffi.Pointer<objc.ObjCSelector>,
-                ffi.Pointer<objc.ObjCBlockImpl>)>>()
-    .asFunction<
-        void Function(ffi.Pointer<objc.ObjCObject>,
-            ffi.Pointer<objc.ObjCSelector>, ffi.Pointer<objc.ObjCBlockImpl>)>();
-late final _sel_appStartMeasurement = objc.registerName("appStartMeasurement");
-late final _sel_installationID = objc.registerName("installationID");
-
-/// WARNING: SentryOptions is a stub. To generate bindings for this class, include
-/// SentryOptions in your config's objc-interfaces list.
-///
-/// SentryOptions
-class SentryOptions extends objc.ObjCObjectBase {
-  SentryOptions._(ffi.Pointer<objc.ObjCObject> pointer,
-      {bool retain = false, bool release = false})
-      : super(pointer, retain: retain, release: release);
-
-  /// Constructs a [SentryOptions] that points to the same underlying object as [other].
-  SentryOptions.castFrom(objc.ObjCObjectBase other)
-      : this._(other.ref.pointer, retain: true, release: true);
-
-  /// Constructs a [SentryOptions] that wraps the given raw object pointer.
-  SentryOptions.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
-      {bool retain = false, bool release = false})
-      : this._(other, retain: retain, release: release);
-}
-
-late final _sel_options = objc.registerName("options");
-late final _sel_appStartMeasurementHybridSDKMode =
-    objc.registerName("appStartMeasurementHybridSDKMode");
-final _objc_msgSend_91o635 = objc.msgSendPointer
-    .cast<
-        ffi.NativeFunction<
-            ffi.Bool Function(ffi.Pointer<objc.ObjCObject>,
-                ffi.Pointer<objc.ObjCSelector>)>>()
-    .asFunction<
-        bool Function(
-            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
-late final _sel_setAppStartMeasurementHybridSDKMode_ =
-    objc.registerName("setAppStartMeasurementHybridSDKMode:");
-final _objc_msgSend_1s56lr9 = objc.msgSendPointer
-    .cast<
-        ffi.NativeFunction<
-            ffi.Void Function(ffi.Pointer<objc.ObjCObject>,
-                ffi.Pointer<objc.ObjCSelector>, ffi.Bool)>>()
-    .asFunction<
-        void Function(ffi.Pointer<objc.ObjCObject>,
-            ffi.Pointer<objc.ObjCSelector>, bool)>();
-late final _sel_appStartMeasurementWithSpans =
-    objc.registerName("appStartMeasurementWithSpans");
-late final _class_SentryUser = objc.getClass("SentryUser");
-
-/// SentryUser
-class SentryUser extends objc.ObjCObjectBase {
-  SentryUser._(ffi.Pointer<objc.ObjCObject> pointer,
-      {bool retain = false, bool release = false})
-      : super(pointer, retain: retain, release: release);
-
-  /// Constructs a [SentryUser] that points to the same underlying object as [other].
-  SentryUser.castFrom(objc.ObjCObjectBase other)
-      : this._(other.ref.pointer, retain: true, release: true);
-
-  /// Constructs a [SentryUser] that wraps the given raw object pointer.
-  SentryUser.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
-      {bool retain = false, bool release = false})
-      : this._(other, retain: retain, release: release);
-
-  /// Returns whether [obj] is an instance of [SentryUser].
-  static bool isInstance(objc.ObjCObjectBase obj) {
-    return _objc_msgSend_19nvye5(
-        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryUser);
-  }
-}
-
-late final _sel_userWithDictionary_ = objc.registerName("userWithDictionary:");
-
-/// WARNING: SentryBreadcrumb is a stub. To generate bindings for this class, include
-/// SentryBreadcrumb in your config's objc-interfaces list.
-///
-/// SentryBreadcrumb
-class SentryBreadcrumb extends objc.ObjCObjectBase {
-  SentryBreadcrumb._(ffi.Pointer<objc.ObjCObject> pointer,
-      {bool retain = false, bool release = false})
-      : super(pointer, retain: retain, release: release);
-
-  /// Constructs a [SentryBreadcrumb] that points to the same underlying object as [other].
-  SentryBreadcrumb.castFrom(objc.ObjCObjectBase other)
-      : this._(other.ref.pointer, retain: true, release: true);
-
-  /// Constructs a [SentryBreadcrumb] that wraps the given raw object pointer.
-  SentryBreadcrumb.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
-      {bool retain = false, bool release = false})
-      : this._(other, retain: retain, release: release);
-}
-
-late final _sel_breadcrumbWithDictionary_ =
-    objc.registerName("breadcrumbWithDictionary:");
+late final _sel_empty = objc.registerName("empty");
+late final _sel_sentryIdString = objc.registerName("sentryIdString");
 typedef instancetype = ffi.Pointer<objc.ObjCObject>;
 typedef Dartinstancetype = objc.ObjCObjectBase;
 late final _sel_init = objc.registerName("init");
+
+/// WARNING: NSUUID is a stub. To generate bindings for this class, include
+/// NSUUID in your config's objc-interfaces list.
+///
+/// NSUUID
+class NSUUID extends objc.NSObject
+    implements objc.NSCopying, objc.NSSecureCoding {
+  NSUUID._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release) {
+    objc.checkOsVersionInternal('NSUUID',
+        iOS: (false, (6, 0, 0)), macOS: (false, (10, 8, 0)));
+  }
+
+  /// Constructs a [NSUUID] that points to the same underlying object as [other].
+  NSUUID.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [NSUUID] that wraps the given raw object pointer.
+  NSUUID.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_initWithUuid_ = objc.registerName("initWithUuid:");
+late final _sel_initWithUUIDString_ = objc.registerName("initWithUUIDString:");
+late final _sel_isEqual_ = objc.registerName("isEqual:");
+late final _sel_description = objc.registerName("description");
+late final _sel_hash = objc.registerName("hash");
+final _objc_msgSend_xw2lbc = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.UnsignedLong Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        int Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
 late final _sel_new = objc.registerName("new");
 late final _sel_allocWithZone_ = objc.registerName("allocWithZone:");
 final _objc_msgSend_1cwp428 = objc.msgSendPointer
@@ -690,6 +1989,2508 @@ extension ObjCBlock_objcObjCObject_ffiVoid_CallExtension on objc
 
 late final _sel_retain = objc.registerName("retain");
 late final _sel_autorelease = objc.registerName("autorelease");
+
+/// SentryId
+class SentryId extends objc.NSObject {
+  SentryId._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryId] that points to the same underlying object as [other].
+  SentryId.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryId] that wraps the given raw object pointer.
+  SentryId.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+
+  /// Returns whether [obj] is an instance of [SentryId].
+  static bool isInstance(objc.ObjCObjectBase obj) {
+    return _objc_msgSend_19nvye5(
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryId);
+  }
+
+  /// A @c SentryId with an empty UUID “00000000000000000000000000000000”.
+  static SentryId getEmpty() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryId, _sel_empty);
+    return SentryId.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Returns a 32 lowercase character hexadecimal string description of the @c SentryId, such as
+  /// “12c2d058d58442709aa2eca08bf20986”.
+  objc.NSString get sentryIdString {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_sentryIdString);
+    return objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// init
+  SentryId init() {
+    objc.checkOsVersionInternal('SentryId.init',
+        iOS: (false, (2, 0, 0)), macOS: (false, (10, 0, 0)));
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
+    return SentryId.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// Creates a SentryId with the given UUID.
+  SentryId initWithUuid(NSUUID uuid) {
+    final _ret = _objc_msgSend_1sotr3r(this.ref.retainAndReturnPointer(),
+        _sel_initWithUuid_, uuid.ref.pointer);
+    return SentryId.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// Creates a @c SentryId from a 32 character hexadecimal string without dashes such as
+  /// “12c2d058d58442709aa2eca08bf20986” or a 36 character hexadecimal string such as such as
+  /// “12c2d058-d584-4270-9aa2-eca08bf20986”.
+  /// @return SentryId.empty for invalid strings.
+  SentryId initWithUUIDString(objc.NSString uuidString) {
+    final _ret = _objc_msgSend_1sotr3r(this.ref.retainAndReturnPointer(),
+        _sel_initWithUUIDString_, uuidString.ref.pointer);
+    return SentryId.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// isEqual:
+  bool isEqual(objc.ObjCObjectBase? object) {
+    return _objc_msgSend_19nvye5(
+        this.ref.pointer, _sel_isEqual_, object?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// description
+  objc.NSString get description {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_description);
+    return objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// hash
+  int get hash {
+    return _objc_msgSend_xw2lbc(this.ref.pointer, _sel_hash);
+  }
+
+  /// new
+  static SentryId new$() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryId, _sel_new);
+    return SentryId.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// allocWithZone:
+  static SentryId allocWithZone(ffi.Pointer<objc.NSZone> zone) {
+    final _ret =
+        _objc_msgSend_1cwp428(_class_SentryId, _sel_allocWithZone_, zone);
+    return SentryId.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// alloc
+  static SentryId alloc() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryId, _sel_alloc);
+    return SentryId.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// self
+  SentryId self$1() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
+    return SentryId.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// retain
+  SentryId retain() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
+    return SentryId.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// autorelease
+  SentryId autorelease() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
+    return SentryId.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Returns a new instance of SentryId constructed with the default `new` method.
+  factory SentryId() => new$();
+}
+
+/// WARNING: SentrySpanId is a stub. To generate bindings for this class, include
+/// SentrySpanId in your config's objc-interfaces list.
+///
+/// SentrySpanId
+class SentrySpanId extends objc.ObjCObjectBase {
+  SentrySpanId._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentrySpanId] that points to the same underlying object as [other].
+  SentrySpanId.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentrySpanId] that wraps the given raw object pointer.
+  SentrySpanId.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_setTrace_spanId_ = objc.registerName("setTrace:spanId:");
+late final _sel_startProfilerForTrace_ =
+    objc.registerName("startProfilerForTrace:");
+final _objc_msgSend_1om1bna = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Uint64 Function(
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>,
+                ffi.Pointer<objc.ObjCObject>)>>()
+    .asFunction<
+        int Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, ffi.Pointer<objc.ObjCObject>)>();
+late final _sel_collectProfileBetween_and_forTrace_ =
+    objc.registerName("collectProfileBetween:and:forTrace:");
+final _objc_msgSend_l3zifn = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Pointer<objc.ObjCObject> Function(
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>,
+                ffi.Uint64,
+                ffi.Uint64,
+                ffi.Pointer<objc.ObjCObject>)>>()
+    .asFunction<
+        ffi.Pointer<objc.ObjCObject> Function(
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>,
+            int,
+            int,
+            ffi.Pointer<objc.ObjCObject>)>();
+late final _sel_discardProfilerForTrace_ =
+    objc.registerName("discardProfilerForTrace:");
+late final _sel_onAppStartMeasurementAvailable =
+    objc.registerName("onAppStartMeasurementAvailable");
+final _objc_msgSend_uwvaik = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Pointer<objc.ObjCBlockImpl> Function(
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        ffi.Pointer<objc.ObjCBlockImpl> Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+late final _sel_setOnAppStartMeasurementAvailable_ =
+    objc.registerName("setOnAppStartMeasurementAvailable:");
+final _objc_msgSend_f167m6 = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>,
+                ffi.Pointer<objc.ObjCBlockImpl>)>>()
+    .asFunction<
+        void Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, ffi.Pointer<objc.ObjCBlockImpl>)>();
+late final _sel_appStartMeasurement = objc.registerName("appStartMeasurement");
+late final _sel_installationID = objc.registerName("installationID");
+late final _class_SentryOptions = objc.getClass("SentryOptions");
+
+/// WARNING: SentryExperimentalOptions is a stub. To generate bindings for this class, include
+/// SentryExperimentalOptions in your config's objc-interfaces list.
+///
+/// SentryExperimentalOptions
+class SentryExperimentalOptions extends objc.NSObject {
+  SentryExperimentalOptions._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryExperimentalOptions] that points to the same underlying object as [other].
+  SentryExperimentalOptions.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryExperimentalOptions] that wraps the given raw object pointer.
+  SentryExperimentalOptions.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_experimental = objc.registerName("experimental");
+
+/// Sentry_Swift_2758
+extension Sentry_Swift_2758 on SentryOptions {
+  /// This aggregates options for experimental features.
+  /// Be aware that the options available for experimental can change at any time.
+  SentryExperimentalOptions get experimental {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_experimental);
+    return SentryExperimentalOptions.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+}
+
+late final _sel_dsn = objc.registerName("dsn");
+late final _sel_setDsn_ = objc.registerName("setDsn:");
+
+/// WARNING: SentryDsn is a stub. To generate bindings for this class, include
+/// SentryDsn in your config's objc-interfaces list.
+///
+/// SentryDsn
+class SentryDsn extends objc.ObjCObjectBase {
+  SentryDsn._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryDsn] that points to the same underlying object as [other].
+  SentryDsn.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryDsn] that wraps the given raw object pointer.
+  SentryDsn.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_parsedDsn = objc.registerName("parsedDsn");
+late final _sel_setParsedDsn_ = objc.registerName("setParsedDsn:");
+late final _sel_debug = objc.registerName("debug");
+final _objc_msgSend_91o635 = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Bool Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        bool Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+late final _sel_setDebug_ = objc.registerName("setDebug:");
+final _objc_msgSend_1s56lr9 = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>, ffi.Bool)>>()
+    .asFunction<
+        void Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, bool)>();
+late final _sel_diagnosticLevel = objc.registerName("diagnosticLevel");
+final _objc_msgSend_b9ccsc = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.UnsignedLong Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        int Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+late final _sel_setDiagnosticLevel_ = objc.registerName("setDiagnosticLevel:");
+final _objc_msgSend_9dwzby = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>, ffi.UnsignedLong)>>()
+    .asFunction<
+        void Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, int)>();
+late final _sel_releaseName = objc.registerName("releaseName");
+late final _sel_setReleaseName_ = objc.registerName("setReleaseName:");
+late final _sel_dist = objc.registerName("dist");
+late final _sel_setDist_ = objc.registerName("setDist:");
+late final _sel_environment = objc.registerName("environment");
+late final _sel_setEnvironment_ = objc.registerName("setEnvironment:");
+late final _sel_enabled = objc.registerName("enabled");
+late final _sel_setEnabled_ = objc.registerName("setEnabled:");
+late final _sel_shutdownTimeInterval =
+    objc.registerName("shutdownTimeInterval");
+final _objc_msgSend_1ukqyt8 = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Double Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        double Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+final _objc_msgSend_1ukqyt8Fpret = objc.msgSendFpretPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Double Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        double Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+late final _sel_setShutdownTimeInterval_ =
+    objc.registerName("setShutdownTimeInterval:");
+final _objc_msgSend_hwm8nu = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>, ffi.Double)>>()
+    .asFunction<
+        void Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, double)>();
+late final _sel_enableCrashHandler = objc.registerName("enableCrashHandler");
+late final _sel_setEnableCrashHandler_ =
+    objc.registerName("setEnableCrashHandler:");
+late final _sel_enableUncaughtNSExceptionReporting =
+    objc.registerName("enableUncaughtNSExceptionReporting");
+late final _sel_setEnableUncaughtNSExceptionReporting_ =
+    objc.registerName("setEnableUncaughtNSExceptionReporting:");
+late final _sel_enableSigtermReporting =
+    objc.registerName("enableSigtermReporting");
+late final _sel_setEnableSigtermReporting_ =
+    objc.registerName("setEnableSigtermReporting:");
+late final _sel_maxBreadcrumbs = objc.registerName("maxBreadcrumbs");
+late final _sel_setMaxBreadcrumbs_ = objc.registerName("setMaxBreadcrumbs:");
+final _objc_msgSend_1i9r4xy = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>, ffi.UnsignedLong)>>()
+    .asFunction<
+        void Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, int)>();
+late final _sel_enableNetworkBreadcrumbs =
+    objc.registerName("enableNetworkBreadcrumbs");
+late final _sel_setEnableNetworkBreadcrumbs_ =
+    objc.registerName("setEnableNetworkBreadcrumbs:");
+late final _sel_maxCacheItems = objc.registerName("maxCacheItems");
+late final _sel_setMaxCacheItems_ = objc.registerName("setMaxCacheItems:");
+late final _sel_beforeSend = objc.registerName("beforeSend");
+late final _sel_setBeforeSend_ = objc.registerName("setBeforeSend:");
+late final _sel_beforeSendSpan = objc.registerName("beforeSendSpan");
+late final _sel_setBeforeSendSpan_ = objc.registerName("setBeforeSendSpan:");
+late final _sel_beforeSendLog = objc.registerName("beforeSendLog");
+late final _sel_setBeforeSendLog_ = objc.registerName("setBeforeSendLog:");
+late final _sel_beforeBreadcrumb = objc.registerName("beforeBreadcrumb");
+late final _sel_setBeforeBreadcrumb_ =
+    objc.registerName("setBeforeBreadcrumb:");
+late final _sel_beforeCaptureScreenshot =
+    objc.registerName("beforeCaptureScreenshot");
+late final _sel_setBeforeCaptureScreenshot_ =
+    objc.registerName("setBeforeCaptureScreenshot:");
+late final _sel_beforeCaptureViewHierarchy =
+    objc.registerName("beforeCaptureViewHierarchy");
+late final _sel_setBeforeCaptureViewHierarchy_ =
+    objc.registerName("setBeforeCaptureViewHierarchy:");
+late final _sel_onCrashedLastRun = objc.registerName("onCrashedLastRun");
+late final _sel_setOnCrashedLastRun_ =
+    objc.registerName("setOnCrashedLastRun:");
+late final _sel_integrations = objc.registerName("integrations");
+late final _sel_setIntegrations_ = objc.registerName("setIntegrations:");
+late final _sel_defaultIntegrations = objc.registerName("defaultIntegrations");
+late final _sel_sampleRate = objc.registerName("sampleRate");
+late final _sel_setSampleRate_ = objc.registerName("setSampleRate:");
+late final _sel_enableAutoSessionTracking =
+    objc.registerName("enableAutoSessionTracking");
+late final _sel_setEnableAutoSessionTracking_ =
+    objc.registerName("setEnableAutoSessionTracking:");
+late final _sel_enableGraphQLOperationTracking =
+    objc.registerName("enableGraphQLOperationTracking");
+late final _sel_setEnableGraphQLOperationTracking_ =
+    objc.registerName("setEnableGraphQLOperationTracking:");
+late final _sel_enableWatchdogTerminationTracking =
+    objc.registerName("enableWatchdogTerminationTracking");
+late final _sel_setEnableWatchdogTerminationTracking_ =
+    objc.registerName("setEnableWatchdogTerminationTracking:");
+late final _sel_sessionTrackingIntervalMillis =
+    objc.registerName("sessionTrackingIntervalMillis");
+late final _sel_setSessionTrackingIntervalMillis_ =
+    objc.registerName("setSessionTrackingIntervalMillis:");
+late final _sel_attachStacktrace = objc.registerName("attachStacktrace");
+late final _sel_setAttachStacktrace_ =
+    objc.registerName("setAttachStacktrace:");
+late final _sel_maxAttachmentSize = objc.registerName("maxAttachmentSize");
+late final _sel_setMaxAttachmentSize_ =
+    objc.registerName("setMaxAttachmentSize:");
+late final _sel_sendDefaultPii = objc.registerName("sendDefaultPii");
+late final _sel_setSendDefaultPii_ = objc.registerName("setSendDefaultPii:");
+late final _sel_enableAutoPerformanceTracing =
+    objc.registerName("enableAutoPerformanceTracing");
+late final _sel_setEnableAutoPerformanceTracing_ =
+    objc.registerName("setEnableAutoPerformanceTracing:");
+late final _sel_enablePerformanceV2 = objc.registerName("enablePerformanceV2");
+late final _sel_setEnablePerformanceV2_ =
+    objc.registerName("setEnablePerformanceV2:");
+late final _sel_enablePersistingTracesWhenCrashing =
+    objc.registerName("enablePersistingTracesWhenCrashing");
+late final _sel_setEnablePersistingTracesWhenCrashing_ =
+    objc.registerName("setEnablePersistingTracesWhenCrashing:");
+late final _class_SentryScope = objc.getClass("SentryScope");
+
+/// WARNING: SentrySerializable is a stub. To generate bindings for this class, include
+/// SentrySerializable in your config's objc-protocols list.
+///
+/// SentrySerializable
+interface class SentrySerializable extends objc.ObjCProtocolBase
+    implements objc.NSObjectProtocol {
+  SentrySerializable._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentrySerializable] that points to the same underlying object as [other].
+  SentrySerializable.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentrySerializable] that wraps the given raw object pointer.
+  SentrySerializable.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_setTagValue_forKey_ = objc.registerName("setTagValue:forKey:");
+late final _sel_removeTagForKey_ = objc.registerName("removeTagForKey:");
+late final _sel_setExtraValue_forKey_ =
+    objc.registerName("setExtraValue:forKey:");
+late final _sel_removeExtraForKey_ = objc.registerName("removeExtraForKey:");
+late final _sel_clearBreadcrumbs = objc.registerName("clearBreadcrumbs");
+final _objc_msgSend_1pl9qdv = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        void Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+late final _sel_setContextValue_forKey_ =
+    objc.registerName("setContextValue:forKey:");
+late final _sel_removeContextForKey_ =
+    objc.registerName("removeContextForKey:");
+
+/// The scope holds useful information that should be sent along with the event. For instance tags or
+/// breadcrumbs are stored on the scope.
+/// @see
+/// https://docs.sentry.io/platforms/apple/enriching-events/scopes/#whats-a-scope-whats-a-hub
+class SentryScope extends objc.NSObject implements SentrySerializable {
+  SentryScope._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryScope] that points to the same underlying object as [other].
+  SentryScope.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryScope] that wraps the given raw object pointer.
+  SentryScope.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+
+  /// Returns whether [obj] is an instance of [SentryScope].
+  static bool isInstance(objc.ObjCObjectBase obj) {
+    return _objc_msgSend_19nvye5(
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryScope);
+  }
+
+  /// Set a global tag. Tags are searchable key/value string pairs attached to
+  /// every event.
+  void setTagValue(objc.NSString value, {required objc.NSString forKey}) {
+    _objc_msgSend_pfv6jd(this.ref.pointer, _sel_setTagValue_forKey_,
+        value.ref.pointer, forKey.ref.pointer);
+  }
+
+  /// Remove the tag for the specified key.
+  void removeTagForKey(objc.NSString key) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_removeTagForKey_, key.ref.pointer);
+  }
+
+  /// Set global extra -> these will be sent with every event
+  void setExtraValue(objc.ObjCObjectBase? value,
+      {required objc.NSString forKey}) {
+    _objc_msgSend_pfv6jd(this.ref.pointer, _sel_setExtraValue_forKey_,
+        value?.ref.pointer ?? ffi.nullptr, forKey.ref.pointer);
+  }
+
+  /// Remove the extra for the specified key.
+  void removeExtraForKey(objc.NSString key) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_removeExtraForKey_, key.ref.pointer);
+  }
+
+  /// Clears all breadcrumbs in the scope
+  void clearBreadcrumbs() {
+    _objc_msgSend_1pl9qdv(this.ref.pointer, _sel_clearBreadcrumbs);
+  }
+
+  /// Sets context values which will overwrite SentryEvent.context when event is
+  /// "enriched" with scope before sending event.
+  void setContextValue(objc.NSDictionary value,
+      {required objc.NSString forKey}) {
+    _objc_msgSend_pfv6jd(this.ref.pointer, _sel_setContextValue_forKey_,
+        value.ref.pointer, forKey.ref.pointer);
+  }
+
+  /// Remove the context for the specified key.
+  void removeContextForKey(objc.NSString key) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_removeContextForKey_, key.ref.pointer);
+  }
+}
+
+ffi.Pointer<objc.ObjCObject> _ObjCBlock_SentryScope_SentryScope_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCObject> arg0)>>()
+        .asFunction<
+            ffi.Pointer<objc.ObjCObject> Function(
+                ffi.Pointer<objc.ObjCObject>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_SentryScope_SentryScope_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_SentryScope_SentryScope_fnPtrTrampoline)
+        .cast();
+ffi.Pointer<objc.ObjCObject>
+    _ObjCBlock_SentryScope_SentryScope_closureTrampoline(
+            ffi.Pointer<objc.ObjCBlockImpl> block,
+            ffi.Pointer<objc.ObjCObject> arg0) =>
+        (objc.getBlockClosure(block) as ffi.Pointer<objc.ObjCObject> Function(
+            ffi.Pointer<objc.ObjCObject>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_SentryScope_SentryScope_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_SentryScope_SentryScope_closureTrampoline)
+        .cast();
+
+/// Construction methods for `objc.ObjCBlock<SentryScope Function(SentryScope)>`.
+abstract final class ObjCBlock_SentryScope_SentryScope {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<SentryScope Function(SentryScope)> castFromPointer(
+          ffi.Pointer<objc.ObjCBlockImpl> pointer,
+          {bool retain = false,
+          bool release = false}) =>
+      objc.ObjCBlock<SentryScope Function(SentryScope)>(pointer,
+          retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<SentryScope Function(SentryScope)> fromFunctionPointer(
+          ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Pointer<objc.ObjCObject> Function(
+                          ffi.Pointer<objc.ObjCObject> arg0)>>
+              ptr) =>
+      objc.ObjCBlock<SentryScope Function(SentryScope)>(
+          objc.newPointerBlock(
+              _ObjCBlock_SentryScope_SentryScope_fnPtrCallable, ptr.cast()),
+          retain: false,
+          release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<SentryScope Function(SentryScope)> fromFunction(
+          SentryScope Function(SentryScope) fn,
+          {bool keepIsolateAlive = true}) =>
+      objc.ObjCBlock<SentryScope Function(SentryScope)>(
+          objc.newClosureBlock(
+              _ObjCBlock_SentryScope_SentryScope_closureCallable,
+              (ffi.Pointer<objc.ObjCObject> arg0) => fn(
+                      SentryScope.castFromPointer(arg0,
+                          retain: true, release: true))
+                  .ref
+                  .retainAndAutorelease(),
+              keepIsolateAlive),
+          retain: false,
+          release: true);
+}
+
+/// Call operator for `objc.ObjCBlock<SentryScope Function(SentryScope)>`.
+extension ObjCBlock_SentryScope_SentryScope_CallExtension
+    on objc.ObjCBlock<SentryScope Function(SentryScope)> {
+  SentryScope call(SentryScope arg0) => SentryScope.castFromPointer(
+      ref.pointer.ref.invoke
+              .cast<
+                  ffi.NativeFunction<
+                      ffi.Pointer<objc.ObjCObject> Function(
+                          ffi.Pointer<objc.ObjCBlockImpl> block,
+                          ffi.Pointer<objc.ObjCObject> arg0)>>()
+              .asFunction<
+                  ffi.Pointer<objc.ObjCObject> Function(
+                      ffi.Pointer<objc.ObjCBlockImpl>,
+                      ffi.Pointer<objc.ObjCObject>)>()(
+          ref.pointer, arg0.ref.pointer),
+      retain: true,
+      release: true);
+}
+
+late final _sel_initialScope = objc.registerName("initialScope");
+late final _sel_setInitialScope_ = objc.registerName("setInitialScope:");
+late final _sel_enableNetworkTracking =
+    objc.registerName("enableNetworkTracking");
+late final _sel_setEnableNetworkTracking_ =
+    objc.registerName("setEnableNetworkTracking:");
+late final _sel_enableFileIOTracing = objc.registerName("enableFileIOTracing");
+late final _sel_setEnableFileIOTracing_ =
+    objc.registerName("setEnableFileIOTracing:");
+late final _sel_enableTracing = objc.registerName("enableTracing");
+late final _sel_setEnableTracing_ = objc.registerName("setEnableTracing:");
+late final _sel_tracesSampleRate = objc.registerName("tracesSampleRate");
+late final _sel_setTracesSampleRate_ =
+    objc.registerName("setTracesSampleRate:");
+late final _sel_tracesSampler = objc.registerName("tracesSampler");
+late final _sel_setTracesSampler_ = objc.registerName("setTracesSampler:");
+late final _sel_isTracingEnabled = objc.registerName("isTracingEnabled");
+late final _sel_inAppIncludes = objc.registerName("inAppIncludes");
+late final _sel_addInAppInclude_ = objc.registerName("addInAppInclude:");
+late final _sel_inAppExcludes = objc.registerName("inAppExcludes");
+late final _sel_addInAppExclude_ = objc.registerName("addInAppExclude:");
+
+/// WARNING: NSURLSessionDelegate is a stub. To generate bindings for this class, include
+/// NSURLSessionDelegate in your config's objc-protocols list.
+///
+/// NSURLSessionDelegate
+interface class NSURLSessionDelegate extends objc.ObjCProtocolBase
+    implements objc.NSObjectProtocol {
+  NSURLSessionDelegate._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [NSURLSessionDelegate] that points to the same underlying object as [other].
+  NSURLSessionDelegate.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [NSURLSessionDelegate] that wraps the given raw object pointer.
+  NSURLSessionDelegate.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_urlSessionDelegate = objc.registerName("urlSessionDelegate");
+late final _sel_setUrlSessionDelegate_ =
+    objc.registerName("setUrlSessionDelegate:");
+
+/// WARNING: NSURLSession is a stub. To generate bindings for this class, include
+/// NSURLSession in your config's objc-interfaces list.
+///
+/// NSURLSession
+class NSURLSession extends objc.NSObject {
+  NSURLSession._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release) {
+    objc.checkOsVersionInternal('NSURLSession',
+        iOS: (false, (7, 0, 0)), macOS: (false, (10, 9, 0)));
+  }
+
+  /// Constructs a [NSURLSession] that points to the same underlying object as [other].
+  NSURLSession.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [NSURLSession] that wraps the given raw object pointer.
+  NSURLSession.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+late final _sel_urlSession = objc.registerName("urlSession");
+late final _sel_setUrlSession_ = objc.registerName("setUrlSession:");
+late final _sel_enableSwizzling = objc.registerName("enableSwizzling");
+late final _sel_setEnableSwizzling_ = objc.registerName("setEnableSwizzling:");
+late final _sel_swizzleClassNameExcludes =
+    objc.registerName("swizzleClassNameExcludes");
+late final _sel_setSwizzleClassNameExcludes_ =
+    objc.registerName("setSwizzleClassNameExcludes:");
+late final _sel_enableCoreDataTracing =
+    objc.registerName("enableCoreDataTracing");
+late final _sel_setEnableCoreDataTracing_ =
+    objc.registerName("setEnableCoreDataTracing:");
+
+/// WARNING: SentryProfileOptions is a stub. To generate bindings for this class, include
+/// SentryProfileOptions in your config's objc-interfaces list.
+///
+/// An object containing configuration for the Sentry profiler.
+/// warning:
+/// Continuous profiling is an experimental feature and may still contain bugs.
+/// note:
+/// If either <code>SentryOptions.profilesSampleRate</code> or <code>SentryOptions.profilesSampler</code> are
+/// set to a non-nil value such that transaction-based profiling is being used, these settings
+/// will have no effect, nor will <code>SentrySDK.startProfiler()</code> or <code>SentrySDK.stopProfiler()</code>.
+/// note:
+/// Profiling is automatically disabled if a thread sanitizer is attached.
+class SentryProfileOptions extends objc.NSObject {
+  SentryProfileOptions._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryProfileOptions] that points to the same underlying object as [other].
+  SentryProfileOptions.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryProfileOptions] that wraps the given raw object pointer.
+  SentryProfileOptions.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+void _ObjCBlock_ffiVoid_SentryProfileOptions_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<
+                ffi.Void Function(ffi.Pointer<objc.ObjCObject> arg0)>>()
+        .asFunction<void Function(ffi.Pointer<objc.ObjCObject>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_SentryProfileOptions_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_ffiVoid_SentryProfileOptions_fnPtrTrampoline)
+        .cast();
+void _ObjCBlock_ffiVoid_SentryProfileOptions_closureTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    (objc.getBlockClosure(block) as void Function(
+        ffi.Pointer<objc.ObjCObject>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_SentryProfileOptions_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_ffiVoid_SentryProfileOptions_closureTrampoline)
+        .cast();
+void _ObjCBlock_ffiVoid_SentryProfileOptions_listenerTrampoline(
+    ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<objc.ObjCObject> arg0) {
+  (objc.getBlockClosure(block) as void Function(
+      ffi.Pointer<objc.ObjCObject>))(arg0);
+  objc.objectRelease(block.cast());
+}
+
+ffi.NativeCallable<
+        ffi.Void Function(
+            ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>
+    _ObjCBlock_ffiVoid_SentryProfileOptions_listenerCallable = ffi
+        .NativeCallable<
+            ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<objc.ObjCObject>)>.listener(
+        _ObjCBlock_ffiVoid_SentryProfileOptions_listenerTrampoline)
+      ..keepIsolateAlive = false;
+void _ObjCBlock_ffiVoid_SentryProfileOptions_blockingTrampoline(
+    ffi.Pointer<objc.ObjCBlockImpl> block,
+    ffi.Pointer<ffi.Void> waiter,
+    ffi.Pointer<objc.ObjCObject> arg0) {
+  try {
+    (objc.getBlockClosure(block) as void Function(
+        ffi.Pointer<objc.ObjCObject>))(arg0);
+  } catch (e) {
+  } finally {
+    objc.signalWaiter(waiter);
+    objc.objectRelease(block.cast());
+  }
+}
+
+ffi.NativeCallable<
+        ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+            ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>
+    _ObjCBlock_ffiVoid_SentryProfileOptions_blockingCallable = ffi
+        .NativeCallable<
+            ffi.Void Function(
+                ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<ffi.Void>,
+                ffi.Pointer<objc.ObjCObject>)>.isolateLocal(
+        _ObjCBlock_ffiVoid_SentryProfileOptions_blockingTrampoline)
+      ..keepIsolateAlive = false;
+ffi.NativeCallable<
+        ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+            ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>
+    _ObjCBlock_ffiVoid_SentryProfileOptions_blockingListenerCallable = ffi
+        .NativeCallable<
+            ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>.listener(
+        _ObjCBlock_ffiVoid_SentryProfileOptions_blockingTrampoline)
+      ..keepIsolateAlive = false;
+
+/// Construction methods for `objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)>`.
+abstract final class ObjCBlock_ffiVoid_SentryProfileOptions {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)>
+      castFromPointer(ffi.Pointer<objc.ObjCBlockImpl> pointer,
+              {bool retain = false, bool release = false}) =>
+          objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)>(pointer,
+              retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)>
+      fromFunctionPointer(
+              ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Void Function(ffi.Pointer<objc.ObjCObject> arg0)>>
+                  ptr) =>
+          objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)>(
+              objc.newPointerBlock(
+                  _ObjCBlock_ffiVoid_SentryProfileOptions_fnPtrCallable,
+                  ptr.cast()),
+              retain: false,
+              release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)> fromFunction(
+          void Function(SentryProfileOptions) fn,
+          {bool keepIsolateAlive = true}) =>
+      objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)>(
+          objc.newClosureBlock(
+              _ObjCBlock_ffiVoid_SentryProfileOptions_closureCallable,
+              (ffi.Pointer<objc.ObjCObject> arg0) => fn(
+                  SentryProfileOptions.castFromPointer(arg0,
+                      retain: true, release: true)),
+              keepIsolateAlive),
+          retain: false,
+          release: true);
+
+  /// Creates a listener block from a Dart function.
+  ///
+  /// This is based on FFI's NativeCallable.listener, and has the same
+  /// capabilities and limitations. This block can be invoked from any thread,
+  /// but only supports void functions, and is not run synchronously. See
+  /// NativeCallable.listener for more details.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)> listener(
+      void Function(SentryProfileOptions) fn,
+      {bool keepIsolateAlive = true}) {
+    final raw = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_SentryProfileOptions_listenerCallable.nativeFunction
+            .cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0) => fn(
+            SentryProfileOptions.castFromPointer(arg0,
+                retain: false, release: true)),
+        keepIsolateAlive);
+    final wrapper = _SentryCocoa_wrapListenerBlock_xtuoz7(raw);
+    objc.objectRelease(raw.cast());
+    return objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)>(wrapper,
+        retain: false, release: true);
+  }
+
+  /// Creates a blocking block from a Dart function.
+  ///
+  /// This callback can be invoked from any native thread, and will block the
+  /// caller until the callback is handled by the Dart isolate that created
+  /// the block. Async functions are not supported.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC. If the owner isolate
+  /// has shut down, and the block is invoked by native code, it may block
+  /// indefinitely, or have other undefined behavior.
+  static objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)> blocking(
+      void Function(SentryProfileOptions) fn,
+      {bool keepIsolateAlive = true}) {
+    final raw = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_SentryProfileOptions_blockingCallable.nativeFunction
+            .cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0) => fn(
+            SentryProfileOptions.castFromPointer(arg0,
+                retain: false, release: true)),
+        keepIsolateAlive);
+    final rawListener = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_SentryProfileOptions_blockingListenerCallable
+            .nativeFunction
+            .cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0) => fn(
+            SentryProfileOptions.castFromPointer(arg0,
+                retain: false, release: true)),
+        keepIsolateAlive);
+    final wrapper = _SentryCocoa_wrapBlockingBlock_xtuoz7(
+        raw, rawListener, objc.objCContext);
+    objc.objectRelease(raw.cast());
+    objc.objectRelease(rawListener.cast());
+    return objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)>(wrapper,
+        retain: false, release: true);
+  }
+}
+
+/// Call operator for `objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)>`.
+extension ObjCBlock_ffiVoid_SentryProfileOptions_CallExtension
+    on objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)> {
+  void call(SentryProfileOptions arg0) => ref.pointer.ref.invoke
+      .cast<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl> block,
+                  ffi.Pointer<objc.ObjCObject> arg0)>>()
+      .asFunction<
+          void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+              ffi.Pointer<objc.ObjCObject>)>()(ref.pointer, arg0.ref.pointer);
+}
+
+late final _sel_configureProfiling = objc.registerName("configureProfiling");
+late final _sel_setConfigureProfiling_ =
+    objc.registerName("setConfigureProfiling:");
+late final _sel_enableAppLaunchProfiling =
+    objc.registerName("enableAppLaunchProfiling");
+late final _sel_setEnableAppLaunchProfiling_ =
+    objc.registerName("setEnableAppLaunchProfiling:");
+late final _sel_profilesSampleRate = objc.registerName("profilesSampleRate");
+late final _sel_setProfilesSampleRate_ =
+    objc.registerName("setProfilesSampleRate:");
+late final _sel_profilesSampler = objc.registerName("profilesSampler");
+late final _sel_setProfilesSampler_ = objc.registerName("setProfilesSampler:");
+late final _sel_isProfilingEnabled = objc.registerName("isProfilingEnabled");
+late final _sel_enableProfiling = objc.registerName("enableProfiling");
+late final _sel_setEnableProfiling_ = objc.registerName("setEnableProfiling:");
+late final _sel_sendClientReports = objc.registerName("sendClientReports");
+late final _sel_setSendClientReports_ =
+    objc.registerName("setSendClientReports:");
+late final _sel_enableAppHangTracking =
+    objc.registerName("enableAppHangTracking");
+late final _sel_setEnableAppHangTracking_ =
+    objc.registerName("setEnableAppHangTracking:");
+late final _sel_appHangTimeoutInterval =
+    objc.registerName("appHangTimeoutInterval");
+late final _sel_setAppHangTimeoutInterval_ =
+    objc.registerName("setAppHangTimeoutInterval:");
+late final _sel_enableAutoBreadcrumbTracking =
+    objc.registerName("enableAutoBreadcrumbTracking");
+late final _sel_setEnableAutoBreadcrumbTracking_ =
+    objc.registerName("setEnableAutoBreadcrumbTracking:");
+late final _sel_tracePropagationTargets =
+    objc.registerName("tracePropagationTargets");
+late final _sel_setTracePropagationTargets_ =
+    objc.registerName("setTracePropagationTargets:");
+late final _sel_enableCaptureFailedRequests =
+    objc.registerName("enableCaptureFailedRequests");
+late final _sel_setEnableCaptureFailedRequests_ =
+    objc.registerName("setEnableCaptureFailedRequests:");
+late final _sel_failedRequestStatusCodes =
+    objc.registerName("failedRequestStatusCodes");
+late final _sel_setFailedRequestStatusCodes_ =
+    objc.registerName("setFailedRequestStatusCodes:");
+late final _sel_failedRequestTargets =
+    objc.registerName("failedRequestTargets");
+late final _sel_setFailedRequestTargets_ =
+    objc.registerName("setFailedRequestTargets:");
+late final _sel_enableMetricKit = objc.registerName("enableMetricKit");
+late final _sel_setEnableMetricKit_ = objc.registerName("setEnableMetricKit:");
+late final _sel_enableMetricKitRawPayload =
+    objc.registerName("enableMetricKitRawPayload");
+late final _sel_setEnableMetricKitRawPayload_ =
+    objc.registerName("setEnableMetricKitRawPayload:");
+late final _sel_enableTimeToFullDisplayTracing =
+    objc.registerName("enableTimeToFullDisplayTracing");
+late final _sel_setEnableTimeToFullDisplayTracing_ =
+    objc.registerName("setEnableTimeToFullDisplayTracing:");
+late final _sel_swiftAsyncStacktraces =
+    objc.registerName("swiftAsyncStacktraces");
+late final _sel_setSwiftAsyncStacktraces_ =
+    objc.registerName("setSwiftAsyncStacktraces:");
+late final _sel_cacheDirectoryPath = objc.registerName("cacheDirectoryPath");
+late final _sel_setCacheDirectoryPath_ =
+    objc.registerName("setCacheDirectoryPath:");
+late final _sel_enableSpotlight = objc.registerName("enableSpotlight");
+late final _sel_setEnableSpotlight_ = objc.registerName("setEnableSpotlight:");
+late final _sel_spotlightUrl = objc.registerName("spotlightUrl");
+late final _sel_setSpotlightUrl_ = objc.registerName("setSpotlightUrl:");
+late final _sel__swiftExperimentalOptions =
+    objc.registerName("_swiftExperimentalOptions");
+
+/// SentryOptions
+class SentryOptions extends objc.NSObject {
+  SentryOptions._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super.castFromPointer(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryOptions] that points to the same underlying object as [other].
+  SentryOptions.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryOptions] that wraps the given raw object pointer.
+  SentryOptions.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+
+  /// Returns whether [obj] is an instance of [SentryOptions].
+  static bool isInstance(objc.ObjCObjectBase obj) {
+    return _objc_msgSend_19nvye5(
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryOptions);
+  }
+
+  /// The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
+  /// not send any events.
+  objc.NSString? get dsn {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_dsn);
+    return _ret.address == 0
+        ? null
+        : objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
+  /// not send any events.
+  set dsn(objc.NSString? value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setDsn_, value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// The parsed internal DSN.
+  SentryDsn? get parsedDsn {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_parsedDsn);
+    return _ret.address == 0
+        ? null
+        : SentryDsn.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// The parsed internal DSN.
+  set parsedDsn(SentryDsn? value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setParsedDsn_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
+  /// information if something goes wrong.
+  /// @note Default is @c NO.
+  bool get debug {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_debug);
+  }
+
+  /// Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
+  /// information if something goes wrong.
+  /// @note Default is @c NO.
+  set debug(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setDebug_, value);
+  }
+
+  /// Minimum LogLevel to be used if debug is enabled.
+  /// @note Default is @c kSentryLevelDebug.
+  SentryLevel get diagnosticLevel {
+    final _ret = _objc_msgSend_b9ccsc(this.ref.pointer, _sel_diagnosticLevel);
+    return SentryLevel.fromValue(_ret);
+  }
+
+  /// Minimum LogLevel to be used if debug is enabled.
+  /// @note Default is @c kSentryLevelDebug.
+  set diagnosticLevel(SentryLevel value) {
+    _objc_msgSend_9dwzby(
+        this.ref.pointer, _sel_setDiagnosticLevel_, value.value);
+  }
+
+  /// This property will be filled before the event is sent.
+  objc.NSString? get releaseName {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_releaseName);
+    return _ret.address == 0
+        ? null
+        : objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// This property will be filled before the event is sent.
+  set releaseName(objc.NSString? value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setReleaseName_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// The distribution of the application.
+  /// @discussion Distributions are used to disambiguate build or deployment variants of the same
+  /// release of an application. For example, the @c dist can be the build number of an Xcode build.
+  objc.NSString? get dist {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_dist);
+    return _ret.address == 0
+        ? null
+        : objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// The distribution of the application.
+  /// @discussion Distributions are used to disambiguate build or deployment variants of the same
+  /// release of an application. For example, the @c dist can be the build number of an Xcode build.
+  set dist(objc.NSString? value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setDist_, value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// The environment used for events if no environment is set on the current scope.
+  /// @note Default value is @c @"production".
+  objc.NSString get environment {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_environment);
+    return objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// The environment used for events if no environment is set on the current scope.
+  /// @note Default value is @c @"production".
+  set environment(objc.NSString value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setEnvironment_, value.ref.pointer);
+  }
+
+  /// Specifies wether this SDK should send events to Sentry. If set to @c NO events will be
+  /// dropped in the client and not sent to Sentry. Default is @c YES.
+  bool get enabled {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enabled);
+  }
+
+  /// Specifies wether this SDK should send events to Sentry. If set to @c NO events will be
+  /// dropped in the client and not sent to Sentry. Default is @c YES.
+  set enabled(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setEnabled_, value);
+  }
+
+  /// Controls the flush duration when calling @c SentrySDK/close .
+  double get shutdownTimeInterval {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_1ukqyt8Fpret(
+            this.ref.pointer, _sel_shutdownTimeInterval)
+        : _objc_msgSend_1ukqyt8(this.ref.pointer, _sel_shutdownTimeInterval);
+  }
+
+  /// Controls the flush duration when calling @c SentrySDK/close .
+  set shutdownTimeInterval(double value) {
+    _objc_msgSend_hwm8nu(
+        this.ref.pointer, _sel_setShutdownTimeInterval_, value);
+  }
+
+  /// When enabled, the SDK sends crashes to Sentry.
+  /// @note Disabling this feature disables the @c SentryWatchdogTerminationTrackingIntegration ,
+  /// because
+  /// @c SentryWatchdogTerminationTrackingIntegration would falsely report every crash as watchdog
+  /// termination.
+  /// @note Default value is @c YES .
+  /// @note Crash reporting is automatically disabled if a debugger is attached.
+  bool get enableCrashHandler {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableCrashHandler);
+  }
+
+  /// When enabled, the SDK sends crashes to Sentry.
+  /// @note Disabling this feature disables the @c SentryWatchdogTerminationTrackingIntegration ,
+  /// because
+  /// @c SentryWatchdogTerminationTrackingIntegration would falsely report every crash as watchdog
+  /// termination.
+  /// @note Default value is @c YES .
+  /// @note Crash reporting is automatically disabled if a debugger is attached.
+  set enableCrashHandler(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setEnableCrashHandler_, value);
+  }
+
+  /// When enabled, the SDK captures uncaught NSExceptions. As this feature uses swizzling, disabling
+  /// @c enableSwizzling also disables this feature.
+  ///
+  /// @discussion This option registers the `NSApplicationCrashOnExceptions` UserDefault,
+  /// so your macOS application crashes when an uncaught exception occurs. As the Cocoa Frameworks are
+  /// generally not exception-safe on macOS, we recommend this approach because the application could
+  /// otherwise end up in a corrupted state.
+  ///
+  /// @warning Don't use this in combination with `SentryCrashExceptionApplication`. Either enable this
+  /// feature or use the `SentryCrashExceptionApplication`. Having both enabled can lead to duplicated
+  /// reports.
+  ///
+  /// @note Default value is @c NO .
+  bool get enableUncaughtNSExceptionReporting {
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enableUncaughtNSExceptionReporting);
+  }
+
+  /// When enabled, the SDK captures uncaught NSExceptions. As this feature uses swizzling, disabling
+  /// @c enableSwizzling also disables this feature.
+  ///
+  /// @discussion This option registers the `NSApplicationCrashOnExceptions` UserDefault,
+  /// so your macOS application crashes when an uncaught exception occurs. As the Cocoa Frameworks are
+  /// generally not exception-safe on macOS, we recommend this approach because the application could
+  /// otherwise end up in a corrupted state.
+  ///
+  /// @warning Don't use this in combination with `SentryCrashExceptionApplication`. Either enable this
+  /// feature or use the `SentryCrashExceptionApplication`. Having both enabled can lead to duplicated
+  /// reports.
+  ///
+  /// @note Default value is @c NO .
+  set enableUncaughtNSExceptionReporting(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableUncaughtNSExceptionReporting_, value);
+  }
+
+  /// When enabled, the SDK reports SIGTERM signals to Sentry.
+  ///
+  /// It's crucial for developers to understand that the OS sends a SIGTERM to their app as a prelude
+  /// to a graceful shutdown, before resorting to a SIGKILL. This SIGKILL, which your app can't catch
+  /// or ignore, is a direct order to terminate your app's process immediately. Developers should be
+  /// aware that their app can receive a SIGTERM in various scenarios, such as  CPU or disk overuse,
+  /// watchdog terminations, or when the OS updates your app.
+  ///
+  /// @note The default value is @c NO.
+  bool get enableSigtermReporting {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableSigtermReporting);
+  }
+
+  /// When enabled, the SDK reports SIGTERM signals to Sentry.
+  ///
+  /// It's crucial for developers to understand that the OS sends a SIGTERM to their app as a prelude
+  /// to a graceful shutdown, before resorting to a SIGKILL. This SIGKILL, which your app can't catch
+  /// or ignore, is a direct order to terminate your app's process immediately. Developers should be
+  /// aware that their app can receive a SIGTERM in various scenarios, such as  CPU or disk overuse,
+  /// watchdog terminations, or when the OS updates your app.
+  ///
+  /// @note The default value is @c NO.
+  set enableSigtermReporting(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableSigtermReporting_, value);
+  }
+
+  /// How many breadcrumbs do you want to keep in memory?
+  /// @note Default is @c 100 .
+  int get maxBreadcrumbs {
+    return _objc_msgSend_xw2lbc(this.ref.pointer, _sel_maxBreadcrumbs);
+  }
+
+  /// How many breadcrumbs do you want to keep in memory?
+  /// @note Default is @c 100 .
+  set maxBreadcrumbs(int value) {
+    _objc_msgSend_1i9r4xy(this.ref.pointer, _sel_setMaxBreadcrumbs_, value);
+  }
+
+  /// When enabled, the SDK adds breadcrumbs for each network request. As this feature uses swizzling,
+  /// disabling @c enableSwizzling also disables this feature.
+  /// @discussion If you want to enable or disable network tracking for performance monitoring, please
+  /// use @c enableNetworkTracking instead.
+  /// @note Default value is @c YES .
+  bool get enableNetworkBreadcrumbs {
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enableNetworkBreadcrumbs);
+  }
+
+  /// When enabled, the SDK adds breadcrumbs for each network request. As this feature uses swizzling,
+  /// disabling @c enableSwizzling also disables this feature.
+  /// @discussion If you want to enable or disable network tracking for performance monitoring, please
+  /// use @c enableNetworkTracking instead.
+  /// @note Default value is @c YES .
+  set enableNetworkBreadcrumbs(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableNetworkBreadcrumbs_, value);
+  }
+
+  /// The maximum number of envelopes to keep in cache.
+  /// @note Default is @c 30 .
+  int get maxCacheItems {
+    return _objc_msgSend_xw2lbc(this.ref.pointer, _sel_maxCacheItems);
+  }
+
+  /// The maximum number of envelopes to keep in cache.
+  /// @note Default is @c 30 .
+  set maxCacheItems(int value) {
+    _objc_msgSend_1i9r4xy(this.ref.pointer, _sel_setMaxCacheItems_, value);
+  }
+
+  /// This block can be used to modify the event before it will be serialized and sent.
+  objc.ObjCBlock<SentryEvent? Function(SentryEvent)>? get beforeSend {
+    final _ret = _objc_msgSend_uwvaik(this.ref.pointer, _sel_beforeSend);
+    return _ret.address == 0
+        ? null
+        : ObjCBlock_SentryEvent_SentryEvent.castFromPointer(_ret,
+            retain: true, release: true);
+  }
+
+  /// This block can be used to modify the event before it will be serialized and sent.
+  set beforeSend(objc.ObjCBlock<SentryEvent? Function(SentryEvent)>? value) {
+    _objc_msgSend_f167m6(this.ref.pointer, _sel_setBeforeSend_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// Use this callback to drop or modify a span before the SDK sends it to Sentry. Return @c nil to
+  /// drop the span.
+  objc.ObjCBlock<
+          ffi.Pointer<objc.ObjCObject>? Function(ffi.Pointer<objc.ObjCObject>)>?
+      get beforeSendSpan {
+    final _ret = _objc_msgSend_uwvaik(this.ref.pointer, _sel_beforeSendSpan);
+    return _ret.address == 0
+        ? null
+        : ObjCBlock_idSentrySpan_idSentrySpan.castFromPointer(_ret,
+            retain: true, release: true);
+  }
+
+  /// Use this callback to drop or modify a span before the SDK sends it to Sentry. Return @c nil to
+  /// drop the span.
+  set beforeSendSpan(
+      objc.ObjCBlock<
+              ffi.Pointer<objc.ObjCObject>? Function(
+                  ffi.Pointer<objc.ObjCObject>)>?
+          value) {
+    _objc_msgSend_f167m6(this.ref.pointer, _sel_setBeforeSendSpan_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// Use this callback to drop or modify a log before the SDK sends it to Sentry. Return @c nil to
+  /// drop the log.
+  objc.ObjCBlock<SentryLog? Function(SentryLog)>? get beforeSendLog {
+    final _ret = _objc_msgSend_uwvaik(this.ref.pointer, _sel_beforeSendLog);
+    return _ret.address == 0
+        ? null
+        : ObjCBlock_SentryLog_SentryLog.castFromPointer(_ret,
+            retain: true, release: true);
+  }
+
+  /// Use this callback to drop or modify a log before the SDK sends it to Sentry. Return @c nil to
+  /// drop the log.
+  set beforeSendLog(objc.ObjCBlock<SentryLog? Function(SentryLog)>? value) {
+    _objc_msgSend_f167m6(this.ref.pointer, _sel_setBeforeSendLog_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// This block can be used to modify the event before it will be serialized and sent.
+  objc.ObjCBlock<SentryBreadcrumb? Function(SentryBreadcrumb)>?
+      get beforeBreadcrumb {
+    final _ret = _objc_msgSend_uwvaik(this.ref.pointer, _sel_beforeBreadcrumb);
+    return _ret.address == 0
+        ? null
+        : ObjCBlock_SentryBreadcrumb_SentryBreadcrumb.castFromPointer(_ret,
+            retain: true, release: true);
+  }
+
+  /// This block can be used to modify the event before it will be serialized and sent.
+  set beforeBreadcrumb(
+      objc.ObjCBlock<SentryBreadcrumb? Function(SentryBreadcrumb)>? value) {
+    _objc_msgSend_f167m6(this.ref.pointer, _sel_setBeforeBreadcrumb_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// You can use this callback to decide if the SDK should capture a screenshot or not. Return @c true
+  /// if the SDK should capture a screenshot, return @c false if not. This callback doesn't work for
+  /// crashes.
+  objc.ObjCBlock<ffi.Bool Function(SentryEvent)>? get beforeCaptureScreenshot {
+    final _ret =
+        _objc_msgSend_uwvaik(this.ref.pointer, _sel_beforeCaptureScreenshot);
+    return _ret.address == 0
+        ? null
+        : ObjCBlock_bool_SentryEvent.castFromPointer(_ret,
+            retain: true, release: true);
+  }
+
+  /// You can use this callback to decide if the SDK should capture a screenshot or not. Return @c true
+  /// if the SDK should capture a screenshot, return @c false if not. This callback doesn't work for
+  /// crashes.
+  set beforeCaptureScreenshot(
+      objc.ObjCBlock<ffi.Bool Function(SentryEvent)>? value) {
+    _objc_msgSend_f167m6(this.ref.pointer, _sel_setBeforeCaptureScreenshot_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// You can use this callback to decide if the SDK should capture a view hierarchy or not. Return @c
+  /// true if the SDK should capture a view hierarchy, return @c false if not. This callback doesn't
+  /// work for crashes.
+  objc.ObjCBlock<ffi.Bool Function(SentryEvent)>?
+      get beforeCaptureViewHierarchy {
+    final _ret =
+        _objc_msgSend_uwvaik(this.ref.pointer, _sel_beforeCaptureViewHierarchy);
+    return _ret.address == 0
+        ? null
+        : ObjCBlock_bool_SentryEvent.castFromPointer(_ret,
+            retain: true, release: true);
+  }
+
+  /// You can use this callback to decide if the SDK should capture a view hierarchy or not. Return @c
+  /// true if the SDK should capture a view hierarchy, return @c false if not. This callback doesn't
+  /// work for crashes.
+  set beforeCaptureViewHierarchy(
+      objc.ObjCBlock<ffi.Bool Function(SentryEvent)>? value) {
+    _objc_msgSend_f167m6(this.ref.pointer, _sel_setBeforeCaptureViewHierarchy_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// A block called shortly after the initialization of the SDK when the last program execution
+  /// terminated with a crash.
+  /// @discussion This callback is only executed once during the entire run of the program to avoid
+  /// multiple callbacks if there are multiple crash events to send. This can happen when the program
+  /// terminates with a crash before the SDK can send the crash event. You can look into @c beforeSend
+  /// if you prefer a callback for every event.
+  /// @warning It is not guaranteed that this is called on the main thread.
+  /// @note Crash reporting is automatically disabled if a debugger is attached.
+  objc.ObjCBlock<ffi.Void Function(SentryEvent)>? get onCrashedLastRun {
+    final _ret = _objc_msgSend_uwvaik(this.ref.pointer, _sel_onCrashedLastRun);
+    return _ret.address == 0
+        ? null
+        : ObjCBlock_ffiVoid_SentryEvent.castFromPointer(_ret,
+            retain: true, release: true);
+  }
+
+  /// A block called shortly after the initialization of the SDK when the last program execution
+  /// terminated with a crash.
+  /// @discussion This callback is only executed once during the entire run of the program to avoid
+  /// multiple callbacks if there are multiple crash events to send. This can happen when the program
+  /// terminates with a crash before the SDK can send the crash event. You can look into @c beforeSend
+  /// if you prefer a callback for every event.
+  /// @warning It is not guaranteed that this is called on the main thread.
+  /// @note Crash reporting is automatically disabled if a debugger is attached.
+  set onCrashedLastRun(objc.ObjCBlock<ffi.Void Function(SentryEvent)>? value) {
+    _objc_msgSend_f167m6(this.ref.pointer, _sel_setOnCrashedLastRun_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// Array of integrations to install.
+  objc.NSArray? get integrations {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_integrations);
+    return _ret.address == 0
+        ? null
+        : objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Array of integrations to install.
+  set integrations(objc.NSArray? value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setIntegrations_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// Array of default integrations. Will be used if @c integrations is @c nil .
+  static objc.NSArray defaultIntegrations() {
+    final _ret =
+        _objc_msgSend_151sglz(_class_SentryOptions, _sel_defaultIntegrations);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Indicates the percentage of events being sent to Sentry.
+  /// @discussion Specifying @c 0 discards all events, @c 1.0 or @c nil sends all events, @c 0.01
+  /// collects 1% of all events.
+  /// @note The value needs to be >= @c 0.0 and \<= @c 1.0. When setting a value out of range the SDK
+  /// sets it to the default of @c 1.0.
+  /// @note The default is @c 1 .
+  objc.NSNumber? get sampleRate {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_sampleRate);
+    return _ret.address == 0
+        ? null
+        : objc.NSNumber.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Indicates the percentage of events being sent to Sentry.
+  /// @discussion Specifying @c 0 discards all events, @c 1.0 or @c nil sends all events, @c 0.01
+  /// collects 1% of all events.
+  /// @note The value needs to be >= @c 0.0 and \<= @c 1.0. When setting a value out of range the SDK
+  /// sets it to the default of @c 1.0.
+  /// @note The default is @c 1 .
+  set sampleRate(objc.NSNumber? value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setSampleRate_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// Whether to enable automatic session tracking or not.
+  /// @note Default is @c YES.
+  bool get enableAutoSessionTracking {
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enableAutoSessionTracking);
+  }
+
+  /// Whether to enable automatic session tracking or not.
+  /// @note Default is @c YES.
+  set enableAutoSessionTracking(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableAutoSessionTracking_, value);
+  }
+
+  /// Whether to attach the top level `operationName` node of HTTP json requests to HTTP breadcrumbs
+  /// @note Default is @c NO.
+  bool get enableGraphQLOperationTracking {
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enableGraphQLOperationTracking);
+  }
+
+  /// Whether to attach the top level `operationName` node of HTTP json requests to HTTP breadcrumbs
+  /// @note Default is @c NO.
+  set enableGraphQLOperationTracking(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableGraphQLOperationTracking_, value);
+  }
+
+  /// Whether to enable Watchdog Termination tracking or not.
+  /// @note This feature requires the @c SentryCrashIntegration being enabled, otherwise it would
+  /// falsely report every crash as watchdog termination.
+  /// @note Default is @c YES.
+  bool get enableWatchdogTerminationTracking {
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enableWatchdogTerminationTracking);
+  }
+
+  /// Whether to enable Watchdog Termination tracking or not.
+  /// @note This feature requires the @c SentryCrashIntegration being enabled, otherwise it would
+  /// falsely report every crash as watchdog termination.
+  /// @note Default is @c YES.
+  set enableWatchdogTerminationTracking(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableWatchdogTerminationTracking_, value);
+  }
+
+  /// The interval to end a session after the App goes to the background.
+  /// @note The default is 30 seconds.
+  int get sessionTrackingIntervalMillis {
+    return _objc_msgSend_xw2lbc(
+        this.ref.pointer, _sel_sessionTrackingIntervalMillis);
+  }
+
+  /// The interval to end a session after the App goes to the background.
+  /// @note The default is 30 seconds.
+  set sessionTrackingIntervalMillis(int value) {
+    _objc_msgSend_1i9r4xy(
+        this.ref.pointer, _sel_setSessionTrackingIntervalMillis_, value);
+  }
+
+  /// When enabled, stack traces are automatically attached to all messages logged. Stack traces are
+  /// always attached to exceptions but when this is set stack traces are also sent with messages.
+  /// Stack traces are only attached for the current thread.
+  /// @note This feature is enabled by default.
+  bool get attachStacktrace {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_attachStacktrace);
+  }
+
+  /// When enabled, stack traces are automatically attached to all messages logged. Stack traces are
+  /// always attached to exceptions but when this is set stack traces are also sent with messages.
+  /// Stack traces are only attached for the current thread.
+  /// @note This feature is enabled by default.
+  set attachStacktrace(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setAttachStacktrace_, value);
+  }
+
+  /// The maximum size for each attachment in bytes.
+  /// @note Default is 20 MiB (20 ✕ 1024 ✕ 1024 bytes).
+  /// @note Please also check the maximum attachment size of relay to make sure your attachments don't
+  /// get discarded there:
+  /// https://docs.sentry.io/product/relay/options/
+  int get maxAttachmentSize {
+    return _objc_msgSend_xw2lbc(this.ref.pointer, _sel_maxAttachmentSize);
+  }
+
+  /// The maximum size for each attachment in bytes.
+  /// @note Default is 20 MiB (20 ✕ 1024 ✕ 1024 bytes).
+  /// @note Please also check the maximum attachment size of relay to make sure your attachments don't
+  /// get discarded there:
+  /// https://docs.sentry.io/product/relay/options/
+  set maxAttachmentSize(int value) {
+    _objc_msgSend_1i9r4xy(this.ref.pointer, _sel_setMaxAttachmentSize_, value);
+  }
+
+  /// When enabled, the SDK sends personal identifiable along with events.
+  /// @note The default is @c NO .
+  /// @discussion When the user of an event doesn't contain an IP address, and this flag is
+  /// @c YES, the SDK sets sdk.settings.infer_ip to @c auto to instruct the server to use the
+  /// connection IP address as the user address. Due to backward compatibility concerns, Sentry sets
+  /// sdk.settings.infer_ip  to @c auto out of the box for Cocoa. If you want to stop Sentry from
+  /// using the connections IP address, you have to enable Prevent Storing of IP Addresses in your
+  /// project settings in Sentry.
+  bool get sendDefaultPii {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_sendDefaultPii);
+  }
+
+  /// When enabled, the SDK sends personal identifiable along with events.
+  /// @note The default is @c NO .
+  /// @discussion When the user of an event doesn't contain an IP address, and this flag is
+  /// @c YES, the SDK sets sdk.settings.infer_ip to @c auto to instruct the server to use the
+  /// connection IP address as the user address. Due to backward compatibility concerns, Sentry sets
+  /// sdk.settings.infer_ip  to @c auto out of the box for Cocoa. If you want to stop Sentry from
+  /// using the connections IP address, you have to enable Prevent Storing of IP Addresses in your
+  /// project settings in Sentry.
+  set sendDefaultPii(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setSendDefaultPii_, value);
+  }
+
+  /// When enabled, the SDK tracks performance for UIViewController subclasses and HTTP requests
+  /// automatically. It also measures the app start and slow and frozen frames.
+  /// @note The default is @c YES .
+  /// @note Performance Monitoring must be enabled for this flag to take effect. See:
+  /// https://docs.sentry.io/platforms/apple/performance/
+  bool get enableAutoPerformanceTracing {
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enableAutoPerformanceTracing);
+  }
+
+  /// When enabled, the SDK tracks performance for UIViewController subclasses and HTTP requests
+  /// automatically. It also measures the app start and slow and frozen frames.
+  /// @note The default is @c YES .
+  /// @note Performance Monitoring must be enabled for this flag to take effect. See:
+  /// https://docs.sentry.io/platforms/apple/performance/
+  set enableAutoPerformanceTracing(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableAutoPerformanceTracing_, value);
+  }
+
+  /// We're working to update our Performance product offering in order to be able to provide better
+  /// insights and highlight specific actions you can take to improve your mobile app's overall
+  /// performance. The performanceV2 option changes the following behavior: The app start duration will
+  /// now finish when the first frame is drawn instead of when the OS posts the
+  /// UIWindowDidBecomeVisibleNotification. This change will be the default in the next major version.
+  bool get enablePerformanceV2 {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enablePerformanceV2);
+  }
+
+  /// We're working to update our Performance product offering in order to be able to provide better
+  /// insights and highlight specific actions you can take to improve your mobile app's overall
+  /// performance. The performanceV2 option changes the following behavior: The app start duration will
+  /// now finish when the first frame is drawn instead of when the OS posts the
+  /// UIWindowDidBecomeVisibleNotification. This change will be the default in the next major version.
+  set enablePerformanceV2(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnablePerformanceV2_, value);
+  }
+
+  /// @warning This is an experimental feature and may still have bugs.
+  ///
+  /// When enabled, the SDK finishes the ongoing transaction bound to the scope and links them to the
+  /// crash event when your app crashes. The SDK skips adding profiles to increase the chance of
+  /// keeping the transaction.
+  ///
+  /// @note The default is @c NO .
+  bool get enablePersistingTracesWhenCrashing {
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enablePersistingTracesWhenCrashing);
+  }
+
+  /// @warning This is an experimental feature and may still have bugs.
+  ///
+  /// When enabled, the SDK finishes the ongoing transaction bound to the scope and links them to the
+  /// crash event when your app crashes. The SDK skips adding profiles to increase the chance of
+  /// keeping the transaction.
+  ///
+  /// @note The default is @c NO .
+  set enablePersistingTracesWhenCrashing(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnablePersistingTracesWhenCrashing_, value);
+  }
+
+  /// A block that configures the initial scope when starting the SDK.
+  /// @discussion The block receives a suggested default scope. You can either
+  /// configure and return this, or create your own scope instead.
+  /// @note The default simply returns the passed in scope.
+  objc.ObjCBlock<SentryScope Function(SentryScope)> get initialScope {
+    final _ret = _objc_msgSend_uwvaik(this.ref.pointer, _sel_initialScope);
+    return ObjCBlock_SentryScope_SentryScope.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// A block that configures the initial scope when starting the SDK.
+  /// @discussion The block receives a suggested default scope. You can either
+  /// configure and return this, or create your own scope instead.
+  /// @note The default simply returns the passed in scope.
+  set initialScope(objc.ObjCBlock<SentryScope Function(SentryScope)> value) {
+    _objc_msgSend_f167m6(
+        this.ref.pointer, _sel_setInitialScope_, value.ref.pointer);
+  }
+
+  /// When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and
+  /// @c enableSwizzling are enabled.
+  /// @note The default is @c YES .
+  /// @discussion If you want to enable or disable network breadcrumbs, please use
+  /// @c enableNetworkBreadcrumbs instead.
+  bool get enableNetworkTracking {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableNetworkTracking);
+  }
+
+  /// When enabled, the SDK tracks performance for HTTP requests if auto performance tracking and
+  /// @c enableSwizzling are enabled.
+  /// @note The default is @c YES .
+  /// @discussion If you want to enable or disable network breadcrumbs, please use
+  /// @c enableNetworkBreadcrumbs instead.
+  set enableNetworkTracking(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableNetworkTracking_, value);
+  }
+
+  /// When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
+  /// performance tracking and enableSwizzling are enabled.
+  /// @note The default is @c YES .
+  bool get enableFileIOTracing {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableFileIOTracing);
+  }
+
+  /// When enabled, the SDK tracks performance for file IO reads and writes with NSData if auto
+  /// performance tracking and enableSwizzling are enabled.
+  /// @note The default is @c YES .
+  set enableFileIOTracing(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableFileIOTracing_, value);
+  }
+
+  /// Indicates whether tracing should be enabled.
+  /// @discussion Enabling this sets @c tracesSampleRate to @c 1 if both @c tracesSampleRate and
+  /// @c tracesSampler are @c nil. Changing either @c tracesSampleRate or @c tracesSampler to a value
+  /// other then @c nil will enable this in case this was never changed before.
+  bool get enableTracing {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableTracing);
+  }
+
+  /// Indicates whether tracing should be enabled.
+  /// @discussion Enabling this sets @c tracesSampleRate to @c 1 if both @c tracesSampleRate and
+  /// @c tracesSampler are @c nil. Changing either @c tracesSampleRate or @c tracesSampler to a value
+  /// other then @c nil will enable this in case this was never changed before.
+  set enableTracing(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setEnableTracing_, value);
+  }
+
+  /// Indicates the percentage of the tracing data that is collected.
+  /// @discussion Specifying @c 0 or @c nil discards all trace data, @c 1.0 collects all trace data,
+  /// @c 0.01 collects 1% of all trace data.
+  /// @note The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
+  /// to the default.
+  /// @note The default is @c 0 .
+  objc.NSNumber? get tracesSampleRate {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_tracesSampleRate);
+    return _ret.address == 0
+        ? null
+        : objc.NSNumber.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Indicates the percentage of the tracing data that is collected.
+  /// @discussion Specifying @c 0 or @c nil discards all trace data, @c 1.0 collects all trace data,
+  /// @c 0.01 collects 1% of all trace data.
+  /// @note The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
+  /// to the default.
+  /// @note The default is @c 0 .
+  set tracesSampleRate(objc.NSNumber? value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setTracesSampleRate_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// A callback to a user defined traces sampler function.
+  /// @discussion Specifying @c 0 or @c nil discards all trace data, @c 1.0 collects all trace data,
+  /// @c 0.01 collects 1% of all trace data.
+  /// @note The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
+  /// to the default of @c 0 .
+  /// @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
+  /// with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
+  /// disk for use on the next app launch.
+  objc.ObjCBlock<objc.NSNumber? Function(SentrySamplingContext)>?
+      get tracesSampler {
+    final _ret = _objc_msgSend_uwvaik(this.ref.pointer, _sel_tracesSampler);
+    return _ret.address == 0
+        ? null
+        : ObjCBlock_NSNumber_SentrySamplingContext.castFromPointer(_ret,
+            retain: true, release: true);
+  }
+
+  /// A callback to a user defined traces sampler function.
+  /// @discussion Specifying @c 0 or @c nil discards all trace data, @c 1.0 collects all trace data,
+  /// @c 0.01 collects 1% of all trace data.
+  /// @note The value needs to be >= 0.0 and \<= 1.0. When setting a value out of range the SDK sets it
+  /// to the default of @c 0 .
+  /// @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
+  /// with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
+  /// disk for use on the next app launch.
+  set tracesSampler(
+      objc.ObjCBlock<objc.NSNumber? Function(SentrySamplingContext)>? value) {
+    _objc_msgSend_f167m6(this.ref.pointer, _sel_setTracesSampler_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// If tracing is enabled or not.
+  /// @discussion @c YES if @c tracesSampleRateis > @c 0 and \<= @c 1
+  /// or a @c tracesSampler is set, otherwise @c NO.
+  bool get isTracingEnabled {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_isTracingEnabled);
+  }
+
+  /// A list of string prefixes of framework names that belong to the app.
+  /// @note This option takes precedence over @c inAppExcludes.
+  /// @note By default, this contains @c CFBundleExecutable to mark it as "in-app".
+  objc.NSArray get inAppIncludes {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_inAppIncludes);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Adds an item to the list of @c inAppIncludes.
+  /// @param inAppInclude The prefix of the framework name.
+  void addInAppInclude(objc.NSString inAppInclude) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_addInAppInclude_, inAppInclude.ref.pointer);
+  }
+
+  /// A list of string prefixes of framework names that do not belong to the app, but rather to
+  /// third-party frameworks.
+  /// @note By default, frameworks considered not part of the app will be hidden from stack
+  /// traces.
+  /// @note This option can be overridden using @c inAppIncludes.
+  objc.NSArray get inAppExcludes {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_inAppExcludes);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Adds an item to the list of @c inAppExcludes.
+  /// @param inAppExclude The prefix of the frameworks name.
+  void addInAppExclude(objc.NSString inAppExclude) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_addInAppExclude_, inAppExclude.ref.pointer);
+  }
+
+  /// Set as delegate on the @c NSURLSession used for all network data-transfer tasks performed by
+  /// Sentry.
+  ///
+  /// @discussion The SDK ignores this option when using @c urlSession.
+  NSURLSessionDelegate? get urlSessionDelegate {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_urlSessionDelegate);
+    return _ret.address == 0
+        ? null
+        : NSURLSessionDelegate.castFromPointer(_ret,
+            retain: true, release: true);
+  }
+
+  /// Set as delegate on the @c NSURLSession used for all network data-transfer tasks performed by
+  /// Sentry.
+  ///
+  /// @discussion The SDK ignores this option when using @c urlSession.
+  set urlSessionDelegate(NSURLSessionDelegate? value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setUrlSessionDelegate_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// Use this property, so the transport uses this  @c NSURLSession with your configuration for
+  /// sending requests to Sentry.
+  ///
+  /// If not set, the SDK will create a new @c NSURLSession with @c [NSURLSessionConfiguration
+  /// ephemeralSessionConfiguration].
+  ///
+  /// @note Default is @c nil.
+  NSURLSession? get urlSession {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_urlSession);
+    return _ret.address == 0
+        ? null
+        : NSURLSession.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Use this property, so the transport uses this  @c NSURLSession with your configuration for
+  /// sending requests to Sentry.
+  ///
+  /// If not set, the SDK will create a new @c NSURLSession with @c [NSURLSessionConfiguration
+  /// ephemeralSessionConfiguration].
+  ///
+  /// @note Default is @c nil.
+  set urlSession(NSURLSession? value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setUrlSession_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// Wether the SDK should use swizzling or not.
+  /// @discussion When turned off the following features are disabled: breadcrumbs for touch events and
+  /// navigation with @c UIViewControllers, automatic instrumentation for @c UIViewControllers,
+  /// automatic instrumentation for HTTP requests, automatic instrumentation for file IO with
+  /// @c NSData, and automatically added sentry-trace header to HTTP requests for distributed tracing.
+  /// @note Default is @c YES.
+  bool get enableSwizzling {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableSwizzling);
+  }
+
+  /// Wether the SDK should use swizzling or not.
+  /// @discussion When turned off the following features are disabled: breadcrumbs for touch events and
+  /// navigation with @c UIViewControllers, automatic instrumentation for @c UIViewControllers,
+  /// automatic instrumentation for HTTP requests, automatic instrumentation for file IO with
+  /// @c NSData, and automatically added sentry-trace header to HTTP requests for distributed tracing.
+  /// @note Default is @c YES.
+  set enableSwizzling(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setEnableSwizzling_, value);
+  }
+
+  /// A set of class names to ignore for swizzling.
+  ///
+  /// @discussion The SDK checks if a class name of a class to swizzle contains a class name of this
+  /// array. For example, if you add MyUIViewController to this list, the SDK excludes the following
+  /// classes from swizzling: YourApp.MyUIViewController, YourApp.MyUIViewControllerA,
+  /// MyApp.MyUIViewController.
+  /// We can't use an @c NSSet<Class>  here because we use this as a workaround for which users have
+  /// to pass in class names that aren't available on specific iOS versions. By using @c
+  /// NSSet<NSString *>, users can specify unavailable class names.
+  ///
+  /// @note Default is an empty set.
+  objc.NSSet get swizzleClassNameExcludes {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_swizzleClassNameExcludes);
+    return objc.NSSet.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// A set of class names to ignore for swizzling.
+  ///
+  /// @discussion The SDK checks if a class name of a class to swizzle contains a class name of this
+  /// array. For example, if you add MyUIViewController to this list, the SDK excludes the following
+  /// classes from swizzling: YourApp.MyUIViewController, YourApp.MyUIViewControllerA,
+  /// MyApp.MyUIViewController.
+  /// We can't use an @c NSSet<Class>  here because we use this as a workaround for which users have
+  /// to pass in class names that aren't available on specific iOS versions. By using @c
+  /// NSSet<NSString *>, users can specify unavailable class names.
+  ///
+  /// @note Default is an empty set.
+  set swizzleClassNameExcludes(objc.NSSet value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setSwizzleClassNameExcludes_, value.ref.pointer);
+  }
+
+  /// When enabled, the SDK tracks the performance of Core Data operations. It requires enabling
+  /// performance monitoring. The default is @c YES.
+  /// @see <https://docs.sentry.io/platforms/apple/performance/>
+  bool get enableCoreDataTracing {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableCoreDataTracing);
+  }
+
+  /// When enabled, the SDK tracks the performance of Core Data operations. It requires enabling
+  /// performance monitoring. The default is @c YES.
+  /// @see <https://docs.sentry.io/platforms/apple/performance/>
+  set enableCoreDataTracing(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableCoreDataTracing_, value);
+  }
+
+  /// Configuration for the Sentry profiler.
+  /// @warning: Continuous profiling is an experimental feature and may still contain bugs.
+  /// @warning: Profiling is automatically disabled if a thread sanitizer is attached.
+  objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)>?
+      get configureProfiling {
+    final _ret =
+        _objc_msgSend_uwvaik(this.ref.pointer, _sel_configureProfiling);
+    return _ret.address == 0
+        ? null
+        : ObjCBlock_ffiVoid_SentryProfileOptions.castFromPointer(_ret,
+            retain: true, release: true);
+  }
+
+  /// Configuration for the Sentry profiler.
+  /// @warning: Continuous profiling is an experimental feature and may still contain bugs.
+  /// @warning: Profiling is automatically disabled if a thread sanitizer is attached.
+  set configureProfiling(
+      objc.ObjCBlock<ffi.Void Function(SentryProfileOptions)>? value) {
+    _objc_msgSend_f167m6(this.ref.pointer, _sel_setConfigureProfiling_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// @warning This is an experimental feature and may still have bugs.
+  /// Set to @c YES to run the profiler as early as possible in an app launch, before you would
+  /// normally have the opportunity to call @c SentrySDK.start . If @c profilesSampleRate is nonnull,
+  /// the @c tracesSampleRate and @c profilesSampleRate are persisted to disk and read on the next app
+  /// launch to decide whether to profile that launch.
+  /// @warning If @c profilesSampleRate is @c nil then a continuous profile will be started on every
+  /// launch; if you desire sampling profiled launches, you must compute your own sample rate to decide
+  /// whether to set this property to @c YES or @c NO .
+  /// @warning This property is deprecated and will be removed in a future version of the SDK. See
+  /// @c SentryProfileOptions.startOnAppStart and @c SentryProfileOptions.lifecycle .
+  /// @note Profiling is automatically disabled if a thread sanitizer is attached.
+  bool get enableAppLaunchProfiling {
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enableAppLaunchProfiling);
+  }
+
+  /// @warning This is an experimental feature and may still have bugs.
+  /// Set to @c YES to run the profiler as early as possible in an app launch, before you would
+  /// normally have the opportunity to call @c SentrySDK.start . If @c profilesSampleRate is nonnull,
+  /// the @c tracesSampleRate and @c profilesSampleRate are persisted to disk and read on the next app
+  /// launch to decide whether to profile that launch.
+  /// @warning If @c profilesSampleRate is @c nil then a continuous profile will be started on every
+  /// launch; if you desire sampling profiled launches, you must compute your own sample rate to decide
+  /// whether to set this property to @c YES or @c NO .
+  /// @warning This property is deprecated and will be removed in a future version of the SDK. See
+  /// @c SentryProfileOptions.startOnAppStart and @c SentryProfileOptions.lifecycle .
+  /// @note Profiling is automatically disabled if a thread sanitizer is attached.
+  set enableAppLaunchProfiling(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableAppLaunchProfiling_, value);
+  }
+
+  /// @note Profiling is not supported on watchOS or tvOS.
+  /// Indicates the percentage profiles being sampled out of the sampled transactions.
+  /// @note The value needs to be >= @c 0.0 and \<= @c 1.0. When setting a value out of range
+  /// the SDK sets it to @c 0. When set to a valid nonnull value, this property is dependent on
+  /// @c tracesSampleRate -- if @c tracesSampleRate is @c 0 (default), no profiles will be collected no
+  /// matter what this property is set to. This property is used to undersample profiles *relative to*
+  /// @c tracesSampleRate .
+  /// @note Setting this value to @c nil enables an experimental new profiling mode, called continuous
+  /// profiling. This allows you to start and stop a profiler any time with @c SentrySDK.startProfiler
+  /// and @c SentrySDK.stopProfiler, which can run with no time limit, periodically uploading profiling
+  /// data. You can also set @c SentryOptions.enableAppLaunchProfiling to have the profiler start on
+  /// app launch; there is no automatic stop, you must stop it manually at some later time if you
+  /// choose to do so. Sampling rates do not apply to continuous profiles, including those
+  /// automatically started for app launches. If you wish to sample them, you must do so at the
+  /// callsites where you use the API or configure launch profiling. Continuous profiling is not
+  /// automatically started for performance transactions as was the previous version of profiling.
+  /// @seealso https://docs.sentry.io/platforms/apple/profiling/ for more information about the
+  /// different profiling modes.
+  /// @note The default is @c nil (which implies continuous profiling mode).
+  /// @warning The new continuous profiling mode is experimental and may still contain bugs.
+  /// @note Profiling is automatically disabled if a thread sanitizer is attached.
+  /// @warning This property is deprecated and will be removed in a future version of the SDK. See
+  /// @c  SentryProfileOptions.sessionSampleRate.
+  objc.NSNumber? get profilesSampleRate {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_profilesSampleRate);
+    return _ret.address == 0
+        ? null
+        : objc.NSNumber.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// @note Profiling is not supported on watchOS or tvOS.
+  /// Indicates the percentage profiles being sampled out of the sampled transactions.
+  /// @note The value needs to be >= @c 0.0 and \<= @c 1.0. When setting a value out of range
+  /// the SDK sets it to @c 0. When set to a valid nonnull value, this property is dependent on
+  /// @c tracesSampleRate -- if @c tracesSampleRate is @c 0 (default), no profiles will be collected no
+  /// matter what this property is set to. This property is used to undersample profiles *relative to*
+  /// @c tracesSampleRate .
+  /// @note Setting this value to @c nil enables an experimental new profiling mode, called continuous
+  /// profiling. This allows you to start and stop a profiler any time with @c SentrySDK.startProfiler
+  /// and @c SentrySDK.stopProfiler, which can run with no time limit, periodically uploading profiling
+  /// data. You can also set @c SentryOptions.enableAppLaunchProfiling to have the profiler start on
+  /// app launch; there is no automatic stop, you must stop it manually at some later time if you
+  /// choose to do so. Sampling rates do not apply to continuous profiles, including those
+  /// automatically started for app launches. If you wish to sample them, you must do so at the
+  /// callsites where you use the API or configure launch profiling. Continuous profiling is not
+  /// automatically started for performance transactions as was the previous version of profiling.
+  /// @seealso https://docs.sentry.io/platforms/apple/profiling/ for more information about the
+  /// different profiling modes.
+  /// @note The default is @c nil (which implies continuous profiling mode).
+  /// @warning The new continuous profiling mode is experimental and may still contain bugs.
+  /// @note Profiling is automatically disabled if a thread sanitizer is attached.
+  /// @warning This property is deprecated and will be removed in a future version of the SDK. See
+  /// @c  SentryProfileOptions.sessionSampleRate.
+  set profilesSampleRate(objc.NSNumber? value) {
+    _objc_msgSend_xtuoz7(this.ref.pointer, _sel_setProfilesSampleRate_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// @note Profiling is not supported on watchOS or tvOS.
+  /// A callback to a user defined profiles sampler function. This is similar to setting
+  /// @c profilesSampleRate  but instead of a static value, the callback function will be called to
+  /// determine the sample rate.
+  /// @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
+  /// with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
+  /// disk for use on the next app launch.
+  /// @note Profiling is automatically disabled if a thread sanitizer is attached.
+  /// @warning This property is deprecated and will be removed in a future version of the SDK. See
+  /// @c SentryProfileOptions.sessionSampleRate .
+  objc.ObjCBlock<objc.NSNumber? Function(SentrySamplingContext)>?
+      get profilesSampler {
+    final _ret = _objc_msgSend_uwvaik(this.ref.pointer, _sel_profilesSampler);
+    return _ret.address == 0
+        ? null
+        : ObjCBlock_NSNumber_SentrySamplingContext.castFromPointer(_ret,
+            retain: true, release: true);
+  }
+
+  /// @note Profiling is not supported on watchOS or tvOS.
+  /// A callback to a user defined profiles sampler function. This is similar to setting
+  /// @c profilesSampleRate  but instead of a static value, the callback function will be called to
+  /// determine the sample rate.
+  /// @note If @c enableAppLaunchProfiling is @c YES , this function will be called during SDK start
+  /// with @c SentrySamplingContext.forNextAppLaunch set to @c YES, and the result will be persisted to
+  /// disk for use on the next app launch.
+  /// @note Profiling is automatically disabled if a thread sanitizer is attached.
+  /// @warning This property is deprecated and will be removed in a future version of the SDK. See
+  /// @c SentryProfileOptions.sessionSampleRate .
+  set profilesSampler(
+      objc.ObjCBlock<objc.NSNumber? Function(SentrySamplingContext)>? value) {
+    _objc_msgSend_f167m6(this.ref.pointer, _sel_setProfilesSampler_,
+        value?.ref.pointer ?? ffi.nullptr);
+  }
+
+  /// If profiling should be enabled or not.
+  /// @note Profiling is not supported on watchOS or tvOS.
+  /// @note This only returns whether or not trace-based profiling is enabled. If it is not, then
+  /// continuous profiling is effectively enabled, and calling SentrySDK.startProfiler will
+  /// successfully start a continuous profile.
+  /// @returns @c YES if either @c profilesSampleRate > @c 0 and \<= @c 1 , or @c profilesSampler is
+  /// set, otherwise @c NO.
+  /// @note Profiling is automatically disabled if a thread sanitizer is attached.
+  /// @warning This property is deprecated and will be removed in a future version of the SDK.
+  bool get isProfilingEnabled {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_isProfilingEnabled);
+  }
+
+  /// @brief Whether to enable the sampling profiler.
+  /// @note Profiling is not supported on watchOS or tvOS.
+  /// @deprecated Use @c profilesSampleRate instead. Setting @c enableProfiling to @c YES is the
+  /// equivalent of setting @c profilesSampleRate to @c 1.0  If @c profilesSampleRate is set, it will
+  /// take precedence over this setting.
+  /// @note Default is @c NO.
+  /// @note Profiling is automatically disabled if a thread sanitizer is attached.
+  bool get enableProfiling {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableProfiling);
+  }
+
+  /// @brief Whether to enable the sampling profiler.
+  /// @note Profiling is not supported on watchOS or tvOS.
+  /// @deprecated Use @c profilesSampleRate instead. Setting @c enableProfiling to @c YES is the
+  /// equivalent of setting @c profilesSampleRate to @c 1.0  If @c profilesSampleRate is set, it will
+  /// take precedence over this setting.
+  /// @note Default is @c NO.
+  /// @note Profiling is automatically disabled if a thread sanitizer is attached.
+  set enableProfiling(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setEnableProfiling_, value);
+  }
+
+  /// Whether to send client reports, which contain statistics about discarded events.
+  /// @note The default is @c YES.
+  /// @see <https://develop.sentry.dev/sdk/client-reports/>
+  bool get sendClientReports {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_sendClientReports);
+  }
+
+  /// Whether to send client reports, which contain statistics about discarded events.
+  /// @note The default is @c YES.
+  /// @see <https://develop.sentry.dev/sdk/client-reports/>
+  set sendClientReports(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setSendClientReports_, value);
+  }
+
+  /// When enabled, the SDK tracks when the application stops responding for a specific amount of
+  /// time defined by the @c appHangsTimeoutInterval option.
+  /// @note The default is @c YES
+  /// @note ANR tracking is automatically disabled if a debugger is attached.
+  bool get enableAppHangTracking {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableAppHangTracking);
+  }
+
+  /// When enabled, the SDK tracks when the application stops responding for a specific amount of
+  /// time defined by the @c appHangsTimeoutInterval option.
+  /// @note The default is @c YES
+  /// @note ANR tracking is automatically disabled if a debugger is attached.
+  set enableAppHangTracking(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableAppHangTracking_, value);
+  }
+
+  /// The minimum amount of time an app should be unresponsive to be classified as an App Hanging.
+  /// @note The actual amount may be a little longer.
+  /// @note Avoid using values lower than 100ms, which may cause a lot of app hangs events being
+  /// transmitted.
+  /// @note The default value is 2 seconds.
+  double get appHangTimeoutInterval {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_1ukqyt8Fpret(
+            this.ref.pointer, _sel_appHangTimeoutInterval)
+        : _objc_msgSend_1ukqyt8(this.ref.pointer, _sel_appHangTimeoutInterval);
+  }
+
+  /// The minimum amount of time an app should be unresponsive to be classified as an App Hanging.
+  /// @note The actual amount may be a little longer.
+  /// @note Avoid using values lower than 100ms, which may cause a lot of app hangs events being
+  /// transmitted.
+  /// @note The default value is 2 seconds.
+  set appHangTimeoutInterval(double value) {
+    _objc_msgSend_hwm8nu(
+        this.ref.pointer, _sel_setAppHangTimeoutInterval_, value);
+  }
+
+  /// When enabled, the SDK adds breadcrumbs for various system events.
+  /// @note Default value is @c YES.
+  bool get enableAutoBreadcrumbTracking {
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enableAutoBreadcrumbTracking);
+  }
+
+  /// When enabled, the SDK adds breadcrumbs for various system events.
+  /// @note Default value is @c YES.
+  set enableAutoBreadcrumbTracking(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableAutoBreadcrumbTracking_, value);
+  }
+
+  /// An array of hosts or regexes that determines if outgoing HTTP requests will get
+  /// extra @c trace_id and @c baggage headers added.
+  /// @discussion This array can contain instances of @c NSString which should match the URL (using
+  /// @c contains ), and instances of @c NSRegularExpression, which will be used to check the whole
+  /// URL.
+  /// @note The default value adds the header to all outgoing requests.
+  /// @see https://docs.sentry.io/platforms/apple/configuration/options/#trace-propagation-targets
+  objc.NSArray get tracePropagationTargets {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_tracePropagationTargets);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// An array of hosts or regexes that determines if outgoing HTTP requests will get
+  /// extra @c trace_id and @c baggage headers added.
+  /// @discussion This array can contain instances of @c NSString which should match the URL (using
+  /// @c contains ), and instances of @c NSRegularExpression, which will be used to check the whole
+  /// URL.
+  /// @note The default value adds the header to all outgoing requests.
+  /// @see https://docs.sentry.io/platforms/apple/configuration/options/#trace-propagation-targets
+  set tracePropagationTargets(objc.NSArray value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setTracePropagationTargets_, value.ref.pointer);
+  }
+
+  /// When enabled, the SDK captures HTTP Client errors.
+  /// @note This feature requires @c enableSwizzling enabled as well.
+  /// @note Default value is @c YES.
+  bool get enableCaptureFailedRequests {
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enableCaptureFailedRequests);
+  }
+
+  /// When enabled, the SDK captures HTTP Client errors.
+  /// @note This feature requires @c enableSwizzling enabled as well.
+  /// @note Default value is @c YES.
+  set enableCaptureFailedRequests(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableCaptureFailedRequests_, value);
+  }
+
+  /// The SDK will only capture HTTP Client errors if the HTTP Response status code is within the
+  /// defined range.
+  /// @note Defaults to 500 - 599.
+  objc.NSArray get failedRequestStatusCodes {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_failedRequestStatusCodes);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// The SDK will only capture HTTP Client errors if the HTTP Response status code is within the
+  /// defined range.
+  /// @note Defaults to 500 - 599.
+  set failedRequestStatusCodes(objc.NSArray value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setFailedRequestStatusCodes_, value.ref.pointer);
+  }
+
+  /// An array of hosts or regexes that determines if HTTP Client errors will be automatically
+  /// captured.
+  /// @discussion This array can contain instances of @c NSString which should match the URL (using
+  /// @c contains ), and instances of @c NSRegularExpression, which will be used to check the whole
+  /// URL.
+  /// @note The default value automatically captures HTTP Client errors of all outgoing requests.
+  objc.NSArray get failedRequestTargets {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_failedRequestTargets);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// An array of hosts or regexes that determines if HTTP Client errors will be automatically
+  /// captured.
+  /// @discussion This array can contain instances of @c NSString which should match the URL (using
+  /// @c contains ), and instances of @c NSRegularExpression, which will be used to check the whole
+  /// URL.
+  /// @note The default value automatically captures HTTP Client errors of all outgoing requests.
+  set failedRequestTargets(objc.NSArray value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setFailedRequestTargets_, value.ref.pointer);
+  }
+
+  /// Use this feature to enable the Sentry MetricKit integration.
+  ///
+  /// @brief When enabled, the SDK sends @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic
+  /// and
+  /// @c MXHangDiagnostic to Sentry. The SDK supports this feature from iOS 15 and later and macOS 12
+  /// and later because, on these versions, @c MetricKit delivers diagnostic reports immediately, which
+  /// allows the Sentry SDK to apply the current data from the scope.
+  /// @note This feature is disabled by default.
+  bool get enableMetricKit {
+    objc.checkOsVersionInternal('SentryOptions.enableMetricKit',
+        iOS: (false, (15, 0, 0)), macOS: (false, (12, 0, 0)));
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableMetricKit);
+  }
+
+  /// Use this feature to enable the Sentry MetricKit integration.
+  ///
+  /// @brief When enabled, the SDK sends @c MXDiskWriteExceptionDiagnostic, @c MXCPUExceptionDiagnostic
+  /// and
+  /// @c MXHangDiagnostic to Sentry. The SDK supports this feature from iOS 15 and later and macOS 12
+  /// and later because, on these versions, @c MetricKit delivers diagnostic reports immediately, which
+  /// allows the Sentry SDK to apply the current data from the scope.
+  /// @note This feature is disabled by default.
+  set enableMetricKit(bool value) {
+    objc.checkOsVersionInternal('SentryOptions.setEnableMetricKit:',
+        iOS: (false, (15, 0, 0)), macOS: (false, (12, 0, 0)));
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setEnableMetricKit_, value);
+  }
+
+  /// When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
+  /// SentryEvent. You need to enable @c enableMetricKit for this flag to work.
+  ///
+  /// @note Default value is @c NO.
+  bool get enableMetricKitRawPayload {
+    objc.checkOsVersionInternal('SentryOptions.enableMetricKitRawPayload',
+        iOS: (false, (15, 0, 0)), macOS: (false, (12, 0, 0)));
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enableMetricKitRawPayload);
+  }
+
+  /// When enabled, the SDK adds the raw MXDiagnosticPayloads as an attachment to the converted
+  /// SentryEvent. You need to enable @c enableMetricKit for this flag to work.
+  ///
+  /// @note Default value is @c NO.
+  set enableMetricKitRawPayload(bool value) {
+    objc.checkOsVersionInternal('SentryOptions.setEnableMetricKitRawPayload:',
+        iOS: (false, (15, 0, 0)), macOS: (false, (12, 0, 0)));
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableMetricKitRawPayload_, value);
+  }
+
+  /// @warning This is an experimental feature and may still have bugs.
+  /// @brief By enabling this, every UIViewController tracing transaction will wait
+  /// for a call to @c SentrySDK.reportFullyDisplayed().
+  /// @discussion Use this in conjunction with @c enableUIViewControllerTracing.
+  /// If @c SentrySDK.reportFullyDisplayed() is not called, the transaction will finish
+  /// automatically after 30 seconds and the `Time to full display` Span will be
+  /// finished with @c DeadlineExceeded status.
+  /// @note Default value is `NO`.
+  bool get enableTimeToFullDisplayTracing {
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enableTimeToFullDisplayTracing);
+  }
+
+  /// @warning This is an experimental feature and may still have bugs.
+  /// @brief By enabling this, every UIViewController tracing transaction will wait
+  /// for a call to @c SentrySDK.reportFullyDisplayed().
+  /// @discussion Use this in conjunction with @c enableUIViewControllerTracing.
+  /// If @c SentrySDK.reportFullyDisplayed() is not called, the transaction will finish
+  /// automatically after 30 seconds and the `Time to full display` Span will be
+  /// finished with @c DeadlineExceeded status.
+  /// @note Default value is `NO`.
+  set enableTimeToFullDisplayTracing(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableTimeToFullDisplayTracing_, value);
+  }
+
+  /// This feature is only available from Xcode 13 and from macOS 12.0, iOS 15.0, tvOS 15.0,
+  /// watchOS 8.0.
+  ///
+  /// @warning This is an experimental feature and may still have bugs.
+  /// @brief Stitches the call to Swift Async functions in one consecutive stack trace.
+  /// @note Default value is @c NO .
+  bool get swiftAsyncStacktraces {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_swiftAsyncStacktraces);
+  }
+
+  /// This feature is only available from Xcode 13 and from macOS 12.0, iOS 15.0, tvOS 15.0,
+  /// watchOS 8.0.
+  ///
+  /// @warning This is an experimental feature and may still have bugs.
+  /// @brief Stitches the call to Swift Async functions in one consecutive stack trace.
+  /// @note Default value is @c NO .
+  set swiftAsyncStacktraces(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setSwiftAsyncStacktraces_, value);
+  }
+
+  /// The path to store SDK data, like events, transactions, profiles, raw crash data, etc. We
+  /// recommend only changing this when the default, e.g., in security environments, can't be accessed.
+  ///
+  /// @note The default is `NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask,
+  /// YES)`.
+  objc.NSString get cacheDirectoryPath {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_cacheDirectoryPath);
+    return objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// The path to store SDK data, like events, transactions, profiles, raw crash data, etc. We
+  /// recommend only changing this when the default, e.g., in security environments, can't be accessed.
+  ///
+  /// @note The default is `NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask,
+  /// YES)`.
+  set cacheDirectoryPath(objc.NSString value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setCacheDirectoryPath_, value.ref.pointer);
+  }
+
+  /// Whether to enable Spotlight for local development. For more information see
+  /// https://spotlightjs.com/.
+  ///
+  /// @note Only set this option to @c YES while developing, not in production!
+  bool get enableSpotlight {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableSpotlight);
+  }
+
+  /// Whether to enable Spotlight for local development. For more information see
+  /// https://spotlightjs.com/.
+  ///
+  /// @note Only set this option to @c YES while developing, not in production!
+  set enableSpotlight(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setEnableSpotlight_, value);
+  }
+
+  /// The Spotlight URL. Defaults to http://localhost:8969/stream. For more information see
+  /// https://spotlightjs.com/
+  objc.NSString get spotlightUrl {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_spotlightUrl);
+    return objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// The Spotlight URL. Defaults to http://localhost:8969/stream. For more information see
+  /// https://spotlightjs.com/
+  set spotlightUrl(objc.NSString value) {
+    _objc_msgSend_xtuoz7(
+        this.ref.pointer, _sel_setSpotlightUrl_, value.ref.pointer);
+  }
+
+  /// _swiftExperimentalOptions
+  objc.NSObject get _swiftExperimentalOptions {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel__swiftExperimentalOptions);
+    return objc.NSObject.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// init
+  SentryOptions init() {
+    objc.checkOsVersionInternal('SentryOptions.init',
+        iOS: (false, (2, 0, 0)), macOS: (false, (10, 0, 0)));
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
+    return SentryOptions.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// new
+  static SentryOptions new$() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryOptions, _sel_new);
+    return SentryOptions.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// allocWithZone:
+  static SentryOptions allocWithZone(ffi.Pointer<objc.NSZone> zone) {
+    final _ret =
+        _objc_msgSend_1cwp428(_class_SentryOptions, _sel_allocWithZone_, zone);
+    return SentryOptions.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// alloc
+  static SentryOptions alloc() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryOptions, _sel_alloc);
+    return SentryOptions.castFromPointer(_ret, retain: false, release: true);
+  }
+
+  /// self
+  SentryOptions self$1() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
+    return SentryOptions.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// retain
+  SentryOptions retain() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
+    return SentryOptions.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// autorelease
+  SentryOptions autorelease() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
+    return SentryOptions.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// Returns a new instance of SentryOptions constructed with the default `new` method.
+  factory SentryOptions() => new$();
+}
+
+late final _sel_options = objc.registerName("options");
+late final _sel_appStartMeasurementHybridSDKMode =
+    objc.registerName("appStartMeasurementHybridSDKMode");
+late final _sel_setAppStartMeasurementHybridSDKMode_ =
+    objc.registerName("setAppStartMeasurementHybridSDKMode:");
+late final _sel_appStartMeasurementWithSpans =
+    objc.registerName("appStartMeasurementWithSpans");
+late final _class_SentryUser = objc.getClass("SentryUser");
+
+/// SentryUser
+class SentryUser extends objc.ObjCObjectBase {
+  SentryUser._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryUser] that points to the same underlying object as [other].
+  SentryUser.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryUser] that wraps the given raw object pointer.
+  SentryUser.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+
+  /// Returns whether [obj] is an instance of [SentryUser].
+  static bool isInstance(objc.ObjCObjectBase obj) {
+    return _objc_msgSend_19nvye5(
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryUser);
+  }
+}
+
+late final _sel_userWithDictionary_ = objc.registerName("userWithDictionary:");
+late final _sel_breadcrumbWithDictionary_ =
+    objc.registerName("breadcrumbWithDictionary:");
 
 /// @warning This class is reserved for hybrid SDKs. Methods may be changed, renamed or removed
 /// without notice. If you want to use one of these methods here please open up an issue and let us
@@ -989,251 +4790,1053 @@ class PrivateSentrySDKOnly extends objc.NSObject {
   factory PrivateSentrySDKOnly() => new$();
 }
 
-late final _class_SentryId$1 = objc.getClass("Sentry.SentryId");
-late final _sel_empty = objc.registerName("empty");
-late final _sel_sentryIdString = objc.registerName("sentryIdString");
-late final _sel_initWithUuid_ = objc.registerName("initWithUuid:");
-late final _sel_initWithUUIDString_ = objc.registerName("initWithUUIDString:");
-late final _sel_isEqual_ = objc.registerName("isEqual:");
-late final _sel_description = objc.registerName("description");
-late final _sel_hash = objc.registerName("hash");
-final _objc_msgSend_xw2lbc = objc.msgSendPointer
+/// Represents the severity level of a structured log entry.
+/// Log levels are ordered by severity from least (<code>trace</code>) to most severe (<code>fatal</code>).
+/// Each level corresponds to a numeric severity value following the OpenTelemetry specification.
+enum SentryStructuredLogLevel {
+  SentryStructuredLogLevelTrace(0),
+  SentryStructuredLogLevelDebug(1),
+  SentryStructuredLogLevelInfo(2),
+  SentryStructuredLogLevelWarn(3),
+  SentryStructuredLogLevelError(4),
+  SentryStructuredLogLevelFatal(5);
+
+  final int value;
+  const SentryStructuredLogLevel(this.value);
+
+  static SentryStructuredLogLevel fromValue(int value) => switch (value) {
+        0 => SentryStructuredLogLevelTrace,
+        1 => SentryStructuredLogLevelDebug,
+        2 => SentryStructuredLogLevelInfo,
+        3 => SentryStructuredLogLevelWarn,
+        4 => SentryStructuredLogLevelError,
+        5 => SentryStructuredLogLevelFatal,
+        _ => throw ArgumentError(
+            'Unknown value for SentryStructuredLogLevel: $value'),
+      };
+}
+
+/// Different modes for starting and stopping the profiler.
+enum SentryProfileLifecycle {
+  /// Profiling is controlled manually, and is independent of transactions & spans. Developers
+  /// must use<code>SentrySDK.startProfiler()</code> and <code>SentrySDK.stopProfiler()</code> to manage the profile
+  /// session. If the session is sampled, <code>SentrySDK.startProfiler()</code> will always start
+  /// profiling.
+  /// warning:
+  /// Continuous profiling is an experimental feature and may still contain bugs.
+  /// note:
+  /// Profiling is automatically disabled if a thread sanitizer is attached.
+  SentryProfileLifecycleManual(0),
+
+  /// Profiling is automatically started when there is at least 1 active root span, and
+  /// automatically stopped when there are 0 root spans.
+  /// warning:
+  /// Continuous profiling is an experimental feature and may still contain bugs.
+  /// note:
+  /// This mode only works if tracing is enabled.
+  /// note:
+  /// Profiling respects both <code>SentryProfileOptions.profileSessionSampleRate</code> and
+  /// the existing sampling configuration for tracing
+  /// (<code>SentryOptions.tracesSampleRate</code>/<code>SentryOptions.tracesSampler</code>). Sampling will be
+  /// re-evaluated on a per root span basis.
+  /// note:
+  /// If there are multiple overlapping root spans, where some are sampled and some or
+  /// not, profiling will continue until the end of the last sampled root span. Profiling data
+  /// will not be linked with spans that are not sampled.
+  /// note:
+  /// When the last root span finishes, the profiler will continue running until the
+  /// end of the current timed interval. If a new root span starts before this interval
+  /// completes, the profiler will instead continue running until the next root span stops, at
+  /// which time it will attempt to stop again in the same way.
+  /// note:
+  /// Profiling is automatically disabled if a thread sanitizer is attached.
+  SentryProfileLifecycleTrace(1);
+
+  final int value;
+  const SentryProfileLifecycle(this.value);
+
+  static SentryProfileLifecycle fromValue(int value) => switch (value) {
+        0 => SentryProfileLifecycleManual,
+        1 => SentryProfileLifecycleTrace,
+        _ => throw ArgumentError(
+            'Unknown value for SentryProfileLifecycle: $value'),
+      };
+}
+
+/// WARNING: SentryRedactOptions is a stub. To generate bindings for this class, include
+/// SentryRedactOptions in your config's objc-protocols list.
+///
+/// SentryRedactOptions
+interface class SentryRedactOptions extends objc.ObjCProtocolBase {
+  SentryRedactOptions._(ffi.Pointer<objc.ObjCObject> pointer,
+      {bool retain = false, bool release = false})
+      : super(pointer, retain: retain, release: release);
+
+  /// Constructs a [SentryRedactOptions] that points to the same underlying object as [other].
+  SentryRedactOptions.castFrom(objc.ObjCObjectBase other)
+      : this._(other.ref.pointer, retain: true, release: true);
+
+  /// Constructs a [SentryRedactOptions] that wraps the given raw object pointer.
+  SentryRedactOptions.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+      {bool retain = false, bool release = false})
+      : this._(other, retain: retain, release: release);
+}
+
+enum SentryReplayType {
+  SentryReplayTypeSession(0),
+  SentryReplayTypeBuffer(1);
+
+  final int value;
+  const SentryReplayType(this.value);
+
+  static SentryReplayType fromValue(int value) => switch (value) {
+        0 => SentryReplayTypeSession,
+        1 => SentryReplayTypeBuffer,
+        _ => throw ArgumentError('Unknown value for SentryReplayType: $value'),
+      };
+}
+
+/// Enum to define the quality of the session replay.
+enum SentryReplayQuality {
+  /// Video Scale: 80%
+  /// Bit Rate: 20.000
+  SentryReplayQualityLow(0),
+
+  /// Video Scale: 100%
+  /// Bit Rate: 40.000
+  SentryReplayQualityMedium(1),
+
+  /// Video Scale: 100%
+  /// Bit Rate: 60.000
+  SentryReplayQualityHigh(2);
+
+  final int value;
+  const SentryReplayQuality(this.value);
+
+  static SentryReplayQuality fromValue(int value) => switch (value) {
+        0 => SentryReplayQualityLow,
+        1 => SentryReplayQualityMedium,
+        2 => SentryReplayQualityHigh,
+        _ =>
+          throw ArgumentError('Unknown value for SentryReplayQuality: $value'),
+      };
+}
+
+late final _class_SentryReplayOptions = objc.getClass("SentryReplayOptions");
+late final _sel_sessionSampleRate = objc.registerName("sessionSampleRate");
+final _objc_msgSend_2cgrxl = objc.msgSendPointer
     .cast<
         ffi.NativeFunction<
-            ffi.UnsignedLong Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Float Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        double Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+final _objc_msgSend_2cgrxlFpret = objc.msgSendFpretPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Float Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>)>>()
+    .asFunction<
+        double Function(
+            ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
+late final _sel_setSessionSampleRate_ =
+    objc.registerName("setSessionSampleRate:");
+final _objc_msgSend_v5hmet = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>, ffi.Float)>>()
+    .asFunction<
+        void Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, double)>();
+late final _sel_onErrorSampleRate = objc.registerName("onErrorSampleRate");
+late final _sel_setOnErrorSampleRate_ =
+    objc.registerName("setOnErrorSampleRate:");
+late final _sel_maskAllText = objc.registerName("maskAllText");
+bool _ObjCBlock_bool_ffiVoid_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void> arg0)>>()
+        .asFunction<bool Function(ffi.Pointer<ffi.Void>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_bool_ffiVoid_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Bool Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
+            _ObjCBlock_bool_ffiVoid_fnPtrTrampoline, false)
+        .cast();
+bool _ObjCBlock_bool_ffiVoid_closureTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
+    (objc.getBlockClosure(block) as bool Function(ffi.Pointer<ffi.Void>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_bool_ffiVoid_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Bool Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
+            _ObjCBlock_bool_ffiVoid_closureTrampoline, false)
+        .cast();
+
+/// Construction methods for `objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>`.
+abstract final class ObjCBlock_bool_ffiVoid {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>
+      castFromPointer(ffi.Pointer<objc.ObjCBlockImpl> pointer,
+              {bool retain = false, bool release = false}) =>
+          objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>(pointer,
+              retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>
+      fromFunctionPointer(
+              ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Bool Function(ffi.Pointer<ffi.Void> arg0)>>
+                  ptr) =>
+          objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>(
+              objc.newPointerBlock(_ObjCBlock_bool_ffiVoid_fnPtrCallable, ptr.cast()),
+              retain: false,
+              release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)> fromFunction(
+          bool Function(ffi.Pointer<ffi.Void>) fn,
+          {bool keepIsolateAlive = true}) =>
+      objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>(
+          objc.newClosureBlock(_ObjCBlock_bool_ffiVoid_closureCallable,
+              (ffi.Pointer<ffi.Void> arg0) => fn(arg0), keepIsolateAlive),
+          retain: false,
+          release: true);
+}
+
+/// Call operator for `objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)>`.
+extension ObjCBlock_bool_ffiVoid_CallExtension
+    on objc.ObjCBlock<ffi.Bool Function(ffi.Pointer<ffi.Void>)> {
+  bool call(ffi.Pointer<ffi.Void> arg0) => ref.pointer.ref.invoke
+      .cast<
+          ffi.NativeFunction<
+              ffi.Bool Function(ffi.Pointer<objc.ObjCBlockImpl> block,
+                  ffi.Pointer<ffi.Void> arg0)>>()
+      .asFunction<
+          bool Function(ffi.Pointer<objc.ObjCBlockImpl>,
+              ffi.Pointer<ffi.Void>)>()(ref.pointer, arg0);
+}
+
+late final _sel_setMaskAllText_ = objc.registerName("setMaskAllText:");
+late final _sel_maskAllImages = objc.registerName("maskAllImages");
+late final _sel_setMaskAllImages_ = objc.registerName("setMaskAllImages:");
+late final _sel_quality = objc.registerName("quality");
+final _objc_msgSend_pke8ca = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Long Function(ffi.Pointer<objc.ObjCObject>,
                 ffi.Pointer<objc.ObjCSelector>)>>()
     .asFunction<
         int Function(
             ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
-
-/// SentryId
-class SentryId$1 extends objc.NSObject {
-  SentryId$1._(ffi.Pointer<objc.ObjCObject> pointer,
-      {bool retain = false, bool release = false})
-      : super.castFromPointer(pointer, retain: retain, release: release);
-
-  /// Constructs a [SentryId$1] that points to the same underlying object as [other].
-  SentryId$1.castFrom(objc.ObjCObjectBase other)
-      : this._(other.ref.pointer, retain: true, release: true);
-
-  /// Constructs a [SentryId$1] that wraps the given raw object pointer.
-  SentryId$1.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
-      {bool retain = false, bool release = false})
-      : this._(other, retain: retain, release: release);
-
-  /// Returns whether [obj] is an instance of [SentryId$1].
-  static bool isInstance(objc.ObjCObjectBase obj) {
-    return _objc_msgSend_19nvye5(
-        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryId$1);
-  }
-
-  /// A @c SentryId with an empty UUID “00000000000000000000000000000000”.
-  static SentryId$1 getEmpty() {
-    final _ret = _objc_msgSend_151sglz(_class_SentryId$1, _sel_empty);
-    return SentryId$1.castFromPointer(_ret, retain: true, release: true);
-  }
-
-  /// Returns a 32 lowercase character hexadecimal string description of the @c SentryId, such as
-  /// “12c2d058d58442709aa2eca08bf20986”.
-  objc.NSString get sentryIdString {
-    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_sentryIdString);
-    return objc.NSString.castFromPointer(_ret, retain: true, release: true);
-  }
-
-  /// init
-  SentryId$1 init() {
-    objc.checkOsVersionInternal('SentryId.init',
-        iOS: (false, (2, 0, 0)), macOS: (false, (10, 0, 0)));
-    final _ret =
-        _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
-    return SentryId$1.castFromPointer(_ret, retain: false, release: true);
-  }
-
-  /// Creates a SentryId with the given UUID.
-  SentryId$1 initWithUuid(NSUUID uuid) {
-    final _ret = _objc_msgSend_1sotr3r(this.ref.retainAndReturnPointer(),
-        _sel_initWithUuid_, uuid.ref.pointer);
-    return SentryId$1.castFromPointer(_ret, retain: false, release: true);
-  }
-
-  /// Creates a @c SentryId from a 32 character hexadecimal string without dashes such as
-  /// “12c2d058d58442709aa2eca08bf20986” or a 36 character hexadecimal string such as such as
-  /// “12c2d058-d584-4270-9aa2-eca08bf20986”.
-  /// @return SentryId.empty for invalid strings.
-  SentryId$1 initWithUUIDString(objc.NSString uuidString) {
-    final _ret = _objc_msgSend_1sotr3r(this.ref.retainAndReturnPointer(),
-        _sel_initWithUUIDString_, uuidString.ref.pointer);
-    return SentryId$1.castFromPointer(_ret, retain: false, release: true);
-  }
-
-  /// isEqual:
-  bool isEqual(objc.ObjCObjectBase? object) {
-    return _objc_msgSend_19nvye5(
-        this.ref.pointer, _sel_isEqual_, object?.ref.pointer ?? ffi.nullptr);
-  }
-
-  /// description
-  objc.NSString get description {
-    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_description);
-    return objc.NSString.castFromPointer(_ret, retain: true, release: true);
-  }
-
-  /// hash
-  int get hash {
-    return _objc_msgSend_xw2lbc(this.ref.pointer, _sel_hash);
-  }
-
-  /// new
-  static SentryId$1 new$() {
-    final _ret = _objc_msgSend_151sglz(_class_SentryId$1, _sel_new);
-    return SentryId$1.castFromPointer(_ret, retain: false, release: true);
-  }
-
-  /// allocWithZone:
-  static SentryId$1 allocWithZone(ffi.Pointer<objc.NSZone> zone) {
-    final _ret =
-        _objc_msgSend_1cwp428(_class_SentryId$1, _sel_allocWithZone_, zone);
-    return SentryId$1.castFromPointer(_ret, retain: false, release: true);
-  }
-
-  /// alloc
-  static SentryId$1 alloc() {
-    final _ret = _objc_msgSend_151sglz(_class_SentryId$1, _sel_alloc);
-    return SentryId$1.castFromPointer(_ret, retain: false, release: true);
-  }
-
-  /// self
-  SentryId$1 self$1() {
-    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
-    return SentryId$1.castFromPointer(_ret, retain: true, release: true);
-  }
-
-  /// retain
-  SentryId$1 retain() {
-    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
-    return SentryId$1.castFromPointer(_ret, retain: true, release: true);
-  }
-
-  /// autorelease
-  SentryId$1 autorelease() {
-    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
-    return SentryId$1.castFromPointer(_ret, retain: true, release: true);
-  }
-
-  /// Returns a new instance of SentryId$1 constructed with the default `new` method.
-  factory SentryId$1() => new$();
-}
-
-late final _class_SentrySDK = objc.getClass("Sentry.SentrySDK");
-late final _sel_addBreadcrumb_ = objc.registerName("addBreadcrumb:");
-late final _class_SentryScope = objc.getClass("SentryScope");
-
-/// WARNING: SentrySerializable is a stub. To generate bindings for this class, include
-/// SentrySerializable in your config's objc-protocols list.
-///
-/// SentrySerializable
-interface class SentrySerializable extends objc.ObjCProtocolBase
-    implements objc.NSObjectProtocol {
-  SentrySerializable._(ffi.Pointer<objc.ObjCObject> pointer,
-      {bool retain = false, bool release = false})
-      : super(pointer, retain: retain, release: release);
-
-  /// Constructs a [SentrySerializable] that points to the same underlying object as [other].
-  SentrySerializable.castFrom(objc.ObjCObjectBase other)
-      : this._(other.ref.pointer, retain: true, release: true);
-
-  /// Constructs a [SentrySerializable] that wraps the given raw object pointer.
-  SentrySerializable.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
-      {bool retain = false, bool release = false})
-      : this._(other, retain: retain, release: release);
-}
-
-late final _sel_setTagValue_forKey_ = objc.registerName("setTagValue:forKey:");
-late final _sel_removeTagForKey_ = objc.registerName("removeTagForKey:");
-late final _sel_setExtraValue_forKey_ =
-    objc.registerName("setExtraValue:forKey:");
-late final _sel_removeExtraForKey_ = objc.registerName("removeExtraForKey:");
-late final _sel_clearBreadcrumbs = objc.registerName("clearBreadcrumbs");
-final _objc_msgSend_1pl9qdv = objc.msgSendPointer
+late final _sel_setQuality_ = objc.registerName("setQuality:");
+final _objc_msgSend_1c33mxk = objc.msgSendPointer
     .cast<
         ffi.NativeFunction<
             ffi.Void Function(ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>, ffi.Long)>>()
+    .asFunction<
+        void Function(ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>, int)>();
+late final _sel_maskedViewClasses = objc.registerName("maskedViewClasses");
+ffi.Pointer<objc.ObjCObject> _ObjCBlock_NSArray_ffiVoid_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<ffi.Void> arg0)>>()
+        .asFunction<
+            ffi.Pointer<objc.ObjCObject> Function(
+                ffi.Pointer<ffi.Void>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_NSArray_ffiVoid_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
+            _ObjCBlock_NSArray_ffiVoid_fnPtrTrampoline)
+        .cast();
+ffi.Pointer<objc.ObjCObject> _ObjCBlock_NSArray_ffiVoid_closureTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<ffi.Void> arg0) =>
+    (objc.getBlockClosure(block) as ffi.Pointer<objc.ObjCObject> Function(
+        ffi.Pointer<ffi.Void>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_NSArray_ffiVoid_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Pointer<objc.ObjCObject> Function(
+                    ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<ffi.Void>)>(
+            _ObjCBlock_NSArray_ffiVoid_closureTrampoline)
+        .cast();
+
+/// Construction methods for `objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>`.
+abstract final class ObjCBlock_NSArray_ffiVoid {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>
+      castFromPointer(ffi.Pointer<objc.ObjCBlockImpl> pointer,
+              {bool retain = false, bool release = false}) =>
+          objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>(pointer,
+              retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>
+      fromFunctionPointer(
+              ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Pointer<objc.ObjCObject> Function(
+                              ffi.Pointer<ffi.Void> arg0)>>
+                  ptr) =>
+          objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>(
+              objc.newPointerBlock(_ObjCBlock_NSArray_ffiVoid_fnPtrCallable, ptr.cast()),
+              retain: false,
+              release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>
+      fromFunction(objc.NSArray Function(ffi.Pointer<ffi.Void>) fn,
+              {bool keepIsolateAlive = true}) =>
+          objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>(
+              objc.newClosureBlock(
+                  _ObjCBlock_NSArray_ffiVoid_closureCallable,
+                  (ffi.Pointer<ffi.Void> arg0) =>
+                      fn(arg0).ref.retainAndAutorelease(),
+                  keepIsolateAlive),
+              retain: false,
+              release: true);
+}
+
+/// Call operator for `objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)>`.
+extension ObjCBlock_NSArray_ffiVoid_CallExtension
+    on objc.ObjCBlock<objc.NSArray Function(ffi.Pointer<ffi.Void>)> {
+  objc.NSArray call(ffi.Pointer<ffi.Void> arg0) => objc.NSArray.castFromPointer(
+      ref.pointer.ref.invoke
+          .cast<
+              ffi.NativeFunction<
+                  ffi.Pointer<objc.ObjCObject> Function(
+                      ffi.Pointer<objc.ObjCBlockImpl> block,
+                      ffi.Pointer<ffi.Void> arg0)>>()
+          .asFunction<
+              ffi.Pointer<objc.ObjCObject> Function(
+                  ffi.Pointer<objc.ObjCBlockImpl>,
+                  ffi.Pointer<ffi.Void>)>()(ref.pointer, arg0),
+      retain: true,
+      release: true);
+}
+
+late final _sel_setMaskedViewClasses_ =
+    objc.registerName("setMaskedViewClasses:");
+late final _sel_unmaskedViewClasses = objc.registerName("unmaskedViewClasses");
+late final _sel_setUnmaskedViewClasses_ =
+    objc.registerName("setUnmaskedViewClasses:");
+late final _sel_enableExperimentalViewRenderer =
+    objc.registerName("enableExperimentalViewRenderer");
+late final _sel_setEnableExperimentalViewRenderer_ =
+    objc.registerName("setEnableExperimentalViewRenderer:");
+late final _sel_enableViewRendererV2 =
+    objc.registerName("enableViewRendererV2");
+late final _sel_setEnableViewRendererV2_ =
+    objc.registerName("setEnableViewRendererV2:");
+late final _sel_enableFastViewRendering =
+    objc.registerName("enableFastViewRendering");
+late final _sel_setEnableFastViewRendering_ =
+    objc.registerName("setEnableFastViewRendering:");
+late final _sel_replayBitRate = objc.registerName("replayBitRate");
+final _objc_msgSend_1hz7y9r = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Long Function(ffi.Pointer<objc.ObjCObject>,
                 ffi.Pointer<objc.ObjCSelector>)>>()
     .asFunction<
-        void Function(
+        int Function(
             ffi.Pointer<objc.ObjCObject>, ffi.Pointer<objc.ObjCSelector>)>();
-late final _sel_setContextValue_forKey_ =
-    objc.registerName("setContextValue:forKey:");
-late final _sel_removeContextForKey_ =
-    objc.registerName("removeContextForKey:");
+late final _sel_sizeScale = objc.registerName("sizeScale");
+late final _sel_frameRate = objc.registerName("frameRate");
+late final _sel_setFrameRate_ = objc.registerName("setFrameRate:");
+late final _sel_errorReplayDuration = objc.registerName("errorReplayDuration");
+late final _sel_setErrorReplayDuration_ =
+    objc.registerName("setErrorReplayDuration:");
+late final _sel_sessionSegmentDuration =
+    objc.registerName("sessionSegmentDuration");
+late final _sel_setSessionSegmentDuration_ =
+    objc.registerName("setSessionSegmentDuration:");
+late final _sel_maximumDuration = objc.registerName("maximumDuration");
+late final _sel_setMaximumDuration_ = objc.registerName("setMaximumDuration:");
+late final _sel_initWithDictionary_ = objc.registerName("initWithDictionary:");
+late final _sel_initWithSessionSampleRate_onErrorSampleRate_maskAllText_maskAllImages_enableViewRendererV2_enableFastViewRendering_ =
+    objc.registerName(
+        "initWithSessionSampleRate:onErrorSampleRate:maskAllText:maskAllImages:enableViewRendererV2:enableFastViewRendering:");
+final _objc_msgSend_151cvqp = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Pointer<objc.ObjCObject> Function(
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>,
+                ffi.Float,
+                ffi.Float,
+                ffi.Bool,
+                ffi.Bool,
+                ffi.Bool,
+                ffi.Bool)>>()
+    .asFunction<
+        ffi.Pointer<objc.ObjCObject> Function(
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>,
+            double,
+            double,
+            bool,
+            bool,
+            bool,
+            bool)>();
 
-/// SentryScope
-class SentryScope extends objc.NSObject implements SentrySerializable {
-  SentryScope._(ffi.Pointer<objc.ObjCObject> pointer,
+/// SentryReplayOptions
+class SentryReplayOptions extends objc.NSObject implements SentryRedactOptions {
+  SentryReplayOptions._(ffi.Pointer<objc.ObjCObject> pointer,
       {bool retain = false, bool release = false})
       : super.castFromPointer(pointer, retain: retain, release: release);
 
-  /// Constructs a [SentryScope] that points to the same underlying object as [other].
-  SentryScope.castFrom(objc.ObjCObjectBase other)
+  /// Constructs a [SentryReplayOptions] that points to the same underlying object as [other].
+  SentryReplayOptions.castFrom(objc.ObjCObjectBase other)
       : this._(other.ref.pointer, retain: true, release: true);
 
-  /// Constructs a [SentryScope] that wraps the given raw object pointer.
-  SentryScope.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
+  /// Constructs a [SentryReplayOptions] that wraps the given raw object pointer.
+  SentryReplayOptions.castFromPointer(ffi.Pointer<objc.ObjCObject> other,
       {bool retain = false, bool release = false})
       : this._(other, retain: retain, release: release);
 
-  /// Returns whether [obj] is an instance of [SentryScope].
+  /// Returns whether [obj] is an instance of [SentryReplayOptions].
   static bool isInstance(objc.ObjCObjectBase obj) {
     return _objc_msgSend_19nvye5(
-        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryScope);
+        obj.ref.pointer, _sel_isKindOfClass_, _class_SentryReplayOptions);
   }
 
-  /// Set a global tag. Tags are searchable key/value string pairs attached to
-  /// every event.
-  void setTagValue(objc.NSString value, {required objc.NSString forKey}) {
-    _objc_msgSend_pfv6jd(this.ref.pointer, _sel_setTagValue_forKey_,
-        value.ref.pointer, forKey.ref.pointer);
+  /// Indicates the percentage in which the replay for the session will be created.
+  /// note:
+  /// The value needs to be <code>>= 0.0</code> and <code><= 1.0</code>. When setting a value out of range the SDK sets it
+  /// to the default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.sessionSegmentDuration</code> for the default duration of the replay.
+  /// <ul>
+  /// <li>
+  /// Specifying @c 0 means never, @c 1.0 means always.
+  /// </li>
+  /// </ul>
+  double get sessionSampleRate {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_2cgrxlFpret(this.ref.pointer, _sel_sessionSampleRate)
+        : _objc_msgSend_2cgrxl(this.ref.pointer, _sel_sessionSampleRate);
   }
 
-  /// Remove the tag for the specified key.
-  void removeTagForKey(objc.NSString key) {
+  /// Indicates the percentage in which the replay for the session will be created.
+  /// note:
+  /// The value needs to be <code>>= 0.0</code> and <code><= 1.0</code>. When setting a value out of range the SDK sets it
+  /// to the default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.sessionSegmentDuration</code> for the default duration of the replay.
+  /// <ul>
+  /// <li>
+  /// Specifying @c 0 means never, @c 1.0 means always.
+  /// </li>
+  /// </ul>
+  set sessionSampleRate(double value) {
+    _objc_msgSend_v5hmet(this.ref.pointer, _sel_setSessionSampleRate_, value);
+  }
+
+  /// Indicates the percentage in which a 30 seconds replay will be send with error events.
+  /// note:
+  /// The value needs to be >= 0.0 and <= 1.0. When setting a value out of range the SDK sets it
+  /// to the default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.errorReplayDuration</code> for the default duration of the replay.
+  /// <ul>
+  /// <li>
+  /// Specifying 0 means never, 1.0 means always.
+  /// </li>
+  /// </ul>
+  double get onErrorSampleRate {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_2cgrxlFpret(this.ref.pointer, _sel_onErrorSampleRate)
+        : _objc_msgSend_2cgrxl(this.ref.pointer, _sel_onErrorSampleRate);
+  }
+
+  /// Indicates the percentage in which a 30 seconds replay will be send with error events.
+  /// note:
+  /// The value needs to be >= 0.0 and <= 1.0. When setting a value out of range the SDK sets it
+  /// to the default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.errorReplayDuration</code> for the default duration of the replay.
+  /// <ul>
+  /// <li>
+  /// Specifying 0 means never, 1.0 means always.
+  /// </li>
+  /// </ul>
+  set onErrorSampleRate(double value) {
+    _objc_msgSend_v5hmet(this.ref.pointer, _sel_setOnErrorSampleRate_, value);
+  }
+
+  /// maskAllText
+  bool get maskAllText {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_maskAllText);
+  }
+
+  /// Indicates whether session replay should redact all text in the app
+  /// by drawing a black rectangle over it.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.maskAllText</code> for the default value.
+  set maskAllText$1(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setMaskAllText_, value);
+  }
+
+  /// maskAllImages
+  bool get maskAllImages {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_maskAllImages);
+  }
+
+  /// Indicates whether session replay should redact all non-bundled image
+  /// in the app by drawing a black rectangle over it.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.maskAllImages</code> for the default value.
+  set maskAllImages$1(bool value) {
+    _objc_msgSend_1s56lr9(this.ref.pointer, _sel_setMaskAllImages_, value);
+  }
+
+  /// Indicates the quality of the replay.
+  /// The higher the quality, the higher the CPU and bandwidth usage.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.quality</code> for the default value.
+  SentryReplayQuality get quality {
+    final _ret = _objc_msgSend_pke8ca(this.ref.pointer, _sel_quality);
+    return SentryReplayQuality.fromValue(_ret);
+  }
+
+  /// Indicates the quality of the replay.
+  /// The higher the quality, the higher the CPU and bandwidth usage.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.quality</code> for the default value.
+  set quality(SentryReplayQuality value) {
+    _objc_msgSend_1c33mxk(this.ref.pointer, _sel_setQuality_, value.value);
+  }
+
+  /// maskedViewClasses
+  objc.NSArray get maskedViewClasses {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_maskedViewClasses);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// A list of custom UIView subclasses that need
+  /// to be masked during session replay.
+  /// By default Sentry already mask text and image elements from UIKit
+  /// Every child of a view that is redacted will also be redacted.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.maskedViewClasses</code> for the default value.
+  set maskedViewClasses$1(objc.NSArray value) {
     _objc_msgSend_xtuoz7(
-        this.ref.pointer, _sel_removeTagForKey_, key.ref.pointer);
+        this.ref.pointer, _sel_setMaskedViewClasses_, value.ref.pointer);
   }
 
-  /// Set global extra -> these will be sent with every event
-  void setExtraValue(objc.ObjCObjectBase? value,
-      {required objc.NSString forKey}) {
-    _objc_msgSend_pfv6jd(this.ref.pointer, _sel_setExtraValue_forKey_,
-        value?.ref.pointer ?? ffi.nullptr, forKey.ref.pointer);
+  /// unmaskedViewClasses
+  objc.NSArray get unmaskedViewClasses {
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.pointer, _sel_unmaskedViewClasses);
+    return objc.NSArray.castFromPointer(_ret, retain: true, release: true);
   }
 
-  /// Remove the extra for the specified key.
-  void removeExtraForKey(objc.NSString key) {
+  /// A list of custom UIView subclasses to be ignored
+  /// during masking step of the session replay.
+  /// The views of given classes will not be redacted but their children may be.
+  /// This property has precedence over <code>redactViewTypes</code>.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.unmaskedViewClasses</code> for the default value.
+  set unmaskedViewClasses$1(objc.NSArray value) {
     _objc_msgSend_xtuoz7(
-        this.ref.pointer, _sel_removeExtraForKey_, key.ref.pointer);
+        this.ref.pointer, _sel_setUnmaskedViewClasses_, value.ref.pointer);
   }
 
-  /// Clears all breadcrumbs in the scope
-  void clearBreadcrumbs() {
-    _objc_msgSend_1pl9qdv(this.ref.pointer, _sel_clearBreadcrumbs);
+  /// Alias for <code>enableViewRendererV2</code>.
+  /// This flag is deprecated and will be removed in a future version.
+  /// Please use <code>enableViewRendererV2</code> instead.
+  bool get enableExperimentalViewRenderer {
+    return _objc_msgSend_91o635(
+        this.ref.pointer, _sel_enableExperimentalViewRenderer);
   }
 
-  /// Sets context values which will overwrite SentryEvent.context when event is
-  /// "enriched" with scope before sending event.
-  void setContextValue(objc.NSDictionary value,
-      {required objc.NSString forKey}) {
-    _objc_msgSend_pfv6jd(this.ref.pointer, _sel_setContextValue_forKey_,
-        value.ref.pointer, forKey.ref.pointer);
+  /// Alias for <code>enableViewRendererV2</code>.
+  /// This flag is deprecated and will be removed in a future version.
+  /// Please use <code>enableViewRendererV2</code> instead.
+  set enableExperimentalViewRenderer(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableExperimentalViewRenderer_, value);
   }
 
-  /// Remove the context for the specified key.
-  void removeContextForKey(objc.NSString key) {
-    _objc_msgSend_xtuoz7(
-        this.ref.pointer, _sel_removeContextForKey_, key.ref.pointer);
+  /// Enables the up to 5x faster new view renderer used by the Session Replay integration.
+  /// Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing
+  /// interruptions and visual lag. <a href="https://github.com/getsentry/sentry-cocoa/pull/4940">Our benchmarks</a> have shown a significant improvement of
+  /// <em>up to 4-5x faster rendering</em> (reducing <code>~160ms</code> to <code>~36ms</code> per frame) on older devices.
+  /// experiment:
+  /// In case you are noticing issues with the new view renderer, please report the issue on <a href="https://github.com/getsentry/sentry-cocoa">GitHub</a>.
+  /// Eventually, we will remove this feature flag and use the new view renderer by default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.enableViewRendererV2</code> for the default value.
+  bool get enableViewRendererV2 {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableViewRendererV2);
+  }
+
+  /// Enables the up to 5x faster new view renderer used by the Session Replay integration.
+  /// Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing
+  /// interruptions and visual lag. <a href="https://github.com/getsentry/sentry-cocoa/pull/4940">Our benchmarks</a> have shown a significant improvement of
+  /// <em>up to 4-5x faster rendering</em> (reducing <code>~160ms</code> to <code>~36ms</code> per frame) on older devices.
+  /// experiment:
+  /// In case you are noticing issues with the new view renderer, please report the issue on <a href="https://github.com/getsentry/sentry-cocoa">GitHub</a>.
+  /// Eventually, we will remove this feature flag and use the new view renderer by default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.enableViewRendererV2</code> for the default value.
+  set enableViewRendererV2(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableViewRendererV2_, value);
+  }
+
+  /// Enables up to 5x faster but incomplete view rendering used by the Session Replay integration.
+  /// Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing
+  /// interruptions and visual lag. <a href="https://github.com/getsentry/sentry-cocoa/pull/4940">Our benchmarks</a> have shown a significant improvement of
+  /// up to <em>5x faster render times</em> (reducing <code>~160ms</code> to <code>~30ms</code> per frame).
+  /// This flag controls the way the view hierarchy is drawn into a graphics context for the session replay. By default, the view hierarchy is drawn using
+  /// the <code>UIView.drawHierarchy(in:afterScreenUpdates:)</code> method, which is the most complete way to render the view hierarchy. However,
+  /// this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying <code>CALayer</code> instead.
+  /// note:
+  /// This flag can only be used together with <code>enableViewRendererV2</code> with up to 20% faster render times.
+  /// warning:
+  /// Rendering the view hiearchy using the <code>CALayer.render(in:)</code> method can lead to rendering issues, especially when using custom views.
+  /// For complete rendering, it is recommended to set this option to <code>false</code>. In case you prefer performance over completeness, you can
+  /// set this option to <code>true</code>.
+  /// experiment:
+  /// This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
+  /// view renderer, please report the issue on <a href="https://github.com/getsentry/sentry-cocoa">GitHub</a>. Eventually, we will
+  /// mark this feature as stable and remove the experimental flag, but will keep it disabled by default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.enableFastViewRendering</code> for the default value.
+  bool get enableFastViewRendering {
+    return _objc_msgSend_91o635(this.ref.pointer, _sel_enableFastViewRendering);
+  }
+
+  /// Enables up to 5x faster but incomplete view rendering used by the Session Replay integration.
+  /// Enabling this flag will reduce the amount of time it takes to render each frame of the session replay on the main thread, therefore reducing
+  /// interruptions and visual lag. <a href="https://github.com/getsentry/sentry-cocoa/pull/4940">Our benchmarks</a> have shown a significant improvement of
+  /// up to <em>5x faster render times</em> (reducing <code>~160ms</code> to <code>~30ms</code> per frame).
+  /// This flag controls the way the view hierarchy is drawn into a graphics context for the session replay. By default, the view hierarchy is drawn using
+  /// the <code>UIView.drawHierarchy(in:afterScreenUpdates:)</code> method, which is the most complete way to render the view hierarchy. However,
+  /// this method can be slow, especially when rendering complex views, therefore enabling this flag will switch to render the underlying <code>CALayer</code> instead.
+  /// note:
+  /// This flag can only be used together with <code>enableViewRendererV2</code> with up to 20% faster render times.
+  /// warning:
+  /// Rendering the view hiearchy using the <code>CALayer.render(in:)</code> method can lead to rendering issues, especially when using custom views.
+  /// For complete rendering, it is recommended to set this option to <code>false</code>. In case you prefer performance over completeness, you can
+  /// set this option to <code>true</code>.
+  /// experiment:
+  /// This is an experimental feature and is therefore disabled by default. In case you are noticing issues with the experimental
+  /// view renderer, please report the issue on <a href="https://github.com/getsentry/sentry-cocoa">GitHub</a>. Eventually, we will
+  /// mark this feature as stable and remove the experimental flag, but will keep it disabled by default.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.enableFastViewRendering</code> for the default value.
+  set enableFastViewRendering(bool value) {
+    _objc_msgSend_1s56lr9(
+        this.ref.pointer, _sel_setEnableFastViewRendering_, value);
+  }
+
+  /// Defines the quality of the session replay.
+  /// Higher bit rates better quality, but also bigger files to transfer.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.quality</code> for the default value.
+  int get replayBitRate {
+    return _objc_msgSend_1hz7y9r(this.ref.pointer, _sel_replayBitRate);
+  }
+
+  /// The scale related to the window size at which the replay will be created
+  /// note:
+  /// The scale is used to reduce the size of the replay.
+  double get sizeScale {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_2cgrxlFpret(this.ref.pointer, _sel_sizeScale)
+        : _objc_msgSend_2cgrxl(this.ref.pointer, _sel_sizeScale);
+  }
+
+  /// Number of frames per second of the replay.
+  /// The more the havier the process is.
+  /// The minimum is 1, if set to zero this will change to 1.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.frameRate</code> for the default value.
+  int get frameRate {
+    return _objc_msgSend_xw2lbc(this.ref.pointer, _sel_frameRate);
+  }
+
+  /// Number of frames per second of the replay.
+  /// The more the havier the process is.
+  /// The minimum is 1, if set to zero this will change to 1.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues.frameRate</code> for the default value.
+  set frameRate(int value) {
+    _objc_msgSend_1i9r4xy(this.ref.pointer, _sel_setFrameRate_, value);
+  }
+
+  /// The maximum duration of replays for error events.
+  double get errorReplayDuration {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_1ukqyt8Fpret(this.ref.pointer, _sel_errorReplayDuration)
+        : _objc_msgSend_1ukqyt8(this.ref.pointer, _sel_errorReplayDuration);
+  }
+
+  /// The maximum duration of replays for error events.
+  set errorReplayDuration(double value) {
+    _objc_msgSend_hwm8nu(this.ref.pointer, _sel_setErrorReplayDuration_, value);
+  }
+
+  /// The maximum duration of the segment of a session replay.
+  double get sessionSegmentDuration {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_1ukqyt8Fpret(
+            this.ref.pointer, _sel_sessionSegmentDuration)
+        : _objc_msgSend_1ukqyt8(this.ref.pointer, _sel_sessionSegmentDuration);
+  }
+
+  /// The maximum duration of the segment of a session replay.
+  set sessionSegmentDuration(double value) {
+    _objc_msgSend_hwm8nu(
+        this.ref.pointer, _sel_setSessionSegmentDuration_, value);
+  }
+
+  /// The maximum duration of a replay session.
+  /// note:
+  /// See  <code>SentryReplayOptions.DefaultValues.maximumDuration</code> for the default value.
+  double get maximumDuration {
+    return objc.useMsgSendVariants
+        ? _objc_msgSend_1ukqyt8Fpret(this.ref.pointer, _sel_maximumDuration)
+        : _objc_msgSend_1ukqyt8(this.ref.pointer, _sel_maximumDuration);
+  }
+
+  /// The maximum duration of a replay session.
+  /// note:
+  /// See  <code>SentryReplayOptions.DefaultValues.maximumDuration</code> for the default value.
+  set maximumDuration(double value) {
+    _objc_msgSend_hwm8nu(this.ref.pointer, _sel_setMaximumDuration_, value);
+  }
+
+  /// init
+  SentryReplayOptions init() {
+    objc.checkOsVersionInternal('SentryReplayOptions.init',
+        iOS: (false, (2, 0, 0)), macOS: (false, (10, 0, 0)));
+    final _ret =
+        _objc_msgSend_151sglz(this.ref.retainAndReturnPointer(), _sel_init);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// Initializes a new instance of <code>SentryReplayOptions</code> using a dictionary.
+  /// warning:
+  /// This initializer is primarily used by Hybrid SDKs and is not intended for public use.
+  /// \param dictionary A dictionary containing the configuration options for the session replay.
+  SentryReplayOptions initWithDictionary(objc.NSDictionary dictionary) {
+    final _ret = _objc_msgSend_1sotr3r(this.ref.retainAndReturnPointer(),
+        _sel_initWithDictionary_, dictionary.ref.pointer);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// Initializes a new instance of <code>SentryReplayOptions</code> with the specified parameters.
+  /// note:
+  /// See <code>SentryReplayOptions.DefaultValues</code> for the default values of each parameter.
+  /// \param sessionSampleRate Sample rate used to determine the percentage of replays of sessions that will be uploaded.
+  ///
+  /// \param onErrorSampleRate Sample rate used to determine the percentage of replays of error events that will be uploaded.
+  ///
+  /// \param maskAllText Flag to redact all text in the app by drawing a rectangle over it.
+  ///
+  /// \param maskAllImages Flag to redact all images in the app by drawing a rectangle over it.
+  ///
+  /// \param enableViewRendererV2 Enables the up to 5x faster view renderer.
+  ///
+  /// \param enableFastViewRendering Enables faster but incomplete view rendering. See <code>SentryReplayOptions.enableFastViewRendering</code> for more information.
+  SentryReplayOptions initWithSessionSampleRate(double sessionSampleRate$1,
+      {required double onErrorSampleRate$1,
+      required bool maskAllText$2,
+      required bool maskAllImages$2,
+      required bool enableViewRendererV2$1,
+      required bool enableFastViewRendering$1}) {
+    final _ret = _objc_msgSend_151cvqp(
+        this.ref.retainAndReturnPointer(),
+        _sel_initWithSessionSampleRate_onErrorSampleRate_maskAllText_maskAllImages_enableViewRendererV2_enableFastViewRendering_,
+        sessionSampleRate$1,
+        onErrorSampleRate$1,
+        maskAllText$2,
+        maskAllImages$2,
+        enableViewRendererV2$1,
+        enableFastViewRendering$1);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// new
+  static SentryReplayOptions new$() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryReplayOptions, _sel_new);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// allocWithZone:
+  static SentryReplayOptions allocWithZone(ffi.Pointer<objc.NSZone> zone) {
+    final _ret = _objc_msgSend_1cwp428(
+        _class_SentryReplayOptions, _sel_allocWithZone_, zone);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// alloc
+  static SentryReplayOptions alloc() {
+    final _ret = _objc_msgSend_151sglz(_class_SentryReplayOptions, _sel_alloc);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: false, release: true);
+  }
+
+  /// self
+  SentryReplayOptions self$1() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_self);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// retain
+  SentryReplayOptions retain() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_retain);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// autorelease
+  SentryReplayOptions autorelease() {
+    final _ret = _objc_msgSend_151sglz(this.ref.pointer, _sel_autorelease);
+    return SentryReplayOptions.castFromPointer(_ret,
+        retain: true, release: true);
+  }
+
+  /// Returns a new instance of SentryReplayOptions constructed with the default `new` method.
+  factory SentryReplayOptions() => new$();
+}
+
+late final _class_SentrySDK = objc.getClass("Sentry.SentrySDK");
+void _ObjCBlock_ffiVoid_SentryOptions_fnPtrTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    block.ref.target
+        .cast<
+            ffi.NativeFunction<
+                ffi.Void Function(ffi.Pointer<objc.ObjCObject> arg0)>>()
+        .asFunction<void Function(ffi.Pointer<objc.ObjCObject>)>()(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_SentryOptions_fnPtrCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_ffiVoid_SentryOptions_fnPtrTrampoline)
+        .cast();
+void _ObjCBlock_ffiVoid_SentryOptions_closureTrampoline(
+        ffi.Pointer<objc.ObjCBlockImpl> block,
+        ffi.Pointer<objc.ObjCObject> arg0) =>
+    (objc.getBlockClosure(block) as void Function(
+        ffi.Pointer<objc.ObjCObject>))(arg0);
+ffi.Pointer<ffi.Void> _ObjCBlock_ffiVoid_SentryOptions_closureCallable =
+    ffi.Pointer.fromFunction<
+                ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                    ffi.Pointer<objc.ObjCObject>)>(
+            _ObjCBlock_ffiVoid_SentryOptions_closureTrampoline)
+        .cast();
+void _ObjCBlock_ffiVoid_SentryOptions_listenerTrampoline(
+    ffi.Pointer<objc.ObjCBlockImpl> block, ffi.Pointer<objc.ObjCObject> arg0) {
+  (objc.getBlockClosure(block) as void Function(
+      ffi.Pointer<objc.ObjCObject>))(arg0);
+  objc.objectRelease(block.cast());
+}
+
+ffi.NativeCallable<
+        ffi.Void Function(
+            ffi.Pointer<objc.ObjCBlockImpl>, ffi.Pointer<objc.ObjCObject>)>
+    _ObjCBlock_ffiVoid_SentryOptions_listenerCallable = ffi.NativeCallable<
+            ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<objc.ObjCObject>)>.listener(
+        _ObjCBlock_ffiVoid_SentryOptions_listenerTrampoline)
+      ..keepIsolateAlive = false;
+void _ObjCBlock_ffiVoid_SentryOptions_blockingTrampoline(
+    ffi.Pointer<objc.ObjCBlockImpl> block,
+    ffi.Pointer<ffi.Void> waiter,
+    ffi.Pointer<objc.ObjCObject> arg0) {
+  try {
+    (objc.getBlockClosure(block) as void Function(
+        ffi.Pointer<objc.ObjCObject>))(arg0);
+  } catch (e) {
+  } finally {
+    objc.signalWaiter(waiter);
+    objc.objectRelease(block.cast());
   }
 }
 
+ffi.NativeCallable<
+        ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+            ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>
+    _ObjCBlock_ffiVoid_SentryOptions_blockingCallable = ffi.NativeCallable<
+            ffi.Void Function(
+                ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<ffi.Void>,
+                ffi.Pointer<objc.ObjCObject>)>.isolateLocal(
+        _ObjCBlock_ffiVoid_SentryOptions_blockingTrampoline)
+      ..keepIsolateAlive = false;
+ffi.NativeCallable<
+        ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+            ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>
+    _ObjCBlock_ffiVoid_SentryOptions_blockingListenerCallable = ffi
+        .NativeCallable<
+            ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<ffi.Void>, ffi.Pointer<objc.ObjCObject>)>.listener(
+        _ObjCBlock_ffiVoid_SentryOptions_blockingTrampoline)
+      ..keepIsolateAlive = false;
+
+/// Construction methods for `objc.ObjCBlock<ffi.Void Function(SentryOptions)>`.
+abstract final class ObjCBlock_ffiVoid_SentryOptions {
+  /// Returns a block that wraps the given raw block pointer.
+  static objc.ObjCBlock<ffi.Void Function(SentryOptions)> castFromPointer(
+          ffi.Pointer<objc.ObjCBlockImpl> pointer,
+          {bool retain = false,
+          bool release = false}) =>
+      objc.ObjCBlock<ffi.Void Function(SentryOptions)>(pointer,
+          retain: retain, release: release);
+
+  /// Creates a block from a C function pointer.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  static objc.ObjCBlock<ffi.Void Function(SentryOptions)> fromFunctionPointer(
+          ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Void Function(ffi.Pointer<objc.ObjCObject> arg0)>>
+              ptr) =>
+      objc.ObjCBlock<ffi.Void Function(SentryOptions)>(
+          objc.newPointerBlock(
+              _ObjCBlock_ffiVoid_SentryOptions_fnPtrCallable, ptr.cast()),
+          retain: false,
+          release: true);
+
+  /// Creates a block from a Dart function.
+  ///
+  /// This block must be invoked by native code running on the same thread as
+  /// the isolate that registered it. Invoking the block on the wrong thread
+  /// will result in a crash.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<ffi.Void Function(SentryOptions)> fromFunction(
+          void Function(SentryOptions) fn,
+          {bool keepIsolateAlive = true}) =>
+      objc.ObjCBlock<ffi.Void Function(SentryOptions)>(
+          objc.newClosureBlock(
+              _ObjCBlock_ffiVoid_SentryOptions_closureCallable,
+              (ffi.Pointer<objc.ObjCObject> arg0) => fn(
+                  SentryOptions.castFromPointer(arg0,
+                      retain: true, release: true)),
+              keepIsolateAlive),
+          retain: false,
+          release: true);
+
+  /// Creates a listener block from a Dart function.
+  ///
+  /// This is based on FFI's NativeCallable.listener, and has the same
+  /// capabilities and limitations. This block can be invoked from any thread,
+  /// but only supports void functions, and is not run synchronously. See
+  /// NativeCallable.listener for more details.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC.
+  static objc.ObjCBlock<ffi.Void Function(SentryOptions)> listener(
+      void Function(SentryOptions) fn,
+      {bool keepIsolateAlive = true}) {
+    final raw = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_SentryOptions_listenerCallable.nativeFunction.cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0) => fn(
+            SentryOptions.castFromPointer(arg0, retain: false, release: true)),
+        keepIsolateAlive);
+    final wrapper = _SentryCocoa_wrapListenerBlock_xtuoz7(raw);
+    objc.objectRelease(raw.cast());
+    return objc.ObjCBlock<ffi.Void Function(SentryOptions)>(wrapper,
+        retain: false, release: true);
+  }
+
+  /// Creates a blocking block from a Dart function.
+  ///
+  /// This callback can be invoked from any native thread, and will block the
+  /// caller until the callback is handled by the Dart isolate that created
+  /// the block. Async functions are not supported.
+  ///
+  /// If `keepIsolateAlive` is true, this block will keep this isolate alive
+  /// until it is garbage collected by both Dart and ObjC. If the owner isolate
+  /// has shut down, and the block is invoked by native code, it may block
+  /// indefinitely, or have other undefined behavior.
+  static objc.ObjCBlock<ffi.Void Function(SentryOptions)> blocking(
+      void Function(SentryOptions) fn,
+      {bool keepIsolateAlive = true}) {
+    final raw = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_SentryOptions_blockingCallable.nativeFunction.cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0) => fn(
+            SentryOptions.castFromPointer(arg0, retain: false, release: true)),
+        keepIsolateAlive);
+    final rawListener = objc.newClosureBlock(
+        _ObjCBlock_ffiVoid_SentryOptions_blockingListenerCallable.nativeFunction
+            .cast(),
+        (ffi.Pointer<objc.ObjCObject> arg0) => fn(
+            SentryOptions.castFromPointer(arg0, retain: false, release: true)),
+        keepIsolateAlive);
+    final wrapper = _SentryCocoa_wrapBlockingBlock_xtuoz7(
+        raw, rawListener, objc.objCContext);
+    objc.objectRelease(raw.cast());
+    objc.objectRelease(rawListener.cast());
+    return objc.ObjCBlock<ffi.Void Function(SentryOptions)>(wrapper,
+        retain: false, release: true);
+  }
+}
+
+/// Call operator for `objc.ObjCBlock<ffi.Void Function(SentryOptions)>`.
+extension ObjCBlock_ffiVoid_SentryOptions_CallExtension
+    on objc.ObjCBlock<ffi.Void Function(SentryOptions)> {
+  void call(SentryOptions arg0) => ref.pointer.ref.invoke
+      .cast<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<objc.ObjCBlockImpl> block,
+                  ffi.Pointer<objc.ObjCObject> arg0)>>()
+      .asFunction<
+          void Function(ffi.Pointer<objc.ObjCBlockImpl>,
+              ffi.Pointer<objc.ObjCObject>)>()(ref.pointer, arg0.ref.pointer);
+}
+
+late final _sel_startWithConfigureOptions_ =
+    objc.registerName("startWithConfigureOptions:");
+late final _sel_addBreadcrumb_ = objc.registerName("addBreadcrumb:");
 void _ObjCBlock_ffiVoid_SentryScope_fnPtrTrampoline(
         ffi.Pointer<objc.ObjCBlockImpl> block,
         ffi.Pointer<objc.ObjCObject> arg0) =>
@@ -1454,6 +6057,17 @@ class SentrySDK extends objc.NSObject {
         obj.ref.pointer, _sel_isKindOfClass_, _class_SentrySDK);
   }
 
+  /// Inits and configures Sentry (<code>SentryHub</code>, <code>SentryClient</code>) and sets up all integrations. Make sure to
+  /// set a valid DSN.
+  /// note:
+  /// Call this method on the main thread. When calling it from a background thread, the
+  /// SDK starts on the main thread async.
+  static void startWithConfigureOptions(
+      objc.ObjCBlock<ffi.Void Function(SentryOptions)> configureOptions) {
+    _objc_msgSend_f167m6(_class_SentrySDK, _sel_startWithConfigureOptions_,
+        configureOptions.ref.pointer);
+  }
+
   /// Adds a <code>Breadcrumb</code> to the current <code>Scope</code> of the current <code>Hub</code>. If the total number of breadcrumbs
   /// exceeds the <code>SentryOptions.maxBreadcrumbs</code> the SDK removes the oldest breadcrumb.
   /// \param crumb The <code>Breadcrumb</code> to add to the current <code>Scope</code> of the current <code>Hub</code>.
@@ -1502,6 +6116,131 @@ class SentrySDK extends objc.NSObject {
   }
 }
 
+enum SentrySessionStatus {
+  SentrySessionStatusOk(0),
+  SentrySessionStatusExited(1),
+  SentrySessionStatusCrashed(2),
+  SentrySessionStatusAbnormal(3);
+
+  final int value;
+  const SentrySessionStatus(this.value);
+
+  static SentrySessionStatus fromValue(int value) => switch (value) {
+        0 => SentrySessionStatusOk,
+        1 => SentrySessionStatusExited,
+        2 => SentrySessionStatusCrashed,
+        3 => SentrySessionStatusAbnormal,
+        _ =>
+          throw ArgumentError('Unknown value for SentrySessionStatus: $value'),
+      };
+}
+
+/// Trace sample decision flag.
+enum SentrySampleDecision {
+  /// Used when the decision to sample a trace should be postponed.
+  kSentrySampleDecisionUndecided(0),
+
+  /// The trace should be sampled.
+  kSentrySampleDecisionYes(1),
+
+  /// The trace should not be sampled.
+  kSentrySampleDecisionNo(2);
+
+  final int value;
+  const SentrySampleDecision(this.value);
+
+  static SentrySampleDecision fromValue(int value) => switch (value) {
+        0 => kSentrySampleDecisionUndecided,
+        1 => kSentrySampleDecisionYes,
+        2 => kSentrySampleDecisionNo,
+        _ =>
+          throw ArgumentError('Unknown value for SentrySampleDecision: $value'),
+      };
+}
+
+/// Describes the status of the Span/Transaction.
+enum SentrySpanStatus {
+  /// An undefined status.
+  kSentrySpanStatusUndefined(0),
+
+  /// Not an error, returned on success.
+  kSentrySpanStatusOk(1),
+
+  /// The deadline expired before the operation could succeed.
+  kSentrySpanStatusDeadlineExceeded(2),
+
+  /// The requester doesn't have valid authentication credentials for the operation.
+  kSentrySpanStatusUnauthenticated(3),
+
+  /// The caller doesn't have permission to execute the specified operation.
+  kSentrySpanStatusPermissionDenied(4),
+
+  /// Content was not found or request was denied for an entire class of users.
+  kSentrySpanStatusNotFound(5),
+
+  /// The resource has been exhausted e.g. per-user quota exhausted, file system out of space.
+  kSentrySpanStatusResourceExhausted(6),
+
+  /// The client specified an invalid argument.
+  kSentrySpanStatusInvalidArgument(7),
+
+  /// 501 Not Implemented.
+  kSentrySpanStatusUnimplemented(8),
+
+  /// The operation is not implemented or is not supported/enabled for this operation.
+  kSentrySpanStatusUnavailable(9),
+
+  /// Some invariants expected by the underlying system have been broken. This code is reserved for
+  /// serious errors.
+  kSentrySpanStatusInternalError(10),
+
+  /// An unknown error raised by APIs that don't return enough error information.
+  kSentrySpanStatusUnknownError(11),
+
+  /// The operation was cancelled, typically by the caller.
+  kSentrySpanStatusCancelled(12),
+
+  /// The entity attempted to be created already exists.
+  kSentrySpanStatusAlreadyExists(13),
+
+  /// The client shouldn't retry until the system state has been explicitly handled.
+  kSentrySpanStatusFailedPrecondition(14),
+
+  /// The operation was aborted.
+  kSentrySpanStatusAborted(15),
+
+  /// The operation was attempted past the valid range e.g. seeking past the end of a file.
+  kSentrySpanStatusOutOfRange(16),
+
+  /// Unrecoverable data loss or corruption.
+  kSentrySpanStatusDataLoss(17);
+
+  final int value;
+  const SentrySpanStatus(this.value);
+
+  static SentrySpanStatus fromValue(int value) => switch (value) {
+        0 => kSentrySpanStatusUndefined,
+        1 => kSentrySpanStatusOk,
+        2 => kSentrySpanStatusDeadlineExceeded,
+        3 => kSentrySpanStatusUnauthenticated,
+        4 => kSentrySpanStatusPermissionDenied,
+        5 => kSentrySpanStatusNotFound,
+        6 => kSentrySpanStatusResourceExhausted,
+        7 => kSentrySpanStatusInvalidArgument,
+        8 => kSentrySpanStatusUnimplemented,
+        9 => kSentrySpanStatusUnavailable,
+        10 => kSentrySpanStatusInternalError,
+        11 => kSentrySpanStatusUnknownError,
+        12 => kSentrySpanStatusCancelled,
+        13 => kSentrySpanStatusAlreadyExists,
+        14 => kSentrySpanStatusFailedPrecondition,
+        15 => kSentrySpanStatusAborted,
+        16 => kSentrySpanStatusOutOfRange,
+        17 => kSentrySpanStatusDataLoss,
+        _ => throw ArgumentError('Unknown value for SentrySpanStatus: $value'),
+      };
+}
+
 late final _class_SentryFlutterPlugin = objc.getClass("SentryFlutterPlugin");
 late final _sel_getDisplayRefreshRate =
     objc.registerName("getDisplayRefreshRate");
@@ -1511,6 +6250,96 @@ late final _sel_loadContextsAsBytes = objc.registerName("loadContextsAsBytes");
 late final _sel_loadDebugImagesAsBytes_ =
     objc.registerName("loadDebugImagesAsBytes:");
 late final _sel_captureReplay = objc.registerName("captureReplay");
+late final _sel_setProxyOptions_user_pass_host_port_type_ =
+    objc.registerName("setProxyOptions:user:pass:host:port:type:");
+final _objc_msgSend_1oqpg7l = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>,
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCObject>)>>()
+    .asFunction<
+        void Function(
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>,
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCObject>)>();
+late final _sel_setReplayOptions_quality_sessionSampleRate_onErrorSampleRate_sdkName_sdkVersion_ =
+    objc.registerName(
+        "setReplayOptions:quality:sessionSampleRate:onErrorSampleRate:sdkName:sdkVersion:");
+final _objc_msgSend_10i8pd9 = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>,
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Long,
+                ffi.Float,
+                ffi.Float,
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCObject>)>>()
+    .asFunction<
+        void Function(
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>,
+            ffi.Pointer<objc.ObjCObject>,
+            int,
+            double,
+            double,
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCObject>)>();
+late final _sel_setAutoPerformanceFeatures =
+    objc.registerName("setAutoPerformanceFeatures");
+late final _sel_setEventOriginTag_ = objc.registerName("setEventOriginTag:");
+late final _sel_setSdkMetaData_packages_integrations_ =
+    objc.registerName("setSdkMetaData:packages:integrations:");
+final _objc_msgSend_r8gdi7 = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>,
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCObject>)>>()
+    .asFunction<
+        void Function(
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>,
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCObject>)>();
+late final _sel_setBeforeSend_packages_integrations_ =
+    objc.registerName("setBeforeSend:packages:integrations:");
+late final _sel_setupHybridSdkNotifications =
+    objc.registerName("setupHybridSdkNotifications");
+late final _sel_setupReplay_tags_ = objc.registerName("setupReplay:tags:");
+final _objc_msgSend_1f7ydyk = objc.msgSendPointer
+    .cast<
+        ffi.NativeFunction<
+            ffi.Void Function(
+                ffi.Pointer<objc.ObjCObject>,
+                ffi.Pointer<objc.ObjCSelector>,
+                ffi.Pointer<objc.ObjCBlockImpl>,
+                ffi.Pointer<objc.ObjCObject>)>>()
+    .asFunction<
+        void Function(
+            ffi.Pointer<objc.ObjCObject>,
+            ffi.Pointer<objc.ObjCSelector>,
+            ffi.Pointer<objc.ObjCBlockImpl>,
+            ffi.Pointer<objc.ObjCObject>)>();
+late final _sel_getReplayOptions = objc.registerName("getReplayOptions");
 
 /// SentryFlutterPlugin
 class SentryFlutterPlugin extends objc.NSObject {
@@ -1576,6 +6405,99 @@ class SentryFlutterPlugin extends objc.NSObject {
     return _ret.address == 0
         ? null
         : objc.NSString.castFromPointer(_ret, retain: true, release: true);
+  }
+
+  /// setProxyOptions:user:pass:host:port:type:
+  static void setProxyOptions(SentryOptions options,
+      {objc.NSString? user,
+      objc.NSString? pass,
+      required objc.NSString host,
+      required objc.NSNumber port,
+      required objc.NSString type}) {
+    _objc_msgSend_1oqpg7l(
+        _class_SentryFlutterPlugin,
+        _sel_setProxyOptions_user_pass_host_port_type_,
+        options.ref.pointer,
+        user?.ref.pointer ?? ffi.nullptr,
+        pass?.ref.pointer ?? ffi.nullptr,
+        host.ref.pointer,
+        port.ref.pointer,
+        type.ref.pointer);
+  }
+
+  /// setReplayOptions:quality:sessionSampleRate:onErrorSampleRate:sdkName:sdkVersion:
+  static void setReplayOptions(SentryOptions options,
+      {required int quality,
+      required double sessionSampleRate,
+      required double onErrorSampleRate,
+      required objc.NSString sdkName,
+      required objc.NSString sdkVersion}) {
+    _objc_msgSend_10i8pd9(
+        _class_SentryFlutterPlugin,
+        _sel_setReplayOptions_quality_sessionSampleRate_onErrorSampleRate_sdkName_sdkVersion_,
+        options.ref.pointer,
+        quality,
+        sessionSampleRate,
+        onErrorSampleRate,
+        sdkName.ref.pointer,
+        sdkVersion.ref.pointer);
+  }
+
+  /// setAutoPerformanceFeatures
+  static void setAutoPerformanceFeatures() {
+    _objc_msgSend_1pl9qdv(
+        _class_SentryFlutterPlugin, _sel_setAutoPerformanceFeatures);
+  }
+
+  /// setEventOriginTag:
+  static void setEventOriginTag(SentryEvent event) {
+    _objc_msgSend_xtuoz7(
+        _class_SentryFlutterPlugin, _sel_setEventOriginTag_, event.ref.pointer);
+  }
+
+  /// setSdkMetaData:packages:integrations:
+  static void setSdkMetaData(SentryEvent event,
+      {required objc.NSArray packages, required objc.NSArray integrations}) {
+    _objc_msgSend_r8gdi7(
+        _class_SentryFlutterPlugin,
+        _sel_setSdkMetaData_packages_integrations_,
+        event.ref.pointer,
+        packages.ref.pointer,
+        integrations.ref.pointer);
+  }
+
+  /// setBeforeSend:packages:integrations:
+  static void setBeforeSend(SentryOptions options,
+      {required objc.NSArray packages, required objc.NSArray integrations}) {
+    _objc_msgSend_r8gdi7(
+        _class_SentryFlutterPlugin,
+        _sel_setBeforeSend_packages_integrations_,
+        options.ref.pointer,
+        packages.ref.pointer,
+        integrations.ref.pointer);
+  }
+
+  /// setupHybridSdkNotifications
+  static void setupHybridSdkNotifications() {
+    _objc_msgSend_1pl9qdv(
+        _class_SentryFlutterPlugin, _sel_setupHybridSdkNotifications);
+  }
+
+  /// setupReplay:tags:
+  static void setupReplay(DartSentryReplayCaptureCallback callback,
+      {required objc.NSDictionary tags}) {
+    _objc_msgSend_1f7ydyk(_class_SentryFlutterPlugin, _sel_setupReplay_tags_,
+        callback.ref.pointer, tags.ref.pointer);
+  }
+
+  /// getReplayOptions
+  static SentryReplayOptions? getReplayOptions() {
+    final _ret = _objc_msgSend_151sglz(
+        _class_SentryFlutterPlugin, _sel_getReplayOptions);
+    return _ret.address == 0
+        ? null
+        : SentryReplayOptions.castFromPointer(_ret,
+            retain: true, release: true);
   }
 
   /// init

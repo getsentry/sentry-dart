@@ -15,6 +15,8 @@ import 'android_envelope_sender.dart';
 import 'android_replay_recorder.dart';
 import 'binding.dart' as native;
 
+part 'sentry_native_java_init.dart';
+
 @internal
 class SentryNativeJava extends SentryNativeChannel {
   AndroidReplayRecorder? _replayRecorder;
@@ -35,72 +37,10 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   Future<void> init(Hub hub) async {
-    // We only need these when replay is enabled (session or error capture)
-    // so let's set it up conditionally. This allows Dart to trim the code.
-    if (options.replay.isEnabled) {
-      channel.setMethodCallHandler((call) async {
-        switch (call.method) {
-          case 'ReplayRecorder.start':
-            final replayIdArg = call.arguments['replayId'];
-            final replayIsBufferingArg = call.arguments['replayIsBuffering'];
-
-            final replayId = replayIdArg != null
-                ? SentryId.fromId(replayIdArg as String)
-                : null;
-
-            final replayIsBuffering = replayIsBufferingArg != null
-                ? replayIsBufferingArg as bool
-                : false;
-
-            _replayId = replayId;
-            _nativeReplay = native.SentryFlutterPlugin.Companion
-                .privateSentryGetReplayIntegration();
-            _replayRecorder = AndroidReplayRecorder.factory(options);
-            await _replayRecorder!.start();
-            hub.configureScope((s) {
-              // Only set replay ID on scope if not buffering (active session mode)
-              // ignore: invalid_use_of_internal_member
-              s.replayId = !replayIsBuffering ? replayId : null;
-            });
-            break;
-          case 'ReplayRecorder.onConfigurationChanged':
-            final config = ScheduledScreenshotRecorderConfig(
-                width: (call.arguments['width'] as num).toDouble(),
-                height: (call.arguments['height'] as num).toDouble(),
-                frameRate: call.arguments['frameRate'] as int);
-
-            await _replayRecorder?.onConfigurationChanged(config);
-            break;
-          case 'ReplayRecorder.stop':
-            hub.configureScope((s) {
-              // ignore: invalid_use_of_internal_member
-              s.replayId = null;
-            });
-
-            final future = _replayRecorder?.stop();
-            _replayRecorder = null;
-            await future;
-
-            break;
-          case 'ReplayRecorder.pause':
-            await _replayRecorder?.pause();
-            break;
-          case 'ReplayRecorder.resume':
-            await _replayRecorder?.resume();
-            break;
-          case 'ReplayRecorder.reset':
-            // ignored
-            break;
-          default:
-            throw UnimplementedError('Method ${call.method} not implemented');
-        }
-      });
-    }
+    initSentryAndroid(hub: hub, options: options, owner: this);
 
     _envelopeSender = AndroidEnvelopeSender.factory(options);
     await _envelopeSender?.start();
-
-    return super.init(hub);
   }
 
   @override
@@ -206,6 +146,9 @@ class SentryNativeJava extends SentryNativeChannel {
     JByteArray? appStartUtf8JsonBytes;
 
     return tryCatchSync('fetchNativeAppStart', () {
+      if (!options.enableAutoPerformanceTracing) {
+        return null;
+      }
       appStartUtf8JsonBytes =
           native.SentryFlutterPlugin.Companion.fetchNativeAppStartAsBytes();
       if (appStartUtf8JsonBytes == null) return null;
