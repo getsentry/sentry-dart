@@ -33,4 +33,3 @@ runs:
       with:
         path: './${{ inputs.directory }}/coverage/lcov.info'
         min_coverage: ${{ inputs.min-coverage }}
-        exclude: 'lib/src/native/**/binding.dart lib/src/native/java/android_replay_recorder.dart'

@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, invalid_use_of_internal_member, unused_local_variable, deprecated_member_use
+// ignore_for_file: avoid_print, invalid_use_of_internal_member, unused_local_variable, deprecated_member_use, depend_on_referenced_packages
 
 import 'dart:async';
 import 'dart:convert';
@@ -11,6 +11,11 @@ import 'package:integration_test/integration_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
+import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
+import 'package:sentry_flutter/src/native/cocoa/sentry_native_cocoa.dart';
+import 'package:sentry_flutter/src/native/java/binding.dart' as jni;
+import 'package:sentry_flutter/src/native/cocoa/binding.dart' as cocoa;
+import 'package:objective_c/objective_c.dart';
 
 import 'utils.dart';
 
@@ -106,6 +111,18 @@ void main() {
     await Sentry.close();
   });
 
+  Future<void> setupSentryWithCustomInit(
+    FutureOr<void> Function() appRunner,
+    void Function(SentryFlutterOptions options) configure,
+  ) async {
+    await SentryFlutter.init(
+      (opts) {
+        configure(opts);
+      },
+      appRunner: appRunner,
+    );
+  }
+
   testWidgets('setup sentry and add breadcrumb', (tester) async {
     await setupSentryAndApp(tester);
 
@@ -150,6 +167,191 @@ void main() {
     final context = SentryTransactionContext('transaction', 'test');
     final transaction = Sentry.startTransactionWithContext(context);
     await transaction.finish();
+  });
+
+  testWidgets('init maps Dart options into native SDK options', (tester) async {
+    if (Platform.isIOS || Platform.isMacOS) {
+      // Since this is a static var previous test might have overridden this so
+      // we should set this back to the default (false).
+      cocoa.PrivateSentrySDKOnly.setAppStartMeasurementHybridSDKMode(false);
+    }
+
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryWithCustomInit(() async {
+        await tester.pumpWidget(
+          SentryScreenshotWidget(
+            child: DefaultAssetBundle(
+              bundle: SentryAssetBundle(
+                enableStructuredDataTracing: true,
+              ),
+              child: const MyApp(),
+            ),
+          ),
+        );
+      }, (options) {
+        options.dsn = fakeDsn;
+        options.debug = true;
+        options.diagnosticLevel = SentryLevel.error;
+        options.environment = 'init-test-env';
+        options.release = '1.2.3+9';
+        options.dist = '42';
+        options.sendDefaultPii = true;
+        options.attachStacktrace = false;
+        options.maxBreadcrumbs = 7;
+        options.maxCacheItems = 77;
+        options.maxAttachmentSize = 512;
+        options.enableAutoSessionTracking = false;
+        options.autoSessionTrackingInterval = const Duration(seconds: 5);
+        options.enableAutoNativeBreadcrumbs = false;
+        options.enableAutoPerformanceTracing = false;
+        options.sendClientReports = false;
+        options.spotlight = Spotlight(
+          enabled: true,
+          url: 'http://localhost:8999/stream',
+        );
+        options.proxy = SentryProxy(
+          user: 'u',
+          pass: 'p',
+          host: 'proxy.local',
+          port: 8084,
+          type: SentryProxyType.http,
+        );
+        options.replay.quality = SentryReplayQuality.high;
+        options.replay.sessionSampleRate = 0.4;
+        options.replay.onErrorSampleRate = 0.8;
+
+        // Cocoa-only
+        if (Platform.isIOS || Platform.isMacOS) {
+          options.recordHttpBreadcrumbs = false;
+          options.captureFailedRequests = false;
+          options.enableAppHangTracking = false;
+          options.appHangTimeoutInterval = const Duration(seconds: 1);
+        }
+        // Android-only
+        if (Platform.isAndroid) {
+          options.enableNdkScopeSync = true;
+          options.attachThreads = true;
+          options.anrEnabled = false;
+          options.anrTimeoutInterval = const Duration(seconds: 2);
+          options.connectionTimeout = const Duration(milliseconds: 1234);
+          options.readTimeout = const Duration(milliseconds: 2345);
+        }
+      });
+    });
+
+    if (Platform.isIOS || Platform.isMacOS) {
+      final cocoaOptions = cocoa.PrivateSentrySDKOnly.getOptions();
+      expect(cocoaOptions, isNotNull);
+      if (Platform.isIOS) {
+        final nativeReplayOptions =
+            cocoa.SentryFlutterPlugin.getReplayOptions();
+        expect(nativeReplayOptions, isNotNull);
+        expect(nativeReplayOptions!.quality,
+            cocoa.SentryReplayQuality.SentryReplayQualityHigh);
+        // Can't use direct comparison because of floating point precision
+        expect(nativeReplayOptions.sessionSampleRate, closeTo(0.4, 0.001));
+        expect(nativeReplayOptions.onErrorSampleRate, closeTo(0.8, 0.001));
+      }
+      expect(cocoaOptions.dsn?.toDartString(), fakeDsn);
+      expect(cocoaOptions.debug, isTrue);
+      expect(cocoaOptions.diagnosticLevel.value, SentryLevel.error.ordinal);
+      expect(cocoaOptions.environment.toDartString(), 'init-test-env');
+      expect(cocoaOptions.releaseName?.toDartString(), '1.2.3+9');
+      expect(cocoaOptions.dist?.toDartString(), '42');
+      expect(cocoaOptions.sendDefaultPii, isTrue);
+      expect(cocoaOptions.attachStacktrace, isFalse);
+      expect(cocoaOptions.maxBreadcrumbs, 7);
+      expect(cocoaOptions.maxCacheItems, 77);
+      expect(cocoaOptions.maxAttachmentSize, 512);
+      expect(cocoaOptions.enableAutoSessionTracking, isFalse);
+      expect(cocoaOptions.sessionTrackingIntervalMillis, 5000);
+      expect(cocoaOptions.enableAutoBreadcrumbTracking, isFalse);
+      expect(cocoaOptions.enableNetworkBreadcrumbs, isFalse);
+      expect(cocoaOptions.enableCaptureFailedRequests, isFalse);
+      expect(cocoaOptions.enableAppHangTracking, isFalse);
+      expect(cocoaOptions.appHangTimeoutInterval, 1);
+      expect(cocoaOptions.enableSpotlight, isTrue);
+      expect(cocoaOptions.spotlightUrl.toDartString(),
+          Sentry.currentHub.options.spotlight.url);
+      expect(cocoaOptions.sendClientReports, isFalse);
+      expect(
+          cocoa.PrivateSentrySDKOnly.getSdkName().toDartString(), cocoaSdkName);
+      expect(cocoa.PrivateSentrySDKOnly.getAppStartMeasurementHybridSDKMode(),
+          isFalse);
+      // currently cannot assert the sdk package and integration since it's attached only
+      // to the event and we don't have a convenient way to access beforeSend
+    } else if (Platform.isAndroid) {
+      final ref = jni.ScopesAdapter.getInstance()?.getOptions().reference;
+      expect(ref, isNotNull);
+      final androidOptions = jni.SentryAndroidOptions.fromReference(ref!);
+
+      expect(androidOptions, isNotNull);
+      expect(androidOptions.getDsn()?.toDartString(), fakeDsn);
+      expect(androidOptions.isDebug(), isTrue);
+      final diagnostic = androidOptions.getDiagnosticLevel();
+      expect(
+        diagnostic,
+        jni.SentryLevel.ERROR,
+      );
+      expect(androidOptions.getEnvironment()?.toDartString(), 'init-test-env');
+      expect(androidOptions.getRelease()?.toDartString(), '1.2.3+9');
+      expect(androidOptions.getDist()?.toDartString(), '42');
+      expect(androidOptions.isSendDefaultPii(), isTrue);
+      expect(androidOptions.isAttachStacktrace(), isFalse);
+      expect(androidOptions.isAttachThreads(), isTrue);
+      expect(androidOptions.getMaxBreadcrumbs(), 7);
+      expect(androidOptions.getMaxCacheItems(), 77);
+      expect(androidOptions.getMaxAttachmentSize(), 512);
+      expect(androidOptions.isEnableScopeSync(), isTrue);
+      expect(androidOptions.isAnrEnabled(), isFalse);
+      expect(androidOptions.getAnrTimeoutIntervalMillis(), 2000);
+      expect(androidOptions.isEnableActivityLifecycleBreadcrumbs(), isFalse);
+      expect(androidOptions.isEnableAppLifecycleBreadcrumbs(), isFalse);
+      expect(androidOptions.isEnableSystemEventBreadcrumbs(), isFalse);
+      expect(androidOptions.isEnableAppComponentBreadcrumbs(), isFalse);
+      expect(androidOptions.isEnableUserInteractionBreadcrumbs(), isFalse);
+      expect(androidOptions.getConnectionTimeoutMillis(), 1234);
+      expect(androidOptions.getReadTimeoutMillis(), 2345);
+      expect(androidOptions.isEnableSpotlight(), isTrue);
+      expect(androidOptions.isSendClientReports(), isFalse);
+      expect(
+        androidOptions.getSpotlightConnectionUrl()?.toDartString(),
+        Sentry.currentHub.options.spotlight.url,
+      );
+      expect(androidOptions.getSentryClientName()?.toDartString(),
+          '$androidSdkName/${jni.BuildConfig.VERSION_NAME?.toDartString()}');
+      expect(androidOptions.getNativeSdkName()?.toDartString(), nativeSdkName);
+      expect(androidOptions.getSdkVersion()?.getName().toDartString(),
+          androidSdkName);
+      expect(androidOptions.getSdkVersion()?.getVersion().toDartString(),
+          jni.BuildConfig.VERSION_NAME?.toDartString());
+      final allPackages = androidOptions
+          .getSdkVersion()
+          ?.getPackageSet()
+          .map((pkg) {
+            if (pkg == null) return null;
+            return SentryPackage(
+                pkg.getName().toDartString(), pkg.getVersion().toDartString());
+          })
+          .nonNulls
+          .toList();
+      for (final package in Sentry.currentHub.options.sdk.packages) {
+        final findMatchingPackage = allPackages?.firstWhere(
+            (p) => p.name == package.name && p.version == package.version);
+        expect(findMatchingPackage, isNotNull);
+      }
+      final androidProxy = androidOptions.getProxy();
+      expect(androidProxy, isNotNull);
+      expect(androidProxy!.getHost()?.toDartString(), 'proxy.local');
+      expect(androidProxy.getPort()?.toDartString(), '8084');
+      expect(androidProxy.getUser()?.toDartString(), 'u');
+      expect(androidProxy.getPass()?.toDartString(), 'p');
+      final r = androidOptions.getSessionReplay();
+      expect(r.getQuality(), jni.SentryReplayOptions$SentryReplayQuality.HIGH);
+      expect(r.getSessionSampleRate(), isNotNull);
+      expect(r.getOnErrorSampleRate(), isNotNull);
+      expect(r.isTrackConfiguration(), isFalse);
+    }
   });
 
   testWidgets('loads native contexts through loadContexts', (tester) async {
@@ -754,10 +956,9 @@ void main() {
     if (Platform.isIOS) {
       expect(values['key1'], {'value': 'randomValue'}, reason: 'key1 mismatch');
       expect(values['key2'],
-          {'String': 'Value', 'Bool': 1, 'Int': 123, 'Double': 12.3},
+          {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3},
           reason: 'key2 mismatch');
-      // bool values are mapped to num values of 1 or 0 during objc conversion
-      expect(values['key3'], {'value': 1}, reason: 'key3 mismatch');
+      expect(values['key3'], {'value': true}, reason: 'key3 mismatch');
       expect(values['key4'], {'value': 12}, reason: 'key4 mismatch');
       expect(values['key5'], {'value': 12.3}, reason: 'key5 mismatch');
     } else if (Platform.isAndroid) {
@@ -843,10 +1044,9 @@ void main() {
     if (Platform.isIOS || Platform.isMacOS) {
       expect(extras['key1'], 'randomValue', reason: 'key1 mismatch');
       expect(extras['key2'],
-          {'String': 'Value', 'Bool': 1, 'Int': 123, 'Double': 12.3},
+          {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3},
           reason: 'key2 mismatch');
-      // bool values are mapped to num values of 1 or 0 during objc conversion
-      expect(extras['key3'], 1, reason: 'key3 mismatch');
+      expect(extras['key3'], isTrue, reason: 'key3 mismatch');
       expect(extras['key4'], 12, reason: 'key4 mismatch');
       expect(extras['key5'], 12.3, reason: 'key5 mismatch');
     } else if (Platform.isAndroid) {

@@ -43,35 +43,8 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         super.init()
     }
 
-    private lazy var sentryFlutter = SentryFlutter()
-
-    private lazy var iso8601Formatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(abbreviation: "UTC")
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-        return formatter
-    }()
-
-    private lazy var iso8601FormatterWithMillisecondPrecision: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(abbreviation: "UTC")
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-        return formatter
-    }()
-
-    // Replace with `NSDate+SentryExtras` when available.
-    private func dateFrom(iso8601String: String) -> Date? {
-      return iso8601FormatterWithMillisecondPrecision.date(from: iso8601String)
-        ?? iso8601Formatter.date(from: iso8601String) // Parse date with low precision formatter for backward compatible
-    }
-
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method as String {
-        case "initNativeSdk":
-            initNativeSdk(call, result: result)
-
         case "closeNativeSdk":
             closeNativeSdk(call, result: result)
 
@@ -88,140 +61,9 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         }
     }
 
-    private func initNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let arguments = call.arguments as? [String: Any], !arguments.isEmpty else {
-            print("Arguments is null or empty")
-            result(FlutterError(code: "4", message: "Arguments is null or empty", details: nil))
-            return
-        }
-
-        SentrySDK.start { options in
-            self.sentryFlutter.update(options: options, with: arguments)
-
-            if arguments["enableAutoPerformanceTracing"] as? Bool ?? false {
-                PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
-                #if os(iOS) || targetEnvironment(macCatalyst)
-                PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
-                #endif
-            }
-
-            let version = PrivateSentrySDKOnly.getSdkVersionString()
-            PrivateSentrySDKOnly.setSdkName(SentryFlutterPlugin.nativeClientName, andVersionString: version)
-
-            let flutterSdk = arguments["sdk"] as? [String: Any]
-
-            // note : for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
-            options.beforeSend = { event in
-                self.setEventOriginTag(event: event)
-
-                if flutterSdk != nil {
-                    if var sdk = event.sdk, self.isValidSdk(sdk: sdk) {
-                        if let packages = flutterSdk!["packages"] as? [[String: String]] {
-                            if let sdkPackages = sdk["packages"] as? [[String: String]] {
-                                sdk["packages"] = sdkPackages + packages
-                            } else {
-                                sdk["packages"] = packages
-                            }
-                        }
-
-                        if let integrations = flutterSdk!["integrations"] as? [String] {
-                            if let sdkIntegrations = sdk["integrations"] as? [String] {
-                                sdk["integrations"] = sdkIntegrations + integrations
-                            } else {
-                                sdk["integrations"] = integrations
-                            }
-                        }
-                        event.sdk = sdk
-                    }
-                }
-
-                return event
-            }
-        }
-
-        #if os(iOS) || targetEnvironment(macCatalyst)
-        let appIsActive = UIApplication.shared.applicationState == .active
-        #else
-        let appIsActive = NSApplication.shared.isActive
-        #endif
-
-        // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, to mimic
-        // the didBecomeActiveNotification notification. This is needed for session, OOM tracking, replays, etc.
-        if appIsActive {
-            NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
-        }
-
-        configureReplay(arguments)
-
-        result("")
-    }
-
-  private func configureReplay(_ arguments: [String: Any]) {
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-       let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
-       let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
-       PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
-       if let replayOptions = arguments["replay"] as? [String: Any] {
-         if let tags = replayOptions["tags"] as? [String: Any] {
-           let sessionReplayOptions = PrivateSentrySDKOnly.options.sessionReplay
-           var newTags: [String: Any] = [
-            "sessionSampleRate": sessionReplayOptions.sessionSampleRate,
-            "errorSampleRate": sessionReplayOptions.onErrorSampleRate,
-            "quality": String(describing: sessionReplayOptions.quality),
-            "nativeSdkName": PrivateSentrySDKOnly.getSdkName(),
-            "nativeSdkVersion": PrivateSentrySDKOnly.getSdkVersionString()
-           ]
-           for (key, value) in tags {
-               newTags[key] = value
-           }
-           PrivateSentrySDKOnly.setReplayTags(newTags)
-         }
-       }
-#endif
-  }
-
     private func closeNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         SentrySDK.close()
         result("")
-    }
-
-    private func setEventOriginTag(event: Event) {
-        guard let sdk = event.sdk else {
-            return
-        }
-        if isValidSdk(sdk: sdk) {
-            switch sdk["name"] as? String {
-            case SentryFlutterPlugin.nativeClientName:
-                #if os(OSX)
-                    let origin = "mac"
-                #elseif os(watchOS)
-                    let origin = "watch"
-                #elseif os(tvOS)
-                    let origin = "tv"
-                #elseif os(iOS)
-                    #if targetEnvironment(macCatalyst)
-                        let origin = "macCatalyst"
-                    #else
-                        let origin = "ios"
-                    #endif
-                #endif
-                setEventEnvironmentTag(event: event, origin: origin, environment: "native")
-            default:
-                return
-            }
-        }
-    }
-
-    private func setEventEnvironmentTag(event: Event, origin: String, environment: String) {
-        event.tags?["event.origin"] = origin
-        event.tags?["event.environment"] = environment
-    }
-
-    private func isValidSdk(sdk: [String: Any]) -> Bool {
-        guard let name = sdk["name"] as? String else {
-            return false
-        }
-        return !name.isEmpty
     }
 
     private func collectProfile(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
@@ -264,7 +106,184 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   //
   // Group of methods exposed to the Objective-C runtime via `@objc`.
   //
-  // Purpose: Called from the Flutter plugin's native bridge (FFI) - bindings are created from SentryFlutterPlugin.h
+  // Purpose: Called from the Flutter plugin's native bridge (FFI) - bindings are created from SentryFlutterFFI.h
+
+  @objc(setupReplay:tags:)
+  public class func setupReplay(callback: @escaping SentryReplayCaptureCallback, tags: [String: Any]) {
+    #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+      let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+      let screenshotProvider = SentryFlutterReplayScreenshotProvider(callback: callback)
+      PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
+      let sessionReplayOptions = PrivateSentrySDKOnly.options.sessionReplay
+      var newTags: [String: Any] = [
+        "sessionSampleRate": sessionReplayOptions.sessionSampleRate,
+        "errorSampleRate": sessionReplayOptions.onErrorSampleRate,
+        "quality": String(describing: sessionReplayOptions.quality),
+        "nativeSdkName": PrivateSentrySDKOnly.getSdkName(),
+        "nativeSdkVersion": PrivateSentrySDKOnly.getSdkVersionString()
+      ]
+      for (key, value) in tags {
+        newTags[key] = value
+      }
+      PrivateSentrySDKOnly.setReplayTags(newTags)
+    #endif
+  }
+
+  @objc(setBeforeSend:packages:integrations:)
+  public class func setBeforeSend(options: Options, packages: [[String: String]], integrations: [String]) {
+    options.beforeSend = { event in
+      setEventOriginTag(event: event)
+      setSdkMetaData(event: event, packages: packages, integrations: integrations)
+
+      return event
+    }
+  }
+
+  @objc public class func setAutoPerformanceFeatures() {
+    PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+    #if os(iOS) || targetEnvironment(macCatalyst)
+      PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
+    #endif
+  }
+
+  @objc public class func setupHybridSdkNotifications() {
+    #if os(iOS) || targetEnvironment(macCatalyst)
+      let appIsActive = UIApplication.shared.applicationState == .active
+    #else
+      let appIsActive = NSApplication.shared.isActive
+    #endif
+
+    // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, to mimic
+    // the didBecomeActiveNotification notification. This is needed for session, OOM tracking, replays, etc.
+    if appIsActive {
+      NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
+    }
+  }
+
+  @objc(setSdkMetaData:packages:integrations:)
+  public class func setSdkMetaData(event: Event, packages: [[String: String]], integrations: [String]) {
+    if var sdk = event.sdk, self.isValidSdk(sdk: sdk) {
+      if let sdkPackages = sdk["packages"] as? [[String: String]] {
+        sdk["packages"] = sdkPackages + packages
+      } else {
+        sdk["packages"] = packages
+      }
+      if let sdkIntegrations = sdk["integrations"] as? [String] {
+        sdk["integrations"] = sdkIntegrations + integrations
+      } else {
+        sdk["integrations"] = integrations
+      }
+      event.sdk = sdk
+    }
+  }
+
+  @objc(setEventOriginTag:)
+  public class func setEventOriginTag(event: Event) {
+    guard let sdk = event.sdk else {
+      return
+    }
+    if isValidSdk(sdk: sdk) {
+      switch sdk["name"] as? String {
+      case SentryFlutterPlugin.nativeClientName:
+        #if os(OSX)
+        let origin = "mac"
+        #elseif os(watchOS)
+        let origin = "watch"
+        #elseif os(tvOS)
+        let origin = "tv"
+        #elseif os(iOS)
+        #if targetEnvironment(macCatalyst)
+        let origin = "macCatalyst"
+        #else
+        let origin = "ios"
+        #endif
+        #endif
+        setEventEnvironmentTag(event: event, origin: origin, environment: "native")
+      default:
+        return
+      }
+    }
+  }
+
+  private class func setEventEnvironmentTag(event: Event, origin: String, environment: String) {
+    event.tags?["event.origin"] = origin
+    event.tags?["event.environment"] = environment
+  }
+
+  private class func isValidSdk(sdk: [String: Any]) -> Bool {
+    guard let name = sdk["name"] as? String else {
+      return false
+    }
+    return !name.isEmpty
+  }
+
+  @objc(setProxyOptions:user:pass:host:port:type:)
+  // swiftlint:disable:next function_parameter_count
+  public class func setProxyOptions(
+    options: Options,
+    user: String?,
+    pass: String?,
+    host: String,
+    port: Int,
+    type: String
+  ) {
+    var connectionProxyDictionary: [String: Any] = [:]
+    if type.lowercased() == "http" {
+      connectionProxyDictionary[kCFNetworkProxiesHTTPEnable as String] = true
+      connectionProxyDictionary[kCFNetworkProxiesHTTPProxy as String] = host
+      connectionProxyDictionary[kCFNetworkProxiesHTTPPort as String] = port
+    } else if type.lowercased() == "socks" {
+      #if os(macOS)
+        connectionProxyDictionary[kCFNetworkProxiesSOCKSEnable as String] = true
+        connectionProxyDictionary[kCFNetworkProxiesSOCKSProxy as String] = host
+        connectionProxyDictionary[kCFNetworkProxiesSOCKSPort as String] = port
+      #else
+        return
+      #endif
+    } else {
+      return
+    }
+
+    if let user = user, let pass = pass {
+      connectionProxyDictionary[kCFProxyUsernameKey as String] = user
+      connectionProxyDictionary[kCFProxyPasswordKey as String] = pass
+    }
+
+    let configuration = URLSessionConfiguration.default
+    configuration.connectionProxyDictionary = connectionProxyDictionary
+
+    options.urlSession = URLSession(configuration: configuration)
+  }
+
+  @objc public class func getReplayOptions() -> SentryReplayOptions? {
+    #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+      return PrivateSentrySDKOnly.options.sessionReplay
+    #endif
+    return nil
+  }
+
+  @objc(setReplayOptions:quality:sessionSampleRate:onErrorSampleRate:sdkName:sdkVersion:)
+  // swiftlint:disable:next function_parameter_count
+  public class func setReplayOptions(
+    options: Options,
+    quality: Int,
+    sessionSampleRate: Float,
+    onErrorSampleRate: Float,
+    sdkName: String,
+    sdkVersion: String
+  ) {
+    #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+      options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality(rawValue: quality) ?? .medium
+      options.sessionReplay.sessionSampleRate = sessionSampleRate
+      options.sessionReplay.onErrorSampleRate = onErrorSampleRate
+
+      options.sessionReplay.setValue(
+        [
+          "name": sdkName,
+          "version": sdkVersion
+        ], forKey: "sdkInfo")
+    #endif
+  }
 
   @objc public class func captureReplay() -> String? {
     #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
