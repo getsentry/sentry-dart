@@ -399,7 +399,10 @@ class Hub {
       final item = _peek();
 
       try {
-        item.client.close();
+        final close = item.client.close();
+        if (close is Future<void>) {
+          await close;
+        }
       } catch (exception, stackTrace) {
         _options.log(
           SentryLevel.error,

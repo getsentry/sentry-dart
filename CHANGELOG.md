@@ -10,6 +10,7 @@
 
 - Refactor `captureReplay` and `setReplayConfig` to use FFI/JNI ([#3318](https://github.com/getsentry/sentry-dart/pull/3318))
 - Refactor `init` to use FFI/JNI ([#3324](https://github.com/getsentry/sentry-dart/pull/3324))
+- Flush logs if client/hub/sdk is closed ([#3335](https://github.com/getsentry/sentry-dart/pull/3335))
 
 ## 9.8.0
 

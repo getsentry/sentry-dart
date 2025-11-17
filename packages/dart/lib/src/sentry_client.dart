@@ -582,7 +582,11 @@ class SentryClient {
     }
   }
 
-  void close() {
+  FutureOr<void> close() {
+    final flush = _options.logBatcher.flush();
+    if (flush is Future<void>) {
+      return flush.then((_) => _options.httpClient.close());
+    }
     _options.httpClient.close();
   }
 
