@@ -64,7 +64,7 @@ class SentryLogBatcher {
     });
   }
 
-  FutureOr<void> _performFlushLogs() async {
+  FutureOr<void> _performFlushLogs() {
     // Reset timer state first
     _flushTimer?.cancel();
     _flushTimer = null;
@@ -79,17 +79,16 @@ class SentryLogBatcher {
         SentryLevel.debug,
         'SentryLogBatcher: No logs to flush.',
       );
-      return;
-    }
-
-    try {
-      final envelope = SentryEnvelope.fromLogsData(logsToSend, _options.sdk);
-      await _options.transport.send(envelope);
-    } catch (error) {
-      _options.log(
-        SentryLevel.error,
-        'Failed to send batched logs: $error',
-      );
+    } else {
+      try {
+        final envelope = SentryEnvelope.fromLogsData(logsToSend, _options.sdk);
+        return _options.transport.send(envelope).then((_) => null);
+      } catch (error) {
+        _options.log(
+          SentryLevel.error,
+          'Failed to create envelope for batched logs: $error',
+        );
+      }
     }
   }
 }
