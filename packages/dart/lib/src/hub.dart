@@ -341,6 +341,8 @@ class Hub {
     return scope;
   }
 
+  void setAttributes(Map<String, SentryAttribute> attributes) {}
+
   /// Adds a breacrumb to the current Scope
   Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
     if (!_isEnabled) {

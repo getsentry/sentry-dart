@@ -17,42 +17,42 @@ class SentryLogger {
 
   FutureOr<void> trace(
     String body, {
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   }) {
     return _captureLog(SentryLogLevel.trace, body, attributes: attributes);
   }
 
   FutureOr<void> debug(
     String body, {
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   }) {
     return _captureLog(SentryLogLevel.debug, body, attributes: attributes);
   }
 
   FutureOr<void> info(
     String body, {
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   }) {
     return _captureLog(SentryLogLevel.info, body, attributes: attributes);
   }
 
   FutureOr<void> warn(
     String body, {
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   }) {
     return _captureLog(SentryLogLevel.warn, body, attributes: attributes);
   }
 
   FutureOr<void> error(
     String body, {
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   }) {
     return _captureLog(SentryLogLevel.error, body, attributes: attributes);
   }
 
   FutureOr<void> fatal(
     String body, {
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   }) {
     return _captureLog(SentryLogLevel.fatal, body, attributes: attributes);
   }
@@ -62,7 +62,7 @@ class SentryLogger {
   FutureOr<void> _captureLog(
     SentryLogLevel level,
     String body, {
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   }) {
     final log = SentryLog(
       timestamp: _clock(),
@@ -84,7 +84,7 @@ class SentryLogger {
   String _formatLogMessage(
     SentryLogLevel level,
     String body,
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   ) {
     if (attributes == null || attributes.isEmpty) {
       return body;
@@ -98,7 +98,7 @@ class SentryLogger {
   }
 
   /// Format attribute value based on its type
-  String _formatAttributeValue(SentryLogAttribute attribute) {
+  String _formatAttributeValue(SentryAttribute attribute) {
     switch (attribute.type) {
       case 'string':
         if (attribute.value is String) {

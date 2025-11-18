@@ -158,10 +158,10 @@ void main() {
     );
 
     // Test with special double values
-    final specialAttributes = <String, SentryLogAttribute>{
-      'nan': SentryLogAttribute.double(double.nan),
-      'positive_infinity': SentryLogAttribute.double(double.infinity),
-      'negative_infinity': SentryLogAttribute.double(double.negativeInfinity),
+    final specialAttributes = <String, SentryAttribute>{
+      'nan': SentryAttribute.double(double.nan),
+      'positive_infinity': SentryAttribute.double(double.infinity),
+      'negative_infinity': SentryAttribute.double(double.negativeInfinity),
     };
 
     logger.info('special values', attributes: specialAttributes);
@@ -190,15 +190,15 @@ class Fixture {
   final hub = MockHub();
   final timestamp = DateTime.fromMicrosecondsSinceEpoch(0);
 
-  final attributes = <String, SentryLogAttribute>{
-    'string': SentryLogAttribute.string('string'),
-    'int': SentryLogAttribute.int(1),
-    'double': SentryLogAttribute.double(1.23456789),
-    'bool': SentryLogAttribute.bool(true),
-    'double_int': SentryLogAttribute.double(1.0),
-    'nan': SentryLogAttribute.double(double.nan),
-    'positive_infinity': SentryLogAttribute.double(double.infinity),
-    'negative_infinity': SentryLogAttribute.double(double.negativeInfinity),
+  final attributes = <String, SentryAttribute>{
+    'string': SentryAttribute.string('string'),
+    'int': SentryAttribute.int(1),
+    'double': SentryAttribute.double(1.23456789),
+    'bool': SentryAttribute.bool(true),
+    'double_int': SentryAttribute.double(1.0),
+    'nan': SentryAttribute.double(double.nan),
+    'positive_infinity': SentryAttribute.double(double.infinity),
+    'negative_infinity': SentryAttribute.double(double.negativeInfinity),
   };
 
   SentryLogger getSut() {

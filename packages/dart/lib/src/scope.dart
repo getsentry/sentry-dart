@@ -167,6 +167,8 @@ class Scope {
 
   List<SentryAttachment> get attachments => List.unmodifiable(_attachments);
 
+  final Map<String, SentryAttribute> _attributes = {};
+
   Scope(this._options);
 
   Breadcrumb? _addBreadCrumbSync(Breadcrumb breadcrumb, Hint hint) {
@@ -220,6 +222,10 @@ class Scope {
       await _callScopeObservers((scopeObserver) async =>
           await scopeObserver.addBreadcrumb(addedBreadcrumb));
     }
+  }
+
+  void setAttributes(Map<String, SentryAttribute> attributes) {
+    _attributes = attributes;
   }
 
   void addAttachment(SentryAttachment attachment) {

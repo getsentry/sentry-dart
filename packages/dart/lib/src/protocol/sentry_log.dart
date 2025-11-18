@@ -7,7 +7,7 @@ class SentryLog {
   SentryId traceId;
   SentryLogLevel level;
   String body;
-  Map<String, SentryLogAttribute> attributes;
+  Map<String, SentryAttribute> attributes;
   int? severityNumber;
 
   /// The traceId is initially an empty default value and is populated during event processing;
