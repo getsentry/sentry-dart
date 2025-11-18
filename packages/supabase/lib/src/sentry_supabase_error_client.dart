@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
 import 'sentry_supabase_client_error.dart';
@@ -25,22 +27,26 @@ class SentrySupabaseErrorClient extends BaseClient {
     try {
       final response = await _innerClient.send(request);
       if (response.statusCode >= 400) {
-        _captureException(
-          null,
-          null,
-          request,
-          response,
-          supabaseRequest,
+        unawaited(
+          _captureException(
+            null,
+            null,
+            request,
+            response,
+            supabaseRequest,
+          ),
         );
       }
       return response;
     } catch (e, st) {
-      _captureException(
-        e,
-        st,
-        request,
-        null,
-        supabaseRequest,
+      unawaited(
+        _captureException(
+          e,
+          st,
+          request,
+          null,
+          supabaseRequest,
+        ),
       );
       rethrow;
     }
@@ -51,7 +57,7 @@ class SentrySupabaseErrorClient extends BaseClient {
     _innerClient.close();
   }
 
-  void _captureException(
+  Future<SentryId> _captureException(
     dynamic exception,
     StackTrace? stackTrace,
     BaseRequest request,
@@ -78,6 +84,6 @@ class SentrySupabaseErrorClient extends BaseClient {
         'body': supabaseRequest.body,
     };
 
-    _hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
+    return _hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
   }
 }
