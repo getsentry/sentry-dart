@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:sentry/src/sentry_logger_formatter.dart';
 import 'package:sentry/src/sentry_logger.dart';
-import 'package:sentry/src/protocol/sentry_log_attribute.dart';
+import 'package:sentry/src/protocol/sentry_attribute.dart';
 
 void main() {
   final fixture = Fixture();

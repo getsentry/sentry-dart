@@ -289,7 +289,7 @@ class Hub {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
-        "Instance is disabled and this 'captureFeedback' call is a no-op.",
+        "Instance is disabled and this 'captureLog' call is a no-op.",
       );
     } else {
       final item = _peek();
