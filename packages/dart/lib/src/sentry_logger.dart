@@ -3,7 +3,7 @@ import 'hub.dart';
 import 'hub_adapter.dart';
 import 'protocol/sentry_log.dart';
 import 'protocol/sentry_log_level.dart';
-import 'protocol/sentry_log_attribute.dart';
+import 'protocol/sentry_attribute.dart';
 import 'sentry_options.dart';
 import 'sentry_logger_formatter.dart';
 

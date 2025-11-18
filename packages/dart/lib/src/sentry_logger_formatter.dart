@@ -1,7 +1,6 @@
 import 'dart:async';
-import 'protocol/sentry_log_attribute.dart';
+import 'protocol/sentry_attribute.dart';
 import 'sentry_template_string.dart';
-import 'sentry_logger.dart';
 
 class SentryLoggerFormatter {
   SentryLoggerFormatter(this._logger);

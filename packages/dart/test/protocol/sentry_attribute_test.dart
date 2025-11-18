@@ -135,4 +135,9 @@ void main() {
       'unit': 'bytes',
     });
   });
+
+  test('$SentryUnit asString correctly maps', () {
+    final strings = SentryUnit.values.map((e) => e.asString);
+    expect(strings, ['ms', 's', 'bytes', 'count', 'percent']);
+  });
 }
