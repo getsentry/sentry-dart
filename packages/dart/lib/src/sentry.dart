@@ -303,6 +303,11 @@ class Sentry {
     _hub.setAttributes(attributes);
   }
 
+  /// Removes the attribute [key] from the scope.
+  static void removeAttribute(String key) {
+    _hub.removeAttribute(key);
+  }
+
   /// Configures the scope through the callback.
   static FutureOr<void> configureScope(ScopeCallback callback) =>
       _hub.configureScope(callback);

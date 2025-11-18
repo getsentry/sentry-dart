@@ -203,4 +203,7 @@ class HubAdapter implements Hub {
   @override
   void setAttributes(Map<String, SentryAttribute> attributes) =>
       Sentry.currentHub.setAttributes(attributes);
+
+  @override
+  void removeAttribute(String key) => Sentry.currentHub.removeAttribute(key);
 }

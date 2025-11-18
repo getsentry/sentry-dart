@@ -147,4 +147,7 @@ class NoOpHub implements Hub {
 
   @override
   void setAttributes(Map<String, SentryAttribute> attributes) {}
+
+  @override
+  void removeAttribute(String key) {}
 }

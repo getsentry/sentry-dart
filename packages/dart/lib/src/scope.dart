@@ -232,6 +232,10 @@ class Scope {
     });
   }
 
+  void removeAttribute(String key) {
+    _attributes.remove(key);
+  }
+
   void addAttachment(SentryAttachment attachment) {
     _attachments.add(attachment);
   }
