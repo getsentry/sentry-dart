@@ -60,6 +60,11 @@ void main() {
           'value': ['a', 'b', 'c'],
           'type': 'string[]',
         },
+        'test8': {
+          'value': 12,
+          'type': 'integer',
+          'unit': 'count',
+        },
       },
       'severity_number': 1,
     });
