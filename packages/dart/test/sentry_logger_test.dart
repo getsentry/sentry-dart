@@ -188,7 +188,7 @@ void main() {
     final logger = fixture.getSut();
 
     final scopeAttributes = <String, SentryAttribute>{
-      'scopeString': SentryAttribute.string('fromScope'),\
+      'scopeString': SentryAttribute.string('fromScope'),
       'scopeInt': SentryAttribute.int(42),
     };
     fixture.hub.scope.setAttributes(scopeAttributes);
