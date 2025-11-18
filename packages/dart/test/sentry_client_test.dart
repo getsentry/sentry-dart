@@ -18,6 +18,9 @@ import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/noop_log_batcher.dart';
+import 'package:sentry/src/sentry_log_batcher.dart';
+import 'package:mockito/mockito.dart';
+import 'package:http/http.dart' as http;
 
 import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
@@ -2610,6 +2613,56 @@ void main() {
       await client.captureEvent(fakeEvent, stackTrace: StackTrace.current);
     });
   });
+
+  group('SentryClient close', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('waits for log batcher flush before closing http client', () async {
+      // Create a mock HTTP client that tracks when close is called
+      final mockHttpClient = MockHttpClient();
+      fixture.options.httpClient = mockHttpClient;
+
+      fixture.options.enableLogs = true;
+      final client = fixture.getSut();
+
+      // Create a completer to control when flush completes
+      final flushCompleter = Completer<void>();
+      bool flushStarted = false;
+
+      // Create a mock log batcher with async flush
+      final mockLogBatcher = MockLogBatcherWithAsyncFlush(
+        onFlush: () async {
+          flushStarted = true;
+          // Wait for the completer to complete
+          await flushCompleter.future;
+        },
+      );
+      fixture.options.logBatcher = mockLogBatcher;
+
+      // Start close() in the background
+      final closeFuture = client.close();
+
+      // Wait a bit longer to ensure flush has started
+      await Future.delayed(Duration(milliseconds: 50));
+
+      // Verify flush has started but HTTP client is not closed yet
+      expect(flushStarted, true, reason: 'Flush should have started');
+      verifyNever(mockHttpClient.close());
+
+      // Complete the flush
+      flushCompleter.complete();
+
+      // Wait for close to complete
+      await closeFuture;
+
+      // Now verify HTTP client was closed
+      verify(mockHttpClient.close()).called(1);
+    });
+  });
 }
 
 Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
@@ -2801,6 +2854,25 @@ class Fixture {
   }) {
     loggedLevel = level;
     loggedException = exception;
+  }
+}
+
+class MockHttpClient extends Mock implements http.Client {}
+
+class MockLogBatcherWithAsyncFlush implements SentryLogBatcher {
+  final Future<void> Function() onFlush;
+  final addLogCalls = <SentryLog>[];
+
+  MockLogBatcherWithAsyncFlush({required this.onFlush});
+
+  @override
+  void addLog(SentryLog log) {
+    addLogCalls.add(log);
+  }
+
+  @override
+  FutureOr<void> flush() async {
+    await onFlush();
   }
 }
 

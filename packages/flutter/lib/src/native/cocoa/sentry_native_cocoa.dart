@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:ffi' as ffi;
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:objective_c/objective_c.dart';
+import 'package:objective_c/objective_c.dart' as objc
+    show ObjCBlock, ObjCObject;
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
@@ -12,6 +15,8 @@ import '../utils/utf8_json.dart';
 import 'binding.dart' as cocoa;
 import 'cocoa_replay_recorder.dart';
 import 'cocoa_envelope_sender.dart';
+
+part 'sentry_native_cocoa_init.dart';
 
 @internal
 class SentryNativeCocoa extends SentryNativeChannel {
@@ -32,42 +37,10 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
   @override
   Future<void> init(Hub hub) async {
-    // We only need these when replay is enabled (session or error capture)
-    // so let's set it up conditionally. This allows Dart to trim the code.
-    if (options.replay.isEnabled) {
-      channel.setMethodCallHandler((call) async {
-        switch (call.method) {
-          case 'captureReplayScreenshot':
-            _replayRecorder ??= CocoaReplayRecorder(options);
-
-            final replayIdArg = call.arguments['replayId'];
-            final replayIsBuffering =
-                call.arguments['replayIsBuffering'] as bool? ?? false;
-
-            final replayId = replayIdArg == null
-                ? null
-                : SentryId.fromId(replayIdArg as String);
-
-            if (_replayId != replayId) {
-              _replayId = replayId;
-              hub.configureScope((s) {
-                // Only set replay ID on scope if not buffering (active session mode)
-                // ignore: invalid_use_of_internal_member
-                s.replayId = !replayIsBuffering ? replayId : null;
-              });
-            }
-
-            return _replayRecorder!.captureScreenshot();
-          default:
-            throw UnimplementedError('Method ${call.method} not implemented');
-        }
-      });
-    }
+    initSentryCocoa(hub: hub, options: options, owner: this);
 
     _envelopeSender = CocoaEnvelopeSender(options);
     await _envelopeSender?.start();
-
-    return super.init(hub);
   }
 
   @override
@@ -152,7 +125,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
   int? startProfiler(SentryId traceId) => tryCatchSync(
         'startProfiler',
         () {
-          final sentryId$1 = cocoa.SentryId$1.alloc()
+          final sentryId$1 = cocoa.SentryId.alloc()
               .initWithUUIDString(NSString(traceId.toString()));
 
           final sentryId = cocoa.SentryId.castFromPointer(
@@ -321,7 +294,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
 // The default conversion does not handle bool so we will add it ourselves
 final ObjCObjectBase Function(Object) _defaultObjcConverter = (obj) {
   return switch (obj) {
-    bool b => b ? 1.toNSNumber() : 0.toNSNumber(),
+    bool b => NSNumberCreation.numberWithBool(b),
     _ => toObjCObject(obj)
   };
 };
@@ -331,12 +304,28 @@ NSDictionary _dartToNSDictionary(Map<String, dynamic> json) {
       .toNSDictionary(convertOther: _defaultObjcConverter);
 }
 
+NSArray _dartToNSArray(List<dynamic> list) {
+  return _deepConvertListNonNull(list)
+      .toNSArray(convertOther: _defaultObjcConverter);
+}
+
 ObjCObjectBase _dartToNSObject(Object value) {
   return switch (value) {
     Map<String, dynamic> m => _dartToNSDictionary(m),
+    List<dynamic> l => _dartToNSArray(l),
     _ => toObjCObject(value, convertOther: _defaultObjcConverter)
   };
 }
+
+List<Object> _deepConvertListNonNull(List<dynamic> list) => [
+      for (final e in list)
+        if (e case Map<String, dynamic> m)
+          _deepConvertMapNonNull(m)
+        else if (e case List<dynamic> l)
+          _deepConvertListNonNull(l)
+        else if (e case Object o)
+          o,
+    ];
 
 /// This map conversion is needed so we can use the toNSDictionary extension function
 /// provided by the objective_c package.
@@ -349,13 +338,7 @@ Map<Object, Object> _deepConvertMapNonNull(Map<String, dynamic> input) {
 
     out[entry.key] = switch (value) {
       Map<String, dynamic> m => _deepConvertMapNonNull(m),
-      List<dynamic> l => [
-          for (final e in l)
-            if (e != null)
-              e is Map<String, dynamic>
-                  ? _deepConvertMapNonNull(e)
-                  : e as Object
-        ],
+      List<dynamic> l => _deepConvertListNonNull(l),
       _ => value as Object,
     };
   }
