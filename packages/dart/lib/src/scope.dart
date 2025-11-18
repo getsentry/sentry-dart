@@ -169,6 +169,8 @@ class Scope {
 
   final Map<String, SentryAttribute> _attributes = {};
 
+  Map<String, SentryAttribute> get attributes => Map.unmodifiable(_attributes);
+
   Scope(this._options);
 
   Breadcrumb? _addBreadCrumbSync(Breadcrumb breadcrumb, Hint hint) {
@@ -225,7 +227,9 @@ class Scope {
   }
 
   void setAttributes(Map<String, SentryAttribute> attributes) {
-    _attributes = attributes;
+    attributes.forEach((key, value) {
+      _attributes[key] = value;
+    });
   }
 
   void addAttachment(SentryAttachment attachment) {
