@@ -341,7 +341,17 @@ class Hub {
     return scope;
   }
 
-  void setAttributes(Map<String, SentryAttribute> attributes) {}
+  void setAttributes(Map<String, SentryAttribute> attributes) {
+    if (!_isEnabled) {
+      _options.log(
+        SentryLevel.warning,
+        "Instance is disabled and this 'setAttributes' call is a no-op.",
+      );
+    } else {
+      final item = _peek();
+      item.scope.setAttributes(attributes);
+    }
+  }
 
   /// Adds a breacrumb to the current Scope
   Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {

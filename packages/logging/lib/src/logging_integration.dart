@@ -39,9 +39,9 @@ class LoggingIntegration implements Integration<SentryOptions> {
     Level minBreadcrumbLevel = Level.INFO,
     Level minEventLevel = Level.SEVERE,
     Level minSentryLogLevel = Level.INFO,
-  })  : _minBreadcrumbLevel = minBreadcrumbLevel,
-        _minEventLevel = minEventLevel,
-        _minSentryLogLevel = minSentryLogLevel;
+  }) : _minBreadcrumbLevel = minBreadcrumbLevel,
+       _minEventLevel = minEventLevel,
+       _minSentryLogLevel = minSentryLogLevel;
 
   final Level _minBreadcrumbLevel;
   final Level _minEventLevel;
@@ -100,10 +100,10 @@ class LoggingIntegration implements Integration<SentryOptions> {
 
     if (_options.enableLogs && _isLoggable(record.level, _minSentryLogLevel)) {
       final attributes = {
-        'loggerName': SentryLogAttribute.string(record.loggerName),
-        'sequenceNumber': SentryLogAttribute.int(record.sequenceNumber),
-        'time': SentryLogAttribute.int(record.time.millisecondsSinceEpoch),
-        'sentry.origin': SentryLogAttribute.string(origin),
+        'loggerName': SentryAttribute.string(record.loggerName),
+        'sequenceNumber': SentryAttribute.int(record.sequenceNumber),
+        'time': SentryAttribute.int(record.time.millisecondsSinceEpoch),
+        'sentry.origin': SentryAttribute.string(origin),
       };
 
       // Map log levels based on value ranges

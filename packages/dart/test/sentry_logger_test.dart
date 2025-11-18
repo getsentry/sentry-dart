@@ -183,6 +183,87 @@ void main() {
         'special values {"nan": NaN, "positive_infinity": Infinity, "negative_infinity": -Infinity}');
     expect(logCall.logger, 'sentry_logger');
   });
+
+  test('applies scope attributes to all log methods', () {
+    final logger = fixture.getSut();
+
+    final scopeAttributes = <String, SentryAttribute>{
+      'scopeString': SentryAttribute.string('fromScope'),
+      'scopeInt': SentryAttribute.int(42),
+    };
+    fixture.hub.scope.setAttributes(scopeAttributes);
+
+    logger.trace('trace message');
+    logger.debug('debug message');
+    logger.info('info message');
+    logger.warn('warn message');
+    logger.error('error message');
+    logger.fatal('fatal message');
+
+    expect(fixture.hub.captureLogCalls.length, 6);
+    for (final call in fixture.hub.captureLogCalls) {
+      final attrs = call.log.attributes;
+      expect(attrs['scopeString'], scopeAttributes['scopeString']);
+      expect(attrs['scopeInt'], scopeAttributes['scopeInt']);
+    }
+  });
+
+  test('per-log attributes override scope on same key', () {
+    final logger = fixture.getSut();
+
+    final scopeAttributes = <String, SentryAttribute>{
+      'overridden': SentryAttribute.string('fromScope'),
+      'kept': SentryAttribute.bool(true),
+    };
+    fixture.hub.scope.setAttributes(scopeAttributes);
+
+    final overrideAttr = SentryAttribute.string('fromLog');
+    logger.info('override test', attributes: {
+      'overridden': overrideAttr,
+      'logOnly': SentryAttribute.double(1.23),
+    });
+
+    expect(fixture.hub.captureLogCalls.length, 1);
+    final captured = fixture.hub.captureLogCalls[0].log;
+    // overridden key should come from per-log attributes
+    expect(captured.attributes['overridden'], overrideAttr);
+    // scope-only key should still be present
+    expect(captured.attributes['kept'], scopeAttributes['kept']);
+    // log-only key should be present
+    expect(captured.attributes['logOnly']?.type, 'double');
+  });
+
+  test('formatter path merges template, per-log and scope attributes', () {
+    final logger = fixture.getSut();
+
+    final scopeAttributes = <String, SentryAttribute>{
+      'scopeOnly': SentryAttribute.string('present'),
+    };
+    fixture.hub.scope.setAttributes(scopeAttributes);
+
+    logger.fmt.info(
+      'Hello, %s!',
+      ['World'],
+      attributes: {'callOnly': SentryAttribute.string('present')},
+    );
+
+    expect(fixture.hub.captureLogCalls.length, 1);
+    final captured = fixture.hub.captureLogCalls[0].log;
+    final attrs = captured.attributes;
+
+    // template attributes
+    expect(attrs['sentry.message.template']?.type, 'string');
+    expect(attrs['sentry.message.template']?.value, 'Hello, %s!');
+    expect(attrs['sentry.message.parameter.0']?.type, 'string');
+    expect(attrs['sentry.message.parameter.0']?.value, 'World');
+
+    // per-log attribute
+    expect(attrs['callOnly']?.type, 'string');
+    expect(attrs['callOnly']?.value, 'present');
+
+    // scope attribute
+    expect(attrs['scopeOnly'], scopeAttributes['scopeOnly']);
+  });
 }
 
 class Fixture {
