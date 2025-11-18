@@ -1729,7 +1729,7 @@ void main() {
         level: SentryLogLevel.info,
         body: 'test',
         attributes: {
-          'attribute': SentryLogAttribute.string('value'),
+          'attribute': SentryAttribute.string('value'),
         },
       );
     }
@@ -2012,7 +2012,7 @@ void main() {
 
       fixture.options.lifecycleRegistry
           .registerCallback<OnBeforeCaptureLog>((event) {
-        event.log.attributes['test'] = SentryLogAttribute.string('test-value');
+        event.log.attributes['test'] = SentryAttribute.string('test-value');
       });
 
       await client.captureLog(log, scope: scope);

@@ -20,12 +20,12 @@ class LogsEnricherIntegration extends Integration<SentryOptions> {
           final os = getSentryOperatingSystem();
 
           if (os.name != null) {
-            event.log.attributes['os.name'] = SentryLogAttribute.string(
+            event.log.attributes['os.name'] = SentryAttribute.string(
               os.name ?? '',
             );
           }
           if (os.version != null) {
-            event.log.attributes['os.version'] = SentryLogAttribute.string(
+            event.log.attributes['os.version'] = SentryAttribute.string(
               os.version ?? '',
             );
           }
