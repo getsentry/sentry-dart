@@ -475,6 +475,10 @@ class Scope {
       clone.addAttachment(attachment);
     }
 
+    if (_attributes.isNotEmpty) {
+      clone.setAttributes(Map.from(attributes));
+    }
+
     return clone;
   }
 

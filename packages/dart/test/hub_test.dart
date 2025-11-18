@@ -718,6 +718,41 @@ void main() {
       fixture = Fixture();
     });
 
+    test('withScope can override scope attributes for that call only', () async {
+      final hub = fixture.getSut();
+      hub.setAttributes({
+        'overridden': SentryAttribute.string('global'),
+        'kept': SentryAttribute.bool(true),
+      });
+
+      await hub.captureMessage('msg', withScope: (scope) async {
+        // cloned scope starts with global attributes
+        expect(scope.attributes['overridden']?.value, 'global');
+        expect(scope.attributes['kept']?.value, true);
+
+        // override and add one more
+        scope.setAttributes({
+          'overridden': SentryAttribute.string('local'),
+          'extra': SentryAttribute.int(1),
+        });
+
+        expect(scope.attributes['overridden']?.value, 'local');
+        expect(scope.attributes['kept']?.value, true);
+        expect(scope.attributes['extra']?.value, 1);
+      });
+
+      // The scope passed to the client should reflect overridden attributes
+      final capturedScope = fixture.client.captureMessageCalls.last.scope!;
+      expect(capturedScope.attributes['overridden']?.value, 'local');
+      expect(capturedScope.attributes['kept']?.value, true);
+      expect(capturedScope.attributes['extra']?.value, 1);
+
+      // Global scope remains unchanged
+      expect(hub.scope.attributes['overridden']?.value, 'global');
+      expect(hub.scope.attributes['kept']?.value, true);
+      expect(hub.scope.attributes.containsKey('extra'), false);
+    });
+
     test('captureEvent should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureEvent(SentryEvent());

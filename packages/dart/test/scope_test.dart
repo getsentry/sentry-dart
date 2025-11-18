@@ -425,6 +425,35 @@ void main() {
     expect(sut.replayId, clone.replayId);
   });
 
+  test('clone copies attributes and keeps them independent', () {
+    final sut = fixture.getSut();
+    sut.setAttributes({
+      'a': SentryAttribute.string('x'),
+      'b': SentryAttribute.int(1),
+    });
+
+    final clone = sut.clone();
+
+    // clone has same attributes
+    expect(clone.attributes['a']?.type, 'string');
+    expect(clone.attributes['a']?.value, 'x');
+    expect(clone.attributes['b']?.type, 'integer');
+    expect(clone.attributes['b']?.value, 1);
+
+    // mutate clone only
+    clone.setAttributes(
+        {'a': SentryAttribute.string('y'), 'c': SentryAttribute.bool(true)});
+
+    // original unchanged
+    expect(sut.attributes['a']?.value, 'x');
+    expect(sut.attributes.containsKey('c'), false);
+
+    // clone reflects changes
+    expect(clone.attributes['a']?.value, 'y');
+    expect(clone.attributes['c']?.type, 'boolean');
+    expect(clone.attributes['c']?.value, true);
+  });
+
   test('clone does not additionally call observers', () async {
     final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
 
