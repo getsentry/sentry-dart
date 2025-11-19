@@ -365,7 +365,7 @@ class Hub {
     }
   }
 
-  /// Adds a breacrumb to the current Scope
+  /// Adds a breadcrumb to the current Scope
   Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
     if (!_isEnabled) {
       _options.log(

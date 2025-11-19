@@ -550,6 +550,45 @@ void main() {
       );
     });
 
+    test('setAttributes sets attributes on scope', () {
+      hub.setAttributes({
+        'attr1': SentryAttribute.string('value'),
+        'attr2': SentryAttribute.int(42),
+        'attr3': SentryAttribute.bool(true),
+        'attr4': SentryAttribute.double(3.14)
+      });
+      hub.setAttributes({'merged': SentryAttribute.double(12)});
+
+      final attributes = hub.scope.attributes;
+      expect(attributes, isNotEmpty);
+      expect(attributes['attr1']?.value, SentryAttribute.string('value').value);
+      expect(attributes['attr2']?.value, SentryAttribute.int(42).value);
+      expect(attributes['attr3']?.value, SentryAttribute.bool(true).value);
+      expect(attributes['attr4']?.value, SentryAttribute.double(3.14).value);
+      expect(attributes['merged']?.value, SentryAttribute.double(12).value);
+    });
+
+    test('removeAttribute removes attribute on scope', () {
+      hub.setAttributes({
+        'attr1': SentryAttribute.string('value'),
+        'attr2': SentryAttribute.int(42),
+        'attr3': SentryAttribute.bool(true),
+        'attr4': SentryAttribute.double(3.14)
+      });
+      hub.setAttributes({'merged': SentryAttribute.double(12)});
+
+      hub.removeAttribute('attr3');
+      hub.removeAttribute('merged');
+
+      final attributes = hub.scope.attributes;
+      expect(attributes, isNotEmpty);
+      expect(attributes['attr1']?.value, SentryAttribute.string('value').value);
+      expect(attributes['attr2']?.value, SentryAttribute.int(42).value);
+      expect(attributes['attr4']?.value, SentryAttribute.double(3.14).value);
+      expect(attributes['attr3']?.value, isNull);
+      expect(attributes['merged']?.value, isNull);
+    });
+
     test('should configure scope async', () async {
       await hub.configureScope((Scope scope) async {
         await Future.delayed(Duration(milliseconds: 10));
