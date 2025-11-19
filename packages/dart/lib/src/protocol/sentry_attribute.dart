@@ -22,11 +22,12 @@ class SentryLogAttribute extends SentryAttribute {
 }
 
 class SentryAttribute {
-  final String _type;
+  @internal
+  final String type;
   final dynamic value;
 
   @internal
-  SentryAttribute(this.value, this._type);
+  SentryAttribute(this.value, this.type);
 
   factory SentryAttribute.string(String value) {
     return SentryAttribute(value, 'string');
@@ -47,7 +48,7 @@ class SentryAttribute {
   Map<String, dynamic> toJson() {
     return {
       'value': value,
-      'type': _type,
+      'type': type,
     };
   }
 }

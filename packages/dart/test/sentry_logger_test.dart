@@ -263,8 +263,24 @@ void main() {
 
     // scope attribute
     expect(attrs['scopeOnly'], scopeAttributes['scopeOnly']);
+  });
 
-    // TODO logger.fmt
+  // This is mostly an edge case but let's cover it just in case
+  test('per-log attributes override fmt template attributes on same key', () {
+    final logger = fixture.getSut();
+
+    logger.fmt.info(
+      'Hello, %s!',
+      ['World'],
+      attributes: {
+        'sentry.message.template': SentryAttribute.string('OVERRIDE'),
+        'sentry.message.parameter.0': SentryAttribute.string('Earth'),
+      },
+    );
+
+    final attrs = fixture.hub.captureLogCalls[0].log.attributes;
+    expect(attrs['sentry.message.template']?.value, 'OVERRIDE');
+    expect(attrs['sentry.message.parameter.0']?.value, 'Earth');
   });
 }
 
