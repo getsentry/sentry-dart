@@ -72,11 +72,29 @@ void main() {
       expect(fixture.mockHub.getSpanCallCount, 1);
     });
 
-    test('error client', () async {
+    test('error client captures error with default status codes (500-599)',
+        () async {
       final sut = fixture.getSut(
         enableBreadcrumbs: false,
         enableTracing: false,
         enableErrors: true,
+      );
+
+      fixture.mockClient.statusCode = 500;
+
+      final request =
+          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
+      await sut.send(request);
+
+      expect(fixture.mockHub.captureEventCalls.length, 1);
+    });
+
+    test('error client captures error with custom status codes', () async {
+      final sut = fixture.getSut(
+        enableBreadcrumbs: false,
+        enableTracing: false,
+        enableErrors: true,
+        failedRequestStatusCodes: [SentryStatusCode(404)],
       );
 
       fixture.mockClient.statusCode = 404;
@@ -88,11 +106,67 @@ void main() {
       expect(fixture.mockHub.captureEventCalls.length, 1);
     });
 
+    test('error client does not capture error outside configured status codes',
+        () async {
+      final sut = fixture.getSut(
+        enableBreadcrumbs: false,
+        enableTracing: false,
+        enableErrors: true,
+        failedRequestStatusCodes: [SentryStatusCode(500)],
+      );
+
+      fixture.mockClient.statusCode = 404;
+
+      final request =
+          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
+      await sut.send(request);
+
+      expect(fixture.mockHub.captureEventCalls.length, 0);
+    });
+
+    test('error client always captures exceptions', () async {
+      final sut = fixture.getSut(
+        enableBreadcrumbs: false,
+        enableTracing: false,
+        enableErrors: true,
+      );
+
+      fixture.mockClient.throwException = Exception('Network error');
+
+      final request =
+          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
+
+      await expectLater(() => sut.send(request), throwsException);
+
+      expect(fixture.mockHub.captureEventCalls.length, 1);
+    });
+
+    test('error client does not capture non-Supabase requests', () async {
+      final sut = fixture.getSut(
+        enableBreadcrumbs: false,
+        enableTracing: false,
+        enableErrors: true,
+        failedRequestStatusCodes: [SentryStatusCode.range(400, 599)],
+      );
+
+      fixture.mockClient.statusCode = 500;
+
+      // Non-Supabase request (doesn't start with /rest/v1)
+      final request =
+          Request('GET', Uri.parse('https://example.com/auth/v1/token'));
+
+      await sut.send(request);
+
+      // Should not capture since it's not a Supabase REST API request
+      expect(fixture.mockHub.captureEventCalls.length, 0);
+    });
+
     test('all clients', () async {
       final sut = fixture.getSut(
         enableBreadcrumbs: true,
         enableTracing: true,
         enableErrors: true,
+        failedRequestStatusCodes: [SentryStatusCode(404)],
       );
 
       fixture.mockClient.statusCode = 404;
@@ -252,6 +326,7 @@ class Fixture {
     required bool enableBreadcrumbs,
     required bool enableTracing,
     required bool enableErrors,
+    List<SentryStatusCode>? failedRequestStatusCodes,
   }) {
     return SentrySupabaseClient(
       enableBreadcrumbs: enableBreadcrumbs,
@@ -259,6 +334,7 @@ class Fixture {
       enableErrors: enableErrors,
       client: mockClient,
       hub: mockHub,
+      failedRequestStatusCodes: failedRequestStatusCodes,
     );
   }
 }

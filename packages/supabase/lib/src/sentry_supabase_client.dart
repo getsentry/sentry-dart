@@ -49,6 +49,22 @@ import 'sentry_supabase_error_client.dart';
 ///
 /// Body data will not be sent by default. You can enable it by setting the
 /// `sendDefaultPii` option in the [SentryOptions].
+///
+/// You can configure specific HTTP response codes to be considered as a failed
+/// request. In the following example, the status codes 400 to 404 and 500 are
+/// considered a failed request.
+///
+/// ```dart
+/// var supabase = SupabaseClient(
+///   'https://example.com',
+///   SentrySupabaseClient(
+///     failedRequestStatusCodes: [
+///       SentryStatusCode.range(400, 404),
+///       SentryStatusCode(500),
+///     ],
+///   ),
+/// );
+/// ```
 class SentrySupabaseClient extends BaseClient {
   final Client _innerClient;
 
@@ -58,12 +74,14 @@ class SentrySupabaseClient extends BaseClient {
     bool enableErrors = true,
     Client? client,
     Hub? hub,
+    List<SentryStatusCode>? failedRequestStatusCodes,
   }) : _innerClient = _buildWrappedClient(
           client ?? Client(),
           enableBreadcrumbs,
           enableTracing,
           enableErrors,
           hub ?? HubAdapter(),
+          failedRequestStatusCodes,
         );
 
   static Client _buildWrappedClient(
@@ -72,6 +90,7 @@ class SentrySupabaseClient extends BaseClient {
     bool enableTracing,
     bool enableErrors,
     Hub hub,
+    List<SentryStatusCode>? failedRequestStatusCodes,
   ) {
     Client wrappedClient = baseClient;
 
@@ -84,7 +103,11 @@ class SentrySupabaseClient extends BaseClient {
       hub.options.sdk.addIntegration(integrationNameTracing);
     }
     if (enableErrors) {
-      wrappedClient = SentrySupabaseErrorClient(wrappedClient, hub);
+      wrappedClient = SentrySupabaseErrorClient(
+        wrappedClient,
+        hub,
+        failedRequestStatusCodes: failedRequestStatusCodes,
+      );
       hub.options.sdk.addIntegration(integrationNameErrors);
     }
 

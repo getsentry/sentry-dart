@@ -40,7 +40,10 @@ void main() {
     test('should create error if select request fails', () async {
       fixture.mockClient.statusCode = 404;
 
-      final supabase = fixture.getSupabaseClient();
+      final sut = fixture.getSut(
+        failedRequestStatusCodes: [SentryStatusCode(404)],
+      );
+      final supabase = fixture.getSupabaseClient(sut);
 
       try {
         await supabase.from('mock-table').select().eq('id', 42);
@@ -65,7 +68,8 @@ void main() {
       final error = Exception('test');
       fixture.mockClient.throwException = error;
 
-      final supabase = fixture.getSupabaseClient();
+      final sut = fixture.getSut();
+      final supabase = fixture.getSupabaseClient(sut);
 
       try {
         await supabase.from('mock-table').select().eq('id', 42);
@@ -89,7 +93,10 @@ void main() {
         () async {
       fixture.mockClient.statusCode = 404;
 
-      final supabase = fixture.getSupabaseClient();
+      final sut = fixture.getSut(
+        failedRequestStatusCodes: [SentryStatusCode(404)],
+      );
+      final supabase = fixture.getSupabaseClient(sut);
 
       try {
         await supabase.from('mock-table').select().eq('id', 42);
@@ -112,7 +119,10 @@ void main() {
         () async {
       fixture.mockClient.statusCode = 404;
 
-      final supabase = fixture.getSupabaseClient();
+      final sut = fixture.getSut(
+        failedRequestStatusCodes: [SentryStatusCode(404)],
+      );
+      final supabase = fixture.getSupabaseClient(sut);
 
       try {
         await supabase.from('mock-table').insert({'id': 42});
@@ -135,7 +145,10 @@ void main() {
         () async {
       fixture.mockClient.statusCode = 404;
 
-      final supabase = fixture.getSupabaseClient();
+      final sut = fixture.getSut(
+        failedRequestStatusCodes: [SentryStatusCode(404)],
+      );
+      final supabase = fixture.getSupabaseClient(sut);
 
       try {
         await supabase.from('mock-table').update({'id': 1337}).eq('id', 42);
@@ -159,7 +172,10 @@ void main() {
         () async {
       fixture.mockClient.statusCode = 404;
 
-      final supabase = fixture.getSupabaseClient();
+      final sut = fixture.getSut(
+        failedRequestStatusCodes: [SentryStatusCode(404)],
+      );
+      final supabase = fixture.getSupabaseClient(sut);
 
       try {
         await supabase.from('mock-table').upsert({'id': 42}).select();
@@ -183,7 +199,10 @@ void main() {
         () async {
       fixture.mockClient.statusCode = 404;
 
-      final supabase = fixture.getSupabaseClient();
+      final sut = fixture.getSut(
+        failedRequestStatusCodes: [SentryStatusCode(404)],
+      );
+      final supabase = fixture.getSupabaseClient(sut);
 
       try {
         await supabase.from('mock-table').delete().eq('id', 42);
@@ -208,7 +227,10 @@ void main() {
       fixture.mockClient.statusCode = 404;
       fixture.options.sendDefaultPii = false;
 
-      final supabase = fixture.getSupabaseClient();
+      final sut = fixture.getSut(
+        failedRequestStatusCodes: [SentryStatusCode(404)],
+      );
+      final supabase = fixture.getSupabaseClient(sut);
 
       try {
         await supabase.from('countries').insert({'id': 42});
@@ -228,6 +250,7 @@ void main() {
         // Ignore
       }
 
+      expect(fixture.mockHub.captureEventCalls.length, 3);
       final insertEvent = fixture.mockHub.captureEventCalls[0].$1;
       final insertSupabaseContext =
           insertEvent.contexts['supabase'] as Map<String, dynamic>;
@@ -323,18 +346,21 @@ class Fixture {
         MaxRequestBodySize.always; // Always include body in test.
   }
 
-  SentrySupabaseErrorClient getSut() {
+  SentrySupabaseErrorClient getSut({
+    List<SentryStatusCode>? failedRequestStatusCodes,
+  }) {
     return SentrySupabaseErrorClient(
       mockClient,
       mockHub,
+      failedRequestStatusCodes: failedRequestStatusCodes,
     );
   }
 
-  SupabaseClient getSupabaseClient() {
+  SupabaseClient getSupabaseClient([SentrySupabaseErrorClient? sut]) {
     return SupabaseClient(
       supabaseUrl,
       'YOUR_ANON_KEY',
-      httpClient: getSut(),
+      httpClient: sut ?? getSut(),
     );
   }
 }

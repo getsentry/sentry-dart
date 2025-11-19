@@ -9,8 +9,14 @@ import 'sentry_supabase_request.dart';
 class SentrySupabaseErrorClient extends BaseClient {
   final Client _innerClient;
   final Hub _hub;
+  final List<SentryStatusCode> failedRequestStatusCodes;
 
-  SentrySupabaseErrorClient(this._innerClient, this._hub);
+  SentrySupabaseErrorClient(
+    this._innerClient,
+    this._hub, {
+    List<SentryStatusCode>? failedRequestStatusCodes,
+  }) : failedRequestStatusCodes = failedRequestStatusCodes ??
+            SentryHttpClient.defaultFailedRequestStatusCodes;
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
@@ -26,7 +32,7 @@ class SentrySupabaseErrorClient extends BaseClient {
 
     try {
       final response = await _innerClient.send(request);
-      if (response.statusCode >= 400) {
+      if (_shouldCaptureError(response.statusCode)) {
         unawaited(
           _captureException(
             null,
@@ -57,6 +63,10 @@ class SentrySupabaseErrorClient extends BaseClient {
     _innerClient.close();
   }
 
+  bool _shouldCaptureError(int statusCode) {
+    return failedRequestStatusCodes._containsStatusCode(statusCode);
+  }
+
   Future<SentryId> _captureException(
     dynamic exception,
     StackTrace? stackTrace,
@@ -85,5 +95,15 @@ class SentrySupabaseErrorClient extends BaseClient {
     };
 
     return _hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
+  }
+}
+
+extension _ListX on List<SentryStatusCode> {
+  bool _containsStatusCode(int? statusCode) {
+    if (statusCode == null) {
+      return false;
+    } else {
+      return any((element) => element.isInRange(statusCode));
+    }
   }
 }
