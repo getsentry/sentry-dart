@@ -108,33 +108,109 @@ void main() {
   });
 
   group('Integration', () {
-    test('adds integration when client is created', () {
+    test('adds breadcrumbs integration when breadcrumb client is created', () {
       expect(
         fixture.options.sdk.integrations,
-        isNot(contains(integrationName)),
+        isNot(contains(integrationNameBreadcrumbs)),
       );
 
       fixture.getSut(
         enableBreadcrumbs: true,
-        enableTracing: true,
-        enableErrors: true,
+        enableTracing: false,
+        enableErrors: false,
       );
 
       expect(
         fixture.options.sdk.integrations,
-        contains(integrationName),
+        contains(integrationNameBreadcrumbs),
       );
     });
 
-    test('does not duplicate integration if already added', () {
+    test('adds tracing integration when tracing client is created', () {
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains(integrationNameTracing)),
+      );
+
+      fixture.getSut(
+        enableBreadcrumbs: false,
+        enableTracing: true,
+        enableErrors: false,
+      );
+
+      expect(
+        fixture.options.sdk.integrations,
+        contains(integrationNameTracing),
+      );
+    });
+
+    test('adds errors integration when error client is created', () {
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains(integrationNameErrors)),
+      );
+
+      fixture.getSut(
+        enableBreadcrumbs: false,
+        enableTracing: false,
+        enableErrors: true,
+      );
+
+      expect(
+        fixture.options.sdk.integrations,
+        contains(integrationNameErrors),
+      );
+    });
+
+    test('adds all integrations when all clients are created', () {
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains(integrationNameBreadcrumbs)),
+      );
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains(integrationNameTracing)),
+      );
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains(integrationNameErrors)),
+      );
+
       fixture.getSut(
         enableBreadcrumbs: true,
         enableTracing: true,
         enableErrors: true,
       );
 
-      final integrationCount = fixture.options.sdk.integrations
-          .where((integration) => integration == integrationName)
+      expect(
+        fixture.options.sdk.integrations,
+        contains(integrationNameBreadcrumbs),
+      );
+      expect(
+        fixture.options.sdk.integrations,
+        contains(integrationNameTracing),
+      );
+      expect(
+        fixture.options.sdk.integrations,
+        contains(integrationNameErrors),
+      );
+    });
+
+    test('does not duplicate integrations if already added', () {
+      fixture.getSut(
+        enableBreadcrumbs: true,
+        enableTracing: true,
+        enableErrors: true,
+      );
+
+      final breadcrumbsCount = fixture.options.sdk.integrations
+          .where((integration) => integration == integrationNameBreadcrumbs)
+          .length;
+      final tracingCount = fixture.options.sdk.integrations
+          .where((integration) => integration == integrationNameTracing)
+          .length;
+      final errorsCount = fixture.options.sdk.integrations
+          .where((integration) => integration == integrationNameErrors)
           .length;
 
       fixture.getSut(
@@ -143,12 +219,22 @@ void main() {
         enableErrors: true,
       );
 
-      final newIntegrationCount = fixture.options.sdk.integrations
-          .where((integration) => integration == integrationName)
+      final newBreadcrumbsCount = fixture.options.sdk.integrations
+          .where((integration) => integration == integrationNameBreadcrumbs)
+          .length;
+      final newTracingCount = fixture.options.sdk.integrations
+          .where((integration) => integration == integrationNameTracing)
+          .length;
+      final newErrorsCount = fixture.options.sdk.integrations
+          .where((integration) => integration == integrationNameErrors)
           .length;
 
-      expect(integrationCount, equals(1));
-      expect(newIntegrationCount, equals(1));
+      expect(breadcrumbsCount, equals(1));
+      expect(tracingCount, equals(1));
+      expect(errorsCount, equals(1));
+      expect(newBreadcrumbsCount, equals(1));
+      expect(newTracingCount, equals(1));
+      expect(newErrorsCount, equals(1));
     });
   });
 }

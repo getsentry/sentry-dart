@@ -73,18 +73,19 @@ class SentrySupabaseClient extends BaseClient {
     bool enableErrors,
     Hub hub,
   ) {
-    hub.options.sdk.addIntegration(integrationName);
-
     Client wrappedClient = baseClient;
 
     if (enableBreadcrumbs) {
       wrappedClient = SentrySupabaseBreadcrumbClient(wrappedClient, hub);
+      hub.options.sdk.addIntegration(integrationNameBreadcrumbs);
     }
     if (enableTracing) {
       wrappedClient = SentrySupabaseTracingClient(wrappedClient, hub);
+      hub.options.sdk.addIntegration(integrationNameTracing);
     }
     if (enableErrors) {
       wrappedClient = SentrySupabaseErrorClient(wrappedClient, hub);
+      hub.options.sdk.addIntegration(integrationNameErrors);
     }
 
     return wrappedClient;
