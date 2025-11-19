@@ -46,8 +46,7 @@ void initSentryAndroid({
           );
 
           replayCallbacks.use((cb) {
-            native.SentryFlutterPlugin.Companion
-                .setupReplay(androidOptions, cb);
+            native.SentryFlutterPlugin.setupReplay(androidOptions, cb);
           });
         },
       ),
@@ -151,8 +150,8 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
             SentryId.fromId(replayIdString.toDartString(releaseOriginal: true));
 
         owner._replayId = replayId;
-        owner._nativeReplay = native.SentryFlutterPlugin.Companion
-            .privateSentryGetReplayIntegration();
+        owner._nativeReplay =
+            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
         owner._replayRecorder = AndroidReplayRecorder.factory(options);
         await owner._replayRecorder!.start();
         hub.configureScope((s) {

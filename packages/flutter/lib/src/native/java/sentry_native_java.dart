@@ -304,8 +304,8 @@ class SentryNativeJava extends SentryNativeChannel {
   SentryId captureReplay() {
     final id = tryCatchSync<SentryId>('captureReplay', () {
       return using((arena) {
-        _nativeReplay ??= native.SentryFlutterPlugin.Companion
-            .privateSentryGetReplayIntegration();
+        _nativeReplay ??=
+            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
         // The passed parameter is `isTerminating`
         _nativeReplay?.captureReplay(false.toJBoolean()..releasedBy(arena));
 
@@ -378,8 +378,8 @@ class SentryNativeJava extends SentryNativeChannel {
           0, // bitRate is currently not used
         );
 
-        _nativeReplay ??= native.SentryFlutterPlugin.Companion
-            .privateSentryGetReplayIntegration();
+        _nativeReplay ??=
+            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
         _nativeReplay?.onConfigurationChanged(replayConfig);
 
         replayConfig.release();
