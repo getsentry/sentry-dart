@@ -192,10 +192,12 @@ class SentryNativeJava extends SentryNativeChannel {
           final nativeOptions = native.ScopesAdapter.getInstance()?.getOptions()
             ?..releasedBy(arena);
           if (nativeOptions == null) return;
-          final jMap = _dartToJMap(breadcrumb.toJson(), arena);
+          final jMap = _dartToJMap(breadcrumb.toJson());
           final nativeBreadcrumb =
               native.Breadcrumb.fromMap(jMap, nativeOptions)
                 ?..releasedBy(arena);
+          // release jMap directly after use
+          jMap.release();
           if (nativeBreadcrumb == null) return;
           native.Sentry.addBreadcrumb$1(nativeBreadcrumb);
         });
@@ -217,9 +219,11 @@ class SentryNativeJava extends SentryNativeChannel {
               ?..releasedBy(arena);
             if (nativeOptions == null) return;
 
-            final nativeUser = native.User.fromMap(
-                _dartToJMap(user.toJson(), arena), nativeOptions)
+            final jMap = _dartToJMap(user.toJson());
+            final nativeUser = native.User.fromMap(jMap, nativeOptions)
               ?..releasedBy(arena);
+            // release jMap directly after use
+            jMap.release();
             if (nativeUser == null) return;
 
             native.Sentry.setUser(nativeUser);
@@ -235,7 +239,7 @@ class SentryNativeJava extends SentryNativeChannel {
               run: (iScope) {
                 using((arena) {
                   final jKey = key.toJString()..releasedBy(arena);
-                  final jVal = _dartToJObject(value, arena);
+                  final jVal = _dartToJObject(value)?..releasedBy(arena);
 
                   if (jVal == null) return;
 
@@ -386,37 +390,36 @@ class SentryNativeJava extends SentryNativeChannel {
       });
 }
 
-JObject? _dartToJObject(Object? value, Arena arena) => switch (value) {
-      null => null,
-      String s => s.toJString()..releasedBy(arena),
-      bool b => b.toJBoolean()..releasedBy(arena),
-      int i => i.toJLong()..releasedBy(arena),
-      double d => d.toJDouble()..releasedBy(arena),
-      List<dynamic> l => _dartToJList(l, arena),
-      Map<String, dynamic> m => _dartToJMap(m, arena),
-      _ => null
-    };
+JObject? _dartToJObject(Object? value) {
+  if (value == null) return null;
+  if (value is String) return value.toJString();
+  if (value is bool) return value.toJBoolean();
+  if (value is int) return value.toJLong();
+  if (value is double) return value.toJDouble();
+  if (value is List) return _dartToJList(value);
+  if (value is Map<String, dynamic>) return _dartToJMap(value);
+  return null;
+}
 
-JList<JObject?> _dartToJList(List<dynamic> values, Arena arena) {
-  final jlist = JList.array(JObject.nullableType)..releasedBy(arena);
-
-  for (final value in values) {
-    final jObj = _dartToJObject(value, arena);
-    jlist.add(jObj);
+JList<JObject?> _dartToJList(List<dynamic> values) {
+  final jlist = JList.array(JObject.nullableType);
+  for (final v in values) {
+    final j = _dartToJObject(v);
+    jlist.add(j);
+    j?.release();
   }
-
   return jlist;
 }
 
-JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json, Arena arena) {
-  final jmap = JMap.hash(JString.type, JObject.nullableType)..releasedBy(arena);
-
+JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json) {
+  final jmap = JMap.hash(JString.type, JObject.nullableType);
   for (final entry in json.entries) {
-    final key = entry.key.toJString()..releasedBy(arena);
-    final value = _dartToJObject(entry.value, arena);
-    jmap[key] = value;
+    final jk = entry.key.toJString();
+    final jv = _dartToJObject(entry.value);
+    jmap[jk] = jv;
+    jk.release();
+    jv?.release();
   }
-
   return jmap;
 }
 
