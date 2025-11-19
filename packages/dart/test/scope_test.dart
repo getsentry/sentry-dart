@@ -389,6 +389,7 @@ void main() {
     expect(sut.extra.length, 0);
     expect(sut.eventProcessors.length, 0);
     expect(sut.replayId, isNull);
+    expect(sut.attributes, isEmpty);
   });
 
   test('clones', () async {

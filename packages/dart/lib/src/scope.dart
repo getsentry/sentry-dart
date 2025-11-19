@@ -272,6 +272,7 @@ class Scope {
     _eventProcessors.clear();
     _replayId = null;
     propagationContext = PropagationContext();
+    _attributes.clear();
 
     _clearBreadcrumbsSync();
     _setUserSync(null);
