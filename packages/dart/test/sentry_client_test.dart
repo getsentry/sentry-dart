@@ -1839,6 +1839,21 @@ void main() {
       );
     });
 
+    test('should use attributes from given scope', () async {
+      fixture.options.logBatcher = MockLogBatcher();
+      final scope = Scope(fixture.options);
+      scope.setAttributes({'from_scope': SentryAttribute.int(12)});
+      final client = fixture.getSut();
+      final log = givenLog();
+
+      await client.captureLog(log, scope: scope);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+      expect(capturedLog.attributes['from_scope']?.value, 12);
+    });
+
     test('should add user info to attributes', () async {
       fixture.options.enableLogs = true;
 

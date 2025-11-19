@@ -22,65 +22,32 @@ class SentryLogAttribute extends SentryAttribute {
 }
 
 class SentryAttribute {
-  final String type;
+  final String _type;
   final dynamic value;
-  SentryUnit? unit;
 
   @internal
-  SentryAttribute(this.value, this.type, {this.unit});
+  SentryAttribute(this.value, this._type);
 
-  factory SentryAttribute.string(String value, {SentryUnit? unit}) {
-    return SentryAttribute(value, 'string', unit: unit);
+  factory SentryAttribute.string(String value) {
+    return SentryAttribute(value, 'string');
   }
 
-  factory SentryAttribute.bool(bool value, {SentryUnit? unit}) {
-    return SentryAttribute(value, 'boolean', unit: unit);
+  factory SentryAttribute.bool(bool value) {
+    return SentryAttribute(value, 'boolean');
   }
 
-  factory SentryAttribute.int(int value, {SentryUnit? unit}) {
-    return SentryAttribute(value, 'integer', unit: unit);
+  factory SentryAttribute.int(int value) {
+    return SentryAttribute(value, 'integer');
   }
 
-  factory SentryAttribute.double(double value, {SentryUnit? unit}) {
-    return SentryAttribute(value, 'double', unit: unit);
-  }
-
-  factory SentryAttribute.stringArr(List<String> value, {SentryUnit? unit}) {
-    return SentryAttribute(value, 'string[]', unit: unit);
-  }
-
-  factory SentryAttribute.intArr(List<int> value, {SentryUnit? unit}) {
-    return SentryAttribute(value, 'integer[]', unit: unit);
-  }
-
-  factory SentryAttribute.doubleArr(List<double> value, {SentryUnit? unit}) {
-    return SentryAttribute(value, 'double[]', unit: unit);
+  factory SentryAttribute.double(double value) {
+    return SentryAttribute(value, 'double');
   }
 
   Map<String, dynamic> toJson() {
     return {
       'value': value,
-      'type': type,
-      if (unit != null) 'unit': unit!.asString,
+      'type': _type,
     };
-  }
-}
-
-enum SentryUnit { milliseconds, seconds, bytes, count, percent }
-
-extension SentryUnitExtension on SentryUnit {
-  String get asString {
-    switch (this) {
-      case SentryUnit.milliseconds:
-        return "ms";
-      case SentryUnit.seconds:
-        return "s";
-      case SentryUnit.bytes:
-        return "bytes";
-      case SentryUnit.count:
-        return "count";
-      case SentryUnit.percent:
-        return "percent";
-    }
   }
 }

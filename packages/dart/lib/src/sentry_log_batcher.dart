@@ -29,7 +29,6 @@ class SentryLogBatcher {
   /// Adds a log to the buffer.
   void addLog(SentryLog log) {
     try {
-      print('log added: ${log.toJson()}');
       final encodedLog = utf8JsonEncoder.convert(log.toJson());
 
       _encodedLogs.add(encodedLog);

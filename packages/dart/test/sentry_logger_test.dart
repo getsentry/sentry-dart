@@ -263,6 +263,8 @@ void main() {
 
     // scope attribute
     expect(attrs['scopeOnly'], scopeAttributes['scopeOnly']);
+
+    // TODO logger.fmt
   });
 }
 

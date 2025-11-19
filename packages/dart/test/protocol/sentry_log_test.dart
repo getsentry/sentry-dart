@@ -16,10 +16,6 @@ void main() {
         'test2': SentryAttribute.bool(true),
         'test3': SentryAttribute.int(9001),
         'test4': SentryAttribute.double(9000.1),
-        'test5': SentryAttribute.intArr([1, 2, 3]),
-        'test6': SentryAttribute.doubleArr([1.1, 2.2, 3.3]),
-        'test7': SentryAttribute.stringArr(['a', 'b', 'c']),
-        'test8': SentryAttribute.int(12, unit: SentryUnit.count),
       },
       severityNumber: 1,
     );
@@ -47,23 +43,6 @@ void main() {
         'test4': {
           'value': 9000.1,
           'type': 'double',
-        },
-        'test5': {
-          'value': [1, 2, 3],
-          'type': 'integer[]',
-        },
-        'test6': {
-          'value': [1.1, 2.2, 3.3],
-          'type': 'double[]',
-        },
-        'test7': {
-          'value': ['a', 'b', 'c'],
-          'type': 'string[]',
-        },
-        'test8': {
-          'value': 12,
-          'type': 'integer',
-          'unit': 'count',
         },
       },
       'severity_number': 1,

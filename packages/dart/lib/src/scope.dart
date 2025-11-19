@@ -476,7 +476,7 @@ class Scope {
     }
 
     if (_attributes.isNotEmpty) {
-      clone.setAttributes(Map.from(attributes));
+      clone.setAttributes(Map.from(_attributes));
     }
 
     return clone;
