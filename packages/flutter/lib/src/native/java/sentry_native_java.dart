@@ -74,8 +74,8 @@ class SentryNativeJava extends SentryNativeChannel {
 
       // NOTE: when instructionAddressSet is empty, loadDebugImagesAsBytes will return
       // all debug images as fallback.
-      imagesUtf8JsonBytes = native.SentryFlutterPlugin.Companion
-          .loadDebugImagesAsBytes(instructionAddressSet);
+      imagesUtf8JsonBytes = native.SentryFlutterPlugin.loadDebugImagesAsBytes(
+          instructionAddressSet);
       if (imagesUtf8JsonBytes == null) return null;
 
       final byteRange =
@@ -112,8 +112,7 @@ class SentryNativeJava extends SentryNativeChannel {
       // is significantly faster because contexts can be large and contain many nested
       // objects. Local benchmarks show this method is ~4x faster than the alternative
       // approach of converting JNI objects to Dart objects one by one.
-      contextsUtf8JsonBytes =
-          native.SentryFlutterPlugin.Companion.loadContextsAsBytes();
+      contextsUtf8JsonBytes = native.SentryFlutterPlugin.loadContextsAsBytes();
       if (contextsUtf8JsonBytes == null) return null;
 
       final byteRange =
@@ -136,8 +135,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   int? displayRefreshRate() => tryCatchSync('displayRefreshRate', () {
-        return native.SentryFlutterPlugin.Companion
-            .getDisplayRefreshRate()
+        return native.SentryFlutterPlugin.getDisplayRefreshRate()
             ?.intValue(releaseOriginal: true);
       });
 
@@ -150,7 +148,7 @@ class SentryNativeJava extends SentryNativeChannel {
         return null;
       }
       appStartUtf8JsonBytes =
-          native.SentryFlutterPlugin.Companion.fetchNativeAppStartAsBytes();
+          native.SentryFlutterPlugin.fetchNativeAppStartAsBytes();
       if (appStartUtf8JsonBytes == null) return null;
 
       final byteRange =
@@ -166,7 +164,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void nativeCrash() {
-    native.SentryFlutterPlugin.Companion.crash();
+    native.SentryFlutterPlugin.crash();
   }
 
   @override
