@@ -718,7 +718,8 @@ void main() {
       fixture = Fixture();
     });
 
-    test('withScope can override scope attributes for that call only', () async {
+    test('withScope can override scope attributes for that call only',
+        () async {
       final hub = fixture.getSut();
       hub.setAttributes({
         'overridden': SentryAttribute.string('global'),
