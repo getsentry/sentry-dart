@@ -436,15 +436,20 @@ extension on List<dynamic> {
 }
 
 String? _getDefaultCrashpadPath() {
-  if (Platform.isLinux) {
-    final lastSeparator =
-        Platform.resolvedExecutable.lastIndexOf(Platform.pathSeparator);
-    if (lastSeparator >= 0) {
-      final appDir = Platform.resolvedExecutable.substring(0, lastSeparator);
+  final lastSeparator =
+      Platform.resolvedExecutable.lastIndexOf(Platform.pathSeparator);
+  if (lastSeparator >= 0) {
+    final appDir = Platform.resolvedExecutable.substring(0, lastSeparator);
+    if (Platform.isLinux) {
       final candidates = [
         '$appDir${Platform.pathSeparator}crashpad_handler',
         '$appDir${Platform.pathSeparator}bin${Platform.pathSeparator}crashpad_handler',
         '$appDir${Platform.pathSeparator}lib${Platform.pathSeparator}crashpad_handler'
+      ];
+      return candidates.firstWhereOrNull((path) => File(path).existsSync());
+    } else if (Platform.isWindows) {
+      final candidates = [
+        '$appDir${Platform.pathSeparator}crashpad_handler.exe',
       ];
       return candidates.firstWhereOrNull((path) => File(path).existsSync());
     }
