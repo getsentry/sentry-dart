@@ -38,21 +38,25 @@ internal class SafeReplayRecorderCallbacks(
     delegate.replayStarted(replayId, replayIsBuffering)
   }
 
-  override fun replayResumed() = guard {
-    delegate.replayResumed()
-  }
+  override fun replayResumed() =
+    guard {
+      delegate.replayResumed()
+    }
 
-  override fun replayPaused() = guard {
-    delegate.replayPaused()
-  }
+  override fun replayPaused() =
+    guard {
+      delegate.replayPaused()
+    }
 
-  override fun replayStopped() = guard {
-    delegate.replayStopped()
-  }
+  override fun replayStopped() =
+    guard {
+      delegate.replayStopped()
+    }
 
-  override fun replayReset() = guard {
-    delegate.replayReset()
-  }
+  override fun replayReset() =
+    guard {
+      delegate.replayReset()
+    }
 
   override fun replayConfigChanged(
     width: Int,
