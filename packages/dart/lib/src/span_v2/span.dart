@@ -1,0 +1,26 @@
+import '../../sentry.dart';
+import 'span_v2_status.dart';
+
+abstract class Span {
+  /// Ends the span.
+  ///
+  /// [endTimestamp] can be used to override the end time.
+  /// If omitted, the span ends using the current time.
+  void end({DateTime? endTimestamp});
+
+  /// Sets a single attribute.
+  ///
+  /// Overrides if the attribute already exists.
+  void setAttribute(String key, SentryAttribute value);
+
+  /// Sets multiple attributes.
+  ///
+  /// Overrides if the attributes already exist.
+  void setAttributes(Map<String, SentryAttribute> attributes);
+
+  /// Sets the status of the span.
+  void setStatus(SpanV2Status status);
+
+  /// Sets the name of the span.
+  void setName(String name);
+}

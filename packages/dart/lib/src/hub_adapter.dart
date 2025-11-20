@@ -11,6 +11,7 @@ import 'scope.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'span_v2/Span.dart';
 import 'tracing.dart';
 
 /// Hub adapter to make Integrations testable
@@ -160,6 +161,14 @@ class HubAdapter implements Hub {
         onFinish: onFinish,
         customSamplingContext: customSamplingContext,
       );
+
+  @override
+  Span startSpan(String name,
+          {Map<String, SentryAttribute>? attributes,
+          Span? parentSpan,
+          bool? active = true}) =>
+      Sentry.currentHub.startSpan(name,
+          attributes: attributes, parentSpan: parentSpan, active: active);
 
   @override
   void generateNewTrace() => Sentry.currentHub.generateNewTrace();
