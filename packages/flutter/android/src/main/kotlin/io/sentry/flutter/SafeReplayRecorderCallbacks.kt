@@ -62,5 +62,3 @@ internal class SafeReplayRecorderCallbacks(
     delegate.replayConfigChanged(width, height, frameRate)
   }
 }
-
-
