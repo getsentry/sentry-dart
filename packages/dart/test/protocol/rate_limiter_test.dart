@@ -292,7 +292,7 @@ void main() {
         level: SentryLogLevel.info,
         body: 'test',
         attributes: {
-          'test': SentryLogAttribute.string('test'),
+          'test': SentryAttribute.string('test'),
         },
       );
 

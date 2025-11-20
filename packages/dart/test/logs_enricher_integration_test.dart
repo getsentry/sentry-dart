@@ -5,7 +5,7 @@ import 'package:sentry/src/logs_enricher_integration.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/hub.dart';
 import 'package:sentry/src/protocol/sentry_log.dart';
-import 'package:sentry/src/protocol/sentry_log_attribute.dart';
+import 'package:sentry/src/protocol/sentry_attribute.dart';
 import 'package:sentry/src/protocol/sentry_id.dart';
 import 'package:sentry/src/protocol/sentry_log_level.dart';
 import 'test_utils.dart';
@@ -19,7 +19,7 @@ void main() {
       level: SentryLogLevel.info,
       body: 'test',
       attributes: {
-        'attribute': SentryLogAttribute.string('value'),
+        'attribute': SentryAttribute.string('value'),
       },
     );
   }

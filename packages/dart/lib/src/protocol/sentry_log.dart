@@ -1,13 +1,13 @@
+import 'sentry_attribute.dart';
 import 'sentry_id.dart';
 import 'sentry_log_level.dart';
-import 'sentry_log_attribute.dart';
 
 class SentryLog {
   DateTime timestamp;
   SentryId traceId;
   SentryLogLevel level;
   String body;
-  Map<String, SentryLogAttribute> attributes;
+  Map<String, SentryAttribute> attributes;
   int? severityNumber;
 
   /// The traceId is initially an empty default value and is populated during event processing;

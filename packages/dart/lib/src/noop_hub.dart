@@ -144,4 +144,10 @@ class NoOpHub implements Hub {
 
   @override
   Scope get scope => Scope(_options);
+
+  @override
+  void setAttributes(Map<String, SentryAttribute> attributes) {}
+
+  @override
+  void removeAttribute(String key) {}
 }

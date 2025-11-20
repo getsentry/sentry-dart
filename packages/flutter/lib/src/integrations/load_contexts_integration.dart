@@ -66,27 +66,27 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
             _mergeNativeWithLocalContexts(contextsMap, contexts);
 
             if (contexts.operatingSystem?.name != null) {
-              event.log.attributes['os.name'] = SentryLogAttribute.string(
+              event.log.attributes['os.name'] = SentryAttribute.string(
                 contexts.operatingSystem?.name ?? '',
               );
             }
             if (contexts.operatingSystem?.version != null) {
-              event.log.attributes['os.version'] = SentryLogAttribute.string(
+              event.log.attributes['os.version'] = SentryAttribute.string(
                 contexts.operatingSystem?.version ?? '',
               );
             }
             if (contexts.device?.brand != null) {
-              event.log.attributes['device.brand'] = SentryLogAttribute.string(
+              event.log.attributes['device.brand'] = SentryAttribute.string(
                 contexts.device?.brand ?? '',
               );
             }
             if (contexts.device?.model != null) {
-              event.log.attributes['device.model'] = SentryLogAttribute.string(
+              event.log.attributes['device.model'] = SentryAttribute.string(
                 contexts.device?.model ?? '',
               );
             }
             if (contexts.device?.family != null) {
-              event.log.attributes['device.family'] = SentryLogAttribute.string(
+              event.log.attributes['device.family'] = SentryAttribute.string(
                 contexts.device?.family ?? '',
               );
             }

@@ -12,10 +12,10 @@ void main() {
       level: SentryLogLevel.info,
       body: 'fixture-body',
       attributes: {
-        'test': SentryLogAttribute.string('fixture-test'),
-        'test2': SentryLogAttribute.bool(true),
-        'test3': SentryLogAttribute.int(9001),
-        'test4': SentryLogAttribute.double(9000.1),
+        'test': SentryAttribute.string('fixture-test'),
+        'test2': SentryAttribute.bool(true),
+        'test3': SentryAttribute.int(9001),
+        'test4': SentryAttribute.double(9000.1),
       },
       severityNumber: 1,
     );
@@ -56,7 +56,7 @@ void main() {
       level: SentryLogLevel.trace,
       body: 'fixture-body',
       attributes: {
-        'test': SentryLogAttribute.string('fixture-test'),
+        'test': SentryAttribute.string('fixture-test'),
       },
     );
 

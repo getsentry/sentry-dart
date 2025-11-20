@@ -548,7 +548,7 @@ class MainScaffold extends StatelessWidget {
               onPressed: () {
                 Sentry.logger
                     .info('Sentry Log With Test Attribute', attributes: {
-                  'test-attribute': SentryLogAttribute.string('test-value'),
+                  'test-attribute': SentryAttribute.string('test-value'),
                 });
               },
               text: 'Demonstrates the logging with Sentry Log.',

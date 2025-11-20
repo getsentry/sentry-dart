@@ -199,4 +199,11 @@ class HubAdapter implements Hub {
 
   @override
   FutureOr<void> captureLog(SentryLog log) => Sentry.currentHub.captureLog(log);
+
+  @override
+  void setAttributes(Map<String, SentryAttribute> attributes) =>
+      Sentry.currentHub.setAttributes(attributes);
+
+  @override
+  void removeAttribute(String key) => Sentry.currentHub.removeAttribute(key);
 }

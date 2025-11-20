@@ -143,7 +143,7 @@ void main() {
           level: SentryLogLevel.info,
           body: 'test',
           attributes: {
-            'test': SentryLogAttribute.string('test'),
+            'test': SentryAttribute.string('test'),
           },
         ),
         SentryLog(
@@ -152,7 +152,7 @@ void main() {
           level: SentryLogLevel.info,
           body: 'test2',
           attributes: {
-            'test2': SentryLogAttribute.int(9001),
+            'test2': SentryAttribute.int(9001),
           },
         ),
       ];
