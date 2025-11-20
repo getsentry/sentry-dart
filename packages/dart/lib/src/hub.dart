@@ -9,7 +9,8 @@ import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
-import 'span_v2/Span.dart';
+import 'span_v2/noop_span.dart';
+import 'span_v2/span.dart';
 import 'transport/data_category.dart';
 
 /// Configures the scope through the callback.
@@ -579,7 +580,7 @@ class Hub {
       Span? parentSpan,
       bool? active = true}) {
     // TODO: implement
-    return NoopSpan();
+    return NoOpSpan();
   }
 
   @internal

@@ -1,5 +1,6 @@
 import '../../sentry.dart';
-import 'Span.dart';
+import 'span.dart';
+import 'span_v2_status.dart';
 
 class NoOpSpan implements Span {
   @override

@@ -11,7 +11,7 @@ import 'scope.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
-import 'span_v2/Span.dart';
+import 'span_v2/span.dart';
 import 'tracing.dart';
 
 /// Hub adapter to make Integrations testable
