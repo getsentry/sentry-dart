@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Android app crashing on hot-restart in debug mode ([#3358](https://github.com/getsentry/sentry-dart/pull/3358))
 - Dont use `Companion` in JNI calls and properly release JNI refs ([#3354](https://github.com/getsentry/sentry-dart/pull/3354))
   - This potentially fixes segfault crashes related to JNI
 
