@@ -502,6 +502,10 @@ class SentryClient {
       return;
     }
 
+    if (scope != null) {
+      log.attributes.addAll(scope.attributes);
+    }
+
     log.attributes['sentry.sdk.name'] = SentryAttribute.string(
       _options.sdk.name,
     );

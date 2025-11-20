@@ -1840,11 +1840,14 @@ void main() {
     });
 
     test('should use attributes from given scope', () async {
+      fixture.options.enableLogs = true;
+
+      final client = fixture.getSut();
       fixture.options.logBatcher = MockLogBatcher();
+      final log = givenLog();
+
       final scope = Scope(fixture.options);
       scope.setAttributes({'from_scope': SentryAttribute.int(12)});
-      final client = fixture.getSut();
-      final log = givenLog();
 
       await client.captureLog(log, scope: scope);
 
