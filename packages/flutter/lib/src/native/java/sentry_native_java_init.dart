@@ -125,7 +125,9 @@ native.SentryOptions$BeforeSendReplayCallback createBeforeSendReplayCallback(
               return shouldRemove;
             });
 
-            payload?.addAll(_dartToJMap(options.privacy.toJson()));
+            final jMap = _dartToJMap(options.privacy.toJson());
+            payload?.addAll(jMap);
+            jMap.release();
           }
         });
         return sentryReplayEvent;
