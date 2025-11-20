@@ -71,18 +71,7 @@ class SentryFlutterPlugin :
       return
     }
 
-    // Bump generation so any pending replay tasks from a previous isolate no-op
-    SafeReplayRecorderCallbacks.bumpGeneration()
-
-    // Ensure Replay integration is torn down to avoid calls into a stale Dart isolate
-    try {
-      replay?.close()
-    } catch (e: Exception) {
-      Log.w("Sentry", "Failed to close ReplayIntegration on detach", e)
-    } finally {
-      replay = null
-    }
-
+    tearDownReplayIntegration()
     channel.setMethodCallHandler(null)
     applicationContext = null
   }
@@ -123,6 +112,25 @@ class SentryFlutterPlugin :
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
+    /**
+     * Tears down the current ReplayIntegration to avoid invoking callbacks from a stale
+     * Flutter isolate after hot restart.
+     *
+     * - Bumps the replay callback generation so any pending posts from the previous
+     *   isolate no-op.
+     * - Closes the existing ReplayIntegration and clears its reference.
+     */
+    fun tearDownReplayIntegration() {
+      SafeReplayRecorderCallbacks.bumpGeneration()
+      try {
+        replay?.close()
+      } catch (e: Exception) {
+        Log.w("Sentry", "Failed to close existing ReplayIntegration", e)
+      } finally {
+        replay = null
+      }
+    }
+
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
@@ -132,16 +140,9 @@ class SentryFlutterPlugin :
       options: SentryAndroidOptions,
       replayCallbacks: ReplayRecorderCallbacks?,
     ) {
+      tearDownReplayIntegration()
+
       // Replace the default ReplayIntegration with a Flutter-specific recorder.
-      // First, bump generation and close any existing instance to avoid stale callbacks after hot restart.
-      SafeReplayRecorderCallbacks.bumpGeneration()
-      try {
-        replay?.close()
-      } catch (e: Exception) {
-        Log.w("Sentry", "Failed to close existing ReplayIntegration", e)
-      } finally {
-        replay = null
-      }
       options.integrations.removeAll { it is ReplayIntegration }
       val replayOptions = options.sessionReplay
       if ((replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled) && replayCallbacks != null) {
