@@ -64,19 +64,16 @@ class SentryLogger {
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    final mergedAttributes = <String, SentryAttribute>{}
-      ..addAll(_hub.scope.attributes)
-      ..addAll(attributes ?? {});
     final log = SentryLog(
       timestamp: _clock(),
       level: level,
       body: body,
-      attributes: mergedAttributes,
+      attributes: attributes ?? {},
     );
 
     _hub.options.log(
       level.toSentryLevel(),
-      _formatLogMessage(level, body, mergedAttributes),
+      _formatLogMessage(level, body, attributes ?? {}),
       logger: 'sentry_logger',
     );
 

@@ -503,7 +503,8 @@ class SentryClient {
     }
 
     if (scope != null) {
-      log.attributes.addAll(scope.attributes);
+      final merged = Map.of(scope.attributes)..addAll(log.attributes);
+      log.attributes = merged;
     }
 
     log.attributes['sentry.sdk.name'] = SentryAttribute.string(

@@ -1857,6 +1857,33 @@ void main() {
       expect(capturedLog.attributes['from_scope']?.value, 12);
     });
 
+    test('per-log attributes override scope on same key', () async {
+      fixture.options.enableLogs = true;
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+      final log = givenLog();
+
+      final scope = Scope(fixture.options);
+      scope.setAttributes({
+        'overridden': SentryAttribute.string('fromScope'),
+        'kept': SentryAttribute.bool(true),
+      });
+
+      log.attributes['overridden'] = SentryAttribute.string('fromLog');
+      log.attributes['logOnly'] = SentryAttribute.double(1.23);
+
+      await client.captureLog(log, scope: scope);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final captured = mockLogBatcher.addLogCalls.first;
+
+      expect(captured.attributes['overridden']?.value, 'fromLog');
+      expect(captured.attributes['kept']?.value, true);
+      expect(captured.attributes['logOnly']?.type, 'double');
+    });
+
     test('should add user info to attributes', () async {
       fixture.options.enableLogs = true;
 
