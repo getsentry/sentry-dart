@@ -71,6 +71,18 @@ class SentryFlutterPlugin :
       return
     }
 
+    // Bump generation so any pending replay tasks from a previous isolate no-op
+    SafeReplayRecorderCallbacks.bumpGeneration()
+
+    // Ensure Replay integration is torn down to avoid calls into a stale Dart isolate
+    try {
+      replay?.close()
+    } catch (e: Exception) {
+      Log.w("Sentry", "Failed to close ReplayIntegration on detach", e)
+    } finally {
+      replay = null
+    }
+
     channel.setMethodCallHandler(null)
     applicationContext = null
   }
@@ -121,6 +133,15 @@ class SentryFlutterPlugin :
       replayCallbacks: ReplayRecorderCallbacks?,
     ) {
       // Replace the default ReplayIntegration with a Flutter-specific recorder.
+      // First, bump generation and close any existing instance to avoid stale callbacks after hot restart.
+      SafeReplayRecorderCallbacks.bumpGeneration()
+      try {
+        replay?.close()
+      } catch (e: Exception) {
+        Log.w("Sentry", "Failed to close existing ReplayIntegration", e)
+      } finally {
+        replay = null
+      }
       options.integrations.removeAll { it is ReplayIntegration }
       val replayOptions = options.sessionReplay
       if ((replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled) && replayCallbacks != null) {
@@ -130,12 +151,14 @@ class SentryFlutterPlugin :
           return
         }
 
+        val safeCallbacks = SafeReplayRecorderCallbacks(replayCallbacks)
+
         replay =
           ReplayIntegration(
             ctx.applicationContext,
             dateProvider = CurrentDateProvider.getInstance(),
             recorderProvider = {
-              SentryFlutterReplayRecorder(replayCallbacks, replay!!)
+              SentryFlutterReplayRecorder(safeCallbacks, replay!!)
             },
             replayCacheProvider = null,
           )
