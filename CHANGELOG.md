@@ -8,6 +8,11 @@
   - These attributes are set at the scope level and apply to all logs (and later to metrics and spans).
   - When a scope attribute conflicts with a log-level attribute, the log-level attribute always takes precedence.
 
+### Fixes
+
+- Dont use `Companion` in JNI calls and properly release JNI refs ([#3354](https://github.com/getsentry/sentry-dart/pull/3354))
+  - This potentially fixes segfault crashes related to JNI
+
 ### Enhancements
 
 - Flush logs if client/hub/sdk is closed ([#3335](https://github.com/getsentry/sentry-dart/pull/3335)
