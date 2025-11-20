@@ -99,8 +99,8 @@ class _AndroidReplayHandler extends WorkerHandler {
   late final native.ReplayIntegration _nativeReplay;
 
   _AndroidReplayHandler(this._config) {
-    _nativeReplay = native.SentryFlutterPlugin.Companion
-        .privateSentryGetReplayIntegration()!;
+    _nativeReplay =
+        native.SentryFlutterPlugin.privateSentryGetReplayIntegration()!;
   }
 
   @override
