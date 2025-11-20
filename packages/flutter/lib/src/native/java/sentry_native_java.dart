@@ -390,37 +390,37 @@ class SentryNativeJava extends SentryNativeChannel {
       });
 }
 
-JObject? _dartToJObject(Object? value) {
-  if (value == null) return null;
-  if (value is String) return value.toJString();
-  if (value is bool) return value.toJBoolean();
-  if (value is int) return value.toJLong();
-  if (value is double) return value.toJDouble();
-  if (value is List) return _dartToJList(value);
-  if (value is Map<String, dynamic>) return _dartToJMap(value);
-  return null;
-}
+JObject? _dartToJObject(Object? value) => switch (value) {
+      null => null,
+      String s => s.toJString(),
+      bool b => b.toJBoolean(),
+      int i => i.toJLong(),
+      double d => d.toJDouble(),
+      List<dynamic> l => _dartToJList(l),
+      Map<String, dynamic> m => _dartToJMap(m),
+      _ => null
+    };
 
 JList<JObject?> _dartToJList(List<dynamic> values) {
-  final jlist = JList.array(JObject.nullableType);
+  final jList = JList.array(JObject.nullableType);
   for (final v in values) {
     final j = _dartToJObject(v);
-    jlist.add(j);
+    jList.add(j);
     j?.release();
   }
-  return jlist;
+  return jList;
 }
 
 JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json) {
-  final jmap = JMap.hash(JString.type, JObject.nullableType);
+  final jMap = JMap.hash(JString.type, JObject.nullableType);
   for (final entry in json.entries) {
     final jk = entry.key.toJString();
     final jv = _dartToJObject(entry.value);
-    jmap[jk] = jv;
+    jMap[jk] = jv;
     jk.release();
     jv?.release();
   }
-  return jmap;
+  return jMap;
 }
 
 const _videoBlockSize = 16;
