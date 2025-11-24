@@ -289,7 +289,7 @@ class Hub {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
-        "Instance is disabled and this 'captureFeedback' call is a no-op.",
+        "Instance is disabled and this 'captureLog' call is a no-op.",
       );
     } else {
       final item = _peek();
@@ -341,7 +341,31 @@ class Hub {
     return scope;
   }
 
-  /// Adds a breacrumb to the current Scope
+  void setAttributes(Map<String, SentryAttribute> attributes) {
+    if (!_isEnabled) {
+      _options.log(
+        SentryLevel.warning,
+        "Instance is disabled and this 'setAttributes' call is a no-op.",
+      );
+    } else {
+      final item = _peek();
+      item.scope.setAttributes(attributes);
+    }
+  }
+
+  void removeAttribute(String key) {
+    if (!_isEnabled) {
+      _options.log(
+        SentryLevel.warning,
+        "Instance is disabled and this 'removeAttribute' call is a no-op.",
+      );
+    } else {
+      final item = _peek();
+      item.scope.removeAttribute(key);
+    }
+  }
+
+  /// Adds a breadcrumb to the current Scope
   Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
     if (!_isEnabled) {
       _options.log(

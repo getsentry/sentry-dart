@@ -6,6 +6,15 @@
 
 - Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
   - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
+- Add `Sentry.setAttributes` and `Sentry.removeAttribute` ([#3352](https://github.com/getsentry/sentry-dart/pull/3352))
+  - These attributes are set at the scope level and apply to all logs (and later to metrics and spans).
+  - When a scope attribute conflicts with a log-level attribute, the log-level attribute always takes precedence.
+
+### Fixes
+
+- Android app crashing on hot-restart in debug mode ([#3358](https://github.com/getsentry/sentry-dart/pull/3358))
+- Dont use `Companion` in JNI calls and properly release JNI refs ([#3354](https://github.com/getsentry/sentry-dart/pull/3354))
+  - This potentially fixes segfault crashes related to JNI
 
 ### Enhancements
 

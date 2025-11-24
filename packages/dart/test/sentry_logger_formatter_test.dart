@@ -1,7 +1,7 @@
 import 'package:test/test.dart';
 import 'package:sentry/src/sentry_logger_formatter.dart';
 import 'package:sentry/src/sentry_logger.dart';
-import 'package:sentry/src/protocol/sentry_log_attribute.dart';
+import 'package:sentry/src/protocol/sentry_attribute.dart';
 
 void main() {
   final fixture = Fixture();
@@ -45,7 +45,7 @@ void main() {
       sut.trace(
         "Hello, %s!",
         ["World"],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.traceCalls.length, 1);
@@ -61,7 +61,7 @@ void main() {
       sut.debug(
         "Hello, %s!",
         ["World"],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.debugCalls.length, 1);
@@ -77,7 +77,7 @@ void main() {
       sut.info(
         "Hello, %s!",
         ["World"],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.infoCalls.length, 1);
@@ -93,7 +93,7 @@ void main() {
       sut.warn(
         "Hello, %s!",
         ["World"],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.warnCalls.length, 1);
@@ -109,7 +109,7 @@ void main() {
       sut.error(
         "Hello, %s!",
         ["World"],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.errorCalls.length, 1);
@@ -125,7 +125,7 @@ void main() {
       sut.fatal(
         "Hello, %s!",
         ["World"],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.fatalCalls.length, 1);
@@ -143,7 +143,7 @@ void main() {
       sut.trace(
         "Name: %s, Age: %s, Active: %s, Score: %s",
         ['Alice', 30, true, 95.5],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.traceCalls.length, 1);
@@ -159,7 +159,7 @@ void main() {
       sut.trace(
         "Name: %s, Age: %s, Active: %s, Score: %s",
         ['Alice', 30, true, 95.5],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.traceCalls.length, 1);
@@ -175,7 +175,7 @@ void main() {
       sut.debug(
         "Name: %s, Age: %s, Active: %s, Score: %s",
         ['Alice', 30, true, 95.5],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.debugCalls.length, 1);
@@ -191,7 +191,7 @@ void main() {
       sut.info(
         "Name: %s, Age: %s, Active: %s, Score: %s",
         ['Alice', 30, true, 95.5],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.infoCalls.length, 1);
@@ -207,7 +207,7 @@ void main() {
       sut.warn(
         "Name: %s, Age: %s, Active: %s, Score: %s",
         ['Alice', 30, true, 95.5],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.warnCalls.length, 1);
@@ -223,7 +223,7 @@ void main() {
       sut.error(
         "Name: %s, Age: %s, Active: %s, Score: %s",
         ['Alice', 30, true, 95.5],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.errorCalls.length, 1);
@@ -239,7 +239,7 @@ void main() {
       sut.fatal(
         "Name: %s, Age: %s, Active: %s, Score: %s",
         ['Alice', 30, true, 95.5],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.fatalCalls.length, 1);
@@ -257,7 +257,7 @@ void main() {
       sut.trace(
         "Hello, World!",
         [],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.traceCalls.length, 1);
@@ -277,7 +277,7 @@ void main() {
       sut.debug(
         "Hello, World!",
         [],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.debugCalls.length, 1);
@@ -297,7 +297,7 @@ void main() {
       sut.info(
         "Hello, World!",
         [],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.infoCalls.length, 1);
@@ -317,7 +317,7 @@ void main() {
       sut.warn(
         "Hello, World!",
         [],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.warnCalls.length, 1);
@@ -337,7 +337,7 @@ void main() {
       sut.error(
         "Hello, World!",
         [],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.errorCalls.length, 1);
@@ -357,7 +357,7 @@ void main() {
       sut.fatal(
         "Hello, World!",
         [],
-        attributes: {'foo': SentryLogAttribute.string('bar')},
+        attributes: {'foo': SentryAttribute.string('bar')},
       );
 
       expect(logger.fatalCalls.length, 1);

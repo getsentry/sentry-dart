@@ -71,6 +71,7 @@ class SentryFlutterPlugin :
       return
     }
 
+    tearDownReplayIntegration()
     channel.setMethodCallHandler(null)
     applicationContext = null
   }
@@ -111,6 +112,25 @@ class SentryFlutterPlugin :
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
+    /**
+     * Tears down the current ReplayIntegration to avoid invoking callbacks from a stale
+     * Flutter isolate after hot restart.
+     *
+     * - Bumps the replay callback generation so any pending posts from the previous
+     *   isolate no-op.
+     * - Closes the existing ReplayIntegration and clears its reference.
+     */
+    fun tearDownReplayIntegration() {
+      SafeReplayRecorderCallbacks.bumpGeneration()
+      try {
+        replay?.close()
+      } catch (e: Exception) {
+        Log.w("Sentry", "Failed to close existing ReplayIntegration", e)
+      } finally {
+        replay = null
+      }
+    }
+
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
@@ -120,6 +140,8 @@ class SentryFlutterPlugin :
       options: SentryAndroidOptions,
       replayCallbacks: ReplayRecorderCallbacks?,
     ) {
+      tearDownReplayIntegration()
+
       // Replace the default ReplayIntegration with a Flutter-specific recorder.
       options.integrations.removeAll { it is ReplayIntegration }
       val replayOptions = options.sessionReplay
@@ -130,12 +152,14 @@ class SentryFlutterPlugin :
           return
         }
 
+        val safeCallbacks = SafeReplayRecorderCallbacks(replayCallbacks)
+
         replay =
           ReplayIntegration(
             ctx.applicationContext,
             dateProvider = CurrentDateProvider.getInstance(),
             recorderProvider = {
-              SentryFlutterReplayRecorder(replayCallbacks, replay!!)
+              SentryFlutterReplayRecorder(safeCallbacks, replay!!)
             },
             replayCacheProvider = null,
           )

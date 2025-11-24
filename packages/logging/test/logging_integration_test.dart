@@ -491,7 +491,7 @@ class MockSentryLogger implements SentryLogger {
   @override
   Future<void> trace(
     String body, {
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   }) async {
     traceCalls.add(MockLogCall(body, attributes));
   }
@@ -499,7 +499,7 @@ class MockSentryLogger implements SentryLogger {
   @override
   Future<void> debug(
     String body, {
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   }) async {
     debugCalls.add(MockLogCall(body, attributes));
   }
@@ -507,7 +507,7 @@ class MockSentryLogger implements SentryLogger {
   @override
   Future<void> info(
     String body, {
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   }) async {
     infoCalls.add(MockLogCall(body, attributes));
   }
@@ -515,7 +515,7 @@ class MockSentryLogger implements SentryLogger {
   @override
   Future<void> warn(
     String body, {
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   }) async {
     warnCalls.add(MockLogCall(body, attributes));
   }
@@ -523,7 +523,7 @@ class MockSentryLogger implements SentryLogger {
   @override
   Future<void> error(
     String body, {
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   }) async {
     errorCalls.add(MockLogCall(body, attributes));
   }
@@ -531,7 +531,7 @@ class MockSentryLogger implements SentryLogger {
   @override
   Future<void> fatal(
     String body, {
-    Map<String, SentryLogAttribute>? attributes,
+    Map<String, SentryAttribute>? attributes,
   }) async {
     fatalCalls.add(MockLogCall(body, attributes));
   }
@@ -542,7 +542,7 @@ class MockSentryLogger implements SentryLogger {
 
 class MockLogCall {
   final String message;
-  final Map<String, SentryLogAttribute>? attributes;
+  final Map<String, SentryAttribute>? attributes;
 
   MockLogCall(this.message, this.attributes);
 }

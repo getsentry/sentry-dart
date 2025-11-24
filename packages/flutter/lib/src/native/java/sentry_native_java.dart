@@ -74,8 +74,8 @@ class SentryNativeJava extends SentryNativeChannel {
 
       // NOTE: when instructionAddressSet is empty, loadDebugImagesAsBytes will return
       // all debug images as fallback.
-      imagesUtf8JsonBytes = native.SentryFlutterPlugin.Companion
-          .loadDebugImagesAsBytes(instructionAddressSet);
+      imagesUtf8JsonBytes = native.SentryFlutterPlugin.loadDebugImagesAsBytes(
+          instructionAddressSet);
       if (imagesUtf8JsonBytes == null) return null;
 
       final byteRange =
@@ -112,8 +112,7 @@ class SentryNativeJava extends SentryNativeChannel {
       // is significantly faster because contexts can be large and contain many nested
       // objects. Local benchmarks show this method is ~4x faster than the alternative
       // approach of converting JNI objects to Dart objects one by one.
-      contextsUtf8JsonBytes =
-          native.SentryFlutterPlugin.Companion.loadContextsAsBytes();
+      contextsUtf8JsonBytes = native.SentryFlutterPlugin.loadContextsAsBytes();
       if (contextsUtf8JsonBytes == null) return null;
 
       final byteRange =
@@ -136,8 +135,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   int? displayRefreshRate() => tryCatchSync('displayRefreshRate', () {
-        return native.SentryFlutterPlugin.Companion
-            .getDisplayRefreshRate()
+        return native.SentryFlutterPlugin.getDisplayRefreshRate()
             ?.intValue(releaseOriginal: true);
       });
 
@@ -150,7 +148,7 @@ class SentryNativeJava extends SentryNativeChannel {
         return null;
       }
       appStartUtf8JsonBytes =
-          native.SentryFlutterPlugin.Companion.fetchNativeAppStartAsBytes();
+          native.SentryFlutterPlugin.fetchNativeAppStartAsBytes();
       if (appStartUtf8JsonBytes == null) return null;
 
       final byteRange =
@@ -166,7 +164,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void nativeCrash() {
-    native.SentryFlutterPlugin.Companion.crash();
+    native.SentryFlutterPlugin.crash();
   }
 
   @override
@@ -194,10 +192,12 @@ class SentryNativeJava extends SentryNativeChannel {
           final nativeOptions = native.ScopesAdapter.getInstance()?.getOptions()
             ?..releasedBy(arena);
           if (nativeOptions == null) return;
-          final jMap = _dartToJMap(breadcrumb.toJson(), arena);
+          final jMap = _dartToJMap(breadcrumb.toJson());
           final nativeBreadcrumb =
               native.Breadcrumb.fromMap(jMap, nativeOptions)
                 ?..releasedBy(arena);
+          // release jMap directly after use
+          jMap.release();
           if (nativeBreadcrumb == null) return;
           native.Sentry.addBreadcrumb$1(nativeBreadcrumb);
         });
@@ -219,9 +219,11 @@ class SentryNativeJava extends SentryNativeChannel {
               ?..releasedBy(arena);
             if (nativeOptions == null) return;
 
-            final nativeUser = native.User.fromMap(
-                _dartToJMap(user.toJson(), arena), nativeOptions)
+            final jMap = _dartToJMap(user.toJson());
+            final nativeUser = native.User.fromMap(jMap, nativeOptions)
               ?..releasedBy(arena);
+            // release jMap directly after use
+            jMap.release();
             if (nativeUser == null) return;
 
             native.Sentry.setUser(nativeUser);
@@ -237,7 +239,7 @@ class SentryNativeJava extends SentryNativeChannel {
               run: (iScope) {
                 using((arena) {
                   final jKey = key.toJString()..releasedBy(arena);
-                  final jVal = _dartToJObject(value, arena);
+                  final jVal = _dartToJObject(value)?..releasedBy(arena);
 
                   if (jVal == null) return;
 
@@ -306,8 +308,8 @@ class SentryNativeJava extends SentryNativeChannel {
   SentryId captureReplay() {
     final id = tryCatchSync<SentryId>('captureReplay', () {
       return using((arena) {
-        _nativeReplay ??= native.SentryFlutterPlugin.Companion
-            .privateSentryGetReplayIntegration();
+        _nativeReplay ??=
+            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
         // The passed parameter is `isTerminating`
         _nativeReplay?.captureReplay(false.toJBoolean()..releasedBy(arena));
 
@@ -380,46 +382,45 @@ class SentryNativeJava extends SentryNativeChannel {
           0, // bitRate is currently not used
         );
 
-        _nativeReplay ??= native.SentryFlutterPlugin.Companion
-            .privateSentryGetReplayIntegration();
+        _nativeReplay ??=
+            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
         _nativeReplay?.onConfigurationChanged(replayConfig);
 
         replayConfig.release();
       });
 }
 
-JObject? _dartToJObject(Object? value, Arena arena) => switch (value) {
+JObject? _dartToJObject(Object? value) => switch (value) {
       null => null,
-      String s => s.toJString()..releasedBy(arena),
-      bool b => b.toJBoolean()..releasedBy(arena),
-      int i => i.toJLong()..releasedBy(arena),
-      double d => d.toJDouble()..releasedBy(arena),
-      List<dynamic> l => _dartToJList(l, arena),
-      Map<String, dynamic> m => _dartToJMap(m, arena),
+      String s => s.toJString(),
+      bool b => b.toJBoolean(),
+      int i => i.toJLong(),
+      double d => d.toJDouble(),
+      List<dynamic> l => _dartToJList(l),
+      Map<String, dynamic> m => _dartToJMap(m),
       _ => null
     };
 
-JList<JObject?> _dartToJList(List<dynamic> values, Arena arena) {
-  final jlist = JList.array(JObject.nullableType)..releasedBy(arena);
-
-  for (final value in values) {
-    final jObj = _dartToJObject(value, arena);
-    jlist.add(jObj);
+JList<JObject?> _dartToJList(List<dynamic> values) {
+  final jList = JList.array(JObject.nullableType);
+  for (final v in values) {
+    final j = _dartToJObject(v);
+    jList.add(j);
+    j?.release();
   }
-
-  return jlist;
+  return jList;
 }
 
-JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json, Arena arena) {
-  final jmap = JMap.hash(JString.type, JObject.nullableType)..releasedBy(arena);
-
+JMap<JString, JObject?> _dartToJMap(Map<String, dynamic> json) {
+  final jMap = JMap.hash(JString.type, JObject.nullableType);
   for (final entry in json.entries) {
-    final key = entry.key.toJString()..releasedBy(arena);
-    final value = _dartToJObject(entry.value, arena);
-    jmap[key] = value;
+    final jk = entry.key.toJString();
+    final jv = _dartToJObject(entry.value);
+    jMap[jk] = jv;
+    jk.release();
+    jv?.release();
   }
-
-  return jmap;
+  return jMap;
 }
 
 const _videoBlockSize = 16;

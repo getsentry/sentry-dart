@@ -31,7 +31,7 @@ void main() {
       level: SentryLogLevel.info,
       body: 'test',
       attributes: {
-        'attribute': SentryLogAttribute.string('value'),
+        'attribute': SentryAttribute.string('value'),
       },
     );
   }

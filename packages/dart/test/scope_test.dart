@@ -270,6 +270,54 @@ void main() {
     expect(sut.attachments.length, 0);
   });
 
+  test('setAttribute adds attributes to scope', () {
+    final sut = fixture.getSut();
+
+    final initial = <String, SentryAttribute>{
+      'str': SentryAttribute.string('foo'),
+      'num': SentryAttribute.int(42),
+    };
+    sut.setAttributes(initial);
+
+    expect(sut.attributes['str']?.type, 'string');
+    expect(sut.attributes['str']?.value, 'foo');
+    expect(sut.attributes['num']?.type, 'integer');
+    expect(sut.attributes['num']?.value, 42);
+
+    // override existing key and add a new one
+    final update = <String, SentryAttribute>{
+      'str': SentryAttribute.string('bar'),
+      'bool': SentryAttribute.bool(true),
+    };
+    sut.setAttributes(update);
+
+    expect(sut.attributes['str']?.value, 'bar');
+    expect(sut.attributes['bool']?.type, 'boolean');
+    expect(sut.attributes['bool']?.value, true);
+    // previous non-overridden key remains
+    expect(sut.attributes['num']?.value, 42);
+  });
+
+  test('removeAttribute removes attributes from scope', () {
+    final sut = fixture.getSut();
+
+    sut.setAttributes({
+      'a': SentryAttribute.string('x'),
+      'b': SentryAttribute.int(1),
+    });
+    expect(sut.attributes.length, 2);
+
+    sut.removeAttribute('a');
+    expect(sut.attributes.containsKey('a'), false);
+    expect(sut.attributes['b']?.value, 1);
+    expect(sut.attributes.length, 1);
+
+    // removing a non-existent key is a no-op
+    sut.removeAttribute('does-not-exist');
+    expect(sut.attributes.length, 1);
+    expect(sut.attributes.containsKey('b'), true);
+  });
+
   test('sets tag', () {
     final sut = fixture.getSut();
 
@@ -341,6 +389,7 @@ void main() {
     expect(sut.extra.length, 0);
     expect(sut.eventProcessors.length, 0);
     expect(sut.replayId, isNull);
+    expect(sut.attributes, isEmpty);
   });
 
   test('clones', () async {
@@ -375,6 +424,35 @@ void main() {
     );
     expect(sut.span, clone.span);
     expect(sut.replayId, clone.replayId);
+  });
+
+  test('clone copies attributes and keeps them independent', () {
+    final sut = fixture.getSut();
+    sut.setAttributes({
+      'a': SentryAttribute.string('x'),
+      'b': SentryAttribute.int(1),
+    });
+
+    final clone = sut.clone();
+
+    // clone has same attributes
+    expect(clone.attributes['a']?.type, 'string');
+    expect(clone.attributes['a']?.value, 'x');
+    expect(clone.attributes['b']?.type, 'integer');
+    expect(clone.attributes['b']?.value, 1);
+
+    // mutate clone only
+    clone.setAttributes(
+        {'a': SentryAttribute.string('y'), 'c': SentryAttribute.bool(true)});
+
+    // original unchanged
+    expect(sut.attributes['a']?.value, 'x');
+    expect(sut.attributes.containsKey('c'), false);
+
+    // clone reflects changes
+    expect(clone.attributes['a']?.value, 'y');
+    expect(clone.attributes['c']?.type, 'boolean');
+    expect(clone.attributes['c']?.value, true);
   });
 
   test('clone does not additionally call observers', () async {
