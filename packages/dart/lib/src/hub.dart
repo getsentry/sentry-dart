@@ -9,6 +9,7 @@ import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
+import 'span_v2/basic_span.dart';
 import 'span_v2/noop_span.dart';
 import 'span_v2/span.dart';
 import 'transport/data_category.dart';
@@ -579,7 +580,31 @@ class Hub {
       {Map<String, SentryAttribute>? attributes,
       Span? parentSpan,
       bool? active = true}) {
-    // TODO: implement
+    if (!_isEnabled) {
+      _options.log(
+        SentryLevel.warning,
+        "Instance is disabled and this 'startSpan' call is a no-op.",
+      );
+    } else if (_options.isTracingEnabled()) {
+      final scope = _peek().scope;
+      Span? effectiveParent;
+
+      if (parentSpan != null) {
+        // Explicit parent wins
+        effectiveParent = parentSpan;
+      } else {
+        // Fall back to active span in the current scope (if any)
+        effectiveParent = scope.activeSpan;
+      }
+
+      final span = SimpleSpan(parent: effectiveParent);
+
+      if (active == true) {
+        scope.setActiveSpan(span);
+      }
+      return span;
+    }
+
     return NoOpSpan();
   }
 

@@ -13,6 +13,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_options.dart';
 import 'sentry_span_interface.dart';
 import 'sentry_tracer.dart';
+import 'span_v2/span.dart';
 
 typedef _OnScopeObserver = Future<void> Function(ScopeObserver observer);
 
@@ -39,6 +40,11 @@ class Scope {
       currentTransaction?.name = _transaction!;
     }
   }
+
+  Span? _activeSpan;
+
+  /// Returns the active span (Span V2).
+  Span? get activeSpan => _activeSpan;
 
   /// Returns active transaction or null if there is no active transaction.
   ISentrySpan? span;
@@ -258,6 +264,11 @@ class Scope {
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {
     _eventProcessors.add(eventProcessor);
+  }
+
+  @internal
+  void setActiveSpan(Span span) {
+    _activeSpan = span;
   }
 
   /// Resets the Scope to its default state

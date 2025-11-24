@@ -10,6 +10,8 @@ import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'span_v2/noop_span.dart';
+import 'span_v2/span.dart';
 import 'tracing.dart';
 
 class NoOpHub implements Hub {
@@ -150,4 +152,11 @@ class NoOpHub implements Hub {
 
   @override
   void removeAttribute(String key) {}
+
+  @override
+  Span startSpan(String name,
+          {Map<String, SentryAttribute>? attributes,
+          Span? parentSpan,
+          bool? active = true}) =>
+      NoOpSpan();
 }

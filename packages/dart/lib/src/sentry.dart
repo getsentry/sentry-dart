@@ -23,7 +23,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_run_zoned_guarded.dart';
-import 'span_v2/Span.dart';
+import 'span_v2/span.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
@@ -381,9 +381,11 @@ class Sentry {
       );
 
   static Span startSpan(String name,
-      {Map<String, SentryAttribute>? attributes,
-      Span? parentSpan,
-      bool? active = true}) {}
+          {Map<String, SentryAttribute>? attributes,
+          Span? parentSpan,
+          bool? active = true}) =>
+      _hub.startSpan(name,
+          attributes: attributes, parentSpan: parentSpan, active: active);
 
   /// Gets the current active transaction or span bound to the scope.
   /// Returns `null` if performance is disabled in the options.
