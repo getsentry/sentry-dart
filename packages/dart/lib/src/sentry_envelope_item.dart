@@ -94,6 +94,18 @@ class SentryEnvelopeItem {
     );
   }
 
+  factory SentryEnvelopeItem.fromSpansData(List<int> payload, int spansCount) {
+    return SentryEnvelopeItem(
+      SentryEnvelopeItemHeader(
+        SentryItemType.span,
+        itemCount: spansCount,
+        contentType: 'application/vnd.sentry.items.span.v2+json',
+      ),
+      () => payload,
+      originalObject: null,
+    );
+  }
+
   /// Header with info about type and length of data in bytes.
   final SentryEnvelopeItemHeader header;
 

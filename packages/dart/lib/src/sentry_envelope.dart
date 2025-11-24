@@ -129,6 +129,38 @@ class SentryEnvelope {
     );
   }
 
+  factory SentryEnvelope.fromSpansData(
+    List<List<int>> encodedSpans,
+    SdkVersion sdkVersion, {
+    String? dsn,
+    SentryTraceContextHeader? traceContext,
+  }) {
+    // Create the payload in the format expected by Sentry
+    // Format: {"items": [span1, span2, ...]}
+    final builder = BytesBuilder(copy: false);
+    builder.add(utf8.encode('{"items":['));
+    for (int i = 0; i < encodedSpans.length; i++) {
+      if (i > 0) {
+        builder.add(utf8.encode(','));
+      }
+      builder.add(encodedSpans[i]);
+    }
+    builder.add(utf8.encode(']}'));
+
+    return SentryEnvelope(
+      SentryEnvelopeHeader(
+        null,
+        sdkVersion,
+        dsn: dsn,
+        traceContext: traceContext,
+      ),
+      [
+        SentryEnvelopeItem.fromSpansData(
+            builder.takeBytes(), encodedSpans.length),
+      ],
+    );
+  }
+
   /// Stream binary data representation of `Envelope` file encoded.
   Stream<List<int>> envelopeStream(SentryOptions options) async* {
     yield utf8JsonEncoder.convert(header.toJson());
