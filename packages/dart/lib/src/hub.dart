@@ -589,7 +589,7 @@ class Hub {
       final scope = _peek().scope;
 
       // TODO: currently the span impl requires a three state model for parentSpan
-      // is a span, null or undefined but Dart cannot represent that so it might be updated in the future
+      // is a span, null or undefined but Dart cannot represent that so the API might be updated in the future
       // However we want to definitely keep the default case which is to have the active span as parent
       final span = SimpleSpan();
 
