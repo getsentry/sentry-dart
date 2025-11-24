@@ -166,7 +166,7 @@ class HubAdapter implements Hub {
   Span startSpan(String name,
           {Map<String, SentryAttribute>? attributes,
           Span? parentSpan,
-          bool? active = true}) =>
+          bool active = true}) =>
       Sentry.currentHub.startSpan(name,
           attributes: attributes, parentSpan: parentSpan, active: active);
 

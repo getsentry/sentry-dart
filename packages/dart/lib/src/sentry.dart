@@ -383,7 +383,7 @@ class Sentry {
   static Span startSpan(String name,
           {Map<String, SentryAttribute>? attributes,
           Span? parentSpan,
-          bool? active = true}) =>
+          bool active = true}) =>
       _hub.startSpan(name,
           attributes: attributes, parentSpan: parentSpan, active: active);
 

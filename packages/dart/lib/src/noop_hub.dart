@@ -157,6 +157,6 @@ class NoOpHub implements Hub {
   Span startSpan(String name,
           {Map<String, SentryAttribute>? attributes,
           Span? parentSpan,
-          bool? active = true}) =>
+          bool active = true}) =>
       NoOpSpan();
 }

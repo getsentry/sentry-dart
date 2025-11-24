@@ -9,8 +9,8 @@ import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
-import 'span_v2/basic_span.dart';
 import 'span_v2/noop_span.dart';
+import 'span_v2/simple_span.dart';
 import 'span_v2/span.dart';
 import 'transport/data_category.dart';
 
@@ -579,7 +579,7 @@ class Hub {
   Span startSpan(String name,
       {Map<String, SentryAttribute>? attributes,
       Span? parentSpan,
-      bool? active = true}) {
+      bool active = true}) {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
@@ -587,21 +587,16 @@ class Hub {
       );
     } else if (_options.isTracingEnabled()) {
       final scope = _peek().scope;
-      Span? effectiveParent;
 
-      if (parentSpan != null) {
-        // Explicit parent wins
-        effectiveParent = parentSpan;
-      } else {
-        // Fall back to active span in the current scope (if any)
-        effectiveParent = scope.activeSpan;
-      }
+      final Span? effectiveParent = parentSpan ??
+          scope.activeSpan; // explicit parent wins, else active span
 
       final span = SimpleSpan(parent: effectiveParent);
 
-      if (active == true) {
+      if (active) {
         scope.setActiveSpan(span);
       }
+
       return span;
     }
 
