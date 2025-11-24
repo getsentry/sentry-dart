@@ -550,6 +550,45 @@ void main() {
       );
     });
 
+    test('setAttributes sets attributes on scope', () {
+      hub.setAttributes({
+        'attr1': SentryAttribute.string('value'),
+        'attr2': SentryAttribute.int(42),
+        'attr3': SentryAttribute.bool(true),
+        'attr4': SentryAttribute.double(3.14)
+      });
+      hub.setAttributes({'merged': SentryAttribute.double(12)});
+
+      final attributes = hub.scope.attributes;
+      expect(attributes, isNotEmpty);
+      expect(attributes['attr1']?.value, SentryAttribute.string('value').value);
+      expect(attributes['attr2']?.value, SentryAttribute.int(42).value);
+      expect(attributes['attr3']?.value, SentryAttribute.bool(true).value);
+      expect(attributes['attr4']?.value, SentryAttribute.double(3.14).value);
+      expect(attributes['merged']?.value, SentryAttribute.double(12).value);
+    });
+
+    test('removeAttribute removes attribute on scope', () {
+      hub.setAttributes({
+        'attr1': SentryAttribute.string('value'),
+        'attr2': SentryAttribute.int(42),
+        'attr3': SentryAttribute.bool(true),
+        'attr4': SentryAttribute.double(3.14)
+      });
+      hub.setAttributes({'merged': SentryAttribute.double(12)});
+
+      hub.removeAttribute('attr3');
+      hub.removeAttribute('merged');
+
+      final attributes = hub.scope.attributes;
+      expect(attributes, isNotEmpty);
+      expect(attributes['attr1']?.value, SentryAttribute.string('value').value);
+      expect(attributes['attr2']?.value, SentryAttribute.int(42).value);
+      expect(attributes['attr4']?.value, SentryAttribute.double(3.14).value);
+      expect(attributes['attr3']?.value, isNull);
+      expect(attributes['merged']?.value, isNull);
+    });
+
     test('should configure scope async', () async {
       await hub.configureScope((Scope scope) async {
         await Future.delayed(Duration(milliseconds: 10));
@@ -718,6 +757,42 @@ void main() {
       fixture = Fixture();
     });
 
+    test('withScope can override scope attributes for that call only',
+        () async {
+      final hub = fixture.getSut();
+      hub.setAttributes({
+        'overridden': SentryAttribute.string('global'),
+        'kept': SentryAttribute.bool(true),
+      });
+
+      await hub.captureMessage('msg', withScope: (scope) async {
+        // cloned scope starts with global attributes
+        expect(scope.attributes['overridden']?.value, 'global');
+        expect(scope.attributes['kept']?.value, true);
+
+        // override and add one more
+        scope.setAttributes({
+          'overridden': SentryAttribute.string('local'),
+          'extra': SentryAttribute.int(1),
+        });
+
+        expect(scope.attributes['overridden']?.value, 'local');
+        expect(scope.attributes['kept']?.value, true);
+        expect(scope.attributes['extra']?.value, 1);
+      });
+
+      // The scope passed to the client should reflect overridden attributes
+      final capturedScope = fixture.client.captureMessageCalls.last.scope!;
+      expect(capturedScope.attributes['overridden']?.value, 'local');
+      expect(capturedScope.attributes['kept']?.value, true);
+      expect(capturedScope.attributes['extra']?.value, 1);
+
+      // Global scope remains unchanged
+      expect(hub.scope.attributes['overridden']?.value, 'global');
+      expect(hub.scope.attributes['kept']?.value, true);
+      expect(hub.scope.attributes.containsKey('extra'), false);
+    });
+
     test('captureEvent should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureEvent(SentryEvent());
@@ -853,7 +928,7 @@ void main() {
         level: SentryLogLevel.info,
         body: 'test',
         attributes: {
-          'attribute': SentryLogAttribute.string('value'),
+          'attribute': SentryAttribute.string('value'),
         },
       );
     }

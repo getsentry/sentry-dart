@@ -1729,7 +1729,7 @@ void main() {
         level: SentryLogLevel.info,
         body: 'test',
         attributes: {
-          'attribute': SentryLogAttribute.string('value'),
+          'attribute': SentryAttribute.string('value'),
         },
       );
     }
@@ -1837,6 +1837,51 @@ void main() {
         capturedLog.attributes['sentry.trace.parent_span_id']?.type,
         'string',
       );
+    });
+
+    test('should use attributes from given scope', () async {
+      fixture.options.enableLogs = true;
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+      final log = givenLog();
+
+      final scope = Scope(fixture.options);
+      scope.setAttributes({'from_scope': SentryAttribute.int(12)});
+
+      await client.captureLog(log, scope: scope);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final capturedLog = mockLogBatcher.addLogCalls.first;
+      expect(capturedLog.attributes['from_scope']?.value, 12);
+    });
+
+    test('per-log attributes override scope on same key', () async {
+      fixture.options.enableLogs = true;
+
+      final client = fixture.getSut();
+      fixture.options.logBatcher = MockLogBatcher();
+      final log = givenLog();
+
+      final scope = Scope(fixture.options);
+      scope.setAttributes({
+        'overridden': SentryAttribute.string('fromScope'),
+        'kept': SentryAttribute.bool(true),
+      });
+
+      log.attributes['overridden'] = SentryAttribute.string('fromLog');
+      log.attributes['logOnly'] = SentryAttribute.double(1.23);
+
+      await client.captureLog(log, scope: scope);
+
+      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
+      expect(mockLogBatcher.addLogCalls.length, 1);
+      final captured = mockLogBatcher.addLogCalls.first;
+
+      expect(captured.attributes['overridden']?.value, 'fromLog');
+      expect(captured.attributes['kept']?.value, true);
+      expect(captured.attributes['logOnly']?.type, 'double');
     });
 
     test('should add user info to attributes', () async {
@@ -2012,7 +2057,7 @@ void main() {
 
       fixture.options.lifecycleRegistry
           .registerCallback<OnBeforeCaptureLog>((event) {
-        event.log.attributes['test'] = SentryLogAttribute.string('test-value');
+        event.log.attributes['test'] = SentryAttribute.string('test-value');
       });
 
       await client.captureLog(log, scope: scope);

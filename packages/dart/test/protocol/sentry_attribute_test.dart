@@ -2,8 +2,8 @@ import 'package:test/test.dart';
 import 'package:sentry/sentry.dart';
 
 void main() {
-  test('$SentryLogAttribute string to json', () {
-    final attribute = SentryLogAttribute.string('test');
+  test('$SentryAttribute string to json', () {
+    final attribute = SentryAttribute.string('test');
     final json = attribute.toJson();
     expect(json, {
       'value': 'test',
@@ -11,8 +11,8 @@ void main() {
     });
   });
 
-  test('$SentryLogAttribute bool to json', () {
-    final attribute = SentryLogAttribute.bool(true);
+  test('$SentryAttribute bool to json', () {
+    final attribute = SentryAttribute.bool(true);
     final json = attribute.toJson();
     expect(json, {
       'value': true,
@@ -20,8 +20,8 @@ void main() {
     });
   });
 
-  test('$SentryLogAttribute int to json', () {
-    final attribute = SentryLogAttribute.int(1);
+  test('$SentryAttribute int to json', () {
+    final attribute = SentryAttribute.int(1);
     final json = attribute.toJson();
 
     expect(json, {
@@ -30,8 +30,8 @@ void main() {
     });
   });
 
-  test('$SentryLogAttribute double to json', () {
-    final attribute = SentryLogAttribute.double(1.0);
+  test('$SentryAttribute double to json', () {
+    final attribute = SentryAttribute.double(1.0);
     final json = attribute.toJson();
 
     expect(json, {
