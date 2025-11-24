@@ -3,10 +3,6 @@ import 'span.dart';
 import 'span_v2_status.dart';
 
 class SimpleSpan implements Span {
-  final Span? parent;
-
-  SimpleSpan({this.parent});
-
   @override
   void end({DateTime? endTimestamp}) {
     // TODO: implement end

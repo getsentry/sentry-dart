@@ -588,10 +588,10 @@ class Hub {
     } else if (_options.isTracingEnabled()) {
       final scope = _peek().scope;
 
-      final Span? effectiveParent = parentSpan ??
-          scope.activeSpan; // explicit parent wins, else active span
-
-      final span = SimpleSpan(parent: effectiveParent);
+      // TODO: currently the span impl requires a three state model for parentSpan
+      // is a span, null or undefined but Dart cannot represent that so it might be updated in the future
+      // However we want to definitely keep the default case which is to have the active span as parent
+      final span = SimpleSpan();
 
       if (active) {
         scope.setActiveSpan(span);

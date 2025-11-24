@@ -41,11 +41,6 @@ class Scope {
     }
   }
 
-  Span? _activeSpan;
-
-  /// Returns the active span (Span V2).
-  Span? get activeSpan => _activeSpan;
-
   /// Returns active transaction or null if there is no active transaction.
   ISentrySpan? span;
 
@@ -268,7 +263,7 @@ class Scope {
 
   @internal
   void setActiveSpan(Span span) {
-    _activeSpan = span;
+    // TODO: use stack to implement active spans
   }
 
   /// Resets the Scope to its default state
