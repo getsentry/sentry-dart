@@ -104,30 +104,14 @@ class SentryEnvelope {
   factory SentryEnvelope.fromLogsData(
     List<List<int>> encodedLogs,
     SdkVersion sdkVersion,
-  ) {
-    // Create the payload in the format expected by Sentry
-    // Format: {"items": [log1, log2, ...]}
-    final builder = BytesBuilder(copy: false);
-    builder.add(utf8.encode('{"items":['));
-    for (int i = 0; i < encodedLogs.length; i++) {
-      if (i > 0) {
-        builder.add(utf8.encode(','));
-      }
-      builder.add(encodedLogs[i]);
-    }
-    builder.add(utf8.encode(']}'));
-
-    return SentryEnvelope(
-      SentryEnvelopeHeader(
-        null,
-        sdkVersion,
-      ),
-      [
-        SentryEnvelopeItem.fromLogsData(
-            builder.takeBytes(), encodedLogs.length),
-      ],
-    );
-  }
+  ) =>
+      SentryEnvelope(
+        SentryEnvelopeHeader(null, sdkVersion),
+        [
+          SentryEnvelopeItem.fromLogsData(
+              _buildItemsPayload(encodedLogs), encodedLogs.length)
+        ],
+      );
 
   /// Create a [SentryEnvelope] containing raw span data payload.
   /// This is used by the span buffer to send pre-encoded spans.
@@ -137,32 +121,15 @@ class SentryEnvelope {
     SdkVersion sdkVersion, {
     String? dsn,
     SentryTraceContextHeader? traceContext,
-  }) {
-    // Create the payload in the format expected by Sentry
-    // Format: {"items": [span1, span2, ...]}
-    final builder = BytesBuilder(copy: false);
-    builder.add(utf8.encode('{"items":['));
-    for (int i = 0; i < encodedSpans.length; i++) {
-      if (i > 0) {
-        builder.add(utf8.encode(','));
-      }
-      builder.add(encodedSpans[i]);
-    }
-    builder.add(utf8.encode(']}'));
-
-    return SentryEnvelope(
-      SentryEnvelopeHeader(
-        null,
-        sdkVersion,
-        dsn: dsn,
-        traceContext: traceContext,
-      ),
-      [
-        SentryEnvelopeItem.fromSpansData(
-            builder.takeBytes(), encodedSpans.length),
-      ],
-    );
-  }
+  }) =>
+      SentryEnvelope(
+        SentryEnvelopeHeader(null, sdkVersion,
+            dsn: dsn, traceContext: traceContext),
+        [
+          SentryEnvelopeItem.fromSpansData(
+              _buildItemsPayload(encodedSpans), encodedSpans.length)
+        ],
+      );
 
   /// Stream binary data representation of `Envelope` file encoded.
   Stream<List<int>> envelopeStream(SentryOptions options) async* {
@@ -193,6 +160,20 @@ class SentryEnvelope {
         continue;
       }
     }
+  }
+
+  /// Builds a payload in the format {"items": [item1, item2, ...]}
+  static Uint8List _buildItemsPayload(List<List<int>> encodedItems) {
+    final builder = BytesBuilder(copy: false);
+    builder.add(utf8.encode('{"items":['));
+    for (int i = 0; i < encodedItems.length; i++) {
+      if (i > 0) {
+        builder.add(utf8.encode(','));
+      }
+      builder.add(encodedItems[i]);
+    }
+    builder.add(utf8.encode(']}'));
+    return builder.takeBytes();
   }
 
   /// Add an envelope item containing client report data.
