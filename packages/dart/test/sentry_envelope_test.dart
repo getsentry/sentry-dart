@@ -204,8 +204,8 @@ void main() {
         'public_key': '123',
       });
 
-      final sut = SentryEnvelope.fromSpansData(
-          [span1, span2], sdkVersion, fakeDsn, traceContext);
+      final sut = SentryEnvelope.fromSpansData([span1, span2], sdkVersion,
+          dsn: fakeDsn, traceContext: traceContext);
 
       expect(sut.header.eventId, null);
       expect(sut.header.sdkVersion, sdkVersion);
