@@ -207,7 +207,30 @@ void main() {
       final sut = SentryEnvelope.fromSpansData(
           [span1, span2], sdkVersion, fakeDsn, traceContext);
 
-      // TODO
+      expect(sut.header.eventId, null);
+      expect(sut.header.sdkVersion, sdkVersion);
+      expect(sut.header.traceContext, traceContext);
+      expect(sut.header.dsn, fakeDsn);
+      expect(sut.items.length, 1);
+
+      final expectedEnvelopeItem = SentryEnvelopeItem.fromSpansData(
+        // The envelope should create the final payload with {"items": [...]} wrapper
+        utf8.encode('{"items":[') +
+            span1 +
+            utf8.encode(',') +
+            span2 +
+            utf8.encode(']}'),
+        spansCount,
+      );
+
+      expect(sut.items[0].header.contentType,
+          expectedEnvelopeItem.header.contentType);
+      expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
+      expect(sut.items[0].header.itemCount, spansCount);
+
+      final actualItem = await sut.items[0].dataFactory();
+      final expectedItem = await expectedEnvelopeItem.dataFactory();
+      expect(actualItem, expectedItem);
     });
 
     test('fromLogsData', () async {
