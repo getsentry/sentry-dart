@@ -10,9 +10,7 @@ import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 import 'span_v2/noop_span.dart';
-import 'span_v2/simple_span.dart';
 import 'span_v2/span.dart';
-import 'sentry_trace_context_header.dart';
 import 'span_v2/span_parent.dart';
 import 'transport/data_category.dart';
 
