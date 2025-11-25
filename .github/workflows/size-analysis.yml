@@ -4,18 +4,7 @@ on:
   push:
     branches:
       - main
-      - release/**
-    paths:
-      - '.github/workflows/size-analysis.yml'
-      - 'packages/dart/**'
-      - 'packages/flutter/**'
-      - '!**/*.md'
   pull_request:
-    paths:
-      - '.github/workflows/size-analysis.yml'
-      - 'packages/dart/**'
-      - 'packages/flutter/**'
-      - '!**/*.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -40,6 +29,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
       - name: Read configured Flutter SDK version
         id: conf
         run: |
@@ -51,19 +45,14 @@ jobs:
         with:
           flutter-version: ${{ steps.conf.outputs.flutter }}
 
-      - uses: actions/setup-java@v5
-        with:
-          java-version: '17'
-          distribution: 'adopt'
-
-      - name: Build Android App Bundle (Release)
+      - name: Build Android App Bundle
         run: |
           flutter pub get
           flutter build appbundle --release
 
       - name: Install Sentry CLI
         if: env.SENTRY_AUTH_TOKEN != ''
-        run: curl -sL https://sentry.io/get-cli/ | sh
+        run: curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION=2.58.2 sh
 
       - name: Get merge base SHA
         id: merge-base
@@ -128,27 +117,14 @@ jobs:
       - name: Switch to Xcode 16.4 for iOS 18.5
         run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
-      - name: Build Flutter iOS (no codesign)
+      - name: Build Flutter iOS
         run: |
           flutter pub get
-          flutter build ios --release --no-codesign
-
-      - name: Create XCArchive
-        working-directory: packages/flutter/example/ios
-        run: |
-          xcodebuild archive \
-            -workspace Runner.xcworkspace \
-            -scheme Runner \
-            -configuration Release \
-            -archivePath "${{ runner.temp }}/sentry_flutter_example.xcarchive" \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            -quiet
+          flutter build ipa --release --no-codesign
 
       - name: Install Sentry CLI
         if: env.SENTRY_AUTH_TOKEN != ''
-        run: curl -sL https://sentry.io/get-cli/ | sh
+        run: curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION=2.58.2 sh
 
       - name: Get merge base SHA
         id: merge-base
@@ -165,7 +141,7 @@ jobs:
         if: env.SENTRY_AUTH_TOKEN != ''
         run: |
           UPLOAD_ARGS=(
-            "${{ runner.temp }}/sentry_flutter_example.xcarchive"
+            "build/ios/archive/Runner.xcarchive"
             "--org" "${{ env.SENTRY_ORG }}"
             "--project" "${{ env.SENTRY_PROJECT }}"
             "--build-configuration" "Release"
