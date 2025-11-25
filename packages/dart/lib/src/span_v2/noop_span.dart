@@ -3,6 +3,8 @@ import 'span.dart';
 import 'span_v2_status.dart';
 
 class NoOpSpan implements Span {
+  const NoOpSpan();
+
   @override
   void end({DateTime? endTimestamp}) {}
 
@@ -17,4 +19,7 @@ class NoOpSpan implements Span {
 
   @override
   void setStatus(SpanV2Status status) {}
+
+  @override
+  Map<String, dynamic> toJson() => {};
 }

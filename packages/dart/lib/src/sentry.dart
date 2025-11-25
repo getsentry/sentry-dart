@@ -24,6 +24,7 @@ import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_run_zoned_guarded.dart';
 import 'span_v2/span.dart';
+import 'span_v2/span_parent.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
@@ -380,10 +381,12 @@ class Sentry {
         onFinish: onFinish,
       );
 
-  static Span startSpan(String name,
-          {Map<String, SentryAttribute>? attributes,
-          Span? parentSpan,
-          bool active = true}) =>
+  static Span startSpan(
+    String name, {
+    SpanParent parentSpan = const SpanParent.active(),
+    bool active = true,
+    Map<String, SentryAttribute>? attributes,
+  }) =>
       _hub.startSpan(name,
           attributes: attributes, parentSpan: parentSpan, active: active);
 

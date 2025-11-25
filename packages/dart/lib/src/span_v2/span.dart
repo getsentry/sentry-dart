@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../../sentry.dart';
 import 'span_v2_status.dart';
 
@@ -23,4 +25,7 @@ abstract class Span {
 
   /// Sets the name of the span.
   void setName(String name);
+
+  @internal
+  Map<String, dynamic> toJson();
 }

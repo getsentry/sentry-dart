@@ -261,11 +261,6 @@ class Scope {
     _eventProcessors.add(eventProcessor);
   }
 
-  @internal
-  void setActiveSpan(Span span) {
-    // TODO: use stack to implement active spans
-  }
-
   /// Resets the Scope to its default state
   Future<void> clear() async {
     clearAttachments();

@@ -12,6 +12,8 @@ import 'sentry_traces_sampler.dart';
 import 'span_v2/noop_span.dart';
 import 'span_v2/simple_span.dart';
 import 'span_v2/span.dart';
+import 'sentry_trace_context_header.dart';
+import 'span_v2/span_parent.dart';
 import 'transport/data_category.dart';
 
 /// Configures the scope through the callback.
@@ -576,28 +578,20 @@ class Hub {
     return NoOpSentrySpan();
   }
 
-  Span startSpan(String name,
-      {Map<String, SentryAttribute>? attributes,
-      Span? parentSpan,
-      bool active = true}) {
+  Span startSpan(
+    String name, {
+    SpanParent parentSpan = const SpanParent.active(),
+    bool active = true,
+    Map<String, SentryAttribute>? attributes,
+  }) {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
         "Instance is disabled and this 'startSpan' call is a no-op.",
       );
     } else if (_options.isTracingEnabled()) {
-      final scope = _peek().scope;
-
-      // TODO: currently the span impl requires a three state model for parentSpan
-      // is a span, null or undefined but Dart cannot represent that so the API might be updated in the future
-      // However we want to definitely keep the default case which is to have the active span as parent
-      final span = SimpleSpan();
-
-      if (active) {
-        scope.setActiveSpan(span);
-      }
-
-      return span;
+      // TODO: implementation of span api behaviour according to https://develop.sentry.dev/sdk/telemetry/spans/span-api/
+      return NoOpSpan();
     }
 
     return NoOpSpan();
