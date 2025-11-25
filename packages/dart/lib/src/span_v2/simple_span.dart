@@ -27,4 +27,10 @@ class SimpleSpan implements Span {
   void setStatus(SpanV2Status status) {
     // TODO: implement setStatus
   }
+
+  @override
+  Map<String, dynamic> toJson() {
+    // TODO: implement toJson
+    throw UnimplementedError();
+  }
 }

@@ -12,6 +12,7 @@ import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'span_v2/span.dart';
+import 'span_v2/span_parent.dart';
 import 'tracing.dart';
 
 /// Hub adapter to make Integrations testable
@@ -163,10 +164,12 @@ class HubAdapter implements Hub {
       );
 
   @override
-  Span startSpan(String name,
-          {Map<String, SentryAttribute>? attributes,
-          Span? parentSpan,
-          bool active = true}) =>
+  Span startSpan(
+    String name, {
+    SpanParent parentSpan = const SpanParent.active(),
+    bool active = true,
+    Map<String, SentryAttribute>? attributes,
+  }) =>
       Sentry.currentHub.startSpan(name,
           attributes: attributes, parentSpan: parentSpan, active: active);
 
