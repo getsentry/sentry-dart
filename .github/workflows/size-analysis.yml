@@ -1,0 +1,186 @@
+name: Size Analysis
+
+on:
+  push:
+    branches:
+      - main
+      - release/**
+    paths:
+      - '.github/workflows/size-analysis.yml'
+      - 'packages/dart/**'
+      - 'packages/flutter/**'
+      - '!**/*.md'
+  pull_request:
+    paths:
+      - '.github/workflows/size-analysis.yml'
+      - 'packages/dart/**'
+      - 'packages/flutter/**'
+      - '!**/*.md'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  SENTRY_ORG: sentry-sdks
+  SENTRY_PROJECT: sentry-flutter
+  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+jobs:
+  size-analysis-android:
+    name: Android Size Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: packages/flutter/example
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Read configured Flutter SDK version
+        id: conf
+        run: |
+          version=$(grep "version" ../../../metrics/flutter.properties | cut -d'=' -f2 | xargs)
+          echo "flutter=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Install Flutter v${{ steps.conf.outputs.flutter }}
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
+        with:
+          flutter-version: ${{ steps.conf.outputs.flutter }}
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Build Android App Bundle (Release)
+        run: |
+          flutter pub get
+          flutter build appbundle --release
+
+      - name: Install Sentry CLI
+        if: env.SENTRY_AUTH_TOKEN != ''
+        run: curl -sL https://sentry.io/get-cli/ | sh
+
+      - name: Get merge base SHA
+        id: merge-base
+        if: env.SENTRY_AUTH_TOKEN != ''
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_SHA=$(git merge-base HEAD origin/main || echo "${{ github.event.before }}")
+          fi
+          echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Android AAB to Sentry Size Analysis
+        if: env.SENTRY_AUTH_TOKEN != ''
+        run: |
+          UPLOAD_ARGS=(
+            "build/app/outputs/bundle/release/app-release.aab"
+            "--org" "${{ env.SENTRY_ORG }}"
+            "--project" "${{ env.SENTRY_PROJECT }}"
+            "--build-configuration" "Release"
+            "--head-sha" "${{ github.event.pull_request.head.sha || github.sha }}"
+            "--head-repo-name" "${{ github.repository }}"
+            "--head-ref" "${{ github.head_ref || github.ref_name }}"
+            "--base-ref" "${{ github.base_ref || 'main' }}"
+          )
+
+          if [ -n "${{ steps.merge-base.outputs.sha }}" ]; then
+            UPLOAD_ARGS+=("--base-sha" "${{ steps.merge-base.outputs.sha }}")
+          fi
+
+          if [ -n "${{ github.event.pull_request.number }}" ]; then
+            UPLOAD_ARGS+=("--pr-number" "${{ github.event.pull_request.number }}")
+          fi
+
+          sentry-cli build upload "${UPLOAD_ARGS[@]}"
+
+  size-analysis-ios:
+    name: iOS Size Analysis
+    runs-on: macos-15
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: packages/flutter/example
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Read configured Flutter SDK version
+        id: conf
+        run: |
+          version=$(grep "version" ../../../metrics/flutter.properties | cut -d'=' -f2 | xargs)
+          echo "flutter=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Install Flutter v${{ steps.conf.outputs.flutter }}
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
+        with:
+          flutter-version: ${{ steps.conf.outputs.flutter }}
+
+      # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
+      - name: Switch to Xcode 16.4 for iOS 18.5
+        run: sudo xcode-select --switch /Applications/Xcode_16.4.app
+
+      - name: Build Flutter iOS (no codesign)
+        run: |
+          flutter pub get
+          flutter build ios --release --no-codesign
+
+      - name: Create XCArchive
+        working-directory: packages/flutter/example/ios
+        run: |
+          xcodebuild archive \
+            -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -archivePath "${{ runner.temp }}/sentry_flutter_example.xcarchive" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            -quiet
+
+      - name: Install Sentry CLI
+        if: env.SENTRY_AUTH_TOKEN != ''
+        run: curl -sL https://sentry.io/get-cli/ | sh
+
+      - name: Get merge base SHA
+        id: merge-base
+        if: env.SENTRY_AUTH_TOKEN != ''
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_SHA=$(git merge-base HEAD origin/main || echo "${{ github.event.before }}")
+          fi
+          echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Upload iOS XCArchive to Sentry Size Analysis
+        if: env.SENTRY_AUTH_TOKEN != ''
+        run: |
+          UPLOAD_ARGS=(
+            "${{ runner.temp }}/sentry_flutter_example.xcarchive"
+            "--org" "${{ env.SENTRY_ORG }}"
+            "--project" "${{ env.SENTRY_PROJECT }}"
+            "--build-configuration" "Release"
+            "--head-sha" "${{ github.event.pull_request.head.sha || github.sha }}"
+            "--head-repo-name" "${{ github.repository }}"
+            "--head-ref" "${{ github.head_ref || github.ref_name }}"
+            "--base-ref" "${{ github.base_ref || 'main' }}"
+          )
+
+          if [ -n "${{ steps.merge-base.outputs.sha }}" ]; then
+            UPLOAD_ARGS+=("--base-sha" "${{ steps.merge-base.outputs.sha }}")
+          fi
+
+          if [ -n "${{ github.event.pull_request.number }}" ]; then
+            UPLOAD_ARGS+=("--pr-number" "${{ github.event.pull_request.number }}")
+          fi
+
+          sentry-cli build upload "${UPLOAD_ARGS[@]}"
