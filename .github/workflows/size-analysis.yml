@@ -45,11 +45,6 @@ jobs:
         with:
           flutter-version: ${{ steps.conf.outputs.flutter }}
 
-      - name: Build Android App Bundle
-        run: |
-          flutter pub get
-          flutter build appbundle --release
-
       - name: Install Sentry CLI
         if: env.SENTRY_AUTH_TOKEN != ''
         run: curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION=2.58.2 sh
@@ -65,11 +60,15 @@ jobs:
           fi
           echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
 
-      - name: Upload Android AAB to Sentry Size Analysis
+      - name: Build Android APK
+        run: |
+          flutter build apk --release
+
+      - name: Upload Android APK to Sentry Size Analysis
         if: env.SENTRY_AUTH_TOKEN != ''
         run: |
           UPLOAD_ARGS=(
-            "build/app/outputs/bundle/release/app-release.aab"
+            "build/app/outputs/flutter-apk/app-release.apk"
             "--org" "${{ env.SENTRY_ORG }}"
             "--project" "${{ env.SENTRY_PROJECT }}"
             "--build-configuration" "Release"
@@ -113,18 +112,17 @@ jobs:
         with:
           flutter-version: ${{ steps.conf.outputs.flutter }}
 
+      - name: Install Sentry CLI
+        if: env.SENTRY_AUTH_TOKEN != ''
+        run: curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION=2.58.2 sh
+
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5
         run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
       - name: Build Flutter iOS
         run: |
-          flutter pub get
           flutter build ipa --release --no-codesign
-
-      - name: Install Sentry CLI
-        if: env.SENTRY_AUTH_TOKEN != ''
-        run: curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION=2.58.2 sh
 
       - name: Get merge base SHA
         id: merge-base
