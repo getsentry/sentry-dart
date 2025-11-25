@@ -94,6 +94,9 @@ class SentryEnvelopeItem {
     );
   }
 
+  /// Create a [SentryEnvelopeItem] which holds pre-encoded span data.
+  /// This is used by the spans buffer to send pre-encoded spans.
+  @internal
   factory SentryEnvelopeItem.fromSpansData(List<int> payload, int spansCount) {
     return SentryEnvelopeItem(
       SentryEnvelopeItemHeader(

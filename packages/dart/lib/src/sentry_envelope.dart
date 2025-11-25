@@ -129,6 +129,9 @@ class SentryEnvelope {
     );
   }
 
+  /// Create a [SentryEnvelope] containing raw span data payload.
+  /// This is used by the span buffer to send pre-encoded spans.
+  @internal
   factory SentryEnvelope.fromSpansData(
     List<List<int>> encodedSpans,
     SdkVersion sdkVersion, {
