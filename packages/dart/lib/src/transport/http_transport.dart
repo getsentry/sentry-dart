@@ -47,6 +47,8 @@ class HttpTransport implements Transport {
 
     TransportUtils.logResponse(_options, envelope, response, target: 'Sentry');
 
+    print('response: ${response.body}');
+
     if (response.statusCode == 200) {
       return _parseEventId(response);
     }

@@ -1,9 +1,11 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
-import 'span_v2_status.dart';
 
 abstract class Span {
+  @internal
+  const Span();
+
   /// Ends the span.
   ///
   /// [endTimestamp] can be used to override the end time.

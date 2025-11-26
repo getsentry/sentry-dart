@@ -7,12 +7,11 @@ import 'hub.dart';
 import 'profiling.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
+import 'protocol/unset_span.dart';
 import 'scope.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
-import 'span_v2/span.dart';
-import 'span_v2/span_parent.dart';
 import 'tracing.dart';
 
 /// Hub adapter to make Integrations testable
@@ -166,7 +165,7 @@ class HubAdapter implements Hub {
   @override
   Span startSpan(
     String name, {
-    SpanParent parentSpan = const SpanParent.active(),
+    Span? parentSpan = const UnsetSpan(),
     bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) =>

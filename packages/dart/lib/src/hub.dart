@@ -7,11 +7,10 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
+import 'protocol/unset_span.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
-import 'span_v2/noop_span.dart';
-import 'span_v2/span.dart';
-import 'span_v2/span_parent.dart';
+import 'protocol/noop_span.dart';
 import 'transport/data_category.dart';
 
 /// Configures the scope through the callback.
@@ -578,7 +577,7 @@ class Hub {
 
   Span startSpan(
     String name, {
-    SpanParent parentSpan = const SpanParent.active(),
+    Span? parentSpan = const UnsetSpan(),
     bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) {
