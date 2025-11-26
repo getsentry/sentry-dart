@@ -24,8 +24,6 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_run_zoned_guarded.dart';
-import 'span_v2/span.dart';
-import 'span_v2/span_parent.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
