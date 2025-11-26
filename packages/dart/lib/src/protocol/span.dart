@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
 
+/// Represents the Span model based on https://develop.sentry.dev/sdk/telemetry/spans/span-api/
 abstract class Span {
   @internal
   const Span();
