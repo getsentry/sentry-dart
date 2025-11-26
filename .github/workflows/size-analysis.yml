@@ -79,7 +79,7 @@ jobs:
             --build-name "$SIZE_VERSION" \
             --build-number "$SIZE_BUILD"
 
-      - name: Upload Android APK to Sentry Size Analysis
+      - name: Upload Android Bundle to Sentry Size Analysis
         if: env.SENTRY_AUTH_TOKEN != ''
         run: |
           UPLOAD_ARGS=(
