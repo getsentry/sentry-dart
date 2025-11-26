@@ -72,10 +72,10 @@ jobs:
           fi
           echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
 
-      - name: Build Android APK
+      - name: Build Android Appbundle
         run: |
           flutter pub get
-          flutter build apk --release \
+          flutter build appbundle --release \
             --build-name "$SIZE_VERSION" \
             --build-number "$SIZE_BUILD"
 
@@ -83,7 +83,7 @@ jobs:
         if: env.SENTRY_AUTH_TOKEN != ''
         run: |
           UPLOAD_ARGS=(
-            "build/app/outputs/flutter-apk/app-release.apk"
+            "build/app/outputs/bundle/release/app-release.aab"
             "--org" "${{ env.SENTRY_ORG }}"
             "--project" "${{ env.SENTRY_PROJECT }}"
             "--build-configuration" "Release"
