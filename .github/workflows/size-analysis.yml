@@ -51,7 +51,6 @@ jobs:
 
       - name: Determine build version
         run: |
-          cd packages/flutter/example
           version_line=$(grep '^version:' pubspec.yaml | awk '{print $2}')
           build_name=${version_line%%+*}
           build_number=${version_line##*+}
@@ -134,7 +133,6 @@ jobs:
 
       - name: Determine build version
         run: |
-          cd packages/flutter/example
           version_line=$(grep '^version:' pubspec.yaml | awk '{print $2}')
           build_name=${version_line%%+*}
           build_number=${version_line##*+}
