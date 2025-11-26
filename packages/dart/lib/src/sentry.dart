@@ -387,8 +387,12 @@ class Sentry {
     bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) =>
-      _hub.startSpan(name,
-          attributes: attributes, parentSpan: parentSpan, active: active);
+      _hub.startSpan(
+        name,
+        parentSpan: parentSpan,
+        active: active,
+        attributes: attributes,
+      );
 
   /// Gets the current active transaction or span bound to the scope.
   /// Returns `null` if performance is disabled in the options.

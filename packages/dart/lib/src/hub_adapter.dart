@@ -170,8 +170,12 @@ class HubAdapter implements Hub {
     bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) =>
-      Sentry.currentHub.startSpan(name,
-          attributes: attributes, parentSpan: parentSpan, active: active);
+      Sentry.currentHub.startSpan(
+        name,
+        parentSpan: parentSpan,
+        active: active,
+        attributes: attributes,
+      );
 
   @override
   void generateNewTrace() => Sentry.currentHub.generateNewTrace();
