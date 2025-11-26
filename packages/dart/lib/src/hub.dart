@@ -7,8 +7,10 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
+import 'protocol/unset_span.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
+import 'protocol/noop_span.dart';
 import 'transport/data_category.dart';
 
 /// Configures the scope through the callback.
@@ -571,6 +573,25 @@ class Hub {
     }
 
     return NoOpSentrySpan();
+  }
+
+  Span startSpan(
+    String name, {
+    Span? parentSpan = const UnsetSpan(),
+    bool active = true,
+    Map<String, SentryAttribute>? attributes,
+  }) {
+    if (!_isEnabled) {
+      _options.log(
+        SentryLevel.warning,
+        "Instance is disabled and this 'startSpan' call is a no-op.",
+      );
+    } else if (_options.isTracingEnabled()) {
+      // TODO: implementation of span api behaviour according to https://develop.sentry.dev/sdk/telemetry/spans/span-api/
+      return NoOpSpan();
+    }
+
+    return NoOpSpan();
   }
 
   @internal

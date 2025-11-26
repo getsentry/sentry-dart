@@ -7,6 +7,7 @@ import 'hub.dart';
 import 'profiling.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
+import 'protocol/unset_span.dart';
 import 'scope.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
@@ -159,6 +160,20 @@ class HubAdapter implements Hub {
         trimEnd: trimEnd,
         onFinish: onFinish,
         customSamplingContext: customSamplingContext,
+      );
+
+  @override
+  Span startSpan(
+    String name, {
+    Span? parentSpan = const UnsetSpan(),
+    bool active = true,
+    Map<String, SentryAttribute>? attributes,
+  }) =>
+      Sentry.currentHub.startSpan(
+        name,
+        parentSpan: parentSpan,
+        active: active,
+        attributes: attributes,
       );
 
   @override
