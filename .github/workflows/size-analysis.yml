@@ -49,6 +49,19 @@ jobs:
         if: env.SENTRY_AUTH_TOKEN != ''
         run: curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION=2.58.2 sh
 
+      - name: Determine build version
+        run: |
+          cd packages/flutter/example
+          version_line=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          build_name=${version_line%%+*}
+          build_number=${version_line##*+}
+          if [ "$build_number" = "$build_name" ]; then
+            build_number=1
+          fi
+          sanitized_build_name=$(echo "$build_name" | sed 's/[^0-9.].*$//')
+          echo "SIZE_VERSION=$sanitized_build_name" >> "$GITHUB_ENV"
+          echo "SIZE_BUILD=$build_number" >> "$GITHUB_ENV"
+
       - name: Get merge base SHA
         id: merge-base
         if: env.SENTRY_AUTH_TOKEN != ''
@@ -62,7 +75,10 @@ jobs:
 
       - name: Build Android APK
         run: |
-          flutter build apk --release
+          flutter pub get
+          flutter build apk --release \
+            --build-name "$SIZE_VERSION" \
+            --build-number "$SIZE_BUILD"
 
       - name: Upload Android APK to Sentry Size Analysis
         if: env.SENTRY_AUTH_TOKEN != ''
@@ -116,13 +132,29 @@ jobs:
         if: env.SENTRY_AUTH_TOKEN != ''
         run: curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION=2.58.2 sh
 
+      - name: Determine build version
+        run: |
+          cd packages/flutter/example
+          version_line=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          build_name=${version_line%%+*}
+          build_number=${version_line##*+}
+          if [ "$build_number" = "$build_name" ]; then
+            build_number=1
+          fi
+          sanitized_build_name=$(echo "$build_name" | sed 's/[^0-9.].*$//')
+          echo "SIZE_VERSION=$sanitized_build_name" >> "$GITHUB_ENV"
+          echo "SIZE_BUILD=$build_number" >> "$GITHUB_ENV"
+
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5
         run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
       - name: Build Flutter iOS
         run: |
-          flutter build ipa --release --no-codesign
+          flutter pub get
+          flutter build ipa --release --no-codesign \
+            --build-name "$SIZE_VERSION" \
+            --build-number "$SIZE_BUILD"
 
       - name: Get merge base SHA
         id: merge-base
