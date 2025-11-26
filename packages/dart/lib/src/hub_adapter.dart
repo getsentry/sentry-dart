@@ -7,6 +7,7 @@ import 'hub.dart';
 import 'profiling.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
+import 'protocol/unset_span.dart';
 import 'scope.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
@@ -166,12 +167,16 @@ class HubAdapter implements Hub {
   @override
   Span startSpan(
     String name, {
-    SpanParent parentSpan = const SpanParent.active(),
+    Span? parentSpan = const UnsetSpan(),
     bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) =>
-      Sentry.currentHub.startSpan(name,
-          attributes: attributes, parentSpan: parentSpan, active: active);
+      Sentry.currentHub.startSpan(
+        name,
+        parentSpan: parentSpan,
+        active: active,
+        attributes: attributes,
+      );
 
   @override
   void generateNewTrace() => Sentry.currentHub.generateNewTrace();

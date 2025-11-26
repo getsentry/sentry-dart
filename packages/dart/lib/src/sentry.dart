@@ -18,6 +18,7 @@ import 'noop_isolate_error_integration.dart'
     if (dart.library.io) 'isolate_error_integration.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
+import 'protocol/unset_span.dart';
 import 'run_zoned_guarded_integration.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
@@ -383,12 +384,16 @@ class Sentry {
 
   static Span startSpan(
     String name, {
-    SpanParent parentSpan = const SpanParent.active(),
+    Span? parentSpan = const UnsetSpan(),
     bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) =>
-      _hub.startSpan(name,
-          attributes: attributes, parentSpan: parentSpan, active: active);
+      _hub.startSpan(
+        name,
+        parentSpan: parentSpan,
+        active: active,
+        attributes: attributes,
+      );
 
   /// Gets the current active transaction or span bound to the scope.
   /// Returns `null` if performance is disabled in the options.
