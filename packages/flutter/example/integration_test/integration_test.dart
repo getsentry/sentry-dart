@@ -861,6 +861,15 @@ void main() {
     expect(user!['id'], equals('test-user-id'));
     expect(user['email'], equals('test@example.com'));
     expect(user['username'], equals('test-username'));
+    expect(user['data']['map'], isNotNull);
+    expect(user['data']['map']['nested'], equals('data'));
+    expect(
+        user['data']['map']['custom object'], equals(customObject.toString()));
+    expect(user['data']['list'], isNotNull);
+    expect(user['data']['list'][0], equals(1));
+    expect(user['data']['list'][1], equals(customObject.toString()));
+    expect(user['data']['list'][2], equals(3));
+    expect(user['data']['custom object'], equals(customObject.toString()));
 
     // 3. Clear user (after clearing the id should remain)
     await Sentry.configureScope((scope) async {
@@ -874,16 +883,6 @@ void main() {
     expect(user['username'], isNull);
     expect(user['id'], isNotNull);
     expect(user['id'], isNotEmpty);
-    expect(user['data'], isNotNull);
-    expect(user['data']['map'], isNotNull);
-    expect(user['data']['map']['nested'], equals('data'));
-    expect(
-        user['data']['map']['custom object'], equals(customObject.toString()));
-    expect(user['data']['list'], isNotNull);
-    expect(user['data']['list'][0], equals(1));
-    expect(user['data']['list'][1], equals(customObject.toString()));
-    expect(user['data']['list'][2], equals(3));
-    expect(user['data']['custom object'], equals(customObject.toString()));
   });
 
   testWidgets('loads debug images through loadDebugImages', (tester) async {
