@@ -413,8 +413,7 @@ JList<JObject> dartToJList(List<dynamic> values) {
 @visibleForTesting
 JMap<JString, JObject> dartToJMap(Map<String, dynamic> json) {
   final jMap = JMap.hash(JString.type, JObject.type);
-  for (final entry in json.entries) {
-    if (entry.value == null) continue;
+  for (final entry in json.entries.where((e) => e.value != null)) {
     final jk = entry.key.toJString();
     final jv = dartToJObject(entry.value);
     jMap[jk] = jv;
