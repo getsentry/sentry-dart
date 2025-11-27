@@ -29,7 +29,7 @@ void initSentryCocoa({
       hub: hub,
       owner: owner,
     ),
-    tags: _dartToNSDictionary(options.privacy.toJson()),
+    tags: dartToNSDictionary(options.privacy.toJson()),
   );
 }
 
@@ -138,8 +138,8 @@ void configureCocoaOptions({
       options.sdk.packages.map((e) => e.toJson()).toList(growable: false);
   cocoa.SentryFlutterPlugin.setBeforeSend(
     cocoaOptions,
-    packages: _dartToNSArray(packages),
-    integrations: _dartToNSArray(options.sdk.integrations),
+    packages: dartToNSArray(packages),
+    integrations: dartToNSArray(options.sdk.integrations),
   );
 }
 
@@ -176,7 +176,7 @@ cocoa.DartSentryReplayCaptureCallback createReplayCaptureCallback({
           result(null);
           return;
         }
-        final nsDict = _dartToNSDictionary(Map<String, dynamic>.from(data));
+        final nsDict = dartToNSDictionary(Map<String, dynamic>.from(data));
         result(nsDict);
       }).catchError((Object exception, StackTrace stackTrace) {
         options.log(
