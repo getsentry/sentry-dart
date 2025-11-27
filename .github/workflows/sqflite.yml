@@ -31,7 +31,7 @@ jobs:
         sdk: [stable, beta]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install libsqlite3
         if: matrix.target == 'linux'
