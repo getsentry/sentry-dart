@@ -1,1 +1,1 @@
--keep class io.sentry.samples.flutter.** { *; }
+-keep class io.sentry.flutter.sample.** { *; }

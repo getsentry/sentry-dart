@@ -208,9 +208,9 @@ java.lang.IllegalArgumentException: Unsupported value: '[Ljava.lang.StackTraceEl
 	at io.flutter.plugin.common.StandardMessageCodec.writeValue(StandardMessageCodec.java:292)
 	at io.flutter.plugin.common.StandardMethodCodec.encodeSuccessEnvelope(StandardMethodCodec.java:59)
 	at io.flutter.plugin.common.MethodChannel\$IncomingMethodCallHandler\$1.success(MethodChannel.java:267)
-	at io.sentry.samples.flutter.MainActivity.configureFlutterEngine\$lambda-0(MainActivity.kt:40)
-	at io.sentry.samples.flutter.MainActivity.lambda\$TiSaAm1LIEmKLVswI4BlR_5sw5Y(Unknown Source:0)
-	at io.sentry.samples.flutter.-\$\$Lambda\$MainActivity\$TiSaAm1LIEmKLVswI4BlR_5sw5Y.onMethodCall(Unknown Source:2)
+	at io.sentry.flutter.sample.MainActivity.configureFlutterEngine\$lambda-0(MainActivity.kt:40)
+	at io.sentry.flutter.sample.MainActivity.lambda\$TiSaAm1LIEmKLVswI4BlR_5sw5Y(Unknown Source:0)
+	at io.sentry.flutter.sample.-\$\$Lambda\$MainActivity\$TiSaAm1LIEmKLVswI4BlR_5sw5Y.onMethodCall(Unknown Source:2)
 	at io.flutter.plugin.common.MethodChannel\$IncomingMethodCallHandler.onMessage(MethodChannel.java:262)
 	at io.flutter.embedding.engine.dart.DartMessenger.invokeHandler(DartMessenger.java:296)
 	at io.flutter.embedding.engine.dart.DartMessenger.lambda\$dispatchMessageToQueue\$0\$DartMessenger(DartMessenger.java:320)
@@ -248,7 +248,7 @@ android.content.res.Resources\$NotFoundException: Unable to find resource ID #0x
 
 const platformExceptionWithEmptyStackFrames = '''
 java.lang.RuntimeException: Catch this platform exception!
-    at io.sentry.samples.flutter.MainActivity\$configureFlutterEngine\$1.onMethodCall(MainActivity.kt:40)
+    at io.sentry.flutter.sample.MainActivity\$configureFlutterEngine\$1.onMethodCall(MainActivity.kt:40)
     at io.flutter.plugin.common.MethodChannel\$IncomingMethodCallHandler.onMessage(MethodChannel.java:258)
     at io.flutter.embedding.engine.dart.DartMessenger.invokeHandler(DartMessenger.java:295)
     at io.flutter.embedding.engine.dart.DartMessenger.lambda\$dispatchMessageToQueue\$0\$io-flutter-embedding-engine-dart-DartMessenger(DartMessenger.java:322)

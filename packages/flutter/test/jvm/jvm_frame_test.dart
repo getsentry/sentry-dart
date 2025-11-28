@@ -68,14 +68,14 @@ void main() {
 
   test('parses frame with lambda and unknown source', () {
     final frame = JvmFrame.parse(
-      'at io.sentry.samples.flutter.-\$\$Lambda\$MainActivity\$TiSaAm1LIEmKLVswI4BlR_5sw5Y.onMethodCall(Unknown Source:2)',
+      'at io.sentry.flutter.sample.-\$\$Lambda\$MainActivity\$TiSaAm1LIEmKLVswI4BlR_5sw5Y.onMethodCall(Unknown Source:2)',
     );
     expect(frame.fileName, 'Unknown Source');
     expect(frame.lineNumber, 2);
     expect(frame.method, 'onMethodCall');
     expect(
       frame.className,
-      'io.sentry.samples.flutter.-\$\$Lambda\$MainActivity\$TiSaAm1LIEmKLVswI4BlR_5sw5Y',
+      'io.sentry.flutter.sample.-\$\$Lambda\$MainActivity\$TiSaAm1LIEmKLVswI4BlR_5sw5Y',
     );
     expect(frame.skippedFrames, null);
     expect(frame.isNativeMethod, false);
