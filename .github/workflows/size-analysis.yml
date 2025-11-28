@@ -16,8 +16,8 @@ env:
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
 jobs:
-  size-analysis-android:
-    name: Android Size Analysis
+  android:
+    name: Android
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -52,13 +52,23 @@ jobs:
       - name: Determine build version
         run: |
           version_line=$(grep '^version:' pubspec.yaml | awk '{print $2}')
-          build_name=${version_line%%+*}
-          build_number=${version_line##*+}
-          if [ "$build_number" = "$build_name" ]; then
+          # Remove any + suffix first (for pubspec.yaml versions like 1.2.3+4)
+          version=${version_line%%+*}
+
+          # Parse version: x.y.z-suffix.n → build_name=x.y.z-suffix, build_number=n
+          # Supports: x.y.z, x.y.z-alpha.n, x.y.z-beta.n, x.y.z-rc.n, etc.
+          if [[ $version =~ ^([0-9]+\.[0-9]+\.[0-9]+-[a-zA-Z]+)\.([0-9]+)$ ]]; then
+            build_name="${BASH_REMATCH[1]}"
+            build_number="${BASH_REMATCH[2]}"
+          elif [[ $version =~ ^([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            build_name="${BASH_REMATCH[1]}"
+            build_number=1
+          else
+            build_name="$version"
             build_number=1
           fi
-          sanitized_build_name=$(echo "$build_name" | sed 's/[^0-9.].*$//')
-          echo "SIZE_VERSION=$sanitized_build_name" >> "$GITHUB_ENV"
+
+          echo "SIZE_VERSION=$build_name" >> "$GITHUB_ENV"
           echo "SIZE_BUILD=$build_number" >> "$GITHUB_ENV"
 
       - name: Get merge base SHA
@@ -103,8 +113,8 @@ jobs:
 
           sentry-cli build upload "${UPLOAD_ARGS[@]}"
 
-  size-analysis-ios:
-    name: iOS Size Analysis
+  ios:
+    name: iOS
     runs-on: macos-15
     timeout-minutes: 45
     defaults:
@@ -134,13 +144,23 @@ jobs:
       - name: Determine build version
         run: |
           version_line=$(grep '^version:' pubspec.yaml | awk '{print $2}')
-          build_name=${version_line%%+*}
-          build_number=${version_line##*+}
-          if [ "$build_number" = "$build_name" ]; then
+          # Remove any + suffix first (for pubspec.yaml versions like 1.2.3+4)
+          version=${version_line%%+*}
+
+          # Parse version: x.y.z-suffix.n → build_name=x.y.z-suffix, build_number=n
+          # Supports: x.y.z, x.y.z-alpha.n, x.y.z-beta.n, x.y.z-rc.n, etc.
+          if [[ $version =~ ^([0-9]+\.[0-9]+\.[0-9]+-[a-zA-Z]+)\.([0-9]+)$ ]]; then
+            build_name="${BASH_REMATCH[1]}"
+            build_number="${BASH_REMATCH[2]}"
+          elif [[ $version =~ ^([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            build_name="${BASH_REMATCH[1]}"
+            build_number=1
+          else
+            build_name="$version"
             build_number=1
           fi
-          sanitized_build_name=$(echo "$build_name" | sed 's/[^0-9.].*$//')
-          echo "SIZE_VERSION=$sanitized_build_name" >> "$GITHUB_ENV"
+
+          echo "SIZE_VERSION=$build_name" >> "$GITHUB_ENV"
           echo "SIZE_BUILD=$build_number" >> "$GITHUB_ENV"
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
