@@ -43,6 +43,40 @@ class Scope {
   /// Returns active transaction or null if there is no active transaction.
   ISentrySpan? span;
 
+  final List<Span> _activeSpans = [];
+
+  /// Returns the currently active span, or `null` if no span is active.
+  ///
+  /// The active span is the most recently set span via [setActiveSpan].
+  /// When starting a new span with `active: true` (the default), the new span
+  /// becomes a child of this active span.
+  @internal
+  Span? getActiveSpan() {
+    return _activeSpans.isNotEmpty ? _activeSpans.last : null;
+  }
+
+  /// Sets the given [span] as the currently active span.
+  ///
+  /// Active spans are used to automatically parent new spans.
+  /// When a new span is started with `active: true` (the default), it becomes
+  /// a child of the currently active span.
+  ///
+  /// The active spans are maintained as a stack - the most recently set span
+  /// is the current active span.
+  @internal
+  void setActiveSpan(Span span) {
+    _activeSpans.add(span);
+  }
+
+  /// Removes the given [span] from the active spans list.
+  ///
+  /// This should be called when a span ends to remove it from the active
+  /// span hierarchy.
+  @internal
+  void removeActiveSpan(Span span) {
+    _activeSpans.remove(span);
+  }
+
   /// The propagation context for connecting errors and spans to traces.
   /// There should always be a propagation context available at all times.
   ///
