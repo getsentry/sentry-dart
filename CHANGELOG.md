@@ -1,12 +1,14 @@
 # Changelog
 
-## Unreleased
+## 9.9.0-beta.3
 
 ### Features
 
 - Add `Sentry.setAttributes` and `Sentry.removeAttribute` ([#3352](https://github.com/getsentry/sentry-dart/pull/3352))
   - These attributes are set at the scope level and apply to all logs (and later to metrics and spans).
   - When a scope attribute conflicts with a log-level attribute, the log-level attribute always takes precedence.
+- Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
+  - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
 
 ### Fixes
 
