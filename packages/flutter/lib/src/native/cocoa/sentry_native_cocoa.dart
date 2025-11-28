@@ -167,7 +167,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
       tryCatchSync('addBreadcrumb', () {
         final nativeBreadcrumb =
             cocoa.PrivateSentrySDKOnly.breadcrumbWithDictionary(
-                _dartToNSDictionary(breadcrumb.toJson()));
+                dartToNSDictionary(breadcrumb.toJson()));
         cocoa.SentrySDK.addBreadcrumb(nativeBreadcrumb);
       });
 
@@ -198,7 +198,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
         if (user == null) {
           cocoa.SentrySDK.setUser(null);
         } else {
-          final dictionary = _dartToNSDictionary(user.toJson());
+          final dictionary = dartToNSDictionary(user.toJson());
           final cUser =
               cocoa.PrivateSentrySDKOnly.userWithDictionary(dictionary);
           cocoa.SentrySDK.setUser(cUser);
@@ -212,9 +212,9 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
         final normalizedValue = normalize(value);
         dictionary = switch (normalizedValue) {
-          Map<String, dynamic> m => _dartToNSDictionary(m),
+          Map<String, dynamic> m => dartToNSDictionary(m),
           Object o => NSDictionary.fromEntries(
-              [MapEntry('value'.toNSString(), _dartToNSObject(o))]),
+              [MapEntry('value'.toNSString(), dartToNSObject(o))]),
           _ => null
         };
 
@@ -261,7 +261,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
         cocoa.SentrySDK.configureScope(
             cocoa.ObjCBlock_ffiVoid_SentryScope.fromFunction(
                 (cocoa.SentryScope scope) {
-          scope.setExtraValue(_dartToNSObject(value as Object),
+          scope.setExtraValue(dartToNSObject(value as Object),
               forKey: key.toNSString());
         }));
       });
@@ -295,53 +295,31 @@ class SentryNativeCocoa extends SentryNativeChannel {
 final ObjCObjectBase Function(Object) _defaultObjcConverter = (obj) {
   return switch (obj) {
     bool b => NSNumberCreation.numberWithBool(b),
-    _ => toObjCObject(obj)
+    _ => toObjCObject(obj.toString()),
   };
 };
 
-NSDictionary _dartToNSDictionary(Map<String, dynamic> json) {
-  return _deepConvertMapNonNull(json)
-      .toNSDictionary(convertOther: _defaultObjcConverter);
-}
-
-NSArray _dartToNSArray(List<dynamic> list) {
-  return _deepConvertListNonNull(list)
-      .toNSArray(convertOther: _defaultObjcConverter);
-}
-
-ObjCObjectBase _dartToNSObject(Object value) {
+@visibleForTesting
+ObjCObjectBase dartToNSObject(Object value) {
   return switch (value) {
-    Map<String, dynamic> m => _dartToNSDictionary(m),
-    List<dynamic> l => _dartToNSArray(l),
+    Map<String, dynamic> m => dartToNSDictionary(m),
+    List<dynamic> l => dartToNSArray(l),
     _ => toObjCObject(value, convertOther: _defaultObjcConverter)
   };
 }
 
-List<Object> _deepConvertListNonNull(List<dynamic> list) => [
-      for (final e in list)
-        if (e case Map<String, dynamic> m)
-          _deepConvertMapNonNull(m)
-        else if (e case List<dynamic> l)
-          _deepConvertListNonNull(l)
-        else if (e case Object o)
-          o,
-    ];
+@visibleForTesting
+NSDictionary dartToNSDictionary(Map<String, dynamic> json) {
+  return NSDictionary.fromEntries(
+      json.entries.where((e) => e.value != null).map((e) => MapEntry(
+            e.key.toNSString() as NSCopying,
+            dartToNSObject(e.value as Object),
+          )));
+}
 
-/// This map conversion is needed so we can use the toNSDictionary extension function
-/// provided by the objective_c package.
-Map<Object, Object> _deepConvertMapNonNull(Map<String, dynamic> input) {
-  final out = <Object, Object>{};
-
-  for (final entry in input.entries) {
-    final value = entry.value;
-    if (value == null) continue;
-
-    out[entry.key] = switch (value) {
-      Map<String, dynamic> m => _deepConvertMapNonNull(m),
-      List<dynamic> l => _deepConvertListNonNull(l),
-      _ => value as Object,
-    };
-  }
-
-  return out;
+@visibleForTesting
+NSArray dartToNSArray(List<dynamic> list) {
+  return NSArray.of(list.nonNulls.map((element) {
+    return dartToNSObject(element);
+  }));
 }

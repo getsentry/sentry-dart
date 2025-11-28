@@ -769,11 +769,20 @@ void main() {
     });
 
     // 1. Add a breadcrumb via Dart
+    final customObject = CustomObject();
     final testBreadcrumb = Breadcrumb(
-      message: 'test-breadcrumb-message',
-      category: 'test-category',
-      level: SentryLevel.info,
-    );
+        message: 'test-breadcrumb-message',
+        category: 'test-category',
+        level: SentryLevel.info,
+        data: {
+          'string': 'data',
+          'int': 12,
+          'bool': true,
+          'double': 12.34,
+          'map': {'nested': 'data', 'custom object': customObject},
+          'list': [1, customObject, 3],
+          'custom object': customObject
+        });
     await Sentry.addBreadcrumb(testBreadcrumb);
 
     // 2. Verify it appears in native via loadContexts
@@ -794,6 +803,17 @@ void main() {
     expect(testCrumb, isNotNull,
         reason: 'Test breadcrumb should exist in native breadcrumbs');
     expect(testCrumb['category'], equals('test-category'));
+    expect(testCrumb['level'], equals('info'));
+    expect(testCrumb['data'], isNotNull);
+    expect(testCrumb['data']['map'], isNotNull);
+    expect(testCrumb['data']['map']['nested'], equals('data'));
+    expect(testCrumb['data']['map']['custom object'],
+        equals(customObject.toString()));
+    expect(testCrumb['data']['list'], isNotNull);
+    expect(testCrumb['data']['list'][0], equals(1));
+    expect(testCrumb['data']['list'][1], equals(customObject.toString()));
+    expect(testCrumb['data']['list'][2], equals(3));
+    expect(testCrumb['data']['custom object'], equals(customObject.toString()));
 
     // 3. Clear breadcrumbs
     await Sentry.configureScope((scope) async {
@@ -813,10 +833,20 @@ void main() {
     });
 
     // 1. Set a user via Dart
+    final customObject = CustomObject();
     final testUser = SentryUser(
       id: 'test-user-id',
       email: 'test@example.com',
       username: 'test-username',
+      data: {
+        'string': 'data',
+        'int': 12,
+        'bool': true,
+        'double': 12.34,
+        'map': {'nested': 'data', 'custom object': customObject},
+        'list': [1, customObject, 3],
+        'custom object': customObject
+      },
     );
     await Sentry.configureScope((scope) async {
       await scope.setUser(testUser);
@@ -831,6 +861,15 @@ void main() {
     expect(user!['id'], equals('test-user-id'));
     expect(user['email'], equals('test@example.com'));
     expect(user['username'], equals('test-username'));
+    expect(user['data']['map'], isNotNull);
+    expect(user['data']['map']['nested'], equals('data'));
+    expect(
+        user['data']['map']['custom object'], equals(customObject.toString()));
+    expect(user['data']['list'], isNotNull);
+    expect(user['data']['list'][0], equals(1));
+    expect(user['data']['list'][1], equals(customObject.toString()));
+    expect(user['data']['list'][2], equals(3));
+    expect(user['data']['custom object'], equals(customObject.toString()));
 
     // 3. Clear user (after clearing the id should remain)
     await Sentry.configureScope((scope) async {
