@@ -55,9 +55,10 @@ jobs:
           # Remove any + suffix first (for pubspec.yaml versions like 1.2.3+4)
           version=${version_line%%+*}
 
-          # Parse version: x.y.z-suffix.n → build_name=x.y.z-suffix, build_number=n
+          # Parse version: x.y.z-suffix.n → build_name=x.y.z, build_number=n
           # Supports: x.y.z, x.y.z-alpha.n, x.y.z-beta.n, x.y.z-rc.n, etc.
-          if [[ $version =~ ^([0-9]+\.[0-9]+\.[0-9]+-[a-zA-Z]+)\.([0-9]+)$ ]]; then
+          # Note: build_name is x.y.z only (plist/Android compatibility)
+          if [[ $version =~ ^([0-9]+\.[0-9]+\.[0-9]+)-[a-zA-Z]+\.([0-9]+)$ ]]; then
             build_name="${BASH_REMATCH[1]}"
             build_number="${BASH_REMATCH[2]}"
           elif [[ $version =~ ^([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
@@ -147,9 +148,10 @@ jobs:
           # Remove any + suffix first (for pubspec.yaml versions like 1.2.3+4)
           version=${version_line%%+*}
 
-          # Parse version: x.y.z-suffix.n → build_name=x.y.z-suffix, build_number=n
+          # Parse version: x.y.z-suffix.n → build_name=x.y.z, build_number=n
           # Supports: x.y.z, x.y.z-alpha.n, x.y.z-beta.n, x.y.z-rc.n, etc.
-          if [[ $version =~ ^([0-9]+\.[0-9]+\.[0-9]+-[a-zA-Z]+)\.([0-9]+)$ ]]; then
+          # Note: build_name is x.y.z only (plist/Android compatibility)
+          if [[ $version =~ ^([0-9]+\.[0-9]+\.[0-9]+)-[a-zA-Z]+\.([0-9]+)$ ]]; then
             build_name="${BASH_REMATCH[1]}"
             build_number="${BASH_REMATCH[2]}"
           elif [[ $version =~ ^([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
