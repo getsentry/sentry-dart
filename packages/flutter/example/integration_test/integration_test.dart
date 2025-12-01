@@ -843,7 +843,7 @@ void main() {
         'int': 12,
         'bool': true,
         'double': 12.34,
-        'map': {'nested': 'data', 'custom object': 'customObject'},
+        'map': {'nested': 'data', 'custom object': customObject},
         'list': [1, customObject, 3],
         'custom object': customObject
       },
@@ -870,7 +870,7 @@ void main() {
       // Nested Maps and Lists are converted to Java's HashMap/ArrayList toString()
       // format (e.g., {key=value} instead of {"key":"value"}).
       expect(user['data']['map'],
-          equals('{nested=data, custom object=customObject}'));
+          equals('{nested=data, custom object=${customObject.toString()}}'));
       expect(
           user['data']['list'], equals('[1, ${customObject.toString()}, 3]'));
     } else {
