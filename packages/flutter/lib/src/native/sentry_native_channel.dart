@@ -12,7 +12,7 @@ import 'native_app_start.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
 import 'sentry_safe_method_channel.dart';
-import 'utils/data_normalizer.dart' as data_normalizer;
+import 'utils/data_normalizer.dart';
 
 /// Provide typed methods to access native layer via MethodChannel.
 @internal
@@ -163,7 +163,7 @@ class SentryNativeChannel
           username: user.username,
           email: user.email,
           ipAddress: user.ipAddress,
-          data: data_normalizer.normalizeMap(user.data),
+          data: normalizeMap(user.data),
           // ignore: deprecated_member_use
           extras: user.extras,
           geo: user.geo,
@@ -188,7 +188,7 @@ class SentryNativeChannel
       final normalizedBreadcrumb = Breadcrumb(
         message: breadcrumb.message,
         category: breadcrumb.category,
-        data: data_normalizer.normalizeMap(breadcrumb.data),
+        data: normalizeMap(breadcrumb.data),
         level: breadcrumb.level,
         type: breadcrumb.type,
         timestamp: breadcrumb.timestamp,
@@ -220,7 +220,7 @@ class SentryNativeChannel
     if (options.platform.isIOS) {
       return channel.invokeMethod(
         'setContexts',
-        {'key': key, 'value': data_normalizer.normalize(value)},
+        {'key': key, 'value': normalize(value)},
       );
     } else if (options.platform.isAndroid) {
       assert(false,

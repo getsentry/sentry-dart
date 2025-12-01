@@ -8,9 +8,11 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
+import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
+import 'package:sentry_flutter/src/native/utils/data_normalizer.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
 
 import 'mocks.dart';
@@ -37,48 +39,127 @@ void main() {
       // TODO move other methods here, e.g. init_native_sdk_test.dart
 
       test('fetchNativeAppStart', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
 
-        expect(() => sut.fetchNativeAppStart(), matcher);
+          expect(() => sut.fetchNativeAppStart(), matcher);
 
-        verifyZeroInteractions(channel);
+          verifyZeroInteractions(channel);
+        } else {
+          when(channel.invokeMethod('fetchNativeAppStart'))
+              .thenAnswer((_) async => {
+                    'pluginRegistrationTime': 1,
+                    'appStartTime': 0.1,
+                    'isColdStart': true,
+                    // ignore: inference_failure_on_collection_literal
+                    'nativeSpanTimes': {},
+                  });
+
+          final actual = await sut.fetchNativeAppStart();
+
+          expect(actual?.appStartTime, 0.1);
+          expect(actual?.isColdStart, true);
+        }
+      });
+
+      test('invalid fetchNativeAppStart returns null', () async {
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+
+          expect(() => sut.fetchNativeAppStart(), matcher);
+
+          verifyZeroInteractions(channel);
+        } else {
+          when(channel.invokeMethod('fetchNativeAppStart'))
+              .thenAnswer((_) async => {
+                    'pluginRegistrationTime': 'invalid',
+                    'appStartTime': 'invalid',
+                    'isColdStart': 'invalid',
+                    // ignore: inference_failure_on_collection_literal
+                    'nativeSpanTimes': 'invalid',
+                  });
+
+          final actual = await sut.fetchNativeAppStart();
+
+          expect(actual, isNull);
+        }
       });
 
       test('setUser', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
 
-        final user = SentryUser(
-          id: "fixture-id",
-          data: {'object': Object()},
-        );
+          final user = SentryUser(
+            id: "fixture-id",
+            data: {'object': Object()},
+          );
 
-        expect(() => sut.setUser(user), matcher);
+          expect(() => sut.setUser(user), matcher);
 
-        verifyZeroInteractions(channel);
+          verifyZeroInteractions(channel);
+        } else {
+          final user = SentryUser(
+            id: "fixture-id",
+            data: {'object': Object()},
+          );
+          final normalizedUser = SentryUser(
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            ipAddress: user.ipAddress,
+            data: normalizeMap(user.data),
+            // ignore: deprecated_member_use
+            extras: user.extras,
+            geo: user.geo,
+            name: user.name,
+            // ignore: invalid_use_of_internal_member
+            unknown: user.unknown,
+          );
+          when(channel
+                  .invokeMethod('setUser', {'user': normalizedUser.toJson()}))
+              .thenAnswer((_) => Future.value());
+
+          await sut.setUser(user);
+
+          verify(channel
+              .invokeMethod('setUser', {'user': normalizedUser.toJson()}));
+        }
       });
 
       test('addBreadcrumb', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
 
-        final breadcrumb = Breadcrumb(
-          data: {'object': Object()},
-        );
+          final breadcrumb = Breadcrumb(
+            data: {'object': Object()},
+          );
 
-        expect(() => sut.addBreadcrumb(breadcrumb), matcher);
+          expect(() => sut.addBreadcrumb(breadcrumb), matcher);
 
-        verifyZeroInteractions(channel);
+          verifyZeroInteractions(channel);
+        } else {
+          final breadcrumb = Breadcrumb(
+            data: {'object': Object()},
+          );
+          final normalizedBreadcrumb = Breadcrumb(
+            message: breadcrumb.message,
+            category: breadcrumb.category,
+            data: normalizeMap(breadcrumb.data),
+            level: breadcrumb.level,
+            type: breadcrumb.type,
+            timestamp: breadcrumb.timestamp,
+            // ignore: invalid_use_of_internal_member
+            unknown: breadcrumb.unknown,
+          );
+          when(channel.invokeMethod('addBreadcrumb', {
+            'breadcrumb': normalizedBreadcrumb.toJson()
+          })).thenAnswer((_) => Future.value());
+
+          await sut.addBreadcrumb(breadcrumb);
+
+          verify(channel.invokeMethod(
+              'addBreadcrumb', {'breadcrumb': normalizedBreadcrumb.toJson()}));
+        }
       });
 
       test('clearBreadcrumbs', () async {
@@ -357,56 +438,15 @@ void main() {
   }
 }
 
-/// Returns a matcher for the platform-specific failures we expect when native
-/// FFI/ObjC code is unavailable in unit tests.
-/// We will need this until we can mock FFI/JNI code in unit tests.
+/// Returns a matcher for the android-specific failures we expect when native
+/// JNI code is unavailable in unit tests.
 /// The actual functionality is tested via integration tests.
 /// https://github.com/dart-lang/native/issues/1877
-Matcher _nativeUnavailableMatcher(
-  MockPlatform mockPlatform, {
-  bool androidUnsupported = false,
-  bool includeLookupSymbol = false,
-  bool includeFailedToLoadClassException = false,
-}) {
-  if (mockPlatform.isAndroid) {
-    if (androidUnsupported) {
-      return throwsUnsupportedError;
-    }
-    return throwsA(predicate((e) =>
-        e is Error &&
-        e.toString().contains('Unable to locate the helper library')));
+Matcher _nativeUnavailableMatcher({bool throwUnsupported = false}) {
+  if (throwUnsupported) {
+    return throwsUnsupportedError;
   }
-
-  // iOS and macOS
-  return throwsA(predicate((e) {
-    final message = e.toString();
-    final isArgError = e is ArgumentError;
-    final isException = e is Exception;
-
-    final hasObjcLoadFail =
-        isException && message.contains('Failed to load Objective-C class');
-    final hasCustomLoadFail = isException &&
-        includeFailedToLoadClassException &&
-        message.contains('FailedToLoadClassException');
-
-    if (mockPlatform.isMacOS) {
-      final hasArgFn =
-          isArgError && message.contains('Couldn\'t resolve native function');
-      return hasObjcLoadFail || hasCustomLoadFail || hasArgFn;
-    } else {
-      // iOS
-      final hasUndefinedSymbol =
-          isArgError && message.contains('undefined symbol: objc_msgSend');
-      final hasCouldNotResolve =
-          isArgError && message.contains('Couldn\'t resolve native function');
-      final hasFailedLookup = isArgError &&
-          includeLookupSymbol &&
-          message.contains('Failed to lookup symbol');
-      return hasObjcLoadFail ||
-          hasCustomLoadFail ||
-          hasUndefinedSymbol ||
-          hasCouldNotResolve ||
-          hasFailedLookup;
-    }
-  }));
+  return throwsA(predicate((e) =>
+      e is Error &&
+      e.toString().contains('Unable to locate the helper library')));
 }
