@@ -843,7 +843,7 @@ void main() {
         'int': 12,
         'bool': true,
         'double': 12.34,
-        'map': {'nested': 'data', 'custom object': customObject},
+        'map': {'nested': 'data', 'custom object': 'customObject'},
         'list': [1, customObject, 3],
         'custom object': customObject
       },
@@ -862,14 +862,25 @@ void main() {
     expect(user['email'], equals('test@example.com'));
     expect(user['username'], equals('test-username'));
     expect(user['data']['map'], isNotNull);
-    expect(user['data']['map']['nested'], equals('data'));
-    expect(
-        user['data']['map']['custom object'], equals(customObject.toString()));
     expect(user['data']['list'], isNotNull);
-    expect(user['data']['list'][0], equals(1));
-    expect(user['data']['list'][1], equals(customObject.toString()));
-    expect(user['data']['list'][2], equals(3));
     expect(user['data']['custom object'], equals(customObject.toString()));
+
+    if (Platform.isAndroid) {
+      // On Android, the Java SDK's User.data field only supports Map<String, String>.
+      // Nested Maps and Lists are converted to Java's HashMap/ArrayList toString()
+      // format (e.g., {key=value} instead of {"key":"value"}).
+      expect(user['data']['map'],
+          equals('{nested=data, custom object=customObject}'));
+      expect(
+          user['data']['list'], equals('[1, ${customObject.toString()}, 3]'));
+    } else {
+      expect(user['data']['map']['nested'], equals('data'));
+      expect(user['data']['map']['custom object'],
+          equals(customObject.toString()));
+      expect(user['data']['list'][0], equals(1));
+      expect(user['data']['list'][1], equals(customObject.toString()));
+      expect(user['data']['list'][2], equals(3));
+    }
 
     // 3. Clear user (after clearing the id should remain)
     await Sentry.configureScope((scope) async {
