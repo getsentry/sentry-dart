@@ -233,6 +233,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void setContexts(String key, value) => tryCatchSync('setContexts', () {
+        if (value == null) return;
         native.Sentry.configureScope(
           native.ScopeCallback.implement(
             native.$ScopeCallback(

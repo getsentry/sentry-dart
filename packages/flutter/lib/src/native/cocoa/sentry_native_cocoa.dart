@@ -208,6 +208,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   void setContexts(String key, dynamic value) =>
       tryCatchSync('setContexts', () {
+        if (value == null) return;
+
         NSDictionary? dictionary;
 
         final normalizedValue = normalize(value);
