@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Dart to native type conversion ([#3372](https://github.com/getsentry/sentry-dart/pull/3372))
+
 ## 9.9.0-beta.3
 
 ### Features
