@@ -19,7 +19,9 @@ void main() {
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
 
       span.end();
-      // TODO: verify span is finished once SimpleSpan implements it
+
+      expect(span.endTimestamp, isNotNull);
+      expect(span.isFinished, isTrue);
     });
 
     test('end sets current time by default', () {

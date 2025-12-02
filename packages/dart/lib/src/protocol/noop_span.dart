@@ -35,4 +35,7 @@ class NoOpSpan implements Span {
 
   @override
   DateTime? get endTimestamp => null;
+
+  @override
+  bool get isFinished => false;
 }

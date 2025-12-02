@@ -431,6 +431,7 @@ void main() {
     expect(sut.eventProcessors.length, 0);
     expect(sut.replayId, isNull);
     expect(sut.attributes, isEmpty);
+    expect(sut.activeSpans, isEmpty);
   });
 
   test('clones', () async {

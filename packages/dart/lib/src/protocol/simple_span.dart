@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 import '../../sentry.dart';
 
 class SimpleSpan implements Span {
@@ -12,6 +10,7 @@ class SimpleSpan implements Span {
   String _name;
   SpanV2Status _status = SpanV2Status.ok;
   DateTime? _endTimestamp;
+  bool _isFinished = false;
 
   SimpleSpan({
     required String name,
@@ -46,6 +45,7 @@ class SimpleSpan implements Span {
   void end({DateTime? endTimestamp}) {
     _endTimestamp = endTimestamp ?? DateTime.now().toUtc();
     hub.captureSpan(this);
+    _isFinished = true;
   }
 
   @override
@@ -57,6 +57,9 @@ class SimpleSpan implements Span {
   void setAttributes(Map<String, SentryAttribute> attributes) {
     _attributes.addAll(attributes);
   }
+
+  @override
+  bool get isFinished => _isFinished;
 
   @override
   Map<String, dynamic> toJson() {

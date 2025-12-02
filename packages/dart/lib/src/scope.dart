@@ -43,6 +43,8 @@ class Scope {
   /// Returns active transaction or null if there is no active transaction.
   ISentrySpan? span;
 
+  /// List of active spans.
+  /// The last span in the list is the current active span.
   final List<Span> _activeSpans = [];
 
   @visibleForTesting
@@ -307,6 +309,7 @@ class Scope {
     _replayId = null;
     propagationContext = PropagationContext();
     _attributes.clear();
+    _activeSpans.clear();
 
     _clearBreadcrumbsSync();
     _setUserSync(null);
@@ -512,6 +515,10 @@ class Scope {
 
     if (_attributes.isNotEmpty) {
       clone.setAttributes(Map.from(_attributes));
+    }
+
+    if (_activeSpans.isNotEmpty) {
+      clone._activeSpans.addAll(_activeSpans);
     }
 
     return clone;

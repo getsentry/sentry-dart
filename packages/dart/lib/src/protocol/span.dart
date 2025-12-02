@@ -50,5 +50,8 @@ abstract class Span {
   void setAttributes(Map<String, SentryAttribute> attributes);
 
   @internal
+  bool get isFinished;
+
+  @internal
   Map<String, dynamic> toJson();
 }

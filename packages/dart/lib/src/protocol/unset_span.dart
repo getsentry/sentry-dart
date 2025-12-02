@@ -54,4 +54,7 @@ class UnsetSpan extends Span {
 
   @override
   DateTime? get endTimestamp => throw UnimplementedError();
+
+  @override
+  bool get isFinished => throw UnimplementedError();
 }
