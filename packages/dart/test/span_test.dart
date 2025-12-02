@@ -71,7 +71,7 @@ void main() {
       final span = SimpleSpan(name: 'initial-name', parentSpan: null, hub: hub);
 
       span.name = 'updated-name';
-      expect(span.status, equals('updated-name'));
+      expect(span.name, equals('updated-name'));
     });
 
     test('can set span status', () {
