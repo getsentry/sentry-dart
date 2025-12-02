@@ -28,11 +28,17 @@ void main() {
       final hub = fixture.getSut();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
 
+      final before = DateTime.now().toUtc();
       span.end();
+      final after = DateTime.now().toUtc();
 
-      final now = DateTime.now();
-      expect(span.endTimestamp?.microsecondsSinceEpoch,
-          lessThan(now.microsecondsSinceEpoch));
+      expect(span.endTimestamp, isNotNull);
+      expect(span.endTimestamp!.isAfter(before) || span.endTimestamp == before,
+          isTrue,
+          reason: 'endTimestamp should be >= time before end() was called');
+      expect(span.endTimestamp!.isBefore(after) || span.endTimestamp == after,
+          isTrue,
+          reason: 'endTimestamp should be <= time after end() was called');
     });
 
     test('end with custom timestamp sets end time', () {
