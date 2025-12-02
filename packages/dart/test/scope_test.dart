@@ -2,6 +2,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/protocol/simple_span.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
@@ -350,6 +351,46 @@ void main() {
     sut.removeExtra('test');
 
     expect(sut.extra['test'], null);
+  });
+
+  test('setActiveSpan adds span to active span list', () {
+    final sut = fixture.getSut();
+
+    final span = SimpleSpan(parentSpan: null);
+    final span2 = SimpleSpan(parentSpan: null);
+    sut.setActiveSpan(span);
+    sut.setActiveSpan(span2);
+
+    expect(sut.activeSpans.length, 2);
+    expect(sut.activeSpans.last, span2);
+  });
+
+  test('getActiveSpan returns the last active span in the list', () {
+    final sut = fixture.getSut();
+
+    final span = SimpleSpan(parentSpan: null);
+    final span2 = SimpleSpan(parentSpan: null);
+    sut.setActiveSpan(span);
+    sut.setActiveSpan(span2);
+
+    final activeSpan = sut.getActiveSpan();
+    expect(activeSpan, span2);
+  });
+
+  test(
+      'removeActiveSpan removes the active span in the list regardless of order',
+      () {
+    final sut = fixture.getSut();
+
+    final span = SimpleSpan(parentSpan: null);
+    final span2 = SimpleSpan(parentSpan: null);
+    sut.setActiveSpan(span);
+    sut.setActiveSpan(span2);
+
+    sut.removeActiveSpan(span);
+
+    expect(sut.activeSpans.length, 1);
+    expect(sut.activeSpans.first, span2);
   });
 
   test('clears $Scope', () {

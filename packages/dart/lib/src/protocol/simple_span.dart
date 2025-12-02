@@ -4,7 +4,7 @@ class SimpleSpan implements Span {
   final Hub hub;
   final Span? parentSpan;
 
-  SimpleSpan({required this.parentSpan, required this.hub});
+  SimpleSpan({required this.parentSpan, Hub? hub}) : hub = hub ?? HubAdapter();
 
   @override
   void end({DateTime? endTimestamp}) {

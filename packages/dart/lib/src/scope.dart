@@ -45,6 +45,9 @@ class Scope {
 
   final List<Span> _activeSpans = [];
 
+  @visibleForTesting
+  List<Span> get activeSpans => List.unmodifiable(_activeSpans);
+
   /// Returns the currently active span, or `null` if no span is active.
   ///
   /// The active span is the most recently set span via [setActiveSpan].
