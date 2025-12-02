@@ -3,7 +3,6 @@ import 'package:sentry/src/protocol/noop_span.dart';
 import 'package:sentry/src/protocol/simple_span.dart';
 import 'package:test/test.dart';
 
-import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_sentry_client.dart';
 import 'test_utils.dart';
 
@@ -128,7 +127,6 @@ void main() {
 
 class Fixture {
   final client = MockSentryClient();
-  final recorder = MockClientReportRecorder();
 
   final options = defaultTestOptions();
 
@@ -136,12 +134,7 @@ class Fixture {
     double? tracesSampleRate = 1.0,
   }) {
     options.tracesSampleRate = tracesSampleRate;
-
-    final hub = Hub(options);
-
-    hub.bindClient(client);
-    options.recorder = recorder;
-
+    final hub = Hub(options)..bindClient(client);
     return hub;
   }
 }
