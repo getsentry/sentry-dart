@@ -43,6 +43,17 @@ void main() {
       expect(span.endTimestamp, equals(endTime));
     });
 
+    test('end removes active span from scope', () {
+      final hub = fixture.getSut();
+      final span = hub.startSpan('test-span');
+      expect(hub.scope.activeSpans.length, 1);
+      expect(hub.scope.activeSpans.first, equals(span));
+
+      span.end();
+
+      expect(hub.scope.activeSpans, isEmpty);
+    });
+
     test('setAttribute sets single attribute', () {
       final hub = fixture.getSut();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);

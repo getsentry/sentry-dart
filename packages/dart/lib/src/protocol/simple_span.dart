@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../../sentry.dart';
 
 class SimpleSpan implements Span {
@@ -43,7 +45,7 @@ class SimpleSpan implements Span {
   @override
   void end({DateTime? endTimestamp}) {
     _endTimestamp = endTimestamp ?? DateTime.now().toUtc();
-    // TODO: add this span to buffer through hub.captureSpan
+    hub.captureSpan(this);
   }
 
   @override

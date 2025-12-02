@@ -122,6 +122,10 @@ void main() {
 
           expect(rootSpan.parentSpan, isNull);
         });
+
+        test('should not allow finished span to be use as parent', () {
+          // TODO: this test case needs more clarification
+        });
       });
     });
 

@@ -631,7 +631,7 @@ class Hub {
 
     scope.removeActiveSpan(span);
 
-    // TODO: implement span buffer and add the span to the buffer
+    // TODO: run this span through span specific pipeline and then forward to span buffer
   }
 
   @internal

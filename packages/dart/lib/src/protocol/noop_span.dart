@@ -13,7 +13,7 @@ class NoOpSpan implements Span {
   void end({DateTime? endTimestamp}) {}
 
   @override
-  Span? get parentSpan => NoOpSpan();
+  Span? get parentSpan => null;
 
   @override
   void setAttribute(String key, SentryAttribute value) {}
