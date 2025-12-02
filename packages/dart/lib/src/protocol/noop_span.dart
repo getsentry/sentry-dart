@@ -4,13 +4,16 @@ class NoOpSpan implements Span {
   const NoOpSpan();
 
   @override
-  String get name => '';
+  final String name = 'NoOpSpan';
 
   @override
-  Span? get parentSpan => null;
+  final SpanV2Status status = SpanV2Status.ok;
 
   @override
   void end({DateTime? endTimestamp}) {}
+
+  @override
+  Span? get parentSpan => NoOpSpan();
 
   @override
   void setAttribute(String key, SentryAttribute value) {}
@@ -19,11 +22,17 @@ class NoOpSpan implements Span {
   void setAttributes(Map<String, SentryAttribute> attributes) {}
 
   @override
-  void setName(String name) {}
-
-  @override
-  void setStatus(SpanV2Status status) {}
-
-  @override
   Map<String, dynamic> toJson() => {};
+
+  @override
+  set name(String name) {}
+
+  @override
+  set status(SpanV2Status status) {}
+
+  @override
+  Map<String, SentryAttribute> get attributes => {};
+
+  @override
+  DateTime? get endTimestamp => null;
 }

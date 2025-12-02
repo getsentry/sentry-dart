@@ -19,9 +19,19 @@ void main() {
       final hub = fixture.getSut();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
 
-      // Should not throw
       span.end();
       // TODO: verify span is finished once SimpleSpan implements it
+    });
+
+    test('end sets current time by default', () {
+      final hub = fixture.getSut();
+      final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+
+      span.end();
+
+      final now = DateTime.now();
+      expect(span.endTimestamp?.microsecondsSinceEpoch,
+          lessThan(now.microsecondsSinceEpoch));
     });
 
     test('end with custom timestamp sets end time', () {
@@ -30,50 +40,50 @@ void main() {
       final endTime = DateTime.now().add(Duration(seconds: 5));
 
       span.end(endTimestamp: endTime);
-      // TODO: verify end timestamp once SimpleSpan implements it
+
+      expect(span.endTimestamp, equals(endTime));
     });
 
     test('setAttribute sets single attribute', () {
       final hub = fixture.getSut();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
 
-      span.setAttribute('key', SentryAttribute.string('value'));
-      // TODO: verify attribute once SimpleSpan implements it
+      final attributeValue = SentryAttribute.string('value');
+      span.setAttribute('key', attributeValue);
+
+      expect(span.attributes, equals({'key': attributeValue}));
     });
 
     test('setAttributes sets multiple attributes', () {
       final hub = fixture.getSut();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
 
-      span.setAttributes({
+      final attributes = {
         'key1': SentryAttribute.string('value1'),
         'key2': SentryAttribute.int(42),
-      });
-      // TODO: verify attributes once SimpleSpan implements it
+      };
+      span.setAttributes(attributes);
+
+      expect(span.attributes, equals(attributes));
     });
 
     test('setName sets span name', () {
       final hub = fixture.getSut();
       final span = SimpleSpan(name: 'initial-name', parentSpan: null, hub: hub);
 
-      span.setName('updated-name');
-      // TODO: verify name once SimpleSpan implements it
+      span.name = 'updated-name';
+      expect(span.status, equals('updated-name'));
     });
 
-    test('setStatus sets span status to ok', () {
+    test('can set span status', () {
       final hub = fixture.getSut();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
 
-      span.setStatus(SpanV2Status.ok);
-      // TODO: verify status once SimpleSpan implements it
-    });
+      span.status = SpanV2Status.ok;
+      expect(span.status, equals(SpanV2Status.ok));
 
-    test('setStatus sets span status to error', () {
-      final hub = fixture.getSut();
-      final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
-
-      span.setStatus(SpanV2Status.error);
-      // TODO: verify status once SimpleSpan implements it
+      span.status = SpanV2Status.error;
+      expect(span.status, equals(SpanV2Status.error));
     });
 
     test('parentSpan returns the parent span', () {
@@ -108,9 +118,9 @@ void main() {
       span.end(endTimestamp: DateTime.now());
       span.setAttribute('key', SentryAttribute.string('value'));
       span.setAttributes({'key': SentryAttribute.string('value')});
-      span.setName('name');
-      span.setStatus(SpanV2Status.ok);
-      span.setStatus(SpanV2Status.error);
+      span.name = 'name';
+      span.status = SpanV2Status.ok;
+      span.status = SpanV2Status.error;
       expect(span.toJson(), isEmpty);
     });
   });
@@ -135,4 +145,3 @@ class Fixture {
     return hub;
   }
 }
-

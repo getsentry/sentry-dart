@@ -32,17 +32,26 @@ class UnsetSpan extends Span {
   }
 
   @override
-  void setName(String name) {
-    throw UnimplementedError('$UnsetSpan methods should not be used');
-  }
-
-  @override
-  void setStatus(SpanV2Status status) {
-    throw UnimplementedError('$UnsetSpan methods should not be used');
-  }
-
-  @override
   Map<String, dynamic> toJson() {
     throw UnimplementedError('$UnsetSpan methods should not be used');
   }
+
+  @override
+  set name(String name) {
+    throw UnimplementedError();
+  }
+
+  @override
+  set status(SpanV2Status status) {
+    throw UnimplementedError();
+  }
+
+  @override
+  SpanV2Status get status => throw UnimplementedError();
+
+  @override
+  Map<String, SentryAttribute> get attributes => throw UnimplementedError();
+
+  @override
+  DateTime? get endTimestamp => throw UnimplementedError();
 }

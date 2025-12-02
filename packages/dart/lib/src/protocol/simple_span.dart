@@ -2,39 +2,58 @@ import '../../sentry.dart';
 
 class SimpleSpan implements Span {
   final Hub hub;
+  final Map<String, SentryAttribute> _attributes = {};
 
   @override
   final Span? parentSpan;
 
-  @override
-  final String name;
+  String _name;
+  SpanV2Status _status = SpanV2Status.ok;
+  DateTime? _endTimestamp;
 
-  SimpleSpan({required this.name, required this.parentSpan, Hub? hub})
-      : hub = hub ?? HubAdapter();
+  SimpleSpan({
+    required String name,
+    this.parentSpan,
+    Hub? hub,
+  })  : hub = hub ?? HubAdapter(),
+        _name = name;
+
+  @override
+  DateTime? get endTimestamp => _endTimestamp;
+
+  @override
+  Map<String, SentryAttribute> get attributes => Map.unmodifiable(_attributes);
+
+  @override
+  String get name => _name;
+
+  @override
+  set name(String value) {
+    _name = value;
+  }
+
+  @override
+  SpanV2Status get status => _status;
+
+  @override
+  set status(SpanV2Status value) {
+    _status = value;
+  }
 
   @override
   void end({DateTime? endTimestamp}) {
-    // TODO: implement end
+    _endTimestamp = endTimestamp ?? DateTime.now().toUtc();
+    // TODO: add this span to buffer through hub.captureSpan
   }
 
   @override
   void setAttribute(String key, SentryAttribute value) {
-    // TODO: implement setAttribute
+    _attributes[key] = value;
   }
 
   @override
   void setAttributes(Map<String, SentryAttribute> attributes) {
-    // TODO: implement setAttributes
-  }
-
-  @override
-  void setName(String name) {
-    // TODO: implement setName
-  }
-
-  @override
-  void setStatus(SpanV2Status status) {
-    // TODO: implement setStatus
+    _attributes.addAll(attributes);
   }
 
   @override
