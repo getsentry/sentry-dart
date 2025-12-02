@@ -199,6 +199,26 @@ void main() {
           expect(hub.scope.activeSpans, isEmpty);
         });
 
+        test(
+            'new span parents to active root span when multiple root spans exist',
+            () {
+          final hub = fixture.getSut();
+
+          final activeRoot =
+              hub.startSpan('active-root', parentSpan: null, active: true);
+          final inactiveRoot =
+              hub.startSpan('inactive-root', parentSpan: null, active: false);
+
+          final childToActiveSpan = hub.startSpan('child');
+          expect(childToActiveSpan.parentSpan, equals(activeRoot));
+          expect(childToActiveSpan.parentSpan, isNot(equals(inactiveRoot)));
+
+          final childToInactiveSpan =
+              hub.startSpan('child', parentSpan: inactiveRoot);
+          expect(childToInactiveSpan.parentSpan, equals(inactiveRoot));
+          expect(childToInactiveSpan.parentSpan, isNot(equals(activeRoot)));
+        });
+
         test('deep hierarchy maintains correct parent chain', () {
           final hub = fixture.getSut();
 
