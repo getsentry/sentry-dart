@@ -12,6 +12,7 @@ import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 import 'protocol/noop_span.dart';
 import 'protocol/simple_span.dart';
+import 'span_buffer.dart';
 import 'transport/data_category.dart';
 
 /// Configures the scope through the callback.
@@ -617,6 +618,8 @@ class Hub {
     return span;
   }
 
+  late final _spanBuffer = InMemorySpanBuffer(_options);
+
   void captureSpan(Span span) {
     if (!_isEnabled) {
       _options.log(
@@ -628,6 +631,7 @@ class Hub {
 
     scope.removeActiveSpan(span);
 
+    _spanBuffer.add(span);
     // TODO: run this span through span specific pipeline and then forward to span buffer
   }
 

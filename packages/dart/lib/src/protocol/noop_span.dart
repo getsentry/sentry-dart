@@ -38,4 +38,10 @@ class NoOpSpan implements Span {
 
   @override
   bool get isFinished => false;
+
+  @override
+  SpanId? get parentSpanId => null;
+
+  @override
+  SpanId get spanId => SpanId.empty();
 }

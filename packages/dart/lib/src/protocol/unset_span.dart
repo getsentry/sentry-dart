@@ -57,4 +57,10 @@ class UnsetSpan extends Span {
 
   @override
   bool get isFinished => throw UnimplementedError();
+
+  @override
+  SpanId? get parentSpanId => throw UnimplementedError();
+
+  @override
+  SpanId get spanId => throw UnimplementedError();
 }
