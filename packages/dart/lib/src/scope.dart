@@ -63,9 +63,6 @@ class Scope {
   /// Active spans are used to automatically parent new spans.
   /// When a new span is started with `active: true` (the default), it becomes
   /// a child of the currently active span.
-  ///
-  /// The active spans are maintained as a stack - the most recently set span
-  /// is the current active span.
   @internal
   void setActiveSpan(Span span) {
     _activeSpans.add(span);
