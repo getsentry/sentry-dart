@@ -71,7 +71,7 @@ class Scope {
   /// Removes the given [span] from the active spans list.
   ///
   /// This should be called when a span ends to remove it from the active
-  /// span hierarchy.
+  /// span list.
   @internal
   void removeActiveSpan(Span span) {
     _activeSpans.remove(span);
