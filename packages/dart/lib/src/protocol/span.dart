@@ -7,6 +7,13 @@ abstract class Span {
   @internal
   const Span();
 
+  /// Gets the name of the span.
+  String get name;
+
+  /// Gets the parentSpan.
+  /// If null this span has no parent.
+  Span? get parentSpan;
+
   /// Ends the span.
   ///
   /// [endTimestamp] can be used to override the end time.

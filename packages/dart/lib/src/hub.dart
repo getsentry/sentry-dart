@@ -608,9 +608,8 @@ class Hub {
       resolvedParentSpan = parentSpan;
     }
 
-    final span = SimpleSpan(parentSpan: resolvedParentSpan, hub: this);
-
-    span.setName(name);
+    final span =
+        SimpleSpan(name: name, parentSpan: resolvedParentSpan, hub: this);
     if (attributes != null) {
       span.setAttributes(attributes);
     }

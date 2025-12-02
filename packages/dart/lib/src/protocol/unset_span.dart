@@ -9,6 +9,14 @@ class UnsetSpan extends Span {
   const UnsetSpan();
 
   @override
+  String get name =>
+      throw UnimplementedError('$UnsetSpan methods should not be used');
+
+  @override
+  Span? get parentSpan =>
+      throw UnimplementedError('$UnsetSpan methods should not be used');
+
+  @override
   void end({DateTime? endTimestamp}) {
     throw UnimplementedError('$UnsetSpan methods should not be used');
   }

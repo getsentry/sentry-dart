@@ -356,8 +356,8 @@ void main() {
   test('setActiveSpan adds span to active span list', () {
     final sut = fixture.getSut();
 
-    final span = SimpleSpan(parentSpan: null);
-    final span2 = SimpleSpan(parentSpan: null);
+    final span = SimpleSpan(name: 'span1', parentSpan: null);
+    final span2 = SimpleSpan(name: 'span2', parentSpan: null);
     sut.setActiveSpan(span);
     sut.setActiveSpan(span2);
 
@@ -368,8 +368,8 @@ void main() {
   test('getActiveSpan returns the last active span in the list', () {
     final sut = fixture.getSut();
 
-    final span = SimpleSpan(parentSpan: null);
-    final span2 = SimpleSpan(parentSpan: null);
+    final span = SimpleSpan(name: 'span1', parentSpan: null);
+    final span2 = SimpleSpan(name: 'span2', parentSpan: null);
     sut.setActiveSpan(span);
     sut.setActiveSpan(span2);
 
@@ -382,8 +382,8 @@ void main() {
       () {
     final sut = fixture.getSut();
 
-    final span = SimpleSpan(parentSpan: null);
-    final span2 = SimpleSpan(parentSpan: null);
+    final span = SimpleSpan(name: 'span1', parentSpan: null);
+    final span2 = SimpleSpan(name: 'span2', parentSpan: null);
     sut.setActiveSpan(span);
     sut.setActiveSpan(span2);
 

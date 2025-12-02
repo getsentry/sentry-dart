@@ -2,9 +2,15 @@ import '../../sentry.dart';
 
 class SimpleSpan implements Span {
   final Hub hub;
+
+  @override
   final Span? parentSpan;
 
-  SimpleSpan({required this.parentSpan, Hub? hub}) : hub = hub ?? HubAdapter();
+  @override
+  final String name;
+
+  SimpleSpan({required this.name, required this.parentSpan, Hub? hub})
+      : hub = hub ?? HubAdapter();
 
   @override
   void end({DateTime? endTimestamp}) {

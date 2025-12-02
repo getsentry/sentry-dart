@@ -4,6 +4,12 @@ class NoOpSpan implements Span {
   const NoOpSpan();
 
   @override
+  String get name => '';
+
+  @override
+  Span? get parentSpan => null;
+
+  @override
   void end({DateTime? endTimestamp}) {}
 
   @override
