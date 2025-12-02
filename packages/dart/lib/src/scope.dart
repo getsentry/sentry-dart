@@ -55,7 +55,7 @@ class Scope {
   /// becomes a child of this active span.
   @internal
   Span? getActiveSpan() {
-    return _activeSpans.isNotEmpty ? _activeSpans.last : null;
+    return _activeSpans.lastOrNull;
   }
 
   /// Sets the given [span] as the currently active span.
