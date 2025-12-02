@@ -15,7 +15,7 @@ abstract class Span {
   /// Sets the name of the span.
   set name(String name);
 
-  /// Gets the parentSpan.
+  /// Gets the parent span.
   /// If null this span has no parent.
   Span? get parentSpan;
 
