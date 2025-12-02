@@ -598,13 +598,10 @@ class Hub {
     // - If parentSpan is UnsetSpan (default), use the currently active span
     // - If parentSpan is a specific Span, use that as the parent
     // - If parentSpan is null, create a root/segment span (no parent)
-    // ignore: unused_local_variable
     final Span? resolvedParentSpan;
     if (parentSpan is UnsetSpan) {
-      // Use the currently active span from scope as parent
       resolvedParentSpan = scope.getActiveSpan();
     } else {
-      // Use the explicitly provided parent (can be null for root/segment span)
       resolvedParentSpan = parentSpan;
     }
 

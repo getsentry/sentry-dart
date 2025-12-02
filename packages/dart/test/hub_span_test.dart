@@ -127,6 +127,93 @@ void main() {
           // TODO: this test case needs more clarification
         });
       });
+
+      group('span hierarchy', () {
+        test('builds 3-level hierarchy with automatic parenting', () {
+          final hub = fixture.getSut();
+
+          final grandparent = hub.startSpan('grandparent');
+          final parent = hub.startSpan('parent');
+          final child = hub.startSpan('child');
+
+          expect(grandparent.parentSpan, isNull);
+          expect(parent.parentSpan, equals(grandparent));
+          expect(child.parentSpan, equals(parent));
+        });
+
+        test('ending middle span allows new span to parent to grandparent', () {
+          final hub = fixture.getSut();
+
+          final grandparent = hub.startSpan('grandparent');
+          final parent = hub.startSpan('parent');
+          parent.end();
+
+          final sibling = hub.startSpan('sibling');
+
+          expect(sibling.parentSpan, equals(grandparent));
+        });
+
+        test('sibling spans share same parent when created as inactive', () {
+          final hub = fixture.getSut();
+
+          final parent = hub.startSpan('parent');
+          final child1 = hub.startSpan('child1', active: false);
+          final child2 = hub.startSpan('child2', active: false);
+
+          expect(child1.parentSpan, equals(parent));
+          expect(child2.parentSpan, equals(parent));
+        });
+
+        test('ending spans in reverse order cleans up active spans correctly',
+            () {
+          final hub = fixture.getSut();
+
+          final span1 = hub.startSpan('span1');
+          final span2 = hub.startSpan('span2');
+          final span3 = hub.startSpan('span3');
+
+          expect(hub.scope.activeSpans.length, 3);
+
+          span3.end();
+          expect(hub.scope.activeSpans.length, 2);
+          expect(hub.scope.getActiveSpan(), equals(span2));
+
+          span2.end();
+          expect(hub.scope.getActiveSpan(), equals(span1));
+
+          span1.end();
+          expect(hub.scope.getActiveSpan(), isNull);
+        });
+
+        test('ending spans out of order removes them from active spans', () {
+          final hub = fixture.getSut();
+
+          final parent = hub.startSpan('parent');
+          final child = hub.startSpan('child');
+
+          parent.end();
+          expect(hub.scope.activeSpans, contains(child));
+          expect(hub.scope.activeSpans, isNot(contains(parent)));
+
+          child.end();
+          expect(hub.scope.activeSpans, isEmpty);
+        });
+
+        test('deep hierarchy maintains correct parent chain', () {
+          final hub = fixture.getSut();
+
+          final spans = <Span>[];
+          for (var i = 0; i < 5; i++) {
+            spans.add(hub.startSpan('span-$i'));
+          }
+
+          // Verify chain: span0 <- span1 <- span2 <- span3 <- span4
+          expect(spans[0].parentSpan, isNull);
+          for (var i = 1; i < spans.length; i++) {
+            expect(spans[i].parentSpan, equals(spans[i - 1]));
+          }
+        });
+      });
     });
 
     group('captureSpan', () {
