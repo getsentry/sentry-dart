@@ -52,6 +52,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
     return super.init(hub);
   }
 
+  static String logMessage = '';
+
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
@@ -60,11 +62,14 @@ class SentryNativeCocoa extends SentryNativeChannel {
       final envelope = cocoa.PrivateSentrySDKOnly.envelopeWithData(nsData);
       if (envelope != null) {
         cocoa.PrivateSentrySDKOnly.captureEnvelope(envelope);
+        logMessage = 'success';
       } else {
+        logMessage = 'failed, env null';
         options.log(
             SentryLevel.error, 'Failed to capture envelope: envelope is null');
       }
     } catch (exception, stackTrace) {
+      logMessage = 'failed execption: ${exception.toString()}';
       options.log(SentryLevel.error, 'Failed to capture envelope',
           exception: exception, stackTrace: stackTrace);
 
@@ -147,7 +152,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
           final sentryId$1 = cocoa.SentryId$1.alloc()
               .initWithUUIDString(NSString(traceId.toString()));
 
-          final sentryId = cocoa.SentryId.castFromPointer(
+          final sentryId = cocoa.SentryId.fromPointer(
             sentryId$1.ref.pointer,
             retain: true,
             release: true,
