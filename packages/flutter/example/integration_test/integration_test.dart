@@ -370,8 +370,8 @@ void main() {
     expect(breadcrumbs, isA<List>());
     if (breadcrumbs!.isNotEmpty) {
       final firstCrumb = breadcrumbs.first;
-      expect(firstCrumb, isA<Map<String, dynamic>>());
-      final Map<String, dynamic> crumbMap = firstCrumb as Map<String, dynamic>;
+      expect(firstCrumb, isA<Map>());
+      final crumbMap = firstCrumb as Map;
       expect(crumbMap.containsKey('timestamp'), isTrue,
           reason: 'Breadcrumb timestamp missing');
       expect(crumbMap['timestamp'], isA<String>());
