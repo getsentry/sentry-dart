@@ -94,11 +94,6 @@ class SentryNativeChannel
 
   @override
   FutureOr<void> close() {
-    if (options.platform.isAndroid) {
-      assert(false,
-          'close should not be used through method channels on Android.');
-      return null;
-    }
     return channel.invokeMethod('closeNativeSdk');
   }
 
