@@ -1,72 +1,20 @@
 name: SentryCocoa
 description: Sentry Cocoa SDK FFI binding.
 language: objc
-
-output:
-  bindings: lib/src/native/cocoa/binding.dart
-  objc-bindings: ios/sentry_flutter/Sources/sentry_flutter_objc/objc_generated_bindings.m
-
+output: lib/src/native/cocoa/binding.dart
 headers:
   entry-points:
-    - ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterFFI.h
-
-  include-directives:
-    - "**/SentryFlutterFFI.h"
-    - "**/Sentry.framework/**.h"
-    - "**/SentryFlutterReplayScreenshotProvider.h"
-
+    - ./temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h
+    - ./temp/Sentry.framework/Headers/Sentry-Swift.h
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
   - -DCOCOAPODS=1
-  - -DFFIGEN=1
-  - "-I./temp/Sentry.framework/Headers/"
-  - "-I./temp/Sentry.framework/PrivateHeaders/"
-  - "-I./ios/sentry_flutter/Sources/sentry_flutter_objc/"
-  - "-I./ios/sentry_flutter/Sources/sentry_flutter_objc/include/"
-
+  - '-I./temp/Sentry.framework/Headers/'
+  - '-I./temp/Sentry.framework/PrivateHeaders/'
 exclude-all-by-default: true
-
 objc-interfaces:
   include:
     - PrivateSentrySDKOnly
     - SentryId
-    - SentryFlutterPlugin
-    - SentryScope
-    - SentrySDK
-    - SentryUser
-    - SentryOptions
-    - SentryReplayOptions
   module:
-    "SentryId": "Sentry"
-    "SentrySDK": "Sentry"
-  member-filter:
-    SentrySDK:
-      include:
-        - "crash"
-        - "pauseAppHangTracking"
-        - "resumeAppHangTracking"
-        - "configureScope:"
-        - "addBreadcrumb:"
-        - "setUser:"
-        - "startWithConfigureOptions:"
-    SentryScope:
-      include:
-        - "clearBreadcrumbs"
-        - "setContextValue:forKey:"
-        - "removeContextForKey:"
-        - "setTagValue:forKey:"
-        - "removeTagForKey:"
-        - "setExtraValue:forKey:"
-        - "removeExtraForKey:"
-
-enums:
-  include:
-    - SentryLevel
-    - SentryReplayQuality
-
-typedefs:
-  include:
-    - SentryReplayCaptureCallback
-
-preamble: |
-  // ignore_for_file: type=lint, unused_element
+    'SentryId': 'Sentry'

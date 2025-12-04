@@ -30,7 +30,6 @@ dependencies:
   collection: ^1.16.0
   web: ^1.1.0
   jni: 0.14.2
-  objective_c: 8.0.0 # Used in ffigen 19.0.0
 
 dev_dependencies:
   build_runner: ^2.4.2
@@ -43,7 +42,10 @@ dev_dependencies:
   http: ^1.2.2 # check if js sdk cdn bundle exists
   flutter_localizations:
     sdk: flutter
-  ffigen: 19.0.0 # 19.1.0 already depends on Dart 3.8 which we don't support yet
+  ffigen:
+    git:
+      url: https://github.com/getsentry/ffigen
+      ref: 6aa2c2642f507eab3df83373189170797a9fa5e7
   jnigen: 0.14.2
 
   platform: any
