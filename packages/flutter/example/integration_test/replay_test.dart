@@ -192,26 +192,5 @@ void main() {
       // Should not throw
       await SentryFlutter.native?.setReplayConfig(config);
     }, skip: !Platform.isAndroid);
-
-    testWidgets('capture screenshot via test recorder returns metadata on iOS',
-        (tester) async {
-      await setupSentryAndApp(tester);
-      final native = SentryFlutter.native as SentryNativeCocoa?;
-      expect(native, isNotNull);
-
-      await Future.delayed(const Duration(seconds: 2));
-      final json = await native!.testRecorder?.captureScreenshot();
-      expect(json, isNotNull);
-      expect(json!['length'], isNotNull);
-      expect(json['address'], isNotNull);
-      expect(json['width'], isNotNull);
-      expect(json['height'], isNotNull);
-      expect((json['width'] as int) > 0, isTrue);
-      expect((json['height'] as int) > 0, isTrue);
-
-      // Capture again to ensure subsequent captures still succeed
-      final json2 = await native.testRecorder?.captureScreenshot();
-      expect(json2, isNotNull);
-    }, skip: !Platform.isIOS);
   });
 }

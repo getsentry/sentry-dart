@@ -129,6 +129,18 @@ jobs:
         run: |
           flutter drive --driver=integration_test/test_driver/driver.dart --target=integration_test/sentry_widgets_flutter_binding_test.dart --profile -d "${{ steps.device.outputs.name }}"
 
+      - name: run native test
+        # We only have the native unit test package in the iOS xcodeproj at the moment.
+        # Should be OK because it will likely be removed after switching to FFI (see https://github.com/getsentry/sentry-dart/issues/1444).
+        if: ${{ matrix.target != 'macos' }}
+        working-directory: packages/flutter/example/${{ matrix.target }}
+        # For some reason running native unit tests directly after Flutter integration tests fails
+        # running flutter build ios before works: https://stackoverflow.com/a/77487525/22813624
+        run: |
+          flutter build ios --no-codesign
+          xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=$DEVICE_PLATFORM" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
+        env:
+          DEVICE_PLATFORM: ${{ steps.device.outputs.platform }}
 # TODO(buenaflor): fix the web integration test. The tests pass but the driver keeps hanging so the workflow cancels after 30minutes
 #  web:
 #    runs-on: ubuntu-latest
