@@ -20,9 +20,9 @@ import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'package:sentry_flutter/src/web/javascript_transport.dart';
 
-import '../../flutter/test/mocks.dart';
-import '../../flutter/test/mocks.mocks.dart';
-import '../../flutter/test/sentry_flutter_util.dart';
+import 'mocks.dart';
+import 'mocks.mocks.dart';
+import 'sentry_flutter_util.dart';
 
 /// These are the integrations which should be added on every platform.
 /// They don't depend on the underlying platform.
