@@ -10,7 +10,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
-import 'package:sentry_flutter/src/native/cocoa/sentry_native_cocoa.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
 
 void main() {

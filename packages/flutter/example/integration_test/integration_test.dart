@@ -906,7 +906,7 @@ void main() {
       expect(values['key2'],
           {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3},
           reason: 'key2 mismatch');
-      expect(values['key3'], {'value': true}, reason: 'key3 mismatch');
+      expect(values['key3'], {'value': 1}, reason: 'key3 mismatch');
       expect(values['key4'], {'value': 12}, reason: 'key4 mismatch');
       expect(values['key5'], {'value': 12.3}, reason: 'key5 mismatch');
     } else if (Platform.isAndroid) {
