@@ -9,8 +9,6 @@ import '../../../dart/test/mocks/mock_transport.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  IntegrationTestWidgetsFlutterBinding.instance.framePolicy =
-      LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
 
   final transport = MockTransport();
 

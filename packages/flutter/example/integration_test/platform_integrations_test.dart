@@ -32,8 +32,6 @@ SentryFlutterOptions _currentOptions() =>
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  IntegrationTestWidgetsFlutterBinding.instance.framePolicy =
-      LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
 
   tearDown(() async {
     await Sentry.close();
