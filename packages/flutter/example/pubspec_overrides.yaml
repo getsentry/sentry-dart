@@ -20,4 +20,4 @@ dependency_overrides:
     path: ../../sqflite
   isar_flutter_libs:
     git:
-      url: https://github.com/MrLittleWhite/isar_flutter_libs.git
+      url: https://github.com/Deepjyoti120/isar_flutter_libs.git
