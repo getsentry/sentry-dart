@@ -103,7 +103,7 @@ public final class SentryFlutter {
             }
 
             if var proxyDict = connectionProxyDictionary {
-                if let user = proxy["user"] as? String, let pass = proxy["pass"] {
+                if let user = proxy["user"] as? String, let pass = proxy["pass"] as? String {
                     proxyDict[kCFProxyUsernameKey as String] = user
                     proxyDict[kCFProxyPasswordKey as String] = pass
                 }
