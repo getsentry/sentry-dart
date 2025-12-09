@@ -36,8 +36,6 @@ void main() {
         sut = createBinding(options);
       });
 
-      // TODO move other methods here, e.g. init_native_sdk_test.dart
-
       test('fetchNativeAppStart', () async {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
