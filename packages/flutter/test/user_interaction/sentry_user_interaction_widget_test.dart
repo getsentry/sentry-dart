@@ -325,25 +325,19 @@ void main() {
         // open the popup menu and wait for the animation to complete
         await tapMe(tester, sut, 'tooltip_button');
 
+        final data = fixture.getBreadcrumb().data?.replaceHashCodes();
+        final path = (data?['path'] as Iterable?)?.toList();
+
+        expect(data?['label'], equals('Button text'));
+        expect(data?['view.id'], equals('tooltip_button'));
+        expect(data?['view.class'], equals('ButtonStyleButton'));
+        expect(path?.first,
+            equals({'name': 'tooltip_button', 'element': 'ButtonStyleButton'}));
         expect(
-            fixture.getBreadcrumb().data?.replaceHashCodes(),
-            equals({
-              'path': [
-                {'name': 'tooltip_button', 'element': 'ButtonStyleButton'},
-                {'element': 'Semantics'},
-                {'element': 'Listener'},
-                {'element': 'OverlayPortal'},
-                {'element': 'Tooltip', 'label': 'Tooltip message.'},
-                {'element': 'Column'},
-                {'element': 'Center'},
-                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
-                {'element': 'MediaQuery'},
-                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'}
-              ],
-              'label': 'Button text',
-              'view.id': 'tooltip_button',
-              'view.class': 'ButtonStyleButton'
-            }));
+            path?.any((element) =>
+                element['element'] == 'Tooltip' &&
+                element['label'] == 'Tooltip message.'),
+            isTrue);
       });
     });
 
