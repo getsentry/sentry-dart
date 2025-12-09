@@ -12,6 +12,7 @@ import 'native_app_start.dart';
 import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
 import 'sentry_safe_method_channel.dart';
+import 'utils/data_normalizer.dart';
 
 /// Provide typed methods to access native layer via MethodChannel.
 @internal
@@ -31,18 +32,81 @@ class SentryNativeChannel
       SentryLevel.debug, 'SentryNativeChannel: $operation is not supported');
 
   @override
-  Future<void> init(Hub hub) async {
-    assert(false, 'init should not be used through method channels.');
+  FutureOr<void> init(Hub hub) {
+    if (options.platform.isAndroid) {
+      assert(
+          false, 'init should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('initNativeSdk', <String, dynamic>{
+      'dsn': options.dsn,
+      'debug': options.debug,
+      'environment': options.environment,
+      'release': options.release,
+      'enableAutoSessionTracking': options.enableAutoSessionTracking,
+      'enableNativeCrashHandling': options.enableNativeCrashHandling,
+      'attachStacktrace': options.attachStacktrace,
+      'attachThreads': options.attachThreads,
+      'autoSessionTrackingIntervalMillis':
+          options.autoSessionTrackingInterval.inMilliseconds,
+      'dist': options.dist,
+      'sdk': options.sdk.toJson(),
+      'diagnosticLevel': options.diagnosticLevel.name,
+      'maxBreadcrumbs': options.maxBreadcrumbs,
+      'anrEnabled': options.anrEnabled,
+      'anrTimeoutIntervalMillis': options.anrTimeoutInterval.inMilliseconds,
+      'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
+      'maxCacheItems': options.maxCacheItems,
+      'sendDefaultPii': options.sendDefaultPii,
+      'enableWatchdogTerminationTracking':
+          options.enableWatchdogTerminationTracking,
+      'enableNdkScopeSync': options.enableNdkScopeSync,
+      'enableAutoPerformanceTracing': options.enableAutoPerformanceTracing,
+      'sendClientReports': options.sendClientReports,
+      'proguardUuid': options.proguardUuid,
+      'maxAttachmentSize': options.maxAttachmentSize,
+      'recordHttpBreadcrumbs': options.recordHttpBreadcrumbs,
+      'captureFailedRequests': options.captureFailedRequests,
+      'enableAppHangTracking': options.enableAppHangTracking,
+      'connectionTimeoutMillis': options.connectionTimeout.inMilliseconds,
+      'readTimeoutMillis': options.readTimeout.inMilliseconds,
+      'appHangTimeoutIntervalMillis':
+          options.appHangTimeoutInterval.inMilliseconds,
+      if (options.proxy != null) 'proxy': options.proxy?.toJson(),
+      'replay': <String, dynamic>{
+        'quality': options.replay.quality.name,
+        'sessionSampleRate': options.replay.sessionSampleRate,
+        'onErrorSampleRate': options.replay.onErrorSampleRate,
+        'tags': <String, dynamic>{
+          'maskAllText': options.privacy.maskAllText,
+          'maskAllImages': options.privacy.maskAllImages,
+          'maskAssetImages': options.privacy.maskAssetImages,
+          if (options.privacy.userMaskingRules.isNotEmpty)
+            'maskingRules': options.privacy.userMaskingRules
+                .map((rule) => '${rule.name}: ${rule.description}')
+                .toList(growable: false),
+        },
+      },
+      'enableSpotlight': options.spotlight.enabled,
+      'spotlightUrl': options.spotlight.url,
+    });
   }
 
   @override
-  Future<void> close() async => channel.invokeMethod('closeNativeSdk');
+  FutureOr<void> close() {
+    return channel.invokeMethod('closeNativeSdk');
+  }
 
   @override
   FutureOr<NativeAppStart?> fetchNativeAppStart() async {
-    assert(false,
-        'fetchNativeAppStart should not be used through method channels.');
-    return null;
+    if (options.platform.isAndroid) {
+      assert(false,
+          'fetchNativeAppStart should not be used through method channels on Android.');
+      return null;
+    }
+    final json =
+        await channel.invokeMapMethod<String, dynamic>('fetchNativeAppStart');
+    return (json != null) ? NativeAppStart.fromJson(json) : null;
   }
 
   @override
@@ -51,13 +115,18 @@ class SentryNativeChannel
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    assert(
-        false, 'captureEnvelope should not be used through method channels.');
+    if (options.platform.isAndroid) {
+      assert(false,
+          'captureEnvelope should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod(
+        'captureEnvelope', [envelopeData, containsUnhandledException]);
   }
 
   @override
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) {
-    throw UnsupportedError('Not supported on this platform');
+    throw UnsupportedError("Not supported on this platform");
   }
 
   @override
@@ -65,102 +134,237 @@ class SentryNativeChannel
 
   @override
   FutureOr<Map<String, dynamic>?> loadContexts() {
-    assert(false, 'loadContexts should not be used through method channels.');
-    return null;
+    if (options.platform.isAndroid) {
+      assert(false,
+          'loadContexts should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMapMethod<String, dynamic>('loadContexts');
   }
 
   @override
   FutureOr<void> setUser(SentryUser? user) async {
-    assert(false, 'setUser should not be used through method channels.');
+    if (options.platform.isAndroid) {
+      assert(false,
+          'setUser should not be used through method channels on Android.');
+      return;
+    }
+    if (user == null) {
+      await channel.invokeMethod(
+        'setUser',
+        {'user': null},
+      );
+    } else {
+      final normalizedUser = SentryUser(
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        ipAddress: user.ipAddress,
+        data: normalizeMap(user.data),
+        // ignore: deprecated_member_use
+        extras: user.extras,
+        geo: user.geo,
+        name: user.name,
+        // ignore: invalid_use_of_internal_member
+        unknown: user.unknown,
+      );
+      await channel.invokeMethod(
+        'setUser',
+        {'user': normalizedUser.toJson()},
+      );
+    }
   }
 
   @override
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) async {
-    assert(false, 'addBreadcrumb should not be used through method channels.');
+    if (options.platform.isAndroid) {
+      assert(false,
+          'addBreadcrumb should not be used through method channels on Android.');
+      return;
+    }
+    final normalizedBreadcrumb = Breadcrumb(
+      message: breadcrumb.message,
+      category: breadcrumb.category,
+      data: normalizeMap(breadcrumb.data),
+      level: breadcrumb.level,
+      type: breadcrumb.type,
+      timestamp: breadcrumb.timestamp,
+      // ignore: invalid_use_of_internal_member
+      unknown: breadcrumb.unknown,
+    );
+    await channel.invokeMethod(
+      'addBreadcrumb',
+      {'breadcrumb': normalizedBreadcrumb.toJson()},
+    );
   }
 
   @override
-  FutureOr<void> clearBreadcrumbs() async {
-    assert(
-        false, 'clearBreadcrumbs should not be used through method channels.');
+  FutureOr<void> clearBreadcrumbs() {
+    if (options.platform.isAndroid) {
+      assert(false,
+          'clearBreadcrumbs should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('clearBreadcrumbs');
   }
 
   @override
   FutureOr<void> setContexts(String key, dynamic value) {
-    assert(false, 'setContexts should not be used through method channels.');
+    if (options.platform.isAndroid) {
+      assert(false,
+          'setContexts should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod(
+      'setContexts',
+      {'key': key, 'value': normalize(value)},
+    );
   }
 
   @override
   FutureOr<void> removeContexts(String key) {
-    assert(false, 'removeContexts should not be used through method channels.');
+    if (options.platform.isAndroid) {
+      assert(false,
+          'removeContexts should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('removeContexts', {'key': key});
   }
 
   @override
   FutureOr<void> setExtra(String key, dynamic value) {
-    assert(false, 'setExtra should not be used through method channels.');
+    if (options.platform.isAndroid) {
+      assert(false,
+          'setExtra should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod(
+      'setExtra',
+      {'key': key, 'value': normalize(value)},
+    );
   }
 
   @override
   FutureOr<void> removeExtra(String key) {
-    assert(false, 'removeExtra should not be used through method channels.');
+    if (options.platform.isAndroid) {
+      assert(false,
+          'removeExtra should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('removeExtra', {'key': key});
   }
 
   @override
   FutureOr<void> setTag(String key, String value) {
-    assert(false, 'setTag should not be used through method channels.');
+    if (options.platform.isAndroid) {
+      assert(false,
+          'setTag should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('setTag', {'key': key, 'value': value});
   }
 
   @override
   FutureOr<void> removeTag(String key) {
-    assert(false, 'removeTag should not be used through method channels.');
+    if (options.platform.isAndroid) {
+      assert(false,
+          'removeTag should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('removeTag', {'key': key});
   }
 
   @override
   int? startProfiler(SentryId traceId) =>
-      throw UnsupportedError('Not supported on this platform');
+      throw UnsupportedError("Not supported on this platform");
 
   @override
-  Future<void> discardProfiler(SentryId traceId) =>
-      channel.invokeMethod('discardProfiler', traceId.toString());
+  FutureOr<void> discardProfiler(SentryId traceId) {
+    if (options.platform.isAndroid) {
+      assert(false,
+          'discardProfiler should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('discardProfiler', traceId.toString());
+  }
 
   @override
-  Future<Map<String, dynamic>?> collectProfile(
-          SentryId traceId, int startTimeNs, int endTimeNs) =>
-      channel.invokeMapMethod<String, dynamic>('collectProfile', {
-        'traceId': traceId.toString(),
-        'startTime': startTimeNs,
-        'endTime': endTimeNs,
-      });
+  FutureOr<Map<String, dynamic>?> collectProfile(
+      SentryId traceId, int startTimeNs, int endTimeNs) {
+    if (options.platform.isAndroid) {
+      assert(false,
+          'collectProfile should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMapMethod<String, dynamic>('collectProfile', {
+      'traceId': traceId.toString(),
+      'startTime': startTimeNs,
+      'endTime': endTimeNs,
+    });
+  }
 
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
-    assert(
-        false, 'loadDebugImages should not be used through method channels.');
-    return null;
+    if (options.platform.isAndroid) {
+      assert(false,
+          'loadDebugImages should not be used through method channels on Android.');
+      return null;
+    }
+    return tryCatchAsync('loadDebugImages', () async {
+      Set<String> instructionAddresses = {};
+      for (final frame in stackTrace.frames) {
+        if (frame.instructionAddr != null) {
+          instructionAddresses.add(frame.instructionAddr!);
+        }
+      }
+
+      final images = await channel.invokeListMethod<Map<dynamic, dynamic>>(
+          'loadImageList', instructionAddresses.toList());
+      return images
+          ?.map((e) => e.cast<String, dynamic>())
+          .map(DebugImage.fromJson)
+          .toList();
+    });
   }
 
   @override
   FutureOr<int?> displayRefreshRate() {
-    assert(false,
-        'displayRefreshRate should not be used through method channels.');
-    return null;
+    if (options.platform.isAndroid) {
+      assert(false,
+          'displayRefreshRate should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('displayRefreshRate');
   }
 
   @override
   FutureOr<void> pauseAppHangTracking() {
-    assert(false,
-        'pauseAppHangTracking should not be used through method channels.');
+    if (options.platform.isAndroid) {
+      assert(false,
+          'pauseAppHangTracking should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('pauseAppHangTracking');
   }
 
   @override
   FutureOr<void> resumeAppHangTracking() {
-    assert(false,
-        'resumeAppHangTracking should not be used through method channels.');
+    if (options.platform.isAndroid) {
+      assert(false,
+          'resumeAppHangTracking should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('resumeAppHangTracking');
   }
 
   @override
   FutureOr<void> nativeCrash() {
-    assert(false, 'nativeCrash should not be used through method channels.');
+    if (options.platform.isAndroid) {
+      assert(false,
+          'nativeCrash should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('nativeCrash');
   }
 
   @override
@@ -171,14 +375,30 @@ class SentryNativeChannel
 
   @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
-    assert(
-        false, 'setReplayConfig should not be used through method channels.');
+    if (options.platform.isAndroid) {
+      assert(false,
+          'setReplayConfig should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('setReplayConfig', {
+      'windowWidth': config.windowWidth,
+      'windowHeight': config.windowHeight,
+      'width': config.width,
+      'height': config.height,
+      'frameRate': config.frameRate,
+    });
   }
 
   @override
   FutureOr<SentryId> captureReplay() {
-    assert(false, 'captureReplay should not be used through method channels.');
-    return SentryId.empty();
+    if (options.platform.isAndroid) {
+      assert(false,
+          'captureReplay should not be used through method channels on Android.');
+      return SentryId.empty();
+    }
+    return channel
+        .invokeMethod('captureReplay')
+        .then((value) => SentryId.fromId(value as String));
   }
 
   @override
