@@ -518,12 +518,12 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
           scope.setContext(value: dictionary, key: key)
         } else if let string = value as? String {
           scope.setContext(value: ["value": string], key: key)
+        } else if let bool = value as? Bool {
+          scope.setContext(value: ["value": bool], key: key)
         } else if let int = value as? Int {
           scope.setContext(value: ["value": int], key: key)
         } else if let double = value as? Double {
           scope.setContext(value: ["value": double], key: key)
-        } else if let bool = value as? Bool {
-          scope.setContext(value: ["value": bool], key: key)
         }
         result("")
       }

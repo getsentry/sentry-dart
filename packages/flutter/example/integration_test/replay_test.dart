@@ -102,15 +102,7 @@ void main() {
       expect(native, isNotNull);
 
       await Future.delayed(const Duration(seconds: 2));
-      final recorder = native!.testRecorder;
-      expect(recorder, isNotNull);
-
-      await recorder!
-          .onConfigurationChanged(const ScheduledScreenshotRecorderConfig(
-        width: 800,
-        height: 600,
-        frameRate: 1,
-      ));
+      final recorder = native!.testRecorder!;
 
       var frameCount = 0;
       final firstFrame = Completer<void>();
@@ -118,6 +110,13 @@ void main() {
         frameCount++;
         if (!firstFrame.isCompleted) firstFrame.complete();
       };
+
+      await recorder
+          .onConfigurationChanged(const ScheduledScreenshotRecorderConfig(
+        width: 800,
+        height: 600,
+        frameRate: 1,
+      ));
 
       await tester.pump();
       await firstFrame.future.timeout(const Duration(seconds: 5));
@@ -137,15 +136,7 @@ void main() {
       expect(native, isNotNull);
 
       await Future.delayed(const Duration(seconds: 2));
-      final recorder = native!.testRecorder;
-      expect(recorder, isNotNull);
-
-      await recorder!
-          .onConfigurationChanged(const ScheduledScreenshotRecorderConfig(
-        width: 800,
-        height: 600,
-        frameRate: 1,
-      ));
+      final recorder = native!.testRecorder!;
 
       var frameCount = 0;
       final firstFrame = Completer<void>();
@@ -153,6 +144,13 @@ void main() {
         frameCount++;
         if (!firstFrame.isCompleted) firstFrame.complete();
       };
+
+      await recorder
+          .onConfigurationChanged(const ScheduledScreenshotRecorderConfig(
+        width: 800,
+        height: 600,
+        frameRate: 1,
+      ));
 
       await tester.pump();
       await firstFrame.future.timeout(const Duration(seconds: 5));
