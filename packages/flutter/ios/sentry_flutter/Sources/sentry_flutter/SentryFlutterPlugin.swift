@@ -1,4 +1,4 @@
-import Sentry
+@_spi(Private) import Sentry
 
 #if SWIFT_PACKAGE
 import Sentry._Hybrid
