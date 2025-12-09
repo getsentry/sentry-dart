@@ -5,6 +5,7 @@
 ### Fixes
 
 - Dart to native type conversion ([#3372](https://github.com/getsentry/sentry-dart/pull/3372))
+- Revert FFI usage on iOS/macOS due to symbol stripping issues ([#3379](https://github.com/getsentry/sentry-dart/pull/3379))
 
 ## 9.9.0-beta.3
 
