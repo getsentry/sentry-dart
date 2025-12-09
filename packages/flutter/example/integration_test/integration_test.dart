@@ -166,7 +166,7 @@ void main() {
     await transaction.finish();
   });
 
-  testWidgets('init maps Dart options into native SDK options', (tester) async {
+  testWidgets('init maps Dart options into native SDK options on Android', (tester) async {
     await restoreFlutterOnErrorAfter(() async {
       await setupSentryWithCustomInit(() async {
         await tester.pumpWidget(
@@ -210,23 +210,12 @@ void main() {
         options.replay.quality = SentryReplayQuality.high;
         options.replay.sessionSampleRate = 0.4;
         options.replay.onErrorSampleRate = 0.8;
-
-        // Cocoa-only
-        if (Platform.isIOS || Platform.isMacOS) {
-          options.recordHttpBreadcrumbs = false;
-          options.captureFailedRequests = false;
-          options.enableAppHangTracking = false;
-          options.appHangTimeoutInterval = const Duration(seconds: 1);
-        }
-        // Android-only
-        if (Platform.isAndroid) {
-          options.enableNdkScopeSync = true;
-          options.attachThreads = true;
-          options.anrEnabled = false;
-          options.anrTimeoutInterval = const Duration(seconds: 2);
-          options.connectionTimeout = const Duration(milliseconds: 1234);
-          options.readTimeout = const Duration(milliseconds: 2345);
-        }
+        options.enableNdkScopeSync = true;
+        options.attachThreads = true;
+        options.anrEnabled = false;
+        options.anrTimeoutInterval = const Duration(seconds: 2);
+        options.connectionTimeout = const Duration(milliseconds: 1234);
+        options.readTimeout = const Duration(milliseconds: 2345);
       });
     });
 
