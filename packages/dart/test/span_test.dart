@@ -1,6 +1,7 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol/noop_span.dart';
 import 'package:sentry/src/protocol/simple_span.dart';
+import 'package:sentry/src/protocol/unset_span.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_sentry_client.dart';
@@ -146,6 +147,30 @@ void main() {
       span.status = SpanV2Status.ok;
       span.status = SpanV2Status.error;
       expect(span.toJson(), isEmpty);
+    });
+  });
+
+  group('UnsetSpan', () {
+    test('all APIs throw to prevent accidental use', () {
+      const span = UnsetSpan();
+
+      expect(() => span.spanId, throwsA(isA<UnimplementedError>()));
+      expect(() => span.name, throwsA(isA<UnimplementedError>()));
+      expect(() => span.status, throwsA(isA<UnimplementedError>()));
+      expect(() => span.parentSpan, throwsA(isA<UnimplementedError>()));
+      expect(() => span.endTimestamp, throwsA(isA<UnimplementedError>()));
+      expect(() => span.attributes, throwsA(isA<UnimplementedError>()));
+      expect(() => span.isFinished, throwsA(isA<UnimplementedError>()));
+
+      expect(() => span.name = 'foo', throwsA(isA<UnimplementedError>()));
+      expect(() => span.status = SpanV2Status.ok,
+          throwsA(isA<UnimplementedError>()));
+      expect(() => span.setAttribute('k', SentryAttribute.string('v')),
+          throwsA(isA<UnimplementedError>()));
+      expect(() => span.setAttributes({'k': SentryAttribute.string('v')}),
+          throwsA(isA<UnimplementedError>()));
+      expect(() => span.end(), throwsA(isA<UnimplementedError>()));
+      expect(() => span.toJson(), throwsA(isA<UnimplementedError>()));
     });
   });
 }

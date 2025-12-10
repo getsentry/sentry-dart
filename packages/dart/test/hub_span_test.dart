@@ -114,6 +114,19 @@ void main() {
           expect(childSpan.parentSpan, equals(explicitParent));
         });
 
+        test('allows finished span to be used as parent', () {
+          final hub = fixture.getSut();
+          final finishedParent = hub.startSpan('finished-parent');
+          finishedParent.end();
+
+          final childSpan = hub.startSpan(
+            'child-span',
+            parentSpan: finishedParent,
+          );
+
+          expect(childSpan.parentSpan, equals(finishedParent));
+        });
+
         test('creates root span when parentSpan is explicitly set to null', () {
           final hub = fixture.getSut();
           hub.startSpan('active-span');
@@ -256,6 +269,18 @@ void main() {
 
         // Should not throw
         hub.captureSpan(span);
+      });
+
+      test('does nothing when tracing is disabled', () {
+        final hub = fixture.getSut(tracesSampleRate: null);
+
+        final span = hub.startSpan('test-span');
+        expect(span, isA<NoOpSpan>());
+        expect(hub.scope.activeSpans, isEmpty);
+
+        hub.captureSpan(span);
+
+        expect(hub.scope.activeSpans, isEmpty);
       });
     });
   });
