@@ -246,7 +246,7 @@ void main() {
     });
 
     group('captureSpan', () {
-      // TODO: add test that it was added to buffer
+      // TODO(next-pr): add test that it was added to buffer
 
       test('removes span from active spans on scope', () {
         final hub = fixture.getSut();
