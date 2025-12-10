@@ -1,11 +1,11 @@
 import '../../sentry.dart';
 
 class SimpleSpan implements Span {
-  final Hub hub;
-  final Map<String, SentryAttribute> _attributes = {};
-
+  final SpanId _spanId;
+  final Hub _hub;
   @override
   final Span? parentSpan;
+  final Map<String, SentryAttribute> _attributes = {};
 
   String _name;
   SpanV2Status _status = SpanV2Status.ok;
@@ -16,8 +16,24 @@ class SimpleSpan implements Span {
     required String name,
     this.parentSpan,
     Hub? hub,
-  })  : hub = hub ?? HubAdapter(),
+  })  : _spanId = SpanId.newId(),
+        _hub = hub ?? HubAdapter(),
         _name = name;
+
+  @override
+  SpanId get spanId => _spanId;
+
+  @override
+  String get name => _name;
+
+  @override
+  set name(String value) => _name = value;
+
+  @override
+  SpanV2Status get status => _status;
+
+  @override
+  set status(SpanV2Status value) => _status = value;
 
   @override
   DateTime? get endTimestamp => _endTimestamp;
@@ -26,27 +42,7 @@ class SimpleSpan implements Span {
   Map<String, SentryAttribute> get attributes => Map.unmodifiable(_attributes);
 
   @override
-  String get name => _name;
-
-  @override
-  set name(String value) {
-    _name = value;
-  }
-
-  @override
-  SpanV2Status get status => _status;
-
-  @override
-  set status(SpanV2Status value) {
-    _status = value;
-  }
-
-  @override
-  void end({DateTime? endTimestamp}) {
-    _endTimestamp = endTimestamp ?? DateTime.now().toUtc();
-    hub.captureSpan(this);
-    _isFinished = true;
-  }
+  bool get isFinished => _isFinished;
 
   @override
   void setAttribute(String key, SentryAttribute value) {
@@ -59,7 +55,11 @@ class SimpleSpan implements Span {
   }
 
   @override
-  bool get isFinished => _isFinished;
+  void end({DateTime? endTimestamp}) {
+    _endTimestamp = endTimestamp ?? DateTime.now().toUtc();
+    _hub.captureSpan(this);
+    _isFinished = true;
+  }
 
   @override
   Map<String, dynamic> toJson() {

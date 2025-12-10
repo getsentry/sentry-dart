@@ -9,52 +9,58 @@ class UnsetSpan extends Span {
   const UnsetSpan();
 
   @override
+  SpanId get spanId =>
+      throw UnimplementedError('$UnsetSpan apis should not be used');
+
+  @override
   String get name =>
-      throw UnimplementedError('$UnsetSpan methods should not be used');
+      throw UnimplementedError('$UnsetSpan apis should not be used');
+
+  @override
+  set name(String name) =>
+      throw UnimplementedError('$UnsetSpan apis should not be used');
+
+  @override
+  SpanV2Status get status =>
+      throw UnimplementedError('$UnsetSpan apis should not be used');
+
+  @override
+  set status(SpanV2Status status) =>
+      throw UnimplementedError('$UnsetSpan apis should not be used');
 
   @override
   Span? get parentSpan =>
-      throw UnimplementedError('$UnsetSpan methods should not be used');
+      throw UnimplementedError('$UnsetSpan apis should not be used');
 
   @override
-  void end({DateTime? endTimestamp}) {
-    throw UnimplementedError('$UnsetSpan methods should not be used');
-  }
+  DateTime? get endTimestamp =>
+      throw UnimplementedError('$UnsetSpan apis should not be used');
+
+  @override
+  Map<String, SentryAttribute> get attributes =>
+      throw UnimplementedError('$UnsetSpan apis should not be used');
+
+  @override
+  bool get isFinished =>
+      throw UnimplementedError('$UnsetSpan apis should not be used');
 
   @override
   void setAttribute(String key, SentryAttribute value) {
-    throw UnimplementedError('$UnsetSpan methods should not be used');
+    throw UnimplementedError('$UnsetSpan apis should not be used');
   }
 
   @override
   void setAttributes(Map<String, SentryAttribute> attributes) {
-    throw UnimplementedError('$UnsetSpan methods should not be used');
+    throw UnimplementedError('$UnsetSpan apis should not be used');
+  }
+
+  @override
+  void end({DateTime? endTimestamp}) {
+    throw UnimplementedError('$UnsetSpan apis should not be used');
   }
 
   @override
   Map<String, dynamic> toJson() {
-    throw UnimplementedError('$UnsetSpan methods should not be used');
+    throw UnimplementedError('$UnsetSpan apis should not be used');
   }
-
-  @override
-  set name(String name) {
-    throw UnimplementedError();
-  }
-
-  @override
-  set status(SpanV2Status status) {
-    throw UnimplementedError();
-  }
-
-  @override
-  SpanV2Status get status => throw UnimplementedError();
-
-  @override
-  Map<String, SentryAttribute> get attributes => throw UnimplementedError();
-
-  @override
-  DateTime? get endTimestamp => throw UnimplementedError();
-
-  @override
-  bool get isFinished => throw UnimplementedError();
 }

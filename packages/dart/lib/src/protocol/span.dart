@@ -9,6 +9,9 @@ abstract class Span {
   @internal
   const Span();
 
+  /// Gets the id of the span.
+  SpanId get spanId;
+
   /// Gets the name of the span.
   String get name;
 

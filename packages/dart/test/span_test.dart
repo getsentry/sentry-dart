@@ -125,6 +125,12 @@ void main() {
 
       expect(span.name, equals('my-span-name'));
     });
+
+    test('spanId is created when span is created', () {
+      final span = SimpleSpan(name: 'test-span');
+
+      expect(span.spanId.toString(), isNot(SpanId.empty().toString()));
+    });
   });
 
   group('NoOpSpan', () {
