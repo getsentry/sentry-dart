@@ -41,6 +41,7 @@ void main() {
   };
 
   final expectedNestedList = ['nestedList', 2];
+
   final expectedNestedMap = {
     'innerString': 'nested',
     'innerList': [1, 2],
@@ -55,6 +56,7 @@ void main() {
     expectedNestedList,
     expectedNestedMap,
   ];
+
   final expectedMap = {
     'key': 'value',
     'key2': 1,
