@@ -47,11 +47,12 @@ const _expectedMapLength = 7;
 void main() {
   group('JNI (Android)', () {
     test('dartToJObject converts primitives', () {
-      _expectJniString(dartToJObject('value'), 'value');
-      _expectJniInt(dartToJObject(1), 1);
-      _expectJniDouble(dartToJObject(1.1), 1.1);
-      _expectJniBool(dartToJObject(true), true);
-      _expectJniString(dartToJObject(_customObject), _customObject.toString());
+      _expectJniStringEquals(dartToJObject('value'), 'value');
+      _expectJniLongEquals(dartToJObject(1), 1);
+      _expectJniDoubleEquals(dartToJObject(1.1), 1.1);
+      _expectJniBoolEquals(dartToJObject(true), true);
+      _expectJniStringEquals(
+          dartToJObject(_customObject), _customObject.toString());
     });
 
     test('dartToJObject converts list (drops nulls)', () {
@@ -81,31 +82,37 @@ void main() {
   }, skip: !Platform.isAndroid);
 }
 
-void _expectJniString(JObject obj, String expected) {
-  expect(obj, isA<JString>());
-  expect((obj as JString).toDartString(releaseOriginal: true), expected);
+void _expectJniStringEquals(JObject? obj, String expected) {
+  expect(obj, isNotNull);
+  final jString = obj!.as(JString.type);
+  expect(jString.toDartString(releaseOriginal: true), expected);
 }
 
-void _expectJniInt(JObject obj, int expected) {
-  expect(obj, isA<JLong>());
-  expect((obj as JLong).longValue(releaseOriginal: true), expected);
+void _expectJniLongEquals(JObject? obj, int expected) {
+  expect(obj, isNotNull);
+  final jLong = obj!.as(JLong.type);
+  expect(jLong.longValue(releaseOriginal: true), expected);
 }
 
-void _expectJniDouble(JObject obj, double expected) {
-  expect(obj, isA<JDouble>());
-  expect((obj as JDouble).doubleValue(releaseOriginal: true), expected);
+void _expectJniDoubleEquals(JObject? obj, double expected) {
+  expect(obj, isNotNull);
+  final jDouble = obj!.as(JDouble.type);
+  expect(jDouble.doubleValue(releaseOriginal: true), expected);
 }
 
-void _expectJniBool(JObject obj, bool expected) {
-  expect(obj, isA<JBoolean>());
-  expect((obj as JBoolean).booleanValue(releaseOriginal: true), expected);
+void _expectJniBoolEquals(JObject? obj, bool expected) {
+  expect(obj, isNotNull);
+  final jBoolean = obj!.as(JBoolean.type);
+  expect(jBoolean.booleanValue(releaseOriginal: true), expected);
 }
 
-JObject? _jniGet(JMap<JString, JObject> map, String key) {
+JObject? _jniGetValue(JMap<JString, JObject> map, String key) {
   final jKey = key.toJString();
-  final value = map[jKey];
-  jKey.release();
-  return value;
+  try {
+    return map[jKey];
+  } finally {
+    jKey.release();
+  }
 }
 
 bool _jniIsNull(JObject? obj) => obj == null || obj.toString() == 'null';
@@ -113,21 +120,18 @@ bool _jniIsNull(JObject? obj) => obj == null || obj.toString() == 'null';
 void _verifyJniList(JList<JObject> list) {
   expect(list.length, _expectedListLength);
 
-  // Verify primitives
-  expect(list[0].as(JString.type).toDartString(), 'value');
-  expect(list[1].as(JLong.type).longValue(), 1);
-  expect(list[2].as(JDouble.type).doubleValue(), 1.1);
-  expect(list[3].as(JBoolean.type).booleanValue(), isTrue);
-  expect(list[4].as(JString.type).toDartString(), _customObject.toString());
+  _expectJniStringEquals(list[0], 'value');
+  _expectJniLongEquals(list[1], 1);
+  _expectJniDoubleEquals(list[2], 1.1);
+  _expectJniBoolEquals(list[3], true);
+  _expectJniStringEquals(list[4], _customObject.toString());
 
-  // Verify nested list
   final nestedList = list[5].as(JList.type(JObject.type));
-  expect(nestedList.length, 2);
-  expect(nestedList[0].as(JString.type).toDartString(), 'nestedList');
-  expect(nestedList[1].as(JLong.type).longValue(), 2);
+  expect(nestedList.length, _expectedNestedListLength);
+  _expectJniStringEquals(nestedList[0], 'nestedList');
+  _expectJniLongEquals(nestedList[1], 2);
   nestedList.release();
 
-  // Verify nested map
   final nestedMap = list[6].as(JMap.type(JString.type, JObject.type));
   _verifyJniNestedMap(nestedMap);
   nestedMap.release();
@@ -136,39 +140,33 @@ void _verifyJniList(JList<JObject> list) {
 void _verifyJniMap(JMap<JString, JObject> map) {
   expect(map.length, _expectedMapLength);
 
-  // Verify primitives
-  expect(_jniGet(map, 'key')!.as(JString.type).toDartString(), 'value');
-  expect(_jniGet(map, 'key2')!.as(JLong.type).longValue(), 1);
-  expect(_jniGet(map, 'key3')!.as(JDouble.type).doubleValue(), 1.1);
-  expect(_jniGet(map, 'key4')!.as(JBoolean.type).booleanValue(), isTrue);
-  expect(_jniGet(map, 'key5')!.as(JString.type).toDartString(),
-      _customObject.toString());
+  _expectJniStringEquals(_jniGetValue(map, 'key'), 'value');
+  _expectJniLongEquals(_jniGetValue(map, 'key2'), 1);
+  _expectJniDoubleEquals(_jniGetValue(map, 'key3'), 1.1);
+  _expectJniBoolEquals(_jniGetValue(map, 'key4'), true);
+  _expectJniStringEquals(_jniGetValue(map, 'key5'), _customObject.toString());
 
-  // Verify nested list
-  final nestedList = _jniGet(map, 'list')!.as(JList.type(JObject.type));
+  final nestedList = _jniGetValue(map, 'list')!.as(JList.type(JObject.type));
   _verifyJniList(nestedList);
   nestedList.release();
 
-  // Verify nested map
   final nestedMap =
-      _jniGet(map, 'nestedMap')!.as(JMap.type(JString.type, JObject.type));
+      _jniGetValue(map, 'nestedMap')!.as(JMap.type(JString.type, JObject.type));
   _verifyJniNestedMap(nestedMap);
   nestedMap.release();
 
-  // Verify null was dropped
-  expect(_jniIsNull(_jniGet(map, 'nullEntry')), isTrue);
+  expect(_jniIsNull(_jniGetValue(map, 'nullEntry')), isTrue);
 }
 
 void _verifyJniNestedMap(JMap<JString, JObject> map) {
-  expect(
-      _jniGet(map, 'innerString')!.as(JString.type).toDartString(), 'nested');
+  _expectJniStringEquals(_jniGetValue(map, 'innerString'), 'nested');
 
-  final innerList = _jniGet(map, 'innerList')!.as(JList.type(JObject.type));
+  final innerList =
+      _jniGetValue(map, 'innerList')!.as(JList.type(JObject.type));
   expect(innerList.length, _expectedNestedListLength);
-  expect(innerList[0].as(JLong.type).longValue(), 1);
-  expect(innerList[1].as(JLong.type).longValue(), 2);
+  _expectJniLongEquals(innerList[0], 1);
+  _expectJniLongEquals(innerList[1], 2);
   innerList.release();
 
-  // Verify null was dropped
-  expect(_jniIsNull(_jniGet(map, 'innerNull')), isTrue);
+  expect(_jniIsNull(_jniGetValue(map, 'innerNull')), isTrue);
 }
