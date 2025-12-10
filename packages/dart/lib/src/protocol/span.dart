@@ -19,7 +19,6 @@ abstract class Span {
   set name(String name);
 
   /// Gets the parent span.
-  /// If null this span has no parent.
   Span? get parentSpan;
 
   /// Gets the status of the span.
@@ -31,7 +30,7 @@ abstract class Span {
   /// Gets the end timestamp of the span.
   DateTime? get endTimestamp;
 
-  /// Gets a read-only view of the attributes of the span.
+  /// Gets a read-only view of the attributes of the span using [Map.unmodifiable](https://api.flutter.dev/flutter/dart-core/Map/Map.unmodifiable.html).
   ///
   /// The returned map must not be mutated by callers.
   Map<String, SentryAttribute> get attributes;

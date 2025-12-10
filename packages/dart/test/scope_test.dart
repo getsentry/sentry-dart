@@ -449,6 +449,7 @@ void main() {
     await sut.setTag('key', 'vakye');
     await sut.setExtra('key', 'vakye');
     sut.transaction = 'transaction';
+    sut.setActiveSpan(SimpleSpan(name: 'random-span'));
 
     final clone = sut.clone();
     expect(sut.user, clone.user);
@@ -466,6 +467,7 @@ void main() {
     );
     expect(sut.span, clone.span);
     expect(sut.replayId, clone.replayId);
+    expect(sut.activeSpans, clone.activeSpans);
   });
 
   test('clone copies attributes and keeps them independent', () {
