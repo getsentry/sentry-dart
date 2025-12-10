@@ -362,7 +362,7 @@ void main() {
     sut.setActiveSpan(span2);
 
     expect(sut.activeSpans.length, 2);
-    expect(sut.activeSpans.last, span2);
+    expect(sut.getActiveSpan(), span2);
   });
 
   test('getActiveSpan returns the last active span in the list', () {
