@@ -4,6 +4,7 @@ import 'package:sentry/src/protocol/simple_span.dart';
 import 'package:sentry/src/protocol/unset_span.dart';
 import 'package:test/test.dart';
 
+import 'mocks/mock_hub.dart';
 import 'mocks/mock_sentry_client.dart';
 import 'test_utils.dart';
 
@@ -16,7 +17,7 @@ void main() {
     });
 
     test('end finishes the span', () {
-      final hub = fixture.getSut();
+      final hub = fixture.getHub();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
 
       span.end();
@@ -26,7 +27,7 @@ void main() {
     });
 
     test('end sets current time by default', () {
-      final hub = fixture.getSut();
+      final hub = fixture.getHub();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
 
       final before = DateTime.now().toUtc();
@@ -43,7 +44,7 @@ void main() {
     });
 
     test('end with custom timestamp sets end time', () {
-      final hub = fixture.getSut();
+      final hub = fixture.getHub();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
       final endTime = DateTime.now().add(Duration(seconds: 5));
 
@@ -53,7 +54,7 @@ void main() {
     });
 
     test('end removes active span from scope', () {
-      final hub = fixture.getSut();
+      final hub = fixture.getHub();
       final span = hub.startSpan('test-span');
       expect(hub.scope.activeSpans.length, 1);
       expect(hub.scope.activeSpans.first, equals(span));
@@ -63,8 +64,22 @@ void main() {
       expect(hub.scope.activeSpans, isEmpty);
     });
 
+    test('end is idempotent once finished', () {
+      final hub = fixture.getMockHub();
+      final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+      final firstEndTimestamp = DateTime.utc(2024, 1, 1);
+      final secondEndTimestamp = DateTime.utc(2024, 1, 2);
+
+      span.end(endTimestamp: firstEndTimestamp);
+      span.end(endTimestamp: secondEndTimestamp);
+
+      expect(span.endTimestamp, equals(firstEndTimestamp));
+      expect(span.isFinished, isTrue);
+      expect(hub.captureSpanCalls.length, 1);
+    });
+
     test('setAttribute sets single attribute', () {
-      final hub = fixture.getSut();
+      final hub = fixture.getHub();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
 
       final attributeValue = SentryAttribute.string('value');
@@ -74,7 +89,7 @@ void main() {
     });
 
     test('setAttributes sets multiple attributes', () {
-      final hub = fixture.getSut();
+      final hub = fixture.getHub();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
 
       final attributes = {
@@ -87,7 +102,7 @@ void main() {
     });
 
     test('setName sets span name', () {
-      final hub = fixture.getSut();
+      final hub = fixture.getHub();
       final span = SimpleSpan(name: 'initial-name', parentSpan: null, hub: hub);
 
       span.name = 'updated-name';
@@ -95,7 +110,7 @@ void main() {
     });
 
     test('can set span status', () {
-      final hub = fixture.getSut();
+      final hub = fixture.getHub();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
 
       span.status = SpanV2Status.ok;
@@ -106,7 +121,7 @@ void main() {
     });
 
     test('parentSpan returns the parent span', () {
-      final hub = fixture.getSut();
+      final hub = fixture.getHub();
       final parent = SimpleSpan(name: 'parent', parentSpan: null, hub: hub);
       final child = SimpleSpan(name: 'child', parentSpan: parent, hub: hub);
 
@@ -114,14 +129,14 @@ void main() {
     });
 
     test('parentSpan returns null for root span', () {
-      final hub = fixture.getSut();
+      final hub = fixture.getHub();
       final span = SimpleSpan(name: 'root', parentSpan: null, hub: hub);
 
       expect(span.parentSpan, isNull);
     });
 
     test('name returns the span name', () {
-      final hub = fixture.getSut();
+      final hub = fixture.getHub();
       final span = SimpleSpan(name: 'my-span-name', parentSpan: null, hub: hub);
 
       expect(span.name, equals('my-span-name'));
@@ -180,11 +195,13 @@ class Fixture {
 
   final options = defaultTestOptions();
 
-  Hub getSut({
+  Hub getHub({
     double? tracesSampleRate = 1.0,
   }) {
     options.tracesSampleRate = tracesSampleRate;
     final hub = Hub(options)..bindClient(client);
     return hub;
   }
+
+  MockHub getMockHub() => MockHub();
 }

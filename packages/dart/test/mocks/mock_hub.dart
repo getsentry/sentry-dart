@@ -14,6 +14,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
   List<CaptureLogCall> captureLogCalls = [];
   List<SentryClient?> bindClientCalls = [];
+  List<CaptureSpanCall> captureSpanCalls = [];
 
   // ignore: deprecated_member_use_from_same_package
   List<CaptureTransactionCall> captureTransactionCalls = [];
@@ -116,6 +117,11 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
+  void captureSpan(Span span) {
+    captureSpanCalls.add(CaptureSpanCall(span));
+  }
+
+  @override
   Future<void> close() async {
     closeCalls = closeCalls + 1;
     _isEnabled = false;
@@ -193,4 +199,10 @@ class AddBreadcrumbCall {
   final Hint? hint;
 
   AddBreadcrumbCall(this.crumb, this.hint);
+}
+
+class CaptureSpanCall {
+  final Span span;
+
+  CaptureSpanCall(this.span);
 }

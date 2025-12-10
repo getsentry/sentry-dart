@@ -56,6 +56,10 @@ class SimpleSpan implements Span {
 
   @override
   void end({DateTime? endTimestamp}) {
+    if (_isFinished) {
+      return;
+    }
+
     _endTimestamp = endTimestamp ?? DateTime.now().toUtc();
     _hub.captureSpan(this);
     _isFinished = true;
