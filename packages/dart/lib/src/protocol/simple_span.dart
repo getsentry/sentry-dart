@@ -6,6 +6,7 @@ class SimpleSpan implements Span {
   @override
   final Span? parentSpan;
   final Map<String, SentryAttribute> _attributes = {};
+  final DateTime _startTimestamp;
 
   String _name;
   SpanV2Status _status = SpanV2Status.ok;
@@ -17,6 +18,7 @@ class SimpleSpan implements Span {
     this.parentSpan,
     Hub? hub,
   })  : _spanId = SpanId.newId(),
+        _startTimestamp = DateTime.now().toUtc(),
         _hub = hub ?? HubAdapter(),
         _name = name;
 
@@ -66,7 +68,21 @@ class SimpleSpan implements Span {
 
   @override
   Map<String, dynamic> toJson() {
-    // TODO: implement toJson
-    throw UnimplementedError();
+    double toUnixSeconds(DateTime timestamp) =>
+        timestamp.microsecondsSinceEpoch / 1000000;
+
+    return {
+      'trace_id': _hub.scope.propagationContext.traceId.toString(),
+      'span_id': spanId.toString(),
+      'name': name,
+      'status': status.name,
+      'end_timestamp':
+          endTimestamp == null ? null : toUnixSeconds(endTimestamp!),
+      'start_timestamp': toUnixSeconds(_startTimestamp),
+      if (parentSpan == null) 'is_segment': true,
+      if (attributes.isNotEmpty)
+        'attributes':
+            attributes.map((key, value) => MapEntry(key, value.toJson())),
+    };
   }
 }

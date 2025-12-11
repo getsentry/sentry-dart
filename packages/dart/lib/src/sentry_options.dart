@@ -12,6 +12,8 @@ import 'noop_client.dart';
 import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
+import 'telemetry_buffer/noop_telemetry_buffer.dart';
+import 'telemetry_buffer/telemetry_buffer.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
 import 'sentry_log_batcher.dart';
@@ -541,7 +543,10 @@ class SentryOptions {
   late final SentryLogger logger = SentryLogger(clock);
 
   @internal
-  SentryLogBatcher logBatcher = NoopLogBatcher();
+  TelemetryBuffer<SentryLog> logBuffer = NoOpTelemetryBuffer();
+
+  @internal
+  TelemetryBuffer<Span> spanBuffer = NoOpTelemetryBuffer();
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;

@@ -1,4 +1,10 @@
-class InMemoryTelemetryBuffer<T extends TelemetryPayload> extends TelemetryBuffer<T> {
+import 'dart:async';
+
+import '../../sentry.dart';
+import 'telemetry_buffer.dart';
+
+class InMemoryTelemetryBuffer<T extends TelemetryPayload>
+    extends TelemetryBuffer<T> {
   final SentryEnvelope Function(List<List<int>>) toEnvelope;
   final SentryOptions _options;
   final Duration _flushTimeout;
@@ -9,11 +15,11 @@ class InMemoryTelemetryBuffer<T extends TelemetryPayload> extends TelemetryBuffe
   int _encodedTelemetrySize = 0;
 
   InMemoryTelemetryBuffer(
-      this._options, {
-        required this.toEnvelope,
-        Duration? flushTimeout,
-        int? maxBufferSizeBytes,
-      })  : _flushTimeout = flushTimeout ?? Duration(seconds: 5),
+    this._options, {
+    required this.toEnvelope,
+    Duration? flushTimeout,
+    int? maxBufferSizeBytes,
+  })  : _flushTimeout = flushTimeout ?? Duration(seconds: 5),
         _maxBufferSizeBytes = maxBufferSizeBytes ??
             1024 * 1024; // 1MB default per Mobile Buffer spec
 
@@ -29,7 +35,7 @@ class InMemoryTelemetryBuffer<T extends TelemetryPayload> extends TelemetryBuffe
       // Flush if size threshold is reached
       if (_encodedTelemetrySize >= _maxBufferSizeBytes) {
         // Buffer size exceeded, flush immediately
-        _performFlushLogs();
+        _performFlushTelemetry();
       } else if (_flushTimer == null) {
         // Start timeout only when first item is added
         _startTimer();
@@ -45,19 +51,19 @@ class InMemoryTelemetryBuffer<T extends TelemetryPayload> extends TelemetryBuffe
 
   /// Flushes the buffer immediately, sending all buffered telemetry.
   @override
-  FutureOr<void> flush() => _performFlushLogs();
+  FutureOr<void> flush() => _performFlushTelemetry();
 
   void _startTimer() {
     _flushTimer = Timer(_flushTimeout, () {
       _options.log(
         SentryLevel.debug,
-        '$InMemoryTelemetryBuffer for $T: Timer fired, calling performCaptureLogs().',
+        '$InMemoryTelemetryBuffer for $T: Timer fired, flushing $T data.',
       );
-      _performFlushLogs();
+      _performFlushTelemetry();
     });
   }
 
-  FutureOr<void> _performFlushLogs() {
+  FutureOr<void> _performFlushTelemetry() {
     // Reset timer state first
     _flushTimer?.cancel();
     _flushTimer = null;
@@ -70,7 +76,7 @@ class InMemoryTelemetryBuffer<T extends TelemetryPayload> extends TelemetryBuffe
     if (telemetryToSend.isEmpty) {
       _options.log(
         SentryLevel.debug,
-        '$InMemoryTelemetryBuffer for $T: No logs to flush.',
+        '$InMemoryTelemetryBuffer for $T: No data to flush.',
       );
     } else {
       try {
@@ -79,7 +85,7 @@ class InMemoryTelemetryBuffer<T extends TelemetryPayload> extends TelemetryBuffe
       } catch (error) {
         _options.log(
           SentryLevel.error,
-          '$InMemoryTelemetryBuffer for $T: Failed to create envelope for batched logs with error $error',
+          '$InMemoryTelemetryBuffer for $T: Failed to create envelope for batched data with error $error',
         );
       }
     }

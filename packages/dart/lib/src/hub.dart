@@ -628,7 +628,11 @@ class Hub {
 
     scope.removeActiveSpan(span);
 
-    // TODO(next-pr): run this span through span specific pipeline and then forward to span buffer
+    final item = _peek();
+    item.client.captureSpan(span, scope: scope);
+
+    // TODO(next-pr): client reports
+    // TODO(next-pr): run this span through span specific pipeline
   }
 
   @internal

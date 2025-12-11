@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:meta/meta.dart';
 
+import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'event_processor/run_event_processors.dart';
@@ -18,6 +19,7 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
+import 'telemetry_buffer/in_memory_telemetry_buffer.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
@@ -76,8 +78,17 @@ class SentryClient {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
     if (options.enableLogs) {
-      options.logBatcher = SentryLogBatcher(options);
+      options.logBuffer = InMemoryTelemetryBuffer(options,
+          toEnvelope: (telemetryData) =>
+              SentryEnvelope.fromLogsData(telemetryData, options.sdk));
     }
+    options.spanBuffer = InMemoryTelemetryBuffer(options,
+        toEnvelope: (telemetryData) => SentryEnvelope.fromSpansData(
+            telemetryData, options.sdk,
+            dsn: options.dsn,
+            traceContext: SentryTraceContextHeader(
+                Sentry.currentHub.scope.propagationContext.traceId,
+                options.parsedDsn.publicKey)));
     return SentryClient._(options);
   }
 
@@ -578,7 +589,7 @@ class SentryClient {
     if (processedLog != null) {
       await _options.lifecycleRegistry
           .dispatchCallback(OnBeforeCaptureLog(processedLog));
-      _options.logBatcher.addLog(processedLog);
+      _options.logBuffer.add(processedLog);
     } else {
       _options.recorder.recordLostEvent(
         DiscardReason.beforeSend,
@@ -587,8 +598,18 @@ class SentryClient {
     }
   }
 
+  void captureSpan(Span span, {Scope? scope}) {
+    if (scope != null) {
+      final merged = Map.of(scope.attributes)..addAll(span.attributes);
+      span.setAttributes(merged);
+    }
+
+    _options.spanBuffer.add(span);
+    // TODO(next-pr): client reports
+  }
+
   FutureOr<void> close() {
-    final flush = _options.logBatcher.flush();
+    final flush = _options.logBuffer.flush();
     if (flush is Future<void>) {
       return flush.then((_) => _options.httpClient.close());
     }
