@@ -46,7 +46,7 @@ void main() {
     test('end with custom timestamp sets end time', () {
       final hub = fixture.getHub();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
-      final endTime = DateTime.now().add(Duration(seconds: 5));
+      final endTime = DateTime.now().add(Duration(seconds: 5)).toUtc();
 
       span.end(endTimestamp: endTime);
 
