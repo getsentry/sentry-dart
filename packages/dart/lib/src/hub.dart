@@ -11,6 +11,7 @@ import 'protocol/unset_span.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 import 'protocol/noop_span.dart';
+import 'protocol/simple_span.dart';
 import 'transport/data_category.dart';
 
 /// Configures the scope through the callback.
@@ -586,12 +587,48 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'startSpan' call is a no-op.",
       );
-    } else if (_options.isTracingEnabled()) {
-      // TODO: implementation of span api behaviour according to https://develop.sentry.dev/sdk/telemetry/spans/span-api/
       return NoOpSpan();
     }
 
-    return NoOpSpan();
+    if (!_options.isTracingEnabled()) {
+      return NoOpSpan();
+    }
+
+    // Determine the parent span based on the parentSpan parameter:
+    // - If parentSpan is UnsetSpan (default), use the currently active span
+    // - If parentSpan is a specific Span, use that as the parent
+    // - If parentSpan is null, create a root/segment span (no parent)
+    final Span? resolvedParentSpan;
+    if (parentSpan is UnsetSpan) {
+      resolvedParentSpan = scope.getActiveSpan();
+    } else {
+      resolvedParentSpan = parentSpan;
+    }
+
+    final span =
+        SimpleSpan(name: name, parentSpan: resolvedParentSpan, hub: this);
+    if (attributes != null) {
+      span.setAttributes(attributes);
+    }
+    if (active) {
+      scope.setActiveSpan(span);
+    }
+
+    return span;
+  }
+
+  void captureSpan(Span span) {
+    if (!_isEnabled) {
+      _options.log(
+        SentryLevel.warning,
+        "Instance is disabled and this 'captureSpan' call is a no-op.",
+      );
+      return;
+    }
+
+    scope.removeActiveSpan(span);
+
+    // TODO(next-pr): run this span through span specific pipeline and then forward to span buffer
   }
 
   @internal

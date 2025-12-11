@@ -2,6 +2,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/protocol/simple_span.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
@@ -352,6 +353,46 @@ void main() {
     expect(sut.extra['test'], null);
   });
 
+  test('setActiveSpan adds span to active span list', () {
+    final sut = fixture.getSut();
+
+    final span = SimpleSpan(name: 'span1', parentSpan: null);
+    final span2 = SimpleSpan(name: 'span2', parentSpan: null);
+    sut.setActiveSpan(span);
+    sut.setActiveSpan(span2);
+
+    expect(sut.activeSpans.length, 2);
+    expect(sut.getActiveSpan(), span2);
+  });
+
+  test('getActiveSpan returns the last active span in the list', () {
+    final sut = fixture.getSut();
+
+    final span = SimpleSpan(name: 'span1', parentSpan: null);
+    final span2 = SimpleSpan(name: 'span2', parentSpan: null);
+    sut.setActiveSpan(span);
+    sut.setActiveSpan(span2);
+
+    final activeSpan = sut.getActiveSpan();
+    expect(activeSpan, span2);
+  });
+
+  test(
+      'removeActiveSpan removes the active span in the list regardless of order',
+      () {
+    final sut = fixture.getSut();
+
+    final span = SimpleSpan(name: 'span1', parentSpan: null);
+    final span2 = SimpleSpan(name: 'span2', parentSpan: null);
+    sut.setActiveSpan(span);
+    sut.setActiveSpan(span2);
+
+    sut.removeActiveSpan(span);
+
+    expect(sut.activeSpans.length, 1);
+    expect(sut.activeSpans.first, span2);
+  });
+
   test('clears $Scope', () {
     final sut = fixture.getSut();
 
@@ -390,6 +431,7 @@ void main() {
     expect(sut.eventProcessors.length, 0);
     expect(sut.replayId, isNull);
     expect(sut.attributes, isEmpty);
+    expect(sut.activeSpans, isEmpty);
   });
 
   test('clones', () async {
@@ -407,6 +449,7 @@ void main() {
     await sut.setTag('key', 'vakye');
     await sut.setExtra('key', 'vakye');
     sut.transaction = 'transaction';
+    sut.setActiveSpan(SimpleSpan(name: 'random-span'));
 
     final clone = sut.clone();
     expect(sut.user, clone.user);
@@ -424,6 +467,7 @@ void main() {
     );
     expect(sut.span, clone.span);
     expect(sut.replayId, clone.replayId);
+    expect(sut.activeSpans, clone.activeSpans);
   });
 
   test('clone copies attributes and keeps them independent', () {

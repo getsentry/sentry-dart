@@ -161,4 +161,7 @@ class NoOpHub implements Hub {
     Map<String, SentryAttribute>? attributes,
   }) =>
       NoOpSpan();
+
+  @override
+  void captureSpan(Span span) {}
 }
