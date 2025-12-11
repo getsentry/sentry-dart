@@ -131,16 +131,16 @@ class SentryNative {
       _value_new_objectPtr.asFunction<sentry_value_u Function()>();
 
   /// Returns the type of the value passed.
-  sentry_value_type_t value_get_type(
+  int value_get_type(
     sentry_value_u value,
   ) {
-    return sentry_value_type_t.fromValue(_value_get_type(
+    return _value_get_type(
       value,
-    ));
+    );
   }
 
   late final _value_get_typePtr =
-      _lookup<ffi.NativeFunction<ffi.UnsignedInt Function(sentry_value_u)>>(
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(sentry_value_u)>>(
           'sentry_value_get_type');
   late final _value_get_type =
       _value_get_typePtr.asFunction<int Function(sentry_value_u)>();
@@ -206,7 +206,7 @@ class SentryNative {
   late final _value_append = _value_appendPtr
       .asFunction<int Function(sentry_value_u, sentry_value_u)>();
 
-  /// Looks up a value in a map by key.  If missing a null value is returned.
+  /// Looks up a value in a map by key. If missing, a null value is returned.
   /// The returned value is borrowed.
   sentry_value_u value_get_by_key(
     sentry_value_u value,
@@ -225,7 +225,7 @@ class SentryNative {
   late final _value_get_by_key = _value_get_by_keyPtr.asFunction<
       sentry_value_u Function(sentry_value_u, ffi.Pointer<ffi.Char>)>();
 
-  /// Looks up a value in a list by index.  If missing a null value is returned.
+  /// Looks up a value in a list by index. If missing, a null value is returned.
   /// The returned value is borrowed.
   sentry_value_u value_get_by_index(
     sentry_value_u value,
@@ -246,7 +246,7 @@ class SentryNative {
 
   /// Returns the length of the given map or list.
   ///
-  /// If an item is not a list or map the return value is 0.
+  /// If an item is not a list or map, the return value is 0.
   int value_get_length(
     sentry_value_u value,
   ) {
@@ -612,8 +612,15 @@ class SentryNative {
   /// Sets the path to the crashpad handler if the crashpad backend is used.
   ///
   /// The path defaults to the `crashpad_handler`/`crashpad_handler.exe`
-  /// executable, depending on platform, which is expected to be present in the
-  /// same directory as the app executable.
+  /// executable in the same directory as the application executable.
+  ///
+  /// Meaning if your application resides in
+  ///
+  /// "C:\path\to\your\application.exe"
+  ///
+  /// then the handler path will be set (by default) to
+  ///
+  /// "C:\path\to\your\crashpad_handler.exe"
   ///
   /// It is recommended that library users set an explicit handler path, depending
   /// on the directory/executable structure of their app.
@@ -656,15 +663,15 @@ class SentryNative {
   ///
   /// It is recommended that users set an explicit absolute path, depending
   /// on their apps runtime directory. The path will be created if it does not
-  /// exist, and will be resolved to an absolute path inside of `sentry_init`. The
+  /// exist and will be resolved to an absolute path inside `sentry_init`. The
   /// directory should not be shared with other application data/configuration, as
-  /// sentry-native will enumerate and possibly delete files in that directory. An
+  /// sentry-native will list and possibly delete files in that directory. An
   /// example might be `$XDG_CACHE_HOME/your-app/sentry`
   ///
-  /// If no explicit path it set, sentry-native will default to `.sentry-native` in
+  /// If no explicit path is set, sentry-native will default to `.sentry-native` in
   /// the current working directory, with no specific platform-specific handling.
   ///
-  /// `path` is assumed to be in platform-specific filesystem path encoding.
+  /// `path` is assumed to be in a platform-specific filesystem path encoding.
   /// API Users on windows are encouraged to use
   /// `sentry_options_set_database_pathw` instead.
   void options_set_database_path(
@@ -688,8 +695,8 @@ class SentryNative {
 
   /// Initializes the Sentry SDK with the specified options.
   ///
-  /// This takes ownership of the options.  After the options have been set
-  /// they cannot be modified any more.
+  /// This takes ownership of the options. After the options have been set,
+  /// they cannot be modified anymore.
   /// Depending on the configured transport and backend, this function might not be
   /// fully thread-safe.
   /// Returns 0 on success.
@@ -709,14 +716,14 @@ class SentryNative {
 
   /// Shuts down the sentry client and forces transports to flush out.
   ///
-  /// Returns 0 on success.
+  /// Returns the number of envelopes that have been dumped.
   ///
   /// Note that this does not uninstall any crash handler installed by our
   /// backends, which will still process crashes after `sentry_close()`, except
   /// when using `crashpad` on Linux or the `inproc` backend.
   ///
   /// Further note that this function will block the thread it was called from
-  /// until the sentry background worker has finished its work or it timed out,
+  /// until the sentry background worker has finished its work, or it timed out,
   /// whichever comes first.
   int close() {
     return _close();
@@ -901,48 +908,18 @@ class SentryNative {
       _sdk_namePtr.asFunction<ffi.Pointer<ffi.Char> Function()>();
 }
 
-/// Type of a sentry value.
-enum sentry_value_type_t {
-  SENTRY_VALUE_TYPE_NULL(0),
-  SENTRY_VALUE_TYPE_BOOL(1),
-  SENTRY_VALUE_TYPE_INT32(2),
-  SENTRY_VALUE_TYPE_INT64(3),
-  SENTRY_VALUE_TYPE_UINT64(4),
-  SENTRY_VALUE_TYPE_DOUBLE(5),
-  SENTRY_VALUE_TYPE_STRING(6),
-  SENTRY_VALUE_TYPE_LIST(7),
-  SENTRY_VALUE_TYPE_OBJECT(8);
-
-  final int value;
-  const sentry_value_type_t(this.value);
-
-  static sentry_value_type_t fromValue(int value) => switch (value) {
-        0 => SENTRY_VALUE_TYPE_NULL,
-        1 => SENTRY_VALUE_TYPE_BOOL,
-        2 => SENTRY_VALUE_TYPE_INT32,
-        3 => SENTRY_VALUE_TYPE_INT64,
-        4 => SENTRY_VALUE_TYPE_UINT64,
-        5 => SENTRY_VALUE_TYPE_DOUBLE,
-        6 => SENTRY_VALUE_TYPE_STRING,
-        7 => SENTRY_VALUE_TYPE_LIST,
-        8 => SENTRY_VALUE_TYPE_OBJECT,
-        _ =>
-          throw ArgumentError('Unknown value for sentry_value_type_t: $value'),
-      };
-}
-
 /// Represents a sentry protocol value.
 ///
 /// The members of this type should never be accessed.  They are only here
 /// so that alignment for the type can be properly determined.
 ///
 /// Values must be released with `sentry_value_decref`.  This lowers the
-/// internal refcount by one.  If the refcount hits zero it's freed.  Some
-/// values like primitives have no refcount (like null) so operations on
+/// internal refcount by one.  If the refcount hits zero, it's freed.  Some
+/// values like primitives have no refcount (like null), so operations on
 /// those are no-ops.
 ///
-/// In addition values can be frozen.  Some values like primitives are always
-/// frozen but lists and dicts are not and can be frozen on demand.  This
+/// In addition, values can be frozen.  Some values like primitives are always
+/// frozen, but lists and dicts are not and can be frozen on demand.  This
 /// automatically happens for some shared values in the event payload like
 /// the module list.
 final class sentry_value_u extends ffi.Union {
@@ -951,6 +928,19 @@ final class sentry_value_u extends ffi.Union {
 
   @ffi.Double()
   external double _double;
+}
+
+/// Type of sentry value.
+abstract class sentry_value_type_t {
+  static const int SENTRY_VALUE_TYPE_NULL = 0;
+  static const int SENTRY_VALUE_TYPE_BOOL = 1;
+  static const int SENTRY_VALUE_TYPE_INT32 = 2;
+  static const int SENTRY_VALUE_TYPE_INT64 = 3;
+  static const int SENTRY_VALUE_TYPE_UINT64 = 4;
+  static const int SENTRY_VALUE_TYPE_DOUBLE = 5;
+  static const int SENTRY_VALUE_TYPE_STRING = 6;
+  static const int SENTRY_VALUE_TYPE_LIST = 7;
+  static const int SENTRY_VALUE_TYPE_OBJECT = 8;
 }
 
 /// The Sentry Client Options.
