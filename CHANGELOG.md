@@ -1,10 +1,17 @@
 # Changelog
 
-## Unreleased
+## 9.9.0-beta.4
 
 ### Fixes
 
+- Dart to native type conversion ([#3372](https://github.com/getsentry/sentry-dart/pull/3372))
 - Revert FFI usage on iOS/macOS due to symbol stripping issues ([#3379](https://github.com/getsentry/sentry-dart/pull/3379))
+
+### Dependencies
+
+- Bump Android SDK from v8.21.1 to v8.28.0 ([#3391](https://github.com/getsentry/sentry-dart/pull/3391))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8280)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.21.1...8.28.0)
 
 ## 9.9.0-beta.3
 
