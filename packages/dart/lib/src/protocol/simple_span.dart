@@ -59,7 +59,7 @@ class SimpleSpan implements Span {
     if (_isFinished) {
       return;
     }
-    _endTimestamp = endTimestamp ?? DateTime.now().toUtc();
+    _endTimestamp = (endTimestamp ?? DateTime.now()).toUtc();
     _isFinished = true;
     _hub.captureSpan(this);
   }

@@ -53,6 +53,17 @@ void main() {
       expect(span.endTimestamp, equals(endTime));
     });
 
+    test('end sets endTimestamp as UTC', () {
+      final span1 = SimpleSpan(name: 'test-span');
+      span1.end();
+      expect(span1.endTimestamp!.isUtc, isTrue);
+
+      final span2 = SimpleSpan(name: 'test-span');
+      // Should transform non-utc time to utc
+      span2.end(endTimestamp: DateTime.now());
+      expect(span2.endTimestamp!.isUtc, isTrue);
+    });
+
     test('end removes active span from scope', () {
       final hub = fixture.getHub();
       final span = hub.startSpan('test-span');
