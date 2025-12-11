@@ -79,6 +79,7 @@ class SentryClient {
     if (options.enableLogs) {
       options.logBuffer = InMemoryTelemetryBuffer.forLogs(options);
     }
+    // TODO(next-pr): only add span buffer when the traceLifecycle flag is true
     options.spanBuffer = InMemoryTelemetryBuffer.forSpans(options);
     return SentryClient._(options);
   }
