@@ -53,6 +53,15 @@ abstract class Span implements TelemetryPayload {
   void setAttributes(Map<String, SentryAttribute> attributes);
 
   @internal
+  String get segmentKey;
+
+  @internal
+  SentryId get traceId;
+
+  @internal
+  Span get segmentSpan;
+
+  @internal
   bool get isFinished;
 
   @override

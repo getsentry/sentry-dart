@@ -79,7 +79,7 @@ class InMemoryTelemetryBuffer<T extends TelemetryPayload>
     } catch (error) {
       _options.log(
         SentryLevel.error,
-        '$InMemoryTelemetryBuffer<$T>: Failed to encode item: $error',
+        '$InMemoryTelemetryBuffer for $T: Failed to encode item: $error',
       );
     }
   }
@@ -92,7 +92,7 @@ class InMemoryTelemetryBuffer<T extends TelemetryPayload>
     _flushTimer = Timer(_flushTimeout, () {
       _options.log(
         SentryLevel.debug,
-        '$InMemoryTelemetryBuffer<$T>: Timer fired, flushing.',
+        '$InMemoryTelemetryBuffer for $T: Timer fired, flushing.',
       );
       _performFlush();
     });
@@ -111,7 +111,7 @@ class InMemoryTelemetryBuffer<T extends TelemetryPayload>
     if (itemsToSend.isEmpty) {
       _options.log(
         SentryLevel.debug,
-        '$InMemoryTelemetryBuffer<$T>: No data to flush.',
+        '$InMemoryTelemetryBuffer for $T: No data to flush.',
       );
       return null;
     }
@@ -121,7 +121,7 @@ class InMemoryTelemetryBuffer<T extends TelemetryPayload>
     } catch (error) {
       _options.log(
         SentryLevel.error,
-        '$InMemoryTelemetryBuffer<$T>: Failed to flush items: $error',
+        '$InMemoryTelemetryBuffer for $T: Failed to flush items: $error',
       );
       return null;
     }

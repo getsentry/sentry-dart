@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import '../../sentry.dart';
 
@@ -29,7 +28,7 @@ class LogBufferFlusher implements BufferFlusher<SentryLog> {
   FutureOr<void> flush(List<BufferedItem<SentryLog>> items) {
     if (items.isEmpty) return null;
 
-    final encoded = items.map((i) => i.encoded).toList();
+    final encoded = List<List<int>>.from(items.map((i) => i.encoded));
     final envelope = SentryEnvelope.fromLogsData(encoded, _options.sdk);
     return _options.transport.send(envelope).then((_) => null);
   }
@@ -49,7 +48,7 @@ class SpanBufferFlusher implements BufferFlusher<Span> {
 
     for (final entry in groups.entries) {
       try {
-        final encoded = entry.value.map((i) => i.encoded).toList();
+        final encoded = List<List<int>>.from(entry.value.map((i) => i.encoded));
         final traceContext = _createTraceContext(entry.value.first.item);
         final envelope = SentryEnvelope.fromSpansData(
           encoded,
@@ -73,31 +72,20 @@ class SpanBufferFlusher implements BufferFlusher<Span> {
   ) {
     final groups = <String, List<BufferedItem<Span>>>{};
     for (final buffered in items) {
-      final key = _segmentKey(buffered.item);
-      groups.putIfAbsent(key, () => []).add(buffered);
+      final segment = buffered.item.segmentSpan;
+      groups.putIfAbsent(segment.segmentKey, () => []).add(buffered);
     }
-    return groups;
-  }
 
-  /// Returns a unique key for the segment this span belongs to.
-  String _segmentKey(Span span) {
-    final segment = span.parentSpan ?? span;
-    final json = segment.toJson();
-    final traceId = json['trace_id'];
-    return traceId == null ? '_' : '$traceId-${segment.spanId}';
+    return groups;
   }
 
   /// Creates a trace context header from the segment span.
   SentryTraceContextHeader? _createTraceContext(Span span) {
-    final segment = span.parentSpan ?? span;
-    final json = segment.toJson();
-    final traceId = json['trace_id'];
+    final segment = span.segmentSpan;
     final publicKey = _options.parsedDsn.publicKey;
 
-    if (traceId == null) return null;
-
     return SentryTraceContextHeader(
-      SentryId.fromId(traceId),
+      segment.traceId,
       publicKey,
       release: _options.release,
       environment: _options.environment,

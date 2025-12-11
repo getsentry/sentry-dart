@@ -22,6 +22,15 @@ class NoOpSpan implements Span {
   Span? get parentSpan => null;
 
   @override
+  Span get segmentSpan => this;
+
+  @override
+  SentryId get traceId => SentryId.empty();
+
+  @override
+  String get segmentKey => '';
+
+  @override
   DateTime? get endTimestamp => null;
 
   @override

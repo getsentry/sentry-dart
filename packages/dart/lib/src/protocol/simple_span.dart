@@ -7,11 +7,13 @@ class SimpleSpan implements Span {
   final Span? parentSpan;
   final Map<String, SentryAttribute> _attributes = {};
   final DateTime _startTimestamp;
+  late final SentryId _traceId;
 
   String _name;
   SpanV2Status _status = SpanV2Status.ok;
   DateTime? _endTimestamp;
   bool _isFinished = false;
+  String? _segmentKey;
 
   SimpleSpan({
     required String name,
@@ -20,7 +22,15 @@ class SimpleSpan implements Span {
   })  : _spanId = SpanId.newId(),
         _startTimestamp = DateTime.now().toUtc(),
         _hub = hub ?? HubAdapter(),
-        _name = name;
+        _name = name {
+    _traceId = parentSpan?.traceId ?? _hub.scope.propagationContext.traceId;
+  }
+
+  @override
+  Span get segmentSpan => parentSpan?.segmentSpan ?? this;
+
+  @override
+  SentryId get traceId => _traceId;
 
   @override
   SpanId get spanId => _spanId;
@@ -45,6 +55,9 @@ class SimpleSpan implements Span {
 
   @override
   bool get isFinished => _isFinished;
+
+  @override
+  String get segmentKey => _segmentKey ??= '$traceId-${segmentSpan.spanId}';
 
   @override
   void setAttribute(String key, SentryAttribute value) {
