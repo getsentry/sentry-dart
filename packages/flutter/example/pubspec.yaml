@@ -1,6 +1,6 @@
 name: sentry_flutter_example
 description: Demonstrates how to use the sentry_flutter plugin.
-version: 9.9.0-beta.3
+version: 9.9.0-beta.4
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
