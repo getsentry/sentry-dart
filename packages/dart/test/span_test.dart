@@ -109,7 +109,7 @@ void main() {
       expect(span.name, equals('updated-name'));
     });
 
-    test('can set span status', () {
+    test('setStatus sets span status', () {
       final hub = fixture.getHub();
       final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
 
