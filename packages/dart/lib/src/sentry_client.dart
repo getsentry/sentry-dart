@@ -30,7 +30,6 @@ import 'type_check_hint.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
-import 'sentry_log_batcher.dart';
 import 'version.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
@@ -78,17 +77,9 @@ class SentryClient {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
     if (options.enableLogs) {
-      options.logBuffer = InMemoryTelemetryBuffer(options,
-          toEnvelope: (telemetryData) =>
-              SentryEnvelope.fromLogsData(telemetryData, options.sdk));
+      options.logBuffer = InMemoryTelemetryBuffer.forLogs(options);
     }
-    options.spanBuffer = InMemoryTelemetryBuffer(options,
-        toEnvelope: (telemetryData) => SentryEnvelope.fromSpansData(
-            telemetryData, options.sdk,
-            dsn: options.dsn,
-            traceContext: SentryTraceContextHeader(
-                Sentry.currentHub.scope.propagationContext.traceId,
-                options.parsedDsn.publicKey)));
+    options.spanBuffer = InMemoryTelemetryBuffer.forSpans(options);
     return SentryClient._(options);
   }
 
