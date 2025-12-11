@@ -18,6 +18,7 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
+import 'telemetry_buffer.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
@@ -76,7 +77,9 @@ class SentryClient {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
     if (options.enableLogs) {
-      options.logBatcher = SentryLogBatcher(options);
+      // options.logBatcher = SentryLogBatcher(options);
+      options.logBuffer = InMemoryTelemetryBuffer(options,
+          toEnvelope: (data) => SentryEnvelope.fromLogsData(data, options.sdk));
     }
     return SentryClient._(options);
   }
