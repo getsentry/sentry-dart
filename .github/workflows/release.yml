@@ -15,7 +15,7 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    name: "Release a new version"
+    name: 'Release a new version'
     steps:
       - name: Get auth token
         id: token
@@ -29,7 +29,7 @@ jobs:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
       - name: Prepare release
-        uses: getsentry/action-prepare-release@v1
+        uses: getsentry/action-prepare-release@c8e1c2009ab08259029170132c384f03c1064c0e
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:
