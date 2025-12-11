@@ -2,7 +2,7 @@ import 'dart:async';
 
 import '../sentry.dart';
 
-abstract class Telemetry {
+abstract class TelemetryPayload {
   Map<String, dynamic> toJson();
 }
 
@@ -11,7 +11,7 @@ abstract class TelemetryBuffer<T extends Telemetry> {
   FutureOr<void> flush();
 }
 
-class NoOpTelemetryBuffer<T extends Telemetry> extends TelemetryBuffer<T> {
+class NoOpTelemetryBuffer<T extends TelemetryPayload> extends TelemetryBuffer<T> {
   @override
   void add(T item) {}
 
@@ -19,7 +19,7 @@ class NoOpTelemetryBuffer<T extends Telemetry> extends TelemetryBuffer<T> {
   FutureOr<void> flush() {}
 }
 
-class InMemoryTelemetryBuffer<T extends Telemetry> extends TelemetryBuffer<T> {
+class InMemoryTelemetryBuffer<T extends TelemetryPayload> extends TelemetryBuffer<T> {
   final SentryEnvelope Function(List<List<int>>) toEnvelope;
   final SentryOptions _options;
   final Duration _flushTimeout;

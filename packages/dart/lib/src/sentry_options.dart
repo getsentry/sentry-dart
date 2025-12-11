@@ -542,8 +542,10 @@ class SentryOptions {
   late final SentryLogger logger = SentryLogger(clock);
 
   @internal
-  SentryLogBatcher logBatcher = NoopLogBatcher();
   TelemetryBuffer<SentryLog> logBuffer = NoOpTelemetryBuffer();
+
+  @internal
+  TelemetryBuffer<Span> spanBuffer = NoOpTelemetryBuffer();
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;

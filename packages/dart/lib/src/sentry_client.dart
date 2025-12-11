@@ -77,7 +77,6 @@ class SentryClient {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
     if (options.enableLogs) {
-      // options.logBatcher = SentryLogBatcher(options);
       options.logBuffer = InMemoryTelemetryBuffer(options,
           toEnvelope: (data) => SentryEnvelope.fromLogsData(data, options.sdk));
     }
@@ -581,7 +580,7 @@ class SentryClient {
     if (processedLog != null) {
       await _options.lifecycleRegistry
           .dispatchCallback(OnBeforeCaptureLog(processedLog));
-      _options.logBatcher.addLog(processedLog);
+      _options.logBuffer.add(processedLog);
     } else {
       _options.recorder.recordLostEvent(
         DiscardReason.beforeSend,
@@ -591,7 +590,7 @@ class SentryClient {
   }
 
   FutureOr<void> close() {
-    final flush = _options.logBatcher.flush();
+    final flush = _options.logBuffer.flush();
     if (flush is Future<void>) {
       return flush.then((_) => _options.httpClient.close());
     }

@@ -3,7 +3,7 @@ import 'sentry_attribute.dart';
 import 'sentry_id.dart';
 import 'sentry_log_level.dart';
 
-class SentryLog implements Telemetry {
+class SentryLog implements TelemetryPayload {
   DateTime timestamp;
   SentryId traceId;
   SentryLogLevel level;

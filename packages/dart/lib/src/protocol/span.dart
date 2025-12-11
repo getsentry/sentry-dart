@@ -5,7 +5,7 @@ import '../../sentry.dart';
 // Span specs: https://develop.sentry.dev/sdk/telemetry/spans/span-api/
 
 /// Represents a basic telemetry span.
-abstract class Span {
+abstract class Span implements TelemetryPayload {
   @internal
   const Span();
 
