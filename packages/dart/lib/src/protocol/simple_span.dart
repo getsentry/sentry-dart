@@ -87,12 +87,12 @@ class SimpleSpan extends Span {
       'trace_id': _traceId.toString(),
       'span_id': _spanId.toString(),
       'is_segment': parentSpan == null,
-      if (parentSpan != null) 'parent_span_id': parentSpan?.spanId.toString(),
       'name': _name,
       'status': _status.name,
       'end_timestamp':
           _endTimestamp == null ? null : toUnixSeconds(_endTimestamp!),
       'start_timestamp': toUnixSeconds(_startTimestamp),
+      if (parentSpan != null) 'parent_span_id': parentSpan?.spanId.toString(),
       if (parentSpan == null) 'is_segment': true,
       if (_attributes.isNotEmpty)
         'attributes':
