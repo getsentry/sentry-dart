@@ -1,4 +1,5 @@
 import '../../sentry.dart';
+import '../telemetry_processing/telemetry_item.dart';
 
 class NoOpSpan implements Span {
   const NoOpSpan();
@@ -41,4 +42,10 @@ class NoOpSpan implements Span {
 
   @override
   Map<String, dynamic> toJson() => {};
+
+  @override
+  Span get segmentSpan => NoOpSpan();
+
+  @override
+  SentryId get traceId => SentryId.empty();
 }

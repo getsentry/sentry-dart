@@ -3,9 +3,12 @@ import '../../sentry.dart';
 class SimpleSpan implements Span {
   final SpanId _spanId;
   final Hub _hub;
+  final DateTime _startTimestamp;
   @override
   final Span? parentSpan;
   final Map<String, SentryAttribute> _attributes = {};
+  late final Span _segmentSpan;
+  late final SentryId _traceId;
 
   String _name;
   SpanV2Status _status = SpanV2Status.ok;
@@ -18,7 +21,14 @@ class SimpleSpan implements Span {
     Hub? hub,
   })  : _spanId = SpanId.newId(),
         _hub = hub ?? HubAdapter(),
-        _name = name;
+        _startTimestamp = DateTime.now().toUtc(),
+        _name = name {
+    _segmentSpan = parentSpan?.segmentSpan ?? this;
+    _traceId = _hub.scope.propagationContext.traceId;
+  }
+
+  @override
+  SentryId get traceId => _traceId;
 
   @override
   SpanId get spanId => _spanId;
@@ -45,6 +55,9 @@ class SimpleSpan implements Span {
   bool get isFinished => _isFinished;
 
   @override
+  Span get segmentSpan => _segmentSpan;
+
+  @override
   void setAttribute(String key, SentryAttribute value) {
     _attributes[key] = value;
   }
@@ -66,7 +79,23 @@ class SimpleSpan implements Span {
 
   @override
   Map<String, dynamic> toJson() {
-    // TODO: implement toJson
-    throw UnimplementedError();
+    double toUnixSeconds(DateTime timestamp) =>
+        timestamp.microsecondsSinceEpoch / 1000000;
+
+    return {
+      'trace_id': _traceId.toString(),
+      'span_id': _spanId.toString(),
+      'is_segment': parentSpan == null,
+      'name': _name,
+      'status': _status.name,
+      'end_timestamp':
+          _endTimestamp == null ? null : toUnixSeconds(_endTimestamp!),
+      'start_timestamp': toUnixSeconds(_startTimestamp),
+      if (parentSpan != null) 'parent_span_id': parentSpan?.spanId.toString(),
+      if (parentSpan == null) 'is_segment': true,
+      if (_attributes.isNotEmpty)
+        'attributes':
+            _attributes.map((key, value) => MapEntry(key, value.toJson())),
+    };
   }
 }

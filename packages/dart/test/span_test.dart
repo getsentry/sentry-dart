@@ -158,6 +158,179 @@ void main() {
 
       expect(span.spanId.toString(), isNot(SpanId.empty().toString()));
     });
+
+    group('segmentSpan', () {
+      test('returns itself when parentSpan is null', () {
+        final hub = fixture.getHub();
+        final span = SimpleSpan(name: 'root-span', parentSpan: null, hub: hub);
+
+        expect(span.segmentSpan, same(span));
+      });
+
+      test('returns parent segmentSpan when parentSpan is set', () {
+        final hub = fixture.getHub();
+        final root = SimpleSpan(name: 'root', parentSpan: null, hub: hub);
+        final child = SimpleSpan(name: 'child', parentSpan: root, hub: hub);
+
+        expect(child.segmentSpan, same(root));
+      });
+
+      test('returns root segmentSpan for deeply nested spans', () {
+        final hub = fixture.getHub();
+        final root = SimpleSpan(name: 'root', parentSpan: null, hub: hub);
+        final child = SimpleSpan(name: 'child', parentSpan: root, hub: hub);
+        final grandchild =
+            SimpleSpan(name: 'grandchild', parentSpan: child, hub: hub);
+        final greatGrandchild =
+            SimpleSpan(name: 'great-grandchild', parentSpan: grandchild, hub: hub);
+
+        expect(grandchild.segmentSpan, same(root));
+        expect(greatGrandchild.segmentSpan, same(root));
+      });
+    });
+
+    group('traceId from scope', () {
+      test('uses traceId from hub scope propagationContext', () {
+        final hub = fixture.getHub();
+        final expectedTraceId = hub.scope.propagationContext.traceId;
+
+        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+
+        expect(span.traceId, equals(expectedTraceId));
+      });
+
+      test('child span has same traceId as parent', () {
+        final hub = fixture.getHub();
+        final parent = SimpleSpan(name: 'parent', parentSpan: null, hub: hub);
+        final child = SimpleSpan(name: 'child', parentSpan: parent, hub: hub);
+
+        expect(child.traceId, equals(parent.traceId));
+      });
+
+      test('traceId is set at construction time', () {
+        final hub = fixture.getHub();
+        final originalTraceId = hub.scope.propagationContext.traceId;
+
+        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+
+        // Change the propagation context after span creation
+        hub.scope.propagationContext.resetTrace();
+        final newTraceId = hub.scope.propagationContext.traceId;
+
+        // Span should still have the original traceId
+        expect(span.traceId, equals(originalTraceId));
+        expect(span.traceId, isNot(equals(newTraceId)));
+      });
+    });
+
+    group('toJson', () {
+      test('serializes basic span without parent', () {
+        final hub = fixture.getMockHub();
+        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+        span.end();
+
+        final json = span.toJson();
+
+        expect(json['trace_id'], equals(span.traceId.toString()));
+        expect(json['span_id'], equals(span.spanId.toString()));
+        expect(json['name'], equals('test-span'));
+        expect(json['is_segment'], isTrue);
+        expect(json['status'], equals('ok'));
+        expect(json['start_timestamp'], isA<double>());
+        expect(json['end_timestamp'], isA<double>());
+        expect(json.containsKey('parent_span_id'), isFalse);
+      });
+
+      test('serializes span with parent', () {
+        final hub = fixture.getMockHub();
+        final parent = SimpleSpan(name: 'parent', parentSpan: null, hub: hub);
+        final child = SimpleSpan(name: 'child', parentSpan: parent, hub: hub);
+        child.end();
+
+        final json = child.toJson();
+
+        expect(json['parent_span_id'], equals(parent.spanId.toString()));
+        expect(json['is_segment'], isFalse);
+      });
+
+      test('serializes span with error status', () {
+        final hub = fixture.getMockHub();
+        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+        span.status = SpanV2Status.error;
+        span.end();
+
+        final json = span.toJson();
+
+        expect(json['status'], equals('error'));
+      });
+
+      test('serializes span with attributes', () {
+        final hub = fixture.getMockHub();
+        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+        span.setAttribute('string_attr', SentryAttribute.string('value'));
+        span.setAttribute('int_attr', SentryAttribute.int(42));
+        span.setAttribute('bool_attr', SentryAttribute.bool(true));
+        span.setAttribute('double_attr', SentryAttribute.double(3.14));
+        span.end();
+
+        final json = span.toJson();
+
+        expect(json.containsKey('attributes'), isTrue);
+        final attributes = json['attributes'] as Map<String, dynamic>;
+
+        expect(attributes['string_attr'], {'value': 'value', 'type': 'string'});
+        expect(attributes['int_attr'], {'value': 42, 'type': 'integer'});
+        expect(attributes['bool_attr'], {'value': true, 'type': 'boolean'});
+        expect(attributes['double_attr'], {'value': 3.14, 'type': 'double'});
+      });
+
+      test('does not include attributes key when no attributes set', () {
+        final hub = fixture.getMockHub();
+        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+        span.end();
+
+        final json = span.toJson();
+
+        expect(json.containsKey('attributes'), isFalse);
+      });
+
+      test('end_timestamp is null when span is not finished', () {
+        final hub = fixture.getMockHub();
+        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+
+        final json = span.toJson();
+
+        expect(json['end_timestamp'], isNull);
+      });
+
+      test('timestamps are serialized as unix seconds with microsecond precision',
+          () {
+        final hub = fixture.getMockHub();
+        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+        final customEndTime = DateTime.utc(2024, 6, 15, 12, 30, 45, 123, 456);
+        span.end(endTimestamp: customEndTime);
+
+        final json = span.toJson();
+
+        final endTimestamp = json['end_timestamp'] as double;
+        // 2024-06-15 12:30:45.123456 UTC in microseconds since epoch
+        final expectedMicros = customEndTime.microsecondsSinceEpoch;
+        final expectedSeconds = expectedMicros / 1000000;
+
+        expect(endTimestamp, closeTo(expectedSeconds, 0.000001));
+      });
+
+      test('serializes updated name', () {
+        final hub = fixture.getMockHub();
+        final span = SimpleSpan(name: 'original-name', parentSpan: null, hub: hub);
+        span.name = 'updated-name';
+        span.end();
+
+        final json = span.toJson();
+
+        expect(json['name'], equals('updated-name'));
+      });
+    });
   });
 
   group('NoOpSpan', () {
