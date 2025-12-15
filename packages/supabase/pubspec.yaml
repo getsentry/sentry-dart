@@ -1,6 +1,6 @@
 name: sentry_supabase
 description: "Sentry integration to instrument Supabase."
-version: 9.9.0-beta.4
+version: 9.9.0
 homepage: https://docs.sentry.io/platforms/flutter/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
@@ -10,7 +10,7 @@ environment:
 
 dependencies:
   http: ^1.3.0
-  sentry: 9.9.0-beta.4
+  sentry: 9.9.0
 
 dev_dependencies:
   supabase: ^2.6.0

@@ -1,5 +1,9 @@
 # Changelog
 
+## 9.9.0
+
+- No documented changes.
+
 ## 9.9.0-beta.4
 
 ### Fixes
