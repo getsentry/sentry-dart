@@ -11,6 +11,8 @@ import 'telemetry_processor.dart';
 class DefaultTelemetryProcessor implements TelemetryProcessor {
   final Map<TelemetryType, TelemetryBuffer> _buffers = {};
 
+  DefaultTelemetryProcessor._();
+
   factory DefaultTelemetryProcessor(SentryOptions options) {
     final processor = DefaultTelemetryProcessor._();
 
@@ -33,8 +35,6 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
 
     return processor;
   }
-
-  DefaultTelemetryProcessor._();
 
   @override
   void add(TelemetryItem item) {
