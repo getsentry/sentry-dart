@@ -1,8 +1,9 @@
+import '../telemetry_processing/telemetry_item.dart';
 import 'sentry_attribute.dart';
 import 'sentry_id.dart';
 import 'sentry_log_level.dart';
 
-class SentryLog {
+class SentryLog extends TelemetryItem {
   DateTime timestamp;
   SentryId traceId;
   SentryLogLevel level;
@@ -21,6 +22,7 @@ class SentryLog {
     this.severityNumber,
   }) : traceId = traceId ?? SentryId.empty();
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'timestamp': timestamp.toIso8601String(),
@@ -32,4 +34,7 @@ class SentryLog {
       'severity_number': severityNumber ?? level.toSeverityNumber(),
     };
   }
+
+  @override
+  TelemetryType get type => TelemetryType.log;
 }

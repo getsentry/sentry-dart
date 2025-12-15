@@ -63,4 +63,10 @@ class UnsetSpan extends Span {
   Map<String, dynamic> toJson() {
     throw UnimplementedError('$UnsetSpan apis should not be used');
   }
+
+  @override
+  Span get segmentSpan => throw UnimplementedError();
+
+  @override
+  SentryId get traceId => throw UnimplementedError();
 }

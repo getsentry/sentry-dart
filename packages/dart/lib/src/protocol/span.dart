@@ -1,13 +1,17 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
+import '../telemetry_processing/telemetry_item.dart';
 
 // Span specs: https://develop.sentry.dev/sdk/telemetry/spans/span-api/
 
 /// Represents a basic telemetry span.
-abstract class Span {
+abstract class Span implements TelemetryItem {
   @internal
   const Span();
+
+  /// Gets the id of the trace this span belongs to.
+  SentryId get traceId;
 
   /// Gets the id of the span.
   SpanId get spanId;
@@ -52,8 +56,12 @@ abstract class Span {
   void setAttributes(Map<String, SentryAttribute> attributes);
 
   @internal
-  bool get isFinished;
+  Span get segmentSpan;
+
+  @override
+  @internal
+  TelemetryType get type => TelemetryType.span;
 
   @internal
-  Map<String, dynamic> toJson();
+  bool get isFinished;
 }

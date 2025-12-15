@@ -18,6 +18,7 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
+import 'telemetry_processing/telemetry_processor.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
@@ -75,9 +76,7 @@ class SentryClient {
     if (enableFlutterSpotlight) {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
-    if (options.enableLogs) {
-      options.logBatcher = SentryLogBatcher(options);
-    }
+    options.telemetryProcessor = DefaultTelemetryProcessor(options);
     return SentryClient._(options);
   }
 
@@ -578,7 +577,7 @@ class SentryClient {
     if (processedLog != null) {
       await _options.lifecycleRegistry
           .dispatchCallback(OnBeforeCaptureLog(processedLog));
-      _options.logBatcher.addLog(processedLog);
+      _options.telemetryProcessor.add(processedLog);
     } else {
       _options.recorder.recordLostEvent(
         DiscardReason.beforeSend,
@@ -588,7 +587,7 @@ class SentryClient {
   }
 
   FutureOr<void> close() {
-    final flush = _options.logBatcher.flush();
+    final flush = _options.telemetryProcessor.flush();
     if (flush is Future<void>) {
       return flush.then((_) => _options.httpClient.close());
     }

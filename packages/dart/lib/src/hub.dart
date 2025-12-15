@@ -628,7 +628,9 @@ class Hub {
 
     scope.removeActiveSpan(span);
 
-    // TODO(next-pr): run this span through span specific pipeline and then forward to span buffer
+    // TODO(next-pr): run this span through span specific pipeline and then forward to span buffer - API should be item.client.captureSpan
+    // this call is temporary until we add the captureSpan to the client see comment above
+    options.telemetryProcessor.add(span);
   }
 
   @internal
