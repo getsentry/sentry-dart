@@ -3,7 +3,7 @@ import '../../sentry.dart';
 import 'envelope_builder.dart';
 import 'telemetry_buffer.dart';
 
-/// Envelope builder for spans: groups by segment.
+/// Groups spans by segment, one envelope per segment.
 class SpanEnvelopeBuilder implements EnvelopeBuilder<Span> {
   final SentryOptions _options;
 
@@ -31,7 +31,6 @@ class SpanEnvelopeBuilder implements EnvelopeBuilder<Span> {
     return envelopes;
   }
 
-  /// Groups buffered spans by their segment (traceId + segmentSpanId).
   Map<String, List<BufferedItem<Span>>> _groupBySegment(
     List<BufferedItem<Span>> items,
   ) {
@@ -44,7 +43,6 @@ class SpanEnvelopeBuilder implements EnvelopeBuilder<Span> {
     return groups;
   }
 
-  /// Creates a trace context header from the segment span.
   SentryTraceContextHeader? _createTraceContext(Span span) {
     final segment = span.segmentSpan;
     final publicKey = _options.parsedDsn.publicKey;

@@ -3,7 +3,7 @@ import '../../sentry.dart';
 import 'envelope_builder.dart';
 import 'telemetry_buffer.dart';
 
-/// Envelope builder for logs: no grouping, single envelope.
+/// Single envelope for all logs, no grouping compared to [SpanEnvelopeBuilder].
 class LogEnvelopeBuilder implements EnvelopeBuilder<SentryLog> {
   final SentryOptions _options;
 
