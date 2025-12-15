@@ -18,7 +18,7 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
-import 'telemetry_processing/telemetry_processor.dart';
+import 'telemetry_processing/default_telemetry_processor.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
@@ -29,7 +29,6 @@ import 'type_check_hint.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
-import 'sentry_log_batcher.dart';
 import 'version.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
