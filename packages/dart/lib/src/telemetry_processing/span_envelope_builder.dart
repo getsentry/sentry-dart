@@ -10,7 +10,7 @@ class SpanEnvelopeBuilder implements EnvelopeBuilder<Span> {
   SpanEnvelopeBuilder(this._options);
 
   @override
-  List<SentryEnvelope> build(List<BufferedItem<Span>> items) {
+  List<SentryEnvelope> build(List<EncodedTelemetryItem<Span>> items) {
     if (items.isEmpty) return [];
 
     final groups = _groupBySegment(items);
@@ -31,10 +31,10 @@ class SpanEnvelopeBuilder implements EnvelopeBuilder<Span> {
     return envelopes;
   }
 
-  Map<String, List<BufferedItem<Span>>> _groupBySegment(
-    List<BufferedItem<Span>> items,
+  Map<String, List<EncodedTelemetryItem<Span>>> _groupBySegment(
+    List<EncodedTelemetryItem<Span>> items,
   ) {
-    final groups = <String, List<BufferedItem<Span>>>{};
+    final groups = <String, List<EncodedTelemetryItem<Span>>>{};
     for (final buffered in items) {
       final segment = buffered.item.segmentSpan;
       final key = '${segment.traceId}-${segment.spanId}';

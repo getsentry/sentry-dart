@@ -7,5 +7,5 @@ import 'telemetry_item.dart';
 @internal
 abstract class EnvelopeBuilder<T extends TelemetryItem> {
   /// May return multiple envelopes (e.g., one per segment for spans).
-  List<SentryEnvelope> build(List<BufferedItem<T>> items);
+  List<SentryEnvelope> build(List<EncodedTelemetryItem<T>> items);
 }

@@ -10,7 +10,7 @@ class LogEnvelopeBuilder implements EnvelopeBuilder<SentryLog> {
   LogEnvelopeBuilder(this._options);
 
   @override
-  List<SentryEnvelope> build(List<BufferedItem<SentryLog>> items) {
+  List<SentryEnvelope> build(List<EncodedTelemetryItem<SentryLog>> items) {
     if (items.isEmpty) return [];
 
     final encoded = items.map((i) => i.encoded).toList();

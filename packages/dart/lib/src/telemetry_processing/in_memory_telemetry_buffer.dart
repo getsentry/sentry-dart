@@ -15,7 +15,7 @@ class InMemoryTelemetryBuffer<T extends TelemetryItem>
   final int _maxBufferSizeBytes;
 
   Timer? _flushTimer;
-  final List<BufferedItem<T>> _items = [];
+  final List<EncodedTelemetryItem<T>> _items = [];
   int _bufferSize = 0;
 
   InMemoryTelemetryBuffer({
@@ -35,7 +35,7 @@ class InMemoryTelemetryBuffer<T extends TelemetryItem>
   void add(T item) {
     try {
       final encoded = utf8JsonEncoder.convert(item.toJson());
-      _items.add(BufferedItem(item, encoded));
+      _items.add(EncodedTelemetryItem(item, encoded));
       _bufferSize += encoded.length;
 
       if (_bufferSize >= _maxBufferSizeBytes) {
@@ -69,7 +69,7 @@ class InMemoryTelemetryBuffer<T extends TelemetryItem>
     _flushTimer?.cancel();
     _flushTimer = null;
 
-    final itemsToSend = List<BufferedItem<T>>.from(_items);
+    final itemsToSend = List<EncodedTelemetryItem<T>>.from(_items);
     _items.clear();
     _bufferSize = 0;
 
@@ -84,7 +84,7 @@ class InMemoryTelemetryBuffer<T extends TelemetryItem>
     return _buildAndSend(itemsToSend);
   }
 
-  Future<void> _buildAndSend(List<BufferedItem<T>> items) async {
+  Future<void> _buildAndSend(List<EncodedTelemetryItem<T>> items) async {
     try {
       final envelopes = _envelopeBuilder.build(items);
       await Future.wait(envelopes.map((envelope) => _transport.send(envelope)));

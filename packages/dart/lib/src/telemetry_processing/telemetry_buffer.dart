@@ -8,9 +8,9 @@ abstract class TelemetryBuffer<T extends TelemetryItem> {
 }
 
 /// Holds both raw item and encoded bytes for size tracking and grouping.
-class BufferedItem<T extends TelemetryItem> {
+class EncodedTelemetryItem<T extends TelemetryItem> {
   final T item;
   final List<int> encoded;
 
-  BufferedItem(this.item, this.encoded);
+  EncodedTelemetryItem(this.item, this.encoded);
 }
