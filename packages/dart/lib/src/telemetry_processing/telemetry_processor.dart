@@ -9,30 +9,18 @@ import 'telemetry_item.dart';
 /// Manages buffering and sending of telemetry data to Sentry.
 abstract class TelemetryProcessor {
   void add<T extends TelemetryItem>(T item);
+  void registerBuffer<T extends TelemetryItem>(TelemetryBuffer<T> buffer);
   FutureOr<void> flush();
 }
 
 class DefaultTelemetryProcessor implements TelemetryProcessor {
-  final SentryOptions _options;
+  final SdkLogCallback _logger;
   final Map<Type, TelemetryBuffer> _buffers = {};
 
   @visibleForTesting
   Map<Type, TelemetryBuffer> get buffers => _buffers;
 
-  DefaultTelemetryProcessor._(this._options);
-
-  factory DefaultTelemetryProcessor(SentryOptions options) {
-    final processor = DefaultTelemetryProcessor._(options);
-
-    // TODO(next-pr): register buffers for span and log
-
-    options.log(
-      SentryLevel.debug,
-      'DefaultTelemetryProcessor: Successfully initialized',
-    );
-
-    return processor;
-  }
+  DefaultTelemetryProcessor(this._logger);
 
   @override
   void add<T extends TelemetryItem>(T item) {
@@ -40,17 +28,17 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
     if (buffer != null) {
       buffer.add(item);
     } else {
-      _options.log(
+      _logger(
         SentryLevel.warning,
         'DefaultTelemetryProcessor: No buffer registered for telemetry type \'$T\' - item was dropped',
       );
     }
   }
 
-  @visibleForTesting
+  @override
   void registerBuffer<T extends TelemetryItem>(TelemetryBuffer<T> buffer) {
     _buffers[T] = buffer;
-    _options.log(
+    _logger(
       SentryLevel.debug,
       'DefaultTelemetryProcessor: Registered buffer for telemetry type \'$T\'',
     );
@@ -58,7 +46,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
 
   @override
   FutureOr<void> flush() {
-    _options.log(
+    _logger(
       SentryLevel.debug,
       'DefaultTelemetryProcessor: Flushing ${_buffers.length} buffer(s)',
     );

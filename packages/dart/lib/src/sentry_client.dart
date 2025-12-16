@@ -78,6 +78,7 @@ class SentryClient {
     if (options.enableLogs) {
       options.logBatcher = SentryLogBatcher(options);
     }
+    // TODO(next-pr): wire up telemetry processor and remove log batcher
     return SentryClient._(options);
   }
 
