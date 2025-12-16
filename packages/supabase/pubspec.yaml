@@ -1,7 +1,7 @@
 name: sentry_supabase
-description: "Sentry integration to instrument Supabase."
+description: 'Sentry integration for Supabase. Adds performance tracing, breadcrumbs, and error capturing for Supabase database operations in Dart apps.'
 version: 9.9.0
-homepage: https://docs.sentry.io/platforms/flutter/
+homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
 
