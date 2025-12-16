@@ -1,6 +1,7 @@
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_client.dart';
+import 'package:sentry/src/telemetry_processing/noop_telemetry_processor.dart';
 import 'package:sentry/src/version.dart';
 import 'package:test/test.dart';
 
@@ -182,5 +183,10 @@ void main() {
     final options = defaultTestOptions()..dsn = '';
 
     expect(() => options.parsedDsn, throwsA(isA<StateError>()));
+  });
+
+  test('TelemetryProcessor is NoOp by default', () {
+    final options = defaultTestOptions();
+    expect(options.telemetryProcessor, isA<NoOpTelemetryProcessor>());
   });
 }

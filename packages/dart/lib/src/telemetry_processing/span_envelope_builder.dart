@@ -2,6 +2,7 @@ import '../../sentry.dart';
 
 import 'envelope_builder.dart';
 import 'telemetry_buffer.dart';
+import 'telemetry_item.dart';
 
 /// Groups spans by segment, one envelope per segment.
 class SpanEnvelopeBuilder implements EnvelopeBuilder<Span> {

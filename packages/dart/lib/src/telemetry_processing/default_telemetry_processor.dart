@@ -4,8 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
 import 'in_memory_telemetry_buffer.dart';
-import 'log_envelope_builder.dart';
-import 'noop_telemetry_buffer.dart';
+import 'single_envelope_builder.dart';
 import 'span_envelope_builder.dart';
 import 'telemetry_buffer.dart';
 import 'telemetry_item.dart';
@@ -63,7 +62,6 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
 
   @visibleForTesting
   void registerBuffer(TelemetryBuffer buffer, TelemetryType type) {
-    assert(buffer is! NoOpTelemetryBuffer, 'Buffer for $type is no-op');
     _buffers[type] = buffer;
     _options.log(
       SentryLevel.debug,
