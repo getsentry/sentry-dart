@@ -8,19 +8,20 @@ import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_item.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
 import '../mocks/mock_hub.dart';
 import '../test_utils.dart';
 
 void main() {
-  late Fixture fixture;
+  late _Fixture fixture;
 
   setUp(() {
-    fixture = Fixture();
+    fixture = _Fixture();
   });
 
   group('SingleEnvelopeBuilder', () {
     test('build returns empty list when given empty input', () {
-      final builder = SingleEnvelopeBuilder<_MockTelemetryItem>(
+      final builder = SingleEnvelopeBuilder<MockTelemetryItem>(
         (items) => throw StateError('Should not be called'),
       );
 
@@ -30,16 +31,16 @@ void main() {
     });
 
     test('build returns single envelope containing all items', () {
-      List<EncodedTelemetryItem<_MockTelemetryItem>>? receivedItems;
+      List<EncodedTelemetryItem<MockTelemetryItem>>? receivedItems;
       final mockEnvelope = fixture.createMockEnvelope();
 
-      final builder = SingleEnvelopeBuilder<_MockTelemetryItem>((items) {
+      final builder = SingleEnvelopeBuilder<MockTelemetryItem>((items) {
         receivedItems = items;
         return mockEnvelope;
       });
 
-      final item1 = fixture.createEncodedItem(_MockTelemetryItem(), [1, 2, 3]);
-      final item2 = fixture.createEncodedItem(_MockTelemetryItem(), [4, 5, 6]);
+      final item1 = fixture.createEncodedItem(MockTelemetryItem(), [1, 2, 3]);
+      final item2 = fixture.createEncodedItem(MockTelemetryItem(), [4, 5, 6]);
 
       final result = builder.build([item1, item2]);
 
@@ -163,11 +164,11 @@ void main() {
   });
 }
 
-class Fixture {
+class _Fixture {
   final hub = MockHub();
   late SentryOptions options;
 
-  Fixture() {
+  _Fixture() {
     options = defaultTestOptions();
   }
 
@@ -193,7 +194,7 @@ class Fixture {
   }
 
   Span createRootSpan(String name, {SentryId? traceId, SpanId? spanId}) {
-    return _MockSpan(
+    return MockSpan(
       name: name,
       traceId: traceId ?? SentryId.newId(),
       spanId: spanId ?? SpanId.newId(),
@@ -202,7 +203,7 @@ class Fixture {
   }
 
   Span createChildSpan(String name, Span parent) {
-    return _MockSpan(
+    return MockSpan(
       name: name,
       traceId: parent.traceId,
       spanId: SpanId.newId(),
@@ -216,77 +217,4 @@ class Fixture {
       [],
     );
   }
-}
-
-/// Minimal test span with controllable segment behavior.
-class _MockSpan extends Span {
-  @override
-  final String name;
-
-  @override
-  final SentryId traceId;
-
-  @override
-  final SpanId spanId;
-
-  @override
-  final Span? parentSpan;
-
-  late final Span _segmentSpan;
-
-  _MockSpan({
-    required this.name,
-    required this.traceId,
-    required this.spanId,
-    required this.parentSpan,
-  }) {
-    _segmentSpan = parentSpan?.segmentSpan ?? this;
-  }
-
-  @override
-  Span get segmentSpan => _segmentSpan;
-
-  @override
-  set name(String value) {}
-
-  @override
-  SpanV2Status get status => SpanV2Status.ok;
-
-  @override
-  set status(SpanV2Status value) {}
-
-  @override
-  DateTime? get endTimestamp => DateTime.now().toUtc();
-
-  @override
-  Map<String, SentryAttribute> get attributes => {};
-
-  @override
-  void end({DateTime? endTimestamp}) {}
-
-  @override
-  void setAttribute(String key, SentryAttribute value) {}
-
-  @override
-  void setAttributes(Map<String, SentryAttribute> attributes) {}
-
-  @override
-  bool get isFinished => true;
-
-  @override
-  Map<String, dynamic> toJson() => {
-        'trace_id': traceId.toString(),
-        'span_id': spanId.toString(),
-        'name': name,
-        'status': status.name,
-      };
-}
-
-/// Mock telemetry item for testing SingleEnvelopeBuilder generics.
-class _MockTelemetryItem extends TelemetryItem {
-  @override
-  TelemetryType get type => TelemetryType.unknown;
-
-  @override
-  Map<String, dynamic> toJson() => {};
 }

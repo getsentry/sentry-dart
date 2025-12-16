@@ -1,6 +1,7 @@
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/profiling.dart';
+import 'package:sentry/src/telemetry_processing/telemetry_item.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
@@ -184,6 +185,92 @@ final Map<String, dynamic> testUnknown = {
   'unknown-bool': true,
   'unknown-num': 9001,
 };
+
+/// Mock telemetry item for testing generic telemetry processing.
+class MockTelemetryItem extends TelemetryItem {
+  final String? id;
+
+  MockTelemetryItem([this.id]);
+
+  @override
+  TelemetryType get type => TelemetryType.unknown;
+
+  @override
+  Map<String, dynamic> toJson() =>
+      id != null ? {'id': id} : <String, dynamic>{};
+}
+
+/// Mock telemetry item that throws on serialization.
+class ThrowingTelemetryItem extends MockTelemetryItem {
+  ThrowingTelemetryItem() : super('throwing');
+
+  @override
+  Map<String, dynamic> toJson() => throw Exception('Encoding failed');
+}
+
+/// Minimal test span with controllable segment behavior.
+class MockSpan extends Span {
+  @override
+  final String name;
+
+  @override
+  final SentryId traceId;
+
+  @override
+  final SpanId spanId;
+
+  @override
+  final Span? parentSpan;
+
+  late final Span _segmentSpan;
+
+  MockSpan({
+    required this.name,
+    required this.traceId,
+    required this.spanId,
+    this.parentSpan,
+  }) {
+    _segmentSpan = parentSpan?.segmentSpan ?? this;
+  }
+
+  @override
+  Span get segmentSpan => _segmentSpan;
+
+  @override
+  set name(String value) {}
+
+  @override
+  SpanV2Status get status => SpanV2Status.ok;
+
+  @override
+  set status(SpanV2Status value) {}
+
+  @override
+  DateTime? get endTimestamp => DateTime.now().toUtc();
+
+  @override
+  Map<String, SentryAttribute> get attributes => {};
+
+  @override
+  void end({DateTime? endTimestamp}) {}
+
+  @override
+  void setAttribute(String key, SentryAttribute value) {}
+
+  @override
+  void setAttributes(Map<String, SentryAttribute> attributes) {}
+
+  @override
+  bool get isFinished => true;
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'trace_id': traceId.toString(),
+        'span_id': spanId.toString(),
+        'name': name,
+        'status': status.name,
+      };
+}
 
 @GenerateMocks([
   SentryProfilerFactory,
