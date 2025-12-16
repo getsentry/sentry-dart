@@ -181,8 +181,8 @@ void main() {
         final child = SimpleSpan(name: 'child', parentSpan: root, hub: hub);
         final grandchild =
             SimpleSpan(name: 'grandchild', parentSpan: child, hub: hub);
-        final greatGrandchild =
-            SimpleSpan(name: 'great-grandchild', parentSpan: grandchild, hub: hub);
+        final greatGrandchild = SimpleSpan(
+            name: 'great-grandchild', parentSpan: grandchild, hub: hub);
 
         expect(grandchild.segmentSpan, same(root));
         expect(greatGrandchild.segmentSpan, same(root));
@@ -322,7 +322,8 @@ void main() {
         expect(json['end_timestamp'], isNull);
       });
 
-      test('timestamps are serialized as unix seconds with microsecond precision',
+      test(
+          'timestamps are serialized as unix seconds with microsecond precision',
           () {
         final hub = fixture.getMockHub();
         final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
@@ -341,7 +342,8 @@ void main() {
 
       test('serializes updated name', () {
         final hub = fixture.getMockHub();
-        final span = SimpleSpan(name: 'original-name', parentSpan: null, hub: hub);
+        final span =
+            SimpleSpan(name: 'original-name', parentSpan: null, hub: hub);
         span.name = 'updated-name';
         span.end();
 
