@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/telemetry_processing/envelope_builder.dart';
-import 'package:sentry/src/telemetry_processing/in_memory_telemetry_buffer.dart';
+import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
 import 'package:test/test.dart';
 

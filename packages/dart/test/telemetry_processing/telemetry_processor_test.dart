@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol/simple_span.dart';
-import 'package:sentry/src/telemetry_processing/default_telemetry_processor.dart';
-import 'package:sentry/src/telemetry_processing/in_memory_telemetry_buffer.dart';
+import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
+import 'package:sentry/src/telemetry_processing/telemetry_processor.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_item.dart';
 import 'package:test/test.dart';
 

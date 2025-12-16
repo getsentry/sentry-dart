@@ -11,7 +11,7 @@ import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-import 'package:sentry/src/telemetry_processing/default_telemetry_processor.dart';
+import 'package:sentry/src/telemetry_processing/telemetry_processor.dart';
 import 'package:sentry/src/telemetry_processing/noop_telemetry_processor.dart';
 import 'package:sentry/src/transport/client_report_transport.dart';
 import 'package:sentry/src/transport/data_category.dart';
@@ -19,18 +19,16 @@ import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
-import 'package:sentry/src/noop_log_batcher.dart';
-import 'package:sentry/src/sentry_log_batcher.dart';
 import 'package:mockito/mockito.dart';
 import 'package:http/http.dart' as http;
 
 import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_hub.dart';
+import 'mocks/mock_telemetry_processor.dart';
 import 'mocks/mock_transport.dart';
 import 'test_utils.dart';
 import 'utils/url_details_test.dart';
-import 'mocks/mock_log_batcher.dart';
 
 void main() {
   group('SentryClient captures message', () {
@@ -1753,41 +1751,32 @@ void main() {
       );
     }
 
-    test('sets log batcher on options when logs are enabled', () async {
-      expect(fixture.options.logBatcher is NoopLogBatcher, true);
-
-      fixture.options.enableLogs = true;
-      fixture.getSut();
-
-      expect(fixture.options.logBatcher is NoopLogBatcher, false);
-    });
-
     test('disabled by default', () async {
       final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
+      final mockTelemetryProcessor = MockTelemetryProcessor();
+      fixture.options.telemetryProcessor = mockTelemetryProcessor;
 
       final log = givenLog();
 
       await client.captureLog(log);
 
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls, isEmpty);
+      expect(mockTelemetryProcessor.addedItems, isEmpty);
     });
 
-    test('should capture logs as envelope', () async {
+    test('should capture logs via telemetry processor', () async {
       fixture.options.enableLogs = true;
 
       final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
+      final mockTelemetryProcessor = MockTelemetryProcessor();
+      fixture.options.telemetryProcessor = mockTelemetryProcessor;
 
       final log = givenLog();
 
       await client.captureLog(log);
 
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
+      expect(mockTelemetryProcessor.addedItems.length, 1);
 
-      final capturedLog = mockLogBatcher.addLogCalls.first;
+      final capturedLog = mockTelemetryProcessor.addedItems.first as SentryLog;
 
       expect(capturedLog.traceId, log.traceId);
       expect(capturedLog.level, log.level);
@@ -1808,13 +1797,13 @@ void main() {
       scope.span = span;
 
       final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
+      final mockTelemetryProcessor = MockTelemetryProcessor();
+      fixture.options.telemetryProcessor = mockTelemetryProcessor;
 
       await client.captureLog(log, scope: scope);
 
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
+      expect(mockTelemetryProcessor.addedItems.length, 1);
+      final capturedLog = mockTelemetryProcessor.addedItems.first as SentryLog;
 
       expect(
         capturedLog.attributes['sentry.sdk.name']?.value,
@@ -1862,7 +1851,8 @@ void main() {
       fixture.options.enableLogs = true;
 
       final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
+      final mockTelemetryProcessor = MockTelemetryProcessor();
+      fixture.options.telemetryProcessor = mockTelemetryProcessor;
       final log = givenLog();
 
       final scope = Scope(fixture.options);
@@ -1870,9 +1860,8 @@ void main() {
 
       await client.captureLog(log, scope: scope);
 
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
+      expect(mockTelemetryProcessor.addedItems.length, 1);
+      final capturedLog = mockTelemetryProcessor.addedItems.first as SentryLog;
       expect(capturedLog.attributes['from_scope']?.value, 12);
     });
 
@@ -1880,7 +1869,8 @@ void main() {
       fixture.options.enableLogs = true;
 
       final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
+      final mockTelemetryProcessor = MockTelemetryProcessor();
+      fixture.options.telemetryProcessor = mockTelemetryProcessor;
       final log = givenLog();
 
       final scope = Scope(fixture.options);
@@ -1894,9 +1884,8 @@ void main() {
 
       await client.captureLog(log, scope: scope);
 
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final captured = mockLogBatcher.addLogCalls.first;
+      expect(mockTelemetryProcessor.addedItems.length, 1);
+      final captured = mockTelemetryProcessor.addedItems.first as SentryLog;
 
       expect(captured.attributes['overridden']?.value, 'fromLog');
       expect(captured.attributes['kept']?.value, true);
@@ -1916,13 +1905,13 @@ void main() {
       await scope.setUser(user);
 
       final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
+      final mockTelemetryProcessor = MockTelemetryProcessor();
+      fixture.options.telemetryProcessor = mockTelemetryProcessor;
 
       await client.captureLog(log, scope: scope);
 
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
+      expect(mockTelemetryProcessor.addedItems.length, 1);
+      final capturedLog = mockTelemetryProcessor.addedItems.first as SentryLog;
 
       expect(
         capturedLog.attributes['user.id']?.value,
@@ -1956,16 +1945,16 @@ void main() {
       fixture.options.enableLogs = true;
 
       final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
+      final mockTelemetryProcessor = MockTelemetryProcessor();
+      fixture.options.telemetryProcessor = mockTelemetryProcessor;
 
       final log = givenLog();
       final scope = Scope(fixture.options);
 
       await client.captureLog(log, scope: scope);
 
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
+      expect(mockTelemetryProcessor.addedItems.length, 1);
+      final capturedLog = mockTelemetryProcessor.addedItems.first as SentryLog;
 
       expect(capturedLog.traceId, scope.propagationContext.traceId);
     });
@@ -1977,14 +1966,14 @@ void main() {
       fixture.options.beforeSendLog = (log) => null;
 
       final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
+      final mockTelemetryProcessor = MockTelemetryProcessor();
+      fixture.options.telemetryProcessor = mockTelemetryProcessor;
 
       final log = givenLog();
 
       await client.captureLog(log);
 
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 0);
+      expect(mockTelemetryProcessor.addedItems.length, 0);
 
       expect(
         fixture.recorder.discardedEvents.first.reason,
@@ -2004,15 +1993,15 @@ void main() {
       };
 
       final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
+      final mockTelemetryProcessor = MockTelemetryProcessor();
+      fixture.options.telemetryProcessor = mockTelemetryProcessor;
 
       final log = givenLog();
 
       await client.captureLog(log);
 
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
+      expect(mockTelemetryProcessor.addedItems.length, 1);
+      final capturedLog = mockTelemetryProcessor.addedItems.first as SentryLog;
 
       expect(capturedLog.body, 'modified');
     });
@@ -2026,15 +2015,15 @@ void main() {
       };
 
       final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
+      final mockTelemetryProcessor = MockTelemetryProcessor();
+      fixture.options.telemetryProcessor = mockTelemetryProcessor;
 
       final log = givenLog();
 
       await client.captureLog(log);
 
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
+      expect(mockTelemetryProcessor.addedItems.length, 1);
+      final capturedLog = mockTelemetryProcessor.addedItems.first as SentryLog;
 
       expect(capturedLog.body, 'modified');
     });
@@ -2048,14 +2037,14 @@ void main() {
       };
 
       final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
+      final mockTelemetryProcessor = MockTelemetryProcessor();
+      fixture.options.telemetryProcessor = mockTelemetryProcessor;
 
       final log = givenLog();
       await client.captureLog(log);
 
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
+      expect(mockTelemetryProcessor.addedItems.length, 1);
+      final capturedLog = mockTelemetryProcessor.addedItems.first as SentryLog;
 
       expect(capturedLog.body, 'test');
     });
@@ -2072,7 +2061,8 @@ void main() {
       scope.span = span;
 
       final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
+      final mockTelemetryProcessor = MockTelemetryProcessor();
+      fixture.options.telemetryProcessor = mockTelemetryProcessor;
 
       fixture.options.lifecycleRegistry
           .registerCallback<OnBeforeCaptureLog>((event) {
@@ -2081,9 +2071,8 @@ void main() {
 
       await client.captureLog(log, scope: scope);
 
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
+      expect(mockTelemetryProcessor.addedItems.length, 1);
+      final capturedLog = mockTelemetryProcessor.addedItems.first as SentryLog;
 
       expect(capturedLog.attributes['test']?.value, "test-value");
       expect(capturedLog.attributes['test']?.type, 'string');
@@ -2685,27 +2674,27 @@ void main() {
       fixture = Fixture();
     });
 
-    test('waits for log batcher flush before closing http client', () async {
+    test('waits for telemetry processor flush before closing http client',
+        () async {
       // Create a mock HTTP client that tracks when close is called
       final mockHttpClient = MockHttpClient();
       fixture.options.httpClient = mockHttpClient;
 
-      fixture.options.enableLogs = true;
       final client = fixture.getSut();
 
       // Create a completer to control when flush completes
       final flushCompleter = Completer<void>();
       bool flushStarted = false;
 
-      // Create a mock log batcher with async flush
-      final mockLogBatcher = MockLogBatcherWithAsyncFlush(
+      // Create a mock telemetry processor with async flush
+      final mockTelemetryProcessor = MockTelemetryProcessor(
         onFlush: () async {
           flushStarted = true;
           // Wait for the completer to complete
           await flushCompleter.future;
         },
       );
-      fixture.options.logBatcher = mockLogBatcher;
+      fixture.options.telemetryProcessor = mockTelemetryProcessor;
 
       // Start close() in the background
       final closeFuture = client.close();
@@ -2922,23 +2911,6 @@ class Fixture {
 }
 
 class MockHttpClient extends Mock implements http.Client {}
-
-class MockLogBatcherWithAsyncFlush implements SentryLogBatcher {
-  final Future<void> Function() onFlush;
-  final addLogCalls = <SentryLog>[];
-
-  MockLogBatcherWithAsyncFlush({required this.onFlush});
-
-  @override
-  void addLog(SentryLog log) {
-    addLogCalls.add(log);
-  }
-
-  @override
-  FutureOr<void> flush() async {
-    await onFlush();
-  }
-}
 
 class ExceptionWithCause {
   ExceptionWithCause(this.cause, this.stackTrace);

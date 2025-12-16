@@ -4,7 +4,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_client_report_recorder.dart';
-import 'mocks/mock_log_batcher.dart';
+import 'mocks/mock_telemetry_processor.dart';
 import 'mocks/mock_transport.dart';
 import 'sentry_client_test.dart';
 import 'test_utils.dart';
@@ -41,7 +41,8 @@ void main() {
         scope.span = span;
 
         final client = fixture.getSut();
-        fixture.options.logBatcher = MockLogBatcher();
+        final mockTelemetryProcessor = MockTelemetryProcessor();
+        fixture.options.telemetryProcessor = mockTelemetryProcessor;
 
         fixture.options.lifecycleRegistry
             .registerCallback<OnBeforeCaptureLog>((event) {
@@ -50,9 +51,9 @@ void main() {
 
         await client.captureLog(log, scope: scope);
 
-        final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-        expect(mockLogBatcher.addLogCalls.length, 1);
-        final capturedLog = mockLogBatcher.addLogCalls.first;
+        expect(mockTelemetryProcessor.addedItems.length, 1);
+        final capturedLog =
+            mockTelemetryProcessor.addedItems.first as SentryLog;
 
         expect(capturedLog.attributes['test']?.value, "test-value");
         expect(capturedLog.attributes['test']?.type, 'string');
@@ -72,7 +73,6 @@ void main() {
         scope.span = span;
 
         final client = fixture.getSut();
-        fixture.options.logBatcher = MockLogBatcher();
 
         fixture.options.lifecycleRegistry
             .registerCallback<OnBeforeSendEvent>((event) {

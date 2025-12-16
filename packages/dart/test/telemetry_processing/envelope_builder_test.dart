@@ -2,8 +2,7 @@ import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
-import 'package:sentry/src/telemetry_processing/single_envelope_builder.dart';
-import 'package:sentry/src/telemetry_processing/span_envelope_builder.dart';
+import 'package:sentry/src/telemetry_processing/envelope_builder.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_item.dart';
 import 'package:test/test.dart';
