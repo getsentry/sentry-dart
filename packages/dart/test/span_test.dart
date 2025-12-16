@@ -207,6 +207,25 @@ void main() {
         expect(child.traceId, equals(parent.traceId));
       });
 
+      test(
+          'child span inherits traceId from parent even after propagation context reset',
+          () {
+        final hub = fixture.getHub();
+        final parent = SimpleSpan(name: 'parent', parentSpan: null, hub: hub);
+        final parentTraceId = parent.traceId;
+
+        // Reset the propagation context - this would change the scope's traceId
+        hub.scope.propagationContext.resetTrace();
+        final newPropagationTraceId = hub.scope.propagationContext.traceId;
+
+        // Create child span after reset
+        final child = SimpleSpan(name: 'child', parentSpan: parent, hub: hub);
+
+        // Child should inherit from parent, not from the new propagation context
+        expect(child.traceId, equals(parentTraceId));
+        expect(child.traceId, isNot(equals(newPropagationTraceId)));
+      });
+
       test('traceId is set at construction time', () {
         final hub = fixture.getHub();
         final originalTraceId = hub.scope.propagationContext.traceId;

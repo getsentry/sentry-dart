@@ -24,7 +24,7 @@ class SimpleSpan implements Span {
         _startTimestamp = DateTime.now().toUtc(),
         _name = name {
     _segmentSpan = parentSpan?.segmentSpan ?? this;
-    _traceId = _hub.scope.propagationContext.traceId;
+    _traceId = parentSpan?.traceId ?? _hub.scope.propagationContext.traceId;
   }
 
   @override
@@ -92,7 +92,6 @@ class SimpleSpan implements Span {
           _endTimestamp == null ? null : toUnixSeconds(_endTimestamp!),
       'start_timestamp': toUnixSeconds(_startTimestamp),
       if (parentSpan != null) 'parent_span_id': parentSpan?.spanId.toString(),
-      if (parentSpan == null) 'is_segment': true,
       if (_attributes.isNotEmpty)
         'attributes':
             _attributes.map((key, value) => MapEntry(key, value.toJson())),
