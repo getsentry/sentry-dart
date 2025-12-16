@@ -8,65 +8,51 @@ import '../../sentry.dart';
 class UnsetSpan extends Span {
   const UnsetSpan();
 
-  @override
-  SpanId get spanId =>
-      throw UnimplementedError('$UnsetSpan apis should not be used');
+  static Never _throw() =>
+      throw UnimplementedError('$UnsetSpan APIs should not be used');
 
   @override
-  String get name =>
-      throw UnimplementedError('$UnsetSpan apis should not be used');
+  SpanId get spanId => _throw();
 
   @override
-  set name(String name) =>
-      throw UnimplementedError('$UnsetSpan apis should not be used');
+  String get name => _throw();
 
   @override
-  SpanV2Status get status =>
-      throw UnimplementedError('$UnsetSpan apis should not be used');
+  set name(String name) => _throw();
 
   @override
-  set status(SpanV2Status status) =>
-      throw UnimplementedError('$UnsetSpan apis should not be used');
+  SpanV2Status get status => _throw();
 
   @override
-  Span? get parentSpan =>
-      throw UnimplementedError('$UnsetSpan apis should not be used');
+  set status(SpanV2Status status) => _throw();
 
   @override
-  DateTime? get endTimestamp =>
-      throw UnimplementedError('$UnsetSpan apis should not be used');
+  Span? get parentSpan => _throw();
 
   @override
-  Map<String, SentryAttribute> get attributes =>
-      throw UnimplementedError('$UnsetSpan apis should not be used');
+  DateTime? get endTimestamp => _throw();
 
   @override
-  bool get isFinished =>
-      throw UnimplementedError('$UnsetSpan apis should not be used');
+  Map<String, SentryAttribute> get attributes => _throw();
 
   @override
-  void setAttribute(String key, SentryAttribute value) {
-    throw UnimplementedError('$UnsetSpan apis should not be used');
-  }
+  bool get isFinished => _throw();
 
   @override
-  void setAttributes(Map<String, SentryAttribute> attributes) {
-    throw UnimplementedError('$UnsetSpan apis should not be used');
-  }
+  void setAttribute(String key, SentryAttribute value) => _throw();
 
   @override
-  void end({DateTime? endTimestamp}) {
-    throw UnimplementedError('$UnsetSpan apis should not be used');
-  }
+  void setAttributes(Map<String, SentryAttribute> attributes) => _throw();
 
   @override
-  Map<String, dynamic> toJson() {
-    throw UnimplementedError('$UnsetSpan apis should not be used');
-  }
+  void end({DateTime? endTimestamp}) => _throw();
 
   @override
-  Span get segmentSpan => throw UnimplementedError();
+  Map<String, dynamic> toJson() => _throw();
 
   @override
-  SentryId get traceId => throw UnimplementedError();
+  Span get segmentSpan => _throw();
+
+  @override
+  SentryId get traceId => _throw();
 }

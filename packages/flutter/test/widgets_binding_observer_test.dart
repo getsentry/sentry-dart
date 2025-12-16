@@ -11,10 +11,9 @@ import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/widgets_binding_observer.dart';
 
-import 'package:sentry/src/sentry_log_batcher.dart';
-
 import 'mocks.dart';
 import 'mocks.mocks.dart';
+import '../../dart/test/mocks/mock_telemetry_processor.dart';
 
 void main() {
   group('WidgetsBindingObserver', () {
@@ -571,13 +570,13 @@ void main() {
         (WidgetTester tester) async {
       final hub = MockHub();
 
-      final mockLogBatcher = MockLogBatcher();
+      final mockTelemetryProcessor = MockTelemetryProcessor();
 
       final options = defaultTestOptions();
       options.platform = MockPlatform(isWeb: false);
       options.bindingUtils = TestBindingWrapper();
 
-      options.logBatcher = mockLogBatcher;
+      options.telemetryProcessor = mockTelemetryProcessor;
       options.enableLogs = true;
 
       final observer = SentryWidgetsBindingObserver(
@@ -590,21 +589,9 @@ void main() {
 
       await sendLifecycle('inactive');
 
-      expect(mockLogBatcher.flushCalled, true);
+      expect(mockTelemetryProcessor.flushCallCount, 1);
 
       instance.removeObserver(observer);
     });
   });
-}
-
-class MockLogBatcher implements SentryLogBatcher {
-  var flushCalled = false;
-
-  @override
-  void addLog(SentryLog log) {}
-
-  @override
-  FutureOr<void> flush() async {
-    flushCalled = true;
-  }
 }
