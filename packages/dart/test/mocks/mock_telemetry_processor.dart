@@ -11,7 +11,7 @@ class MockTelemetryProcessor implements TelemetryProcessor {
   MockTelemetryProcessor({this.onFlush});
 
   @override
-  void add(TelemetryItem item) {
+  void add<T extends TelemetryItem>(T item) {
     addedItems.add(item);
   }
 
@@ -21,4 +21,3 @@ class MockTelemetryProcessor implements TelemetryProcessor {
     await onFlush?.call();
   }
 }
-

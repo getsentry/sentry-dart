@@ -48,7 +48,4 @@ class NoOpSpan implements Span {
 
   @override
   SentryId get traceId => SentryId.empty();
-
-  @override
-  TelemetryType get type => TelemetryType.unknown;
 }

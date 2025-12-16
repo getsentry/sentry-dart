@@ -5,7 +5,7 @@ import 'telemetry_processor.dart';
 
 class NoOpTelemetryProcessor implements TelemetryProcessor {
   @override
-  void add(TelemetryItem item) {}
+  void add<T extends TelemetryItem>(T item) {}
 
   @override
   FutureOr<void> flush() {}

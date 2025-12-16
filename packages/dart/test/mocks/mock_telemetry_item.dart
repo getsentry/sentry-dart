@@ -7,9 +7,6 @@ class MockTelemetryItem extends TelemetryItem {
   MockTelemetryItem([this.id]);
 
   @override
-  TelemetryType get type => TelemetryType.unknown;
-
-  @override
   Map<String, dynamic> toJson() =>
       id != null ? {'id': id} : <String, dynamic>{};
 }
@@ -21,4 +18,3 @@ class ThrowingTelemetryItem extends MockTelemetryItem {
   @override
   Map<String, dynamic> toJson() => throw Exception('Encoding failed');
 }
-

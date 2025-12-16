@@ -3,22 +3,23 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
+import '../protocol/simple_span.dart';
 import 'envelope_builder.dart';
 import 'telemetry_buffer.dart';
 import 'telemetry_item.dart';
 
 /// Manages buffering and sending of telemetry data to Sentry.
 abstract class TelemetryProcessor {
-  void add(TelemetryItem item);
+  void add<T extends TelemetryItem>(T item);
   FutureOr<void> flush();
 }
 
 class DefaultTelemetryProcessor implements TelemetryProcessor {
   final SentryOptions _options;
-  final Map<TelemetryType, TelemetryBuffer> _buffers = {};
+  final Map<Type, TelemetryBuffer> _buffers = {};
 
   @visibleForTesting
-  Map<TelemetryType, TelemetryBuffer> get buffers => _buffers;
+  Map<Type, TelemetryBuffer> get buffers => _buffers;
 
   DefaultTelemetryProcessor._(this._options);
 
@@ -26,20 +27,16 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
     final processor = DefaultTelemetryProcessor._(options);
 
     // TODO(next-pr): add span-first flag
-    processor.registerBuffer(
-        InMemoryTelemetryBuffer<Span>(
-            logger: options.log,
-            envelopeBuilder: SpanEnvelopeBuilder(options),
-            transport: options.transport),
-        TelemetryType.span);
+    processor.registerBuffer(InMemoryTelemetryBuffer<Span>(
+        logger: options.log,
+        envelopeBuilder: SpanEnvelopeBuilder(options),
+        transport: options.transport));
 
     if (options.enableLogs) {
-      processor.registerBuffer(
-          InMemoryTelemetryBuffer<SentryLog>(
-              logger: options.log,
-              envelopeBuilder: LogEnvelopeBuilder(options),
-              transport: options.transport),
-          TelemetryType.log);
+      processor.registerBuffer(InMemoryTelemetryBuffer<SentryLog>(
+          logger: options.log,
+          envelopeBuilder: LogEnvelopeBuilder(options),
+          transport: options.transport));
     }
 
     options.log(
@@ -51,24 +48,24 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   }
 
   @override
-  void add(TelemetryItem item) {
-    final buffer = _buffers[item.type];
+  void add<T extends TelemetryItem>(T item) {
+    final buffer = _buffers[T];
     if (buffer != null) {
       buffer.add(item);
     } else {
       _options.log(
         SentryLevel.warning,
-        'DefaultTelemetryProcessor: No buffer registered for telemetry type ${item.type.name} - item was dropped',
+        'DefaultTelemetryProcessor: No buffer registered for telemetry type \'$T\' - item was dropped',
       );
     }
   }
 
   @visibleForTesting
-  void registerBuffer(TelemetryBuffer buffer, TelemetryType type) {
-    _buffers[type] = buffer;
+  void registerBuffer<T extends TelemetryItem>(TelemetryBuffer<T> buffer) {
+    _buffers[T] = buffer;
     _options.log(
       SentryLevel.debug,
-      'DefaultTelemetryProcessor: Registered buffer for ${type.name}',
+      'DefaultTelemetryProcessor: Registered buffer for telemetry type \'$T\'',
     );
   }
 

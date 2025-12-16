@@ -58,10 +58,6 @@ abstract class Span implements TelemetryItem {
   @internal
   Span get segmentSpan;
 
-  @override
-  @internal
-  TelemetryType get type => TelemetryType.span;
-
   @internal
   bool get isFinished;
 }

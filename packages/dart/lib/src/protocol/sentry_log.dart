@@ -34,7 +34,4 @@ class SentryLog extends TelemetryItem {
       'severity_number': severityNumber ?? level.toSeverityNumber(),
     };
   }
-
-  @override
-  TelemetryType get type => TelemetryType.log;
 }

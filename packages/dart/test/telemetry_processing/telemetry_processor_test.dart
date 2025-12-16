@@ -4,7 +4,6 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol/simple_span.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_processor.dart';
-import 'package:sentry/src/telemetry_processing/telemetry_item.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_buffer.dart';
@@ -29,14 +28,13 @@ void main() {
       test('registers in-memory log buffer when enableLogs is true', () {
         final processor = fixture.getSut(enableLogs: true);
 
-        expect(processor.buffers[TelemetryType.log],
-            isA<InMemoryTelemetryBuffer>());
+        expect(processor.buffers[SentryLog], isA<InMemoryTelemetryBuffer>());
       });
 
       test('does NOT register log buffer when enableLogs is false', () {
         final processor = fixture.getSut(enableLogs: false);
 
-        expect(processor.buffers.containsKey(TelemetryType.log), isFalse);
+        expect(processor.buffers.containsKey(SentryLog), isFalse);
       });
     });
 
@@ -45,8 +43,8 @@ void main() {
         final processor = fixture.getSut();
         final mockLogBuffer = MockTelemetryBuffer<SentryLog>();
         final mockSpanBuffer = MockTelemetryBuffer<Span>();
-        processor.registerBuffer(mockLogBuffer, TelemetryType.log);
-        processor.registerBuffer(mockSpanBuffer, TelemetryType.span);
+        processor.registerBuffer(mockLogBuffer);
+        processor.registerBuffer(mockSpanBuffer);
 
         final log = fixture.createLog();
         processor.add(log);
@@ -70,6 +68,9 @@ void main() {
 
         // Nothing to assert on - just verifying no exception thrown
       });
+
+      // Note: Mismatch between buffer generic type and TelemetryType is now
+      // impossible - the type is inferred from the generic parameter T.
     });
 
     group('flush', () {
@@ -77,8 +78,8 @@ void main() {
         final processor = fixture.getSut();
         final mockSpanBuffer = MockTelemetryBuffer<Span>();
         final mockLogBuffer = MockTelemetryBuffer<SentryLog>();
-        processor.registerBuffer(mockSpanBuffer, TelemetryType.span);
-        processor.registerBuffer(mockLogBuffer, TelemetryType.log);
+        processor.registerBuffer(mockSpanBuffer);
+        processor.registerBuffer(mockLogBuffer);
 
         await processor.flush();
 
@@ -89,7 +90,7 @@ void main() {
       test('returns sync (null) when all buffers flush synchronously', () {
         final processor = fixture.getSut();
         final mockBuffer = MockTelemetryBuffer<Span>(asyncFlush: false);
-        processor.registerBuffer(mockBuffer, TelemetryType.span);
+        processor.registerBuffer(mockBuffer);
 
         final result = processor.flush();
 
@@ -100,7 +101,7 @@ void main() {
           () async {
         final processor = fixture.getSut();
         final mockBuffer = MockTelemetryBuffer<Span>(asyncFlush: true);
-        processor.registerBuffer(mockBuffer, TelemetryType.span);
+        processor.registerBuffer(mockBuffer);
 
         final result = processor.flush();
 
