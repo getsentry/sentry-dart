@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
-import '../protocol/simple_span.dart';
 import 'envelope_builder.dart';
 import 'telemetry_buffer.dart';
 import 'telemetry_item.dart';
