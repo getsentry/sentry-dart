@@ -4,65 +4,128 @@ import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
 import 'telemetry_buffer.dart';
-import 'telemetry_item.dart';
 
 /// Manages buffering and sending of telemetry data to Sentry.
 abstract class TelemetryProcessor {
-  void add<T extends TelemetryItem>(T item);
-  void registerBuffer<T extends TelemetryItem>(TelemetryBuffer<T> buffer);
+  void addSpan(Span span);
+  void addLog(SentryLog log);
   FutureOr<void> flush();
 }
 
+/// Manages buffering and sending of telemetry data to Sentry.
+///
+/// Creates and manages buffers internally based on [SentryOptions] configuration.
+/// Buffers are only created when their respective features are enabled.
 class DefaultTelemetryProcessor implements TelemetryProcessor {
+  final SentryOptions _options;
   final SdkLogCallback _logger;
-  final Map<Type, TelemetryBuffer> _buffers = {};
 
+  /// Buffer for span telemetry data.
+  ///
+  /// Only created if tracing is enabled in options.
   @visibleForTesting
-  Map<Type, TelemetryBuffer> get buffers => _buffers;
+  TelemetryBuffer<Span>? spanBuffer;
 
-  DefaultTelemetryProcessor(this._logger);
+  /// Buffer for log telemetry data.
+  ///
+  /// Only created if logging is enabled in options.
+  @visibleForTesting
+  TelemetryBuffer<SentryLog>? logBuffer;
 
+  DefaultTelemetryProcessor(this._options, this._logger) {
+    _initBuffers();
+  }
+
+  void _initBuffers() {
+    // TODO(next-pr): add span first flag
+    spanBuffer = createSpanBuffer();
+    _logger(SentryLevel.debug, 'TelemetryProcessor: Span buffer initialized');
+
+    if (_options.enableLogs) {
+      logBuffer = createLogBuffer();
+      _logger(SentryLevel.debug, 'TelemetryProcessor: Log buffer initialized');
+    }
+  }
+
+  /// Creates the span buffer.
+  ///
+  /// Can be overridden in subclasses or tests to provide a custom buffer.
+  @visibleForTesting
+  TelemetryBuffer<Span> createSpanBuffer() {
+    throw UnimplementedError();
+  }
+
+  /// Creates the log buffer.
+  ///
+  /// Can be overridden in subclasses or tests to provide a custom buffer.
+  @visibleForTesting
+  TelemetryBuffer<SentryLog> createLogBuffer() {
+    throw UnimplementedError();
+  }
+
+  /// Adds a span to the buffer for later transmission.
+  ///
+  /// If no span buffer is registered, the span is dropped
+  /// and a warning is logged.
   @override
-  void add<T extends TelemetryItem>(T item) {
-    final buffer = _buffers[T];
+  void addSpan(Span span) {
+    final buffer = spanBuffer;
     if (buffer != null) {
-      buffer.add(item);
+      buffer.add(span);
     } else {
       _logger(
         SentryLevel.warning,
-        'DefaultTelemetryProcessor: No buffer registered for telemetry type \'$T\' - item was dropped',
+        'TelemetryProcessor: No span buffer registered - span was dropped',
       );
     }
   }
 
+  /// Adds a log to the buffer for later transmission.
+  ///
+  /// If no log buffer is registered, the log is dropped
+  /// and a warning is logged.
   @override
-  void registerBuffer<T extends TelemetryItem>(TelemetryBuffer<T> buffer) {
-    _buffers[T] = buffer;
-    _logger(
-      SentryLevel.debug,
-      'DefaultTelemetryProcessor: Registered buffer for telemetry type \'$T\'',
-    );
+  void addLog(SentryLog log) {
+    final buffer = logBuffer;
+    if (buffer != null) {
+      buffer.add(log);
+    } else {
+      _logger(
+        SentryLevel.warning,
+        'TelemetryProcessor: No log buffer registered - log was dropped',
+      );
+    }
   }
 
+  /// Flushes all buffers, sending any pending telemetry data.
+  ///
+  /// Returns a [Future] that completes when all buffers have been flushed.
+  /// Returns immediately if no buffers need flushing.
   @override
   FutureOr<void> flush() {
-    _logger(
-      SentryLevel.debug,
-      'DefaultTelemetryProcessor: Flushing ${_buffers.length} buffer(s)',
-    );
+    _logger(SentryLevel.debug, 'TelemetryProcessor: Flushing buffers');
 
-    final results = _buffers.values.map((buffer) => buffer.flush()).toList();
+    final results = <FutureOr<void>>[
+      spanBuffer?.flush(),
+      logBuffer?.flush(),
+    ].whereType<FutureOr<void>>().toList();
 
-    final futures = <Future<void>>[];
-    for (final result in results) {
-      if (result is Future<void>) {
-        futures.add(result);
-      }
+    final futures = results.whereType<Future<void>>().toList();
+    if (futures.isEmpty) {
+      return null;
     }
-
-    // If all are sync, preserve sync behavior (no Future allocation).
-    if (futures.isEmpty) return null;
 
     return Future.wait(futures).then((_) {});
   }
+}
+
+class NoOpTelemetryProcessor implements TelemetryProcessor {
+  @override
+  void addSpan(Span span) {}
+
+  @override
+  void addLog(SentryLog log) {}
+
+  @override
+  FutureOr<void> flush() {}
 }
