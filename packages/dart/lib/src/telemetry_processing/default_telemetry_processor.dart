@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import '../../sentry.dart';
 import 'in_memory_telemetry_buffer.dart';
 import 'log_envelope_builder.dart';
@@ -13,13 +15,16 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   final SentryOptions _options;
   final Map<TelemetryType, TelemetryBuffer> _buffers = {};
 
+  @visibleForTesting
+  Map<TelemetryType, TelemetryBuffer> get buffers => _buffers;
+
   DefaultTelemetryProcessor._(this._options);
 
   factory DefaultTelemetryProcessor(SentryOptions options) {
     final processor = DefaultTelemetryProcessor._(options);
 
     // TODO(next-pr): add span-first flag
-    processor._registerBuffer(
+    processor.registerBuffer(
         InMemoryTelemetryBuffer<Span>(
             logger: options.log,
             envelopeBuilder: SpanEnvelopeBuilder(options),
@@ -27,7 +32,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
         TelemetryType.span);
 
     if (options.enableLogs) {
-      processor._registerBuffer(
+      processor.registerBuffer(
           InMemoryTelemetryBuffer<SentryLog>(
               logger: options.log,
               envelopeBuilder: LogEnvelopeBuilder(options),
@@ -56,7 +61,8 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
     }
   }
 
-  void _registerBuffer(TelemetryBuffer buffer, TelemetryType type) {
+  @visibleForTesting
+  void registerBuffer(TelemetryBuffer buffer, TelemetryType type) {
     assert(buffer is! NoOpTelemetryBuffer, 'Buffer for $type is no-op');
     _buffers[type] = buffer;
     _options.log(
