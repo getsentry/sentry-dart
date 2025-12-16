@@ -34,29 +34,13 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
 
   void _initBuffers() {
     // TODO(next-pr): add span first flag
-    spanBuffer = createSpanBuffer();
+    spanBuffer = InMemoryTelemetryBuffer();
     _logger(SentryLevel.debug, 'TelemetryProcessor: Span buffer initialized');
 
     if (_options.enableLogs) {
-      logBuffer = createLogBuffer();
+      logBuffer = InMemoryTelemetryBuffer();
       _logger(SentryLevel.debug, 'TelemetryProcessor: Log buffer initialized');
     }
-  }
-
-  /// Creates the span buffer.
-  ///
-  /// Can be overridden in subclasses or tests to provide a custom buffer.
-  @visibleForTesting
-  TelemetryBuffer<Span> createSpanBuffer() {
-    throw UnimplementedError();
-  }
-
-  /// Creates the log buffer.
-  ///
-  /// Can be overridden in subclasses or tests to provide a custom buffer.
-  @visibleForTesting
-  TelemetryBuffer<SentryLog> createLogBuffer() {
-    throw UnimplementedError();
   }
 
   /// Adds a span to the buffer for later transmission.

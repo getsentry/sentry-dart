@@ -142,7 +142,7 @@ class Fixture {
 
   DefaultTelemetryProcessor getSut({bool enableLogs = false}) {
     options.enableLogs = enableLogs;
-    return _TestTelemetryProcessor(options, options.log);
+    return DefaultTelemetryProcessor(options, options.log);
   }
 
   SimpleSpan createSpan({String name = 'test-span'}) {
@@ -157,17 +157,4 @@ class Fixture {
       attributes: {},
     );
   }
-}
-
-/// Test subclass that overrides buffer creation to avoid UnimplementedError.
-/// TODO(next-pr): can be removed when we have the default in-memory buffers
-class _TestTelemetryProcessor extends DefaultTelemetryProcessor {
-  _TestTelemetryProcessor(super.options, super.logger);
-
-  @override
-  TelemetryBuffer<Span> createSpanBuffer() => MockTelemetryBuffer<Span>();
-
-  @override
-  TelemetryBuffer<SentryLog> createLogBuffer() =>
-      MockTelemetryBuffer<SentryLog>();
 }

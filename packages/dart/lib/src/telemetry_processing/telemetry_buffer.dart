@@ -14,3 +14,17 @@ class EncodedTelemetryItem<T extends TelemetryItem> {
 
   EncodedTelemetryItem(this.item, this.encoded);
 }
+
+/// In-memory buffer with time and size-based flushing.
+class InMemoryTelemetryBuffer<T extends TelemetryItem>
+    extends TelemetryBuffer<T> {
+  @override
+  void add(T item) {
+    // TODO(next-pr)
+  }
+
+  @override
+  FutureOr<void> flush() {
+    // TODO(next-pr)
+  }
+}
