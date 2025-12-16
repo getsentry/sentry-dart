@@ -17,22 +17,6 @@ void main() {
       fixture = Fixture();
     });
 
-    group('initialization', () {
-      test(
-          'registers in-memory span buffer when traceLifeCycle is set to streaming',
-          () {
-        // TODO(next-pr): add test
-      });
-
-      test('registers in-memory log buffer when enableLogs is true', () {
-        // TODO(next-pr): add test
-      });
-
-      test('does NOT register log buffer when enableLogs is false', () {
-        // TODO(next-pr): add test
-      });
-    });
-
     group('add', () {
       test('routes telemetry items to correct buffer', () {
         final processor = fixture.getSut();
