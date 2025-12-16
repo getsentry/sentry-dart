@@ -21,14 +21,10 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   final SdkLogCallback _logger;
 
   /// Buffer for span telemetry data.
-  ///
-  /// Only created if tracing is enabled in options.
   @visibleForTesting
   TelemetryBuffer<Span>? spanBuffer;
 
   /// Buffer for log telemetry data.
-  ///
-  /// Only created if logging is enabled in options.
   @visibleForTesting
   TelemetryBuffer<SentryLog>? logBuffer;
 

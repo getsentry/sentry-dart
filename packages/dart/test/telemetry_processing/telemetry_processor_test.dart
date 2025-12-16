@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol/simple_span.dart';
+import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_processor.dart';
 import 'package:test/test.dart';
 
@@ -17,39 +18,65 @@ void main() {
       fixture = Fixture();
     });
 
-    group('add', () {
-      test('routes telemetry items to correct buffer', () {
+    group('addSpan', () {
+      test('routes span to span buffer', () {
         final processor = fixture.getSut();
-        final mockLogBuffer = MockTelemetryBuffer<SentryLog>();
         final mockSpanBuffer = MockTelemetryBuffer<Span>();
-        processor.registerBuffer(mockLogBuffer);
-        processor.registerBuffer(mockSpanBuffer);
-
-        final log = fixture.createLog();
-        processor.add(log);
+        processor.spanBuffer = mockSpanBuffer;
 
         final span = fixture.createSpan();
         span.end();
-        processor.add(span);
+        processor.addSpan(span);
 
-        expect(mockLogBuffer.addedItems.length, 1);
-        expect(mockLogBuffer.addedItems.first, log);
         expect(mockSpanBuffer.addedItems.length, 1);
         expect(mockSpanBuffer.addedItems.first, span);
       });
 
-      test('does not throw when no buffer registered for type', () {
+      test('handles subtypes correctly (SimpleSpan -> Span buffer)', () {
         final processor = fixture.getSut();
-        processor.buffers.clear();
+        final mockSpanBuffer = MockTelemetryBuffer<Span>();
+        processor.spanBuffer = mockSpanBuffer;
 
-        final log = fixture.createLog();
-        processor.add(log);
+        final simpleSpan = fixture.createSpan();
+        simpleSpan.end();
+        processor.addSpan(simpleSpan);
 
-        // Nothing to assert on - just verifying no exception thrown
+        expect(mockSpanBuffer.addedItems.length, 1);
+        expect(mockSpanBuffer.addedItems.first, isA<SimpleSpan>());
       });
 
-      // Note: Mismatch between buffer generic type and TelemetryType is now
-      // impossible - the type is inferred from the generic parameter T.
+      test('does not throw when no span buffer registered', () {
+        final processor = fixture.getSut();
+        processor.spanBuffer = null;
+
+        final span = fixture.createSpan();
+        span.end();
+        processor.addSpan(span);
+
+        // Nothing to assert - just verifying no exception thrown
+      });
+    });
+
+    group('addLog', () {
+      test('routes log to log buffer', () {
+        final processor = fixture.getSut(enableLogs: true);
+        final mockLogBuffer = MockTelemetryBuffer<SentryLog>();
+        processor.logBuffer = mockLogBuffer;
+
+        final log = fixture.createLog();
+        processor.addLog(log);
+
+        expect(mockLogBuffer.addedItems.length, 1);
+        expect(mockLogBuffer.addedItems.first, log);
+      });
+
+      test('does not throw when no log buffer registered', () {
+        final processor = fixture.getSut();
+        processor.logBuffer = null;
+
+        final log = fixture.createLog();
+        processor.addLog(log);
+      });
     });
 
     group('flush', () {
@@ -57,8 +84,8 @@ void main() {
         final processor = fixture.getSut();
         final mockSpanBuffer = MockTelemetryBuffer<Span>();
         final mockLogBuffer = MockTelemetryBuffer<SentryLog>();
-        processor.registerBuffer(mockSpanBuffer);
-        processor.registerBuffer(mockLogBuffer);
+        processor.spanBuffer = mockSpanBuffer;
+        processor.logBuffer = mockLogBuffer;
 
         await processor.flush();
 
@@ -66,10 +93,22 @@ void main() {
         expect(mockLogBuffer.flushCallCount, 1);
       });
 
+      test('flushes only span buffer when log buffer is null', () async {
+        final processor = fixture.getSut();
+        final mockSpanBuffer = MockTelemetryBuffer<Span>();
+        processor.spanBuffer = mockSpanBuffer;
+        processor.logBuffer = null;
+
+        await processor.flush();
+
+        expect(mockSpanBuffer.flushCallCount, 1);
+      });
+
       test('returns sync (null) when all buffers flush synchronously', () {
         final processor = fixture.getSut();
-        final mockBuffer = MockTelemetryBuffer<Span>(asyncFlush: false);
-        processor.registerBuffer(mockBuffer);
+        final mockSpanBuffer = MockTelemetryBuffer<Span>(asyncFlush: false);
+        processor.spanBuffer = mockSpanBuffer;
+        processor.logBuffer = null;
 
         final result = processor.flush();
 
@@ -79,8 +118,9 @@ void main() {
       test('returns Future when at least one buffer flushes asynchronously',
           () async {
         final processor = fixture.getSut();
-        final mockBuffer = MockTelemetryBuffer<Span>(asyncFlush: true);
-        processor.registerBuffer(mockBuffer);
+        final mockSpanBuffer = MockTelemetryBuffer<Span>(asyncFlush: true);
+        processor.spanBuffer = mockSpanBuffer;
+        processor.logBuffer = null;
 
         final result = processor.flush();
 
@@ -102,7 +142,7 @@ class Fixture {
 
   DefaultTelemetryProcessor getSut({bool enableLogs = false}) {
     options.enableLogs = enableLogs;
-    return DefaultTelemetryProcessor(options.log);
+    return _TestTelemetryProcessor(options, options.log);
   }
 
   SimpleSpan createSpan({String name = 'test-span'}) {
@@ -117,4 +157,17 @@ class Fixture {
       attributes: {},
     );
   }
+}
+
+/// Test subclass that overrides buffer creation to avoid UnimplementedError.
+/// TODO(next-pr): can be removed when we have the default in-memory buffers
+class _TestTelemetryProcessor extends DefaultTelemetryProcessor {
+  _TestTelemetryProcessor(super.options, super.logger);
+
+  @override
+  TelemetryBuffer<Span> createSpanBuffer() => MockTelemetryBuffer<Span>();
+
+  @override
+  TelemetryBuffer<SentryLog> createLogBuffer() =>
+      MockTelemetryBuffer<SentryLog>();
 }
