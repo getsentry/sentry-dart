@@ -8,8 +8,9 @@ import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_item.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
 import '../mocks/mock_hub.dart';
+import '../mocks/mock_span_v2.dart';
+import '../mocks/mock_telemetry_item.dart';
 import '../test_utils.dart';
 
 void main() {
@@ -194,7 +195,7 @@ class _Fixture {
   }
 
   Span createRootSpan(String name, {SentryId? traceId, SpanId? spanId}) {
-    return MockSpan(
+    return MockSpanV2(
       name: name,
       traceId: traceId ?? SentryId.newId(),
       spanId: spanId ?? SpanId.newId(),
@@ -203,7 +204,7 @@ class _Fixture {
   }
 
   Span createChildSpan(String name, Span parent) {
-    return MockSpan(
+    return MockSpanV2(
       name: name,
       traceId: parent.traceId,
       spanId: SpanId.newId(),

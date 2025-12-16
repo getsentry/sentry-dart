@@ -7,7 +7,7 @@ import 'package:sentry/src/telemetry_processing/in_memory_telemetry_buffer.dart'
 import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
+import '../mocks/mock_telemetry_item.dart';
 import '../mocks/mock_transport.dart';
 
 void main() {
