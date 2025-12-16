@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Dependencies
+
+- Bump JavaScript SDK from v10.6.0 to v10.30.0 ([#3395](https://github.com/getsentry/sentry-dart/pull/3395))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#10300)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/10.6.0...10.30.0)
+
 ## 9.9.0
 
 ### Features
