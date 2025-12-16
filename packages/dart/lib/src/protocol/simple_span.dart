@@ -23,7 +23,6 @@ class SimpleSpan extends Span {
         _hub = hub ?? HubAdapter(),
         _startTimestamp = DateTime.now().toUtc(),
         _name = name {
-    // If there's a parent, use its segment span; otherwise this span is the segment root
     _segmentSpan = parentSpan?.segmentSpan ?? this;
     _traceId = _hub.scope.propagationContext.traceId;
   }
