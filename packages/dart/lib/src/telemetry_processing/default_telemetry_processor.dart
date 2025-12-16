@@ -3,18 +3,20 @@ import 'dart:async';
 import '../../sentry.dart';
 import 'in_memory_telemetry_buffer.dart';
 import 'log_envelope_builder.dart';
+import 'noop_telemetry_buffer.dart';
 import 'span_envelope_builder.dart';
 import 'telemetry_buffer.dart';
 import 'telemetry_item.dart';
 import 'telemetry_processor.dart';
 
 class DefaultTelemetryProcessor implements TelemetryProcessor {
+  final SentryOptions _options;
   final Map<TelemetryType, TelemetryBuffer> _buffers = {};
 
-  DefaultTelemetryProcessor._();
+  DefaultTelemetryProcessor._(this._options);
 
   factory DefaultTelemetryProcessor(SentryOptions options) {
-    final processor = DefaultTelemetryProcessor._();
+    final processor = DefaultTelemetryProcessor._(options);
 
     // TODO(next-pr): add span-first flag
     processor._registerBuffer(
@@ -33,6 +35,11 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
           TelemetryType.log);
     }
 
+    options.log(
+      SentryLevel.debug,
+      'DefaultTelemetryProcessor: Successfully initialized',
+    );
+
     return processor;
   }
 
@@ -41,15 +48,30 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
     final buffer = _buffers[item.type];
     if (buffer != null) {
       buffer.add(item);
+    } else {
+      _options.log(
+        SentryLevel.warning,
+        'DefaultTelemetryProcessor: No buffer registered for telemetry type ${item.type.name} - item was dropped',
+      );
     }
   }
 
   void _registerBuffer(TelemetryBuffer buffer, TelemetryType type) {
+    assert(buffer is! NoOpTelemetryBuffer, 'Buffer for $type is no-op');
     _buffers[type] = buffer;
+    _options.log(
+      SentryLevel.debug,
+      'DefaultTelemetryProcessor: Registered buffer for ${type.name}',
+    );
   }
 
   @override
   FutureOr<void> flush() {
+    _options.log(
+      SentryLevel.debug,
+      'DefaultTelemetryProcessor: Flushing ${_buffers.length} buffer(s)',
+    );
+
     final results = _buffers.values.map((buffer) => buffer.flush()).toList();
 
     final futures = <Future<void>>[];
