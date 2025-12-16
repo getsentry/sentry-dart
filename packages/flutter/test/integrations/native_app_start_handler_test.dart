@@ -222,6 +222,38 @@ void main() {
       // skip this test for now as it's extremely flaky
     }, skip: true);
 
+    // Regression test: App start spans must be attached to the transaction
+    // BEFORE TTFD tracking completes. Previously, if reportFullyDisplayed()
+    // was called after autoFinishAfter, app start spans could be missing.
+    test('app start spans are present when TTFD tracking is enabled', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+
+      final future = fixture.call(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
+      );
+
+      await Future.delayed(Duration(milliseconds: 50));
+      await fixture.options.timeToDisplayTracker.reportFullyDisplayed();
+      await future;
+
+      final transaction = fixture.capturedTransaction();
+      final spans = transaction.spans;
+
+      final appStartSpan = spans.firstWhereOrNull(
+          (element) => element.context.description == 'Cold Start');
+      final pluginRegistrationSpan = spans.firstWhereOrNull((element) =>
+          element.context.description == 'App start to plugin registration');
+      final sentrySetupSpan = spans.firstWhereOrNull((element) =>
+          element.context.description == 'Before Sentry Init Setup');
+      final firstFrameRenderSpan = spans.firstWhereOrNull(
+          (element) => element.context.description == 'First frame render');
+
+      expect(appStartSpan, isNotNull);
+      expect(pluginRegistrationSpan, isNotNull);
+      expect(sentrySetupSpan, isNotNull);
+      expect(firstFrameRenderSpan, isNotNull);
+    });
+
     test('no transaction if app start takes more than 60s', () async {
       await fixture.call(
         appStartEnd: DateTime.fromMillisecondsSinceEpoch(60001),
