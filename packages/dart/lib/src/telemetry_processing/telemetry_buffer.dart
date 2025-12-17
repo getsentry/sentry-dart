@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import '../../sentry.dart';
+import 'json_encodable.dart';
+
 /// A buffer that batches telemetry items for efficient transmission to Sentry.
 ///
 /// Collects items of type [T] and sends them in batches rather than
@@ -20,17 +23,15 @@ class BufferedItem<T> {
   BufferedItem(this.item, this.encoded);
 }
 
-typedef ItemEncoder<T> = List<int> Function(T item);
-
 /// In-memory buffer with time and size-based flushing.
-class InMemoryTelemetryBuffer<T> extends TelemetryBuffer<T> {
-  final ItemEncoder<T> encoder;
-
-  InMemoryTelemetryBuffer({required this.encoder});
+class InMemoryTelemetryBuffer<T extends JsonEncodable>
+    extends TelemetryBuffer<T> {
+  InMemoryTelemetryBuffer();
 
   @override
   void add(T item) {
-    final itemToSend = BufferedItem(item, encoder(item));
+    final encoded = utf8JsonEncoder.convert(item.toJson());
+    final itemToSend = BufferedItem(item, encoded);
     // TODO(next-pr)
   }
 

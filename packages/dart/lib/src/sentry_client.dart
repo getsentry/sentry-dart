@@ -82,10 +82,8 @@ class SentryClient {
       options.logBatcher = SentryLogBatcher(options);
     }
     options.telemetryProcessor = DefaultTelemetryProcessor(options.log,
-        logBuffer: InMemoryTelemetryBuffer(
-            encoder: (item) => utf8JsonEncoder.convert(item.toJson())),
-        spanBuffer: InMemoryTelemetryBuffer(
-            encoder: (item) => utf8JsonEncoder.convert(item.toJson())));
+        logBuffer: InMemoryTelemetryBuffer(),
+        spanBuffer: InMemoryTelemetryBuffer());
     // TODO(next-pr): remove log batcher
     return SentryClient._(options);
   }
