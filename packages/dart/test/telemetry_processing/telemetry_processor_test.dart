@@ -143,10 +143,9 @@ class Fixture {
   }) {
     options.enableLogs = enableLogs;
     return DefaultTelemetryProcessor(
-      options,
       options.log,
-      spanBufferFactory: spanBuffer != null ? () => spanBuffer : null,
-      logBufferFactory: logBuffer != null ? () => logBuffer : null,
+      spanBuffer: spanBuffer,
+      logBuffer: logBuffer,
     );
   }
 

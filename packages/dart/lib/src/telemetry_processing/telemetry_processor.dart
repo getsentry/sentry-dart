@@ -22,10 +22,7 @@ abstract class TelemetryProcessor {
 /// Creates and manages buffers internally based on [SentryOptions] configuration.
 /// Buffers are only created when their respective features are enabled.
 class DefaultTelemetryProcessor implements TelemetryProcessor {
-  final SentryOptions _options;
   final SdkLogCallback _logger;
-  final TelemetryBufferFactory<Span> _spanBufferFactory;
-  final TelemetryBufferFactory<SentryLog> _logBufferFactory;
 
   /// Buffer for span telemetry data.
   @visibleForTesting
@@ -35,65 +32,43 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   @visibleForTesting
   TelemetryBuffer<SentryLog>? logBuffer;
 
-  /// Creates a telemetry processor with optional custom buffer factories.
-  ///
-  /// If [spanBufferFactory] or [logBufferFactory] are not provided,
-  /// defaults to [InMemoryTelemetryBuffer].
+  /// Creates a telemetry processor.
   DefaultTelemetryProcessor(
-    this._options,
     this._logger, {
-    TelemetryBufferFactory<Span>? spanBufferFactory,
-    TelemetryBufferFactory<SentryLog>? logBufferFactory,
-  })  : _spanBufferFactory =
-            spanBufferFactory ?? InMemoryTelemetryBuffer<Span>.new,
-        _logBufferFactory =
-            logBufferFactory ?? InMemoryTelemetryBuffer<SentryLog>.new {
-    _initBuffers();
-  }
-
-  void _initBuffers() {
-    // TODO(next-pr): add span first flag
-    spanBuffer = _spanBufferFactory();
-    _logger(SentryLevel.debug, 'TelemetryProcessor: Span buffer initialized');
-
-    if (_options.enableLogs) {
-      logBuffer = _logBufferFactory();
-      _logger(SentryLevel.debug, 'TelemetryProcessor: Log buffer initialized');
-    }
-  }
+    this.spanBuffer,
+    this.logBuffer,
+  });
 
   /// Adds a span to the buffer for later transmission.
   ///
   /// If no span buffer is registered, the span is dropped
   /// and a warning is logged.
   @override
-  void addSpan(Span span) {
-    final buffer = spanBuffer;
-    if (buffer != null) {
-      buffer.add(span);
-    } else {
-      _logger(
-        SentryLevel.warning,
-        'TelemetryProcessor: No span buffer registered - span was dropped',
-      );
-    }
-  }
+  void addSpan(Span span) => _add(span);
 
   /// Adds a log to the buffer for later transmission.
   ///
   /// If no log buffer is registered, the log is dropped
   /// and a warning is logged.
   @override
-  void addLog(SentryLog log) {
-    final buffer = logBuffer;
-    if (buffer != null) {
-      buffer.add(log);
-    } else {
+  void addLog(SentryLog log) => _add(log);
+
+  void _add(TelemetryItem item) {
+    final buffer = switch (item) {
+      Span() => spanBuffer,
+      SentryLog() => logBuffer,
+      _ => null,
+    };
+
+    if (buffer == null) {
       _logger(
         SentryLevel.warning,
-        'TelemetryProcessor: No log buffer registered - log was dropped',
+        'TelemetryProcessor: No buffer registered for ${item.runtimeType} - item was dropped',
       );
+      return;
     }
+
+    buffer.add(item);
   }
 
   /// Flushes all buffers, sending any pending telemetry data.
