@@ -9,14 +9,14 @@ import 'telemetry_buffer.dart';
 
 /// Manages buffering and sending of telemetry data to Sentry.
 abstract class TelemetryProcessor {
-  /// Adds a span to the buffer for later transmission.
+  /// Adds a span to the buffer.
   void addSpan(Span span);
 
-  /// Adds a log to the buffer for later transmission.
+  /// Adds a log to the buffer.
   void addLog(SentryLog log);
 
-  /// Flushes all buffers, sending any pending telemetry data.
-  FutureOr<void> flush();
+  /// Clears all buffers which sends any pending telemetry data.
+  FutureOr<void> clear();
 }
 
 /// Manages buffering and sending of telemetry data to Sentry.
@@ -46,8 +46,8 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
 
   void _add(dynamic item) {
     final buffer = switch (item) {
-      Span() => spanBuffer,
-      SentryLog() => logBuffer,
+      Span _ => spanBuffer,
+      SentryLog _ => logBuffer,
       _ => null,
     };
 
@@ -63,12 +63,12 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   }
 
   @override
-  FutureOr<void> flush() {
-    _logger(SentryLevel.debug, 'TelemetryProcessor: Flushing buffers');
+  FutureOr<void> clear() {
+    _logger(SentryLevel.debug, 'TelemetryProcessor: Clearing buffers');
 
     final results = <FutureOr<void>>[
-      spanBuffer?.flush(),
-      logBuffer?.flush(),
+      spanBuffer?.clear(),
+      logBuffer?.clear(),
     ];
 
     final futures = results.whereType<Future<void>>().toList();
@@ -88,5 +88,5 @@ class NoOpTelemetryProcessor implements TelemetryProcessor {
   void addLog(SentryLog log) {}
 
   @override
-  FutureOr<void> flush() {}
+  FutureOr<void> clear() {}
 }

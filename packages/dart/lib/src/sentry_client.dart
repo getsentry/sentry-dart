@@ -594,6 +594,7 @@ class SentryClient {
   }
 
   FutureOr<void> close() {
+    // TODO(next-pr): replace with telemetry processor
     final flush = _options.logBatcher.flush();
     if (flush is Future<void>) {
       return flush.then((_) => _options.httpClient.close());

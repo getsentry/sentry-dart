@@ -11,8 +11,8 @@ abstract class TelemetryBuffer<T> {
   /// Adds an item to the buffer.
   void add(T item);
 
-  /// Manually sends all buffered items to Sentry and clears the buffer.
-  FutureOr<void> flush();
+  /// When executed immediately sends all buffered items to Sentry and clears the buffer.
+  FutureOr<void> clear();
 }
 
 /// Pairs an item with its encoded bytes for size tracking and transmission.
@@ -36,7 +36,7 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
   }
 
   @override
-  FutureOr<void> flush() {
+  FutureOr<void> clear() {
     // TODO(next-pr): finish this impl
   }
 }
