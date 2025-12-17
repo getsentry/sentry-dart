@@ -2,8 +2,15 @@ import 'dart:async';
 
 import 'sentry_encodable.dart';
 
+/// A buffer that batches telemetry items for efficient transmission to Sentry.
+///
+/// Collects items of type [T] and sends them in batches rather than
+/// individually, reducing network overhead.
 abstract class TelemetryBuffer<T extends SentryEncodable> {
+  /// Adds an item to the buffer.
   void add(T item);
+
+  /// Manually sends all buffered items to Sentry and clears the buffer.
   FutureOr<void> flush();
 }
 
