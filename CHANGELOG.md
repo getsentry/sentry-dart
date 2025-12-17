@@ -5,6 +5,7 @@
 ### Fixes
 
 - Cold/warm start spans not attaching if TTFD takes more than 3 seconds to report ([#3404](https://github.com/getsentry/sentry-dart/pull/3404))
+- Ensure that the JNI `ScopesAdapter` instance is released after use ([#3411](https://github.com/getsentry/sentry-dart/pull/3411))
 
 ## 9.9.0
 
