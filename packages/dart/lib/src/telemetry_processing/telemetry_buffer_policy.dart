@@ -10,6 +10,6 @@ final class TelemetryBufferPolicy {
   });
 
   static const Duration defaultFlushTimeout = Duration(seconds: 5);
-  static const int defaultMaxBufferSizeBytes = 1 * 1024 * 1024;
+  static const int defaultMaxBufferSizeBytes = 1024 * 1024;
   static const int defaultMaxItemCount = 100;
 }
