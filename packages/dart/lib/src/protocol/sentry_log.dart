@@ -1,9 +1,9 @@
-import '../telemetry_processing/telemetry_item.dart';
+import '../telemetry_processing/sentry_encodable.dart';
 import 'sentry_attribute.dart';
 import 'sentry_id.dart';
 import 'sentry_log_level.dart';
 
-class SentryLog implements TelemetryItem {
+class SentryLog implements SentryEncodable {
   DateTime timestamp;
   SentryId traceId;
   SentryLogLevel level;

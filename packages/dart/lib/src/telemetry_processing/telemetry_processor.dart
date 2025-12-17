@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
 import 'telemetry_buffer.dart';
-import 'telemetry_item.dart';
+import 'sentry_encodable.dart';
 
 /// Manages buffering and sending of telemetry data to Sentry.
 abstract class TelemetryProcessor {
@@ -49,7 +49,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   @override
   void addLog(SentryLog log) => _add(log);
 
-  void _add(TelemetryItem item) {
+  void _add(SentryEncodable item) {
     final buffer = switch (item) {
       Span() => spanBuffer,
       SentryLog() => logBuffer,

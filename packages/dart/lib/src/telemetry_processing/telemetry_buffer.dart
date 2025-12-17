@@ -1,22 +1,24 @@
 import 'dart:async';
 
-import 'telemetry_item.dart';
+import 'sentry_encodable.dart';
 
-abstract class TelemetryBuffer<T extends TelemetryItem> {
+abstract class TelemetryBuffer<T extends SentryEncodable> {
   void add(T item);
   FutureOr<void> flush();
 }
 
-/// Holds both raw item and encoded bytes for size tracking and grouping.
-class EncodedTelemetryItem<T extends TelemetryItem> {
+/// Represents an item that is being hold in a buffer.
+///
+/// Contains both raw item and encoded bytes for size tracking and grouping.
+class BufferedItem<T extends SentryEncodable> {
   final T item;
   final List<int> encoded;
 
-  EncodedTelemetryItem(this.item, this.encoded);
+  BufferedItem(this.item, this.encoded);
 }
 
 /// In-memory buffer with time and size-based flushing.
-class InMemoryTelemetryBuffer<T extends TelemetryItem>
+class InMemoryTelemetryBuffer<T extends SentryEncodable>
     extends TelemetryBuffer<T> {
   @override
   void add(T item) {

@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-abstract class TelemetryItem {
+abstract class SentryEncodable {
   @internal
   Map<String, dynamic> toJson();
 }
