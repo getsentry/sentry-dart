@@ -1,9 +1,9 @@
-final class TelemetryBufferPolicy {
+final class TelemetryBufferConfig {
   final Duration flushTimeout;
   final int maxBufferSizeBytes;
   final int maxItemCount;
 
-  const TelemetryBufferPolicy({
+  const TelemetryBufferConfig({
     this.flushTimeout = defaultFlushTimeout,
     this.maxBufferSizeBytes = defaultMaxBufferSizeBytes,
     this.maxItemCount = defaultMaxItemCount,

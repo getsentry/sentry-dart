@@ -4,6 +4,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/telemetry_processing/envelope_builder.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
+import 'package:sentry/src/telemetry_processing/telemetry_buffer_policy.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_json_encodable.dart';
@@ -19,7 +20,9 @@ void main() {
 
     test('items are flushed after timeout', () async {
       final flushTimeout = Duration(milliseconds: 1);
-      final buffer = fixture.getSut(flushTimeout: flushTimeout);
+      final buffer = fixture.getSut(
+        policy: TelemetryBufferConfig(flushTimeout: flushTimeout),
+      );
 
       buffer.add(MockJsonEncodable('item1'));
       buffer.add(MockJsonEncodable('item2'));
@@ -34,7 +37,26 @@ void main() {
 
     test('items exceeding max size are flushed immediately', () async {
       // Each item encodes to ~14 bytes ({"id":"item1"}), so 20 bytes triggers flush on 2nd item
-      final buffer = fixture.getSut(maxBufferSizeBytes: 20);
+      final buffer = fixture.getSut(
+        policy: TelemetryBufferConfig(maxBufferSizeBytes: 20),
+      );
+
+      buffer.add(MockJsonEncodable('item1'));
+      expect(fixture.mockTransport.envelopes.length, 0);
+
+      buffer.add(MockJsonEncodable('item2'));
+
+      // Wait briefly for async flush
+      await Future.delayed(Duration(milliseconds: 1));
+
+      expect(fixture.mockTransport.envelopes.length, 1);
+      expect(fixture.mockEnvelopeBuilder.receivedItems, hasLength(2));
+    });
+
+    test('items exceeding max item count are flushed immediately', () async {
+      final buffer = fixture.getSut(
+        policy: TelemetryBufferConfig(maxItemCount: 2),
+      );
 
       buffer.add(MockJsonEncodable('item1'));
       expect(fixture.mockTransport.envelopes.length, 0);
@@ -63,7 +85,9 @@ void main() {
     test('timer is only started once and not restarted on subsequent additions',
         () async {
       final flushTimeout = Duration(milliseconds: 100);
-      final buffer = fixture.getSut(flushTimeout: flushTimeout);
+      final buffer = fixture.getSut(
+        policy: TelemetryBufferConfig(flushTimeout: flushTimeout),
+      );
 
       buffer.add(MockJsonEncodable('item1'));
       expect(fixture.mockTransport.envelopes.length, 0);
@@ -133,17 +157,14 @@ class _Fixture {
   final mockEnvelopeBuilder = _MockEnvelopeBuilder();
 
   InMemoryTelemetryBuffer<MockJsonEncodable> getSut({
-    Duration? flushTimeout,
-    int? maxBufferSizeBytes,
-    bool throwOnSend = false,
+    TelemetryBufferConfig policy = const TelemetryBufferConfig(),
   }) {
     mockEnvelopeBuilder.receivedItems = null;
     return InMemoryTelemetryBuffer<MockJsonEncodable>(
       logger: (level, message, {logger, exception, stackTrace}) {},
       envelopeBuilder: mockEnvelopeBuilder,
       transport: mockTransport,
-      flushTimeout: flushTimeout,
-      maxBufferSizeBytes: maxBufferSizeBytes,
+      policy: policy,
     );
   }
 }

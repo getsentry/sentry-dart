@@ -33,7 +33,7 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
   final SdkLogCallback _logger;
   final EnvelopeBuilder<T> _envelopeBuilder;
   final Transport _transport;
-  final TelemetryBufferPolicy _policy;
+  final TelemetryBufferConfig _policy;
 
   Timer? _flushTimer;
   final List<BufferedItem<T>> _items = [];
@@ -43,7 +43,7 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
     required SdkLogCallback logger,
     required EnvelopeBuilder<T> envelopeBuilder,
     required Transport transport,
-    TelemetryBufferPolicy policy = const TelemetryBufferPolicy(),
+    TelemetryBufferConfig policy = const TelemetryBufferConfig(),
   })  : _logger = logger,
         _envelopeBuilder = envelopeBuilder,
         _transport = transport,
