@@ -13,7 +13,7 @@ abstract class TelemetryBuffer<T> {
   void add(T item);
 
   /// When executed immediately sends all buffered items to Sentry and clears the buffer.
-  FutureOr<void> clear();
+  FutureOr<void> flush();
 }
 
 /// Pairs an item with its encoded bytes for size tracking and transmission.
@@ -58,7 +58,7 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
       _bufferSize += encoded.length;
 
       if (_bufferSize >= _maxBufferSizeBytes) {
-        _performClear();
+        _performFlush();
       } else if (_flushTimer == null) {
         _startTimer();
       }
@@ -72,7 +72,7 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
   }
 
   @override
-  FutureOr<void> clear() => _performClear();
+  FutureOr<void> flush() => _performFlush();
 
   void _startTimer() {
     _flushTimer = Timer(_flushTimeout, () {
@@ -80,11 +80,11 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
         SentryLevel.debug,
         '$InMemoryTelemetryBuffer for $T: Timer fired, flushing.',
       );
-      _performClear();
+      _performFlush();
     });
   }
 
-  FutureOr<void> _performClear() {
+  FutureOr<void> _performFlush() {
     _flushTimer?.cancel();
     _flushTimer = null;
 

@@ -54,7 +54,7 @@ void main() {
       buffer.add(MockJsonEncodable('item1'));
       buffer.add(MockJsonEncodable('item2'));
 
-      await buffer.clear();
+      await buffer.flush();
 
       expect(fixture.mockTransport.envelopes.length, 1);
       expect(fixture.mockEnvelopeBuilder.receivedItems, hasLength(2));
@@ -80,7 +80,7 @@ void main() {
     test('flush with empty buffer returns null', () async {
       final buffer = fixture.getSut();
 
-      final result = buffer.clear();
+      final result = buffer.flush();
 
       expect(result, isNull);
       expect(fixture.mockTransport.envelopes, isEmpty);
@@ -90,13 +90,13 @@ void main() {
       final buffer = fixture.getSut();
 
       buffer.add(MockJsonEncodable('item1'));
-      await buffer.clear();
+      await buffer.flush();
 
       expect(fixture.mockTransport.envelopes.length, 1);
 
       // Second flush should not send anything
       fixture.mockEnvelopeBuilder.receivedItems = null;
-      final result = buffer.clear();
+      final result = buffer.flush();
 
       expect(result, isNull);
       expect(fixture.mockTransport.envelopes.length, 1);
@@ -109,7 +109,7 @@ void main() {
       final buffer = fixture.getSut();
 
       buffer.add(MockJsonEncodable('item1'));
-      await buffer.clear();
+      await buffer.flush();
 
       expect(fixture.mockTransport.envelopes.length, 3);
     });
@@ -119,7 +119,7 @@ void main() {
 
       buffer.add(ThrowingTelemetryItem());
       buffer.add(MockJsonEncodable('valid'));
-      await buffer.clear();
+      await buffer.flush();
 
       // Only the valid item should be in the buffer
       expect(fixture.mockEnvelopeBuilder.receivedItems, hasLength(1));
