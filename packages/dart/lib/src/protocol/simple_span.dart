@@ -3,10 +3,10 @@ import '../../sentry.dart';
 class SimpleSpan implements Span {
   final SpanId _spanId;
   final Hub _hub;
-  final DateTime _startTimestamp;
   @override
   final Span? parentSpan;
   final Map<String, SentryAttribute> _attributes = {};
+  late final DateTime _startTimestamp;
   late final Span _segmentSpan;
   late final SentryId _traceId;
 
@@ -21,10 +21,10 @@ class SimpleSpan implements Span {
     Hub? hub,
   })  : _spanId = SpanId.newId(),
         _hub = hub ?? HubAdapter(),
-        _startTimestamp = DateTime.now().toUtc(),
         _name = name {
     _segmentSpan = parentSpan?.segmentSpan ?? this;
     _traceId = parentSpan?.traceId ?? _hub.scope.propagationContext.traceId;
+    _startTimestamp = _hub.options.clock();
   }
 
   @override
@@ -72,7 +72,7 @@ class SimpleSpan implements Span {
     if (_isFinished) {
       return;
     }
-    _endTimestamp = (endTimestamp ?? DateTime.now()).toUtc();
+    _endTimestamp = (endTimestamp ?? _hub.options.clock());
     _isFinished = true;
     _hub.captureSpan(this);
   }
