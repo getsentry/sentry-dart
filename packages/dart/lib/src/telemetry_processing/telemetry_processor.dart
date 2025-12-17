@@ -64,10 +64,6 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
     buffer.add(item);
   }
 
-  /// Flushes all buffers, sending any pending telemetry data.
-  ///
-  /// Returns a [Future] that completes when all buffers have been flushed.
-  /// Returns immediately if no buffers need flushing.
   @override
   FutureOr<void> flush() {
     _logger(SentryLevel.debug, 'TelemetryProcessor: Flushing buffers');
