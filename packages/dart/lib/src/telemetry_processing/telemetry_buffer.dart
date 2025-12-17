@@ -12,25 +12,25 @@ abstract class TelemetryBuffer<T> {
   FutureOr<void> flush();
 }
 
-/// Represents an item that is being hold in a buffer.
-///
-/// Contains both raw item and encoded bytes for size tracking and grouping.
-class BufferedItem<T> {
+/// Pairs an item with its encoded bytes for size tracking and transmission.
+class EncodedItem<T> {
   final T item;
   final List<int> encoded;
 
-  BufferedItem(this.item, this.encoded);
+  EncodedItem(this.item, this.encoded);
 }
+
+typedef ItemEncoder<T> = List<EncodedItem<T>> Function(T item);
 
 /// In-memory buffer with time and size-based flushing.
 class InMemoryTelemetryBuffer<T> extends TelemetryBuffer<T> {
-  final Map<String, dynamic> Function(T) serializer;
+  final ItemEncoder encoder;
 
-  InMemoryTelemetryBuffer({required this.serializer});
+  InMemoryTelemetryBuffer({required this.encoder});
 
   @override
   void add(T item) {
-    final serializedItem = serializer(item);
+    final encodedItems = encoder(item);
     // TODO(next-pr)
   }
 
