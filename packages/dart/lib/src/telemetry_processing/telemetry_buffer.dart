@@ -13,24 +13,24 @@ abstract class TelemetryBuffer<T> {
 }
 
 /// Pairs an item with its encoded bytes for size tracking and transmission.
-class EncodedItem<T> {
+class BufferedItem<T> {
   final T item;
   final List<int> encoded;
 
-  EncodedItem(this.item, this.encoded);
+  BufferedItem(this.item, this.encoded);
 }
 
-typedef ItemEncoder<T> = List<EncodedItem<T>> Function(T item);
+typedef ItemEncoder<T> = List<int> Function(T item);
 
 /// In-memory buffer with time and size-based flushing.
 class InMemoryTelemetryBuffer<T> extends TelemetryBuffer<T> {
-  final ItemEncoder encoder;
+  final ItemEncoder<T> encoder;
 
   InMemoryTelemetryBuffer({required this.encoder});
 
   @override
   void add(T item) {
-    final encodedItems = encoder(item);
+    final itemToSend = BufferedItem(item, encoder(item));
     // TODO(next-pr)
   }
 
