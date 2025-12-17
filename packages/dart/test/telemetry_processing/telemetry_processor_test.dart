@@ -113,7 +113,7 @@ void main() {
       });
 
       test('returns sync (null) when all buffers flush synchronously', () {
-        final mockSpanBuffer = MockTelemetryBuffer<Span>(asyncFlush: false);
+        final mockSpanBuffer = MockTelemetryBuffer<Span>(asyncClear: false);
         final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
         processor.logBuffer = null;
 
@@ -124,7 +124,7 @@ void main() {
 
       test('returns Future when at least one buffer flushes asynchronously',
           () async {
-        final mockSpanBuffer = MockTelemetryBuffer<Span>(asyncFlush: true);
+        final mockSpanBuffer = MockTelemetryBuffer<Span>(asyncClear: true);
         final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
         processor.logBuffer = null;
 

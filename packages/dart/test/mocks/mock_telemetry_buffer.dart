@@ -5,9 +5,9 @@ import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
 class MockTelemetryBuffer<T> extends TelemetryBuffer<T> {
   final List<T> addedItems = [];
   int clearCallCount = 0;
-  final bool asyncFlush;
+  final bool asyncClear;
 
-  MockTelemetryBuffer({this.asyncFlush = false});
+  MockTelemetryBuffer({this.asyncClear = false});
 
   @override
   void add(T item) => addedItems.add(item);
@@ -15,7 +15,7 @@ class MockTelemetryBuffer<T> extends TelemetryBuffer<T> {
   @override
   FutureOr<void> clear() {
     clearCallCount++;
-    if (asyncFlush) {
+    if (asyncClear) {
       return Future.value();
     }
     return null;
