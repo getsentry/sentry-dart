@@ -6,10 +6,6 @@ import '../../sentry.dart';
 import 'telemetry_buffer.dart';
 import 'telemetry_item.dart';
 
-/// Factory function for creating telemetry buffers.
-typedef TelemetryBufferFactory<T extends TelemetryItem> = TelemetryBuffer<T>
-    Function();
-
 /// Manages buffering and sending of telemetry data to Sentry.
 abstract class TelemetryProcessor {
   void addSpan(Span span);
