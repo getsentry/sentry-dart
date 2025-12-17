@@ -10,8 +10,13 @@ import 'sentry_encodable.dart';
 
 /// Manages buffering and sending of telemetry data to Sentry.
 abstract class TelemetryProcessor {
+  /// Adds a span to the buffer for later transmission.
   void addSpan(Span span);
+
+  /// Adds a log to the buffer for later transmission.
   void addLog(SentryLog log);
+
+  /// Flushes all buffers, sending any pending telemetry data.
   FutureOr<void> flush();
 }
 
@@ -34,20 +39,10 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
     this.logBuffer,
   });
 
-  /// Adds a span to the buffer for later transmission.
-  ///
-  /// If no span buffer is set, the span is dropped
-  /// and a warning is logged.
-  ///
-  /// If span is [NoOpSpan] or [UnsetSpan] it is not added to the buffer.
   @override
   void addSpan(Span span) =>
       (span is NoOpSpan || span is UnsetSpan) ? null : _add(span);
 
-  /// Adds a log to the buffer for later transmission.
-  ///
-  /// If no log buffer is set, the log is dropped
-  /// and a warning is logged.
   @override
   void addLog(SentryLog log) => _add(log);
 
