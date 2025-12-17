@@ -30,7 +30,6 @@ import 'type_check_hint.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
-import 'utils.dart';
 import 'sentry_log_batcher.dart';
 import 'version.dart';
 

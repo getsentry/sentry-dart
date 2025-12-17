@@ -31,12 +31,12 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
   @override
   void add(T item) {
     final encoded = utf8JsonEncoder.convert(item.toJson());
-    final itemToSend = BufferedItem(item, encoded);
-    // TODO(next-pr)
+    final _ = BufferedItem(item, encoded);
+    // TODO(next-pr): finish this impl
   }
 
   @override
   FutureOr<void> flush() {
-    // TODO(next-pr)
+    // TODO(next-pr): finish this impl
   }
 }
