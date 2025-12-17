@@ -32,7 +32,6 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   @visibleForTesting
   TelemetryBuffer<SentryLog>? logBuffer;
 
-  /// Creates a telemetry processor.
   DefaultTelemetryProcessor(
     this._logger, {
     this.spanBuffer,
