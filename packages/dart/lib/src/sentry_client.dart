@@ -20,7 +20,6 @@ import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
 import 'telemetry_processing/envelope_builder.dart';
 import 'telemetry_processing/telemetry_buffer.dart';
-import 'telemetry_processing/telemetry_buffer_policy.dart';
 import 'telemetry_processing/telemetry_processor.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';

@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:meta/meta.dart';
-
 import '../../sentry.dart';
 import 'envelope_builder.dart';
 import 'json_encodable.dart';
-import 'telemetry_buffer_policy.dart';
+import 'telemetry_buffer_config.dart';
 
 /// A buffer that batches telemetry items for efficient transmission to Sentry.
 ///
@@ -33,7 +31,7 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
   final SdkLogCallback _logger;
   final EnvelopeBuilder<T> _envelopeBuilder;
   final Transport _transport;
-  final TelemetryBufferConfig _policy;
+  final TelemetryBufferConfig _config;
 
   Timer? _flushTimer;
   final List<BufferedItem<T>> _items = [];
@@ -43,11 +41,11 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
     required SdkLogCallback logger,
     required EnvelopeBuilder<T> envelopeBuilder,
     required Transport transport,
-    TelemetryBufferConfig policy = const TelemetryBufferConfig(),
+    TelemetryBufferConfig config = const TelemetryBufferConfig(),
   })  : _logger = logger,
         _envelopeBuilder = envelopeBuilder,
         _transport = transport,
-        _policy = policy;
+        _config = config;
 
   @override
   void add(T item) {
@@ -56,8 +54,8 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
       _items.add(BufferedItem(item, encoded));
       _bufferSize += encoded.length;
 
-      if (_bufferSize >= _policy.maxBufferSizeBytes ||
-          _items.length >= _policy.maxItemCount) {
+      if (_bufferSize >= _config.maxBufferSizeBytes ||
+          _items.length >= _config.maxItemCount) {
         _performFlush();
       } else if (_flushTimer == null) {
         _startTimer();
@@ -75,7 +73,7 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
   FutureOr<void> flush() => _performFlush();
 
   void _startTimer() {
-    _flushTimer = Timer(_policy.flushTimeout, () {
+    _flushTimer = Timer(_config.flushTimeout, () {
       _logger(
         SentryLevel.debug,
         '$InMemoryTelemetryBuffer for $T: Timer fired, flushing.',

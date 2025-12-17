@@ -4,7 +4,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/telemetry_processing/envelope_builder.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
-import 'package:sentry/src/telemetry_processing/telemetry_buffer_policy.dart';
+import 'package:sentry/src/telemetry_processing/telemetry_buffer_config.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_json_encodable.dart';
@@ -164,7 +164,7 @@ class _Fixture {
       logger: (level, message, {logger, exception, stackTrace}) {},
       envelopeBuilder: mockEnvelopeBuilder,
       transport: mockTransport,
-      policy: policy,
+      config: policy,
     );
   }
 }
