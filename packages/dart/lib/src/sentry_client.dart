@@ -89,7 +89,8 @@ class SentryClient {
         spanBuffer: InMemoryTelemetryBuffer(
             logger: options.log,
             envelopeBuilder: SpanEnvelopeBuilder(),
-            transport: options.transport));
+            transport: options.transport,
+            maxItemCount: 1000));
     // TODO(next-pr): remove log batcher
     return SentryClient._(options);
   }

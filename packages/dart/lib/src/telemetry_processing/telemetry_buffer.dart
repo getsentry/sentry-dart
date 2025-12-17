@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import '../../sentry.dart';
 import 'envelope_builder.dart';
 import 'json_encodable.dart';
+import 'telemetry_buffer_policy.dart';
 
 /// A buffer that batches telemetry items for efficient transmission to Sentry.
 ///
@@ -24,14 +27,13 @@ class BufferedItem<T> {
   BufferedItem(this.item, this.encoded);
 }
 
-/// In-memory buffer with time and size-based flushing.
+/// In-memory buffer with time, item count and size-based flushing.
 class InMemoryTelemetryBuffer<T extends JsonEncodable>
     extends TelemetryBuffer<T> {
   final SdkLogCallback _logger;
   final EnvelopeBuilder<T> _envelopeBuilder;
   final Transport _transport;
-  final Duration _flushTimeout;
-  final int _maxBufferSizeBytes;
+  final TelemetryBufferPolicy _policy;
 
   Timer? _flushTimer;
   final List<BufferedItem<T>> _items = [];
@@ -41,14 +43,11 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
     required SdkLogCallback logger,
     required EnvelopeBuilder<T> envelopeBuilder,
     required Transport transport,
-    Duration? flushTimeout,
-    int? maxBufferSizeBytes,
+    TelemetryBufferPolicy policy = const TelemetryBufferPolicy(),
   })  : _logger = logger,
         _envelopeBuilder = envelopeBuilder,
         _transport = transport,
-        _flushTimeout = flushTimeout ?? const Duration(seconds: 5),
-        _maxBufferSizeBytes = maxBufferSizeBytes ??
-            1024 * 1024; // 1MB default per Mobile Buffer spec
+        _policy = policy;
 
   @override
   void add(T item) {
@@ -57,7 +56,8 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
       _items.add(BufferedItem(item, encoded));
       _bufferSize += encoded.length;
 
-      if (_bufferSize >= _maxBufferSizeBytes) {
+      if (_bufferSize >= _policy.maxBufferSizeBytes ||
+          _items.length >= _policy.maxItemCount) {
         _performFlush();
       } else if (_flushTimer == null) {
         _startTimer();
@@ -75,7 +75,7 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
   FutureOr<void> flush() => _performFlush();
 
   void _startTimer() {
-    _flushTimer = Timer(_flushTimeout, () {
+    _flushTimer = Timer(_policy.flushTimeout, () {
       _logger(
         SentryLevel.debug,
         '$InMemoryTelemetryBuffer for $T: Timer fired, flushing.',
