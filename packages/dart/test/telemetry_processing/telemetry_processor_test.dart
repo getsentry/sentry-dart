@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol/simple_span.dart';
-import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_processor.dart';
 import 'package:test/test.dart';
 
@@ -20,9 +19,8 @@ void main() {
 
     group('addSpan', () {
       test('routes span to span buffer', () {
-        final processor = fixture.getSut();
         final mockSpanBuffer = MockTelemetryBuffer<Span>();
-        processor.spanBuffer = mockSpanBuffer;
+        final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
 
         final span = fixture.createSpan();
         span.end();
@@ -33,9 +31,8 @@ void main() {
       });
 
       test('handles subtypes correctly (SimpleSpan -> Span buffer)', () {
-        final processor = fixture.getSut();
         final mockSpanBuffer = MockTelemetryBuffer<Span>();
-        processor.spanBuffer = mockSpanBuffer;
+        final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
 
         final simpleSpan = fixture.createSpan();
         simpleSpan.end();
@@ -59,9 +56,9 @@ void main() {
 
     group('addLog', () {
       test('routes log to log buffer', () {
-        final processor = fixture.getSut(enableLogs: true);
         final mockLogBuffer = MockTelemetryBuffer<SentryLog>();
-        processor.logBuffer = mockLogBuffer;
+        final processor =
+            fixture.getSut(enableLogs: true, logBuffer: mockLogBuffer);
 
         final log = fixture.createLog();
         processor.addLog(log);
@@ -81,11 +78,13 @@ void main() {
 
     group('flush', () {
       test('flushes all registered buffers', () async {
-        final processor = fixture.getSut();
         final mockSpanBuffer = MockTelemetryBuffer<Span>();
         final mockLogBuffer = MockTelemetryBuffer<SentryLog>();
-        processor.spanBuffer = mockSpanBuffer;
-        processor.logBuffer = mockLogBuffer;
+        final processor = fixture.getSut(
+          enableLogs: true,
+          spanBuffer: mockSpanBuffer,
+          logBuffer: mockLogBuffer,
+        );
 
         await processor.flush();
 
@@ -94,9 +93,8 @@ void main() {
       });
 
       test('flushes only span buffer when log buffer is null', () async {
-        final processor = fixture.getSut();
         final mockSpanBuffer = MockTelemetryBuffer<Span>();
-        processor.spanBuffer = mockSpanBuffer;
+        final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
         processor.logBuffer = null;
 
         await processor.flush();
@@ -105,9 +103,8 @@ void main() {
       });
 
       test('returns sync (null) when all buffers flush synchronously', () {
-        final processor = fixture.getSut();
         final mockSpanBuffer = MockTelemetryBuffer<Span>(asyncFlush: false);
-        processor.spanBuffer = mockSpanBuffer;
+        final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
         processor.logBuffer = null;
 
         final result = processor.flush();
@@ -117,9 +114,8 @@ void main() {
 
       test('returns Future when at least one buffer flushes asynchronously',
           () async {
-        final processor = fixture.getSut();
         final mockSpanBuffer = MockTelemetryBuffer<Span>(asyncFlush: true);
-        processor.spanBuffer = mockSpanBuffer;
+        final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
         processor.logBuffer = null;
 
         final result = processor.flush();
@@ -140,9 +136,18 @@ class Fixture {
     options = defaultTestOptions();
   }
 
-  DefaultTelemetryProcessor getSut({bool enableLogs = false}) {
+  DefaultTelemetryProcessor getSut({
+    bool enableLogs = false,
+    MockTelemetryBuffer<Span>? spanBuffer,
+    MockTelemetryBuffer<SentryLog>? logBuffer,
+  }) {
     options.enableLogs = enableLogs;
-    return DefaultTelemetryProcessor(options, options.log);
+    return DefaultTelemetryProcessor(
+      options,
+      options.log,
+      spanBufferFactory: spanBuffer != null ? () => spanBuffer : null,
+      logBufferFactory: logBuffer != null ? () => logBuffer : null,
+    );
   }
 
   SimpleSpan createSpan({String name = 'test-span'}) {

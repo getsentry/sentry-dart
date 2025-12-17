@@ -4,6 +4,11 @@ import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
 import 'telemetry_buffer.dart';
+import 'telemetry_item.dart';
+
+/// Factory function for creating telemetry buffers.
+typedef TelemetryBufferFactory<T extends TelemetryItem> = TelemetryBuffer<T>
+    Function();
 
 /// Manages buffering and sending of telemetry data to Sentry.
 abstract class TelemetryProcessor {
@@ -19,6 +24,8 @@ abstract class TelemetryProcessor {
 class DefaultTelemetryProcessor implements TelemetryProcessor {
   final SentryOptions _options;
   final SdkLogCallback _logger;
+  final TelemetryBufferFactory<Span> _spanBufferFactory;
+  final TelemetryBufferFactory<SentryLog> _logBufferFactory;
 
   /// Buffer for span telemetry data.
   @visibleForTesting
@@ -28,17 +35,29 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   @visibleForTesting
   TelemetryBuffer<SentryLog>? logBuffer;
 
-  DefaultTelemetryProcessor(this._options, this._logger) {
+  /// Creates a telemetry processor with optional custom buffer factories.
+  ///
+  /// If [spanBufferFactory] or [logBufferFactory] are not provided,
+  /// defaults to [InMemoryTelemetryBuffer].
+  DefaultTelemetryProcessor(
+    this._options,
+    this._logger, {
+    TelemetryBufferFactory<Span>? spanBufferFactory,
+    TelemetryBufferFactory<SentryLog>? logBufferFactory,
+  })  : _spanBufferFactory =
+            spanBufferFactory ?? InMemoryTelemetryBuffer<Span>.new,
+        _logBufferFactory =
+            logBufferFactory ?? InMemoryTelemetryBuffer<SentryLog>.new {
     _initBuffers();
   }
 
   void _initBuffers() {
     // TODO(next-pr): add span first flag
-    spanBuffer = InMemoryTelemetryBuffer();
+    spanBuffer = _spanBufferFactory();
     _logger(SentryLevel.debug, 'TelemetryProcessor: Span buffer initialized');
 
     if (_options.enableLogs) {
-      logBuffer = InMemoryTelemetryBuffer();
+      logBuffer = _logBufferFactory();
       _logger(SentryLevel.debug, 'TelemetryProcessor: Log buffer initialized');
     }
   }
