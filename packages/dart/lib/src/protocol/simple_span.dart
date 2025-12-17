@@ -6,6 +6,9 @@ class SimpleSpan implements Span {
   @override
   final Span? parentSpan;
   final Map<String, SentryAttribute> _attributes = {};
+  late final DateTime _startTimestamp;
+  late final Span _segmentSpan;
+  late final SentryId _traceId;
 
   String _name;
   SpanV2Status _status = SpanV2Status.ok;
@@ -18,7 +21,16 @@ class SimpleSpan implements Span {
     Hub? hub,
   })  : _spanId = SpanId.newId(),
         _hub = hub ?? HubAdapter(),
-        _name = name;
+        _name = name {
+    _segmentSpan = parentSpan?.segmentSpan ?? this;
+    _startTimestamp = _hub.options.clock();
+    _traceId = parentSpan != null
+        ? parentSpan!.traceId
+        : _hub.scope.propagationContext.traceId;
+  }
+
+  @override
+  SentryId get traceId => _traceId;
 
   @override
   SpanId get spanId => _spanId;
@@ -45,6 +57,9 @@ class SimpleSpan implements Span {
   bool get isFinished => _isFinished;
 
   @override
+  Span get segmentSpan => _segmentSpan;
+
+  @override
   void setAttribute(String key, SentryAttribute value) {
     _attributes[key] = value;
   }
@@ -59,14 +74,29 @@ class SimpleSpan implements Span {
     if (_isFinished) {
       return;
     }
-    _endTimestamp = (endTimestamp ?? DateTime.now()).toUtc();
+    _endTimestamp = (endTimestamp?.toUtc() ?? _hub.options.clock());
     _isFinished = true;
     _hub.captureSpan(this);
   }
 
   @override
   Map<String, dynamic> toJson() {
-    // TODO: implement toJson
-    throw UnimplementedError();
+    double toUnixSeconds(DateTime timestamp) =>
+        timestamp.microsecondsSinceEpoch / 1000000;
+
+    return {
+      'trace_id': _traceId.toString(),
+      'span_id': _spanId.toString(),
+      'is_segment': parentSpan == null,
+      'name': _name,
+      'status': _status.name,
+      'end_timestamp':
+          _endTimestamp == null ? null : toUnixSeconds(_endTimestamp!),
+      'start_timestamp': toUnixSeconds(_startTimestamp),
+      if (parentSpan != null) 'parent_span_id': parentSpan?.spanId.toString(),
+      if (_attributes.isNotEmpty)
+        'attributes':
+            _attributes.map((key, value) => MapEntry(key, value.toJson())),
+    };
   }
 }

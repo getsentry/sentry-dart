@@ -41,4 +41,10 @@ class NoOpSpan implements Span {
 
   @override
   Map<String, dynamic> toJson() => {};
+
+  @override
+  Span get segmentSpan => this;
+
+  @override
+  SentryId get traceId => SentryId.empty();
 }
