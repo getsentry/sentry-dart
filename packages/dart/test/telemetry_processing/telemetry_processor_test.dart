@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/protocol/noop_span.dart';
 import 'package:sentry/src/protocol/simple_span.dart';
+import 'package:sentry/src/protocol/unset_span.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_processor.dart';
 import 'package:test/test.dart';
 
@@ -30,18 +32,6 @@ void main() {
         expect(mockSpanBuffer.addedItems.first, span);
       });
 
-      test('handles subtypes correctly (SimpleSpan -> Span buffer)', () {
-        final mockSpanBuffer = MockTelemetryBuffer<Span>();
-        final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
-
-        final simpleSpan = fixture.createSpan();
-        simpleSpan.end();
-        processor.addSpan(simpleSpan);
-
-        expect(mockSpanBuffer.addedItems.length, 1);
-        expect(mockSpanBuffer.addedItems.first, isA<SimpleSpan>());
-      });
-
       test('does not throw when no span buffer registered', () {
         final processor = fixture.getSut();
         processor.spanBuffer = null;
@@ -51,6 +41,26 @@ void main() {
         processor.addSpan(span);
 
         // Nothing to assert - just verifying no exception thrown
+      });
+
+      test('NoOpSpan cannot be added to buffer', () {
+        final mockSpanBuffer = MockTelemetryBuffer<Span>();
+        final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
+
+        const noOpSpan = NoOpSpan();
+        processor.addSpan(noOpSpan);
+
+        expect(mockSpanBuffer.addedItems, isEmpty);
+      });
+
+      test('UnsetSpan cannot be added to buffer', () {
+        final mockSpanBuffer = MockTelemetryBuffer<Span>();
+        final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
+
+        const noOpSpan = UnsetSpan();
+        processor.addSpan(noOpSpan);
+
+        expect(mockSpanBuffer.addedItems, isEmpty);
       });
     });
 
@@ -151,6 +161,11 @@ class Fixture {
 
   SimpleSpan createSpan({String name = 'test-span'}) {
     return SimpleSpan(name: name, hub: hub);
+  }
+
+  SimpleSpan createChildSpan(
+      {required Span parent, String name = 'child-span'}) {
+    return SimpleSpan(name: name, parentSpan: parent, hub: hub);
   }
 
   SentryLog createLog({String body = 'test log'}) {
