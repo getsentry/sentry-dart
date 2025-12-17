@@ -96,10 +96,10 @@ void main() {
           logBuffer: mockLogBuffer,
         );
 
-        await processor.flush();
+        await processor.clear();
 
-        expect(mockSpanBuffer.flushCallCount, 1);
-        expect(mockLogBuffer.flushCallCount, 1);
+        expect(mockSpanBuffer.clearCallCount, 1);
+        expect(mockLogBuffer.clearCallCount, 1);
       });
 
       test('flushes only span buffer when log buffer is null', () async {
@@ -107,9 +107,9 @@ void main() {
         final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
         processor.logBuffer = null;
 
-        await processor.flush();
+        await processor.clear();
 
-        expect(mockSpanBuffer.flushCallCount, 1);
+        expect(mockSpanBuffer.clearCallCount, 1);
       });
 
       test('returns sync (null) when all buffers flush synchronously', () {
@@ -117,7 +117,7 @@ void main() {
         final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
         processor.logBuffer = null;
 
-        final result = processor.flush();
+        final result = processor.clear();
 
         expect(result, isNull);
       });
@@ -128,7 +128,7 @@ void main() {
         final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
         processor.logBuffer = null;
 
-        final result = processor.flush();
+        final result = processor.clear();
 
         expect(result, isA<Future>());
         await result;
