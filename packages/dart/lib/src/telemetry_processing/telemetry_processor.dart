@@ -78,7 +78,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
     final results = <FutureOr<void>>[
       spanBuffer?.flush(),
       logBuffer?.flush(),
-    ].whereType<FutureOr<void>>().toList();
+    ];
 
     final futures = results.whereType<Future<void>>().toList();
     if (futures.isEmpty) {

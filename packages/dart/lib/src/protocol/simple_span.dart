@@ -23,8 +23,10 @@ class SimpleSpan implements Span {
         _hub = hub ?? HubAdapter(),
         _name = name {
     _segmentSpan = parentSpan?.segmentSpan ?? this;
-    _traceId = parentSpan?.traceId ?? _hub.scope.propagationContext.traceId;
     _startTimestamp = _hub.options.clock();
+    _traceId = (parentSpan != null && parentSpan!.traceId != SentryId.empty())
+        ? parentSpan!.traceId
+        : _hub.scope.propagationContext.traceId;
   }
 
   @override
