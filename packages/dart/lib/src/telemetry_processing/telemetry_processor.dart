@@ -71,7 +71,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
       logBuffer?.clear(),
     ];
 
-    final futures = results.whereType<Future<void>>().toList();
+    final futures = results.whereType<Future>().toList();
     if (futures.isEmpty) {
       return null;
     }
