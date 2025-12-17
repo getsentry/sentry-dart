@@ -24,7 +24,7 @@ class SimpleSpan implements Span {
         _name = name {
     _segmentSpan = parentSpan?.segmentSpan ?? this;
     _startTimestamp = _hub.options.clock();
-    _traceId = (parentSpan != null && parentSpan!.traceId != SentryId.empty())
+    _traceId = parentSpan != null
         ? parentSpan!.traceId
         : _hub.scope.propagationContext.traceId;
   }
@@ -79,6 +79,7 @@ class SimpleSpan implements Span {
     _hub.captureSpan(this);
   }
 
+  @override
   Map<String, dynamic> toJson() {
     double toUnixSeconds(DateTime timestamp) =>
         timestamp.microsecondsSinceEpoch / 1000000;
