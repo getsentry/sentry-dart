@@ -1,9 +1,8 @@
-import '../telemetry_processing/sentry_encodable.dart';
 import 'sentry_attribute.dart';
 import 'sentry_id.dart';
 import 'sentry_log_level.dart';
 
-class SentryLog implements SentryEncodable {
+class SentryLog {
   DateTime timestamp;
   SentryId traceId;
   SentryLogLevel level;
@@ -22,7 +21,6 @@ class SentryLog implements SentryEncodable {
     this.severityNumber,
   }) : traceId = traceId ?? SentryId.empty();
 
-  @override
   Map<String, dynamic> toJson() {
     return {
       'timestamp': timestamp.toIso8601String(),

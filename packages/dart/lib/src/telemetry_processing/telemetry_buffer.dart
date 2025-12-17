@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'sentry_encodable.dart';
-
 /// A buffer that batches telemetry items for efficient transmission to Sentry.
 ///
 /// Collects items of type [T] and sends them in batches rather than
 /// individually, reducing network overhead.
-abstract class TelemetryBuffer<T extends SentryEncodable> {
+abstract class TelemetryBuffer<T> {
   /// Adds an item to the buffer.
   void add(T item);
 
@@ -17,7 +15,7 @@ abstract class TelemetryBuffer<T extends SentryEncodable> {
 /// Represents an item that is being hold in a buffer.
 ///
 /// Contains both raw item and encoded bytes for size tracking and grouping.
-class BufferedItem<T extends SentryEncodable> {
+class BufferedItem<T> {
   final T item;
   final List<int> encoded;
 
@@ -25,10 +23,14 @@ class BufferedItem<T extends SentryEncodable> {
 }
 
 /// In-memory buffer with time and size-based flushing.
-class InMemoryTelemetryBuffer<T extends SentryEncodable>
-    extends TelemetryBuffer<T> {
+class InMemoryTelemetryBuffer<T> extends TelemetryBuffer<T> {
+  final Map<String, dynamic> Function(T) serializer;
+
+  InMemoryTelemetryBuffer({required this.serializer});
+
   @override
   void add(T item) {
+    final serializedItem = serializer(item);
     // TODO(next-pr)
   }
 

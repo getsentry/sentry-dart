@@ -1,12 +1,11 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
-import '../telemetry_processing/sentry_encodable.dart';
 
 // Span specs: https://develop.sentry.dev/sdk/telemetry/spans/span-api/
 
 /// Represents a basic telemetry span.
-abstract class Span implements SentryEncodable {
+abstract class Span {
   @internal
   const Span();
 
@@ -60,4 +59,7 @@ abstract class Span implements SentryEncodable {
 
   @internal
   bool get isFinished;
+
+  @internal
+  Map<String, dynamic> toJson();
 }

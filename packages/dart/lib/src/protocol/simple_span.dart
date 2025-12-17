@@ -79,7 +79,6 @@ class SimpleSpan implements Span {
     _hub.captureSpan(this);
   }
 
-  @override
   Map<String, dynamic> toJson() {
     double toUnixSeconds(DateTime timestamp) =>
         timestamp.microsecondsSinceEpoch / 1000000;
