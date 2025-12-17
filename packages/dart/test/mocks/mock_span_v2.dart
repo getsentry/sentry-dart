@@ -63,4 +63,3 @@ class MockSpanV2 extends Span {
         'status': status.name,
       };
 }
-
