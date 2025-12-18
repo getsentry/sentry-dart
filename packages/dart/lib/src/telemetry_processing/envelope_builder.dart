@@ -27,15 +27,22 @@ class LogEnvelopeBuilder extends SingleEnvelopeBuilder<SentryLog> {
             ));
 }
 
-typedef TraceContextFactory = SentryTraceContextHeader? Function(Span span);
+typedef TraceContextHeaderFactory = SentryTraceContextHeader? Function(
+    Span span);
 
 /// Groups spans by segment, one envelope per segment.
 class SpanEnvelopeBuilder implements EnvelopeBuilder<Span> {
-  final TraceContextFactory _traceContextFactory;
+  final TraceContextHeaderFactory _traceContextHeaderFactory;
   final SdkVersion _sdkVersion;
   final String? _dsn;
 
-  SpanEnvelopeBuilder(this._traceContextFactory, this._sdkVersion, this._dsn);
+  SpanEnvelopeBuilder({
+    required TraceContextHeaderFactory traceContextHeaderFactory,
+    required SdkVersion sdkVersion,
+    required String? dsn,
+  })  : _traceContextHeaderFactory = traceContextHeaderFactory,
+        _sdkVersion = sdkVersion,
+        _dsn = dsn;
 
   @override
   List<SentryEnvelope> build(List<BufferedItem<Span>> items) {
@@ -46,7 +53,7 @@ class SpanEnvelopeBuilder implements EnvelopeBuilder<Span> {
 
     for (final entry in groups.entries) {
       final encoded = entry.value.map((i) => i.encoded).toList();
-      final traceContext = _traceContextFactory(entry.value.first.item);
+      final traceContext = _traceContextHeaderFactory(entry.value.first.item);
       final envelope = SentryEnvelope.fromSpansData(
         encoded,
         _sdkVersion,

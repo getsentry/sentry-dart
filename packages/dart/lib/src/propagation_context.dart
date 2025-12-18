@@ -43,17 +43,20 @@ class PropagationContext {
   SentryTraceContextHeader? _traceContextHeader;
 
   /// Creates a [SentryTraceContextHeader] for this trace if it doesn't exist.
-  SentryTraceContextHeader getOrCreateTraceContextHeader(
-    SentryOptions options,
-    String? segmentName,
-  ) {
+  SentryTraceContextHeader getOrCreateTraceContextHeader({
+    required String publicKey,
+    required String segmentName,
+    String? release,
+    String? environment,
+    double? tracesSampleRate,
+  }) {
     return _traceContextHeader ??= SentryTraceContextHeader(
       traceId,
-      options.parsedDsn.publicKey,
-      release: options.release,
-      environment: options.environment,
+      publicKey,
+      release: release,
+      environment: environment,
       transaction: segmentName,
-      sampleRate: _formatRate(options.tracesSampleRate),
+      sampleRate: _formatRate(tracesSampleRate),
       sampleRand: _formatRate(sampleRand),
       sampled: _sampled?.toString(),
     );
