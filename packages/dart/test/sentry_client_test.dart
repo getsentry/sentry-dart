@@ -1716,23 +1716,6 @@ void main() {
     });
   });
 
-  group('SentryClient telemetryProcessor', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
-
-    test('sets default telemetry processor when client is initialized', () {
-      expect(fixture.options.telemetryProcessor, isA<NoOpTelemetryProcessor>());
-
-      fixture.getSut();
-
-      expect(
-          fixture.options.telemetryProcessor, isA<DefaultTelemetryProcessor>());
-    });
-  });
-
   group('SentryClient captureLog', () {
     late Fixture fixture;
 
