@@ -16,7 +16,7 @@ abstract class TelemetryProcessor {
   void addLog(SentryLog log);
 
   /// Clears all buffers which sends any pending telemetry data.
-  FutureOr<void> clear();
+  FutureOr<void> flush();
 }
 
 /// Manages buffering and sending of telemetry data to Sentry.
@@ -63,12 +63,12 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   }
 
   @override
-  FutureOr<void> clear() {
+  FutureOr<void> flush() {
     _logger(SentryLevel.debug, 'TelemetryProcessor: Clearing buffers');
 
     final results = <FutureOr<void>>[
-      spanBuffer?.clear(),
-      logBuffer?.clear(),
+      spanBuffer?.flush(),
+      logBuffer?.flush(),
     ];
 
     final futures = results.whereType<Future>().toList();
@@ -88,5 +88,5 @@ class NoOpTelemetryProcessor implements TelemetryProcessor {
   void addLog(SentryLog log) {}
 
   @override
-  FutureOr<void> clear() {}
+  FutureOr<void> flush() {}
 }
