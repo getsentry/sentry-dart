@@ -51,6 +51,22 @@ class InMemoryTelemetryBuffer<T extends JsonEncodable>
   void add(T item) {
     try {
       final encoded = utf8JsonEncoder.convert(item.toJson());
+
+      // Reject items that exceed the max buffer size on their own.
+      // Note: Ideally we would send these and let the backend reject them with
+      // a 4xx response. However, the Cocoa and Android SDKs have a bug that
+      // retries sending on 4xx/5xx responses, causing a retry loop.
+      // Keep this check until we can update to SDK versions that include fixes:
+      // - Cocoa: https://github.com/getsentry/sentry-cocoa/pull/4950
+      // - Android: https://github.com/getsentry/sentry-java/pull/4618
+      if (encoded.length > _config.maxBufferSizeBytes) {
+        _logger(
+          SentryLevel.warning,
+          '$InMemoryTelemetryBuffer for $T: Dropping item that exceeds max buffer size (${encoded.length} > ${_config.maxBufferSizeBytes} bytes).',
+        );
+        return;
+      }
+
       _items.add(BufferedItem(item, encoded));
       _bufferSize += encoded.length;
 
