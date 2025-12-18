@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'utils/sample_rate_format.dart';
 
 @internal
 class PropagationContext {
@@ -38,11 +39,35 @@ class PropagationContext {
   /// whenever a new trace is started.
   double? sampleRand;
 
+  /// Cached trace context header for this trace.
+  SentryTraceContextHeader? _traceContextHeader;
+
+  /// Creates a [SentryTraceContextHeader] for this trace if it doesn't exist.
+  SentryTraceContextHeader getOrCreateTraceContextHeader(
+    SentryOptions options,
+    String? segmentName,
+  ) {
+    return _traceContextHeader ??= SentryTraceContextHeader(
+      traceId,
+      options.parsedDsn.publicKey,
+      release: options.release,
+      environment: options.environment,
+      transaction: segmentName,
+      sampleRate: _formatRate(options.tracesSampleRate),
+      sampleRand: _formatRate(sampleRand),
+      sampled: _sampled?.toString(),
+    );
+  }
+
+  String? _formatRate(double? value) =>
+      value != null ? SampleRateFormat().format(value) : null;
+
   /// Starts a brand-new trace (new ID, new sampling value & sampled state).
   void resetTrace() {
     traceId = SentryId.newId();
     sampleRand = null;
     _sampled = null;
+    _traceContextHeader = null;
   }
 
   /// Baggage header to attach to http headers.

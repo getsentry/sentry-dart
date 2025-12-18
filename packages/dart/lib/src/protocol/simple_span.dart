@@ -1,4 +1,5 @@
 import '../../sentry.dart';
+import '../propagation_context.dart';
 
 class SimpleSpan implements Span {
   final SpanId _spanId;
