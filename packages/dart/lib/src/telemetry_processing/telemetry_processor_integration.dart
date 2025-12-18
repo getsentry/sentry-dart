@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import '../hub.dart';
 import '../integration.dart';
 import '../sentry_options.dart';
