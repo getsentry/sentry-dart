@@ -243,9 +243,11 @@ class SentryNativeJava extends SentryNativeChannel {
                   final jKey = key.toJString()..releasedBy(arena);
                   final jVal = dartToJObject(value)..releasedBy(arena);
 
-                  final scope = iScope.as(const native.$Scope$Type())
-                    ..releasedBy(arena);
-                  scope.setContexts(jKey, jVal);
+                  if (iScope.isInstanceOf(native.Scope.type.jClass)) {
+                    final scope = iScope.as(native.Scope.type)
+                      ..releasedBy(arena);
+                    scope.setContexts(jKey, jVal);
+                  }
                 });
               },
             ),
@@ -259,9 +261,10 @@ class SentryNativeJava extends SentryNativeChannel {
             native.ScopeCallback.implement(native.$ScopeCallback(run: (iScope) {
           using((arena) {
             final jKey = key.toJString()..releasedBy(arena);
-            final scope = iScope.as(const native.$Scope$Type())
-              ..releasedBy(arena);
-            scope.removeContexts(jKey);
+            if (iScope.isInstanceOf(native.Scope.type.jClass)) {
+              final scope = iScope.as(native.Scope.type)..releasedBy(arena);
+              scope.removeContexts(jKey);
+            }
           });
         })));
       });
