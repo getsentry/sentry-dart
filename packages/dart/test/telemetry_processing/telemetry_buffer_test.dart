@@ -53,6 +53,21 @@ void main() {
       expect(fixture.mockEnvelopeBuilder.receivedItems, hasLength(2));
     });
 
+    test('single item exceeding max buffer size is rejected', () async {
+      // Set max buffer size to 10 bytes, but item encodes to ~14 bytes
+      final buffer = fixture.getSut(
+        policy: TelemetryBufferConfig(maxBufferSizeBytes: 10),
+      );
+
+      buffer.add(MockJsonEncodable('item1'));
+
+      // Item should be rejected, not added to buffer
+      await buffer.flush();
+
+      expect(fixture.mockTransport.envelopes, isEmpty);
+      expect(fixture.mockEnvelopeBuilder.receivedItems, isNull);
+    });
+
     test('items exceeding max item count are flushed immediately', () async {
       final buffer = fixture.getSut(
         policy: TelemetryBufferConfig(maxItemCount: 2),
