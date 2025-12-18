@@ -189,9 +189,11 @@ class SentryNativeJava extends SentryNativeChannel {
   void addBreadcrumb(Breadcrumb breadcrumb) =>
       tryCatchSync('addBreadcrumb', () {
         using((arena) {
-          final nativeOptions = native.ScopesAdapter.getInstance()?.getOptions()
+          final scopesAdapter = native.ScopesAdapter.getInstance()
             ?..releasedBy(arena);
-          if (nativeOptions == null) return;
+          if (scopesAdapter == null) return;
+          final nativeOptions = scopesAdapter.getOptions()..releasedBy(arena);
+
           final jMap = dartToJMap(breadcrumb.toJson());
           final nativeBreadcrumb =
               native.Breadcrumb.fromMap(jMap, nativeOptions)
@@ -214,10 +216,10 @@ class SentryNativeJava extends SentryNativeChannel {
           if (user == null) {
             native.Sentry.setUser(null);
           } else {
-            final nativeOptions = native.ScopesAdapter.getInstance()
-                ?.getOptions()
+            final scopesAdapter = native.ScopesAdapter.getInstance()
               ?..releasedBy(arena);
-            if (nativeOptions == null) return;
+            if (scopesAdapter == null) return;
+            final nativeOptions = scopesAdapter.getOptions()..releasedBy(arena);
 
             final jMap = dartToJMap(user.toJson());
             final nativeUser = native.User.fromMap(jMap, nativeOptions)
