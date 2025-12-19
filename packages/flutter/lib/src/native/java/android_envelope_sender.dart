@@ -14,6 +14,8 @@ class AndroidEnvelopeSender {
   final SentryFlutterOptions _options;
   final WorkerConfig _config;
   final SpawnWorkerFn _spawn;
+  final List<(Uint8List, bool)> _pendingEnvelopes = [];
+
   Worker? _worker;
 
   AndroidEnvelopeSender(this._options, {SpawnWorkerFn? spawn})
@@ -32,6 +34,16 @@ class AndroidEnvelopeSender {
   FutureOr<void> start() async {
     if (_worker != null) return;
     _worker = await _spawn(_config, _entryPoint);
+
+    if (_pendingEnvelopes.isNotEmpty) {
+      // The worker is now ready - we can flush the pending envelopes.
+      for (final envelope in _pendingEnvelopes) {
+        captureEnvelope(envelope.$1, envelope.$2);
+      }
+      _pendingEnvelopes.clear();
+
+      _options.log(SentryLevel.info, 'Flushed pending envelopes');
+    }
   }
 
   FutureOr<void> close() {
@@ -45,9 +57,10 @@ class AndroidEnvelopeSender {
     final client = _worker;
     if (client == null) {
       _options.log(
-        SentryLevel.warning,
-        'captureEnvelope called before worker started; dropping',
+        SentryLevel.info,
+        'captureEnvelope called before worker started: buffering envelope',
       );
+      _pendingEnvelopes.add((envelopeData, containsUnhandledException));
       return;
     }
     client.send((

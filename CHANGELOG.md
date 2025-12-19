@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Android not sending events when `autoInitializedNativeSdk` is disabled ([#3420](https://github.com/getsentry/sentry-dart/pull/3420))
+
 ## 9.9.1
 
 ### Fixes
