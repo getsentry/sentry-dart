@@ -3,7 +3,10 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
+import '../telemetry_processing/envelope_builder.dart';
 import '../telemetry_processing/json_encodable.dart';
+import '../telemetry_processing/telemetry_processor.dart';
+import 'sentry_span_context_v2.dart';
 
 part 'noop_sentry_span_v2.dart';
 part 'unset_sentry_span_v2.dart';

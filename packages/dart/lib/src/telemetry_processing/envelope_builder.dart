@@ -28,7 +28,7 @@ class LogEnvelopeBuilder extends SingleEnvelopeBuilder<SentryLog> {
             ));
 }
 
-typedef TraceContextHeaderFactory = SentryTraceContextHeader? Function(
+typedef TraceContextHeaderFactory = SentryTraceContextHeader Function(
     RecordingSentrySpanV2 span);
 
 /// Groups spans by segment, one envelope per segment.

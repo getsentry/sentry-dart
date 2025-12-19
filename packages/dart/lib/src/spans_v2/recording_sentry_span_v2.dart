@@ -1,5 +1,7 @@
 part of 'sentry_span_v2.dart';
 
+typedef SpanEndedCallback = void Function(RecordingSentrySpanV2);
+
 /// Primary implementation of [SentrySpanV2].
 ///
 /// This class contains the full implementation including internal methods
@@ -7,9 +9,10 @@ part of 'sentry_span_v2.dart';
 @internal
 final class RecordingSentrySpanV2 implements SentrySpanV2, JsonEncodable {
   final SpanId _spanId;
-  final Hub _hub;
   final RecordingSentrySpanV2? _parentSpan;
   final Map<String, SentryAttribute> _attributes = {};
+  final SentrySpanContextV2 _context;
+
   late final DateTime _startTimestamp;
   late final RecordingSentrySpanV2 _segmentSpan;
   late final SentryId _traceId;
@@ -26,17 +29,15 @@ final class RecordingSentrySpanV2 implements SentrySpanV2, JsonEncodable {
 
   RecordingSentrySpanV2({
     required String name,
+    required SentrySpanContextV2 context,
     RecordingSentrySpanV2? parentSpan,
-    Hub? hub,
   })  : _spanId = SpanId.newId(),
-        _hub = hub ?? HubAdapter(),
         _name = name,
-        _parentSpan = parentSpan {
+        _parentSpan = parentSpan,
+        _context = context {
     _segmentSpan = _parentSpan?.segmentSpan ?? this;
-    _startTimestamp = _hub.options.clock();
-    _traceId = _parentSpan != null
-        ? _parentSpan.traceId
-        : _hub.scope.propagationContext.traceId;
+    _startTimestamp = context.clock();
+    _traceId = _parentSpan?._parentSpan?.traceId ?? context.traceId;
   }
 
   @override
@@ -63,6 +64,13 @@ final class RecordingSentrySpanV2 implements SentrySpanV2, JsonEncodable {
   @override
   DateTime? get endTimestamp => _endTimestamp;
 
+  bool get isFinished => _isFinished;
+
+  /// The segment span (root span of the local trace segment).
+  ///
+  /// Used for grouping spans into envelopes.
+  RecordingSentrySpanV2 get segmentSpan => _segmentSpan;
+
   @override
   Map<String, SentryAttribute> get attributes => Map.unmodifiable(_attributes);
 
@@ -81,18 +89,10 @@ final class RecordingSentrySpanV2 implements SentrySpanV2, JsonEncodable {
     if (_isFinished) {
       return;
     }
-    _endTimestamp = (endTimestamp?.toUtc() ?? _hub.options.clock());
+    _endTimestamp = (endTimestamp?.toUtc() ?? _context.clock());
     _isFinished = true;
-    _hub.options.telemetryProcessor.addSpan(this);
+    _context.onSpanEnded(this);
   }
-
-  /// Whether this span has been finished.
-  bool get isFinished => _isFinished;
-
-  /// The segment span (root span of the local trace segment).
-  ///
-  /// Used for grouping spans into envelopes.
-  RecordingSentrySpanV2 get segmentSpan => _segmentSpan;
 
   /// Serializes this span to JSON for transmission to Sentry.
   @override
@@ -122,6 +122,6 @@ extension DynamicSamplingContext on RecordingSentrySpanV2 {
   ///
   /// On first access, creates and freezes the DSC with current segment state.
   /// Subsequent calls return the same frozen instance.
-  SentryTraceContextHeader getOrCreateDsc() => _segmentSpan._frozenDsc ??=
-      SentryTraceContextHeader.fromRecordingSpan(_segmentSpan, _hub);
+  SentryTraceContextHeader getOrCreateDsc() =>
+      _segmentSpan._frozenDsc ??= _context.createDsc(this);
 }

@@ -613,8 +613,17 @@ class Hub {
       resolvedParentSpan = null;
     }
 
+    final context = SentrySpanContextV2(
+        log: options.log,
+        clock: options.clock,
+        traceId: scope.propagationContext.traceId,
+        onSpanEnded: (span) {
+          options.telemetryProcessor.addSpan(span);
+        },
+        createDsc: (span) =>
+            SentryTraceContextHeader.fromRecordingSpan(span, this));
     final span = RecordingSentrySpanV2(
-        name: name, parentSpan: resolvedParentSpan, hub: this);
+        name: name, parentSpan: resolvedParentSpan, context: context);
     if (attributes != null) {
       span.setAttributes(attributes);
     }
