@@ -45,7 +45,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
 
   void _add<T extends JsonEncodable>(T item) {
     final buffer = switch (item) {
-      SentrySpanV2 _ => spanBuffer,
+      RecordingSentrySpanV2 _ => spanBuffer,
       SentryLog _ => logBuffer,
       _ => null,
     };

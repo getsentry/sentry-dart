@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/spans_v2/sentry_span_context_v2.dart';
 import 'package:sentry/src/spans_v2/sentry_span_v2.dart';
 import 'package:sentry/src/telemetry_processing/envelope_builder.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
@@ -217,13 +218,24 @@ class SpanEnvelopeBuilderFixture {
     );
   }
 
+  SentrySpanContextV2 createContext() {
+    return SentrySpanContextV2(
+      log: hub.options.log,
+      clock: hub.options.clock,
+      traceId: SentryId.newId(),
+      onSpanEnded: (_) {},
+      createDsc: (_) => traceContext,
+    );
+  }
+
   RecordingSentrySpanV2 createSpan(String name) {
-    return RecordingSentrySpanV2(name: name, hub: hub);
+    return RecordingSentrySpanV2(name: name, context: createContext());
   }
 
   RecordingSentrySpanV2 createChildSpan(
       RecordingSentrySpanV2 parent, String name) {
-    return RecordingSentrySpanV2(name: name, parentSpan: parent, hub: hub);
+    return RecordingSentrySpanV2(
+        name: name, parentSpan: parent, context: createContext());
   }
 
   BufferedItem<RecordingSentrySpanV2> createBufferedSpan(

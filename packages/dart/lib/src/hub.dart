@@ -9,6 +9,7 @@ import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
+import 'spans_v2/sentry_span_context_v2.dart';
 import 'spans_v2/sentry_span_v2.dart';
 import 'transport/data_category.dart';
 
@@ -618,6 +619,7 @@ class Hub {
         clock: options.clock,
         traceId: scope.propagationContext.traceId,
         onSpanEnded: (span) {
+          scope.removeActiveSpan(span);
           options.telemetryProcessor.addSpan(span);
         },
         createDsc: (span) =>

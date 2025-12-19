@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/spans_v2/sentry_span_context_v2.dart';
 import 'package:sentry/src/spans_v2/sentry_span_v2.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_processor.dart';
 import 'package:test/test.dart';
@@ -139,13 +140,24 @@ class Fixture {
     );
   }
 
+  SentrySpanContextV2 createContext() {
+    return SentrySpanContextV2(
+      log: options.log,
+      clock: options.clock,
+      traceId: SentryId.newId(),
+      onSpanEnded: (_) {},
+      createDsc: (_) => SentryTraceContextHeader(SentryId.newId(), 'test-key'),
+    );
+  }
+
   RecordingSentrySpanV2 createSpan({String name = 'test-span'}) {
-    return RecordingSentrySpanV2(name: name, hub: hub);
+    return RecordingSentrySpanV2(name: name, context: createContext());
   }
 
   RecordingSentrySpanV2 createChildSpan(
       {required RecordingSentrySpanV2 parent, String name = 'child-span'}) {
-    return RecordingSentrySpanV2(name: name, parentSpan: parent, hub: hub);
+    return RecordingSentrySpanV2(
+        name: name, parentSpan: parent, context: createContext());
   }
 
   SentryLog createLog({String body = 'test log'}) {
