@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/spans_v2/sentry_span_context_v2.dart';
 import 'package:sentry/src/spans_v2/sentry_span_v2.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_processor.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_hub.dart';
+import '../mocks/mock_sentry_span_v2_factory.dart';
 import '../mocks/mock_telemetry_buffer.dart';
 import '../test_utils.dart';
 
@@ -122,9 +122,11 @@ class Fixture {
   final hub = MockHub();
 
   late SentryOptions options;
+  late MockSentrySpanV2Factory spanFactory;
 
   Fixture() {
     options = defaultTestOptions();
+    spanFactory = MockSentrySpanV2Factory(options);
   }
 
   DefaultTelemetryProcessor getSut({
@@ -140,25 +142,11 @@ class Fixture {
     );
   }
 
-  SentrySpanContextV2 createContext() {
-    return SentrySpanContextV2(
-      log: options.log,
-      clock: options.clock,
-      traceId: SentryId.newId(),
-      onSpanEnded: (_) {},
-      createDsc: (_) => SentryTraceContextHeader(SentryId.newId(), 'test-key'),
-    );
-  }
-
-  RecordingSentrySpanV2 createSpan({String name = 'test-span'}) {
-    return RecordingSentrySpanV2(name: name, context: createContext());
-  }
-
-  RecordingSentrySpanV2 createChildSpan(
-      {required RecordingSentrySpanV2 parent, String name = 'child-span'}) {
-    return RecordingSentrySpanV2(
-        name: name, parentSpan: parent, context: createContext());
-  }
+  RecordingSentrySpanV2 createSpan({
+    RecordingSentrySpanV2? parent,
+    String? name,
+  }) =>
+      spanFactory.createSpan(name: name, parent: parent);
 
   SentryLog createLog({String body = 'test log'}) {
     return SentryLog(

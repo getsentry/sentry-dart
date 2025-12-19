@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/spans_v2/sentry_span_context_v2.dart';
 import 'package:sentry/src/spans_v2/sentry_span_v2.dart';
 import 'package:sentry/src/telemetry_processing/envelope_builder.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_hub.dart';
+import '../mocks/mock_sentry_span_v2_factory.dart';
 
 void main() {
   group('LogEnvelopeBuilder', () {
@@ -79,7 +79,7 @@ void main() {
     test('builds single envelope when all spans share same segment', () {
       final sut = fixture.getSut();
       final parentSpan = fixture.createSpan('parent');
-      final childSpan = fixture.createChildSpan(parentSpan, 'child');
+      final childSpan = fixture.createSpan('child', parent: parentSpan);
 
       final items = [
         fixture.createBufferedSpan(parentSpan),
@@ -162,8 +162,8 @@ void main() {
     test('envelope item contains correct item count per segment', () {
       final sut = fixture.getSut();
       final parentSpan = fixture.createSpan('parent');
-      final childSpan1 = fixture.createChildSpan(parentSpan, 'child-1');
-      final childSpan2 = fixture.createChildSpan(parentSpan, 'child-2');
+      final childSpan1 = fixture.createSpan('child-1', parent: parentSpan);
+      final childSpan2 = fixture.createSpan('child-2', parent: parentSpan);
 
       final items = [
         fixture.createBufferedSpan(parentSpan),
@@ -206,6 +206,12 @@ class SpanEnvelopeBuilderFixture {
     'abc',
   );
   final hub = MockHub();
+  late final MockSentrySpanV2Factory spanFactory;
+
+  SpanEnvelopeBuilderFixture() {
+    spanFactory =
+        MockSentrySpanV2Factory(hub.options, traceContext: traceContext);
+  }
 
   SpanEnvelopeBuilder getSut({
     TraceContextHeaderFactory? traceContextHeaderFactory,
@@ -218,25 +224,11 @@ class SpanEnvelopeBuilderFixture {
     );
   }
 
-  SentrySpanContextV2 createContext() {
-    return SentrySpanContextV2(
-      log: hub.options.log,
-      clock: hub.options.clock,
-      traceId: SentryId.newId(),
-      onSpanEnded: (_) {},
-      createDsc: (_) => traceContext,
-    );
-  }
-
-  RecordingSentrySpanV2 createSpan(String name) {
-    return RecordingSentrySpanV2(name: name, context: createContext());
-  }
-
-  RecordingSentrySpanV2 createChildSpan(
-      RecordingSentrySpanV2 parent, String name) {
-    return RecordingSentrySpanV2(
-        name: name, parentSpan: parent, context: createContext());
-  }
+  RecordingSentrySpanV2 createSpan(
+    String name, {
+    RecordingSentrySpanV2? parent,
+  }) =>
+      spanFactory.createSpan(name: name, parent: parent);
 
   BufferedItem<RecordingSentrySpanV2> createBufferedSpan(
       RecordingSentrySpanV2 span) {

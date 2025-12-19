@@ -1,10 +1,10 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/spans_v2/sentry_span_context_v2.dart';
 import 'package:sentry/src/spans_v2/sentry_span_v2.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_hub.dart';
 import '../mocks/mock_sentry_client.dart';
+import '../mocks/mock_sentry_span_v2_factory.dart';
 import '../test_utils.dart';
 
 void main() {
@@ -73,10 +73,12 @@ void main() {
 
     test('end is idempotent once finished', () {
       var captureSpanCount = 0;
-      final context = fixture.createContext(onSpanEnded: (_) {
-        captureSpanCount++;
-      });
-      final span = fixture.createSpan(name: 'test-span', context: context);
+      final span = fixture.createSpan(
+        name: 'test-span',
+        onSpanEnded: (_) {
+          captureSpanCount++;
+        },
+      );
       final firstEndTimestamp = DateTime.utc(2024, 1, 1);
       final secondEndTimestamp = DateTime.utc(2024, 1, 2);
 
@@ -127,10 +129,8 @@ void main() {
     });
 
     test('parentSpan returns the parent span', () {
-      final context = fixture.createContext();
-      final parent = fixture.createSpan(name: 'parent', context: context);
-      final child = fixture.createSpan(
-          name: 'child', parentSpan: parent, context: context);
+      final parent = fixture.createSpan(name: 'parent');
+      final child = fixture.createSpan(name: 'child', parentSpan: parent);
 
       expect(child.parentSpan, equals(parent));
     });
@@ -161,72 +161,63 @@ void main() {
       });
 
       test('returns parent segmentSpan when parentSpan is set', () {
-        final context = fixture.createContext();
-        final root = fixture.createSpan(name: 'root', context: context);
-        final child = fixture.createSpan(
-            name: 'child', parentSpan: root, context: context);
+        final root = fixture.createSpan(name: 'root');
+        final child = fixture.createSpan(name: 'child', parentSpan: root);
 
         expect(child.segmentSpan, same(root));
       });
 
       test('returns root segmentSpan for deeply nested spans', () {
-        final context = fixture.createContext();
-        final root = fixture.createSpan(name: 'root', context: context);
-        final child = fixture.createSpan(
-            name: 'child', parentSpan: root, context: context);
-        final grandchild = fixture.createSpan(
-            name: 'grandchild', parentSpan: child, context: context);
+        final root = fixture.createSpan(name: 'root');
+        final child = fixture.createSpan(name: 'child', parentSpan: root);
+        final grandchild =
+            fixture.createSpan(name: 'grandchild', parentSpan: child);
         final greatGrandchild = fixture.createSpan(
-            name: 'great-grandchild', parentSpan: grandchild, context: context);
+            name: 'great-grandchild', parentSpan: grandchild);
 
         expect(grandchild.segmentSpan, same(root));
         expect(greatGrandchild.segmentSpan, same(root));
       });
     });
 
-    group('traceId from context', () {
-      test('uses traceId from context', () {
+    group('traceId', () {
+      test('uses traceId from factory', () {
         final expectedTraceId = SentryId.newId();
-        final context = fixture.createContext(traceId: expectedTraceId);
-        final span = fixture.createSpan(name: 'test-span', context: context);
+        final span =
+            fixture.createSpan(name: 'test-span', traceId: expectedTraceId);
 
         expect(span.traceId, equals(expectedTraceId));
       });
 
       test('child span has same traceId as parent', () {
-        final context = fixture.createContext();
-        final parent = fixture.createSpan(name: 'parent', context: context);
-        final child = fixture.createSpan(
-            name: 'child', parentSpan: parent, context: context);
+        final parent = fixture.createSpan(name: 'parent');
+        final child = fixture.createSpan(name: 'child', parentSpan: parent);
 
         expect(child.traceId, equals(parent.traceId));
       });
 
       test(
-          'child span inherits traceId from parent even with different context traceId',
+          'child span inherits traceId from parent even with different traceId factory',
           () {
         final originalTraceId = SentryId.newId();
-        final context = fixture.createContext(traceId: originalTraceId);
-        final parent = fixture.createSpan(name: 'parent', context: context);
+        final parent =
+            fixture.createSpan(name: 'parent', traceId: originalTraceId);
         final parentTraceId = parent.traceId;
 
-        // Create a new context with a different traceId
+        // Create child span with a different traceId in the factory
         final newTraceId = SentryId.newId();
-        final newContext = fixture.createContext(traceId: newTraceId);
-
-        // Create child span with new context
         final child = fixture.createSpan(
-            name: 'child', parentSpan: parent, context: newContext);
+            name: 'child', parentSpan: parent, traceId: newTraceId);
 
-        // Child should inherit from parent, not from the new context
+        // Child should inherit from parent, not from the factory
         expect(child.traceId, equals(parentTraceId));
         expect(child.traceId, isNot(equals(newTraceId)));
       });
 
-      test('traceId is set at construction time from context', () {
+      test('traceId is set at construction time from factory', () {
         final originalTraceId = SentryId.newId();
-        final context = fixture.createContext(traceId: originalTraceId);
-        final span = fixture.createSpan(name: 'test-span', context: context);
+        final span =
+            fixture.createSpan(name: 'test-span', traceId: originalTraceId);
 
         // Span should have the original traceId
         expect(span.traceId, equals(originalTraceId));
@@ -251,10 +242,8 @@ void main() {
       });
 
       test('serializes span with parent', () {
-        final context = fixture.createContext();
-        final parent = fixture.createSpan(name: 'parent', context: context);
-        final child = fixture.createSpan(
-            name: 'child', parentSpan: parent, context: context);
+        final parent = fixture.createSpan(name: 'parent');
+        final child = fixture.createSpan(name: 'child', parentSpan: parent);
         child.end();
 
         final json = child.toJson();
@@ -381,6 +370,8 @@ class Fixture {
   final client = MockSentryClient();
 
   final options = defaultTestOptions();
+  late final MockSentrySpanV2Factory spanFactory =
+      MockSentrySpanV2Factory(options);
 
   Hub getHub({
     double? tracesSampleRate = 1.0,
@@ -392,30 +383,17 @@ class Fixture {
 
   MockHub getMockHub() => MockHub();
 
-  /// Creates a [SentrySpanContextV2] for testing.
-  SentrySpanContextV2 createContext({
-    SentryId? traceId,
-    void Function(RecordingSentrySpanV2)? onSpanEnded,
-  }) {
-    return SentrySpanContextV2(
-      log: options.log,
-      clock: options.clock,
-      traceId: traceId ?? SentryId.newId(),
-      onSpanEnded: onSpanEnded ?? (_) {},
-      createDsc: (_) => SentryTraceContextHeader(SentryId.newId(), 'test-key'),
-    );
-  }
-
-  /// Creates a [RecordingSentrySpanV2] for testing with a default context.
+  /// Creates a [RecordingSentrySpanV2] for testing.
   RecordingSentrySpanV2 createSpan({
     required String name,
     RecordingSentrySpanV2? parentSpan,
-    SentrySpanContextV2? context,
-  }) {
-    return RecordingSentrySpanV2(
-      name: name,
-      parentSpan: parentSpan,
-      context: context ?? createContext(),
-    );
-  }
+    SentryId? traceId,
+    void Function(RecordingSentrySpanV2)? onSpanEnded,
+  }) =>
+      spanFactory.createSpan(
+        name: name,
+        parent: parentSpan,
+        traceId: traceId,
+        onSpanEnded: onSpanEnded,
+      );
 }

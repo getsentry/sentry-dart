@@ -9,7 +9,6 @@ import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
-import 'spans_v2/sentry_span_context_v2.dart';
 import 'spans_v2/sentry_span_v2.dart';
 import 'transport/data_category.dart';
 
@@ -586,18 +585,22 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'startSpan' call is a no-op.",
       );
-      return SentrySpanV2.noop;
+      return const NoOpSentrySpanV2();
     }
 
     if (!_options.isTracingEnabled()) {
-      return SentrySpanV2.noop;
+      _options.log(
+        SentryLevel.warning,
+        "Tracing is disabled and this 'startSpan' call is a no-op.",
+      );
+      return const NoOpSentrySpanV2();
     }
 
     // Determine the parent span based on the parentSpan parameter:
     // - If parentSpan is UnsetSpan (default), use the currently active span
     // - If parentSpan is a recording Span, use that as the parent
     // - If parentSpan is null, create a root/segment span (no parent)
-    // - If parentSpan is noop (e.g., not sampled), return it
+    // - If parentSpan is no-op (e.g., not sampled), return it
     final RecordingSentrySpanV2? resolvedParentSpan;
     switch (parentSpan) {
       case UnsetSentrySpanV2():
@@ -607,21 +610,19 @@ class Hub {
       case null:
         resolvedParentSpan = null;
       case NoOpSentrySpanV2():
-        return SentrySpanV2.noop;
+        return const NoOpSentrySpanV2();
     }
 
-    final context = SentrySpanContextV2(
+    final span = RecordingSentrySpanV2(
+        name: name,
+        parentSpan: resolvedParentSpan,
         log: options.log,
         clock: options.clock,
-        traceId: scope.propagationContext.traceId,
-        onSpanEnded: (span) {
-          scope.removeActiveSpan(span);
-          options.telemetryProcessor.addSpan(span);
-        },
-        createDsc: (span) =>
+        defaultTraceId: scope.propagationContext.traceId,
+        onSpanEnded: captureSpan,
+        dscFactory: (span) =>
             SentryTraceContextHeader.fromRecordingSpan(span, this));
-    final span = RecordingSentrySpanV2(
-        name: name, parentSpan: resolvedParentSpan, context: context);
+
     if (attributes != null) {
       span.setAttributes(attributes);
     }

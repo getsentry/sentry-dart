@@ -3,24 +3,13 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-import 'package:sentry/src/spans_v2/sentry_span_context_v2.dart';
-import 'package:sentry/src/spans_v2/sentry_span_v2.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_hub.dart';
 import 'mocks/mock_scope_observer.dart';
+import 'mocks/mock_sentry_span_v2_factory.dart';
 import 'test_utils.dart';
-
-SentrySpanContextV2 _createTestContext(SentryOptions options) {
-  return SentrySpanContextV2(
-    log: options.log,
-    clock: options.clock,
-    traceId: SentryId.newId(),
-    onSpanEnded: (_) {},
-    createDsc: (_) => SentryTraceContextHeader(SentryId.newId(), 'test-key'),
-  );
-}
 
 void main() {
   late Fixture fixture;
@@ -366,12 +355,9 @@ void main() {
 
   test('setActiveSpan adds span to active span list', () {
     final sut = fixture.getSut();
-    final context = _createTestContext(fixture.options);
 
-    final span = RecordingSentrySpanV2(
-        name: 'span1', parentSpan: null, context: context);
-    final span2 = RecordingSentrySpanV2(
-        name: 'span2', parentSpan: null, context: context);
+    final span = fixture.spanFactory.createSpan(name: 'span1');
+    final span2 = fixture.spanFactory.createSpan(name: 'span2');
     sut.setActiveSpan(span);
     sut.setActiveSpan(span2);
 
@@ -381,12 +367,9 @@ void main() {
 
   test('getActiveSpan returns the last active span in the list', () {
     final sut = fixture.getSut();
-    final context = _createTestContext(fixture.options);
 
-    final span = RecordingSentrySpanV2(
-        name: 'span1', parentSpan: null, context: context);
-    final span2 = RecordingSentrySpanV2(
-        name: 'span2', parentSpan: null, context: context);
+    final span = fixture.spanFactory.createSpan(name: 'span1');
+    final span2 = fixture.spanFactory.createSpan(name: 'span2');
     sut.setActiveSpan(span);
     sut.setActiveSpan(span2);
 
@@ -398,12 +381,9 @@ void main() {
       'removeActiveSpan removes the active span in the list regardless of order',
       () {
     final sut = fixture.getSut();
-    final context = _createTestContext(fixture.options);
 
-    final span = RecordingSentrySpanV2(
-        name: 'span1', parentSpan: null, context: context);
-    final span2 = RecordingSentrySpanV2(
-        name: 'span2', parentSpan: null, context: context);
+    final span = fixture.spanFactory.createSpan(name: 'span1');
+    final span2 = fixture.spanFactory.createSpan(name: 'span2');
     sut.setActiveSpan(span);
     sut.setActiveSpan(span2);
 
@@ -469,8 +449,7 @@ void main() {
     await sut.setTag('key', 'vakye');
     await sut.setExtra('key', 'vakye');
     sut.transaction = 'transaction';
-    sut.setActiveSpan(RecordingSentrySpanV2(
-        name: 'random-span', context: _createTestContext(fixture.options)));
+    sut.setActiveSpan(fixture.spanFactory.createSpan(name: 'random-span'));
 
     final clone = sut.clone();
     expect(sut.user, clone.user);
@@ -998,6 +977,7 @@ class Fixture {
   final mockScopeObserver = MockScopeObserver();
 
   final options = defaultTestOptions();
+  late final spanFactory = MockSentrySpanV2Factory(options);
 
   final sentryTracer = SentryTracer(
     SentryTransactionContext(

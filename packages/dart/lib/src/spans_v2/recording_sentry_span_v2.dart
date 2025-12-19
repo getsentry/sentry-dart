@@ -10,34 +10,40 @@ typedef SpanEndedCallback = void Function(RecordingSentrySpanV2);
 final class RecordingSentrySpanV2 implements SentrySpanV2, JsonEncodable {
   final SpanId _spanId;
   final RecordingSentrySpanV2? _parentSpan;
-  final Map<String, SentryAttribute> _attributes = {};
-  final SentrySpanContextV2 _context;
-
-  late final DateTime _startTimestamp;
+  final ClockProvider _clock;
+  final SpanEndedCallback _onSpanEnded;
+  final TraceContextHeaderFactory _dscFactory;
+  final SdkLogCallback _log;
+  final DateTime _startTimestamp;
+  final SentryId _traceId;
   late final RecordingSentrySpanV2 _segmentSpan;
-  late final SentryId _traceId;
 
-  /// The frozen DSC (Dynamic Sampling Context) for this segment.
-  /// Once frozen, this is the permanent DSC for all spans in the segment.
-  /// Only set on segment spans (root of local trace segment).
-  SentryTraceContextHeader? _frozenDsc;
-
-  String _name;
+  // Mutable span state.
   SentrySpanStatusV2 _status = SentrySpanStatusV2.ok;
   DateTime? _endTimestamp;
   bool _isFinished = false;
+  String _name;
+  final Map<String, SentryAttribute> _attributes = {};
+  SentryTraceContextHeader? _frozenDsc;
 
   RecordingSentrySpanV2({
     required String name,
-    required SentrySpanContextV2 context,
-    RecordingSentrySpanV2? parentSpan,
-  })  : _spanId = SpanId.newId(),
-        _name = name,
-        _parentSpan = parentSpan,
-        _context = context {
-    _segmentSpan = _parentSpan?.segmentSpan ?? this;
-    _startTimestamp = context.clock();
-    _traceId = _parentSpan?.traceId ?? context.traceId;
+    required SentryId defaultTraceId,
+    required SpanEndedCallback onSpanEnded,
+    required TraceContextHeaderFactory dscFactory,
+    required SdkLogCallback log,
+    required ClockProvider clock,
+    required RecordingSentrySpanV2? parentSpan,
+  }) : _spanId = SpanId.newId(),
+       _parentSpan = parentSpan,
+       _name = name,
+       _clock = clock,
+       _onSpanEnded = onSpanEnded,
+       _dscFactory = dscFactory,
+       _log = log,
+       _startTimestamp = clock(),
+       _traceId = parentSpan?.traceId ?? defaultTraceId {
+    _segmentSpan = parentSpan?.segmentSpan ?? this;
   }
 
   @override
@@ -64,13 +70,6 @@ final class RecordingSentrySpanV2 implements SentrySpanV2, JsonEncodable {
   @override
   DateTime? get endTimestamp => _endTimestamp;
 
-  bool get isFinished => _isFinished;
-
-  /// The segment span (root span of the local trace segment).
-  ///
-  /// Used for grouping spans into envelopes.
-  RecordingSentrySpanV2 get segmentSpan => _segmentSpan;
-
   @override
   Map<String, SentryAttribute> get attributes => Map.unmodifiable(_attributes);
 
@@ -86,15 +85,15 @@ final class RecordingSentrySpanV2 implements SentrySpanV2, JsonEncodable {
 
   @override
   void end({DateTime? endTimestamp}) {
-    if (_isFinished) {
-      return;
-    }
-    _endTimestamp = (endTimestamp?.toUtc() ?? _context.clock());
+    if (_isFinished) return;
+
+    _endTimestamp = endTimestamp?.toUtc() ?? _clock();
     _isFinished = true;
-    _context.onSpanEnded(this);
+
+    _onSpanEnded(this);
+    _log(SentryLevel.debug, 'Span ended with endTimestamp: $_endTimestamp');
   }
 
-  /// Serializes this span to JSON for transmission to Sentry.
   @override
   Map<String, dynamic> toJson() {
     double toUnixSeconds(DateTime timestamp) =>
@@ -103,25 +102,25 @@ final class RecordingSentrySpanV2 implements SentrySpanV2, JsonEncodable {
     return {
       'trace_id': _traceId.toString(),
       'span_id': _spanId.toString(),
-      'is_segment': parentSpan == null,
+      'is_segment': _parentSpan == null,
       'name': _name,
       'status': _status.name,
-      'end_timestamp':
-          _endTimestamp == null ? null : toUnixSeconds(_endTimestamp!),
+      'end_timestamp': _endTimestamp == null
+          ? null
+          : toUnixSeconds(_endTimestamp!),
       'start_timestamp': toUnixSeconds(_startTimestamp),
-      if (parentSpan != null) 'parent_span_id': parentSpan?.spanId.toString(),
+      if (_parentSpan != null) 'parent_span_id': _parentSpan!.spanId.toString(),
       if (_attributes.isNotEmpty)
-        'attributes':
-            _attributes.map((key, value) => MapEntry(key, value.toJson())),
+        'attributes': _attributes.map((k, v) => MapEntry(k, v.toJson())),
     };
   }
-}
 
-extension DynamicSamplingContext on RecordingSentrySpanV2 {
-  /// Gets the frozen DSC (Dynamic Sampling Context) for this span's segment.
-  ///
-  /// On first access, creates and freezes the DSC with current segment state.
-  /// Subsequent calls return the same frozen instance.
+  bool get isFinished => _isFinished;
+
+  /// The segment root span (root of the local trace segment).
+  RecordingSentrySpanV2 get segmentSpan => _segmentSpan;
+
+  /// Returns the segment’s frozen DSC, creating it once if needed.
   SentryTraceContextHeader getOrCreateDsc() =>
-      _segmentSpan._frozenDsc ??= _context.createDsc(this);
+      _segmentSpan._frozenDsc ??= _dscFactory(this);
 }
