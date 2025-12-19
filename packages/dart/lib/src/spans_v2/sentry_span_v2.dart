@@ -3,9 +3,7 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
-import '../telemetry_processing/envelope_builder.dart';
 import '../telemetry_processing/json_encodable.dart';
-import '../telemetry_processing/telemetry_processor.dart';
 import 'sentry_span_context_v2.dart';
 
 part 'noop_sentry_span_v2.dart';
@@ -19,7 +17,7 @@ part 'recording_sentry_span_v2.dart';
 ///
 /// See also:
 /// - [Sentry.startSpan] to create a new span.
-abstract final class SentrySpanV2 {
+sealed class SentrySpanV2 {
   /// Gets the id of the trace this span belongs to.
   SentryId get traceId;
 
@@ -65,4 +63,7 @@ abstract final class SentrySpanV2 {
   ///
   /// Overrides if the attributes already exist.
   void setAttributes(Map<String, SentryAttribute> attributes);
+
+  /// A no-op span that does nothing.
+  static final noop = NoOpSentrySpanV2();
 }

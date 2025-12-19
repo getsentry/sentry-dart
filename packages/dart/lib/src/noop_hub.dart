@@ -159,7 +159,7 @@ class NoOpHub implements Hub {
     bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) =>
-      NoOpSentrySpanV2();
+      SentrySpanV2.noop;
 
   @override
   void captureSpan(SentrySpanV2 span) {}

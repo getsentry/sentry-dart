@@ -586,32 +586,28 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'startSpan' call is a no-op.",
       );
-      return NoOpSentrySpanV2();
+      return SentrySpanV2.noop;
     }
 
     if (!_options.isTracingEnabled()) {
-      return NoOpSentrySpanV2();
-    }
-
-    if (parentSpan is NoOpSentrySpanV2) {
-      _options.log(
-        SentryLevel.warning,
-        'Invalid parentSpan: startSpan called with NoOpSentrySpanV2.',
-      );
-      return NoOpSentrySpanV2();
+      return SentrySpanV2.noop;
     }
 
     // Determine the parent span based on the parentSpan parameter:
     // - If parentSpan is UnsetSpan (default), use the currently active span
-    // - If parentSpan is a specific Span, use that as the parent
+    // - If parentSpan is a recording Span, use that as the parent
     // - If parentSpan is null, create a root/segment span (no parent)
+    // - If parentSpan is noop (e.g., not sampled), return it
     final RecordingSentrySpanV2? resolvedParentSpan;
-    if (parentSpan is UnsetSentrySpanV2) {
-      resolvedParentSpan = scope.getActiveSpan();
-    } else if (parentSpan is RecordingSentrySpanV2) {
-      resolvedParentSpan = parentSpan;
-    } else {
-      resolvedParentSpan = null;
+    switch (parentSpan) {
+      case UnsetSentrySpanV2():
+        resolvedParentSpan = scope.getActiveSpan();
+      case RecordingSentrySpanV2 span:
+        resolvedParentSpan = span;
+      case null:
+        resolvedParentSpan = null;
+      case NoOpSentrySpanV2():
+        return SentrySpanV2.noop;
     }
 
     final context = SentrySpanContextV2(
