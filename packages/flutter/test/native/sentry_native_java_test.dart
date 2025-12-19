@@ -1,7 +1,13 @@
 @TestOn('vm')
+// ignore_for_file: invalid_use_of_internal_member
 library;
 
+import 'dart:async';
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/native/java/android_envelope_sender.dart';
 import 'sentry_native_java_web_stub.dart'
     if (dart.library.io) 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 
@@ -46,4 +52,58 @@ void main() {
       expect(24.5.adjustReplaySizeToBlockSize(), 32.0);
     });
   });
+
+  group('EnvelopeSender initialization', () {
+    late AndroidEnvelopeSender Function(SentryFlutterOptions) originalFactory;
+
+    setUp(() {
+      originalFactory = AndroidEnvelopeSender.factory;
+    });
+
+    tearDown(() {
+      AndroidEnvelopeSender.factory = originalFactory;
+    });
+
+    test('starts envelope sender in constructor', () {
+      var factoryCalled = false;
+      var startCalled = false;
+
+      AndroidEnvelopeSender.factory = (options) {
+        factoryCalled = true;
+        return _FakeEnvelopeSender(onStart: () => startCalled = true);
+      };
+
+      final options =
+          SentryFlutterOptions(dsn: 'https://abc@def.ingest.sentry.io/1234567');
+      SentryNativeJava(options);
+
+      expect(factoryCalled, isTrue,
+          reason: 'Factory should be called during construction');
+      expect(startCalled, isTrue,
+          reason: 'start() should be called during construction');
+    });
+  });
+}
+
+/// Fake envelope sender for testing that tracks method calls.
+class _FakeEnvelopeSender implements AndroidEnvelopeSender {
+  final void Function()? onStart;
+
+  _FakeEnvelopeSender({this.onStart});
+
+  @override
+  FutureOr<void> start() {
+    onStart?.call();
+  }
+
+  @override
+  FutureOr<void> close() {
+    // No-op for testing
+  }
+
+  @override
+  void captureEnvelope(
+      Uint8List envelopeData, bool containsUnhandledException) {
+    // No-op for testing
+  }
 }
