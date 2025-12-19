@@ -1,15 +1,13 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/protocol/noop_span.dart';
-import 'package:sentry/src/protocol/simple_span.dart';
-import 'package:sentry/src/protocol/unset_span.dart';
+import 'package:sentry/src/spans_v2/sentry_span_v2.dart';
 import 'package:test/test.dart';
 
-import 'mocks/mock_hub.dart';
-import 'mocks/mock_sentry_client.dart';
-import 'test_utils.dart';
+import '../mocks/mock_hub.dart';
+import '../mocks/mock_sentry_client.dart';
+import '../test_utils.dart';
 
 void main() {
-  group('SimpleSpan', () {
+  group('RecordingSentrySpanV2', () {
     late Fixture fixture;
 
     setUp(() {
@@ -18,7 +16,8 @@ void main() {
 
     test('end finishes the span', () {
       final hub = fixture.getHub();
-      final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+      final span =
+          RecordingSentrySpanV2(name: 'test-span', parentSpan: null, hub: hub);
 
       span.end();
 
@@ -28,7 +27,8 @@ void main() {
 
     test('end sets current time by default', () {
       final hub = fixture.getHub();
-      final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+      final span =
+          RecordingSentrySpanV2(name: 'test-span', parentSpan: null, hub: hub);
 
       final before = DateTime.now().toUtc();
       span.end();
@@ -45,7 +45,8 @@ void main() {
 
     test('end with custom timestamp sets end time', () {
       final hub = fixture.getHub();
-      final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+      final span =
+          RecordingSentrySpanV2(name: 'test-span', parentSpan: null, hub: hub);
       final endTime = DateTime.now().add(Duration(seconds: 5)).toUtc();
 
       span.end(endTimestamp: endTime);
@@ -54,11 +55,11 @@ void main() {
     });
 
     test('end sets endTimestamp as UTC', () {
-      final span1 = SimpleSpan(name: 'test-span');
+      final span1 = RecordingSentrySpanV2(name: 'test-span');
       span1.end();
       expect(span1.endTimestamp!.isUtc, isTrue);
 
-      final span2 = SimpleSpan(name: 'test-span');
+      final span2 = RecordingSentrySpanV2(name: 'test-span');
       // Should transform non-utc time to utc
       span2.end(endTimestamp: DateTime.now());
       expect(span2.endTimestamp!.isUtc, isTrue);
@@ -77,7 +78,8 @@ void main() {
 
     test('end is idempotent once finished', () {
       final hub = fixture.getMockHub();
-      final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+      final span =
+          RecordingSentrySpanV2(name: 'test-span', parentSpan: null, hub: hub);
       final firstEndTimestamp = DateTime.utc(2024, 1, 1);
       final secondEndTimestamp = DateTime.utc(2024, 1, 2);
 
@@ -91,7 +93,8 @@ void main() {
 
     test('setAttribute sets single attribute', () {
       final hub = fixture.getHub();
-      final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+      final span =
+          RecordingSentrySpanV2(name: 'test-span', parentSpan: null, hub: hub);
 
       final attributeValue = SentryAttribute.string('value');
       span.setAttribute('key', attributeValue);
@@ -101,7 +104,8 @@ void main() {
 
     test('setAttributes sets multiple attributes', () {
       final hub = fixture.getHub();
-      final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+      final span =
+          RecordingSentrySpanV2(name: 'test-span', parentSpan: null, hub: hub);
 
       final attributes = {
         'key1': SentryAttribute.string('value1'),
@@ -114,7 +118,8 @@ void main() {
 
     test('setName sets span name', () {
       final hub = fixture.getHub();
-      final span = SimpleSpan(name: 'initial-name', parentSpan: null, hub: hub);
+      final span = RecordingSentrySpanV2(
+          name: 'initial-name', parentSpan: null, hub: hub);
 
       span.name = 'updated-name';
       expect(span.name, equals('updated-name'));
@@ -122,39 +127,44 @@ void main() {
 
     test('setStatus sets span status', () {
       final hub = fixture.getHub();
-      final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+      final span =
+          RecordingSentrySpanV2(name: 'test-span', parentSpan: null, hub: hub);
 
-      span.status = SpanV2Status.ok;
-      expect(span.status, equals(SpanV2Status.ok));
+      span.status = SentrySpanStatusV2.ok;
+      expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      span.status = SpanV2Status.error;
-      expect(span.status, equals(SpanV2Status.error));
+      span.status = SentrySpanStatusV2.error;
+      expect(span.status, equals(SentrySpanStatusV2.error));
     });
 
     test('parentSpan returns the parent span', () {
       final hub = fixture.getHub();
-      final parent = SimpleSpan(name: 'parent', parentSpan: null, hub: hub);
-      final child = SimpleSpan(name: 'child', parentSpan: parent, hub: hub);
+      final parent =
+          RecordingSentrySpanV2(name: 'parent', parentSpan: null, hub: hub);
+      final child =
+          RecordingSentrySpanV2(name: 'child', parentSpan: parent, hub: hub);
 
       expect(child.parentSpan, equals(parent));
     });
 
     test('parentSpan returns null for root span', () {
       final hub = fixture.getHub();
-      final span = SimpleSpan(name: 'root', parentSpan: null, hub: hub);
+      final span =
+          RecordingSentrySpanV2(name: 'root', parentSpan: null, hub: hub);
 
       expect(span.parentSpan, isNull);
     });
 
     test('name returns the span name', () {
       final hub = fixture.getHub();
-      final span = SimpleSpan(name: 'my-span-name', parentSpan: null, hub: hub);
+      final span = RecordingSentrySpanV2(
+          name: 'my-span-name', parentSpan: null, hub: hub);
 
       expect(span.name, equals('my-span-name'));
     });
 
     test('spanId is created when span is created', () {
-      final span = SimpleSpan(name: 'test-span');
+      final span = RecordingSentrySpanV2(name: 'test-span');
 
       expect(span.spanId.toString(), isNot(SpanId.empty().toString()));
     });
@@ -162,26 +172,31 @@ void main() {
     group('segmentSpan', () {
       test('returns itself when parentSpan is null', () {
         final hub = fixture.getHub();
-        final span = SimpleSpan(name: 'root-span', parentSpan: null, hub: hub);
+        final span = RecordingSentrySpanV2(
+            name: 'root-span', parentSpan: null, hub: hub);
 
         expect(span.segmentSpan, same(span));
       });
 
       test('returns parent segmentSpan when parentSpan is set', () {
         final hub = fixture.getHub();
-        final root = SimpleSpan(name: 'root', parentSpan: null, hub: hub);
-        final child = SimpleSpan(name: 'child', parentSpan: root, hub: hub);
+        final root =
+            RecordingSentrySpanV2(name: 'root', parentSpan: null, hub: hub);
+        final child =
+            RecordingSentrySpanV2(name: 'child', parentSpan: root, hub: hub);
 
         expect(child.segmentSpan, same(root));
       });
 
       test('returns root segmentSpan for deeply nested spans', () {
         final hub = fixture.getHub();
-        final root = SimpleSpan(name: 'root', parentSpan: null, hub: hub);
-        final child = SimpleSpan(name: 'child', parentSpan: root, hub: hub);
-        final grandchild =
-            SimpleSpan(name: 'grandchild', parentSpan: child, hub: hub);
-        final greatGrandchild = SimpleSpan(
+        final root =
+            RecordingSentrySpanV2(name: 'root', parentSpan: null, hub: hub);
+        final child =
+            RecordingSentrySpanV2(name: 'child', parentSpan: root, hub: hub);
+        final grandchild = RecordingSentrySpanV2(
+            name: 'grandchild', parentSpan: child, hub: hub);
+        final greatGrandchild = RecordingSentrySpanV2(
             name: 'great-grandchild', parentSpan: grandchild, hub: hub);
 
         expect(grandchild.segmentSpan, same(root));
@@ -194,15 +209,18 @@ void main() {
         final hub = fixture.getHub();
         final expectedTraceId = hub.scope.propagationContext.traceId;
 
-        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+        final span = RecordingSentrySpanV2(
+            name: 'test-span', parentSpan: null, hub: hub);
 
         expect(span.traceId, equals(expectedTraceId));
       });
 
       test('child span has same traceId as parent', () {
         final hub = fixture.getHub();
-        final parent = SimpleSpan(name: 'parent', parentSpan: null, hub: hub);
-        final child = SimpleSpan(name: 'child', parentSpan: parent, hub: hub);
+        final parent =
+            RecordingSentrySpanV2(name: 'parent', parentSpan: null, hub: hub);
+        final child =
+            RecordingSentrySpanV2(name: 'child', parentSpan: parent, hub: hub);
 
         expect(child.traceId, equals(parent.traceId));
       });
@@ -211,7 +229,8 @@ void main() {
           'child span inherits traceId from parent even after propagation context reset',
           () {
         final hub = fixture.getHub();
-        final parent = SimpleSpan(name: 'parent', parentSpan: null, hub: hub);
+        final parent =
+            RecordingSentrySpanV2(name: 'parent', parentSpan: null, hub: hub);
         final parentTraceId = parent.traceId;
 
         // Reset the propagation context - this would change the scope's traceId
@@ -219,7 +238,8 @@ void main() {
         final newPropagationTraceId = hub.scope.propagationContext.traceId;
 
         // Create child span after reset
-        final child = SimpleSpan(name: 'child', parentSpan: parent, hub: hub);
+        final child =
+            RecordingSentrySpanV2(name: 'child', parentSpan: parent, hub: hub);
 
         // Child should inherit from parent, not from the new propagation context
         expect(child.traceId, equals(parentTraceId));
@@ -230,7 +250,8 @@ void main() {
         final hub = fixture.getHub();
         final originalTraceId = hub.scope.propagationContext.traceId;
 
-        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+        final span = RecordingSentrySpanV2(
+            name: 'test-span', parentSpan: null, hub: hub);
 
         // Change the propagation context after span creation
         hub.scope.propagationContext.resetTrace();
@@ -245,7 +266,8 @@ void main() {
     group('toJson', () {
       test('serializes basic span without parent', () {
         final hub = fixture.getMockHub();
-        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+        final span = RecordingSentrySpanV2(
+            name: 'test-span', parentSpan: null, hub: hub);
         span.end();
 
         final json = span.toJson();
@@ -262,8 +284,10 @@ void main() {
 
       test('serializes span with parent', () {
         final hub = fixture.getMockHub();
-        final parent = SimpleSpan(name: 'parent', parentSpan: null, hub: hub);
-        final child = SimpleSpan(name: 'child', parentSpan: parent, hub: hub);
+        final parent =
+            RecordingSentrySpanV2(name: 'parent', parentSpan: null, hub: hub);
+        final child =
+            RecordingSentrySpanV2(name: 'child', parentSpan: parent, hub: hub);
         child.end();
 
         final json = child.toJson();
@@ -274,8 +298,9 @@ void main() {
 
       test('serializes span with error status', () {
         final hub = fixture.getMockHub();
-        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
-        span.status = SpanV2Status.error;
+        final span = RecordingSentrySpanV2(
+            name: 'test-span', parentSpan: null, hub: hub);
+        span.status = SentrySpanStatusV2.error;
         span.end();
 
         final json = span.toJson();
@@ -285,7 +310,8 @@ void main() {
 
       test('serializes span with attributes', () {
         final hub = fixture.getMockHub();
-        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+        final span = RecordingSentrySpanV2(
+            name: 'test-span', parentSpan: null, hub: hub);
         span.setAttribute('string_attr', SentryAttribute.string('value'));
         span.setAttribute('int_attr', SentryAttribute.int(42));
         span.setAttribute('bool_attr', SentryAttribute.bool(true));
@@ -305,7 +331,8 @@ void main() {
 
       test('does not include attributes key when no attributes set', () {
         final hub = fixture.getMockHub();
-        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+        final span = RecordingSentrySpanV2(
+            name: 'test-span', parentSpan: null, hub: hub);
         span.end();
 
         final json = span.toJson();
@@ -315,7 +342,8 @@ void main() {
 
       test('end_timestamp is null when span is not finished', () {
         final hub = fixture.getMockHub();
-        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+        final span = RecordingSentrySpanV2(
+            name: 'test-span', parentSpan: null, hub: hub);
 
         final json = span.toJson();
 
@@ -326,7 +354,8 @@ void main() {
           'timestamps are serialized as unix seconds with microsecond precision',
           () {
         final hub = fixture.getMockHub();
-        final span = SimpleSpan(name: 'test-span', parentSpan: null, hub: hub);
+        final span = RecordingSentrySpanV2(
+            name: 'test-span', parentSpan: null, hub: hub);
         final customEndTime = DateTime.utc(2024, 6, 15, 12, 30, 45, 123, 456);
         span.end(endTimestamp: customEndTime);
 
@@ -342,8 +371,8 @@ void main() {
 
       test('serializes updated name', () {
         final hub = fixture.getMockHub();
-        final span =
-            SimpleSpan(name: 'original-name', parentSpan: null, hub: hub);
+        final span = RecordingSentrySpanV2(
+            name: 'original-name', parentSpan: null, hub: hub);
         span.name = 'updated-name';
         span.end();
 
@@ -354,9 +383,9 @@ void main() {
     });
   });
 
-  group('NoOpSpan', () {
-    test('NoOpSpan operations do not throw', () {
-      const span = NoOpSpan();
+  group('NoOpSentrySpanV2', () {
+    test('operations do not throw', () {
+      const span = NoOpSentrySpanV2();
 
       // All operations should be no-ops and not throw
       span.end();
@@ -364,15 +393,14 @@ void main() {
       span.setAttribute('key', SentryAttribute.string('value'));
       span.setAttributes({'key': SentryAttribute.string('value')});
       span.name = 'name';
-      span.status = SpanV2Status.ok;
-      span.status = SpanV2Status.error;
-      expect(span.toJson(), isEmpty);
+      span.status = SentrySpanStatusV2.ok;
+      span.status = SentrySpanStatusV2.error;
     });
   });
 
-  group('UnsetSpan', () {
+  group('UnsetSentrySpanV2', () {
     test('all APIs throw to prevent accidental use', () {
-      const span = UnsetSpan();
+      const span = UnsetSentrySpanV2();
 
       expect(() => span.spanId, throwsA(isA<UnimplementedError>()));
       expect(() => span.name, throwsA(isA<UnimplementedError>()));
@@ -383,14 +411,13 @@ void main() {
       expect(() => span.isFinished, throwsA(isA<UnimplementedError>()));
 
       expect(() => span.name = 'foo', throwsA(isA<UnimplementedError>()));
-      expect(() => span.status = SpanV2Status.ok,
+      expect(() => span.status = SentrySpanStatusV2.ok,
           throwsA(isA<UnimplementedError>()));
       expect(() => span.setAttribute('k', SentryAttribute.string('v')),
           throwsA(isA<UnimplementedError>()));
       expect(() => span.setAttributes({'k': SentryAttribute.string('v')}),
           throwsA(isA<UnimplementedError>()));
       expect(() => span.end(), throwsA(isA<UnimplementedError>()));
-      expect(() => span.toJson(), throwsA(isA<UnimplementedError>()));
     });
   });
 }

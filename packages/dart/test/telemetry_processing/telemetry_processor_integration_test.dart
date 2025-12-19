@@ -1,4 +1,5 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/spans_v2/sentry_span_v2.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_processor_integration.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_processor.dart';
 import 'package:test/test.dart';
@@ -76,7 +77,7 @@ class _MockTelemetryProcessor implements TelemetryProcessor {
   void addLog(SentryLog log) {}
 
   @override
-  void addSpan(Span span) {}
+  void addSpan(RecordingSentrySpanV2 span) {}
 
   @override
   void flush() {}

@@ -44,5 +44,3 @@ export 'protocol/sentry_feature_flags.dart';
 export 'protocol/sentry_log.dart';
 export 'protocol/sentry_log_level.dart';
 export 'protocol/sentry_attribute.dart';
-export 'protocol/span.dart';
-export 'protocol/span_v2_status.dart';

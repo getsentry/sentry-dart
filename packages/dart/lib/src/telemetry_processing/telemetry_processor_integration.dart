@@ -1,6 +1,5 @@
-import '../hub.dart';
-import '../integration.dart';
-import '../sentry_options.dart';
+import '../../sentry.dart';
+import '../spans_v2/sentry_span_v2.dart';
 import 'envelope_builder.dart';
 import 'telemetry_buffer.dart';
 import 'telemetry_processor.dart';
@@ -26,18 +25,11 @@ class DefaultTelemetryProcessorIntegration extends Integration<SentryOptions> {
     );
 
     final spanEnvelopeBuilder = SpanEnvelopeBuilder(
-      traceContextHeaderFactory: (span) =>
-          hub.scope.propagationContext.getOrCreateTraceContextHeader(
-        release: options.release,
-        environment: options.environment,
-        publicKey: options.parsedDsn.publicKey,
-        tracesSampleRate: options.tracesSampleRate,
-        segmentName: span.segmentSpan.name,
-      ),
+      traceContextHeaderFactory: (span) => span.getOrCreateDsc(),
       sdkVersion: options.sdk,
       dsn: options.dsn,
     );
-    final spanBuffer = InMemoryTelemetryBuffer(
+    final spanBuffer = InMemoryTelemetryBuffer<RecordingSentrySpanV2>(
       logger: options.log,
       envelopeBuilder: spanEnvelopeBuilder,
       transport: options.transport,

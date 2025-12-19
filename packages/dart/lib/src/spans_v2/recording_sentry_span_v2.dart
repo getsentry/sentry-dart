@@ -1,31 +1,41 @@
-import '../../sentry.dart';
+part of 'sentry_span_v2.dart';
 
-class SimpleSpan implements Span {
+/// Primary implementation of [SentrySpanV2].
+///
+/// This class contains the full implementation including internal methods
+/// needed by the SDK for telemetry processing.
+@internal
+final class RecordingSentrySpanV2 implements SentrySpanV2, JsonEncodable {
   final SpanId _spanId;
   final Hub _hub;
-  @override
-  final Span? parentSpan;
+  final RecordingSentrySpanV2? _parentSpan;
   final Map<String, SentryAttribute> _attributes = {};
   late final DateTime _startTimestamp;
-  late final Span _segmentSpan;
+  late final RecordingSentrySpanV2 _segmentSpan;
   late final SentryId _traceId;
 
+  /// The frozen DSC (Dynamic Sampling Context) for this segment.
+  /// Once frozen, this is the permanent DSC for all spans in the segment.
+  /// Only set on segment spans (root of local trace segment).
+  SentryTraceContextHeader? _frozenDsc;
+
   String _name;
-  SpanV2Status _status = SpanV2Status.ok;
+  SentrySpanStatusV2 _status = SentrySpanStatusV2.ok;
   DateTime? _endTimestamp;
   bool _isFinished = false;
 
-  SimpleSpan({
+  RecordingSentrySpanV2({
     required String name,
-    this.parentSpan,
+    RecordingSentrySpanV2? parentSpan,
     Hub? hub,
   })  : _spanId = SpanId.newId(),
         _hub = hub ?? HubAdapter(),
-        _name = name {
-    _segmentSpan = parentSpan?.segmentSpan ?? this;
+        _name = name,
+        _parentSpan = parentSpan {
+    _segmentSpan = _parentSpan?.segmentSpan ?? this;
     _startTimestamp = _hub.options.clock();
-    _traceId = parentSpan != null
-        ? parentSpan!.traceId
+    _traceId = _parentSpan != null
+        ? _parentSpan.traceId
         : _hub.scope.propagationContext.traceId;
   }
 
@@ -36,28 +46,25 @@ class SimpleSpan implements Span {
   SpanId get spanId => _spanId;
 
   @override
+  RecordingSentrySpanV2? get parentSpan => _parentSpan;
+
+  @override
   String get name => _name;
 
   @override
   set name(String value) => _name = value;
 
   @override
-  SpanV2Status get status => _status;
+  SentrySpanStatusV2 get status => _status;
 
   @override
-  set status(SpanV2Status value) => _status = value;
+  set status(SentrySpanStatusV2 value) => _status = value;
 
   @override
   DateTime? get endTimestamp => _endTimestamp;
 
   @override
   Map<String, SentryAttribute> get attributes => Map.unmodifiable(_attributes);
-
-  @override
-  bool get isFinished => _isFinished;
-
-  @override
-  Span get segmentSpan => _segmentSpan;
 
   @override
   void setAttribute(String key, SentryAttribute value) {
@@ -76,9 +83,18 @@ class SimpleSpan implements Span {
     }
     _endTimestamp = (endTimestamp?.toUtc() ?? _hub.options.clock());
     _isFinished = true;
-    _hub.captureSpan(this);
+    _hub.options.telemetryProcessor.addSpan(this);
   }
 
+  /// Whether this span has been finished.
+  bool get isFinished => _isFinished;
+
+  /// The segment span (root span of the local trace segment).
+  ///
+  /// Used for grouping spans into envelopes.
+  RecordingSentrySpanV2 get segmentSpan => _segmentSpan;
+
+  /// Serializes this span to JSON for transmission to Sentry.
   @override
   Map<String, dynamic> toJson() {
     double toUnixSeconds(DateTime timestamp) =>
@@ -99,4 +115,13 @@ class SimpleSpan implements Span {
             _attributes.map((key, value) => MapEntry(key, value.toJson())),
     };
   }
+}
+
+extension DynamicSamplingContext on RecordingSentrySpanV2 {
+  /// Gets the frozen DSC (Dynamic Sampling Context) for this span's segment.
+  ///
+  /// On first access, creates and freezes the DSC with current segment state.
+  /// Subsequent calls return the same frozen instance.
+  SentryTraceContextHeader getOrCreateDsc() => _segmentSpan._frozenDsc ??=
+      SentryTraceContextHeader.fromRecordingSpan(_segmentSpan, _hub);
 }

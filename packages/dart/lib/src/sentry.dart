@@ -18,12 +18,12 @@ import 'noop_isolate_error_integration.dart'
     if (dart.library.io) 'isolate_error_integration.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
-import 'protocol/unset_span.dart';
 import 'run_zoned_guarded_integration.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_run_zoned_guarded.dart';
+import 'spans_v2/sentry_span_v2.dart';
 import 'telemetry_processing/telemetry_processor_integration.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
@@ -382,9 +382,9 @@ class Sentry {
         onFinish: onFinish,
       );
 
-  static Span startSpan(
+  static SentrySpanV2 startSpan(
     String name, {
-    Span? parentSpan = const UnsetSpan(),
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) =>

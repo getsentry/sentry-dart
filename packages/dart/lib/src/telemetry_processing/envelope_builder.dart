@@ -1,4 +1,5 @@
 import '../../sentry.dart';
+import '../spans_v2/sentry_span_v2.dart';
 import 'json_encodable.dart';
 import 'telemetry_buffer.dart';
 
@@ -28,10 +29,10 @@ class LogEnvelopeBuilder extends SingleEnvelopeBuilder<SentryLog> {
 }
 
 typedef TraceContextHeaderFactory = SentryTraceContextHeader? Function(
-    Span span);
+    RecordingSentrySpanV2 span);
 
 /// Groups spans by segment, one envelope per segment.
-class SpanEnvelopeBuilder implements EnvelopeBuilder<Span> {
+class SpanEnvelopeBuilder implements EnvelopeBuilder<RecordingSentrySpanV2> {
   final TraceContextHeaderFactory _traceContextHeaderFactory;
   final SdkVersion _sdkVersion;
   final String? _dsn;
@@ -45,7 +46,7 @@ class SpanEnvelopeBuilder implements EnvelopeBuilder<Span> {
         _dsn = dsn;
 
   @override
-  List<SentryEnvelope> build(List<BufferedItem<Span>> items) {
+  List<SentryEnvelope> build(List<BufferedItem<RecordingSentrySpanV2>> items) {
     if (items.isEmpty) return [];
 
     final groups = _groupBySegment(items);
@@ -66,10 +67,10 @@ class SpanEnvelopeBuilder implements EnvelopeBuilder<Span> {
     return envelopes;
   }
 
-  Map<String, List<BufferedItem<Span>>> _groupBySegment(
-    List<BufferedItem<Span>> items,
+  Map<String, List<BufferedItem<RecordingSentrySpanV2>>> _groupBySegment(
+    List<BufferedItem<RecordingSentrySpanV2>> items,
   ) {
-    final groups = <String, List<BufferedItem<Span>>>{};
+    final groups = <String, List<BufferedItem<RecordingSentrySpanV2>>>{};
     for (final buffered in items) {
       final segment = buffered.item.segmentSpan;
       final key = '${segment.traceId}-${segment.spanId}';

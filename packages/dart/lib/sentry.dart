@@ -61,3 +61,8 @@ export 'src/utils/url_details.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/breadcrumb_log_level.dart';
 export 'src/sentry_logger.dart';
+// New Span V2 API
+export 'src/spans_v2/sentry_span_v2.dart'
+    hide UnsetSentrySpanV2, RecordingSentrySpanV2, NoOpSentrySpanV2;
+export 'src/spans_v2/sentry_span_status_v2.dart';
+// ignore: invalid_export_of_internal_element

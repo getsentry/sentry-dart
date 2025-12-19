@@ -1,15 +1,22 @@
+// Span specs: https://develop.sentry.dev/sdk/telemetry/spans/span-api/
+
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
 import '../telemetry_processing/json_encodable.dart';
 
-// Span specs: https://develop.sentry.dev/sdk/telemetry/spans/span-api/
+part 'noop_sentry_span_v2.dart';
+part 'unset_sentry_span_v2.dart';
+part 'recording_sentry_span_v2.dart';
 
 /// Represents a basic telemetry span.
-abstract class Span implements JsonEncodable {
-  @internal
-  const Span();
-
+///
+/// This is the public API for spans. Users interact with this interface
+/// to set attributes, update status, and end spans.
+///
+/// See also:
+/// - [Sentry.startSpan] to create a new span.
+abstract final class SentrySpanV2 {
   /// Gets the id of the trace this span belongs to.
   SentryId get traceId;
 
@@ -23,18 +30,19 @@ abstract class Span implements JsonEncodable {
   set name(String name);
 
   /// Gets the parent span.
-  Span? get parentSpan;
+  SentrySpanV2? get parentSpan;
 
   /// Gets the status of the span.
-  SpanV2Status get status;
+  SentrySpanStatusV2 get status;
 
   /// Sets the status of the span.
-  set status(SpanV2Status status);
+  set status(SentrySpanStatusV2 status);
 
   /// Gets the end timestamp of the span.
   DateTime? get endTimestamp;
 
-  /// Gets a read-only view of the attributes of the span using [Map.unmodifiable](https://api.flutter.dev/flutter/dart-core/Map/Map.unmodifiable.html).
+  /// Gets a read-only view of the attributes of the span using
+  /// [Map.unmodifiable](https://api.flutter.dev/flutter/dart-core/Map/Map.unmodifiable.html).
   ///
   /// The returned map must not be mutated by callers.
   Map<String, SentryAttribute> get attributes;
@@ -54,14 +62,4 @@ abstract class Span implements JsonEncodable {
   ///
   /// Overrides if the attributes already exist.
   void setAttributes(Map<String, SentryAttribute> attributes);
-
-  @internal
-  Span get segmentSpan;
-
-  @internal
-  bool get isFinished;
-
-  @internal
-  @override
-  Map<String, dynamic> toJson();
 }

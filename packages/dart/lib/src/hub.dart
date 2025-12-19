@@ -7,11 +7,9 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
-import 'protocol/unset_span.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
-import 'protocol/noop_span.dart';
-import 'protocol/simple_span.dart';
+import 'spans_v2/sentry_span_v2.dart';
 import 'transport/data_category.dart';
 
 /// Configures the scope through the callback.
@@ -576,9 +574,9 @@ class Hub {
     return NoOpSentrySpan();
   }
 
-  Span startSpan(
+  SentrySpanV2 startSpan(
     String name, {
-    Span? parentSpan = const UnsetSpan(),
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) {
@@ -587,26 +585,36 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'startSpan' call is a no-op.",
       );
-      return NoOpSpan();
+      return NoOpSentrySpanV2();
     }
 
     if (!_options.isTracingEnabled()) {
-      return NoOpSpan();
+      return NoOpSentrySpanV2();
+    }
+
+    if (parentSpan is NoOpSentrySpanV2) {
+      _options.log(
+        SentryLevel.warning,
+        'Invalid parentSpan: startSpan called with NoOpSentrySpanV2.',
+      );
+      return NoOpSentrySpanV2();
     }
 
     // Determine the parent span based on the parentSpan parameter:
     // - If parentSpan is UnsetSpan (default), use the currently active span
     // - If parentSpan is a specific Span, use that as the parent
     // - If parentSpan is null, create a root/segment span (no parent)
-    final Span? resolvedParentSpan;
-    if (parentSpan is UnsetSpan) {
+    final RecordingSentrySpanV2? resolvedParentSpan;
+    if (parentSpan is UnsetSentrySpanV2) {
       resolvedParentSpan = scope.getActiveSpan();
-    } else {
+    } else if (parentSpan is RecordingSentrySpanV2) {
       resolvedParentSpan = parentSpan;
+    } else {
+      resolvedParentSpan = null;
     }
 
-    final span =
-        SimpleSpan(name: name, parentSpan: resolvedParentSpan, hub: this);
+    final span = RecordingSentrySpanV2(
+        name: name, parentSpan: resolvedParentSpan, hub: this);
     if (attributes != null) {
       span.setAttributes(attributes);
     }
@@ -617,7 +625,7 @@ class Hub {
     return span;
   }
 
-  void captureSpan(Span span) {
+  void captureSpan(SentrySpanV2 span) {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,

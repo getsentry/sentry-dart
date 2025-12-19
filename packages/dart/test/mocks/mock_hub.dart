@@ -117,7 +117,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  void captureSpan(Span span) {
+  void captureSpan(SentrySpanV2 span) {
     captureSpanCalls.add(CaptureSpanCall(span));
   }
 
@@ -202,7 +202,7 @@ class AddBreadcrumbCall {
 }
 
 class CaptureSpanCall {
-  final Span span;
+  final SentrySpanV2 span;
 
   CaptureSpanCall(this.span);
 }

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/protocol/simple_span.dart';
+import 'package:sentry/src/spans_v2/sentry_span_v2.dart';
 import 'package:sentry/src/telemetry_processing/envelope_builder.dart';
 import 'package:sentry/src/telemetry_processing/telemetry_buffer.dart';
 import 'package:test/test.dart';
@@ -136,7 +136,7 @@ void main() {
     });
 
     test('trace context factory receives first span of each segment', () {
-      final capturedSpans = <Span>[];
+      final capturedSpans = <RecordingSentrySpanV2>[];
       final sut = fixture.getSut(
         traceContextHeaderFactory: (span) {
           capturedSpans.add(span);
@@ -217,15 +217,17 @@ class SpanEnvelopeBuilderFixture {
     );
   }
 
-  SimpleSpan createSpan(String name) {
-    return SimpleSpan(name: name, hub: hub);
+  RecordingSentrySpanV2 createSpan(String name) {
+    return RecordingSentrySpanV2(name: name, hub: hub);
   }
 
-  SimpleSpan createChildSpan(Span parent, String name) {
-    return SimpleSpan(name: name, parentSpan: parent, hub: hub);
+  RecordingSentrySpanV2 createChildSpan(
+      RecordingSentrySpanV2 parent, String name) {
+    return RecordingSentrySpanV2(name: name, parentSpan: parent, hub: hub);
   }
 
-  BufferedItem<Span> createBufferedSpan(Span span) {
+  BufferedItem<RecordingSentrySpanV2> createBufferedSpan(
+      RecordingSentrySpanV2 span) {
     final encoded = utf8.encode(jsonEncode(span.toJson()));
     return BufferedItem(span, encoded);
   }
