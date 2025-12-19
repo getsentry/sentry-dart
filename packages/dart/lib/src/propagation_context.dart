@@ -41,38 +41,11 @@ class PropagationContext {
   /// whenever a new trace is started.
   double? sampleRand;
 
-  /// Cached trace context header for this trace.
-  SentryTraceContextHeader? _traceContextHeader;
-
-  /// Creates a [SentryTraceContextHeader] for this trace if it doesn't exist.
-  SentryTraceContextHeader getOrCreateTraceContextHeader({
-    required String publicKey,
-    required String segmentName,
-    String? release,
-    String? environment,
-    double? tracesSampleRate,
-  }) {
-    return _traceContextHeader ??= SentryTraceContextHeader(
-      traceId,
-      publicKey,
-      release: release,
-      environment: environment,
-      transaction: segmentName,
-      sampleRate: _formatRate(tracesSampleRate),
-      sampleRand: _formatRate(sampleRand),
-      sampled: _sampled?.toString(),
-    );
-  }
-
-  String? _formatRate(double? value) =>
-      value != null ? sampleRateFormat.format(value) : null;
-
   /// Starts a brand-new trace (new ID, new sampling value & sampled state).
   void resetTrace() {
     traceId = SentryId.newId();
     sampleRand = null;
     _sampled = null;
-    _traceContextHeader = null;
   }
 
   /// Baggage header to attach to http headers.

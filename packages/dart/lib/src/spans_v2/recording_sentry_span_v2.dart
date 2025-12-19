@@ -37,7 +37,7 @@ final class RecordingSentrySpanV2 implements SentrySpanV2, JsonEncodable {
         _context = context {
     _segmentSpan = _parentSpan?.segmentSpan ?? this;
     _startTimestamp = context.clock();
-    _traceId = _parentSpan?._parentSpan?.traceId ?? context.traceId;
+    _traceId = _parentSpan?.traceId ?? context.traceId;
   }
 
   @override
