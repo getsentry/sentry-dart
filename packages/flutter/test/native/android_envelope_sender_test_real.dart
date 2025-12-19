@@ -12,7 +12,7 @@ import 'package:sentry_flutter/src/isolate/isolate_worker.dart';
 
 void main() {
   group('AndroidEnvelopeSender host behavior', () {
-    test('warns and drops when not started', () {
+    test('buffers envelopes when not started', () {
       final options = SentryFlutterOptions();
       options.debug = true;
       options.diagnosticLevel = SentryLevel.debug;
@@ -26,9 +26,9 @@ void main() {
 
       expect(
         logs.any((e) =>
-            e.$1 == SentryLevel.warning &&
+            e.$1 == SentryLevel.info &&
             e.$2.contains(
-                'captureEnvelope called before worker started; dropping')),
+                'captureEnvelope called before worker started: buffering envelope')),
         isTrue,
       );
     });
@@ -40,7 +40,7 @@ void main() {
       expect(() => sender.close(), returnsNormally);
     });
 
-    test('warns and drops after close', () async {
+    test('buffers envelopes after close', () async {
       final options = SentryFlutterOptions();
       options.debug = true;
       options.diagnosticLevel = SentryLevel.debug;
@@ -57,9 +57,9 @@ void main() {
 
       expect(
         logs.any((e) =>
-            e.$1 == SentryLevel.warning &&
+            e.$1 == SentryLevel.info &&
             e.$2.contains(
-                'captureEnvelope called before worker started; dropping')),
+                'captureEnvelope called before worker started: buffering envelope')),
         isTrue,
       );
     });
@@ -187,6 +187,45 @@ void main() {
       final data2 = t2.materialize().asUint8List();
       expect(data1, [10]);
       expect(data2, [11]);
+
+      sender.close();
+    });
+
+    test('flushes buffered envelopes when worker starts', () async {
+      final options = SentryFlutterOptions();
+      options.debug = true;
+      options.diagnosticLevel = SentryLevel.debug;
+
+      final inboxes = <ReceivePort>[];
+      Future<Worker> fakeSpawn(WorkerConfig config, WorkerEntry entry) async {
+        final inbox = ReceivePort();
+        inboxes.add(inbox);
+        addTearDown(() => inbox.close());
+        final replies = ReceivePort();
+        return Worker(inbox.sendPort, replies);
+      }
+
+      final sender = AndroidEnvelopeSender(options, spawn: fakeSpawn);
+
+      // Capture envelopes BEFORE starting the worker
+      sender.captureEnvelope(Uint8List.fromList([1, 2, 3]), true);
+      sender.captureEnvelope(Uint8List.fromList([4, 5, 6]), false);
+
+      // Now start the worker - buffered envelopes should be flushed
+      await sender.start();
+
+      final inbox = inboxes.last;
+      final msgs = await inbox.take(2).toList();
+
+      expect(msgs.length, 2);
+
+      final (t1, f1) = msgs[0] as (TransferableTypedData, bool);
+      final (t2, f2) = msgs[1] as (TransferableTypedData, bool);
+
+      expect(t1.materialize().asUint8List(), [1, 2, 3]);
+      expect(f1, true);
+      expect(t2.materialize().asUint8List(), [4, 5, 6]);
+      expect(f2, false);
 
       sender.close();
     });
