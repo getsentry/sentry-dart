@@ -1,6 +1,6 @@
 part of '../telemetry.dart';
 
-typedef SpanEndedCallback = void Function(RecordingSentrySpanV2 span);
+typedef OnSpanEndCallback = void Function(RecordingSentrySpanV2 span);
 
 final class RecordingSentrySpanV2
     with MutableAttributesMixin
@@ -8,7 +8,7 @@ final class RecordingSentrySpanV2
   final SpanId _spanId;
   final RecordingSentrySpanV2? _parentSpan;
   final ClockProvider _clock;
-  final SpanEndedCallback _onSpanEnded;
+  final OnSpanEndCallback _onSpanEnd;
   final SdkLogCallback _log;
   final DateTime _startTimestamp;
   final SentryId _traceId;
@@ -22,8 +22,8 @@ final class RecordingSentrySpanV2
 
   RecordingSentrySpanV2({
     required String name,
-    required SentryId defaultTraceId,
-    required SpanEndedCallback onSpanEnded,
+    required SentryId traceId,
+    required OnSpanEndCallback onSpanEnd,
     required SdkLogCallback log,
     required ClockProvider clock,
     required RecordingSentrySpanV2? parentSpan,
@@ -31,10 +31,10 @@ final class RecordingSentrySpanV2
         _parentSpan = parentSpan,
         _name = name,
         _clock = clock,
-        _onSpanEnded = onSpanEnded,
+        _onSpanEnd = onSpanEnd,
         _log = log,
         _startTimestamp = clock(),
-        _traceId = parentSpan?.traceId ?? defaultTraceId {
+        _traceId = parentSpan?.traceId ?? traceId {
     _segmentSpan = parentSpan?.segmentSpan ?? this;
   }
 
@@ -69,7 +69,7 @@ final class RecordingSentrySpanV2
     _endTimestamp = endTimestamp?.toUtc() ?? _clock();
     _isFinished = true;
 
-    _onSpanEnded(this);
+    _onSpanEnd(this);
     _log(SentryLevel.debug, 'Span ended with endTimestamp: $_endTimestamp');
   }
 

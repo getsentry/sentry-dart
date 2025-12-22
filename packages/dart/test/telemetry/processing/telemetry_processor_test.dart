@@ -139,8 +139,8 @@ class Fixture {
   RecordingSentrySpanV2 createSpan({String name = 'test-span'}) {
     return RecordingSentrySpanV2(
       name: name,
-      defaultTraceId: SentryId.newId(),
-      onSpanEnded: (_) {},
+      traceId: SentryId.newId(),
+      onSpanEnd: (_) {},
       log: options.log,
       clock: options.clock,
       parentSpan: null,
@@ -153,8 +153,8 @@ class Fixture {
   }) {
     return RecordingSentrySpanV2(
       name: name,
-      defaultTraceId: SentryId.newId(),
-      onSpanEnded: (_) {},
+      traceId: SentryId.newId(),
+      onSpanEnd: (_) {},
       log: options.log,
       clock: options.clock,
       parentSpan: parent,

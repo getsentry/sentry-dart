@@ -614,8 +614,8 @@ class Hub {
         parentSpan: resolvedParentSpan,
         log: options.log,
         clock: options.clock,
-        defaultTraceId: scope.propagationContext.traceId,
-        onSpanEnded: captureSpan);
+        traceId: scope.propagationContext.traceId,
+        onSpanEnd: captureSpan);
 
     if (attributes != null) {
       span.setAttributes(attributes);
@@ -642,6 +642,8 @@ class Hub {
         return;
       case RecordingSentrySpanV2 span:
         scope.removeActiveSpan(span);
+
+        options.telemetryProcessor.addSpan(span);
       // TODO(next-pr): run this span through span specific pipeline and then forward to span buffer
     }
   }

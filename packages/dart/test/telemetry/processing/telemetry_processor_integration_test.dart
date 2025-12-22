@@ -150,8 +150,8 @@ class _Fixture {
   RecordingSentrySpanV2 createSpan() {
     return RecordingSentrySpanV2(
       name: 'test-span',
-      defaultTraceId: SentryId.newId(),
-      onSpanEnded: (_) {},
+      traceId: SentryId.newId(),
+      onSpanEnd: (_) {},
       log: options.log,
       clock: options.clock,
       parentSpan: null,

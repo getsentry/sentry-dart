@@ -372,12 +372,12 @@ class Fixture {
     required String name,
     RecordingSentrySpanV2? parentSpan,
     SentryId? traceId,
-    SpanEndedCallback? onSpanEnded,
+    OnSpanEndCallback? onSpanEnded,
   }) {
     return RecordingSentrySpanV2(
       name: name,
-      defaultTraceId: traceId ?? SentryId.newId(),
-      onSpanEnded: onSpanEnded ?? (_) {},
+      traceId: traceId ?? SentryId.newId(),
+      onSpanEnd: onSpanEnded ?? (_) {},
       log: options.log,
       clock: options.clock,
       parentSpan: parentSpan,
