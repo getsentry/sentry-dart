@@ -9,7 +9,7 @@ import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
-import 'telemetry/telemetry.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 import 'transport/data_category.dart';
 
 /// Configures the scope through the callback.
@@ -610,11 +610,12 @@ class Hub {
     }
 
     final span = RecordingSentrySpanV2(
+        traceId: scope.propagationContext.traceId,
+        spanId: SpanId.newId(),
         name: name,
         parentSpan: resolvedParentSpan,
         log: options.log,
         clock: options.clock,
-        traceId: scope.propagationContext.traceId,
         onSpanEnd: captureSpan);
 
     if (attributes != null) {

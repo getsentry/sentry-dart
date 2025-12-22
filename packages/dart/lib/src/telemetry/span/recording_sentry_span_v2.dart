@@ -1,10 +1,8 @@
-part of '../telemetry.dart';
+part of 'sentry_span_v2.dart';
 
 typedef OnSpanEndCallback = void Function(RecordingSentrySpanV2 span);
 
-final class RecordingSentrySpanV2
-    with MutableAttributesMixin
-    implements SentrySpanV2 {
+final class RecordingSentrySpanV2 implements SentrySpanV2 {
   final SpanId _spanId;
   final RecordingSentrySpanV2? _parentSpan;
   final ClockProvider _clock;
@@ -12,29 +10,30 @@ final class RecordingSentrySpanV2
   final SdkLogCallback _log;
   final DateTime _startTimestamp;
   final SentryId _traceId;
+  final Map<String, SentryAttribute> _attributes = {};
   late final RecordingSentrySpanV2 _segmentSpan;
 
   // Mutable span state.
   SentrySpanStatusV2 _status = SentrySpanStatusV2.ok;
   DateTime? _endTimestamp;
-  bool _isFinished = false;
   String _name;
 
   RecordingSentrySpanV2({
-    required String name,
     required SentryId traceId,
+    required SpanId spanId,
+    required String name,
     required OnSpanEndCallback onSpanEnd,
     required SdkLogCallback log,
     required ClockProvider clock,
     required RecordingSentrySpanV2? parentSpan,
-  })  : _spanId = SpanId.newId(),
-        _parentSpan = parentSpan,
+  })  : _traceId = parentSpan?.traceId ?? traceId,
+        _spanId = spanId,
         _name = name,
+        _parentSpan = parentSpan,
         _clock = clock,
         _onSpanEnd = onSpanEnd,
         _log = log,
-        _startTimestamp = clock(),
-        _traceId = parentSpan?.traceId ?? traceId {
+        _startTimestamp = clock() {
     _segmentSpan = parentSpan?.segmentSpan ?? this;
   }
 
@@ -64,13 +63,35 @@ final class RecordingSentrySpanV2
 
   @override
   void end({DateTime? endTimestamp}) {
-    if (_isFinished) return;
+    if (isEnded) return;
 
-    _endTimestamp = endTimestamp?.toUtc() ?? _clock();
-    _isFinished = true;
+    _endTimestamp = (endTimestamp ?? _clock()).toUtc();
 
     _onSpanEnd(this);
     _log(SentryLevel.debug, 'Span ended with endTimestamp: $_endTimestamp');
+  }
+
+  RecordingSentrySpanV2 get segmentSpan => _segmentSpan;
+
+  @override
+  bool get isEnded => _endTimestamp != null;
+
+  @override
+  Map<String, SentryAttribute> get attributes => Map.unmodifiable(_attributes);
+
+  @override
+  void setAttribute(String key, SentryAttribute value) {
+    _attributes[key] = value;
+  }
+
+  @override
+  void setAttributes(Map<String, SentryAttribute> attributes) {
+    _attributes.addAll(attributes);
+  }
+
+  @override
+  void removeAttribute(String key) {
+    _attributes.remove(key);
   }
 
   Map<String, dynamic> toJson() {
@@ -86,12 +107,11 @@ final class RecordingSentrySpanV2
       'end_timestamp':
           _endTimestamp == null ? null : toUnixSeconds(_endTimestamp!),
       'start_timestamp': toUnixSeconds(_startTimestamp),
-      'attributes':
-          attributes.map((key, value) => MapEntry(key, value.toJson())),
+      // Create a copy of attributes in case attributes are mutated during serialization
+      if (_attributes.isNotEmpty)
+        'attributes': Map.from(_attributes)
+            .map((key, value) => MapEntry(key, value.toJson())),
       if (_parentSpan != null) 'parent_span_id': _parentSpan.spanId.toString(),
     };
   }
-
-  bool get isFinished => _isFinished;
-  RecordingSentrySpanV2 get segmentSpan => _segmentSpan;
 }

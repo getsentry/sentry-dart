@@ -1,6 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/span/sentry_span_status_v2.dart';
-import 'package:sentry/src/telemetry/telemetry.dart';
+import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:test/test.dart';
 
 import '../../test_utils.dart';
@@ -19,7 +19,7 @@ void main() {
       span.end();
 
       expect(span.endTimestamp, isNotNull);
-      expect(span.isFinished, isTrue);
+      expect(span.isEnded, isTrue);
     });
 
     test('end sets current time by default', () {
@@ -83,7 +83,7 @@ void main() {
       span.end(endTimestamp: secondEndTimestamp);
 
       expect(span.endTimestamp, equals(firstEndTimestamp));
-      expect(span.isFinished, isTrue);
+      expect(span.isEnded, isTrue);
       expect(callCount, 1);
     });
 

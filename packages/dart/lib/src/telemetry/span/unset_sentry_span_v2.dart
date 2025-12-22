@@ -1,4 +1,4 @@
-part of '../telemetry.dart';
+part of 'sentry_span_v2.dart';
 
 /// This class is a marker class to represent unset / not provided span for startSpan.
 /// Since Dart does not have 'undefined' we use this class to circumvent that issue.
@@ -46,4 +46,7 @@ final class UnsetSentrySpanV2 implements SentrySpanV2 {
 
   @override
   void removeAttribute(String key) => _throw();
+
+  @override
+  bool get isEnded => _throw();
 }

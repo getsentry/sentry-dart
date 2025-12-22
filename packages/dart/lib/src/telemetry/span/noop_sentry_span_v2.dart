@@ -1,4 +1,4 @@
-part of '../telemetry.dart';
+part of 'sentry_span_v2.dart';
 
 final class NoOpSentrySpanV2 implements SentrySpanV2 {
   const NoOpSentrySpanV2();
@@ -43,4 +43,7 @@ final class NoOpSentrySpanV2 implements SentrySpanV2 {
 
   @override
   SentryId get traceId => SentryId.empty();
+
+  @override
+  bool get isEnded => false;
 }

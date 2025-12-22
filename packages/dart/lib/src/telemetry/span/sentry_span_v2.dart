@@ -1,9 +1,14 @@
 // Span specs: https://develop.sentry.dev/sdk/telemetry/spans/span-api/
 
-part of '../telemetry.dart';
+import '../../../sentry.dart';
+import 'sentry_span_status_v2.dart';
+
+part 'unset_sentry_span_v2.dart';
+part 'recording_sentry_span_v2.dart';
+part 'noop_sentry_span_v2.dart';
 
 /// Represents a basic telemetry span.
-sealed class SentrySpanV2 implements MutableAttributes {
+sealed class SentrySpanV2 {
   /// Gets the id of the trace this span belongs to.
   SentryId get traceId;
 
@@ -28,9 +33,24 @@ sealed class SentrySpanV2 implements MutableAttributes {
   /// Gets the end timestamp of the span.
   DateTime? get endTimestamp;
 
+  /// Returns whether this span has ended.
+  bool get isEnded;
+
   /// Ends the span.
   ///
   /// [endTimestamp] can be used to override the end time.
   /// If omitted, the span ends using the current time when end is executed.
   void end({DateTime? endTimestamp});
+
+  /// Returns a unmodifiable read-only view of the attributes
+  Map<String, SentryAttribute> get attributes;
+
+  /// Sets an attribute, replacing any existing attribute with the same key.
+  void setAttribute(String key, SentryAttribute value);
+
+  /// Sets attributes, replacing existing attributes with the same keys.
+  void setAttributes(Map<String, SentryAttribute> attributes);
+
+  /// Removes an attribute with a matching key.
+  void removeAttribute(String key);
 }

@@ -13,7 +13,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_options.dart';
 import 'sentry_span_interface.dart';
 import 'sentry_tracer.dart';
-import 'telemetry/telemetry.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 
 typedef _OnScopeObserver = Future<void> Function(ScopeObserver observer);
 

@@ -11,7 +11,7 @@ import 'scope.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
-import 'telemetry/telemetry.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 import 'tracing.dart';
 
 /// Hub adapter to make Integrations testable
