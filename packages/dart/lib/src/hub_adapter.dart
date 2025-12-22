@@ -7,11 +7,11 @@ import 'hub.dart';
 import 'profiling.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
-import 'protocol/unset_span.dart';
 import 'scope.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'telemetry/telemetry.dart';
 import 'tracing.dart';
 
 /// Hub adapter to make Integrations testable
@@ -163,9 +163,9 @@ class HubAdapter implements Hub {
       );
 
   @override
-  Span startSpan(
+  SentrySpanV2 startSpan(
     String name, {
-    Span? parentSpan = const UnsetSpan(),
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) =>
@@ -223,5 +223,5 @@ class HubAdapter implements Hub {
   void removeAttribute(String key) => Sentry.currentHub.removeAttribute(key);
 
   @override
-  void captureSpan(Span span) => Sentry.currentHub.captureSpan(span);
+  void captureSpan(SentrySpanV2 span) => Sentry.currentHub.captureSpan(span);
 }

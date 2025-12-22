@@ -13,6 +13,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_options.dart';
 import 'sentry_span_interface.dart';
 import 'sentry_tracer.dart';
+import 'telemetry/telemetry.dart';
 
 typedef _OnScopeObserver = Future<void> Function(ScopeObserver observer);
 
@@ -45,10 +46,11 @@ class Scope {
 
   /// List of active spans.
   /// The last span in the list is the current active span.
-  final List<Span> _activeSpans = [];
+  final List<RecordingSentrySpanV2> _activeSpans = [];
 
   @visibleForTesting
-  List<Span> get activeSpans => List.unmodifiable(_activeSpans);
+  List<RecordingSentrySpanV2> get activeSpans =>
+      List.unmodifiable(_activeSpans);
 
   /// Returns the currently active span, or `null` if no span is active.
   ///
@@ -56,26 +58,26 @@ class Scope {
   /// When starting a new span with `active: true` (the default), the new span
   /// becomes a child of this active span.
   @internal
-  Span? getActiveSpan() {
+  RecordingSentrySpanV2? getActiveSpan() {
     return _activeSpans.lastOrNull;
   }
 
-  /// Sets the given [span] as the currently active span.
+  /// Sets the given recording [span] as the currently active span.
   ///
   /// Active spans are used to automatically parent new spans.
   /// When a new span is started with `active: true` (the default), it becomes
   /// a child of the currently active span.
   @internal
-  void setActiveSpan(Span span) {
+  void setActiveSpan(RecordingSentrySpanV2 span) {
     _activeSpans.add(span);
   }
 
-  /// Removes the given [span] from the active spans list.
+  /// Removes the given recording [span] from the active spans list.
   ///
   /// This should be called when a span ends to remove it from the active
   /// span list.
   @internal
-  void removeActiveSpan(Span span) {
+  void removeActiveSpan(RecordingSentrySpanV2 span) {
     _activeSpans.remove(span);
   }
 

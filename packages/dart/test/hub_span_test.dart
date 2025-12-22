@@ -1,6 +1,5 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/protocol/noop_span.dart';
-import 'package:sentry/src/protocol/simple_span.dart';
+import 'package:sentry/src/telemetry/telemetry.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_client_report_recorder.dart';
@@ -17,29 +16,29 @@ void main() {
 
     group('startSpan', () {
       group('span creation', () {
-        test('returns SimpleSpan when tracing is enabled', () {
+        test('returns RecordingSentrySpanV2 when tracing is enabled', () {
           final hub = fixture.getSut();
 
           final span = hub.startSpan('test-span');
 
-          expect(span, isA<SimpleSpan>());
+          expect(span, isA<RecordingSentrySpanV2>());
         });
 
-        test('returns NoOpSpan when tracing is disabled', () {
+        test('returns NoOpSentrySpanV2 when tracing is disabled', () {
           final hub = fixture.getSut(tracesSampleRate: null);
 
           final span = hub.startSpan('test-span');
 
-          expect(span, isA<NoOpSpan>());
+          expect(span, isA<NoOpSentrySpanV2>());
         });
 
-        test('returns NoOpSpan when hub is closed', () async {
+        test('returns NoOpSentrySpanV2 when hub is closed', () async {
           final hub = fixture.getSut();
           await hub.close();
 
           final span = hub.startSpan('test-span');
 
-          expect(span, isA<NoOpSpan>());
+          expect(span, isA<NoOpSentrySpanV2>());
         });
 
         test('sets span name from parameter', () {
@@ -231,7 +230,7 @@ void main() {
         test('deep hierarchy maintains correct parent chain', () {
           final hub = fixture.getSut();
 
-          final spans = <Span>[];
+          final spans = <SentrySpanV2>[];
           for (var i = 0; i < 5; i++) {
             spans.add(hub.startSpan('span-$i'));
           }
@@ -271,7 +270,7 @@ void main() {
         final hub = fixture.getSut(tracesSampleRate: null);
 
         final span = hub.startSpan('test-span');
-        expect(span, isA<NoOpSpan>());
+        expect(span, isA<NoOpSentrySpanV2>());
         expect(hub.scope.activeSpans, isEmpty);
 
         hub.captureSpan(span);

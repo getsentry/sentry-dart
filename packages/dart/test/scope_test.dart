@@ -2,8 +2,8 @@
 
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/protocol/simple_span.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/telemetry.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -356,8 +356,8 @@ void main() {
   test('setActiveSpan adds span to active span list', () {
     final sut = fixture.getSut();
 
-    final span = SimpleSpan(name: 'span1', parentSpan: null);
-    final span2 = SimpleSpan(name: 'span2', parentSpan: null);
+    final span = fixture.createSpan(name: 'span1');
+    final span2 = fixture.createSpan(name: 'span2');
     sut.setActiveSpan(span);
     sut.setActiveSpan(span2);
 
@@ -368,8 +368,8 @@ void main() {
   test('getActiveSpan returns the last active span in the list', () {
     final sut = fixture.getSut();
 
-    final span = SimpleSpan(name: 'span1', parentSpan: null);
-    final span2 = SimpleSpan(name: 'span2', parentSpan: null);
+    final span = fixture.createSpan(name: 'span1');
+    final span2 = fixture.createSpan(name: 'span2');
     sut.setActiveSpan(span);
     sut.setActiveSpan(span2);
 
@@ -382,8 +382,8 @@ void main() {
       () {
     final sut = fixture.getSut();
 
-    final span = SimpleSpan(name: 'span1', parentSpan: null);
-    final span2 = SimpleSpan(name: 'span2', parentSpan: null);
+    final span = fixture.createSpan(name: 'span1');
+    final span2 = fixture.createSpan(name: 'span2');
     sut.setActiveSpan(span);
     sut.setActiveSpan(span2);
 
@@ -449,7 +449,7 @@ void main() {
     await sut.setTag('key', 'vakye');
     await sut.setExtra('key', 'vakye');
     sut.transaction = 'transaction';
-    sut.setActiveSpan(SimpleSpan(name: 'random-span'));
+    sut.setActiveSpan(fixture.createSpan(name: 'random-span'));
 
     final clone = sut.clone();
     expect(sut.user, clone.user);
@@ -989,6 +989,17 @@ class Fixture {
 
   SentryLevel? loggedLevel;
   Object? loggedException;
+
+  RecordingSentrySpanV2 createSpan({String name = 'test-span'}) {
+    return RecordingSentrySpanV2(
+      name: name,
+      defaultTraceId: SentryId.newId(),
+      onSpanEnded: (_) {},
+      log: options.log,
+      clock: options.clock,
+      parentSpan: null,
+    );
+  }
 
   Scope getSut({
     int maxBreadcrumbs = 100,

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/telemetry/telemetry.dart';
 
 import '../test_utils.dart';
 import 'mock_sentry_client.dart';
@@ -117,7 +118,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  void captureSpan(Span span) {
+  void captureSpan(SentrySpanV2 span) {
     captureSpanCalls.add(CaptureSpanCall(span));
   }
 
@@ -202,7 +203,7 @@ class AddBreadcrumbCall {
 }
 
 class CaptureSpanCall {
-  final Span span;
+  final SentrySpanV2 span;
 
   CaptureSpanCall(this.span);
 }

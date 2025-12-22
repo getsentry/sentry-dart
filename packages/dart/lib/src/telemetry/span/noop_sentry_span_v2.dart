@@ -1,7 +1,9 @@
-import '../../sentry.dart';
+part of '../telemetry.dart';
 
-class NoOpSpan implements Span {
-  const NoOpSpan();
+final class NoOpSentrySpanV2 implements SentrySpanV2 {
+  const NoOpSentrySpanV2();
+
+  static const instance = NoOpSentrySpanV2();
 
   @override
   SpanId get spanId => SpanId.empty();
@@ -13,13 +15,13 @@ class NoOpSpan implements Span {
   set name(String name) {}
 
   @override
-  final SpanV2Status status = SpanV2Status.ok;
+  final SentrySpanStatusV2 status = SentrySpanStatusV2.ok;
 
   @override
-  set status(SpanV2Status status) {}
+  set status(SentrySpanStatusV2 status) {}
 
   @override
-  Span? get parentSpan => null;
+  SentrySpanV2? get parentSpan => null;
 
   @override
   DateTime? get endTimestamp => null;
@@ -28,22 +30,16 @@ class NoOpSpan implements Span {
   Map<String, SentryAttribute> get attributes => {};
 
   @override
-  bool get isFinished => false;
-
-  @override
   void setAttribute(String key, SentryAttribute value) {}
 
   @override
   void setAttributes(Map<String, SentryAttribute> attributes) {}
 
   @override
+  void removeAttribute(String key) {}
+
+  @override
   void end({DateTime? endTimestamp}) {}
-
-  @override
-  Map<String, dynamic> toJson() => {};
-
-  @override
-  Span get segmentSpan => this;
 
   @override
   SentryId get traceId => SentryId.empty();

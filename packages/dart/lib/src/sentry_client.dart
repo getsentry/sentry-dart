@@ -18,9 +18,8 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
-import 'telemetry_processing/envelope_builder.dart';
-import 'telemetry_processing/telemetry_buffer.dart';
-import 'telemetry_processing/telemetry_processor.dart';
+import 'telemetry/processing/telemetry_buffer.dart';
+import 'telemetry/processing/telemetry_processor.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
@@ -81,15 +80,6 @@ class SentryClient {
     if (options.enableLogs) {
       options.logBatcher = SentryLogBatcher(options);
     }
-    options.telemetryProcessor = DefaultTelemetryProcessor(options.log,
-        logBuffer: InMemoryTelemetryBuffer(
-            logger: options.log,
-            envelopeBuilder: LogEnvelopeBuilder(),
-            transport: options.transport),
-        spanBuffer: InMemoryTelemetryBuffer(
-            logger: options.log,
-            envelopeBuilder: SpanEnvelopeBuilder(),
-            transport: options.transport));
     // TODO(next-pr): remove log batcher
     return SentryClient._(options);
   }
