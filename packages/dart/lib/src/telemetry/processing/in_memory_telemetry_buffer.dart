@@ -6,7 +6,7 @@ import '../../../sentry.dart';
 import 'telemetry_buffer.dart';
 import 'telemetry_buffer_config.dart';
 
-typedef OnFlushCallback<S> = FutureOr<void> Function(S data);
+typedef OnFlushCallback<T> = FutureOr<void> Function(T data);
 typedef ItemEncoder<T> = List<int> Function(T item);
 typedef GroupKeyExtractor<T> = String Function(T item);
 
@@ -46,19 +46,21 @@ abstract class _BaseInMemoryTelemetryBuffer<T, S> extends TelemetryBuffer<T> {
     final List<int> encoded;
     try {
       encoded = _encoder(item);
-    } catch (e) {
-      _logger(SentryLevel.error, 'Failed to encode: $e');
+    } catch (exception, stackTrace) {
+      _logger(SentryLevel.error, '$runtimeType: Failed to encode item $item',
+          exception: exception, stackTrace: stackTrace);
       return;
     }
 
     if (encoded.length > _config.maxBufferSizeBytes) {
-      _logger(SentryLevel.warning, 'Item exceeds max size, dropping');
+      _logger(
+          SentryLevel.warning, '$runtimeType: Item exceeds max size, dropping');
       return;
     }
 
     _store(encoded, item);
     _bufferSize += encoded.length;
-    _itemCount++;
+    _itemCount += 1;
 
     if (_isBufferFull) {
       flush();
@@ -81,13 +83,15 @@ abstract class _BaseInMemoryTelemetryBuffer<T, S> extends TelemetryBuffer<T> {
 
     try {
       return switch (_onFlush(toFlush)) {
-        Future<void> f => f.catchError((e, st) {
-            _logger(SentryLevel.error, 'onFlush failed: $e', stackTrace: st);
+        Future<void> f => f.catchError((exception, stackTrace) {
+            _logger(SentryLevel.error, '$runtimeType: onFlush failed',
+                exception: exception, stackTrace: stackTrace);
           }),
         _ => null,
       };
-    } catch (e, st) {
-      _logger(SentryLevel.error, 'onFlush failed: $e', stackTrace: st);
+    } catch (exception, stackTrace) {
+      _logger(SentryLevel.error, '$runtimeType: onFlush failed',
+          exception: exception, stackTrace: stackTrace);
       return null;
     }
   }
