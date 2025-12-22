@@ -10,7 +10,8 @@ typedef OnFlushCallback<T> = FutureOr<void> Function(T data);
 typedef ItemEncoder<T> = List<int> Function(T item);
 typedef GroupKeyExtractor<T> = String Function(T item);
 
-abstract class _BaseInMemoryTelemetryBuffer<T, S> extends TelemetryBuffer<T> {
+abstract base class _BaseInMemoryTelemetryBuffer<T, S>
+    extends TelemetryBuffer<T> {
   S _storage;
   int _bufferSize = 0;
   int _itemCount = 0;
@@ -83,7 +84,7 @@ abstract class _BaseInMemoryTelemetryBuffer<T, S> extends TelemetryBuffer<T> {
 
     try {
       return switch (_onFlush(toFlush)) {
-        Future<void> f => f.catchError((exception, stackTrace) {
+        Future future => future.catchError((exception, stackTrace) {
             _logger(SentryLevel.error, '$runtimeType: onFlush failed',
                 exception: exception, stackTrace: stackTrace);
           }),
@@ -97,7 +98,7 @@ abstract class _BaseInMemoryTelemetryBuffer<T, S> extends TelemetryBuffer<T> {
   }
 }
 
-class InMemoryTelemetryBuffer<T>
+final class InMemoryTelemetryBuffer<T>
     extends _BaseInMemoryTelemetryBuffer<T, List<List<int>>> {
   InMemoryTelemetryBuffer({
     required super.logger,
@@ -116,7 +117,7 @@ class InMemoryTelemetryBuffer<T>
   bool get _isEmpty => _storage.isEmpty;
 }
 
-class GroupedInMemoryTelemetryBuffer<T>
+final class GroupedInMemoryTelemetryBuffer<T>
     extends _BaseInMemoryTelemetryBuffer<T, Map<String, List<List<int>>>> {
   final GroupKeyExtractor<T> _groupKey;
 
@@ -137,7 +138,7 @@ class GroupedInMemoryTelemetryBuffer<T>
 
   @override
   void _store(List<int> encoded, T item) =>
-      (_storage[_groupKey(item)] ??= []).add(encoded);
+      (_storage.putIfAbsent(_groupKey(item), () => [])).add(encoded);
 
   @override
   bool get _isEmpty => _storage.isEmpty;

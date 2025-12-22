@@ -52,7 +52,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
     if (buffer == null) {
       _logger(
         SentryLevel.warning,
-        'TelemetryProcessor: No buffer registered for ${item.runtimeType} - item was dropped',
+        '$runtimeType: No buffer registered for ${item.runtimeType} - item was dropped',
       );
       return;
     }

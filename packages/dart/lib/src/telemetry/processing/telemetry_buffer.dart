@@ -1,8 +1,5 @@
 import 'dart:async';
 
-import '../../../sentry.dart';
-import 'telemetry_buffer_config.dart';
-
 /// A buffer that batches telemetry items for efficient transmission to Sentry.
 ///
 /// Collects items of type [T] and sends them in batches rather than
