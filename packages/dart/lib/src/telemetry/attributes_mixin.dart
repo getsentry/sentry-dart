@@ -9,7 +9,7 @@ abstract interface class MutableAttributes {
   void removeAttribute(String key);
 }
 
-abstract mixin class MutableAttributesMixin implements MutableAttributes {
+mixin MutableAttributesMixin implements MutableAttributes {
   final Map<String, SentryAttribute> _attributes = {};
 
   @override
