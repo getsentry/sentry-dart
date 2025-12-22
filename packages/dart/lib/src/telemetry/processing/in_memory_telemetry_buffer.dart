@@ -1,4 +1,3 @@
-// ==================== Single generic callback type ====================
 import 'dart:async';
 
 import 'package:meta/meta.dart';

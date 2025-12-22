@@ -42,7 +42,6 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   @override
   void addLog(SentryLog log) => _add(log);
 
-  // TODO(in-main-branch): update this to use T extends SentryTelemetry
   void _add(dynamic item) {
     final buffer = switch (item) {
       RecordingSentrySpanV2 _ => spanBuffer,
