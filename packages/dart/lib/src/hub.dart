@@ -638,12 +638,14 @@ class Hub {
 
     switch (span) {
       case UnsetSentrySpanV2():
+        _options.log(
+          SentryLevel.warning,
+          "captureSpan: span is in an invalid state $UnsetSentrySpanV2.",
+        );
       case NoOpSentrySpanV2():
         return;
       case RecordingSentrySpanV2 span:
         scope.removeActiveSpan(span);
-
-        options.telemetryProcessor.addSpan(span);
       // TODO(next-pr): run this span through span specific pipeline and then forward to span buffer
     }
   }
