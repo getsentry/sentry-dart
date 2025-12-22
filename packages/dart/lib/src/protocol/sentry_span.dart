@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
+import '../debug_logger.dart';
 import '../sentry_tracer.dart';
 
 typedef OnFinishedCallback = Future<void> Function(
@@ -62,9 +63,9 @@ class SentrySpan extends ISentrySpan {
     if (endTimestamp == null) {
       endTimestamp = _hub.options.clock();
     } else if (endTimestamp.isBefore(_startTimestamp)) {
-      _hub.options.log(
-        SentryLevel.warning,
+      debugLogger.warning(
         'End timestamp ($endTimestamp) cannot be before start timestamp ($_startTimestamp)',
+        category: 'span',
       );
       endTimestamp = _hub.options.clock();
     } else {
@@ -144,9 +145,9 @@ class SentrySpan extends ISentrySpan {
     }
 
     if (startTimestamp?.isBefore(_startTimestamp) ?? false) {
-      _hub.options.log(
-        SentryLevel.warning,
+      debugLogger.warning(
         "Start timestamp ($startTimestamp) cannot be before parent span's start timestamp ($_startTimestamp). Returning NoOpSpan.",
+        category: 'span',
       );
       return NoOpSentrySpan();
     }
@@ -233,8 +234,10 @@ class SentrySpan extends ISentrySpan {
     SentryMeasurementUnit? unit,
   }) {
     if (finished) {
-      _hub.options.log(SentryLevel.debug,
-          "The span is already finished. Measurement $name cannot be set");
+      debugLogger.debug(
+        "The span is already finished. Measurement $name cannot be set",
+        category: 'span',
+      );
       return;
     }
     _tracer.setMeasurementFromChild(name, value, unit: unit);

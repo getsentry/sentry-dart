@@ -1,4 +1,5 @@
 import 'package:http/http.dart';
+import '../debug_logger.dart';
 import '../utils/transport_utils.dart';
 import 'http_transport_request_handler.dart';
 
@@ -31,8 +32,8 @@ class SpotlightHttpTransport extends Transport {
     try {
       await _sendToSpotlight(envelope);
     } catch (e) {
-      _options.log(
-          SentryLevel.warning, 'Failed to send envelope to Spotlight: $e');
+      debugLogger.warning('Failed to send envelope to Spotlight: $e',
+          category: 'transport');
       if (_options.automatedTestMode) {
         rethrow;
       }

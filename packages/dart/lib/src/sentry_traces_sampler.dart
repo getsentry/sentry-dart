@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'debug_logger.dart';
 
 @internal
 class SentryTracesSampler {
@@ -14,8 +15,10 @@ class SentryTracesSampler {
     Random? random,
   }) : _random = random ?? Random() {
     if (_options.tracesSampler != null && _options.tracesSampleRate != null) {
-      _options.log(SentryLevel.warning,
-          'Both tracesSampler and traceSampleRate are set. tracesSampler will take precedence and fallback to traceSampleRate if it returns null.');
+      debugLogger.warning(
+        'Both tracesSampler and traceSampleRate are set. tracesSampler will take precedence and fallback to traceSampleRate if it returns null.',
+        category: 'sampler',
+      );
     }
   }
 
@@ -37,10 +40,10 @@ class SentryTracesSampler {
           return _makeSampleDecision(sampleRate, sampleRand);
         }
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
+        debugLogger.error(
           'The tracesSampler callback threw an exception',
-          exception: exception,
+          category: 'sampler',
+          error: exception,
           stackTrace: stackTrace,
         );
         if (_options.automatedTestMode) {

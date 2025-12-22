@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import '../../protocol.dart';
+import '../../debug_logger.dart';
 import '../../sentry_options.dart';
 
 // Get total & free platform memory (in bytes) for linux and windows operating systems.
@@ -87,7 +87,7 @@ class PlatformMemory {
         return result.stdout.toString();
       }
     } catch (e) {
-      options.log(SentryLevel.warning, "Failed to run process: $e");
+      debugLogger.warning("Failed to run process: $e", category: 'enricher');
       if (options.automatedTestMode) {
         rethrow;
       }

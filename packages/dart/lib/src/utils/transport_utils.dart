@@ -1,6 +1,7 @@
 import 'package:http/http.dart';
 
 import '../client_reports/discard_reason.dart';
+import '../debug_logger.dart';
 import '../protocol.dart';
 import '../sentry_envelope.dart';
 import '../sentry_options.dart';
@@ -12,9 +13,9 @@ class TransportUtils {
       {required String target}) {
     if (response.statusCode != 200) {
       if (options.debug) {
-        options.log(
-          SentryLevel.error,
+        debugLogger.error(
           'Error, statusCode = ${response.statusCode}, body = ${response.body}',
+          category: 'transport',
         );
       }
 
@@ -36,9 +37,9 @@ class TransportUtils {
         }
       }
     } else {
-      options.log(
-        SentryLevel.debug,
+      debugLogger.debug(
         'Envelope ${envelope.header.eventId ?? "--"} was sent successfully to $target.',
+        category: 'transport',
       );
     }
   }

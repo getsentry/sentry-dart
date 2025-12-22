@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'debug_logger.dart';
 
 @internal
 typedef SdkLifecycleCallback<T extends SdkLifecycleEvent> = FutureOr<void>
@@ -52,10 +53,10 @@ class SdkLifecycleRegistry {
           await result;
         }
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
+        debugLogger.error(
           'The SDK lifecycle callback threw an exception',
-          exception: exception,
+          category: 'lifecycle',
+          error: exception,
           stackTrace: stackTrace,
         );
         if (_options.automatedTestMode) {

@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'debug_logger.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
+import 'protocol/sentry_level.dart';
 import 'protocol/sentry_log.dart';
 import 'protocol/sentry_log_level.dart';
 import 'protocol/sentry_attribute.dart';
@@ -71,11 +73,26 @@ class SentryLogger {
       attributes: attributes ?? {},
     );
 
-    _hub.options.log(
-      level.toSentryLevel(),
-      _formatLogMessage(level, body, attributes ?? {}),
-      logger: 'sentry_logger',
-    );
+    // Log to debug logger based on level
+    final sentryLevel = level.toSentryLevel();
+    final message = _formatLogMessage(level, body, attributes ?? {});
+    switch (sentryLevel) {
+      case SentryLevel.fatal:
+        debugLogger.fatal(message, category: 'logger');
+        break;
+      case SentryLevel.error:
+        debugLogger.error(message, category: 'logger');
+        break;
+      case SentryLevel.warning:
+        debugLogger.warning(message, category: 'logger');
+        break;
+      case SentryLevel.info:
+        debugLogger.info(message, category: 'logger');
+        break;
+      case SentryLevel.debug:
+        debugLogger.debug(message, category: 'logger');
+        break;
+    }
 
     return _hub.captureLog(log);
   }

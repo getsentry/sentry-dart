@@ -1,10 +1,10 @@
 import 'package:meta/meta.dart';
 
 import '../client_reports/discard_reason.dart';
+import '../debug_logger.dart';
 import '../event_processor.dart';
 import '../hint.dart';
 import '../protocol/sentry_event.dart';
-import '../protocol/sentry_level.dart';
 import '../protocol/sentry_transaction.dart';
 import '../sentry_options.dart';
 import '../transport/data_category.dart';
@@ -25,10 +25,10 @@ Future<SentryEvent?> runEventProcessors(
       final e = processor.apply(processedEvent!, hint);
       processedEvent = e is Future<SentryEvent?> ? await e : e;
     } catch (exception, stackTrace) {
-      options.log(
-        SentryLevel.error,
+      debugLogger.error(
         'An exception occurred while processing event by a processor',
-        exception: exception,
+        category: 'event_processor',
+        error: exception,
         stackTrace: stackTrace,
       );
       if (options.automatedTestMode) {
@@ -47,7 +47,7 @@ Future<SentryEvent?> runEventProcessors(
           count: spanCountBeforeEventProcessors + 1,
         );
       }
-      options.log(SentryLevel.debug, 'Event was dropped by a processor');
+      debugLogger.debug('Event was dropped by a processor', category: 'event_processor');
       break;
     } else if (event is SentryTransaction &&
         processedEvent is SentryTransaction) {

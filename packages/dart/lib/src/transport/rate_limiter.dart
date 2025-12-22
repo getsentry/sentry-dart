@@ -1,4 +1,5 @@
 import '../../sentry.dart';
+import '../debug_logger.dart';
 import '../transport/rate_limit_parser.dart';
 import 'rate_limit.dart';
 import 'data_category.dart';
@@ -128,16 +129,7 @@ class RateLimiter {
     }
   }
 
-  // Enable debug mode to log warning messages
   void _logDebugWarning(String message) {
-    var debug = _options.debug;
-    if (!debug) {
-      // Surface the log even if debug is disabled
-      _options.debug = true;
-    }
-    _options.log(SentryLevel.warning, message);
-    if (debug != _options.debug) {
-      _options.debug = debug;
-    }
+    debugLogger.warning(message, category: 'rate_limiter');
   }
 }

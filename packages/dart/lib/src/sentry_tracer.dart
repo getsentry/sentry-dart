@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'debug_logger.dart';
 import 'profiling.dart';
 import 'sentry_tracer_finish_status.dart';
 import 'utils/sample_rate_format.dart';
@@ -215,9 +216,9 @@ class SentryTracer extends ISentrySpan {
     }
 
     if (children.length >= _hub.options.maxSpans) {
-      _hub.options.log(
-        SentryLevel.warning,
+      debugLogger.warning(
         'Span operation: $operation, description: $description dropped due to limit reached. Returning NoOpSpan.',
+        category: 'tracer',
       );
       return NoOpSentrySpan();
     }
@@ -243,9 +244,9 @@ class SentryTracer extends ISentrySpan {
     _scheduleTimer();
 
     if (children.length >= _hub.options.maxSpans) {
-      _hub.options.log(
-        SentryLevel.warning,
+      debugLogger.warning(
         'Span operation: $operation, description: $description dropped due to limit reached. Returning NoOpSpan.',
+        category: 'tracer',
       );
       return NoOpSentrySpan();
     }
@@ -347,8 +348,10 @@ class SentryTracer extends ISentrySpan {
   @override
   void setMeasurement(String name, num value, {SentryMeasurementUnit? unit}) {
     if (finished) {
-      _hub.options.log(SentryLevel.debug,
-          "The tracer is already finished. Measurement $name cannot be set");
+      debugLogger.debug(
+        "The tracer is already finished. Measurement $name cannot be set",
+        category: 'tracer',
+      );
       return;
     }
     _measurements[name] = SentryMeasurement(name, value, unit: unit);

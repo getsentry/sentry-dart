@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import 'client_reports/client_report_recorder.dart';
+import 'debug_logger.dart';
 import 'client_reports/discard_reason.dart';
 import 'event_processor/run_event_processors.dart';
 import 'hint.dart';
@@ -93,9 +94,9 @@ class SentryClient {
     Hint? hint,
   }) async {
     if (_isIgnoredError(event)) {
-      _options.log(
-        SentryLevel.debug,
+      debugLogger.debug(
         'Error was ignored as specified in the ignoredErrors options.',
+        category: 'client',
       );
       _options.recorder
           .recordLostEvent(DiscardReason.ignored, _getCategory(event));
@@ -103,9 +104,9 @@ class SentryClient {
     }
 
     if (_options.containsIgnoredExceptionForType(event.throwable)) {
-      _options.log(
-        SentryLevel.debug,
+      debugLogger.debug(
         'Event was dropped as the exception ${event.throwable.runtimeType.toString()} is ignored.',
+        category: 'client',
       );
       _options.recorder
           .recordLostEvent(DiscardReason.eventProcessor, _getCategory(event));
@@ -115,9 +116,9 @@ class SentryClient {
     if (_sampleRate() && event.type != 'feedback') {
       _options.recorder
           .recordLostEvent(DiscardReason.sampleRate, _getCategory(event));
-      _options.log(
-        SentryLevel.debug,
+      debugLogger.debug(
         'Event ${event.eventId.toString()} was dropped due to sampling decision.',
+        category: 'client',
       );
       return _emptySentryId;
     }
@@ -130,8 +131,8 @@ class SentryClient {
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint);
     } else {
-      _options.log(
-          SentryLevel.debug, 'No scope to apply on event was provided');
+      debugLogger.debug('No scope to apply on event was provided',
+          category: 'client');
     }
 
     // dropped by scope event processors
@@ -393,8 +394,8 @@ class SentryClient {
       preparedTransaction = await scope.applyToEvent(preparedTransaction, hint)
           as SentryTransaction?;
     } else {
-      _options.log(
-          SentryLevel.debug, 'No scope to apply on transaction was provided');
+      debugLogger.debug('No scope to apply on transaction was provided',
+          category: 'client');
     }
 
     // dropped by scope event processors
@@ -415,9 +416,9 @@ class SentryClient {
     }
 
     if (_isIgnoredTransaction(preparedTransaction)) {
-      _options.log(
-        SentryLevel.debug,
+      debugLogger.debug(
         'Transaction was ignored as specified in the ignoredTransactions options.',
+        category: 'client',
       );
 
       _options.recorder.recordLostEvent(
@@ -563,10 +564,10 @@ class SentryClient {
           processedLog = callbackResult;
         }
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
+        debugLogger.error(
           'The beforeSendLog callback threw an exception',
-          exception: exception,
+          category: 'client',
+          error: exception,
           stackTrace: stackTrace,
         );
         if (_options.automatedTestMode) {
@@ -633,10 +634,10 @@ class SentryClient {
         }
       }
     } catch (exception, stackTrace) {
-      _options.log(
-        SentryLevel.error,
+      debugLogger.error(
         'The $beforeSendName callback threw an exception',
-        exception: exception,
+        category: 'client',
+        error: exception,
         stackTrace: stackTrace,
       );
       if (_options.automatedTestMode) {
@@ -652,9 +653,9 @@ class SentryClient {
         _options.recorder.recordLostEvent(discardReason, DataCategory.span,
             count: spanCountBeforeCallback + 1);
       }
-      _options.log(
-        SentryLevel.debug,
+      debugLogger.debug(
         '${event.runtimeType} was dropped by $beforeSendName callback',
+        category: 'client',
       );
     } else if (event is SentryTransaction &&
         processedEvent is SentryTransaction) {

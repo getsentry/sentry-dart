@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 
+import '../debug_logger.dart';
 import '../http_client/client_provider.dart'
     if (dart.library.io) '../http_client/io_client_provider.dart';
 import '../noop_client.dart';
@@ -51,8 +52,8 @@ class HttpTransport implements Transport {
       return _parseEventId(response);
     }
     if (response.statusCode == 429) {
-      _options.log(
-          SentryLevel.warning, 'Rate limit reached, failed to send envelope');
+      debugLogger.warning('Rate limit reached, failed to send envelope',
+          category: 'transport');
     }
     return SentryId.empty();
   }
@@ -62,7 +63,7 @@ class HttpTransport implements Transport {
       final eventId = json.decode(response.body)['id'];
       return eventId != null ? SentryId.fromId(eventId) : null;
     } catch (e) {
-      _options.log(SentryLevel.error, 'Error parsing response: $e');
+      debugLogger.error('Error parsing response: $e', category: 'transport');
       if (_options.automatedTestMode) {
         rethrow;
       }

@@ -3,6 +3,7 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 
+import 'debug_logger.dart';
 import 'event_processor.dart';
 import 'event_processor/run_event_processors.dart';
 import 'hint.dart';
@@ -188,17 +189,17 @@ class Scope {
           hint,
         );
         if (processedBreadcrumb == null) {
-          _options.log(
-            SentryLevel.info,
+          debugLogger.info(
             'Breadcrumb was dropped by beforeBreadcrumb',
+            category: 'scope',
           );
           return null;
         }
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
+        debugLogger.error(
           'The BeforeBreadcrumb callback threw an exception',
-          exception: exception,
+          category: 'scope',
+          error: exception,
           stackTrace: stackTrace,
         );
         if (_options.automatedTestMode) {

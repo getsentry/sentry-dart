@@ -1,3 +1,4 @@
+import 'debug_logger.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 import 'exception_cause.dart';
@@ -37,10 +38,9 @@ class RecursiveExceptionCauseExtractor {
         currentExceptionCause = extractor?.cause(extractionSourceSource);
         currentException = currentExceptionCause?.exception;
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'An exception occurred while extracting  exception cause',
-          exception: exception,
+        debugLogger.error(
+          'An exception occurred while extracting exception cause',
+          error: exception,
           stackTrace: stackTrace,
         );
         if (_options.automatedTestMode) {

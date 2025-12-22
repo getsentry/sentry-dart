@@ -5,8 +5,8 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
+import 'debug_logger.dart';
 import 'client_reports/noop_client_report_recorder.dart';
-import 'diagnostic_log.dart';
 import 'environment/environment_variables.dart';
 import 'noop_client.dart';
 import 'platform/platform.dart';
@@ -127,20 +127,6 @@ class SentryOptions {
   /// This does not change whether an event is captured.
   MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never;
 
-  SdkLogCallback _log = noOpLog;
-
-  /// Log callback to log useful debugging information if debug is enabled
-  SdkLogCallback get log => _log;
-
-  @internal
-  set log(SdkLogCallback value) {
-    diagnosticLog = DiagnosticLog(value, this);
-    _log = diagnosticLog!.log;
-  }
-
-  @visibleForTesting
-  DiagnosticLog? diagnosticLog;
-
   final List<EventProcessor> _eventProcessors = [];
 
   /// Are callbacks that run for every event. They can either return a new event which in most cases
@@ -162,14 +148,7 @@ class SentryOptions {
 
   set debug(bool newValue) {
     _debug = newValue;
-    if (_debug == true &&
-        (log == noOpLog || diagnosticLog?.logger == noOpLog)) {
-      log = debugLog;
-    }
-    if (_debug == false &&
-        (log == debugLog || diagnosticLog?.logger == debugLog)) {
-      log = noOpLog;
-    }
+    SentryDebugLogger.configure(enabled: newValue, minLevel: diagnosticLevel);
   }
 
   bool _debug = false;
@@ -678,15 +657,6 @@ typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
-
-/// Logger callback to log useful debugging information if debug is enabled
-typedef SdkLogCallback = void Function(
-  SentryLevel level,
-  String message, {
-  String? logger,
-  Object? exception,
-  StackTrace? stackTrace,
-});
 
 typedef TracesSamplerCallback = double? Function(
     SentrySamplingContext samplingContext);

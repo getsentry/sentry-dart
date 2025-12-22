@@ -1,6 +1,7 @@
 import 'dart:isolate';
 import 'package:meta/meta.dart';
 
+import 'debug_logger.dart';
 import 'throwable_mechanism.dart';
 import 'protocol.dart';
 import 'hub.dart';
@@ -46,7 +47,7 @@ class SentryIsolate {
     Hub hub,
     dynamic error,
   ) async {
-    hub.options.log(SentryLevel.debug, 'Capture from IsolateError $error');
+    debugLogger.debug('Capture from IsolateError $error', category: 'isolate');
 
     // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
     // error is a list of 2 elements
@@ -60,11 +61,10 @@ class SentryIsolate {
       final String throwable = error.first;
       final String? stackTrace = error.last;
 
-      hub.options.log(
-        SentryLevel.error,
+      debugLogger.error(
         'Uncaught isolate error',
-        logger: 'sentry.isolateError',
-        exception: throwable,
+        category: 'isolate',
+        error: throwable,
         stackTrace:
             stackTrace == null ? null : StackTrace.fromString(stackTrace),
       );

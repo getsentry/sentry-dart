@@ -61,3 +61,4 @@ export 'src/utils/url_details.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/breadcrumb_log_level.dart';
 export 'src/sentry_logger.dart';
+export 'src/debug_logger.dart';

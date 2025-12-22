@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import 'dart_exception_type_identifier.dart';
+import 'debug_logger.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
@@ -99,9 +100,9 @@ class Sentry {
 
     if (options.runtimeChecker.isDebugMode()) {
       options.debug = true;
-      options.log(
-        SentryLevel.debug,
+      debugLogger.debug(
         'Debug mode is enabled: Application is running in a debug environment.',
+        category: 'init',
       );
     }
 
@@ -149,9 +150,9 @@ class Sentry {
     RunZonedGuardedOnError? runZonedGuardedOnError,
   ) async {
     if (isEnabled) {
-      options.log(
-        SentryLevel.warning,
+      debugLogger.warning(
         'Sentry has been already initialized. Previous configuration will be overwritten.',
+        category: 'init',
       );
     }
 
@@ -393,9 +394,9 @@ class Sentry {
         .firstOrNull;
 
     if (featureFlagsIntegration == null) {
-      currentHub.options.log(
-        SentryLevel.warning,
+      debugLogger.warning(
         '$FeatureFlagsIntegration not found. Make sure Sentry is initialized before accessing the addFeatureFlag API.',
+        category: 'feature_flags',
       );
       return;
     }

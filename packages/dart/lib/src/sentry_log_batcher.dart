@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'debug_logger.dart';
 import 'sentry_options.dart';
 import 'protocol/sentry_log.dart';
-import 'protocol/sentry_level.dart';
 import 'sentry_envelope.dart';
 import 'utils.dart';
 import 'package:meta/meta.dart';
@@ -44,9 +44,9 @@ class SentryLogBatcher {
       }
       // Note: We don't restart the timer on subsequent additions per spec
     } catch (error) {
-      _options.log(
-        SentryLevel.error,
+      debugLogger.error(
         'Failed to encode log: $error',
+        category: 'log_batcher',
       );
     }
   }
@@ -56,9 +56,9 @@ class SentryLogBatcher {
 
   void _startTimer() {
     _flushTimer = Timer(_flushTimeout, () {
-      _options.log(
-        SentryLevel.debug,
+      debugLogger.debug(
         'SentryLogBatcher: Timer fired, calling performCaptureLogs().',
+        category: 'log_batcher',
       );
       _performFlushLogs();
     });
@@ -75,18 +75,18 @@ class SentryLogBatcher {
     _encodedLogsSize = 0;
 
     if (logsToSend.isEmpty) {
-      _options.log(
-        SentryLevel.debug,
+      debugLogger.debug(
         'SentryLogBatcher: No logs to flush.',
+        category: 'log_batcher',
       );
     } else {
       try {
         final envelope = SentryEnvelope.fromLogsData(logsToSend, _options.sdk);
         return _options.transport.send(envelope).then((_) => null);
       } catch (error) {
-        _options.log(
-          SentryLevel.error,
+        debugLogger.error(
           'Failed to create envelope for batched logs: $error',
+          category: 'log_batcher',
         );
       }
     }

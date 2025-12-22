@@ -1,4 +1,5 @@
 import 'dart:collection';
+import '../debug_logger.dart';
 import '../event_processor.dart';
 import '../hint.dart';
 import '../protocol.dart';
@@ -32,7 +33,7 @@ class DeduplicationEventProcessor implements EventProcessor {
     }
 
     if (!_options.enableDeduplication) {
-      _options.log(SentryLevel.debug, 'Deduplication is disabled');
+      debugLogger.debug('Deduplication is disabled', category: 'deduplication');
       return event;
     }
     return _deduplicate(event);
@@ -52,10 +53,10 @@ class DeduplicationEventProcessor implements EventProcessor {
     final exceptionHashCode = exception.hashCode;
 
     if (_exceptionToDeduplicate.contains(exceptionHashCode)) {
-      _options.log(
-        SentryLevel.info,
+      debugLogger.info(
         'Duplicated exception detected. '
         'Event ${event.eventId} will be discarded.',
+        category: 'deduplication',
       );
       return null;
     }
