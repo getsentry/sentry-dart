@@ -11,11 +11,12 @@ import '../../sentry.dart';
 /// - `sentry.flutter` – flutter package
 /// - `sentry.{integration}` – integration packages (dio, hive, etc.)
 ///
+/// Each package should have at least one top-level instance.
+///
 /// Example:
 /// ```dart
-/// const sentryDebugLogger = SentryDebugLogger('sentry.flutter');
+/// const debugLogger = SentryDebugLogger('sentry.flutter');
 ///
-/// // Results in logger name: `sentry.flutter:navigation_observer`
 /// sentryDebugLogger.warning('My Message')
 ///```
 @internal
