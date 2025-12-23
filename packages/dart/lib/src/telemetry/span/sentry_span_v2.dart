@@ -42,7 +42,9 @@ sealed class SentrySpanV2 {
   /// If omitted, the span ends using the current time when end is executed.
   void end({DateTime? endTimestamp});
 
-  /// Returns a unmodifiable read-only view of the attributes
+  /// Gets a read-only view of the attributes of the span using [Map.unmodifiable](https://api.flutter.dev/flutter/dart-core/Map/Map.unmodifiable.html).
+  ///
+  /// The returned map must not be mutated by callers.
   Map<String, SentryAttribute> get attributes;
 
   /// Sets an attribute, replacing any existing attribute with the same key.
