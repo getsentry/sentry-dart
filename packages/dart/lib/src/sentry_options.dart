@@ -162,9 +162,7 @@ class SentryOptions {
 
   set debug(bool newValue) {
     _debug = newValue;
-    if (_debug) {
-      SentryDebugLogger.configure(isEnabled: true, minLevel: diagnosticLevel);
-    }
+    SentryDebugLogger.configure(isEnabled: _debug, minLevel: diagnosticLevel);
     if (_debug == true &&
         (log == noOpLog || diagnosticLog?.logger == noOpLog)) {
       log = debugLog;
