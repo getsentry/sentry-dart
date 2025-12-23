@@ -11,7 +11,7 @@ void main() {
       SentryDebugLogger.configure(isEnabled: false);
     });
 
-    group('configure', () {
+    group('configuration', () {
       test('enables logging when isEnabled is true', () {
         SentryDebugLogger.configure(isEnabled: true);
 
@@ -39,9 +39,28 @@ void main() {
 
         expect(SentryDebugLogger.minLevel, equals(SentryLevel.warning));
       });
+
+      test('SentryOptions.debug enables logger', () {
+        final options = defaultTestOptions();
+
+        expect(options.debug, isFalse);
+        options.debug = true;
+
+        expect(SentryDebugLogger.isEnabled, isTrue);
+      });
+
+      test('SentryOptions.diagnosticLevel sets minLevel', () {
+        final options = defaultTestOptions();
+
+        options.diagnosticLevel = SentryLevel.error;
+        options.debug = true;
+
+        expect(SentryDebugLogger.isEnabled, isTrue);
+        expect(SentryDebugLogger.minLevel, equals(SentryLevel.error));
+      });
     });
 
-    group('log methods', () {
+    group('logging when enabled', () {
       setUp(() {
         SentryDebugLogger.configure(
             isEnabled: true, minLevel: SentryLevel.debug);
@@ -82,7 +101,7 @@ void main() {
         );
       });
 
-      test('logs with error object without throwing', () {
+      test('accepts error object', () {
         expect(
           () => debugLogger.error(
             'error occurred',
@@ -92,7 +111,7 @@ void main() {
         );
       });
 
-      test('logs with stackTrace without throwing', () {
+      test('accepts stackTrace', () {
         expect(
           () => debugLogger.error(
             'error occurred',
@@ -104,14 +123,11 @@ void main() {
       });
     });
 
-    group('debugLogger constant', () {
-      test('is named sentry', () {
-        // The debugLogger constant should be accessible and usable
+    group('logger instances', () {
+      test('debugLogger constant is available', () {
         expect(debugLogger, isA<SentryDebugLogger>());
       });
-    });
 
-    group('custom logger name', () {
       test('can create logger with custom name', () {
         const customLogger = SentryDebugLogger('sentry.flutter');
 
@@ -121,27 +137,6 @@ void main() {
           () => customLogger.info('test from flutter logger'),
           returnsNormally,
         );
-      });
-    });
-
-    group('SentryOptions integration', () {
-      test('setting debug to true enables SentryDebugLogger', () {
-        final options = defaultTestOptions();
-
-        expect(options.debug, isFalse);
-        options.debug = true;
-
-        expect(SentryDebugLogger.isEnabled, isTrue);
-      });
-
-      test('diagnosticLevel is used as minLevel when debug is enabled', () {
-        final options = defaultTestOptions();
-
-        options.diagnosticLevel = SentryLevel.error;
-        options.debug = true;
-
-        expect(SentryDebugLogger.isEnabled, isTrue);
-        expect(SentryDebugLogger.minLevel, equals(SentryLevel.error));
       });
     });
   });
