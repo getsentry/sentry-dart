@@ -49,11 +49,26 @@ void main() {
         expect(SentryDebugLogger.isEnabled, isTrue);
       });
 
-      test('SentryOptions.diagnosticLevel sets minLevel', () {
+      test('SentryOptions.diagnosticLevel sets minLevel when set before debug',
+          () {
         final options = defaultTestOptions();
 
         options.diagnosticLevel = SentryLevel.error;
         options.debug = true;
+
+        expect(SentryDebugLogger.isEnabled, isTrue);
+        expect(SentryDebugLogger.minLevel, equals(SentryLevel.error));
+      });
+
+      test(
+          'SentryOptions.diagnosticLevel updates minLevel when set after debug',
+          () {
+        final options = defaultTestOptions();
+
+        options.debug = true;
+        expect(SentryDebugLogger.minLevel, equals(SentryLevel.warning));
+
+        options.diagnosticLevel = SentryLevel.error;
 
         expect(SentryDebugLogger.isEnabled, isTrue);
         expect(SentryDebugLogger.minLevel, equals(SentryLevel.error));
