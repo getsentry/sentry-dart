@@ -61,3 +61,5 @@ export 'src/utils/url_details.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/breadcrumb_log_level.dart';
 export 'src/sentry_logger.dart';
+// ignore: invalid_export_of_internal_element
+export 'src/utils/debug_logger.dart' show SentryDebugLogger;

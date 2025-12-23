@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 
 import '../../sentry_flutter.dart';
-import 'isolate_logger.dart';
+import '../utils/debug_logger.dart';
 
 typedef SpawnWorkerFn = Future<Worker> Function(WorkerConfig, WorkerEntry);
 
@@ -141,20 +141,17 @@ void runWorker(
   SendPort host,
   WorkerHandler handler,
 ) {
-  IsolateLogger.configure(
-    debug: config.debug,
-    level: config.diagnosticLevel,
-    loggerName: config.debugName,
-  );
+  SentryDebugLogger.configure(
+      isEnabled: config.debug, minLevel: config.diagnosticLevel);
 
   final inbox = ReceivePort();
   host.send(inbox.sendPort);
 
   inbox.listen((msg) async {
     if (msg == _shutdownCommand) {
-      IsolateLogger.log(SentryLevel.debug, 'Isolate received shutdown');
+      debugLogger.debug('${config.debugName}: isolate received shutdown');
       inbox.close();
-      IsolateLogger.log(SentryLevel.debug, 'Isolate closed');
+      debugLogger.debug('${config.debugName}: isolate closed');
       return;
     }
 
@@ -172,8 +169,8 @@ void runWorker(
     try {
       await handler.onMessage(msg);
     } catch (exception, stackTrace) {
-      IsolateLogger.log(SentryLevel.error, 'Isolate failed to handle message',
-          exception: exception, stackTrace: stackTrace);
+      debugLogger.error('${config.debugName}: isolate failed to handle message',
+          error: exception, stackTrace: stackTrace);
     }
   });
 }
