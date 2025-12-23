@@ -376,6 +376,7 @@ class Fixture {
   }) {
     return RecordingSentrySpanV2(
       name: name,
+      spanId: SpanId.newId(),
       traceId: traceId ?? SentryId.newId(),
       onSpanEnd: onSpanEnded ?? (_) {},
       log: options.log,
