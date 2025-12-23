@@ -141,6 +141,7 @@ void runWorker(
   SendPort host,
   WorkerHandler handler,
 ) {
+  // ignore: invalid_use_of_internal_member
   SentryDebugLogger.configure(
       isEnabled: config.debug, minLevel: config.diagnosticLevel);
 
