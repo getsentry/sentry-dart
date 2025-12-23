@@ -258,7 +258,7 @@ void main() {
         final json = span.toJson();
 
         expect(json.containsKey('attributes'), isTrue);
-        final attributes = json['attributes'] as Map<String, dynamic>;
+        final attributes = Map.from(json['attributes']);
 
         expect(attributes['string_attr'], {'value': 'value', 'type': 'string'});
         expect(attributes['int_attr'], {'value': 42, 'type': 'integer'});
