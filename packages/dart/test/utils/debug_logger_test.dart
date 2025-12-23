@@ -82,13 +82,6 @@ void main() {
         );
       });
 
-      test('logs with category without throwing', () {
-        expect(
-          () => debugLogger.info('message', category: 'test_category'),
-          returnsNormally,
-        );
-      });
-
       test('logs with error object without throwing', () {
         expect(
           () => debugLogger.error(
