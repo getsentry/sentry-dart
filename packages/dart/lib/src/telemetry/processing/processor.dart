@@ -2,15 +2,14 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
-import '../../sentry.dart';
-import '../protocol/noop_span.dart';
-import '../protocol/unset_span.dart';
-import 'telemetry_buffer.dart';
+import '../../../sentry.dart';
+import '../span/sentry_span_v2.dart';
+import 'buffer.dart';
 
 /// Manages buffering and sending of telemetry data to Sentry.
 abstract class TelemetryProcessor {
   /// Adds a span to the buffer.
-  void addSpan(Span span);
+  void addSpan(RecordingSentrySpanV2 span);
 
   /// Adds a log to the buffer.
   void addLog(SentryLog log);
@@ -25,7 +24,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
 
   /// Buffer for span telemetry data.
   @visibleForTesting
-  TelemetryBuffer<Span>? spanBuffer;
+  TelemetryBuffer<RecordingSentrySpanV2>? spanBuffer;
 
   /// Buffer for log telemetry data.
   @visibleForTesting
@@ -38,15 +37,14 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   });
 
   @override
-  void addSpan(Span span) =>
-      (span is NoOpSpan || span is UnsetSpan) ? null : _add(span);
+  void addSpan(RecordingSentrySpanV2 span) => _add(span);
 
   @override
   void addLog(SentryLog log) => _add(log);
 
   void _add(dynamic item) {
     final buffer = switch (item) {
-      Span _ => spanBuffer,
+      RecordingSentrySpanV2 _ => spanBuffer,
       SentryLog _ => logBuffer,
       _ => null,
     };
@@ -54,7 +52,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
     if (buffer == null) {
       _logger(
         SentryLevel.warning,
-        'TelemetryProcessor: No buffer registered for ${item.runtimeType} - item was dropped',
+        '$runtimeType: No buffer registered for ${item.runtimeType} - item was dropped',
       );
       return;
     }
@@ -82,7 +80,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
 
 class NoOpTelemetryProcessor implements TelemetryProcessor {
   @override
-  void addSpan(Span span) {}
+  void addSpan(RecordingSentrySpanV2 span) {}
 
   @override
   void addLog(SentryLog log) {}
