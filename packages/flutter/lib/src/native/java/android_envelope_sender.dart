@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../isolate/isolate_worker.dart';
-import '../../isolate/isolate_logger.dart';
+import '../../utils/debug_logger.dart';
 import 'binding.dart' as native;
 
 class AndroidEnvelopeSender {
@@ -74,7 +74,8 @@ class _AndroidEnvelopeHandler extends WorkerHandler {
       final data = transferable.materialize().asUint8List();
       _captureEnvelope(data, containsUnhandledException);
     } else {
-      IsolateLogger.log(SentryLevel.warning, 'Unexpected message type: $msg');
+      debugLogger
+          .warning('${_config.debugName}: unexpected message type: $msg');
     }
   }
 
@@ -88,12 +89,12 @@ class _AndroidEnvelopeHandler extends WorkerHandler {
           byteArray, containsUnhandledException);
 
       if (id == null) {
-        IsolateLogger.log(SentryLevel.error,
-            'Native Android SDK returned null when capturing envelope');
+        debugLogger.error(
+            '${_config.debugName}: native Android SDK returned null when capturing envelope');
       }
     } catch (exception, stackTrace) {
-      IsolateLogger.log(SentryLevel.error, 'Failed to capture envelope',
-          exception: exception, stackTrace: stackTrace);
+      debugLogger.error('${_config.debugName}: failed to capture envelope',
+          error: exception, stackTrace: stackTrace);
       if (_config.automatedTestMode) {
         rethrow;
       }
