@@ -10,6 +10,10 @@ import 'telemetry_processor.dart';
 class DefaultTelemetryProcessorIntegration extends Integration<SentryOptions> {
   static const integrationName = 'DefaultTelemetryProcessor';
 
+  @visibleForTesting
+  final GroupKeyExtractor<RecordingSentrySpanV2> spanGroupKeyExtractor =
+      (RecordingSentrySpanV2 item) => '${item.traceId}-${item.spanId}';
+
   @override
   void call(Hub hub, SentryOptions options) {
     if (options.telemetryProcessor is! NoOpTelemetryProcessor) {
@@ -31,10 +35,6 @@ class DefaultTelemetryProcessorIntegration extends Integration<SentryOptions> {
             final envelope = SentryEnvelope.fromLogsData(items, options.sdk);
             return options.transport.send(envelope).then((_) {});
           });
-
-  @visibleForTesting
-  final GroupKeyExtractor<RecordingSentrySpanV2> spanGroupKeyExtractor =
-      (RecordingSentrySpanV2 item) => '${item.traceId}-${item.spanId}';
 
   GroupedInMemoryTelemetryBuffer<RecordingSentrySpanV2> _createSpanBuffer(
           SentryOptions options) =>

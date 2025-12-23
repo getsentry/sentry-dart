@@ -48,7 +48,7 @@ abstract base class _BaseInMemoryTelemetryBuffer<T, S>
     try {
       encoded = _encoder(item);
     } catch (exception, stackTrace) {
-      _logger(SentryLevel.error, '$runtimeType: Failed to encode item $item',
+      _logger(SentryLevel.error, '$runtimeType: Failed to encode item $T',
           exception: exception, stackTrace: stackTrace);
       return;
     }
