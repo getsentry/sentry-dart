@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:sentry/src/telemetry/processing/telemetry_buffer.dart';
+import 'package:sentry/src/telemetry/processing/buffer.dart';
 
 class MockTelemetryBuffer<T> extends TelemetryBuffer<T> {
   final List<T> addedItems = [];

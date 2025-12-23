@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
-import 'telemetry_buffer.dart';
-import 'telemetry_buffer_config.dart';
+import 'buffer.dart';
+import 'buffer_config.dart';
 
 typedef OnFlushCallback<T> = FutureOr<void> Function(T data);
 typedef ItemEncoder<T> = List<int> Function(T item);

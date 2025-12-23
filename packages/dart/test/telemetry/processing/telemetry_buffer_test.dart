@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:sentry/src/telemetry/processing/in_memory_telemetry_buffer.dart';
-import 'package:sentry/src/telemetry/processing/telemetry_buffer_config.dart';
+import 'package:sentry/src/telemetry/processing/in_memory_buffer.dart';
+import 'package:sentry/src/telemetry/processing/buffer_config.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import '../span/sentry_span_v2.dart';
-import 'telemetry_buffer.dart';
+import 'buffer.dart';
 
 /// Manages buffering and sending of telemetry data to Sentry.
 abstract class TelemetryProcessor {

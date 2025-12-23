@@ -4,8 +4,8 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import '../span/sentry_span_v2.dart';
-import 'in_memory_telemetry_buffer.dart';
-import 'telemetry_processor.dart';
+import 'in_memory_buffer.dart';
+import 'processor.dart';
 
 class DefaultTelemetryProcessorIntegration extends Integration<SentryOptions> {
   static const integrationName = 'DefaultTelemetryProcessor';
