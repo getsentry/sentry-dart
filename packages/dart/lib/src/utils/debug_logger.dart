@@ -47,54 +47,43 @@ class SentryDebugLogger {
 
   void debug(
     String message, {
-    String? category,
     Object? error,
     StackTrace? stackTrace,
   }) =>
-      _log(SentryLevel.debug, message,
-          category: category, error: error, stackTrace: stackTrace);
+      _log(SentryLevel.debug, message, error: error, stackTrace: stackTrace);
 
   void info(
     String message, {
-    String? category,
     Object? error,
     StackTrace? stackTrace,
   }) =>
-      _log(SentryLevel.info, message,
-          category: category, error: error, stackTrace: stackTrace);
+      _log(SentryLevel.info, message, error: error, stackTrace: stackTrace);
 
   void warning(
     String message, {
-    String? category,
     Object? error,
     StackTrace? stackTrace,
   }) =>
-      _log(SentryLevel.warning, message,
-          category: category, error: error, stackTrace: stackTrace);
+      _log(SentryLevel.warning, message, error: error, stackTrace: stackTrace);
 
   void error(
     String message, {
-    String? category,
     Object? error,
     StackTrace? stackTrace,
   }) =>
-      _log(SentryLevel.error, message,
-          category: category, error: error, stackTrace: stackTrace);
+      _log(SentryLevel.error, message, error: error, stackTrace: stackTrace);
 
   void fatal(
     String message, {
-    String? category,
     Object? error,
     StackTrace? stackTrace,
   }) =>
-      _log(SentryLevel.fatal, message,
-          category: category, error: error, stackTrace: stackTrace);
+      _log(SentryLevel.fatal, message, error: error, stackTrace: stackTrace);
 
   @pragma('vm:prefer-inline')
   void _log(
     SentryLevel level,
     String message, {
-    String? category,
     Object? error,
     StackTrace? stackTrace,
   }) {
