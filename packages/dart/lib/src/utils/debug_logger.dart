@@ -17,7 +17,7 @@ import '../../sentry.dart';
 /// ```dart
 /// const debugLogger = SentryDebugLogger('sentry.flutter');
 ///
-/// sentryDebugLogger.warning('My Message')
+/// debugLogger.warning('My Message')
 ///```
 @internal
 class SentryDebugLogger {
