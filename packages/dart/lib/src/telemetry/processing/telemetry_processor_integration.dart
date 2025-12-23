@@ -12,7 +12,8 @@ class DefaultTelemetryProcessorIntegration extends Integration<SentryOptions> {
 
   @visibleForTesting
   final GroupKeyExtractor<RecordingSentrySpanV2> spanGroupKeyExtractor =
-      (RecordingSentrySpanV2 item) => '${item.traceId}-${item.spanId}';
+      (RecordingSentrySpanV2 item) =>
+          '${item.traceId}-${item.segmentSpan.spanId}';
 
   @override
   void call(Hub hub, SentryOptions options) {
