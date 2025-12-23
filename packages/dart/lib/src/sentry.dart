@@ -86,8 +86,6 @@ class Sentry {
 
     await _init(sentryOptions, appRunner, callAppRunnerInRunZonedGuarded,
         runZonedGuardedOnError);
-
-    debugLogger.warning('servas');
   }
 
   static Future<void> _initDefaultValues(SentryOptions options) async {
