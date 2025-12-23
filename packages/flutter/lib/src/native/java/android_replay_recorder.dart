@@ -105,13 +105,15 @@ class _AndroidReplayHandler extends WorkerHandler {
 
   @override
   FutureOr<void> onMessage(Object? message) {
-    debugLogger.warning('Unexpected fire-and-forget message: $message');
+    debugLogger.warning(
+        '${_config.debugName}: Unexpected fire-and-forget message: $message');
   }
 
   @override
   FutureOr<Object?> onRequest(Object? payload) {
     if (payload is! _WorkItem) {
-      debugLogger.warning('Unexpected payload type: $payload');
+      debugLogger
+          .warning('${_config.debugName}: Unexpected payload type: $payload');
       return null;
     }
 
