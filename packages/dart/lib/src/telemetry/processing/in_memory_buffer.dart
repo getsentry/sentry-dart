@@ -12,15 +12,15 @@ typedef GroupKeyExtractor<T> = String Function(T item);
 
 abstract base class _BaseInMemoryTelemetryBuffer<T, S>
     extends TelemetryBuffer<T> {
-  S _storage;
-  int _bufferSize = 0;
-  int _itemCount = 0;
-  Timer? _flushTimer;
-
   final TelemetryBufferConfig _config;
   final SdkLogCallback _logger;
   final ItemEncoder<T> _encoder;
   final OnFlushCallback<S> _onFlush;
+
+  S _storage;
+  int _bufferSize = 0;
+  int _itemCount = 0;
+  Timer? _flushTimer;
 
   _BaseInMemoryTelemetryBuffer({
     required SdkLogCallback logger,
