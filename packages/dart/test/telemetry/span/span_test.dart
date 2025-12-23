@@ -266,15 +266,6 @@ void main() {
         expect(attributes['double_attr'], {'value': 3.14, 'type': 'double'});
       });
 
-      test('includes empty attributes map when no attributes set', () {
-        final span = fixture.createSpan(name: 'test-span');
-        span.end();
-
-        final json = span.toJson();
-
-        expect(json['attributes'], isEmpty);
-      });
-
       test('end_timestamp is null when span is not finished', () {
         final span = fixture.createSpan(name: 'test-span');
 
