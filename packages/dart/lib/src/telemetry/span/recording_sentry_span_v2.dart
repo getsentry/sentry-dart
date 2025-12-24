@@ -3,15 +3,15 @@ part of 'sentry_span_v2.dart';
 typedef OnSpanEndCallback = void Function(RecordingSentrySpanV2 span);
 
 final class RecordingSentrySpanV2 implements SentrySpanV2 {
-  final SpanId _spanId;
+  final SpanId _spanId = SpanId.newId();
   final RecordingSentrySpanV2? _parentSpan;
   final ClockProvider _clock;
   final OnSpanEndCallback _onSpanEnd;
   final SdkLogCallback _log;
   final DateTime _startTimestamp;
   final SentryId _traceId;
+  final RecordingSentrySpanV2? _segmentSpan;
   final Map<String, SentryAttribute> _attributes = {};
-  late final RecordingSentrySpanV2 _segmentSpan;
 
   // Mutable span state.
   SentrySpanStatusV2 _status = SentrySpanStatusV2.ok;
@@ -20,22 +20,19 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
 
   RecordingSentrySpanV2({
     required SentryId traceId,
-    required SpanId spanId,
     required String name,
     required OnSpanEndCallback onSpanEnd,
     required SdkLogCallback log,
     required ClockProvider clock,
     required RecordingSentrySpanV2? parentSpan,
   })  : _traceId = parentSpan?.traceId ?? traceId,
-        _spanId = spanId,
         _name = name,
         _parentSpan = parentSpan,
         _clock = clock,
         _onSpanEnd = onSpanEnd,
         _log = log,
-        _startTimestamp = clock() {
-    _segmentSpan = parentSpan?.segmentSpan ?? this;
-  }
+        _startTimestamp = clock(),
+        _segmentSpan = parentSpan?.segmentSpan;
 
   @override
   SentryId get traceId => _traceId;
@@ -71,7 +68,11 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
     _log(SentryLevel.debug, 'Span ended with endTimestamp: $_endTimestamp');
   }
 
-  RecordingSentrySpanV2 get segmentSpan => _segmentSpan;
+  /// The segment span for this span.
+  ///
+  /// The segment span is the root of the span tree.
+  /// Returns `null` if this span is the segment span.
+  RecordingSentrySpanV2? get segmentSpan => _segmentSpan;
 
   @override
   bool get isEnded => _endTimestamp != null;

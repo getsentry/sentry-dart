@@ -993,7 +993,6 @@ class Fixture {
   RecordingSentrySpanV2 createSpan({String name = 'test-span'}) {
     return RecordingSentrySpanV2(
       name: name,
-      spanId: SpanId.newId(),
       traceId: SentryId.newId(),
       onSpanEnd: (_) {},
       log: options.log,

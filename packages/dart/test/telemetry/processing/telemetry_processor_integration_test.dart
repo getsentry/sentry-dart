@@ -150,7 +150,6 @@ class _Fixture {
   RecordingSentrySpanV2 createSpan() {
     return RecordingSentrySpanV2(
       name: 'test-span',
-      spanId: SpanId.newId(),
       traceId: SentryId.newId(),
       onSpanEnd: (_) {},
       log: options.log,

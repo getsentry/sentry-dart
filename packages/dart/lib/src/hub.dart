@@ -611,7 +611,6 @@ class Hub {
 
     final span = RecordingSentrySpanV2(
         traceId: scope.propagationContext.traceId,
-        spanId: SpanId.newId(),
         name: name,
         parentSpan: resolvedParentSpan,
         log: options.log,
