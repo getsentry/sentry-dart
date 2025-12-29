@@ -45,8 +45,9 @@ class AndroidEnvelopeSender {
   /// Fire-and-forget send of envelope bytes to the worker.
   void captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    final client = _worker;
     if (_isClosed) return;
+
+    final client = _worker;
     if (client != null) {
       client.send((
         TransferableTypedData.fromList([envelopeData]),
