@@ -34,7 +34,13 @@ class AndroidEnvelopeSender {
   FutureOr<void> start() async {
     if (_isClosed) return;
     if (_worker != null) return;
-    _worker = await _spawn(_config, _entryPoint);
+    final worker = await _spawn(_config, _entryPoint);
+    // Guard against close() being called during spawn.
+    if (_isClosed) {
+      worker.close();
+      return;
+    }
+    _worker = worker;
   }
 
   FutureOr<void> close() {
