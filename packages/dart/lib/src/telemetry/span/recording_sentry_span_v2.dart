@@ -71,7 +71,6 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
   /// The segment span for this span.
   ///
   /// The segment span is the root of the span tree.
-  /// Returns `null` if this span is the segment span.
   RecordingSentrySpanV2 get segmentSpan => _segmentSpan ?? this;
 
   @override
