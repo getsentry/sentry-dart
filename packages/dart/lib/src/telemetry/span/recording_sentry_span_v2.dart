@@ -32,7 +32,7 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
         _onSpanEnd = onSpanEnd,
         _log = log,
         _startTimestamp = clock(),
-        _segmentSpan = parentSpan?.segmentSpan;
+        _segmentSpan = parentSpan?.segmentSpan ?? parentSpan;
 
   @override
   SentryId get traceId => _traceId;
