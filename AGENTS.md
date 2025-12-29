@@ -7,59 +7,56 @@ This repository contains the Sentry Dart/Flutter SDK and integrations with third
 
 ## Project Structure
 
-| Directory / File                   | Description                                       |
-| ---------------------------------- | ------------------------------------------------- |
-| **packages/**                      | SDK packages (Melos monorepo)                     |
-| `packages/dart/`                   | Core Sentry Dart SDK                              |
-| `packages/flutter/`                | Sentry Flutter SDK (includes native integrations) |
-| `packages/dio/`                    | Dio HTTP client integration                       |
-| `packages/drift/`                  | Drift database integration                        |
-| `packages/file/`                   | File I/O integration                              |
-| `packages/hive/`                   | Hive database integration                         |
-| `packages/isar/`                   | Isar database integration                         |
-| `packages/sqflite/`                | SQLite integration                                |
-| `packages/logging/`                | Dart logging package integration                  |
-| `packages/supabase/`               | Supabase integration                              |
-| `packages/firebase_remote_config/` | Firebase Remote Config integration                |
-| `packages/link/`                   | Deep linking integration                          |
-| **docs/**                          | Documentation and release checklists              |
-| **e2e_test/**                      | End-to-end test suite                             |
-| **min_version_test/**              | Minimum SDK version compatibility tests           |
-| **metrics/**                       | Size and performance metrics tooling              |
-| **scripts/**                       | Build, release, and utility scripts               |
-| **melos.yaml**                     | Melos monorepo configuration                      |
+- `packages/` - SDK packages (Melos monorepo)
+- `packages/dart/` - Core Sentry Dart SDK
+- `packages/flutter/` - Sentry Flutter SDK (includes native integrations)
+- `packages/dio/` - Dio HTTP client integration
+- `packages/drift/` - Drift database integration
+- `packages/file/` - File I/O integration
+- `packages/hive/` - Hive database integration
+- `packages/isar/` - Isar database integration
+- `packages/sqflite/` - SQLite integration
+- `packages/logging/` - Dart logging package integration
+- `packages/supabase/` - Supabase integration
+- `packages/firebase_remote_config/` - Firebase Remote Config integration
+- `packages/link/` - Deep linking integration
+- `docs/` - Documentation and release checklists
+- `e2e_test/` - End-to-end test suite
+- `min_version_test/` - Minimum SDK version compatibility tests
+- `metrics/` - Size and performance metrics tooling
+- `scripts/` - Build, release, and utility scripts
+- `melos.yaml` - Melos monorepo configuration
 
 ## Environment
 
+- Flutter Version: `3.24.0`
+- Dart Version: `3.5.0`
+
 Check if FVM is available via `which fvm` and prefer it over direct commands:
 
-| Preferred Command | Fallback  |
-| ----------------- | --------- |
-| `fvm dart`        | `dart`    |
-| `fvm flutter`     | `flutter` |
+- `fvm dart` - preferred command, fallback to `dart`
+- `fvm flutter` - preferred command, fallback to `flutter`
 
-- **Dart-only**: No `flutter:` constraint in `environment:` section (e.g., `sentry`, `sentry_dio`)
-- **Flutter**: Has `flutter:` constraint in `environment:` section (e.g., `sentry_flutter`, `sentry_sqflite`)
+Package type detection:
+
+- **Dart-only** - no `flutter:` constraint in `environment:` section (e.g., `sentry`, `sentry_dio`)
+- **Flutter** - has `flutter:` constraint in `environment:` section (e.g., `sentry_flutter`, `sentry_sqflite`)
 
 ### Testing
 
 Check the package's `pubspec.yaml` to determine if it's a Dart-only or Flutter package:
 
-| Package Type     | Command                        |
-| ---------------- | ------------------------------ |
-| Dart packages    | `(fvm) dart test`              |
-| Flutter packages | `(fvm) flutter test`           |
-| Web tests        | `(fvm) flutter test -d chrome` |
+- Dart packages - run `(fvm) dart test`
+- Flutter packages - run `(fvm) flutter test`
+- Web tests - run `(fvm) flutter test -d chrome`
 
 Run tests from within the package directory (e.g., `packages/dart/` or `packages/flutter/`).
 
 ### Formatting & Analysis
 
-| Task                     | Command                        |
-| ------------------------ | ------------------------------ |
-| Format code              | `(fvm) dart format <path>`     |
-| Analyze Dart packages    | `(fvm) dart analyze <path>`    |
-| Analyze Flutter packages | `(fvm) flutter analyze <path>` |
+- Format code - run `(fvm) dart format <path>`
+- Analyze Dart packages - run `(fvm) dart analyze <path>`
+- Analyze Flutter packages - run `(fvm) flutter analyze <path>`
 
 ## Test Code Design
 
@@ -69,21 +66,21 @@ Run tests from within the package directory (e.g., `packages/dart/` or `packages
 
 **Rule:** Nested `group()` + `test()` names must read as a sentence when concatenated.
 
-```
-[Subject] [Context] [Variant] [Behavior]
-  noun      prep       condition     verb
-```
+Pattern: `[Subject] [Context] [Variant] [Behavior]`
+
+- Subject = noun (e.g., `Client`)
+- Context = preposition phrase (e.g., `when connected`)
+- Variant = condition (e.g., `with valid input`)
+- Behavior = verb phrase (e.g., `sends message`)
 
 ---
 
 ### Naming by Depth
 
-| Level   | Use      | Style                  | Examples           |
-| ------- | -------- | ---------------------- | ------------------ |
-| Group 1 | Subject  | Noun                   | `Client`           |
-| Group 2 | Context  | `when / in / during`   | `when connected`   |
-| Group 3 | Variant  | `with / given / using` | `with valid input` |
-| Test    | Behavior | Verb phrase            | `sends message`    |
+- Group 1 (Subject) - use Noun style - example: `Client`
+- Group 2 (Context) - use `when / in / during` style - example: `when connected`
+- Group 3 (Variant) - use `with / given / using` style - example: `with valid input`
+- Test (Behavior) - use Verb phrase style - example: `sends message`
 
 ---
 
@@ -117,12 +114,10 @@ group('Hub', () {
 
 Use clear verb phrases that indicate the absence of behavior or expected failures:
 
-| Pattern                  | Use Case                          | Example                     |
-| ------------------------ | --------------------------------- | --------------------------- |
-| `does not <verb>`        | Behavior is intentionally skipped | `does not send event`       |
-| `throws <ExceptionType>` | Expected exception                | `throws ArgumentError`      |
-| `returns null`           | Null result expected              | `returns null when missing` |
-| `ignores <thing>`        | Input is deliberately ignored     | `ignores empty breadcrumbs` |
+- `does not <verb>` - when behavior is intentionally skipped - example: `does not send event`
+- `throws <ExceptionType>` - when expecting an exception - example: `throws ArgumentError`
+- `returns null` - when null result is expected - example: `returns null when missing`
+- `ignores <thing>` - when input is deliberately ignored - example: `ignores empty breadcrumbs`
 
 ```dart
 group('Client', () {
@@ -154,18 +149,6 @@ group('Client', () {
 ### One-Line Check
 
 **If it doesn't read like a sentence, rename the groups.**
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│ group('<Subject>')                          // WHO - noun           │
-│   group('<when/in/during Context>')         // WHEN/WHERE - prep    │
-│     group('<with/given/for Variant>')       // WITH WHAT - condition│
-│       test('<verb phrase>')                 // DOES WHAT - action   │
-│                                                                     │
-│ Result: Subject Context Variant verb-phrase                        │
-│ Example: "Client when connected with valid token sends message"    │
-└─────────────────────────────────────────────────────────────────────┘
-```
 
 ```dart
 // Subject → Behavior (1 group)
@@ -235,6 +218,18 @@ test/
 ## Dart Code Design
 
 > **Note:** Existing code may not follow these conventions. New and modified tests should adhere to these guidelines.
+
+Prefer modern Dart language features supported by the Dart version specified above when they improve clarity, reduce boilerplate, and do not compromise readability. Examples include:
+
+- **Sealed Classes** - Exhaustive pattern matching with restricted hierarchies
+- **Extension Types** - Zero-cost wrappers around existing types
+- **Records** - Lightweight multi-value returns: `(String, int)` or `({String name, int age})`
+- **Pattern Matching** - Destructuring in `switch`, `if-case`, variable declarations
+- **Switch Expressions** - Expression-based switches returning values
+- **Class Modifiers** - `final`, `base`, `interface`, `mixin` class modifiers
+- **Enhanced Enums** - Enums with fields, constructors, and methods
+- **If-Case Expressions** - Pattern matching in if statements
+- **Null-Aware Elements** - `?maybeNull` in collection literals
 
 Apply these guidelines when writing or reviewing code:
 
