@@ -14,7 +14,6 @@ class AndroidEnvelopeSender {
   final SentryFlutterOptions _options;
   final WorkerConfig _config;
   final SpawnWorkerFn _spawn;
-  final List<(Uint8List, bool)> _pendingEnvelopes = [];
 
   Worker? _worker;
 
@@ -34,16 +33,6 @@ class AndroidEnvelopeSender {
   FutureOr<void> start() async {
     if (_worker != null) return;
     _worker = await _spawn(_config, _entryPoint);
-
-    if (_pendingEnvelopes.isNotEmpty) {
-      // The worker is now ready - we can flush the pending envelopes.
-      for (final envelope in _pendingEnvelopes) {
-        captureEnvelope(envelope.$1, envelope.$2);
-      }
-      _pendingEnvelopes.clear();
-
-      _options.log(SentryLevel.info, 'Flushed pending envelopes');
-    }
   }
 
   FutureOr<void> close() {
@@ -55,18 +44,19 @@ class AndroidEnvelopeSender {
   void captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
     final client = _worker;
-    if (client == null) {
+    if (client != null) {
+      client.send((
+        TransferableTypedData.fromList([envelopeData]),
+        containsUnhandledException
+      ));
+    } else {
       _options.log(
         SentryLevel.info,
-        'captureEnvelope called before worker started: buffering envelope',
+        'captureEnvelope called before worker started: sending envelope in main isolate instead',
       );
-      _pendingEnvelopes.add((envelopeData, containsUnhandledException));
-      return;
+      _captureEnvelope(envelopeData, containsUnhandledException,
+          automatedTestMode: _config.automatedTestMode);
     }
-    client.send((
-      TransferableTypedData.fromList([envelopeData]),
-      containsUnhandledException
-    ));
   }
 
   static void _entryPoint((SendPort, WorkerConfig) init) {
@@ -85,34 +75,35 @@ class _AndroidEnvelopeHandler extends WorkerHandler {
     if (msg is (TransferableTypedData, bool)) {
       final (transferable, containsUnhandledException) = msg;
       final data = transferable.materialize().asUint8List();
-      _captureEnvelope(data, containsUnhandledException);
+      _captureEnvelope(data, containsUnhandledException,
+          automatedTestMode: _config.automatedTestMode);
     } else {
       IsolateLogger.log(SentryLevel.warning, 'Unexpected message type: $msg');
     }
   }
+}
 
-  void _captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
-    JObject? id;
-    JByteArray? byteArray;
-    try {
-      byteArray = JByteArray.from(envelopeData);
-      id = native.InternalSentrySdk.captureEnvelope(
-          byteArray, containsUnhandledException);
+void _captureEnvelope(Uint8List envelopeData, bool containsUnhandledException,
+    {bool automatedTestMode = false}) {
+  JObject? id;
+  JByteArray? byteArray;
+  try {
+    byteArray = JByteArray.from(envelopeData);
+    id = native.InternalSentrySdk.captureEnvelope(
+        byteArray, containsUnhandledException);
 
-      if (id == null) {
-        IsolateLogger.log(SentryLevel.error,
-            'Native Android SDK returned null when capturing envelope');
-      }
-    } catch (exception, stackTrace) {
-      IsolateLogger.log(SentryLevel.error, 'Failed to capture envelope',
-          exception: exception, stackTrace: stackTrace);
-      if (_config.automatedTestMode) {
-        rethrow;
-      }
-    } finally {
-      byteArray?.release();
-      id?.release();
+    if (id == null) {
+      IsolateLogger.log(SentryLevel.error,
+          'Native Android SDK returned null when capturing envelope');
     }
+  } catch (exception, stackTrace) {
+    IsolateLogger.log(SentryLevel.error, 'Failed to capture envelope',
+        exception: exception, stackTrace: stackTrace);
+    if (automatedTestMode) {
+      rethrow;
+    }
+  } finally {
+    byteArray?.release();
+    id?.release();
   }
 }

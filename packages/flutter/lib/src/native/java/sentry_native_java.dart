@@ -24,10 +24,10 @@ class SentryNativeJava extends SentryNativeChannel {
   native.ReplayIntegration? _nativeReplay;
 
   SentryNativeJava(super.options) {
-    // Initialize envelope sender here instead of init() to ensure it starts
-    // in both autoInitializeNativeSdk enabled and disabled cases.
+    // Initialize envelope sender here in the ctor instead of init().
+    // Ensures it starts when autoInitializeNativeSdk is enabled and disabled.
     _envelopeSender = AndroidEnvelopeSender.factory(options);
-    _envelopeSender!.start();
+    _envelopeSender?.start();
   }
 
   @override
