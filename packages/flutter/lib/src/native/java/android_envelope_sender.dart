@@ -14,6 +14,7 @@ class AndroidEnvelopeSender {
   final SentryFlutterOptions _options;
   final WorkerConfig _config;
   final SpawnWorkerFn _spawn;
+  bool _isClosed = false;
 
   Worker? _worker;
 
@@ -38,12 +39,14 @@ class AndroidEnvelopeSender {
   FutureOr<void> close() {
     _worker?.close();
     _worker = null;
+    _isClosed = true;
   }
 
   /// Fire-and-forget send of envelope bytes to the worker.
   void captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
     final client = _worker;
+    if (_isClosed) return;
     if (client != null) {
       client.send((
         TransferableTypedData.fromList([envelopeData]),
@@ -55,7 +58,7 @@ class AndroidEnvelopeSender {
         'captureEnvelope called before worker started: sending envelope in main isolate instead',
       );
       _captureEnvelope(envelopeData, containsUnhandledException,
-          automatedTestMode: _config.automatedTestMode);
+          automatedTestMode: _config.automatedTestMode, logger: _options.log);
     }
   }
 
@@ -76,7 +79,8 @@ class _AndroidEnvelopeHandler extends WorkerHandler {
       final (transferable, containsUnhandledException) = msg;
       final data = transferable.materialize().asUint8List();
       _captureEnvelope(data, containsUnhandledException,
-          automatedTestMode: _config.automatedTestMode);
+          automatedTestMode: _config.automatedTestMode,
+          logger: IsolateLogger.log);
     } else {
       IsolateLogger.log(SentryLevel.warning, 'Unexpected message type: $msg');
     }
@@ -84,7 +88,7 @@ class _AndroidEnvelopeHandler extends WorkerHandler {
 }
 
 void _captureEnvelope(Uint8List envelopeData, bool containsUnhandledException,
-    {bool automatedTestMode = false}) {
+    {bool automatedTestMode = false, required SdkLogCallback logger}) {
   JObject? id;
   JByteArray? byteArray;
   try {
@@ -93,11 +97,11 @@ void _captureEnvelope(Uint8List envelopeData, bool containsUnhandledException,
         byteArray, containsUnhandledException);
 
     if (id == null) {
-      IsolateLogger.log(SentryLevel.error,
+      logger(SentryLevel.error,
           'Native Android SDK returned null when capturing envelope');
     }
   } catch (exception, stackTrace) {
-    IsolateLogger.log(SentryLevel.error, 'Failed to capture envelope',
+    logger(SentryLevel.error, 'Failed to capture envelope',
         exception: exception, stackTrace: stackTrace);
     if (automatedTestMode) {
       rethrow;

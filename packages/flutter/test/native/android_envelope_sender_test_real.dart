@@ -12,7 +12,7 @@ import 'package:sentry_flutter/src/isolate/isolate_worker.dart';
 
 void main() {
   group('AndroidEnvelopeSender host behavior', () {
-    test('buffers envelopes when not started', () {
+    test('sends envelopes in main isolated when not started', () {
       final options = SentryFlutterOptions();
       options.debug = true;
       options.diagnosticLevel = SentryLevel.debug;
@@ -28,7 +28,7 @@ void main() {
         logs.any((e) =>
             e.$1 == SentryLevel.info &&
             e.$2.contains(
-                'captureEnvelope called before worker started: buffering envelope')),
+                'captureEnvelope called before worker started: sending envelope in main isolate instead')),
         isTrue,
       );
     });
@@ -38,30 +38,6 @@ void main() {
       final sender = AndroidEnvelopeSender(options);
       expect(() => sender.close(), returnsNormally);
       expect(() => sender.close(), returnsNormally);
-    });
-
-    test('buffers envelopes after close', () async {
-      final options = SentryFlutterOptions();
-      options.debug = true;
-      options.diagnosticLevel = SentryLevel.debug;
-      final logs = <(SentryLevel, String)>[];
-      options.log = (level, message, {logger, exception, stackTrace}) {
-        logs.add((level, message));
-      };
-
-      final sender = AndroidEnvelopeSender(options);
-      await sender.start();
-      sender.close();
-
-      sender.captureEnvelope(Uint8List.fromList([9]), false);
-
-      expect(
-        logs.any((e) =>
-            e.$1 == SentryLevel.info &&
-            e.$2.contains(
-                'captureEnvelope called before worker started: buffering envelope')),
-        isTrue,
-      );
     });
 
     test('start is a no-op when already started', () async {
@@ -187,45 +163,6 @@ void main() {
       final data2 = t2.materialize().asUint8List();
       expect(data1, [10]);
       expect(data2, [11]);
-
-      sender.close();
-    });
-
-    test('flushes buffered envelopes when worker starts', () async {
-      final options = SentryFlutterOptions();
-      options.debug = true;
-      options.diagnosticLevel = SentryLevel.debug;
-
-      final inboxes = <ReceivePort>[];
-      Future<Worker> fakeSpawn(WorkerConfig config, WorkerEntry entry) async {
-        final inbox = ReceivePort();
-        inboxes.add(inbox);
-        addTearDown(() => inbox.close());
-        final replies = ReceivePort();
-        return Worker(inbox.sendPort, replies);
-      }
-
-      final sender = AndroidEnvelopeSender(options, spawn: fakeSpawn);
-
-      // Capture envelopes BEFORE starting the worker
-      sender.captureEnvelope(Uint8List.fromList([1, 2, 3]), true);
-      sender.captureEnvelope(Uint8List.fromList([4, 5, 6]), false);
-
-      // Now start the worker - buffered envelopes should be flushed
-      await sender.start();
-
-      final inbox = inboxes.last;
-      final msgs = await inbox.take(2).toList();
-
-      expect(msgs.length, 2);
-
-      final (t1, f1) = msgs[0] as (TransferableTypedData, bool);
-      final (t2, f2) = msgs[1] as (TransferableTypedData, bool);
-
-      expect(t1.materialize().asUint8List(), [1, 2, 3]);
-      expect(f1, true);
-      expect(t2.materialize().asUint8List(), [4, 5, 6]);
-      expect(f2, false);
 
       sender.close();
     });
