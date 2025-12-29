@@ -1,0 +1,575 @@
+# Sentry Development Guide for AI Agents
+
+## Overview
+
+Sentry is a developer-first error tracking and performance monitoring platform.
+This repository contains the Sentry Dart/Flutter SDK and integrations with third party libraries.
+
+## Project Structure
+
+| Directory / File                   | Description                                       |
+| ---------------------------------- | ------------------------------------------------- |
+| **packages/**                      | SDK packages (Melos monorepo)                     |
+| `packages/dart/`                   | Core Sentry Dart SDK                              |
+| `packages/flutter/`                | Sentry Flutter SDK (includes native integrations) |
+| `packages/dio/`                    | Dio HTTP client integration                       |
+| `packages/drift/`                  | Drift database integration                        |
+| `packages/file/`                   | File I/O integration                              |
+| `packages/hive/`                   | Hive database integration                         |
+| `packages/isar/`                   | Isar database integration                         |
+| `packages/sqflite/`                | SQLite integration                                |
+| `packages/logging/`                | Dart logging package integration                  |
+| `packages/supabase/`               | Supabase integration                              |
+| `packages/firebase_remote_config/` | Firebase Remote Config integration                |
+| `packages/link/`                   | Deep linking integration                          |
+| **docs/**                          | Documentation and release checklists              |
+| **e2e_test/**                      | End-to-end test suite                             |
+| **min_version_test/**              | Minimum SDK version compatibility tests           |
+| **metrics/**                       | Size and performance metrics tooling              |
+| **scripts/**                       | Build, release, and utility scripts               |
+| **melos.yaml**                     | Melos monorepo configuration                      |
+
+## Environment
+
+Check if FVM is available via ``which fvm` and prefer it over direct commands:
+
+| Preferred Command | Fallback  |
+| ----------------- | --------- |
+| `fvm dart`        | `dart`    |
+| `fvm flutter`     | `flutter` |
+
+- **Dart-only**: No `flutter:` constraint in `environment:` section (e.g., `sentry`, `sentry_dio`)
+- **Flutter**: Has `flutter:` constraint in `environment:` section (e.g., `sentry_flutter`, `sentry_sqflite`)
+
+### Testing
+
+Check the package's `pubspec.yaml` to determine if it's a Dart-only or Flutter package:
+
+| Package Type     | Command                        |
+| ---------------- | ------------------------------ |
+| Dart packages    | `(fvm) dart test`              |
+| Flutter packages | `(fvm) flutter test`           |
+| Web tests        | `(fvm) flutter test -d chrome` |
+
+Run tests from within the package directory (e.g., `packages/dart/` or `packages/flutter/`).
+
+### Formatting & Analysis
+
+| Task                     | Command                        |
+| ------------------------ | ------------------------------ |
+| Format code              | `(fvm) dart format <path>`     |
+| Analyze Dart packages    | `(fvm) dart analyze <path>`    |
+| Analyze Flutter packages | `(fvm) flutter analyze <path>` |
+
+## Test Code Design
+
+### Naming
+
+Favour group and test names that roughly reads like a sentence
+
+Let me check how nested groups are used in the codebase:
+
+[2 tools called]
+
+Now I can see the nested group patterns. Here's what the codebase actually does and how to adapt it for sentence-style:
+
+---
+
+## Nested Groups - Actual Patterns Found
+
+### Pattern 1: Subject → Feature → Variant → Label
+
+```dart
+// From config_test.dart
+group('analysis options', () {
+  group('parsing', () {
+    group('groups', () {
+      test('basic', () { ... });
+    });
+    group('w/o groups', () {
+      test('rule list', () { ... });
+      test('rule map (bools)', () { ... });
+    });
+  });
+});
+```
+
+**Concatenated:** "analysis options parsing groups basic" ❌ (not a sentence)
+
+### Pattern 2: Subject → Action Phrase
+
+```dart
+// From error_processor_test.dart
+group('ErrorProcessor', () {
+  test('does not upgrade other warnings to errors in strong mode', () { ... });
+  test('applies to analyzer warning even if lower case', () { ... });
+});
+```
+
+**Concatenated:** "ErrorProcessor does not upgrade other warnings..." ✅ (reads well)
+
+---
+
+## Recommended Approach for Nested Groups
+
+### Structure by Role
+
+| Depth       | Role            | Naming Style             | Examples                                                    |
+| ----------- | --------------- | ------------------------ | ----------------------------------------------------------- |
+| **Level 1** | Subject         | Noun/Class name          | `'Client'`, `'Transport'`, `'ErrorProcessor'`               |
+| **Level 2** | Context/Feature | Prepositional phrase     | `'when connected'`, `'with configuration'`, `'in library'`  |
+| **Level 3** | Variant         | Noun phrase or condition | `'with valid input'`, `'given empty list'`                  |
+| **Test**    | Behavior        | Verb phrase              | `'sends message'`, `'returns error'`, `'captures envelope'` |
+
+### Examples
+
+```dart
+// 2 levels - Subject → Behavior
+group('Client', () {
+  test('connects to server', () { ... });
+  test('retries on failure', () { ... });
+});
+// Reads: "Client connects to server" ✅
+
+// 3 levels - Subject → Context → Behavior
+group('Client', () {
+  group('when connected', () {
+    test('sends messages', () { ... });
+    test('receives responses', () { ... });
+  });
+  group('when disconnected', () {
+    test('queues messages', () { ... });
+    test('attempts reconnection', () { ... });
+  });
+});
+// Reads: "Client when connected sends messages" ✅
+
+// 4 levels - Subject → Feature → Variant → Behavior
+group('Transport', () {
+  group('message handling', () {
+    group('with valid payload', () {
+      test('parses correctly', () { ... });
+      test('emits event', () { ... });
+    });
+    group('with malformed payload', () {
+      test('logs error', () { ... });
+      test('rejects message', () { ... });
+    });
+  });
+});
+// Reads: "Transport message handling with valid payload parses correctly" ✅
+```
+
+---
+
+## Naming by Depth
+
+```
+Level 1 (Subject):     WHO/WHAT     →  Noun           →  'Client'
+Level 2 (Context):     WHEN/WHERE   →  Preposition    →  'when connected'
+Level 3 (Variant):     WITH WHAT    →  Condition      →  'with valid input'
+Test    (Behavior):    DOES WHAT    →  Verb phrase    →  'sends message'
+```
+
+### Connectors for Each Level
+
+| Level         | Good Connectors                         | Examples                                     |
+| ------------- | --------------------------------------- | -------------------------------------------- |
+| **Context**   | `when`, `while`, `during`, `in`, `from` | `'when initialized'`, `'in production mode'` |
+| **Variant**   | `with`, `given`, `for`, `using`         | `'with empty list'`, `'given null input'`    |
+| **Condition** | `if`, `after`, `before`                 | `'if connection fails'`, `'after timeout'`   |
+
+---
+
+## Sentence Flow Template
+
+```
+[Subject] [Context?] [Variant?] [Behavior]
+    ↓         ↓          ↓          ↓
+  noun    prep+noun  condition    verb
+```
+
+### Full Example
+
+```dart
+group('LibraryImport', () {                           // Subject
+  group('in library file', () {                       // Context
+    group('with hide combinator', () {                // Variant
+      test('filters specified symbols', () { ... });  // Behavior
+      test('reports error for unresolved names', () { ... });
+    });
+    group('with show combinator', () {
+      test('exposes only listed symbols', () { ... });
+    });
+  });
+  group('in part file', () {
+    test('resolves relative to library', () { ... });
+  });
+});
+
+// Reads as:
+// "LibraryImport in library file with hide combinator filters specified symbols"
+// "LibraryImport in library file with show combinator exposes only listed symbols"
+// "LibraryImport in part file resolves relative to library"
+```
+
+---
+
+## Anti-patterns to Avoid
+
+```dart
+// ❌ Labels without connectors (doesn't read as sentence)
+group('options', () {
+  group('parsing', () {
+    group('groups', () {
+      test('basic', () { ... });  // "options parsing groups basic" 🤔
+    });
+  });
+});
+
+// ✅ With connectors (reads as sentence)
+group('Options', () {
+  group('when parsing', () {
+    group('with groups', () {
+      test('extracts all rules', () { ... });  // "Options when parsing with groups extracts all rules" ✅
+    });
+  });
+});
+```
+
+---
+
+## Quick Reference
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ group('<Subject>')                          // WHO - noun           │
+│   group('<when/in/during Context>')         // WHEN/WHERE - prep    │
+│     group('<with/given/for Variant>')       // WITH WHAT - condition│
+│       test('<verb phrase>')                 // DOES WHAT - action   │
+│                                                                     │
+│ Result: Subject Context Variant verb-phrase                        │
+│ Example: "Client when connected with valid token sends message"    │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+```dart
+// Subject → Behavior
+group('TopLevelNames', () {
+  test('extracts all declarations', () { });
+});
+// Reads: "TopLevelNames extracts all declarations"
+
+// Subject → Context → Behavior
+group('Import', () {
+  group('in library', () {
+    test('resolves correctly', () { });
+    test('fails when file missing', () { });
+  });
+});
+// Reads: "Import in library resolves correctly"
+
+// Subject → Context → Variant → Behavior
+group('CommaSeparated', () {
+  group('with And', () {
+    test('for one item returns just that item', () { });
+    test('for three items uses Oxford comma', () { });
+  });
+});
+// Reads: "CommaSeparated with And for three items uses Oxford comma"
+```
+
+| Element    | Style              | Examples                                                              |
+| ---------- | ------------------ | --------------------------------------------------------------------- |
+| Groups     | noun/phrase        | `Hub`, `SentryClient`, `scope`, `captures`, `instantiation`           |
+| Tests      | verb phrase        | `returns scope`, `should configure its scope`, `should capture event` |
+| Conditions | descriptive suffix | `with the default scope`, `when attachStacktrace is false`            |
+
+Reference: `packages/dart/test/hub_test.dart`
+
+### Fixture Pattern
+
+Use a `Fixture` class at the end of test files to encapsulate test setup:
+
+```dart
+class Fixture {
+  final transport = MockTransport();
+  final options = defaultTestOptions();
+
+  SentryClient getSut({bool attachStacktrace = true}) {
+    options.attachStacktrace = attachStacktrace;
+    options.transport = transport;
+    return SentryClient(options);
+  }
+}
+```
+
+- Define `Fixture` at the bottom of each test file
+- Use `getSut()` method to create the System Under Test with configurable options
+- Initialize fixture in `setUp()` for each test group
+
+Reference: `packages/dart/test/sentry_client_test.dart`
+
+### Test Options
+
+Always use `defaultTestOptions()` from `test_utils.dart` to create options:
+
+```dart
+SentryOptions defaultTestOptions() {
+  return SentryOptions(dsn: testDsn)..automatedTestMode = true;
+}
+```
+
+This ensures `automatedTestMode = true` is set, which can catch errors in runtime.
+
+Reference: `packages/dart/test/test_utils.dart`
+
+### Mock Organization
+
+| Location                | Purpose                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------- |
+| `test/mocks.dart`       | Shared fake data generators (`getFakeEvent()`, `getFakeUser()`) and simple mocks |
+| `test/mocks/`           | Individual mock classes (`MockTransport`, `MockHub`, `MockSentryClient`)         |
+| `test/mocks.mocks.dart` | Mockito-generated mocks via `@GenerateMocks` annotation                          |
+
+### Test Structure
+
+Use `group()` to organize related tests and `setUp()` for initialization:
+
+```dart
+void main() {
+  group('SentryClient captures message', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('should capture event stacktrace', () async {
+      final client = fixture.getSut();
+      await client.captureEvent(SentryEvent());
+
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      expect(capturedEnvelope, isNotNull);
+    });
+  });
+}
+```
+
+## Dart Code Design
+
+The repository follows roughly the conventions set by the [Effective Dart](https://dart.dev/effective-dart) guide.
+
+### Identifiers
+
+- [DO name types using `UpperCamelCase`.](https://dart.dev/effective-dart/style#do-name-types-using-uppercamelcase)
+- [DO name extensions using `UpperCamelCase`.](https://dart.dev/effective-dart/style#do-name-extensions-using-uppercamelcase)
+- [DO name packages, directories, and source files using `lowercase_with_underscores`.](https://dart.dev/effective-dart/style#do-name-packages-and-file-system-entities-using-lowercase-with-underscores)
+- [DO name import prefixes using `lowercase_with_underscores`.](https://dart.dev/effective-dart/style#do-name-import-prefixes-using-lowercase_with_underscores)
+- [DO name other identifiers using `lowerCamelCase`.](https://dart.dev/effective-dart/style#do-name-other-identifiers-using-lowercamelcase)
+- [PREFER using `lowerCamelCase` for constant names.](https://dart.dev/effective-dart/style#prefer-using-lowercamelcase-for-constant-names)
+- [DO capitalize acronyms and abbreviations longer than two letters like words.](https://dart.dev/effective-dart/style#do-capitalize-acronyms-and-abbreviations-longer-than-two-letters-like-words)
+- [PREFER using wildcards for unused callback parameters.](https://dart.dev/effective-dart/style#prefer-using-wildcards-for-unused-callback-parameters)
+- [DON'T use a leading underscore for identifiers that aren't private.](https://dart.dev/effective-dart/style#dont-use-a-leading-underscore-for-identifiers-that-arent-private)
+- [DON'T use prefix letters.](https://dart.dev/effective-dart/style#dont-use-prefix-letters)
+- [DON'T explicitly name libraries.](https://dart.dev/effective-dart/style#dont-explicitly-name-libraries)
+
+### Ordering
+
+- [DO place `dart:` imports before other imports.](https://dart.dev/effective-dart/style#do-place-dart-imports-before-other-imports)
+- [DO place `package:` imports before relative imports.](https://dart.dev/effective-dart/style#do-place-package-imports-before-relative-imports)
+- [DO specify exports in a separate section after all imports.](https://dart.dev/effective-dart/style#do-specify-exports-in-a-separate-section-after-all-imports)
+- [DO sort sections alphabetically.](https://dart.dev/effective-dart/style#do-sort-sections-alphabetically)
+
+### Formatting
+
+- [DO format your code using `dart format`.](https://dart.dev/effective-dart/style#do-format-your-code-using-dart-format)
+- [CONSIDER changing your code to make it more formatter-friendly.](https://dart.dev/effective-dart/style#consider-changing-your-code-to-make-it-more-formatter-friendly)
+- [PREFER lines 80 characters or fewer.](https://dart.dev/effective-dart/style#prefer-lines-80-characters-or-fewer)
+- [DO use curly braces for all flow control statements.](https://dart.dev/effective-dart/style#do-use-curly-braces-for-all-flow-control-statements)
+
+### Comments
+
+- [DO format comments like sentences.](https://dart.dev/effective-dart/documentation#do-format-comments-like-sentences)
+- [DON'T use block comments for documentation.](https://dart.dev/effective-dart/documentation#dont-use-block-comments-for-documentation)
+
+### Doc Comments
+
+- [DO use `///` doc comments to document members and types.](https://dart.dev/effective-dart/documentation#do-use-doc-comments-to-document-members-and-types)
+- [PREFER writing doc comments for public APIs.](https://dart.dev/effective-dart/documentation#prefer-writing-doc-comments-for-public-apis)
+- [CONSIDER writing a library-level doc comment.](https://dart.dev/effective-dart/documentation#consider-writing-a-library-level-doc-comment)
+- [CONSIDER writing doc comments for private APIs.](https://dart.dev/effective-dart/documentation#consider-writing-doc-comments-for-private-apis)
+- [DO start doc comments with a single-sentence summary.](https://dart.dev/effective-dart/documentation#do-start-doc-comments-with-a-single-sentence-summary)
+- [DO separate the first sentence of a doc comment into its own paragraph.](https://dart.dev/effective-dart/documentation#do-separate-the-first-sentence-of-a-doc-comment-into-its-own-paragraph)
+- [AVOID redundancy with the surrounding context.](https://dart.dev/effective-dart/documentation#avoid-redundancy-with-the-surrounding-context)
+- [PREFER starting comments of a function or method with third-person verbs if its main purpose is a side effect.](https://dart.dev/effective-dart/documentation#prefer-starting-comments-of-a-function-or-method-with-third-person-verbs-if-its-main-purpose-is-a-side-effect)
+- [PREFER starting a non-boolean variable or property comment with a noun phrase.](https://dart.dev/effective-dart/documentation#prefer-starting-a-non-boolean-variable-or-property-comment-with-a-noun-phrase)
+- [PREFER starting a boolean variable or property comment with "Whether" followed by a noun or gerund phrase.](https://dart.dev/effective-dart/documentation#prefer-starting-a-boolean-variable-or-property-comment-with-whether-followed-by-a-noun-or-gerund-phrase)
+- [PREFER a noun phrase or non-imperative verb phrase for a function or method if returning a value is its primary purpose.](https://dart.dev/effective-dart/documentation#prefer-a-noun-phrase-or-non-imperative-verb-phrase-for-a-function-or-method-if-returning-a-value-is-its-primary-purpose)
+- [DON'T write documentation for both the getter and setter of a property.](https://dart.dev/effective-dart/documentation#dont-write-documentation-for-both-the-getter-and-setter-of-a-property)
+- [PREFER starting library or type comments with noun phrases.](https://dart.dev/effective-dart/documentation#prefer-starting-library-or-type-comments-with-noun-phrases)
+- [CONSIDER including code samples in doc comments.](https://dart.dev/effective-dart/documentation#consider-including-code-samples-in-doc-comments)
+- [DO use square brackets in doc comments to refer to in-scope identifiers.](https://dart.dev/effective-dart/documentation#do-use-square-brackets-in-doc-comments-to-refer-to-in-scope-identifiers)
+- [DO use prose to explain parameters, return values, and exceptions.](https://dart.dev/effective-dart/documentation#do-use-prose-to-explain-parameters-return-values-and-exceptions)
+- [DO put doc comments before metadata annotations.](https://dart.dev/effective-dart/documentation#do-put-doc-comments-before-metadata-annotations)
+
+### Markdown
+
+- [AVOID using markdown excessively.](https://dart.dev/effective-dart/documentation#avoid-using-markdown-excessively)
+- [AVOID using HTML for formatting.](https://dart.dev/effective-dart/documentation#avoid-using-html-for-formatting)
+- [PREFER backtick fences for code blocks.](https://dart.dev/effective-dart/documentation#prefer-backtick-fences-for-code-blocks)
+
+### Writing
+
+- [PREFER brevity.](https://dart.dev/effective-dart/documentation#prefer-brevity)
+- [AVOID abbreviations and acronyms unless they are obvious.](https://dart.dev/effective-dart/documentation#avoid-abbreviations-and-acronyms-unless-they-are-obvious)
+- [PREFER using "this" instead of "the" to refer to a member's instance.](https://dart.dev/effective-dart/documentation#prefer-using-this-instead-of-the-to-refer-to-a-members-instance)
+
+### Libraries
+
+- [DO use strings in `part of` directives.](https://dart.dev/effective-dart/usage#do-use-strings-in-part-of-directives)
+- [DON'T import libraries that are inside the `src` directory of another package.](https://dart.dev/effective-dart/usage#dont-import-libraries-that-are-inside-the-src-directory-of-another-package)
+- [DON'T allow an import path to reach into or out of `lib`.](https://dart.dev/effective-dart/usage#dont-allow-an-import-path-to-reach-into-or-out-of-lib)
+- [PREFER relative import paths.](https://dart.dev/effective-dart/usage#prefer-relative-import-paths)
+
+### Null
+
+- [DON'T explicitly initialize variables to `null`.](https://dart.dev/effective-dart/usage#dont-explicitly-initialize-variables-to-null)
+- [DON'T use an explicit default value of `null`.](https://dart.dev/effective-dart/usage#dont-use-an-explicit-default-value-of-null)
+- [DON'T use `true` or `false` in equality operations.](https://dart.dev/effective-dart/usage#dont-use-true-or-false-in-equality-operations)
+- [AVOID `late` variables if you need to check whether they are initialized.](https://dart.dev/effective-dart/usage#avoid-late-variables-if-you-need-to-check-whether-they-are-initialized)
+- [CONSIDER type promotion or null-check patterns for using nullable types.](https://dart.dev/effective-dart/usage#consider-type-promotion-or-null-check-patterns-for-using-nullable-types)
+
+### Strings
+
+- [DO use adjacent strings to concatenate string literals.](https://dart.dev/effective-dart/usage#do-use-adjacent-strings-to-concatenate-string-literals)
+- [PREFER using interpolation to compose strings and values.](https://dart.dev/effective-dart/usage#prefer-using-interpolation-to-compose-strings-and-values)
+- [AVOID using curly braces in interpolation when not needed.](https://dart.dev/effective-dart/usage#avoid-using-curly-braces-in-interpolation-when-not-needed)
+
+### Collections
+
+- [DO use collection literals when possible.](https://dart.dev/effective-dart/usage#do-use-collection-literals-when-possible)
+- [DON'T use `.length` to see if a collection is empty.](https://dart.dev/effective-dart/usage#dont-use-length-to-see-if-a-collection-is-empty)
+- [AVOID using `Iterable.forEach()` with a function literal.](https://dart.dev/effective-dart/usage#avoid-using-iterable-foreach-with-a-function-literal)
+- [DON'T use `List.from()` unless you intend to change the type of the result.](https://dart.dev/effective-dart/usage#dont-use-list-from-unless-you-intend-to-change-the-type-of-the-result)
+- [DO use `whereType()` to filter a collection by type.](https://dart.dev/effective-dart/usage#do-use-wheretype-to-filter-a-collection-by-type)
+- [DON'T use `cast()` when a nearby operation will do.](https://dart.dev/effective-dart/usage#dont-use-cast-when-a-nearby-operation-will-do)
+- [AVOID using `cast()`.](https://dart.dev/effective-dart/usage#avoid-using-cast)
+
+### Functions
+
+- [DO use a function declaration to bind a function to a name.](https://dart.dev/effective-dart/usage#do-use-a-function-declaration-to-bind-a-function-to-a-name)
+- [DON'T create a lambda when a tear-off will do.](https://dart.dev/effective-dart/usage#dont-create-a-lambda-when-a-tear-off-will-do)
+
+### Variables
+
+- [DO follow a consistent rule for `var` and `final` on local variables.](https://dart.dev/effective-dart/usage#do-follow-a-consistent-rule-for-var-and-final-on-local-variables)
+- [AVOID storing what you can calculate.](https://dart.dev/effective-dart/usage#avoid-storing-what-you-can-calculate)
+
+### Members
+
+- [DON'T wrap a field in a getter and setter unnecessarily.](https://dart.dev/effective-dart/usage#dont-wrap-a-field-in-a-getter-and-setter-unnecessarily)
+- [PREFER using a `final` field to make a read-only property.](https://dart.dev/effective-dart/usage#prefer-using-a-final-field-to-make-a-read-only-property)
+- [CONSIDER using `=>` for simple members.](https://dart.dev/effective-dart/usage#consider-using-for-simple-members)
+- [DON'T use `this.` except to redirect to a named constructor or to avoid shadowing.](https://dart.dev/effective-dart/usage#dont-use-this-when-not-needed-to-avoid-shadowing)
+- [DO initialize fields at their declaration when possible.](https://dart.dev/effective-dart/usage#do-initialize-fields-at-their-declaration-when-possible)
+
+### Constructors
+
+- [DO use initializing formals when possible.](https://dart.dev/effective-dart/usage#do-use-initializing-formals-when-possible)
+- [DON'T use `late` when a constructor initializer list will do.](https://dart.dev/effective-dart/usage#dont-use-late-when-a-constructor-initializer-list-will-do)
+- [DO use `;` instead of `{}` for empty constructor bodies.](https://dart.dev/effective-dart/usage#do-use-instead-of-for-empty-constructor-bodies)
+- [DON'T use `new`.](https://dart.dev/effective-dart/usage#dont-use-new)
+- [DON'T use `const` redundantly.](https://dart.dev/effective-dart/usage#dont-use-const-redundantly)
+- [CONSIDER making your constructor `const` if the class supports it.](https://dart.dev/effective-dart/design#consider-making-your-constructor-const-if-the-class-supports-it)
+
+### Error Handling
+
+- [AVOID catches without `on` clauses.](https://dart.dev/effective-dart/usage#avoid-catches-without-on-clauses)
+- [DON'T discard errors from catches without `on` clauses.](https://dart.dev/effective-dart/usage#dont-discard-errors-from-catches-without-on-clauses)
+- [DO throw objects that implement `Error` only for programmatic errors.](https://dart.dev/effective-dart/usage#do-throw-objects-that-implement-error-only-for-programmatic-errors)
+- [DON'T explicitly catch `Error` or types that implement it.](https://dart.dev/effective-dart/usage#dont-explicitly-catch-error-or-types-that-implement-it)
+- [DO use `rethrow` to rethrow a caught exception.](https://dart.dev/effective-dart/usage#do-use-rethrow-to-rethrow-a-caught-exception)
+
+### Asynchrony
+
+- [PREFER async/await over using raw futures.](https://dart.dev/effective-dart/usage#prefer-asyncawait-over-using-raw-futures)
+- [DON'T use `async` when it has no useful effect.](https://dart.dev/effective-dart/usage#dont-use-async-when-it-has-no-useful-effect)
+- [CONSIDER using higher-order methods to transform a stream.](https://dart.dev/effective-dart/usage#consider-using-higher-order-methods-to-transform-a-stream)
+- [AVOID using Completer directly.](https://dart.dev/effective-dart/usage#avoid-using-completer-directly)
+- [DO test for `Future<T>` when disambiguating a `FutureOr<T>` whose type argument could be `Object`.](https://dart.dev/effective-dart/usage#do-test-for-futuret-when-disambiguating-a-futureort-whose-type-argument-could-be-object)
+
+### Names
+
+- [DO use terms consistently.](https://dart.dev/effective-dart/design#do-use-terms-consistently)
+- [AVOID abbreviations.](https://dart.dev/effective-dart/design#avoid-abbreviations)
+- [PREFER putting the most descriptive noun last.](https://dart.dev/effective-dart/design#prefer-putting-the-most-descriptive-noun-last)
+- [CONSIDER making the code read like a sentence.](https://dart.dev/effective-dart/design#consider-making-the-code-read-like-a-sentence)
+- [PREFER a noun phrase for a non-boolean property or variable.](https://dart.dev/effective-dart/design#prefer-a-noun-phrase-for-a-non-boolean-property-or-variable)
+- [PREFER a non-imperative verb phrase for a boolean property or variable.](https://dart.dev/effective-dart/design#prefer-a-non-imperative-verb-phrase-for-a-boolean-property-or-variable)
+- [CONSIDER omitting the verb for a named boolean _parameter_.](https://dart.dev/effective-dart/design#consider-omitting-the-verb-for-a-named-boolean-parameter)
+- [PREFER the "positive" name for a boolean property or variable.](https://dart.dev/effective-dart/design#prefer-the-positive-name-for-a-boolean-property-or-variable)
+- [PREFER an imperative verb phrase for a function or method whose main purpose is a side effect.](https://dart.dev/effective-dart/design#prefer-an-imperative-verb-phrase-for-a-function-or-method-whose-main-purpose-is-a-side-effect)
+- [PREFER a noun phrase or non-imperative verb phrase for a function or method if returning a value is its primary purpose.](https://dart.dev/effective-dart/design#prefer-a-noun-phrase-or-non-imperative-verb-phrase-for-a-function-or-method-if-returning-a-value-is-its-primary-purpose)
+- [CONSIDER an imperative verb phrase for a function or method if you want to draw attention to the work it performs.](https://dart.dev/effective-dart/design#consider-an-imperative-verb-phrase-for-a-function-or-method-if-you-want-to-draw-attention-to-the-work-it-performs)
+- [AVOID starting a method name with `get`.](https://dart.dev/effective-dart/design#avoid-starting-a-method-name-with-get)
+- [PREFER naming a method `to___()` if it copies the object's state to a new object.](https://dart.dev/effective-dart/design#prefer-naming-a-method-to___-if-it-copies-the-objects-state-to-a-new-object)
+- [PREFER naming a method `as___()` if it returns a different representation backed by the original object.](https://dart.dev/effective-dart/design#prefer-naming-a-method-as___-if-it-returns-a-different-representation-backed-by-the-original-object)
+- [AVOID describing the parameters in the function's or method's name.](https://dart.dev/effective-dart/design#avoid-describing-the-parameters-in-the-functions-or-methods-name)
+- [DO follow existing mnemonic conventions when naming type parameters.](https://dart.dev/effective-dart/design#do-follow-existing-mnemonic-conventions-when-naming-type-parameters)
+
+### Classes and Mixins
+
+- [AVOID defining a one-member abstract class when a simple function will do.](https://dart.dev/effective-dart/design#avoid-defining-a-one-member-abstract-class-when-a-simple-function-will-do)
+- [AVOID defining a class that contains only static members.](https://dart.dev/effective-dart/design#avoid-defining-a-class-that-contains-only-static-members)
+- [AVOID extending a class that isn't intended to be subclassed.](https://dart.dev/effective-dart/design#avoid-extending-a-class-that-isnt-intended-to-be-subclassed)
+- [DO use class modifiers to control if your class can be extended.](https://dart.dev/effective-dart/design#do-use-class-modifiers-to-control-if-your-class-can-be-extended)
+- [AVOID implementing a class that isn't intended to be an interface.](https://dart.dev/effective-dart/design#avoid-implementing-a-class-that-isnt-intended-to-be-an-interface)
+- [DO use class modifiers to control if your class can be an interface.](https://dart.dev/effective-dart/design#do-use-class-modifiers-to-control-if-your-class-can-be-an-interface)
+- [PREFER defining a pure `mixin` or pure `class` to a `mixin class`.](https://dart.dev/effective-dart/design#prefer-defining-a-pure-mixin-or-pure-class-to-a-mixin-class)
+- [PREFER making declarations private.](https://dart.dev/effective-dart/design#prefer-making-declarations-private)
+- [CONSIDER declaring multiple classes in the same library.](https://dart.dev/effective-dart/design#consider-declaring-multiple-classes-in-the-same-library)
+
+### Types
+
+- [DO type annotate variables without initializers.](https://dart.dev/effective-dart/design#do-type-annotate-variables-without-initializers)
+- [DO type annotate fields and top-level variables if the type isn't obvious.](https://dart.dev/effective-dart/design#do-type-annotate-fields-and-top-level-variables-if-the-type-isnt-obvious)
+- [DON'T redundantly type annotate initialized local variables.](https://dart.dev/effective-dart/design#dont-redundantly-type-annotate-initialized-local-variables)
+- [DO annotate return types on function declarations.](https://dart.dev/effective-dart/design#do-annotate-return-types-on-function-declarations)
+- [DO annotate parameter types on function declarations.](https://dart.dev/effective-dart/design#do-annotate-parameter-types-on-function-declarations)
+- [DON'T annotate inferred parameter types on function expressions.](https://dart.dev/effective-dart/design#dont-annotate-inferred-parameter-types-on-function-expressions)
+- [DON'T type annotate initializing formals.](https://dart.dev/effective-dart/design#dont-type-annotate-initializing-formals)
+- [DO write type arguments on generic invocations that aren't inferred.](https://dart.dev/effective-dart/design#do-write-type-arguments-on-generic-invocations-that-arent-inferred)
+- [DON'T write type arguments on generic invocations that are inferred.](https://dart.dev/effective-dart/design#dont-write-type-arguments-on-generic-invocations-that-are-inferred)
+- [AVOID writing incomplete generic types.](https://dart.dev/effective-dart/design#avoid-writing-incomplete-generic-types)
+- [DO annotate with `dynamic` instead of letting inference fail.](https://dart.dev/effective-dart/design#do-annotate-with-dynamic-instead-of-letting-inference-fail)
+- [PREFER signatures in function type annotations.](https://dart.dev/effective-dart/design#prefer-signatures-in-function-type-annotations)
+- [DON'T specify a return type for a setter.](https://dart.dev/effective-dart/design#dont-specify-a-return-type-for-a-setter)
+- [DON'T use the legacy typedef syntax.](https://dart.dev/effective-dart/design#dont-use-the-legacy-typedef-syntax)
+- [PREFER inline function types over typedefs.](https://dart.dev/effective-dart/design#prefer-inline-function-types-over-typedefs)
+- [PREFER using function type syntax for parameters.](https://dart.dev/effective-dart/design#prefer-using-function-type-syntax-for-parameters)
+- [AVOID using `dynamic` unless you want to disable static checking.](https://dart.dev/effective-dart/design#avoid-using-dynamic-unless-you-want-to-disable-static-checking)
+- [DO use `Future<void>` as the return type of asynchronous members that do not produce values.](https://dart.dev/effective-dart/design#do-use-futurevoid-as-the-return-type-of-asynchronous-members-that-do-not-produce-values)
+- [AVOID using `FutureOr<T>` as a return type.](https://dart.dev/effective-dart/design#avoid-using-futureort-as-a-return-type)
+- [PREFER making fields and top-level variables `final`.](https://dart.dev/effective-dart/design#prefer-making-fields-and-top-level-variables-final)
+- [DO use getters for operations that conceptually access properties.](https://dart.dev/effective-dart/design#do-use-getters-for-operations-that-conceptually-access-properties)
+- [DO use setters for operations that conceptually change properties.](https://dart.dev/effective-dart/design#do-use-setters-for-operations-that-conceptually-change-properties)
+- [DON'T define a setter without a corresponding getter.](https://dart.dev/effective-dart/design#dont-define-a-setter-without-a-corresponding-getter)
+- [AVOID using runtime type tests to fake overloading.](https://dart.dev/effective-dart/design#avoid-using-runtime-type-tests-to-fake-overloading)
+- [AVOID public `late final` fields without initializers.](https://dart.dev/effective-dart/design#avoid-public-late-final-fields-without-initializers)
+- [AVOID returning nullable `Future`, `Stream`, and collection types.](https://dart.dev/effective-dart/design#avoid-returning-nullable-future-stream-and-collection-types)
+- [AVOID returning `this` from methods just to enable a fluent interface.](https://dart.dev/effective-dart/design#avoid-returning-this-from-methods-just-to-enable-a-fluent-interface)
+
+### Parameters
+
+- [AVOID positional boolean parameters.](https://dart.dev/effective-dart/design#avoid-positional-boolean-parameters)
+- [AVOID optional positional parameters if the user may want to omit earlier parameters.](https://dart.dev/effective-dart/design#avoid-optional-positional-parameters-if-the-user-may-want-to-omit-earlier-parameters)
+- [AVOID mandatory parameters that accept a special "no argument" value.](https://dart.dev/effective-dart/design#avoid-mandatory-parameters-that-accept-a-special-no-argument-value)
+- [DO use inclusive start and exclusive end parameters to accept a range.](https://dart.dev/effective-dart/design#do-use-inclusive-start-and-exclusive-end-parameters-to-accept-a-range)
+
+### Equality
+
+- [DO override `hashCode` if you override `==`.](https://dart.dev/effective-dart/design#do-override-hashcode-if-you-override)
+- [DO make your `==` operator obey the mathematical rules of equality.](https://dart.dev/effective-dart/design#do-make-your-operator-obey-the-mathematical-rules-of-equality)
+- [AVOID defining custom equality for mutable classes.](https://dart.dev/effective-dart/design#avoid-defining-custom-equality-for-mutable-classes)
+- [DON'T make the parameter to `==` nullable.](https://dart.dev/effective-dart/design#dont-make-the-parameter-to-nullable)
