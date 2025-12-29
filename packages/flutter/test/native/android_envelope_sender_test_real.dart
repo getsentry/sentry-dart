@@ -64,7 +64,7 @@ void main() {
       spawnCount = 0;
 
       await sender.start();
-      expect(spawnCount, 1);
+      expect(spawnCount, 0);
 
       // Close twice should be safe.
       expect(() => sender.close(), returnsNormally);

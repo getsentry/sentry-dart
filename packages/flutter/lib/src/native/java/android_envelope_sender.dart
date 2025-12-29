@@ -32,6 +32,7 @@ class AndroidEnvelopeSender {
       AndroidEnvelopeSender.new;
 
   FutureOr<void> start() async {
+    if (_isClosed) return;
     if (_worker != null) return;
     _worker = await _spawn(_config, _entryPoint);
   }
