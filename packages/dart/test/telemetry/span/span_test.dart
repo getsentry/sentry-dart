@@ -151,7 +151,7 @@ void main() {
     });
 
     group('segmentSpan', () {
-      test('returns itself when parentSpan is null', () {
+      test('returns null when parentSpan is null', () {
         final span = fixture.createSpan(name: 'root-span');
 
         expect(span.segmentSpan, same(span));
