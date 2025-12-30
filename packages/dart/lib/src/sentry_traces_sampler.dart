@@ -19,6 +19,15 @@ class SentryTracesSampler {
     }
   }
 
+  SentryTracesSamplingDecision sampleSpanV2(double sampleRand) {
+    double? optionsRate = _options.tracesSampleRate;
+    if (optionsRate != null) {
+      return _makeSampleDecision(optionsRate, sampleRand);
+    }
+
+    return SentryTracesSamplingDecision(false);
+  }
+
   SentryTracesSamplingDecision sample(
     SentrySamplingContext samplingContext,
     double sampleRand,

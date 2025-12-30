@@ -1,9 +1,12 @@
 import 'package:meta/meta.dart';
 
+import '../sentry.dart';
 import 'protocol/access_aware_map.dart';
 import 'protocol/sentry_id.dart';
 import 'sentry_baggage.dart';
 import 'sentry_options.dart';
+import 'telemetry/span/sentry_span_v2.dart';
+import 'utils/sample_rate_format.dart';
 
 class SentryTraceContextHeader {
   SentryTraceContextHeader(
@@ -112,6 +115,30 @@ class SentryTraceContextHeader {
       release: baggage.get('sentry-release'),
       environment: baggage.get('sentry-environment'),
       replayId: baggage.getReplayId(),
+    );
+  }
+
+  /// Creates a [SentryTraceContextHeader] from a [RecordingSentrySpanV2].
+  ///
+  /// Uses the segment span's name as the transaction name.
+  factory SentryTraceContextHeader.fromRecordingSpan(
+    RecordingSentrySpanV2 span,
+    Hub hub,
+  ) {
+    final sampleRateFormat = SampleRateFormat();
+    String? formatRate(double? value) =>
+        value != null ? sampleRateFormat.format(value) : null;
+
+    return SentryTraceContextHeader(
+      span.traceId,
+      hub.options.parsedDsn.publicKey,
+      release: hub.options.release,
+      environment: hub.options.environment,
+      transaction: span.segmentSpan.name,
+      sampleRate: formatRate(hub.options.tracesSampleRate),
+      sampleRand: hub.scope.propagationContext.sampleRand?.toString(),
+      sampled: hub.scope.propagationContext.sampled?.toString(),
+      replayId: hub.scope.replayId,
     );
   }
 }

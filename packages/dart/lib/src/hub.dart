@@ -592,6 +592,17 @@ class Hub {
       return NoOpSentrySpanV2.instance;
     }
 
+    final propagationContext = scope.propagationContext;
+    final sampleRand = propagationContext.sampleRand ??= Random().nextDouble();
+
+    // TODO(to-be-decided): add support for tracesSampler later
+    final samplingDecision = _tracesSampler.sampleSpanV2(sampleRand);
+    propagationContext.applySamplingDecision(samplingDecision.sampled);
+
+    if (!samplingDecision.sampled) {
+      return NoOpSentrySpanV2.instance;
+    }
+
     // Determine the parent span based on the parentSpan parameter:
     // - If parentSpan is UnsetSpan (default), use the currently active span
     // - If parentSpan is a recording Span, use that as the parent
@@ -615,6 +626,8 @@ class Hub {
         parentSpan: resolvedParentSpan,
         log: options.log,
         clock: options.clock,
+        dscFactory: (span) =>
+            SentryTraceContextHeader.fromRecordingSpan(span, this),
         onSpanEnd: captureSpan);
 
     if (attributes != null) {
@@ -627,13 +640,13 @@ class Hub {
     return span;
   }
 
-  void captureSpan(SentrySpanV2 span) {
+  FutureOr<void> captureSpan(SentrySpanV2 span) {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
         "Instance is disabled and this 'captureSpan' call is a no-op.",
       );
-      return;
+      return null;
     }
 
     switch (span) {
@@ -643,10 +656,11 @@ class Hub {
           "captureSpan: span is in an invalid state $UnsetSentrySpanV2.",
         );
       case NoOpSentrySpanV2():
-        return;
+        return null;
       case RecordingSentrySpanV2 span:
-        scope.removeActiveSpan(span);
-      // TODO(next-pr): run this span through span specific pipeline and then forward to span buffer
+        final item = _peek();
+        item.scope.removeActiveSpan(span);
+        return item.client.captureSpan(span, scope: item.scope);
     }
   }
 

@@ -1,5 +1,9 @@
 part of 'sentry_span_v2.dart';
 
+/// Factory for creating a [SentryTraceContextHeader] from a [RecordingSentrySpanV2].
+typedef TraceContextHeaderFactory = SentryTraceContextHeader Function(
+    RecordingSentrySpanV2 span);
+
 /// Called when a span ends, allowing the span to be processed or buffered.
 typedef OnSpanEndCallback = void Function(RecordingSentrySpanV2 span);
 
@@ -16,12 +20,14 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
   final DateTime _startTimestamp;
   final SentryId _traceId;
   final RecordingSentrySpanV2? _segmentSpan;
+  final TraceContextHeaderFactory _dscFactory;
   final Map<String, SentryAttribute> _attributes = {};
 
   // Mutable span state.
   SentrySpanStatusV2 _status = SentrySpanStatusV2.ok;
   DateTime? _endTimestamp;
   String _name;
+  SentryTraceContextHeader? _frozenDsc;
 
   RecordingSentrySpanV2({
     required SentryId traceId,
@@ -30,6 +36,7 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
     required SdkLogCallback log,
     required ClockProvider clock,
     required RecordingSentrySpanV2? parentSpan,
+    required TraceContextHeaderFactory dscFactory,
   })  : _traceId = parentSpan?.traceId ?? traceId,
         _name = name,
         _parentSpan = parentSpan,
@@ -37,7 +44,8 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
         _onSpanEnd = onSpanEnd,
         _log = log,
         _startTimestamp = clock(),
-        _segmentSpan = parentSpan?.segmentSpan ?? parentSpan;
+        _segmentSpan = parentSpan?.segmentSpan ?? parentSpan,
+        _dscFactory = dscFactory;
 
   @override
   SentryId get traceId => _traceId;
@@ -78,6 +86,13 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
   /// In distributed tracing, each service (Flutter, backend, etc.) has its own
   /// segment. Returns `this` if this span is the segment root.
   RecordingSentrySpanV2 get segmentSpan => _segmentSpan ?? this;
+
+  /// The segment's Dynamic Sampling Context (DSC) header.
+  ///
+  /// Created lazily on first access and frozen for the segment's lifetime.
+  /// All spans in the same segment share this DSC.
+  SentryTraceContextHeader resolveDsc() =>
+      segmentSpan._frozenDsc ??= _dscFactory(segmentSpan);
 
   @override
   bool get isEnded => _endTimestamp != null;
