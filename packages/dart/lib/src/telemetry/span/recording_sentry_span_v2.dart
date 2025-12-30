@@ -1,7 +1,12 @@
 part of 'sentry_span_v2.dart';
 
+/// Called when a span ends, allowing the span to be processed or buffered.
 typedef OnSpanEndCallback = void Function(RecordingSentrySpanV2 span);
 
+/// A span that records timing and attribute data for performance monitoring.
+///
+/// This span captures start/end timestamps, attributes, and status. When
+/// [end] is called, the span is passed to [OnSpanEndCallback] for processing.
 final class RecordingSentrySpanV2 implements SentrySpanV2 {
   final SpanId _spanId = SpanId.newId();
   final RecordingSentrySpanV2? _parentSpan;
@@ -68,9 +73,10 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
     _log(SentryLevel.debug, 'Span ended with endTimestamp: $_endTimestamp');
   }
 
-  /// The segment span for this span.
+  /// The local root span of this trace segment.
   ///
-  /// The segment span is the root of the span tree.
+  /// In distributed tracing, each service (Flutter, backend, etc.) has its own
+  /// segment. Returns `this` if this span is the segment root.
   RecordingSentrySpanV2 get segmentSpan => _segmentSpan ?? this;
 
   @override

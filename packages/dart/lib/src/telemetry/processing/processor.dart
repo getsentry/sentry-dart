@@ -6,27 +6,37 @@ import '../../../sentry.dart';
 import '../span/sentry_span_v2.dart';
 import 'buffer.dart';
 
-/// Manages buffering and sending of telemetry data to Sentry.
+/// Interface for processing and buffering telemetry data before sending.
+///
+/// Implementations collect spans and logs, buffering them until flushed.
+/// This enables batching of telemetry data for efficient transport.
 abstract class TelemetryProcessor {
-  /// Adds a span to the buffer.
+  /// Adds a span to be processed and buffered.
   void addSpan(RecordingSentrySpanV2 span);
 
-  /// Adds a log to the buffer.
+  /// Adds a log to be processed and buffered.
   void addLog(SentryLog log);
 
-  /// Clears all buffers which sends any pending telemetry data.
+  /// Flushes all buffered telemetry data.
+  ///
+  /// Returns a [Future] if any buffer performs async flushing, otherwise
+  /// returns synchronously.
   FutureOr<void> flush();
 }
 
-/// Manages buffering and sending of telemetry data to Sentry.
+/// Default telemetry processor that routes items to type-specific buffers.
+///
+/// Spans and logs are dispatched to their respective [TelemetryBuffer]
+/// instances. If no buffer is registered for a telemetry type, items are
+/// dropped with a warning.
 class DefaultTelemetryProcessor implements TelemetryProcessor {
   final SdkLogCallback _logger;
 
-  /// Buffer for span telemetry data.
+  /// The buffer for span data, or `null` if span buffering is disabled.
   @visibleForTesting
   TelemetryBuffer<RecordingSentrySpanV2>? spanBuffer;
 
-  /// Buffer for log telemetry data.
+  /// The buffer for log data, or `null` if log buffering is disabled.
   @visibleForTesting
   TelemetryBuffer<SentryLog>? logBuffer;
 
@@ -62,7 +72,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
 
   @override
   FutureOr<void> flush() {
-    _logger(SentryLevel.debug, 'TelemetryProcessor: Clearing buffers');
+    _logger(SentryLevel.debug, '$runtimeType: Clearing buffers');
 
     final results = <FutureOr<void>>[
       spanBuffer?.flush(),
