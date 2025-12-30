@@ -1,15 +1,12 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/protocol/noop_span.dart';
-import 'package:sentry/src/protocol/simple_span.dart';
-import 'package:sentry/src/protocol/unset_span.dart';
-import 'package:sentry/src/telemetry_processing/telemetry_processor.dart';
+import 'package:sentry/src/telemetry/processing/processor.dart';
+import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:test/test.dart';
 
-import '../mocks/mock_hub.dart';
-import '../mocks/mock_telemetry_buffer.dart';
-import '../test_utils.dart';
+import '../../mocks/mock_telemetry_buffer.dart';
+import '../../test_utils.dart';
 
 void main() {
   group('DefaultTelemetryProcessor', () {
@@ -21,7 +18,7 @@ void main() {
 
     group('addSpan', () {
       test('routes span to span buffer', () {
-        final mockSpanBuffer = MockTelemetryBuffer<Span>();
+        final mockSpanBuffer = MockTelemetryBuffer<RecordingSentrySpanV2>();
         final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
 
         final span = fixture.createSpan();
@@ -41,26 +38,6 @@ void main() {
         processor.addSpan(span);
 
         // Nothing to assert - just verifying no exception thrown
-      });
-
-      test('NoOpSpan cannot be added to buffer', () {
-        final mockSpanBuffer = MockTelemetryBuffer<Span>();
-        final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
-
-        const noOpSpan = NoOpSpan();
-        processor.addSpan(noOpSpan);
-
-        expect(mockSpanBuffer.addedItems, isEmpty);
-      });
-
-      test('UnsetSpan cannot be added to buffer', () {
-        final mockSpanBuffer = MockTelemetryBuffer<Span>();
-        final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
-
-        const noOpSpan = UnsetSpan();
-        processor.addSpan(noOpSpan);
-
-        expect(mockSpanBuffer.addedItems, isEmpty);
       });
     });
 
@@ -88,7 +65,7 @@ void main() {
 
     group('flush', () {
       test('flushes all registered buffers', () async {
-        final mockSpanBuffer = MockTelemetryBuffer<Span>();
+        final mockSpanBuffer = MockTelemetryBuffer<RecordingSentrySpanV2>();
         final mockLogBuffer = MockTelemetryBuffer<SentryLog>();
         final processor = fixture.getSut(
           enableLogs: true,
@@ -103,7 +80,7 @@ void main() {
       });
 
       test('flushes only span buffer when log buffer is null', () async {
-        final mockSpanBuffer = MockTelemetryBuffer<Span>();
+        final mockSpanBuffer = MockTelemetryBuffer<RecordingSentrySpanV2>();
         final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
         processor.logBuffer = null;
 
@@ -113,7 +90,8 @@ void main() {
       });
 
       test('returns sync (null) when all buffers flush synchronously', () {
-        final mockSpanBuffer = MockTelemetryBuffer<Span>(asyncFlush: false);
+        final mockSpanBuffer =
+            MockTelemetryBuffer<RecordingSentrySpanV2>(asyncFlush: false);
         final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
         processor.logBuffer = null;
 
@@ -124,7 +102,8 @@ void main() {
 
       test('returns Future when at least one buffer flushes asynchronously',
           () async {
-        final mockSpanBuffer = MockTelemetryBuffer<Span>(asyncFlush: true);
+        final mockSpanBuffer =
+            MockTelemetryBuffer<RecordingSentrySpanV2>(asyncFlush: true);
         final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
         processor.logBuffer = null;
 
@@ -138,8 +117,6 @@ void main() {
 }
 
 class Fixture {
-  final hub = MockHub();
-
   late SentryOptions options;
 
   Fixture() {
@@ -148,7 +125,7 @@ class Fixture {
 
   DefaultTelemetryProcessor getSut({
     bool enableLogs = false,
-    MockTelemetryBuffer<Span>? spanBuffer,
+    MockTelemetryBuffer<RecordingSentrySpanV2>? spanBuffer,
     MockTelemetryBuffer<SentryLog>? logBuffer,
   }) {
     options.enableLogs = enableLogs;
@@ -159,13 +136,29 @@ class Fixture {
     );
   }
 
-  SimpleSpan createSpan({String name = 'test-span'}) {
-    return SimpleSpan(name: name, hub: hub);
+  RecordingSentrySpanV2 createSpan({String name = 'test-span'}) {
+    return RecordingSentrySpanV2(
+      name: name,
+      traceId: SentryId.newId(),
+      onSpanEnd: (_) {},
+      log: options.log,
+      clock: options.clock,
+      parentSpan: null,
+    );
   }
 
-  SimpleSpan createChildSpan(
-      {required Span parent, String name = 'child-span'}) {
-    return SimpleSpan(name: name, parentSpan: parent, hub: hub);
+  RecordingSentrySpanV2 createChildSpan({
+    required RecordingSentrySpanV2 parent,
+    String name = 'child-span',
+  }) {
+    return RecordingSentrySpanV2(
+      name: name,
+      traceId: SentryId.newId(),
+      onSpanEnd: (_) {},
+      log: options.log,
+      clock: options.clock,
+      parentSpan: parent,
+    );
   }
 
   SentryLog createLog({String body = 'test log'}) {

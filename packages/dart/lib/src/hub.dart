@@ -7,11 +7,9 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
-import 'protocol/unset_span.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
-import 'protocol/noop_span.dart';
-import 'protocol/simple_span.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 import 'transport/data_category.dart';
 
 /// Configures the scope through the callback.
@@ -576,9 +574,9 @@ class Hub {
     return NoOpSentrySpan();
   }
 
-  Span startSpan(
+  SentrySpanV2 startSpan(
     String name, {
-    Span? parentSpan = const UnsetSpan(),
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) {
@@ -587,26 +585,38 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'startSpan' call is a no-op.",
       );
-      return NoOpSpan();
+      return NoOpSentrySpanV2.instance;
     }
 
     if (!_options.isTracingEnabled()) {
-      return NoOpSpan();
+      return NoOpSentrySpanV2.instance;
     }
 
     // Determine the parent span based on the parentSpan parameter:
     // - If parentSpan is UnsetSpan (default), use the currently active span
-    // - If parentSpan is a specific Span, use that as the parent
+    // - If parentSpan is a recording Span, use that as the parent
     // - If parentSpan is null, create a root/segment span (no parent)
-    final Span? resolvedParentSpan;
-    if (parentSpan is UnsetSpan) {
-      resolvedParentSpan = scope.getActiveSpan();
-    } else {
-      resolvedParentSpan = parentSpan;
+    // - If parentSpan is no-op (e.g., not sampled), return it
+    final RecordingSentrySpanV2? resolvedParentSpan;
+    switch (parentSpan) {
+      case UnsetSentrySpanV2():
+        resolvedParentSpan = scope.getActiveSpan();
+      case RecordingSentrySpanV2 span:
+        resolvedParentSpan = span;
+      case null:
+        resolvedParentSpan = null;
+      case NoOpSentrySpanV2():
+        return NoOpSentrySpanV2.instance;
     }
 
-    final span =
-        SimpleSpan(name: name, parentSpan: resolvedParentSpan, hub: this);
+    final span = RecordingSentrySpanV2(
+        traceId: scope.propagationContext.traceId,
+        name: name,
+        parentSpan: resolvedParentSpan,
+        log: options.log,
+        clock: options.clock,
+        onSpanEnd: captureSpan);
+
     if (attributes != null) {
       span.setAttributes(attributes);
     }
@@ -617,7 +627,7 @@ class Hub {
     return span;
   }
 
-  void captureSpan(Span span) {
+  void captureSpan(SentrySpanV2 span) {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
@@ -626,9 +636,18 @@ class Hub {
       return;
     }
 
-    scope.removeActiveSpan(span);
-
-    // TODO(next-pr): run this span through span specific pipeline and then forward to span buffer
+    switch (span) {
+      case UnsetSentrySpanV2():
+        _options.log(
+          SentryLevel.warning,
+          "captureSpan: span is in an invalid state $UnsetSentrySpanV2.",
+        );
+      case NoOpSentrySpanV2():
+        return;
+      case RecordingSentrySpanV2 span:
+        scope.removeActiveSpan(span);
+      // TODO(next-pr): run this span through span specific pipeline and then forward to span buffer
+    }
   }
 
   @internal
