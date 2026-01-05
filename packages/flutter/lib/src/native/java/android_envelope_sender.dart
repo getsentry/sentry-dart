@@ -14,8 +14,8 @@ class AndroidEnvelopeSender {
   final SentryFlutterOptions _options;
   final WorkerConfig _config;
   final SpawnWorkerFn _spawn;
-  bool _isClosed = false;
 
+  bool _isClosed = false;
   Worker? _worker;
 
   AndroidEnvelopeSender(this._options, {SpawnWorkerFn? spawn})

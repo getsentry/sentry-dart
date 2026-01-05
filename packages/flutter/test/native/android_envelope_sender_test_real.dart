@@ -12,7 +12,7 @@ import 'package:sentry_flutter/src/isolate/isolate_worker.dart';
 
 void main() {
   group('AndroidEnvelopeSender host behavior', () {
-    test('sends envelopes in main isolated when not started', () {
+    test('logs when sending envelopes in main isolate', () {
       final options = SentryFlutterOptions();
       options.debug = true;
       options.diagnosticLevel = SentryLevel.debug;
