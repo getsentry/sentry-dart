@@ -89,11 +89,11 @@ class _AndroidEnvelopeHandler extends WorkerHandler {
           byteArray, containsUnhandledException);
 
       if (id == null) {
-        debugLogger.error(
+        internalLogger.error(
             '${_config.debugName}: native Android SDK returned null when capturing envelope');
       }
     } catch (exception, stackTrace) {
-      debugLogger.error('${_config.debugName}: failed to capture envelope',
+      internalLogger.error('${_config.debugName}: failed to capture envelope',
           error: exception, stackTrace: stackTrace);
       if (_config.automatedTestMode) {
         rethrow;

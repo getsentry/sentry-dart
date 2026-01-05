@@ -3,4 +3,4 @@ import 'package:sentry/sentry.dart';
 
 /// Logger for the Sentry Flutter SDK.
 @internal
-const debugLogger = SentryInternalLogger('sentry_flutter');
+const internalLogger = SentryInternalLogger('sentry_flutter');

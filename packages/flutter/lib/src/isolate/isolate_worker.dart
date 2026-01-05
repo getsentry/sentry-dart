@@ -150,9 +150,9 @@ void runWorker(
 
   inbox.listen((msg) async {
     if (msg == _shutdownCommand) {
-      debugLogger.debug('${config.debugName}: isolate received shutdown');
+      internalLogger.debug('${config.debugName}: isolate received shutdown');
       inbox.close();
-      debugLogger.debug('${config.debugName}: isolate closed');
+      internalLogger.debug('${config.debugName}: isolate closed');
       return;
     }
 
@@ -170,7 +170,7 @@ void runWorker(
     try {
       await handler.onMessage(msg);
     } catch (exception, stackTrace) {
-      debugLogger.error('${config.debugName}: isolate failed to handle message',
+      internalLogger.error('${config.debugName}: isolate failed to handle message',
           error: exception, stackTrace: stackTrace);
     }
   });

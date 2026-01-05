@@ -153,4 +153,4 @@ class SentryInternalLogger {
 
 /// Logger for the Sentry Dart SDK.
 @internal
-const debugLogger = SentryInternalLogger('sentry_dart');
+const internalLogger = SentryInternalLogger('sentry_dart');

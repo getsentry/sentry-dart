@@ -105,7 +105,7 @@ class _AndroidReplayHandler extends WorkerHandler {
 
   @override
   FutureOr<void> onMessage(Object? message) {
-    debugLogger.warning(
+    internalLogger.warning(
         '${_config.debugName}: Unexpected fire-and-forget message: $message');
   }
 
@@ -142,7 +142,7 @@ class _AndroidReplayHandler extends WorkerHandler {
 
       return null;
     } catch (exception, stackTrace) {
-      debugLogger.error('Failed to add replay screenshot',
+      internalLogger.error('Failed to add replay screenshot',
           error: exception, stackTrace: stackTrace);
       if (_config.automatedTestMode) {
         rethrow;

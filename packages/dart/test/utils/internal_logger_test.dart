@@ -108,7 +108,7 @@ void main() {
       });
 
       test('debug logs message with correct level', () {
-        debugLogger.debug('debug message');
+        internalLogger.debug('debug message');
 
         expect(logs, hasLength(1));
         expect(logs.first.level, SentryLevel.debug);
@@ -117,7 +117,7 @@ void main() {
       });
 
       test('info logs message with correct level', () {
-        debugLogger.info('info message');
+        internalLogger.info('info message');
 
         expect(logs, hasLength(1));
         expect(logs.first.level, SentryLevel.info);
@@ -125,7 +125,7 @@ void main() {
       });
 
       test('warning logs message with correct level', () {
-        debugLogger.warning('warning message');
+        internalLogger.warning('warning message');
 
         expect(logs, hasLength(1));
         expect(logs.first.level, SentryLevel.warning);
@@ -133,7 +133,7 @@ void main() {
       });
 
       test('error logs message with correct level', () {
-        debugLogger.error('error message');
+        internalLogger.error('error message');
 
         expect(logs, hasLength(1));
         expect(logs.first.level, SentryLevel.error);
@@ -141,7 +141,7 @@ void main() {
       });
 
       test('fatal logs message with correct level', () {
-        debugLogger.fatal('fatal message');
+        internalLogger.fatal('fatal message');
 
         expect(logs, hasLength(1));
         expect(logs.first.level, SentryLevel.fatal);
@@ -151,7 +151,7 @@ void main() {
       test('includes error object in log entry', () {
         final exception = Exception('test exception');
 
-        debugLogger.error('error occurred', error: exception);
+        internalLogger.error('error occurred', error: exception);
 
         expect(logs, hasLength(1));
         expect(logs.first.error, exception);
@@ -160,7 +160,7 @@ void main() {
       test('includes stackTrace in log entry', () {
         final stackTrace = StackTrace.current;
 
-        debugLogger.error('error occurred', stackTrace: stackTrace);
+        internalLogger.error('error occurred', stackTrace: stackTrace);
 
         expect(logs, hasLength(1));
         expect(logs.first.stackTrace, stackTrace);
@@ -191,7 +191,7 @@ void main() {
         SentryInternalLogger.configure(isEnabled: false);
         var wasCalled = false;
 
-        debugLogger.debug(() {
+        internalLogger.debug(() {
           wasCalled = true;
           return 'expensive message';
         });
@@ -206,7 +206,7 @@ void main() {
         );
         var wasCalled = false;
 
-        debugLogger.debug(() {
+        internalLogger.debug(() {
           wasCalled = true;
           return 'expensive message';
         });
@@ -221,7 +221,7 @@ void main() {
         );
         var wasCalled = false;
 
-        debugLogger.debug(() {
+        internalLogger.debug(() {
           wasCalled = true;
           return 'debug message';
         });
@@ -238,7 +238,7 @@ void main() {
         );
         var wasCalled = false;
 
-        debugLogger.warning(() {
+        internalLogger.warning(() {
           wasCalled = true;
           return 'warning message';
         });
@@ -253,7 +253,7 @@ void main() {
         );
         var wasCalled = false;
 
-        debugLogger.error(() {
+        internalLogger.error(() {
           wasCalled = true;
           return 'error message';
         });
@@ -268,7 +268,7 @@ void main() {
         );
         var wasCalled = false;
 
-        debugLogger.warning(() {
+        internalLogger.warning(() {
           wasCalled = true;
           return 'warning message';
         });
@@ -287,28 +287,28 @@ void main() {
       });
 
       test('converts int to string', () {
-        debugLogger.info(42);
+        internalLogger.info(42);
 
         expect(logs, hasLength(1));
         expect(logs.first.message, '42');
       });
 
       test('converts custom object using toString', () {
-        debugLogger.info(_TestMessage('custom'));
+        internalLogger.info(_TestMessage('custom'));
 
         expect(logs, hasLength(1));
         expect(logs.first.message, 'TestMessage: custom');
       });
 
       test('converts list to string', () {
-        debugLogger.info([1, 2, 3]);
+        internalLogger.info([1, 2, 3]);
 
         expect(logs, hasLength(1));
         expect(logs.first.message, '[1, 2, 3]');
       });
 
       test('evaluates function and converts result', () {
-        debugLogger.info(() => 123);
+        internalLogger.info(() => 123);
 
         expect(logs, hasLength(1));
         expect(logs.first.message, '123');
