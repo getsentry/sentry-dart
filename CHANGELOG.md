@@ -6,6 +6,12 @@
 
 - Android not sending events when `autoInitializedNativeSdk` is disabled ([#3420](https://github.com/getsentry/sentry-dart/pull/3420))
 
+### Dependencies
+
+- Bump Android SDK from v8.28.0 to v8.29.0 ([#3403](https://github.com/getsentry/sentry-dart/pull/3403))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8290)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.28.0...8.29.0)
+
 ## 9.9.1
 
 ### Fixes
