@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../isolate/isolate_worker.dart';
-import '../../utils/debug_logger.dart';
+import '../../utils/internal_logger.dart';
 import 'binding.dart' as native;
 
 class AndroidEnvelopeSender {

@@ -3,6 +3,7 @@ import 'dart:developer' as dev;
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
+import '../runtime_checker.dart';
 
 /// Lightweight isolate compatible diagnostic logger for the Sentry SDK.
 ///
@@ -87,6 +88,8 @@ class SentryDebugLogger {
     Object? error,
     StackTrace? stackTrace,
   }) {
+    // Compile-time constant - method body eliminated in release/profile builds.
+    if (!RuntimeChecker.kDebugMode) return;
     if (!_isEnabled) return;
     if (level.ordinal < _minLevel.ordinal) return;
 
@@ -103,4 +106,4 @@ class SentryDebugLogger {
 
 /// Logger for the Sentry Dart SDK.
 @internal
-const debugLogger = SentryDebugLogger('sentry');
+const debugLogger = SentryDebugLogger('sentry_dart');

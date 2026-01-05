@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 
 import '../../sentry_flutter.dart';
-import '../utils/debug_logger.dart';
+import '../utils/internal_logger.dart';
 
 typedef SpawnWorkerFn = Future<Worker> Function(WorkerConfig, WorkerEntry);
 
@@ -142,7 +142,7 @@ void runWorker(
   WorkerHandler handler,
 ) {
   // ignore: invalid_use_of_internal_member
-  SentryDebugLogger.configure(
+  SentryInternalLogger.configure(
       isEnabled: config.debug, minLevel: config.diagnosticLevel);
 
   final inbox = ReceivePort();

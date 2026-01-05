@@ -13,6 +13,7 @@ import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/noop_transport.dart';
+import 'utils/internal_logger.dart';
 import 'version.dart';
 import 'sentry_log_batcher.dart';
 import 'noop_log_batcher.dart';
@@ -186,7 +187,8 @@ class SentryOptions {
   SentryLevel _diagnosticLevel = _defaultDiagnosticLevel;
 
   void _configureDebugLogger() {
-    SentryDebugLogger.configure(isEnabled: _debug, minLevel: _diagnosticLevel);
+    SentryInternalLogger.configure(
+        isEnabled: _debug, minLevel: _diagnosticLevel);
   }
 
   /// Sentry client name used for the HTTP authHeader and userAgent eg

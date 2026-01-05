@@ -9,7 +9,7 @@ import '../../../sentry_flutter.dart';
 import '../../isolate/isolate_worker.dart';
 import '../../replay/scheduled_recorder.dart';
 import '../../screenshot/screenshot.dart';
-import '../../utils/debug_logger.dart';
+import '../../utils/internal_logger.dart';
 import 'binding.dart' as native;
 
 // Note, this is currently not unit-tested because mocking JNI calls is
