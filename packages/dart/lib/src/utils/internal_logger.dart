@@ -12,23 +12,6 @@ typedef LogOutputFunction = void Function({
   StackTrace? stackTrace,
 });
 
-void _defaultLogOutput({
-  required String name,
-  required SentryLevel level,
-  required String message,
-  Object? error,
-  StackTrace? stackTrace,
-}) {
-  dev.log(
-    '[${level.name}] $message',
-    name: name,
-    level: level.toDartLogLevel(),
-    error: error,
-    stackTrace: stackTrace,
-    time: DateTime.now(),
-  );
-}
-
 /// Lightweight isolate compatible diagnostic logger for the Sentry SDK.
 ///
 /// Logger naming convention:
@@ -78,6 +61,23 @@ class SentryInternalLogger {
     if (logOutput != null) {
       _logOutput = logOutput;
     }
+  }
+
+  static void _defaultLogOutput({
+    required String name,
+    required SentryLevel level,
+    required String message,
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
+    dev.log(
+      '[${level.name}] $message',
+      name: name,
+      level: level.toDartLogLevel(),
+      error: error,
+      stackTrace: stackTrace,
+      time: DateTime.now(),
+    );
   }
 
   static bool _isLoggable(SentryLevel level) {
