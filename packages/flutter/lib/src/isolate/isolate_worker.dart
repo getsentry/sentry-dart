@@ -170,8 +170,10 @@ void runWorker(
     try {
       await handler.onMessage(msg);
     } catch (exception, stackTrace) {
-      internalLogger.error('${config.debugName}: isolate failed to handle message',
-          error: exception, stackTrace: stackTrace);
+      internalLogger.error(
+          '${config.debugName}: isolate failed to handle message',
+          error: exception,
+          stackTrace: stackTrace);
     }
   });
 }
