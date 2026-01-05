@@ -11,17 +11,19 @@ import '../../utils/internal_logger.dart';
 import 'binding.dart' as native;
 
 class AndroidEnvelopeSender {
-  final SentryFlutterOptions _options;
   final WorkerConfig _config;
   final SpawnWorkerFn _spawn;
+
+  bool _isClosed = false;
   Worker? _worker;
 
-  AndroidEnvelopeSender(this._options, {SpawnWorkerFn? spawn})
+  AndroidEnvelopeSender(SentryOptions options, {SpawnWorkerFn? spawn})
       : _config = WorkerConfig(
           debugName: 'SentryAndroidEnvelopeSender',
-          debug: _options.debug,
-          diagnosticLevel: _options.diagnosticLevel,
-          automatedTestMode: _options.automatedTestMode,
+          debug: options.debug,
+          diagnosticLevel: options.diagnosticLevel,
+          // ignore: invalid_use_of_internal_member
+          automatedTestMode: options.automatedTestMode,
         ),
         _spawn = spawn ?? spawnWorker;
 
@@ -30,30 +32,41 @@ class AndroidEnvelopeSender {
       AndroidEnvelopeSender.new;
 
   FutureOr<void> start() async {
+    if (_isClosed) return;
     if (_worker != null) return;
-    _worker = await _spawn(_config, _entryPoint);
+    final worker = await _spawn(_config, _entryPoint);
+    // Guard against close() being called during spawn.
+    if (_isClosed) {
+      worker.close();
+      return;
+    }
+    _worker = worker;
   }
 
   FutureOr<void> close() {
     _worker?.close();
     _worker = null;
+    _isClosed = true;
   }
 
   /// Fire-and-forget send of envelope bytes to the worker.
   void captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
+    if (_isClosed) return;
+
     final client = _worker;
-    if (client == null) {
-      _options.log(
-        SentryLevel.warning,
-        'captureEnvelope called before worker started; dropping',
+    if (client != null) {
+      client.send((
+        TransferableTypedData.fromList([envelopeData]),
+        containsUnhandledException
+      ));
+    } else {
+      internalLogger.info(
+        'captureEnvelope called before worker started: sending envelope in main isolate instead',
       );
-      return;
+      _captureEnvelope(envelopeData, containsUnhandledException,
+          automatedTestMode: _config.automatedTestMode);
     }
-    client.send((
-      TransferableTypedData.fromList([envelopeData]),
-      containsUnhandledException
-    ));
   }
 
   static void _entryPoint((SendPort, WorkerConfig) init) {
@@ -72,35 +85,36 @@ class _AndroidEnvelopeHandler extends WorkerHandler {
     if (msg is (TransferableTypedData, bool)) {
       final (transferable, containsUnhandledException) = msg;
       final data = transferable.materialize().asUint8List();
-      _captureEnvelope(data, containsUnhandledException);
+      _captureEnvelope(data, containsUnhandledException,
+          automatedTestMode: _config.automatedTestMode);
     } else {
       internalLogger
           .warning('${_config.debugName}: unexpected message type: $msg');
     }
   }
+}
 
-  void _captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
-    JObject? id;
-    JByteArray? byteArray;
-    try {
-      byteArray = JByteArray.from(envelopeData);
-      id = native.InternalSentrySdk.captureEnvelope(
-          byteArray, containsUnhandledException);
+void _captureEnvelope(Uint8List envelopeData, bool containsUnhandledException,
+    {bool automatedTestMode = false}) {
+  JObject? id;
+  JByteArray? byteArray;
+  try {
+    byteArray = JByteArray.from(envelopeData);
+    id = native.InternalSentrySdk.captureEnvelope(
+        byteArray, containsUnhandledException);
 
-      if (id == null) {
-        internalLogger.error(
-            '${_config.debugName}: native Android SDK returned null when capturing envelope');
-      }
-    } catch (exception, stackTrace) {
-      internalLogger.error('${_config.debugName}: failed to capture envelope',
-          error: exception, stackTrace: stackTrace);
-      if (_config.automatedTestMode) {
-        rethrow;
-      }
-    } finally {
-      byteArray?.release();
-      id?.release();
+    if (id == null) {
+      internalLogger
+          .error('Native Android SDK returned null when capturing envelope');
     }
+  } catch (exception, stackTrace) {
+    internalLogger.error('Failed to capture envelope',
+        error: exception, stackTrace: stackTrace);
+    if (automatedTestMode) {
+      rethrow;
+    }
+  } finally {
+    byteArray?.release();
+    id?.release();
   }
 }
