@@ -168,10 +168,6 @@ void main() {
     });
 
     group('logger instances', () {
-      test('debugLogger constant is available', () {
-        expect(debugLogger, isA<SentryInternalLogger>());
-      });
-
       test('logs with custom logger name', () {
         const customLogger = SentryInternalLogger('sentry_flutter');
         SentryInternalLogger.configure(

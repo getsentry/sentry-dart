@@ -112,7 +112,7 @@ class _AndroidReplayHandler extends WorkerHandler {
   @override
   FutureOr<Object?> onRequest(Object? payload) {
     if (payload is! _WorkItem) {
-      debugLogger
+      internalLogger
           .warning('${_config.debugName}: Unexpected payload type: $payload');
       return null;
     }

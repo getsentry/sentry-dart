@@ -74,7 +74,7 @@ class _AndroidEnvelopeHandler extends WorkerHandler {
       final data = transferable.materialize().asUint8List();
       _captureEnvelope(data, containsUnhandledException);
     } else {
-      debugLogger
+      internalLogger
           .warning('${_config.debugName}: unexpected message type: $msg');
     }
   }
