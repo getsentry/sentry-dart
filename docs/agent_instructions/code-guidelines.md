@@ -117,7 +117,21 @@ Prefer modern Dart language features (Dart 3.5+) when they improve clarity and r
 - [DO make your `==` operator obey the mathematical rules of equality.](https://dart.dev/effective-dart/design#do-make-your-operator-obey-the-mathematical-rules-of-equality)
 - [AVOID defining custom equality for mutable classes.](https://dart.dev/effective-dart/design#avoid-defining-custom-equality-for-mutable-classes)
 
-### Doc Comments
+### Documentation Comments
+
+Prefer self-documenting code—use clear names and structure so comments become unnecessary.
+
+#### Do Write Comment When
+
+- Public APIs—document for users who can't see the implementation
+- Non-obvious "why" — explain reasoning not clear from code (workarounds, edge cases, constraints)
+
+#### Do Not Write Comment When
+
+- Obvious behavior — don't describe what code clearly does
+- Inline play-by-play — avoid commenting every step in a method
+
+#### Style Rules
 
 - [AVOID redundancy with the surrounding context.](https://dart.dev/effective-dart/documentation#avoid-redundancy-with-the-surrounding-context)
 - [DO use `///` doc comments to document members and types.](https://dart.dev/effective-dart/documentation#do-use-doc-comments-to-document-members-and-types)
