@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../isolate/isolate_worker.dart';
-import '../../isolate/isolate_logger.dart';
+import '../../utils/internal_logger.dart';
 import 'binding.dart' as native;
 
 class AndroidEnvelopeSender {
@@ -90,29 +90,34 @@ class _AndroidEnvelopeHandler extends WorkerHandler {
           automatedTestMode: _config.automatedTestMode,
           logger: IsolateLogger.log);
     } else {
-      IsolateLogger.log(SentryLevel.warning, 'Unexpected message type: $msg');
+      internalLogger
+          .warning('${_config.debugName}: unexpected message type: $msg');
     }
   }
 }
 
-void _captureEnvelope(Uint8List envelopeData, bool containsUnhandledException,
-    {bool automatedTestMode = false, required SdkLogCallback logger}) {
-  JObject? id;
-  JByteArray? byteArray;
-  try {
-    byteArray = JByteArray.from(envelopeData);
-    id = native.InternalSentrySdk.captureEnvelope(
-        byteArray, containsUnhandledException);
+  void _captureEnvelope(
+      Uint8List envelopeData, bool containsUnhandledException) {
+    JObject? id;
+    JByteArray? byteArray;
+    try {
+      byteArray = JByteArray.from(envelopeData);
+      id = native.InternalSentrySdk.captureEnvelope(
+          byteArray, containsUnhandledException);
 
-    if (id == null) {
-      logger(SentryLevel.error,
-          'Native Android SDK returned null when capturing envelope');
-    }
-  } catch (exception, stackTrace) {
-    logger(SentryLevel.error, 'Failed to capture envelope',
-        exception: exception, stackTrace: stackTrace);
-    if (automatedTestMode) {
-      rethrow;
+      if (id == null) {
+        internalLogger.error(
+            '${_config.debugName}: native Android SDK returned null when capturing envelope');
+      }
+    } catch (exception, stackTrace) {
+      internalLogger.error('${_config.debugName}: failed to capture envelope',
+          error: exception, stackTrace: stackTrace);
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
+    } finally {
+      byteArray?.release();
+      id?.release();
     }
   } finally {
     byteArray?.release();
