@@ -162,7 +162,7 @@ class SentryOptions {
 
   set debug(bool newValue) {
     _debug = newValue;
-    _configureDebugLogger();
+    _configureInternalLogger();
     if (_debug == true &&
         (log == noOpLog || diagnosticLog?.logger == noOpLog)) {
       log = debugLog;
@@ -180,12 +180,12 @@ class SentryOptions {
 
   set diagnosticLevel(SentryLevel newValue) {
     _diagnosticLevel = newValue;
-    _configureDebugLogger();
+    _configureInternalLogger();
   }
 
   SentryLevel _diagnosticLevel = _defaultDiagnosticLevel;
 
-  void _configureDebugLogger() {
+  void _configureInternalLogger() {
     SentryInternalLogger.configure(
         isEnabled: _debug, minLevel: _diagnosticLevel);
   }
