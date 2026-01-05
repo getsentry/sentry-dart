@@ -14,12 +14,20 @@ void main() {
   group('AndroidEnvelopeSender host behavior', () {
     test('logs when sending envelopes in main isolate', () {
       final options = SentryFlutterOptions();
-      options.debug = true;
-      options.diagnosticLevel = SentryLevel.debug;
       final logs = <(SentryLevel, String)>[];
-      options.log = (level, message, {logger, exception, stackTrace}) {
-        logs.add((level, message));
-      };
+      SentryInternalLogger.configure(
+        isEnabled: true,
+        minLevel: SentryLevel.debug,
+        logOutput: ({
+          required String name,
+          required SentryLevel level,
+          required String message,
+          Object? error,
+          StackTrace? stackTrace,
+        }) {
+          logs.add((level, message.toString()));
+        },
+      );
 
       final sender = AndroidEnvelopeSender(options);
       sender.captureEnvelope(Uint8List.fromList([1, 2, 3]), false);
