@@ -135,7 +135,7 @@ class SentryTraceContextHeader {
       release: hub.options.release,
       environment: hub.options.environment,
       transaction: span.segmentSpan.name,
-      sampleRate: formatRate(hub.options.tracesSampleRate),
+      sampleRate: formatRate(span.samplingDecision.sampleRate),
       sampleRand: hub.scope.propagationContext.sampleRand?.toString(),
       sampled: hub.scope.propagationContext.sampled?.toString(),
       replayId: hub.scope.replayId,

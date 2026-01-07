@@ -259,7 +259,8 @@ void main() {
           final hub = fixture.getSut(tracesSampleRate: 1.0);
 
           final rootSpan = hub.startSpan('root-span') as RecordingSentrySpanV2;
-          final childSpan = hub.startSpan('child-span') as RecordingSentrySpanV2;
+          final childSpan =
+              hub.startSpan('child-span') as RecordingSentrySpanV2;
 
           // Both should have the same sampling decision
           expect(childSpan.samplingDecision.sampled,
@@ -351,16 +352,16 @@ void main() {
           final hub = fixture.getSut(tracesSampleRate: 1.0);
 
           // First trace
-          final rootSpan1 =
-              hub.startSpan('root-1', parentSpan: null) as RecordingSentrySpanV2;
+          final rootSpan1 = hub.startSpan('root-1', parentSpan: null)
+              as RecordingSentrySpanV2;
           final decision1 = rootSpan1.samplingDecision;
 
           // Generate new trace
           hub.generateNewTrace();
 
           // Second trace
-          final rootSpan2 =
-              hub.startSpan('root-2', parentSpan: null) as RecordingSentrySpanV2;
+          final rootSpan2 = hub.startSpan('root-2', parentSpan: null)
+              as RecordingSentrySpanV2;
           final decision2 = rootSpan2.samplingDecision;
 
           // New trace should have a different sampleRand
@@ -370,8 +371,17 @@ void main() {
       });
     });
 
-    group('captureSpan', () {
-      // TODO(next-pr): add test that it was added to buffer
+    group('when capturing span', () {
+      test('calls client.captureSpan with span and scope', () {
+        final hub = fixture.getSut();
+        final span = hub.startSpan('test-span');
+
+        hub.captureSpan(span);
+
+        expect(fixture.client.captureSpanCalls, hasLength(1));
+        expect(fixture.client.captureSpanCalls.first.span, equals(span));
+        expect(fixture.client.captureSpanCalls.first.scope, isNotNull);
+      });
 
       test('removes span from active spans on scope', () {
         final hub = fixture.getSut();

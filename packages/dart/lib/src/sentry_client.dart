@@ -495,7 +495,7 @@ class SentryClient {
     );
   }
 
-  FutureOr<void> captureSpan(
+  void captureSpan(
     SentrySpanV2 span, {
     Scope? scope,
   }) {
@@ -506,7 +506,7 @@ class SentryClient {
           "captureSpan: span is in an invalid state $UnsetSentrySpanV2.",
         );
       case NoOpSentrySpanV2():
-        return null;
+        return;
       case RecordingSentrySpanV2 span:
         // TODO(next-pr): add common attributes, merge scope attributes
 

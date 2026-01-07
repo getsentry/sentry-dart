@@ -23,7 +23,10 @@ class SentryTracesSampler {
     SentrySamplingContext samplingContext,
     double sampleRand,
   ) {
-    if (_options.traceLifecycle == SentryTraceLifecycle.static) {
+    final isStaticLifecycle =
+        samplingContext.traceLifecycle == SentryTraceLifecycle.static;
+
+    if (isStaticLifecycle) {
       final samplingDecision =
           samplingContext.transactionContext.samplingDecision;
       if (samplingDecision != null) {
@@ -51,7 +54,7 @@ class SentryTracesSampler {
       }
     }
 
-    if (_options.traceLifecycle == SentryTraceLifecycle.static) {
+    if (isStaticLifecycle) {
       final parentSamplingDecision =
           samplingContext.transactionContext.parentSamplingDecision;
       if (parentSamplingDecision != null) {

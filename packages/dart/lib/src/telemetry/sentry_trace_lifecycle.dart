@@ -11,3 +11,5 @@ enum SentryTraceLifecycle {
   /// root span ends, matching the traditional transaction model.
   static,
 }
+
+// TODO(next-pr): Guard the APIs that are not supported for the different lifecycle modes.

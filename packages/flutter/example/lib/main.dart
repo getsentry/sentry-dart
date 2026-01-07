@@ -88,10 +88,6 @@ Future<void> setupSentry(
       options.debug = kDebugMode;
       options.spotlight = Spotlight(enabled: true);
       options.enableTimeToFullDisplayTracing = true;
-      options.traceLifecycle = SentryTraceLifecycle.streaming;
-      options.tracesSampler = (samplingContext) {
-
-      }
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.navigatorKey = navigatorKey;
 

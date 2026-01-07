@@ -209,6 +209,127 @@ void main() {
       });
     });
 
+    group('when resolving DSC', () {
+      test('creates DSC on first access for root span', () {
+        final span = fixture.createSpan(name: 'root-span');
+
+        final dsc = span.resolveDsc();
+
+        expect(dsc, isNotNull);
+        expect(dsc.publicKey, equals('publicKey'));
+      });
+
+      test('returns same DSC on subsequent access', () {
+        final span = fixture.createSpan(name: 'root-span');
+
+        final dsc1 = span.resolveDsc();
+        final dsc2 = span.resolveDsc();
+
+        expect(identical(dsc1, dsc2), isTrue);
+      });
+
+      test('returns DSC from segment span for child span', () {
+        final root = fixture.createSpan(name: 'root');
+        final child = fixture.createSpan(name: 'child', parentSpan: root);
+
+        final rootDsc = root.resolveDsc();
+        final childDsc = child.resolveDsc();
+
+        expect(identical(rootDsc, childDsc), isTrue);
+      });
+
+      test('returns same DSC for deeply nested spans', () {
+        final root = fixture.createSpan(name: 'root');
+        final child = fixture.createSpan(name: 'child', parentSpan: root);
+        final grandchild =
+            fixture.createSpan(name: 'grandchild', parentSpan: child);
+
+        final rootDsc = root.resolveDsc();
+        final childDsc = child.resolveDsc();
+        final grandchildDsc = grandchild.resolveDsc();
+
+        expect(identical(rootDsc, childDsc), isTrue);
+        expect(identical(rootDsc, grandchildDsc), isTrue);
+      });
+
+      test('freezes DSC after first access', () {
+        var callCount = 0;
+        final span = fixture.createSpanWithDscCreator(
+          name: 'root-span',
+          dscCreator: (s) {
+            callCount++;
+            return SentryTraceContextHeader(SentryId.newId(), 'publicKey');
+          },
+        );
+
+        span.resolveDsc();
+        span.resolveDsc();
+        span.resolveDsc();
+
+        expect(callCount, equals(1),
+            reason: 'DSC creator should only be called once');
+      });
+    });
+
+    group('when accessing samplingDecision', () {
+      test('returns stored decision for root span', () {
+        final decision = SentryTracesSamplingDecision(
+          true,
+          sampleRate: 0.5,
+          sampleRand: 0.25,
+        );
+        final span = fixture.createSpanWithSamplingDecision(
+          name: 'root-span',
+          samplingDecision: decision,
+        );
+
+        expect(span.samplingDecision.sampled, isTrue);
+        expect(span.samplingDecision.sampleRate, equals(0.5));
+        expect(span.samplingDecision.sampleRand, equals(0.25));
+      });
+
+      test('returns inherited decision for child span', () {
+        final decision = SentryTracesSamplingDecision(
+          true,
+          sampleRate: 0.75,
+          sampleRand: 0.1,
+        );
+        final root = fixture.createSpanWithSamplingDecision(
+          name: 'root',
+          samplingDecision: decision,
+        );
+        final child = fixture.createSpan(name: 'child', parentSpan: root);
+
+        expect(child.samplingDecision.sampled,
+            equals(root.samplingDecision.sampled));
+        expect(child.samplingDecision.sampleRate,
+            equals(root.samplingDecision.sampleRate));
+        expect(child.samplingDecision.sampleRand,
+            equals(root.samplingDecision.sampleRand));
+      });
+
+      test('returns root decision for deeply nested span', () {
+        final decision = SentryTracesSamplingDecision(
+          true,
+          sampleRate: 0.3,
+          sampleRand: 0.99,
+        );
+        final root = fixture.createSpanWithSamplingDecision(
+          name: 'root',
+          samplingDecision: decision,
+        );
+        final child = fixture.createSpan(name: 'child', parentSpan: root);
+        final grandchild =
+            fixture.createSpan(name: 'grandchild', parentSpan: child);
+
+        expect(grandchild.samplingDecision.sampled, equals(decision.sampled));
+        expect(grandchild.samplingDecision.sampleRate,
+            equals(decision.sampleRate));
+        expect(grandchild.samplingDecision.sampleRand,
+            equals(decision.sampleRand));
+      });
+    });
+
     group('toJson', () {
       test('serializes basic span without parent', () {
         final span = fixture.createSpan(name: 'test-span');
@@ -383,6 +504,35 @@ class Fixture {
       dscCreator: (RecordingSentrySpanV2 span) =>
           SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
       samplingDecision: SentryTracesSamplingDecision(true),
+    );
+  }
+
+  RecordingSentrySpanV2 createSpanWithDscCreator({
+    required String name,
+    required DscCreator dscCreator,
+  }) {
+    return RecordingSentrySpanV2.root(
+      name: name,
+      traceId: SentryId.newId(),
+      onSpanEnd: (_) {},
+      clock: options.clock,
+      dscCreator: dscCreator,
+      samplingDecision: SentryTracesSamplingDecision(true),
+    );
+  }
+
+  RecordingSentrySpanV2 createSpanWithSamplingDecision({
+    required String name,
+    required SentryTracesSamplingDecision samplingDecision,
+  }) {
+    return RecordingSentrySpanV2.root(
+      name: name,
+      traceId: SentryId.newId(),
+      onSpanEnd: (_) {},
+      clock: options.clock,
+      dscCreator: (RecordingSentrySpanV2 span) =>
+          SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+      samplingDecision: samplingDecision,
     );
   }
 }

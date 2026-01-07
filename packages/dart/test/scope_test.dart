@@ -975,7 +975,6 @@ void main() {
 
 class Fixture {
   final mockScopeObserver = MockScopeObserver();
-  final mockHub = MockHub();
 
   final options = defaultTestOptions();
 
@@ -997,7 +996,8 @@ class Fixture {
       traceId: SentryId.newId(),
       onSpanEnd: (_) {},
       clock: options.clock,
-      dscCreator: (_) => SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+      dscCreator: (_) =>
+          SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
       samplingDecision: SentryTracesSamplingDecision(true),
     );
   }

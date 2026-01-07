@@ -529,8 +529,8 @@ class Hub {
       propagationContext.sampleRand ??= Random().nextDouble();
 
       if (samplingDecision == null) {
-        final samplingContext = SentrySamplingContext(transactionContext,
-            SentrySpanSamplingContextV2('noop', {}), _options.traceLifecycle,
+        final samplingContext = SentrySamplingContext.forTransaction(
+            transactionContext,
             customSamplingContext: customSamplingContext);
 
         samplingDecision = _tracesSampler.sample(
@@ -614,6 +614,12 @@ class Hub {
 
     // Sampling is evaluated once at the root span level.
     // All child spans automatically inherit the root span's sampling decision.
+    //
+    // Note: Incoming distributed traces (continuing a trace from a remote
+    // parent via `sentry-trace` header) are not yet supported. This would
+    // require honoring the incoming `sampled` flag from PropagationContext
+    // instead of evaluating sampling fresh. This is primarily a backend/server
+    // use case which the Dart SDK does not currently target.
     final RecordingSentrySpanV2 span;
     bool isRootSpan = resolvedParentSpan == null;
     if (isRootSpan) {
@@ -621,11 +627,8 @@ class Hub {
       final sampleRand =
           propagationContext.sampleRand ??= Random().nextDouble();
 
-      final samplingContext = SentrySamplingContext(
-          // this is only temporary until we remove the transaction APIs in the next major v10
-          SentryTransactionContext('noop', 'noop'),
-          SentrySpanSamplingContextV2(name, attributes ?? {}),
-          _options.traceLifecycle);
+      final samplingContext = SentrySamplingContext.forSpanV2(
+          SentrySpanSamplingContextV2(name, attributes ?? {}));
       final samplingDecision =
           _tracesSampler.sample(samplingContext, sampleRand);
       propagationContext.applySamplingDecision(samplingDecision.sampled);
@@ -666,7 +669,7 @@ class Hub {
     return span;
   }
 
-  FutureOr<void> captureSpan(SentrySpanV2 span) {
+  void captureSpan(SentrySpanV2 span) {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
