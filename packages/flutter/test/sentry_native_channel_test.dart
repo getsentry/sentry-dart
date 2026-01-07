@@ -8,9 +8,11 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
+import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
+import 'package:sentry_flutter/src/native/utils/data_normalizer.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
 
 import 'mocks.dart';
@@ -34,280 +36,414 @@ void main() {
         sut = createBinding(options);
       });
 
-      // TODO move other methods here, e.g. init_native_sdk_test.dart
-
       test('fetchNativeAppStart', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          expect(() => sut.fetchNativeAppStart(), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          when(channel.invokeMethod('fetchNativeAppStart'))
+              .thenAnswer((_) async => {
+                    'pluginRegistrationTime': 1,
+                    'appStartTime': 1,
+                    'isColdStart': true,
+                    // ignore: inference_failure_on_collection_literal
+                    'nativeSpanTimes': {},
+                  });
 
-        expect(() => sut.fetchNativeAppStart(), matcher);
+          final actual = await sut.fetchNativeAppStart();
 
-        verifyZeroInteractions(channel);
+          expect(actual?.appStartTime, 1);
+          expect(actual?.isColdStart, true);
+        }
+      });
+
+      test('invalid fetchNativeAppStart returns null', () async {
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          expect(() => sut.fetchNativeAppStart(), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          when(channel.invokeMethod('fetchNativeAppStart'))
+              .thenAnswer((_) async => {
+                    'pluginRegistrationTime': 'invalid',
+                    'appStartTime': 'invalid',
+                    'isColdStart': 'invalid',
+                    // ignore: inference_failure_on_collection_literal
+                    'nativeSpanTimes': 'invalid',
+                  });
+
+          final actual = await sut.fetchNativeAppStart();
+
+          expect(actual, isNull);
+        }
       });
 
       test('setUser', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          final user = SentryUser(id: "fixture-id");
+          expect(() => sut.setUser(user), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          final user = SentryUser(
+            id: "fixture-id",
+            data: {'object': Object()},
+          );
+          final normalizedUser = SentryUser(
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            ipAddress: user.ipAddress,
+            data: normalizeMap(user.data),
+            // ignore: deprecated_member_use
+            extras: user.extras,
+            geo: user.geo,
+            name: user.name,
+            // ignore: invalid_use_of_internal_member
+            unknown: user.unknown,
+          );
+          when(channel
+                  .invokeMethod('setUser', {'user': normalizedUser.toJson()}))
+              .thenAnswer((_) => Future.value());
 
-        final user = SentryUser(
-          id: "fixture-id",
-          data: {'object': Object()},
-        );
+          await sut.setUser(user);
 
-        expect(() => sut.setUser(user), matcher);
-
-        verifyZeroInteractions(channel);
+          verify(channel
+              .invokeMethod('setUser', {'user': normalizedUser.toJson()}));
+        }
       });
 
       test('addBreadcrumb', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          final breadcrumb = Breadcrumb();
+          expect(() => sut.addBreadcrumb(breadcrumb), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          final breadcrumb = Breadcrumb(
+            data: {'object': Object()},
+          );
+          final normalizedBreadcrumb = Breadcrumb(
+            message: breadcrumb.message,
+            category: breadcrumb.category,
+            data: normalizeMap(breadcrumb.data),
+            level: breadcrumb.level,
+            type: breadcrumb.type,
+            timestamp: breadcrumb.timestamp,
+            // ignore: invalid_use_of_internal_member
+            unknown: breadcrumb.unknown,
+          );
+          when(channel.invokeMethod('addBreadcrumb', {
+            'breadcrumb': normalizedBreadcrumb.toJson()
+          })).thenAnswer((_) => Future.value());
 
-        final breadcrumb = Breadcrumb(
-          data: {'object': Object()},
-        );
+          await sut.addBreadcrumb(breadcrumb);
 
-        expect(() => sut.addBreadcrumb(breadcrumb), matcher);
-
-        verifyZeroInteractions(channel);
+          verify(channel.invokeMethod(
+              'addBreadcrumb', {'breadcrumb': normalizedBreadcrumb.toJson()}));
+        }
       });
 
       test('clearBreadcrumbs', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          expect(() => sut.clearBreadcrumbs(), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          when(channel.invokeMethod('clearBreadcrumbs'))
+              .thenAnswer((_) => Future.value());
 
-        expect(() => sut.clearBreadcrumbs(), matcher);
+          await sut.clearBreadcrumbs();
 
-        verifyZeroInteractions(channel);
+          verify(channel.invokeMethod('clearBreadcrumbs'));
+        }
       });
 
       test('setContexts', () async {
-        final value = {'object': Object()};
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          expect(() => sut.setContexts('fixture-key', <String, dynamic>{}),
+              matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          final value = {'object': Object()};
+          final normalizedValue = normalize(value);
+          when(channel.invokeMethod('setContexts', {
+            'key': 'fixture-key',
+            'value': normalizedValue
+          })).thenAnswer((_) => Future.value());
 
-        expect(() => sut.setContexts('fixture-key', value), matcher);
+          await sut.setContexts('fixture-key', value);
 
-        verifyZeroInteractions(channel);
+          verify(channel.invokeMethod(
+              'setContexts', {'key': 'fixture-key', 'value': normalizedValue}));
+        }
       });
 
       test('removeContexts', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          expect(() => sut.removeContexts('fixture-key'), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          when(channel.invokeMethod('removeContexts', {'key': 'fixture-key'}))
+              .thenAnswer((_) => Future.value());
 
-        expect(() => sut.removeContexts('fixture-key'), matcher);
+          await sut.removeContexts('fixture-key');
 
-        verifyZeroInteractions(channel);
+          verify(
+              channel.invokeMethod('removeContexts', {'key': 'fixture-key'}));
+        }
       });
 
-      test('setExtra', () {
-        final value = {'object': Object()};
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+      test('setExtra', () async {
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          expect(
+              () => sut.setExtra('fixture-key', <String, dynamic>{}), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          final value = {'object': Object()};
+          final normalizedValue = normalize(value);
+          when(channel.invokeMethod(
+                  'setExtra', {'key': 'fixture-key', 'value': normalizedValue}))
+              .thenAnswer((_) => Future.value());
 
-        expect(() => sut.setExtra('fixture-key', value), matcher);
+          await sut.setExtra('fixture-key', value);
 
-        verifyZeroInteractions(channel);
+          verify(channel.invokeMethod(
+              'setExtra', {'key': 'fixture-key', 'value': normalizedValue}));
+        }
       });
 
-      test('removeExtra', () {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+      test('removeExtra', () async {
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          expect(() => sut.removeExtra('fixture-key'), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          when(channel.invokeMethod('removeExtra', {'key': 'fixture-key'}))
+              .thenAnswer((_) => Future.value());
 
-        expect(() => sut.removeExtra('fixture-key'), matcher);
+          await sut.removeExtra('fixture-key');
 
-        verifyZeroInteractions(channel);
+          verify(channel.invokeMethod('removeExtra', {'key': 'fixture-key'}));
+        }
       });
 
       test('setTag', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          expect(() => sut.setTag('fixture-key', 'fixture-value'), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          when(channel.invokeMethod(
+                  'setTag', {'key': 'fixture-key', 'value': 'fixture-value'}))
+              .thenAnswer((_) => Future.value());
 
-        expect(() => sut.setTag('fixture-key', 'fixture-value'), matcher);
+          await sut.setTag('fixture-key', 'fixture-value');
 
-        verifyZeroInteractions(channel);
+          verify(channel.invokeMethod(
+              'setTag', {'key': 'fixture-key', 'value': 'fixture-value'}));
+        }
       });
 
       test('removeTag', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          expect(() => sut.removeTag('fixture-key'), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          when(channel.invokeMethod('removeTag', {'key': 'fixture-key'}))
+              .thenAnswer((_) => Future.value());
 
-        expect(() => sut.removeTag('fixture-key'), matcher);
+          await sut.removeTag('fixture-key');
 
-        verifyZeroInteractions(channel);
+          verify(channel.invokeMethod('removeTag', {'key': 'fixture-key'}));
+        }
       });
 
       test('startProfiler', () {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          androidUnsupported: true,
-        );
+        late Matcher matcher;
+        if (mockPlatform.isAndroid) {
+          matcher = _nativeUnavailableMatcher(throwUnsupported: true);
+        } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
+          if (Platform().isMacOS) {
+            matcher = throwsA(predicate((e) =>
+                e is Exception &&
+                e.toString().contains('Failed to load Objective-C class')));
+          } else {
+            matcher = throwsA(predicate((e) =>
+                e is ArgumentError &&
+                e.toString().contains('Failed to lookup symbol')));
+          }
+        }
         expect(() => sut.startProfiler(SentryId.newId()), matcher);
 
         verifyZeroInteractions(channel);
       });
 
       test('discardProfiler', () async {
-        final traceId = SentryId.newId();
-        when(channel.invokeMethod('discardProfiler', traceId.toString()))
-            .thenAnswer((_) async {});
+        if (mockPlatform.isAndroid) {
+          final traceId = SentryId.newId();
+          expect(() => sut.discardProfiler(traceId), throwsAssertionError);
+          verifyZeroInteractions(channel);
+        } else {
+          final traceId = SentryId.newId();
+          when(channel.invokeMethod('discardProfiler', traceId.toString()))
+              .thenAnswer((_) async {});
 
-        await sut.discardProfiler(traceId);
+          await sut.discardProfiler(traceId);
 
-        verify(channel.invokeMethod('discardProfiler', traceId.toString()));
+          verify(channel.invokeMethod('discardProfiler', traceId.toString()));
+        }
       });
 
       test('collectProfile', () async {
-        final traceId = SentryId.newId();
-        const startTime = 42;
-        const endTime = 50;
-        when(channel.invokeMethod('collectProfile', {
-          'traceId': traceId.toString(),
-          'startTime': startTime,
-          'endTime': endTime,
-        })).thenAnswer((_) async => {});
+        if (mockPlatform.isAndroid) {
+          final traceId = SentryId.newId();
+          expect(
+              () => sut.collectProfile(traceId, 42, 50), throwsAssertionError);
+          verifyZeroInteractions(channel);
+        } else {
+          final traceId = SentryId.newId();
+          const startTime = 42;
+          const endTime = 50;
+          when(channel.invokeMethod('collectProfile', {
+            'traceId': traceId.toString(),
+            'startTime': startTime,
+            'endTime': endTime,
+          })).thenAnswer((_) async => {});
 
-        await sut.collectProfile(traceId, startTime, endTime);
+          await sut.collectProfile(traceId, startTime, endTime);
 
-        verify(channel.invokeMethod('collectProfile', {
-          'traceId': traceId.toString(),
-          'startTime': startTime,
-          'endTime': endTime,
-        }));
+          verify(channel.invokeMethod('collectProfile', {
+            'traceId': traceId.toString(),
+            'startTime': startTime,
+            'endTime': endTime,
+          }));
+        }
       });
 
-      test(
-        'captureEnvelope',
-        () {
-          when(channel.invokeMethod('captureEnvelope', any))
-              .thenAnswer((_) async => {});
+      test('captureEnvelope', () async {
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
 
           final data = Uint8List.fromList([1, 2, 3]);
-          sut.captureEnvelope(data, false);
+
+          expect(() => sut.captureEnvelope(data, false), matcher);
 
           verifyZeroInteractions(channel);
-        },
-      );
+        } else {
+          final data = Uint8List.fromList([1, 2, 3]);
+
+          late Uint8List captured;
+          when(channel.invokeMethod('captureEnvelope', any)).thenAnswer(
+              (invocation) async => {
+                    captured = invocation.positionalArguments[1][0] as Uint8List
+                  });
+
+          await sut.captureEnvelope(data, false);
+
+          expect(captured, data);
+        }
+      });
 
       test('loadContexts', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          expect(() => sut.loadContexts(), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          when(channel.invokeMethod('loadContexts'))
+              .thenAnswer((invocation) async => {
+                    'foo': [1, 2, 3],
+                    'bar': {'a': 'b'},
+                  });
 
-        expect(() => sut.loadContexts(), matcher);
+          final data = await sut.loadContexts();
 
-        verifyZeroInteractions(channel);
+          expect(data, {
+            'foo': [1, 2, 3],
+            'bar': {'a': 'b'},
+          });
+        }
       });
 
       test('loadDebugImages', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          expect(
+              () => sut.loadDebugImages(SentryStackTrace(frames: [])), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          final json = [
+            {
+              'code_file': '/apex/com.android.art/javalib/arm64/boot.oat',
+              'code_id': '13577ce71153c228ecf0eb73fc39f45010d487f8',
+              'image_addr': '0x6f80b000',
+              'image_size': 3092480,
+              'type': 'elf',
+              'debug_id': 'e77c5713-5311-28c2-ecf0-eb73fc39f450',
+              'debug_file': 'test'
+            }
+          ];
 
-        expect(
-            () => sut.loadDebugImages(SentryStackTrace(frames: [])), matcher);
+          when(channel.invokeMethod('loadImageList', any))
+              .thenAnswer((invocation) async => json);
 
-        verifyZeroInteractions(channel);
-      });
+          final data = await sut.loadDebugImages(SentryStackTrace(frames: []));
 
-      test('displayRefreshRate', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
-
-        expect(() => sut.displayRefreshRate(), matcher);
-
-        verifyZeroInteractions(channel);
+          expect(data?.map((v) => v.toJson()), json);
+        }
       });
 
       test('pauseAppHangTracking', () async {
         if (mockPlatform.isAndroid) {
-          // Android doesn't support app hang tracking, so it should hit the assertion
           expect(() => sut.pauseAppHangTracking(), throwsAssertionError);
-        } else {
-          // iOS/macOS should throw FFI exceptions in tests
-          final matcher = _nativeUnavailableMatcher(
-            mockPlatform,
-            includeLookupSymbol: true,
-            includeFailedToLoadClassException: true,
-          );
-          expect(() => sut.pauseAppHangTracking(), matcher);
-        }
 
-        verifyZeroInteractions(channel);
+          verifyZeroInteractions(channel);
+        } else {
+          when(channel.invokeMethod('pauseAppHangTracking'))
+              .thenAnswer((_) => Future.value());
+
+          await sut.pauseAppHangTracking();
+
+          verify(channel.invokeMethod('pauseAppHangTracking'));
+        }
       });
 
       test('resumeAppHangTracking', () async {
         if (mockPlatform.isAndroid) {
-          // Android doesn't support app hang tracking, so it should hit the assertion
           expect(() => sut.resumeAppHangTracking(), throwsAssertionError);
+          verifyZeroInteractions(channel);
         } else {
-          // iOS/macOS should throw FFI exceptions in tests
-          final matcher = _nativeUnavailableMatcher(
-            mockPlatform,
-            includeLookupSymbol: true,
-            includeFailedToLoadClassException: true,
-          );
-          expect(() => sut.resumeAppHangTracking(), matcher);
-        }
+          when(channel.invokeMethod('resumeAppHangTracking'))
+              .thenAnswer((_) => Future.value());
 
-        verifyZeroInteractions(channel);
+          await sut.resumeAppHangTracking();
+
+          verify(channel.invokeMethod('resumeAppHangTracking'));
+        }
       });
 
       test('nativeCrash', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          expect(() => sut.nativeCrash(), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          when(channel.invokeMethod('nativeCrash'))
+              .thenAnswer((_) => Future.value());
 
-        expect(() => sut.nativeCrash(), matcher);
+          await sut.nativeCrash();
 
-        verifyZeroInteractions(channel);
+          verify(channel.invokeMethod('nativeCrash'));
+        }
       });
 
       test('setReplayConfig', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
-
         final config = ReplayConfig(
             windowWidth: 110,
             windowHeight: 220,
@@ -316,24 +452,35 @@ void main() {
             frameRate: 3);
 
         if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
           expect(() => sut.setReplayConfig(config), matcher);
+          verifyZeroInteractions(channel);
         } else {
-          expect(() => sut.setReplayConfig(config), returnsNormally);
-        }
+          when(channel.invokeMethod('setReplayConfig', any))
+              .thenAnswer((_) => Future.value());
 
-        verifyZeroInteractions(channel);
+          await sut.setReplayConfig(config);
+
+          verifyNever(channel.invokeMethod('setReplayConfig', any));
+        }
       });
 
       test('captureReplay', () async {
-        final matcher = _nativeUnavailableMatcher(
-          mockPlatform,
-          includeLookupSymbol: true,
-          includeFailedToLoadClassException: true,
-        );
+        if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+          expect(() => sut.captureReplay(), matcher);
+          verifyZeroInteractions(channel);
+        } else {
+          final sentryId = SentryId.newId();
 
-        expect(() => sut.captureReplay(), matcher);
+          when(channel.invokeMethod('captureReplay', any))
+              .thenAnswer((_) => Future.value(sentryId.toString()));
 
-        verifyZeroInteractions(channel);
+          final returnedId = await sut.captureReplay();
+
+          verify(channel.invokeMethod('captureReplay'));
+          expect(returnedId, sentryId);
+        }
       });
 
       test('getSession is no-op', () async {
@@ -357,56 +504,15 @@ void main() {
   }
 }
 
-/// Returns a matcher for the platform-specific failures we expect when native
-/// FFI/ObjC code is unavailable in unit tests.
-/// We will need this until we can mock FFI/JNI code in unit tests.
+/// Returns a matcher for the android-specific failures we expect when native
+/// JNI code is unavailable in unit tests.
 /// The actual functionality is tested via integration tests.
 /// https://github.com/dart-lang/native/issues/1877
-Matcher _nativeUnavailableMatcher(
-  MockPlatform mockPlatform, {
-  bool androidUnsupported = false,
-  bool includeLookupSymbol = false,
-  bool includeFailedToLoadClassException = false,
-}) {
-  if (mockPlatform.isAndroid) {
-    if (androidUnsupported) {
-      return throwsUnsupportedError;
-    }
-    return throwsA(predicate((e) =>
-        e is Error &&
-        e.toString().contains('Unable to locate the helper library')));
+Matcher _nativeUnavailableMatcher({bool throwUnsupported = false}) {
+  if (throwUnsupported) {
+    return throwsUnsupportedError;
   }
-
-  // iOS and macOS
-  return throwsA(predicate((e) {
-    final message = e.toString();
-    final isArgError = e is ArgumentError;
-    final isException = e is Exception;
-
-    final hasObjcLoadFail =
-        isException && message.contains('Failed to load Objective-C class');
-    final hasCustomLoadFail = isException &&
-        includeFailedToLoadClassException &&
-        message.contains('FailedToLoadClassException');
-
-    if (mockPlatform.isMacOS) {
-      final hasArgFn =
-          isArgError && message.contains('Couldn\'t resolve native function');
-      return hasObjcLoadFail || hasCustomLoadFail || hasArgFn;
-    } else {
-      // iOS
-      final hasUndefinedSymbol =
-          isArgError && message.contains('undefined symbol: objc_msgSend');
-      final hasCouldNotResolve =
-          isArgError && message.contains('Couldn\'t resolve native function');
-      final hasFailedLookup = isArgError &&
-          includeLookupSymbol &&
-          message.contains('Failed to lookup symbol');
-      return hasObjcLoadFail ||
-          hasCustomLoadFail ||
-          hasUndefinedSymbol ||
-          hasCouldNotResolve ||
-          hasFailedLookup;
-    }
-  }));
+  return throwsA(predicate((e) =>
+      e is Error &&
+      e.toString().contains('Unable to locate the helper library')));
 }
