@@ -163,6 +163,7 @@ class SentryOptions {
 
   set debug(bool newValue) {
     _debug = newValue;
+    _configureInternalLogger();
     if (_debug == true &&
         (log == noOpLog || diagnosticLog?.logger == noOpLog)) {
       log = debugLog;
@@ -176,7 +177,19 @@ class SentryOptions {
   bool _debug = false;
 
   /// minimum LogLevel to be used if debug is enabled
-  SentryLevel diagnosticLevel = _defaultDiagnosticLevel;
+  SentryLevel get diagnosticLevel => _diagnosticLevel;
+
+  set diagnosticLevel(SentryLevel newValue) {
+    _diagnosticLevel = newValue;
+    _configureInternalLogger();
+  }
+
+  SentryLevel _diagnosticLevel = _defaultDiagnosticLevel;
+
+  void _configureInternalLogger() {
+    SentryInternalLogger.configure(
+        isEnabled: _debug, minLevel: _diagnosticLevel);
+  }
 
   /// Sentry client name used for the HTTP authHeader and userAgent eg
   /// sentry.{language}.{platform}/{version} eg sentry.java.android/2.0.0 would be a valid case

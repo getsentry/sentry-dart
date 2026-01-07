@@ -328,9 +328,11 @@ void main() {
 
       test('captureEnvelope', () async {
         if (mockPlatform.isAndroid) {
+          final matcher = _nativeUnavailableMatcher();
+
           final data = Uint8List.fromList([1, 2, 3]);
 
-          await sut.captureEnvelope(data, false);
+          expect(() => sut.captureEnvelope(data, false), matcher);
 
           verifyZeroInteractions(channel);
         } else {

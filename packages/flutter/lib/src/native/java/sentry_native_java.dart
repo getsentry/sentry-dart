@@ -23,7 +23,12 @@ class SentryNativeJava extends SentryNativeChannel {
   AndroidEnvelopeSender? _envelopeSender;
   native.ReplayIntegration? _nativeReplay;
 
-  SentryNativeJava(super.options);
+  SentryNativeJava(super.options) {
+    // Initialize envelope sender here in the ctor instead of init().
+    // Ensures it starts when autoInitializeNativeSdk is enabled and disabled.
+    _envelopeSender = AndroidEnvelopeSender.factory(options);
+    _envelopeSender?.start();
+  }
 
   @override
   bool get supportsReplay => true;
@@ -36,11 +41,8 @@ class SentryNativeJava extends SentryNativeChannel {
   AndroidReplayRecorder? get testRecorder => _replayRecorder;
 
   @override
-  Future<void> init(Hub hub) async {
+  void init(Hub hub) {
     initSentryAndroid(hub: hub, options: options, owner: this);
-
-    _envelopeSender = AndroidEnvelopeSender.factory(options);
-    await _envelopeSender?.start();
   }
 
   @override

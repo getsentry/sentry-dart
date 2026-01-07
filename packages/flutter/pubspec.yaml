@@ -1,5 +1,5 @@
 name: sentry_flutter
-version: 9.9.1
+version: 9.9.2
 description: Sentry SDK for Flutter. This package aims to support different Flutter targets by relying on the many platforms supported by Sentry with native SDKs.
 homepage: https://docs.sentry.io/platforms/flutter/
 repository: https://github.com/getsentry/sentry-dart
@@ -23,7 +23,7 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  sentry: 9.9.1
+  sentry: 9.9.2
   package_info_plus: '>=1.0.0'
   meta: ^1.3.0
   ffi: ^2.0.0
