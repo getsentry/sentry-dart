@@ -372,7 +372,7 @@ class Fixture {
       log: options.log,
       clock: options.clock,
       parentSpan: parentSpan,
-      dscFactory: (RecordingSentrySpanV2 span) =>
+      dscCreator: (RecordingSentrySpanV2 span) =>
           SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
     );
   }

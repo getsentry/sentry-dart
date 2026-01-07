@@ -975,6 +975,7 @@ void main() {
 
 class Fixture {
   final mockScopeObserver = MockScopeObserver();
+  final mockHub = MockHub();
 
   final options = defaultTestOptions();
 
@@ -998,6 +999,7 @@ class Fixture {
       log: options.log,
       clock: options.clock,
       parentSpan: null,
+      dscCreator: (_) => SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
     );
   }
 

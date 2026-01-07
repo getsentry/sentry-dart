@@ -626,7 +626,7 @@ class Hub {
         parentSpan: resolvedParentSpan,
         log: options.log,
         clock: options.clock,
-        dscFactory: (span) =>
+        dscCreator: (span) =>
             SentryTraceContextHeader.fromRecordingSpan(span, this),
         onSpanEnd: captureSpan);
 

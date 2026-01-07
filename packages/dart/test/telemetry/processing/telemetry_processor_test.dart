@@ -144,6 +144,7 @@ class Fixture {
       log: options.log,
       clock: options.clock,
       parentSpan: null,
+      dscCreator: (_) => SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
     );
   }
 
@@ -158,6 +159,7 @@ class Fixture {
       log: options.log,
       clock: options.clock,
       parentSpan: parent,
+      dscCreator: (_) => SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
     );
   }
 

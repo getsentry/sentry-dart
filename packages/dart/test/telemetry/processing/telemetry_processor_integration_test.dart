@@ -155,6 +155,7 @@ class _Fixture {
       log: options.log,
       clock: options.clock,
       parentSpan: null,
+      dscCreator: (_) => SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
     );
   }
 }

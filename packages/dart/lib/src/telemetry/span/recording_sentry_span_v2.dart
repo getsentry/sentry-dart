@@ -1,7 +1,7 @@
 part of 'sentry_span_v2.dart';
 
 /// Factory for creating a [SentryTraceContextHeader] from a [RecordingSentrySpanV2].
-typedef TraceContextHeaderFactory = SentryTraceContextHeader Function(
+typedef DscCreator = SentryTraceContextHeader Function(
     RecordingSentrySpanV2 span);
 
 /// Called when a span ends, allowing the span to be processed or buffered.
@@ -16,11 +16,10 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
   final RecordingSentrySpanV2? _parentSpan;
   final ClockProvider _clock;
   final OnSpanEndCallback _onSpanEnd;
-  final SdkLogCallback _log;
   final DateTime _startTimestamp;
   final SentryId _traceId;
   final RecordingSentrySpanV2? _segmentSpan;
-  final TraceContextHeaderFactory _dscFactory;
+  final DscCreator _dscCreator;
   final Map<String, SentryAttribute> _attributes = {};
 
   // Mutable span state.
@@ -36,16 +35,15 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
     required SdkLogCallback log,
     required ClockProvider clock,
     required RecordingSentrySpanV2? parentSpan,
-    required TraceContextHeaderFactory dscFactory,
+    required DscCreator dscCreator,
   })  : _traceId = parentSpan?.traceId ?? traceId,
         _name = name,
         _parentSpan = parentSpan,
         _clock = clock,
         _onSpanEnd = onSpanEnd,
-        _log = log,
         _startTimestamp = clock(),
-        _segmentSpan = parentSpan?.segmentSpan ?? parentSpan,
-        _dscFactory = dscFactory;
+        _segmentSpan = parentSpan?.segmentSpan,
+        _dscCreator = dscCreator;
 
   @override
   SentryId get traceId => _traceId;
@@ -78,7 +76,8 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
     _endTimestamp = (endTimestamp ?? _clock()).toUtc();
 
     _onSpanEnd(this);
-    _log(SentryLevel.debug, 'Span ended with endTimestamp: $_endTimestamp');
+    internalLogger.debug(
+        'Span $name ended with start timestamp: $_startTimestamp, end timestamp: $_endTimestamp');
   }
 
   /// The local root span of this trace segment.
@@ -87,12 +86,15 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
   /// segment. Returns `this` if this span is the segment root.
   RecordingSentrySpanV2 get segmentSpan => _segmentSpan ?? this;
 
+  /// Freezes and returns this span's DSC (only meaningful for segment spans).
+  SentryTraceContextHeader _getOrCreateDsc() =>
+      _frozenDsc ??= _dscCreator(this);
+
   /// The segment's Dynamic Sampling Context (DSC) header.
   ///
   /// Created lazily on first access and frozen for the segment's lifetime.
   /// All spans in the same segment share this DSC.
-  SentryTraceContextHeader resolveDsc() =>
-      segmentSpan._frozenDsc ??= _dscFactory(segmentSpan);
+  SentryTraceContextHeader resolveDsc() => segmentSpan._getOrCreateDsc();
 
   @override
   bool get isEnded => _endTimestamp != null;
