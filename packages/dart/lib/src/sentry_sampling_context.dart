@@ -5,12 +5,20 @@ import 'telemetry/span/sentry_span_sampling_context.dart';
 
 /// Context used by [TracesSamplerCallback] to determine if transaction
 /// is going to be sampled.
+///
+/// Note: This class currently supports both static (transaction-based) and
+/// streaming (span-based) modes for backwards compatibility. The dual-mode
+/// design with placeholder values and runtime checks is a temporary solution.
+/// Once the legacy transaction API is removed, this class should be simplified
+/// to only support the streaming mode with [SentrySpanSamplingContextV2].
 @immutable
 class SentrySamplingContext {
   final SentryTransactionContext _transactionContext;
   final SentrySpanSamplingContextV2 _spanContext;
   final Map<String, dynamic> _customSamplingContext;
   final SentryTraceLifecycle _traceLifecycle;
+
+  // TODO: Remove these placeholders once legacy transaction API is removed.
 
   /// Placeholder for streaming mode where transaction context is not used.
   static final _unusedTransactionContext =
@@ -46,17 +54,31 @@ class SentrySamplingContext {
         _traceLifecycle = SentryTraceLifecycle.static,
         _customSamplingContext = customSamplingContext ?? {};
 
-  /// The Transaction context
+  /// The Transaction context.
+  ///
+  /// Throws [StateError] if accessed in streaming mode.
+  ///
+  /// TODO: Remove this getter once legacy transaction API is removed.
+  /// This runtime check is a temporary solution for backwards compatibility.
   SentryTransactionContext get transactionContext {
-    assert(_traceLifecycle == SentryTraceLifecycle.static,
-        'Transaction sampling context is only available in static mode');
+    if (_traceLifecycle != SentryTraceLifecycle.static) {
+      throw StateError('transactionContext is only available in static mode. '
+          'Use spanContext for streaming mode.');
+    }
     return _transactionContext;
   }
 
-  /// The Span V2 sampling context
+  /// The Span V2 sampling context.
+  ///
+  /// Throws [StateError] if accessed in static mode.
+  ///
+  /// TODO: Remove the runtime check once legacy transaction API is removed.
+  /// This runtime check is a temporary solution for backwards compatibility.
   SentrySpanSamplingContextV2 get spanContext {
-    assert(_traceLifecycle == SentryTraceLifecycle.streaming,
-        'Span sampling context is only available in streaming mode');
+    if (_traceLifecycle != SentryTraceLifecycle.streaming) {
+      throw StateError('spanContext is only available in streaming mode. '
+          'Use transactionContext for static mode.');
+    }
     return _spanContext;
   }
 
