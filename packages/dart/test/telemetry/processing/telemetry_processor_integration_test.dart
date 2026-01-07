@@ -153,7 +153,8 @@ class _Fixture {
       traceId: SentryId.newId(),
       onSpanEnd: (_) {},
       clock: options.clock,
-      dscCreator: (_) => SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+      dscCreator: (_) =>
+          SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
       samplingDecision: SentryTracesSamplingDecision(true),
     );
   }

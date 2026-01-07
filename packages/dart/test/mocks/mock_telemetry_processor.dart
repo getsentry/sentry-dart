@@ -28,4 +28,3 @@ class MockTelemetryProcessor implements TelemetryProcessor {
     closeCalls++;
   }
 }
-

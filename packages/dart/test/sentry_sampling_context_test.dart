@@ -22,12 +22,11 @@ void main() {
         expect(context.spanContext.name, equals('my-span'));
       });
 
-      test('throws assertion when accessing transactionContext', () {
+      test('throws StateError when accessing transactionContext', () {
         final spanContext = SentrySpanSamplingContextV2('span', {});
         final context = SentrySamplingContext.forSpanV2(spanContext);
 
-        expect(
-            () => context.transactionContext, throwsA(isA<AssertionError>()));
+        expect(() => context.transactionContext, throwsA(isA<StateError>()));
       });
 
       test('returns empty customSamplingContext by default', () {
@@ -60,12 +59,12 @@ void main() {
         expect(context.transactionContext.operation, equals('http'));
       });
 
-      test('throws assertion when accessing spanContext', () {
+      test('throws StateError when accessing spanContext', () {
         final transactionContext = SentryTransactionContext('tx', 'op');
         final context =
             SentrySamplingContext.forTransaction(transactionContext);
 
-        expect(() => context.spanContext, throwsA(isA<AssertionError>()));
+        expect(() => context.spanContext, throwsA(isA<StateError>()));
       });
 
       test('preserves customSamplingContext', () {

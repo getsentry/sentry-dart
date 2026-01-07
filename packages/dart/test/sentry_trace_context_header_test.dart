@@ -218,7 +218,8 @@ class _Fixture {
       traceId: traceId ?? SentryId.newId(),
       onSpanEnd: (_) {},
       clock: options.clock,
-      dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(span, hub),
+      dscCreator: (span) =>
+          SentryTraceContextHeader.fromRecordingSpan(span, hub),
       samplingDecision: samplingDecision ?? SentryTracesSamplingDecision(true),
     );
   }
@@ -232,7 +233,8 @@ class _Fixture {
       name: name,
       onSpanEnd: (_) {},
       clock: options.clock,
-      dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(span, hub),
+      dscCreator: (span) =>
+          SentryTraceContextHeader.fromRecordingSpan(span, hub),
     );
   }
 }
