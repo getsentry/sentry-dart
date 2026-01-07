@@ -125,7 +125,7 @@ native.SentryOptions$BeforeSendReplayCallback createBeforeSendReplayCallback(
               return shouldRemove;
             });
 
-            final jMap = _dartToJMap(options.privacy.toJson());
+            final jMap = dartToJMap(options.privacy.toJson());
             payload?.addAll(jMap);
             jMap.release();
           }

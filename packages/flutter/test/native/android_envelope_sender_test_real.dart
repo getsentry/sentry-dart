@@ -12,23 +12,31 @@ import 'package:sentry_flutter/src/isolate/isolate_worker.dart';
 
 void main() {
   group('AndroidEnvelopeSender host behavior', () {
-    test('warns and drops when not started', () {
+    test('logs when sending envelopes in main isolate', () {
       final options = SentryFlutterOptions();
-      options.debug = true;
-      options.diagnosticLevel = SentryLevel.debug;
       final logs = <(SentryLevel, String)>[];
-      options.log = (level, message, {logger, exception, stackTrace}) {
-        logs.add((level, message));
-      };
+      SentryInternalLogger.configure(
+        isEnabled: true,
+        minLevel: SentryLevel.debug,
+        logOutput: ({
+          required String name,
+          required SentryLevel level,
+          required String message,
+          Object? error,
+          StackTrace? stackTrace,
+        }) {
+          logs.add((level, message.toString()));
+        },
+      );
 
       final sender = AndroidEnvelopeSender(options);
       sender.captureEnvelope(Uint8List.fromList([1, 2, 3]), false);
 
       expect(
         logs.any((e) =>
-            e.$1 == SentryLevel.warning &&
+            e.$1 == SentryLevel.info &&
             e.$2.contains(
-                'captureEnvelope called before worker started; dropping')),
+                'captureEnvelope called before worker started: sending envelope in main isolate instead')),
         isTrue,
       );
     });
@@ -38,30 +46,6 @@ void main() {
       final sender = AndroidEnvelopeSender(options);
       expect(() => sender.close(), returnsNormally);
       expect(() => sender.close(), returnsNormally);
-    });
-
-    test('warns and drops after close', () async {
-      final options = SentryFlutterOptions();
-      options.debug = true;
-      options.diagnosticLevel = SentryLevel.debug;
-      final logs = <(SentryLevel, String)>[];
-      options.log = (level, message, {logger, exception, stackTrace}) {
-        logs.add((level, message));
-      };
-
-      final sender = AndroidEnvelopeSender(options);
-      await sender.start();
-      sender.close();
-
-      sender.captureEnvelope(Uint8List.fromList([9]), false);
-
-      expect(
-        logs.any((e) =>
-            e.$1 == SentryLevel.warning &&
-            e.$2.contains(
-                'captureEnvelope called before worker started; dropping')),
-        isTrue,
-      );
     });
 
     test('start is a no-op when already started', () async {
@@ -88,7 +72,7 @@ void main() {
       spawnCount = 0;
 
       await sender.start();
-      expect(spawnCount, 1);
+      expect(spawnCount, 0);
 
       // Close twice should be safe.
       expect(() => sender.close(), returnsNormally);

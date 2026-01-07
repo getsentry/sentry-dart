@@ -1,6 +1,6 @@
 name: sentry_firebase_remote_config
 description: "Sentry integration to use feature flags from Firebase Remote Config."
-version: 9.8.0-beta.1
+version: 9.9.2
 homepage: https://docs.sentry.io/platforms/flutter/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
@@ -21,7 +21,7 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_remote_config: '>=5.4.3 <7.0.0'
-  sentry: 9.8.0-beta.1
+  sentry: 9.9.2
 
 dev_dependencies:
   flutter_test:

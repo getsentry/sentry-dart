@@ -10,6 +10,7 @@ import 'package:sentry_flutter/src/integrations/native_app_start_handler.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -221,6 +222,51 @@ void main() {
       expect(ttfdSpan?.endTimestamp, ttidSpan?.endTimestamp);
       // skip this test for now as it's extremely flaky
     }, skip: true);
+
+    // Regression test: App start spans must be attached to the transaction
+    // BEFORE track() is called. This verifies the fix for a race condition
+    // where calling reportFullyDisplayed() after autoFinishAfter could cause
+    // app start spans to be missing from the captured transaction.
+    test('app start spans are attached before TTFD tracking starts', () async {
+      // Create fresh fixture and mocks for test isolation
+      final testFixture = Fixture();
+      setupMocks(testFixture);
+
+      testFixture.options.enableTimeToFullDisplayTracing = true;
+
+      // Set sentrySetupStartTime to a value consistent with the mock timestamps
+      // (pluginRegistrationTime is 10ms, so this should be after that)
+      SentryFlutter.sentrySetupStartTime =
+          DateTime.fromMillisecondsSinceEpoch(15);
+
+      // Capture transaction state at the moment track() is called
+      List<SentrySpan>? spansWhenTrackCalled;
+      final originalTracker = testFixture.options.timeToDisplayTracker;
+      testFixture.options.timeToDisplayTracker = _FakeTimeToDisplayTracker(
+        originalTracker,
+        onTrack: (transaction) {
+          if (transaction is SentryTracer) {
+            spansWhenTrackCalled = List.from(transaction.children);
+          }
+        },
+      );
+
+      final future = testFixture.call(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(50),
+      );
+
+      await Future.delayed(Duration(milliseconds: 50));
+      await testFixture.options.timeToDisplayTracker.reportFullyDisplayed();
+      await future;
+
+      expect(spansWhenTrackCalled, isNotNull,
+          reason: 'track() should have been called');
+      expect(
+        spansWhenTrackCalled!.any((s) => s.context.description == 'Cold Start'),
+        isTrue,
+        reason: 'Cold Start span must be attached before track() is called',
+      );
+    });
 
     test('no transaction if app start takes more than 60s', () async {
       await fixture.call(
@@ -535,4 +581,31 @@ class MockScope extends Mock implements Scope {
   set span(ISentrySpan? value) {
     _span = value;
   }
+}
+
+/// Spy wrapper that intercepts track() calls to capture transaction state
+class _FakeTimeToDisplayTracker extends TimeToDisplayTracker {
+  final TimeToDisplayTracker _delegate;
+  final void Function(ISentrySpan transaction) onTrack;
+
+  _FakeTimeToDisplayTracker(this._delegate, {required this.onTrack})
+      : super(options: _delegate.options);
+
+  @override
+  SpanId? get transactionId => _delegate.transactionId;
+
+  @override
+  set transactionId(SpanId? value) => _delegate.transactionId = value;
+
+  @override
+  Future<void> track(ISentrySpan transaction,
+      {DateTime? ttidEndTimestamp}) async {
+    onTrack(transaction);
+    return _delegate.track(transaction, ttidEndTimestamp: ttidEndTimestamp);
+  }
+
+  @override
+  Future<void> reportFullyDisplayed({SpanId? spanId, DateTime? endTimestamp}) =>
+      _delegate.reportFullyDisplayed(
+          spanId: spanId, endTimestamp: endTimestamp);
 }

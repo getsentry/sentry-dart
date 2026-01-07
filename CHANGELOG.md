@@ -1,6 +1,63 @@
 # Changelog
 
-## Unreleased
+## 9.9.2
+
+### Fixes
+
+- Android not sending events when `autoInitializedNativeSdk` is disabled ([#3420](https://github.com/getsentry/sentry-dart/pull/3420))
+
+## 9.9.1
+
+### Fixes
+
+- Cold/warm start spans not attaching if TTFD takes more than 3 seconds to report ([#3404](https://github.com/getsentry/sentry-dart/pull/3404))
+- Ensure that the JNI `ScopesAdapter` instance is released after use ([#3411](https://github.com/getsentry/sentry-dart/pull/3411))
+
+## 9.9.0
+
+### Features
+
+- Add `Sentry.setAttributes` and `Sentry.removeAttribute` ([#3352](https://github.com/getsentry/sentry-dart/pull/3352))
+    - These attributes are set at the scope level and apply to all logs (and later to metrics and spans).
+    - When a scope attribute conflicts with a log-level attribute, the log-level attribute always takes precedence.
+- Sentry Supabase Integration ([#2913](https://github.com/getsentry/sentry-dart/pull/2913))
+    - Adds the `sentry_supabase` package to instrument supabase with Sentry breadcrumbs, traces and errors.
+
+### Fixes
+
+- Added `consumerProguardFiles 'proguard-rules.pro'` to the debug build configuration to ensure ProGuard rules are consistently applied across both release and debug variants. ([#3339](https://github.com/getsentry/sentry-dart/pull/3339))
+- Dart to native type conversion ([#3372](https://github.com/getsentry/sentry-dart/pull/3372))
+- Revert FFI usage on iOS/macOS due to symbol stripping issues ([#3379](https://github.com/getsentry/sentry-dart/pull/3379))
+- Android app crashing on hot-restart in debug mode ([#3358](https://github.com/getsentry/sentry-dart/pull/3358))
+- Dont use `Companion` in JNI calls and properly release JNI refs ([#3354](https://github.com/getsentry/sentry-dart/pull/3354))
+    - This potentially fixes segfault crashes related to JNI
+
+### Enhancements
+
+- Refactor `captureReplay` and `setReplayConfig` to use JNI ([#3318](https://github.com/getsentry/sentry-dart/pull/3318))
+- Refactor `init` to use JNI ([#3324](https://github.com/getsentry/sentry-dart/pull/3324))
+- Flush logs if client/hub/sdk is closed ([#3335](https://github.com/getsentry/sentry-dart/pull/3335)
+
+### Dependencies 
+
+- Bump Android SDK from v8.21.1 to v8.28.0 ([#3391](https://github.com/getsentry/sentry-dart/pull/3391))
+    - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8280)
+    - [diff](https://github.com/getsentry/sentry-java/compare/8.21.1...8.28.0)
+
+## 9.9.0-beta.4
+
+### Fixes
+
+- Dart to native type conversion ([#3372](https://github.com/getsentry/sentry-dart/pull/3372))
+- Revert FFI usage on iOS/macOS due to symbol stripping issues ([#3379](https://github.com/getsentry/sentry-dart/pull/3379))
+
+### Dependencies
+
+- Bump Android SDK from v8.21.1 to v8.28.0 ([#3391](https://github.com/getsentry/sentry-dart/pull/3391))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8280)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.21.1...8.28.0)
+
+## 9.9.0-beta.3
 
 ### Features
 

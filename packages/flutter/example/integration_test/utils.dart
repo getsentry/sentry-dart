@@ -22,3 +22,6 @@ FutureOr<void> restoreFlutterOnErrorAfter(FutureOr<void> Function() fn) async {
 }
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
+
+// Used to test for correct serialization of custom object in attributes / data.
+class CustomObject {}
