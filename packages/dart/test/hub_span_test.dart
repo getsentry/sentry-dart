@@ -242,6 +242,132 @@ void main() {
           }
         });
       });
+
+      group('sampling inheritance', () {
+        test('root span has sampling decision', () {
+          final hub = fixture.getSut(tracesSampleRate: 1.0);
+
+          final rootSpan = hub.startSpan('root-span');
+
+          expect(rootSpan, isA<RecordingSentrySpanV2>());
+          final recordingSpan = rootSpan as RecordingSentrySpanV2;
+          expect(recordingSpan.samplingDecision.sampled, isTrue);
+          expect(recordingSpan.samplingDecision.sampleRate, equals(1.0));
+        });
+
+        test('child span inherits parent sampling decision', () {
+          final hub = fixture.getSut(tracesSampleRate: 1.0);
+
+          final rootSpan = hub.startSpan('root-span') as RecordingSentrySpanV2;
+          final childSpan = hub.startSpan('child-span') as RecordingSentrySpanV2;
+
+          // Both should have the same sampling decision
+          expect(childSpan.samplingDecision.sampled,
+              equals(rootSpan.samplingDecision.sampled));
+          expect(childSpan.samplingDecision.sampleRate,
+              equals(rootSpan.samplingDecision.sampleRate));
+          expect(childSpan.samplingDecision.sampleRand,
+              equals(rootSpan.samplingDecision.sampleRand));
+        });
+
+        test('deeply nested spans all inherit root sampling decision', () {
+          final hub = fixture.getSut(tracesSampleRate: 1.0);
+
+          final rootSpan = hub.startSpan('root-span') as RecordingSentrySpanV2;
+          final child1 = hub.startSpan('child-1') as RecordingSentrySpanV2;
+          final child2 = hub.startSpan('child-2') as RecordingSentrySpanV2;
+          final child3 = hub.startSpan('child-3') as RecordingSentrySpanV2;
+
+          final rootDecision = rootSpan.samplingDecision;
+
+          // All children should have the same sampling decision
+          expect(child1.samplingDecision.sampled, equals(rootDecision.sampled));
+          expect(child1.samplingDecision.sampleRate,
+              equals(rootDecision.sampleRate));
+          expect(child1.samplingDecision.sampleRand,
+              equals(rootDecision.sampleRand));
+
+          expect(child2.samplingDecision.sampled, equals(rootDecision.sampled));
+          expect(child2.samplingDecision.sampleRate,
+              equals(rootDecision.sampleRate));
+          expect(child2.samplingDecision.sampleRand,
+              equals(rootDecision.sampleRand));
+
+          expect(child3.samplingDecision.sampled, equals(rootDecision.sampled));
+          expect(child3.samplingDecision.sampleRate,
+              equals(rootDecision.sampleRate));
+          expect(child3.samplingDecision.sampleRand,
+              equals(rootDecision.sampleRand));
+        });
+
+        test('sampling is evaluated once at root level', () {
+          final hub = fixture.getSut(
+            tracesSampleRate: 1.0,
+          );
+
+          // Start root span (should trigger sampling evaluation)
+          final rootSpan = hub.startSpan('root-span');
+          expect(rootSpan, isA<RecordingSentrySpanV2>());
+
+          // Start child spans (should NOT trigger new sampling evaluations)
+          final child1 = hub.startSpan('child-1');
+          final child2 = hub.startSpan('child-2');
+
+          expect(child1, isA<RecordingSentrySpanV2>());
+          expect(child2, isA<RecordingSentrySpanV2>());
+
+          // All spans should be recording spans, using the same sampling decision
+        });
+
+        test('root span with sampleRate=0 prevents all child spans', () {
+          final hub = fixture.getSut(tracesSampleRate: 0.0);
+
+          final rootSpan = hub.startSpan('root-span');
+
+          // Root span should be NoOp when sampled out
+          expect(rootSpan, isA<NoOpSentrySpanV2>());
+
+          // Children should also be NoOp (can't have recording children of NoOp)
+          final childSpan = hub.startSpan('child-span');
+          expect(childSpan, isA<NoOpSentrySpanV2>());
+        });
+
+        test('sampleRand is reused across all spans in the same trace', () {
+          final hub = fixture.getSut(tracesSampleRate: 1.0);
+
+          final rootSpan = hub.startSpan('root-span') as RecordingSentrySpanV2;
+          final sampleRand = rootSpan.samplingDecision.sampleRand;
+
+          // Create multiple child spans
+          final child1 = hub.startSpan('child-1') as RecordingSentrySpanV2;
+          final child2 = hub.startSpan('child-2') as RecordingSentrySpanV2;
+
+          // All spans should use the same sampleRand
+          expect(child1.samplingDecision.sampleRand, equals(sampleRand));
+          expect(child2.samplingDecision.sampleRand, equals(sampleRand));
+        });
+
+        test('new trace gets new sampling decision', () {
+          final hub = fixture.getSut(tracesSampleRate: 1.0);
+
+          // First trace
+          final rootSpan1 =
+              hub.startSpan('root-1', parentSpan: null) as RecordingSentrySpanV2;
+          final decision1 = rootSpan1.samplingDecision;
+
+          // Generate new trace
+          hub.generateNewTrace();
+
+          // Second trace
+          final rootSpan2 =
+              hub.startSpan('root-2', parentSpan: null) as RecordingSentrySpanV2;
+          final decision2 = rootSpan2.samplingDecision;
+
+          // New trace should have a different sampleRand
+          // (extremely unlikely to be the same by chance)
+          expect(decision2.sampleRand, isNot(equals(decision1.sampleRand)));
+        });
+      });
     });
 
     group('captureSpan', () {

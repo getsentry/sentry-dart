@@ -992,14 +992,13 @@ class Fixture {
   Object? loggedException;
 
   RecordingSentrySpanV2 createSpan({String name = 'test-span'}) {
-    return RecordingSentrySpanV2(
+    return RecordingSentrySpanV2.root(
       name: name,
       traceId: SentryId.newId(),
       onSpanEnd: (_) {},
-      log: options.log,
       clock: options.clock,
-      parentSpan: null,
       dscCreator: (_) => SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+      samplingDecision: SentryTracesSamplingDecision(true),
     );
   }
 

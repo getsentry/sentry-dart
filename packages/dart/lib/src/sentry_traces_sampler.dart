@@ -19,23 +19,16 @@ class SentryTracesSampler {
     }
   }
 
-  SentryTracesSamplingDecision sampleSpanV2(double sampleRand) {
-    double? optionsRate = _options.tracesSampleRate;
-    if (optionsRate != null) {
-      return _makeSampleDecision(optionsRate, sampleRand);
-    }
-
-    return SentryTracesSamplingDecision(false);
-  }
-
   SentryTracesSamplingDecision sample(
     SentrySamplingContext samplingContext,
     double sampleRand,
   ) {
-    final samplingDecision =
-        samplingContext.transactionContext.samplingDecision;
-    if (samplingDecision != null) {
-      return samplingDecision;
+    if (_options.traceLifecycle == SentryTraceLifecycle.static) {
+      final samplingDecision =
+          samplingContext.transactionContext.samplingDecision;
+      if (samplingDecision != null) {
+        return samplingDecision;
+      }
     }
 
     final tracesSampler = _options.tracesSampler;
@@ -58,10 +51,12 @@ class SentryTracesSampler {
       }
     }
 
-    final parentSamplingDecision =
-        samplingContext.transactionContext.parentSamplingDecision;
-    if (parentSamplingDecision != null) {
-      return parentSamplingDecision;
+    if (_options.traceLifecycle == SentryTraceLifecycle.static) {
+      final parentSamplingDecision =
+          samplingContext.transactionContext.parentSamplingDecision;
+      if (parentSamplingDecision != null) {
+        return parentSamplingDecision;
+      }
     }
 
     double? optionsRate = _options.tracesSampleRate;

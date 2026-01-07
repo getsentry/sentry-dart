@@ -137,14 +137,13 @@ class Fixture {
   }
 
   RecordingSentrySpanV2 createSpan({String name = 'test-span'}) {
-    return RecordingSentrySpanV2(
+    return RecordingSentrySpanV2.root(
       name: name,
       traceId: SentryId.newId(),
       onSpanEnd: (_) {},
-      log: options.log,
       clock: options.clock,
-      parentSpan: null,
       dscCreator: (_) => SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+      samplingDecision: SentryTracesSamplingDecision(true),
     );
   }
 
@@ -152,13 +151,11 @@ class Fixture {
     required RecordingSentrySpanV2 parent,
     String name = 'child-span',
   }) {
-    return RecordingSentrySpanV2(
+    return RecordingSentrySpanV2.child(
+      parent: parent,
       name: name,
-      traceId: SentryId.newId(),
       onSpanEnd: (_) {},
-      log: options.log,
       clock: options.clock,
-      parentSpan: parent,
       dscCreator: (_) => SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
     );
   }

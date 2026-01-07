@@ -365,15 +365,24 @@ class Fixture {
     SentryId? traceId,
     OnSpanEndCallback? onSpanEnded,
   }) {
-    return RecordingSentrySpanV2(
+    if (parentSpan != null) {
+      return RecordingSentrySpanV2.child(
+        parent: parentSpan,
+        name: name,
+        onSpanEnd: onSpanEnded ?? (_) {},
+        clock: options.clock,
+        dscCreator: (RecordingSentrySpanV2 span) =>
+            SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+      );
+    }
+    return RecordingSentrySpanV2.root(
       name: name,
       traceId: traceId ?? SentryId.newId(),
       onSpanEnd: onSpanEnded ?? (_) {},
-      log: options.log,
       clock: options.clock,
-      parentSpan: parentSpan,
       dscCreator: (RecordingSentrySpanV2 span) =>
           SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+      samplingDecision: SentryTracesSamplingDecision(true),
     );
   }
 }
