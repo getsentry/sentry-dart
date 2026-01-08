@@ -94,7 +94,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_isNavigatorObserverCreated() && !_options.platform.isWeb) {
       if (state == AppLifecycleState.inactive) {
         _appInBackgroundStopwatch.start();
-        _options.logBatcher.flush();
+        _options.telemetryProcessor.flush();
       } else if (_appInBackgroundStopwatch.isRunning &&
           state == AppLifecycleState.resumed) {
         _appInBackgroundStopwatch.stop();

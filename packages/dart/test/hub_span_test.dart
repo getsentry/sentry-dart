@@ -60,6 +60,29 @@ void main() {
 
           expect(span.attributes, equals(attributes));
         });
+
+        test('returns NoOpSentrySpanV2 when traceLifecycle is static', () {
+          final hub = fixture.getSut(
+            traceLifecycle: SentryTraceLifecycle.static,
+          );
+
+          final span = hub.startSpan('test-span');
+
+          expect(span, isA<NoOpSentrySpanV2>());
+        });
+
+        test(
+          'returns RecordingSentrySpanV2 when traceLifecycle is streaming',
+          () {
+            final hub = fixture.getSut(
+              traceLifecycle: SentryTraceLifecycle.streaming,
+            );
+
+            final span = hub.startSpan('test-span');
+
+            expect(span, isA<RecordingSentrySpanV2>());
+          },
+        );
       });
 
       group('active span handling', () {
@@ -98,20 +121,22 @@ void main() {
           expect(childSpan.parentSpan, equals(parentSpan));
         });
 
-        test('uses explicit parentSpan instead of active span when provided',
-            () {
-          final hub = fixture.getSut();
-          final explicitParent = hub.startSpan('explicit-parent');
-          hub.startSpan('other-span'); // Changes active span
+        test(
+          'uses explicit parentSpan instead of active span when provided',
+          () {
+            final hub = fixture.getSut();
+            final explicitParent = hub.startSpan('explicit-parent');
+            hub.startSpan('other-span'); // Changes active span
 
-          final childSpan = hub.startSpan(
-            'child-span',
-            parentSpan: explicitParent,
-            active: false,
-          );
+            final childSpan = hub.startSpan(
+              'child-span',
+              parentSpan: explicitParent,
+              active: false,
+            );
 
-          expect(childSpan.parentSpan, equals(explicitParent));
-        });
+            expect(childSpan.parentSpan, equals(explicitParent));
+          },
+        );
 
         test('allows finished span to be used as parent', () {
           final hub = fixture.getSut();
@@ -172,26 +197,28 @@ void main() {
           expect(child2.parentSpan, equals(parent));
         });
 
-        test('ending spans in reverse order cleans up active spans correctly',
-            () {
-          final hub = fixture.getSut();
+        test(
+          'ending spans in reverse order cleans up active spans correctly',
+          () {
+            final hub = fixture.getSut();
 
-          final span1 = hub.startSpan('span1');
-          final span2 = hub.startSpan('span2');
-          final span3 = hub.startSpan('span3');
+            final span1 = hub.startSpan('span1');
+            final span2 = hub.startSpan('span2');
+            final span3 = hub.startSpan('span3');
 
-          expect(hub.scope.activeSpans.length, 3);
+            expect(hub.scope.activeSpans.length, 3);
 
-          span3.end();
-          expect(hub.scope.activeSpans.length, 2);
-          expect(hub.scope.getActiveSpan(), equals(span2));
+            span3.end();
+            expect(hub.scope.activeSpans.length, 2);
+            expect(hub.scope.getActiveSpan(), equals(span2));
 
-          span2.end();
-          expect(hub.scope.getActiveSpan(), equals(span1));
+            span2.end();
+            expect(hub.scope.getActiveSpan(), equals(span1));
 
-          span1.end();
-          expect(hub.scope.getActiveSpan(), isNull);
-        });
+            span1.end();
+            expect(hub.scope.getActiveSpan(), isNull);
+          },
+        );
 
         test('ending spans out of order removes them from active spans', () {
           final hub = fixture.getSut();
@@ -208,24 +235,33 @@ void main() {
         });
 
         test(
-            'new span parents to active root span when multiple root spans exist',
-            () {
-          final hub = fixture.getSut();
+          'new span parents to active root span when multiple root spans exist',
+          () {
+            final hub = fixture.getSut();
 
-          final activeRoot =
-              hub.startSpan('active-root', parentSpan: null, active: true);
-          final inactiveRoot =
-              hub.startSpan('inactive-root', parentSpan: null, active: false);
+            final activeRoot = hub.startSpan(
+              'active-root',
+              parentSpan: null,
+              active: true,
+            );
+            final inactiveRoot = hub.startSpan(
+              'inactive-root',
+              parentSpan: null,
+              active: false,
+            );
 
-          final childToActiveSpan = hub.startSpan('child');
-          expect(childToActiveSpan.parentSpan, equals(activeRoot));
-          expect(childToActiveSpan.parentSpan, isNot(equals(inactiveRoot)));
+            final childToActiveSpan = hub.startSpan('child');
+            expect(childToActiveSpan.parentSpan, equals(activeRoot));
+            expect(childToActiveSpan.parentSpan, isNot(equals(inactiveRoot)));
 
-          final childToInactiveSpan =
-              hub.startSpan('child', parentSpan: inactiveRoot);
-          expect(childToInactiveSpan.parentSpan, equals(inactiveRoot));
-          expect(childToInactiveSpan.parentSpan, isNot(equals(activeRoot)));
-        });
+            final childToInactiveSpan = hub.startSpan(
+              'child',
+              parentSpan: inactiveRoot,
+            );
+            expect(childToInactiveSpan.parentSpan, equals(inactiveRoot));
+            expect(childToInactiveSpan.parentSpan, isNot(equals(activeRoot)));
+          },
+        );
 
         test('deep hierarchy maintains correct parent chain', () {
           final hub = fixture.getSut();
@@ -263,12 +299,18 @@ void main() {
               hub.startSpan('child-span') as RecordingSentrySpanV2;
 
           // Both should have the same sampling decision
-          expect(childSpan.samplingDecision.sampled,
-              equals(rootSpan.samplingDecision.sampled));
-          expect(childSpan.samplingDecision.sampleRate,
-              equals(rootSpan.samplingDecision.sampleRate));
-          expect(childSpan.samplingDecision.sampleRand,
-              equals(rootSpan.samplingDecision.sampleRand));
+          expect(
+            childSpan.samplingDecision.sampled,
+            equals(rootSpan.samplingDecision.sampled),
+          );
+          expect(
+            childSpan.samplingDecision.sampleRate,
+            equals(rootSpan.samplingDecision.sampleRate),
+          );
+          expect(
+            childSpan.samplingDecision.sampleRand,
+            equals(rootSpan.samplingDecision.sampleRand),
+          );
         });
 
         test('deeply nested spans all inherit root sampling decision', () {
@@ -283,28 +325,38 @@ void main() {
 
           // All children should have the same sampling decision
           expect(child1.samplingDecision.sampled, equals(rootDecision.sampled));
-          expect(child1.samplingDecision.sampleRate,
-              equals(rootDecision.sampleRate));
-          expect(child1.samplingDecision.sampleRand,
-              equals(rootDecision.sampleRand));
+          expect(
+            child1.samplingDecision.sampleRate,
+            equals(rootDecision.sampleRate),
+          );
+          expect(
+            child1.samplingDecision.sampleRand,
+            equals(rootDecision.sampleRand),
+          );
 
           expect(child2.samplingDecision.sampled, equals(rootDecision.sampled));
-          expect(child2.samplingDecision.sampleRate,
-              equals(rootDecision.sampleRate));
-          expect(child2.samplingDecision.sampleRand,
-              equals(rootDecision.sampleRand));
+          expect(
+            child2.samplingDecision.sampleRate,
+            equals(rootDecision.sampleRate),
+          );
+          expect(
+            child2.samplingDecision.sampleRand,
+            equals(rootDecision.sampleRand),
+          );
 
           expect(child3.samplingDecision.sampled, equals(rootDecision.sampled));
-          expect(child3.samplingDecision.sampleRate,
-              equals(rootDecision.sampleRate));
-          expect(child3.samplingDecision.sampleRand,
-              equals(rootDecision.sampleRand));
+          expect(
+            child3.samplingDecision.sampleRate,
+            equals(rootDecision.sampleRate),
+          );
+          expect(
+            child3.samplingDecision.sampleRand,
+            equals(rootDecision.sampleRand),
+          );
         });
 
         test('sampling is evaluated once at root level', () {
-          final hub = fixture.getSut(
-            tracesSampleRate: 1.0,
-          );
+          final hub = fixture.getSut(tracesSampleRate: 1.0);
 
           // Start root span (should trigger sampling evaluation)
           final rootSpan = hub.startSpan('root-span');
@@ -427,10 +479,12 @@ class Fixture {
     double? tracesSampleRate = 1.0,
     TracesSamplerCallback? tracesSampler,
     bool debug = false,
+    SentryTraceLifecycle traceLifecycle = SentryTraceLifecycle.streaming,
   }) {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
     options.debug = debug;
+    options.traceLifecycle = traceLifecycle;
 
     final hub = Hub(options);
 
