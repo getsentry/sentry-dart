@@ -1,7 +1,7 @@
 part of 'sentry_span_v2.dart';
 
 /// Factory for creating a [SentryTraceContextHeader] from a [RecordingSentrySpanV2].
-typedef DscCreator = SentryTraceContextHeader Function(
+typedef DscCreatorCallback = SentryTraceContextHeader Function(
     RecordingSentrySpanV2 span);
 
 /// Called when a span ends, allowing the span to be processed or buffered.
@@ -23,7 +23,7 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
   final DateTime _startTimestamp;
   final SentryId _traceId;
   final RecordingSentrySpanV2? _segmentSpan;
-  final DscCreator _dscCreator;
+  final DscCreatorCallback _dscCreator;
   final Map<String, SentryAttribute> _attributes = {};
   final SentryTracesSamplingDecision _samplingDecision;
 
@@ -40,7 +40,7 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
     required OnSpanEndCallback onSpanEnd,
     required ClockProvider clock,
     required RecordingSentrySpanV2? parentSpan,
-    required DscCreator dscCreator,
+    required DscCreatorCallback dscCreator,
     required SentryTracesSamplingDecision samplingDecision,
   })  : _traceId = parentSpan?.traceId ?? traceId,
         _name = name,
@@ -60,7 +60,7 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
     required String name,
     required OnSpanEndCallback onSpanEnd,
     required ClockProvider clock,
-    required DscCreator dscCreator,
+    required DscCreatorCallback dscCreator,
     required SentryTracesSamplingDecision samplingDecision,
   }) {
     return RecordingSentrySpanV2._(
@@ -83,7 +83,7 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
     required String name,
     required OnSpanEndCallback onSpanEnd,
     required ClockProvider clock,
-    required DscCreator dscCreator,
+    required DscCreatorCallback dscCreator,
   }) {
     return RecordingSentrySpanV2._(
       traceId: parent.traceId,

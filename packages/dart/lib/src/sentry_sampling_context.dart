@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'telemetry/span/sentry_span_sampling_context.dart';
+import 'utils/internal_logger.dart';
 
 /// Context used by [TracesSamplerCallback] to determine if transaction
 /// is going to be sampled.
@@ -62,8 +63,9 @@ class SentrySamplingContext {
   /// This runtime check is a temporary solution for backwards compatibility.
   SentryTransactionContext get transactionContext {
     if (_traceLifecycle != SentryTraceLifecycle.static) {
-      throw StateError('transactionContext is only available in static mode. '
-          'Use spanContext for streaming mode.');
+      internalLogger
+          .error('transactionContext is only available in static mode. '
+              'Use spanContext for streaming mode.');
     }
     return _transactionContext;
   }
@@ -76,7 +78,7 @@ class SentrySamplingContext {
   /// This runtime check is a temporary solution for backwards compatibility.
   SentrySpanSamplingContextV2 get spanContext {
     if (_traceLifecycle != SentryTraceLifecycle.streaming) {
-      throw StateError('spanContext is only available in streaming mode. '
+      internalLogger.error('spanContext is only available in streaming mode. '
           'Use transactionContext for static mode.');
     }
     return _spanContext;

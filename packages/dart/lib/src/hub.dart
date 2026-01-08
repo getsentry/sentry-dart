@@ -660,8 +660,8 @@ class Hub {
         traceId: scope.propagationContext.traceId,
         name: name,
         clock: options.clock,
-        dscCreator: (span) =>
-            SentryTraceContextHeader.fromRecordingSpan(span, this),
+        dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(
+            span, options, scope.replayId),
         onSpanEnd: captureSpan,
         samplingDecision: samplingDecision,
       );
@@ -670,8 +670,8 @@ class Hub {
         parent: resolvedParentSpan,
         name: name,
         clock: options.clock,
-        dscCreator: (span) =>
-            SentryTraceContextHeader.fromRecordingSpan(span, this),
+        dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(
+            span, options, scope.replayId),
         onSpanEnd: captureSpan,
       );
     }
