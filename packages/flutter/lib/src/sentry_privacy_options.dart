@@ -168,6 +168,16 @@ class SentryPrivacyOptions {
           description ?? 'Custom callback-based rule (description unspecified)',
     ));
   }
+
+  Map<String, dynamic> toJson() => {
+        'maskAllText': maskAllText,
+        'maskAllImages': maskAllImages,
+        'maskAssetImages': maskAssetImages,
+        if (userMaskingRules.isNotEmpty)
+          'maskingRules': userMaskingRules
+              .map((rule) => '${rule.name}: ${rule.description}')
+              .toList(growable: false),
+      };
 }
 
 /// Returns `true` if a SensitiveContent masking rule _should_ be added for a

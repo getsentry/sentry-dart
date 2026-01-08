@@ -1,0 +1,56 @@
+name: sentry-supabase
+on:
+  push:
+    branches:
+      - main
+      - release/**
+  pull_request:
+    paths:
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      - '.github/workflows/supabase.yml'
+      - '.github/workflows/analyze.yml'
+      - '.github/actions/dart-test/**'
+      - '.github/actions/coverage/**'
+      - 'packages/dart/**'
+      - 'packages/flutter/**'
+      - 'packages/supabase/**'
+
+# https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: '${{ matrix.os }} | ${{ matrix.sdk }}'
+    runs-on: ${{ matrix.os }}-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos, ubuntu, windows]
+        sdk: [stable, beta]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/flutter-test
+        with:
+          directory: packages/supabase
+          web: false
+
+#       TODO: don't set coverage for now to finish publishing it
+#      - uses: ./.github/actions/coverage
+#        if: runner.os == 'Linux' && matrix.sdk == 'stable'
+#        with:
+#          token: ${{ secrets.CODECOV_TOKEN }}
+#          directory: packages/supabase
+#          coverage: sentry_supabase
+#          min-coverage: 55
+
+  analyze:
+    uses: ./.github/workflows/analyze.yml
+    with:
+      package: packages/supabase
+      sdk: flutter

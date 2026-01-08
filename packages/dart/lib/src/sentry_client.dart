@@ -502,21 +502,26 @@ class SentryClient {
       return;
     }
 
-    log.attributes['sentry.sdk.name'] = SentryLogAttribute.string(
+    if (scope != null) {
+      final merged = Map.of(scope.attributes)..addAll(log.attributes);
+      log.attributes = merged;
+    }
+
+    log.attributes['sentry.sdk.name'] = SentryAttribute.string(
       _options.sdk.name,
     );
-    log.attributes['sentry.sdk.version'] = SentryLogAttribute.string(
+    log.attributes['sentry.sdk.version'] = SentryAttribute.string(
       _options.sdk.version,
     );
     final environment = _options.environment;
     if (environment != null) {
-      log.attributes['sentry.environment'] = SentryLogAttribute.string(
+      log.attributes['sentry.environment'] = SentryAttribute.string(
         environment,
       );
     }
     final release = _options.release;
     if (release != null) {
-      log.attributes['sentry.release'] = SentryLogAttribute.string(
+      log.attributes['sentry.release'] = SentryAttribute.string(
         release,
       );
     }
@@ -527,7 +532,7 @@ class SentryClient {
     }
     final span = scope?.span;
     if (span != null) {
-      log.attributes['sentry.trace.parent_span_id'] = SentryLogAttribute.string(
+      log.attributes['sentry.trace.parent_span_id'] = SentryAttribute.string(
         span.context.spanId.toString(),
       );
     }
@@ -537,13 +542,13 @@ class SentryClient {
     final email = user?.email;
     final name = user?.name;
     if (id != null) {
-      log.attributes['user.id'] = SentryLogAttribute.string(id);
+      log.attributes['user.id'] = SentryAttribute.string(id);
     }
     if (name != null) {
-      log.attributes['user.name'] = SentryLogAttribute.string(name);
+      log.attributes['user.name'] = SentryAttribute.string(name);
     }
     if (email != null) {
-      log.attributes['user.email'] = SentryLogAttribute.string(email);
+      log.attributes['user.email'] = SentryAttribute.string(email);
     }
 
     final beforeSendLog = _options.beforeSendLog;
@@ -582,7 +587,11 @@ class SentryClient {
     }
   }
 
-  void close() {
+  FutureOr<void> close() {
+    final flush = _options.logBatcher.flush();
+    if (flush is Future<void>) {
+      return flush.then((_) => _options.httpClient.close());
+    }
     _options.httpClient.close();
   }
 

@@ -55,6 +55,11 @@ Future<void> main() async {
   );
 }
 
+Future<void> setupSentryWithCustomInit(
+    AppRunner appRunner, OptionsConfiguration optionsConfiguration) async {
+  return SentryFlutter.init(optionsConfiguration, appRunner: appRunner);
+}
+
 Future<void> setupSentry(
   AppRunner appRunner,
   String dsn, {
@@ -87,7 +92,7 @@ Future<void> setupSentry(
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.navigatorKey = navigatorKey;
 
-      options.replay.sessionSampleRate = 0.0;
+      options.replay.sessionSampleRate = 1.0;
       options.replay.onErrorSampleRate = 1.0;
 
       options.enableLogs = true;
@@ -543,7 +548,7 @@ class MainScaffold extends StatelessWidget {
               onPressed: () {
                 Sentry.logger
                     .info('Sentry Log With Test Attribute', attributes: {
-                  'test-attribute': SentryLogAttribute.string('test-value'),
+                  'test-attribute': SentryAttribute.string('test-value'),
                 });
               },
               text: 'Demonstrates the logging with Sentry Log.',

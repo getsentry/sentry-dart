@@ -13,7 +13,7 @@ class MockLogBatcher implements SentryLogBatcher {
   }
 
   @override
-  Future<void> flush() async {
+  FutureOr<void> flush() async {
     flushCalls.add(null);
   }
 }

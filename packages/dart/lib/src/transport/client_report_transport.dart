@@ -16,6 +16,9 @@ class ClientReportTransport implements Transport {
   @visibleForTesting
   RateLimiter? get rateLimiter => _rateLimiter;
 
+  @visibleForTesting
+  Transport? get innerTransport => _transport;
+
   int _numberOfDroppedEnvelopes = 0;
 
   @visibleForTesting

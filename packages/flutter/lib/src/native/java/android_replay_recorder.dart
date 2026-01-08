@@ -6,10 +6,10 @@ import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
-import '../../isolate/isolate_logger.dart';
 import '../../isolate/isolate_worker.dart';
 import '../../replay/scheduled_recorder.dart';
 import '../../screenshot/screenshot.dart';
+import '../../utils/internal_logger.dart';
 import 'binding.dart' as native;
 
 // Note, this is currently not unit-tested because mocking JNI calls is
@@ -99,21 +99,21 @@ class _AndroidReplayHandler extends WorkerHandler {
   late final native.ReplayIntegration _nativeReplay;
 
   _AndroidReplayHandler(this._config) {
-    _nativeReplay = native.SentryFlutterPlugin.Companion
-        .privateSentryGetReplayIntegration()!;
+    _nativeReplay =
+        native.SentryFlutterPlugin.privateSentryGetReplayIntegration()!;
   }
 
   @override
   FutureOr<void> onMessage(Object? message) {
-    IsolateLogger.log(
-        SentryLevel.warning, 'Unexpected fire-and-forget message: $message');
+    internalLogger.warning(
+        '${_config.debugName}: Unexpected fire-and-forget message: $message');
   }
 
   @override
   FutureOr<Object?> onRequest(Object? payload) {
     if (payload is! _WorkItem) {
-      IsolateLogger.log(
-          SentryLevel.warning, 'Unexpected payload type: $payload');
+      internalLogger
+          .warning('${_config.debugName}: Unexpected payload type: $payload');
       return null;
     }
 
@@ -142,8 +142,8 @@ class _AndroidReplayHandler extends WorkerHandler {
 
       return null;
     } catch (exception, stackTrace) {
-      IsolateLogger.log(SentryLevel.error, 'Failed to add replay screenshot',
-          exception: exception, stackTrace: stackTrace);
+      internalLogger.error('Failed to add replay screenshot',
+          error: exception, stackTrace: stackTrace);
       if (_config.automatedTestMode) {
         rethrow;
       }

@@ -10,7 +10,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
-import 'package:sentry_flutter/src/native/cocoa/sentry_native_cocoa.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
 
 void main() {
@@ -103,15 +102,7 @@ void main() {
       expect(native, isNotNull);
 
       await Future.delayed(const Duration(seconds: 2));
-      final recorder = native!.testRecorder;
-      expect(recorder, isNotNull);
-
-      await recorder!
-          .onConfigurationChanged(const ScheduledScreenshotRecorderConfig(
-        width: 800,
-        height: 600,
-        frameRate: 1,
-      ));
+      final recorder = native!.testRecorder!;
 
       var frameCount = 0;
       final firstFrame = Completer<void>();
@@ -119,6 +110,13 @@ void main() {
         frameCount++;
         if (!firstFrame.isCompleted) firstFrame.complete();
       };
+
+      await recorder
+          .onConfigurationChanged(const ScheduledScreenshotRecorderConfig(
+        width: 800,
+        height: 600,
+        frameRate: 1,
+      ));
 
       await tester.pump();
       await firstFrame.future.timeout(const Duration(seconds: 5));
@@ -138,15 +136,7 @@ void main() {
       expect(native, isNotNull);
 
       await Future.delayed(const Duration(seconds: 2));
-      final recorder = native!.testRecorder;
-      expect(recorder, isNotNull);
-
-      await recorder!
-          .onConfigurationChanged(const ScheduledScreenshotRecorderConfig(
-        width: 800,
-        height: 600,
-        frameRate: 1,
-      ));
+      final recorder = native!.testRecorder!;
 
       var frameCount = 0;
       final firstFrame = Completer<void>();
@@ -154,6 +144,13 @@ void main() {
         frameCount++;
         if (!firstFrame.isCompleted) firstFrame.complete();
       };
+
+      await recorder
+          .onConfigurationChanged(const ScheduledScreenshotRecorderConfig(
+        width: 800,
+        height: 600,
+        frameRate: 1,
+      ));
 
       await tester.pump();
       await firstFrame.future.timeout(const Duration(seconds: 5));
@@ -192,26 +189,5 @@ void main() {
       // Should not throw
       await SentryFlutter.native?.setReplayConfig(config);
     }, skip: !Platform.isAndroid);
-
-    testWidgets('capture screenshot via test recorder returns metadata on iOS',
-        (tester) async {
-      await setupSentryAndApp(tester);
-      final native = SentryFlutter.native as SentryNativeCocoa?;
-      expect(native, isNotNull);
-
-      await Future.delayed(const Duration(seconds: 2));
-      final json = await native!.testRecorder?.captureScreenshot();
-      expect(json, isNotNull);
-      expect(json!['length'], isNotNull);
-      expect(json['address'], isNotNull);
-      expect(json['width'], isNotNull);
-      expect(json['height'], isNotNull);
-      expect((json['width'] as int) > 0, isTrue);
-      expect((json['height'] as int) > 0, isTrue);
-
-      // Capture again to ensure subsequent captures still succeed
-      final json2 = await native.testRecorder?.captureScreenshot();
-      expect(json2, isNotNull);
-    }, skip: !Platform.isIOS);
   });
 }

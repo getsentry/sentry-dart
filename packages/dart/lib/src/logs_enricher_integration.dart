@@ -5,7 +5,7 @@ import 'sdk_lifecycle_hooks.dart';
 import 'utils/os_utils.dart';
 import 'integration.dart';
 import 'hub.dart';
-import 'protocol/sentry_log_attribute.dart';
+import 'protocol/sentry_attribute.dart';
 import 'sentry_options.dart';
 
 @internal
@@ -20,12 +20,12 @@ class LogsEnricherIntegration extends Integration<SentryOptions> {
           final os = getSentryOperatingSystem();
 
           if (os.name != null) {
-            event.log.attributes['os.name'] = SentryLogAttribute.string(
+            event.log.attributes['os.name'] = SentryAttribute.string(
               os.name ?? '',
             );
           }
           if (os.version != null) {
-            event.log.attributes['os.version'] = SentryLogAttribute.string(
+            event.log.attributes['os.version'] = SentryAttribute.string(
               os.version ?? '',
             );
           }

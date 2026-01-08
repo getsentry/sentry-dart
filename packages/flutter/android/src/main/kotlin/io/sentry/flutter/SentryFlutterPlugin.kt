@@ -17,6 +17,8 @@ import io.sentry.Breadcrumb
 import io.sentry.DateUtils
 import io.sentry.ScopesAdapter
 import io.sentry.Sentry
+import io.sentry.SentryOptions.Proxy
+import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
@@ -25,11 +27,13 @@ import io.sentry.android.core.performance.TimeSpan
 import io.sentry.android.replay.ReplayIntegration
 import io.sentry.android.replay.ScreenshotRecorderConfig
 import io.sentry.protocol.DebugImage
+import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import org.json.JSONObject
 import org.json.JSONArray
 import java.lang.ref.WeakReference
+import java.net.Proxy.Type
 import kotlin.math.roundToInt
 
 private const val APP_START_MAX_DURATION_MS = 60000
@@ -49,8 +53,6 @@ class SentryFlutterPlugin :
     applicationContext = context
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
     channel.setMethodCallHandler(this)
-
-    sentryFlutter = SentryFlutter()
   }
 
   @Suppress("CyclomaticComplexMethod")
@@ -59,7 +61,6 @@ class SentryFlutterPlugin :
     result: Result,
   ) {
     when (call.method) {
-      "initNativeSdk" -> initNativeSdk(call, result)
       "closeNativeSdk" -> closeNativeSdk(result)
       else -> result.notImplemented()
     }
@@ -70,6 +71,7 @@ class SentryFlutterPlugin :
       return
     }
 
+    tearDownReplayIntegration()
     channel.setMethodCallHandler(null)
     applicationContext = null
   }
@@ -89,50 +91,6 @@ class SentryFlutterPlugin :
   override fun onDetachedFromActivityForConfigChanges() {
     // Stub
   }
-
-  private fun initNativeSdk(
-    call: MethodCall,
-    result: Result,
-  ) {
-    if (!this::context.isInitialized) {
-      result.error("1", "Context is null", null)
-      return
-    }
-
-    val args = call.arguments() as Map<String, Any>? ?: mapOf<String, Any>()
-    if (args.isEmpty()) {
-      result.error("4", "Arguments is null or empty", null)
-      return
-    }
-
-    SentryAndroid.init(context) { options ->
-      sentryFlutter.updateOptions(options, args)
-
-      setupReplay(options)
-    }
-    result.success("")
-  }
-
-  private fun setupReplay(options: SentryAndroidOptions) {
-    // Replace the default ReplayIntegration with a Flutter-specific recorder.
-    options.integrations.removeAll { it is ReplayIntegration }
-    val replayOptions = options.sessionReplay
-    if (replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled) {
-      replay =
-        ReplayIntegration(
-          context.applicationContext,
-          dateProvider = CurrentDateProvider.getInstance(),
-          recorderProvider = { SentryFlutterReplayRecorder(channel, replay!!) },
-          replayCacheProvider = null,
-        )
-      replay!!.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
-      options.addIntegration(replay!!)
-      options.setReplayController(replay)
-    } else {
-      options.setReplayController(null)
-    }
-  }
-
   private fun closeNativeSdk(result: Result) {
     ScopesAdapter.getInstance().close()
 
@@ -152,13 +110,66 @@ class SentryFlutterPlugin :
 
     private var pluginRegistrationTime: Long? = null
 
-    private lateinit var sentryFlutter: SentryFlutter
-
     private const val NATIVE_CRASH_WAIT_TIME = 500L
+
+    /**
+     * Tears down the current ReplayIntegration to avoid invoking callbacks from a stale
+     * Flutter isolate after hot restart.
+     *
+     * - Bumps the replay callback generation so any pending posts from the previous
+     *   isolate no-op.
+     * - Closes the existing ReplayIntegration and clears its reference.
+     */
+    fun tearDownReplayIntegration() {
+      SafeReplayRecorderCallbacks.bumpGeneration()
+      try {
+        replay?.close()
+      } catch (e: Exception) {
+        Log.w("Sentry", "Failed to close existing ReplayIntegration", e)
+      } finally {
+        replay = null
+      }
+    }
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
+
+    @JvmStatic
+    fun setupReplay(
+      options: SentryAndroidOptions,
+      replayCallbacks: ReplayRecorderCallbacks?,
+    ) {
+      tearDownReplayIntegration()
+
+      // Replace the default ReplayIntegration with a Flutter-specific recorder.
+      options.integrations.removeAll { it is ReplayIntegration }
+      val replayOptions = options.sessionReplay
+      if ((replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled) && replayCallbacks != null) {
+        val ctx = applicationContext
+        if (ctx == null) {
+          Log.w("Sentry", "setupReplay called before applicationContext initialized")
+          return
+        }
+
+        val safeCallbacks = SafeReplayRecorderCallbacks(replayCallbacks)
+
+        replay =
+          ReplayIntegration(
+            ctx.applicationContext,
+            dateProvider = CurrentDateProvider.getInstance(),
+            recorderProvider = {
+              SentryFlutterReplayRecorder(safeCallbacks, replay!!)
+            },
+            replayCacheProvider = null,
+          )
+        replay!!.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+        options.addIntegration(replay!!)
+        options.setReplayController(replay)
+      } else {
+        options.setReplayController(null)
+      }
+    }
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
@@ -197,10 +208,6 @@ class SentryFlutterPlugin :
     @Suppress("unused", "ReturnCount", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun fetchNativeAppStartAsBytes(): ByteArray? {
-      if (!sentryFlutter.autoPerformanceTracingEnabled) {
-        return null
-      }
-
       val appStartMetrics = AppStartMetrics.getInstance()
 
       if (!appStartMetrics.isAppLaunchedInForeground ||

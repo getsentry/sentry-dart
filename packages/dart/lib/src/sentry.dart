@@ -295,6 +295,19 @@ class Sentry {
   static Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) =>
       _hub.addBreadcrumb(crumb, hint: hint);
 
+  /// Adds attributes to the current [Scope].
+  /// These attributes will be applied to logs.
+  /// When the same attribute keys exist on the current log,
+  /// it takes precedence over an attribute with the same key set on any scope.
+  static void setAttributes(Map<String, SentryAttribute> attributes) {
+    _hub.setAttributes(attributes);
+  }
+
+  /// Removes the attribute [key] from the scope.
+  static void removeAttribute(String key) {
+    _hub.removeAttribute(key);
+  }
+
   /// Configures the scope through the callback.
   static FutureOr<void> configureScope(ScopeCallback callback) =>
       _hub.configureScope(callback);

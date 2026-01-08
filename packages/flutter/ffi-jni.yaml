@@ -13,15 +13,33 @@ output:
 log_level: all
 
 classes:
+  - io.sentry.android.core.SentryAndroid
+  - io.sentry.android.core.SentryAndroidOptions
   - io.sentry.android.core.InternalSentrySdk
+  - io.sentry.android.core.BuildConfig
   - io.sentry.android.replay.ReplayIntegration
   - io.sentry.android.replay.ScreenshotRecorderConfig
   - io.sentry.flutter.SentryFlutterPlugin
+  - io.sentry.flutter.ReplayRecorderCallbacks
   - io.sentry.Sentry
+  - io.sentry.SentryOptions
+  - io.sentry.SentryReplayOptions
+  - io.sentry.SentryReplayEvent
+  - io.sentry.SentryEvent
+  - io.sentry.SentryBaseEvent
+  - io.sentry.SentryLevel
+  - io.sentry.Hint
+  - io.sentry.ReplayRecording
   - io.sentry.Breadcrumb
   - io.sentry.ScopesAdapter
   - io.sentry.Scope
   - io.sentry.ScopeCallback
   - io.sentry.protocol.User
   - io.sentry.protocol.SentryId
+  - io.sentry.protocol.SdkVersion
+  - io.sentry.protocol.SentryPackage
+  - io.sentry.rrweb.RRWebOptionsEvent
+  - io.sentry.rrweb.RRWebEvent
+  - java.net.Proxy
   - android.graphics.Bitmap
+  - android.content.Context

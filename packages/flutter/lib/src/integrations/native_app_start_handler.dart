@@ -64,11 +64,11 @@ class NativeAppStartHandler {
     SentryMeasurement? measurement = appStartInfo.toMeasurement();
     sentryTracer.measurements[measurement.name] = appStartInfo.toMeasurement();
 
+    await _attachAppStartSpans(appStartInfo, sentryTracer);
     await options.timeToDisplayTracker.track(
       rootScreenTransaction,
       ttidEndTimestamp: appStartInfo.end,
     );
-    await _attachAppStartSpans(appStartInfo, sentryTracer);
   }
 
   _AppStartInfo? _infoNativeAppStart(

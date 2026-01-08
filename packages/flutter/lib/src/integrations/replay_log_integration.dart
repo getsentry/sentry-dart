@@ -29,17 +29,17 @@ class ReplayLogIntegration implements Integration<SentryFlutterOptions> {
       final replayIsBuffering = replayId != null && scopeReplayId == null;
 
       if (sessionSampleRate > 0 && replayId != null && !replayIsBuffering) {
-        event.log.attributes['sentry.replay_id'] = SentryLogAttribute.string(
+        event.log.attributes['sentry.replay_id'] = SentryAttribute.string(
           scopeReplayId.toString(),
         );
       } else if (onErrorSampleRate > 0 &&
           replayId != null &&
           replayIsBuffering) {
-        event.log.attributes['sentry.replay_id'] = SentryLogAttribute.string(
+        event.log.attributes['sentry.replay_id'] = SentryAttribute.string(
           replayId.toString(),
         );
         event.log.attributes['sentry._internal.replay_is_buffering'] =
-            SentryLogAttribute.bool(true);
+            SentryAttribute.bool(true);
       }
     };
     options.lifecycleRegistry

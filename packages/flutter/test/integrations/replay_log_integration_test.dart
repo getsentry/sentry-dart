@@ -293,7 +293,7 @@ class Fixture {
       traceId: SentryId.newId(),
       level: SentryLogLevel.info,
       body: 'test log message',
-      attributes: <String, SentryLogAttribute>{},
+      attributes: <String, SentryAttribute>{},
     );
   }
 

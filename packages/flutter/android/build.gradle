@@ -47,6 +47,9 @@ android {
         release {
             consumerProguardFiles 'proguard-rules.pro'
         }
+        debug {
+            consumerProguardFiles 'proguard-rules.pro'
+        }
     }
 
     compileOptions {
@@ -60,7 +63,7 @@ android {
 }
 
 dependencies {
-    api 'io.sentry:sentry-android:8.21.1'
+    api 'io.sentry:sentry-android:8.28.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Required -- JUnit 4 framework

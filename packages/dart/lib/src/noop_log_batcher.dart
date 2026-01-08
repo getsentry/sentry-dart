@@ -8,5 +8,5 @@ class NoopLogBatcher implements SentryLogBatcher {
   FutureOr<void> addLog(SentryLog log) {}
 
   @override
-  Future<void> flush() async {}
+  FutureOr<void> flush() {}
 }

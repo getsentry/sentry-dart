@@ -76,45 +76,46 @@ public final class SentryFlutter {
         if let enableSpotlight = data["enableSpotlight"] as? Bool {
             options.enableSpotlight = enableSpotlight
         }
-        if let proxy = data["proxy"] as? [String: Any] {
-            guard let host = proxy["host"] as? String,
-                let port = proxy["port"] as? Int,
-                let type = proxy["type"] as? String
-            else {
-                print("Could not read proxy data")
-                return
-            }
+        if let proxy = data["proxy"] as? [String: Any],
+           let host = proxy["host"] as? String,
+           let port = proxy["port"] as? Int,
+           let type = proxy["type"] as? String {
 
-            var connectionProxyDictionary: [String: Any] = [:]
+            var connectionProxyDictionary: [String: Any]?
             if type.lowercased() == "http" {
-                connectionProxyDictionary[kCFNetworkProxiesHTTPEnable as String] = true
-                connectionProxyDictionary[kCFNetworkProxiesHTTPProxy as String] = host
-                connectionProxyDictionary[kCFNetworkProxiesHTTPPort as String] = port
+                connectionProxyDictionary = [
+                    kCFNetworkProxiesHTTPEnable as String: true,
+                    kCFNetworkProxiesHTTPProxy as String: host,
+                    kCFNetworkProxiesHTTPPort as String: port
+                ]
             } else if type.lowercased() == "socks" {
                 #if os(macOS)
-                    connectionProxyDictionary[kCFNetworkProxiesSOCKSEnable as String] = true
-                    connectionProxyDictionary[kCFNetworkProxiesSOCKSProxy as String] = host
-                    connectionProxyDictionary[kCFNetworkProxiesSOCKSPort as String] = port
+                    connectionProxyDictionary = [
+                        kCFNetworkProxiesSOCKSEnable as String: true,
+                        kCFNetworkProxiesSOCKSProxy as String: host,
+                        kCFNetworkProxiesSOCKSPort as String: port
+                    ]
                 #else
-                    return
+                    print("SOCKS proxy is not supported on iOS")
                 #endif
             } else {
-                return
+                print("Unknown proxy type: \(type)")
             }
 
-            if let user = proxy["user"] as? String, let pass = proxy["pass"] {
-                connectionProxyDictionary[kCFProxyUsernameKey as String] = user
-                connectionProxyDictionary[kCFProxyPasswordKey as String] = pass
+            if var proxyDict = connectionProxyDictionary {
+                if let user = proxy["user"] as? String, let pass = proxy["pass"] as? String {
+                    proxyDict[kCFProxyUsernameKey as String] = user
+                    proxyDict[kCFProxyPasswordKey as String] = pass
+                }
+
+                let configuration = URLSessionConfiguration.default
+                configuration.connectionProxyDictionary = proxyDict
+                options.urlSession = URLSession(configuration: configuration)
             }
-
-            let configuration = URLSessionConfiguration.default
-            configuration.connectionProxyDictionary = connectionProxyDictionary
-
-            options.urlSession = URLSession(configuration: configuration)
         }
         #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
             if let replayOptions = data["replay"] as? [String: Any] {
-                switch data["quality"] as? String {
+                switch replayOptions["quality"] as? String {
                 case "low":
                     options.sessionReplay.quality = SentryReplayOptions.SentryReplayQuality.low
                 case "high":
@@ -127,12 +128,13 @@ public final class SentryFlutter {
                 options.sessionReplay.onErrorSampleRate =
                     (replayOptions["onErrorSampleRate"] as? NSNumber)?.floatValue ?? 0
 
-                let flutterSdk = data["sdk"] as? [String: Any]
-                options.sessionReplay.setValue(
-                    [
-                        "name": flutterSdk!["name"],
-                        "version": flutterSdk!["version"]
-                    ], forKey: "sdkInfo")
+                if let flutterSdk = data["sdk"] as? [String: Any] {
+                    options.sessionReplay.setValue(
+                        [
+                            "name": flutterSdk["name"],
+                            "version": flutterSdk["version"]
+                        ], forKey: "sdkInfo")
+                }
             }
         #endif
     }

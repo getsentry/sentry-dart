@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:ui';
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -603,7 +604,7 @@ class MockLogBatcher implements SentryLogBatcher {
   void addLog(SentryLog log) {}
 
   @override
-  Future<void> flush() async {
+  FutureOr<void> flush() async {
     flushCalled = true;
   }
 }

@@ -158,10 +158,10 @@ void main() {
     );
 
     // Test with special double values
-    final specialAttributes = <String, SentryLogAttribute>{
-      'nan': SentryLogAttribute.double(double.nan),
-      'positive_infinity': SentryLogAttribute.double(double.infinity),
-      'negative_infinity': SentryLogAttribute.double(double.negativeInfinity),
+    final specialAttributes = <String, SentryAttribute>{
+      'nan': SentryAttribute.double(double.nan),
+      'positive_infinity': SentryAttribute.double(double.infinity),
+      'negative_infinity': SentryAttribute.double(double.negativeInfinity),
     };
 
     logger.info('special values', attributes: specialAttributes);
@@ -183,6 +183,24 @@ void main() {
         'special values {"nan": NaN, "positive_infinity": Infinity, "negative_infinity": -Infinity}');
     expect(logCall.logger, 'sentry_logger');
   });
+
+  // This is mostly an edge case but let's cover it just in case
+  test('per-log attributes override fmt template attributes on same key', () {
+    final logger = fixture.getSut();
+
+    logger.fmt.info(
+      'Hello, %s!',
+      ['World'],
+      attributes: {
+        'sentry.message.template': SentryAttribute.string('OVERRIDE'),
+        'sentry.message.parameter.0': SentryAttribute.string('Earth'),
+      },
+    );
+
+    final attrs = fixture.hub.captureLogCalls[0].log.attributes;
+    expect(attrs['sentry.message.template']?.value, 'OVERRIDE');
+    expect(attrs['sentry.message.parameter.0']?.value, 'Earth');
+  });
 }
 
 class Fixture {
@@ -190,15 +208,15 @@ class Fixture {
   final hub = MockHub();
   final timestamp = DateTime.fromMicrosecondsSinceEpoch(0);
 
-  final attributes = <String, SentryLogAttribute>{
-    'string': SentryLogAttribute.string('string'),
-    'int': SentryLogAttribute.int(1),
-    'double': SentryLogAttribute.double(1.23456789),
-    'bool': SentryLogAttribute.bool(true),
-    'double_int': SentryLogAttribute.double(1.0),
-    'nan': SentryLogAttribute.double(double.nan),
-    'positive_infinity': SentryLogAttribute.double(double.infinity),
-    'negative_infinity': SentryLogAttribute.double(double.negativeInfinity),
+  final attributes = <String, SentryAttribute>{
+    'string': SentryAttribute.string('string'),
+    'int': SentryAttribute.int(1),
+    'double': SentryAttribute.double(1.23456789),
+    'bool': SentryAttribute.bool(true),
+    'double_int': SentryAttribute.double(1.0),
+    'nan': SentryAttribute.double(double.nan),
+    'positive_infinity': SentryAttribute.double(double.infinity),
+    'negative_infinity': SentryAttribute.double(double.negativeInfinity),
   };
 
   SentryLogger getSut() {
