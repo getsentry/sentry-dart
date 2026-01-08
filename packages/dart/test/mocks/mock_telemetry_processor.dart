@@ -22,9 +22,4 @@ class MockTelemetryProcessor implements TelemetryProcessor {
   void flush() {
     flushCalls++;
   }
-
-  @override
-  void close() {
-    closeCalls++;
-  }
 }

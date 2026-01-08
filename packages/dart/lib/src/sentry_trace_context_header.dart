@@ -2,9 +2,6 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'protocol/access_aware_map.dart';
-import 'protocol/sentry_id.dart';
-import 'sentry_baggage.dart';
-import 'sentry_options.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'utils/sample_rate_format.dart';
 
