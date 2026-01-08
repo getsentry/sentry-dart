@@ -93,7 +93,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   }
 
   @override
-  FutureOr<void> captureSpan(SentrySpanV2 span, {Scope? scope}) async {
+  void captureSpan(SentrySpanV2 span, {Scope? scope}) {
     captureSpanCalls.add(CaptureSpanCall(span, scope));
   }
 
