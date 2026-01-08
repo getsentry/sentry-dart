@@ -148,13 +148,14 @@ class _Fixture {
   }
 
   RecordingSentrySpanV2 createSpan() {
-    return RecordingSentrySpanV2(
+    return RecordingSentrySpanV2.root(
       name: 'test-span',
       traceId: SentryId.newId(),
       onSpanEnd: (_) {},
-      log: options.log,
       clock: options.clock,
-      parentSpan: null,
+      dscCreator: (_) =>
+          SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+      samplingDecision: SentryTracesSamplingDecision(true),
     );
   }
 }

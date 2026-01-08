@@ -9,8 +9,10 @@ import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
+import 'telemetry/span/sentry_span_sampling_context.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'transport/data_category.dart';
+import 'utils/internal_logger.dart';
 
 /// Configures the scope through the callback.
 typedef ScopeCallback = FutureOr<void> Function(Scope);
@@ -527,8 +529,9 @@ class Hub {
       propagationContext.sampleRand ??= Random().nextDouble();
 
       if (samplingDecision == null) {
-        final samplingContext = SentrySamplingContext(
-            transactionContext, customSamplingContext ?? {});
+        final samplingContext = SentrySamplingContext.forTransaction(
+            transactionContext,
+            customSamplingContext: customSamplingContext);
 
         samplingDecision = _tracesSampler.sample(
           samplingContext,
@@ -609,13 +612,52 @@ class Hub {
         return NoOpSentrySpanV2.instance;
     }
 
-    final span = RecordingSentrySpanV2(
+    // Sampling is evaluated once at the root span level.
+    // All child spans automatically inherit the root span's sampling decision.
+    //
+    // Note: Incoming distributed traces (continuing a trace from a remote
+    // parent via `sentry-trace` header) are not yet supported. This would
+    // require honoring the incoming `sampled` flag from PropagationContext
+    // instead of evaluating sampling fresh. This is primarily a backend/server
+    // use case which the Dart SDK does not currently target.
+    final RecordingSentrySpanV2 span;
+    bool isRootSpan = resolvedParentSpan == null;
+    if (isRootSpan) {
+      final propagationContext = scope.propagationContext;
+      final sampleRand =
+          propagationContext.sampleRand ??= Random().nextDouble();
+
+      final samplingContext = SentrySamplingContext.forSpanV2(
+          SentrySpanSamplingContextV2(name, attributes ?? {}));
+      final samplingDecision =
+          _tracesSampler.sample(samplingContext, sampleRand);
+      propagationContext.applySamplingDecision(samplingDecision.sampled);
+
+      if (!samplingDecision.sampled) {
+        internalLogger.info(
+            "Span '$name' was not sampled (sample rate: ${samplingDecision.sampleRate}).");
+        return NoOpSentrySpanV2.instance;
+      }
+
+      span = RecordingSentrySpanV2.root(
         traceId: scope.propagationContext.traceId,
         name: name,
-        parentSpan: resolvedParentSpan,
-        log: options.log,
         clock: options.clock,
-        onSpanEnd: captureSpan);
+        dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(
+            span, options, scope.replayId),
+        onSpanEnd: captureSpan,
+        samplingDecision: samplingDecision,
+      );
+    } else {
+      span = RecordingSentrySpanV2.child(
+        parent: resolvedParentSpan,
+        name: name,
+        clock: options.clock,
+        dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(
+            span, options, scope.replayId),
+        onSpanEnd: captureSpan,
+      );
+    }
 
     if (attributes != null) {
       span.setAttributes(attributes);
@@ -645,8 +687,9 @@ class Hub {
       case NoOpSentrySpanV2():
         return;
       case RecordingSentrySpanV2 span:
-        scope.removeActiveSpan(span);
-      // TODO(next-pr): run this span through span specific pipeline and then forward to span buffer
+        final item = _peek();
+        item.scope.removeActiveSpan(span);
+        return item.client.captureSpan(span, scope: item.scope);
     }
   }
 
