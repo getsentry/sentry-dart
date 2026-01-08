@@ -10,9 +10,6 @@ import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/widgets_binding_observer.dart';
 
-import '../../dart/test/mocks/mock_telemetry_processor.dart'
-    show MockTelemetryProcessor;
-
 import 'mocks.dart';
 import 'mocks.mocks.dart';
 
