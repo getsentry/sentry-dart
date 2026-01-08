@@ -73,4 +73,60 @@ abstract class FlutterVersion {
   static const String? dartVersion = bool.hasEnvironment('FLUTTER_DART_VERSION')
       ? String.fromEnvironment('FLUTTER_DART_VERSION')
       : null;
+
+  /// Parses [version] into components for comparison.
+  ///
+  /// Returns `null` if the version string is malformed.
+  ///
+  /// Examples:
+  /// - "3.33.0" -> FlutterVersionComponents(3, 33)
+  /// - "4.0.0-pre.1" -> FlutterVersionComponents(4, 0)
+  /// - "3.24" -> FlutterVersionComponents(3, 24)
+  /// - "invalid" -> null
+  static FlutterVersionComponents? parseComponents(String version) {
+    final dot = version.indexOf('.');
+    if (dot == -1) return null;
+
+    final major = int.tryParse(version.substring(0, dot));
+    if (major == null) return null;
+
+    final nextDot = version.indexOf('.', dot + 1);
+    final minorEnd = nextDot == -1 ? version.length : nextDot;
+    final minor = int.tryParse(version.substring(dot + 1, minorEnd));
+    if (minor == null) return null;
+
+    return FlutterVersionComponents(major, minor);
+  }
+}
+
+/// Parsed Flutter version components for comparison.
+class FlutterVersionComponents {
+  final int major;
+  final int minor;
+
+  const FlutterVersionComponents(this.major, this.minor);
+
+  /// Returns `true` if this version meets or exceeds the minimum requirement.
+  ///
+  /// Example:
+  /// ```dart
+  /// final version = FlutterVersion.parseComponents('3.33.0');
+  /// if (version?.meetsMinimum(3, 33) ?? false) {
+  ///   // Flutter 3.33+ feature available
+  /// }
+  /// ```
+  bool meetsMinimum(int minMajor, int minMinor) =>
+      major > minMajor || (major == minMajor && minor >= minMinor);
+
+  @override
+  bool operator ==(Object other) =>
+      other is FlutterVersionComponents &&
+      other.major == major &&
+      other.minor == minor;
+
+  @override
+  int get hashCode => Object.hash(major, minor);
+
+  @override
+  String toString() => 'FlutterVersionComponents($major, $minor)';
 }

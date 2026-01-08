@@ -5,6 +5,9 @@ import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 import 'screenshot/masking_config.dart';
 import 'screenshot/widget_filter.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/event_processor/enricher/flutter_runtime.dart'
+    as flutter_runtime;
 
 /// Configuration of the experimental privacy feature.
 class SentryPrivacyOptions {
@@ -73,6 +76,11 @@ class SentryPrivacyOptions {
         mask: true,
         name: 'RichText',
       ));
+    }
+
+    const flutterVersion = flutter_runtime.FlutterVersion.version;
+    if (flutterVersion != null) {
+      _maybeAddSensitiveContentRule(rules, flutterVersion);
     }
 
     // In Debug mode, check if users explicitly mask (or unmask) widgets that
@@ -170,6 +178,75 @@ class SentryPrivacyOptions {
               .map((rule) => '${rule.name}: ${rule.description}')
               .toList(growable: false),
       };
+}
+
+/// Minimum Flutter version required for SensitiveContent widget support.
+const _sensitiveContentMinMajor = 3;
+const _sensitiveContentMinMinor = 33;
+
+/// Determines if the SensitiveContent masking rule should be added
+/// based on parsed version components.
+///
+/// Returns `false` if [components] is `null` (malformed version string).
+@visibleForTesting
+bool shouldAddSensitiveContentRule(
+    flutter_runtime.FlutterVersionComponents? components) {
+  return components?.meetsMinimum(
+          _sensitiveContentMinMajor, _sensitiveContentMinMinor) ??
+      false;
+}
+
+/// Detects if a widget is a SensitiveContent widget at runtime.
+///
+/// Uses dynamic property access to check for the `sensitivity` property,
+/// which is unique to the SensitiveContent widget. This approach works in
+/// obfuscated builds where type names are mangled.
+///
+/// Returns `true` if the widget has a `sensitivity` property that is an
+/// [Enum] (as expected from SensitiveContent widget).
+@visibleForTesting
+bool isSensitiveContentWidget(Widget widget) {
+  try {
+    final dynamic dynWidget = widget;
+    final sensitivity = dynWidget.sensitivity;
+    // The property must exist AND be an Enum to be considered SensitiveContent.
+    // This check is done at runtime (not via assert) to ensure consistent
+    // behavior in both debug and release modes.
+    if (sensitivity is! Enum) {
+      return false;
+    }
+    return true;
+  } catch (_) {
+    // Property not found – not a SensitiveContent widget.
+    return false;
+  }
+}
+
+/// Adds a masking rule for the [SensitiveContent] widget.
+///
+/// The rule masks any widget that exposes a `sensitivity` property which is an
+/// [Enum]. This is how the [SensitiveContent] widget can be detected
+/// without depending on its type directly (which would fail to compile on
+/// older Flutter versions).
+void _maybeAddSensitiveContentRule(
+    List<SentryMaskingRule> rules, String flutterVersion) {
+  final components =
+      flutter_runtime.FlutterVersion.parseComponents(flutterVersion);
+  if (!shouldAddSensitiveContentRule(components)) {
+    return;
+  }
+
+  SentryMaskingDecision maskSensitiveContent(Element element, Widget widget) {
+    return isSensitiveContentWidget(widget)
+        ? SentryMaskingDecision.mask
+        : SentryMaskingDecision.continueProcessing;
+  }
+
+  rules.add(SentryMaskingCustomRule<Widget>(
+    callback: maskSensitiveContent,
+    name: 'SensitiveContent',
+    description: 'Mask SensitiveContent widget.',
+  ));
 }
 
 SentryMaskingDecision _maskImagesExceptAssets(Element element, Image widget) {
