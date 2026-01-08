@@ -675,7 +675,7 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'captureSpan' call is a no-op.",
       );
-      return null;
+      return;
     }
 
     switch (span) {
@@ -685,7 +685,7 @@ class Hub {
           "captureSpan: span is in an invalid state $UnsetSentrySpanV2.",
         );
       case NoOpSentrySpanV2():
-        return null;
+        return;
       case RecordingSentrySpanV2 span:
         final item = _peek();
         item.scope.removeActiveSpan(span);
