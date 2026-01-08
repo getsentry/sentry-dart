@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add [SensitiveContent](https://main-api.flutter.dev/flutter/widgets/SensitiveContent-class.html) widget to default masking ([#2989](https://github.com/getsentry/sentry-dart/pull/2989))
+
 ## 9.9.2
 
 ### Fixes
@@ -232,7 +238,6 @@
 
 ### Features
 
-- Add [SensitiveContent](https://main-api.flutter.dev/flutter/widgets/SensitiveContent-class.html) widget to default masking ([#2989](https://github.com/getsentry/sentry-dart/pull/2989))
 - Tag all spans with thread info ([#3101](https://github.com/getsentry/sentry-dart/pull/3101))
 
 ### Enhancements
