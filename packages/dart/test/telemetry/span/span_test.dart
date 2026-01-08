@@ -254,7 +254,7 @@ void main() {
 
       test('freezes DSC after first access', () {
         var callCount = 0;
-        final span = fixture.createSpanWithDscCreator(
+        final span = fixture.createSpan(
           name: 'root-span',
           dscCreator: (s) {
             callCount++;
@@ -278,7 +278,7 @@ void main() {
           sampleRate: 0.5,
           sampleRand: 0.25,
         );
-        final span = fixture.createSpanWithSamplingDecision(
+        final span = fixture.createSpan(
           name: 'root-span',
           samplingDecision: decision,
         );
@@ -294,7 +294,7 @@ void main() {
           sampleRate: 0.75,
           sampleRand: 0.1,
         );
-        final root = fixture.createSpanWithSamplingDecision(
+        final root = fixture.createSpan(
           name: 'root',
           samplingDecision: decision,
         );
@@ -314,7 +314,7 @@ void main() {
           sampleRate: 0.3,
           sampleRand: 0.99,
         );
-        final root = fixture.createSpanWithSamplingDecision(
+        final root = fixture.createSpan(
           name: 'root',
           samplingDecision: decision,
         );
@@ -485,15 +485,19 @@ class Fixture {
     RecordingSentrySpanV2? parentSpan,
     SentryId? traceId,
     OnSpanEndCallback? onSpanEnded,
+    DscCreatorCallback? dscCreator,
+    SentryTracesSamplingDecision? samplingDecision,
   }) {
+    final defaultDscCreator = (RecordingSentrySpanV2 span) =>
+        SentryTraceContextHeader(SentryId.newId(), 'publicKey');
+
     if (parentSpan != null) {
       return RecordingSentrySpanV2.child(
         parent: parentSpan,
         name: name,
         onSpanEnd: onSpanEnded ?? (_) {},
         clock: options.clock,
-        dscCreator: (RecordingSentrySpanV2 span) =>
-            SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+        dscCreator: dscCreator ?? defaultDscCreator,
       );
     }
     return RecordingSentrySpanV2.root(
@@ -501,38 +505,8 @@ class Fixture {
       traceId: traceId ?? SentryId.newId(),
       onSpanEnd: onSpanEnded ?? (_) {},
       clock: options.clock,
-      dscCreator: (RecordingSentrySpanV2 span) =>
-          SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
-      samplingDecision: SentryTracesSamplingDecision(true),
-    );
-  }
-
-  RecordingSentrySpanV2 createSpanWithDscCreator({
-    required String name,
-    required DscCreator dscCreator,
-  }) {
-    return RecordingSentrySpanV2.root(
-      name: name,
-      traceId: SentryId.newId(),
-      onSpanEnd: (_) {},
-      clock: options.clock,
-      dscCreator: dscCreator,
-      samplingDecision: SentryTracesSamplingDecision(true),
-    );
-  }
-
-  RecordingSentrySpanV2 createSpanWithSamplingDecision({
-    required String name,
-    required SentryTracesSamplingDecision samplingDecision,
-  }) {
-    return RecordingSentrySpanV2.root(
-      name: name,
-      traceId: SentryId.newId(),
-      onSpanEnd: (_) {},
-      clock: options.clock,
-      dscCreator: (RecordingSentrySpanV2 span) =>
-          SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
-      samplingDecision: samplingDecision,
+      dscCreator: dscCreator ?? defaultDscCreator,
+      samplingDecision: samplingDecision ?? SentryTracesSamplingDecision(true),
     );
   }
 }
