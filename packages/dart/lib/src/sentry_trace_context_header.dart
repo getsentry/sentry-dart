@@ -120,7 +120,8 @@ class SentryTraceContextHeader {
   /// Uses the segment span's name as the transaction name.
   factory SentryTraceContextHeader.fromRecordingSpan(
     RecordingSentrySpanV2 span,
-    Hub hub,
+    SentryOptions options,
+    SentryId? replayId,
   ) {
     final sampleRateFormat = SampleRateFormat();
     String? formatRate(double? value) =>
@@ -128,14 +129,14 @@ class SentryTraceContextHeader {
 
     return SentryTraceContextHeader(
       span.traceId,
-      hub.options.parsedDsn.publicKey,
-      release: hub.options.release,
-      environment: hub.options.environment,
+      options.parsedDsn.publicKey,
+      release: options.release,
+      environment: options.environment,
       transaction: span.segmentSpan.name,
       sampleRate: formatRate(span.samplingDecision.sampleRate),
       sampleRand: span.samplingDecision.sampleRand?.toString(),
       sampled: span.samplingDecision.sampled.toString(),
-      replayId: hub.scope.replayId,
+      replayId: replayId,
     );
   }
 }
