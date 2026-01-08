@@ -11,6 +11,7 @@ import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 import 'telemetry/span/sentry_span_sampling_context.dart';
 import 'telemetry/span/sentry_span_v2.dart';
+import 'telemetry/sentry_trace_lifecycle.dart';
 import 'transport/data_category.dart';
 import 'utils/internal_logger.dart';
 
@@ -519,6 +520,14 @@ class Hub {
         "Instance is disabled and this 'startTransaction' call is a no-op.",
       );
     } else if (_options.isTracingEnabled()) {
+      if (_options.traceLifecycle == SentryTraceLifecycle.streaming) {
+        internalLogger.warning(
+          "Hub: startTransaction is not supported when traceLifecycle is 'streaming'. "
+          'Use Sentry.startSpan instead.',
+        );
+        return NoOpSentrySpan();
+      }
+
       final item = _peek();
 
       // if transactionContext has no sampling decision yet, run the traces sampler
@@ -592,6 +601,14 @@ class Hub {
     }
 
     if (!_options.isTracingEnabled()) {
+      return NoOpSentrySpanV2.instance;
+    }
+
+    if (_options.traceLifecycle == SentryTraceLifecycle.static) {
+      internalLogger.warning(
+        'Hub: startSpan is not supported when traceLifecycle is static. '
+        'Use Sentry.startTransaction instead.',
+      );
       return NoOpSentrySpanV2.instance;
     }
 

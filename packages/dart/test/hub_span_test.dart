@@ -60,6 +60,26 @@ void main() {
 
           expect(span.attributes, equals(attributes));
         });
+
+        test('returns NoOpSentrySpanV2 when traceLifecycle is static', () {
+          final hub = fixture.getSut(
+            traceLifecycle: SentryTraceLifecycle.static,
+          );
+
+          final span = hub.startSpan('test-span');
+
+          expect(span, isA<NoOpSentrySpanV2>());
+        });
+
+        test('returns RecordingSentrySpanV2 when traceLifecycle is streaming', () {
+          final hub = fixture.getSut(
+            traceLifecycle: SentryTraceLifecycle.streaming,
+          );
+
+          final span = hub.startSpan('test-span');
+
+          expect(span, isA<RecordingSentrySpanV2>());
+        });
       });
 
       group('active span handling', () {
@@ -427,10 +447,12 @@ class Fixture {
     double? tracesSampleRate = 1.0,
     TracesSamplerCallback? tracesSampler,
     bool debug = false,
+    SentryTraceLifecycle traceLifecycle = SentryTraceLifecycle.streaming,
   }) {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
     options.debug = debug;
+    options.traceLifecycle = traceLifecycle;
 
     final hub = Hub(options);
 
