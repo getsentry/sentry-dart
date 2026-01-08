@@ -144,9 +144,14 @@ void main() {
         expect(dsc.sampleRate, equals('0.75'));
       });
 
-      test('uses sampleRand from propagation context', () {
+      test('uses sampleRand from span sampling decision', () {
         fixture.hub.scope.propagationContext.sampleRand = 0.123456;
-        final span = fixture.createSpan();
+        final span = fixture.createSpan(
+          samplingDecision: SentryTracesSamplingDecision(
+            true,
+            sampleRand: 0.123456,
+          ),
+        );
 
         final dsc =
             SentryTraceContextHeader.fromRecordingSpan(span, fixture.hub);
