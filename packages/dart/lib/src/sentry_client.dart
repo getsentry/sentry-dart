@@ -18,6 +18,7 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
+import 'telemetry/span/on_before_capture_span_v2.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
@@ -490,7 +491,7 @@ class SentryClient {
     );
   }
 
-  void captureSpan(
+  FutureOr<void> captureSpan(
     SentrySpanV2 span, {
     Scope? scope,
   }) {
@@ -500,12 +501,55 @@ class SentryClient {
           SentryLevel.warning,
           "captureSpan: span is in an invalid state $UnsetSentrySpanV2.",
         );
+        return null;
       case NoOpSentrySpanV2():
-        return;
+        return null;
       case RecordingSentrySpanV2 span:
-        // TODO(next-pr): add common attributes, merge scope attributes
+        FutureOr<R> _then<T, R>(
+          FutureOr<T> value,
+          FutureOr<R> Function(T) onValue,
+        ) {
+          return value is Future<T> ? value.then(onValue) : onValue(value);
+        }
 
-        _options.telemetryProcessor.addSpan(span);
+        final lifecycleResult = _options.lifecycleRegistry.dispatchCallback(
+          OnBeforeCaptureSpanV2(span, scope),
+        );
+
+        return _then(lifecycleResult, (_) {
+          return _then(_runBeforeSendSpan(span), (processedSpan) {
+            _options.telemetryProcessor.addSpan(processedSpan);
+          });
+        });
+    }
+  }
+
+  FutureOr<RecordingSentrySpanV2> _runBeforeSendSpan(
+    RecordingSentrySpanV2 span,
+  ) {
+    final beforeSendSpan = _options.beforeSendSpan;
+    if (beforeSendSpan == null) {
+      return span;
+    }
+
+    try {
+      final callbackResult = beforeSendSpan(span);
+      if (callbackResult is Future<RecordingSentrySpanV2>) {
+        return callbackResult;
+      }
+      return callbackResult;
+    } catch (exception, stackTrace) {
+      _options.log(
+        SentryLevel.error,
+        'The beforeSendSpan callback threw an exception',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
+      // Return original span if callback fails
+      return span;
     }
   }
 

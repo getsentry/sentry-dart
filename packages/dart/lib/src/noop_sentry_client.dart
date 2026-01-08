@@ -72,5 +72,5 @@ class NoOpSentryClient implements SentryClient {
   FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {}
 
   @override
-  void captureSpan(SentrySpanV2 span, {Scope? scope}) {}
+  FutureOr<void> captureSpan(SentrySpanV2 span, {Scope? scope}) {}
 }

@@ -13,6 +13,7 @@ import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'telemetry/processing/processor.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
 import 'dart:developer' as developer;
@@ -216,6 +217,10 @@ class SentryOptions {
   /// This function is called right before a log is about to be sent.
   /// Can return a modified log or null to drop the log.
   BeforeSendLogCallback? beforeSendLog;
+
+  /// This function is called right before a V2 span is about to be sent.
+  /// Can return a modified span. Cannot drop spans (always returns non-null).
+  BeforeSendSpanV2Callback? beforeSendSpan;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
@@ -702,6 +707,12 @@ typedef BeforeMetricCallback = bool Function(
 /// This function is called right before a log is about to be sent.
 /// Can return a modified log or null to drop the log.
 typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
+
+/// This function is called right before a V2 span is about to be sent.
+/// Can return a modified span. Cannot drop spans (always returns non-null).
+typedef BeforeSendSpanV2Callback = FutureOr<RecordingSentrySpanV2> Function(
+  RecordingSentrySpanV2 span,
+);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
