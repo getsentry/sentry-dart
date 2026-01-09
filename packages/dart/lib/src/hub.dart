@@ -685,13 +685,13 @@ class Hub {
     return span;
   }
 
-  void captureSpan(SentrySpanV2 span) {
+  FutureOr<void> captureSpan(SentrySpanV2 span) {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
         "Instance is disabled and this 'captureSpan' call is a no-op.",
       );
-      return;
+      return null;
     }
 
     switch (span) {
@@ -700,8 +700,9 @@ class Hub {
           SentryLevel.warning,
           "captureSpan: span is in an invalid state $UnsetSentrySpanV2.",
         );
+        return null;
       case NoOpSentrySpanV2():
-        return;
+        return null;
       case RecordingSentrySpanV2 span:
         final item = _peek();
         item.scope.removeActiveSpan(span);

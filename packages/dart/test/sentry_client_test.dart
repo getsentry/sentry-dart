@@ -17,6 +17,7 @@ import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
+import 'package:sentry/src/telemetry/enricher_integration.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:http/http.dart' as http;
@@ -1778,6 +1779,9 @@ void main() {
       final span = MockSpan();
       scope.span = span;
 
+      final hub = Hub(fixture.options);
+      TelemetryEnricherIntegration().call(hub, fixture.options);
+
       final client = fixture.getSut();
       final mockProcessor = MockTelemetryProcessor();
       fixture.options.telemetryProcessor = mockProcessor;
@@ -1832,6 +1836,9 @@ void main() {
     test('should use attributes from given scope', () async {
       fixture.options.enableLogs = true;
 
+      final hub = Hub(fixture.options);
+      TelemetryEnricherIntegration().call(hub, fixture.options);
+
       final client = fixture.getSut();
       final mockProcessor = MockTelemetryProcessor();
       fixture.options.telemetryProcessor = mockProcessor;
@@ -1849,6 +1856,9 @@ void main() {
 
     test('per-log attributes override scope on same key', () async {
       fixture.options.enableLogs = true;
+
+      final hub = Hub(fixture.options);
+      TelemetryEnricherIntegration().call(hub, fixture.options);
 
       final client = fixture.getSut();
       final mockProcessor = MockTelemetryProcessor();
@@ -1876,6 +1886,10 @@ void main() {
 
     test('should add user info to attributes', () async {
       fixture.options.enableLogs = true;
+      fixture.options.sendDefaultPii = true;
+
+      final hub = Hub(fixture.options);
+      TelemetryEnricherIntegration().call(hub, fixture.options);
 
       final log = givenLog();
       final scope = Scope(fixture.options);
@@ -1886,7 +1900,7 @@ void main() {
       );
       await scope.setUser(user);
 
-      final client = fixture.getSut();
+      final client = fixture.getSut(sendDefaultPii: true);
       final mockProcessor = MockTelemetryProcessor();
       fixture.options.telemetryProcessor = mockProcessor;
 
@@ -2104,6 +2118,139 @@ void main() {
         client.captureSpan(const UnsetSentrySpanV2());
 
         expect(processor.addedSpans, isEmpty);
+      });
+
+      group('beforeSendSpanV2', () {
+        test('allows modifying span before capture', () async {
+          fixture.options.beforeSendSpanV2 = (span) {
+            span.setAttribute('modified', SentryAttribute.bool(true));
+            return span;
+          };
+          final client = fixture.getSut();
+
+          final span = RecordingSentrySpanV2.root(
+            name: 'test-span',
+            traceId: SentryId.newId(),
+            onSpanEnd: (_) {},
+            clock: fixture.options.clock,
+            dscCreator: (s) =>
+                SentryTraceContextHeader(SentryId.newId(), 'key'),
+            samplingDecision: SentryTracesSamplingDecision(true),
+          );
+
+          await client.captureSpan(span);
+
+          expect(processor.addedSpans, hasLength(1));
+          expect(
+              processor.addedSpans.first.attributes['modified']?.value, isTrue);
+        });
+
+        test('async callback allows modifying span before capture', () async {
+          fixture.options.beforeSendSpanV2 = (span) async {
+            await Future.delayed(Duration(milliseconds: 10));
+            span.setAttribute('async-modified', SentryAttribute.bool(true));
+            return span;
+          };
+          final client = fixture.getSut();
+
+          final span = RecordingSentrySpanV2.root(
+            name: 'test-span',
+            traceId: SentryId.newId(),
+            onSpanEnd: (_) {},
+            clock: fixture.options.clock,
+            dscCreator: (s) =>
+                SentryTraceContextHeader(SentryId.newId(), 'key'),
+            samplingDecision: SentryTracesSamplingDecision(true),
+          );
+
+          await client.captureSpan(span);
+
+          expect(processor.addedSpans, hasLength(1));
+          expect(processor.addedSpans.first.attributes['async-modified']?.value,
+              isTrue);
+        });
+
+        test(
+            'sync exception in callback is handled and original span is captured',
+            () async {
+          fixture.options.automatedTestMode = false;
+          final exception = Exception('beforeSendSpanV2 exception');
+          fixture.options.beforeSendSpanV2 = (span) {
+            throw exception;
+          };
+          final client = fixture.getSut(debug: true);
+
+          final span = RecordingSentrySpanV2.root(
+            name: 'test-span',
+            traceId: SentryId.newId(),
+            onSpanEnd: (_) {},
+            clock: fixture.options.clock,
+            dscCreator: (s) =>
+                SentryTraceContextHeader(SentryId.newId(), 'key'),
+            samplingDecision: SentryTracesSamplingDecision(true),
+          );
+
+          await client.captureSpan(span);
+
+          // Original span should still be captured
+          expect(processor.addedSpans, hasLength(1));
+          expect(fixture.loggedException, exception);
+          expect(fixture.loggedLevel, SentryLevel.error);
+        });
+
+        test(
+            'async exception in callback is handled and original span is captured',
+            () async {
+          fixture.options.automatedTestMode = false;
+          final exception = Exception('async beforeSendSpanV2 exception');
+          fixture.options.beforeSendSpanV2 = (span) async {
+            await Future.delayed(Duration(milliseconds: 10));
+            throw exception;
+          };
+          final client = fixture.getSut(debug: true);
+
+          final span = RecordingSentrySpanV2.root(
+            name: 'test-span',
+            traceId: SentryId.newId(),
+            onSpanEnd: (_) {},
+            clock: fixture.options.clock,
+            dscCreator: (s) =>
+                SentryTraceContextHeader(SentryId.newId(), 'key'),
+            samplingDecision: SentryTracesSamplingDecision(true),
+          );
+
+          await client.captureSpan(span);
+
+          // Original span should still be captured
+          expect(processor.addedSpans, hasLength(1));
+          expect(fixture.loggedException, exception);
+          expect(fixture.loggedLevel, SentryLevel.error);
+        });
+
+        test('callback receives span with existing attributes', () async {
+          RecordingSentrySpanV2? receivedSpan;
+          fixture.options.beforeSendSpanV2 = (span) {
+            receivedSpan = span;
+            return span;
+          };
+          final client = fixture.getSut();
+
+          final span = RecordingSentrySpanV2.root(
+            name: 'test-span',
+            traceId: SentryId.newId(),
+            onSpanEnd: (_) {},
+            clock: fixture.options.clock,
+            dscCreator: (s) =>
+                SentryTraceContextHeader(SentryId.newId(), 'key'),
+            samplingDecision: SentryTracesSamplingDecision(true),
+          );
+          span.setAttribute('existing', SentryAttribute.string('value'));
+
+          await client.captureSpan(span);
+
+          expect(receivedSpan, isNotNull);
+          expect(receivedSpan!.attributes['existing']?.value, 'value');
+        });
       });
     });
   });

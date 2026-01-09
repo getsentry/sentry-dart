@@ -118,7 +118,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  void captureSpan(SentrySpanV2 span) {
+  FutureOr<void> captureSpan(SentrySpanV2 span) {
     captureSpanCalls.add(CaptureSpanCall(span));
   }
 
