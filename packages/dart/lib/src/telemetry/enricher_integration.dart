@@ -9,8 +9,10 @@ class TelemetryEnricherIntegration implements Integration<SentryOptions> {
   static const logEnricherIntegrationName = 'LogEnricher';
 
   SentryOptions? _options;
-  late void Function(OnBeforeCaptureSpanV2 event) _spanCallback = _enrichSpan;
-  late void Function(OnBeforeCaptureLog event) _logCallback = _enrichLog;
+
+  late final void Function(OnBeforeCaptureSpanV2 event) _spanCallback =
+      _enrichSpan;
+  late final void Function(OnBeforeCaptureLog event) _logCallback = _enrichLog;
 
   @override
   void call(Hub hub, SentryOptions options) {
