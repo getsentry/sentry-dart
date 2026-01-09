@@ -525,13 +525,7 @@ class SentryClient {
       return span;
     }
 
-    try {
-      final callbackResult = beforeSendSpan(span);
-      if (callbackResult is Future<RecordingSentrySpanV2>) {
-        return callbackResult;
-      }
-      return callbackResult;
-    } catch (exception, stackTrace) {
+    RecordingSentrySpanV2 handleError(Object exception, StackTrace stackTrace) {
       _options.log(
         SentryLevel.error,
         'The beforeSendSpan callback threw an exception',
@@ -539,10 +533,19 @@ class SentryClient {
         stackTrace: stackTrace,
       );
       if (_options.automatedTestMode) {
-        rethrow;
+        Error.throwWithStackTrace(exception, stackTrace);
       }
-      // Return original span if callback fails
       return span;
+    }
+
+    try {
+      final callbackResult = beforeSendSpan(span);
+      if (callbackResult is Future<RecordingSentrySpanV2>) {
+        return callbackResult.then((result) => result, onError: handleError);
+      }
+      return callbackResult;
+    } catch (exception, stackTrace) {
+      return handleError(exception, stackTrace);
     }
   }
 

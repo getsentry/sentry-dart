@@ -2156,11 +2156,41 @@ void main() {
               isTrue);
         });
 
-        test('exception in callback is handled and original span is captured',
+        test(
+            'sync exception in callback is handled and original span is captured',
             () async {
           fixture.options.automatedTestMode = false;
           final exception = Exception('beforeSendSpanV2 exception');
           fixture.options.beforeSendSpanV2 = (span) {
+            throw exception;
+          };
+          final client = fixture.getSut(debug: true);
+
+          final span = RecordingSentrySpanV2.root(
+            name: 'test-span',
+            traceId: SentryId.newId(),
+            onSpanEnd: (_) {},
+            clock: fixture.options.clock,
+            dscCreator: (s) =>
+                SentryTraceContextHeader(SentryId.newId(), 'key'),
+            samplingDecision: SentryTracesSamplingDecision(true),
+          );
+
+          await client.captureSpan(span);
+
+          // Original span should still be captured
+          expect(processor.addedSpans, hasLength(1));
+          expect(fixture.loggedException, exception);
+          expect(fixture.loggedLevel, SentryLevel.error);
+        });
+
+        test(
+            'async exception in callback is handled and original span is captured',
+            () async {
+          fixture.options.automatedTestMode = false;
+          final exception = Exception('async beforeSendSpanV2 exception');
+          fixture.options.beforeSendSpanV2 = (span) async {
+            await Future.delayed(Duration(milliseconds: 10));
             throw exception;
           };
           final client = fixture.getSut(debug: true);
