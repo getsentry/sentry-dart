@@ -17,6 +17,7 @@ import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
+import 'package:sentry/src/telemetry/enricher_integration.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:http/http.dart' as http;
@@ -1778,6 +1779,9 @@ void main() {
       final span = MockSpan();
       scope.span = span;
 
+      final hub = Hub(fixture.options);
+      TelemetryEnricherIntegration().call(hub, fixture.options);
+
       final client = fixture.getSut();
       final mockProcessor = MockTelemetryProcessor();
       fixture.options.telemetryProcessor = mockProcessor;
@@ -1832,6 +1836,9 @@ void main() {
     test('should use attributes from given scope', () async {
       fixture.options.enableLogs = true;
 
+      final hub = Hub(fixture.options);
+      TelemetryEnricherIntegration().call(hub, fixture.options);
+
       final client = fixture.getSut();
       final mockProcessor = MockTelemetryProcessor();
       fixture.options.telemetryProcessor = mockProcessor;
@@ -1849,6 +1856,9 @@ void main() {
 
     test('per-log attributes override scope on same key', () async {
       fixture.options.enableLogs = true;
+
+      final hub = Hub(fixture.options);
+      TelemetryEnricherIntegration().call(hub, fixture.options);
 
       final client = fixture.getSut();
       final mockProcessor = MockTelemetryProcessor();
@@ -1876,6 +1886,10 @@ void main() {
 
     test('should add user info to attributes', () async {
       fixture.options.enableLogs = true;
+      fixture.options.sendDefaultPii = true;
+
+      final hub = Hub(fixture.options);
+      TelemetryEnricherIntegration().call(hub, fixture.options);
 
       final log = givenLog();
       final scope = Scope(fixture.options);
@@ -1886,7 +1900,7 @@ void main() {
       );
       await scope.setUser(user);
 
-      final client = fixture.getSut();
+      final client = fixture.getSut(sendDefaultPii: true);
       final mockProcessor = MockTelemetryProcessor();
       fixture.options.telemetryProcessor = mockProcessor;
 
