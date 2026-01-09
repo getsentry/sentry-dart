@@ -3,9 +3,6 @@ import 'package:meta/meta.dart';
 import '../../sentry.dart';
 import '../utils/os_utils.dart';
 
-/// Integration that enriches all telemetry (spans, logs) with:
-/// 1. Common attributes (scope, SDK, environment, user) - ALL types
-/// 2. Type-specific attributes (segment name/id) - ONLY spans
 @internal
 class TelemetryEnricherIntegration implements Integration<SentryOptions> {
   static const spanEnricherIntegrationName = 'SpanEnricher';
