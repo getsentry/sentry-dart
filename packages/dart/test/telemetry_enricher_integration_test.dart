@@ -3,7 +3,7 @@ library;
 
 import 'package:sentry/src/constants.dart';
 import 'package:sentry/src/telemetry/sentry_trace_lifecycle.dart';
-import 'package:sentry/src/telemetry/telemetry_enricher_integration.dart';
+import 'package:sentry/src/telemetry/enricher_integration.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/hub.dart';
 import 'package:sentry/src/protocol/sentry_log.dart';

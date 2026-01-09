@@ -8,7 +8,7 @@ import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
 import 'package:sentry/src/feature_flags_integration.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
-import 'package:sentry/src/telemetry/telemetry_enricher_integration.dart';
+import 'package:sentry/src/telemetry/enricher_integration.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
