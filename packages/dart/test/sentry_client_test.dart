@@ -2109,34 +2109,7 @@ void main() {
       group('beforeSendSpanV2', () {
         test('allows modifying span before capture', () async {
           fixture.options.beforeSendSpanV2 = (span) {
-            span.setAttribute(
-                'modified', SentryAttribute.bool(true));
-            return span;
-          };
-          final client = fixture.getSut();
-
-          final span = RecordingSentrySpanV2.root(
-            name: 'test-span',
-            traceId: SentryId.newId(),
-            onSpanEnd: (_) {},
-            clock: fixture.options.clock,
-            dscCreator: (s) =>
-                SentryTraceContextHeader(SentryId.newId(), 'key'),
-            samplingDecision: SentryTracesSamplingDecision(true),
-          );
-
-          await client.captureSpan(span);
-
-          expect(processor.addedSpans, hasLength(1));
-          expect(processor.addedSpans.first.attributes['modified']?.value,
-              isTrue);
-        });
-
-        test('async callback allows modifying span before capture', () async {
-          fixture.options.beforeSendSpanV2 = (span) async {
-            await Future.delayed(Duration(milliseconds: 10));
-            span.setAttribute(
-                'async-modified', SentryAttribute.bool(true));
+            span.setAttribute('modified', SentryAttribute.bool(true));
             return span;
           };
           final client = fixture.getSut();
@@ -2155,7 +2128,31 @@ void main() {
 
           expect(processor.addedSpans, hasLength(1));
           expect(
-              processor.addedSpans.first.attributes['async-modified']?.value,
+              processor.addedSpans.first.attributes['modified']?.value, isTrue);
+        });
+
+        test('async callback allows modifying span before capture', () async {
+          fixture.options.beforeSendSpanV2 = (span) async {
+            await Future.delayed(Duration(milliseconds: 10));
+            span.setAttribute('async-modified', SentryAttribute.bool(true));
+            return span;
+          };
+          final client = fixture.getSut();
+
+          final span = RecordingSentrySpanV2.root(
+            name: 'test-span',
+            traceId: SentryId.newId(),
+            onSpanEnd: (_) {},
+            clock: fixture.options.clock,
+            dscCreator: (s) =>
+                SentryTraceContextHeader(SentryId.newId(), 'key'),
+            samplingDecision: SentryTracesSamplingDecision(true),
+          );
+
+          await client.captureSpan(span);
+
+          expect(processor.addedSpans, hasLength(1));
+          expect(processor.addedSpans.first.attributes['async-modified']?.value,
               isTrue);
         });
 
