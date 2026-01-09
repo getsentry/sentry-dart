@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 
 @internal
 typedef SdkLifecycleCallback<T extends SdkLifecycleEvent> = FutureOr<void>
@@ -68,9 +69,13 @@ class SdkLifecycleRegistry {
 
 @internal
 class OnBeforeCaptureLog extends SdkLifecycleEvent {
-  OnBeforeCaptureLog(this.log);
+  OnBeforeCaptureLog(this.log, this.scope);
 
   final SentryLog log;
+
+  /// The current scope, providing access to scope attributes, user info, etc.
+  /// May be null if no scope was provided during capture.
+  final Scope? scope;
 }
 
 @internal
@@ -95,4 +100,17 @@ class OnSpanFinish extends SdkLifecycleEvent {
   OnSpanFinish(this.span);
 
   final ISentrySpan span;
+}
+
+/// Dispatched before a [RecordingSentrySpanV2] is captured and buffered.
+@internal
+class OnBeforeCaptureSpanV2 extends SdkLifecycleEvent {
+  OnBeforeCaptureSpanV2(this.span, this.scope);
+
+  /// The span being captured. Callbacks can modify this span's attributes.
+  final RecordingSentrySpanV2 span;
+
+  /// The current scope, providing access to scope attributes, user info, etc.
+  /// May be null if no scope was provided during capture.
+  final Scope? scope;
 }

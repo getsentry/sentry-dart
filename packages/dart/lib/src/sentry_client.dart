@@ -18,7 +18,6 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
-import 'telemetry/span/on_before_capture_span_v2.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
@@ -27,6 +26,7 @@ import 'transport/noop_transport.dart';
 import 'transport/rate_limiter.dart';
 import 'transport/spotlight_http_transport.dart';
 import 'type_check_hint.dart';
+import 'utils.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
@@ -505,19 +505,12 @@ class SentryClient {
       case NoOpSentrySpanV2():
         return null;
       case RecordingSentrySpanV2 span:
-        FutureOr<R> _then<T, R>(
-          FutureOr<T> value,
-          FutureOr<R> Function(T) onValue,
-        ) {
-          return value is Future<T> ? value.then(onValue) : onValue(value);
-        }
-
         final lifecycleResult = _options.lifecycleRegistry.dispatchCallback(
           OnBeforeCaptureSpanV2(span, scope),
         );
 
-        return _then(lifecycleResult, (_) {
-          return _then(_runBeforeSendSpan(span), (processedSpan) {
+        return futureOrThen(lifecycleResult, (_) {
+          return futureOrThen(_runBeforeSendSpan(span), (processedSpan) {
             _options.telemetryProcessor.addSpan(processedSpan);
           });
         });
@@ -562,53 +555,9 @@ class SentryClient {
       return;
     }
 
-    if (scope != null) {
-      final merged = Map.of(scope.attributes)..addAll(log.attributes);
-      log.attributes = merged;
-    }
-
-    log.attributes['sentry.sdk.name'] = SentryAttribute.string(
-      _options.sdk.name,
-    );
-    log.attributes['sentry.sdk.version'] = SentryAttribute.string(
-      _options.sdk.version,
-    );
-    final environment = _options.environment;
-    if (environment != null) {
-      log.attributes['sentry.environment'] = SentryAttribute.string(
-        environment,
-      );
-    }
-    final release = _options.release;
-    if (release != null) {
-      log.attributes['sentry.release'] = SentryAttribute.string(
-        release,
-      );
-    }
-
     final propagationContext = scope?.propagationContext;
     if (propagationContext != null) {
       log.traceId = propagationContext.traceId;
-    }
-    final span = scope?.span;
-    if (span != null) {
-      log.attributes['sentry.trace.parent_span_id'] = SentryAttribute.string(
-        span.context.spanId.toString(),
-      );
-    }
-
-    final user = scope?.user;
-    final id = user?.id;
-    final email = user?.email;
-    final name = user?.name;
-    if (id != null) {
-      log.attributes['user.id'] = SentryAttribute.string(id);
-    }
-    if (name != null) {
-      log.attributes['user.name'] = SentryAttribute.string(name);
-    }
-    if (email != null) {
-      log.attributes['user.email'] = SentryAttribute.string(email);
     }
 
     final beforeSendLog = _options.beforeSendLog;
@@ -637,7 +586,7 @@ class SentryClient {
 
     if (processedLog != null) {
       await _options.lifecycleRegistry
-          .dispatchCallback(OnBeforeCaptureLog(processedLog));
+          .dispatchCallback(OnBeforeCaptureLog(processedLog, scope));
       _options.telemetryProcessor.addLog(processedLog);
     } else {
       _options.recorder.recordLostEvent(

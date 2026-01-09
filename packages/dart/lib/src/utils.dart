@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:meta/meta.dart';
@@ -34,3 +35,19 @@ Object? jsonSerializationFallback(Object? nonEncodable) {
   }
   return nonEncodable.toString();
 }
+
+/// A type-safe helper for applying transformations to [FutureOr] values.
+///
+/// Applies [onValue] to [value] regardless of whether it is a [Future] or
+/// synchronous value. If [value] is a [Future], the transformation is applied
+/// asynchronously via [Future.then]. Otherwise, the transformation is applied
+/// immediately.
+///
+/// This utility simplifies code that needs to handle both synchronous and
+/// asynchronous execution paths uniformly.
+@internal
+FutureOr<R> futureOrThen<T, R>(
+  FutureOr<T> value,
+  FutureOr<R> Function(T) onValue,
+) =>
+    value is Future<T> ? value.then(onValue) : onValue(value);
