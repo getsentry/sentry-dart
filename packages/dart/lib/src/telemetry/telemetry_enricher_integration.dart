@@ -12,6 +12,8 @@ class TelemetryEnricherIntegration implements Integration<SentryOptions> {
   static const logEnricherIntegrationName = 'LogEnricher';
 
   SentryOptions? _options;
+  void Function(OnBeforeCaptureSpanV2 event)? _spanCallback;
+  void Function(OnBeforeCaptureLog event)? _logCallback;
 
   @override
   void call(Hub hub, SentryOptions options) {
@@ -19,14 +21,16 @@ class TelemetryEnricherIntegration implements Integration<SentryOptions> {
 
     if (options.isTracingEnabled() &&
         options.traceLifecycle == SentryTraceLifecycle.streaming) {
+      _spanCallback = _enrichSpan;
       options.lifecycleRegistry
-          .registerCallback<OnBeforeCaptureSpanV2>(_enrichSpan);
+          .registerCallback<OnBeforeCaptureSpanV2>(_spanCallback!);
       options.sdk.addIntegration(spanEnricherIntegrationName);
     }
 
     if (options.enableLogs) {
+      _logCallback = _enrichLog;
       options.lifecycleRegistry
-          .registerCallback<OnBeforeCaptureLog>(_enrichLog);
+          .registerCallback<OnBeforeCaptureLog>(_logCallback!);
       options.sdk.addIntegration(logEnricherIntegrationName);
     }
   }
@@ -34,8 +38,12 @@ class TelemetryEnricherIntegration implements Integration<SentryOptions> {
   @override
   void close() {
     final registry = _options?.lifecycleRegistry;
-    registry?.removeCallback<OnBeforeCaptureSpanV2>(_enrichSpan);
-    registry?.removeCallback<OnBeforeCaptureLog>(_enrichLog);
+    if (_spanCallback != null) {
+      registry?.removeCallback<OnBeforeCaptureSpanV2>(_spanCallback!);
+    }
+    if (_logCallback != null) {
+      registry?.removeCallback<OnBeforeCaptureLog>(_logCallback!);
+    }
     _options = null;
   }
 
@@ -120,26 +128,28 @@ class TelemetryEnricherIntegration implements Integration<SentryOptions> {
       );
     }
 
-    // User attributes
-    final user = scope?.user;
-    if (user != null) {
-      if (user.id != null) {
-        attributes.putIfAbsent(
-          SemanticAttributesConstants.userId,
-          () => SentryAttribute.string(user.id!),
-        );
-      }
-      if (user.name != null) {
-        attributes.putIfAbsent(
-          SemanticAttributesConstants.userUsername,
-          () => SentryAttribute.string(user.name!),
-        );
-      }
-      if (user.email != null) {
-        attributes.putIfAbsent(
-          SemanticAttributesConstants.userEmail,
-          () => SentryAttribute.string(user.email!),
-        );
+    // User attributes (gated by sendDefaultPii)
+    if (options.sendDefaultPii) {
+      final user = scope?.user;
+      if (user != null) {
+        if (user.id != null) {
+          attributes.putIfAbsent(
+            SemanticAttributesConstants.userId,
+            () => SentryAttribute.string(user.id!),
+          );
+        }
+        if (user.name != null) {
+          attributes.putIfAbsent(
+            SemanticAttributesConstants.userUsername,
+            () => SentryAttribute.string(user.name!),
+          );
+        }
+        if (user.email != null) {
+          attributes.putIfAbsent(
+            SemanticAttributesConstants.userEmail,
+            () => SentryAttribute.string(user.email!),
+          );
+        }
       }
     }
 

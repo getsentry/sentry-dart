@@ -520,7 +520,7 @@ class SentryClient {
   FutureOr<RecordingSentrySpanV2> _runBeforeSendSpan(
     RecordingSentrySpanV2 span,
   ) {
-    final beforeSendSpan = _options.beforeSendSpan;
+    final beforeSendSpan = _options.beforeSendSpanV2;
     if (beforeSendSpan == null) {
       return span;
     }

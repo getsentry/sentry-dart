@@ -43,8 +43,12 @@ class SentrySpanDescriptions {
 /// Semantic attributes for telemetry.
 ///
 /// Not all attributes apply to every telemetry type.
+///
+/// See https://getsentry.github.io/sentry-conventions/generated/attributes/ for more details.
 @internal
-extension SemanticAttributesConstants on Never {
+abstract class SemanticAttributesConstants {
+  SemanticAttributesConstants._();
+
   /// The source of a span, also referred to as transaction source.
   ///
   /// Known values are:  `'custom'`, `'url'`, `'route'`, `'component'`, `'view'`, `'task'`.

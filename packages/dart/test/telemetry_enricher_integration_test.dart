@@ -43,6 +43,7 @@ void main() {
       test('adds common attributes to span', () async {
         fixture.options.environment = 'test';
         fixture.options.release = '1.0.0';
+        fixture.options.sendDefaultPii = true;
         fixture.hub.configureScope((scope) {
           scope.setUser(SentryUser(id: 'user-id', email: 'test@example.com'));
           scope.setAttributes(
@@ -86,9 +87,30 @@ void main() {
             span.spanId.toString());
       });
 
+      test('does not add user attributes when sendDefaultPii is false',
+          () async {
+        fixture.options.sendDefaultPii = false;
+        fixture.hub.configureScope((scope) {
+          scope.setUser(SentryUser(
+            id: 'user-id',
+            email: 'test@example.com',
+            name: 'test-user',
+          ));
+        });
+
+        final span = fixture.createSpan();
+        await fixture.hub.captureSpan(span);
+
+        expect(span.attributes[SemanticAttributesConstants.userId], isNull);
+        expect(span.attributes[SemanticAttributesConstants.userEmail], isNull);
+        expect(
+            span.attributes[SemanticAttributesConstants.userUsername], isNull);
+      });
+
       test('does not override existing span attributes', () async {
         fixture.options.environment = 'test-env';
         fixture.options.release = '1.0.0';
+        fixture.options.sendDefaultPii = true;
         fixture.hub.configureScope((scope) {
           scope.setUser(SentryUser(id: 'user-id'));
           scope.setAttributes(

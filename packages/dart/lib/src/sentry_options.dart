@@ -220,7 +220,7 @@ class SentryOptions {
 
   /// This function is called right before a V2 span is about to be sent.
   /// Can return a modified span. Cannot drop spans (always returns non-null).
-  BeforeSendSpanV2Callback? beforeSendSpan;
+  BeforeSendSpanV2Callback? beforeSendSpanV2;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
