@@ -9,8 +9,8 @@ class TelemetryEnricherIntegration implements Integration<SentryOptions> {
   static const logEnricherIntegrationName = 'LogEnricher';
 
   SentryOptions? _options;
-  void Function(OnBeforeCaptureSpanV2 event)? _spanCallback;
-  void Function(OnBeforeCaptureLog event)? _logCallback;
+  late void Function(OnBeforeCaptureSpanV2 event) _spanCallback = _enrichSpan;
+  late void Function(OnBeforeCaptureLog event) _logCallback = _enrichLog;
 
   @override
   void call(Hub hub, SentryOptions options) {
@@ -18,16 +18,14 @@ class TelemetryEnricherIntegration implements Integration<SentryOptions> {
 
     if (options.isTracingEnabled() &&
         options.traceLifecycle == SentryTraceLifecycle.streaming) {
-      _spanCallback = _enrichSpan;
       options.lifecycleRegistry
-          .registerCallback<OnBeforeCaptureSpanV2>(_spanCallback!);
+          .registerCallback<OnBeforeCaptureSpanV2>(_spanCallback);
       options.sdk.addIntegration(spanEnricherIntegrationName);
     }
 
     if (options.enableLogs) {
-      _logCallback = _enrichLog;
       options.lifecycleRegistry
-          .registerCallback<OnBeforeCaptureLog>(_logCallback!);
+          .registerCallback<OnBeforeCaptureLog>(_logCallback);
       options.sdk.addIntegration(logEnricherIntegrationName);
     }
   }
@@ -35,12 +33,8 @@ class TelemetryEnricherIntegration implements Integration<SentryOptions> {
   @override
   void close() {
     final registry = _options?.lifecycleRegistry;
-    if (_spanCallback != null) {
-      registry?.removeCallback<OnBeforeCaptureSpanV2>(_spanCallback!);
-    }
-    if (_logCallback != null) {
-      registry?.removeCallback<OnBeforeCaptureLog>(_logCallback!);
-    }
+    registry?.removeCallback<OnBeforeCaptureSpanV2>(_spanCallback);
+    registry?.removeCallback<OnBeforeCaptureLog>(_logCallback);
     _options = null;
   }
 
