@@ -33,7 +33,7 @@ jobs:
         sdk: [stable, beta]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v2
 
       - uses: ./.github/actions/flutter-test
         with:
