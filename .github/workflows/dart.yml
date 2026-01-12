@@ -51,6 +51,15 @@ jobs:
           coverage: sentry
           min-coverage: 85
 
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() && matrix.sdk == 'stable' }}
+        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # pin@v1.1.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: dart-tests-${{ runner.os }}-${{ matrix.sdk }}
+          flags: dart-${{ matrix.os }}
+          verbose: true
+
       - name: Build example
         working-directory: packages/dart/example
         run: |
