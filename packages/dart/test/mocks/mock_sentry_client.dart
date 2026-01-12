@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 
 import 'no_such_method_provider.dart';
 
@@ -11,6 +12,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<CaptureTransactionCall> captureTransactionCalls = [];
   List<CaptureFeedbackCall> captureFeedbackCalls = [];
   List<CaptureLogCall> captureLogCalls = [];
+  List<CaptureSpanCall> captureSpanCalls = [];
   int closeCalls = 0;
 
   @override
@@ -88,6 +90,11 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   @override
   FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {
     captureLogCalls.add(CaptureLogCall(log, scope));
+  }
+
+  @override
+  void captureSpan(SentrySpanV2 span, {Scope? scope}) {
+    captureSpanCalls.add(CaptureSpanCall(span, scope));
   }
 
   @override
@@ -185,4 +192,11 @@ class CaptureLogCall {
   final Scope? scope;
 
   CaptureLogCall(this.log, this.scope);
+}
+
+class CaptureSpanCall {
+  final SentrySpanV2 span;
+  final Scope? scope;
+
+  CaptureSpanCall(this.span, this.scope);
 }

@@ -88,7 +88,6 @@ Future<void> setupSentry(
       options.debug = kDebugMode;
       options.spotlight = Spotlight(enabled: true);
       options.enableTimeToFullDisplayTracing = true;
-
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.navigatorKey = navigatorKey;
 
