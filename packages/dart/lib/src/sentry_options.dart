@@ -12,8 +12,7 @@ import 'noop_client.dart';
 import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
-import 'telemetry/enricher/enricher_registry.dart';
-import 'telemetry/enricher/enrichment_pipeline.dart';
+import 'telemetry/enricher/enricher_pipeline.dart';
 import 'telemetry/processing/processor.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
@@ -572,17 +571,10 @@ class SentryOptions {
   @internal
   TelemetryProcessor telemetryProcessor = NoOpTelemetryProcessor();
 
-  /// Registry for telemetry enrichers.
-  ///
-  /// Enrichers registered here will be executed by [telemetryEnrichmentPipeline]
-  /// to add attributes to logs and spans before they are sent.
+  /// Pipeline for managing telemetry enrichment.
   @internal
-  TelemetryEnricherRegistry enricherRegistry = TelemetryEnricherRegistry();
-
-  /// Pipeline for executing telemetry enrichment.
-  @internal
-  TelemetryEnrichmentPipeline telemetryEnrichmentPipeline =
-      const NoOpEnrichmentPipeline();
+  TelemetryEnricherPipeline enricherPipeline =
+      TelemetryEnricherPipeline.create();
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;

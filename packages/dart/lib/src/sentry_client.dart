@@ -503,7 +503,7 @@ class SentryClient {
       case NoOpSentrySpanV2():
         return;
       case RecordingSentrySpanV2 span:
-        _options.telemetryEnrichmentPipeline.enrichSpan(span);
+        _options.enricherPipeline.enrichSpan(span);
         _options.telemetryProcessor.addSpan(span);
     }
   }
@@ -550,20 +550,6 @@ class SentryClient {
       log.attributes['sentry.trace.parent_span_id'] = SentryAttribute.string(
         span.context.spanId.toString(),
       );
-    }
-
-    final user = scope?.user;
-    final id = user?.id;
-    final email = user?.email;
-    final name = user?.name;
-    if (id != null) {
-      log.attributes['user.id'] = SentryAttribute.string(id);
-    }
-    if (name != null) {
-      log.attributes['user.name'] = SentryAttribute.string(name);
-    }
-    if (email != null) {
-      log.attributes['user.email'] = SentryAttribute.string(email);
     }
 
     final beforeSendLog = _options.beforeSendLog;

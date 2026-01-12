@@ -1,19 +1,19 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import '../../../sentry.dart';
 import '../../utils/os_utils.dart';
-import 'enricher.dart';
+import 'attributes_provider.dart';
 
-class CommonAttributesProvider implements TelemetryAttributesProvider {
+@internal
+class CommonTelemetryAttributesProvider implements TelemetryAttributesProvider {
   final SentryOptions _options;
   final Scope _scope;
 
   late final operatingSystem = getSentryOperatingSystem();
 
-  CommonAttributesProvider(this._scope, this._options);
-
-  @override
-  String get name => 'CommonAttributesProvider';
+  CommonTelemetryAttributesProvider(this._scope, this._options);
 
   @override
   FutureOr<Map<String, SentryAttribute>> provide() {
