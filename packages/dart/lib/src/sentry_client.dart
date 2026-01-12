@@ -503,8 +503,7 @@ class SentryClient {
       case NoOpSentrySpanV2():
         return;
       case RecordingSentrySpanV2 span:
-        // TODO(next-pr): add common attributes, merge scope attributes
-
+        _options.telemetryEnrichmentPipeline.enrichSpan(span);
         _options.telemetryProcessor.addSpan(span);
     }
   }
