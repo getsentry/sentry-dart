@@ -521,7 +521,7 @@ class Hub {
     } else if (_options.isTracingEnabled()) {
       if (_options.traceLifecycle == SentryTraceLifecycle.streaming) {
         internalLogger.warning(
-          "Hub: startTransaction is not supported when traceLifecycle is 'streaming'. "
+          'Hub: startTransaction is not supported when traceLifecycle is \'streaming\'. '
           'Use Sentry.startSpan instead.',
         );
         return NoOpSentrySpan();
@@ -605,7 +605,7 @@ class Hub {
 
     if (_options.traceLifecycle == SentryTraceLifecycle.static) {
       internalLogger.warning(
-        'Hub: startSpan is not supported when traceLifecycle is static. '
+        'Hub: startSpan is not supported when traceLifecycle is \'static\'. '
         'Use Sentry.startTransaction instead.',
       );
       return NoOpSentrySpanV2.instance;
