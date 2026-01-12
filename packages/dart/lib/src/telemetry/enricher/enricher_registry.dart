@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import '../../../sentry.dart';
+import '../span/sentry_span_v2.dart';
 import 'enricher.dart';
 
 /// Registry for managing telemetry attribute providers and enrichers.
@@ -19,23 +21,31 @@ class TelemetryEnricherRegistry {
   final List<TelemetryAttributesProvider> _attributeProviders = [];
 
   /// The single log enricher that uses all registered providers.
-  late final LogEnricher _logEnricher;
+  late final TelemetryEnricher _logEnricher;
 
   /// The single span enricher that uses all registered providers.
-  late final SpanEnricher _spanEnricher;
+  late final TelemetryEnricher _spanEnricher;
 
   TelemetryEnricherRegistry(
-      {LogEnricher? logEnricher, SpanEnricher? spanEnricher}) {
-    _logEnricher = logEnricher ?? LogEnricher(providers: _attributeProviders);
-    _spanEnricher =
-        spanEnricher ?? SpanEnricher(providers: _attributeProviders);
+      {TelemetryEnricher? logEnricher, TelemetryEnricher? spanEnricher}) {
+    _logEnricher = logEnricher ??
+        AttributesEnricher<SentryLog>(
+          providers: _attributeProviders,
+          apply: (log, attrs) => log.attributes.addAll(attrs),
+        );
+    _spanEnricher = spanEnricher ??
+        AttributesEnricher<RecordingSentrySpanV2>(
+          providers: _attributeProviders,
+          apply: (span, attrs) =>
+              span.attributes.addAll(attrs), // TODO: this needs to be updated
+        );
   }
 
   /// The log enricher that uses all registered providers.
-  LogEnricher get logEnricher => _logEnricher;
+  TelemetryEnricher get logEnricher => _logEnricher;
 
   /// The span enricher that uses all registered providers.
-  SpanEnricher get spanEnricher => _spanEnricher;
+  TelemetryEnricher get spanEnricher => _spanEnricher;
 
   /// Read-only view of registered attribute providers.
   ///

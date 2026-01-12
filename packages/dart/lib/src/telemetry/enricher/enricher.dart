@@ -92,39 +92,3 @@ final class AttributesEnricher<T> implements TelemetryEnricher<T> {
     }
   }
 }
-
-/// Enricher for [SentryLog] telemetry.
-///
-/// Uses `addAll` semantics - later providers can overwrite earlier ones.
-@internal
-final class LogEnricher implements TelemetryEnricher<SentryLog> {
-  final AttributesEnricher<SentryLog> _attributesEnricher;
-
-  LogEnricher({required List<TelemetryAttributesProvider> providers})
-      : _attributesEnricher = AttributesEnricher<SentryLog>(
-          providers: providers,
-          apply: (log, attrs) => log.attributes.addAll(attrs),
-        );
-
-  @override
-  FutureOr<void> enrich(SentryLog telemetry) =>
-      _attributesEnricher.enrich(telemetry);
-}
-
-/// Enricher for [RecordingSentrySpanV2] telemetry.
-///
-/// Uses `setAttributes` which overwrites existing keys.
-@internal
-final class SpanEnricher implements TelemetryEnricher<RecordingSentrySpanV2> {
-  final AttributesEnricher<RecordingSentrySpanV2> _attributesEnricher;
-
-  SpanEnricher({required List<TelemetryAttributesProvider> providers})
-      : _attributesEnricher = AttributesEnricher<RecordingSentrySpanV2>(
-          providers: providers,
-          apply: (span, attrs) => span.setAttributes(attrs),
-        );
-
-  @override
-  FutureOr<void> enrich(RecordingSentrySpanV2 telemetry) =>
-      _attributesEnricher.enrich(telemetry);
-}
