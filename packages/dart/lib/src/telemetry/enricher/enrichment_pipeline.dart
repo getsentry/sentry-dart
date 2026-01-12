@@ -33,10 +33,7 @@ class NoOpEnrichmentPipeline implements TelemetryEnrichmentPipeline {
   FutureOr<void> enrichSpan(RecordingSentrySpanV2 span) {}
 }
 
-/// The default telemetry enrichment pipeline.
-///
-/// Delegates to the registry's single log and span enrichers,
-/// which internally run all registered providers.
+// TODO: we may remove this and use the registry directly, this is just PoC
 @internal
 class DefaultTelemetryEnrichmentPipeline
     implements TelemetryEnrichmentPipeline {
