@@ -446,7 +446,7 @@ void main() {
     });
 
     group('when traceLifecycle is streaming', () {
-      test('startTransaction returns NoOpSentrySpan and logs warning', () {
+      test('startTransaction returns NoOpSentrySpan', () {
         final hub = fixture.getSut(
           traceLifecycle: SentryTraceLifecycle.streaming,
           debug: true,
@@ -457,9 +457,7 @@ void main() {
         expect(tr, isA<NoOpSentrySpan>());
       });
 
-      test(
-          'startTransactionWithContext returns NoOpSentrySpan and logs warning',
-          () {
+      test('startTransactionWithContext returns NoOpSentrySpan', () {
         final hub = fixture.getSut(
           traceLifecycle: SentryTraceLifecycle.streaming,
           debug: true,
@@ -474,7 +472,7 @@ void main() {
     });
 
     group('when traceLifecycle is static', () {
-      test('startSpan returns NoOpSentrySpanV2 and logs warning', () {
+      test('startSpan returns NoOpSentrySpanV2', () {
         final hub = fixture.getSut(
           traceLifecycle: SentryTraceLifecycle.static,
           debug: true,
