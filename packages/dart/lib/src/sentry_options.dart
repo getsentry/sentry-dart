@@ -15,8 +15,6 @@ import 'sentry_stack_trace_factory.dart';
 import 'telemetry/processing/processor.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
-import 'sentry_log_batcher.dart';
-import 'noop_log_batcher.dart';
 import 'dart:developer' as developer;
 
 // TODO: shutdownTimeout, flushTimeoutMillis
@@ -568,9 +566,6 @@ class SentryOptions {
   bool includeModuleInStackTrace = false;
 
   late final SentryLogger logger = SentryLogger(clock);
-
-  @internal
-  SentryLogBatcher logBatcher = NoopLogBatcher();
 
   @internal
   TelemetryProcessor telemetryProcessor = NoOpTelemetryProcessor();

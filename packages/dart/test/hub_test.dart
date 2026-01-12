@@ -4,6 +4,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/propagation_context.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
@@ -434,6 +435,53 @@ void main() {
       expect(tr2.traceContext()?.traceId, hub.scope.propagationContext.traceId);
 
       expect(tr1.traceContext()?.traceId, isNot(tr2.traceContext()?.traceId));
+    });
+  });
+
+  group('Hub traceLifecycle guards', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    group('when traceLifecycle is streaming', () {
+      test('startTransaction returns NoOpSentrySpan', () {
+        final hub = fixture.getSut(
+          traceLifecycle: SentryTraceLifecycle.streaming,
+          debug: true,
+        );
+
+        final tr = hub.startTransaction('name', 'op');
+
+        expect(tr, isA<NoOpSentrySpan>());
+      });
+
+      test('startTransactionWithContext returns NoOpSentrySpan', () {
+        final hub = fixture.getSut(
+          traceLifecycle: SentryTraceLifecycle.streaming,
+          debug: true,
+        );
+
+        final tr = hub.startTransactionWithContext(
+          SentryTransactionContext('name', 'op'),
+        );
+
+        expect(tr, isA<NoOpSentrySpan>());
+      });
+    });
+
+    group('when traceLifecycle is static', () {
+      test('startSpan returns NoOpSentrySpanV2', () {
+        final hub = fixture.getSut(
+          traceLifecycle: SentryTraceLifecycle.static,
+          debug: true,
+        );
+
+        final span = hub.startSpan('test-span');
+
+        expect(span, isA<NoOpSentrySpanV2>());
+      });
     });
   });
 
@@ -962,11 +1010,15 @@ class Fixture {
     TracesSamplerCallback? tracesSampler,
     bool? sampled = true,
     bool debug = false,
+    SentryTraceLifecycle? traceLifecycle,
   }) {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
     options.debug = debug;
     options.log = mockLogger; // Enable logging in DiagnosticsLogger
+    if (traceLifecycle != null) {
+      options.traceLifecycle = traceLifecycle;
+    }
 
     final hub = Hub(options);
 
