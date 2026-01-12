@@ -13,7 +13,7 @@ class DefaultTelemetryEnrichmentIntegration extends Integration<SentryOptions> {
   void call(Hub hub, SentryOptions options) {
     final registry = options.enricherRegistry;
 
-    registry.registerProvider(CommonAttributeProvider(hub.scope, options));
+    registry.registerProvider(CommonAttributesProvider(hub.scope, options));
 
     if (options.telemetryEnrichmentPipeline is NoOpEnrichmentPipeline) {
       options.telemetryEnrichmentPipeline =
