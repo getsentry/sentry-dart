@@ -21,6 +21,10 @@ env:
   SENTRY_AUTH_TOKEN_E2E: ${{ secrets.SENTRY_AUTH_TOKEN_E2E }}
   SENTRY_DIST: 1
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   build:
     name: E2E
