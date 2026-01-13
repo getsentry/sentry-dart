@@ -181,8 +181,9 @@ void main() {
 
       expect(fixture.flushCallCount, 1);
       expect(fixture.flushedGroups.keys, containsAll(['group1', 'group2']));
-      expect(fixture.flushedGroups['group1'], hasLength(2)); // item1 and item3
-      expect(fixture.flushedGroups['group2'], hasLength(1)); // item2
+      expect(
+          fixture.flushedGroups['group1']?.$1, hasLength(2)); // item1 and item3
+      expect(fixture.flushedGroups['group2']?.$1, hasLength(1)); // item2
     });
 
     test('items are flushed after timeout', () async {
@@ -239,7 +240,6 @@ void main() {
       buffer.add(_TestItem('item1', group: 'myGroup'));
       await buffer.flush();
 
-      expect(fixture.flushedGroups, isA<Map<String, List<List<int>>>>());
       expect(fixture.flushedGroups.containsKey('myGroup'), isTrue);
     });
   });
@@ -269,7 +269,6 @@ class _SimpleFixture {
     TelemetryBufferConfig config = const TelemetryBufferConfig(),
   }) {
     return InMemoryTelemetryBuffer<_TestItem>(
-      logger: (level, message, {logger, exception, stackTrace}) {},
       encoder: (item) => utf8.encode(jsonEncode(item.toJson())),
       onFlush: (items) {
         flushCallCount++;
@@ -286,7 +285,7 @@ class _SimpleFixture {
 }
 
 class _GroupedFixture {
-  Map<String, List<List<int>>> flushedGroups = {};
+  Map<String, (List<List<int>>, _TestItem)> flushedGroups = {};
   int flushCallCount = 0;
 
   GroupedInMemoryTelemetryBuffer<_TestItem> getSut({
@@ -294,7 +293,6 @@ class _GroupedFixture {
     TelemetryBufferConfig config = const TelemetryBufferConfig(),
   }) {
     return GroupedInMemoryTelemetryBuffer<_TestItem>(
-      logger: (level, message, {logger, exception, stackTrace}) {},
       encoder: (item) => utf8.encode(jsonEncode(item.toJson())),
       onFlush: (groups) {
         flushCallCount++;

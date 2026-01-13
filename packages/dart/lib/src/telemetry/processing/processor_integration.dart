@@ -34,24 +34,24 @@ class DefaultTelemetryProcessorIntegration extends Integration<SentryOptions> {
 
   InMemoryTelemetryBuffer<SentryLog> _createLogBuffer(SentryOptions options) =>
       InMemoryTelemetryBuffer(
-          logger: options.log,
           encoder: (SentryLog item) => utf8JsonEncoder.convert(item.toJson()),
           onFlush: (items) {
-            final envelope = SentryEnvelope.fromLogsData(items, options.sdk);
+            final envelope = SentryEnvelope.fromLogsData(
+                items.map((item) => item).toList(), options.sdk);
             return options.transport.send(envelope).then((_) {});
           });
 
   GroupedInMemoryTelemetryBuffer<RecordingSentrySpanV2> _createSpanBuffer(
           SentryOptions options) =>
       GroupedInMemoryTelemetryBuffer(
-          logger: options.log,
           encoder: (RecordingSentrySpanV2 item) =>
               utf8JsonEncoder.convert(item.toJson()),
-          // TODO(next-pr): add dsc to the envelope for spans
           onFlush: (items) {
             final futures = items.values.map((itemData) {
-              final envelope =
-                  SentryEnvelope.fromSpansData(itemData, options.sdk);
+              final dsc = itemData.$2.resolveDsc();
+              final envelope = SentryEnvelope.fromSpansData(
+                  itemData.$1, options.sdk,
+                  traceContext: dsc);
               return options.transport.send(envelope);
             }).toList();
             if (futures.isEmpty) return null;
