@@ -19,6 +19,10 @@ concurrency:
 env:
   SENTRY_AUTH_TOKEN_E2E: ${{ secrets.SENTRY_AUTH_TOKEN_E2E }}
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   android:
     runs-on: ubuntu-latest
