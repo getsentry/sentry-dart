@@ -18,15 +18,14 @@ class GlobalTelemetryEnricher {
   late final TelemetryAttributesAggregator _logAttributesAggregator;
   late final TelemetryAttributesAggregator _spanAttributesAggregator;
 
-  GlobalTelemetryEnricher._();
-
-  factory GlobalTelemetryEnricher.create() {
-    final pipeline = GlobalTelemetryEnricher._();
-    pipeline._logAttributesAggregator =
-        TelemetryAttributesAggregator(providers: pipeline._logProviders);
-    pipeline._spanAttributesAggregator =
-        TelemetryAttributesAggregator(providers: pipeline._spanProviders);
-    return pipeline;
+  GlobalTelemetryEnricher({
+    TelemetryAttributesAggregator? spanAttributesAggregator,
+    TelemetryAttributesAggregator? logAttributesAggregator,
+  }) {
+    _logAttributesAggregator = logAttributesAggregator ??
+        TelemetryAttributesAggregator(providers: _logProviders);
+    _spanAttributesAggregator = spanAttributesAggregator ??
+        TelemetryAttributesAggregator(providers: _spanProviders);
   }
 
   FutureOr<void> enrichLog(SentryLog log) {
