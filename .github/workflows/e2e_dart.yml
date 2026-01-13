@@ -21,10 +21,6 @@ env:
   SENTRY_AUTH_TOKEN_E2E: ${{ secrets.SENTRY_AUTH_TOKEN_E2E }}
   SENTRY_DIST: 1
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   build:
     name: E2E
@@ -41,7 +37,7 @@ jobs:
       - uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c # pin@v1
         with:
           sdk: ${{ matrix.sdk }}
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: actions/checkout@v6
       - name: Run
         if: env.SENTRY_AUTH_TOKEN != null
         run: |
