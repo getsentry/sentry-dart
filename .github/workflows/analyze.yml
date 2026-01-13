@@ -14,10 +14,6 @@ on:
         type: number
         default: 100
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   analyze:
     if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
@@ -27,7 +23,7 @@ jobs:
       run:
         working-directory: ${{ inputs.package }}
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: actions/checkout@v6
       - uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c # pin@v1
         if: ${{ inputs.sdk == 'dart' }}
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
@@ -64,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: actions/checkout@v6
       - name: Apply dependency override
         if: ${{ inputs.package == 'flutter' }}
         working-directory: ${{ inputs.package }}
