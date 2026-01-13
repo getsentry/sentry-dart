@@ -21,7 +21,7 @@ import 'attributes_provider.dart';
 /// - Forward iteration executes newest (upstream/generic) first
 /// - Older (downstream/specific) providers run last and can overwrite
 @internal
-class TelemetryEnricherPipeline {
+class TelemetryEnricher {
   /// Provider list for span enrichment.
   final List<TelemetryAttributesProvider> _spanProviders = [];
 
@@ -34,10 +34,10 @@ class TelemetryEnricherPipeline {
   /// The single span aggregator that uses all registered providers.
   late final TelemetryAttributesAggregator _spanAttributesAggregator;
 
-  TelemetryEnricherPipeline._();
+  TelemetryEnricher._();
 
-  factory TelemetryEnricherPipeline.create() {
-    final pipeline = TelemetryEnricherPipeline._();
+  factory TelemetryEnricher.create() {
+    final pipeline = TelemetryEnricher._();
     pipeline._logAttributesAggregator =
         TelemetryAttributesAggregator(providers: pipeline._logProviders);
     pipeline._spanAttributesAggregator =
@@ -61,23 +61,23 @@ class TelemetryEnricherPipeline {
 
   FutureOr<void> enrichSpan(RecordingSentrySpanV2 span) {
     final userAttributes = span.attributes;
-    final result = _spanAttributesAggregator.aggregate();
+    final FutureOr<Map<String, SentryAttribute>> result =
+        _spanAttributesAggregator.aggregate();
 
-    if (result is! Future) {
+    if (result is Map<String, SentryAttribute>) {
       span.setAttributes({...result, ...userAttributes});
-      return null;
+    } else {
+      return Future.value(result).then((aggregated) {
+        span.setAttributes({...aggregated, ...userAttributes});
+      });
     }
-
-    return Future.value(result).then((aggregated) {
-      span.setAttributes({...aggregated, ...userAttributes});
-    });
   }
 
   /// Registers an attribute provider for span enrichment.
   ///
   /// The provider is prepended (inserted at index 0) so newer providers
   /// execute first and older providers can overwrite their attributes.
-  void registerSpanAttributeProvider(TelemetryAttributesProvider provider) {
+  void registerSpanAttributesProvider(TelemetryAttributesProvider provider) {
     if (!_spanProviders.contains(provider)) {
       _spanProviders.insert(0, provider);
     }
@@ -87,7 +87,7 @@ class TelemetryEnricherPipeline {
   ///
   /// The provider is prepended (inserted at index 0) so newer providers
   /// execute first and older providers can overwrite their attributes.
-  void registerLogAttributeProvider(TelemetryAttributesProvider provider) {
+  void registerLogAttributesProvider(TelemetryAttributesProvider provider) {
     if (!_logProviders.contains(provider)) {
       _logProviders.insert(0, provider);
     }

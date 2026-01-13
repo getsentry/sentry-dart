@@ -261,6 +261,10 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
   }
 }
 
+void mergeNativeWithLocalContexts(
+        Map<dynamic, dynamic>? contextsMap, Contexts contexts) =>
+    _mergeNativeWithLocalContexts(contextsMap, contexts);
+
 void _mergeNativeWithLocalContexts(
     Map<dynamic, dynamic>? contextsMap, Contexts contexts) {
   if (contextsMap != null && contextsMap.isNotEmpty) {

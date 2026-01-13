@@ -11,17 +11,17 @@ class DartTelemetryEnricherIntegration extends Integration<SentryOptions> {
 
   @override
   void call(Hub hub, SentryOptions options) {
-    final pipeline = options.enricherPipeline;
+    final pipeline = options.telemetryEnricher;
 
     final commonAttributesProvider =
         CommonTelemetryAttributesProvider(hub.scope, options);
-    pipeline.registerSpanAttributeProvider(commonAttributesProvider);
-    pipeline.registerLogAttributeProvider(commonAttributesProvider);
+    pipeline.registerSpanAttributesProvider(commonAttributesProvider);
+    pipeline.registerLogAttributesProvider(commonAttributesProvider);
 
     // Scope may contain user set attributes so we want to make sure it's executed later
     final scopeAttributesProvider = ScopeTelemetryAttributesProvider(hub.scope);
-    pipeline.registerSpanAttributeProvider(scopeAttributesProvider);
-    pipeline.registerLogAttributeProvider(scopeAttributesProvider);
+    pipeline.registerSpanAttributesProvider(scopeAttributesProvider);
+    pipeline.registerLogAttributesProvider(scopeAttributesProvider);
 
     options.sdk.addIntegration(integrationName);
   }

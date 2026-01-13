@@ -503,8 +503,14 @@ class SentryClient {
       case NoOpSentrySpanV2():
         return;
       case RecordingSentrySpanV2 span:
-        _options.enricherPipeline.enrichSpan(span);
-        _options.telemetryProcessor.addSpan(span);
+        final result = _options.telemetryEnricher.enrichSpan(span);
+        if (result is Future) {
+          result.then((_) {
+            _options.telemetryProcessor.addSpan(span);
+          });
+        } else {
+          _options.telemetryProcessor.addSpan(span);
+        }
     }
   }
 

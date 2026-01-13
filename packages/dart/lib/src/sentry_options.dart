@@ -573,8 +573,7 @@ class SentryOptions {
 
   /// Pipeline for managing telemetry enrichment.
   @internal
-  TelemetryEnricherPipeline enricherPipeline =
-      TelemetryEnricherPipeline.create();
+  TelemetryEnricher telemetryEnricher = TelemetryEnricher.create();
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;

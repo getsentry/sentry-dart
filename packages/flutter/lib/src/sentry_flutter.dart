@@ -33,6 +33,7 @@ import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'replay/integration.dart';
 import 'screenshot/screenshot_support.dart';
+import 'telemetry/enricher/flutter_enricher_integration.dart';
 import 'utils/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
@@ -212,6 +213,7 @@ mixin SentryFlutter {
         // Complete initialization of the integration depends on the SentryNavigatorObserver
         integrations.add(WebSessionIntegration(native));
       }
+      integrations.add(FlutterTelemetryEnricherIntegration(native));
       options.enableDartSymbolication = false;
     }
 
