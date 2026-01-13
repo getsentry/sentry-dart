@@ -4,8 +4,16 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import '../../utils/os_utils.dart';
-import 'attributes_provider.dart';
 
+/// Provider for common telemetry attributes available from SDK configuration.
+///
+/// Computes attributes from [SentryOptions] and [Scope] including SDK info,
+/// environment, release, user data (when [SentryOptions.sendDefaultPii] is enabled),
+/// and operating system details.
+///
+/// These attributes are static or semi-static data that can change at runtime
+/// (e.g., user attributes). Consider using [cachedByKey] with a cache key based
+/// on volatile fields when registering this provider.
 @internal
 class CommonTelemetryAttributesProvider implements TelemetryAttributesProvider {
   final SentryOptions _options;

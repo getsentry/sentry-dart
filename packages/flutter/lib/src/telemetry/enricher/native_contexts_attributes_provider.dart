@@ -2,12 +2,23 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
 import 'package:sentry/src/telemetry/enricher/attributes_provider.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../integrations/integrations.dart';
 import '../../native/sentry_native_binding.dart';
 
+/// Provider for device and OS context from native iOS/Android SDKs.
+///
+/// Fetches context information from the native layer including operating system
+/// details (name, version) and device information (brand, model, family).
+/// This data is loaded asynchronously from the native SDK.
+///
+/// Since native context rarely changes during app lifetime, this provider
+/// should be wrapped with [cached] when registered.
+@internal
 class NativeContextsTelemetryAttributesProvider
     implements TelemetryAttributesProvider {
   final SentryNativeBinding _nativeBinding;
@@ -15,7 +26,7 @@ class NativeContextsTelemetryAttributesProvider
   NativeContextsTelemetryAttributesProvider(this._nativeBinding);
 
   @override
-  FutureOr<Map<String, SentryAttribute>> attributes() async {
+  FutureOr<Map<String, SentryAttribute>> attributes(_) async {
     final infos = await _nativeBinding.loadContexts() ?? {};
 
     final contextsMap = infos['contexts'] as Map?;

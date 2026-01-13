@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import '../../../sentry.dart';
 import '../span/sentry_span_v2.dart';
-import 'attributes_provider.dart';
 
+/// Provider for span segment metadata.
+@internal
 class SpanSegmentTelemetryAttributesProvider
     implements TelemetryAttributesProvider {
   SpanSegmentTelemetryAttributesProvider();

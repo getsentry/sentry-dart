@@ -4,7 +4,6 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
-import 'attributes_provider.dart';
 
 /// Aggregates attributes from multiple providers.
 ///
@@ -18,6 +17,14 @@ final class TelemetryAttributesAggregator {
     required List<TelemetryAttributesProvider> providers,
   }) : _providers = providers;
 
+  /// Collects and merges attributes from all registered providers.
+  ///
+  /// Iterates through providers in order, collecting their attributes into
+  /// a single map. Later providers can overwrite attributes from earlier ones.
+  ///
+  /// Returns synchronously if all providers are synchronous. Switches to async
+  /// mode when encountering the first async provider. Provider errors are
+  /// logged but don't stop aggregation.
   FutureOr<Map<String, SentryAttribute>> attributes(Object telemetryItem) {
     final aggregated = <String, SentryAttribute>{};
 

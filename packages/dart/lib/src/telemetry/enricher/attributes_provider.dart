@@ -5,10 +5,6 @@ import 'package:meta/meta.dart';
 import '../../../sentry.dart';
 
 /// Computes attributes for telemetry enrichment.
-///
-/// Providers are the source of attributes - they compute values from
-/// scope, options, or other context. Providers are registered with
-/// the pipeline and automatically used by aggregators.
 @internal
 abstract class TelemetryAttributesProvider {
   /// Computes attributes to be added to telemetry.
@@ -17,7 +13,7 @@ abstract class TelemetryAttributesProvider {
   FutureOr<Map<String, SentryAttribute>> attributes(Object telemetryItem);
 }
 
-/// Caches the result of any [TelemetryAttributesProvider].
+/// Fully caches the result of any [TelemetryAttributesProvider].
 ///
 /// The first call to [attributes] delegates to the wrapped provider
 /// and caches the result. Subsequent calls return the cached value.
@@ -47,7 +43,8 @@ final class CachedAttributesProvider implements TelemetryAttributesProvider {
 ///
 /// This is ideal for providers with both static and dynamic state (e.g.,
 /// user attributes that can change at runtime).
-final class CacheKeyedAttributesProvider implements TelemetryAttributesProvider {
+final class CacheKeyedAttributesProvider
+    implements TelemetryAttributesProvider {
   final TelemetryAttributesProvider _provider;
   final Object? Function() _cacheKeyFn;
   Object? _cachedKey;
