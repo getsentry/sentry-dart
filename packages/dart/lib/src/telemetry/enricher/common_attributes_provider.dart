@@ -21,6 +21,7 @@ final class CommonTelemetryAttributesProvider
   FutureOr<Map<String, SentryAttribute>> call(
       Object _, TelemetryAttributesProviderContext context) {
     final attributes = <String, SentryAttribute>{};
+
     attributes[SemanticAttributesConstants.sentrySdkName] =
         SentryAttribute.string(context.options.sdk.name);
 
