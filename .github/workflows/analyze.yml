@@ -14,6 +14,10 @@ on:
         type: number
         default: 100
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   analyze:
     if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
