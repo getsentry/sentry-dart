@@ -7,7 +7,26 @@ import '../span/sentry_span_v2.dart';
 import 'attributes_aggregator.dart';
 import 'attributes_provider.dart';
 
-/// Pipeline for managing telemetry attribute providers and executing enrichment.
+/// Pipeline for systematic telemetry attribute enrichment.
+///
+/// This enricher manages **global, systematic attribute providers** that apply
+/// to all telemetry items of a given type. It is NOT the source of truth for
+/// ALL enrichment in the SDK.
+///
+/// ## Enrichment Patterns
+///
+/// **Global enrichment** (this class):
+/// - Generic attributes that apply to all spans/logs
+/// - Systematic data available from scope/options/context
+/// - Examples: device info, app context, user attributes
+/// - Registered via [registerSpanAttributesProvider] or [registerLogAttributesProvider]
+///
+/// **Inline enrichment** (at integration/call site):
+/// - Runtime-conditional attributes based on local context
+/// - External data like HTTP request/response details
+/// - Set directly: `span.setAttribute('http.status', response.status)`
+///
+/// ## Architecture
 ///
 /// **Providers** compute attributes from scope/options/context.
 /// **Aggregators** (one per telemetry type) collect attributes from providers.
@@ -21,7 +40,7 @@ import 'attributes_provider.dart';
 /// - Forward iteration executes newest (upstream/generic) first
 /// - Older (downstream/specific) providers run last and can overwrite
 @internal
-class TelemetryEnricher {
+class GlobalTelemetryEnricher {
   /// Provider list for span enrichment.
   final List<TelemetryAttributesProvider> _spanProviders = [];
 
@@ -34,10 +53,10 @@ class TelemetryEnricher {
   /// The single span aggregator that uses all registered providers.
   late final TelemetryAttributesAggregator _spanAttributesAggregator;
 
-  TelemetryEnricher._();
+  GlobalTelemetryEnricher._();
 
-  factory TelemetryEnricher.create() {
-    final pipeline = TelemetryEnricher._();
+  factory GlobalTelemetryEnricher.create() {
+    final pipeline = GlobalTelemetryEnricher._();
     pipeline._logAttributesAggregator =
         TelemetryAttributesAggregator(providers: pipeline._logProviders);
     pipeline._spanAttributesAggregator =

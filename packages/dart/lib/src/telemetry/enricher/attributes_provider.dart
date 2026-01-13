@@ -39,6 +39,41 @@ final class CachedAttributesProvider implements TelemetryAttributesProvider {
   }
 }
 
+/// Caches the result of a provider based on a cache key function.
+///
+/// Unlike [CachedAttributesProvider] which caches forever, this checks
+/// the cache key function on each call. If the key changes, the cache
+/// is invalidated and attributes are recomputed.
+///
+/// This is ideal for providers with both static and dynamic state (e.g.,
+/// user attributes that can change at runtime).
+final class CacheKeyedAttributesProvider implements TelemetryAttributesProvider {
+  final TelemetryAttributesProvider _provider;
+  final Object? Function() _cacheKeyFn;
+  Object? _cachedKey;
+  FutureOr<Map<String, SentryAttribute>>? _cached;
+
+  CacheKeyedAttributesProvider(this._provider, this._cacheKeyFn);
+
+  @override
+  FutureOr<Map<String, SentryAttribute>> attributes(Object telemetryItem) {
+    final currentKey = _cacheKeyFn();
+
+    // Cache hit: key hasn't changed
+    if (_cached != null && _cachedKey == currentKey) {
+      return _cached!;
+    }
+
+    // Cache miss: recompute and update cache
+    _cachedKey = currentKey;
+    final result = _provider.attributes(telemetryItem);
+    if (result is Future<Map<String, SentryAttribute>>) {
+      return result.then((value) => _cached = value);
+    }
+    return _cached = result;
+  }
+}
+
 @internal
 extension CachedAttributesProviderExtension on TelemetryAttributesProvider {
   /// Returns a cached version of this provider.
@@ -46,4 +81,16 @@ extension CachedAttributesProviderExtension on TelemetryAttributesProvider {
   /// The provider's [attributes] method will only be called once,
   /// and subsequent calls will return the cached result.
   TelemetryAttributesProvider cached() => CachedAttributesProvider(this);
+
+  /// Returns a cache-keyed version of this provider.
+  ///
+  /// The [cacheKeyFn] function is called on each request. When the returned
+  /// key changes, the cache is invalidated and attributes are recomputed.
+  ///
+  /// Example:
+  /// ```dart
+  /// provider.cachedByKey(() => (userId: scope.user?.id, env: options.environment))
+  /// ```
+  TelemetryAttributesProvider cachedByKey(Object? Function() cacheKeyFn) =>
+      CacheKeyedAttributesProvider(this, cacheKeyFn);
 }

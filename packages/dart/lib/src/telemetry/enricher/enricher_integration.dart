@@ -5,17 +5,24 @@ import 'common_attributes_provider.dart';
 import 'scope_attributes_provider.dart';
 import 'span_segment_attributes_provider.dart';
 
-/// Integration that sets up the telemetry enrichment pipeline.
+/// Integration that sets up the common enrichment to telemetry.
 @internal
 class CommonTelemetryEnricherIntegration extends Integration<SentryOptions> {
-  static const integrationName = 'DartTelemetryEnricher';
+  static const integrationName = 'CommonTelemetryEnricher';
 
   @override
   void call(Hub hub, SentryOptions options) {
-    final pipeline = options.telemetryEnricher;
+    final pipeline = options.globalTelemetryEnricher;
 
     final commonAttributesProvider =
-        CommonTelemetryAttributesProvider(hub.scope, options);
+        CommonTelemetryAttributesProvider(hub.scope, options).cachedByKey(() {
+      final user = hub.scope.user;
+      return (
+        userId: user?.id,
+        userName: user?.name,
+        userEmail: user?.email,
+      );
+    });
     pipeline.registerSpanAttributesProvider(commonAttributesProvider);
     pipeline.registerLogAttributesProvider(commonAttributesProvider);
 
