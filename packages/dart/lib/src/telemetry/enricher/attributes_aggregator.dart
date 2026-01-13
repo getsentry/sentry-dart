@@ -7,58 +7,64 @@ import '../../utils/internal_logger.dart';
 
 /// Aggregates attributes from multiple providers.
 ///
-/// References the providers list owned by the pipeline, so newly registered
-/// providers are automatically used on subsequent aggregation calls.
+/// Providers are stored [newest...oldest] and iterated oldest→newest,
+/// so newer providers (registered later) win when keys conflict.
 @internal
 final class TelemetryAttributesAggregator {
   final List<TelemetryAttributesProvider> _providers;
 
-  TelemetryAttributesAggregator({
-    required List<TelemetryAttributesProvider> providers,
-  }) : _providers = providers;
+  TelemetryAttributesAggregator(this._providers);
 
   /// Collects and merges attributes from all registered providers.
   ///
-  /// Iterates through providers in order, collecting their attributes into
-  /// a single map. Later providers can overwrite attributes from earlier ones.
+  /// Iterates through providers collecting their attributes into
+  /// a single map.
   ///
   /// Returns synchronously if all providers are synchronous. Switches to async
   /// mode when encountering the first async provider. Provider errors are
   /// logged but don't stop aggregation.
-  FutureOr<Map<String, SentryAttribute>> attributes(Object telemetryItem) {
-    final aggregated = <String, SentryAttribute>{};
+  FutureOr<Map<String, SentryAttribute>> build(
+      Object item, TelemetryAttributesProviderContext context) {
+    final out = <String, SentryAttribute>{};
 
     for (int i = 0; i < _providers.length; i++) {
+      final provider = _providers[i];
+      if (!provider.supports(item)) continue;
+
       try {
-        final result = _providers[i].attributes(telemetryItem);
+        final result = provider(item, context);
 
         if (result is Future<Map<String, SentryAttribute>>) {
           // Hit async provider - switch to async mode for remaining providers
-          return _aggregateAsyncFrom(telemetryItem, aggregated, result, i + 1);
+          return _buildAsyncFrom(item, out, result, i - 1, context);
         } else {
-          aggregated.addAll(result);
+          for (final e in result.entries) {
+            out[e.key] = e.value;
+          }
         }
       } catch (error, stackTrace) {
         internalLogger.error(
-          'Provider "${_providers[i]}" failed: $error',
+          'Provider "$provider" failed: $error',
           error: error,
           stackTrace: stackTrace,
         );
       }
     }
 
-    return aggregated;
+    return out;
   }
 
-  Future<Map<String, SentryAttribute>> _aggregateAsyncFrom(
-    Object telemetryItem,
-    Map<String, SentryAttribute> aggregated,
-    Future<Map<String, SentryAttribute>> currentAsyncResult,
-    int nextIndex,
-  ) async {
+  Future<Map<String, SentryAttribute>> _buildAsyncFrom(
+      Object item,
+      Map<String, SentryAttribute> out,
+      Future<Map<String, SentryAttribute>> currentAsyncResult,
+      int nextIndex,
+      TelemetryAttributesProviderContext context) async {
     try {
       final attributes = await currentAsyncResult;
-      aggregated.addAll(attributes);
+      for (final attribute in attributes.entries) {
+        out[attribute.key] = attribute.value;
+      }
     } catch (error, stackTrace) {
       internalLogger.error(
         'Provider failed: $error',
@@ -68,18 +74,23 @@ final class TelemetryAttributesAggregator {
     }
 
     for (int i = nextIndex; i < _providers.length; i++) {
+      final p = _providers[i];
+      if (!p.supports(item)) continue;
+
       try {
-        final attributes = await _providers[i].attributes(telemetryItem);
-        aggregated.addAll(attributes);
+        final attributes = await p(item, context);
+        for (final attribute in attributes.entries) {
+          out[attribute.key] = attribute.value;
+        }
       } catch (error, stackTrace) {
         internalLogger.error(
-          'Provider "${_providers[i]}" failed: $error',
+          'Provider "$p" failed: $error',
           error: error,
           stackTrace: stackTrace,
         );
       }
     }
 
-    return aggregated;
+    return out;
   }
 }

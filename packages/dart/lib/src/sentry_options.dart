@@ -576,8 +576,7 @@ class SentryOptions {
   /// Use this for generic attributes that apply to all telemetry of a given type.
   /// Attributes that rely on local context, should be set directly at the call site (e.g `span.setAttribute('http.status', response.status)`).
   @internal
-  GlobalTelemetryEnricher globalTelemetryEnricher =
-      GlobalTelemetryEnricher.create();
+  GlobalTelemetryEnricher globalTelemetryEnricher = GlobalTelemetryEnricher();
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;

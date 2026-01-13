@@ -4,30 +4,54 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 
-/// Computes attributes for telemetry enrichment.
+/// Base interface for attribute providers used in telemetry enrichment.
+///
+/// Providers compute attributes that are added to telemetry items (spans, logs).
+/// Each provider can filter which items it supports via [supports].
 @internal
-abstract class TelemetryAttributesProvider {
-  /// Computes attributes to be added to telemetry.
+abstract interface class TelemetryAttributesProvider {
+  /// Returns true if this provider should contribute attributes for [item].
+  bool supports(Object item);
+
+  /// Computes attributes for the given [item].
   ///
   /// Return a [Future] only if async work is required.
-  FutureOr<Map<String, SentryAttribute>> attributes(Object telemetryItem);
+  FutureOr<Map<String, SentryAttribute>> call(
+      Object item, TelemetryAttributesProviderContext context);
+}
+
+@immutable
+final class TelemetryAttributesProviderContext {
+  final SentryOptions options;
+  final Scope scope;
+
+  TelemetryAttributesProviderContext({
+    required this.options,
+    required this.scope,
+  });
 }
 
 /// Fully caches the result of any [TelemetryAttributesProvider].
 ///
-/// The first call to [attributes] delegates to the wrapped provider
+/// The first call to [call] delegates to the wrapped provider
 /// and caches the result. Subsequent calls return the cached value.
-final class CachedAttributesProvider implements TelemetryAttributesProvider {
+@internal
+final class CachedTelemetryAttributesProvider
+    implements TelemetryAttributesProvider {
   final TelemetryAttributesProvider _provider;
   FutureOr<Map<String, SentryAttribute>>? _cached;
 
-  CachedAttributesProvider(this._provider);
+  CachedTelemetryAttributesProvider(this._provider);
 
   @override
-  FutureOr<Map<String, SentryAttribute>> attributes(Object telemetryItem) {
+  bool supports(Object item) => _provider.supports(item);
+
+  @override
+  FutureOr<Map<String, SentryAttribute>> call(
+      Object item, TelemetryAttributesProviderContext context) {
     if (_cached != null) return _cached!;
 
-    final result = _provider.attributes(telemetryItem);
+    final result = _provider(item, context);
     if (result is Future<Map<String, SentryAttribute>>) {
       return result.then((value) => _cached = value);
     }
@@ -43,17 +67,23 @@ final class CachedAttributesProvider implements TelemetryAttributesProvider {
 ///
 /// This is ideal for providers with both static and dynamic state (e.g.,
 /// user attributes that can change at runtime).
-final class CacheKeyedAttributesProvider
+@internal
+final class CacheKeyedTelemetryAttributesProvider
     implements TelemetryAttributesProvider {
   final TelemetryAttributesProvider _provider;
   final Object? Function() _cacheKeyCallback;
+
   Object? _cachedKey;
   FutureOr<Map<String, SentryAttribute>>? _cached;
 
-  CacheKeyedAttributesProvider(this._provider, this._cacheKeyCallback);
+  CacheKeyedTelemetryAttributesProvider(this._provider, this._cacheKeyCallback);
 
   @override
-  FutureOr<Map<String, SentryAttribute>> attributes(Object telemetryItem) {
+  bool supports(Object item) => _provider.supports(item);
+
+  @override
+  FutureOr<Map<String, SentryAttribute>> call(
+      Object item, TelemetryAttributesProviderContext context) {
     final currentKey = _cacheKeyCallback();
 
     // Cache hit: key hasn't changed
@@ -63,7 +93,7 @@ final class CacheKeyedAttributesProvider
 
     // Cache miss: recompute and update cache
     _cachedKey = currentKey;
-    final result = _provider.attributes(telemetryItem);
+    final result = _provider(item, context);
     if (result is Future<Map<String, SentryAttribute>>) {
       return result.then((value) => _cached = value);
     }
@@ -75,9 +105,10 @@ final class CacheKeyedAttributesProvider
 extension CachedAttributesProviderExtension on TelemetryAttributesProvider {
   /// Returns a cached version of this provider.
   ///
-  /// The provider's [attributes] method will only be called once,
+  /// The provider's [call] method will only be called once,
   /// and subsequent calls will return the cached result.
-  TelemetryAttributesProvider cached() => CachedAttributesProvider(this);
+  TelemetryAttributesProvider cached() =>
+      CachedTelemetryAttributesProvider(this);
 
   /// Returns a cache-keyed version of this provider.
   ///
@@ -87,8 +118,7 @@ extension CachedAttributesProviderExtension on TelemetryAttributesProvider {
   /// Example:
   /// ```dart
   /// provider.cachedByKey(() => (userId: scope.user?.id, env: options.environment))
-  /// ```
   TelemetryAttributesProvider cachedByKey(
           Object? Function() cacheKeyCallback) =>
-      CacheKeyedAttributesProvider(this, cacheKeyCallback);
+      CacheKeyedTelemetryAttributesProvider(this, cacheKeyCallback);
 }

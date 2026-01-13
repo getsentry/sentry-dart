@@ -5,45 +5,40 @@ import 'package:meta/meta.dart';
 import '../../../sentry.dart';
 import '../../utils/os_utils.dart';
 
-/// Provider for common telemetry attributes available from SDK configuration.
+/// Provides common attributes for all telemetry items.
 ///
-/// Computes attributes from [SentryOptions] and [Scope] including SDK info,
-/// environment, release, user data (when [SentryOptions.sendDefaultPii] is enabled),
-/// and operating system details.
-///
-/// These attributes are static or semi-static data that can change at runtime
-/// (e.g., user attributes). Consider using [cachedByKey] with a cache key based
-/// on volatile fields when registering this provider.
+/// Includes SDK metadata, environment/release, user identity (gated by PII),
+/// and operating system information.
 @internal
-class CommonTelemetryAttributesProvider implements TelemetryAttributesProvider {
-  final SentryOptions _options;
-  final Scope _scope;
-
-  late final operatingSystem = getSentryOperatingSystem();
-
-  CommonTelemetryAttributesProvider(this._scope, this._options);
+final class CommonTelemetryAttributesProvider
+    implements TelemetryAttributesProvider {
+  late final _operatingSystem = getSentryOperatingSystem();
 
   @override
-  FutureOr<Map<String, SentryAttribute>> attributes(_) {
+  bool supports(Object item) => true;
+
+  @override
+  FutureOr<Map<String, SentryAttribute>> call(
+      Object _, TelemetryAttributesProviderContext context) {
     final attributes = <String, SentryAttribute>{};
     attributes[SemanticAttributesConstants.sentrySdkName] =
-        SentryAttribute.string(_options.sdk.name);
+        SentryAttribute.string(context.options.sdk.name);
 
     attributes[SemanticAttributesConstants.sentrySdkVersion] =
-        SentryAttribute.string(_options.sdk.version);
+        SentryAttribute.string(context.options.sdk.version);
 
-    if (_options.environment != null) {
+    if (context.options.environment != null) {
       attributes[SemanticAttributesConstants.sentryEnvironment] =
-          SentryAttribute.string(_options.environment!);
+          SentryAttribute.string(context.options.environment!);
     }
 
-    if (_options.release != null) {
+    if (context.options.release != null) {
       attributes[SemanticAttributesConstants.sentryRelease] =
-          SentryAttribute.string(_options.release!);
+          SentryAttribute.string(context.options.release!);
     }
 
-    if (_options.sendDefaultPii) {
-      final user = _scope.user;
+    if (context.options.sendDefaultPii) {
+      final user = context.scope.user;
       if (user != null) {
         if (user.id != null) {
           attributes[SemanticAttributesConstants.userId] =
@@ -60,14 +55,14 @@ class CommonTelemetryAttributesProvider implements TelemetryAttributesProvider {
       }
     }
 
-    if (operatingSystem.name != null) {
+    if (_operatingSystem.name != null) {
       attributes[SemanticAttributesConstants.osName] =
-          SentryAttribute.string(operatingSystem.name!);
+          SentryAttribute.string(_operatingSystem.name!);
     }
 
-    if (operatingSystem.version != null) {
+    if (_operatingSystem.version != null) {
       attributes[SemanticAttributesConstants.osVersion] =
-          SentryAttribute.string(operatingSystem.version!);
+          SentryAttribute.string(_operatingSystem.version!);
     }
 
     return attributes;

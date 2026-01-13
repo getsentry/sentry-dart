@@ -9,69 +9,65 @@ import 'attributes_aggregator.dart';
 /// Pipeline for systematic telemetry attribute enrichment.
 ///
 /// This enricher manages **global, systematic attribute providers** that apply
-/// to all telemetry items of a given type. It is NOT the source of truth for
-/// ALL enrichment in the SDK.
+/// to all telemetry items. It is NOT the source of truth for ALL enrichment
+/// in the SDK.
 @internal
-class GlobalTelemetryEnricher {
-  final List<TelemetryAttributesProvider> _spanProviders = [];
-  final List<TelemetryAttributesProvider> _logProviders = [];
-  late final TelemetryAttributesAggregator _logAttributesAggregator;
-  late final TelemetryAttributesAggregator _spanAttributesAggregator;
+final class GlobalTelemetryEnricher {
+  final Hub _hub;
+  final _providers = <TelemetryAttributesProvider>[];
 
-  GlobalTelemetryEnricher({
-    TelemetryAttributesAggregator? spanAttributesAggregator,
-    TelemetryAttributesAggregator? logAttributesAggregator,
-  }) {
-    _logAttributesAggregator = logAttributesAggregator ??
-        TelemetryAttributesAggregator(providers: _logProviders);
-    _spanAttributesAggregator = spanAttributesAggregator ??
-        TelemetryAttributesAggregator(providers: _spanProviders);
-  }
+  late final _aggregator = TelemetryAttributesAggregator(_providers);
+
+  GlobalTelemetryEnricher({Hub? hub}) : _hub = hub ?? HubAdapter();
+
+  TelemetryAttributesProviderContext get _context =>
+      TelemetryAttributesProviderContext(
+          options: _hub.options, scope: _hub.scope);
 
   FutureOr<void> enrichLog(SentryLog log) {
-    final userAttributes = log.attributes;
-    final result = _logAttributesAggregator.attributes(log);
+    // Scope is also set by the SDK user so it should be merged first
+    final attributes = log.attributes..addAllIfAbsent(_hub.scope.attributes);
 
+    final result = _aggregator.build(log, _context);
     if (result is Map<String, SentryAttribute>) {
-      log.attributes = {...result, ...userAttributes};
+      attributes.addAllIfAbsent(result);
+      log.attributes = attributes;
     } else {
       return Future.value(result).then((aggregated) {
-        log.attributes = {...aggregated, ...userAttributes};
+        attributes.addAllIfAbsent(aggregated);
+        log.attributes = attributes;
       });
     }
   }
 
   FutureOr<void> enrichSpan(RecordingSentrySpanV2 span) {
-    final userAttributes = span.attributes;
-    final FutureOr<Map<String, SentryAttribute>> result =
-        _spanAttributesAggregator.attributes(span);
+    // Scope is also set by the SDK user so it should be merged first
+    final attributes = span.attributes..addAllIfAbsent(_hub.scope.attributes);
 
+    final result = _aggregator.build(span, _context);
     if (result is Map<String, SentryAttribute>) {
-      span.setAttributes({...result, ...userAttributes});
+      attributes.addAllIfAbsent(result);
+      span.setAttributes(attributes);
     } else {
       return Future.value(result).then((aggregated) {
-        span.setAttributes({...aggregated, ...userAttributes});
+        attributes.addAllIfAbsent(aggregated);
+        span.setAttributes(attributes);
       });
     }
   }
 
-  /// Registers an attribute provider for span enrichment.
-  ///
-  /// The provider is prepended (inserted at index 0) so newer providers
-  /// execute first and older providers can overwrite their attributes.
-  void registerSpanAttributesProvider(TelemetryAttributesProvider provider) {
-    if (!_spanProviders.contains(provider)) {
-      _spanProviders.insert(0, provider);
+  void registerAttributesProvider(TelemetryAttributesProvider provider) {
+    if (_providers.contains(provider)) {
+      return;
     }
+    _providers.add(provider);
   }
+}
 
-  /// Registers an attribute provider for log enrichment.
-  ///
-  /// The provider is prepended (inserted at index 0) so newer providers
-  /// execute first and older providers can overwrite their attributes.
-  void registerLogAttributesProvider(TelemetryAttributesProvider provider) {
-    if (!_logProviders.contains(provider)) {
-      _logProviders.insert(0, provider);
+extension _AddAllAbsentX<K, V> on Map<K, V> {
+  void addAllIfAbsent(Map<K, V> other) {
+    for (final e in other.entries) {
+      putIfAbsent(e.key, () => e.value);
     }
   }
 }

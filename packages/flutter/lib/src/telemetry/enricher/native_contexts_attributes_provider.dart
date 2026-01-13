@@ -8,7 +8,7 @@ import '../../../sentry_flutter.dart';
 import '../../integrations/integrations.dart';
 import '../../native/sentry_native_binding.dart';
 
-/// Provider for device and OS context from native iOS/Android SDKs.
+/// Creates a native contexts attributes provider.
 ///
 /// Fetches context information from the native layer including operating system
 /// details (name, version) and device information (brand, model, family).
@@ -24,7 +24,11 @@ class NativeContextsTelemetryAttributesProvider
   NativeContextsTelemetryAttributesProvider(this._nativeBinding);
 
   @override
-  FutureOr<Map<String, SentryAttribute>> attributes(_) async {
+  bool supports(Object item) => true;
+
+  @override
+  FutureOr<Map<String, SentryAttribute>> call(
+      Object item, TelemetryAttributesProviderContext context) async {
     final infos = await _nativeBinding.loadContexts() ?? {};
 
     final contextsMap = infos['contexts'] as Map?;
