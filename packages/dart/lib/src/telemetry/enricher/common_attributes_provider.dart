@@ -50,7 +50,7 @@ class CommonTelemetryAttributesProvider implements TelemetryAttributesProvider {
               SentryAttribute.string(user.id!);
         }
         if (user.name != null) {
-          attributes[SemanticAttributesConstants.userUsername] =
+          attributes[SemanticAttributesConstants.userName] =
               SentryAttribute.string(user.name!);
         }
         if (user.email != null) {

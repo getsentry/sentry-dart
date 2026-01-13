@@ -97,7 +97,7 @@ abstract class SemanticAttributesConstants {
   static const userIpAddress = 'user.ip_address';
 
   /// The user username (gated by `sendDefaultPii`).
-  static const userUsername = 'user.name';
+  static const userName = 'user.name';
 
   /// The operating system name.
   static const osName = 'os.name';
