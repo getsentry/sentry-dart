@@ -21,10 +21,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   build:
     name: '${{ matrix.os }} | ${{ matrix.sdk }}'
@@ -37,7 +33,7 @@ jobs:
         sdk: [stable, beta]
 
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/flutter-test
         with:
