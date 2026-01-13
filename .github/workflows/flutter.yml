@@ -20,6 +20,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   build:
     name: '${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}'
