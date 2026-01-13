@@ -6,7 +6,7 @@ import 'scope_attributes_provider.dart';
 
 /// Integration that sets up the telemetry enrichment pipeline.
 @internal
-class DartTelemetryEnricherIntegration extends Integration<SentryOptions> {
+class CommonTelemetryEnricherIntegration extends Integration<SentryOptions> {
   static const integrationName = 'DartTelemetryEnricher';
 
   @override

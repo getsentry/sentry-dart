@@ -47,22 +47,21 @@ class TelemetryEnricher {
 
   FutureOr<void> enrichLog(SentryLog log) {
     final userAttributes = log.attributes;
-    final result = _logAttributesAggregator.aggregate();
+    final result = _logAttributesAggregator.attributes();
 
-    if (result is! Future) {
+    if (result is Map<String, SentryAttribute>) {
       log.attributes = {...result, ...userAttributes};
-      return null;
+    } else {
+      return Future.value(result).then((aggregated) {
+        log.attributes = {...aggregated, ...userAttributes};
+      });
     }
-
-    return Future.value(result).then((aggregated) {
-      log.attributes = {...aggregated, ...userAttributes};
-    });
   }
 
   FutureOr<void> enrichSpan(RecordingSentrySpanV2 span) {
     final userAttributes = span.attributes;
     final FutureOr<Map<String, SentryAttribute>> result =
-        _spanAttributesAggregator.aggregate();
+        _spanAttributesAggregator.attributes();
 
     if (result is Map<String, SentryAttribute>) {
       span.setAttributes({...result, ...userAttributes});

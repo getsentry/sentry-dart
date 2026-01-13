@@ -18,41 +18,58 @@ final class TelemetryAttributesAggregator {
     required List<TelemetryAttributesProvider> providers,
   }) : _providers = providers;
 
-  FutureOr<Map<String, SentryAttribute>> aggregate() {
+  FutureOr<Map<String, SentryAttribute>> attributes() {
     final aggregated = <String, SentryAttribute>{};
-    List<Future<void>>? pending;
 
-    for (final provider in _providers) {
+    for (int i = 0; i < _providers.length; i++) {
       try {
-        final result = provider.provide();
+        final result = _providers[i].attributes();
 
         if (result is Future<Map<String, SentryAttribute>>) {
-          pending ??= <Future<void>>[];
-          pending.add(
-            result.then((attrs) {
-              aggregated.addAll(attrs);
-            }).catchError((Object error, StackTrace stackTrace) {
-              internalLogger.error(
-                'Provider "$provider" failed: $error',
-                error: error,
-                stackTrace: stackTrace,
-              );
-            }),
-          );
+          // Hit async provider - switch to async mode for remaining providers
+          return _aggregateAsyncFrom(aggregated, result, i + 1);
         } else {
           aggregated.addAll(result);
         }
       } catch (error, stackTrace) {
         internalLogger.error(
-          'Provider "$provider" failed: $error',
+          'Provider "${_providers[i]}" failed: $error',
           error: error,
           stackTrace: stackTrace,
         );
       }
     }
 
-    if (pending != null && pending.isNotEmpty) {
-      return Future.wait(pending).then((_) => aggregated);
+    return aggregated;
+  }
+
+  Future<Map<String, SentryAttribute>> _aggregateAsyncFrom(
+    Map<String, SentryAttribute> aggregated,
+    Future<Map<String, SentryAttribute>> currentAsyncResult,
+    int nextIndex,
+  ) async {
+    try {
+      final attributes = await currentAsyncResult;
+      aggregated.addAll(attributes);
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'Provider failed: $error',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    for (int i = nextIndex; i < _providers.length; i++) {
+      try {
+        final attributes = await _providers[i].attributes();
+        aggregated.addAll(attributes);
+      } catch (error, stackTrace) {
+        internalLogger.error(
+          'Provider "${_providers[i]}" failed: $error',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
     }
 
     return aggregated;

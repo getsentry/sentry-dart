@@ -1,19 +1,21 @@
+// ignore_for_file: invalid_use_of_internal_member, implementation_imports
+
 import 'dart:async';
 
-import 'package:sentry/src/protocol/sentry_attribute.dart';
 import 'package:sentry/src/telemetry/enricher/attributes_provider.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../integrations/integrations.dart';
 import '../../native/sentry_native_binding.dart';
 
-class NativeContextsAttributesProvider implements TelemetryAttributesProvider {
+class NativeContextsTelemetryAttributesProvider
+    implements TelemetryAttributesProvider {
   final SentryNativeBinding _nativeBinding;
 
-  NativeContextsAttributesProvider(this._nativeBinding);
+  NativeContextsTelemetryAttributesProvider(this._nativeBinding);
 
   @override
-  FutureOr<Map<String, SentryAttribute>> provide() async {
+  FutureOr<Map<String, SentryAttribute>> attributes() async {
     final infos = await _nativeBinding.loadContexts() ?? {};
 
     final contextsMap = infos['contexts'] as Map?;

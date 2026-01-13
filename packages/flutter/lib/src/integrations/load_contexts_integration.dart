@@ -1,13 +1,14 @@
+// ignore_for_file: implementation_imports, invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 import 'package:collection/collection.dart';
-// ignore: implementation_imports
 import 'package:sentry/src/event_processor/enricher/enricher_event_processor.dart';
-// ignore: implementation_imports
 import 'package:sentry/src/logs_enricher_integration.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
+import '../telemetry/enricher/native_contexts_attributes_provider.dart';
 
 /// Load Device's Contexts from the iOS & Android SDKs.
 ///
@@ -30,6 +31,14 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
       _LoadContextsIntegrationEventProcessor(_native, options),
     );
 
+    // TODO(next-pr): replace logs enriching with new enricher
+    final nativeContextsAttributeProvider =
+        NativeContextsTelemetryAttributesProvider(_native).cached();
+    options.telemetryEnricher
+        .registerSpanAttributesProvider(nativeContextsAttributeProvider);
+    options.telemetryEnricher
+        .registerLogAttributesProvider(nativeContextsAttributeProvider);
+
     // We need to move [IOEnricherEventProcessor] after [_LoadContextsIntegrationEventProcessor]
     // so that we know which contexts were set by the user and which were set by the other processor.
     // The priorities are:
@@ -45,7 +54,6 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
     }
     if (options.enableLogs) {
       final logsEnricherIntegration = options.integrations.firstWhereOrNull(
-        // ignore: invalid_use_of_internal_member
         (element) => element is LogsEnricherIntegration,
       );
       if (logsEnricherIntegration != null) {
@@ -54,7 +62,6 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
         options.removeIntegration(logsEnricherIntegration);
       }
 
-      // ignore: invalid_use_of_internal_member
       options.lifecycleRegistry.registerCallback<OnBeforeCaptureLog>(
         (event) async {
           try {
