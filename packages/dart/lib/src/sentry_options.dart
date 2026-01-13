@@ -577,7 +577,8 @@ class SentryOptions {
   /// For runtime-conditional or integration-specific attributes, set them inline
   /// at the call site (e.g., `span.setAttribute('http.status', response.status)`).
   @internal
-  GlobalTelemetryEnricher globalTelemetryEnricher = GlobalTelemetryEnricher.create();
+  GlobalTelemetryEnricher globalTelemetryEnricher =
+      GlobalTelemetryEnricher.create();
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
