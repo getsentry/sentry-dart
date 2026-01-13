@@ -1,10 +1,8 @@
-// ignore_for_file: invalid_use_of_internal_member, implementation_imports
+// ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
-import 'package:sentry/src/telemetry/enricher/attributes_provider.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../integrations/integrations.dart';

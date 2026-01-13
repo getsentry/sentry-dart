@@ -5,7 +5,6 @@ import 'package:meta/meta.dart';
 import '../../../sentry.dart';
 import '../span/sentry_span_v2.dart';
 import 'attributes_aggregator.dart';
-import 'attributes_provider.dart';
 
 /// Pipeline for systematic telemetry attribute enrichment.
 ///

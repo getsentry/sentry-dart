@@ -558,6 +558,20 @@ class SentryClient {
       );
     }
 
+    final user = scope?.user;
+    final id = user?.id;
+    final email = user?.email;
+    final name = user?.name;
+    if (id != null) {
+      log.attributes['user.id'] = SentryAttribute.string(id);
+    }
+    if (name != null) {
+      log.attributes['user.name'] = SentryAttribute.string(name);
+    }
+    if (email != null) {
+      log.attributes['user.email'] = SentryAttribute.string(email);
+    }
+
     final beforeSendLog = _options.beforeSendLog;
     SentryLog? processedLog = log;
     if (beforeSendLog != null) {
