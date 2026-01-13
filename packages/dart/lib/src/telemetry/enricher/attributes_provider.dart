@@ -14,7 +14,7 @@ abstract class TelemetryAttributesProvider {
   /// Computes attributes to be added to telemetry.
   ///
   /// Return a [Future] only if async work is required.
-  FutureOr<Map<String, SentryAttribute>> attributes();
+  FutureOr<Map<String, SentryAttribute>> attributes(Object telemetryItem);
 }
 
 /// Caches the result of any [TelemetryAttributesProvider].
@@ -28,10 +28,10 @@ final class CachedAttributesProvider implements TelemetryAttributesProvider {
   CachedAttributesProvider(this._provider);
 
   @override
-  FutureOr<Map<String, SentryAttribute>> attributes() {
+  FutureOr<Map<String, SentryAttribute>> attributes(Object telemetryItem) {
     if (_cached != null) return _cached!;
 
-    final result = _provider.attributes();
+    final result = _provider.attributes(telemetryItem);
     if (result is Future<Map<String, SentryAttribute>>) {
       return result.then((value) => _cached = value);
     }

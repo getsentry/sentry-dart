@@ -9,5 +9,5 @@ class ScopeTelemetryAttributesProvider implements TelemetryAttributesProvider {
   ScopeTelemetryAttributesProvider(this._scope);
 
   @override
-  FutureOr<Map<String, SentryAttribute>> attributes() => _scope.attributes;
+  FutureOr<Map<String, SentryAttribute>> attributes(_) => _scope.attributes;
 }

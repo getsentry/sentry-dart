@@ -18,16 +18,16 @@ final class TelemetryAttributesAggregator {
     required List<TelemetryAttributesProvider> providers,
   }) : _providers = providers;
 
-  FutureOr<Map<String, SentryAttribute>> attributes() {
+  FutureOr<Map<String, SentryAttribute>> attributes(Object telemetryItem) {
     final aggregated = <String, SentryAttribute>{};
 
     for (int i = 0; i < _providers.length; i++) {
       try {
-        final result = _providers[i].attributes();
+        final result = _providers[i].attributes(telemetryItem);
 
         if (result is Future<Map<String, SentryAttribute>>) {
           // Hit async provider - switch to async mode for remaining providers
-          return _aggregateAsyncFrom(aggregated, result, i + 1);
+          return _aggregateAsyncFrom(telemetryItem, aggregated, result, i + 1);
         } else {
           aggregated.addAll(result);
         }
@@ -44,6 +44,7 @@ final class TelemetryAttributesAggregator {
   }
 
   Future<Map<String, SentryAttribute>> _aggregateAsyncFrom(
+    Object telemetryItem,
     Map<String, SentryAttribute> aggregated,
     Future<Map<String, SentryAttribute>> currentAsyncResult,
     int nextIndex,
@@ -61,7 +62,7 @@ final class TelemetryAttributesAggregator {
 
     for (int i = nextIndex; i < _providers.length; i++) {
       try {
-        final attributes = await _providers[i].attributes();
+        final attributes = await _providers[i].attributes(telemetryItem);
         aggregated.addAll(attributes);
       } catch (error, stackTrace) {
         internalLogger.error(

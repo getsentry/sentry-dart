@@ -47,7 +47,7 @@ class TelemetryEnricher {
 
   FutureOr<void> enrichLog(SentryLog log) {
     final userAttributes = log.attributes;
-    final result = _logAttributesAggregator.attributes();
+    final result = _logAttributesAggregator.attributes(log);
 
     if (result is Map<String, SentryAttribute>) {
       log.attributes = {...result, ...userAttributes};
@@ -61,7 +61,7 @@ class TelemetryEnricher {
   FutureOr<void> enrichSpan(RecordingSentrySpanV2 span) {
     final userAttributes = span.attributes;
     final FutureOr<Map<String, SentryAttribute>> result =
-        _spanAttributesAggregator.attributes();
+        _spanAttributesAggregator.attributes(span);
 
     if (result is Map<String, SentryAttribute>) {
       span.setAttributes({...result, ...userAttributes});

@@ -16,7 +16,7 @@ class CommonTelemetryAttributesProvider implements TelemetryAttributesProvider {
   CommonTelemetryAttributesProvider(this._scope, this._options);
 
   @override
-  FutureOr<Map<String, SentryAttribute>> attributes() {
+  FutureOr<Map<String, SentryAttribute>> attributes(_) {
     final attributes = <String, SentryAttribute>{};
     attributes[SemanticAttributesConstants.sentrySdkName] =
         SentryAttribute.string(_options.sdk.name);
