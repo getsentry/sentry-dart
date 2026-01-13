@@ -46,15 +46,15 @@ final class CachedAttributesProvider implements TelemetryAttributesProvider {
 final class CacheKeyedAttributesProvider
     implements TelemetryAttributesProvider {
   final TelemetryAttributesProvider _provider;
-  final Object? Function() _cacheKeyFn;
+  final Object? Function() _cacheKeyCallback;
   Object? _cachedKey;
   FutureOr<Map<String, SentryAttribute>>? _cached;
 
-  CacheKeyedAttributesProvider(this._provider, this._cacheKeyFn);
+  CacheKeyedAttributesProvider(this._provider, this._cacheKeyCallback);
 
   @override
   FutureOr<Map<String, SentryAttribute>> attributes(Object telemetryItem) {
-    final currentKey = _cacheKeyFn();
+    final currentKey = _cacheKeyCallback();
 
     // Cache hit: key hasn't changed
     if (_cached != null && _cachedKey == currentKey) {
@@ -81,13 +81,14 @@ extension CachedAttributesProviderExtension on TelemetryAttributesProvider {
 
   /// Returns a cache-keyed version of this provider.
   ///
-  /// The [cacheKeyFn] function is called on each request. When the returned
+  /// The [cacheKeyCallback] function is called on each request. When the returned
   /// key changes, the cache is invalidated and attributes are recomputed.
   ///
   /// Example:
   /// ```dart
   /// provider.cachedByKey(() => (userId: scope.user?.id, env: options.environment))
   /// ```
-  TelemetryAttributesProvider cachedByKey(Object? Function() cacheKeyFn) =>
-      CacheKeyedAttributesProvider(this, cacheKeyFn);
+  TelemetryAttributesProvider cachedByKey(
+          Object? Function() cacheKeyCallback) =>
+      CacheKeyedAttributesProvider(this, cacheKeyCallback);
 }
