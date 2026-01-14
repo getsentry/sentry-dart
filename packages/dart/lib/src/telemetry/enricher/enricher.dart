@@ -61,7 +61,7 @@ final class GlobalTelemetryEnricher {
       return null;
     }
 
-    return Future.value(aggregatedAttributes).then((providerAttributes) {
+    return aggregatedAttributes.then((providerAttributes) {
       mergedAttributes.addAllIfAbsent(providerAttributes);
       applyAttributes(mergedAttributes);
     });
