@@ -33,7 +33,7 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
 
     // TODO(next-pr): replace logs enriching with new enricher
     final nativeContextsProvider =
-        createNativeContextsAttributesProvider(_native).cached();
+        NativeContextsTelemetryAttributesProvider(_native).cached();
     options.globalTelemetryEnricher
         .registerAttributesProvider(nativeContextsProvider);
 
