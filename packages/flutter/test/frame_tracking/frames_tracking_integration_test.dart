@@ -100,9 +100,39 @@ void main() {
   group('succeeds to initialize frames tracking', () {
     late Hub hub;
 
+    const slowFrame = Duration(milliseconds: 100);
+    const frozenFrame = Duration(milliseconds: 800);
+
     setUp(() async {
       hub = Hub(options);
     });
+
+    Future<void> simulateFrames(
+      WidgetTester tester, {
+      required List<Duration> frameDurations,
+    }) async {
+      for (final d in frameDurations) {
+        tester.binding.handleBeginFrame(Duration.zero);
+        await Future<void>.delayed(d);
+        tester.binding.handleDrawFrame();
+      }
+    }
+
+    Widget buildTestApp({
+      required String buttonText,
+      required VoidCallback onPressed,
+    }) {
+      return MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: ElevatedButton(
+              onPressed: onPressed,
+              child: Text(buttonText),
+            ),
+          ),
+        ),
+      );
+    }
 
     testWidgets('with stream lifecycle measures frames',
         (WidgetTester tester) async {
@@ -113,94 +143,54 @@ void main() {
           options..traceLifecycle = SentryTraceLifecycle.streaming);
 
       await tester.runAsync(() async {
-        Widget testWidget = MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: ElevatedButton(
-                child: Text('Start Span'),
-                onPressed: () {
-                  parentSpan = hub.startSpan('test_parent_span');
-                  childSpan = hub.startSpan('test_child_span');
-                },
-              ),
-            ),
-          ),
+        final testWidget = buildTestApp(
+          buttonText: 'Start Span',
+          onPressed: () {
+            parentSpan = hub.startSpan('test_parent_span');
+            childSpan = hub.startSpan('test_child_span');
+          },
         );
 
         await tester.pumpWidget(testWidget);
-
         await tester.tap(find.byType(ElevatedButton));
 
-        /// Generates 2 slow and 1 frozen frame for the child span
-        Future<void> _simulateChildSpanFrames() async {
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 100));
-          tester.binding.handleDrawFrame();
-
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 100));
-          tester.binding.handleDrawFrame();
-
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 800));
-          tester.binding.handleDrawFrame();
-        }
-
-        await _simulateChildSpanFrames();
+        // Child span: 2 slow + 1 frozen
+        await simulateFrames(
+          tester,
+          frameDurations: const [slowFrame, slowFrame, frozenFrame],
+        );
         childSpan.end();
 
-        /// Generates 3 slow and 1 frozen frame for the tracer
-        Future<void> _simulateTracerFrames() async {
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 100));
-          tester.binding.handleDrawFrame();
-
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 100));
-          tester.binding.handleDrawFrame();
-
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 100));
-          tester.binding.handleDrawFrame();
-
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 800));
-          tester.binding.handleDrawFrame();
-        }
-
-        await _simulateTracerFrames();
+        // Parent span: 3 slow + 1 frozen (parent should also include child's)
+        await simulateFrames(
+          tester,
+          frameDurations: const [slowFrame, slowFrame, slowFrame, frozenFrame],
+        );
         parentSpan.end();
 
         expect(
-            childSpan.attributes[SemanticAttributesConstants.framesSlow]?.value,
-            2);
+          childSpan.attributes[SemanticAttributesConstants.framesSlow]?.value,
+          2,
+        );
         expect(
-            childSpan
-                .attributes[SemanticAttributesConstants.framesFrozen]?.value,
-            1);
+          childSpan.attributes[SemanticAttributesConstants.framesFrozen]?.value,
+          1,
+        );
 
         expect(
-            parentSpan
-                .attributes[SemanticAttributesConstants.framesSlow]?.value,
-            5);
+          parentSpan.attributes[SemanticAttributesConstants.framesSlow]?.value,
+          5,
+        );
         expect(
-            parentSpan
-                .attributes[SemanticAttributesConstants.framesFrozen]?.value,
-            2);
+          parentSpan
+              .attributes[SemanticAttributesConstants.framesFrozen]?.value,
+          2,
+        );
         expect(
-            parentSpan
-                .attributes[SemanticAttributesConstants.framesTotal]?.value,
-            greaterThanOrEqualTo(8));
-        expect(
-            parentSpan
-                .attributes[SemanticAttributesConstants.framesSlow]?.value,
-            5);
-        expect(
-            parentSpan
-                .attributes[SemanticAttributesConstants.framesFrozen]?.value,
-            2);
-        // we don't measure the frames delay or total frames because the timings are not
-        // completely accurate in a test env so it may flake
+          parentSpan.attributes[SemanticAttributesConstants.framesTotal]?.value,
+          greaterThanOrEqualTo(8),
+        );
+        // No delay assertions due to test env timing flakiness.
       });
     });
 
@@ -213,70 +203,39 @@ void main() {
           options..traceLifecycle = SentryTraceLifecycle.static);
 
       await tester.runAsync(() async {
-        // Widget to be rendered
-        Widget testWidget = MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: ElevatedButton(
-                child: Text('Start Transaction'),
-                onPressed: () {
-                  tracer = hub.startTransaction(
-                      'test_transaction', 'test_operation',
-                      bindToScope: true,
-                      startTimestamp: options.clock()) as SentryTracer;
-                  child = tracer?.startChild('child_operation',
-                      description: 'Child span',
-                      startTimestamp: options.clock());
-                },
-              ),
-            ),
-          ),
+        final testWidget = buildTestApp(
+          buttonText: 'Start Transaction',
+          onPressed: () {
+            tracer = hub.startTransaction(
+              'test_transaction',
+              'test_operation',
+              bindToScope: true,
+              startTimestamp: options.clock(),
+            ) as SentryTracer;
+
+            child = tracer?.startChild(
+              'child_operation',
+              description: 'Child span',
+              startTimestamp: options.clock(),
+            );
+          },
         );
 
         await tester.pumpWidget(testWidget);
-
         await tester.tap(find.byType(ElevatedButton));
 
-        /// Generates 2 slow and 1 frozen frame for the child span
-        Future<void> _simulateChildSpanFrames() async {
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 100));
-          tester.binding.handleDrawFrame();
-
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 100));
-          tester.binding.handleDrawFrame();
-
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 800));
-          tester.binding.handleDrawFrame();
-        }
-
-        await _simulateChildSpanFrames();
+        // Child span: 2 slow + 1 frozen
+        await simulateFrames(
+          tester,
+          frameDurations: const [slowFrame, slowFrame, frozenFrame],
+        );
         await child?.finish(endTimestamp: options.clock());
 
-        /// Generates 3 slow and 1 frozen frame for the tracer
-        /// However when asserting later, the tracer will also include the number
-        /// of slow and frozen frames from the child span.
-        Future<void> _simulateTracerFrames() async {
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 100));
-          tester.binding.handleDrawFrame();
-
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 100));
-          tester.binding.handleDrawFrame();
-
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 100));
-          tester.binding.handleDrawFrame();
-
-          tester.binding.handleBeginFrame(Duration());
-          await Future<void>.delayed(Duration(milliseconds: 800));
-          tester.binding.handleDrawFrame();
-        }
-
-        await _simulateTracerFrames();
+        // Tracer: 3 slow + 1 frozen (and will include child's)
+        await simulateFrames(
+          tester,
+          frameDurations: const [slowFrame, slowFrame, slowFrame, frozenFrame],
+        );
         await tracer?.finish(endTimestamp: options.clock());
 
         expect(tracer, isNotNull);
@@ -289,16 +248,20 @@ void main() {
         // Verify tracer
         expect(tracer!.data['frames.slow'] as int, 5);
         expect(tracer!.data['frames.frozen'] as int, 2);
+
         expect(
-            (tracer!.measurements['frames_total'] as SentryMeasurement).value,
-            greaterThanOrEqualTo(8));
-        expect((tracer!.measurements['frames_slow'] as SentryMeasurement).value,
-            5);
+          (tracer!.measurements['frames_total'] as SentryMeasurement).value,
+          greaterThanOrEqualTo(8),
+        );
         expect(
-            (tracer!.measurements['frames_frozen'] as SentryMeasurement).value,
-            2);
-        // we don't measure the frames delay or total frames because the timings are not
-        // completely accurate in a test env so it may flake
+          (tracer!.measurements['frames_slow'] as SentryMeasurement).value,
+          5,
+        );
+        expect(
+          (tracer!.measurements['frames_frozen'] as SentryMeasurement).value,
+          2,
+        );
+        // No delay assertions due to test env timing flakiness.
       });
     });
   });
