@@ -64,7 +64,6 @@ void main() {
           () async {
         final mockLogBuffer = MockTelemetryBuffer<SentryLog>(asyncFlush: true);
         final processor = fixture.getSut(logBuffer: mockLogBuffer);
-        processor.logBuffer = null;
 
         final result = processor.flush();
 
