@@ -14,32 +14,35 @@ final class CommonTelemetryAttributesProvider
     implements TelemetryAttributesProvider {
   late final _operatingSystem = getSentryOperatingSystem();
 
+  final SentryOptions _options;
+
+  CommonTelemetryAttributesProvider(this._options);
+
   @override
   bool supports(Object item) => true;
 
   @override
-  FutureOr<Map<String, SentryAttribute>> call(
-      Object _, TelemetryAttributesProviderContext context) {
+  FutureOr<Map<String, SentryAttribute>> call(Object _, {Scope? scope}) {
     final attributes = <String, SentryAttribute>{};
 
     attributes[SemanticAttributesConstants.sentrySdkName] =
-        SentryAttribute.string(context.options.sdk.name);
+        SentryAttribute.string(_options.sdk.name);
 
     attributes[SemanticAttributesConstants.sentrySdkVersion] =
-        SentryAttribute.string(context.options.sdk.version);
+        SentryAttribute.string(_options.sdk.version);
 
-    if (context.options.environment != null) {
+    if (_options.environment != null) {
       attributes[SemanticAttributesConstants.sentryEnvironment] =
-          SentryAttribute.string(context.options.environment!);
+          SentryAttribute.string(_options.environment!);
     }
 
-    if (context.options.release != null) {
+    if (_options.release != null) {
       attributes[SemanticAttributesConstants.sentryRelease] =
-          SentryAttribute.string(context.options.release!);
+          SentryAttribute.string(_options.release!);
     }
 
-    if (context.options.sendDefaultPii) {
-      final user = context.scope.user;
+    if (_options.sendDefaultPii) {
+      final user = scope?.user;
       if (user != null) {
         if (user.id != null) {
           attributes[SemanticAttributesConstants.userId] =

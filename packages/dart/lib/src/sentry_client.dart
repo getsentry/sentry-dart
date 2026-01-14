@@ -493,7 +493,7 @@ class SentryClient {
   void captureSpan(
     SentrySpanV2 span, {
     Scope? scope,
-  }) {
+  }) async {
     switch (span) {
       case UnsetSentrySpanV2():
         _options.log(
@@ -503,14 +503,8 @@ class SentryClient {
       case NoOpSentrySpanV2():
         return;
       case RecordingSentrySpanV2 span:
-        final result = _options.globalTelemetryEnricher.enrichSpan(span);
-        if (result is Future) {
-          result.then((_) {
-            _options.telemetryProcessor.addSpan(span);
-          });
-        } else {
-          _options.telemetryProcessor.addSpan(span);
-        }
+        await _options.globalTelemetryEnricher.enrichSpan(span, scope: scope);
+        _options.telemetryProcessor.addSpan(span);
     }
   }
 
