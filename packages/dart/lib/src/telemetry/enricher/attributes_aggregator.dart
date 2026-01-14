@@ -7,8 +7,7 @@ import '../../utils/internal_logger.dart';
 
 /// Aggregates attributes from multiple providers.
 ///
-/// Providers are stored [newest...oldest] and iterated oldest→newest,
-/// so newer providers (registered later) win when keys conflict.
+/// Providers are processed in the order they were added.
 @internal
 final class TelemetryAttributesAggregator {
   final List<TelemetryAttributesProvider> _providers;
