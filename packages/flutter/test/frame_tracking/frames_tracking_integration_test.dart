@@ -5,6 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/binding_wrapper.dart';
@@ -101,12 +102,115 @@ void main() {
 
     setUp(() async {
       hub = Hub(options);
-      await fromWorkingState(options);
     });
 
-    testWidgets('measures frames', (WidgetTester tester) async {
+    testWidgets('with stream lifecycle measures frames',
+        (WidgetTester tester) async {
+      late SentrySpanV2 parentSpan;
+      late SentrySpanV2 childSpan;
+
+      await fromWorkingState(
+          options..traceLifecycle = SentryTraceLifecycle.streaming);
+
+      await tester.runAsync(() async {
+        Widget testWidget = MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                child: Text('Start Span'),
+                onPressed: () {
+                  parentSpan = hub.startSpan('test_parent_span');
+                  childSpan = hub.startSpan('test_child_span');
+                },
+              ),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(testWidget);
+
+        await tester.tap(find.byType(ElevatedButton));
+
+        /// Generates 2 slow and 1 frozen frame for the child span
+        Future<void> _simulateChildSpanFrames() async {
+          tester.binding.handleBeginFrame(Duration());
+          await Future<void>.delayed(Duration(milliseconds: 100));
+          tester.binding.handleDrawFrame();
+
+          tester.binding.handleBeginFrame(Duration());
+          await Future<void>.delayed(Duration(milliseconds: 100));
+          tester.binding.handleDrawFrame();
+
+          tester.binding.handleBeginFrame(Duration());
+          await Future<void>.delayed(Duration(milliseconds: 800));
+          tester.binding.handleDrawFrame();
+        }
+
+        await _simulateChildSpanFrames();
+        childSpan.end();
+
+        /// Generates 3 slow and 1 frozen frame for the tracer
+        Future<void> _simulateTracerFrames() async {
+          tester.binding.handleBeginFrame(Duration());
+          await Future<void>.delayed(Duration(milliseconds: 100));
+          tester.binding.handleDrawFrame();
+
+          tester.binding.handleBeginFrame(Duration());
+          await Future<void>.delayed(Duration(milliseconds: 100));
+          tester.binding.handleDrawFrame();
+
+          tester.binding.handleBeginFrame(Duration());
+          await Future<void>.delayed(Duration(milliseconds: 100));
+          tester.binding.handleDrawFrame();
+
+          tester.binding.handleBeginFrame(Duration());
+          await Future<void>.delayed(Duration(milliseconds: 800));
+          tester.binding.handleDrawFrame();
+        }
+
+        await _simulateTracerFrames();
+        parentSpan.end();
+
+        expect(
+            childSpan.attributes[SemanticAttributesConstants.framesSlow]?.value,
+            2);
+        expect(
+            childSpan
+                .attributes[SemanticAttributesConstants.framesFrozen]?.value,
+            1);
+
+        expect(
+            parentSpan
+                .attributes[SemanticAttributesConstants.framesSlow]?.value,
+            5);
+        expect(
+            parentSpan
+                .attributes[SemanticAttributesConstants.framesFrozen]?.value,
+            2);
+        expect(
+            parentSpan
+                .attributes[SemanticAttributesConstants.framesTotal]?.value,
+            greaterThanOrEqualTo(8));
+        expect(
+            parentSpan
+                .attributes[SemanticAttributesConstants.framesSlow]?.value,
+            5);
+        expect(
+            parentSpan
+                .attributes[SemanticAttributesConstants.framesFrozen]?.value,
+            2);
+        // we don't measure the frames delay or total frames because the timings are not
+        // completely accurate in a test env so it may flake
+      });
+    });
+
+    testWidgets('with static lifecycle measures frames',
+        (WidgetTester tester) async {
       SentryTracer? tracer;
       ISentrySpan? child;
+
+      await fromWorkingState(
+          options..traceLifecycle = SentryTraceLifecycle.static);
 
       await tester.runAsync(() async {
         // Widget to be rendered
@@ -224,6 +328,31 @@ void main() {
       await fromWorkingState(options, disableFramesTracking: true);
 
       assertInitFailure();
+    });
+  });
+
+  group('with streaming lifecycle', () {
+    setUp(() {
+      options.traceLifecycle = SentryTraceLifecycle.streaming;
+    });
+
+    test('registers lifecycle callbacks', () async {
+      await fromWorkingState(options);
+
+      expect(
+        options.lifecycleRegistry.lifecycleCallbacks.containsKey(OnSpanStartV2),
+        isTrue,
+      );
+      expect(
+        options.lifecycleRegistry.lifecycleCallbacks.containsKey(OnSpanEndV2),
+        isTrue,
+      );
+    });
+
+    test('does not add collector to performance collectors', () async {
+      await fromWorkingState(options);
+
+      expect(options.performanceCollectors, isEmpty);
     });
   });
 }

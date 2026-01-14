@@ -50,14 +50,16 @@ class SpanFrameMetricsCollectorV2 implements PerformanceContinuousCollectorV2 {
           spanStartTimestamp: startTimestamp, spanEndTimestamp: endTimestamp);
 
       if (metrics != null) {
-        span.setAttribute(SemanticAttributesConstants.framesTotal,
-            SentryAttribute.int(metrics.totalFrameCount));
-        span.setAttribute(SemanticAttributesConstants.framesSlow,
-            SentryAttribute.int(metrics.slowFrameCount));
-        span.setAttribute(SemanticAttributesConstants.framesFrozen,
-            SentryAttribute.int(metrics.frozenFrameCount));
-        span.setAttribute(SemanticAttributesConstants.framesDelay,
-            SentryAttribute.int(metrics.framesDelay));
+        final attributes = Map<String, SentryAttribute>.from(span.attributes);
+        attributes.putIfAbsent(SemanticAttributesConstants.framesTotal,
+            () => SentryAttribute.int(metrics.totalFrameCount));
+        attributes.putIfAbsent(SemanticAttributesConstants.framesSlow,
+            () => SentryAttribute.int(metrics.slowFrameCount));
+        attributes.putIfAbsent(SemanticAttributesConstants.framesFrozen,
+            () => SentryAttribute.int(metrics.frozenFrameCount));
+        attributes.putIfAbsent(SemanticAttributesConstants.framesDelay,
+            () => SentryAttribute.int(metrics.framesDelay));
+        span.setAttributes(attributes);
       }
 
       activeSpans.remove(span);
