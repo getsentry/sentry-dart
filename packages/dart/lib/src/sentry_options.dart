@@ -12,10 +12,9 @@ import 'noop_client.dart';
 import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
+import 'telemetry/processing/processor.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
-import 'sentry_log_batcher.dart';
-import 'noop_log_batcher.dart';
 import 'dart:developer' as developer;
 
 // TODO: shutdownTimeout, flushTimeoutMillis
@@ -232,6 +231,21 @@ class SentryOptions {
   /// 1.0 is set it means that 100% of events are sent. If set to 0.1 only 10% of events will be
   /// sent. Events are picked randomly. Default is null (disabled)
   double? sampleRate;
+
+  /// Chooses between two tracing systems. You can only use one at a time.
+  ///
+  /// [SentryTraceLifecycle.streaming] sends each span to Sentry as it finishes.
+  /// Use [Sentry.startSpan] to create spans. The older transaction APIs
+  /// ([Sentry.startTransaction], [ISentrySpan.startChild]) will do nothing.
+  ///
+  /// [SentryTraceLifecycle.static] collects all spans and sends them together
+  /// when the transaction ends. Use [Sentry.startTransaction] to create traces.
+  /// The newer span APIs ([Sentry.startSpan]) will do nothing.
+  ///
+  /// Integrations automatically switch to the correct API based on this setting.
+  ///
+  /// Defaults to [SentryTraceLifecycle.static].
+  SentryTraceLifecycle traceLifecycle = SentryTraceLifecycle.static;
 
   /// The ignoreErrors tells the SDK which errors should be not sent to the sentry server.
   /// If an null or an empty list is used, the SDK will send all transactions.
@@ -554,7 +568,7 @@ class SentryOptions {
   late final SentryLogger logger = SentryLogger(clock);
 
   @internal
-  SentryLogBatcher logBatcher = NoopLogBatcher();
+  TelemetryProcessor telemetryProcessor = NoOpTelemetryProcessor();
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
