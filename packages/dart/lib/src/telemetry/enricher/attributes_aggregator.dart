@@ -7,7 +7,21 @@ import '../../utils/internal_logger.dart';
 
 /// Aggregates attributes from multiple providers.
 ///
-/// Providers are processed in the order they were added.
+/// ## Provider Ordering
+///
+/// Providers are processed in the order they were registered. When multiple
+/// providers generate attributes with the same key, **the last provider's value
+/// wins**. This allows later providers to override attributes from earlier ones.
+///
+/// Example:
+/// ```dart
+/// aggregator.providers = [providerA, providerB, providerC];
+/// // If all three providers return {'key': 'value'}, providerC's value is used.
+/// ```
+///
+/// Note: This aggregator-level ordering is separate from the final attribute
+/// merge in [GlobalTelemetryEnricher], where item and scope attributes take
+/// precedence over all provider-generated attributes.
 @internal
 final class TelemetryAttributesAggregator {
   final List<TelemetryAttributesProvider> _providers;
