@@ -14,11 +14,10 @@ final class CommonTelemetryEnricherIntegration
   void call(Hub hub, SentryOptions options) {
     final enricher = options.globalTelemetryEnricher;
 
-    final commonProvider = CommonTelemetryAttributesProvider(options);
-    enricher.registerAttributesProvider(commonProvider);
-
-    final spanSegmentProvider = SpanSegmentTelemetryAttributesProvider();
-    enricher.registerAttributesProvider(spanSegmentProvider);
+    enricher
+        .registerAttributesProvider(CommonTelemetryAttributesProvider(options));
+    enricher
+        .registerAttributesProvider(SpanSegmentTelemetryAttributesProvider());
 
     options.sdk.addIntegration(integrationName);
   }

@@ -33,10 +33,8 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
     );
 
     // TODO(next-pr): replace logs enriching with new enricher
-    final nativeContextsProvider =
-        NativeContextsTelemetryAttributesProvider(_native);
-    options.globalTelemetryEnricher
-        .registerAttributesProvider(nativeContextsProvider);
+    options.globalTelemetryEnricher.registerAttributesProvider(
+        NativeContextsTelemetryAttributesProvider(_native));
 
     // We need to move [IOEnricherEventProcessor] after [_LoadContextsIntegrationEventProcessor]
     // so that we know which contexts were set by the user and which were set by the other processor.
