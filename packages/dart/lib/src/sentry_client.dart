@@ -18,7 +18,6 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
-import 'telemetry/span/sentry_span_v2.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
@@ -488,25 +487,6 @@ class SentryClient {
       scope: scope,
       hint: hint,
     );
-  }
-
-  void captureSpan(
-    SentrySpanV2 span, {
-    Scope? scope,
-  }) {
-    switch (span) {
-      case UnsetSentrySpanV2():
-        _options.log(
-          SentryLevel.warning,
-          "captureSpan: span is in an invalid state $UnsetSentrySpanV2.",
-        );
-      case NoOpSentrySpanV2():
-        return;
-      case RecordingSentrySpanV2 span:
-        // TODO(next-pr): add common attributes, merge scope attributes
-
-        _options.telemetryProcessor.addSpan(span);
-    }
   }
 
   @internal

@@ -1,19 +1,11 @@
 import 'dart:async';
 
-import 'package:meta/meta.dart';
-
 import '../../../sentry.dart';
-import '../span/sentry_span_v2.dart';
 import 'in_memory_buffer.dart';
 import 'processor.dart';
 
 class DefaultTelemetryProcessorIntegration extends Integration<SentryOptions> {
   static const integrationName = 'DefaultTelemetryProcessor';
-
-  @visibleForTesting
-  final GroupKeyExtractor<RecordingSentrySpanV2> spanGroupKeyExtractor =
-      (RecordingSentrySpanV2 item) =>
-          '${item.traceId}-${item.segmentSpan.spanId}';
 
   @override
   void call(Hub hub, SentryOptions options) {
@@ -26,8 +18,7 @@ class DefaultTelemetryProcessorIntegration extends Integration<SentryOptions> {
     }
 
     options.telemetryProcessor = DefaultTelemetryProcessor(options.log,
-        logBuffer: _createLogBuffer(options),
-        spanBuffer: _createSpanBuffer(options));
+        logBuffer: _createLogBuffer(options));
 
     options.sdk.addIntegration(integrationName);
   }
@@ -40,22 +31,4 @@ class DefaultTelemetryProcessorIntegration extends Integration<SentryOptions> {
                 items.map((item) => item).toList(), options.sdk);
             return options.transport.send(envelope).then((_) {});
           });
-
-  GroupedInMemoryTelemetryBuffer<RecordingSentrySpanV2> _createSpanBuffer(
-          SentryOptions options) =>
-      GroupedInMemoryTelemetryBuffer(
-          encoder: (RecordingSentrySpanV2 item) =>
-              utf8JsonEncoder.convert(item.toJson()),
-          onFlush: (items) {
-            final futures = items.values.map((itemData) {
-              final dsc = itemData.$2.resolveDsc();
-              final envelope = SentryEnvelope.fromSpansData(
-                  itemData.$1, options.sdk,
-                  traceContext: dsc);
-              return options.transport.send(envelope);
-            }).toList();
-            if (futures.isEmpty) return null;
-            return Future.wait(futures).then((_) {});
-          },
-          groupKeyExtractor: spanGroupKeyExtractor);
 }

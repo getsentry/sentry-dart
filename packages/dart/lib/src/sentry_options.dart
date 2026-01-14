@@ -232,21 +232,6 @@ class SentryOptions {
   /// sent. Events are picked randomly. Default is null (disabled)
   double? sampleRate;
 
-  /// Chooses between two tracing systems. You can only use one at a time.
-  ///
-  /// [SentryTraceLifecycle.streaming] sends each span to Sentry as it finishes.
-  /// Use [Sentry.startSpan] to create spans. The older transaction APIs
-  /// ([Sentry.startTransaction], [ISentrySpan.startChild]) will do nothing.
-  ///
-  /// [SentryTraceLifecycle.static] collects all spans and sends them together
-  /// when the transaction ends. Use [Sentry.startTransaction] to create traces.
-  /// The newer span APIs ([Sentry.startSpan]) will do nothing.
-  ///
-  /// Integrations automatically switch to the correct API based on this setting.
-  ///
-  /// Defaults to [SentryTraceLifecycle.static].
-  SentryTraceLifecycle traceLifecycle = SentryTraceLifecycle.static;
-
   /// The ignoreErrors tells the SDK which errors should be not sent to the sentry server.
   /// If an null or an empty list is used, the SDK will send all transactions.
   /// To use regex add the `^` and the `$` to the string.
