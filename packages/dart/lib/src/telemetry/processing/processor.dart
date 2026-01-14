@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
-import '../metric/sentry_metric.dart';
+import '../metric/metric.dart';
 import 'buffer.dart';
 
 /// Interface for processing and buffering telemetry data before sending.
@@ -58,15 +58,12 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
 
   @override
   void addMetric(SentryMetric metric) {
-    print('in here');
     if (metricBuffer == null) {
       internalLogger.warning(
         '$runtimeType: No buffer registered for ${metric.runtimeType} - item was dropped',
       );
       return;
     }
-
-    print('metricjson: ${metric.toJson()}');
 
     metricBuffer!.add(metric);
   }

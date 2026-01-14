@@ -5,16 +5,17 @@ import 'metric_type.dart';
 
 /// Base sealed class for all Sentry metrics
 sealed class SentryMetric {
-  final DateTime timestamp;
   final SentryMetricType type;
-  final String name;
-  final num value;
-  final SentryId traceId;
-  final SpanId? spanId;
-  final String? unit;
-  final Map<String, SentryAttribute> attributes;
 
-  const SentryMetric({
+  DateTime timestamp;
+  String name;
+  num value;
+  SentryId traceId;
+  SpanId? spanId;
+  String? unit;
+  Map<String, SentryAttribute> attributes;
+
+  SentryMetric({
     required this.timestamp,
     required this.type,
     required this.name,
@@ -22,8 +23,8 @@ sealed class SentryMetric {
     required this.traceId,
     this.spanId,
     this.unit,
-    this.attributes = const {},
-  });
+    Map<String, SentryAttribute>? attributes,
+  }) : attributes = attributes ?? {};
 
   @internal
   Map<String, dynamic> toJson() {
@@ -41,9 +42,9 @@ sealed class SentryMetric {
   }
 }
 
-/// Counter metric - increments counts (only increases)
+/// Counter metric - increments counts
 final class SentryCounterMetric extends SentryMetric {
-  const SentryCounterMetric({
+  SentryCounterMetric({
     required super.timestamp,
     required super.name,
     required super.value,
@@ -56,7 +57,7 @@ final class SentryCounterMetric extends SentryMetric {
 
 /// Gauge metric - tracks values that can go up or down
 final class SentryGaugeMetric extends SentryMetric {
-  const SentryGaugeMetric({
+  SentryGaugeMetric({
     required super.timestamp,
     required super.name,
     required super.value,
@@ -69,7 +70,7 @@ final class SentryGaugeMetric extends SentryMetric {
 
 /// Distribution metric - tracks statistical distribution of values
 final class SentryDistributionMetric extends SentryMetric {
-  const SentryDistributionMetric({
+  SentryDistributionMetric({
     required super.timestamp,
     required super.name,
     required super.value,

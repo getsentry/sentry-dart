@@ -12,8 +12,8 @@ import 'noop_client.dart';
 import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
-import 'telemetry/metric/sentry_metric.dart';
-import 'telemetry/metric/sentry_metrics.dart';
+import 'telemetry/metric/metric.dart';
+import 'telemetry/metric/metrics.dart';
 import 'telemetry/processing/processor.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
@@ -563,7 +563,8 @@ class SentryOptions {
 
   late final SentryLogger logger = SentryLogger(clock);
 
-  late final metrics = SentryMetrics(HubAdapter(), clock);
+  @internal
+  SentryMetrics metrics = NoOpSentryMetrics.instance;
 
   @internal
   TelemetryProcessor telemetryProcessor = NoOpTelemetryProcessor();
