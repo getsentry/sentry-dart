@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:collection/collection.dart';
 import 'package:sentry/src/event_processor/enricher/enricher_event_processor.dart';
@@ -33,7 +34,7 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
 
     // TODO(next-pr): replace logs enriching with new enricher
     final nativeContextsProvider =
-        NativeContextsTelemetryAttributesProvider(_native).cached();
+        NativeContextsTelemetryAttributesProvider(_native);
     options.globalTelemetryEnricher
         .registerAttributesProvider(nativeContextsProvider);
 
@@ -266,6 +267,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
   }
 }
 
+@internal
 void mergeNativeWithLocalContexts(
         Map<dynamic, dynamic>? contextsMap, Contexts contexts) =>
     _mergeNativeWithLocalContexts(contextsMap, contexts);
