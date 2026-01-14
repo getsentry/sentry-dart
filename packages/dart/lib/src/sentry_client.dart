@@ -18,6 +18,7 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
+import 'telemetry/metric/sentry_metric.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
@@ -580,6 +581,36 @@ class SentryClient {
         DiscardReason.beforeSend,
         DataCategory.logItem,
       );
+    }
+  }
+
+  Future<void> captureMetric(SentryMetric metric, {Scope? scope}) async {
+    if (!_options.enableLogs) {
+      return;
+    }
+
+    final beforeSendMetric = _options.beforeSendMetric;
+    SentryMetric? processedMetric = metric;
+    if (beforeSendMetric != null) {
+      try {
+        processedMetric = await beforeSendMetric(metric);
+      } catch (exception, stackTrace) {
+        _options.log(
+          SentryLevel.error,
+          'The beforeSendLog callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.automatedTestMode) {
+          rethrow;
+        }
+      }
+    }
+
+    // TODO: attributes enricher
+
+    if (processedMetric != null) {
+      _options.telemetryProcessor.addMetric(processedMetric);
     }
   }
 
