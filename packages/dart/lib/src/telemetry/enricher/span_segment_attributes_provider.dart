@@ -18,8 +18,8 @@ final class SpanSegmentTelemetryAttributesProvider
   }
 
   @override
-  FutureOr<Map<String, SentryAttribute>> call(
-      Object item, {Scope? scope}) {
+  FutureOr<Map<String, SentryAttribute>> attributes(Object item,
+      {Scope? scope}) {
     final attributes = <String, SentryAttribute>{};
     final span = item as RecordingSentrySpanV2;
 

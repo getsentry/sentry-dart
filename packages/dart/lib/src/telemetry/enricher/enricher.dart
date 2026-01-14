@@ -51,7 +51,7 @@ final class GlobalTelemetryEnricher {
     final aggregatedAttributes = <String, SentryAttribute>{};
     for (final provider in _providers) {
       aggregatedAttributes
-          .addAllIfAbsent(await provider(telemetry, scope: scope));
+          .addAllIfAbsent(await provider.attributes(telemetry, scope: scope));
     }
 
     mergedAttributes.addAllIfAbsent(aggregatedAttributes);

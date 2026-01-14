@@ -22,7 +22,7 @@ final class CommonTelemetryAttributesProvider
   bool supports(Object item) => true;
 
   @override
-  FutureOr<Map<String, SentryAttribute>> call(Object _, {Scope? scope}) {
+  FutureOr<Map<String, SentryAttribute>> attributes(Object _, {Scope? scope}) {
     final attributes = <String, SentryAttribute>{};
 
     attributes[SemanticAttributesConstants.sentrySdkName] =

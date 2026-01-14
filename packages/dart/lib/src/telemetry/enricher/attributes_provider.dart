@@ -16,5 +16,6 @@ abstract interface class TelemetryAttributesProvider {
   /// Computes attributes for the given [item].
   ///
   /// Return a [Future] only if async work is required.
-  FutureOr<Map<String, SentryAttribute>> call(Object item, {Scope? scope});
+  FutureOr<Map<String, SentryAttribute>> attributes(Object item,
+      {Scope? scope});
 }
