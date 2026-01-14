@@ -160,96 +160,12 @@ void main() {
       expect(fixture.flushCallCount, 1);
     });
   });
-
-  group('GroupedInMemoryTelemetryBuffer', () {
-    late _GroupedFixture fixture;
-
-    setUp(() {
-      fixture = _GroupedFixture();
-    });
-
-    test('items are grouped by key', () async {
-      final buffer = fixture.getSut(
-        groupKeyExtractor: (item) => item.group,
-      );
-
-      buffer.add(_TestItem('item1', group: 'group1'));
-      buffer.add(_TestItem('item2', group: 'group2'));
-      buffer.add(_TestItem('item3', group: 'group1'));
-
-      await buffer.flush();
-
-      expect(fixture.flushCallCount, 1);
-      expect(fixture.flushedGroups.keys, containsAll(['group1', 'group2']));
-      expect(
-          fixture.flushedGroups['group1']?.$1, hasLength(2)); // item1 and item3
-      expect(fixture.flushedGroups['group2']?.$1, hasLength(1)); // item2
-    });
-
-    test('items are flushed after timeout', () async {
-      final flushTimeout = Duration(milliseconds: 1);
-      final buffer = fixture.getSut(
-        config: TelemetryBufferConfig(flushTimeout: flushTimeout),
-        groupKeyExtractor: (item) => item.group,
-      );
-
-      buffer.add(_TestItem('item1', group: 'a'));
-      buffer.add(_TestItem('item2', group: 'b'));
-
-      expect(fixture.flushedGroups, isEmpty);
-
-      await Future.delayed(flushTimeout + Duration(milliseconds: 10));
-
-      expect(fixture.flushCallCount, 1);
-      expect(fixture.flushedGroups.keys, hasLength(2));
-    });
-
-    test('flush with empty buffer returns null', () async {
-      final buffer = fixture.getSut(
-        groupKeyExtractor: (item) => item.group,
-      );
-
-      final result = buffer.flush();
-
-      expect(result, isNull);
-      expect(fixture.flushedGroups, isEmpty);
-    });
-
-    test('buffer is cleared after flush', () async {
-      final buffer = fixture.getSut(
-        groupKeyExtractor: (item) => item.group,
-      );
-
-      buffer.add(_TestItem('item1', group: 'a'));
-      await buffer.flush();
-
-      expect(fixture.flushCallCount, 1);
-
-      fixture.reset();
-      final result = buffer.flush();
-
-      expect(result, isNull);
-      expect(fixture.flushCallCount, 0);
-    });
-
-    test('onFlush receives Map<String, List<List<int>>>', () async {
-      final buffer = fixture.getSut(
-        groupKeyExtractor: (item) => item.group,
-      );
-
-      buffer.add(_TestItem('item1', group: 'myGroup'));
-      await buffer.flush();
-
-      expect(fixture.flushedGroups.containsKey('myGroup'), isTrue);
-    });
-  });
 }
 
 class _TestItem {
   final String id;
-  final String group;
 
-  _TestItem(this.id, {this.group = 'default'});
+  _TestItem(this.id);
 
   Map<String, dynamic> toJson() => {'id': id};
 }
@@ -280,31 +196,6 @@ class _SimpleFixture {
 
   void reset() {
     flushedItems = [];
-    flushCallCount = 0;
-  }
-}
-
-class _GroupedFixture {
-  Map<String, (List<List<int>>, _TestItem)> flushedGroups = {};
-  int flushCallCount = 0;
-
-  GroupedInMemoryTelemetryBuffer<_TestItem> getSut({
-    required GroupKeyExtractor<_TestItem> groupKeyExtractor,
-    TelemetryBufferConfig config = const TelemetryBufferConfig(),
-  }) {
-    return GroupedInMemoryTelemetryBuffer<_TestItem>(
-      encoder: (item) => utf8.encode(jsonEncode(item.toJson())),
-      onFlush: (groups) {
-        flushCallCount++;
-        flushedGroups = groups;
-      },
-      groupKeyExtractor: groupKeyExtractor,
-      config: config,
-    );
-  }
-
-  void reset() {
-    flushedGroups = {};
     flushCallCount = 0;
   }
 }

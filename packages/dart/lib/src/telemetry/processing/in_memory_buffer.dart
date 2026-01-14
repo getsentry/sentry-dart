@@ -12,9 +12,6 @@ typedef OnFlushCallback<T> = FutureOr<void> Function(T data);
 /// Encodes an item of type [T] into bytes.
 typedef ItemEncoder<T> = List<int> Function(T item);
 
-/// Extracts a grouping key from items of type [T].
-typedef GroupKeyExtractor<T> = String Function(T item);
-
 /// Base class for in-memory telemetry buffers.
 ///
 /// Buffers telemetry items in memory and flushes them when either the
@@ -142,38 +139,6 @@ final class InMemoryTelemetryBuffer<T>
 
   @override
   void _store(List<int> encoded, T item) => _storage.add(encoded);
-
-  @override
-  bool get _isEmpty => _storage.isEmpty;
-}
-
-/// In-memory buffer that groups telemetry items by a key.
-///
-/// Same idea as [InMemoryTelemetryBuffer], but grouped.
-final class GroupedInMemoryTelemetryBuffer<T>
-    extends _BaseInMemoryTelemetryBuffer<T, Map<String, (List<List<int>>, T)>> {
-  final GroupKeyExtractor<T> _groupKey;
-
-  @visibleForTesting
-  GroupKeyExtractor<T> get groupKey => _groupKey;
-
-  GroupedInMemoryTelemetryBuffer({
-    required super.encoder,
-    required super.onFlush,
-    required GroupKeyExtractor<T> groupKeyExtractor,
-    super.config,
-  })  : _groupKey = groupKeyExtractor,
-        super(initialStorage: {});
-
-  @override
-  Map<String, (List<List<int>>, T)> _createEmptyStorage() => {};
-
-  @override
-  void _store(List<int> encoded, T item) {
-    final key = _groupKey(item);
-    final bucket = _storage.putIfAbsent(key, () => ([], item));
-    bucket.$1.add(encoded);
-  }
 
   @override
   bool get _isEmpty => _storage.isEmpty;
