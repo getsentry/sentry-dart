@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:meta/meta.dart';
-
 import '../../utils/internal_logger.dart';
 import 'buffer.dart';
 import 'buffer_config.dart';

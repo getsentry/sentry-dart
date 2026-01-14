@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import '../../../sentry.dart';
 import 'in_memory_buffer.dart';
 import 'processor.dart';
