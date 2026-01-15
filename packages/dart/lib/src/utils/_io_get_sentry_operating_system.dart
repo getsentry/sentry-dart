@@ -1,4 +1,5 @@
 import '../protocol/sentry_operating_system.dart';
+import 'dart:convert';
 import 'dart:io';
 import 'package:meta/meta.dart';
 
@@ -7,6 +8,19 @@ SentryOperatingSystem getSentryOperatingSystem({
   String? name,
   String? rawDescription,
 }) {
+  // #region agent log
+  _debugLog({
+    'location': '_io_get_sentry_operating_system.dart:11',
+    'message': 'getSentryOperatingSystem entry',
+    'data': {
+      'inputName': name,
+      'inputRawDescription': rawDescription,
+      'platformName': Platform.operatingSystem,
+      'platformVersion': Platform.operatingSystemVersion,
+    },
+    'hypothesisId': 'H1',
+  });
+  // #endregion
   name ??= Platform.operatingSystem;
   rawDescription ??= Platform.operatingSystemVersion;
   RegExpMatch? match;
@@ -32,13 +46,46 @@ SentryOperatingSystem getSentryOperatingSystem({
       match = _windowsOsRegexp.firstMatch(rawDescription);
       break;
   }
+  // #region agent log
+  _debugLog({
+    'location': '_io_get_sentry_operating_system.dart:44',
+    'message': 'parsed operating system',
+    'data': {
+      'normalizedName': name,
+      'rawDescription': rawDescription,
+      'matchFound': match != null,
+      'matchValue': match?.group(0),
+      'version': match?.namedGroupOrNull('version'),
+      'build': match?.namedGroupOrNull('build'),
+      'kernelVersion': match?.namedGroupOrNull('kernelVersion'),
+    },
+    'hypothesisId': 'H1',
+  });
+  // #endregion
+  final version = match?.namedGroupOrNull('version');
+  final build = match?.namedGroupOrNull('build');
+  final kernelVersion = match?.namedGroupOrNull('kernelVersion');
+  // #region agent log
+  _debugLog({
+    'location': '_io_get_sentry_operating_system.dart:61',
+    'message': 'operating system result',
+    'data': {
+      'name': name,
+      'rawDescription': rawDescription,
+      'version': version,
+      'build': build,
+      'kernelVersion': kernelVersion,
+    },
+    'hypothesisId': 'H4',
+  });
+  // #endregion
 
   return SentryOperatingSystem(
     name: name,
     rawDescription: rawDescription,
-    version: match?.namedGroupOrNull('version'),
-    build: match?.namedGroupOrNull('build'),
-    kernelVersion: match?.namedGroupOrNull('kernelVersion'),
+    version: version,
+    build: build,
+    kernelVersion: kernelVersion,
   );
 }
 
@@ -69,4 +116,22 @@ extension on RegExpMatch {
       return null;
     }
   }
+}
+
+void _debugLog(Map<String, Object?> payload) {
+  try {
+    final entry = <String, Object?>{
+      'id': 'log_${DateTime.now().millisecondsSinceEpoch}',
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+      'sessionId': 'debug-session',
+      'runId': 'pre-fix',
+      'hypothesisId': payload['hypothesisId'],
+      'location': payload['location'],
+      'message': payload['message'],
+      'data': payload['data'],
+    };
+    File('/Users/giancarlobuenaflor/Desktop/sentry-projects/dart-new6/.cursor/debug.log')
+        .writeAsStringSync('${jsonEncode(entry)}\n',
+            mode: FileMode.append, flush: true);
+  } catch (_) {}
 }

@@ -11,3 +11,6 @@ analyzer:
     strict-casts: true
     strict-inference: true
     strict-raw-types: true
+  errors:
+    # ignore sentry/path on pubspec as we change it on deployment
+    invalid_dependency: ignore
