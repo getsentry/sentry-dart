@@ -6,8 +6,10 @@ class MetricsSetupIntegration extends Integration<SentryOptions> {
 
   @override
   void call(Hub hub, SentryOptions options) {
-    options.metrics = DefaultSentryMetrics(
-        isMetricsEnabled: options.enableMetrics,
+    if (!options.enableMetrics) return;
+    if (options.metrics is! NoOpSentryMetrics) return;
+
+    options.metrics = SentryMetrics(
         captureMetricCallback: hub.captureMetric,
         clockProvider: options.clock,
         defaultScopeProvider: () => hub.scope);

@@ -3,61 +3,29 @@ import 'package:meta/meta.dart';
 import '../../../sentry.dart';
 import 'metric.dart';
 
-/// Public API for recording metrics
-abstract base class SentryMetrics {
-  void count(
-    String name,
-    int value, {
-    Map<String, SentryAttribute>? attributes,
-    Scope? scope,
-  });
-
-  void gauge(
-    String name,
-    num value, {
-    String? unit,
-    Map<String, SentryAttribute>? attributes,
-    Scope? scope,
-  });
-
-  void distribution(
-    String name,
-    num value, {
-    String? unit,
-    Map<String, SentryAttribute>? attributes,
-    Scope? scope,
-  });
-}
-
 typedef CaptureMetricCallback = Future<void> Function(SentryMetric metric);
 typedef ScopeProvider = Scope Function();
 
 @internal
-final class DefaultSentryMetrics implements SentryMetrics {
-  final bool _isMetricsEnabled;
+final class SentryMetrics {
   final CaptureMetricCallback _captureMetricCallback;
   final ClockProvider _clockProvider;
   final ScopeProvider _defaultScopeProvider;
 
-  DefaultSentryMetrics(
-      {required bool isMetricsEnabled,
-      required CaptureMetricCallback captureMetricCallback,
+  SentryMetrics(
+      {required CaptureMetricCallback captureMetricCallback,
       required ClockProvider clockProvider,
       required ScopeProvider defaultScopeProvider})
-      : _isMetricsEnabled = isMetricsEnabled,
-        _captureMetricCallback = captureMetricCallback,
+      : _captureMetricCallback = captureMetricCallback,
         _clockProvider = clockProvider,
         _defaultScopeProvider = defaultScopeProvider;
 
-  @override
   void count(
     String name,
     int value, {
     Map<String, SentryAttribute>? attributes,
     Scope? scope,
   }) {
-    if (!_isMetricsEnabled) return;
-
     final metric = SentryCounterMetric(
         timestamp: _clockProvider(),
         name: name,
@@ -69,7 +37,6 @@ final class DefaultSentryMetrics implements SentryMetrics {
     _captureMetricCallback(metric);
   }
 
-  @override
   void gauge(
     String name,
     num value, {
@@ -77,8 +44,6 @@ final class DefaultSentryMetrics implements SentryMetrics {
     Map<String, SentryAttribute>? attributes,
     Scope? scope,
   }) {
-    if (!_isMetricsEnabled) return;
-
     final metric = SentryGaugeMetric(
         timestamp: _clockProvider(),
         name: name,
@@ -90,7 +55,6 @@ final class DefaultSentryMetrics implements SentryMetrics {
     _captureMetricCallback(metric);
   }
 
-  @override
   void distribution(
     String name,
     num value, {
@@ -98,8 +62,6 @@ final class DefaultSentryMetrics implements SentryMetrics {
     Map<String, SentryAttribute>? attributes,
     Scope? scope,
   }) {
-    if (!_isMetricsEnabled) return;
-
     final metric = SentryDistributionMetric(
         timestamp: _clockProvider(),
         name: name,
@@ -119,7 +81,6 @@ final class DefaultSentryMetrics implements SentryMetrics {
       (scope ?? _defaultScopeProvider()).span?.context.spanId;
 }
 
-@internal
 final class NoOpSentryMetrics implements SentryMetrics {
   const NoOpSentryMetrics();
 
@@ -136,4 +97,20 @@ final class NoOpSentryMetrics implements SentryMetrics {
   @override
   void gauge(String name, num value,
       {String? unit, Map<String, SentryAttribute>? attributes, Scope? scope}) {}
+
+  @override
+  SpanId? _activeSpanIdFor(Scope? scope) => null;
+
+  @override
+  CaptureMetricCallback get _captureMetricCallback => (_) async {};
+
+  @override
+  ClockProvider get _clockProvider =>
+      () => DateTime.fromMillisecondsSinceEpoch(0);
+
+  @override
+  ScopeProvider get _defaultScopeProvider => () => Scope(SentryOptions());
+
+  @override
+  SentryId _traceIdFor(Scope? scope) => SentryId.empty();
 }
