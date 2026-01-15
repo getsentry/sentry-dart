@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:collection/collection.dart';
 import 'package:sentry/src/event_processor/enricher/enricher_event_processor.dart';
-import 'package:sentry/src/logs_enricher_integration.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 import '../telemetry/enricher/native_contexts_attributes_provider.dart';

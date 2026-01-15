@@ -40,9 +40,11 @@ final class TelemetryEnricher {
     required Map<String, SentryAttribute> existingAttributes,
     required void Function(Map<String, SentryAttribute>) applyAttributes,
   }) async {
+    // Create a mutable copy to handle unmodifiable maps from getters
+    final mergedAttributes = <String, SentryAttribute>{...existingAttributes};
+
     // Scope is also set by the SDK user so it should be merged first.
-    final mergedAttributes = existingAttributes
-      ..addAllIfAbsent(scope?.attributes ?? {});
+    mergedAttributes.addAllIfAbsent(scope?.attributes ?? {});
 
     final aggregatedAttributes = <String, SentryAttribute>{};
     for (final provider in _providers) {
