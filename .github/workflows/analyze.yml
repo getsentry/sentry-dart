@@ -77,14 +77,10 @@ jobs:
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
           PANA_THRESHOLD: ${{ inputs.panaThreshold }}
         run: |
-          MISSING_POINTS=$(( $TOTAL_MAX - $TOTAL ))
-          if (( $MISSING_POINTS > $PANA_THRESHOLD ))
-          then
-            PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-            echo "Pana score: $PERCENTAGE% ($TOTAL/$TOTAL_MAX points, $MISSING_POINTS points missing)"
-            echo "Score too low ($PERCENTAGE % is less than the expected $PANA_THRESHOLD %)!"
+          MISSING_POINTS=$(( TOTAL_MAX - TOTAL ))
+          if (( MISSING_POINTS > PANA_THRESHOLD )); then
+            echo "Pana score check failed: ${TOTAL}/${TOTAL_MAX} points (missing ${MISSING_POINTS}; allowed missing <= ${PANA_THRESHOLD})."
             exit 1
           else
-            echo "Pana score: $PERCENTAGE% ($TOTAL/$TOTAL_MAX points, $MISSING_POINTS points missing)"
-            echo "Score is good ($PERCENTAGE % is greater than the expected $PANA_THRESHOLD %)!"
+            echo "Pana score check passed: ${TOTAL}/${TOTAL_MAX} points (missing ${MISSING_POINTS}; allowed missing <= ${PANA_THRESHOLD})."
           fi
