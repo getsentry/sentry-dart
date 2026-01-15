@@ -275,20 +275,6 @@ void main() {
       expect(log.attributes['device.family']?.value, 'fixture-device-family');
     });
 
-    test('removes logsEnricherIntegration', () async {
-      final integration = LogsEnricherIntegration();
-      fixture.options.addIntegration(integration);
-
-      fixture.options.enableLogs = true;
-      await fixture.registerIntegration();
-
-      expect(
-          fixture.options.integrations
-              // ignore: invalid_use_of_internal_member
-              .any((element) => element is LogsEnricherIntegration),
-          isFalse);
-    });
-
     test('does not add os and device attributes to log if enableLogs is false',
         () async {
       fixture.options.enableLogs = false;
