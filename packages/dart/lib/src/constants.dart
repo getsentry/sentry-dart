@@ -110,4 +110,13 @@ abstract class SemanticAttributesConstants {
 
   /// The thread ID of the thread that the span was executed on.
   static const threadId = 'thread.id';
+
+  /// The device brand (e.g., "Apple", "Samsung").
+  static const deviceBrand = 'device.brand';
+
+  /// The device model identifier (e.g., "iPhone14,2").
+  static const deviceModel = 'device.model';
+
+  /// The device family (e.g., "iOS", "Android").
+  static const deviceFamily = 'device.family';
 }
