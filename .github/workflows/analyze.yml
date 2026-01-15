@@ -12,7 +12,7 @@ on:
         description: Minumum percentage of Dart Package Analyzer score that must be achieved.
         required: false
         type: number
-        default: 160
+        default: 90
 
 jobs:
   analyze:
