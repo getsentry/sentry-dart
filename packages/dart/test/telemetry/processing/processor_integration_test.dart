@@ -44,7 +44,7 @@ void main() {
 
       expect(
         options.sdk.integrations,
-        contains(DefaultTelemetryProcessorIntegration.integrationName),
+        contains(InMemoryTelemetryProcessorIntegration.integrationName),
       );
     });
 
@@ -82,9 +82,8 @@ class _Fixture {
     options = defaultTestOptions()..transport = transport;
   }
 
-  DefaultTelemetryProcessorIntegration getSut() {
-    return DefaultTelemetryProcessorIntegration();
-  }
+  InMemoryTelemetryProcessorIntegration getSut() =>
+      InMemoryTelemetryProcessorIntegration();
 
   SentryLog createLog() {
     return SentryLog(
