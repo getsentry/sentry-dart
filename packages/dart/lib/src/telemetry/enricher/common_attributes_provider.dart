@@ -3,6 +3,8 @@ import 'package:meta/meta.dart';
 import '../../../sentry.dart';
 import '../../utils/os_utils.dart';
 
+typedef OsProvider = SentryOperatingSystem Function();
+
 /// Provides common attributes for all telemetry items.
 ///
 /// Includes SDK metadata, environment/release, user identity (gated by PII),
@@ -10,11 +12,10 @@ import '../../utils/os_utils.dart';
 @internal
 final class CommonTelemetryAttributesProvider
     implements TelemetryAttributesProvider {
-  late final _operatingSystem = getSentryOperatingSystem();
-
+  final SentryOperatingSystem _operatingSystem;
   final SentryOptions _options;
 
-  CommonTelemetryAttributesProvider(this._options);
+  CommonTelemetryAttributesProvider(this._options, this._operatingSystem);
 
   @override
   Future<Map<String, SentryAttribute>> attributes(Object item, {Scope? scope}) {

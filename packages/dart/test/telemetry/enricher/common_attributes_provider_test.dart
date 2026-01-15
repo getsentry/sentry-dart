@@ -39,9 +39,8 @@ void main() {
 
       final attributes = await provider.attributes(Object());
 
-      expect(
-          attributes.containsKey(SemanticAttributesConstants.sentryEnvironment),
-          isFalse);
+      expect(attributes[SemanticAttributesConstants.sentryEnvironment]?.value,
+          isNull);
     });
 
     test('when release is set includes release attribute', () async {
@@ -60,8 +59,8 @@ void main() {
 
       final attributes = await provider.attributes(Object());
 
-      expect(attributes.containsKey(SemanticAttributesConstants.sentryRelease),
-          isFalse);
+      expect(
+          attributes[SemanticAttributesConstants.sentryRelease]?.value, isNull);
     });
 
     group('when sendDefaultPii is true', () {
@@ -173,27 +172,28 @@ void main() {
 
       final attributes = await provider.attributes(Object());
 
-      expect(
-          attributes.containsKey(SemanticAttributesConstants.osName), isTrue);
-
-      // Not always available on Linux, see [getSentryOperatingSystem] for more details.
-      if (!fixture.options.platform.isLinux) {
-        expect(attributes.containsKey(SemanticAttributesConstants.osVersion),
-            isTrue);
-      }
+      expect(attributes[SemanticAttributesConstants.osName]?.value,
+          fixture.fakeOperatingSystem.name);
+      expect(attributes[SemanticAttributesConstants.osVersion]?.value,
+          fixture.fakeOperatingSystem.version);
     });
   });
 }
 
 class Fixture {
   late SentryOptions options;
+  final fakeOperatingSystem =
+      SentryOperatingSystem(name: 'fake-os', version: '1.0.0');
 
   Fixture() {
     options = defaultTestOptions();
   }
 
   CommonTelemetryAttributesProvider getSut() =>
-      CommonTelemetryAttributesProvider(options);
+      CommonTelemetryAttributesProvider(
+        options,
+        fakeOperatingSystem,
+      );
 
   Scope createScope({
     String? userId,
