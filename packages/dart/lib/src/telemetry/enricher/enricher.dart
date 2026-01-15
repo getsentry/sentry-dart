@@ -7,10 +7,6 @@ import '../span/sentry_span_v2.dart';
 
 /// Pipeline for systematic telemetry attribute enrichment.
 ///
-/// This enricher manages **global, systematic attribute providers** that apply
-/// to all telemetry items. It is NOT the source of truth for ALL enrichment
-/// in the SDK.
-///
 /// Attributes are merged in the following order (highest to lowest priority):
 /// 1. **Item attributes** - Attributes already set on the telemetry item
 /// 2. **Scope attributes** - Attributes from the current scope
