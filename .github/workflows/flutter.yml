@@ -136,7 +136,7 @@ jobs:
 
       - name: Run on macOS
         if: matrix.target == 'macos'
-        run: flutter build macos
+        run: flutter build macos --debug
 
   analyze:
     uses: ./.github/workflows/analyze.yml
@@ -189,7 +189,6 @@ jobs:
           reporter: github-pr-review
           android: true
           fail_on_error: true
-
 # TODO: disabled until the following is fixed https://github.com/natiginfo/action-detekt-all/issues/73
 #  detekt:
 #    runs-on: ubuntu-latest

@@ -23,7 +23,6 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_run_zoned_guarded.dart';
-import 'telemetry/processing/processor_integration.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
@@ -113,7 +112,6 @@ class Sentry {
 
     options.addIntegration(FeatureFlagsIntegration());
     options.addIntegration(LogsEnricherIntegration());
-    options.addIntegration(DefaultTelemetryProcessorIntegration());
 
     options.addEventProcessor(EnricherEventProcessor(options));
     options.addEventProcessor(ExceptionEventProcessor(options));

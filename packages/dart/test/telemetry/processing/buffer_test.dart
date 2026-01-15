@@ -181,8 +181,7 @@ void main() {
 
       expect(fixture.flushCallCount, 1);
       expect(fixture.flushedGroups.keys, containsAll(['group1', 'group2']));
-      expect(
-          fixture.flushedGroups['group1']?.$1, hasLength(2)); // item1 and item3
+      expect(fixture.flushedGroups['group1']?.$1, hasLength(2)); // item1 and item3
       expect(fixture.flushedGroups['group2']?.$1, hasLength(1)); // item2
     });
 
