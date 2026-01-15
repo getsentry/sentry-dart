@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
-import '../../utils/os_utils.dart';
 
 typedef OsProvider = SentryOperatingSystem Function();
 
