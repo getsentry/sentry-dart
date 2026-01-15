@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
+import '../../utils/internal_logger.dart';
 import 'buffer.dart';
 
 /// Interface for processing and buffering telemetry data before sending.
@@ -26,22 +27,20 @@ abstract class TelemetryProcessor {
 /// instances. If no buffer is registered for a telemetry type, items are
 /// dropped with a warning.
 class DefaultTelemetryProcessor implements TelemetryProcessor {
-  final SdkLogCallback _logger;
-
   /// The buffer for log data, or `null` if log buffering is disabled.
-  @visibleForTesting
-  TelemetryBuffer<SentryLog>? logBuffer;
+  final TelemetryBuffer<SentryLog>? _logBuffer;
 
-  DefaultTelemetryProcessor(
-    this._logger, {
-    this.logBuffer,
-  });
+  @visibleForTesting
+  TelemetryBuffer<SentryLog>? get logBuffer => _logBuffer;
+
+  DefaultTelemetryProcessor({
+    TelemetryBuffer<SentryLog>? logBuffer,
+  }) : _logBuffer = logBuffer;
 
   @override
   void addLog(SentryLog log) {
     if (logBuffer == null) {
-      _logger(
-        SentryLevel.warning,
+      internalLogger.warning(
         '$runtimeType: No buffer registered for ${log.runtimeType} - item was dropped',
       );
       return;
@@ -52,7 +51,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
 
   @override
   FutureOr<void> flush() {
-    _logger(SentryLevel.debug, '$runtimeType: Clearing buffers');
+    internalLogger.debug('$runtimeType: Clearing buffers');
 
     final result = logBuffer?.flush();
 

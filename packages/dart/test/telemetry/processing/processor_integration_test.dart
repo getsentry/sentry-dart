@@ -29,7 +29,7 @@ void main() {
 
     test('does not override existing telemetry processor', () {
       final options = fixture.options;
-      final existingProcessor = DefaultTelemetryProcessor(options.log);
+      final existingProcessor = DefaultTelemetryProcessor();
       options.telemetryProcessor = existingProcessor;
 
       fixture.getSut().call(fixture.hub, options);
@@ -44,7 +44,7 @@ void main() {
 
       expect(
         options.sdk.integrations,
-        contains(DefaultTelemetryProcessorIntegration.integrationName),
+        contains(InMemoryTelemetryProcessorIntegration.integrationName),
       );
     });
 
@@ -82,9 +82,8 @@ class _Fixture {
     options = defaultTestOptions()..transport = transport;
   }
 
-  DefaultTelemetryProcessorIntegration getSut() {
-    return DefaultTelemetryProcessorIntegration();
-  }
+  InMemoryTelemetryProcessorIntegration getSut() =>
+      InMemoryTelemetryProcessorIntegration();
 
   SentryLog createLog() {
     return SentryLog(

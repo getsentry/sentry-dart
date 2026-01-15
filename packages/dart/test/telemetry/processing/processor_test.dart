@@ -30,7 +30,6 @@ void main() {
 
       test('does not throw when no log buffer registered', () {
         final processor = fixture.getSut();
-        processor.logBuffer = null;
 
         final log = fixture.createLog();
         processor.addLog(log);
@@ -53,7 +52,6 @@ void main() {
       test('returns sync (null) when all buffers flush synchronously', () {
         final mockLogBuffer = MockTelemetryBuffer<SentryLog>(asyncFlush: false);
         final processor = fixture.getSut(logBuffer: mockLogBuffer);
-        processor.logBuffer = null;
 
         final result = processor.flush();
 
@@ -87,7 +85,6 @@ class Fixture {
   }) {
     options.enableLogs = enableLogs;
     return DefaultTelemetryProcessor(
-      options.log,
       logBuffer: logBuffer,
     );
   }
