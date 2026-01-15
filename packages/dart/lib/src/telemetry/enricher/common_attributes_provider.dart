@@ -11,7 +11,7 @@ import '../../utils/os_utils.dart';
 /// and operating system information.
 @internal
 final class CommonTelemetryAttributesProvider
-    extends TelemetryAttributesProvider {
+    implements TelemetryAttributesProvider {
   late final _operatingSystem = getSentryOperatingSystem();
 
   final SentryOptions _options;
@@ -19,11 +19,7 @@ final class CommonTelemetryAttributesProvider
   CommonTelemetryAttributesProvider(this._options);
 
   @override
-  bool supports(Object item) => true;
-
-  @override
-  Future<Map<String, SentryAttribute>> computeAttributes(Object item,
-      {Scope? scope}) {
+  Future<Map<String, SentryAttribute>> attributes(Object item, {Scope? scope}) {
     final attributes = <String, SentryAttribute>{};
 
     attributes[SemanticAttributesConstants.sentrySdkName] =
