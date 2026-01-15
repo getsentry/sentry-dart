@@ -32,7 +32,6 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
       _LoadContextsIntegrationEventProcessor(_native, options),
     );
 
-    // TODO(next-pr): replace logs enriching with new enricher
     options.telemetryEnricher.addAttributesProvider(
         NativeContextsTelemetryAttributesProvider(_native));
 
@@ -49,62 +48,7 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
       options.removeEventProcessor(enricherEventProcessor);
       options.addEventProcessor(enricherEventProcessor);
     }
-    if (options.enableLogs) {
-      final logsEnricherIntegration = options.integrations.firstWhereOrNull(
-        (element) => element is LogsEnricherIntegration,
-      );
-      if (logsEnricherIntegration != null) {
-        // Contexts from native cover the os.name and os.version attributes,
-        // so we can remove the logsEnricherIntegration.
-        options.removeIntegration(logsEnricherIntegration);
-      }
 
-      options.lifecycleRegistry.registerCallback<OnBeforeCaptureLog>(
-        (event) async {
-          try {
-            final infos = await _native.loadContexts() ?? {};
-
-            final contextsMap = infos['contexts'] as Map?;
-            final contexts =
-                Contexts(); // We just need the the native contexts.
-            _mergeNativeWithLocalContexts(contextsMap, contexts);
-
-            if (contexts.operatingSystem?.name != null) {
-              event.log.attributes['os.name'] = SentryAttribute.string(
-                contexts.operatingSystem?.name ?? '',
-              );
-            }
-            if (contexts.operatingSystem?.version != null) {
-              event.log.attributes['os.version'] = SentryAttribute.string(
-                contexts.operatingSystem?.version ?? '',
-              );
-            }
-            if (contexts.device?.brand != null) {
-              event.log.attributes['device.brand'] = SentryAttribute.string(
-                contexts.device?.brand ?? '',
-              );
-            }
-            if (contexts.device?.model != null) {
-              event.log.attributes['device.model'] = SentryAttribute.string(
-                contexts.device?.model ?? '',
-              );
-            }
-            if (contexts.device?.family != null) {
-              event.log.attributes['device.family'] = SentryAttribute.string(
-                contexts.device?.family ?? '',
-              );
-            }
-          } catch (exception, stackTrace) {
-            options.log(
-              SentryLevel.error,
-              'LoadContextsIntegration failed to load contexts',
-              exception: exception,
-              stackTrace: stackTrace,
-            );
-          }
-        },
-      );
-    }
     options.sdk.addIntegration('loadContextsIntegration');
   }
 }

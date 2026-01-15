@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:meta/meta.dart';
 
+import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'event_processor/run_event_processors.dart';
@@ -26,6 +27,7 @@ import 'transport/noop_transport.dart';
 import 'transport/rate_limiter.dart';
 import 'transport/spotlight_http_transport.dart';
 import 'type_check_hint.dart';
+import 'utils/internal_logger.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
@@ -494,10 +496,13 @@ class SentryClient {
     SentrySpanV2 span, {
     Scope? scope,
   }) async {
+    if (_options.traceLifecycle == SentryTraceLifecycle.static) {
+      return;
+    }
+
     switch (span) {
       case UnsetSentrySpanV2():
-        _options.log(
-          SentryLevel.warning,
+        internalLogger.warning(
           "captureSpan: span is in an invalid state $UnsetSentrySpanV2.",
         );
       case NoOpSentrySpanV2():
@@ -517,54 +522,7 @@ class SentryClient {
       return;
     }
 
-    if (scope != null) {
-      final merged = Map.of(scope.attributes)..addAll(log.attributes);
-      log.attributes = merged;
-    }
-
-    log.attributes['sentry.sdk.name'] = SentryAttribute.string(
-      _options.sdk.name,
-    );
-    log.attributes['sentry.sdk.version'] = SentryAttribute.string(
-      _options.sdk.version,
-    );
-    final environment = _options.environment;
-    if (environment != null) {
-      log.attributes['sentry.environment'] = SentryAttribute.string(
-        environment,
-      );
-    }
-    final release = _options.release;
-    if (release != null) {
-      log.attributes['sentry.release'] = SentryAttribute.string(
-        release,
-      );
-    }
-
-    final propagationContext = scope?.propagationContext;
-    if (propagationContext != null) {
-      log.traceId = propagationContext.traceId;
-    }
-    final span = scope?.span;
-    if (span != null) {
-      log.attributes['sentry.trace.parent_span_id'] = SentryAttribute.string(
-        span.context.spanId.toString(),
-      );
-    }
-
-    final user = scope?.user;
-    final id = user?.id;
-    final email = user?.email;
-    final name = user?.name;
-    if (id != null) {
-      log.attributes['user.id'] = SentryAttribute.string(id);
-    }
-    if (name != null) {
-      log.attributes['user.name'] = SentryAttribute.string(name);
-    }
-    if (email != null) {
-      log.attributes['user.email'] = SentryAttribute.string(email);
-    }
+    await _options.telemetryEnricher.enrichLog(log, scope: scope);
 
     final beforeSendLog = _options.beforeSendLog;
     SentryLog? processedLog = log;
