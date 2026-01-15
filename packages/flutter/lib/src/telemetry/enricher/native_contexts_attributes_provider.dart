@@ -18,7 +18,7 @@ import '../../native/sentry_native_binding.dart';
 /// should be wrapped with [cached] when registered.
 @internal
 class NativeContextsTelemetryAttributesProvider
-    implements TelemetryAttributesProvider {
+    extends TelemetryAttributesProvider {
   final SentryNativeBinding _nativeBinding;
   Map<String, SentryAttribute>? cachedAttributes;
 
@@ -28,7 +28,7 @@ class NativeContextsTelemetryAttributesProvider
   bool supports(Object item) => true;
 
   @override
-  FutureOr<Map<String, SentryAttribute>> attributes(Object item,
+  Future<Map<String, SentryAttribute>> computeAttributes(Object item,
       {Scope? scope}) async {
     // The attributes loaded by the native contexts are generally stable
     // and dont need to be re-fetched every time.
