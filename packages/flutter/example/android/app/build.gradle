@@ -34,8 +34,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
-
-        // Allow CI to override Kotlin language version for compatibility testing
         languageVersion = System.getenv("KOTLIN_LANGUAGE_VERSION") ?: "1.7"
     }
 
