@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Enhancements
+
+- Replace log batcher with telemetry processor ([#3448](https://github.com/getsentry/sentry-dart/pull/3448))
+
 ### Dependencies
 
 - Bump Native SDK from v0.10.0 to v0.12.3 ([#3438](https://github.com/getsentry/sentry-dart/pull/3438))

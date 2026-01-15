@@ -8,6 +8,7 @@ import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
 import 'package:sentry/src/logs_enricher_integration.dart';
 import 'package:sentry/src/feature_flags_integration.dart';
+import 'package:sentry/src/telemetry/processing/processor_integration.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -314,6 +315,27 @@ void main() {
       expect(
         optionsReference.integrations
             .whereType<LogsEnricherIntegration>()
+            .length,
+        1,
+      );
+    });
+
+    test('should add $InMemoryTelemetryProcessorIntegration', () async {
+      late SentryOptions optionsReference;
+      final options = defaultTestOptions();
+
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          optionsReference = options;
+        },
+        appRunner: appRunner,
+      );
+
+      expect(
+        optionsReference.integrations
+            .whereType<InMemoryTelemetryProcessorIntegration>()
             .length,
         1,
       );

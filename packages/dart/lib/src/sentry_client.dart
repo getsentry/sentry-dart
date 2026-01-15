@@ -28,7 +28,6 @@ import 'type_check_hint.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
-import 'sentry_log_batcher.dart';
 import 'version.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
@@ -74,9 +73,6 @@ class SentryClient {
     // Other platforms use spotlight through their native SDKs
     if (enableFlutterSpotlight) {
       options.transport = SpotlightHttpTransport(options, options.transport);
-    }
-    if (options.enableLogs) {
-      options.logBatcher = SentryLogBatcher(options);
     }
     return SentryClient._(options);
   }
@@ -578,7 +574,7 @@ class SentryClient {
     if (processedLog != null) {
       await _options.lifecycleRegistry
           .dispatchCallback(OnBeforeCaptureLog(processedLog));
-      _options.logBatcher.addLog(processedLog);
+      _options.telemetryProcessor.addLog(processedLog);
     } else {
       _options.recorder.recordLostEvent(
         DiscardReason.beforeSend,
@@ -588,7 +584,7 @@ class SentryClient {
   }
 
   FutureOr<void> close() {
-    final flush = _options.logBatcher.flush();
+    final flush = _options.telemetryProcessor.flush();
     if (flush is Future<void>) {
       return flush.then((_) => _options.httpClient.close());
     }
