@@ -62,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Apply dependency override
-        if: ${{ inputs.package == 'flutter' }}
+        if: ${{ inputs.package != 'packages/dart' }}
         working-directory: ${{ inputs.package }}
         run: |
           sed -i.bak 's|sentry:.*|sentry:\n    path: /github/workspace/packages/dart|g' pubspec.yaml
