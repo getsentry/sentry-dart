@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Kotlin language version handling in Android ([#3436](https://github.com/getsentry/sentry-dart/pull/3436))
+
 ## 9.9.2
 
 ### Fixes
