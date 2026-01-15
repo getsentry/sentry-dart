@@ -460,7 +460,7 @@ void main() {
 
         final span = hub.startSpan('test-span');
 
-        hub.captureSpan(span);
+        await hub.captureSpan(span);
 
         expect(fixture.client.captureSpanCalls, isEmpty);
       });
