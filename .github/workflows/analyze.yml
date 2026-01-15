@@ -65,7 +65,13 @@ jobs:
         if: ${{ inputs.package != 'packages/dart' }}
         working-directory: ${{ inputs.package }}
         run: |
-          sed -i.bak 's|sentry:.*|sentry:\n    path: /github/workspace/packages/dart|g' pubspec.yaml
+          # Get current commit hash
+          COMMIT_HASH=$(git rev-parse HEAD)
+
+          # Only modify if package depends on sentry
+          if grep -q "^  sentry:" pubspec.yaml; then
+            sed -i.bak "s|^  sentry:.*|  sentry:\n    git:\n      url: https://github.com/getsentry/sentry-dart.git\n      ref: $COMMIT_HASH\n      path: packages/dart|g" pubspec.yaml
+          fi
       - uses: axel-op/dart-package-analyzer@56afb7e6737bd2b7cee05382ae7f0e8111138080 # pin@v3
         id: analysis
         with:
