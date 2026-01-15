@@ -1,9 +1,8 @@
-import 'sentry_attribute.dart';
-import 'sentry_id.dart';
-import 'sentry_log_level.dart';
+import '../../sentry.dart';
 
 class SentryLog {
   DateTime timestamp;
+  SpanId? spanId;
   SentryId traceId;
   SentryLogLevel level;
   String body;
@@ -19,12 +18,14 @@ class SentryLog {
     required this.body,
     required this.attributes,
     this.severityNumber,
+    this.spanId,
   }) : traceId = traceId ?? SentryId.empty();
 
   Map<String, dynamic> toJson() {
     return {
       'timestamp': timestamp.toIso8601String(),
       'trace_id': traceId.toString(),
+      if (spanId != null) 'span_id': spanId.toString(),
       'level': level.value,
       'body': body,
       'attributes':

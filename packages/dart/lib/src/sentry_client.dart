@@ -524,6 +524,11 @@ class SentryClient {
 
     await _options.telemetryEnricher.enrichLog(log, scope: scope);
 
+    final propagationContext = scope?.propagationContext;
+    if (propagationContext != null) {
+      log.traceId = propagationContext.traceId;
+    }
+
     final beforeSendLog = _options.beforeSendLog;
     SentryLog? processedLog = log;
     if (beforeSendLog != null) {

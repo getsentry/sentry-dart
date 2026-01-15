@@ -76,11 +76,6 @@ abstract class SemanticAttributesConstants {
   /// The span id of the segment that this span belongs to.
   static const sentrySegmentId = 'sentry.segment.id';
 
-  /// The span id of the span that was active when the log was collected.
-  ///
-  /// This should not be set if there was no active span.
-  static const sentryTraceParentSpanId = 'sentry.trace.parent_span_id';
-
   /// The name of the Sentry SDK (e.g., "sentry.dart.flutter")
   static const sentrySdkName = 'sentry.sdk.name';
 

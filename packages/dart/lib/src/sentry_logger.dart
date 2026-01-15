@@ -65,6 +65,7 @@ class SentryLogger {
     Map<String, SentryAttribute>? attributes,
   }) {
     final log = SentryLog(
+      spanId: _hub.getSpan()?.context.spanId,
       timestamp: _clock(),
       level: level,
       body: body,
