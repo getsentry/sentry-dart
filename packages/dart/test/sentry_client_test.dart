@@ -11,6 +11,7 @@ import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/enricher/enricher_integration.dart';
 import 'package:sentry/src/transport/client_report_transport.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/noop_transport.dart';
@@ -35,6 +36,8 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+      CoreTelemetryAttributesIntegration()
+          .call(Hub(fixture.options), fixture.options);
     });
 
     test('should capture event stacktrace', () async {
@@ -224,6 +227,8 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+      CoreTelemetryAttributesIntegration()
+          .call(Hub(fixture.options), fixture.options);
     });
 
     test('should capture error', () async {
@@ -252,6 +257,8 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+      CoreTelemetryAttributesIntegration()
+          .call(Hub(fixture.options), fixture.options);
     });
 
     test('should capture exception cause', () async {
@@ -455,6 +462,8 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+      CoreTelemetryAttributesIntegration()
+          .call(Hub(fixture.options), fixture.options);
     });
 
     test('should capture error', () async {
@@ -1719,6 +1728,8 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+      CoreTelemetryAttributesIntegration()
+          .call(Hub(fixture.options), fixture.options);
     });
 
     SentryLog givenLog() {
@@ -1886,7 +1897,7 @@ void main() {
       );
       await scope.setUser(user);
 
-      final client = fixture.getSut();
+      final client = fixture.getSut(sendDefaultPii: true);
       final mockProcessor = MockTelemetryProcessor();
       fixture.options.telemetryProcessor = mockProcessor;
 
@@ -1923,22 +1934,49 @@ void main() {
       );
     });
 
-    test('should set trace id from propagation context', () async {
-      fixture.options.enableLogs = true;
+    group('when scope has propagation context', () {
+      test('sets trace id', () async {
+        fixture.options.enableLogs = true;
 
-      final client = fixture.getSut();
-      final mockProcessor = MockTelemetryProcessor();
-      fixture.options.telemetryProcessor = mockProcessor;
+        final client = fixture.getSut();
+        final mockProcessor = MockTelemetryProcessor();
+        fixture.options.telemetryProcessor = mockProcessor;
 
-      final log = givenLog();
-      final scope = Scope(fixture.options);
+        final log = givenLog();
+        final scope = Scope(fixture.options);
 
-      await client.captureLog(log, scope: scope);
+        await client.captureLog(log, scope: scope);
 
-      expect(mockProcessor.addedLogs.length, 1);
-      final capturedLog = mockProcessor.addedLogs.first;
+        expect(mockProcessor.addedLogs.length, 1);
+        final capturedLog = mockProcessor.addedLogs.first;
 
-      expect(capturedLog.traceId, scope.propagationContext.traceId);
+        expect(capturedLog.traceId, scope.propagationContext.traceId);
+      });
+    });
+
+    group('when scope has active span', () {
+      test('sets parent span id attribute', () async {
+        fixture.options.enableLogs = true;
+
+        final client = fixture.getSut();
+        final mockProcessor = MockTelemetryProcessor();
+        fixture.options.telemetryProcessor = mockProcessor;
+
+        final log = givenLog();
+        final scope = Scope(fixture.options);
+        final span = MockSpan();
+        scope.span = span;
+
+        await client.captureLog(log, scope: scope);
+
+        expect(mockProcessor.addedLogs.length, 1);
+        final capturedLog = mockProcessor.addedLogs.first;
+
+        expect(
+          capturedLog.attributes['sentry.trace.parent_span_id']?.value,
+          span.context.spanId.toString(),
+        );
+      });
     });
 
     test(
@@ -2070,9 +2108,10 @@ void main() {
         fixture = Fixture();
         processor = MockTelemetryProcessor();
         fixture.options.telemetryProcessor = processor;
+        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
       });
 
-      test('adds recording span to telemetry processor', () {
+      test('adds recording span to telemetry processor', () async {
         final client = fixture.getSut();
 
         final span = RecordingSentrySpanV2.root(
@@ -2084,7 +2123,7 @@ void main() {
           samplingDecision: SentryTracesSamplingDecision(true),
         );
 
-        client.captureSpan(span);
+        await client.captureSpan(span);
 
         expect(processor.addedSpans, hasLength(1));
         expect(processor.addedSpans.first, equals(span));
