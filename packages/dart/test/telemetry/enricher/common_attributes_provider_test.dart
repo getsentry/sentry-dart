@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/enricher/common_attributes_provider.dart';
-import 'package:sentry/src/utils/_io_get_sentry_operating_system.dart';
 import 'package:test/test.dart';
 
 import '../../test_utils.dart';
@@ -176,15 +173,14 @@ void main() {
 
       final attributes = await provider.attributes(Object());
 
-      print(
-          'platform: ${Platform.operatingSystem} ${Platform.operatingSystemVersion}');
-      print(
-          'operating system: ${getSentryOperatingSystem().name} ${getSentryOperatingSystem().version}');
-
       expect(
           attributes.containsKey(SemanticAttributesConstants.osName), isTrue);
-      expect(attributes.containsKey(SemanticAttributesConstants.osVersion),
-          isTrue);
+
+      // Not always available on Linux, see [getSentryOperatingSystem] for more details.
+      if (!fixture.options.platform.isLinux) {
+        expect(attributes.containsKey(SemanticAttributesConstants.osVersion),
+            isTrue);
+      }
     });
   });
 }
