@@ -16,7 +16,7 @@ abstract class TelemetryProcessor {
   void addLog(SentryLog log);
 
   /// Adds a metric to be processed and buffered.
-  void addMetric(SentryMetric log);
+  void addMetric(SentryMetric metric);
 
   /// Flushes all buffered telemetry data.
   ///
