@@ -143,7 +143,6 @@ jobs:
     with:
       package: packages/flutter
       sdk: flutter
-      panaThreshold: 87
 
   pod-lint:
     runs-on: macos-15

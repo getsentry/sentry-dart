@@ -50,4 +50,3 @@ jobs:
     uses: ./.github/workflows/analyze.yml
     with:
       package: packages/file
-      panaThreshold: 90
