@@ -6,18 +6,16 @@ import 'span_segment_attributes_provider.dart';
 
 /// Sets up common telemetry enrichment.
 @internal
-final class CommonTelemetryEnricherIntegration
+final class CoreTelemetryAttributesIntegration
     extends Integration<SentryOptions> {
-  static const integrationName = 'CommonTelemetryEnricher';
+  static const integrationName = 'CoreTelemetryAttributes';
 
   @override
   void call(Hub hub, SentryOptions options) {
-    final enricher = options.globalTelemetryEnricher;
-
-    enricher
-        .registerAttributesProvider(CommonTelemetryAttributesProvider(options));
-    enricher
-        .registerAttributesProvider(SpanSegmentTelemetryAttributesProvider());
+    options.telemetryEnricher
+        .addAttributesProvider(CommonTelemetryAttributesProvider(options));
+    options.telemetryEnricher
+        .addAttributesProvider(SpanSegmentTelemetryAttributesProvider());
 
     options.sdk.addIntegration(integrationName);
   }

@@ -115,7 +115,7 @@ class Sentry {
     options.addIntegration(FeatureFlagsIntegration());
     options.addIntegration(LogsEnricherIntegration());
     options.addIntegration(DefaultTelemetryProcessorIntegration());
-    options.addIntegration(CommonTelemetryEnricherIntegration());
+    options.addIntegration(CoreTelemetryAttributesIntegration());
 
     options.addEventProcessor(EnricherEventProcessor(options));
     options.addEventProcessor(ExceptionEventProcessor(options));

@@ -503,7 +503,7 @@ class SentryClient {
       case NoOpSentrySpanV2():
         return;
       case RecordingSentrySpanV2 span:
-        await _options.globalTelemetryEnricher.enrichSpan(span, scope: scope);
+        await _options.telemetryEnricher.enrichSpan(span, scope: scope);
         _options.telemetryProcessor.addSpan(span);
     }
   }

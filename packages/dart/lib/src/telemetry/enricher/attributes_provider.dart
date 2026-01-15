@@ -9,13 +9,24 @@ import '../../../sentry.dart';
 /// Providers compute attributes that are added to telemetry items (spans, logs).
 /// Each provider can filter which items it supports via [supports].
 @internal
-abstract interface class TelemetryAttributesProvider {
-  /// Returns true if this provider should contribute attributes for [item].
+abstract class TelemetryAttributesProvider {
+  @protected
   bool supports(Object item);
 
-  /// Computes attributes for the given [item].
+  @protected
+  Future<Map<String, SentryAttribute>> computeAttributes(
+    Object item, {
+    Scope? scope,
+  });
+
+  /// Attributes for the given [item].
   ///
-  /// Return a [Future] only if async work is required.
-  FutureOr<Map<String, SentryAttribute>> attributes(Object item,
-      {Scope? scope});
+  /// Returns an empty map if [supports] returns `false` for the given [item].
+  Future<Map<String, SentryAttribute>> attributes(
+    Object item, {
+    Scope? scope,
+  }) {
+    if (!supports(item)) return Future.value({});
+    return computeAttributes(item, scope: scope);
+  }
 }

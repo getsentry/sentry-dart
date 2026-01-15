@@ -11,14 +11,14 @@ import '../span/sentry_span_v2.dart';
 /// adding segment ID and name to each span.
 @internal
 final class SpanSegmentTelemetryAttributesProvider
-    implements TelemetryAttributesProvider {
+    extends TelemetryAttributesProvider {
   @override
   bool supports(Object item) {
     return item is RecordingSentrySpanV2;
   }
 
   @override
-  FutureOr<Map<String, SentryAttribute>> attributes(Object item,
+  Future<Map<String, SentryAttribute>> computeAttributes(Object item,
       {Scope? scope}) {
     final attributes = <String, SentryAttribute>{};
     final span = item as RecordingSentrySpanV2;
@@ -28,6 +28,6 @@ final class SpanSegmentTelemetryAttributesProvider
     attributes[SemanticAttributesConstants.sentrySegmentName] =
         SentryAttribute.string(span.segmentSpan.name);
 
-    return attributes;
+    return Future.value(attributes);
   }
 }
