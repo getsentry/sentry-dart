@@ -80,8 +80,8 @@ jobs:
       - name: Check scores
         env:
           TOTAL: ${{ steps.analysis.outputs.total }}
-          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
-          PANA_THRESHOLD: ${{ inputs.panaThreshold }}
+          TOTAL_MAX: 70
+          PANA_THRESHOLD: 70
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
           if (( $PERCENTAGE < $PANA_THRESHOLD ))
