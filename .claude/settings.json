@@ -1,0 +1,79 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(pwd:*)",
+      "Bash(find:*)",
+      "Bash(file:*)",
+      "Bash(stat:*)",
+      "Bash(wc:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(cat:*)",
+      "Bash(tree:*)",
+
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote:*)",
+      "Bash(git tag:*)",
+      "Bash(git stash list:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git fetch:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git blame:*)",
+
+      "Bash(gh pr view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run logs:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh api:*)",
+
+      "WebFetch(domain:docs.sentry.io)",
+      "WebFetch(domain:develop.sentry.dev)",
+      "WebFetch(domain:docs.github.com)",
+      "WebFetch(domain:cli.github.com)",
+
+      "Skill(sentry-skills:commit)",
+      "Skill(sentry-skills:create-pr)",
+      "Skill(sentry-skills:deslop)",
+      "Skill(sentry-skills:iterate-pr)",
+      "Skill(sentry-skills:claude-settings-audit)",
+      "Skill(sentry-skills:agents-md)",
+
+      "Bash(fvm --version:*)",
+      "Bash(fvm list:*)",
+      "Bash(fvm releases:*)",
+      "Bash(fvm config:*)",
+      "Bash(fvm flutter --version:*)",
+      "Bash(fvm dart --version:*)",
+
+      "Bash(fvm flutter pub get:*)",
+      "Bash(fvm flutter pub deps:*)",
+      "Bash(fvm flutter pub outdated:*)",
+      "Bash(fvm flutter pub cache repair:*)",
+
+      "Bash(fvm flutter analyze:*)",
+      "Bash(fvm dart analyze:*)",
+      "Bash(fvm dart format:*)",
+      "Bash(fvm dart fix:*)",
+      "Bash(fvm flutter test:*)",
+      "Bash(fvm dart test:*)",
+
+      "Bash(fvm flutter devices:*)",
+      "Bash(fvm flutter emulators:*)",
+      "Bash(fvm flutter run:*)",
+      "Bash(fvm flutter build *:*)",
+      "Bash(fvm flutter doctor:*)"
+    ],
+    "deny": []
+  }
+}
