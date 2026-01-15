@@ -2,8 +2,6 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 
-typedef OsProvider = SentryOperatingSystem Function();
-
 /// Provides common attributes for all telemetry items.
 ///
 /// Includes SDK metadata, environment/release, user identity (gated by PII),
