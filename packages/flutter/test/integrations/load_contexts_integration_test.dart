@@ -7,7 +7,6 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
 import 'fixture.dart';
-import 'package:sentry/src/logs_enricher_integration.dart';
 
 void main() {
   final infosJson = {
