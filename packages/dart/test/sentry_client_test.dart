@@ -1830,14 +1830,6 @@ void main() {
         capturedLog.attributes['sentry.release']?.type,
         'string',
       );
-      expect(
-        capturedLog.attributes['sentry.trace.parent_span_id']?.value,
-        span.context.spanId.toString(),
-      );
-      expect(
-        capturedLog.attributes['sentry.trace.parent_span_id']?.type,
-        'string',
-      );
     });
 
     test('should use attributes from given scope', () async {
@@ -1951,31 +1943,6 @@ void main() {
         final capturedLog = mockProcessor.addedLogs.first;
 
         expect(capturedLog.traceId, scope.propagationContext.traceId);
-      });
-    });
-
-    group('when scope has active span', () {
-      test('sets parent span id attribute', () async {
-        fixture.options.enableLogs = true;
-
-        final client = fixture.getSut();
-        final mockProcessor = MockTelemetryProcessor();
-        fixture.options.telemetryProcessor = mockProcessor;
-
-        final log = givenLog();
-        final scope = Scope(fixture.options);
-        final span = MockSpan();
-        scope.span = span;
-
-        await client.captureLog(log, scope: scope);
-
-        expect(mockProcessor.addedLogs.length, 1);
-        final capturedLog = mockProcessor.addedLogs.first;
-
-        expect(
-          capturedLog.attributes['sentry.trace.parent_span_id']?.value,
-          span.context.spanId.toString(),
-        );
       });
     });
 

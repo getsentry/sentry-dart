@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/enricher/common_attributes_provider.dart';
+import 'package:sentry/src/utils/_io_get_sentry_operating_system.dart';
 import 'package:test/test.dart';
 
 import '../../test_utils.dart';
@@ -40,8 +43,7 @@ void main() {
       final attributes = await provider.attributes(Object());
 
       expect(
-          attributes
-              .containsKey(SemanticAttributesConstants.sentryEnvironment),
+          attributes.containsKey(SemanticAttributesConstants.sentryEnvironment),
           isFalse);
     });
 
@@ -61,8 +63,7 @@ void main() {
 
       final attributes = await provider.attributes(Object());
 
-      expect(
-          attributes.containsKey(SemanticAttributesConstants.sentryRelease),
+      expect(attributes.containsKey(SemanticAttributesConstants.sentryRelease),
           isFalse);
     });
 
@@ -74,8 +75,8 @@ void main() {
 
         final attributes = await provider.attributes(Object(), scope: scope);
 
-        expect(attributes[SemanticAttributesConstants.userId]?.value,
-            'user123');
+        expect(
+            attributes[SemanticAttributesConstants.userId]?.value, 'user123');
       });
 
       test('includes user name when set', () async {
@@ -111,8 +112,8 @@ void main() {
 
         final attributes = await provider.attributes(Object(), scope: scope);
 
-        expect(attributes[SemanticAttributesConstants.userId]?.value,
-            'user123');
+        expect(
+            attributes[SemanticAttributesConstants.userId]?.value, 'user123');
         expect(attributes[SemanticAttributesConstants.userName]?.value,
             'John Doe');
         expect(attributes[SemanticAttributesConstants.userEmail]?.value,
@@ -126,14 +127,11 @@ void main() {
 
         final attributes = await provider.attributes(Object(), scope: scope);
 
-        expect(
-            attributes.containsKey(SemanticAttributesConstants.userId),
+        expect(attributes.containsKey(SemanticAttributesConstants.userId),
             isFalse);
-        expect(
-            attributes.containsKey(SemanticAttributesConstants.userName),
+        expect(attributes.containsKey(SemanticAttributesConstants.userName),
             isFalse);
-        expect(
-            attributes.containsKey(SemanticAttributesConstants.userEmail),
+        expect(attributes.containsKey(SemanticAttributesConstants.userEmail),
             isFalse);
       });
 
@@ -143,14 +141,11 @@ void main() {
 
         final attributes = await provider.attributes(Object(), scope: null);
 
-        expect(
-            attributes.containsKey(SemanticAttributesConstants.userId),
+        expect(attributes.containsKey(SemanticAttributesConstants.userId),
             isFalse);
-        expect(
-            attributes.containsKey(SemanticAttributesConstants.userName),
+        expect(attributes.containsKey(SemanticAttributesConstants.userName),
             isFalse);
-        expect(
-            attributes.containsKey(SemanticAttributesConstants.userEmail),
+        expect(attributes.containsKey(SemanticAttributesConstants.userEmail),
             isFalse);
       });
     });
@@ -167,14 +162,11 @@ void main() {
 
         final attributes = await provider.attributes(Object(), scope: scope);
 
-        expect(
-            attributes.containsKey(SemanticAttributesConstants.userId),
+        expect(attributes.containsKey(SemanticAttributesConstants.userId),
             isFalse);
-        expect(
-            attributes.containsKey(SemanticAttributesConstants.userName),
+        expect(attributes.containsKey(SemanticAttributesConstants.userName),
             isFalse);
-        expect(
-            attributes.containsKey(SemanticAttributesConstants.userEmail),
+        expect(attributes.containsKey(SemanticAttributesConstants.userEmail),
             isFalse);
       });
     });
@@ -184,8 +176,13 @@ void main() {
 
       final attributes = await provider.attributes(Object());
 
-      expect(attributes.containsKey(SemanticAttributesConstants.osName),
-          isTrue);
+      print(
+          'platform: ${Platform.operatingSystem} ${Platform.operatingSystemVersion}');
+      print(
+          'operating system: ${getSentryOperatingSystem().name} ${getSentryOperatingSystem().version}');
+
+      expect(
+          attributes.containsKey(SemanticAttributesConstants.osName), isTrue);
       expect(attributes.containsKey(SemanticAttributesConstants.osVersion),
           isTrue);
     });
@@ -199,9 +196,8 @@ class Fixture {
     options = defaultTestOptions();
   }
 
-  CommonTelemetryAttributesProvider getSut() {
-    return CommonTelemetryAttributesProvider(options);
-  }
+  CommonTelemetryAttributesProvider getSut() =>
+      CommonTelemetryAttributesProvider(options);
 
   Scope createScope({
     String? userId,
