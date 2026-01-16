@@ -7,9 +7,14 @@ import '../../../sentry.dart';
 /// Providers compute attributes that are added to telemetry items (spans, logs).
 @internal
 abstract interface class TelemetryAttributesProvider {
-  /// Attributes for the given [item].
+  /// Extracts attributes for the given [item].
   ///
-  /// Returns an empty map if [item] is not supported.
+  /// Returns an empty map when [item] is not a supported/recognized type.
+  ///
+  /// Contract:
+  /// - Must not mutate [item] or [scope].
+  /// - Must not perform expensive work.
+  /// - Must not include PII values unless [SentryOptions.sendDefaultPii] is enabled.
   Future<Map<String, SentryAttribute>> attributes(
     Object item, {
     Scope? scope,

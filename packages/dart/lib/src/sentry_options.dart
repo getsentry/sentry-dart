@@ -571,7 +571,7 @@ class SentryOptions {
   @internal
   TelemetryProcessor telemetryProcessor = NoOpTelemetryProcessor();
 
-  /// Pipeline for global telemetry enrichment.
+  /// Telemetry enricher for adding attributes to telemetry.
   ///
   /// Use this for generic attributes that apply to all telemetry of a given type.
   /// Attributes that rely on local context, should be set directly at the call site (e.g `span.setAttribute('http.status', response.status)`).
