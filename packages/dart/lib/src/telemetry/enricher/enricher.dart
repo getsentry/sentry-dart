@@ -57,7 +57,7 @@ final class TelemetryEnricher {
       }
     }
 
-    return mergedAttributes..addAll(aggregatedAttributes);
+    return mergedAttributes..addAllIfAbsent(aggregatedAttributes);
   }
 
   void addAttributesProvider(TelemetryAttributesProvider provider) {
