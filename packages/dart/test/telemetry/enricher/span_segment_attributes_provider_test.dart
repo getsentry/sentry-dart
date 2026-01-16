@@ -72,32 +72,10 @@ void main() {
       });
     });
 
-    test(
-        'when item is not RecordingSentrySpanV2 returns empty map for SentryLog',
-        () async {
-      final provider = fixture.getSut();
-      final log = fixture.createLog();
-
-      final attributes = await provider.attributes(log);
-
-      expect(attributes, isEmpty);
-    });
-
-    test(
-        'when item is not RecordingSentrySpanV2 returns empty map for arbitrary object',
+    test('when item is not RecordingSentrySpanV2 returns an empty map',
         () async {
       final provider = fixture.getSut();
       final item = Object();
-
-      final attributes = await provider.attributes(item);
-
-      expect(attributes, isEmpty);
-    });
-
-    test('when item is not RecordingSentrySpanV2 returns empty map for String',
-        () async {
-      final provider = fixture.getSut();
-      const item = 'test string';
 
       final attributes = await provider.attributes(item);
 

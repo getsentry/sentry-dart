@@ -64,40 +64,7 @@ void main() {
     });
 
     group('when sendDefaultPii is true', () {
-      test('includes user id when set', () async {
-        fixture.options.sendDefaultPii = true;
-        final provider = fixture.getSut();
-        final scope = fixture.createScope(userId: 'user123');
-
-        final attributes = await provider.attributes(Object(), scope: scope);
-
-        expect(
-            attributes[SemanticAttributesConstants.userId]?.value, 'user123');
-      });
-
-      test('includes user name when set', () async {
-        fixture.options.sendDefaultPii = true;
-        final provider = fixture.getSut();
-        final scope = fixture.createScope(userName: 'John Doe');
-
-        final attributes = await provider.attributes(Object(), scope: scope);
-
-        expect(attributes[SemanticAttributesConstants.userName]?.value,
-            'John Doe');
-      });
-
-      test('includes user email when set', () async {
-        fixture.options.sendDefaultPii = true;
-        final provider = fixture.getSut();
-        final scope = fixture.createScope(userEmail: 'john@example.com');
-
-        final attributes = await provider.attributes(Object(), scope: scope);
-
-        expect(attributes[SemanticAttributesConstants.userEmail]?.value,
-            'john@example.com');
-      });
-
-      test('includes all user attributes when all are set', () async {
+      test('includes user attributes when all are set', () async {
         fixture.options.sendDefaultPii = true;
         final provider = fixture.getSut();
         final scope = fixture.createScope(
@@ -116,55 +83,43 @@ void main() {
             'john@example.com');
       });
 
-      test('does not include user attributes when user is null', () async {
+      test('omits user attributes when scope or user is null', () async {
         fixture.options.sendDefaultPii = true;
         final provider = fixture.getSut();
-        final scope = Scope(fixture.options);
+        final scopes = <Scope?>[
+          Scope(fixture.options),
+          null,
+        ];
 
-        final attributes = await provider.attributes(Object(), scope: scope);
-
-        expect(attributes.containsKey(SemanticAttributesConstants.userId),
-            isFalse);
-        expect(attributes.containsKey(SemanticAttributesConstants.userName),
-            isFalse);
-        expect(attributes.containsKey(SemanticAttributesConstants.userEmail),
-            isFalse);
-      });
-
-      test('does not include user attributes when scope is null', () async {
-        fixture.options.sendDefaultPii = true;
-        final provider = fixture.getSut();
-
-        final attributes = await provider.attributes(Object(), scope: null);
-
-        expect(attributes.containsKey(SemanticAttributesConstants.userId),
-            isFalse);
-        expect(attributes.containsKey(SemanticAttributesConstants.userName),
-            isFalse);
-        expect(attributes.containsKey(SemanticAttributesConstants.userEmail),
-            isFalse);
+        for (final scope in scopes) {
+          final attributes = await provider.attributes(Object(), scope: scope);
+          expect(attributes.containsKey(SemanticAttributesConstants.userId),
+              isFalse);
+          expect(attributes.containsKey(SemanticAttributesConstants.userName),
+              isFalse);
+          expect(attributes.containsKey(SemanticAttributesConstants.userEmail),
+              isFalse);
+        }
       });
     });
 
-    group('when sendDefaultPii is false', () {
-      test('does not include user attributes', () async {
-        fixture.options.sendDefaultPii = false;
-        final provider = fixture.getSut();
-        final scope = fixture.createScope(
-          userId: 'user123',
-          userName: 'John Doe',
-          userEmail: 'john@example.com',
-        );
+    test('when sendDefaultPii is false omits user attributes', () async {
+      fixture.options.sendDefaultPii = false;
+      final provider = fixture.getSut();
+      final scope = fixture.createScope(
+        userId: 'user123',
+        userName: 'John Doe',
+        userEmail: 'john@example.com',
+      );
 
-        final attributes = await provider.attributes(Object(), scope: scope);
+      final attributes = await provider.attributes(Object(), scope: scope);
 
-        expect(attributes.containsKey(SemanticAttributesConstants.userId),
-            isFalse);
-        expect(attributes.containsKey(SemanticAttributesConstants.userName),
-            isFalse);
-        expect(attributes.containsKey(SemanticAttributesConstants.userEmail),
-            isFalse);
-      });
+      expect(
+          attributes.containsKey(SemanticAttributesConstants.userId), isFalse);
+      expect(attributes.containsKey(SemanticAttributesConstants.userName),
+          isFalse);
+      expect(attributes.containsKey(SemanticAttributesConstants.userEmail),
+          isFalse);
     });
 
     test('includes OS name and version when available', () async {

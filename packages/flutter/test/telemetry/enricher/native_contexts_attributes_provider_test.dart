@@ -2,6 +2,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/telemetry/enricher/native_contexts_attributes_provider.dart';
 
 import '../../mocks.mocks.dart';
@@ -14,100 +15,31 @@ void main() {
       fixture = Fixture();
     });
 
-    group('when native contexts are available', () {
-      test('includes os.name attribute', () async {
-        final nativeBinding = fixture.createNativeBinding(
-          osName: 'iOS',
-          osVersion: '16.0',
-        );
-        final provider = fixture.getSut(nativeBinding);
-
-        final attributes = await provider.attributes(Object());
-
-        expect(attributes['os.name']?.value, 'iOS');
-      });
-
-      test('includes os.version attribute', () async {
-        final nativeBinding = fixture.createNativeBinding(
-          osName: 'iOS',
-          osVersion: '16.0',
-        );
-        final provider = fixture.getSut(nativeBinding);
-
-        final attributes = await provider.attributes(Object());
-
-        expect(attributes['os.version']?.value, '16.0');
-      });
-
-      test('includes device.brand attribute', () async {
-        final nativeBinding = fixture.createNativeBinding(
-          deviceBrand: 'Apple',
-        );
-        final provider = fixture.getSut(nativeBinding);
-
-        final attributes = await provider.attributes(Object());
-
-        expect(attributes['device.brand']?.value, 'Apple');
-      });
-
-      test('includes device.model attribute', () async {
-        final nativeBinding = fixture.createNativeBinding(
-          deviceModel: 'iPhone14,2',
-        );
-        final provider = fixture.getSut(nativeBinding);
-
-        final attributes = await provider.attributes(Object());
-
-        expect(attributes['device.model']?.value, 'iPhone14,2');
-      });
-
-      test('includes device.family attribute', () async {
-        final nativeBinding = fixture.createNativeBinding(
-          deviceFamily: 'iOS',
-        );
-        final provider = fixture.getSut(nativeBinding);
-
-        final attributes = await provider.attributes(Object());
-
-        expect(attributes['device.family']?.value, 'iOS');
-      });
-
-      test('includes all attributes when all are set', () async {
-        final nativeBinding = fixture.createNativeBinding(
-          osName: 'iOS',
-          osVersion: '16.0',
-          deviceBrand: 'Apple',
-          deviceModel: 'iPhone14,2',
-          deviceFamily: 'iOS',
-        );
-        final provider = fixture.getSut(nativeBinding);
-
-        final attributes = await provider.attributes(Object());
-
-        expect(attributes['os.name']?.value, 'iOS');
-        expect(attributes['os.version']?.value, '16.0');
-        expect(attributes['device.brand']?.value, 'Apple');
-        expect(attributes['device.model']?.value, 'iPhone14,2');
-        expect(attributes['device.family']?.value, 'iOS');
-      });
-    });
-
-    test('when caching attributes loads from native binding on first call',
+    test(
+        'when native contexts are available includes all attributes when all are set',
         () async {
       final nativeBinding = fixture.createNativeBinding(
         osName: 'iOS',
         osVersion: '16.0',
+        deviceBrand: 'Apple',
+        deviceModel: 'iPhone14,2',
+        deviceFamily: 'iOS',
       );
       final provider = fixture.getSut(nativeBinding);
 
-      await provider.attributes(Object());
+      final attributes = await provider.attributes(Object());
 
-      verify(nativeBinding.loadContexts()).called(1);
+      expect(attributes[SemanticAttributesConstants.osName]?.value, 'iOS');
+      expect(attributes[SemanticAttributesConstants.osVersion]?.value, '16.0');
+      expect(
+          attributes[SemanticAttributesConstants.deviceBrand]?.value, 'Apple');
+      expect(attributes[SemanticAttributesConstants.deviceModel]?.value,
+          'iPhone14,2');
+      expect(
+          attributes[SemanticAttributesConstants.deviceFamily]?.value, 'iOS');
     });
 
-    test(
-        'when caching attributes returns cached attributes on subsequent calls',
-        () async {
+    test('attributes are cached and reused', () async {
       final nativeBinding = fixture.createNativeBinding(
         osName: 'iOS',
         osVersion: '16.0',
@@ -116,46 +48,25 @@ void main() {
 
       final attributes1 = await provider.attributes(Object());
       final attributes2 = await provider.attributes(Object());
+      final attributes3 = await provider.attributes(Object());
 
       expect(identical(attributes1, attributes2), isTrue);
-    });
-
-    test(
-        'when caching attributes does not call native binding again after caching',
-        () async {
-      final nativeBinding = fixture.createNativeBinding(
-        osName: 'iOS',
-        osVersion: '16.0',
-      );
-      final provider = fixture.getSut(nativeBinding);
-
-      await provider.attributes(Object());
-      await provider.attributes(Object());
-      await provider.attributes(Object());
-
+      expect(identical(attributes2, attributes3), isTrue);
       verify(nativeBinding.loadContexts()).called(1);
     });
 
-    test(
-        'when native contexts are null returns empty map when loadContexts returns null',
+    test('when native contexts are null or empty returns an empty map',
         () async {
-      final nativeBinding = fixture.createNativeBinding(returnNull: true);
-      final provider = fixture.getSut(nativeBinding);
+      final nativeBindings = [
+        fixture.createNativeBinding(returnNull: true),
+        fixture.createNativeBinding(emptyContexts: true),
+      ];
 
-      final attributes = await provider.attributes(Object());
-
-      expect(attributes, isEmpty);
-    });
-
-    test(
-        'when native contexts are empty returns empty map when contexts map is empty',
-        () async {
-      final nativeBinding = fixture.createNativeBinding(emptyContexts: true);
-      final provider = fixture.getSut(nativeBinding);
-
-      final attributes = await provider.attributes(Object());
-
-      expect(attributes, isEmpty);
+      for (final nativeBinding in nativeBindings) {
+        final provider = fixture.getSut(nativeBinding);
+        final attributes = await provider.attributes(Object());
+        expect(attributes, isEmpty);
+      }
     });
 
     test(
@@ -172,11 +83,15 @@ void main() {
 
       final attributes = await provider.attributes(Object());
 
-      expect(attributes['os.name']?.value, 'iOS');
-      expect(attributes.containsKey('os.version'), isFalse);
-      expect(attributes.containsKey('device.brand'), isFalse);
-      expect(attributes['device.model']?.value, 'iPhone14,2');
-      expect(attributes.containsKey('device.family'), isFalse);
+      expect(attributes[SemanticAttributesConstants.osName]?.value, 'iOS');
+      expect(attributes.containsKey(SemanticAttributesConstants.osVersion),
+          isFalse);
+      expect(attributes.containsKey(SemanticAttributesConstants.deviceBrand),
+          isFalse);
+      expect(attributes[SemanticAttributesConstants.deviceModel]?.value,
+          'iPhone14,2');
+      expect(attributes.containsKey(SemanticAttributesConstants.deviceFamily),
+          isFalse);
     });
   });
 }
