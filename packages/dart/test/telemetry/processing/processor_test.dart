@@ -138,7 +138,7 @@ class Fixture {
     return RecordingSentrySpanV2.root(
       name: name,
       traceId: SentryId.newId(),
-      onSpanEnd: (_) {},
+      onSpanEnd: (_) async {},
       clock: options.clock,
       dscCreator: (_) =>
           SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
@@ -153,7 +153,7 @@ class Fixture {
     return RecordingSentrySpanV2.child(
       parent: parent,
       name: name,
-      onSpanEnd: (_) {},
+      onSpanEnd: (_) async {},
       clock: options.clock,
       dscCreator: (_) =>
           SentryTraceContextHeader(SentryId.newId(), 'publicKey'),

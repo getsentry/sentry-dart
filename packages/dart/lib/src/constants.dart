@@ -100,12 +100,6 @@ abstract class SemanticAttributesConstants {
   /// The operating system version.
   static const osVersion = 'os.version';
 
-  /// The thread name of the thread that the span was executed on.
-  static const threadName = 'thread.name';
-
-  /// The thread ID of the thread that the span was executed on.
-  static const threadId = 'thread.id';
-
   /// The device brand (e.g., "Apple", "Samsung").
   static const deviceBrand = 'device.brand';
 

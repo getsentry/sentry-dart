@@ -58,29 +58,35 @@ void main() {
       expect(span2.endTimestamp!.isUtc, isTrue);
     });
 
-    test('end calls onSpanEnded callback', () {
+    test('end calls onSpanEnded callback', () async {
       RecordingSentrySpanV2? capturedSpan;
       final span = fixture.createSpan(
         name: 'test-span',
-        onSpanEnded: (s) => capturedSpan = s,
+        onSpanEnded: (s) async => capturedSpan = s,
       );
 
       span.end();
 
+      // Briefly delay for async onSpanEnded to trigger
+      await Future<void>.delayed(Duration(milliseconds: 100));
+
       expect(capturedSpan, same(span));
     });
 
-    test('end is idempotent once finished', () {
+    test('end is idempotent once finished', () async {
       var callCount = 0;
       final span = fixture.createSpan(
         name: 'test-span',
-        onSpanEnded: (_) => callCount++,
+        onSpanEnded: (_) async => callCount++,
       );
       final firstEndTimestamp = DateTime.utc(2024, 1, 1);
       final secondEndTimestamp = DateTime.utc(2024, 1, 2);
 
       span.end(endTimestamp: firstEndTimestamp);
       span.end(endTimestamp: secondEndTimestamp);
+
+      // Briefly delay for async onSpanEnded to trigger
+      await Future<void>.delayed(Duration(milliseconds: 100));
 
       expect(span.endTimestamp, equals(firstEndTimestamp));
       expect(span.isEnded, isTrue);
@@ -495,7 +501,7 @@ class Fixture {
       return RecordingSentrySpanV2.child(
         parent: parentSpan,
         name: name,
-        onSpanEnd: onSpanEnded ?? (_) {},
+        onSpanEnd: onSpanEnded ?? (_) async {},
         clock: options.clock,
         dscCreator: dscCreator ?? defaultDscCreator,
       );
@@ -503,7 +509,7 @@ class Fixture {
     return RecordingSentrySpanV2.root(
       name: name,
       traceId: traceId ?? SentryId.newId(),
-      onSpanEnd: onSpanEnded ?? (_) {},
+      onSpanEnd: onSpanEnded ?? (_) async {},
       clock: options.clock,
       dscCreator: dscCreator ?? defaultDscCreator,
       samplingDecision: samplingDecision ?? SentryTracesSamplingDecision(true),
