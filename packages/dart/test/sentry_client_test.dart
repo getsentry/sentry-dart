@@ -36,8 +36,6 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
-      CoreTelemetryAttributesIntegration()
-          .call(Hub(fixture.options), fixture.options);
     });
 
     test('should capture event stacktrace', () async {
@@ -227,8 +225,6 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
-      CoreTelemetryAttributesIntegration()
-          .call(Hub(fixture.options), fixture.options);
     });
 
     test('should capture error', () async {
@@ -257,8 +253,6 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
-      CoreTelemetryAttributesIntegration()
-          .call(Hub(fixture.options), fixture.options);
     });
 
     test('should capture exception cause', () async {
@@ -462,8 +456,6 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
-      CoreTelemetryAttributesIntegration()
-          .call(Hub(fixture.options), fixture.options);
     });
 
     test('should capture error', () async {
@@ -2084,7 +2076,7 @@ void main() {
         final span = RecordingSentrySpanV2.root(
           name: 'test-span',
           traceId: SentryId.newId(),
-          onSpanEnd: (_) {},
+          onSpanEnd: (_) async {},
           clock: fixture.options.clock,
           dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
           samplingDecision: SentryTracesSamplingDecision(true),
