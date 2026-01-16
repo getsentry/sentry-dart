@@ -1,6 +1,14 @@
 # Changelog
 
-## Unreleased
+## 9.10.0
+
+### Fixes
+
+- Kotlin language version handling in Android ([#3436](https://github.com/getsentry/sentry-dart/pull/3436))
+
+### Enhancements
+
+- Replace log batcher with telemetry processor ([#3448](https://github.com/getsentry/sentry-dart/pull/3448))
 
 ### Dependencies
 

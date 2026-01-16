@@ -40,7 +40,6 @@ void main() {
         // Nothing to assert - just verifying no exception thrown
       });
     });
-
     group('addLog', () {
       test('routes log to log buffer', () {
         final mockLogBuffer = MockTelemetryBuffer<SentryLog>();
@@ -130,7 +129,6 @@ class Fixture {
   }) {
     options.enableLogs = enableLogs;
     return DefaultTelemetryProcessor(
-      options.log,
       spanBuffer: spanBuffer,
       logBuffer: logBuffer,
     );

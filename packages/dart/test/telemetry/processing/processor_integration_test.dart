@@ -10,7 +10,7 @@ import '../../mocks/mock_transport.dart';
 import '../../test_utils.dart';
 
 void main() {
-  group('DefaultTelemetryProcessorIntegration', () {
+  group('InMemoryTelemetryProcessorIntegration', () {
     late _Fixture fixture;
 
     setUp(() {
@@ -30,7 +30,7 @@ void main() {
 
     test('does not override existing telemetry processor', () {
       final options = fixture.options;
-      final existingProcessor = DefaultTelemetryProcessor(options.log);
+      final existingProcessor = DefaultTelemetryProcessor();
       options.telemetryProcessor = existingProcessor;
 
       fixture.getSut().call(fixture.hub, options);
@@ -45,7 +45,7 @@ void main() {
 
       expect(
         options.sdk.integrations,
-        contains(DefaultTelemetryProcessorIntegration.integrationName),
+        contains(InMemoryTelemetryProcessorIntegration.integrationName),
       );
     });
 
@@ -94,7 +94,6 @@ void main() {
 
       expect(key, '${span.traceId}-${span.spanId}');
     });
-
     group('flush', () {
       test('log reaches transport as envelope', () async {
         final options = fixture.options;
@@ -134,9 +133,8 @@ class _Fixture {
     options = defaultTestOptions()..transport = transport;
   }
 
-  DefaultTelemetryProcessorIntegration getSut() {
-    return DefaultTelemetryProcessorIntegration();
-  }
+  InMemoryTelemetryProcessorIntegration getSut() =>
+      InMemoryTelemetryProcessorIntegration();
 
   SentryLog createLog() {
     return SentryLog(

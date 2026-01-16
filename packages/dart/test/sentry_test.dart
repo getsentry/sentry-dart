@@ -298,7 +298,7 @@ void main() {
       );
     }, onPlatform: {'browser': Skip()});
 
-    test('should add DefaultTelemetryProcessorIntegration', () async {
+    test('should add $InMemoryTelemetryProcessorIntegration', () async {
       late SentryOptions optionsReference;
       final options = defaultTestOptions();
 
@@ -313,7 +313,7 @@ void main() {
 
       expect(
         optionsReference.integrations
-            .whereType<DefaultTelemetryProcessorIntegration>()
+            .whereType<InMemoryTelemetryProcessorIntegration>()
             .length,
         1,
       );

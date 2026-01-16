@@ -1,14 +1,17 @@
-import 'dart:async';
-
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
+import '../../utils/internal_logger.dart';
 import '../span/sentry_span_v2.dart';
 import 'in_memory_buffer.dart';
 import 'processor.dart';
 
-class DefaultTelemetryProcessorIntegration extends Integration<SentryOptions> {
-  static const integrationName = 'DefaultTelemetryProcessor';
+/// Integration that sets up in-memory telemetry processing for Dart.
+///
+/// This is the standard processor when no other implementation is provided.
+/// It buffers and batches telemetry data in memory before export.
+class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
+  static const integrationName = 'InMemoryTelemetryProcessor';
 
   @visibleForTesting
   final GroupKeyExtractor<RecordingSentrySpanV2> spanGroupKeyExtractor =
@@ -18,16 +21,17 @@ class DefaultTelemetryProcessorIntegration extends Integration<SentryOptions> {
   @override
   void call(Hub hub, SentryOptions options) {
     if (options.telemetryProcessor is! NoOpTelemetryProcessor) {
-      options.log(
-        SentryLevel.debug,
-        '$integrationName: ${options.telemetryProcessor.runtimeType} already set, skipping',
+      internalLogger.debug(
+        () =>
+            '$integrationName: ${options.telemetryProcessor.runtimeType} already set, skipping',
       );
       return;
     }
 
-    options.telemetryProcessor = DefaultTelemetryProcessor(options.log,
-        logBuffer: _createLogBuffer(options),
-        spanBuffer: _createSpanBuffer(options));
+    options.telemetryProcessor = DefaultTelemetryProcessor(
+      logBuffer: _createLogBuffer(options),
+      spanBuffer: _createSpanBuffer(options),
+    );
 
     options.sdk.addIntegration(integrationName);
   }
