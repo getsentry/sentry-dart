@@ -37,7 +37,6 @@ final class TelemetryEnricher {
     required Scope? scope,
     required Map<String, SentryAttribute> existingAttributes,
   }) async {
-    // Copy the map in case the input is unmodifiable.
     final mergedAttributes =
         Map<String, SentryAttribute>.from(existingAttributes);
 
