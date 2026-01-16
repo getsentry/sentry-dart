@@ -11,7 +11,7 @@ import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-import 'package:sentry/src/telemetry/enricher/enricher_integration.dart';
+import 'package:sentry/src/telemetry/enricher/core_attributes_integration.dart';
 import 'package:sentry/src/transport/client_report_transport.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/noop_transport.dart';

@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 import '../../test_utils.dart';
 
 void main() {
-  group('SpanSegmentTelemetryAttributesProvider', () {
+  group('$SpanSegmentTelemetryAttributesProvider', () {
     late Fixture fixture;
 
     setUp(() {

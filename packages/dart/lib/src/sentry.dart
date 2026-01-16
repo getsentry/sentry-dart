@@ -23,7 +23,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_run_zoned_guarded.dart';
-import 'telemetry/enricher/enricher_integration.dart';
+import 'telemetry/enricher/core_attributes_integration.dart';
 import 'telemetry/processing/processor_integration.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'tracing.dart';

@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 import '../../test_utils.dart';
 
 void main() {
-  group('CommonTelemetryAttributesProvider', () {
+  group('$CommonTelemetryAttributesProvider', () {
     late Fixture fixture;
 
     setUp(() {

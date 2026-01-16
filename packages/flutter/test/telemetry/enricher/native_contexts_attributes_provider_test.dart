@@ -8,7 +8,7 @@ import 'package:sentry_flutter/src/telemetry/enricher/native_contexts_attributes
 import '../../mocks.mocks.dart';
 
 void main() {
-  group('NativeContextsTelemetryAttributesProvider', () {
+  group('$NativeContextsTelemetryAttributesProvider', () {
     late Fixture fixture;
 
     setUp(() {

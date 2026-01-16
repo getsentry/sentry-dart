@@ -1,5 +1,5 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/telemetry/enricher/enricher_integration.dart';
+import 'package:sentry/src/telemetry/enricher/core_attributes_integration.dart';
 import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:test/test.dart';
 
@@ -7,7 +7,7 @@ import '../../mocks/mock_hub.dart';
 import '../../test_utils.dart';
 
 void main() {
-  group('CoreTelemetryAttributesIntegration', () {
+  group('$CoreTelemetryAttributesIntegration', () {
     late Fixture fixture;
 
     setUp(() {

@@ -7,7 +7,7 @@ import '../../mocks/mock_telemetry_attributes_provider.dart';
 import '../../test_utils.dart';
 
 void main() {
-  group('TelemetryEnricher', () {
+  group('$TelemetryEnricher', () {
     late Fixture fixture;
 
     setUp(() {
