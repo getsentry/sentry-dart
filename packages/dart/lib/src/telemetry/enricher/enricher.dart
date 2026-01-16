@@ -50,7 +50,7 @@ final class TelemetryEnricher {
         aggregatedAttributes
             .addAllIfAbsent(await provider.attributes(telemetry, scope: scope));
       } catch (exception, stackTrace) {
-        internalLogger.warning(
+        internalLogger.error(
           'TelemetryAttributesProvider: $provider failed to provide attributes.',
           error: exception,
           stackTrace: stackTrace,
