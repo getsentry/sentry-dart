@@ -1,0 +1,20 @@
+include: all_linter_rules.yaml
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    missing_required_param: error
+    missing_return: error
+    unused_import: error
+    unused_local_variable: error
+    unused_element: error
+    unused_field: error
+    dead_code: error
+    todo: ignore
+    deprecated_member_use_from_same_package: warning
+    invalid_dependency: ignore
+  exclude:
+    - example/**
+    - test/*.mocks.dart
