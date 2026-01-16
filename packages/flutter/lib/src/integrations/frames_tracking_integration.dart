@@ -6,6 +6,7 @@ import '../../sentry_flutter.dart';
 import '../binding_wrapper.dart';
 import '../frames_tracking/sentry_delayed_frames_tracker.dart';
 import '../frames_tracking/span_frame_metrics_collector.dart';
+import '../frames_tracking/span_frame_metrics_collector_v2.dart';
 import '../native/sentry_native_binding.dart';
 
 class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
@@ -50,11 +51,28 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
         SentryDelayedFramesTracker(options, expectedFrameDuration);
     widgetsBinding.initializeFramesTracking(
         framesTracker.addDelayedFrame, options, expectedFrameDuration);
-    final collector = SpanFrameMetricsCollector(options, framesTracker,
-        resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
-        pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames());
-    options.addPerformanceCollector(collector);
-    _collector = collector;
+    if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
+      final collector = SpanFrameMetricsCollectorV2(framesTracker,
+          resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
+          pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames());
+      _collector = collector;
+
+      options.lifecycleRegistry.registerCallback<OnSpanStartV2>((event) {
+        collector.onSpanStarted(event.span);
+      });
+
+      options.lifecycleRegistry.registerCallback<OnSpanEndV2>((event) {
+        if (event.span.endTimestamp != null) {
+          collector.onSpanFinished(event.span, event.span.endTimestamp!);
+        }
+      });
+    } else {
+      final collector = SpanFrameMetricsCollector(options, framesTracker,
+          resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
+          pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames());
+      options.addPerformanceCollector(collector);
+      _collector = collector;
+    }
 
     options.sdk.addIntegration(integrationName);
     options.log(SentryLevel.debug,

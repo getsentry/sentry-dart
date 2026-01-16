@@ -24,6 +24,9 @@ final class NoOpSentrySpanV2 implements SentrySpanV2 {
   SentrySpanV2? get parentSpan => null;
 
   @override
+  DateTime get startTimestamp => DateTime.now();
+
+  @override
   DateTime? get endTimestamp => null;
 
   @override

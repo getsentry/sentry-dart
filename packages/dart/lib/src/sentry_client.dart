@@ -504,6 +504,7 @@ class SentryClient {
         return;
       case RecordingSentrySpanV2 span:
         // TODO(next-pr): add common attributes, merge scope attributes
+        _options.lifecycleRegistry.dispatchCallback(OnSpanEndV2(span));
 
         _options.telemetryProcessor.addSpan(span);
     }

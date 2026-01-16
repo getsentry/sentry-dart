@@ -96,3 +96,21 @@ class OnSpanFinish extends SdkLifecycleEvent {
 
   final ISentrySpan span;
 }
+
+/// Dispatched when a sampled span is started.
+@internal
+class OnSpanStartV2 extends SdkLifecycleEvent {
+  OnSpanStartV2(this.span);
+
+  final SentrySpanV2 span;
+}
+
+/// Dispatched when a sampled span is ended.
+///
+/// Trigger directly after span.end() and before SDK enrichment is applied.
+@internal
+class OnSpanEndV2 extends SdkLifecycleEvent {
+  OnSpanEndV2(this.span);
+
+  final SentrySpanV2 span;
+}

@@ -39,3 +39,18 @@ class SentrySpanDescriptions {
   static String dbOpen({required String dbName}) => 'Open database $dbName';
   static String dbClose({required String dbName}) => 'Close database $dbName';
 }
+
+abstract final class SemanticAttributesConstants {
+  /// The number of total frames rendered during the lifetime of the span.
+  static const framesTotal = 'frames.total';
+
+  /// The number of slow frames rendered during the lifetime of the span.
+  static const framesSlow = 'frames.slow';
+
+  /// The number of frozen frames rendered during the lifetime of the span.
+  static const framesFrozen = 'frames.frozen';
+
+  /// The sum of all delayed frame durations in seconds during the lifetime of the span.
+  /// For more information see [frames delay](https://develop.sentry.dev/sdk/performance/frames-delay/).
+  static const framesDelay = 'frames.delay';
+}
