@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
+import '../../utils/internal_logger.dart';
 import '../span/sentry_span_v2.dart';
 import 'buffer.dart';
 
@@ -30,8 +31,6 @@ abstract class TelemetryProcessor {
 /// instances. If no buffer is registered for a telemetry type, items are
 /// dropped with a warning.
 class DefaultTelemetryProcessor implements TelemetryProcessor {
-  final SdkLogCallback _logger;
-
   /// The buffer for span data, or `null` if span buffering is disabled.
   @visibleForTesting
   TelemetryBuffer<RecordingSentrySpanV2>? spanBuffer;
@@ -40,8 +39,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   @visibleForTesting
   TelemetryBuffer<SentryLog>? logBuffer;
 
-  DefaultTelemetryProcessor(
-    this._logger, {
+  DefaultTelemetryProcessor({
     this.spanBuffer,
     this.logBuffer,
   });
@@ -60,8 +58,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
     };
 
     if (buffer == null) {
-      _logger(
-        SentryLevel.warning,
+      internalLogger.warning(
         '$runtimeType: No buffer registered for ${item.runtimeType} - item was dropped',
       );
       return;
@@ -72,7 +69,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
 
   @override
   FutureOr<void> flush() {
-    _logger(SentryLevel.debug, '$runtimeType: Clearing buffers');
+    internalLogger.debug('$runtimeType: Clearing buffers');
 
     final results = <FutureOr<void>>[
       spanBuffer?.flush(),

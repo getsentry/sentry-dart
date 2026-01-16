@@ -12,9 +12,6 @@ typedef OnFlushCallback<T> = FutureOr<void> Function(T data);
 /// Encodes an item of type [T] into bytes.
 typedef ItemEncoder<T> = List<int> Function(T item);
 
-/// Extracts a grouping key from items of type [T].
-typedef GroupKeyExtractor<T> = String Function(T item);
-
 /// Base class for in-memory telemetry buffers.
 ///
 /// Buffers telemetry items in memory and flushes them when either the
@@ -146,6 +143,9 @@ final class InMemoryTelemetryBuffer<T>
   @override
   bool get _isEmpty => _storage.isEmpty;
 }
+
+/// Extracts a grouping key from items of type [T].
+typedef GroupKeyExtractor<T> = String Function(T item);
 
 /// In-memory buffer that groups telemetry items by a key.
 ///
