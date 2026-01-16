@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
+import '../../utils/internal_logger.dart';
 import '../span/sentry_span_v2.dart';
 
 /// Pipeline for systematic telemetry attribute enrichment.
@@ -13,32 +14,30 @@ import '../span/sentry_span_v2.dart';
 final class TelemetryEnricher {
   final _providers = <TelemetryAttributesProvider>[];
 
-  Future<void> enrichLog(SentryLog log, {Scope? scope}) => _enrichAttributes(
-        telemetry: log,
-        scope: scope,
-        existingAttributes: log.attributes,
-        applyAttributes: (attributes) {
-          log.attributes = attributes;
-        },
-      );
+  Future<void> enrichLog(SentryLog log, {Scope? scope}) async {
+    log.attributes = await _enrichAttributes(
+      telemetry: log,
+      scope: scope,
+      existingAttributes: log.attributes,
+    );
+  }
 
-  Future<void> enrichSpan(RecordingSentrySpanV2 span, {Scope? scope}) =>
-      _enrichAttributes(
-        telemetry: span,
-        scope: scope,
-        existingAttributes: span.attributes,
-        applyAttributes: (attributes) {
-          span.setAttributes(attributes);
-        },
-      );
+  Future<void> enrichSpan(RecordingSentrySpanV2 span, {Scope? scope}) async {
+    final mergedAttributes = await _enrichAttributes(
+      telemetry: span,
+      scope: scope,
+      existingAttributes: span.attributes,
+    );
+    span.setAttributes(mergedAttributes);
+  }
 
-  Future<void> _enrichAttributes({
+  /// Returns a merged attribute map without mutating the input map.
+  Future<Map<String, SentryAttribute>> _enrichAttributes({
     required Object telemetry,
     required Scope? scope,
     required Map<String, SentryAttribute> existingAttributes,
-    required void Function(Map<String, SentryAttribute>) applyAttributes,
   }) async {
-    // Create a mutable copy to handle unmodifiable maps from getters
+    // Copy the map in case the input is unmodifiable.
     final mergedAttributes =
         Map<String, SentryAttribute>.from(existingAttributes);
 
@@ -47,12 +46,20 @@ final class TelemetryEnricher {
 
     final aggregatedAttributes = <String, SentryAttribute>{};
     for (final provider in _providers) {
-      aggregatedAttributes
-          .addAllIfAbsent(await provider.attributes(telemetry, scope: scope));
+      try {
+        aggregatedAttributes
+            .addAllIfAbsent(await provider.attributes(telemetry, scope: scope));
+      } catch (exception, stackTrace) {
+        internalLogger.warning(
+          'TelemetryAttributesProvider: $provider failed to provide attributes.',
+          error: exception,
+          stackTrace: stackTrace,
+        );
+      }
     }
 
     mergedAttributes.addAllIfAbsent(aggregatedAttributes);
-    applyAttributes(mergedAttributes);
+    return mergedAttributes;
   }
 
   void addAttributesProvider(TelemetryAttributesProvider provider) {
