@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// The list of debug images contains all dynamic libraries loaded into
 /// the process and their memory addresses.
@@ -76,19 +77,19 @@ class DebugImage {
   factory DebugImage.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return DebugImage(
-      type: json['type'],
-      name: json['name'],
-      imageAddr: json['image_addr'],
-      imageVmAddr: json['image_vmaddr'],
-      debugId: json['debug_id'],
-      debugFile: json['debug_file'],
-      imageSize: json['image_size'],
-      uuid: json['uuid'],
-      codeFile: json['code_file'],
-      arch: json['arch'],
-      codeId: json['code_id'],
-      cpuType: json['cpu_type'],
-      cpuSubtype: json['cpu_subtype'],
+      type: json.getValueOrNull('type')!,
+      name: json.getValueOrNull('name'),
+      imageAddr: json.getValueOrNull('image_addr'),
+      imageVmAddr: json.getValueOrNull('image_vmaddr'),
+      debugId: json.getValueOrNull('debug_id'),
+      debugFile: json.getValueOrNull('debug_file'),
+      imageSize: json.getValueOrNull('image_size'),
+      uuid: json.getValueOrNull('uuid'),
+      codeFile: json.getValueOrNull('code_file'),
+      arch: json.getValueOrNull('arch'),
+      codeId: json.getValueOrNull('code_id'),
+      cpuType: json.getValueOrNull('cpu_type'),
+      cpuSubtype: json.getValueOrNull('cpu_subtype'),
       unknown: json.notAccessed(),
     );
   }

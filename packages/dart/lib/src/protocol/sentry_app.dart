@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// App context describes the application.
 ///
@@ -64,21 +65,19 @@ class SentryApp {
   /// Deserializes a [SentryApp] from JSON [Map].
   factory SentryApp.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
-    final viewNamesJson = json['view_names'] as List<dynamic>?;
+    final viewNamesJson = json.getValueOrNull<List<dynamic>>('view_names');
     return SentryApp(
-      name: json['app_name'],
-      version: json['app_version'],
-      identifier: json['app_identifier'],
-      build: json['app_build'],
-      buildType: json['build_type'],
-      startTime: json['app_start_time'] != null
-          ? DateTime.tryParse(json['app_start_time'])
-          : null,
-      deviceAppHash: json['device_app_hash'],
-      appMemory: json['app_memory'],
-      inForeground: json['in_foreground'],
+      name: json.getValueOrNull('app_name'),
+      version: json.getValueOrNull('app_version'),
+      identifier: json.getValueOrNull('app_identifier'),
+      build: json.getValueOrNull('app_build'),
+      buildType: json.getValueOrNull('build_type'),
+      startTime: json.getValueOrNull('app_start_time'),
+      deviceAppHash: json.getValueOrNull('device_app_hash'),
+      appMemory: json.getValueOrNull('app_memory'),
+      inForeground: json.getValueOrNull('in_foreground'),
       viewNames: viewNamesJson?.map((e) => e as String).toList(),
-      textScale: json['text_scale'],
+      textScale: json.getValueOrNull('text_scale'),
       unknown: json.notAccessed(),
     );
   }

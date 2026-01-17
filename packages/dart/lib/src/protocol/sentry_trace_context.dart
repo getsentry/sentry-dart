@@ -4,6 +4,7 @@ import '../../sentry.dart';
 import '../propagation_context.dart';
 import '../protocol.dart';
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 class SentryTraceContext {
   static const String type = 'trace';
@@ -47,23 +48,24 @@ class SentryTraceContext {
 
   factory SentryTraceContext.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
+    final op = json.getValueOrNull<String>('op');
+    final spanId = json.getValueOrNull<String>('span_id');
+    final parentSpanId = json.getValueOrNull<String>('parent_span_id');
+    final traceId = json.getValueOrNull<String>('trace_id');
+    final replayId = json.getValueOrNull<String>('replay_id');
+    final status = json.getValueOrNull<String>('status');
+    final dataValue = json.getValueOrNull<Map<String, dynamic>>('data');
     return SentryTraceContext(
-      operation: json['op'] as String,
-      spanId: SpanId.fromId(json['span_id'] as String),
-      parentSpanId: json['parent_span_id'] == null
-          ? null
-          : SpanId.fromId(json['parent_span_id'] as String),
-      traceId: SentryId.fromId(json['trace_id'] as String),
-      replayId: json['replay_id'] == null
-          ? null
-          : SentryId.fromId(json['replay_id'] as String),
-      description: json['description'] as String?,
-      status: json['status'] == null
-          ? null
-          : SpanStatus.fromString(json['status'] as String),
+      operation: op!,
+      spanId: SpanId.fromId(spanId!),
+      parentSpanId: parentSpanId == null ? null : SpanId.fromId(parentSpanId),
+      traceId: SentryId.fromId(traceId!),
+      replayId: replayId == null ? null : SentryId.fromId(replayId),
+      description: json.getValueOrNull('description'),
+      status: status == null ? null : SpanStatus.fromString(status),
       sampled: true,
-      origin: json['origin'] == null ? null : json['origin'] as String?,
-      data: json['data'] == null ? null : json['data'] as Map<String, dynamic>,
+      origin: json.getValueOrNull('origin'),
+      data: dataValue == null ? null : Map<String, dynamic>.from(dataValue),
       unknown: json.notAccessed(),
     );
   }

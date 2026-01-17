@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../utils/http_sanitizer.dart';
 import '../utils/iterable_utils.dart';
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// The Request interface contains information on a HTTP request related to the event.
 /// In client SDKs, this can be an outgoing request, or the request that rendered the current web page.
@@ -120,16 +121,19 @@ class SentryRequest {
   /// Deserializes a [SentryRequest] from JSON [Map].
   factory SentryRequest.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
+    final headersJson = json.getValueOrNull<Map<String, dynamic>>('headers');
+    final envJson = json.getValueOrNull<Map<String, dynamic>>('env');
     return SentryRequest(
-      url: json['url'],
-      method: json['method'],
-      queryString: json['query_string'],
-      cookies: json['cookies'],
-      data: json['data'],
-      headers: json.containsKey('headers') ? Map.from(json['headers']) : null,
-      env: json.containsKey('env') ? Map.from(json['env']) : null,
-      fragment: json['fragment'],
-      apiTarget: json['api_target'],
+      url: json.getValueOrNull('url'),
+      method: json.getValueOrNull('method'),
+      queryString: json.getValueOrNull('query_string'),
+      cookies: json.getValueOrNull('cookies'),
+      data: json.getValueOrNull('data'),
+      headers:
+          headersJson == null ? null : Map<String, String>.from(headersJson),
+      env: envJson == null ? null : Map<String, String>.from(envJson),
+      fragment: json.getValueOrNull('fragment'),
+      apiTarget: json.getValueOrNull('api_target'),
       unknown: json.notAccessed(),
     );
   }

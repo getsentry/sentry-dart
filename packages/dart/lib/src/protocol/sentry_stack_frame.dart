@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// Frames belong to a StackTrace
 /// It should contain at least a filename, function or instruction_addr
@@ -132,28 +133,36 @@ class SentryStackFrame {
   /// Deserializes a [SentryStackFrame] from JSON [Map].
   factory SentryStackFrame.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
+    final framesOmittedJson =
+        json.getValueOrNull<List<dynamic>>('frames_omitted');
+    final preContextJson = json.getValueOrNull<List<dynamic>>('pre_context');
+    final postContextJson = json.getValueOrNull<List<dynamic>>('post_context');
+    final varsJson = json.getValueOrNull<Map<String, dynamic>>('vars');
     return SentryStackFrame(
-      absPath: json['abs_path'],
-      fileName: json['filename'],
-      function: json['function'],
-      module: json['module'],
-      lineNo: json['lineno'],
-      colNo: json['colno'],
-      contextLine: json['context_line'],
-      inApp: json['in_app'],
-      package: json['package'],
-      native: json['native'],
-      platform: json['platform'],
-      imageAddr: json['image_addr'],
-      symbolAddr: json['symbol_addr'],
-      instructionAddr: json['instruction_addr'],
-      rawFunction: json['raw_function'],
-      framesOmitted: json['frames_omitted'],
-      preContext: json['pre_context'],
-      postContext: json['post_context'],
-      vars: json['vars'],
-      symbol: json['symbol'],
-      stackStart: json['stack_start'],
+      absPath: json.getValueOrNull('abs_path'),
+      fileName: json.getValueOrNull('filename'),
+      function: json.getValueOrNull('function'),
+      module: json.getValueOrNull('module'),
+      lineNo: json.getValueOrNull('lineno'),
+      colNo: json.getValueOrNull('colno'),
+      contextLine: json.getValueOrNull('context_line'),
+      inApp: json.getValueOrNull('in_app'),
+      package: json.getValueOrNull('package'),
+      native: json.getValueOrNull('native'),
+      platform: json.getValueOrNull('platform'),
+      imageAddr: json.getValueOrNull('image_addr'),
+      symbolAddr: json.getValueOrNull('symbol_addr'),
+      instructionAddr: json.getValueOrNull('instruction_addr'),
+      rawFunction: json.getValueOrNull('raw_function'),
+      framesOmitted:
+          framesOmittedJson == null ? null : List<int>.from(framesOmittedJson),
+      preContext:
+          preContextJson == null ? null : List<String>.from(preContextJson),
+      postContext:
+          postContextJson == null ? null : List<String>.from(postContextJson),
+      vars: varsJson == null ? null : Map<String, dynamic>.from(varsJson),
+      symbol: json.getValueOrNull('symbol'),
+      stackStart: json.getValueOrNull('stack_start'),
       unknown: json.notAccessed(),
     );
   }

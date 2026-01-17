@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 
 import '../protocol.dart';
 import 'sentry_feedback.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// The context interfaces provide additional context data.
 ///
@@ -39,40 +40,59 @@ class Contexts extends MapView<String, dynamic> {
 
   /// Deserializes [Contexts] from JSON [Map].
   factory Contexts.fromJson(Map<String, dynamic> data) {
+    final deviceJson =
+        data.getValueOrNull<Map<String, dynamic>>(SentryDevice.type);
+    final osJson =
+        data.getValueOrNull<Map<String, dynamic>>(SentryOperatingSystem.type);
+    final appJson = data.getValueOrNull<Map<String, dynamic>>(SentryApp.type);
+    final browserJson =
+        data.getValueOrNull<Map<String, dynamic>>(SentryBrowser.type);
+    final cultureJson =
+        data.getValueOrNull<Map<String, dynamic>>(SentryCulture.type);
+    final gpuJson = data.getValueOrNull<Map<String, dynamic>>(SentryGpu.type);
+    final traceJson =
+        data.getValueOrNull<Map<String, dynamic>>(SentryTraceContext.type);
+    final runtimeJson =
+        data.getValueOrNull<Map<String, dynamic>>(SentryRuntime.type);
+    final responseJson =
+        data.getValueOrNull<Map<String, dynamic>>(SentryResponse.type);
+    final feedbackJson =
+        data.getValueOrNull<Map<String, dynamic>>(SentryFeedback.type);
+    final flagsJson =
+        data.getValueOrNull<Map<String, dynamic>>(SentryFeatureFlags.type);
     final contexts = Contexts(
-      device: data[SentryDevice.type] != null
-          ? SentryDevice.fromJson(Map.from(data[SentryDevice.type]))
+      device: deviceJson != null
+          ? SentryDevice.fromJson(Map<String, dynamic>.from(deviceJson))
           : null,
-      operatingSystem: data[SentryOperatingSystem.type] != null
-          ? SentryOperatingSystem.fromJson(
-              Map.from(data[SentryOperatingSystem.type]))
+      operatingSystem: osJson != null
+          ? SentryOperatingSystem.fromJson(Map<String, dynamic>.from(osJson))
           : null,
-      app: data[SentryApp.type] != null
-          ? SentryApp.fromJson(Map.from(data[SentryApp.type]))
+      app: appJson != null
+          ? SentryApp.fromJson(Map<String, dynamic>.from(appJson))
           : null,
-      browser: data[SentryBrowser.type] != null
-          ? SentryBrowser.fromJson(Map.from(data[SentryBrowser.type]))
+      browser: browserJson != null
+          ? SentryBrowser.fromJson(Map<String, dynamic>.from(browserJson))
           : null,
-      culture: data[SentryCulture.type] != null
-          ? SentryCulture.fromJson(Map.from(data[SentryCulture.type]))
+      culture: cultureJson != null
+          ? SentryCulture.fromJson(Map<String, dynamic>.from(cultureJson))
           : null,
-      gpu: data[SentryGpu.type] != null
-          ? SentryGpu.fromJson(Map.from(data[SentryGpu.type]))
+      gpu: gpuJson != null
+          ? SentryGpu.fromJson(Map<String, dynamic>.from(gpuJson))
           : null,
-      trace: data[SentryTraceContext.type] != null
-          ? SentryTraceContext.fromJson(Map.from(data[SentryTraceContext.type]))
+      trace: traceJson != null
+          ? SentryTraceContext.fromJson(Map<String, dynamic>.from(traceJson))
           : null,
-      runtimes: data[SentryRuntime.type] != null
-          ? [SentryRuntime.fromJson(Map.from(data[SentryRuntime.type]))]
+      runtimes: runtimeJson != null
+          ? [SentryRuntime.fromJson(Map<String, dynamic>.from(runtimeJson))]
           : null,
-      response: data[SentryResponse.type] != null
-          ? SentryResponse.fromJson(Map.from(data[SentryResponse.type]))
+      response: responseJson != null
+          ? SentryResponse.fromJson(Map<String, dynamic>.from(responseJson))
           : null,
-      feedback: data[SentryFeedback.type] != null
-          ? SentryFeedback.fromJson(Map.from(data[SentryFeedback.type]))
+      feedback: feedbackJson != null
+          ? SentryFeedback.fromJson(Map<String, dynamic>.from(feedbackJson))
           : null,
-      flags: data[SentryFeatureFlags.type] != null
-          ? SentryFeatureFlags.fromJson(Map.from(data[SentryFeatureFlags.type]))
+      flags: flagsJson != null
+          ? SentryFeatureFlags.fromJson(Map<String, dynamic>.from(flagsJson))
           : null,
     );
 

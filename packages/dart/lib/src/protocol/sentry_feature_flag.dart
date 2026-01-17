@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 class SentryFeatureFlag {
   final String flag;
@@ -19,8 +20,8 @@ class SentryFeatureFlag {
     final json = AccessAwareMap(data);
 
     return SentryFeatureFlag(
-      flag: json['flag'],
-      result: json['result'],
+      flag: json.getValueOrNull('flag')!,
+      result: json.getValueOrNull('result')!,
       unknown: json.notAccessed(),
     );
   }

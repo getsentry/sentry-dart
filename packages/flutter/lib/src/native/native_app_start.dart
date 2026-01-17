@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/type_safe_map_access.dart';
 
 @internal
 class NativeAppStart {
@@ -15,25 +17,18 @@ class NativeAppStart {
   Map<dynamic, dynamic> nativeSpanTimes;
 
   static NativeAppStart? fromJson(Map<String, dynamic> json) {
-    final appStartTimeValue = json['appStartTime'];
-    final pluginRegistrationTime = json['pluginRegistrationTime'];
-    final isColdStart = json['isColdStart'];
-    final nativeSpanTimes = json['nativeSpanTimes'];
-
     // Convert appStartTime to int (iOS returns double, Android returns int)
-    final int? appStartTime;
-    if (appStartTimeValue is int) {
-      appStartTime = appStartTimeValue;
-    } else if (appStartTimeValue is double) {
-      appStartTime = appStartTimeValue.toInt();
-    } else {
-      appStartTime = null;
-    }
+    final appStartTime = json.getValueOrNull<int>('appStartTime');
+    final pluginRegistrationTime =
+        json.getValueOrNull<int>('pluginRegistrationTime');
+    final isColdStart = json.getValueOrNull<bool>('isColdStart');
+    final nativeSpanTimes =
+        json.getValueOrNull<Map<dynamic, dynamic>>('nativeSpanTimes');
 
     if (appStartTime == null ||
-        pluginRegistrationTime is! int ||
-        isColdStart is! bool ||
-        nativeSpanTimes is! Map) {
+        pluginRegistrationTime == null ||
+        isColdStart == null ||
+        nativeSpanTimes == null) {
       // ignore: invalid_use_of_internal_member
       Sentry.currentHub.options.log(
         SentryLevel.warning,

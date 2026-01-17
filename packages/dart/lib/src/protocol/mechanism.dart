@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// Sentry Exception Mechanism
 /// The exception mechanism is an optional field residing
@@ -132,28 +133,28 @@ class Mechanism {
   /// Deserializes a [Mechanism] from JSON [Map].
   factory Mechanism.fromJson(Map<String, dynamic> jsonData) {
     final json = AccessAwareMap(jsonData);
-    var data = json['data'];
+    var data = json.getValueOrNull<Map<String, dynamic>>('data');
     if (data != null) {
-      data = Map<String, dynamic>.from(data as Map);
+      data = Map<String, dynamic>.from(data);
     }
 
-    var meta = json['meta'];
+    var meta = json.getValueOrNull<Map<String, dynamic>>('meta');
     if (meta != null) {
-      meta = Map<String, dynamic>.from(meta as Map);
+      meta = Map<String, dynamic>.from(meta);
     }
 
     return Mechanism(
-      type: json['type'],
-      description: json['description'],
-      helpLink: json['help_link'],
-      handled: json['handled'],
+      type: json.getValueOrNull('type')!,
+      description: json.getValueOrNull('description'),
+      helpLink: json.getValueOrNull('help_link'),
+      handled: json.getValueOrNull('handled'),
       meta: meta,
       data: data,
-      synthetic: json['synthetic'],
-      isExceptionGroup: json['is_exception_group'],
-      source: json['source'],
-      exceptionId: json['exception_id'],
-      parentId: json['parent_id'],
+      synthetic: json.getValueOrNull('synthetic'),
+      isExceptionGroup: json.getValueOrNull('is_exception_group'),
+      source: json.getValueOrNull('source'),
+      exceptionId: json.getValueOrNull('exception_id'),
+      parentId: json.getValueOrNull('parent_id'),
       unknown: json.notAccessed(),
     );
   }

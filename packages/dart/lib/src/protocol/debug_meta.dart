@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../protocol.dart';
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// The debug meta interface carries debug information for processing errors and crash reports.
 class DebugMeta {
@@ -30,13 +31,15 @@ class DebugMeta {
   /// Deserializes a [DebugMeta] from JSON [Map].
   factory DebugMeta.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
-    final sdkInfoJson = json['sdk_info'];
-    final debugImagesJson = json['images'] as List<dynamic>?;
+    final sdkInfoJson = json.getValueOrNull<Map<String, dynamic>>('sdk_info');
+    final debugImagesJson = json.getValueOrNull<List<dynamic>>('images');
     return DebugMeta(
-      sdk: sdkInfoJson != null ? SdkInfo.fromJson(sdkInfoJson) : null,
+      sdk: sdkInfoJson != null
+          ? SdkInfo.fromJson(Map<String, dynamic>.from(sdkInfoJson))
+          : null,
       images: debugImagesJson
-          ?.map((debugImageJson) =>
-              DebugImage.fromJson(debugImageJson as Map<String, dynamic>))
+          ?.map((debugImageJson) => DebugImage.fromJson(
+              Map<String, dynamic>.from(debugImageJson as Map)))
           .toList(),
       unknown: json.notAccessed(),
     );

@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// Culture Context describes certain properties of the culture in which the
 /// software is used.
@@ -19,11 +20,11 @@ class SentryCulture {
   factory SentryCulture.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryCulture(
-      calendar: json['calendar'],
-      displayName: json['display_name'],
-      locale: json['locale'],
-      is24HourFormat: json['is_24_hour_format'],
-      timezone: json['timezone'],
+      calendar: json.getValueOrNull('calendar'),
+      displayName: json.getValueOrNull('display_name'),
+      locale: json.getValueOrNull('locale'),
+      is24HourFormat: json.getValueOrNull('is_24_hour_format'),
+      timezone: json.getValueOrNull('timezone'),
       unknown: json.notAccessed(),
     );
   }

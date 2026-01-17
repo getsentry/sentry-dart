@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
 import 'package:ffi/ffi.dart' as pkg_ffi;
+// ignore: implementation_imports
+import 'package:sentry/src/utils/type_safe_map_access.dart';
 
 @internal
 @immutable
@@ -33,8 +35,10 @@ class NativeMemory {
   }
 
   factory NativeMemory.fromJson(Map<dynamic, dynamic> json) {
-    final length = json['length'] as int;
-    final ptr = Pointer<Uint8>.fromAddress(json['address'] as int);
+    final data = Map<String, dynamic>.from(json);
+    final length = data.getValueOrNull<int>('length')!;
+    final address = data.getValueOrNull<int>('address')!;
+    final ptr = Pointer<Uint8>.fromAddress(address);
     return NativeMemory._(ptr, length);
   }
 

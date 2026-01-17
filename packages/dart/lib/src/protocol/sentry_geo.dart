@@ -1,12 +1,14 @@
+import '../utils/type_safe_map_access.dart';
+
 /// Geographical location of the end user or device.
 class SentryGeo {
   SentryGeo({this.city, this.countryCode, this.region});
 
   factory SentryGeo.fromJson(Map<String, dynamic> json) {
     return SentryGeo(
-      city: json['city'],
-      countryCode: json['country_code'],
-      region: json['region'],
+      city: json.getValueOrNull('city'),
+      countryCode: json.getValueOrNull('country_code'),
+      region: json.getValueOrNull('region'),
     );
   }
 

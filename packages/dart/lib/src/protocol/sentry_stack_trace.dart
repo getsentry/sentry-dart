@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'sentry_stack_frame.dart';
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// Stacktrace holds information about the frames of the stack.
 class SentryStackTrace {
@@ -59,16 +60,20 @@ class SentryStackTrace {
   /// Deserializes a [SentryStackTrace] from JSON [Map].
   factory SentryStackTrace.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
-    final framesJson = json['frames'] as List<dynamic>?;
+    final framesJson = json.getValueOrNull<List<dynamic>>('frames');
+    final registersJson = json.getValueOrNull<Map<String, dynamic>>('registers');
     return SentryStackTrace(
       frames: framesJson != null
           ? framesJson
-              .map((frameJson) => SentryStackFrame.fromJson(frameJson))
+              .map((frameJson) => SentryStackFrame.fromJson(
+                  Map<String, dynamic>.from(frameJson as Map)))
               .toList()
           : [],
-      registers: json['registers'],
-      lang: json['lang'],
-      snapshot: json['snapshot'],
+      registers: registersJson == null
+          ? null
+          : Map<String, String>.from(registersJson),
+      lang: json.getValueOrNull('lang'),
+      snapshot: json.getValueOrNull('snapshot'),
       unknown: json.notAccessed(),
     );
   }

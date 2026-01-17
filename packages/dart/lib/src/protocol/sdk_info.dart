@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// An object describing the system SDK.
 class SdkInfo {
@@ -24,10 +25,10 @@ class SdkInfo {
   factory SdkInfo.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SdkInfo(
-      sdkName: json['sdk_name'],
-      versionMajor: json['version_major'],
-      versionMinor: json['version_minor'],
-      versionPatchlevel: json['version_patchlevel'],
+      sdkName: json.getValueOrNull('sdk_name'),
+      versionMajor: json.getValueOrNull('version_major'),
+      versionMinor: json.getValueOrNull('version_minor'),
+      versionPatchlevel: json.getValueOrNull('version_patchlevel'),
       unknown: json.notAccessed(),
     );
   }

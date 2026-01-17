@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'sentry_package.dart';
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// Describes the SDK that is submitting events to Sentry.
 ///
@@ -68,14 +69,15 @@ class SdkVersion {
   /// Deserializes a [SdkVersion] from JSON [Map].
   factory SdkVersion.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
-    final packagesJson = json['packages'] as List<dynamic>?;
-    final integrationsJson = json['integrations'] as List<dynamic>?;
+    final packagesJson = json.getValueOrNull<List<dynamic>>('packages');
+    final integrationsJson = json.getValueOrNull<List<dynamic>>('integrations');
 
     return SdkVersion(
-      name: json['name'],
-      version: json['version'],
+      name: json.getValueOrNull('name')!,
+      version: json.getValueOrNull('version')!,
       packages: packagesJson
-          ?.map((e) => SentryPackage.fromJson(e as Map<String, dynamic>))
+          ?.map((e) =>
+              SentryPackage.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
       integrations: integrationsJson?.map((e) => e as String).toList(),
       unknown: json.notAccessed(),

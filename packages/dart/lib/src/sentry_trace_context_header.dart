@@ -4,6 +4,7 @@ import 'protocol/access_aware_map.dart';
 import 'protocol/sentry_id.dart';
 import 'sentry_baggage.dart';
 import 'sentry_options.dart';
+import 'utils/type_safe_map_access.dart';
 
 class SentryTraceContextHeader {
   SentryTraceContextHeader(
@@ -39,17 +40,19 @@ class SentryTraceContextHeader {
   /// Deserializes a [SentryTraceContextHeader] from JSON [Map].
   factory SentryTraceContextHeader.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
+    final traceId = json.getValueOrNull<String>('trace_id');
+    final publicKey = json.getValueOrNull<String>('public_key');
+    final replayId = json.getValueOrNull<String>('replay_id');
     return SentryTraceContextHeader(
-      SentryId.fromId(json['trace_id']),
-      json['public_key'],
-      release: json['release'],
-      environment: json['environment'],
-      userId: json['user_id'],
-      transaction: json['transaction'],
-      sampleRate: json['sample_rate'],
-      sampled: json['sampled'],
-      replayId:
-          json['replay_id'] == null ? null : SentryId.fromId(json['replay_id']),
+      SentryId.fromId(traceId!),
+      publicKey!,
+      release: json.getValueOrNull('release'),
+      environment: json.getValueOrNull('environment'),
+      userId: json.getValueOrNull('user_id'),
+      transaction: json.getValueOrNull('transaction'),
+      sampleRate: json.getValueOrNull('sample_rate'),
+      sampled: json.getValueOrNull('sampled'),
+      replayId: replayId == null ? null : SentryId.fromId(replayId),
       unknown: json.notAccessed(),
     );
   }

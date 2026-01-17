@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// Carries information about the browser or user agent for web-related errors.
 ///
@@ -25,8 +26,8 @@ class SentryBrowser {
   factory SentryBrowser.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryBrowser(
-      name: json['name'],
-      version: json['version'],
+      name: json.getValueOrNull('name'),
+      version: json.getValueOrNull('version'),
       unknown: json.notAccessed(),
     );
   }

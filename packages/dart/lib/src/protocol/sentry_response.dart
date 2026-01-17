@@ -1,5 +1,6 @@
 import 'contexts.dart';
 import '../utils/iterable_utils.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// The response interface contains information on a HTTP request related to the event.
 class SentryResponse {
@@ -59,12 +60,14 @@ class SentryResponse {
 
   /// Deserializes a [SentryResponse] from JSON [Map].
   factory SentryResponse.fromJson(Map<String, dynamic> json) {
+    final headersJson = json.getValueOrNull<Map<String, dynamic>>('headers');
     return SentryResponse(
-      headers: json.containsKey('headers') ? Map.from(json['headers']) : null,
-      cookies: json['cookies'],
-      bodySize: json['body_size'],
-      statusCode: json['status_code'],
-      data: json['data'],
+      headers:
+          headersJson == null ? null : Map<String, String>.from(headersJson),
+      cookies: json.getValueOrNull('cookies'),
+      bodySize: json.getValueOrNull('body_size'),
+      statusCode: json.getValueOrNull('status_code'),
+      data: json.getValueOrNull('data'),
     );
   }
 

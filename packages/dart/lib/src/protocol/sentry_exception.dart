@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../protocol.dart';
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// The Exception Interface specifies an exception or error that occurred in a program.
 class SentryException {
@@ -45,18 +46,23 @@ class SentryException {
   factory SentryException.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
 
-    final stackTraceJson = json['stacktrace'];
-    final mechanismJson = json['mechanism'];
+    final stackTraceJson =
+        json.getValueOrNull<Map<String, dynamic>>('stacktrace');
+    final mechanismJson =
+        json.getValueOrNull<Map<String, dynamic>>('mechanism');
     return SentryException(
-      type: json['type'],
-      value: json['value'],
-      module: json['module'],
+      type: json.getValueOrNull('type')!,
+      value: json.getValueOrNull('value')!,
+      module: json.getValueOrNull('module'),
       stackTrace: stackTraceJson != null
-          ? SentryStackTrace.fromJson(stackTraceJson)
+          ? SentryStackTrace.fromJson(
+              Map<String, dynamic>.from(stackTraceJson),
+            )
           : null,
-      mechanism:
-          mechanismJson != null ? Mechanism.fromJson(mechanismJson) : null,
-      threadId: json['thread_id'],
+      mechanism: mechanismJson != null
+          ? Mechanism.fromJson(Map<String, dynamic>.from(mechanismJson))
+          : null,
+      threadId: json.getValueOrNull('thread_id'),
       unknown: json.notAccessed(),
     );
   }

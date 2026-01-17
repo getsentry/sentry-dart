@@ -5,6 +5,7 @@ import '../protocol.dart';
 import '../throwable_mechanism.dart';
 import '../utils.dart';
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// An event to be reported to Sentry.io.
 class SentryEvent with SentryEventLike<SentryEvent> {
@@ -263,43 +264,53 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   factory SentryEvent.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
 
-    final breadcrumbsJson = json['breadcrumbs'] as List<dynamic>?;
+    final breadcrumbsJson = json.getValueOrNull<List<dynamic>>('breadcrumbs');
     final breadcrumbs = breadcrumbsJson
-        ?.map((e) => Breadcrumb.fromJson(e))
+        ?.map((e) => Breadcrumb.fromJson(
+            Map<String, dynamic>.from(e as Map<dynamic, dynamic>)))
         .toList(growable: false);
 
-    final threadValues = json['threads']?['values'] as List<dynamic>?;
+    final threadsJson = json.getValueOrNull<Map<String, dynamic>>('threads');
+    final threadValues = threadsJson?.getValueOrNull<List<dynamic>>('values');
     final threads = threadValues
-        ?.map((e) => SentryThread.fromJson(e))
+        ?.map((e) => SentryThread.fromJson(
+            Map<String, dynamic>.from(e as Map<dynamic, dynamic>)))
         .toList(growable: false);
 
-    final exceptionValues = json['exception']?['values'] as List<dynamic>?;
+    final exceptionsJson =
+        json.getValueOrNull<Map<String, dynamic>>('exception');
+    final exceptionValues =
+        exceptionsJson?.getValueOrNull<List<dynamic>>('values');
     final exceptions = exceptionValues
-        ?.map((e) => SentryException.fromJson(e))
+        ?.map((e) => SentryException.fromJson(
+            Map<String, dynamic>.from(e as Map<dynamic, dynamic>)))
         .toList(growable: false);
 
-    final modules = json['modules']?.cast<String, String>();
-    final tags = json['tags']?.cast<String, String>();
+    final modulesJson = json.getValueOrNull<Map<String, dynamic>>('modules');
+    final tagsJson = json.getValueOrNull<Map<String, dynamic>>('tags');
+    final modules =
+        modulesJson == null ? null : Map<String, String>.from(modulesJson);
+    final tags = tagsJson == null ? null : Map<String, String>.from(tagsJson);
 
-    final timestampJson = json['timestamp'];
-    final levelJson = json['level'];
-    final fingerprintJson = json['fingerprint'] as List<dynamic>?;
-    final sdkVersionJson = json['sdk'] as Map<String, dynamic>?;
-    final messageJson = json['message'] as Map<String, dynamic>?;
-    final userJson = json['user'] as Map<String, dynamic>?;
-    final contextsJson = json['contexts'] as Map<String, dynamic>?;
-    final requestJson = json['request'] as Map<String, dynamic>?;
-    final debugMetaJson = json['debug_meta'] as Map<String, dynamic>?;
+    final timestamp = json.getValueOrNull<DateTime>('timestamp');
+    final levelJson = json.getValueOrNull<String>('level');
+    final fingerprintJson = json.getValueOrNull<List<dynamic>>('fingerprint');
+    final sdkVersionJson = json.getValueOrNull<Map<String, dynamic>>('sdk');
+    final messageJson = json.getValueOrNull<Map<String, dynamic>>('message');
+    final userJson = json.getValueOrNull<Map<String, dynamic>>('user');
+    final contextsJson = json.getValueOrNull<Map<String, dynamic>>('contexts');
+    final requestJson = json.getValueOrNull<Map<String, dynamic>>('request');
+    final debugMetaJson =
+        json.getValueOrNull<Map<String, dynamic>>('debug_meta');
 
-    var extra = json['extra'];
+    var extra = json.getValueOrNull<Map<String, dynamic>>('extra');
     if (extra != null) {
-      extra = Map<String, dynamic>.from(extra as Map);
+      extra = Map<String, dynamic>.from(extra);
     }
 
     return SentryEvent(
-      eventId: SentryId.fromId(json['event_id']),
-      timestamp:
-          timestampJson != null ? DateTime.tryParse(timestampJson) : null,
+      eventId: SentryId.fromId(json.getValueOrNull('event_id')!),
+      timestamp: timestamp,
       modules: modules,
       tags: tags,
       // ignore: deprecated_member_use_from_same_package
@@ -308,35 +319,35 @@ class SentryEvent with SentryEventLike<SentryEvent> {
           fingerprintJson?.map((e) => e as String).toList(growable: false),
       breadcrumbs: breadcrumbs,
       sdk: sdkVersionJson != null && sdkVersionJson.isNotEmpty
-          ? SdkVersion.fromJson(sdkVersionJson)
+          ? SdkVersion.fromJson(Map<String, dynamic>.from(sdkVersionJson))
           : null,
-      platform: json['platform'],
-      logger: json['logger'],
-      serverName: json['server_name'],
-      release: json['release'],
-      dist: json['dist'],
-      environment: json['environment'],
+      platform: json.getValueOrNull('platform'),
+      logger: json.getValueOrNull('logger'),
+      serverName: json.getValueOrNull('server_name'),
+      release: json.getValueOrNull('release'),
+      dist: json.getValueOrNull('dist'),
+      environment: json.getValueOrNull('environment'),
       message: messageJson != null && messageJson.isNotEmpty
-          ? SentryMessage.fromJson(messageJson)
+          ? SentryMessage.fromJson(Map<String, dynamic>.from(messageJson))
           : null,
-      transaction: json['transaction'],
+      transaction: json.getValueOrNull('transaction'),
       threads: threads,
       level: levelJson != null ? SentryLevel.fromName(levelJson) : null,
-      culprit: json['culprit'],
+      culprit: json.getValueOrNull('culprit'),
       user: userJson != null && userJson.isNotEmpty
-          ? SentryUser.fromJson(userJson)
+          ? SentryUser.fromJson(Map<String, dynamic>.from(userJson))
           : null,
       contexts: contextsJson != null && contextsJson.isNotEmpty
-          ? Contexts.fromJson(contextsJson)
+          ? Contexts.fromJson(Map<String, dynamic>.from(contextsJson))
           : null,
       request: requestJson != null && requestJson.isNotEmpty
-          ? SentryRequest.fromJson(requestJson)
+          ? SentryRequest.fromJson(Map<String, dynamic>.from(requestJson))
           : null,
       debugMeta: debugMetaJson != null && debugMetaJson.isNotEmpty
-          ? DebugMeta.fromJson(debugMetaJson)
+          ? DebugMeta.fromJson(Map<String, dynamic>.from(debugMetaJson))
           : null,
       exceptions: exceptions,
-      type: json['type'],
+      type: json.getValueOrNull('type'),
       unknown: json.notAccessed(),
     );
   }

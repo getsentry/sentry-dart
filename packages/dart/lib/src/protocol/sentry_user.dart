@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// Describes the current user associated with the application, such as the
 /// currently signed in user.
@@ -90,29 +91,29 @@ class SentryUser {
   factory SentryUser.fromJson(Map<String, dynamic> jsonData) {
     final json = AccessAwareMap(jsonData);
 
-    var extras = json['extras'];
+    var extras = json.getValueOrNull<Map<String, dynamic>>('extras');
     if (extras != null) {
       extras = Map<String, dynamic>.from(extras);
     }
 
-    var data = json['data'];
+    var data = json.getValueOrNull<Map<String, dynamic>>('data');
     if (data != null) {
       data = Map<String, dynamic>.from(data);
     }
 
     SentryGeo? geo;
-    final geoJson = json['geo'];
+    final geoJson = json.getValueOrNull<Map<String, dynamic>>('geo');
     if (geoJson != null) {
       geo = SentryGeo.fromJson(Map<String, dynamic>.from(geoJson));
     }
     return SentryUser(
-      id: json['id'],
-      username: json['username'],
-      email: json['email'],
-      ipAddress: json['ip_address'],
+      id: json.getValueOrNull('id'),
+      username: json.getValueOrNull('username'),
+      email: json.getValueOrNull('email'),
+      ipAddress: json.getValueOrNull('ip_address'),
       data: data,
       geo: geo,
-      name: json['name'],
+      name: json.getValueOrNull('name'),
       // ignore: deprecated_member_use_from_same_package
       extras: extras,
       unknown: json.notAccessed(),

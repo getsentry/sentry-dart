@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'sentry_stack_trace.dart';
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// The Threads Interface specifies threads that were running at the time an
 /// event happened. These threads can also contain stack traces.
@@ -18,13 +19,18 @@ class SentryThread {
 
   factory SentryThread.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
+    final stacktraceJson =
+        json.getValueOrNull<Map<String, dynamic>>('stacktrace');
     return SentryThread(
-      id: json['id'] as int?,
-      name: json['name'] as String?,
-      crashed: json['crashed'] as bool?,
-      current: json['current'] as bool?,
-      stacktrace:
-          json['stacktrace'] == null ? null : SentryStackTrace.fromJson(json),
+      id: json.getValueOrNull('id'),
+      name: json.getValueOrNull('name'),
+      crashed: json.getValueOrNull('crashed'),
+      current: json.getValueOrNull('current'),
+      stacktrace: stacktraceJson == null
+          ? null
+          : SentryStackTrace.fromJson(
+              Map<String, dynamic>.from(stacktraceJson),
+            ),
       unknown: json.notAccessed(),
     );
   }

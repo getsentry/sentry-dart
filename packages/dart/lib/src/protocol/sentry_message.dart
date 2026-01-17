@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// The Message Interface carries a log message that describes an event or error.
 /// Optionally, it can carry a format string and structured parameters. This can help to group similar messages into the same issue.
@@ -38,9 +39,9 @@ class SentryMessage {
   factory SentryMessage.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryMessage(
-      json['formatted'],
-      template: json['message'],
-      params: json['params'],
+      json.getValueOrNull('formatted')!,
+      template: json.getValueOrNull('message'),
+      params: json.getValueOrNull('params'),
       unknown: json.notAccessed(),
     );
   }

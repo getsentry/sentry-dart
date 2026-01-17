@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
 import 'sentry_id.dart';
+import '../utils/type_safe_map_access.dart';
 
 class SentryFeedback {
   static const type = 'feedback';
@@ -30,14 +31,15 @@ class SentryFeedback {
   factory SentryFeedback.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
 
-    String? associatedEventId = json['associated_event_id'];
+    final associatedEventId =
+        json.getValueOrNull<String>('associated_event_id');
 
     return SentryFeedback(
-      message: json['message'],
-      contactEmail: json['contact_email'],
-      name: json['name'],
-      replayId: json['replay_id'],
-      url: json['url'],
+      message: json.getValueOrNull('message')!,
+      contactEmail: json.getValueOrNull('contact_email'),
+      name: json.getValueOrNull('name'),
+      replayId: json.getValueOrNull('replay_id'),
+      url: json.getValueOrNull('url'),
       associatedEventId:
           associatedEventId != null ? SentryId.fromId(associatedEventId) : null,
       unknown: json.notAccessed(),

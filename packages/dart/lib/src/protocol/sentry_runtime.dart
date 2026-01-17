@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// Describes a runtime in more detail.
 ///
@@ -53,11 +54,11 @@ class SentryRuntime {
   factory SentryRuntime.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryRuntime(
-      name: json['name'],
-      version: json['version'],
-      compiler: json['compiler'],
-      rawDescription: json['raw_description'],
-      build: json['build'],
+      name: json.getValueOrNull('name'),
+      version: json.getValueOrNull('version'),
+      compiler: json.getValueOrNull('compiler'),
+      rawDescription: json.getValueOrNull('raw_description'),
+      build: json.getValueOrNull('build'),
       unknown: json.notAccessed(),
     );
   }

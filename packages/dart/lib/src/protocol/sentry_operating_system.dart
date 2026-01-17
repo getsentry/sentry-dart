@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// Describes the operating system on which the event was created.
 ///
@@ -54,13 +55,13 @@ class SentryOperatingSystem {
   factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryOperatingSystem(
-      name: json['name'],
-      version: json['version'],
-      build: json['build'],
-      kernelVersion: json['kernel_version'],
-      rooted: json['rooted'],
-      rawDescription: json['raw_description'],
-      theme: json['theme'],
+      name: json.getValueOrNull('name'),
+      version: json.getValueOrNull('version'),
+      build: json.getValueOrNull('build'),
+      kernelVersion: json.getValueOrNull('kernel_version'),
+      rooted: json.getValueOrNull('rooted'),
+      rawDescription: json.getValueOrNull('raw_description'),
+      theme: json.getValueOrNull('theme'),
       unknown: json.notAccessed(),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 import 'sentry_feature_flag.dart';
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 class SentryFeatureFlags {
   static const type = 'flags';
@@ -18,7 +19,7 @@ class SentryFeatureFlags {
   factory SentryFeatureFlags.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
 
-    final valuesValues = json['values'] as List<dynamic>?;
+    final valuesValues = json.getValueOrNull<List<dynamic>>('values');
     final values = valuesValues
         ?.map((e) => SentryFeatureFlag.fromJson(Map<String, dynamic>.from(e)))
         .toList(growable: false);

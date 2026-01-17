@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../utils.dart';
 import '../protocol.dart';
 import 'access_aware_map.dart';
+import '../utils/type_safe_map_access.dart';
 
 /// Structured data to describe more information prior to the event captured.
 /// See `Sentry.captureEvent()`.
@@ -169,20 +170,20 @@ class Breadcrumb {
   factory Breadcrumb.fromJson(Map<String, dynamic> jsonData) {
     final json = AccessAwareMap(jsonData);
 
-    final levelName = json['level'];
-    final timestamp = json['timestamp'];
+    final levelName = json.getValueOrNull<String>('level');
+    final timestamp = json.getValueOrNull<DateTime>('timestamp');
 
-    var data = json['data'];
+    var data = json.getValueOrNull<Map<String, dynamic>>('data');
     if (data != null) {
-      data = Map<String, dynamic>.from(data as Map);
+      data = Map<String, dynamic>.from(data);
     }
     return Breadcrumb(
-      timestamp: timestamp != null ? DateTime.tryParse(timestamp) : null,
-      message: json['message'],
-      category: json['category'],
+      timestamp: timestamp,
+      message: json.getValueOrNull('message'),
+      category: json.getValueOrNull('category'),
       data: data,
       level: levelName != null ? SentryLevel.fromName(levelName) : null,
-      type: json['type'],
+      type: json.getValueOrNull('type'),
       unknown: json.notAccessed(),
     );
   }

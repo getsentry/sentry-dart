@@ -186,7 +186,7 @@ class SentryDevice {
       modelId: json.getValueOrNull('model_id'),
       arch: json.getValueOrNull('arch'),
       batteryLevel: json.getValueOrNull('battery_level'),
-      orientation: switch (json.getValueOrNull('orientation')) {
+      orientation: switch (json.getValueOrNull<String>('orientation')) {
         'portrait' => SentryOrientation.portrait,
         'landscape' => SentryOrientation.landscape,
         _ => null,
