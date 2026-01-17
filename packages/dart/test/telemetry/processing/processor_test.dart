@@ -31,7 +31,6 @@ void main() {
 
       test('does not throw when no log buffer registered', () {
         final processor = fixture.getSut();
-        processor.logBuffer = null;
 
         final log = fixture.createLog();
         processor.addLog(log);
@@ -53,10 +52,9 @@ void main() {
 
       test('does not throw when no metric buffer registered', () {
         final processor = fixture.getSut();
-        processor.logBuffer = null;
 
-        final log = fixture.createLog();
-        processor.addLog(log);
+        final metric = fixture.createMetric();
+        processor.addMetric(metric);
       });
     });
 

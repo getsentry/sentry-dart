@@ -2,24 +2,9 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 
-/// The type of metric being recorded
-enum SentryMetricType {
-  /// A metric that increments counts
-  counter('counter'),
-
-  /// A metric that tracks a value that can go up or down
-  gauge('gauge'),
-
-  /// A metric that tracks statistical distribution of values
-  distribution('distribution');
-
-  final String value;
-  const SentryMetricType(this.value);
-}
-
-/// Base sealed class for all Sentry metrics
+/// The metrics telemetry.
 sealed class SentryMetric {
-  final SentryMetricType type;
+  final String type;
 
   DateTime timestamp;
   String name;
@@ -44,7 +29,7 @@ sealed class SentryMetric {
   Map<String, dynamic> toJson() {
     return {
       'timestamp': timestamp.millisecondsSinceEpoch / 1000.0,
-      'type': type.value,
+      'type': type,
       'name': name,
       'value': value,
       'trace_id': traceId,
@@ -66,7 +51,7 @@ final class SentryCounterMetric extends SentryMetric {
     super.spanId,
     super.unit,
     super.attributes,
-  }) : super(type: SentryMetricType.counter);
+  }) : super(type: 'counter');
 }
 
 /// Gauge metric - tracks values that can go up or down
@@ -79,7 +64,7 @@ final class SentryGaugeMetric extends SentryMetric {
     super.spanId,
     super.unit,
     super.attributes,
-  }) : super(type: SentryMetricType.gauge);
+  }) : super(type: 'gauge');
 }
 
 /// Distribution metric - tracks statistical distribution of values
@@ -92,5 +77,5 @@ final class SentryDistributionMetric extends SentryMetric {
     super.spanId,
     super.unit,
     super.attributes,
-  }) : super(type: SentryMetricType.distribution);
+  }) : super(type: 'distribution');
 }
