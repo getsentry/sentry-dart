@@ -17,7 +17,7 @@ void main() {
     group('when capturing a span', () {
       test('forwards to telemetry processor', () async {
         final span = fixture.createRecordingSpan();
-        await fixture.pipeline.captureSpan(span, fixture.scope);
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
 
         expect(fixture.processor.addedSpans.length, 1);
         expect(fixture.processor.addedSpans.first, same(span));
@@ -38,7 +38,7 @@ void main() {
               SentryAttribute.string('span-release'),
         });
 
-        await fixture.pipeline.captureSpan(span, fixture.scope);
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
 
         final attributes = span.attributes;
         expect(attributes[SemanticAttributesConstants.sentryEnvironment]?.value,
@@ -69,7 +69,7 @@ void main() {
           SentryAttribute.string('scope-env'),
         );
 
-        await fixture.pipeline.captureSpan(span, fixture.scope);
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
 
         final attributes = span.attributes;
         expect(attributes[SemanticAttributesConstants.sentryEnvironment]?.value,
@@ -92,7 +92,7 @@ void main() {
         });
 
         final span = fixture.createRecordingSpan();
-        await fixture.pipeline.captureSpan(span, fixture.scope);
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
 
         final attributes = span.attributes;
         expect(attributes['callback-key']?.value, 'callback-value');
@@ -113,7 +113,7 @@ void main() {
         });
 
         final span = fixture.createRecordingSpan();
-        await fixture.pipeline.captureSpan(span, fixture.scope);
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
 
         final attributes = span.attributes;
         expect(attributes[SemanticAttributesConstants.sentryRelease]?.value,
@@ -126,7 +126,7 @@ void main() {
         await fixture.scope.setUser(SentryUser(id: 'user-id'));
 
         final span = fixture.createRecordingSpan();
-        await fixture.pipeline.captureSpan(span, fixture.scope);
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
 
         final attributes = span.attributes;
         expect(attributes.containsKey(SemanticAttributesConstants.userId),

@@ -11,7 +11,7 @@ class FakeSpanCapturePipeline extends SpanCapturePipeline {
   Scope? capturedScope;
 
   @override
-  Future<void> captureSpan(SentrySpanV2 span, Scope scope) async {
+  Future<void> captureSpan(SentrySpanV2 span, {Scope? scope}) async {
     capturedSpan = span;
     capturedScope = scope;
   }
