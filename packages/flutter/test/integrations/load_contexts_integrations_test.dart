@@ -443,7 +443,8 @@ void main() {
       samplingDecision: SentryTracesSamplingDecision(true),
     );
 
-    await fixture.options.lifecycleRegistry.dispatchCallback(ProcessSpan(span));
+    await fixture.options.lifecycleRegistry
+        .dispatchCallback(OnProcessSpan(span));
 
     verify(fixture.binding.loadContexts()).called(1);
     final attributes = span.attributes;

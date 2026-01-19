@@ -72,7 +72,7 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
     }
 
     if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
-      options.lifecycleRegistry.registerCallback<ProcessSpan>((event) async {
+      options.lifecycleRegistry.registerCallback<OnProcessSpan>((event) async {
         try {
           final attributes = await _nativeContextAttributes();
           for (final entry in attributes.entries) {
@@ -82,7 +82,7 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
           }
         } catch (exception, stackTrace) {
           internalLogger.error(
-            'LoadContextsIntegration failed to load contexts for $ProcessSpan',
+            'LoadContextsIntegration failed to load contexts for $OnProcessSpan',
             error: exception,
             stackTrace: stackTrace,
           );

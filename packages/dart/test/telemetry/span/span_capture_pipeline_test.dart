@@ -80,7 +80,7 @@ void main() {
 
       test('keeps attributes added by lifecycle callbacks', () async {
         fixture.options.lifecycleRegistry
-            .registerCallback<ProcessSpan>((event) {
+            .registerCallback<OnProcessSpan>((event) {
           event.span.setAttribute(
             'callback-key',
             SentryAttribute.string('callback-value'),
@@ -105,7 +105,7 @@ void main() {
           () async {
         fixture.options.release = 'random-release';
         fixture.options.lifecycleRegistry
-            .registerCallback<ProcessSpan>((event) {
+            .registerCallback<OnProcessSpan>((event) {
           event.span.setAttribute(
             SemanticAttributesConstants.sentryRelease,
             SentryAttribute.string('release-from-lifecycle-callback'),
@@ -135,14 +135,14 @@ void main() {
 
       test('does not add spans to processor for no-op spans', () async {
         await fixture.pipeline
-            .captureSpan(const NoOpSentrySpanV2(), fixture.scope);
+            .captureSpan(const NoOpSentrySpanV2(), scope: fixture.scope);
 
         expect(fixture.processor.addedSpans, isEmpty);
       });
 
       test('does not add spans to processor for unset spans', () async {
         await fixture.pipeline
-            .captureSpan(const UnsetSentrySpanV2(), fixture.scope);
+            .captureSpan(const UnsetSentrySpanV2(), scope: fixture.scope);
 
         expect(fixture.processor.addedSpans, isEmpty);
       });

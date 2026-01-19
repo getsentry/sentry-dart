@@ -2077,7 +2077,7 @@ void main() {
         final span = const NoOpSentrySpanV2();
         final scope = Scope(fixture.options);
 
-        await client.captureSpan(span, scope);
+        await client.captureSpan(span, scope: scope);
 
         expect(pipeline.capturedSpan, same(span));
         expect(pipeline.capturedScope, same(scope));

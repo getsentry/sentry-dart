@@ -102,8 +102,8 @@ class OnSpanFinish extends SdkLifecycleEvent {
 ///
 /// This is useful for integrations to hook into e.g for enriching with attributes.
 @internal
-class ProcessSpan extends SdkLifecycleEvent {
+class OnProcessSpan extends SdkLifecycleEvent {
   final SentrySpanV2 span;
 
-  ProcessSpan(this.span);
+  OnProcessSpan(this.span);
 }

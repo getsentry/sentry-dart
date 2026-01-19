@@ -91,7 +91,7 @@ void main() {
     });
 
     group('$SentrySpanV2', () {
-      test('captureSpan triggers $ProcessSpan', () async {
+      test('captureSpan triggers $OnProcessSpan', () async {
         fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
 
         final scope = Scope(fixture.options);
@@ -100,7 +100,7 @@ void main() {
         fixture.options.telemetryProcessor = mockProcessor;
 
         fixture.options.lifecycleRegistry
-            .registerCallback<ProcessSpan>((event) {
+            .registerCallback<OnProcessSpan>((event) {
           event.span.setAttribute(
             'test-attribute',
             SentryAttribute.string('test-value'),

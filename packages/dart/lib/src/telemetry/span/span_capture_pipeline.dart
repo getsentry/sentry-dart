@@ -32,7 +32,7 @@ class SpanCapturePipeline {
         }
 
         await _options.lifecycleRegistry
-            .dispatchCallback<ProcessSpan>(ProcessSpan(span));
+            .dispatchCallback<OnProcessSpan>(OnProcessSpan(span));
 
         span.addAttributesIfAbsent(defaultAttributes(_options, scope: scope));
         span.addAttributesIfAbsent({
