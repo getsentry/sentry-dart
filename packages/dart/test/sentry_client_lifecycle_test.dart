@@ -1,6 +1,7 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_client_report_recorder.dart';
@@ -86,6 +87,41 @@ void main() {
         final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
         expect(capturedEvent.release, '999');
+      });
+    });
+
+    group('$SentrySpanV2', () {
+      test('captureSpan triggers $ProcessSpan', () async {
+        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+
+        final scope = Scope(fixture.options);
+        final client = fixture.getSut();
+        final mockProcessor = MockTelemetryProcessor();
+        fixture.options.telemetryProcessor = mockProcessor;
+
+        fixture.options.lifecycleRegistry
+            .registerCallback<ProcessSpan>((event) {
+          event.span.setAttribute(
+            'test-attribute',
+            SentryAttribute.string('test-value'),
+          );
+        });
+
+        final span = RecordingSentrySpanV2.root(
+          name: 'test-span',
+          traceId: SentryId.newId(),
+          onSpanEnd: (_) {},
+          clock: fixture.options.clock,
+          dscCreator: (_) => SentryTraceContextHeader(SentryId.newId(), 'key'),
+          samplingDecision: SentryTracesSamplingDecision(true),
+        );
+
+        await client.captureSpan(span, scope);
+
+        expect(mockProcessor.addedSpans.length, 1);
+        final capturedSpan = mockProcessor.addedSpans.first;
+        expect(capturedSpan, same(span));
+        expect(capturedSpan.attributes['test-attribute']?.value, 'test-value');
       });
     });
   });

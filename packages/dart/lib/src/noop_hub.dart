@@ -162,5 +162,5 @@ class NoOpHub implements Hub {
       NoOpSentrySpanV2.instance;
 
   @override
-  void captureSpan(SentrySpanV2 span) {}
+  Future<void> captureSpan(SentrySpanV2 span) async {}
 }

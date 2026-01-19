@@ -2071,13 +2071,13 @@ void main() {
         fixture = Fixture();
       });
 
-      test('delegates to span capture pipeline', () {
+      test('delegates to span capture pipeline', () async {
         final pipeline = FakeSpanCapturePipeline();
         final client = fixture.getSut(spanCapturePipeline: pipeline);
         final span = const NoOpSentrySpanV2();
         final scope = Scope(fixture.options);
 
-        client.captureSpan(span, scope);
+        await client.captureSpan(span, scope);
 
         expect(pipeline.capturedSpan, same(span));
         expect(pipeline.capturedScope, same(scope));

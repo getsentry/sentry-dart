@@ -502,7 +502,7 @@ class SentryClient {
     );
   }
 
-  void captureSpan(SentrySpanV2 span, Scope scope) =>
+  Future<void> captureSpan(SentrySpanV2 span, Scope scope) =>
       _spanCapturePipeline.captureSpan(span, scope);
 
   @internal
