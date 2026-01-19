@@ -61,4 +61,3 @@ jobs:
     uses: ./.github/workflows/analyze.yml
     with:
       package: packages/dart
-      panaThreshold: 87
