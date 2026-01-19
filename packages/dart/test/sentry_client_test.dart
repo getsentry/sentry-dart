@@ -25,6 +25,7 @@ import 'package:http/http.dart' as http;
 import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_hub.dart';
+import 'mocks/mock_span_capture_pipeline.dart';
 import 'mocks/mock_telemetry_processor.dart';
 import 'mocks/mock_transport.dart';
 import 'test_utils.dart';
