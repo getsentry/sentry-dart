@@ -12,13 +12,15 @@ import 'noop_client.dart';
 import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
+import 'telemetry/metric/metric.dart';
+import 'telemetry/metric/metrics_impl.dart';
 import 'telemetry/processing/processor.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
 import 'dart:developer' as developer;
 
 // TODO: shutdownTimeout, flushTimeoutMillis
-// https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
+// https://api.dart.dev/stable/2.1w0.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
 
 /// Sentry SDK options
 class SentryOptions {
@@ -216,6 +218,10 @@ class SentryOptions {
   /// This function is called right before a log is about to be sent.
   /// Can return a modified log or null to drop the log.
   BeforeSendLogCallback? beforeSendLog;
+
+  /// This function is called right before a metric is about to be sent.
+  /// Can return a modified metric or null to drop the log.
+  BeforeSendMetricCallback? beforeSendMetric;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
@@ -545,12 +551,20 @@ class SentryOptions {
   /// Disabled by default.
   bool enableLogs = false;
 
+  /// Enable to capture and send metrics to Sentry.
+  ///
+  /// Disabled by default.
+  bool enableMetrics = false;
+
   /// Enables adding the module in [SentryStackFrame.module].
   /// This option only has an effect in non-obfuscated builds.
   /// Enabling this option may change grouping.
   bool includeModuleInStackTrace = false;
 
   late final SentryLogger logger = SentryLogger(clock);
+
+  @internal
+  SentryMetrics metrics = NoOpSentryMetrics.instance;
 
   @internal
   TelemetryProcessor telemetryProcessor = NoOpTelemetryProcessor();
@@ -687,6 +701,11 @@ typedef BeforeMetricCallback = bool Function(
 /// This function is called right before a log is about to be sent.
 /// Can return a modified log or null to drop the log.
 typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
+
+/// This function is called right before a metric is about to be emitted.
+/// Can return true to emit the metric, or false to drop it.
+typedef BeforeSendMetricCallback = FutureOr<SentryMetric?> Function(
+    SentryMetric metric);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();

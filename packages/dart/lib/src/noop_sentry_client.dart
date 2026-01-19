@@ -7,6 +7,7 @@ import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_envelope.dart';
 import 'sentry_trace_context_header.dart';
+import 'telemetry/metric/metric.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
@@ -69,4 +70,7 @@ class NoOpSentryClient implements SentryClient {
 
   @override
   FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {}
+
+  @override
+  Future<void> captureMetric(SentryMetric metric, {Scope? scope}) async {}
 }
