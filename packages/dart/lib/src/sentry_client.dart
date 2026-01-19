@@ -19,6 +19,7 @@ import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
 import 'telemetry/metric/metric.dart';
+import 'telemetry/metric/metric_capture_pipeline.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
@@ -43,6 +44,7 @@ String get defaultIpAddress => _defaultIpAddress;
 class SentryClient {
   final SentryOptions _options;
   final Random? _random;
+  final MetricCapturePipeline _metricCapturePipeline;
 
   static final _emptySentryId = Future.value(SentryId.empty());
 
@@ -50,7 +52,8 @@ class SentryClient {
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
 
   /// Instantiates a client using [SentryOptions]
-  factory SentryClient(SentryOptions options) {
+  factory SentryClient(SentryOptions options,
+      {MetricCapturePipeline? metricCapturePipeline}) {
     if (options.sendClientReports) {
       options.recorder = ClientReportRecorder(options.clock);
     }
@@ -75,11 +78,12 @@ class SentryClient {
     if (enableFlutterSpotlight) {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
-    return SentryClient._(options);
+    return SentryClient._(
+        options, metricCapturePipeline ?? MetricCapturePipeline(options));
   }
 
   /// Instantiates a client using [SentryOptions]
-  SentryClient._(this._options)
+  SentryClient._(this._options, this._metricCapturePipeline)
       : _random = _options.sampleRate == null ? null : Random();
 
   /// Reports an [event] to Sentry.io.
@@ -584,35 +588,8 @@ class SentryClient {
     }
   }
 
-  Future<void> captureMetric(SentryMetric metric, {Scope? scope}) async {
-    if (!_options.enableLogs) {
-      return;
-    }
-
-    final beforeSendMetric = _options.beforeSendMetric;
-    SentryMetric? processedMetric = metric;
-    if (beforeSendMetric != null) {
-      try {
-        processedMetric = await beforeSendMetric(metric);
-      } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'The beforeSendLog callback threw an exception',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
-    }
-
-    // TODO: attributes enricher
-
-    if (processedMetric != null) {
-      _options.telemetryProcessor.addMetric(processedMetric);
-    }
-  }
+  Future<void> captureMetric(SentryMetric metric, {Scope? scope}) =>
+      _metricCapturePipeline.captureMetric(metric, scope: scope);
 
   FutureOr<void> close() {
     final flush = _options.telemetryProcessor.flush();

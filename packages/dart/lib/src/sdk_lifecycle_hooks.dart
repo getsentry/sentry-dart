@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'telemetry/metric/metric.dart';
 
 @internal
 typedef SdkLifecycleCallback<T extends SdkLifecycleEvent> = FutureOr<void>
@@ -95,4 +96,11 @@ class OnSpanFinish extends SdkLifecycleEvent {
   OnSpanFinish(this.span);
 
   final ISentrySpan span;
+}
+
+@internal
+class OnProcessMetric extends SdkLifecycleEvent {
+  final SentryMetric metric;
+
+  OnProcessMetric(this.metric);
 }

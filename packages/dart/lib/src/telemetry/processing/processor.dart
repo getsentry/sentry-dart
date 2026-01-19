@@ -33,12 +33,11 @@ abstract class TelemetryProcessor {
 class DefaultTelemetryProcessor implements TelemetryProcessor {
   /// The buffer for metric data, or `null` if metric buffering is disabled.
   final TelemetryBuffer<SentryMetric>? _metricBuffer;
-  
-  
+
   @visibleForTesting
   TelemetryBuffer<SentryMetric>? get metricBuffer => _metricBuffer;
 
-   /// The buffer for log data, or `null` if log buffering is disabled.
+  /// The buffer for log data, or `null` if log buffering is disabled.
   final TelemetryBuffer<SentryLog>? _logBuffer;
 
   @visibleForTesting
@@ -47,8 +46,8 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   DefaultTelemetryProcessor({
     TelemetryBuffer<SentryMetric>? metricBuffer,
     TelemetryBuffer<SentryLog>? logBuffer,
-  }) : _metricBuffer = metricBuffer, 
-       _logBuffer = logBuffer;
+  })  : _metricBuffer = metricBuffer,
+        _logBuffer = logBuffer;
 
   @override
   void addLog(SentryLog log) {
@@ -59,7 +58,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
       return;
     }
 
-    _logBuffer!.add(log);
+    _logBuffer.add(log);
   }
 
   @override
@@ -71,7 +70,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
       return;
     }
 
-    _metricBuffer!.add(metric);
+    _metricBuffer.add(metric);
   }
 
   @override

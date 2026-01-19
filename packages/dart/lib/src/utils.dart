@@ -34,3 +34,12 @@ Object? jsonSerializationFallback(Object? nonEncodable) {
   }
   return nonEncodable.toString();
 }
+
+@internal
+extension AddAllAbsentX<K, V> on Map<K, V> {
+  void addAllIfAbsent(Map<K, V> other) {
+    for (final e in other.entries) {
+      putIfAbsent(e.key, () => e.value);
+    }
+  }
+}

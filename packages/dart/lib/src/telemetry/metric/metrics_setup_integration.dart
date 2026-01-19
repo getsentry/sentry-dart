@@ -1,6 +1,6 @@
 import '../../../sentry.dart';
-import 'metrics.dart';
-import 'metrics_impl.dart';
+import 'default_metrics.dart';
+import 'noop_metrics.dart';
 
 class MetricsSetupIntegration extends Integration<SentryOptions> {
   static const integrationName = 'MetricsSetup';

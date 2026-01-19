@@ -14,6 +14,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/client_report_transport.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/noop_transport.dart';
+import 'package:sentry/src/telemetry/metric/metric.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
@@ -23,6 +24,7 @@ import 'package:http/http.dart' as http;
 import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_hub.dart';
+import 'mocks/mock_metric_capture_pipeline.dart';
 import 'mocks/mock_telemetry_processor.dart';
 import 'mocks/mock_transport.dart';
 import 'test_utils.dart';
@@ -2057,6 +2059,34 @@ void main() {
 
       expect(capturedLog.attributes['test']?.value, "test-value");
       expect(capturedLog.attributes['test']?.type, 'string');
+    });
+  });
+
+  group('SentryClient captureMetric', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('delegates to metric pipeline', () async {
+      final pipeline = FakeMetricCapturePipeline(fixture.options);
+      final client =
+          SentryClient(fixture.options, metricCapturePipeline: pipeline);
+      final scope = Scope(fixture.options);
+
+      final metric = SentryCounterMetric(
+        timestamp: DateTime.now().toUtc(),
+        name: 'test-metric',
+        value: 1,
+        traceId: SentryId.newId(),
+      );
+
+      await client.captureMetric(metric, scope: scope);
+
+      expect(pipeline.callCount, 1);
+      expect(pipeline.capturedMetric, same(metric));
+      expect(pipeline.capturedScope, same(scope));
     });
   });
 

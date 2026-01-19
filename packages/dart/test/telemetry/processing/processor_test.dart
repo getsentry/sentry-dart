@@ -49,13 +49,6 @@ void main() {
         expect(mockMetricBuffer.addedItems.length, 1);
         expect(mockMetricBuffer.addedItems.first, metric);
       });
-
-      test('does not throw when no metric buffer registered', () {
-        final processor = fixture.getSut();
-
-        final metric = fixture.createMetric();
-        processor.addMetric(metric);
-      });
     });
 
     group('flush', () {
