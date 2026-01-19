@@ -34,7 +34,7 @@ class SpanCapturePipeline {
         await _options.lifecycleRegistry
             .dispatchCallback<ProcessSpan>(ProcessSpan(span));
 
-        span.addAttributesIfAbsent(defaultAttributes(_options, scope));
+        span.addAttributesIfAbsent(defaultAttributes(_options, scope: scope));
         span.addAttributesIfAbsent({
           SemanticAttributesConstants.sentrySegmentName:
               SentryAttribute.string(span.segmentSpan.name),

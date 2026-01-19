@@ -3,8 +3,8 @@ import '../utils/os_utils.dart';
 
 final _operatingSystem = getSentryOperatingSystem();
 
-Map<String, SentryAttribute> defaultAttributes(
-    SentryOptions options, Scope scope) {
+Map<String, SentryAttribute> defaultAttributes(SentryOptions options,
+    {Scope? scope}) {
   final attributes = <String, SentryAttribute>{};
 
   attributes[SemanticAttributesConstants.sentrySdkName] =
@@ -24,7 +24,7 @@ Map<String, SentryAttribute> defaultAttributes(
   }
 
   if (options.sendDefaultPii) {
-    final user = scope.user;
+    final user = scope?.user;
     if (user != null) {
       if (user.id != null) {
         attributes[SemanticAttributesConstants.userId] =
