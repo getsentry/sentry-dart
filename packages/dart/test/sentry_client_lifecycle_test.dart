@@ -116,7 +116,7 @@ void main() {
           samplingDecision: SentryTracesSamplingDecision(true),
         );
 
-        await client.captureSpan(span, scope);
+        await client.captureSpan(span, scope: scope);
 
         expect(mockProcessor.addedSpans.length, 1);
         final capturedSpan = mockProcessor.addedSpans.first;
