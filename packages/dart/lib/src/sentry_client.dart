@@ -82,17 +82,15 @@ class SentryClient {
     }
     return SentryClient._(
       options,
-      spanCapturePipeline: spanCapturePipeline,
+      spanCapturePipeline ?? SpanCapturePipeline(options),
     );
   }
 
   /// Instantiates a client using [SentryOptions]
   SentryClient._(
-    this._options, {
-    SpanCapturePipeline? spanCapturePipeline,
-  })  : _random = _options.sampleRate == null ? null : Random(),
-        _spanCapturePipeline =
-            spanCapturePipeline ?? SpanCapturePipeline(_options);
+    this._options,
+    this._spanCapturePipeline,
+  ) : _random = _options.sampleRate == null ? null : Random();
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -502,8 +500,8 @@ class SentryClient {
     );
   }
 
-  Future<void> captureSpan(SentrySpanV2 span, Scope scope) =>
-      _spanCapturePipeline.captureSpan(span, scope);
+  Future<void> captureSpan(SentrySpanV2 span, {Scope? scope}) =>
+      _spanCapturePipeline.captureSpan(span, scope: scope);
 
   @internal
   FutureOr<void> captureLog(

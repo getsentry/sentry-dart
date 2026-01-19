@@ -11,7 +11,7 @@ class SpanCapturePipeline {
 
   SpanCapturePipeline(this._options);
 
-  Future<void> captureSpan(SentrySpanV2 span, Scope scope) async {
+  Future<void> captureSpan(SentrySpanV2 span, {Scope? scope}) async {
     if (_options.traceLifecycle == SentryTraceLifecycle.static) {
       internalLogger.warning(
         'captureSpan: invalid usage with traceLifecycle static, skipping capture.',
@@ -27,7 +27,9 @@ class SpanCapturePipeline {
       case NoOpSentrySpanV2():
         return;
       case RecordingSentrySpanV2 span:
-        span.addAttributesIfAbsent(scope.attributes);
+        if (scope != null) {
+          span.addAttributesIfAbsent(scope.attributes);
+        }
 
         await _options.lifecycleRegistry
             .dispatchCallback<ProcessSpan>(ProcessSpan(span));
