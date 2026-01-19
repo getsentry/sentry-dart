@@ -2919,19 +2919,6 @@ class Fixture {
   }
 }
 
-class FakeSpanCapturePipeline extends SpanCapturePipeline {
-  FakeSpanCapturePipeline() : super(defaultTestOptions());
-
-  SentrySpanV2? capturedSpan;
-  Scope? capturedScope;
-
-  @override
-  Future<void> captureSpan(SentrySpanV2 span, Scope scope) async {
-    capturedSpan = span;
-    capturedScope = scope;
-  }
-}
-
 class MockHttpClient extends Mock implements http.Client {}
 
 class MockTelemetryProcessorWithAsyncFlush extends MockTelemetryProcessor {
