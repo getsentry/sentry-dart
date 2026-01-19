@@ -14,7 +14,7 @@ class SpanCapturePipeline {
   Future<void> captureSpan(SentrySpanV2 span, Scope scope) async {
     if (_options.traceLifecycle == SentryTraceLifecycle.static) {
       internalLogger.warning(
-        'captureSpan: traceLifecycle is static, skipping capture.',
+        'captureSpan: invalid usage with traceLifecycle static, skipping capture.',
       );
       return;
     }
@@ -44,5 +44,5 @@ class SpanCapturePipeline {
     }
   }
 
-  // TODO(next-pr): client report, beforeSendSpan, ignoreSpan
+  // TODO(next-pr): client report, beforeSendSpan
 }
