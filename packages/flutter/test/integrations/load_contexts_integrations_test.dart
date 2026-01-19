@@ -1,10 +1,13 @@
 @TestOn('vm')
 library;
 
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
+import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -422,6 +425,47 @@ void main() {
 
     expect(event?.level, SentryLevel.fatal);
   });
+
+  test('with trace lifecycle streaming adds native attributes to spans',
+      () async {
+    fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 1);
+
+    final span = RecordingSentrySpanV2.root(
+      name: 'fixture-span',
+      traceId: SentryId.newId(),
+      onSpanEnd: (_) {},
+      clock: () => DateTime.now(),
+      dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
+      samplingDecision: SentryTracesSamplingDecision(true),
+    );
+
+    await fixture.options.lifecycleRegistry
+        .dispatchCallback(OnProcessSpan(span));
+
+    verify(fixture.binding.loadContexts()).called(1);
+    final attributes = span.attributes;
+    expect(attributes[SemanticAttributesConstants.osName]?.value, 'os1');
+    expect(attributes[SemanticAttributesConstants.osVersion]?.value,
+        'fixture-os-version');
+    expect(attributes[SemanticAttributesConstants.deviceBrand]?.value,
+        'fixture-brand');
+    expect(attributes[SemanticAttributesConstants.deviceModel]?.value,
+        'fixture-model');
+    expect(attributes[SemanticAttributesConstants.deviceFamily]?.value,
+        'fixture-family');
+  });
+
+  test('with trace lifecycle static does not register callback', () async {
+    fixture.options.traceLifecycle = SentryTraceLifecycle.static;
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 0);
+  });
 }
 
 class Fixture {
@@ -434,9 +478,14 @@ class Fixture {
         'integrations': ['NativeIntegration'],
         'package': {'sdk_name': 'native-package', 'version': '1.0'},
         'contexts': {
-          'device': {'name': 'Device1'},
+          'device': {
+            'name': 'Device1',
+            'brand': 'fixture-brand',
+            'model': 'fixture-model',
+            'family': 'fixture-family',
+          },
           'app': {'app_name': 'test-app'},
-          'os': {'name': 'os1'},
+          'os': {'name': 'os1', 'version': 'fixture-os-version'},
           'gpu': {'name': 'gpu1'},
           'browser': {'name': 'browser1'},
           'runtime': {'name': 'RT1'},

@@ -685,7 +685,7 @@ class Hub {
     return span;
   }
 
-  void captureSpan(SentrySpanV2 span) {
+  Future<void> captureSpan(SentrySpanV2 span) async {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,

@@ -223,5 +223,6 @@ class HubAdapter implements Hub {
   void removeAttribute(String key) => Sentry.currentHub.removeAttribute(key);
 
   @override
-  void captureSpan(SentrySpanV2 span) => Sentry.currentHub.captureSpan(span);
+  Future<void> captureSpan(SentrySpanV2 span) =>
+      Sentry.currentHub.captureSpan(span);
 }
