@@ -20,7 +20,7 @@ import 'version.dart';
 import 'dart:developer' as developer;
 
 // TODO: shutdownTimeout, flushTimeoutMillis
-// https://api.dart.dev/stable/2.1w0.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
+// https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
 
 /// Sentry SDK options
 class SentryOptions {
