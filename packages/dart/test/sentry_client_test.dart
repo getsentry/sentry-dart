@@ -16,6 +16,7 @@ import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
+import 'package:sentry/src/telemetry/span/span_capture_pipeline.dart';
 import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
@@ -2064,46 +2065,21 @@ void main() {
   group('SentryClient', () {
     group('when capturing span', () {
       late Fixture fixture;
-      late MockTelemetryProcessor processor;
 
       setUp(() {
         fixture = Fixture();
-        processor = MockTelemetryProcessor();
-        fixture.options.telemetryProcessor = processor;
       });
 
-      test('adds recording span to telemetry processor', () {
-        final client = fixture.getSut();
+      test('delegates to span capture pipeline', () {
+        final pipeline = FakeSpanCapturePipeline();
+        final client = fixture.getSut(spanCapturePipeline: pipeline);
+        final span = const NoOpSentrySpanV2();
+        final scope = Scope(fixture.options);
 
-        final span = RecordingSentrySpanV2.root(
-          name: 'test-span',
-          traceId: SentryId.newId(),
-          onSpanEnd: (_) {},
-          clock: fixture.options.clock,
-          dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
-          samplingDecision: SentryTracesSamplingDecision(true),
-        );
+        client.captureSpan(span, scope);
 
-        client.captureSpan(span);
-
-        expect(processor.addedSpans, hasLength(1));
-        expect(processor.addedSpans.first, equals(span));
-      });
-
-      test('does nothing for NoOpSentrySpanV2', () {
-        final client = fixture.getSut();
-
-        client.captureSpan(const NoOpSentrySpanV2());
-
-        expect(processor.addedSpans, isEmpty);
-      });
-
-      test('does nothing for UnsetSentrySpanV2', () {
-        final client = fixture.getSut();
-
-        client.captureSpan(const UnsetSentrySpanV2());
-
-        expect(processor.addedSpans, isEmpty);
+        expect(pipeline.capturedSpan, same(span));
+        expect(pipeline.capturedScope, same(scope));
       });
     });
   });
@@ -2857,6 +2833,7 @@ class Fixture {
     BeforeSendTransactionCallback? beforeSendTransaction,
     BeforeSendCallback? beforeSendFeedback,
     EventProcessor? eventProcessor,
+    SpanCapturePipeline? spanCapturePipeline,
     bool provideMockRecorder = true,
     bool debug = false,
     Transport? transport,
@@ -2888,7 +2865,10 @@ class Fixture {
     options.transport = transport ?? this.transport;
 
     // Again create SentryClient instance
-    final client = SentryClient(options);
+    final client = SentryClient(
+      options,
+      spanCapturePipeline: spanCapturePipeline,
+    );
 
     if (provideMockRecorder) {
       options.recorder = recorder;
@@ -2936,6 +2916,19 @@ class Fixture {
   }) {
     loggedLevel = level;
     loggedException = exception;
+  }
+}
+
+class FakeSpanCapturePipeline extends SpanCapturePipeline {
+  FakeSpanCapturePipeline() : super(defaultTestOptions());
+
+  SentrySpanV2? capturedSpan;
+  Scope? capturedScope;
+
+  @override
+  Future<void> captureSpan(SentrySpanV2 span, Scope scope) async {
+    capturedSpan = span;
+    capturedScope = scope;
   }
 }
 

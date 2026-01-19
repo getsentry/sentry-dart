@@ -705,7 +705,7 @@ class Hub {
       case RecordingSentrySpanV2 span:
         final item = _peek();
         item.scope.removeActiveSpan(span);
-        return item.client.captureSpan(span, scope: item.scope);
+        return item.client.captureSpan(span, item.scope);
     }
   }
 

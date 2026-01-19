@@ -18,6 +18,7 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
+import 'telemetry/span/span_capture_pipeline.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
@@ -43,6 +44,7 @@ String get defaultIpAddress => _defaultIpAddress;
 class SentryClient {
   final SentryOptions _options;
   final Random? _random;
+  final SpanCapturePipeline _spanCapturePipeline;
 
   static final _emptySentryId = Future.value(SentryId.empty());
 
@@ -50,7 +52,10 @@ class SentryClient {
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
 
   /// Instantiates a client using [SentryOptions]
-  factory SentryClient(SentryOptions options) {
+  factory SentryClient(
+    SentryOptions options, {
+    SpanCapturePipeline? spanCapturePipeline,
+  }) {
     if (options.sendClientReports) {
       options.recorder = ClientReportRecorder(options.clock);
     }
@@ -75,12 +80,19 @@ class SentryClient {
     if (enableFlutterSpotlight) {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
-    return SentryClient._(options);
+    return SentryClient._(
+      options,
+      spanCapturePipeline: spanCapturePipeline,
+    );
   }
 
   /// Instantiates a client using [SentryOptions]
-  SentryClient._(this._options)
-      : _random = _options.sampleRate == null ? null : Random();
+  SentryClient._(
+    this._options, {
+    SpanCapturePipeline? spanCapturePipeline,
+  })  : _random = _options.sampleRate == null ? null : Random(),
+        _spanCapturePipeline =
+            spanCapturePipeline ?? SpanCapturePipeline(_options);
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -490,24 +502,8 @@ class SentryClient {
     );
   }
 
-  void captureSpan(
-    SentrySpanV2 span, {
-    Scope? scope,
-  }) {
-    switch (span) {
-      case UnsetSentrySpanV2():
-        _options.log(
-          SentryLevel.warning,
-          "captureSpan: span is in an invalid state $UnsetSentrySpanV2.",
-        );
-      case NoOpSentrySpanV2():
-        return;
-      case RecordingSentrySpanV2 span:
-        // TODO(next-pr): add common attributes, merge scope attributes
-
-        _options.telemetryProcessor.addSpan(span);
-    }
-  }
+  void captureSpan(SentrySpanV2 span, Scope scope) =>
+      _spanCapturePipeline.captureSpan(span, scope);
 
   @internal
   FutureOr<void> captureLog(

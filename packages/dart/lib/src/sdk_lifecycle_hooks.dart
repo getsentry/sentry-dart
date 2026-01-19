@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 
 @internal
 typedef SdkLifecycleCallback<T extends SdkLifecycleEvent> = FutureOr<void>
@@ -95,4 +96,14 @@ class OnSpanFinish extends SdkLifecycleEvent {
   OnSpanFinish(this.span);
 
   final ISentrySpan span;
+}
+
+/// Dispatched when span is ready for processing (before default enrichment).
+///
+/// This is useful for integrations to hook into e.g for enriching with attributes.
+@internal
+class ProcessSpan extends SdkLifecycleEvent {
+  final SentrySpanV2 span;
+
+  ProcessSpan(this.span);
 }
