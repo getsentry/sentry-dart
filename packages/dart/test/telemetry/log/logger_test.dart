@@ -126,6 +126,26 @@ void main() {
       expect(capturedLog.traceId, customScope.propagationContext.traceId);
       expect(capturedLog.spanId, span.context.spanId);
     });
+
+    test('sets timestamp from clock provider', () async {
+      final logger = fixture.getSut();
+
+      await logger.info('test');
+
+      expect(fixture.capturedLogs.length, 1);
+      final capturedLog = fixture.capturedLogs[0];
+      expect(capturedLog.timestamp, fixture.timestamp);
+    });
+
+    test('includes attributes when provided', () async {
+      final logger = fixture.getSut();
+
+      await logger.info('test', attributes: {'key': SentryAttribute.string('value')});
+
+      expect(fixture.capturedLogs.length, 1);
+      final capturedLog = fixture.capturedLogs[0];
+      expect(capturedLog.attributes['key']?.value, 'value');
+    });
   });
 }
 

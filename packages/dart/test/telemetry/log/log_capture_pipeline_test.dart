@@ -82,8 +82,7 @@ void main() {
         expect(attributes['logOnly']?.type, 'double');
       });
 
-      test(
-          'dispatches OnProcessLog after scope merge but before beforeSendLog',
+      test('dispatches OnProcessLog after scope merge but before beforeSendLog',
           () async {
         final operations = <String>[];
         bool hasScopeAttrInCallback = false;
