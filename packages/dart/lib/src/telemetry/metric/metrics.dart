@@ -1,4 +1,5 @@
 import '../../../sentry.dart';
+import 'metric.dart';
 
 /// Interface for emitting custom metrics to Sentry.
 ///
