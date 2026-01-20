@@ -565,7 +565,7 @@ class SentryOptions {
   late SentryLogger logger = const NoOpSentryLogger();
 
   @internal
-  late SentryMetrics metrics = NoOpSentryMetrics();
+  late SentryMetrics metrics = const NoOpSentryMetrics();
 
   @internal
   TelemetryProcessor telemetryProcessor = NoOpTelemetryProcessor();
