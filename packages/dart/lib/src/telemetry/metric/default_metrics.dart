@@ -1,6 +1,6 @@
 import '../../../sentry.dart';
+import '../../utils/internal_logger.dart';
 import 'metric.dart';
-import 'metrics.dart';
 
 typedef CaptureMetricCallback = void Function(SentryMetric metric);
 typedef ScopeProvider = Scope Function();
@@ -25,6 +25,9 @@ final class DefaultSentryMetrics implements SentryMetrics {
     Map<String, SentryAttribute>? attributes,
     Scope? scope,
   }) {
+    internalLogger.debug(() =>
+        'Sentry.metrics.count("$name", $value) called with attributes ${_formatAttributes(attributes)}');
+
     final metric = SentryCounterMetric(
         timestamp: _clockProvider(),
         name: name,
@@ -44,6 +47,9 @@ final class DefaultSentryMetrics implements SentryMetrics {
     Map<String, SentryAttribute>? attributes,
     Scope? scope,
   }) {
+    internalLogger.debug(() =>
+        'Sentry.metrics.gauge("$name", $value${_formatUnit(unit)}) called with attributes ${_formatAttributes(attributes)}');
+
     final metric = SentryGaugeMetric(
         timestamp: _clockProvider(),
         name: name,
@@ -63,6 +69,9 @@ final class DefaultSentryMetrics implements SentryMetrics {
     Map<String, SentryAttribute>? attributes,
     Scope? scope,
   }) {
+    internalLogger.debug(() =>
+        'Sentry.metrics.distribution("$name", $value${_formatUnit(unit)}) called with attributes ${_formatAttributes(attributes)}');
+
     final metric = SentryDistributionMetric(
         timestamp: _clockProvider(),
         name: name,
@@ -80,4 +89,11 @@ final class DefaultSentryMetrics implements SentryMetrics {
 
   SpanId? _activeSpanIdFor(Scope? scope) =>
       (scope ?? _defaultScopeProvider()).span?.context.spanId;
+
+  String _formatUnit(String? unit) => unit != null ? ', unit: $unit' : '';
+
+  String _formatAttributes(Map<String, SentryAttribute>? attributes) {
+    final formatted = attributes?.toFormattedString() ?? '';
+    return formatted.isEmpty ? '' : ' $formatted';
+  }
 }

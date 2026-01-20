@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
+import '../../client_reports/discard_reason.dart';
+import '../../transport/data_category.dart';
 import '../../utils/internal_logger.dart';
 import '../default_attributes.dart';
 import 'metric.dart';
@@ -45,6 +47,8 @@ class MetricCapturePipeline {
       }
     }
     if (processedMetric == null) {
+      _options.recorder
+          .recordLostEvent(DiscardReason.beforeSend, DataCategory.metric);
       internalLogger.debug(
           '$MetricCapturePipeline: Metric ${metric.name} dropped by beforeSendMetric');
       return;

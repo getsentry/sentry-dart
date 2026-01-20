@@ -14,7 +14,7 @@ import 'package:sentry_flutter/src/integrations/generic_app_start_integration.da
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
 import 'package:sentry_flutter/src/integrations/native_load_debug_images_integration.dart';
 import 'package:sentry_flutter/src/integrations/native_sdk_integration.dart';
-import 'package:sentry_flutter/src/integrations/replay_log_integration.dart';
+import 'package:sentry_flutter/src/integrations/replay_telemetry_integration.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/integrations/thread_info_integration.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
@@ -162,14 +162,14 @@ void main() {
               isTrue);
           expect(
               options.integrations.any((i) => i is ReplayIntegration), isTrue);
-          expect(options.integrations.any((i) => i is ReplayLogIntegration),
+          expect(options.integrations.any((i) => i is ReplayTelemetryIntegration),
               isTrue);
         } else if (isIOS) {
           expect(options.integrations.any((i) => i is LoadContextsIntegration),
               isTrue);
           expect(
               options.integrations.any((i) => i is ReplayIntegration), isTrue);
-          expect(options.integrations.any((i) => i is ReplayLogIntegration),
+          expect(options.integrations.any((i) => i is ReplayTelemetryIntegration),
               isTrue);
         } else if (isMacOS) {
           expect(options.integrations.any((i) => i is LoadContextsIntegration),
@@ -180,7 +180,7 @@ void main() {
           // still not add it
           expect(
               options.integrations.any((i) => i is ReplayIntegration), isTrue);
-          expect(options.integrations.any((i) => i is ReplayLogIntegration),
+          expect(options.integrations.any((i) => i is ReplayTelemetryIntegration),
               isFalse);
         }
       });
@@ -235,7 +235,7 @@ void main() {
             isFalse);
         expect(
             options.integrations.any((i) => i is ReplayIntegration), isFalse);
-        expect(options.integrations.any((i) => i is ReplayLogIntegration),
+        expect(options.integrations.any((i) => i is ReplayTelemetryIntegration),
             isFalse);
 
         // Ordering: RunZonedGuarded before Widgets

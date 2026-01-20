@@ -1,8 +1,11 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/telemetry/metric/metric.dart';
 import 'package:sentry/src/telemetry/metric/metric_capture_pipeline.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
+import '../../mocks/mock_client_report_recorder.dart';
 import '../../mocks/mock_telemetry_processor.dart';
 import '../../test_utils.dart';
 
@@ -156,6 +159,20 @@ void main() {
         expect(fixture.processor.addedMetrics, isEmpty);
       });
 
+      test('returning null records lost event in client report', () async {
+        fixture.options.beforeSendMetric = (_) => null;
+
+        final metric = fixture.createMetric();
+
+        await fixture.pipeline.captureMetric(metric, scope: fixture.scope);
+
+        expect(fixture.recorder.discardedEvents.length, 1);
+        expect(fixture.recorder.discardedEvents.first.reason,
+            DiscardReason.beforeSend);
+        expect(fixture.recorder.discardedEvents.first.category,
+            DataCategory.metric);
+      });
+
       test('can mutate the metric', () async {
         fixture.options.beforeSendMetric = (metric) {
           metric.name = 'modified-name';
@@ -184,12 +201,14 @@ class Fixture {
     ..enableMetrics = true;
 
   final processor = MockTelemetryProcessor();
+  final recorder = MockClientReportRecorder();
 
   late final Scope scope;
   late final MetricCapturePipeline pipeline;
 
   Fixture() {
     options.telemetryProcessor = processor;
+    options.recorder = recorder;
     scope = Scope(options);
     pipeline = MetricCapturePipeline(options);
   }
