@@ -546,6 +546,37 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () {
+                Sentry.metrics.count(
+                  'screen.view',
+                  1,
+                  attributes: {
+                    'screen': SentryAttribute.string('HomeScreen'),
+                    'source': SentryAttribute.string('navigation'),
+                  },
+                );
+                Sentry.metrics.gauge(
+                  'app.memory_usage',
+                  128,
+                  unit: 'megabyte',
+                  attributes: {
+                    'state': SentryAttribute.string('foreground'),
+                  },
+                );
+                Sentry.metrics.distribution(
+                  'ui.render_time',
+                  16.7,
+                  unit: 'millisecond',
+                  attributes: {
+                    'widget': SentryAttribute.string('ListView'),
+                    'item_count': SentryAttribute.int(50),
+                  },
+                );
+              },
+              text: 'Demonstrates Sentry Metrics.',
+              buttonTitle: 'Send Metrics',
+            ),
+            TooltipButton(
+              onPressed: () {
                 Sentry.logger
                     .info('Sentry Log With Test Attribute', attributes: {
                   'test-attribute': SentryAttribute.string('test-value'),

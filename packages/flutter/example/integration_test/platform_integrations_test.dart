@@ -162,14 +162,16 @@ void main() {
               isTrue);
           expect(
               options.integrations.any((i) => i is ReplayIntegration), isTrue);
-          expect(options.integrations.any((i) => i is ReplayTelemetryIntegration),
+          expect(
+              options.integrations.any((i) => i is ReplayTelemetryIntegration),
               isTrue);
         } else if (isIOS) {
           expect(options.integrations.any((i) => i is LoadContextsIntegration),
               isTrue);
           expect(
               options.integrations.any((i) => i is ReplayIntegration), isTrue);
-          expect(options.integrations.any((i) => i is ReplayTelemetryIntegration),
+          expect(
+              options.integrations.any((i) => i is ReplayTelemetryIntegration),
               isTrue);
         } else if (isMacOS) {
           expect(options.integrations.any((i) => i is LoadContextsIntegration),
@@ -180,7 +182,8 @@ void main() {
           // still not add it
           expect(
               options.integrations.any((i) => i is ReplayIntegration), isTrue);
-          expect(options.integrations.any((i) => i is ReplayTelemetryIntegration),
+          expect(
+              options.integrations.any((i) => i is ReplayTelemetryIntegration),
               isFalse);
         }
       });
