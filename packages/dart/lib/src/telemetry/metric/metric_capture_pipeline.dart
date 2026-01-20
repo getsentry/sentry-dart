@@ -54,8 +54,8 @@ class MetricCapturePipeline {
       return;
     }
 
-    _options.telemetryProcessor.addMetric(metric);
+    _options.telemetryProcessor.addMetric(processedMetric);
     internalLogger.debug(
-        '$MetricCapturePipeline: Metric ${metric.name} (${metric.type}) captured');
+        '$MetricCapturePipeline: Metric ${processedMetric.name} (${processedMetric.type}) captured');
   }
 }

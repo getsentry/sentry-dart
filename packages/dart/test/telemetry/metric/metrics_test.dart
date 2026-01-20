@@ -1,7 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/metric/default_metrics.dart';
 import 'package:sentry/src/telemetry/metric/metric.dart';
-import 'package:sentry/src/telemetry/metric/noop_metrics.dart';
 import 'package:test/test.dart';
 
 import '../../test_utils.dart';
