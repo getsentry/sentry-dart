@@ -2,7 +2,10 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 
-/// The metrics telemetry.
+/// Base class for metric data points sent to Sentry.
+///
+/// See [SentryCounterMetric], [SentryGaugeMetric], and [SentryDistributionMetric]
+/// for concrete metric types.
 abstract class SentryMetric {
   final String type;
 
@@ -41,7 +44,7 @@ abstract class SentryMetric {
   }
 }
 
-/// Counter metric - increments counts
+/// A metric that tracks the number of times an event occurs.
 final class SentryCounterMetric extends SentryMetric {
   SentryCounterMetric({
     required super.timestamp,
@@ -54,7 +57,7 @@ final class SentryCounterMetric extends SentryMetric {
   }) : super(type: 'counter');
 }
 
-/// Gauge metric - tracks values that can go up or down
+/// A metric that tracks a value which can increase or decrease over time.
 final class SentryGaugeMetric extends SentryMetric {
   SentryGaugeMetric({
     required super.timestamp,
@@ -67,7 +70,7 @@ final class SentryGaugeMetric extends SentryMetric {
   }) : super(type: 'gauge');
 }
 
-/// Distribution metric - tracks statistical distribution of values
+/// A metric that tracks the statistical distribution of a set of values.
 final class SentryDistributionMetric extends SentryMetric {
   SentryDistributionMetric({
     required super.timestamp,
