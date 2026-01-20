@@ -563,7 +563,12 @@ class SentryOptions {
 
   late final SentryLogger logger = SentryLogger(clock);
 
-  late SentryMetrics metrics = NoOpSentryMetrics();
+  late SentryMetrics _metrics = NoOpSentryMetrics();
+
+  SentryMetrics get metrics => _metrics;
+
+  @internal
+  set metrics(SentryMetrics value) => _metrics = value;
 
   @internal
   TelemetryProcessor telemetryProcessor = NoOpTelemetryProcessor();
