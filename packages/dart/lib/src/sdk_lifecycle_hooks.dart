@@ -68,8 +68,8 @@ class SdkLifecycleRegistry {
 }
 
 @internal
-class OnBeforeCaptureLog extends SdkLifecycleEvent {
-  OnBeforeCaptureLog(this.log);
+class OnProcessLog extends SdkLifecycleEvent {
+  OnProcessLog(this.log);
 
   final SentryLog log;
 }

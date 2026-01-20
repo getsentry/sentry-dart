@@ -482,16 +482,12 @@ void main() {
     final integration = fixture.getSut();
     integration(fixture.hub, fixture.options);
 
-    expect(
-        fixture
-            .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
+    expect(fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessLog],
         isNotEmpty);
 
     integration.close();
 
-    expect(
-        fixture
-            .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
+    expect(fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessLog],
         isEmpty);
   });
 
@@ -508,9 +504,7 @@ void main() {
     expect(
         fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessMetric],
         isEmpty);
-    expect(
-        fixture
-            .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
+    expect(fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessLog],
         isEmpty);
   });
 

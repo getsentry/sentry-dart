@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 import 'package:collection/collection.dart';
 import 'package:sentry/src/event_processor/enricher/enricher_event_processor.dart';
-import 'package:sentry/src/logs_enricher_integration.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 import '../utils/internal_logger.dart';
@@ -24,7 +23,7 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
   Map<String, SentryAttribute>? _cachedAttributes;
   SentryFlutterOptions? _options;
-  SdkLifecycleCallback<OnBeforeCaptureLog>? _logCallback;
+  SdkLifecycleCallback<OnProcessLog>? _logCallback;
   SdkLifecycleCallback<OnProcessMetric>? _metricCallback;
 
   LoadContextsIntegration(this._native);
@@ -51,28 +50,19 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
       options.addEventProcessor(enricherEventProcessor);
     }
     if (options.enableLogs) {
-      final logsEnricherIntegration = options.integrations.firstWhereOrNull(
-        (element) => element is LogsEnricherIntegration,
-      );
-      if (logsEnricherIntegration != null) {
-        // Contexts from native cover the os.name and os.version attributes,
-        // so we can remove the logsEnricherIntegration.
-        options.removeIntegration(logsEnricherIntegration);
-      }
-
       _logCallback = (event) async {
         try {
           final attributes = await _nativeContextAttributes();
           event.log.attributes.addAllIfAbsent(attributes);
         } catch (exception, stackTrace) {
           internalLogger.error(
-            'LoadContextsIntegration failed to load contexts for $OnBeforeCaptureLog',
+            'LoadContextsIntegration failed to load contexts for $OnProcessLog',
             error: exception,
             stackTrace: stackTrace,
           );
         }
       };
-      options.lifecycleRegistry.registerCallback<OnBeforeCaptureLog>(
+      options.lifecycleRegistry.registerCallback<OnProcessLog>(
         _logCallback!,
       );
     }
@@ -104,8 +94,7 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
     if (options == null) return;
 
     if (_logCallback != null) {
-      options.lifecycleRegistry
-          .removeCallback<OnBeforeCaptureLog>(_logCallback!);
+      options.lifecycleRegistry.removeCallback<OnProcessLog>(_logCallback!);
       _logCallback = null;
     }
     if (_metricCallback != null) {

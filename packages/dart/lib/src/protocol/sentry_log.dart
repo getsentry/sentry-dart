@@ -1,10 +1,14 @@
 import 'sentry_attribute.dart';
 import 'sentry_id.dart';
 import 'sentry_log_level.dart';
+import 'span_id.dart';
 
 class SentryLog {
   DateTime timestamp;
   SentryId traceId;
+
+  /// The span ID of the active span when the log was recorded.
+  SpanId? spanId;
   SentryLogLevel level;
   String body;
   Map<String, SentryAttribute> attributes;
@@ -15,6 +19,7 @@ class SentryLog {
   SentryLog({
     required this.timestamp,
     SentryId? traceId,
+    this.spanId,
     required this.level,
     required this.body,
     required this.attributes,
@@ -25,6 +30,7 @@ class SentryLog {
     return {
       'timestamp': timestamp.toIso8601String(),
       'trace_id': traceId.toString(),
+      if (spanId != null) 'span_id': spanId.toString(),
       'level': level.value,
       'body': body,
       'attributes':

@@ -195,7 +195,7 @@ class Fixture {
     when(hub.scope).thenReturn(scope);
     when(hub.captureLog(any)).thenAnswer((invocation) async {
       final log = invocation.positionalArguments.first as SentryLog;
-      await options.lifecycleRegistry.dispatchCallback(OnBeforeCaptureLog(log));
+      await options.lifecycleRegistry.dispatchCallback(OnProcessLog(log));
     });
     when(nativeBinding.replayId).thenReturn(null);
   }
