@@ -462,6 +462,78 @@ void main() {
 
     expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 0);
   });
+
+  test('close removes metric callback from lifecycle registry', () async {
+    fixture.options.enableMetrics = true;
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 1);
+
+    integration.close();
+
+    expect(
+        fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessMetric],
+        isEmpty);
+  });
+
+  test('close removes log callback from lifecycle registry', () async {
+    fixture.options.enableLogs = true;
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    expect(
+        fixture
+            .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
+        isNotEmpty);
+
+    integration.close();
+
+    expect(
+        fixture
+            .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
+        isEmpty);
+  });
+
+  test('close removes both callbacks when both features enabled', () async {
+    fixture.options.enableMetrics = true;
+    fixture.options.enableLogs = true;
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 2);
+
+    integration.close();
+
+    expect(
+        fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessMetric],
+        isEmpty);
+    expect(
+        fixture
+            .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
+        isEmpty);
+  });
+
+  test('callback is not invoked after close', () async {
+    fixture.options.enableMetrics = true;
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    integration.close();
+
+    final metric = SentryCounterMetric(
+        timestamp: DateTime.now(),
+        name: 'random',
+        value: 1,
+        traceId: SentryId.newId());
+
+    await fixture.options.lifecycleRegistry
+        .dispatchCallback(OnProcessMetric(metric));
+
+    // loadContexts should not be called since callback was removed
+    verifyNever(fixture.binding.loadContexts());
+    expect(metric.attributes, isEmpty);
+  });
 }
 
 class Fixture {
