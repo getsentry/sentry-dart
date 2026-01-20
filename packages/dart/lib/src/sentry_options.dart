@@ -553,7 +553,7 @@ class SentryOptions {
 
   /// Enable to capture and send metrics to Sentry.
   ///
-  /// Disabled by default.
+  /// Enabled by default.
   bool enableMetrics = true;
 
   /// Enables adding the module in [SentryStackFrame.module].
