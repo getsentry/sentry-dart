@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Trace connected metrics ([#3450](https://github.com/getsentry/sentry-dart/pull/3450))
+  - This feature is enabled by default.
+  - To send metrics use the following APIs:
+    - `Sentry.metrics.gauge(...)`
+    - `Sentry.metrics.count(...)`
+    - `Sentry.metrics.distribution(...)`
+
+
 ## 9.10.0
 
 ### Fixes
