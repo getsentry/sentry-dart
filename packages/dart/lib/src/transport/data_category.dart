@@ -8,6 +8,7 @@ enum DataCategory {
   span,
   attachment,
   security,
+  metricBucket,
   logItem,
   feedback,
   metric,
@@ -23,6 +24,10 @@ enum DataCategory {
         return DataCategory.attachment;
       case 'transaction':
         return DataCategory.transaction;
+      // The envelope item type used for metrics is statsd,
+      // whereas the client report category is metric_bucket
+      case 'statsd':
+        return DataCategory.metricBucket;
       case 'log':
         return DataCategory.logItem;
       case 'trace_metric':
