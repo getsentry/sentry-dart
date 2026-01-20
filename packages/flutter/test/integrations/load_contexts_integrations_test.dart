@@ -1,10 +1,13 @@
 @TestOn('vm')
 library;
 
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
+import 'package:sentry/src/telemetry/metric/metric.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -422,6 +425,43 @@ void main() {
 
     expect(event?.level, SentryLevel.fatal);
   });
+
+  test('with metrics enabled adds native attributes to metric', () async {
+    fixture.options.enableMetrics = true;
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 1);
+
+    final metric = SentryCounterMetric(
+        timestamp: DateTime.now(),
+        name: 'random',
+        value: 1,
+        traceId: SentryId.newId());
+
+    await fixture.options.lifecycleRegistry
+        .dispatchCallback(OnProcessMetric(metric));
+
+    verify(fixture.binding.loadContexts()).called(1);
+    final attributes = metric.attributes;
+    expect(attributes[SemanticAttributesConstants.osName]?.value, 'os1');
+    expect(attributes[SemanticAttributesConstants.osVersion]?.value,
+        'fixture-os-version');
+    expect(attributes[SemanticAttributesConstants.deviceBrand]?.value,
+        'fixture-brand');
+    expect(attributes[SemanticAttributesConstants.deviceModel]?.value,
+        'fixture-model');
+    expect(attributes[SemanticAttributesConstants.deviceFamily]?.value,
+        'fixture-family');
+  });
+
+  test('with metrics disabled does not register callback', () async {
+    fixture.options.enableMetrics = false;
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 0);
+  });
 }
 
 class Fixture {
@@ -434,9 +474,14 @@ class Fixture {
         'integrations': ['NativeIntegration'],
         'package': {'sdk_name': 'native-package', 'version': '1.0'},
         'contexts': {
-          'device': {'name': 'Device1'},
+          'device': {
+            'name': 'Device1',
+            'brand': 'fixture-brand',
+            'model': 'fixture-model',
+            'family': 'fixture-family',
+          },
           'app': {'app_name': 'test-app'},
-          'os': {'name': 'os1'},
+          'os': {'name': 'os1', 'version': 'fixture-os-version'},
           'gpu': {'name': 'gpu1'},
           'browser': {'name': 'browser1'},
           'runtime': {'name': 'RT1'},

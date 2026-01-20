@@ -3,7 +3,7 @@ import 'package:meta/meta.dart';
 import '../../../sentry.dart';
 
 /// The metrics telemetry.
-sealed class SentryMetric {
+abstract class SentryMetric {
   final String type;
 
   DateTime timestamp;
