@@ -1,4 +1,5 @@
 import '../../../sentry.dart';
+import '../../utils/internal_logger.dart';
 import 'default_metrics.dart';
 import 'noop_metrics.dart';
 
@@ -7,8 +8,17 @@ class MetricsSetupIntegration extends Integration<SentryOptions> {
 
   @override
   void call(Hub hub, SentryOptions options) {
-    if (!options.enableMetrics) return;
-    if (options.metrics is! NoOpSentryMetrics) return;
+    if (!options.enableMetrics) {
+      internalLogger
+          .debug('$integrationName: Metrics disabled, skipping setup');
+      return;
+    }
+
+    if (options.metrics is! NoOpSentryMetrics) {
+      internalLogger.debug(
+          '$integrationName: Custom metrics already configured, skipping setup');
+      return;
+    }
 
     options.metrics = DefaultSentryMetrics(
         captureMetricCallback: hub.captureMetric,
@@ -16,5 +26,6 @@ class MetricsSetupIntegration extends Integration<SentryOptions> {
         defaultScopeProvider: () => hub.scope);
 
     options.sdk.addIntegration(integrationName);
+    internalLogger.debug('$integrationName: Metrics configured successfully');
   }
 }

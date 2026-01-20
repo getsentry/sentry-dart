@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
+import '../../utils/internal_logger.dart';
 import '../default_attributes.dart';
 import 'metric.dart';
 
@@ -12,6 +13,8 @@ class MetricCapturePipeline {
 
   Future<void> captureMetric(SentryMetric metric, {Scope? scope}) async {
     if (!_options.enableMetrics) {
+      internalLogger.debug(
+          '$MetricCapturePipeline: Metrics disabled, dropping ${metric.name}');
       return;
     }
 
@@ -32,7 +35,7 @@ class MetricCapturePipeline {
       } catch (exception, stackTrace) {
         _options.log(
           SentryLevel.error,
-          'The beforeSendLog callback threw an exception',
+          'The beforeSendMetric callback threw an exception',
           exception: exception,
           stackTrace: stackTrace,
         );
@@ -42,9 +45,13 @@ class MetricCapturePipeline {
       }
     }
     if (processedMetric == null) {
+      internalLogger.debug(
+          '$MetricCapturePipeline: Metric ${metric.name} dropped by beforeSendMetric');
       return;
     }
 
     _options.telemetryProcessor.addMetric(metric);
+    internalLogger.debug(
+        '$MetricCapturePipeline: Metric ${metric.name} (${metric.type}) captured');
   }
 }
