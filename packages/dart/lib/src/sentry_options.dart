@@ -563,7 +563,6 @@ class SentryOptions {
 
   late final SentryLogger logger = SentryLogger(clock);
 
-  @internal
   late SentryMetrics metrics = NoOpSentryMetrics();
 
   @internal
