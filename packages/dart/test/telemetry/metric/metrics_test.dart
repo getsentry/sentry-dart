@@ -76,6 +76,13 @@ void main() {
         expect(metric.value, 75.5);
       });
 
+      test('includes unit when provided', () {
+        fixture.sut.gauge('response-time', 250, unit: 'millisecond');
+
+        final metric = fixture.capturedMetrics.first;
+        expect(metric.unit, 'millisecond');
+      });
+
       test('includes attributes when provided', () {
         fixture.sut.gauge(
           'test-gauge',

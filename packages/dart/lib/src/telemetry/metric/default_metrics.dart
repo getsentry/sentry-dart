@@ -54,6 +54,7 @@ final class DefaultSentryMetrics implements SentryMetrics {
         timestamp: _clockProvider(),
         name: name,
         value: value,
+        unit: unit,
         spanId: _activeSpanIdFor(scope),
         traceId: _traceIdFor(scope),
         attributes: attributes ?? {});
