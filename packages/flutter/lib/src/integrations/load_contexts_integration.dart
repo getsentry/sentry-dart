@@ -20,14 +20,19 @@ import '../utils/internal_logger.dart';
 /// App, Device and OS.
 ///
 /// This integration is only executed on iOS, macOS & Android Apps.
-class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
+class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
   Map<String, SentryAttribute>? _cachedAttributes;
+  SentryFlutterOptions? _options;
+  SdkLifecycleCallback<OnBeforeCaptureLog>? _logCallback;
+  SdkLifecycleCallback<OnProcessMetric>? _metricCallback;
 
   LoadContextsIntegration(this._native);
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
+    _options = options;
+
     options.addEventProcessor(
       _LoadContextsIntegrationEventProcessor(_native, options),
     );
@@ -55,25 +60,25 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
         options.removeIntegration(logsEnricherIntegration);
       }
 
+      _logCallback = (event) async {
+        try {
+          final attributes = await _nativeContextAttributes();
+          event.log.attributes.addAllIfAbsent(attributes);
+        } catch (exception, stackTrace) {
+          internalLogger.error(
+            'LoadContextsIntegration failed to load contexts for $OnBeforeCaptureLog',
+            error: exception,
+            stackTrace: stackTrace,
+          );
+        }
+      };
       options.lifecycleRegistry.registerCallback<OnBeforeCaptureLog>(
-        (event) async {
-          try {
-            final attributes = await _nativeContextAttributes();
-            event.log.attributes.addAllIfAbsent(attributes);
-          } catch (exception, stackTrace) {
-            internalLogger.error(
-              'LoadContextsIntegration failed to load contexts for $OnBeforeCaptureLog',
-              error: exception,
-              stackTrace: stackTrace,
-            );
-          }
-        },
+        _logCallback!,
       );
     }
 
     if (options.enableMetrics) {
-      options.lifecycleRegistry
-          .registerCallback<OnProcessMetric>((event) async {
+      _metricCallback = (event) async {
         try {
           final attributes = await _nativeContextAttributes();
           event.metric.attributes.addAllIfAbsent(attributes);
@@ -84,10 +89,31 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
             stackTrace: stackTrace,
           );
         }
-      });
+      };
+      options.lifecycleRegistry.registerCallback<OnProcessMetric>(
+        _metricCallback!,
+      );
     }
 
     options.sdk.addIntegration('loadContextsIntegration');
+  }
+
+  @override
+  void close() {
+    final options = _options;
+    if (options == null) return;
+
+    if (_logCallback != null) {
+      options.lifecycleRegistry
+          .removeCallback<OnBeforeCaptureLog>(_logCallback!);
+      _logCallback = null;
+    }
+    if (_metricCallback != null) {
+      options.lifecycleRegistry
+          .removeCallback<OnProcessMetric>(_metricCallback!);
+      _metricCallback = null;
+    }
+    _cachedAttributes = null;
   }
 
   Future<Map<String, SentryAttribute>> _nativeContextAttributes() async {
