@@ -104,30 +104,14 @@ class SentryEnvelope {
   factory SentryEnvelope.fromLogsData(
     List<List<int>> encodedLogs,
     SdkVersion sdkVersion,
-  ) {
-    // Create the payload in the format expected by Sentry
-    // Format: {"items": [log1, log2, ...]}
-    final builder = BytesBuilder(copy: false);
-    builder.add(utf8.encode('{"items":['));
-    for (int i = 0; i < encodedLogs.length; i++) {
-      if (i > 0) {
-        builder.add(utf8.encode(','));
-      }
-      builder.add(encodedLogs[i]);
-    }
-    builder.add(utf8.encode(']}'));
-
-    return SentryEnvelope(
-      SentryEnvelopeHeader(
-        null,
-        sdkVersion,
-      ),
-      [
-        SentryEnvelopeItem.fromLogsData(
-            builder.takeBytes(), encodedLogs.length),
-      ],
-    );
-  }
+  ) =>
+      SentryEnvelope(
+        SentryEnvelopeHeader(null, sdkVersion),
+        [
+          SentryEnvelopeItem.fromLogsData(
+              _buildItemsPayload(encodedLogs), encodedLogs.length)
+        ],
+      );
 
   /// Create a [SentryEnvelope] containing raw metric data payload.
   /// This is used by the log batcher to send pre-encoded metric batches.

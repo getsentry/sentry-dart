@@ -3,8 +3,6 @@ import '../../../sentry.dart';
 final class NoOpSentryMetrics implements SentryMetrics {
   const NoOpSentryMetrics();
 
-  static const instance = NoOpSentryMetrics();
-
   @override
   void count(String name, int value,
       {Map<String, SentryAttribute>? attributes, Scope? scope}) {}

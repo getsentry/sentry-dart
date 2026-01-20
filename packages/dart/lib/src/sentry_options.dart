@@ -564,7 +564,7 @@ class SentryOptions {
   late final SentryLogger logger = SentryLogger(clock);
 
   @internal
-  SentryMetrics metrics = NoOpSentryMetrics.instance;
+  late SentryMetrics metrics = NoOpSentryMetrics();
 
   @internal
   TelemetryProcessor telemetryProcessor = NoOpTelemetryProcessor();

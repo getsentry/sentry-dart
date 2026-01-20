@@ -2,17 +2,17 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/metric/metric.dart';
 import 'package:sentry/src/telemetry/metric/metric_capture_pipeline.dart';
 
-class FakeMetricCapturePipeline extends MetricCapturePipeline {
-  FakeMetricCapturePipeline(super.options);
+import 'mock_sentry_client.dart';
 
-  int callCount = 0;
-  SentryMetric? capturedMetric;
-  Scope? capturedScope;
+class MockMetricCapturePipeline extends MetricCapturePipeline {
+  MockMetricCapturePipeline(super.options);
+
+  final List<CaptureMetricCall> captureMetricCalls = [];
+
+  int get callCount => captureMetricCalls.length;
 
   @override
   Future<void> captureMetric(SentryMetric metric, {Scope? scope}) async {
-    callCount++;
-    capturedMetric = metric;
-    capturedScope = scope;
+    captureMetricCalls.add(CaptureMetricCall(metric, scope));
   }
 }

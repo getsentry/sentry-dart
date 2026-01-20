@@ -27,7 +27,7 @@ abstract class SentryMetric {
 
   /// The unit of measurement (e.g., 'millisecond', 'byte').
   ///
-  /// For a list of supported units, see https://develop.sentry.dev/sdk/telemetry/attributes/#units.
+  /// See [SentryMetricUnit] for predefined unit constants.
   String? unit;
 
   /// Custom key-value pairs attached to the metric.
@@ -74,6 +74,8 @@ final class SentryCounterMetric extends SentryMetric {
 }
 
 /// A metric that tracks a value which can increase or decrease over time.
+///
+/// See [SentryMetricUnit] for predefined unit constants.
 final class SentryGaugeMetric extends SentryMetric {
   SentryGaugeMetric({
     required super.timestamp,
@@ -87,6 +89,8 @@ final class SentryGaugeMetric extends SentryMetric {
 }
 
 /// A metric that tracks the statistical distribution of a set of values.
+///
+/// See [SentryMetricUnit] for predefined unit constants.
 final class SentryDistributionMetric extends SentryMetric {
   SentryDistributionMetric({
     required super.timestamp,
@@ -97,4 +101,82 @@ final class SentryDistributionMetric extends SentryMetric {
     super.unit,
     super.attributes,
   }) : super(type: 'distribution');
+}
+
+/// String constants for metric units.
+///
+/// These constants represent the API names of measurement units that can be
+/// used with metrics.
+abstract final class SentryMetricUnit {
+  /// Nanosecond, 10^-9 seconds.
+  static const String nanosecond = 'nanosecond';
+
+  /// Microsecond, 10^-6 seconds.
+  static const String microsecond = 'microsecond';
+
+  /// Millisecond, 10^-3 seconds.
+  static const String millisecond = 'millisecond';
+
+  /// Full second.
+  static const String second = 'second';
+
+  /// Minute, 60 seconds.
+  static const String minute = 'minute';
+
+  /// Hour, 3600 seconds.
+  static const String hour = 'hour';
+
+  /// Day, 86,400 seconds.
+  static const String day = 'day';
+
+  /// Week, 604,800 seconds.
+  static const String week = 'week';
+
+  /// Bit, corresponding to 1/8 of a byte.
+  static const String bit = 'bit';
+
+  /// Byte.
+  static const String byte = 'byte';
+
+  /// Kilobyte, 10^3 bytes.
+  static const String kilobyte = 'kilobyte';
+
+  /// Kibibyte, 2^10 bytes.
+  static const String kibibyte = 'kibibyte';
+
+  /// Megabyte, 10^6 bytes.
+  static const String megabyte = 'megabyte';
+
+  /// Mebibyte, 2^20 bytes.
+  static const String mebibyte = 'mebibyte';
+
+  /// Gigabyte, 10^9 bytes.
+  static const String gigabyte = 'gigabyte';
+
+  /// Gibibyte, 2^30 bytes.
+  static const String gibibyte = 'gibibyte';
+
+  /// Terabyte, 10^12 bytes.
+  static const String terabyte = 'terabyte';
+
+  /// Tebibyte, 2^40 bytes.
+  static const String tebibyte = 'tebibyte';
+
+  /// Petabyte, 10^15 bytes.
+  static const String petabyte = 'petabyte';
+
+  /// Pebibyte, 2^50 bytes.
+  static const String pebibyte = 'pebibyte';
+
+  /// Exabyte, 10^18 bytes.
+  static const String exabyte = 'exabyte';
+
+  /// Exbibyte, 2^60 bytes.
+  static const String exbibyte = 'exbibyte';
+
+  /// Floating point fraction of `1`.
+  static const String ratio = 'ratio';
+
+  /// Ratio expressed as a fraction of `100`. `100%` equals a ratio of `1.0`.
+  static const String percent = 'percent';
 }

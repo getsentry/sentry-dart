@@ -2070,7 +2070,7 @@ void main() {
     });
 
     test('delegates to metric pipeline', () async {
-      final pipeline = FakeMetricCapturePipeline(fixture.options);
+      final pipeline = MockMetricCapturePipeline(fixture.options);
       final client =
           SentryClient(fixture.options, metricCapturePipeline: pipeline);
       final scope = Scope(fixture.options);
@@ -2085,8 +2085,8 @@ void main() {
       await client.captureMetric(metric, scope: scope);
 
       expect(pipeline.callCount, 1);
-      expect(pipeline.capturedMetric, same(metric));
-      expect(pipeline.capturedScope, same(scope));
+      expect(pipeline.captureMetricCalls.first.metric, same(metric));
+      expect(pipeline.captureMetricCalls.first.scope, same(scope));
     });
   });
 
