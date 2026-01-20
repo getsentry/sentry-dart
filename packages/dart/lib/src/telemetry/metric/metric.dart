@@ -7,14 +7,30 @@ import '../../../sentry.dart';
 /// See [SentryCounterMetric], [SentryGaugeMetric], and [SentryDistributionMetric]
 /// for concrete metric types.
 abstract class SentryMetric {
+  /// The metric type identifier (e.g., 'counter', 'gauge', 'distribution').
   final String type;
 
+  /// The time when the metric was recorded.
   DateTime timestamp;
+
+  /// The metric name, typically using dot notation (e.g., 'app.memory_usage').
   String name;
+
+  /// The numeric value of the metric.
   num value;
+
+  /// The trace ID from the current propagation context.
   SentryId traceId;
+
+  /// The span ID of the active span when the metric was recorded.
   SpanId? spanId;
+
+  /// The unit of measurement (e.g., 'millisecond', 'byte').
+  ///
+  /// For a list of supported units, see https://develop.sentry.dev/sdk/telemetry/attributes/#units.
   String? unit;
+
+  /// Custom key-value pairs attached to the metric.
   Map<String, SentryAttribute> attributes;
 
   SentryMetric({
