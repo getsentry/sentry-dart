@@ -140,7 +140,8 @@ void main() {
     test('includes attributes when provided', () async {
       final logger = fixture.getSut();
 
-      await logger.info('test', attributes: {'key': SentryAttribute.string('value')});
+      await logger
+          .info('test', attributes: {'key': SentryAttribute.string('value')});
 
       expect(fixture.capturedLogs.length, 1);
       final capturedLog = fixture.capturedLogs[0];
