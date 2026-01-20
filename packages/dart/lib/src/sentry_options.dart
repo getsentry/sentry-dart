@@ -220,7 +220,7 @@ class SentryOptions {
   BeforeSendLogCallback? beforeSendLog;
 
   /// This function is called right before a metric is about to be sent.
-  /// Can return a modified metric or null to drop the log.
+  /// Can return a modified metric or null to drop the metric.
   BeforeSendMetricCallback? beforeSendMetric;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
