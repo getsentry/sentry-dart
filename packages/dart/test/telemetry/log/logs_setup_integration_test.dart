@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/log/default_logger.dart';
-import 'package:sentry/src/telemetry/log/log_setup_integration.dart';
+import 'package:sentry/src/telemetry/log/logger_setup_integration.dart';
 import 'package:sentry/src/telemetry/log/noop_logger.dart';
 import 'package:test/test.dart';
 

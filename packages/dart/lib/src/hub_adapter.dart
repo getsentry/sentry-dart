@@ -199,8 +199,7 @@ class HubAdapter implements Hub {
       );
 
   @override
-  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) =>
-      Sentry.currentHub.captureLog(log, scope: scope);
+  FutureOr<void> captureLog(SentryLog log) => Sentry.currentHub.captureLog(log);
 
   @override
   Future<void> captureMetric(SentryMetric metric) =>

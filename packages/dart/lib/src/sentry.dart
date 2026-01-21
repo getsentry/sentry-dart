@@ -31,7 +31,7 @@ import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
 import 'feature_flags_integration.dart';
 import 'telemetry/log/logger.dart';
-import 'telemetry/log/log_setup_integration.dart';
+import 'telemetry/log/logger_setup_integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
