@@ -5,7 +5,7 @@ import 'span_id.dart';
 
 class SentryLog {
   DateTime timestamp;
-  SentryId traceId;
+  SentryId? traceId;
   SpanId? spanId;
   SentryLogLevel level;
   String body;
@@ -16,13 +16,14 @@ class SentryLog {
   /// by the time processing completes, it is guaranteed to be a valid non-empty trace id.
   SentryLog({
     required this.timestamp,
-    required this.traceId,
+    // TODO(major-v10): this should be required non-null
+    SentryId? traceId,
     required this.level,
     required this.body,
     required this.attributes,
     this.spanId,
     this.severityNumber,
-  });
+  }) : traceId = traceId ?? SentryId.empty();
 
   Map<String, dynamic> toJson() {
     return {

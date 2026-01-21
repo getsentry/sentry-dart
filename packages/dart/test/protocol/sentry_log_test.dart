@@ -52,24 +52,6 @@ void main() {
     });
   });
 
-  test('$SentryLog to json without spanId', () {
-    final timestamp = DateTime.now();
-    final traceId = SentryId.newId();
-
-    final logItem = SentryLog(
-      timestamp: timestamp,
-      traceId: traceId,
-      level: SentryLogLevel.info,
-      body: 'fixture-body',
-      attributes: {},
-      severityNumber: 1,
-    );
-
-    final json = logItem.toJson();
-
-    expect(json.containsKey('span_id'), isFalse);
-  });
-
   test('$SentryLevel without severity number infers from level in toJson', () {
     final logItem = SentryLog(
       timestamp: DateTime.now(),

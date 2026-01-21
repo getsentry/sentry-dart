@@ -58,6 +58,9 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
       return;
     }
 
+    internalLogger.debug(() =>
+        '$DefaultTelemetryProcessor: Log "${log.body}" (${log.level.name}) added to buffer');
+
     _logBuffer.add(log);
   }
 

@@ -63,8 +63,6 @@ class LogCapturePipeline {
       }
 
       _options.telemetryProcessor.addLog(processedLog);
-      internalLogger.debug(
-          '$LogCapturePipeline: Log "${processedLog.body}" (${processedLog.level.name}) captured');
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Error capturing log "${log.body}"',

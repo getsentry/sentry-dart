@@ -29,8 +29,6 @@ final class DefaultSentryLogger implements SentryLogger {
     Map<String, SentryAttribute>? attributes,
     Scope? scope,
   }) {
-    internalLogger.debug(() =>
-        'Sentry.logger.trace("$body") called with attributes ${_formatAttributes(attributes)}');
     return _captureLog(SentryLogLevel.trace, body,
         attributes: attributes, scope: scope);
   }
@@ -41,8 +39,6 @@ final class DefaultSentryLogger implements SentryLogger {
     Map<String, SentryAttribute>? attributes,
     Scope? scope,
   }) {
-    internalLogger.debug(() =>
-        'Sentry.logger.debug("$body") called with attributes ${_formatAttributes(attributes)}');
     return _captureLog(SentryLogLevel.debug, body,
         attributes: attributes, scope: scope);
   }
@@ -53,8 +49,6 @@ final class DefaultSentryLogger implements SentryLogger {
     Map<String, SentryAttribute>? attributes,
     Scope? scope,
   }) {
-    internalLogger.debug(() =>
-        'Sentry.logger.info("$body") called with attributes ${_formatAttributes(attributes)}');
     return _captureLog(SentryLogLevel.info, body,
         attributes: attributes, scope: scope);
   }
@@ -65,8 +59,6 @@ final class DefaultSentryLogger implements SentryLogger {
     Map<String, SentryAttribute>? attributes,
     Scope? scope,
   }) {
-    internalLogger.debug(() =>
-        'Sentry.logger.warn("$body") called with attributes ${_formatAttributes(attributes)}');
     return _captureLog(SentryLogLevel.warn, body,
         attributes: attributes, scope: scope);
   }
@@ -77,8 +69,6 @@ final class DefaultSentryLogger implements SentryLogger {
     Map<String, SentryAttribute>? attributes,
     Scope? scope,
   }) {
-    internalLogger.debug(() =>
-        'Sentry.logger.error("$body") called with attributes ${_formatAttributes(attributes)}');
     return _captureLog(SentryLogLevel.error, body,
         attributes: attributes, scope: scope);
   }
@@ -89,8 +79,6 @@ final class DefaultSentryLogger implements SentryLogger {
     Map<String, SentryAttribute>? attributes,
     Scope? scope,
   }) {
-    internalLogger.debug(() =>
-        'Sentry.logger.fatal("$body") called with attributes ${_formatAttributes(attributes)}');
     return _captureLog(SentryLogLevel.fatal, body,
         attributes: attributes, scope: scope);
   }
@@ -106,6 +94,9 @@ final class DefaultSentryLogger implements SentryLogger {
     Map<String, SentryAttribute>? attributes,
     Scope? scope,
   }) {
+    internalLogger.debug(() =>
+        'Sentry.logger.${level.value}("$body") called with attributes ${_formatAttributes(attributes)}');
+
     final log = SentryLog(
       timestamp: _clockProvider(),
       level: level,
