@@ -2,6 +2,8 @@ import 'dart:async';
 
 import '../../../sentry.dart';
 
+// TODO(major-v10): refactor FutureOr to void
+
 /// Interface for emitting custom logs to Sentry.
 ///
 /// Access via [Sentry.logger].
