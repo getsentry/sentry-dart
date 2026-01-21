@@ -285,7 +285,7 @@ class Fixture {
   Fixture() {
     scope = Scope(options);
     logger = DefaultSentryLogger(
-      captureLogCallback: (log) {
+      captureLogCallback: (log, {scope}) {
         capturedLogs.add(log);
       },
       clockProvider: () => DateTime.now(),

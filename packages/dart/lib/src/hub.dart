@@ -286,7 +286,7 @@ class Hub {
     return sentryId;
   }
 
-  FutureOr<void> captureLog(SentryLog log) async {
+  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
@@ -294,18 +294,12 @@ class Hub {
       );
     } else {
       final item = _peek();
-      late Scope scope;
-      final s = _cloneAndRunWithScope(item.scope, null);
-      if (s is Future<Scope>) {
-        scope = await s;
-      } else {
-        scope = s;
-      }
+      final effectiveScope = scope ?? item.scope;
 
       try {
         await item.client.captureLog(
           log,
-          scope: scope,
+          scope: effectiveScope,
         );
       } catch (exception, stacktrace) {
         _options.log(

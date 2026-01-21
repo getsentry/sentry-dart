@@ -173,7 +173,7 @@ class Fixture {
 
   SentryLogger getSut() {
     return DefaultSentryLogger(
-      captureLogCallback: (log) {
+      captureLogCallback: (log, {scope}) {
         capturedLogs.add(log);
       },
       clockProvider: () => timestamp,

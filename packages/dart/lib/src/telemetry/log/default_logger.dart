@@ -4,7 +4,8 @@ import '../../../sentry.dart';
 import '../../sentry_template_string.dart';
 import '../../utils/internal_logger.dart';
 
-typedef CaptureLogCallback = FutureOr<void> Function(SentryLog log);
+typedef CaptureLogCallback = FutureOr<void> Function(SentryLog log,
+    {Scope? scope});
 typedef ScopeProvider = Scope Function();
 
 final class DefaultSentryLogger implements SentryLogger {
@@ -106,7 +107,7 @@ final class DefaultSentryLogger implements SentryLogger {
       attributes: attributes ?? {},
     );
 
-    return _captureLogCallback(log);
+    return _captureLogCallback(log, scope: scope);
   }
 
   SentryId _traceIdFor(Scope? scope) =>
