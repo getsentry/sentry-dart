@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
 import 'metric.dart';
 
-typedef CaptureMetricCallback = void Function(SentryMetric metric);
+typedef CaptureMetricCallback = Future<void> Function(SentryMetric metric);
 typedef ScopeProvider = Scope Function();
 
 final class DefaultSentryMetrics implements SentryMetrics {
@@ -36,7 +38,7 @@ final class DefaultSentryMetrics implements SentryMetrics {
         traceId: _traceIdFor(scope),
         attributes: attributes ?? {});
 
-    _captureMetricCallback(metric);
+    unawaited(_captureMetricCallback(metric));
   }
 
   @override
@@ -59,7 +61,7 @@ final class DefaultSentryMetrics implements SentryMetrics {
         traceId: _traceIdFor(scope),
         attributes: attributes ?? {});
 
-    _captureMetricCallback(metric);
+    unawaited(_captureMetricCallback(metric));
   }
 
   @override
@@ -82,7 +84,7 @@ final class DefaultSentryMetrics implements SentryMetrics {
         traceId: _traceIdFor(scope),
         attributes: attributes ?? {});
 
-    _captureMetricCallback(metric);
+    unawaited(_captureMetricCallback(metric));
   }
 
   SentryId _traceIdFor(Scope? scope) =>
