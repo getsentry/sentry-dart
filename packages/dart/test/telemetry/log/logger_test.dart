@@ -177,7 +177,7 @@ class Fixture {
         capturedLogs.add(log);
       },
       clockProvider: () => timestamp,
-      defaultScopeProvider: () => scope,
+      scopeProvider: () => scope,
     );
   }
 }

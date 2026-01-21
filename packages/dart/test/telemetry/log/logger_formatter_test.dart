@@ -289,7 +289,7 @@ class Fixture {
         capturedLogs.add(log);
       },
       clockProvider: () => DateTime.now(),
-      defaultScopeProvider: () => scope,
+      scopeProvider: () => scope,
     );
   }
 }
