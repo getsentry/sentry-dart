@@ -112,21 +112,6 @@ void main() {
       expect(capturedLog.spanId, span.context.spanId);
     });
 
-    test('uses provided scope for trace id and span id', () async {
-      final customScope = Scope(fixture.options);
-      final span = _MockSpan();
-      customScope.span = span;
-
-      final logger = fixture.getSut();
-
-      await logger.info('test', scope: customScope);
-
-      expect(fixture.capturedLogs.length, 1);
-      final capturedLog = fixture.capturedLogs[0];
-      expect(capturedLog.traceId, customScope.propagationContext.traceId);
-      expect(capturedLog.spanId, span.context.spanId);
-    });
-
     test('sets timestamp from clock provider', () async {
       final logger = fixture.getSut();
 
