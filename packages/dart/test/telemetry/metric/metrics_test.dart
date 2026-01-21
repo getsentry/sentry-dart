@@ -144,7 +144,7 @@ class Fixture {
   Fixture() {
     scope = Scope(options);
     sut = DefaultSentryMetrics(
-      captureMetricCallback: (metric) => capturedMetrics.add(metric),
+      captureMetricCallback: (metric) async => capturedMetrics.add(metric),
       clockProvider: () => fixedTimestamp,
       defaultScopeProvider: () => scope,
     );
