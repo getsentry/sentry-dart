@@ -1,7 +1,7 @@
-import 'sentry_attribute.dart';
-import 'sentry_id.dart';
-import 'sentry_log_level.dart';
-import 'span_id.dart';
+import '../../protocol/sentry_attribute.dart';
+import '../../protocol/sentry_id.dart';
+import '../../protocol/span_id.dart';
+import 'log_level.dart';
 
 class SentryLog {
   DateTime timestamp;
