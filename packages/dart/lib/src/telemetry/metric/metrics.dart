@@ -8,8 +8,11 @@ abstract interface class SentryMetrics {
   /// Increments a counter metric by the given [value].
   ///
   /// Use counters to track the number of times an event occurs.
-  void count(String name, int value,
-      {Map<String, SentryAttribute>? attributes, Scope? scope});
+  void count(
+    String name,
+    int value, {
+    Map<String, SentryAttribute>? attributes,
+  });
 
   /// Records a value in a distribution metric.
   ///
@@ -17,8 +20,12 @@ abstract interface class SentryMetrics {
   /// such as response times or file sizes.
   ///
   /// See [SentryMetricUnit] for predefined unit constants.
-  void distribution(String name, num value,
-      {String? unit, Map<String, SentryAttribute>? attributes, Scope? scope});
+  void distribution(
+    String name,
+    num value, {
+    String? unit,
+    Map<String, SentryAttribute>? attributes,
+  });
 
   /// Sets the current value of a gauge metric.
   ///
@@ -26,6 +33,10 @@ abstract interface class SentryMetrics {
   /// such as memory usage or queue depth.
   ///
   /// See [SentryMetricUnit] for predefined unit constants.
-  void gauge(String name, num value,
-      {String? unit, Map<String, SentryAttribute>? attributes, Scope? scope});
+  void gauge(
+    String name,
+    num value, {
+    String? unit,
+    Map<String, SentryAttribute>? attributes,
+  });
 }

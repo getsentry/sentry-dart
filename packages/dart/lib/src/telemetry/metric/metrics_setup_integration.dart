@@ -3,6 +3,7 @@ import '../../utils/internal_logger.dart';
 import 'default_metrics.dart';
 import 'noop_metrics.dart';
 
+/// Integration that sets up the default Sentry metrics implementation.
 class MetricsSetupIntegration extends Integration<SentryOptions> {
   static const integrationName = 'MetricsSetup';
 
@@ -23,7 +24,7 @@ class MetricsSetupIntegration extends Integration<SentryOptions> {
     options.metrics = DefaultSentryMetrics(
         captureMetricCallback: hub.captureMetric,
         clockProvider: options.clock,
-        defaultScopeProvider: () => hub.scope);
+        scopeProvider: () => hub.scope);
 
     options.sdk.addIntegration(integrationName);
     internalLogger.debug('$integrationName: Metrics configured successfully');
