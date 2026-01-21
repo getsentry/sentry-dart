@@ -10,22 +10,21 @@ typedef ScopeProvider = Scope Function();
 final class DefaultSentryMetrics implements SentryMetrics {
   final CaptureMetricCallback _captureMetricCallback;
   final ClockProvider _clockProvider;
-  final ScopeProvider _defaultScopeProvider;
+  final ScopeProvider _scopeProvider;
 
   DefaultSentryMetrics(
       {required CaptureMetricCallback captureMetricCallback,
       required ClockProvider clockProvider,
-      required ScopeProvider defaultScopeProvider})
+      required ScopeProvider scopeProvider})
       : _captureMetricCallback = captureMetricCallback,
         _clockProvider = clockProvider,
-        _defaultScopeProvider = defaultScopeProvider;
+        _scopeProvider = scopeProvider;
 
   @override
   void count(
     String name,
     int value, {
     Map<String, SentryAttribute>? attributes,
-    Scope? scope,
   }) {
     internalLogger.debug(() =>
         'Sentry.metrics.count("$name", $value) called with attributes ${_formatAttributes(attributes)}');
@@ -34,8 +33,8 @@ final class DefaultSentryMetrics implements SentryMetrics {
         timestamp: _clockProvider(),
         name: name,
         value: value,
-        spanId: _activeSpanIdFor(scope),
-        traceId: _traceIdFor(scope),
+        spanId: _scopeProvider().span?.context.spanId,
+        traceId: _scopeProvider().propagationContext.traceId,
         attributes: attributes ?? {});
 
     unawaited(_captureMetricCallback(metric));
@@ -47,7 +46,6 @@ final class DefaultSentryMetrics implements SentryMetrics {
     num value, {
     String? unit,
     Map<String, SentryAttribute>? attributes,
-    Scope? scope,
   }) {
     internalLogger.debug(() =>
         'Sentry.metrics.gauge("$name", $value${_formatUnit(unit)}) called with attributes ${_formatAttributes(attributes)}');
@@ -57,8 +55,8 @@ final class DefaultSentryMetrics implements SentryMetrics {
         name: name,
         value: value,
         unit: unit,
-        spanId: _activeSpanIdFor(scope),
-        traceId: _traceIdFor(scope),
+        spanId: _scopeProvider().span?.context.spanId,
+        traceId: _scopeProvider().propagationContext.traceId,
         attributes: attributes ?? {});
 
     unawaited(_captureMetricCallback(metric));
@@ -70,7 +68,6 @@ final class DefaultSentryMetrics implements SentryMetrics {
     num value, {
     String? unit,
     Map<String, SentryAttribute>? attributes,
-    Scope? scope,
   }) {
     internalLogger.debug(() =>
         'Sentry.metrics.distribution("$name", $value${_formatUnit(unit)}) called with attributes ${_formatAttributes(attributes)}');
@@ -80,18 +77,12 @@ final class DefaultSentryMetrics implements SentryMetrics {
         name: name,
         value: value,
         unit: unit,
-        spanId: _activeSpanIdFor(scope),
-        traceId: _traceIdFor(scope),
+        spanId: _scopeProvider().span?.context.spanId,
+        traceId: _scopeProvider().propagationContext.traceId,
         attributes: attributes ?? {});
 
     unawaited(_captureMetricCallback(metric));
   }
-
-  SentryId _traceIdFor(Scope? scope) =>
-      (scope ?? _defaultScopeProvider()).propagationContext.traceId;
-
-  SpanId? _activeSpanIdFor(Scope? scope) =>
-      (scope ?? _defaultScopeProvider()).span?.context.spanId;
 
   String _formatUnit(String? unit) => unit != null ? ', unit: $unit' : '';
 

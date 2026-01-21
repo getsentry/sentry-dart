@@ -3,6 +3,7 @@ import '../../utils/internal_logger.dart';
 import 'default_metrics.dart';
 import 'noop_metrics.dart';
 
+/// Integration that sets up the default Sentry metrics implementation.
 class MetricsSetupIntegration extends Integration<SentryOptions> {
   static const integrationName = 'MetricsSetup';
 
