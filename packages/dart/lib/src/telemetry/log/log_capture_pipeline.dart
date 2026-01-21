@@ -23,6 +23,10 @@ class LogCapturePipeline {
 
     try {
       if (scope != null) {
+        // Populate traceId from scope if not already set
+        if (log.traceId == null || log.traceId == SentryId.empty()) {
+          log.traceId = scope.propagationContext.traceId;
+        }
         log.attributes.addAllIfAbsent(scope.attributes);
       }
 
