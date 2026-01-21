@@ -46,6 +46,7 @@ export 'src/sentry_trace_origins.dart';
 export 'src/span_data_convention.dart';
 export 'src/spotlight.dart';
 export 'src/throwable_mechanism.dart';
+// ignore: invalid_export_of_internal_element
 export 'src/tracing.dart';
 export 'src/transport/transport.dart';
 export 'src/type_check_hint.dart';

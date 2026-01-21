@@ -374,7 +374,7 @@ void main() {
 
       final insertSpan = tx.children.last;
       expect(insertSpan.context.parentSpanId, tx.context.spanId);
-      expect(sut.spanHelper.transactionStack, isEmpty);
+      expect(sut.transactionStack, isEmpty);
     });
 
     // already tests nesting
@@ -594,7 +594,7 @@ void main() {
       expect(spans.length, 1);
       final abortedSpan = spans.first;
 
-      expect(sut.spanHelper.transactionStack, isEmpty);
+      expect(sut.transactionStack, isEmpty);
       _verifySpan(
         SentrySpanDescriptions.dbTransaction,
         abortedSpan,
@@ -684,7 +684,7 @@ void main() {
       }
 
       // when beginTransaction errored, we don't add it to the stack
-      expect(sut.spanHelper.transactionStack, isEmpty);
+      expect(sut.transactionStack, isEmpty);
       _verifyErrorSpan(
         operation: SentrySpanOperations.dbSqlTransaction,
         SentrySpanDescriptions.dbTransaction,

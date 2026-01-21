@@ -1,13 +1,13 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:drift/drift.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import 'constants.dart' as drift_constants;
-import 'sentry_span_helper.dart';
 import 'version.dart';
 
 /// A Sentry query interceptor that wraps database operations in performance monitoring spans.
@@ -17,39 +17,48 @@ import 'version.dart';
 /// as a Sentry span with relevant context.
 class SentryQueryInterceptor extends QueryInterceptor {
   final String _dbName;
-  late final SentrySpanHelper _spanHelper;
+  final Hub _hub;
   bool _isDbOpen = false;
 
+  /// Stack of active transaction spans for nested transaction support.
+  final ListQueue<ISentrySpan?> _transactionStack = ListQueue();
+
+  /// Returns the transaction stack for testing purposes.
   @visibleForTesting
-  SentrySpanHelper get spanHelper => _spanHelper;
+  ListQueue<ISentrySpan?> get transactionStack => _transactionStack;
+
+  /// Returns the current transaction span from the stack, or null if empty.
+  ISentrySpan? get _currentTransaction => _transactionStack.lastOrNull;
 
   SentryQueryInterceptor({required String databaseName, @internal Hub? hub})
-      : _dbName = databaseName {
-    hub = hub ?? HubAdapter();
-    _spanHelper = SentrySpanHelper(
-      SentryTraceOrigins.autoDbDriftQueryInterceptor,
-      hub: hub,
-    );
-    final options = hub.options;
+      : _dbName = databaseName,
+        _hub = hub ?? HubAdapter() {
+    final options = _hub.options;
     options.sdk.addIntegration(drift_constants.integrationName);
     options.sdk.addPackage(packageName, sdkVersion);
   }
 
+  SpanWrapper get _spanWrapper => _hub.options.spanWrapper;
+
   /// Wraps database operations in Sentry spans.
   ///
-  /// This handles most CRUD operations but excludes transaction lifecycle methods
-  /// (begin/commit/rollback), which require maintaining an ongoing transaction span
-  /// across multiple operations. Those are handled separately via [SentrySpanHelper].
+  /// Uses the current transaction span as parent if available, otherwise
+  /// falls back to the hub's active span.
   Future<T> _instrumentOperation<T>(
     String description,
     FutureOr<T> Function() execute, {
     String? operation,
   }) async =>
-      _spanHelper.asyncWrapInSpan<T>(
-        description,
-        () async => execute(),
-        dbName: _dbName,
-        operation: operation,
+      _spanWrapper.wrapAsync<T>(
+        operation: operation ?? SentrySpanOperations.dbSqlQuery,
+        description: description,
+        execute: () async => execute(),
+        origin: SentryTraceOrigins.autoDbDriftQueryInterceptor,
+        attributes: {
+          SentrySpanData.dbSystemKey: SentrySpanData.dbSystemSqlite,
+          SentrySpanData.dbNameKey: _dbName,
+        },
+        parentSpan: _currentTransaction,
       );
 
   @override
@@ -70,10 +79,30 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   @override
   TransactionExecutor beginTransaction(QueryExecutor parent) {
-    return _spanHelper.beginTransaction(
-      () => super.beginTransaction(parent),
-      dbName: _dbName,
+    final parentSpan = _currentTransaction ?? _hub.getSpan();
+    if (parentSpan == null) {
+      return super.beginTransaction(parent);
+    }
+
+    final span = parentSpan.startChild(
+      SentrySpanOperations.dbSqlTransaction,
+      description: SentrySpanDescriptions.dbTransaction,
     );
+    span.origin = SentryTraceOrigins.autoDbDriftQueryInterceptor;
+    span.setData(SentrySpanData.dbSystemKey, SentrySpanData.dbSystemSqlite);
+    span.setData(SentrySpanData.dbNameKey, _dbName);
+
+    try {
+      final result = super.beginTransaction(parent);
+      span.status = SpanStatus.unknown();
+      _transactionStack.add(span);
+      return result;
+    } catch (exception) {
+      span.throwable = exception;
+      span.status = SpanStatus.internalError();
+      span.finish();
+      rethrow;
+    }
   }
 
   @override
@@ -100,13 +129,43 @@ class SentryQueryInterceptor extends QueryInterceptor {
   }
 
   @override
-  Future<void> commitTransaction(TransactionExecutor inner) {
-    return _spanHelper.finishTransaction(() => super.commitTransaction(inner));
+  Future<void> commitTransaction(TransactionExecutor inner) async {
+    final span = _transactionStack.lastOrNull;
+    if (span == null) {
+      return super.commitTransaction(inner);
+    }
+
+    try {
+      await super.commitTransaction(inner);
+      span.status = SpanStatus.ok();
+    } catch (exception) {
+      span.throwable = exception;
+      span.status = SpanStatus.internalError();
+      rethrow;
+    } finally {
+      await span.finish();
+      _transactionStack.removeLast();
+    }
   }
 
   @override
-  Future<void> rollbackTransaction(TransactionExecutor inner) {
-    return _spanHelper.abortTransaction(() => super.rollbackTransaction(inner));
+  Future<void> rollbackTransaction(TransactionExecutor inner) async {
+    final span = _transactionStack.lastOrNull;
+    if (span == null) {
+      return super.rollbackTransaction(inner);
+    }
+
+    try {
+      await super.rollbackTransaction(inner);
+      span.status = SpanStatus.aborted();
+    } catch (exception) {
+      span.throwable = exception;
+      span.status = SpanStatus.internalError();
+      rethrow;
+    } finally {
+      await span.finish();
+      _transactionStack.removeLast();
+    }
   }
 
   @override

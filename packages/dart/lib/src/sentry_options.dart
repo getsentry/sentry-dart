@@ -555,6 +555,10 @@ class SentryOptions {
   @internal
   TelemetryProcessor telemetryProcessor = NoOpTelemetryProcessor();
 
+  // TODO(next-pr): in span-first this should be using the span v2 wrapper
+  @internal
+  late final SpanWrapper spanWrapper = LegacySpanWrapper(hub: HubAdapter());
+
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
     if (platform != null) {
