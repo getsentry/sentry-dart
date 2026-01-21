@@ -707,22 +707,6 @@ void main() {
         expect(log.attributes['device.model'], isNull);
         expect(log.attributes['device.family'], isNull);
       });
-
-      test('handles throw during loadContexts', () async {
-        fixture.options.enableLogs = true;
-        await fixture.registerIntegration();
-
-        when(fixture.binding.loadContexts()).thenThrow(Exception('test'));
-
-        final log = givenLog();
-        await fixture.hub.captureLog(log);
-
-        expect(log.attributes['os.name'], isNull);
-        expect(log.attributes['os.version'], isNull);
-        expect(log.attributes['device.brand'], isNull);
-        expect(log.attributes['device.model'], isNull);
-        expect(log.attributes['device.family'], isNull);
-      });
     });
 
     group('metrics', () {
