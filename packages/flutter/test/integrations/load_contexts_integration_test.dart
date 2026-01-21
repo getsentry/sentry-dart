@@ -5,7 +5,6 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sentry/src/logs_enricher_integration.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/telemetry/metric/metric.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -690,20 +689,6 @@ void main() {
         expect(log.attributes['device.family']?.value, 'fixture-device-family');
       });
 
-      test('removes logsEnricherIntegration', () async {
-        final integration = LogsEnricherIntegration();
-        fixture.options.addIntegration(integration);
-
-        fixture.options.enableLogs = true;
-        await fixture.registerIntegration();
-
-        expect(
-          fixture.options.integrations
-              .any((element) => element is LogsEnricherIntegration),
-          isFalse,
-        );
-      });
-
       test(
           'does not add os and device attributes to log if enableLogs is false',
           () async {
@@ -801,16 +786,14 @@ void main() {
         await fixture.registerIntegration();
 
         expect(
-          fixture
-              .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessLog],
           isNotEmpty,
         );
 
         fixture.sut.close();
 
         expect(
-          fixture
-              .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessLog],
           isEmpty,
         );
       });
@@ -830,8 +813,7 @@ void main() {
           isEmpty,
         );
         expect(
-          fixture
-              .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessLog],
           isEmpty,
         );
       });
