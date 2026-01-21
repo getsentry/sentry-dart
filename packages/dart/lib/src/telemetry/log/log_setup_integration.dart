@@ -22,7 +22,7 @@ class LogSetupIntegration extends Integration<SentryOptions> {
     options.logger = DefaultSentryLogger(
       captureLogCallback: hub.captureLog,
       clockProvider: options.clock,
-      defaultScopeProvider: () => hub.scope,
+      scopeProvider: () => hub.scope,
     );
 
     options.sdk.addIntegration(integrationName);
