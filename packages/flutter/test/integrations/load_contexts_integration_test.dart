@@ -160,8 +160,7 @@ void main() {
       expect(event?.contexts.operatingSystem?.theme, 'theme1');
       expect(event?.contexts.gpu?.name, 'gpu1');
       expect(event?.contexts.browser?.name, 'browser1');
-      expect(
-          event?.contexts.runtimes.any((element) => element.name == 'RT1'),
+      expect(event?.contexts.runtimes.any((element) => element.name == 'RT1'),
           true);
       expect(event?.contexts['theme'], 'material');
       expect(
@@ -201,17 +200,16 @@ void main() {
       expect(event?.contexts.operatingSystem?.name, 'eOS');
       expect(event?.contexts.gpu?.name, 'eGpu');
       expect(event?.contexts.browser?.name, 'eBrowser');
-      expect(
-          event?.contexts.runtimes.any((element) => element.name == 'RT1'),
+      expect(event?.contexts.runtimes.any((element) => element.name == 'RT1'),
           true);
-      expect(
-          event?.contexts.runtimes.any((element) => element.name == 'eRT'),
+      expect(event?.contexts.runtimes.any((element) => element.name == 'eRT'),
           true);
       expect(event?.contexts['theme'], 'cuppertino');
       expect(event?.user?.id, 'myId');
     });
 
-    test('merges event and loadContextsIntegration sdk packages and integration',
+    test(
+        'merges event and loadContextsIntegration sdk packages and integration',
         () async {
       mockLoadContexts();
       await fixture.registerIntegration();
@@ -307,8 +305,8 @@ void main() {
               'breadcrumbs': [Breadcrumb(message: 'native').toJson()]
             });
 
-        event = (await fixture.options.eventProcessors.first
-            .apply(event, Hint()))!;
+        event =
+            (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
 
         expect(event.breadcrumbs!.length, 1);
         expect(event.breadcrumbs!.first.message, 'native');
@@ -325,8 +323,8 @@ void main() {
               'breadcrumbs': [Breadcrumb(message: 'native').toJson()]
             });
 
-        event = (await fixture.options.eventProcessors.first
-            .apply(event, Hint()))!;
+        event =
+            (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
 
         expect(event.breadcrumbs!.length, 1);
         expect(event.breadcrumbs!.first.message, 'event');
@@ -354,8 +352,8 @@ void main() {
               ]
             });
 
-        event = (await fixture.options.eventProcessors.first
-            .apply(event, Hint()))!;
+        event =
+            (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
 
         expect(event.breadcrumbs!.length, 1);
         expect(event.breadcrumbs!.first.message, 'native-mutated-applied');
@@ -418,7 +416,8 @@ void main() {
     });
 
     group('extra', () {
-      test('merges extra from native without overriding flutter keys', () async {
+      test('merges extra from native without overriding flutter keys',
+          () async {
         mockLoadContexts();
         await fixture.registerIntegration();
 
@@ -705,7 +704,8 @@ void main() {
         );
       });
 
-      test('does not add os and device attributes to log if enableLogs is false',
+      test(
+          'does not add os and device attributes to log if enableLogs is false',
           () async {
         fixture.options.enableLogs = false;
         await fixture.registerIntegration();
@@ -746,8 +746,7 @@ void main() {
         mockLoadContexts();
         await fixture.registerIntegration();
 
-        expect(
-            fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 1);
+        expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 1);
 
         final metric = SentryCounterMetric(
           timestamp: DateTime.now(),
@@ -787,8 +786,7 @@ void main() {
         mockLoadContexts();
         await fixture.registerIntegration();
 
-        expect(
-            fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 1);
+        expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 1);
 
         fixture.sut.close();
 
@@ -803,16 +801,16 @@ void main() {
         await fixture.registerIntegration();
 
         expect(
-          fixture.options.lifecycleRegistry
-              .lifecycleCallbacks[OnBeforeCaptureLog],
+          fixture
+              .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
           isNotEmpty,
         );
 
         fixture.sut.close();
 
         expect(
-          fixture.options.lifecycleRegistry
-              .lifecycleCallbacks[OnBeforeCaptureLog],
+          fixture
+              .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
           isEmpty,
         );
       });
@@ -823,8 +821,7 @@ void main() {
         mockLoadContexts();
         await fixture.registerIntegration();
 
-        expect(
-            fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 2);
+        expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 2);
 
         fixture.sut.close();
 
@@ -833,8 +830,8 @@ void main() {
           isEmpty,
         );
         expect(
-          fixture.options.lifecycleRegistry
-              .lifecycleCallbacks[OnBeforeCaptureLog],
+          fixture
+              .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
           isEmpty,
         );
       });
