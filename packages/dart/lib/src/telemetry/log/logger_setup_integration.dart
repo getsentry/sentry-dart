@@ -3,8 +3,9 @@ import '../../utils/internal_logger.dart';
 import 'default_logger.dart';
 import 'noop_logger.dart';
 
-class LogSetupIntegration extends Integration<SentryOptions> {
-  static const integrationName = 'LogSetup';
+/// Integration that sets up the default Sentry logger implementation.
+class LoggerSetupIntegration extends Integration<SentryOptions> {
+  static const integrationName = 'LoggerSetup';
 
   @override
   void call(Hub hub, SentryOptions options) {

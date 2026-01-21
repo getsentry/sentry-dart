@@ -24,6 +24,7 @@ class LogCapturePipeline {
     try {
       if (scope != null) {
         // Populate traceId from scope if not already set
+        // TODO(major-v10): this can be removed once we make the traceId required on the log
         if (log.traceId == null || log.traceId == SentryId.empty()) {
           log.traceId = scope.propagationContext.traceId;
         }

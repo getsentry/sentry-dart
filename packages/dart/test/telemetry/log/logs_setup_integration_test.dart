@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 import '../../test_utils.dart';
 
 void main() {
-  group('$LogSetupIntegration', () {
+  group('$LoggerSetupIntegration', () {
     late Fixture fixture;
 
     setUp(() {
@@ -32,7 +32,7 @@ void main() {
 
         expect(
           fixture.options.sdk.integrations,
-          contains(LogSetupIntegration.integrationName),
+          contains(LoggerSetupIntegration.integrationName),
         );
       });
 
@@ -63,7 +63,7 @@ void main() {
 
         expect(
           fixture.options.sdk.integrations,
-          isNot(contains(LogSetupIntegration.integrationName)),
+          isNot(contains(LoggerSetupIntegration.integrationName)),
         );
       });
     });
@@ -74,11 +74,11 @@ class Fixture {
   final options = defaultTestOptions();
 
   late final Hub hub;
-  late final LogSetupIntegration sut;
+  late final LoggerSetupIntegration sut;
 
   Fixture() {
     hub = Hub(options);
-    sut = LogSetupIntegration();
+    sut = LoggerSetupIntegration();
   }
 }
 

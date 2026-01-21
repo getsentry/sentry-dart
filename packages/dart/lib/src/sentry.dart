@@ -113,7 +113,7 @@ class Sentry {
     }
 
     options.addIntegration(MetricsSetupIntegration());
-    options.addIntegration(LogSetupIntegration());
+    options.addIntegration(LoggerSetupIntegration());
     options.addIntegration(FeatureFlagsIntegration());
     options.addIntegration(InMemoryTelemetryProcessorIntegration());
 
