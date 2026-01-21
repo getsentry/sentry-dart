@@ -3,8 +3,8 @@ import '../../utils/internal_logger.dart';
 import 'default_logger.dart';
 import 'noop_logger.dart';
 
-class LogsSetupIntegration extends Integration<SentryOptions> {
-  static const integrationName = 'LogsSetup';
+class LogSetupIntegration extends Integration<SentryOptions> {
+  static const integrationName = 'LogSetup';
 
   @override
   void call(Hub hub, SentryOptions options) {

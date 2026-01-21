@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/log/default_logger.dart';
-import 'package:sentry/src/telemetry/log/logs_setup_integration.dart';
+import 'package:sentry/src/telemetry/log/log_setup_integration.dart';
 import 'package:sentry/src/telemetry/log/noop_logger.dart';
 import 'package:test/test.dart';
 
 import '../../test_utils.dart';
 
 void main() {
-  group('$LogsSetupIntegration', () {
+  group('$LogSetupIntegration', () {
     late Fixture fixture;
 
     setUp(() {
@@ -32,7 +32,7 @@ void main() {
 
         expect(
           fixture.options.sdk.integrations,
-          contains(LogsSetupIntegration.integrationName),
+          contains(LogSetupIntegration.integrationName),
         );
       });
 
@@ -63,7 +63,7 @@ void main() {
 
         expect(
           fixture.options.sdk.integrations,
-          isNot(contains(LogsSetupIntegration.integrationName)),
+          isNot(contains(LogSetupIntegration.integrationName)),
         );
       });
     });
@@ -74,11 +74,11 @@ class Fixture {
   final options = defaultTestOptions();
 
   late final Hub hub;
-  late final LogsSetupIntegration sut;
+  late final LogSetupIntegration sut;
 
   Fixture() {
     hub = Hub(options);
-    sut = LogsSetupIntegration();
+    sut = LogSetupIntegration();
   }
 }
 
