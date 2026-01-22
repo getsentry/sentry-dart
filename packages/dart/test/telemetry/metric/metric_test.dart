@@ -1,5 +1,4 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/telemetry/metric/metric.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -25,8 +24,8 @@ void main() {
       expect(json['type'], 'counter');
       expect(json['name'], 'button_clicks');
       expect(json['value'], 5);
-      expect(json['trace_id'], traceId);
-      expect(json['span_id'], spanId);
+      expect(json['trace_id'], traceId.toString());
+      expect(json['span_id'], spanId.toString());
       expect(json['unit'], 'click');
       expect(json['attributes']['key'], {'type': 'string', 'value': 'value'});
     });

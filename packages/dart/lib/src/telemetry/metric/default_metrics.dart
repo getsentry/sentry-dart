@@ -2,7 +2,6 @@ import 'dart:async';
 
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
-import 'metric.dart';
 
 typedef CaptureMetricCallback = Future<void> Function(SentryMetric metric);
 typedef ScopeProvider = Scope Function();

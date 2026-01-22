@@ -1,6 +1,5 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
-import 'package:sentry/src/telemetry/metric/metric.dart';
 import 'package:sentry/src/telemetry/metric/metric_capture_pipeline.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';

@@ -1,6 +1,5 @@
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
-import '../metric/metric.dart';
 import 'in_memory_buffer.dart';
 import 'processor.dart';
 

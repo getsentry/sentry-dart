@@ -14,7 +14,6 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/client_report_transport.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/noop_transport.dart';
-import 'package:sentry/src/telemetry/metric/metric.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';

@@ -4,7 +4,6 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
-import '../metric/metric.dart';
 import 'buffer.dart';
 
 /// Interface for processing and buffering telemetry data before sending.
