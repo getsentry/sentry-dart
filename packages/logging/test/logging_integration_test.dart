@@ -492,7 +492,6 @@ class MockSentryLogger implements SentryLogger {
   Future<void> trace(
     String body, {
     Map<String, SentryAttribute>? attributes,
-    Scope? scope,
   }) async {
     traceCalls.add(MockLogCall(body, attributes));
   }
@@ -501,7 +500,6 @@ class MockSentryLogger implements SentryLogger {
   Future<void> debug(
     String body, {
     Map<String, SentryAttribute>? attributes,
-    Scope? scope,
   }) async {
     debugCalls.add(MockLogCall(body, attributes));
   }
@@ -510,7 +508,6 @@ class MockSentryLogger implements SentryLogger {
   Future<void> info(
     String body, {
     Map<String, SentryAttribute>? attributes,
-    Scope? scope,
   }) async {
     infoCalls.add(MockLogCall(body, attributes));
   }
@@ -519,7 +516,6 @@ class MockSentryLogger implements SentryLogger {
   Future<void> warn(
     String body, {
     Map<String, SentryAttribute>? attributes,
-    Scope? scope,
   }) async {
     warnCalls.add(MockLogCall(body, attributes));
   }
@@ -528,7 +524,6 @@ class MockSentryLogger implements SentryLogger {
   Future<void> error(
     String body, {
     Map<String, SentryAttribute>? attributes,
-    Scope? scope,
   }) async {
     errorCalls.add(MockLogCall(body, attributes));
   }
@@ -537,7 +532,6 @@ class MockSentryLogger implements SentryLogger {
   Future<void> fatal(
     String body, {
     Map<String, SentryAttribute>? attributes,
-    Scope? scope,
   }) async {
     fatalCalls.add(MockLogCall(body, attributes));
   }
