@@ -51,8 +51,8 @@ abstract class SentryMetric {
       'type': type,
       'name': name,
       'value': value,
-      'trace_id': traceId,
-      if (spanId != null) 'span_id': spanId,
+      'trace_id': traceId.toString(),
+      if (spanId != null) 'span_id': spanId.toString(),
       if (unit != null) 'unit': unit,
       if (attributes.isNotEmpty)
         'attributes': attributes.map((k, v) => MapEntry(k, v.toJson())),

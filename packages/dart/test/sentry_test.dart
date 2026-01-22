@@ -377,27 +377,7 @@ void main() {
       );
     }, onPlatform: {'vm': Skip()});
 
-    test('should add feature flag FeatureFlagsIntegration', () async {
-      await Sentry.init(
-        options: defaultTestOptions(),
-        (options) => options.dsn = fakeDsn,
-      );
-
-      await Sentry.addFeatureFlag('foo', true);
-
-      expect(
-        Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
-            .flag,
-        equals('foo'),
-      );
-      expect(
-        Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
-            .result,
-        equals(true),
-      );
-    });
-
-    test('should add feature flag $MetricsSetupIntegration', () async {
+    test('should add feature flag $FeatureFlagsIntegration', () async {
       await Sentry.init(
         options: defaultTestOptions(),
         (options) => options.dsn = fakeDsn,
