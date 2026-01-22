@@ -8,8 +8,6 @@ on:
   push:
     branches:
       - main
-  # Don't merge, testing only
-  pull_request:
 
 permissions:
   contents: write
