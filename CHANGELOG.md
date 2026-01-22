@@ -11,6 +11,10 @@
     - `Sentry.metrics.count(...)`
     - `Sentry.metrics.distribution(...)`
 
+### Enhancements
+
+- Refactor Logging API to be consistent with Metrics ([#3463](https://github.com/getsentry/sentry-dart/pull/3463))
+
 ### Dependencies
 
 - Bump Android SDK from v8.28.0 to v8.30.0 ([#3451](https://github.com/getsentry/sentry-dart/pull/3451))
