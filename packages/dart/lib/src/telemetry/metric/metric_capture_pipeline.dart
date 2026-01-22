@@ -5,7 +5,6 @@ import '../../client_reports/discard_reason.dart';
 import '../../transport/data_category.dart';
 import '../../utils/internal_logger.dart';
 import '../default_attributes.dart';
-import 'metric.dart';
 
 @internal
 class MetricCapturePipeline {

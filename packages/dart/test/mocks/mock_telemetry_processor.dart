@@ -1,5 +1,4 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/telemetry/metric/metric.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
 
 class MockTelemetryProcessor implements TelemetryProcessor {

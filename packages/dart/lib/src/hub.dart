@@ -9,7 +9,6 @@ import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
-import 'telemetry/metric/metric.dart';
 import 'transport/data_category.dart';
 
 /// Configures the scope through the callback.
