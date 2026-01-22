@@ -59,7 +59,7 @@ jobs:
       - uses: getsentry/github-workflows/updater@v3
         with:
           path: metrics/flutter.properties
-          name: Flutter SDK (metrics)
+          name: Flutter SDK Metrics
           changelog-entry: false
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
@@ -69,6 +69,6 @@ jobs:
       - uses: getsentry/github-workflows/updater@v3
         with:
           path: scripts/update-symbol-collector.sh
-          name: Symbol collector CLI
+          name: Symbol Collector CLI
           changelog-entry: false
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
