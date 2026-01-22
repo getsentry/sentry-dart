@@ -4,7 +4,6 @@ set -euo pipefail
 if [[ -n ${CI:+x} ]]; then
     echo "Running in CI so we need to set up Flutter SDK first"
     curl -Lv https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_3.27.3-stable.zip --output /tmp/flutter.zip
-    rm -rf /tmp/flutter
     unzip -q /tmp/flutter.zip -d /tmp
     export PATH=":/tmp/flutter/bin:$PATH"
     which flutter
