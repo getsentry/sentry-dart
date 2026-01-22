@@ -24,7 +24,7 @@ jobs:
         with:
           path: packages/flutter/scripts/update-android.sh
           name: Android SDK
-          api-token: ${{ secrets.CI_DEPLOY_KEY }}
+          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   cocoa:
     runs-on: macos-latest
@@ -33,7 +33,7 @@ jobs:
         with:
           path: packages/flutter/scripts/update-cocoa.sh
           name: Cocoa SDK
-          api-token: ${{ secrets.CI_DEPLOY_KEY }}
+          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   js:
     runs-on: ubuntu-latest
@@ -42,7 +42,7 @@ jobs:
         with:
           path: packages/flutter/scripts/update-js.sh
           name: JavaScript SDK
-          api-token: ${{ secrets.CI_DEPLOY_KEY }}
+          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   native:
     runs-on: ubuntu-latest
@@ -51,7 +51,7 @@ jobs:
         with:
           path: packages/flutter/scripts/update-native.sh
           name: Native SDK
-          api-token: ${{ secrets.CI_DEPLOY_KEY }}
+          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   metrics-flutter:
     runs-on: ubuntu-latest
@@ -61,7 +61,7 @@ jobs:
           path: metrics/flutter.properties
           name: Flutter SDK (metrics)
           changelog-entry: false
-          api-token: ${{ secrets.CI_DEPLOY_KEY }}
+          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   symbol-collector:
     runs-on: ubuntu-latest
@@ -71,4 +71,4 @@ jobs:
           path: scripts/update-symbol-collector.sh
           name: Symbol collector CLI
           changelog-entry: false
-          api-token: ${{ secrets.CI_DEPLOY_KEY }}
+          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
