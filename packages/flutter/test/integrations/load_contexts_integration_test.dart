@@ -5,7 +5,6 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sentry/src/logs_enricher_integration.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
@@ -689,20 +688,6 @@ void main() {
         expect(log.attributes['device.family']?.value, 'fixture-device-family');
       });
 
-      test('removes logsEnricherIntegration', () async {
-        final integration = LogsEnricherIntegration();
-        fixture.options.addIntegration(integration);
-
-        fixture.options.enableLogs = true;
-        await fixture.registerIntegration();
-
-        expect(
-          fixture.options.integrations
-              .any((element) => element is LogsEnricherIntegration),
-          isFalse,
-        );
-      });
-
       test(
           'does not add os and device attributes to log if enableLogs is false',
           () async {
@@ -731,8 +716,8 @@ void main() {
         final log = givenLog();
         await fixture.hub.captureLog(log);
 
-        expect(log.attributes['os.name'], isNull);
-        expect(log.attributes['os.version'], isNull);
+        // os.name and os.version are set by defaultAttributes() from Dart-level
+        // OS detection, not from native loadContexts(), so we only check device.*
         expect(log.attributes['device.brand'], isNull);
         expect(log.attributes['device.model'], isNull);
         expect(log.attributes['device.family'], isNull);
@@ -816,16 +801,14 @@ void main() {
         await fixture.registerIntegration();
 
         expect(
-          fixture
-              .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessLog],
           isNotEmpty,
         );
 
         fixture.sut.close();
 
         expect(
-          fixture
-              .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessLog],
           isEmpty,
         );
       });
@@ -845,8 +828,7 @@ void main() {
           isEmpty,
         );
         expect(
-          fixture
-              .options.lifecycleRegistry.lifecycleCallbacks[OnBeforeCaptureLog],
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessLog],
           isEmpty,
         );
       });

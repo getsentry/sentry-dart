@@ -15,7 +15,7 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
   ReplayTelemetryIntegration(this._native);
 
   SentryFlutterOptions? _options;
-  SdkLifecycleCallback<OnBeforeCaptureLog>? _onBeforeCaptureLog;
+  SdkLifecycleCallback<OnProcessLog>? _onProcessLog;
   SdkLifecycleCallback<OnProcessMetric>? _onProcessMetric;
 
   @override
@@ -28,7 +28,7 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
 
     _options = options;
 
-    _onBeforeCaptureLog = (OnBeforeCaptureLog event) {
+    _onProcessLog = (OnProcessLog event) {
       _addReplayAttributes(
         hub.scope.replayId,
         event.log.attributes,
@@ -46,8 +46,7 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
       );
     };
 
-    options.lifecycleRegistry
-        .registerCallback<OnBeforeCaptureLog>(_onBeforeCaptureLog!);
+    options.lifecycleRegistry.registerCallback<OnProcessLog>(_onProcessLog!);
     options.lifecycleRegistry
         .registerCallback<OnProcessMetric>(_onProcessMetric!);
     options.sdk.addIntegration(integrationName);
@@ -76,13 +75,12 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
   @override
   Future<void> close() async {
     final options = _options;
-    final onBeforeCaptureLog = _onBeforeCaptureLog;
+    final onProcessLog = _onProcessLog;
     final onProcessMetric = _onProcessMetric;
 
     if (options != null) {
-      if (onBeforeCaptureLog != null) {
-        options.lifecycleRegistry
-            .removeCallback<OnBeforeCaptureLog>(onBeforeCaptureLog);
+      if (onProcessLog != null) {
+        options.lifecycleRegistry.removeCallback<OnProcessLog>(onProcessLog);
       }
       if (onProcessMetric != null) {
         options.lifecycleRegistry
@@ -91,7 +89,7 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     }
 
     _options = null;
-    _onBeforeCaptureLog = null;
+    _onProcessLog = null;
     _onProcessMetric = null;
   }
 }

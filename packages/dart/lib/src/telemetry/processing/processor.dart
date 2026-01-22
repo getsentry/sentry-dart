@@ -58,6 +58,9 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
     }
 
     _logBuffer.add(log);
+
+    internalLogger.debug(() =>
+        '$runtimeType: Log "${log.body}" (${log.level.name}) added to buffer');
   }
 
   @override
@@ -70,6 +73,9 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
     }
 
     _metricBuffer.add(metric);
+
+    internalLogger.debug(() =>
+        '$runtimeType: Metric "${metric.name}" (${metric.value}) added to buffer');
   }
 
   @override

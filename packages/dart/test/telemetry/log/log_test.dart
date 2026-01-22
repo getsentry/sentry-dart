@@ -5,10 +5,12 @@ void main() {
   test('$SentryLog to json', () {
     final timestamp = DateTime.now();
     final traceId = SentryId.newId();
+    final spanId = SpanId.newId();
 
     final logItem = SentryLog(
       timestamp: timestamp,
       traceId: traceId,
+      spanId: spanId,
       level: SentryLogLevel.info,
       body: 'fixture-body',
       attributes: {
@@ -25,6 +27,7 @@ void main() {
     expect(json, {
       'timestamp': timestamp.toIso8601String(),
       'trace_id': traceId.toString(),
+      'span_id': spanId.toString(),
       'level': 'info',
       'body': 'fixture-body',
       'attributes': {

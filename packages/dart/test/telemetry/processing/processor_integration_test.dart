@@ -88,6 +88,7 @@ class _Fixture {
   SentryLog createLog() {
     return SentryLog(
       timestamp: DateTime.now().toUtc(),
+      traceId: SentryId.newId(),
       level: SentryLogLevel.info,
       body: 'test log',
       attributes: {},

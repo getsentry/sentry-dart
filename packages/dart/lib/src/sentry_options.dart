@@ -12,6 +12,7 @@ import 'noop_client.dart';
 import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
+import 'telemetry/log/noop_logger.dart';
 import 'telemetry/metric/noop_metrics.dart';
 import 'telemetry/processing/processor.dart';
 import 'transport/noop_transport.dart';
@@ -560,7 +561,8 @@ class SentryOptions {
   /// Enabling this option may change grouping.
   bool includeModuleInStackTrace = false;
 
-  late final SentryLogger logger = SentryLogger(clock);
+  @internal
+  late SentryLogger logger = const NoOpSentryLogger();
 
   @internal
   late SentryMetrics metrics = const NoOpSentryMetrics();

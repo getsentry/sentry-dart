@@ -16,49 +16,6 @@ void main() {
 
     setUp(() => fixture = Fixture());
 
-    group('Logs', () {
-      SentryLog givenLog() {
-        return SentryLog(
-          timestamp: DateTime.now(),
-          traceId: SentryId.newId(),
-          level: SentryLogLevel.info,
-          body: 'test',
-          attributes: {
-            'attribute': SentryAttribute.string('value'),
-          },
-        );
-      }
-
-      test('captureLog triggers OnBeforeCaptureLog', () async {
-        fixture.options.enableLogs = true;
-        fixture.options.environment = 'test-environment';
-        fixture.options.release = 'test-release';
-
-        final log = givenLog();
-
-        final scope = Scope(fixture.options);
-        final span = MockSpan();
-        scope.span = span;
-
-        final client = fixture.getSut();
-        final mockProcessor = MockTelemetryProcessor();
-        fixture.options.telemetryProcessor = mockProcessor;
-
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnBeforeCaptureLog>((event) {
-          event.log.attributes['test'] = SentryAttribute.string('test-value');
-        });
-
-        await client.captureLog(log, scope: scope);
-
-        expect(mockProcessor.addedLogs.length, 1);
-        final capturedLog = mockProcessor.addedLogs.first;
-
-        expect(capturedLog.attributes['test']?.value, "test-value");
-        expect(capturedLog.attributes['test']?.type, 'string');
-      });
-    });
-
     group('SentryEvent', () {
       test('captureEvent triggers OnBeforeSendEvent', () async {
         fixture.options.enableLogs = true;

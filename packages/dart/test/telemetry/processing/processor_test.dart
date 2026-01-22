@@ -119,6 +119,7 @@ class Fixture {
   SentryLog createLog({String body = 'test log'}) {
     return SentryLog(
       timestamp: DateTime.now().toUtc(),
+      traceId: SentryId.newId(),
       level: SentryLogLevel.info,
       body: body,
       attributes: {},
