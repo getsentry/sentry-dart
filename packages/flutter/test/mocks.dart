@@ -240,12 +240,18 @@ class MockLogItem {
 
 class MockTelemetryProcessor implements TelemetryProcessor {
   final List<SentryLog> addedLogs = [];
+  final List<SentryMetric> addedMetrics = [];
   int flushCalls = 0;
   int closeCalls = 0;
 
   @override
   void addLog(SentryLog log) {
     addedLogs.add(log);
+  }
+
+  @override
+  void addMetric(SentryMetric metric) {
+    addedMetrics.add(metric);
   }
 
   @override

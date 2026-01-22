@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Features
+
+- Trace connected metrics ([#3450](https://github.com/getsentry/sentry-dart/pull/3450))
+  - This feature is enabled by default.
+  - To send metrics use the following APIs:
+    - `Sentry.metrics.gauge(...)`
+    - `Sentry.metrics.count(...)`
+    - `Sentry.metrics.distribution(...)`
+
 ### Dependencies
 
 - Bump Android SDK from v8.28.0 to v8.30.0 ([#3451](https://github.com/getsentry/sentry-dart/pull/3451))

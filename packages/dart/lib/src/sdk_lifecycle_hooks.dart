@@ -96,3 +96,10 @@ class OnSpanFinish extends SdkLifecycleEvent {
 
   final ISentrySpan span;
 }
+
+@internal
+class OnProcessMetric extends SdkLifecycleEvent {
+  final SentryMetric metric;
+
+  OnProcessMetric(this.metric);
+}

@@ -317,6 +317,38 @@ class Hub {
     }
   }
 
+  Future<void> captureMetric(SentryMetric metric) async {
+    if (!_isEnabled) {
+      _options.log(
+        SentryLevel.warning,
+        "Instance is disabled and this 'captureMetric' call is a no-op.",
+      );
+    } else {
+      final item = _peek();
+      late Scope scope;
+      final s = _cloneAndRunWithScope(item.scope, null);
+      if (s is Future<Scope>) {
+        scope = await s;
+      } else {
+        scope = s;
+      }
+
+      try {
+        await item.client.captureMetric(
+          metric,
+          scope: scope,
+        );
+      } catch (exception, stacktrace) {
+        _options.log(
+          SentryLevel.error,
+          'Error while capturing metric',
+          exception: exception,
+          stackTrace: stacktrace,
+        );
+      }
+    }
+  }
+
   FutureOr<Scope> _cloneAndRunWithScope(
       Scope scope, ScopeCallback? withScope) async {
     if (withScope != null) {

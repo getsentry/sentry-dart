@@ -1,13 +1,14 @@
+// ignore_for_file: implementation_imports, invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 import 'package:collection/collection.dart';
-// ignore: implementation_imports
 import 'package:sentry/src/event_processor/enricher/enricher_event_processor.dart';
-// ignore: implementation_imports
 import 'package:sentry/src/logs_enricher_integration.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
+import '../utils/internal_logger.dart';
 
 /// Load Device's Contexts from the iOS & Android SDKs.
 ///
@@ -19,13 +20,19 @@ import '../sentry_flutter_options.dart';
 /// App, Device and OS.
 ///
 /// This integration is only executed on iOS, macOS & Android Apps.
-class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
+class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
+  Map<String, SentryAttribute>? _cachedAttributes;
+  SentryFlutterOptions? _options;
+  SdkLifecycleCallback<OnBeforeCaptureLog>? _logCallback;
+  SdkLifecycleCallback<OnProcessMetric>? _metricCallback;
 
   LoadContextsIntegration(this._native);
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
+    _options = options;
+
     options.addEventProcessor(
       _LoadContextsIntegrationEventProcessor(_native, options),
     );
@@ -45,7 +52,6 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
     }
     if (options.enableLogs) {
       final logsEnricherIntegration = options.integrations.firstWhereOrNull(
-        // ignore: invalid_use_of_internal_member
         (element) => element is LogsEnricherIntegration,
       );
       if (logsEnricherIntegration != null) {
@@ -54,54 +60,98 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
         options.removeIntegration(logsEnricherIntegration);
       }
 
-      // ignore: invalid_use_of_internal_member
+      _logCallback = (event) async {
+        try {
+          final attributes = await _nativeContextAttributes();
+          event.log.attributes.addAllIfAbsent(attributes);
+        } catch (exception, stackTrace) {
+          internalLogger.error(
+            'LoadContextsIntegration failed to load contexts for $OnBeforeCaptureLog',
+            error: exception,
+            stackTrace: stackTrace,
+          );
+        }
+      };
       options.lifecycleRegistry.registerCallback<OnBeforeCaptureLog>(
-        (event) async {
-          try {
-            final infos = await _native.loadContexts() ?? {};
-
-            final contextsMap = infos['contexts'] as Map?;
-            final contexts =
-                Contexts(); // We just need the the native contexts.
-            _mergeNativeWithLocalContexts(contextsMap, contexts);
-
-            if (contexts.operatingSystem?.name != null) {
-              event.log.attributes['os.name'] = SentryAttribute.string(
-                contexts.operatingSystem?.name ?? '',
-              );
-            }
-            if (contexts.operatingSystem?.version != null) {
-              event.log.attributes['os.version'] = SentryAttribute.string(
-                contexts.operatingSystem?.version ?? '',
-              );
-            }
-            if (contexts.device?.brand != null) {
-              event.log.attributes['device.brand'] = SentryAttribute.string(
-                contexts.device?.brand ?? '',
-              );
-            }
-            if (contexts.device?.model != null) {
-              event.log.attributes['device.model'] = SentryAttribute.string(
-                contexts.device?.model ?? '',
-              );
-            }
-            if (contexts.device?.family != null) {
-              event.log.attributes['device.family'] = SentryAttribute.string(
-                contexts.device?.family ?? '',
-              );
-            }
-          } catch (exception, stackTrace) {
-            options.log(
-              SentryLevel.error,
-              'LoadContextsIntegration failed to load contexts',
-              exception: exception,
-              stackTrace: stackTrace,
-            );
-          }
-        },
+        _logCallback!,
       );
     }
+
+    if (options.enableMetrics) {
+      _metricCallback = (event) async {
+        try {
+          final attributes = await _nativeContextAttributes();
+          event.metric.attributes.addAllIfAbsent(attributes);
+        } catch (exception, stackTrace) {
+          internalLogger.error(
+            'LoadContextsIntegration failed to load contexts for $OnProcessMetric',
+            error: exception,
+            stackTrace: stackTrace,
+          );
+        }
+      };
+      options.lifecycleRegistry.registerCallback<OnProcessMetric>(
+        _metricCallback!,
+      );
+    }
+
     options.sdk.addIntegration('loadContextsIntegration');
+  }
+
+  @override
+  void close() {
+    final options = _options;
+    if (options == null) return;
+
+    if (_logCallback != null) {
+      options.lifecycleRegistry
+          .removeCallback<OnBeforeCaptureLog>(_logCallback!);
+      _logCallback = null;
+    }
+    if (_metricCallback != null) {
+      options.lifecycleRegistry
+          .removeCallback<OnProcessMetric>(_metricCallback!);
+      _metricCallback = null;
+    }
+    _cachedAttributes = null;
+  }
+
+  Future<Map<String, SentryAttribute>> _nativeContextAttributes() async {
+    if (_cachedAttributes != null) {
+      return _cachedAttributes!;
+    }
+
+    final nativeContexts = await _native.loadContexts() ?? {};
+
+    final contextsMap = nativeContexts['contexts'] as Map?;
+    final contexts = Contexts();
+    _mergeNativeWithLocalContexts(contextsMap, contexts);
+
+    final attributes = <String, SentryAttribute>{};
+    if (contexts.operatingSystem?.name != null) {
+      attributes[SemanticAttributesConstants.osName] =
+          SentryAttribute.string(contexts.operatingSystem!.name!);
+    }
+    if (contexts.operatingSystem?.version != null) {
+      attributes[SemanticAttributesConstants.osVersion] =
+          SentryAttribute.string(contexts.operatingSystem!.version!);
+    }
+    if (contexts.device?.brand != null) {
+      attributes[SemanticAttributesConstants.deviceBrand] =
+          SentryAttribute.string(contexts.device!.brand!);
+    }
+    if (contexts.device?.model != null) {
+      attributes[SemanticAttributesConstants.deviceModel] =
+          SentryAttribute.string(contexts.device!.model!);
+    }
+    if (contexts.device?.family != null) {
+      attributes[SemanticAttributesConstants.deviceFamily] =
+          SentryAttribute.string(contexts.device!.family!);
+    }
+
+    _cachedAttributes = attributes;
+
+    return attributes;
   }
 }
 
@@ -247,10 +297,9 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         event.tags = tags;
       }
     } catch (exception, stackTrace) {
-      _options.log(
-        SentryLevel.error,
+      internalLogger.error(
         'loadContextsIntegration failed',
-        exception: exception,
+        error: exception,
         stackTrace: stackTrace,
       );
       if (_options.automatedTestMode) {

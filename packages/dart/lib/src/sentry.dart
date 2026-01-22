@@ -23,6 +23,8 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_run_zoned_guarded.dart';
+import 'telemetry/metric/metrics_setup_integration.dart';
+import 'telemetry/metric/metrics.dart';
 import 'telemetry/processing/processor_integration.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
@@ -110,6 +112,7 @@ class Sentry {
       options.addIntegration(LoadDartDebugImagesIntegration());
     }
 
+    options.addIntegration(MetricsSetupIntegration());
     options.addIntegration(FeatureFlagsIntegration());
     options.addIntegration(LogsEnricherIntegration());
     options.addIntegration(InMemoryTelemetryProcessorIntegration());
@@ -450,4 +453,6 @@ class Sentry {
       );
 
   static SentryLogger get logger => currentHub.options.logger;
+
+  static SentryMetrics get metrics => currentHub.options.metrics;
 }

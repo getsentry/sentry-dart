@@ -943,6 +943,61 @@ void main() {
       expect(fixture.client.captureLogCalls.first.log, log);
     });
   });
+
+  group('Hub Metrics', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    SentryMetric givenMetric() {
+      return SentryCounterMetric(
+        timestamp: DateTime.now().toUtc(),
+        name: 'test-metric',
+        value: 1,
+        traceId: SentryId.newId(),
+        attributes: {
+          'attribute': SentryAttribute.string('value'),
+        },
+      );
+    }
+
+    test('captures metrics', () async {
+      final hub = fixture.getSut();
+
+      final metric = givenMetric();
+      await hub.captureMetric(metric);
+
+      expect(fixture.client.captureMetricCalls.length, 1);
+      expect(fixture.client.captureMetricCalls.first.metric, metric);
+    });
+
+    test('does not capture metric when hub is disabled', () async {
+      final hub = fixture.getSut();
+      await hub.close();
+
+      final metric = givenMetric();
+      await hub.captureMetric(metric);
+
+      expect(fixture.client.captureMetricCalls, isEmpty);
+    });
+
+    test('passes scope to client', () async {
+      final hub = fixture.getSut();
+      hub.configureScope((scope) {
+        scope.setTag('test-tag', 'test-value');
+      });
+
+      final metric = givenMetric();
+      await hub.captureMetric(metric);
+
+      expect(fixture.client.captureMetricCalls.length, 1);
+      final capturedScope = fixture.client.captureMetricCalls.first.scope;
+      expect(capturedScope, isNotNull);
+      expect(capturedScope!.tags['test-tag'], 'test-value');
+    });
+  });
 }
 
 class Fixture {

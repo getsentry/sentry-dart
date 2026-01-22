@@ -23,6 +23,7 @@ import 'package:http/http.dart' as http;
 import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_hub.dart';
+import 'mocks/mock_metric_capture_pipeline.dart';
 import 'mocks/mock_telemetry_processor.dart';
 import 'mocks/mock_transport.dart';
 import 'test_utils.dart';
@@ -2057,6 +2058,34 @@ void main() {
 
       expect(capturedLog.attributes['test']?.value, "test-value");
       expect(capturedLog.attributes['test']?.type, 'string');
+    });
+  });
+
+  group('SentryClient captureMetric', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('delegates to metric pipeline', () async {
+      final pipeline = MockMetricCapturePipeline(fixture.options);
+      final client =
+          SentryClient(fixture.options, metricCapturePipeline: pipeline);
+      final scope = Scope(fixture.options);
+
+      final metric = SentryCounterMetric(
+        timestamp: DateTime.now().toUtc(),
+        name: 'test-metric',
+        value: 1,
+        traceId: SentryId.newId(),
+      );
+
+      await client.captureMetric(metric, scope: scope);
+
+      expect(pipeline.callCount, 1);
+      expect(pipeline.captureMetricCalls.first.metric, same(metric));
+      expect(pipeline.captureMetricCalls.first.scope, same(scope));
     });
   });
 

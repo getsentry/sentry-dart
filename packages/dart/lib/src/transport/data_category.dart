@@ -11,6 +11,7 @@ enum DataCategory {
   metricBucket,
   logItem,
   feedback,
+  metric,
   unknown;
 
   static DataCategory fromItemType(String itemType) {
@@ -29,6 +30,8 @@ enum DataCategory {
         return DataCategory.metricBucket;
       case 'log':
         return DataCategory.logItem;
+      case 'trace_metric':
+        return DataCategory.metric;
       case 'feedback':
         return DataCategory.feedback;
       default:
