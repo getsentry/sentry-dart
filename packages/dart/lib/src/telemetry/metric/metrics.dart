@@ -5,35 +5,74 @@ import 'metric.dart';
 ///
 /// Access via [Sentry.metrics].
 abstract interface class SentryMetrics {
-  /// Increments a counter metric by the given [value].
+  /// Increments a cumulative counter by [value].
   ///
-  /// Use counters to track the number of times an event occurs.
+  /// Use counters for values that only increase, like request counts or error
+  /// totals. The [name] identifies the metric (e.g., `'api.requests'`).
+  /// Optionally attach [attributes] to add dimensions for filtering.
+  ///
+  /// ```dart
+  /// Sentry.metrics.count(
+  ///   'api.requests',
+  ///   1,
+  ///   attributes: {
+  ///     'endpoint': SentryAttribute.string('/api/users'),
+  ///     'method': SentryAttribute.string('POST'),
+  ///   },
+  /// );
+  /// ```
   void count(
     String name,
     int value, {
     Map<String, SentryAttribute>? attributes,
   });
 
-  /// Records a value in a distribution metric.
+  /// Records a point-in-time [value] that can increase or decrease.
   ///
-  /// Use distributions to track the statistical distribution of values,
-  /// such as response times or file sizes.
+  /// Use gauges for values that fluctuate, like memory usage, queue depth, or
+  /// active connections. The [name] identifies the metric. Specify [unit] to
+  /// describe the measurement—  [SentryMetricUnit] provides officially supported
+  /// units (e.g., [SentryMetricUnit.byte]), but custom strings are also
+  /// accepted. Optionally attach [attributes] to add dimensions for filtering.
   ///
-  /// See [SentryMetricUnit] for predefined unit constants.
-  void distribution(
+  /// ```dart
+  /// Sentry.metrics.gauge(
+  ///   'memory.heap_used',
+  ///   1,
+  ///   unit: SentryMetricUnit.megabyte,
+  ///   attributes: {
+  ///     'process': SentryAttribute.string('main'),
+  ///   },
+  /// );
+  /// ```
+  void gauge(
     String name,
     num value, {
     String? unit,
     Map<String, SentryAttribute>? attributes,
   });
 
-  /// Sets the current value of a gauge metric.
+  /// Records a [value] for statistical distribution analysis.
   ///
-  /// Use gauges to track values that can increase or decrease over time,
-  /// such as memory usage or queue depth.
+  /// Use distributions to track values where you need percentiles, averages,
+  /// and histograms—like response times or payload sizes. The [name] identifies
+  /// the metric. Specify [unit] to describe the measurement — [SentryMetricUnit]
+  /// provides officially supported units (e.g., [SentryMetricUnit.millisecond]),
+  /// but custom strings are also accepted. Optionally attach [attributes] to
+  /// add dimensions for filtering.
   ///
-  /// See [SentryMetricUnit] for predefined unit constants.
-  void gauge(
+  /// ```dart
+  /// Sentry.metrics.distribution(
+  ///   'http.request.duration',
+  ///   245.3,
+  ///   unit: SentryMetricUnit.millisecond,
+  ///   attributes: {
+  ///     'endpoint': SentryAttribute.string('/api/users'),
+  ///     'status_code': SentryAttribute.int(200),
+  ///   },
+  /// );
+  /// ```
+  void distribution(
     String name,
     num value, {
     String? unit,

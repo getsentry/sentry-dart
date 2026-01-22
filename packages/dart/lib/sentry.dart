@@ -61,6 +61,6 @@ export 'src/utils/url_details.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/breadcrumb_log_level.dart';
 export 'src/sentry_logger.dart';
-export 'src/telemetry/metric/metrics.dart';
+export 'src/telemetry/telemetry.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/internal_logger.dart' show SentryInternalLogger;
