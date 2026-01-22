@@ -84,28 +84,40 @@ class Fixture {
 
 class _CustomSentryLogger implements SentryLogger {
   @override
-  FutureOr<void> trace(String body,
-      {Map<String, SentryAttribute>? attributes, Scope? scope}) {}
+  FutureOr<void> trace(
+    String body, {
+    Map<String, SentryAttribute>? attributes,
+  }) {}
 
   @override
-  FutureOr<void> debug(String body,
-      {Map<String, SentryAttribute>? attributes, Scope? scope}) {}
+  FutureOr<void> debug(
+    String body, {
+    Map<String, SentryAttribute>? attributes,
+  }) {}
 
   @override
-  FutureOr<void> info(String body,
-      {Map<String, SentryAttribute>? attributes, Scope? scope}) {}
+  FutureOr<void> info(
+    String body, {
+    Map<String, SentryAttribute>? attributes,
+  }) {}
 
   @override
-  FutureOr<void> warn(String body,
-      {Map<String, SentryAttribute>? attributes, Scope? scope}) {}
+  FutureOr<void> warn(
+    String body, {
+    Map<String, SentryAttribute>? attributes,
+  }) {}
 
   @override
-  FutureOr<void> error(String body,
-      {Map<String, SentryAttribute>? attributes, Scope? scope}) {}
+  FutureOr<void> error(
+    String body, {
+    Map<String, SentryAttribute>? attributes,
+  }) {}
 
   @override
-  FutureOr<void> fatal(String body,
-      {Map<String, SentryAttribute>? attributes, Scope? scope}) {}
+  FutureOr<void> fatal(
+    String body, {
+    Map<String, SentryAttribute>? attributes,
+  }) {}
 
   @override
   SentryLoggerFormatter get fmt => _CustomSentryLoggerFormatter();
@@ -113,26 +125,44 @@ class _CustomSentryLogger implements SentryLogger {
 
 class _CustomSentryLoggerFormatter implements SentryLoggerFormatter {
   @override
-  FutureOr<void> trace(String templateBody, List<dynamic> arguments,
-      {Map<String, SentryAttribute>? attributes, Scope? scope}) {}
+  FutureOr<void> trace(
+    String templateBody,
+    List<dynamic> arguments, {
+    Map<String, SentryAttribute>? attributes,
+  }) {}
 
   @override
-  FutureOr<void> debug(String templateBody, List<dynamic> arguments,
-      {Map<String, SentryAttribute>? attributes, Scope? scope}) {}
+  FutureOr<void> debug(
+    String templateBody,
+    List<dynamic> arguments, {
+    Map<String, SentryAttribute>? attributes,
+  }) {}
 
   @override
-  FutureOr<void> info(String templateBody, List<dynamic> arguments,
-      {Map<String, SentryAttribute>? attributes, Scope? scope}) {}
+  FutureOr<void> info(
+    String templateBody,
+    List<dynamic> arguments, {
+    Map<String, SentryAttribute>? attributes,
+  }) {}
 
   @override
-  FutureOr<void> warn(String templateBody, List<dynamic> arguments,
-      {Map<String, SentryAttribute>? attributes, Scope? scope}) {}
+  FutureOr<void> warn(
+    String templateBody,
+    List<dynamic> arguments, {
+    Map<String, SentryAttribute>? attributes,
+  }) {}
 
   @override
-  FutureOr<void> error(String templateBody, List<dynamic> arguments,
-      {Map<String, SentryAttribute>? attributes, Scope? scope}) {}
+  FutureOr<void> error(
+    String templateBody,
+    List<dynamic> arguments, {
+    Map<String, SentryAttribute>? attributes,
+  }) {}
 
   @override
-  FutureOr<void> fatal(String templateBody, List<dynamic> arguments,
-      {Map<String, SentryAttribute>? attributes, Scope? scope}) {}
+  FutureOr<void> fatal(
+    String templateBody,
+    List<dynamic> arguments, {
+    Map<String, SentryAttribute>? attributes,
+  }) {}
 }
