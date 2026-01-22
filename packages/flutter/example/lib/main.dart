@@ -97,6 +97,13 @@ Future<void> setupSentry(
 
       options.enableLogs = true;
 
+      options.beforeSendMetric = (metric) {
+        if (metric.name == 'drop-metric') {
+          return null;
+        }
+        return metric;
+      };
+
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
         options.dist = '1';
