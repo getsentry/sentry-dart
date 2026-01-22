@@ -49,7 +49,6 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     options.lifecycleRegistry.registerCallback<OnProcessLog>(_onProcessLog!);
     options.lifecycleRegistry
         .registerCallback<OnProcessMetric>(_onProcessMetric!);
-
     options.sdk.addIntegration(integrationName);
   }
 

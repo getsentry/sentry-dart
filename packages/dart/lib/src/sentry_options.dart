@@ -561,6 +561,7 @@ class SentryOptions {
   /// Enabling this option may change grouping.
   bool includeModuleInStackTrace = false;
 
+  @internal
   late SentryLogger logger = const NoOpSentryLogger();
 
   @internal

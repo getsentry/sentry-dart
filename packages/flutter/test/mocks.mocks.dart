@@ -4153,14 +4153,10 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i12.Future<_i2.SentryId>);
 
   @override
-  _i12.FutureOr<void> captureLog(
-    _i2.SentryLog? log, {
-    _i2.Scope? scope,
-  }) =>
+  _i12.FutureOr<void> captureLog(_i2.SentryLog? log) =>
       (super.noSuchMethod(Invocation.method(
         #captureLog,
         [log],
-        {#scope: scope},
       )) as _i12.FutureOr<void>);
 
   @override

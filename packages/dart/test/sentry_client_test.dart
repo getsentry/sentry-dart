@@ -1773,6 +1773,34 @@ void main() {
     });
   });
 
+  group('SentryClient captureMetric', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('delegates to metric pipeline', () async {
+      final pipeline = MockMetricCapturePipeline(fixture.options);
+      final client =
+          SentryClient(fixture.options, metricCapturePipeline: pipeline);
+      final scope = Scope(fixture.options);
+
+      final metric = SentryCounterMetric(
+        timestamp: DateTime.now().toUtc(),
+        name: 'test-metric',
+        value: 1,
+        traceId: SentryId.newId(),
+      );
+
+      await client.captureMetric(metric, scope: scope);
+
+      expect(pipeline.callCount, 1);
+      expect(pipeline.captureMetricCalls.first.metric, same(metric));
+      expect(pipeline.captureMetricCalls.first.scope, same(scope));
+    });
+  });
+
   group('SentryClient captures envelope', () {
     late Fixture fixture;
     final fakeEnvelope = getFakeEnvelope();
