@@ -4,61 +4,69 @@ on:
   # Run every day.
   schedule:
     - cron: "0 3 * * *"
-  # And on on every PR merge so we get the updated dependencies ASAP, and to make sure the changelog doesn't conflict.
+  # And on every PR merge so we get the updated dependencies ASAP, and to make sure the changelog doesn't conflict.
   push:
     branches:
       - main
 
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
 jobs:
   android:
-    uses: getsentry/github-workflows/.github/workflows/updater.yml@v2
-    with:
-      path: packages/flutter/scripts/update-android.sh
-      name: Android SDK
-    secrets:
-      api-token: ${{ secrets.CI_DEPLOY_KEY }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: getsentry/github-workflows/updater@v3
+        with:
+          path: packages/flutter/scripts/update-android.sh
+          name: Android SDK
+          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   cocoa:
-    uses: getsentry/github-workflows/.github/workflows/updater.yml@v2
-    with:
-      path: packages/flutter/scripts/update-cocoa.sh
-      name: Cocoa SDK
-      runs-on: macos-latest
-    secrets:
-      api-token: ${{ secrets.CI_DEPLOY_KEY }}
+    runs-on: macos-latest
+    steps:
+      - uses: getsentry/github-workflows/updater@v3
+        with:
+          path: packages/flutter/scripts/update-cocoa.sh
+          name: Cocoa SDK
+          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   js:
-    uses: getsentry/github-workflows/.github/workflows/updater.yml@v2
-    with:
-      path: packages/flutter/scripts/update-js.sh
-      name: JavaScript SDK
-    secrets:
-      api-token: ${{ secrets.CI_DEPLOY_KEY }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: getsentry/github-workflows/updater@v3
+        with:
+          path: packages/flutter/scripts/update-js.sh
+          name: JavaScript SDK
+          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   native:
-    uses: getsentry/github-workflows/.github/workflows/updater.yml@v2
-    with:
-      path: packages/flutter/scripts/update-native.sh
-      name: Native SDK
-    secrets:
-      api-token: ${{ secrets.CI_DEPLOY_KEY }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: getsentry/github-workflows/updater@v3
+        with:
+          path: packages/flutter/scripts/update-native.sh
+          name: Native SDK
+          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   metrics-flutter:
-    uses: getsentry/github-workflows/.github/workflows/updater.yml@v2
-    with:
-      path: metrics/flutter.properties
-      name: Flutter SDK (metrics)
-      changelog-entry: false
-      pr-strategy: update
-    secrets:
-      api-token: ${{ secrets.CI_DEPLOY_KEY }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: getsentry/github-workflows/updater@v3
+        with:
+          path: metrics/flutter.properties
+          name: Flutter SDK Metrics
+          changelog-entry: false
+          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   symbol-collector:
-    uses: getsentry/github-workflows/.github/workflows/updater.yml@v2
-    with:
-      path: scripts/update-symbol-collector.sh
-      name: Symbol collector CLI
-      changelog-entry: false
-      pr-strategy: update
-    secrets:
-      api-token: ${{ secrets.CI_DEPLOY_KEY }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: getsentry/github-workflows/updater@v3
+        with:
+          path: scripts/update-symbol-collector.sh
+          name: Symbol Collector CLI
+          changelog-entry: false
+          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
