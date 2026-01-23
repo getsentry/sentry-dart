@@ -10,6 +10,10 @@
     - `Sentry.metrics.gauge(...)`
     - `Sentry.metrics.count(...)`
     - `Sentry.metrics.distribution(...)`
+- Add `captureNativeFailedRequests` option for iOS/macOS ([#3472](https://github.com/getsentry/sentry-dart/pull/3472))
+  - This option allows controlling native HTTP error capturing independently from `captureFailedRequests`.
+  - When `null` (the default), it falls back to `captureFailedRequests` for backwards compatibility.
+  - Set to `false` to disable native failed request capturing while keeping Dart-side capturing enabled.
 
 ### Enhancements
 
