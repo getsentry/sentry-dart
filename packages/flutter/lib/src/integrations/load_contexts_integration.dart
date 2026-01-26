@@ -90,11 +90,7 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
       _spanCallback = (event) async {
         try {
           final attributes = await _nativeContextAttributes();
-          for (final entry in attributes.entries) {
-            if (!event.span.attributes.containsKey(entry.key)) {
-              event.span.setAttribute(entry.key, entry.value);
-            }
-          }
+          event.span.setAttributesIfAbsent(attributes);
         } catch (exception, stackTrace) {
           internalLogger.error(
             'LoadContextsIntegration failed to load contexts for $OnProcessSpan',

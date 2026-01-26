@@ -108,6 +108,34 @@ void main() {
       expect(span.attributes, equals(attributes));
     });
 
+    test('setAttributesIfAbsent sets attributes only if key does not exist',
+        () {
+      final span = fixture.createSpan(name: 'test-span');
+
+      final attributes = {
+        'key1': SentryAttribute.string('value1'),
+        'key2': SentryAttribute.int(42),
+      };
+      span.setAttributesIfAbsent(attributes);
+
+      expect(span.attributes, equals(attributes));
+    });
+
+    test('setAttributesIfAbsent does not override existing attributes', () {
+      final span = fixture.createSpan(name: 'test-span');
+
+      span.setAttribute('key1', SentryAttribute.string('existing-value'));
+
+      final attributes = {
+        'key1': SentryAttribute.string('new-value'),
+        'key2': SentryAttribute.int(42),
+      };
+      span.setAttributesIfAbsent(attributes);
+
+      expect(span.attributes['key1']?.value, equals('existing-value'));
+      expect(span.attributes['key2']?.value, equals(42));
+    });
+
     test('setName sets span name', () {
       final span = fixture.createSpan(name: 'initial-name');
 

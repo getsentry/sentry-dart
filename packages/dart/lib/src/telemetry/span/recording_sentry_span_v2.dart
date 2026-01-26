@@ -171,6 +171,13 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
   }
 
   @override
+  void setAttributesIfAbsent(Map<String, SentryAttribute> attributes) {
+    for (final entry in attributes.entries) {
+      _attributes.putIfAbsent(entry.key, () => entry.value);
+    }
+  }
+
+  @override
   void removeAttribute(String key) {
     _attributes.remove(key);
   }

@@ -5,7 +5,9 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/sdk_lifecycle_hooks.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
 
@@ -780,6 +782,96 @@ void main() {
       });
     });
 
+    group('spans', () {
+      RecordingSentrySpanV2 givenSpan() {
+        return RecordingSentrySpanV2.root(
+          name: 'test-span',
+          traceId: SentryId.newId(),
+          onSpanEnd: (_) {},
+          clock: fixture.options.clock,
+          dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
+          samplingDecision: SentryTracesSamplingDecision(true),
+        );
+      }
+
+      test('adds native attributes to span when traceLifecycle is streaming',
+          () async {
+        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+        mockLoadContexts();
+        await fixture.registerIntegration();
+
+        expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessSpan],
+          isNotEmpty,
+        );
+
+        final span = givenSpan();
+        await fixture.options.lifecycleRegistry
+            .dispatchCallback(OnProcessSpan(span));
+
+        verify(fixture.binding.loadContexts()).called(1);
+        final attributes = span.attributes;
+        expect(attributes[SemanticAttributesConstants.osName]?.value,
+            'fixture-os-name');
+        expect(attributes[SemanticAttributesConstants.osVersion]?.value,
+            'fixture-os-version');
+        expect(attributes[SemanticAttributesConstants.deviceBrand]?.value,
+            'fixture-device-brand');
+        expect(attributes[SemanticAttributesConstants.deviceModel]?.value,
+            'fixture-device-model');
+        expect(attributes[SemanticAttributesConstants.deviceFamily]?.value,
+            'fixture-device-family');
+      });
+
+      test('does not override existing span attributes', () async {
+        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+        mockLoadContexts();
+        await fixture.registerIntegration();
+
+        final span = givenSpan();
+        span.setAttribute(SemanticAttributesConstants.osName,
+            SentryAttribute.string('existing-os-name'));
+
+        await fixture.options.lifecycleRegistry
+            .dispatchCallback(OnProcessSpan(span));
+
+        final attributes = span.attributes;
+        expect(attributes[SemanticAttributesConstants.osName]?.value,
+            'existing-os-name');
+        // Other attributes should still be added
+        expect(attributes[SemanticAttributesConstants.osVersion]?.value,
+            'fixture-os-version');
+      });
+
+      test(
+          'does not register callback when traceLifecycle is not streaming',
+          () async {
+        fixture.options.traceLifecycle = SentryTraceLifecycle.static;
+        await fixture.registerIntegration();
+
+        expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessSpan],
+          isNull,
+        );
+      });
+
+      test('handles throw during loadContexts', () async {
+        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+        await fixture.registerIntegration();
+
+        when(fixture.binding.loadContexts()).thenThrow(Exception('test'));
+
+        final span = givenSpan();
+        await fixture.options.lifecycleRegistry
+            .dispatchCallback(OnProcessSpan(span));
+
+        // Attributes should remain unchanged (empty or just what was set before)
+        expect(span.attributes[SemanticAttributesConstants.deviceBrand], isNull);
+        expect(span.attributes[SemanticAttributesConstants.deviceModel], isNull);
+        expect(span.attributes[SemanticAttributesConstants.deviceFamily], isNull);
+      });
+    });
+
     group('close', () {
       test('removes metric callback from lifecycle registry', () async {
         fixture.options.enableMetrics = true;
@@ -813,13 +905,32 @@ void main() {
         );
       });
 
-      test('removes both callbacks when both features enabled', () async {
-        fixture.options.enableMetrics = true;
-        fixture.options.enableLogs = true;
+      test('removes span callback from lifecycle registry', () async {
+        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
         mockLoadContexts();
         await fixture.registerIntegration();
 
-        expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 2);
+        expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessSpan],
+          isNotEmpty,
+        );
+
+        fixture.sut.close();
+
+        expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessSpan],
+          isEmpty,
+        );
+      });
+
+      test('removes all callbacks when all features enabled', () async {
+        fixture.options.enableMetrics = true;
+        fixture.options.enableLogs = true;
+        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+        mockLoadContexts();
+        await fixture.registerIntegration();
+
+        expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 3);
 
         fixture.sut.close();
 
@@ -831,9 +942,13 @@ void main() {
           fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessLog],
           isEmpty,
         );
+        expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessSpan],
+          isEmpty,
+        );
       });
 
-      test('callback is not invoked after close', () async {
+      test('metric callback is not invoked after close', () async {
         fixture.options.enableMetrics = true;
         mockLoadContexts();
         await fixture.registerIntegration();
@@ -852,6 +967,29 @@ void main() {
 
         verifyNever(fixture.binding.loadContexts());
         expect(metric.attributes, isEmpty);
+      });
+
+      test('span callback is not invoked after close', () async {
+        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+        mockLoadContexts();
+        await fixture.registerIntegration();
+
+        fixture.sut.close();
+
+        final span = RecordingSentrySpanV2.root(
+          name: 'test-span',
+          traceId: SentryId.newId(),
+          onSpanEnd: (_) {},
+          clock: fixture.options.clock,
+          dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
+          samplingDecision: SentryTracesSamplingDecision(true),
+        );
+
+        await fixture.options.lifecycleRegistry
+            .dispatchCallback(OnProcessSpan(span));
+
+        verifyNever(fixture.binding.loadContexts());
+        expect(span.attributes, isEmpty);
       });
     });
   });
