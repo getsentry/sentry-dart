@@ -62,20 +62,38 @@ void main() {
       });
     });
 
+    group('addMetric', () {
+      test('routes metric to metric buffer', () {
+        final mockMetricBuffer = MockTelemetryBuffer<SentryMetric>();
+        final processor =
+            fixture.getSut(enableMetrics: true, metricBuffer: mockMetricBuffer);
+
+        final metric = fixture.createMetric();
+        processor.addMetric(metric);
+
+        expect(mockMetricBuffer.addedItems.length, 1);
+        expect(mockMetricBuffer.addedItems.first, metric);
+      });
+    });
+
     group('flush', () {
       test('flushes all registered buffers', () async {
         final mockSpanBuffer = MockTelemetryBuffer<RecordingSentrySpanV2>();
         final mockLogBuffer = MockTelemetryBuffer<SentryLog>();
+        final mockMetricBuffer = MockTelemetryBuffer<SentryMetric>();
+
         final processor = fixture.getSut(
           enableLogs: true,
           spanBuffer: mockSpanBuffer,
           logBuffer: mockLogBuffer,
+          metricBuffer: mockMetricBuffer,
         );
 
         await processor.flush();
 
         expect(mockSpanBuffer.flushCallCount, 1);
         expect(mockLogBuffer.flushCallCount, 1);
+        expect(mockMetricBuffer.flushCallCount, 1);
       });
 
       test('flushes only span buffer when log buffer is null', () async {
@@ -91,8 +109,14 @@ void main() {
       test('returns sync (null) when all buffers flush synchronously', () {
         final mockSpanBuffer =
             MockTelemetryBuffer<RecordingSentrySpanV2>(asyncFlush: false);
-        final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
-        processor.logBuffer = null;
+        final mockLogBuffer = MockTelemetryBuffer<SentryLog>(asyncFlush: false);
+        final mockMetricBuffer =
+            MockTelemetryBuffer<SentryMetric>(asyncFlush: false);
+
+        final processor = fixture.getSut(
+            spanBuffer: mockSpanBuffer,
+            logBuffer: mockLogBuffer,
+            metricBuffer: mockMetricBuffer);
 
         final result = processor.flush();
 
@@ -103,8 +127,13 @@ void main() {
           () async {
         final mockSpanBuffer =
             MockTelemetryBuffer<RecordingSentrySpanV2>(asyncFlush: true);
-        final processor = fixture.getSut(spanBuffer: mockSpanBuffer);
-        processor.logBuffer = null;
+        final mockLogBuffer = MockTelemetryBuffer<SentryLog>(asyncFlush: false);
+        final mockMetricBuffer =
+            MockTelemetryBuffer<SentryMetric>(asyncFlush: false);
+        final processor = fixture.getSut(
+            spanBuffer: mockSpanBuffer,
+            logBuffer: mockLogBuffer,
+            metricBuffer: mockMetricBuffer);
 
         final result = processor.flush();
 
@@ -124,13 +153,17 @@ class Fixture {
 
   DefaultTelemetryProcessor getSut({
     bool enableLogs = false,
+    bool enableMetrics = false,
     MockTelemetryBuffer<RecordingSentrySpanV2>? spanBuffer,
     MockTelemetryBuffer<SentryLog>? logBuffer,
+    MockTelemetryBuffer<SentryMetric>? metricBuffer,
   }) {
     options.enableLogs = enableLogs;
+    options.enableMetrics = enableMetrics;
     return DefaultTelemetryProcessor(
       spanBuffer: spanBuffer,
       logBuffer: logBuffer,
+      metricBuffer: metricBuffer,
     );
   }
 
@@ -163,9 +196,18 @@ class Fixture {
   SentryLog createLog({String body = 'test log'}) {
     return SentryLog(
       timestamp: DateTime.now().toUtc(),
+      traceId: SentryId.newId(),
       level: SentryLogLevel.info,
       body: body,
       attributes: {},
     );
   }
+
+  SentryMetric createMetric() => SentryCounterMetric(
+        timestamp: DateTime.now().toUtc(),
+        attributes: {},
+        name: 'test-metric',
+        value: 1,
+        traceId: SentryId.newId(),
+      );
 }

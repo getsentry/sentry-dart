@@ -5,6 +5,7 @@ import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 class MockTelemetryProcessor implements TelemetryProcessor {
   final List<RecordingSentrySpanV2> addedSpans = [];
   final List<SentryLog> addedLogs = [];
+  final List<SentryMetric> addedMetrics = [];
   int flushCalls = 0;
   int closeCalls = 0;
 
@@ -16,6 +17,11 @@ class MockTelemetryProcessor implements TelemetryProcessor {
   @override
   void addLog(SentryLog log) {
     addedLogs.add(log);
+  }
+
+  @override
+  void addMetric(SentryMetric metric) {
+    addedMetrics.add(metric);
   }
 
   @override

@@ -13,6 +13,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<CaptureFeedbackCall> captureFeedbackCalls = [];
   List<CaptureLogCall> captureLogCalls = [];
   List<CaptureSpanCall> captureSpanCalls = [];
+  List<CaptureMetricCall> captureMetricCalls = [];
   int closeCalls = 0;
 
   @override
@@ -95,6 +96,11 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   @override
   Future<void> captureSpan(SentrySpanV2 span, {Scope? scope}) async {
     captureSpanCalls.add(CaptureSpanCall(span, scope));
+  }
+
+  @override
+  Future<void> captureMetric(SentryMetric metric, {Scope? scope}) async {
+    captureMetricCalls.add(CaptureMetricCall(metric, scope));
   }
 
   @override
@@ -199,4 +205,11 @@ class CaptureSpanCall {
   final Scope? scope;
 
   CaptureSpanCall(this.span, this.scope);
+}
+
+class CaptureMetricCall {
+  final SentryMetric metric;
+  final Scope? scope;
+
+  CaptureMetricCall(this.metric, this.scope);
 }

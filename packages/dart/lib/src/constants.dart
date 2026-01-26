@@ -82,6 +82,14 @@ abstract class SemanticAttributesConstants {
   /// The version of the Sentry SDK
   static const sentrySdkVersion = 'sentry.sdk.version';
 
+  /// The replay ID.
+  static const sentryReplayId = 'sentry.replay_id';
+
+  /// Whether the replay is buffering (onErrorSampleRate).
+  static const sentryInternalReplayIsBuffering =
+      'sentry._internal.replay_is_buffering';
+
+
   /// The user ID (gated by `sendDefaultPii`).
   static const userId = 'user.id';
 

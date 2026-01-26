@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 import 'package:collection/collection.dart';
 import 'package:sentry/src/event_processor/enricher/enricher_event_processor.dart';
-import 'package:sentry/src/logs_enricher_integration.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 import '../utils/internal_logger.dart';
@@ -20,14 +19,20 @@ import '../utils/internal_logger.dart';
 /// App, Device and OS.
 ///
 /// This integration is only executed on iOS, macOS & Android Apps.
-class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
+class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
   final SentryNativeBinding _native;
   Map<String, SentryAttribute>? _cachedAttributes;
+  SentryFlutterOptions? _options;
+  SdkLifecycleCallback<OnProcessLog>? _logCallback;
+  SdkLifecycleCallback<OnProcessMetric>? _metricCallback;
+  SdkLifecycleCallback<OnProcessSpan>? _spanCallback;
 
   LoadContextsIntegration(this._native);
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
+    _options = options;
+
     options.addEventProcessor(
       _LoadContextsIntegrationEventProcessor(_native, options),
     );
@@ -46,33 +51,43 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
       options.addEventProcessor(enricherEventProcessor);
     }
     if (options.enableLogs) {
-      final logsEnricherIntegration = options.integrations.firstWhereOrNull(
-        (element) => element is LogsEnricherIntegration,
+      _logCallback = (event) async {
+        try {
+          final attributes = await _nativeContextAttributes();
+          event.log.attributes.addAllIfAbsent(attributes);
+        } catch (exception, stackTrace) {
+          internalLogger.error(
+            'LoadContextsIntegration failed to load contexts for $OnProcessLog',
+            error: exception,
+            stackTrace: stackTrace,
+          );
+        }
+      };
+      options.lifecycleRegistry.registerCallback<OnProcessLog>(
+        _logCallback!,
       );
-      if (logsEnricherIntegration != null) {
-        // Contexts from native cover the os.name and os.version attributes,
-        // so we can remove the logsEnricherIntegration.
-        options.removeIntegration(logsEnricherIntegration);
-      }
+    }
 
-      options.lifecycleRegistry.registerCallback<OnBeforeCaptureLog>(
-        (event) async {
-          try {
-            final attributes = await _nativeContextAttributes();
-            event.log.attributes.addAllIfAbsent(attributes);
-          } catch (exception, stackTrace) {
-            internalLogger.error(
-              'LoadContextsIntegration failed to load contexts for $OnBeforeCaptureLog',
-              error: exception,
-              stackTrace: stackTrace,
-            );
-          }
-        },
+    if (options.enableMetrics) {
+      _metricCallback = (event) async {
+        try {
+          final attributes = await _nativeContextAttributes();
+          event.metric.attributes.addAllIfAbsent(attributes);
+        } catch (exception, stackTrace) {
+          internalLogger.error(
+            'LoadContextsIntegration failed to load contexts for $OnProcessMetric',
+            error: exception,
+            stackTrace: stackTrace,
+          );
+        }
+      };
+      options.lifecycleRegistry.registerCallback<OnProcessMetric>(
+        _metricCallback!,
       );
     }
 
     if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
-      options.lifecycleRegistry.registerCallback<OnProcessSpan>((event) async {
+      _spanCallback = (event) async {
         try {
           final attributes = await _nativeContextAttributes();
           for (final entry in attributes.entries) {
@@ -87,11 +102,36 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
             stackTrace: stackTrace,
           );
         }
-      });
+      };
+      options.lifecycleRegistry.registerCallback<OnProcessSpan>(
+        _spanCallback!,
+      );
     }
 
     options.sdk.addIntegration('loadContextsIntegration');
   }
+
+  @override
+  void close() {
+    final options = _options;
+    if (options == null) return;
+
+    if (_logCallback != null) {
+      options.lifecycleRegistry.removeCallback<OnProcessLog>(_logCallback!);
+      _logCallback = null;
+    }
+    if (_metricCallback != null) {
+      options.lifecycleRegistry
+          .removeCallback<OnProcessMetric>(_metricCallback!);
+      _metricCallback = null;
+    }
+    if (_spanCallback != null) {
+      options.lifecycleRegistry.removeCallback<OnProcessSpan>(_spanCallback!);
+      _spanCallback = null;
+    }
+    _cachedAttributes = null;
+  }
+
 
   Future<Map<String, SentryAttribute>> _nativeContextAttributes() async {
     if (_cachedAttributes != null) {

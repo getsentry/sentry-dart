@@ -22,7 +22,7 @@ import 'integrations/flutter_framework_feature_flag_integration.dart';
 import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
-import 'integrations/replay_log_integration.dart';
+import 'integrations/replay_telemetry_integration.dart';
 import 'integrations/screenshot_integration.dart';
 import 'integrations/generic_app_start_integration.dart';
 import 'integrations/thread_info_integration.dart';
@@ -232,9 +232,9 @@ mixin SentryFlutter {
 
     integrations.add(DebugPrintIntegration());
 
-    // Only add ReplayLogIntegration on platforms that support replay
+    // Only add ReplayTelemetryIntegration on platforms that support replay
     if (native != null && native.supportsReplay) {
-      integrations.add(ReplayLogIntegration(native));
+      integrations.add(ReplayTelemetryIntegration(native));
     }
 
     if (!platform.isWeb) {

@@ -18,6 +18,9 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
+import 'telemetry/log/log_capture_pipeline.dart';
+import 'telemetry/metric/metric.dart';
+import 'telemetry/metric/metric_capture_pipeline.dart';
 import 'telemetry/span/span_capture_pipeline.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'transport/client_report_transport.dart';
@@ -44,6 +47,8 @@ String get defaultIpAddress => _defaultIpAddress;
 class SentryClient {
   final SentryOptions _options;
   final Random? _random;
+  final LogCapturePipeline _logCapturePipeline;
+  final MetricCapturePipeline _metricCapturePipeline;
   final SpanCapturePipeline _spanCapturePipeline;
 
   static final _emptySentryId = Future.value(SentryId.empty());
@@ -54,6 +59,8 @@ class SentryClient {
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(
     SentryOptions options, {
+    LogCapturePipeline? logCapturePipeline,
+    MetricCapturePipeline? metricCapturePipeline,
     SpanCapturePipeline? spanCapturePipeline,
   }) {
     if (options.sendClientReports) {
@@ -82,6 +89,8 @@ class SentryClient {
     }
     return SentryClient._(
       options,
+      logCapturePipeline ?? LogCapturePipeline(options),
+      metricCapturePipeline ?? MetricCapturePipeline(options),
       spanCapturePipeline ?? SpanCapturePipeline(options),
     );
   }
@@ -89,6 +98,8 @@ class SentryClient {
   /// Instantiates a client using [SentryOptions]
   SentryClient._(
     this._options,
+    this._logCapturePipeline,
+    this._metricCapturePipeline,
     this._spanCapturePipeline,
   ) : _random = _options.sampleRate == null ? null : Random();
 
@@ -504,98 +515,11 @@ class SentryClient {
       _spanCapturePipeline.captureSpan(span, scope: scope);
 
   @internal
-  FutureOr<void> captureLog(
-    SentryLog log, {
-    Scope? scope,
-  }) async {
-    if (!_options.enableLogs) {
-      return;
-    }
+  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) =>
+      _logCapturePipeline.captureLog(log, scope: scope);
 
-    if (scope != null) {
-      final merged = Map.of(scope.attributes)..addAll(log.attributes);
-      log.attributes = merged;
-    }
-
-    log.attributes['sentry.sdk.name'] = SentryAttribute.string(
-      _options.sdk.name,
-    );
-    log.attributes['sentry.sdk.version'] = SentryAttribute.string(
-      _options.sdk.version,
-    );
-    final environment = _options.environment;
-    if (environment != null) {
-      log.attributes['sentry.environment'] = SentryAttribute.string(
-        environment,
-      );
-    }
-    final release = _options.release;
-    if (release != null) {
-      log.attributes['sentry.release'] = SentryAttribute.string(
-        release,
-      );
-    }
-
-    final propagationContext = scope?.propagationContext;
-    if (propagationContext != null) {
-      log.traceId = propagationContext.traceId;
-    }
-    final span = scope?.span;
-    if (span != null) {
-      log.attributes['sentry.trace.parent_span_id'] = SentryAttribute.string(
-        span.context.spanId.toString(),
-      );
-    }
-
-    final user = scope?.user;
-    final id = user?.id;
-    final email = user?.email;
-    final name = user?.name;
-    if (id != null) {
-      log.attributes['user.id'] = SentryAttribute.string(id);
-    }
-    if (name != null) {
-      log.attributes['user.name'] = SentryAttribute.string(name);
-    }
-    if (email != null) {
-      log.attributes['user.email'] = SentryAttribute.string(email);
-    }
-
-    final beforeSendLog = _options.beforeSendLog;
-    SentryLog? processedLog = log;
-    if (beforeSendLog != null) {
-      try {
-        final callbackResult = beforeSendLog(log);
-
-        if (callbackResult is Future<SentryLog?>) {
-          processedLog = await callbackResult;
-        } else {
-          processedLog = callbackResult;
-        }
-      } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'The beforeSendLog callback threw an exception',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
-    }
-
-    if (processedLog != null) {
-      await _options.lifecycleRegistry
-          .dispatchCallback(OnBeforeCaptureLog(processedLog));
-      _options.telemetryProcessor.addLog(processedLog);
-    } else {
-      _options.recorder.recordLostEvent(
-        DiscardReason.beforeSend,
-        DataCategory.logItem,
-      );
-    }
-  }
+  Future<void> captureMetric(SentryMetric metric, {Scope? scope}) =>
+      _metricCapturePipeline.captureMetric(metric, scope: scope);
 
   FutureOr<void> close() {
     final flush = _options.telemetryProcessor.flush();

@@ -18,6 +18,9 @@ abstract class TelemetryProcessor {
   /// Adds a log to be processed and buffered.
   void addLog(SentryLog log);
 
+  /// Adds a metric to be processed and buffered.
+  void addMetric(SentryMetric metric);
+
   /// Flushes all buffered telemetry data.
   ///
   /// Returns a [Future] if any buffer performs async flushing, otherwise
@@ -39,32 +42,51 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   @visibleForTesting
   TelemetryBuffer<SentryLog>? logBuffer;
 
+  /// The buffer for metric data, or `null` if metric buffering is disabled.
+  @visibleForTesting
+  TelemetryBuffer<SentryMetric>? metricBuffer;
+
   DefaultTelemetryProcessor({
     this.spanBuffer,
     this.logBuffer,
+    this.metricBuffer,
   });
 
   @override
-  void addSpan(RecordingSentrySpanV2 span) => _add(span);
-
-  @override
-  void addLog(SentryLog log) => _add(log);
-
-  void _add(dynamic item) {
-    final buffer = switch (item) {
-      RecordingSentrySpanV2 _ => spanBuffer,
-      SentryLog _ => logBuffer,
-      _ => null,
-    };
-
-    if (buffer == null) {
+  void addSpan(RecordingSentrySpanV2 span) {
+    if (spanBuffer == null) {
       internalLogger.warning(
-        '$runtimeType: No buffer registered for ${item.runtimeType} - item was dropped',
+        '$runtimeType: No buffer registered for ${span.runtimeType} - item was dropped',
       );
       return;
     }
+    spanBuffer!.add(span);
+  }
 
-    buffer.add(item);
+  @override
+  void addLog(SentryLog log) {
+    if (logBuffer == null) {
+      internalLogger.warning(
+        '$runtimeType: No buffer registered for ${log.runtimeType} - item was dropped',
+      );
+      return;
+    }
+    logBuffer!.add(log);
+    internalLogger.debug(() =>
+        '$runtimeType: Log "${log.body}" (${log.level.name}) added to buffer');
+  }
+
+  @override
+  void addMetric(SentryMetric metric) {
+    if (metricBuffer == null) {
+      internalLogger.warning(
+        '$runtimeType: No buffer registered for ${metric.runtimeType} - item was dropped',
+      );
+      return;
+    }
+    metricBuffer!.add(metric);
+    internalLogger.debug(() =>
+        '$runtimeType: Metric "${metric.name}" (${metric.value}) added to buffer');
   }
 
   @override
@@ -74,6 +96,7 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
     final results = <FutureOr<void>>[
       spanBuffer?.flush(),
       logBuffer?.flush(),
+      metricBuffer?.flush(),
     ];
 
     final futures = results.whereType<Future>().toList();
@@ -91,6 +114,9 @@ class NoOpTelemetryProcessor implements TelemetryProcessor {
 
   @override
   void addLog(SentryLog log) {}
+
+  @override
+  void addMetric(SentryMetric log) {}
 
   @override
   FutureOr<void> flush() {}

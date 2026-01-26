@@ -192,5 +192,31 @@ void main() {
 
       expect(sut.originalObject, null);
     });
+
+    test('fromMetricsData creates item with correct headers and payload',
+        () async {
+      final payload =
+          utf8.encode('{"items":[{"test":"metric1"},{"test":"metric2"}]}');
+      final metricsCount = 2;
+
+      final sut = SentryEnvelopeItem.fromMetricsData(payload, metricsCount);
+
+      expect(sut.header.contentType,
+          'application/vnd.sentry.items.trace-metric+json');
+      expect(sut.header.type, SentryItemType.metric);
+      expect(sut.header.itemCount, metricsCount);
+
+      final actualData = await sut.dataFactory();
+      expect(actualData, payload);
+    });
+
+    test('fromMetricsData does not set originalObject', () async {
+      final payload = utf8.encode('{"items":[{"test":"metric"}]}');
+      final metricsCount = 1;
+
+      final sut = SentryEnvelopeItem.fromMetricsData(payload, metricsCount);
+
+      expect(sut.originalObject, null);
+    });
   });
 }

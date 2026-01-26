@@ -62,3 +62,57 @@ extension AddAllAbsentX<K, V> on Map<K, V> {
     }
   }
 }
+
+@internal
+extension SentryAttributeFormatting on SentryAttribute {
+  /// Formats the attribute value for debug/log output.
+  ///
+  /// Strings are quoted, numbers and booleans are shown as-is.
+  String toFormattedString() {
+    switch (type) {
+      case 'string':
+        if (value is String) {
+          return '"$value"';
+        }
+        break;
+      case 'boolean':
+        if (value is bool) {
+          return value.toString();
+        }
+        break;
+      case 'integer':
+        if (value is int) {
+          return value.toString();
+        }
+        break;
+      case 'double':
+        if (value is double) {
+          final doubleValue = value as double;
+          // Handle special double values
+          if (doubleValue.isNaN || doubleValue.isInfinite) {
+            return doubleValue.toString();
+          }
+          // Ensure doubles always show decimal notation to distinguish from ints
+          return doubleValue == doubleValue.toInt()
+              ? doubleValue.toStringAsFixed(1)
+              : doubleValue.toString();
+        }
+        break;
+    }
+    return value.toString();
+  }
+}
+
+@internal
+extension SentryAttributeMapFormatting on Map<String, SentryAttribute> {
+  /// Formats attributes as `{key1: value1, key2: value2}`.
+  ///
+  /// Returns an empty string if the map is empty.
+  String toFormattedString() {
+    if (isEmpty) return '';
+    final attrsStr = entries
+        .map((e) => '"${e.key}": ${e.value.toFormattedString()}')
+        .join(', ');
+    return '{$attrsStr}';
+  }
+}
