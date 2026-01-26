@@ -17,15 +17,17 @@ import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
-import 'package:sentry/src/noop_log_batcher.dart';
+import 'package:mockito/mockito.dart';
+import 'package:http/http.dart' as http;
 
 import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_hub.dart';
+import 'mocks/mock_log_capture_pipeline.dart';
+import 'mocks/mock_metric_capture_pipeline.dart';
+import 'mocks/mock_telemetry_processor.dart';
 import 'mocks/mock_transport.dart';
 import 'test_utils.dart';
-import 'utils/url_details_test.dart';
-import 'mocks/mock_log_batcher.dart';
 
 void main() {
   group('SentryClient captures message', () {
@@ -1719,307 +1721,83 @@ void main() {
       fixture = Fixture();
     });
 
-    SentryLog givenLog() {
-      return SentryLog(
+    test('delegates to log pipeline', () async {
+      final pipeline = MockLogCapturePipeline(fixture.options);
+      final client =
+          SentryClient(fixture.options, logCapturePipeline: pipeline);
+      final scope = Scope(fixture.options);
+
+      final log = SentryLog(
         timestamp: DateTime.now(),
         traceId: SentryId.newId(),
         level: SentryLogLevel.info,
         body: 'test',
         attributes: {
-          'attribute': SentryLogAttribute.string('value'),
+          'attribute': SentryAttribute.string('value'),
         },
       );
-    }
-
-    test('sets log batcher on options when logs are enabled', () async {
-      expect(fixture.options.logBatcher is NoopLogBatcher, true);
-
-      fixture.options.enableLogs = true;
-      fixture.getSut();
-
-      expect(fixture.options.logBatcher is NoopLogBatcher, false);
-    });
-
-    test('disabled by default', () async {
-      final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
-
-      final log = givenLog();
-
-      await client.captureLog(log);
-
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls, isEmpty);
-    });
-
-    test('should capture logs as envelope', () async {
-      fixture.options.enableLogs = true;
-
-      final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
-
-      final log = givenLog();
-
-      await client.captureLog(log);
-
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-
-      final capturedLog = mockLogBatcher.addLogCalls.first;
-
-      expect(capturedLog.traceId, log.traceId);
-      expect(capturedLog.level, log.level);
-      expect(capturedLog.body, log.body);
-      expect(capturedLog.attributes['attribute']?.value,
-          log.attributes['attribute']?.value);
-    });
-
-    test('should add additional info to attributes', () async {
-      fixture.options.enableLogs = true;
-      fixture.options.environment = 'test-environment';
-      fixture.options.release = 'test-release';
-
-      final log = givenLog();
-
-      final scope = Scope(fixture.options);
-      final span = MockSpan();
-      scope.span = span;
-
-      final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
 
       await client.captureLog(log, scope: scope);
 
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
+      expect(pipeline.callCount, 1);
+      expect(pipeline.captureLogCalls.first.log, same(log));
+      expect(pipeline.captureLogCalls.first.scope, same(scope));
+    });
+  });
 
-      expect(
-        capturedLog.attributes['sentry.sdk.name']?.value,
-        fixture.options.sdk.name,
-      );
-      expect(
-        capturedLog.attributes['sentry.sdk.name']?.type,
-        'string',
-      );
-      expect(
-        capturedLog.attributes['sentry.sdk.version']?.value,
-        fixture.options.sdk.version,
-      );
-      expect(
-        capturedLog.attributes['sentry.sdk.version']?.type,
-        'string',
-      );
-      expect(
-        capturedLog.attributes['sentry.environment']?.value,
-        fixture.options.environment,
-      );
-      expect(
-        capturedLog.attributes['sentry.environment']?.type,
-        'string',
-      );
-      expect(
-        capturedLog.attributes['sentry.release']?.value,
-        fixture.options.release,
-      );
-      expect(
-        capturedLog.attributes['sentry.release']?.type,
-        'string',
-      );
-      expect(
-        capturedLog.attributes['sentry.trace.parent_span_id']?.value,
-        span.context.spanId.toString(),
-      );
-      expect(
-        capturedLog.attributes['sentry.trace.parent_span_id']?.type,
-        'string',
-      );
+  group('SentryClient captureMetric', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
     });
 
-    test('should add user info to attributes', () async {
-      fixture.options.enableLogs = true;
-
-      final log = givenLog();
-      final scope = Scope(fixture.options);
-      final user = SentryUser(
-        id: '123',
-        email: 'test@test.com',
-        name: 'test-name',
-      );
-      await scope.setUser(user);
-
-      final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
-
-      await client.captureLog(log, scope: scope);
-
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
-
-      expect(
-        capturedLog.attributes['user.id']?.value,
-        user.id,
-      );
-      expect(
-        capturedLog.attributes['user.id']?.type,
-        'string',
-      );
-
-      expect(
-        capturedLog.attributes['user.name']?.value,
-        user.name,
-      );
-      expect(
-        capturedLog.attributes['user.name']?.type,
-        'string',
-      );
-
-      expect(
-        capturedLog.attributes['user.email']?.value,
-        user.email,
-      );
-      expect(
-        capturedLog.attributes['user.email']?.type,
-        'string',
-      );
-    });
-
-    test('should set trace id from propagation context', () async {
-      fixture.options.enableLogs = true;
-
-      final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
-
-      final log = givenLog();
+    test('delegates to metric pipeline', () async {
+      final pipeline = MockMetricCapturePipeline(fixture.options);
+      final client =
+          SentryClient(fixture.options, metricCapturePipeline: pipeline);
       final scope = Scope(fixture.options);
 
-      await client.captureLog(log, scope: scope);
-
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
-
-      expect(capturedLog.traceId, scope.propagationContext.traceId);
-    });
-
-    test(
-        '$BeforeSendLogCallback returning null drops the log and record it as lost',
-        () async {
-      fixture.options.enableLogs = true;
-      fixture.options.beforeSendLog = (log) => null;
-
-      final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
-
-      final log = givenLog();
-
-      await client.captureLog(log);
-
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 0);
-
-      expect(
-        fixture.recorder.discardedEvents.first.reason,
-        DiscardReason.beforeSend,
+      final metric = SentryCounterMetric(
+        timestamp: DateTime.now().toUtc(),
+        name: 'test-metric',
+        value: 1,
+        traceId: SentryId.newId(),
       );
-      expect(
-        fixture.recorder.discardedEvents.first.category,
-        DataCategory.logItem,
-      );
+
+      await client.captureMetric(metric, scope: scope);
+
+      expect(pipeline.callCount, 1);
+      expect(pipeline.captureMetricCalls.first.metric, same(metric));
+      expect(pipeline.captureMetricCalls.first.scope, same(scope));
+    });
+  });
+
+  group('SentryClient captureMetric', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
     });
 
-    test('$BeforeSendLogCallback returning a log modifies it', () async {
-      fixture.options.enableLogs = true;
-      fixture.options.beforeSendLog = (log) {
-        log.body = 'modified';
-        return log;
-      };
-
-      final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
-
-      final log = givenLog();
-
-      await client.captureLog(log);
-
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
-
-      expect(capturedLog.body, 'modified');
-    });
-
-    test('$BeforeSendLogCallback returning a log async modifies it', () async {
-      fixture.options.enableLogs = true;
-      fixture.options.beforeSendLog = (log) async {
-        await Future.delayed(Duration(milliseconds: 100));
-        log.body = 'modified';
-        return log;
-      };
-
-      final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
-
-      final log = givenLog();
-
-      await client.captureLog(log);
-
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
-
-      expect(capturedLog.body, 'modified');
-    });
-
-    test('$BeforeSendLogCallback throwing is caught', () async {
-      fixture.options.enableLogs = true;
-      fixture.options.automatedTestMode = false;
-
-      fixture.options.beforeSendLog = (log) {
-        throw Exception('test');
-      };
-
-      final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
-
-      final log = givenLog();
-      await client.captureLog(log);
-
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
-
-      expect(capturedLog.body, 'test');
-    });
-
-    test('OnBeforeCaptureLog lifecycle event is called', () async {
-      fixture.options.enableLogs = true;
-      fixture.options.environment = 'test-environment';
-      fixture.options.release = 'test-release';
-
-      final log = givenLog();
-
+    test('delegates to metric pipeline', () async {
+      final pipeline = MockMetricCapturePipeline(fixture.options);
+      final client =
+          SentryClient(fixture.options, metricCapturePipeline: pipeline);
       final scope = Scope(fixture.options);
-      final span = MockSpan();
-      scope.span = span;
 
-      final client = fixture.getSut();
-      fixture.options.logBatcher = MockLogBatcher();
+      final metric = SentryCounterMetric(
+        timestamp: DateTime.now().toUtc(),
+        name: 'test-metric',
+        value: 1,
+        traceId: SentryId.newId(),
+      );
 
-      fixture.options.lifecycleRegistry
-          .registerCallback<OnBeforeCaptureLog>((event) {
-        event.log.attributes['test'] = SentryLogAttribute.string('test-value');
-      });
+      await client.captureMetric(metric, scope: scope);
 
-      await client.captureLog(log, scope: scope);
-
-      final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-      expect(mockLogBatcher.addLogCalls.length, 1);
-      final capturedLog = mockLogBatcher.addLogCalls.first;
-
-      expect(capturedLog.attributes['test']?.value, "test-value");
-      expect(capturedLog.attributes['test']?.type, 'string');
+      expect(pipeline.callCount, 1);
+      expect(pipeline.captureMetricCalls.first.metric, same(metric));
+      expect(pipeline.captureMetricCalls.first.scope, same(scope));
     });
   });
 
@@ -2610,6 +2388,56 @@ void main() {
       await client.captureEvent(fakeEvent, stackTrace: StackTrace.current);
     });
   });
+
+  group('SentryClient close', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('waits for log batcher flush before closing http client', () async {
+      // Create a mock HTTP client that tracks when close is called
+      final mockHttpClient = MockHttpClient();
+      fixture.options.httpClient = mockHttpClient;
+
+      fixture.options.enableLogs = true;
+      final client = fixture.getSut();
+
+      // Create a completer to control when flush completes
+      final flushCompleter = Completer<void>();
+      bool flushStarted = false;
+
+      // Create a mock telemetry processor with async flush
+      final mockProcessor = MockTelemetryProcessorWithAsyncFlush(
+        onFlush: () async {
+          flushStarted = true;
+          // Wait for the completer to complete
+          await flushCompleter.future;
+        },
+      );
+      fixture.options.telemetryProcessor = mockProcessor;
+
+      // Start close() in the background
+      final closeFuture = client.close();
+
+      // Wait a bit longer to ensure flush has started
+      await Future.delayed(Duration(milliseconds: 50));
+
+      // Verify flush has started but HTTP client is not closed yet
+      expect(flushStarted, true, reason: 'Flush should have started');
+      verifyNever(mockHttpClient.close());
+
+      // Complete the flush
+      flushCompleter.complete();
+
+      // Wait for close to complete
+      await closeFuture;
+
+      // Now verify HTTP client was closed
+      verify(mockHttpClient.close()).called(1);
+    });
+  });
 }
 
 Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
@@ -2801,6 +2629,19 @@ class Fixture {
   }) {
     loggedLevel = level;
     loggedException = exception;
+  }
+}
+
+class MockHttpClient extends Mock implements http.Client {}
+
+class MockTelemetryProcessorWithAsyncFlush extends MockTelemetryProcessor {
+  final Future<void> Function() onFlush;
+
+  MockTelemetryProcessorWithAsyncFlush({required this.onFlush});
+
+  @override
+  FutureOr<void> flush() async {
+    return onFlush();
   }
 }
 

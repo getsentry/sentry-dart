@@ -12,7 +12,6 @@ import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integr
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/integrations/generic_app_start_integration.dart';
-import 'package:sentry_flutter/src/integrations/thread_info_integration.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
 import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
@@ -46,12 +45,6 @@ final linuxWindowsAndWebIntegrations = [
 
 final nonWebIntegrations = [
   OnErrorIntegration,
-  ThreadInfoIntegration,
-];
-
-// These should be added to Android
-final androidIntegrations = [
-  LoadContextsIntegration,
 ];
 
 // These should be added to iOS and macOS
@@ -74,64 +67,6 @@ void main() {
       await Sentry.close();
       SentryFlutter.native = null;
     });
-
-    test('Android', () async {
-      late final SentryFlutterOptions options;
-      late final Transport transport;
-
-      final sentryFlutterOptions =
-          defaultTestOptions(checker: MockRuntimeChecker())
-            ..platform = MockPlatform.android()
-            ..methodChannel = native.channel;
-
-      await SentryFlutter.init(
-        (o) async {
-          o.dsn = fakeDsn;
-          o.profilesSampleRate = 1.0;
-          options = o;
-          transport = o.transport;
-        },
-        appRunner: appRunner,
-        options: sentryFlutterOptions,
-      );
-
-      expect(transport, isA<FileSystemTransport>());
-
-      testScopeObserver(
-          options: sentryFlutterOptions, expectedHasNativeScopeObserver: true);
-
-      testConfiguration(
-        integrations: options.integrations,
-        shouldHaveIntegrations: [
-          ...androidIntegrations,
-          ...platformAgnosticIntegrations,
-          ...nonWebIntegrations,
-          ReplayIntegration,
-        ],
-        shouldNotHaveIntegrations: [
-          ...iOsAndMacOsIntegrations,
-          ...nonWebIntegrations,
-        ],
-      );
-
-      options.integrations
-          .indexWhere((element) => element is WidgetsFlutterBindingIntegration);
-
-      testBefore(
-          integrations: options.integrations,
-          beforeIntegration: WidgetsFlutterBindingIntegration,
-          afterIntegration: OnErrorIntegration);
-
-      expect(
-          options.eventProcessors.indexOfTypeString('IoEnricherEventProcessor'),
-          greaterThan(options.eventProcessors
-              .indexOfTypeString('_LoadContextsIntegrationEventProcessor')));
-
-      expect(SentryFlutter.native, isNotNull);
-      expect(Sentry.currentHub.profilerFactory, isNull);
-
-      await Sentry.close();
-    }, testOn: 'vm');
 
     test('iOS', () async {
       late final SentryFlutterOptions options;
@@ -167,7 +102,6 @@ void main() {
           ReplayIntegration,
         ],
         shouldNotHaveIntegrations: [
-          ...androidIntegrations,
           ...nonWebIntegrations,
         ],
       );
@@ -218,7 +152,6 @@ void main() {
         ...platformAgnosticIntegrations,
         ...nonWebIntegrations,
       ], shouldNotHaveIntegrations: [
-        ...androidIntegrations,
         ...nonWebIntegrations,
       ]);
 
@@ -267,7 +200,6 @@ void main() {
           ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
-          ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...webIntegrations,
         ],
@@ -316,7 +248,6 @@ void main() {
           ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
-          ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...webIntegrations,
         ],
@@ -366,7 +297,6 @@ void main() {
           ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
-          ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...nonWebIntegrations,
         ],
@@ -386,7 +316,7 @@ void main() {
     test('Web (custom zone)', () async {
       final checker = MockRuntimeChecker(isRoot: false);
       final sentryFlutterOptions = defaultTestOptions(checker: checker)
-        ..platform = MockPlatform.android(isWeb: true)
+        ..platform = MockPlatform.iOS(isWeb: true)
         ..methodChannel = native.channel;
 
       await SentryFlutter.init(
@@ -437,7 +367,6 @@ void main() {
           ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
-          ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...nonWebIntegrations,
         ],
@@ -482,7 +411,6 @@ void main() {
           ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
-          ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...nonWebIntegrations,
         ],
@@ -494,50 +422,6 @@ void main() {
           afterIntegration: WidgetsFlutterBindingIntegration);
 
       expect(Sentry.currentHub.profilerFactory, isNull);
-      expect(SentryFlutter.native, isNotNull);
-
-      await Sentry.close();
-    }, testOn: 'browser');
-
-    test('Web && Android', () async {
-      List<Integration> integrations = [];
-      Transport transport = MockTransport();
-      final sentryFlutterOptions =
-          defaultTestOptions(checker: MockRuntimeChecker())
-            ..platform = MockPlatform.android(isWeb: true)
-            ..methodChannel = native.channel;
-
-      // Tests that Android integrations aren't added on an Android browser
-      await SentryFlutter.init(
-        (options) async {
-          integrations = options.integrations;
-          transport = options.transport;
-        },
-        appRunner: appRunner,
-        options: sentryFlutterOptions,
-      );
-
-      expect(transport, isA<JavascriptTransport>());
-
-      testConfiguration(
-        integrations: integrations,
-        shouldHaveIntegrations: [
-          ...platformAgnosticIntegrations,
-          ...webIntegrations,
-          ...linuxWindowsAndWebIntegrations,
-        ],
-        shouldNotHaveIntegrations: [
-          ...androidIntegrations,
-          ...iOsAndMacOsIntegrations,
-          ...nonWebIntegrations,
-        ],
-      );
-
-      testBefore(
-          integrations: Sentry.currentHub.options.integrations,
-          beforeIntegration: RunZonedGuardedIntegration,
-          afterIntegration: WidgetsFlutterBindingIntegration);
-
       expect(SentryFlutter.native, isNotNull);
 
       await Sentry.close();
@@ -671,7 +555,7 @@ void main() {
     test('test that initial values are set correctly', () async {
       final sentryFlutterOptions =
           defaultTestOptions(checker: MockRuntimeChecker())
-            ..platform = MockPlatform.android()
+            ..platform = MockPlatform.iOS()
             ..methodChannel = native.channel;
 
       await SentryFlutter.init(
@@ -693,7 +577,7 @@ void main() {
         () async {
       final sentryFlutterOptions =
           defaultTestOptions(checker: MockRuntimeChecker())
-            ..platform = MockPlatform.android()
+            ..platform = MockPlatform.iOS()
             ..methodChannel = native.channel;
 
       SentryFlutter.native = mockNativeBinding();
@@ -706,49 +590,6 @@ void main() {
       );
       SentryFlutter.native = null;
     });
-
-    test('ThreadInfoIntegration is added', () async {
-      final sentryFlutterOptions =
-          defaultTestOptions(checker: MockRuntimeChecker())
-            ..platform = MockPlatform.android()
-            ..methodChannel = native.channel;
-
-      SentryFlutter.native = mockNativeBinding();
-      await SentryFlutter.init(
-        (options) {
-          expect(
-            options.integrations.any((integration) =>
-                integration.runtimeType.toString() == 'ThreadInfoIntegration'),
-            true,
-            reason:
-                'ThreadInfoIntegration should be added on non-web platforms',
-          );
-        },
-        appRunner: appRunner,
-        options: sentryFlutterOptions,
-      );
-      SentryFlutter.native = null;
-    });
-
-    test('ThreadInfoIntegration is not added on web', () async {
-      final sentryFlutterOptions =
-          defaultTestOptions(checker: MockRuntimeChecker())
-            ..platform = MockPlatform.linux(isWeb: true)
-            ..methodChannel = native.channel;
-
-      await SentryFlutter.init(
-        (options) {
-          expect(
-            options.integrations.any((integration) =>
-                integration.runtimeType.toString() == 'ThreadInfoIntegration'),
-            false,
-            reason: 'ThreadInfoIntegration should not be added on web platform',
-          );
-        },
-        appRunner: appRunner,
-        options: sentryFlutterOptions,
-      );
-    }, testOn: 'browser');
   });
 
   test('resumeAppHangTracking calls native method when available', () async {
@@ -802,7 +643,7 @@ void main() {
         'should add DartExceptionTypeIdentifier and FlutterExceptionTypeIdentifier by default',
         () async {
       final actualOptions = defaultTestOptions(checker: MockRuntimeChecker())
-        ..platform = MockPlatform.android()
+        ..platform = MockPlatform.iOS()
         ..methodChannel = native.channel;
 
       await SentryFlutter.init(

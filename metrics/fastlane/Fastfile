@@ -51,4 +51,21 @@ platform :ios do
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
   end
 
+  desc "Generate all provisioning profiles for development"
+  lane :setup_code_signing do
+    app_identifiers = [
+      "io.sentry.dart.perfTestAppPlain",
+      "io.sentry.dart.perfTestAppWithSentry",
+    ]
+    sync_code_signing(
+      type: "development",
+      app_identifier: app_identifiers,
+      readonly: false
+    )
+    sync_code_signing(
+      type: "appstore",
+      app_identifier: app_identifiers,
+      readonly: false
+    )
+  end
 end

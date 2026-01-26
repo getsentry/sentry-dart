@@ -6,5 +6,6 @@ class SentryItemType {
   static const String profile = 'profile';
   static const String statsd = 'statsd';
   static const String log = 'log';
+  static const String metric = 'trace_metric';
   static const String unknown = '__unknown__';
 }

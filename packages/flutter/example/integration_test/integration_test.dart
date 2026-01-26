@@ -1,6 +1,4 @@
-// ignore_for_file: avoid_print
-// ignore_for_file: invalid_use_of_internal_member
-// ignore_for_file: unused_local_variable
+// ignore_for_file: avoid_print, invalid_use_of_internal_member, unused_local_variable, deprecated_member_use, depend_on_referenced_packages
 
 import 'dart:async';
 import 'dart:convert';
@@ -13,6 +11,8 @@ import 'package:integration_test/integration_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
+import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
+import 'package:sentry_flutter/src/native/java/binding.dart' as jni;
 
 import 'utils.dart';
 
@@ -108,6 +108,18 @@ void main() {
     await Sentry.close();
   });
 
+  Future<void> setupSentryWithCustomInit(
+    FutureOr<void> Function() appRunner,
+    void Function(SentryFlutterOptions options) configure,
+  ) async {
+    await SentryFlutter.init(
+      (opts) {
+        configure(opts);
+      },
+      appRunner: appRunner,
+    );
+  }
+
   testWidgets('setup sentry and add breadcrumb', (tester) async {
     await setupSentryAndApp(tester);
 
@@ -130,9 +142,7 @@ void main() {
       await scope.addBreadcrumb(breadcrumb);
       await scope.clearBreadcrumbs();
 
-      // ignore: deprecated_member_use
       await scope.setExtra('extra-key', 'extra-value');
-      // ignore: deprecated_member_use
       await scope.removeExtra('extra-key');
 
       await scope.setTag('tag-key', 'tag-value');
@@ -155,6 +165,132 @@ void main() {
     final transaction = Sentry.startTransactionWithContext(context);
     await transaction.finish();
   });
+
+  testWidgets('init maps Dart options into native SDK options on Android',
+      (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryWithCustomInit(() async {
+        await tester.pumpWidget(
+          SentryScreenshotWidget(
+            child: DefaultAssetBundle(
+              bundle: SentryAssetBundle(
+                enableStructuredDataTracing: true,
+              ),
+              child: const MyApp(),
+            ),
+          ),
+        );
+      }, (options) {
+        options.dsn = fakeDsn;
+        options.debug = true;
+        options.diagnosticLevel = SentryLevel.error;
+        options.environment = 'init-test-env';
+        options.release = '1.2.3+9';
+        options.dist = '42';
+        options.sendDefaultPii = true;
+        options.attachStacktrace = false;
+        options.maxBreadcrumbs = 7;
+        options.maxCacheItems = 77;
+        options.maxAttachmentSize = 512;
+        options.enableAutoSessionTracking = false;
+        options.autoSessionTrackingInterval = const Duration(seconds: 5);
+        options.enableAutoNativeBreadcrumbs = false;
+        options.enableAutoPerformanceTracing = false;
+        options.sendClientReports = false;
+        options.spotlight = Spotlight(
+          enabled: true,
+          url: 'http://localhost:8999/stream',
+        );
+        options.proxy = SentryProxy(
+          user: 'u',
+          pass: 'p',
+          host: 'proxy.local',
+          port: 8084,
+          type: SentryProxyType.http,
+        );
+        options.replay.quality = SentryReplayQuality.high;
+        options.replay.sessionSampleRate = 0.4;
+        options.replay.onErrorSampleRate = 0.8;
+        options.enableNdkScopeSync = true;
+        options.attachThreads = true;
+        options.anrEnabled = false;
+        options.anrTimeoutInterval = const Duration(seconds: 2);
+        options.connectionTimeout = const Duration(milliseconds: 1234);
+        options.readTimeout = const Duration(milliseconds: 2345);
+      });
+    });
+
+    final ref = jni.ScopesAdapter.getInstance()?.getOptions().reference;
+    expect(ref, isNotNull);
+    final androidOptions = jni.SentryAndroidOptions.fromReference(ref!);
+
+    expect(androidOptions, isNotNull);
+    expect(androidOptions.getDsn()?.toDartString(), fakeDsn);
+    expect(androidOptions.isDebug(), isTrue);
+    final diagnostic = androidOptions.getDiagnosticLevel();
+    expect(
+      diagnostic,
+      jni.SentryLevel.ERROR,
+    );
+    expect(androidOptions.getEnvironment()?.toDartString(), 'init-test-env');
+    expect(androidOptions.getRelease()?.toDartString(), '1.2.3+9');
+    expect(androidOptions.getDist()?.toDartString(), '42');
+    expect(androidOptions.isSendDefaultPii(), isTrue);
+    expect(androidOptions.isAttachStacktrace(), isFalse);
+    expect(androidOptions.isAttachThreads(), isTrue);
+    expect(androidOptions.getMaxBreadcrumbs(), 7);
+    expect(androidOptions.getMaxCacheItems(), 77);
+    expect(androidOptions.getMaxAttachmentSize(), 512);
+    expect(androidOptions.isEnableScopeSync(), isTrue);
+    expect(androidOptions.isAnrEnabled(), isFalse);
+    expect(androidOptions.getAnrTimeoutIntervalMillis(), 2000);
+    expect(androidOptions.isEnableActivityLifecycleBreadcrumbs(), isFalse);
+    expect(androidOptions.isEnableAppLifecycleBreadcrumbs(), isFalse);
+    expect(androidOptions.isEnableSystemEventBreadcrumbs(), isFalse);
+    expect(androidOptions.isEnableAppComponentBreadcrumbs(), isFalse);
+    expect(androidOptions.isEnableUserInteractionBreadcrumbs(), isFalse);
+    expect(androidOptions.getConnectionTimeoutMillis(), 1234);
+    expect(androidOptions.getReadTimeoutMillis(), 2345);
+    expect(androidOptions.isEnableSpotlight(), isTrue);
+    expect(androidOptions.isSendClientReports(), isFalse);
+    expect(
+      androidOptions.getSpotlightConnectionUrl()?.toDartString(),
+      Sentry.currentHub.options.spotlight.url,
+    );
+    expect(androidOptions.getSentryClientName()?.toDartString(),
+        '$androidSdkName/${jni.BuildConfig.VERSION_NAME?.toDartString()}');
+    expect(androidOptions.getNativeSdkName()?.toDartString(), nativeSdkName);
+    expect(androidOptions.getSdkVersion()?.getName().toDartString(),
+        androidSdkName);
+    expect(androidOptions.getSdkVersion()?.getVersion().toDartString(),
+        jni.BuildConfig.VERSION_NAME?.toDartString());
+    final allPackages = androidOptions
+        .getSdkVersion()
+        ?.getPackageSet()
+        .map((pkg) {
+          if (pkg == null) return null;
+          return SentryPackage(
+              pkg.getName().toDartString(), pkg.getVersion().toDartString());
+        })
+        .nonNulls
+        .toList();
+    for (final package in Sentry.currentHub.options.sdk.packages) {
+      final findMatchingPackage = allPackages?.firstWhere(
+          (p) => p.name == package.name && p.version == package.version);
+      expect(findMatchingPackage, isNotNull);
+    }
+    final androidProxy = androidOptions.getProxy();
+    expect(androidProxy, isNotNull);
+    expect(androidProxy!.getHost()?.toDartString(), 'proxy.local');
+    expect(androidProxy.getPort()?.toDartString(), '8084');
+    expect(androidProxy.getUser()?.toDartString(), 'u');
+    expect(androidProxy.getPass()?.toDartString(), 'p');
+    final r = androidOptions.getSessionReplay();
+    expect(r.getQuality(), jni.SentryReplayOptions$SentryReplayQuality.HIGH);
+    expect(r.getSessionSampleRate(), isNotNull);
+    expect(r.getOnErrorSampleRate(), isNotNull);
+    expect(r.isTrackConfiguration(), isFalse);
+  }, skip: !Platform.isAndroid);
 
   testWidgets('loads native contexts through loadContexts', (tester) async {
     await restoreFlutterOnErrorAfter(() async {
@@ -224,8 +360,8 @@ void main() {
     expect(breadcrumbs, isA<List>());
     if (breadcrumbs!.isNotEmpty) {
       final firstCrumb = breadcrumbs.first;
-      expect(firstCrumb, isA<Map<String, dynamic>>());
-      final Map<String, dynamic> crumbMap = firstCrumb as Map<String, dynamic>;
+      expect(firstCrumb, isA<Map>());
+      final crumbMap = firstCrumb as Map;
       expect(crumbMap.containsKey('timestamp'), isTrue,
           reason: 'Breadcrumb timestamp missing');
       expect(crumbMap['timestamp'], isA<String>());
@@ -564,6 +700,140 @@ void main() {
     }
   });
 
+  testWidgets('addBreadcrumb and clearBreadcrumbs sync to native',
+      (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    // 1. Add a breadcrumb via Dart
+    final customObject = CustomObject();
+    final testBreadcrumb = Breadcrumb(
+        message: 'test-breadcrumb-message',
+        category: 'test-category',
+        level: SentryLevel.info,
+        data: {
+          'string': 'data',
+          'int': 12,
+          'bool': true,
+          'double': 12.34,
+          'map': {'nested': 'data', 'custom object': customObject},
+          'list': [1, customObject, 3],
+          'custom object': customObject
+        });
+    await Sentry.addBreadcrumb(testBreadcrumb);
+
+    // 2. Verify it appears in native via loadContexts
+    var contexts = await SentryFlutter.native?.loadContexts();
+    expect(contexts, isNotNull);
+
+    var breadcrumbs = contexts!['breadcrumbs'] as List<dynamic>?;
+    expect(breadcrumbs, isNotNull,
+        reason: 'Breadcrumbs should not be null after adding');
+    expect(breadcrumbs!.isNotEmpty, isTrue,
+        reason: 'Breadcrumbs should not be empty after adding');
+
+    // Find our test breadcrumb
+    final testCrumb = breadcrumbs.firstWhere(
+      (b) => b['message'] == 'test-breadcrumb-message',
+      orElse: () => null,
+    );
+    expect(testCrumb, isNotNull,
+        reason: 'Test breadcrumb should exist in native breadcrumbs');
+    expect(testCrumb['category'], equals('test-category'));
+    expect(testCrumb['level'], equals('info'));
+    expect(testCrumb['data'], isNotNull);
+    expect(testCrumb['data']['map'], isNotNull);
+    expect(testCrumb['data']['map']['nested'], equals('data'));
+    expect(testCrumb['data']['map']['custom object'],
+        equals(customObject.toString()));
+    expect(testCrumb['data']['list'], isNotNull);
+    expect(testCrumb['data']['list'][0], equals(1));
+    expect(testCrumb['data']['list'][1], equals(customObject.toString()));
+    expect(testCrumb['data']['list'][2], equals(3));
+    expect(testCrumb['data']['custom object'], equals(customObject.toString()));
+
+    // 3. Clear breadcrumbs
+    await Sentry.configureScope((scope) async {
+      await scope.clearBreadcrumbs();
+    });
+
+    // 4. Verify they're cleared in native
+    contexts = await SentryFlutter.native?.loadContexts();
+    breadcrumbs = contexts!['breadcrumbs'] as List<dynamic>?;
+    expect(breadcrumbs == null || breadcrumbs.isEmpty, isTrue,
+        reason: 'Breadcrumbs should be null or empty after clearing');
+  });
+
+  testWidgets('setUser syncs to native', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    // 1. Set a user via Dart
+    final customObject = CustomObject();
+    final testUser = SentryUser(
+      id: 'test-user-id',
+      email: 'test@example.com',
+      username: 'test-username',
+      data: {
+        'string': 'data',
+        'int': 12,
+        'bool': true,
+        'double': 12.34,
+        'map': {'nested': 'data', 'custom object': customObject},
+        'list': [1, customObject, 3],
+        'custom object': customObject
+      },
+    );
+    await Sentry.configureScope((scope) async {
+      await scope.setUser(testUser);
+    });
+
+    // 2. Verify it appears in native via loadContexts
+    var contexts = await SentryFlutter.native?.loadContexts();
+    expect(contexts, isNotNull);
+
+    var user = contexts!['user'] as Map<dynamic, dynamic>?;
+    expect(user, isNotNull, reason: 'User should not be null after setting');
+    expect(user!['id'], equals('test-user-id'));
+    expect(user['email'], equals('test@example.com'));
+    expect(user['username'], equals('test-username'));
+    expect(user['data']['map'], isNotNull);
+    expect(user['data']['list'], isNotNull);
+    expect(user['data']['custom object'], equals(customObject.toString()));
+
+    if (Platform.isAndroid) {
+      // On Android, the Java SDK's User.data field only supports Map<String, String>.
+      // Nested Maps and Lists are converted to Java's HashMap/ArrayList toString()
+      // format (e.g., {key=value} instead of {"key":"value"}).
+      expect(user['data']['map'],
+          equals('{nested=data, custom object=${customObject.toString()}}'));
+      expect(
+          user['data']['list'], equals('[1, ${customObject.toString()}, 3]'));
+    } else {
+      expect(user['data']['map']['nested'], equals('data'));
+      expect(user['data']['map']['custom object'],
+          equals(customObject.toString()));
+      expect(user['data']['list'][0], equals(1));
+      expect(user['data']['list'][1], equals(customObject.toString()));
+      expect(user['data']['list'][2], equals(3));
+    }
+
+    // 3. Clear user (after clearing the id should remain)
+    await Sentry.configureScope((scope) async {
+      await scope.setUser(null);
+    });
+
+    // 4. Verify it's cleared in native
+    contexts = await SentryFlutter.native?.loadContexts();
+    user = contexts!['user'] as Map<dynamic, dynamic>?;
+    expect(user!['email'], isNull);
+    expect(user['username'], isNull);
+    expect(user['id'], isNotNull);
+    expect(user['id'], isNotEmpty);
+  });
+
   testWidgets('loads debug images through loadDebugImages', (tester) async {
     await restoreFlutterOnErrorAfter(() async {
       await setupSentryAndApp(tester);
@@ -597,6 +867,202 @@ void main() {
     expect(debugImageByStacktrace.first.imageAddr, isNotNull);
     expect(debugImageByStacktrace.first.imageAddr, isNotEmpty);
     expect(debugImageByStacktrace.first.imageAddr, expectedImage.imageAddr);
+  });
+
+  testWidgets('fetchNativeAppStart returns app start data', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      // fetchNativeAppStart should return data on mobile platforms
+      final appStart = await SentryFlutter.native?.fetchNativeAppStart();
+
+      expect(appStart, isNotNull, reason: 'App start data should be available');
+
+      if (appStart != null) {
+        expect(appStart.appStartTime, greaterThan(0),
+            reason: 'App start time should be positive');
+        expect(appStart.pluginRegistrationTime, greaterThan(0),
+            reason: 'Plugin registration time should be positive');
+        expect(appStart.isColdStart, isA<bool>(),
+            reason: 'isColdStart should be a boolean');
+        expect(appStart.nativeSpanTimes, isA<Map>(),
+            reason: 'Native span times should be a map');
+      }
+    } else {
+      // On other platforms, it should return null
+      final appStart = await SentryFlutter.native?.fetchNativeAppStart();
+      expect(appStart, isNull,
+          reason: 'App start should be null on non-mobile platforms');
+    }
+  });
+
+  testWidgets('displayRefreshRate returns valid refresh rate', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      final refreshRate = await SentryFlutter.native?.displayRefreshRate();
+
+      // Refresh rate should be available on mobile platforms
+      expect(refreshRate, isNotNull,
+          reason: 'Display refresh rate should be available');
+
+      if (refreshRate != null) {
+        expect(refreshRate, greaterThan(0),
+            reason: 'Refresh rate should be positive');
+        expect(refreshRate, lessThanOrEqualTo(1000),
+            reason: 'Refresh rate should be reasonable (<=1000Hz)');
+      }
+    } else {
+      final refreshRate = await SentryFlutter.native?.displayRefreshRate();
+      expect(refreshRate, isNull,
+          reason: 'Refresh rate should be null or positive on other platforms');
+    }
+  });
+
+  testWidgets('setContexts and removedContexts sync to native', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    await Sentry.configureScope((scope) async {
+      scope.setContexts('key1', 'randomValue');
+      scope.setContexts('key2',
+          {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3});
+      scope.setContexts('key3', true);
+      scope.setContexts('key4', 12);
+      scope.setContexts('key5', 12.3);
+    });
+
+    var contexts = await SentryFlutter.native?.loadContexts();
+    final values = contexts!['contexts'];
+    expect(values, isNotNull, reason: 'Contexts are null');
+
+    if (Platform.isIOS) {
+      expect(values['key1'], {'value': 'randomValue'}, reason: 'key1 mismatch');
+      expect(values['key2'],
+          {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3},
+          reason: 'key2 mismatch');
+      expect(values['key3'], {'value': true}, reason: 'key3 mismatch');
+      expect(values['key4'], {'value': 12}, reason: 'key4 mismatch');
+      expect(values['key5'], {'value': 12.3}, reason: 'key5 mismatch');
+    } else if (Platform.isAndroid) {
+      expect(values['key1'], 'randomValue', reason: 'key1 mismatch');
+      expect(values['key2'],
+          {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3},
+          reason: 'key2 mismatch');
+      expect(values['key3'], true, reason: 'key3 mismatch');
+      expect(values['key4'], 12, reason: 'key4 mismatch');
+      expect(values['key5'], 12.3, reason: 'key5 mismatch');
+    }
+
+    await Sentry.configureScope((scope) async {
+      scope.removeContexts('key1');
+      scope.removeContexts('key2');
+      scope.removeContexts('key3');
+      scope.removeContexts('key4');
+      scope.removeContexts('key5');
+    });
+
+    contexts = await SentryFlutter.native?.loadContexts();
+    final removedValues = contexts!['contexts'];
+    expect(removedValues, isNotNull, reason: 'Contexts are null');
+
+    expect(removedValues['key1'], isNull, reason: 'key1 should be removed');
+    expect(removedValues['key2'], isNull, reason: 'key2 should be removed');
+    expect(removedValues['key3'], isNull, reason: 'key3 should be removed');
+    expect(removedValues['key4'], isNull, reason: 'key4 should be removed');
+    expect(removedValues['key5'], isNull, reason: 'key5 should be removed');
+  });
+
+  testWidgets('setTag and removeTag sync to native', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    await Sentry.configureScope((scope) async {
+      scope.setTag('key1', 'randomValue');
+      scope.setTag('key2', '12');
+    });
+
+    var contexts = await SentryFlutter.native?.loadContexts();
+    final tags = contexts!['tags'];
+    expect(tags, isNotNull, reason: 'Tags are null');
+
+    expect(tags['key1'], 'randomValue', reason: 'key1 mismatch');
+    expect(tags['key2'], '12', reason: 'key2 mismatch');
+
+    await Sentry.configureScope((scope) async {
+      scope.removeTag('key1');
+      scope.removeTag('key2');
+    });
+
+    contexts = await SentryFlutter.native?.loadContexts();
+    if (Platform.isIOS) {
+      expect(contexts!['tags'], isNull, reason: 'Tags are not null');
+    } else if (Platform.isAndroid) {
+      expect(contexts!['tags'], isEmpty, reason: 'Tags are not empty');
+    }
+  });
+
+  testWidgets('setExtra and removeExtra sync to native', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    await Sentry.configureScope((scope) async {
+      scope.setExtra('key1', 'randomValue');
+      scope.setExtra('key2',
+          {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3});
+      scope.setExtra('key3', true);
+      scope.setExtra('key4', 12);
+      scope.setExtra('key5', 12.3);
+    });
+
+    var contexts = await SentryFlutter.native?.loadContexts();
+
+    final extras = (Platform.isIOS || Platform.isMacOS)
+        ? contexts!['extra']
+        : contexts!['extras'];
+    expect(extras, isNotNull, reason: 'Extras are null');
+
+    if (Platform.isIOS || Platform.isMacOS) {
+      expect(extras['key1'], 'randomValue', reason: 'key1 mismatch');
+      expect(extras['key2'],
+          {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3},
+          reason: 'key2 mismatch');
+      expect(extras['key3'], isTrue, reason: 'key3 mismatch');
+      expect(extras['key4'], 12, reason: 'key4 mismatch');
+      expect(extras['key5'], 12.3, reason: 'key5 mismatch');
+    } else if (Platform.isAndroid) {
+      // Sentry Java's setExtra only allows String values so this is after normalization
+      expect(extras['key1'], 'randomValue', reason: 'key1 mismatch');
+      expect(
+          extras['key2'], '{String: Value, Bool: true, Int: 123, Double: 12.3}',
+          reason: 'key2 mismatch');
+      expect(extras['key3'], 'true', reason: 'key3 mismatch');
+      expect(extras['key4'], '12', reason: 'key4 mismatch');
+      expect(extras['key5'], '12.3', reason: 'key5 mismatch');
+    }
+
+    await Sentry.configureScope((scope) async {
+      scope.removeExtra('key1');
+      scope.removeExtra('key2');
+      scope.removeExtra('key3');
+      scope.removeExtra('key4');
+      scope.removeExtra('key5');
+    });
+
+    contexts = await SentryFlutter.native?.loadContexts();
+    final extraKey = (Platform.isIOS || Platform.isMacOS) ? 'extra' : 'extras';
+    if (Platform.isIOS || Platform.isMacOS) {
+      expect(contexts![extraKey], isNull, reason: 'Extra are not null');
+    } else {
+      expect(contexts![extraKey], {}, reason: 'Extra are not empty');
+    }
   });
 
   group('e2e', () {

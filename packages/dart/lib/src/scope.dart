@@ -138,17 +138,17 @@ class Scope {
   }
 
   /// add an entry to the Scope's contexts
-  Future<void> setContexts(String key, dynamic value) async {
+  FutureOr<void> setContexts(String key, dynamic value) {
     _setContextsSync(key, value);
-    await _callScopeObservers(
+    return _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setContexts(key, value));
   }
 
   /// Removes a value from the Scope's contexts
-  Future<void> removeContexts(String key) async {
+  FutureOr<void> removeContexts(String key) {
     _contexts.remove(key);
 
-    await _callScopeObservers(
+    return _callScopeObservers(
         (scopeObserver) async => await scopeObserver.removeContexts(key));
   }
 
@@ -166,6 +166,10 @@ class Scope {
   final List<SentryAttachment> _attachments = [];
 
   List<SentryAttachment> get attachments => List.unmodifiable(_attachments);
+
+  final Map<String, SentryAttribute> _attributes = {};
+
+  Map<String, SentryAttribute> get attributes => Map.unmodifiable(_attributes);
 
   Scope(this._options);
 
@@ -222,6 +226,16 @@ class Scope {
     }
   }
 
+  void setAttributes(Map<String, SentryAttribute> attributes) {
+    attributes.forEach((key, value) {
+      _attributes[key] = value;
+    });
+  }
+
+  void removeAttribute(String key) {
+    _attributes.remove(key);
+  }
+
   void addAttachment(SentryAttachment attachment) {
     _attachments.add(attachment);
   }
@@ -258,6 +272,7 @@ class Scope {
     _eventProcessors.clear();
     _replayId = null;
     propagationContext = PropagationContext();
+    _attributes.clear();
 
     _clearBreadcrumbsSync();
     _setUserSync(null);
@@ -459,6 +474,10 @@ class Scope {
 
     for (final attachment in List.from(_attachments)) {
       clone.addAttachment(attachment);
+    }
+
+    if (_attributes.isNotEmpty) {
+      clone.setAttributes(Map.from(_attributes));
     }
 
     return clone;

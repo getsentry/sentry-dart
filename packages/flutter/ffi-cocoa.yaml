@@ -6,21 +6,15 @@ headers:
   entry-points:
     - ./temp/Sentry.framework/PrivateHeaders/PrivateSentrySDKOnly.h
     - ./temp/Sentry.framework/Headers/Sentry-Swift.h
-    - ./ios/sentry_flutter/Sources/sentry_flutter_objc/SentryFlutterPlugin.h
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
   - -DCOCOAPODS=1
   - '-I./temp/Sentry.framework/Headers/'
   - '-I./temp/Sentry.framework/PrivateHeaders/'
-  - '-I./ios/sentry_flutter/Sources/sentry_flutter_objc/'
 exclude-all-by-default: true
 objc-interfaces:
   include:
     - PrivateSentrySDKOnly
     - SentryId
-    - SentryFlutterPlugin
   module:
     'SentryId': 'Sentry'
-preamble: |
-  // ignore_for_file: type=lint, unused_element
-

@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:meta/meta.dart';
@@ -100,10 +102,10 @@ class LoggingIntegration implements Integration<SentryOptions> {
 
     if (_options.enableLogs && _isLoggable(record.level, _minSentryLogLevel)) {
       final attributes = {
-        'loggerName': SentryLogAttribute.string(record.loggerName),
-        'sequenceNumber': SentryLogAttribute.int(record.sequenceNumber),
-        'time': SentryLogAttribute.int(record.time.millisecondsSinceEpoch),
-        'sentry.origin': SentryLogAttribute.string(origin),
+        'loggerName': SentryAttribute.string(record.loggerName),
+        'sequenceNumber': SentryAttribute.int(record.sequenceNumber),
+        'time': SentryAttribute.int(record.time.millisecondsSinceEpoch),
+        'sentry.origin': SentryAttribute.string(origin),
       };
 
       // Map log levels based on value ranges

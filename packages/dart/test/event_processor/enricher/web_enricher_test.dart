@@ -5,6 +5,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/enricher/web_enricher_event_processor.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:test/test.dart';
+import 'package:web/web.dart' as web;
 
 import '../../mocks.dart';
 import '../../test_utils.dart';
@@ -194,6 +195,18 @@ void main() {
 
       expect(sentryOptions.eventProcessors.map((e) => e.runtimeType.toString()),
           contains('$WebEnricherEventProcessor'));
+    });
+
+    test('SafeNavigationGetterExtensions safely accesses deviceMemory', () {
+      // Test that the extension can safely access deviceMemory without throwing
+      final navigator = web.window.navigator;
+
+      // This should not throw an exception even if deviceMemory is not supported
+      final deviceMemory = navigator.safeDeviceMemory;
+
+      // deviceMemory can be null if not supported by the browser
+      // or a double value if supported
+      expect(deviceMemory == null || deviceMemory > 0, isTrue);
     });
   });
 }

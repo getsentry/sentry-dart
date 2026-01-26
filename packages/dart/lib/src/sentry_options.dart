@@ -12,10 +12,11 @@ import 'noop_client.dart';
 import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
+import 'telemetry/log/noop_logger.dart';
+import 'telemetry/metric/noop_metrics.dart';
+import 'telemetry/processing/processor.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
-import 'sentry_log_batcher.dart';
-import 'noop_log_batcher.dart';
 import 'dart:developer' as developer;
 
 // TODO: shutdownTimeout, flushTimeoutMillis
@@ -162,6 +163,7 @@ class SentryOptions {
 
   set debug(bool newValue) {
     _debug = newValue;
+    _configureInternalLogger();
     if (_debug == true &&
         (log == noOpLog || diagnosticLog?.logger == noOpLog)) {
       log = debugLog;
@@ -175,7 +177,19 @@ class SentryOptions {
   bool _debug = false;
 
   /// minimum LogLevel to be used if debug is enabled
-  SentryLevel diagnosticLevel = _defaultDiagnosticLevel;
+  SentryLevel get diagnosticLevel => _diagnosticLevel;
+
+  set diagnosticLevel(SentryLevel newValue) {
+    _diagnosticLevel = newValue;
+    _configureInternalLogger();
+  }
+
+  SentryLevel _diagnosticLevel = _defaultDiagnosticLevel;
+
+  void _configureInternalLogger() {
+    SentryInternalLogger.configure(
+        isEnabled: _debug, minLevel: _diagnosticLevel);
+  }
 
   /// Sentry client name used for the HTTP authHeader and userAgent eg
   /// sentry.{language}.{platform}/{version} eg sentry.java.android/2.0.0 would be a valid case
@@ -204,6 +218,10 @@ class SentryOptions {
   /// This function is called right before a log is about to be sent.
   /// Can return a modified log or null to drop the log.
   BeforeSendLogCallback? beforeSendLog;
+
+  /// This function is called right before a metric is about to be sent.
+  /// Can return a modified metric or null to drop the metric.
+  BeforeSendMetricCallback? beforeSendMetric;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
@@ -315,9 +333,20 @@ class SentryOptions {
   /// - In an browser environment this can be requests which fail because of CORS.
   /// - In an mobile or desktop application this can be requests which failed
   ///   because the connection was interrupted.
-  /// Use with [SentryHttpClient] or `sentry_dio` integration for this to work,
-  /// or iOS native where it sets the value to `enableCaptureFailedRequests`.
+  /// Use with [SentryHttpClient] or `sentry_dio` integration for this to work
+  ///
+  /// If you wish to disable capturing native failed requests on iOS/macOS, use [captureNativeFailedRequests] instead.
+  // TODO(major-v10): do not sync this with native options, instead use captureNativeFailedRequests instead to sync.
   bool captureFailedRequests = true;
+
+  /// Whether failed HTTP requests are captured by the native iOS/macOS SDK.
+  ///
+  /// This allows controlling native-side HTTP error capturing independently
+  /// from [captureFailedRequests], which controls Dart-side capturing.
+  ///
+  /// When `null` (the default), falls back to [captureFailedRequests].
+  // TODO(major-v10): it's currently nullable for backwards compatibility, make non-nullable by default.
+  bool? captureNativeFailedRequests;
 
   /// Whether to records requests as breadcrumbs. This is on by default.
   /// It only has an effect when the SentryHttpClient or dio integration is in
@@ -424,6 +453,13 @@ class SentryOptions {
   /// array, and only attach tracing headers if a match was found.
   final List<String> tracePropagationTargets = ['.*'];
 
+  /// This option is used to enable the propagation of the
+  /// W3C Trace Context HTTP header traceparent on outgoing HTTP requests.
+  /// This is useful when the receiving services only support OTel/W3C propagation
+  ///
+  /// The default is `false`.
+  bool propagateTraceparent = false;
+
   /// The idle time to wait until the transaction will be finished.
   /// The transaction will use the end timestamp of the last finished span as
   /// the endtime for the transaction.
@@ -526,15 +562,24 @@ class SentryOptions {
   /// Disabled by default.
   bool enableLogs = false;
 
+  /// Enable to capture and send metrics to Sentry.
+  ///
+  /// Enabled by default.
+  bool enableMetrics = true;
+
   /// Enables adding the module in [SentryStackFrame.module].
   /// This option only has an effect in non-obfuscated builds.
   /// Enabling this option may change grouping.
   bool includeModuleInStackTrace = false;
 
-  late final SentryLogger logger = SentryLogger(clock);
+  @internal
+  late SentryLogger logger = const NoOpSentryLogger();
 
   @internal
-  SentryLogBatcher logBatcher = NoopLogBatcher();
+  late SentryMetrics metrics = const NoOpSentryMetrics();
+
+  @internal
+  TelemetryProcessor telemetryProcessor = NoOpTelemetryProcessor();
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;
@@ -668,6 +713,11 @@ typedef BeforeMetricCallback = bool Function(
 /// This function is called right before a log is about to be sent.
 /// Can return a modified log or null to drop the log.
 typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
+
+/// This function is called right before a metric is about to be emitted.
+/// Can return true to emit the metric, or false to drop it.
+typedef BeforeSendMetricCallback = FutureOr<SentryMetric?> Function(
+    SentryMetric metric);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();

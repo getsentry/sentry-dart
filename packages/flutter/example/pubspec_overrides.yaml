@@ -18,12 +18,6 @@ dependency_overrides:
     path: ../../logging
   sentry_sqflite:
     path: ../../sqflite
-  isar:
-    hosted: https://pub.isar-community.dev/
-    version: ^3.1.0
   isar_flutter_libs:
-    hosted: https://pub.isar-community.dev/
-    version: ^3.1.0
-  isar_generator:
-    hosted: https://pub.isar-community.dev/
-    version: ^3.1.0
+    git:
+      url: https://github.com/Deepjyoti120/isar_flutter_libs.git

@@ -93,16 +93,30 @@ class SentryIsar implements Isar {
     bool inspector = true,
     Hub? hub,
   }) {
-    final isar = Isar.openSync(
-      schemas,
-      directory: directory,
-      name: name,
-      maxSizeMiB: maxSizeMiB,
-      relaxedDurability: relaxedDurability,
-      compactOnLaunch: compactOnLaunch,
-      inspector: inspector,
+    final spanHelper = SentrySpanHelper(
+      // ignore: invalid_use_of_internal_member
+      SentryTraceOrigins.autoDbIsar,
     );
-    return SentryIsar(isar, hub ?? HubAdapter());
+    final hubToUse = hub ?? HubAdapter();
+    spanHelper.setHub(hubToUse);
+
+    final isar = spanHelper.syncWrapInSpan(
+      'openSync',
+      () {
+        return Isar.openSync(
+          schemas,
+          directory: directory,
+          name: name,
+          maxSizeMiB: maxSizeMiB,
+          relaxedDurability: relaxedDurability,
+          compactOnLaunch: compactOnLaunch,
+          inspector: inspector,
+        );
+      },
+      dbName: name,
+    );
+
+    return SentryIsar(isar, hubToUse);
   }
 
   @override
@@ -123,7 +137,13 @@ class SentryIsar implements Isar {
 
   @override
   void clearSync() {
-    _isar.clearSync();
+    _spanHelper.syncWrapInSpan(
+      'clearSync',
+      () {
+        return _isar.clearSync();
+      },
+      dbName: name,
+    );
   }
 
   @override
@@ -185,9 +205,15 @@ class SentryIsar implements Isar {
 
   @override
   int getSizeSync({bool includeIndexes = false, bool includeLinks = false}) {
-    return _isar.getSizeSync(
-      includeIndexes: includeIndexes,
-      includeLinks: includeLinks,
+    return _spanHelper.syncWrapInSpan(
+      'getSizeSync',
+      () {
+        return _isar.getSizeSync(
+          includeIndexes: includeIndexes,
+          includeLinks: includeLinks,
+        );
+      },
+      dbName: name,
     );
   }
 
@@ -218,7 +244,13 @@ class SentryIsar implements Isar {
 
   @override
   T txnSync<T>(T Function() callback) {
-    return _isar.txnSync(callback);
+    return _spanHelper.syncWrapInSpan(
+      'txnSync',
+      () {
+        return _isar.txnSync(callback);
+      },
+      dbName: name,
+    );
   }
 
   @override
@@ -248,6 +280,12 @@ class SentryIsar implements Isar {
 
   @override
   T writeTxnSync<T>(T Function() callback, {bool silent = false}) {
-    return _isar.writeTxnSync(callback, silent: silent);
+    return _spanHelper.syncWrapInSpan(
+      'writeTxnSync',
+      () {
+        return _isar.writeTxnSync(callback, silent: silent);
+      },
+      dbName: name,
+    );
   }
 }

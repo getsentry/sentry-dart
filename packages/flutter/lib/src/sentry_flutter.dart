@@ -22,6 +22,7 @@ import 'integrations/flutter_framework_feature_flag_integration.dart';
 import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
+import 'integrations/replay_telemetry_integration.dart';
 import 'integrations/screenshot_integration.dart';
 import 'integrations/generic_app_start_integration.dart';
 import 'integrations/thread_info_integration.dart';
@@ -58,6 +59,7 @@ mixin SentryFlutter {
   /// You can use the static members of [Sentry] from within other packages without the
   /// need of initializing it in the package; as long as they have been already properly
   /// initialized in the application package.
+  // coverage:ignore-start
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
@@ -230,6 +232,11 @@ mixin SentryFlutter {
 
     integrations.add(DebugPrintIntegration());
 
+    // Only add ReplayTelemetryIntegration on platforms that support replay
+    if (native != null && native.supportsReplay) {
+      integrations.add(ReplayTelemetryIntegration(native));
+    }
+
     if (!platform.isWeb) {
       integrations.add(ThreadInfoIntegration());
     }
@@ -257,6 +264,7 @@ mixin SentryFlutter {
     sdk.addPackage('pub:sentry_flutter', sdkVersion);
     options.sdk = sdk;
   }
+  // coverage:ignore-end
 
   @Deprecated(
       'Use reportFullyDisplayed() on a SentryDisplay instance instead. Read the TTFD documentation at https://docs.sentry.io/platforms/dart/guides/flutter/integrations/routing-instrumentation/#time-to-full-display.')

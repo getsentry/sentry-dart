@@ -152,6 +152,154 @@ void main() {
         null,
       );
     });
+
+    test('orientation handles portrait', () {
+      final map = {'orientation': 'portrait'};
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.orientation, SentryOrientation.portrait);
+    });
+
+    test('orientation handles landscape', () {
+      final map = {'orientation': 'landscape'};
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.orientation, SentryOrientation.landscape);
+    });
+
+    test('orientation returns null for invalid enum value', () {
+      final map = {'orientation': 'invalid'};
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.orientation, isNull);
+    });
+
+    test('orientation returns null for non-string value', () {
+      final map = {'orientation': 123};
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.orientation, isNull);
+    });
+
+    test('bootTime parses valid ISO8601 string', () {
+      final dateTime = DateTime(2023, 10, 15, 12, 30, 45);
+      final map = {'boot_time': dateTime.toIso8601String()};
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.bootTime, isNotNull);
+      expect(sentryDevice.bootTime!.year, 2023);
+      expect(sentryDevice.bootTime!.month, 10);
+      expect(sentryDevice.bootTime!.day, 15);
+    });
+
+    test('bootTime returns null for invalid date string', () {
+      final map = {'boot_time': 'not a date'};
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.bootTime, isNull);
+    });
+
+    test('bootTime returns null for non-string value', () {
+      final map = {'boot_time': 12345};
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.bootTime, isNull);
+    });
+
+    test('string fields return null for non-string values', () {
+      final map = {
+        'name': 123,
+        'family': true,
+        'model': ['array'],
+        'arch': {'object': 'value'},
+      };
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.name, isNull);
+      expect(sentryDevice.family, isNull);
+      expect(sentryDevice.model, isNull);
+      expect(sentryDevice.arch, isNull);
+    });
+
+    test('int fields return null for non-numeric values', () {
+      final map = {
+        'screen_height_pixels': 'not a number',
+        'screen_width_pixels': true,
+        'screen_dpi': ['array'],
+        'processor_count': {'object': 'value'},
+      };
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.screenHeightPixels, isNull);
+      expect(sentryDevice.screenWidthPixels, isNull);
+      expect(sentryDevice.screenDpi, isNull);
+      expect(sentryDevice.processorCount, isNull);
+    });
+
+    test('double fields return null for non-numeric values', () {
+      final map = {
+        'screen_density': 'not a number',
+        'processor_frequency': true,
+      };
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.screenDensity, isNull);
+      expect(sentryDevice.processorFrequency, isNull);
+    });
+
+    test('bool fields return null for non-boolean values', () {
+      final map = {
+        'online': 'true',
+        'simulator': 'false',
+      };
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.online, isNull);
+      expect(sentryDevice.simulator, isNull);
+    });
+
+    test('bool fields accept numeric 0 and 1 as false and true', () {
+      final map = {
+        'charging': 1,
+        'low_memory': 0,
+        'online': 1.0,
+        'simulator': 0.0,
+      };
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.charging, true);
+      expect(sentryDevice.lowMemory, false);
+      expect(sentryDevice.online, true);
+      expect(sentryDevice.simulator, false);
+    });
+
+    test('bool fields return null for other numeric values', () {
+      final map = {
+        'charging': 2,
+        'low_memory': -1,
+        'online': 0.5,
+      };
+      final sentryDevice = SentryDevice.fromJson(map);
+      expect(sentryDevice.charging, isNull);
+      expect(sentryDevice.lowMemory, isNull);
+      expect(sentryDevice.online, isNull);
+    });
+
+    test('mixed valid and invalid data deserializes partially', () {
+      final map = {
+        'name': 'valid name',
+        'family': 123, // invalid
+        'battery_level': 75.5,
+        'orientation': 'invalid', // invalid enum
+        'online': true,
+        'charging': 'not a bool', // invalid
+        'screen_height_pixels': 1920,
+        'screen_width_pixels': 'not a number', // invalid
+        'boot_time': 'not a date', // invalid
+      };
+      final sentryDevice = SentryDevice.fromJson(map);
+
+      // Valid fields should deserialize correctly
+      expect(sentryDevice.name, 'valid name');
+      expect(sentryDevice.batteryLevel, 75.5);
+      expect(sentryDevice.online, true);
+      expect(sentryDevice.screenHeightPixels, 1920);
+
+      // Invalid fields should be null
+      expect(sentryDevice.family, isNull);
+      expect(sentryDevice.orientation, isNull);
+      expect(sentryDevice.charging, isNull);
+      expect(sentryDevice.screenWidthPixels, isNull);
+      expect(sentryDevice.bootTime, isNull);
+    });
   });
 
   test('copyWith keeps unchanged', () {

@@ -84,7 +84,7 @@ void main() {
 
     expect(featureFlags, isNotNull);
     expect(featureFlags?.values.length, 1);
-    expect(featureFlags?.values.first.flag, 'test');
+    expect(featureFlags?.values.first.flag, 'firebase:test');
     expect(featureFlags?.values.first.result, isFalse);
   });
 
@@ -105,7 +105,7 @@ void main() {
 
     expect(featureFlags, isNotNull);
     expect(featureFlags?.values.length, 1);
-    expect(featureFlags?.values.first.flag, 'test');
+    expect(featureFlags?.values.first.flag, 'firebase:test');
     expect(featureFlags?.values.first.result, true);
   });
 

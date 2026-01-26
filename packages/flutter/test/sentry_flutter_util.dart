@@ -36,7 +36,7 @@ void testConfiguration({
   shouldNotHaveIntegrations = Set.of(shouldNotHaveIntegrations)
       .difference(Set.of(shouldHaveIntegrations));
   for (final type in shouldNotHaveIntegrations) {
-    expect(integrations, isNot(contains(type)));
+    expect(integrations.any((i) => i.runtimeType == type), false);
   }
 
   Integration? nativeIntegration;

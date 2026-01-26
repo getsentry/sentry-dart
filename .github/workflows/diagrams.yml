@@ -11,7 +11,7 @@ jobs:
         with:
           sdk: stable
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: dependencies
         run: |
@@ -57,6 +57,10 @@ jobs:
 
       - name: firebase_remote_config
         working-directory: ./packages/firebase_remote_config
+        run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
+
+      - name: supabase
+        working-directory: ./packages/supabase
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
         # Source: https://stackoverflow.com/a/58035262

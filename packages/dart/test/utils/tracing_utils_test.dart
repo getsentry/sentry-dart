@@ -74,6 +74,48 @@ void main() {
     });
   });
 
+  group('W3C traceparent header', () {
+    final fixture = Fixture();
+    final headerName = 'traceparent';
+
+    test('converts SentryTraceHeader to W3C format correctly', () {
+      final sut = fixture.getSut();
+      final sentryHeader = sut.toSentryTrace();
+
+      final w3cHeader = formatAsW3CHeader(sentryHeader);
+
+      expect(w3cHeader,
+          '00-${fixture._context.traceId}-${fixture._context.spanId}-01');
+    });
+
+    test('added when given a span', () {
+      final headers = <String, dynamic>{};
+      final sut = fixture.getSut();
+
+      addW3CHeaderFromSpan(sut, headers);
+
+      expect(headers[headerName],
+          '00-${fixture._context.traceId}-${fixture._context.spanId}-01');
+    });
+
+    test('added when given a scope', () {
+      final headers = <String, dynamic>{};
+      final hub = fixture._hub;
+      final scope = hub.scope;
+
+      addW3CHeaderFromScope(scope, headers);
+
+      final headerValue = headers[headerName] as String;
+      final parts = headerValue.split('-');
+
+      expect(parts.length, 4);
+      expect(parts[0], '00');
+      expect(parts[1], scope.propagationContext.traceId.toString());
+      expect(parts[2], hasLength(16)); // just check length since it's random
+      expect(parts[3], '00');
+    });
+  });
+
   group('$addBaggageHeader', () {
     final fixture = Fixture();
 
@@ -205,8 +247,69 @@ void main() {
     });
   });
 
-  group('$addTracingHeadersToHttpHeader', () {
-    final fixture = Fixture();
+  group(addTracingHeadersToHttpHeader, () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test(
+        'adds W3C traceparent header from span when propagateTraceparent is true',
+        () {
+      final headers = <String, dynamic>{};
+      final hub = fixture._hub;
+      final span = fixture.getSut();
+      hub.options.propagateTraceparent = true;
+
+      addTracingHeadersToHttpHeader(headers, hub, span: span);
+
+      expect(headers['traceparent'],
+          '00-${fixture._context.traceId}-${fixture._context.spanId}-01');
+    });
+
+    test(
+        'does not add W3C traceparent header from span when propagateTraceparent is false',
+        () {
+      final headers = <String, dynamic>{};
+      final hub = fixture._hub;
+      // propagateTraceparent is false by default
+
+      addTracingHeadersToHttpHeader(headers, hub);
+
+      expect(headers['traceparent'], isNull);
+    });
+
+    test(
+        'adds W3C traceparent header from scope when propagateTraceparent is true',
+        () {
+      final headers = <String, dynamic>{};
+      final hub = fixture._hub;
+      hub.options.propagateTraceparent = true;
+
+      addTracingHeadersToHttpHeader(headers, hub);
+
+      final headerValue = headers['traceparent'] as String;
+      final parts = headerValue.split('-');
+
+      expect(parts.length, 4);
+      expect(parts[0], '00');
+      expect(parts[1], hub.scope.propagationContext.traceId.toString());
+      expect(parts[2], hasLength(16)); // just check length since it's random
+      expect(parts[3], '00'); // not sampled for scope context
+    });
+
+    test(
+        'does not add W3C traceparent header from scope when propagateTraceparent is false',
+        () {
+      final headers = <String, dynamic>{};
+      final hub = fixture._hub;
+      // propagateTraceparent is false by default
+
+      addTracingHeadersToHttpHeader(headers, hub);
+
+      expect(headers['traceparent'], isNull);
+    });
 
     test('adds headers from span when span is provided', () {
       final headers = <String, dynamic>{};

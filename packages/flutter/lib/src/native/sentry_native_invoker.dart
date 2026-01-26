@@ -22,7 +22,8 @@ mixin SentryNativeSafeInvoker {
     }
   }
 
-  T? tryCatchSync<T>(String nativeMethodName, T? Function() fn) {
+  T? tryCatchSync<T>(String nativeMethodName, T? Function() fn,
+      {void Function()? finallyFn}) {
     try {
       return fn();
     } catch (error, stackTrace) {
@@ -31,6 +32,8 @@ mixin SentryNativeSafeInvoker {
         rethrow;
       }
       return null;
+    } finally {
+      finallyFn?.call();
     }
   }
 

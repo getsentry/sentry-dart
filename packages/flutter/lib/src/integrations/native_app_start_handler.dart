@@ -64,11 +64,11 @@ class NativeAppStartHandler {
     SentryMeasurement? measurement = appStartInfo.toMeasurement();
     sentryTracer.measurements[measurement.name] = appStartInfo.toMeasurement();
 
+    await _attachAppStartSpans(appStartInfo, sentryTracer);
     await options.timeToDisplayTracker.track(
       rootScreenTransaction,
       ttidEndTimestamp: appStartInfo.end,
     );
-    await _attachAppStartSpans(appStartInfo, sentryTracer);
   }
 
   _AppStartInfo? _infoNativeAppStart(
@@ -80,8 +80,8 @@ class NativeAppStartHandler {
       return null;
     }
 
-    final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(
-        nativeAppStart.appStartTime.toInt());
+    final appStartDateTime =
+        DateTime.fromMillisecondsSinceEpoch(nativeAppStart.appStartTime);
     final pluginRegistrationDateTime = DateTime.fromMillisecondsSinceEpoch(
         nativeAppStart.pluginRegistrationTime);
 

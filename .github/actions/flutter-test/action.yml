@@ -51,8 +51,9 @@ runs:
             # Remove native binding/bridge files from coverage.
             # These FFI/JNI bindings are currently not unit tested due to limitations of FFI/JNI mocking.
             dart run remove_from_coverage -f coverage/lcov.info -r 'binding.dart'
-            dart run remove_from_coverage -f coverage/lcov.info -r 'lib/src/native/java/sentry_native_java.dart'
-            dart run remove_from_coverage -f coverage/lcov.info -r 'lib/src/native/cocoa/sentry_native_cocoa.dart'
+            dart run remove_from_coverage -f coverage/lcov.info -r 'lib/src/native/sentry_native_channel.dart'
+            dart run remove_from_coverage -f coverage/lcov.info -r '^lib/src/native/java/.*\.dart$'
+            dart run remove_from_coverage -f coverage/lcov.info -r '^lib/src/native/cocoa/.*\.dart$'
           fi
         else
           $testCmd

@@ -55,6 +55,11 @@ Future<void> main() async {
   );
 }
 
+Future<void> setupSentryWithCustomInit(
+    AppRunner appRunner, OptionsConfiguration optionsConfiguration) async {
+  return SentryFlutter.init(optionsConfiguration, appRunner: appRunner);
+}
+
 Future<void> setupSentry(
   AppRunner appRunner,
   String dsn, {
@@ -91,6 +96,13 @@ Future<void> setupSentry(
       options.replay.onErrorSampleRate = 1.0;
 
       options.enableLogs = true;
+
+      options.beforeSendMetric = (metric) {
+        if (metric.name == 'drop-metric') {
+          return null;
+        }
+        return metric;
+      };
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
@@ -541,9 +553,40 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () {
+                Sentry.metrics.count(
+                  'screen.view',
+                  1,
+                  attributes: {
+                    'screen': SentryAttribute.string('HomeScreen'),
+                    'source': SentryAttribute.string('navigation'),
+                  },
+                );
+                Sentry.metrics.gauge(
+                  'app.memory_usage',
+                  128,
+                  unit: 'megabyte',
+                  attributes: {
+                    'state': SentryAttribute.string('foreground'),
+                  },
+                );
+                Sentry.metrics.distribution(
+                  'ui.render_time',
+                  16.7,
+                  unit: 'millisecond',
+                  attributes: {
+                    'widget': SentryAttribute.string('ListView'),
+                    'item_count': SentryAttribute.int(50),
+                  },
+                );
+              },
+              text: 'Demonstrates Sentry Metrics.',
+              buttonTitle: 'Send Metrics',
+            ),
+            TooltipButton(
+              onPressed: () {
                 Sentry.logger
                     .info('Sentry Log With Test Attribute', attributes: {
-                  'test-attribute': SentryLogAttribute.string('test-value'),
+                  'test-attribute': SentryAttribute.string('test-value'),
                 });
               },
               text: 'Demonstrates the logging with Sentry Log.',

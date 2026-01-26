@@ -143,7 +143,7 @@ void main() {
           level: SentryLogLevel.info,
           body: 'test',
           attributes: {
-            'test': SentryLogAttribute.string('test'),
+            'test': SentryAttribute.string('test'),
           },
         ),
         SentryLog(
@@ -152,7 +152,7 @@ void main() {
           level: SentryLogLevel.info,
           body: 'test2',
           attributes: {
-            'test2': SentryLogAttribute.int(9001),
+            'test2': SentryAttribute.int(9001),
           },
         ),
       ];
@@ -207,6 +207,37 @@ void main() {
       final actualItem = await sut.items[0].dataFactory();
       final expectedItem = await expectedEnvelopeItem.dataFactory();
       expect(actualItem, expectedItem);
+    });
+
+    test('fromMetricsData creates envelope with wrapped metrics payload',
+        () async {
+      final encodedMetrics = [
+        utf8.encode(
+            '{"timestamp":1672531200.0,"type":"counter","name":"metric1","value":1,"trace_id":"abc"}'),
+        utf8.encode(
+            '{"timestamp":1672531201.0,"type":"gauge","name":"metric2","value":42,"trace_id":"def"}'),
+      ];
+
+      final sdkVersion =
+          SdkVersion(name: 'fixture-name', version: 'fixture-version');
+      final sut = SentryEnvelope.fromMetricsData(encodedMetrics, sdkVersion);
+
+      expect(sut.header.eventId, null);
+      expect(sut.header.sdkVersion, sdkVersion);
+      expect(sut.items.length, 1);
+
+      expect(sut.items[0].header.contentType,
+          'application/vnd.sentry.items.trace-metric+json');
+      expect(sut.items[0].header.type, SentryItemType.metric);
+      expect(sut.items[0].header.itemCount, 2);
+
+      final actualItem = await sut.items[0].dataFactory();
+      final expectedPayload = utf8.encode('{"items":[') +
+          encodedMetrics[0] +
+          utf8.encode(',') +
+          encodedMetrics[1] +
+          utf8.encode(']}');
+      expect(actualItem, expectedPayload);
     });
 
     test('max attachment size', () async {

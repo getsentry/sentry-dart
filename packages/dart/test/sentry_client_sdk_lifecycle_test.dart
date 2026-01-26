@@ -4,7 +4,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_client_report_recorder.dart';
-import 'mocks/mock_log_batcher.dart';
+import 'mocks/mock_telemetry_processor.dart';
 import 'mocks/mock_transport.dart';
 import 'sentry_client_test.dart';
 import 'test_utils.dart';
@@ -24,12 +24,12 @@ void main() {
           level: SentryLogLevel.info,
           body: 'test',
           attributes: {
-            'attribute': SentryLogAttribute.string('value'),
+            'attribute': SentryAttribute.string('value'),
           },
         );
       }
 
-      test('captureLog triggers OnBeforeCaptureLog', () async {
+      test('captureLog triggers OnProcessLog', () async {
         fixture.options.enableLogs = true;
         fixture.options.environment = 'test-environment';
         fixture.options.release = 'test-release';
@@ -41,19 +41,18 @@ void main() {
         scope.span = span;
 
         final client = fixture.getSut();
-        fixture.options.logBatcher = MockLogBatcher();
+        final mockProcessor = MockTelemetryProcessor();
+        fixture.options.telemetryProcessor = mockProcessor;
 
         fixture.options.lifecycleRegistry
-            .registerCallback<OnBeforeCaptureLog>((event) {
-          event.log.attributes['test'] =
-              SentryLogAttribute.string('test-value');
+            .registerCallback<OnProcessLog>((event) {
+          event.log.attributes['test'] = SentryAttribute.string('test-value');
         });
 
         await client.captureLog(log, scope: scope);
 
-        final mockLogBatcher = fixture.options.logBatcher as MockLogBatcher;
-        expect(mockLogBatcher.addLogCalls.length, 1);
-        final capturedLog = mockLogBatcher.addLogCalls.first;
+        expect(mockProcessor.addedLogs.length, 1);
+        final capturedLog = mockProcessor.addedLogs.first;
 
         expect(capturedLog.attributes['test']?.value, "test-value");
         expect(capturedLog.attributes['test']?.type, 'string');
@@ -73,7 +72,8 @@ void main() {
         scope.span = span;
 
         final client = fixture.getSut();
-        fixture.options.logBatcher = MockLogBatcher();
+        final mockProcessor = MockTelemetryProcessor();
+        fixture.options.telemetryProcessor = mockProcessor;
 
         fixture.options.lifecycleRegistry
             .registerCallback<OnBeforeSendEvent>((event) {

@@ -25,9 +25,15 @@
   // Replay ID may be null if session replay is disabled.
   // Replay is still captured for on-error replays.
   NSString *replayId = [PrivateSentrySDKOnly getReplayId];
+  // On iOS, we only have access to scope's replay ID, so we cannot detect buffer mode
+  // If replay ID exists, it's always in active session mode (not buffering)
+  BOOL replayIsBuffering = NO;
   [self->channel
       invokeMethod:@"captureReplayScreenshot"
-         arguments:@{@"replayId" : replayId ? replayId : [NSNull null]}
+         arguments:@{
+           @"replayId" : replayId ? replayId : [NSNull null],
+           @"replayIsBuffering" : @(replayIsBuffering)
+         }
             result:^(id value) {
               if (value == nil) {
                 NSLog(@"SentryFlutterReplayScreenshotProvider received null "

@@ -64,6 +64,8 @@ abstract class SentryNativeBinding {
 
   bool get supportsReplay;
 
+  SentryId? get replayId;
+
   FutureOr<void> setReplayConfig(ReplayConfig config);
 
   FutureOr<SentryId> captureReplay();

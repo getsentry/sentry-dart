@@ -47,6 +47,9 @@ android {
         release {
             consumerProguardFiles 'proguard-rules.pro'
         }
+        debug {
+            consumerProguardFiles 'proguard-rules.pro'
+        }
     }
 
     compileOptions {
@@ -55,12 +58,11 @@ android {
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
-        languageVersion = "1.8"
     }
 }
 
 dependencies {
-    api 'io.sentry:sentry-android:8.20.0'
+    api 'io.sentry:sentry-android:8.30.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Required -- JUnit 4 framework

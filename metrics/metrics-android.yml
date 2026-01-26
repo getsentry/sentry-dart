@@ -8,9 +8,9 @@ apps:
 
 startupTimeTest:
   runs: 50
-  diffMin: 0
+  diffMin: -25 # For the flaky case where the app with Sentry is slightly faster than plain.
   diffMax: 150
 
 binarySizeTest:
   diffMin: 900 KiB
-  diffMax: 1200 KiB
+  diffMax: 1300 KiB

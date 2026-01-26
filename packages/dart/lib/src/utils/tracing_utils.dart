@@ -10,6 +10,9 @@ SentryTraceHeader generateSentryTraceHeader(
 void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
     {ISentrySpan? span}) {
   if (span != null) {
+    if (hub.options.propagateTraceparent) {
+      addW3CHeaderFromSpan(span, headers);
+    }
     addSentryTraceHeaderFromSpan(span, headers);
     addBaggageHeaderFromSpan(
       span,
@@ -17,6 +20,9 @@ void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
       log: hub.options.log,
     );
   } else {
+    if (hub.options.propagateTraceparent) {
+      addW3CHeaderFromScope(hub.scope, headers);
+    }
     addSentryTraceHeaderFromScope(hub.scope, headers);
     addBaggageHeaderFromScope(hub.scope, headers, log: hub.options.log);
   }
@@ -37,6 +43,28 @@ void addSentryTraceHeaderFromSpan(
 void addSentryTraceHeader(
     SentryTraceHeader traceHeader, Map<String, dynamic> headers) {
   headers[traceHeader.name] = traceHeader.value;
+}
+
+void addW3CHeaderFromSpan(ISentrySpan span, Map<String, dynamic> headers) {
+  final traceHeader = span.toSentryTrace();
+  _addW3CHeaderFromSentryTrace(traceHeader, headers);
+}
+
+void addW3CHeaderFromScope(Scope scope, Map<String, dynamic> headers) {
+  final propagationContext = scope.propagationContext;
+  final traceHeader = propagationContext.toSentryTrace();
+  _addW3CHeaderFromSentryTrace(traceHeader, headers);
+}
+
+void _addW3CHeaderFromSentryTrace(
+    SentryTraceHeader traceHeader, Map<String, dynamic> headers) {
+  headers['traceparent'] = formatAsW3CHeader(traceHeader);
+}
+
+String formatAsW3CHeader(SentryTraceHeader traceHeader) {
+  final sampled = traceHeader.sampled;
+  final sampledBit = sampled != null && sampled ? '01' : '00';
+  return '00-${traceHeader.traceId}-${traceHeader.spanId}-$sampledBit';
 }
 
 void addBaggageHeaderFromScope(

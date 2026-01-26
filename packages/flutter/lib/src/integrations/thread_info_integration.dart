@@ -3,7 +3,8 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../isolate_helper.dart';
+// ignore: implementation_imports
+import '../isolate/isolate_helper.dart';
 
 /// Integration for adding thread information to spans.
 ///
@@ -33,6 +34,8 @@ class ThreadInfoIntegration implements Integration<SentryFlutterOptions> {
 
     options.lifecycleRegistry
         .registerCallback<OnSpanStart>(_addThreadInfoToSpan);
+    options.lifecycleRegistry
+        .registerCallback<OnSpanFinish>(_processSyncSpanOnFinish);
 
     options.sdk.addIntegration(integrationName);
   }
@@ -41,6 +44,8 @@ class ThreadInfoIntegration implements Integration<SentryFlutterOptions> {
   void close() {
     _hub?.options.lifecycleRegistry
         .removeCallback<OnSpanStart>(_addThreadInfoToSpan);
+    _hub?.options.lifecycleRegistry
+        .removeCallback<OnSpanFinish>(_processSyncSpanOnFinish);
   }
 
   Future<void> _addThreadInfoToSpan(OnSpanStart event) async {
@@ -63,6 +68,27 @@ class ThreadInfoIntegration implements Integration<SentryFlutterOptions> {
 
       span.setData(SpanDataConvention.threadId, threadId);
       span.setData(SpanDataConvention.threadName, threadName);
+    }
+  }
+
+  void _processSyncSpanOnFinish(OnSpanFinish event) {
+    final span = event.span;
+    if (span is! SentrySpan) {
+      return;
+    }
+
+    final data = span.data;
+
+    // Check if this is a sync operation
+    if (data.containsKey('sync')) {
+      // Check if we're on the main isolate by looking at thread name
+      if (data['sync'] == true &&
+          data[SpanDataConvention.threadName] == 'main') {
+        span.setData(SpanDataConvention.blockedMainThread, true);
+      }
+
+      // Always remove the sync flag
+      span.removeData('sync');
     }
   }
 }

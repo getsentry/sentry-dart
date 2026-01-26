@@ -34,7 +34,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
-        languageVersion = "1.4"
+        languageVersion = System.getenv("KOTLIN_LANGUAGE_VERSION") ?: "1.7"
     }
 
     compileSdkVersion 35

@@ -6,29 +6,46 @@ import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
+import '../../isolate/isolate_worker.dart';
 import '../../replay/scheduled_recorder.dart';
 import '../../screenshot/screenshot.dart';
+import '../../utils/internal_logger.dart';
 import 'binding.dart' as native;
 
 // Note, this is currently not unit-tested because mocking JNI calls is
 // cumbersome, see https://github.com/dart-lang/native/issues/1794
 @internal
 class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
-  _AndroidNativeReplayWorker? _worker;
+  final WorkerConfig _config;
+  final SpawnWorkerFn _spawn;
+  Worker? _worker;
 
   @internal // visible for testing, used by SentryNativeJava
   static AndroidReplayRecorder Function(SentryFlutterOptions) factory =
       AndroidReplayRecorder.new;
 
-  AndroidReplayRecorder(super.options) {
-    super.callback = _addReplayScreenshot;
+  @visibleForTesting
+  void Function()? onScreenshotAddedForTest;
+
+  AndroidReplayRecorder(super.options, {SpawnWorkerFn? spawn})
+      : _config = WorkerConfig(
+          debugName: 'SentryAndroidReplayRecorder',
+          debug: options.debug,
+          diagnosticLevel: options.diagnosticLevel,
+          automatedTestMode: options.automatedTestMode,
+        ),
+        _spawn = spawn ?? spawnWorker {
+    super.callback = (screenshot, isNewlyCaptured) {
+      onScreenshotAddedForTest?.call();
+      return _addReplayScreenshot(screenshot, isNewlyCaptured);
+    };
   }
 
   @override
   Future<void> start() async {
-    final spawningWorker = _AndroidNativeReplayWorker.spawn();
+    if (_worker != null) return;
+    _worker = await _spawn(_config, _entryPoint);
     await super.start();
-    _worker = await spawningWorker;
   }
 
   @override
@@ -50,7 +67,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
           '${screenshot.width}x${screenshot.height} pixels, '
           '${data.lengthInBytes} bytes)');
 
-      await _worker!.nativeAddScreenshot(_WorkItem(
+      await _worker!.request(_WorkItem(
         timestamp: timestamp,
         data: data.buffer.asUint8List(),
         width: screenshot.width,
@@ -68,127 +85,71 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
       }
     }
   }
+
+  static void _entryPoint((SendPort, WorkerConfig) init) {
+    final (host, config) = init;
+    runWorker(config, host, _AndroidReplayHandler(config));
+  }
 }
 
-// Based on https://dart.dev/language/isolates#robust-ports-example
-class _AndroidNativeReplayWorker {
-  final SendPort _commands;
-  final ReceivePort _responses;
-  final Map<int, Completer<Object?>> _activeRequests = {};
-  int _idCounter = 0;
-  bool _closed = false;
+class _AndroidReplayHandler extends WorkerHandler {
+  final WorkerConfig _config;
+  // Android Bitmap creation is a bit costly so we reuse it between captures.
+  native.Bitmap? _bitmap;
+  late final native.ReplayIntegration _nativeReplay;
 
-  static Future<_AndroidNativeReplayWorker> spawn() async {
-    // Create a receive port and add its initial message handler
-    final initPort = RawReceivePort();
-    final connection = Completer<(ReceivePort, SendPort)>.sync();
-    initPort.handler = (SendPort commandPort) {
-      connection.complete((
-        ReceivePort.fromRawReceivePort(initPort),
-        commandPort,
-      ));
-    };
+  _AndroidReplayHandler(this._config) {
+    _nativeReplay =
+        native.SentryFlutterPlugin.privateSentryGetReplayIntegration()!;
+  }
 
-    // Spawn the isolate.
+  @override
+  FutureOr<void> onMessage(Object? message) {
+    internalLogger.warning(
+        '${_config.debugName}: Unexpected fire-and-forget message: $message');
+  }
+
+  @override
+  FutureOr<Object?> onRequest(Object? payload) {
+    if (payload is! _WorkItem) {
+      internalLogger
+          .warning('${_config.debugName}: Unexpected payload type: $payload');
+      return null;
+    }
+
+    final item = payload;
+    JByteBuffer? jBuffer;
+
     try {
-      await Isolate.spawn(_startRemoteIsolate, (initPort.sendPort),
-          debugName: 'SentryReplayRecorder');
-    } on Object {
-      initPort.close();
-      rethrow;
-    }
-
-    final (ReceivePort receivePort, SendPort sendPort) =
-        await connection.future;
-
-    return _AndroidNativeReplayWorker._(receivePort, sendPort);
-  }
-
-  _AndroidNativeReplayWorker._(this._responses, this._commands) {
-    _responses.listen(_handleResponsesFromIsolate);
-  }
-
-  Future<Object?> nativeAddScreenshot(_WorkItem item) async {
-    if (_closed) throw StateError('Closed');
-    final completer = Completer<Object?>.sync();
-    final id = _idCounter++;
-    _activeRequests[id] = completer;
-    _commands.send((id, item));
-    return await completer.future;
-  }
-
-  void _handleResponsesFromIsolate(dynamic message) {
-    final (int id, Object? response) = message as (int, Object?);
-    final completer = _activeRequests.remove(id)!;
-
-    if (response is RemoteError) {
-      completer.completeError(response);
-    } else {
-      completer.complete(response);
-    }
-
-    if (_closed && _activeRequests.isEmpty) _responses.close();
-  }
-
-  /// This is the actual Android native implementation, the rest is just plumbing.
-  static void _handleCommandsToIsolate(
-    ReceivePort receivePort,
-    SendPort sendPort,
-  ) {
-    // Android Bitmap creation is a bit costly so we reuse it between captures.
-    native.Bitmap? bitmap;
-
-    final _nativeReplay = native.SentryFlutterPlugin.Companion
-        .privateSentryGetReplayIntegration()!;
-
-    receivePort.listen((message) {
-      if (message == 'shutdown') {
-        receivePort.close();
-        return;
-      }
-      final (id, item) = message as (int, _WorkItem);
-      try {
-        if (bitmap != null) {
-          if (bitmap!.getWidth() != item.width ||
-              bitmap!.getHeight() != item.height) {
-            bitmap!.release();
-            bitmap = null;
-          }
+      if (_bitmap != null) {
+        if (_bitmap!.getWidth() != item.width ||
+            _bitmap!.getHeight() != item.height) {
+          _bitmap!.release();
+          _bitmap = null;
         }
-
-        // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
-        // Note: while the generated API is nullable, the docs say the returned value cannot be null..
-        bitmap ??= native.Bitmap.createBitmap$3(
-            item.width, item.height, native.Bitmap$Config.ARGB_8888);
-
-        final jBuffer = JByteBuffer.fromList(item.data);
-        try {
-          bitmap!.copyPixelsFromBuffer(jBuffer);
-        } finally {
-          jBuffer.release();
-        }
-
-        // TODO timestamp is currently missing in onScreenshotRecorded()
-        _nativeReplay.onScreenshotRecorded(bitmap!);
-
-        sendPort.send((id, null));
-      } catch (e, stacktrace) {
-        sendPort.send((id, RemoteError(e.toString(), stacktrace.toString())));
       }
-    });
-  }
 
-  static void _startRemoteIsolate(SendPort sendPort) {
-    final receivePort = ReceivePort();
-    sendPort.send(receivePort.sendPort);
-    _handleCommandsToIsolate(receivePort, sendPort);
-  }
+      // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
+      // Note: while the generated API is nullable, the docs say the returned value cannot be null..
+      _bitmap ??= native.Bitmap.createBitmap$3(
+          item.width, item.height, native.Bitmap$Config.ARGB_8888);
 
-  void close() {
-    if (!_closed) {
-      _closed = true;
-      _commands.send('shutdown');
-      if (_activeRequests.isEmpty) _responses.close();
+      jBuffer = JByteBuffer.fromList(item.data);
+      _bitmap!.copyPixelsFromBuffer(jBuffer);
+
+      // TODO timestamp is currently missing in onScreenshotRecorded()
+      _nativeReplay.onScreenshotRecorded(_bitmap!);
+
+      return null;
+    } catch (exception, stackTrace) {
+      internalLogger.error('Failed to add replay screenshot',
+          error: exception, stackTrace: stackTrace);
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
+      return null;
+    } finally {
+      jBuffer?.release();
     }
   }
 }

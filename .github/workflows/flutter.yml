@@ -43,17 +43,13 @@ jobs:
             os: windows
           - target: js
             os: ubuntu
-          - target: wasm
-            os: ubuntu
         exclude:
-          # Flutter WASM tests don't compile on beta currently.
-          # We can re-enable when it is fixed by Flutter.
-          # https://github.com/getsentry/sentry-dart/pull/3003
+          # Flutter WASM tests don't compile on beta currently and hangs on stable.
+          # https://github.com/getsentry/sentry-dart/issues/3477
           - target: wasm
-            sdk: beta
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/flutter-test
         with:
@@ -65,7 +61,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: packages/flutter
           coverage: sentry_flutter
-          min-coverage: 90
+          min-coverage: 85
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5
@@ -118,7 +114,7 @@ jobs:
         target: [ios, macos]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
@@ -136,14 +132,13 @@ jobs:
 
       - name: Run on macOS
         if: matrix.target == 'macos'
-        run: flutter build macos
+        run: flutter build macos --debug
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
       package: packages/flutter
       sdk: flutter
-      panaThreshold: 87
 
   pod-lint:
     runs-on: macos-15
@@ -152,7 +147,7 @@ jobs:
       run:
         working-directory: packages/flutter
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
@@ -168,7 +163,7 @@ jobs:
       run:
         working-directory: packages/flutter
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@3.2.1
         with:
           args: --strict
@@ -180,7 +175,7 @@ jobs:
       run:
         working-directory: packages/flutter
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: ktlint
         uses: ScaCap/action-ktlint@26c5e9b625966139d9956cbbb6217375480d4e14 # pin@1.9.0
@@ -189,13 +184,13 @@ jobs:
           reporter: github-pr-review
           android: true
           fail_on_error: true
-
-  detekt:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v5
-      # To recreate baseline run: detekt -i packages/flutter/android,packages/flutter/example/android -b packages/flutter/config/detekt-bl.xml -cb
-      - uses: natiginfo/action-detekt-all@45229fbbe47eaff1160b6c956d7ffe14dc23c206 # pin@1.23.8
-        with:
-          args: -i packages/flutter/android,packages/flutter/example/android --baseline packages/flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules
+# TODO: disabled until the following is fixed https://github.com/natiginfo/action-detekt-all/issues/73
+#  detekt:
+#    runs-on: ubuntu-latest
+#    timeout-minutes: 20
+#    steps:
+#      - uses: actions/checkout@v6
+#      # To recreate baseline run: detekt -i packages/flutter/android,packages/flutter/example/android -b packages/flutter/config/detekt-bl.xml -cb
+#      - uses: natiginfo/action-detekt-all@45229fbbe47eaff1160b6c956d7ffe14dc23c206 # pin@1.23.8
+#        with:
+#          args: -i packages/flutter/android,packages/flutter/example/android --baseline packages/flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules

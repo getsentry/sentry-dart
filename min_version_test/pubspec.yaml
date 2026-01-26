@@ -34,6 +34,7 @@ dependencies:
   sentry_logging:
   dio: any # This gets constrained by `sentry_dio`
   logging: any # This gets constrained by `sentry_logging`
+  package_info_plus: 8.3.1 # version 9 and above requires at least AGP 8.12.1
 
   flutter: any
 dev_dependencies:

@@ -2,13 +2,17 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter_example/main.dart';
 import '../../../dart/test/mocks/mock_transport.dart';
 
 void main() {
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
   final transport = MockTransport();
 
-  setUp(() async {
+  Future<void> setupSentryAndApp(WidgetTester tester) async {
     await SentryFlutter.init((options) {
       // ignore: invalid_use_of_internal_member
       options.automatedTestMode = true;
@@ -17,20 +21,24 @@ void main() {
       options.transport = transport;
       options.tracesSampleRate = 1.0;
       options.profilesSampleRate = 1.0;
+    }, appRunner: () async {
+      await tester.pumpWidget(const MyApp());
     });
-  });
+  }
 
   tearDown(() async {
     await Sentry.close();
     transport.reset();
   });
 
-  test('native binding is initialized', () async {
+  testWidgets('native binding is initialized', (tester) async {
+    await setupSentryAndApp(tester);
     // ignore: invalid_use_of_internal_member
     expect(SentryFlutter.native, isNotNull);
   });
 
-  test('profile is captured', () async {
+  testWidgets('profile is captured', (tester) async {
+    await setupSentryAndApp(tester);
     final tx = Sentry.startTransaction("name", "op");
     await Future.delayed(const Duration(milliseconds: 1000));
     await tx.finish();
@@ -63,8 +71,5 @@ void main() {
     expect(profileMap["profile"]["samples"], isNotEmpty);
     expect(profileMap["profile"]["stacks"], isNotEmpty);
     expect(profileMap["profile"]["frames"], isNotEmpty);
-  },
-      skip: (Platform.isMacOS || Platform.isIOS)
-          ? false
-          : "Profiling is not supported on this platform");
+  }, skip: !(Platform.isMacOS || Platform.isIOS));
 }

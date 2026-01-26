@@ -34,8 +34,17 @@ class SdkLifecycleRegistry {
     callbacks?.remove(callback);
   }
 
-  FutureOr<void> dispatchCallback<T extends SdkLifecycleEvent>(T event) async {
-    final callbacks = _lifecycleCallbacks[event.runtimeType] ?? [];
+  FutureOr<void> dispatchCallback<T extends SdkLifecycleEvent>(T event) {
+    final callbacks = _lifecycleCallbacks[event.runtimeType];
+    if (callbacks == null || callbacks.isEmpty) {
+      // Return synchronously when there are no callbacks to avoid unnecessary async boundary
+      return null;
+    }
+    return _dispatchCallbackAsync(event, callbacks);
+  }
+
+  Future<void> _dispatchCallbackAsync<T extends SdkLifecycleEvent>(
+      T event, List<Function> callbacks) async {
     for (final cb in callbacks) {
       try {
         final result = (cb as SdkLifecycleCallback<T>)(event);
@@ -58,8 +67,8 @@ class SdkLifecycleRegistry {
 }
 
 @internal
-class OnBeforeCaptureLog extends SdkLifecycleEvent {
-  OnBeforeCaptureLog(this.log);
+class OnProcessLog extends SdkLifecycleEvent {
+  OnProcessLog(this.log);
 
   final SentryLog log;
 }
@@ -78,4 +87,19 @@ class OnSpanStart extends SdkLifecycleEvent {
   OnSpanStart(this.span);
 
   final ISentrySpan span;
+}
+
+/// Dispatched when a sampled span is finished.
+@internal
+class OnSpanFinish extends SdkLifecycleEvent {
+  OnSpanFinish(this.span);
+
+  final ISentrySpan span;
+}
+
+@internal
+class OnProcessMetric extends SdkLifecycleEvent {
+  final SentryMetric metric;
+
+  OnProcessMetric(this.metric);
 }

@@ -489,6 +489,7 @@ class SentryFile implements File {
 
     span?.origin = SentryTraceOrigins.autoFile;
     span?.setData('file.async', false);
+    span?.setData('sync', true);
 
     final Map<String, dynamic> breadcrumbData = {};
     breadcrumbData['file.async'] = false;

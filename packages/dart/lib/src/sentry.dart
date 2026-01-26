@@ -23,12 +23,15 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_run_zoned_guarded.dart';
+import 'telemetry/metric/metrics_setup_integration.dart';
+import 'telemetry/metric/metrics.dart';
+import 'telemetry/processing/processor_integration.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
 import 'feature_flags_integration.dart';
-import 'sentry_logger.dart';
-import 'logs_enricher_integration.dart';
+import 'telemetry/log/logger.dart';
+import 'telemetry/log/logger_setup_integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -109,8 +112,10 @@ class Sentry {
       options.addIntegration(LoadDartDebugImagesIntegration());
     }
 
+    options.addIntegration(MetricsSetupIntegration());
+    options.addIntegration(LoggerSetupIntegration());
     options.addIntegration(FeatureFlagsIntegration());
-    options.addIntegration(LogsEnricherIntegration());
+    options.addIntegration(InMemoryTelemetryProcessorIntegration());
 
     options.addEventProcessor(EnricherEventProcessor(options));
     options.addEventProcessor(ExceptionEventProcessor(options));
@@ -295,6 +300,19 @@ class Sentry {
   static Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) =>
       _hub.addBreadcrumb(crumb, hint: hint);
 
+  /// Adds attributes to the current [Scope].
+  /// These attributes will be applied to logs.
+  /// When the same attribute keys exist on the current log,
+  /// it takes precedence over an attribute with the same key set on any scope.
+  static void setAttributes(Map<String, SentryAttribute> attributes) {
+    _hub.setAttributes(attributes);
+  }
+
+  /// Removes the attribute [key] from the scope.
+  static void removeAttribute(String key) {
+    _hub.removeAttribute(key);
+  }
+
   /// Configures the scope through the callback.
   static FutureOr<void> configureScope(ScopeCallback callback) =>
       _hub.configureScope(callback);
@@ -435,4 +453,6 @@ class Sentry {
       );
 
   static SentryLogger get logger => currentHub.options.logger;
+
+  static SentryMetrics get metrics => currentHub.options.metrics;
 }
