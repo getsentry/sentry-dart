@@ -1,5 +1,7 @@
 // Span specs: https://develop.sentry.dev/sdk/telemetry/spans/span-api/
 
+import 'dart:async';
+
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
 import 'sentry_span_status_v2.dart';

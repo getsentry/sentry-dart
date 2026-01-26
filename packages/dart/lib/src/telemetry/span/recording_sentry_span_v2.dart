@@ -5,7 +5,7 @@ typedef DscCreatorCallback = SentryTraceContextHeader Function(
     RecordingSentrySpanV2 span);
 
 /// Called when a span ends, allowing the span to be processed or buffered.
-typedef OnSpanEndCallback = void Function(RecordingSentrySpanV2 span);
+typedef OnSpanEndCallback = Future<void> Function(RecordingSentrySpanV2 span);
 
 /// A span that records timing and attribute data for performance monitoring.
 ///
@@ -126,7 +126,7 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
 
     _endTimestamp = (endTimestamp ?? _clock()).toUtc();
 
-    _onSpanEnd(this);
+    unawaited(_onSpanEnd(this));
     internalLogger.debug(
         'Span $name ended with start timestamp: $_startTimestamp, end timestamp: $_endTimestamp');
   }
@@ -170,7 +170,6 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
     _attributes.addAll(attributes);
   }
 
-  @override
   void setAttributesIfAbsent(Map<String, SentryAttribute> attributes) {
     for (final entry in attributes.entries) {
       _attributes.putIfAbsent(entry.key, () => entry.value);
