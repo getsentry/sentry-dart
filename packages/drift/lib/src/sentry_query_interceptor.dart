@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import 'utils/constants.dart' as drift_constants;
+import 'utils/internal_logger.dart';
 import 'version.dart';
 
 /// A Sentry query interceptor that wraps database operations in performance monitoring spans.
@@ -83,7 +84,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
       operation: SentrySpanOperations.dbSqlTransaction,
       description: SentrySpanDescriptions.dbTransaction,
       execute: () => super.beginTransaction(parent),
-      integration: drift_constants.loggerName,
+      loggerName: drift_constants.loggerName,
       origin: SentryTraceOrigins.autoDbDriftQueryInterceptor,
       attributes: {
         SentrySpanData.dbSystemKey: SentrySpanData.dbSystemSqlite,
