@@ -86,8 +86,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   @override
   TransactionExecutor beginTransaction(QueryExecutor parent) {
-    final (result, spanCreated) =
-        _transactionWrapper.beginTransaction<TransactionExecutor>(
+    return _transactionWrapper.beginTransaction<TransactionExecutor>(
       operation: SentrySpanOperations.dbSqlTransaction,
       description: SentrySpanDescriptions.dbTransaction,
       execute: () => super.beginTransaction(parent),
@@ -97,14 +96,6 @@ class SentryQueryInterceptor extends QueryInterceptor {
         SentrySpanData.dbNameKey: _dbName,
       },
     );
-
-    if (!spanCreated) {
-      internalLogger.warning(
-        'No active transaction found. The Drift operation will not be traced: Begin Transaction',
-      );
-    }
-
-    return result;
   }
 
   @override

@@ -20,7 +20,7 @@ class StaticTransactionWrapper implements TransactionWrapper {
   ISentrySpan? get currentSpan => _transactionStack.lastOrNull;
 
   @override
-  (T, bool) beginTransaction<T>({
+  T beginTransaction<T>({
     required String operation,
     required String description,
     required T Function() execute,
@@ -29,7 +29,7 @@ class StaticTransactionWrapper implements TransactionWrapper {
   }) {
     final parent = currentSpan ?? _hub.getSpan();
     if (parent == null) {
-      return (execute(), false);
+      return execute();
     }
 
     final span = parent.startChild(operation, description: description);
@@ -42,7 +42,7 @@ class StaticTransactionWrapper implements TransactionWrapper {
       final result = execute();
       span.status = SpanStatus.unknown();
       _transactionStack.add(span);
-      return (result, true);
+      return result;
     } catch (exception) {
       span.throwable = exception;
       span.status = SpanStatus.internalError();

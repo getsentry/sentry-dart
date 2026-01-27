@@ -56,18 +56,17 @@ void main() {
     });
 
     group('beginTransaction', () {
-      test('creates child span and returns result with spanCreated true', () {
+      test('creates child span and returns result', () {
         final sut = fixture.getSut();
         fixture.setParentSpan();
 
-        final (result, spanCreated) = sut.beginTransaction(
+        final result = sut.beginTransaction(
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () => 'result',
         );
 
         expect(result, 'result');
-        expect(spanCreated, true);
         final children = fixture.tracer.children;
         expect(children.length, 1);
         expect(children.first.context.operation, 'db.sql.transaction');
@@ -143,12 +142,11 @@ void main() {
         expect(sut.transactionStackSize, 0);
       });
 
-      test('executes directly and returns spanCreated false when no parent',
-          () {
+      test('executes directly when no parent', () {
         final sut = fixture.getSut();
         var executed = false;
 
-        final (result, spanCreated) = sut.beginTransaction(
+        final result = sut.beginTransaction(
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () {
@@ -158,7 +156,6 @@ void main() {
         );
 
         expect(result, 'result');
-        expect(spanCreated, false);
         expect(executed, true);
         expect(sut.transactionStackSize, 0);
       });
