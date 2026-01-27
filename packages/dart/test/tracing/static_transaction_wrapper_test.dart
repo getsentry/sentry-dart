@@ -187,7 +187,8 @@ void main() {
 
         expect(sut.transactionStackSize, 2);
         // The inner span should have the outer span as parent
-        expect(innerSpan.context.parentSpanId, (outerSpan as SentrySpan).context.spanId);
+        expect(innerSpan.context.parentSpanId,
+            (outerSpan as SentrySpan).context.spanId);
       });
     });
 
