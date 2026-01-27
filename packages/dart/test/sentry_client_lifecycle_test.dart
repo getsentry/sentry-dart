@@ -67,7 +67,7 @@ void main() {
         final span = RecordingSentrySpanV2.root(
           name: 'test-span',
           traceId: SentryId.newId(),
-          onSpanEnd: (_) {},
+          onSpanEnd: (_) async {},
           clock: fixture.options.clock,
           dscCreator: (_) => SentryTraceContextHeader(SentryId.newId(), 'key'),
           samplingDecision: SentryTracesSamplingDecision(true),
