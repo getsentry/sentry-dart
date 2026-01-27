@@ -67,8 +67,8 @@ class SdkLifecycleRegistry {
 }
 
 @internal
-class OnBeforeCaptureLog extends SdkLifecycleEvent {
-  OnBeforeCaptureLog(this.log);
+class OnProcessLog extends SdkLifecycleEvent {
+  OnProcessLog(this.log);
 
   final SentryLog log;
 }
@@ -95,4 +95,11 @@ class OnSpanFinish extends SdkLifecycleEvent {
   OnSpanFinish(this.span);
 
   final ISentrySpan span;
+}
+
+@internal
+class OnProcessMetric extends SdkLifecycleEvent {
+  final SentryMetric metric;
+
+  OnProcessMetric(this.metric);
 }

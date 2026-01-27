@@ -23,13 +23,15 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_run_zoned_guarded.dart';
+import 'telemetry/metric/metrics_setup_integration.dart';
+import 'telemetry/metric/metrics.dart';
 import 'telemetry/processing/processor_integration.dart';
 import 'tracing.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
 import 'feature_flags_integration.dart';
-import 'sentry_logger.dart';
-import 'logs_enricher_integration.dart';
+import 'telemetry/log/logger.dart';
+import 'telemetry/log/logger_setup_integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -110,8 +112,9 @@ class Sentry {
       options.addIntegration(LoadDartDebugImagesIntegration());
     }
 
+    options.addIntegration(MetricsSetupIntegration());
+    options.addIntegration(LoggerSetupIntegration());
     options.addIntegration(FeatureFlagsIntegration());
-    options.addIntegration(LogsEnricherIntegration());
     options.addIntegration(InMemoryTelemetryProcessorIntegration());
 
     options.addEventProcessor(EnricherEventProcessor(options));
@@ -450,4 +453,6 @@ class Sentry {
       );
 
   static SentryLogger get logger => currentHub.options.logger;
+
+  static SentryMetrics get metrics => currentHub.options.metrics;
 }

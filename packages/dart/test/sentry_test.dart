@@ -6,8 +6,8 @@ import 'dart:isolate';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
-import 'package:sentry/src/logs_enricher_integration.dart';
 import 'package:sentry/src/feature_flags_integration.dart';
+import 'package:sentry/src/telemetry/metric/metrics_setup_integration.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
 import 'package:test/test.dart';
 
@@ -268,6 +268,27 @@ void main() {
       expect(integration.callCalls, 1);
     });
 
+    test('should add $MetricsSetupIntegration', () async {
+      late SentryOptions optionsReference;
+      final options = defaultTestOptions();
+
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          optionsReference = options;
+        },
+        appRunner: appRunner,
+      );
+
+      expect(
+        optionsReference.integrations
+            .whereType<MetricsSetupIntegration>()
+            .length,
+        1,
+      );
+    });
+
     test('should add default integrations', () async {
       late SentryOptions optionsReference;
       final options = defaultTestOptions();
@@ -298,27 +319,6 @@ void main() {
         1,
       );
     }, onPlatform: {'browser': Skip()});
-
-    test('should add logsEnricherIntegration', () async {
-      late SentryOptions optionsReference;
-      final options = defaultTestOptions();
-
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-          optionsReference = options;
-        },
-        appRunner: appRunner,
-      );
-
-      expect(
-        optionsReference.integrations
-            .whereType<LogsEnricherIntegration>()
-            .length,
-        1,
-      );
-    });
 
     test('should add $InMemoryTelemetryProcessorIntegration', () async {
       late SentryOptions optionsReference;
@@ -355,7 +355,7 @@ void main() {
       );
     }, onPlatform: {'vm': Skip()});
 
-    test('should add feature flag FeatureFlagsIntegration', () async {
+    test('should add feature flag $FeatureFlagsIntegration', () async {
       await Sentry.init(
         options: defaultTestOptions(),
         (options) => options.dsn = fakeDsn,

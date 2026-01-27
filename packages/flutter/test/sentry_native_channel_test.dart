@@ -502,6 +502,86 @@ void main() {
       });
     });
   }
+
+  group('init captureFailedRequests on iOS/macOS', () {
+    late SentryNativeBinding sut;
+    late MockMethodChannel channel;
+
+    Future<Map<String, dynamic>> callInitAndCaptureArgs(
+        SentryFlutterOptions options) async {
+      when(channel.invokeMethod('initNativeSdk', any))
+          .thenAnswer((_) => Future.value());
+
+      await sut.init(MockHub());
+
+      final captured =
+          verify(channel.invokeMethod('initNativeSdk', captureAny)).captured;
+      return captured.first as Map<String, dynamic>;
+    }
+
+    setUp(() {
+      channel = MockMethodChannel();
+    });
+
+    test(
+        'uses captureFailedRequests when captureNativeFailedRequests is null (backwards compatibility)',
+        () async {
+      final options = defaultTestOptions()
+        ..platform = MockPlatform.iOS()
+        ..methodChannel = channel
+        ..captureFailedRequests = false
+        ..captureNativeFailedRequests = null;
+      sut = createBinding(options);
+
+      final args = await callInitAndCaptureArgs(options);
+
+      expect(args['captureFailedRequests'], false);
+    });
+
+    test(
+        'uses captureNativeFailedRequests when explicitly set to true even if captureFailedRequests is false',
+        () async {
+      final options = defaultTestOptions()
+        ..platform = MockPlatform.iOS()
+        ..methodChannel = channel
+        ..captureFailedRequests = false
+        ..captureNativeFailedRequests = true;
+      sut = createBinding(options);
+
+      final args = await callInitAndCaptureArgs(options);
+
+      expect(args['captureFailedRequests'], true);
+    });
+
+    test(
+        'uses captureNativeFailedRequests when explicitly set to false even if captureFailedRequests is true',
+        () async {
+      final options = defaultTestOptions()
+        ..platform = MockPlatform.iOS()
+        ..methodChannel = channel
+        ..captureFailedRequests = true
+        ..captureNativeFailedRequests = false;
+      sut = createBinding(options);
+
+      final args = await callInitAndCaptureArgs(options);
+
+      expect(args['captureFailedRequests'], false);
+    });
+
+    test('defaults to captureFailedRequests value when both use defaults',
+        () async {
+      final options = defaultTestOptions()
+        ..platform = MockPlatform.iOS()
+        ..methodChannel = channel;
+      // captureFailedRequests defaults to true
+      // captureNativeFailedRequests defaults to null
+      sut = createBinding(options);
+
+      final args = await callInitAndCaptureArgs(options);
+
+      expect(args['captureFailedRequests'], true);
+    });
+  });
 }
 
 /// Returns a matcher for the android-specific failures we expect when native

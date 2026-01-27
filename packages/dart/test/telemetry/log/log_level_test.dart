@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:sentry/src/protocol/sentry_log_level.dart';
+import 'package:sentry/src/telemetry/log/log_level.dart';
 import 'package:sentry/src/protocol/sentry_level.dart';
 
 void main() {

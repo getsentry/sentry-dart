@@ -97,6 +97,13 @@ Future<void> setupSentry(
 
       options.enableLogs = true;
 
+      options.beforeSendMetric = (metric) {
+        if (metric.name == 'drop-metric') {
+          return null;
+        }
+        return metric;
+      };
+
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
         options.dist = '1';
@@ -543,6 +550,37 @@ class MainScaffold extends StatelessWidget {
               },
               text: 'Demonstrates the feature flags.',
               buttonTitle: 'Add "feature-one" flag',
+            ),
+            TooltipButton(
+              onPressed: () {
+                Sentry.metrics.count(
+                  'screen.view',
+                  1,
+                  attributes: {
+                    'screen': SentryAttribute.string('HomeScreen'),
+                    'source': SentryAttribute.string('navigation'),
+                  },
+                );
+                Sentry.metrics.gauge(
+                  'app.memory_usage',
+                  128,
+                  unit: 'megabyte',
+                  attributes: {
+                    'state': SentryAttribute.string('foreground'),
+                  },
+                );
+                Sentry.metrics.distribution(
+                  'ui.render_time',
+                  16.7,
+                  unit: 'millisecond',
+                  attributes: {
+                    'widget': SentryAttribute.string('ListView'),
+                    'item_count': SentryAttribute.int(50),
+                  },
+                );
+              },
+              text: 'Demonstrates Sentry Metrics.',
+              buttonTitle: 'Send Metrics',
             ),
             TooltipButton(
               onPressed: () {

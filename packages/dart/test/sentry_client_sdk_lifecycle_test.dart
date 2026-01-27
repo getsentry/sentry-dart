@@ -29,7 +29,7 @@ void main() {
         );
       }
 
-      test('captureLog triggers OnBeforeCaptureLog', () async {
+      test('captureLog triggers OnProcessLog', () async {
         fixture.options.enableLogs = true;
         fixture.options.environment = 'test-environment';
         fixture.options.release = 'test-release';
@@ -45,7 +45,7 @@ void main() {
         fixture.options.telemetryProcessor = mockProcessor;
 
         fixture.options.lifecycleRegistry
-            .registerCallback<OnBeforeCaptureLog>((event) {
+            .registerCallback<OnProcessLog>((event) {
           event.log.attributes['test'] = SentryAttribute.string('test-value');
         });
 

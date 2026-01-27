@@ -94,6 +94,22 @@ class SentryEnvelopeItem {
     );
   }
 
+  /// Create a [SentryEnvelopeItem] which holds pre-encoded metric data.
+  /// This is used by the buffer to send pre-encoded metric batches.
+  @internal
+  factory SentryEnvelopeItem.fromMetricsData(
+      List<int> payload, int metricsCount) {
+    return SentryEnvelopeItem(
+      SentryEnvelopeItemHeader(
+        SentryItemType.metric,
+        itemCount: metricsCount,
+        contentType: 'application/vnd.sentry.items.trace-metric+json',
+      ),
+      () => payload,
+      originalObject: null,
+    );
+  }
+
   /// Header with info about type and length of data in bytes.
   final SentryEnvelopeItemHeader header;
 
