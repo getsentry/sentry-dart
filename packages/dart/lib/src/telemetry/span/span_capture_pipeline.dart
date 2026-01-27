@@ -42,6 +42,8 @@ class SpanCapturePipeline {
               SentryAttribute.string(span.segmentSpan.spanId.toString()),
         });
 
+        await _options.beforeSendSpan?.call(span);
+
         _options.telemetryProcessor.addSpan(span);
     }
   }

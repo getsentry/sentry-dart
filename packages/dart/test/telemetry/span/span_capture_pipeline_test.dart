@@ -146,6 +146,101 @@ void main() {
 
         expect(fixture.processor.addedSpans, isEmpty);
       });
+
+      test('calls beforeSendSpan callback with span', () async {
+        SentrySpanV2? receivedSpan;
+        fixture.options.beforeSendSpan = (span) {
+          receivedSpan = span;
+          return span;
+        };
+
+        final span = fixture.createRecordingSpan();
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        expect(receivedSpan, same(span));
+        expect(fixture.processor.addedSpans.length, 1);
+      });
+
+      test('beforeSendSpan callback can modify span attributes', () async {
+        fixture.options.beforeSendSpan = (span) {
+          span.setAttribute('modified-by-callback', SentryAttribute.bool(true));
+          span.name = 'modified-span-name';
+          return span;
+        };
+
+        final span = fixture.createRecordingSpan(name: 'original-name');
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        expect(span.attributes['modified-by-callback']?.value, true);
+        expect(span.name, 'modified-span-name');
+      });
+
+      test('beforeSendSpan callback can remove sensitive attributes', () async {
+        fixture.options.beforeSendSpan = (span) {
+          span.removeAttribute('sensitive-data');
+          return span;
+        };
+
+        final span = fixture.createRecordingSpan();
+        span.setAttribute('sensitive-data', SentryAttribute.string('secret'));
+        span.setAttribute('safe-data', SentryAttribute.string('public'));
+
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        expect(span.attributes.containsKey('sensitive-data'), isFalse);
+        expect(span.attributes['safe-data']?.value, 'public');
+      });
+
+      test('beforeSendSpan callback supports async operations', () async {
+        var asyncCompleted = false;
+        fixture.options.beforeSendSpan = (span) async {
+          await Future.delayed(Duration.zero);
+          asyncCompleted = true;
+          span.setAttribute('async-attr', SentryAttribute.string('async-value'));
+          return span;
+        };
+
+        final span = fixture.createRecordingSpan();
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        expect(asyncCompleted, isTrue);
+        expect(span.attributes['async-attr']?.value, 'async-value');
+      });
+
+      test('beforeSendSpan is called after lifecycle callbacks', () async {
+        final callOrder = <String>[];
+
+        fixture.options.lifecycleRegistry
+            .registerCallback<OnProcessSpan>((event) {
+          callOrder.add('lifecycle');
+        });
+
+        fixture.options.beforeSendSpan = (span) {
+          callOrder.add('beforeSendSpan');
+          return span;
+        };
+
+        final span = fixture.createRecordingSpan();
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        expect(callOrder, ['lifecycle', 'beforeSendSpan']);
+      });
+
+      test('beforeSendSpan is called after default attributes are added',
+          () async {
+        String? envValue;
+        fixture.options.beforeSendSpan = (span) {
+          envValue =
+              span.attributes[SemanticAttributesConstants.sentryEnvironment]
+                  ?.value as String?;
+          return span;
+        };
+
+        final span = fixture.createRecordingSpan();
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        expect(envValue, 'test-env');
+      });
     });
   });
 }
@@ -171,7 +266,7 @@ class Fixture {
     return RecordingSentrySpanV2.root(
       name: name,
       traceId: SentryId.newId(),
-      onSpanEnd: (_) {},
+      onSpanEnd: (_) async {},
       clock: options.clock,
       dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
       samplingDecision: SentryTracesSamplingDecision(true),
