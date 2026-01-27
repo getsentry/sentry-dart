@@ -8,7 +8,7 @@ import '../../../sentry.dart';
 class StaticSpanWrapper implements SpanWrapper {
   final Hub _hub;
 
-  StaticSpanWrapper({required Hub hub}) : _hub = hub;
+  StaticSpanWrapper({Hub? hub}) : _hub = hub ?? HubAdapter();
 
   ISentrySpan? _resolveParent(Object? parentSpan) {
     if (parentSpan is ISentrySpan) {

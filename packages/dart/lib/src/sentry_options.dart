@@ -581,9 +581,13 @@ class SentryOptions {
   @internal
   TelemetryProcessor telemetryProcessor = NoOpTelemetryProcessor();
 
-  // TODO(next-pr): in span-first this should be using the span v2 wrapper
+  // TODO(span-first): in span-first this should be using the span v2 wrapper
   @internal
-  late final SpanWrapper spanWrapper = StaticSpanWrapper(hub: HubAdapter());
+  late final SpanWrapper spanWrapper = StaticSpanWrapper();
+
+// TODO(span-first): in span-first this should be using the transaction v2 wrapper
+  @internal
+  late final TransactionWrapper transactionWrapper = StaticTransactionWrapper();
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;

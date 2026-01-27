@@ -18,8 +18,6 @@ import 'version.dart';
 class SentryQueryInterceptor extends QueryInterceptor {
   final String _dbName;
   final Hub _hub;
-  late final TransactionWrapper _transactionSpanWrapper;
-  late final SpanWrapper _spanWrapper;
   bool _isDbOpen = false;
 
   /// Returns the number of active transaction spans in the stack.
@@ -27,19 +25,16 @@ class SentryQueryInterceptor extends QueryInterceptor {
   /// This is used for testing to verify that transactions are properly
   /// cleaned up after commit/rollback operations.
   @visibleForTesting
-  int get transactionStackSize => _transactionSpanWrapper.transactionStackSize;
+  int get transactionStackSize => _transactionWrapper.transactionStackSize;
+
+  TransactionWrapper get _transactionWrapper => _hub.options.transactionWrapper;
+  SpanWrapper get _spanWrapper => _hub.options.spanWrapper;
 
   SentryQueryInterceptor({
     required String databaseName,
     @internal Hub? hub,
-    @internal TransactionWrapper? transactionSpanWrapper,
-    @internal SpanWrapper? spanWrapper,
   })  : _dbName = databaseName,
         _hub = hub ?? HubAdapter() {
-    // TODO(span-first): Add V2 support
-    _transactionSpanWrapper =
-        transactionSpanWrapper ?? StaticTransactionWrapper(hub: _hub);
-    _spanWrapper = spanWrapper ?? StaticSpanWrapper(hub: _hub);
     final options = _hub.options;
     options.sdk.addIntegration(drift_constants.integrationName);
     options.sdk.addPackage(packageName, sdkVersion);
@@ -54,7 +49,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
     FutureOr<T> Function() execute, {
     String? operation,
   }) async {
-    final parentSpan = _transactionSpanWrapper.currentSpan ?? _hub.getSpan();
+    final parentSpan = _transactionWrapper.currentSpan ?? _hub.getSpan();
     if (parentSpan == null) {
       internalLogger.warning(
         'No active transaction found. The Drift operation will not be traced: $description',
@@ -69,7 +64,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
         SentrySpanData.dbSystemKey: SentrySpanData.dbSystemSqlite,
         SentrySpanData.dbNameKey: _dbName,
       },
-      parentSpan: _transactionSpanWrapper.currentSpan,
+      parentSpan: _transactionWrapper.currentSpan,
     );
   }
 
@@ -92,7 +87,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
   @override
   TransactionExecutor beginTransaction(QueryExecutor parent) {
     final (result, spanCreated) =
-        _transactionSpanWrapper.beginTransaction<TransactionExecutor>(
+        _transactionWrapper.beginTransaction<TransactionExecutor>(
       operation: SentrySpanOperations.dbSqlTransaction,
       description: SentrySpanDescriptions.dbTransaction,
       execute: () => super.beginTransaction(parent),
@@ -137,7 +132,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   @override
   Future<void> commitTransaction(TransactionExecutor inner) async {
-    final hadSpan = await _transactionSpanWrapper.commitTransaction(
+    final hadSpan = await _transactionWrapper.commitTransaction(
       () => super.commitTransaction(inner),
     );
 
@@ -151,7 +146,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   @override
   Future<void> rollbackTransaction(TransactionExecutor inner) async {
-    final hadSpan = await _transactionSpanWrapper.rollbackTransaction(
+    final hadSpan = await _transactionWrapper.rollbackTransaction(
       () => super.rollbackTransaction(inner),
     );
 

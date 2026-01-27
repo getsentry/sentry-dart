@@ -9,10 +9,9 @@ import '../../../sentry.dart';
 @internal
 class StaticTransactionWrapper implements TransactionWrapper {
   final Hub _hub;
-
   final ListQueue<ISentrySpan?> _transactionStack = ListQueue();
 
-  StaticTransactionWrapper({required Hub hub}) : _hub = hub;
+  StaticTransactionWrapper({Hub? hub}) : _hub = hub ?? HubAdapter();
 
   @override
   int get transactionStackSize => _transactionStack.length;
