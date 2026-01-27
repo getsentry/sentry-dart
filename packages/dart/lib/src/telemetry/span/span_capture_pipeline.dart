@@ -43,13 +43,9 @@ class SpanCapturePipeline {
                 SentryAttribute.string(span.segmentSpan.spanId.toString()),
           });
 
-          RecordingSentrySpanV2 modifiedSpan = span;
-          if (_options.beforeSendSpan != null) {
-            modifiedSpan = await _options.beforeSendSpan!.call(span)
-                as RecordingSentrySpanV2;
-          }
+          await _options.beforeSendSpan?.call(span);
 
-          _options.telemetryProcessor.addSpan(modifiedSpan);
+          _options.telemetryProcessor.addSpan(span);
         } catch (error, stackTrace) {
           internalLogger.error('Error while capturing span',
               error: error, stackTrace: stackTrace);

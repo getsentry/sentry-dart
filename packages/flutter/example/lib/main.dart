@@ -118,7 +118,6 @@ Future<void> setupSentry(
         for (final attribute in sensitiveAttributes) {
           span.removeAttribute(attribute.key);
         }
-        return span;
       };
 
       _isIntegrationTest = isIntegrationTest;

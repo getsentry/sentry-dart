@@ -743,8 +743,7 @@ typedef BeforeSendMetricCallback = FutureOr<SentryMetric?> Function(
     SentryMetric metric);
 
 /// This function is called right before a span is about to be sent.
-typedef BeforeSendSpanCallback = FutureOr<SentrySpanV2> Function(
-    SentrySpanV2 span);
+typedef BeforeSendSpanCallback = FutureOr<void> Function(SentrySpanV2 span);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
