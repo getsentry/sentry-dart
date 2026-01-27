@@ -4,12 +4,11 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 
-/// [SpanWrapper] implementation using Sentry's legacy transaction-based tracing.
 @internal
-class LegacySpanWrapper implements SpanWrapper {
+class StaticSpanWrapper implements SpanWrapper {
   final Hub _hub;
 
-  LegacySpanWrapper({required Hub hub}) : _hub = hub;
+  StaticSpanWrapper({required Hub hub}) : _hub = hub;
 
   ISentrySpan? _resolveParent(Object? parentSpan) {
     if (parentSpan is ISentrySpan) {

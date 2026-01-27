@@ -6,15 +6,13 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 
-/// [TransactionSpanWrapper] implementation using Sentry's legacy transaction-based tracing.
 @internal
-class LegacyTransactionSpanWrapper implements TransactionSpanWrapper {
+class StaticTransactionWrapper implements TransactionWrapper {
   final Hub _hub;
 
-  /// Stack of active transaction spans for nested transaction support.
   final ListQueue<ISentrySpan?> _transactionStack = ListQueue();
 
-  LegacyTransactionSpanWrapper({required Hub hub}) : _hub = hub;
+  StaticTransactionWrapper({required Hub hub}) : _hub = hub;
 
   @override
   int get transactionStackSize => _transactionStack.length;

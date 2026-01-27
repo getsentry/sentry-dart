@@ -11,8 +11,8 @@ export 'sentry_traces_sampling_decision.dart';
 // ignore: invalid_export_of_internal_element
 export 'utils/tracing/span_wrapper.dart';
 // ignore: invalid_export_of_internal_element
-export 'utils/tracing/legacy_span_wrapper.dart';
+export 'utils/tracing/static_span_wrapper.dart';
 // ignore: invalid_export_of_internal_element
-export 'utils/tracing/transaction_span_wrapper.dart';
+export 'utils/tracing/transaction_wrapper.dart';
 // ignore: invalid_export_of_internal_element
-export 'utils/tracing/legacy_transaction_span_wrapper.dart';
+export 'utils/tracing/static_transaction_wrapper.dart';

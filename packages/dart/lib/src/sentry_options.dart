@@ -583,7 +583,7 @@ class SentryOptions {
 
   // TODO(next-pr): in span-first this should be using the span v2 wrapper
   @internal
-  late final SpanWrapper spanWrapper = LegacySpanWrapper(hub: HubAdapter());
+  late final SpanWrapper spanWrapper = StaticSpanWrapper(hub: HubAdapter());
 
   SentryOptions({String? dsn, Platform? platform, RuntimeChecker? checker}) {
     this.dsn = dsn;

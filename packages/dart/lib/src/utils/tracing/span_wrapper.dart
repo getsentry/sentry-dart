@@ -9,7 +9,7 @@ import '../../protocol/span_status.dart';
 /// integration packages to instrument code without coupling to a specific
 /// tracing implementation.
 ///
-/// The implementation (e.g., [LegacySpanWrapper]) handles the actual span
+/// The implementation (e.g., [StaticSpanWrapper]) handles the actual span
 /// creation using the configured tracing backend.
 ///
 /// Example usage:

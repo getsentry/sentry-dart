@@ -1,14 +1,14 @@
 import 'package:meta/meta.dart';
 
-/// Abstraction for managing transaction span lifecycles in database operations.
+/// Abstraction for instrumenting transaction span lifecycles in database operations.
 ///
 /// This interface handles the begin/commit/rollback lifecycle of database
 /// transactions, maintaining a stack of spans for nested transaction support.
 ///
-/// The implementation (e.g., [LegacyTransactionSpanWrapper]) handles the actual
+/// The implementation (e.g., [StaticTransactionWrapper]) handles the actual
 /// span creation and management using the configured tracing backend.
 @internal
-abstract class TransactionSpanWrapper {
+abstract class TransactionWrapper {
   /// Returns the current transaction span, or null if no transaction is active.
   ///
   /// This is used to parent child operations (queries) to the current transaction.

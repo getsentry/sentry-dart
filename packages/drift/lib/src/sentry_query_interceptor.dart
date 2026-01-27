@@ -18,7 +18,7 @@ import 'version.dart';
 class SentryQueryInterceptor extends QueryInterceptor {
   final String _dbName;
   final Hub _hub;
-  late final TransactionSpanWrapper _transactionSpanWrapper;
+  late final TransactionWrapper _transactionSpanWrapper;
   late final SpanWrapper _spanWrapper;
   bool _isDbOpen = false;
 
@@ -32,13 +32,13 @@ class SentryQueryInterceptor extends QueryInterceptor {
   SentryQueryInterceptor({
     required String databaseName,
     @internal Hub? hub,
-    @internal TransactionSpanWrapper? transactionSpanWrapper,
+    @internal TransactionWrapper? transactionSpanWrapper,
     @internal SpanWrapper? spanWrapper,
   })  : _dbName = databaseName,
         _hub = hub ?? HubAdapter() {
     // TODO(span-first): Add V2 support
     _transactionSpanWrapper =
-        transactionSpanWrapper ?? LegacyTransactionSpanWrapper(hub: _hub);
+        transactionSpanWrapper ?? LegacyTransactionWrapper(hub: _hub);
     _spanWrapper = spanWrapper ?? LegacySpanWrapper(hub: _hub);
     final options = _hub.options;
     options.sdk.addIntegration(drift_constants.integrationName);
