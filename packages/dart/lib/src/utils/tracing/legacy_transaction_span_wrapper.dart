@@ -4,7 +4,7 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 
-import '../../sentry.dart';
+import '../../../sentry.dart';
 
 /// [TransactionSpanWrapper] implementation using Sentry's legacy transaction-based tracing.
 @internal

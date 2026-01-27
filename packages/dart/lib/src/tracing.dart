@@ -8,9 +8,9 @@ export 'sentry_measurement.dart';
 export 'sentry_measurement_unit.dart';
 export 'sentry_trace_context_header.dart';
 export 'sentry_traces_sampling_decision.dart';
-export 'tracing/span_wrapper.dart';
+export 'utils/tracing/span_wrapper.dart';
 // ignore: invalid_export_of_internal_element
-export 'tracing/legacy_span_wrapper.dart';
-export 'tracing/transaction_span_wrapper.dart';
+export 'utils/tracing/legacy_span_wrapper.dart';
+export 'utils/tracing/transaction_span_wrapper.dart';
 // ignore: invalid_export_of_internal_element
-export 'tracing/legacy_transaction_span_wrapper.dart';
+export 'utils/tracing/legacy_transaction_span_wrapper.dart';

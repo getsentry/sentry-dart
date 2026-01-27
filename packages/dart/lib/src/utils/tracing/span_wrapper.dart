@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
 
-import '../protocol/span_status.dart';
+import '../../protocol/span_status.dart';
 
-/// Abstraction for span operations that enables swapping tracing implementations.
+/// Wrapper for span instrumentation for integrations such as Drift, Hive, etc.
 ///
 /// This interface provides a unified, implementation-agnostic way to wrap
 /// operations with spans. It does not expose any span types, allowing
