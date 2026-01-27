@@ -41,8 +41,6 @@ abstract class SpanWrapper {
   /// - [parentSpan]: Optional parent span to use instead of the hub's active span.
   ///   This is useful for integrations that manage their own span hierarchy
   ///   (e.g., nested database transactions).
-  /// - [requireParent]: If true (default), only creates a span if a parent exists.
-  ///   If false and no parent exists, starts a new transaction instead.
   ///
   /// Returns the result of [execute].
   ///
@@ -56,7 +54,6 @@ abstract class SpanWrapper {
     Map<String, Object>? attributes,
     SpanStatus Function(T result)? deriveStatus,
     Object? parentSpan,
-    bool requireParent = true,
   });
 
   /// Wraps a synchronous operation with a span.
@@ -75,8 +72,6 @@ abstract class SpanWrapper {
   /// - [parentSpan]: Optional parent span to use instead of the hub's active span.
   ///   This is useful for integrations that manage their own span hierarchy
   ///   (e.g., nested database transactions).
-  /// - [requireParent]: If true (default), only creates a span if a parent exists.
-  ///   If false and no parent exists, starts a new transaction instead.
   ///
   /// Returns the result of [execute].
   ///
@@ -90,6 +85,5 @@ abstract class SpanWrapper {
     Map<String, Object>? attributes,
     SpanStatus Function(T result)? deriveStatus,
     Object? parentSpan,
-    bool requireParent = true,
   });
 }

@@ -27,23 +27,11 @@ class LegacySpanWrapper implements SpanWrapper {
     Map<String, Object>? attributes,
     SpanStatus Function(T result)? deriveStatus,
     Object? parentSpan,
-    bool requireParent = true,
   }) async {
     final parent = _resolveParent(parentSpan);
 
     if (parent == null) {
-      if (requireParent) {
-        return execute();
-      }
-      // Start a new transaction when requireParent is false
-      return _wrapWithTransaction(
-        operation: operation,
-        description: description,
-        execute: execute,
-        origin: origin,
-        attributes: attributes,
-        deriveStatus: deriveStatus,
-      );
+      return execute();
     }
 
     final span = parent.startChild(operation, description: description);
@@ -71,23 +59,11 @@ class LegacySpanWrapper implements SpanWrapper {
     Map<String, Object>? attributes,
     SpanStatus Function(T result)? deriveStatus,
     Object? parentSpan,
-    bool requireParent = true,
   }) {
     final parent = _resolveParent(parentSpan);
 
     if (parent == null) {
-      if (requireParent) {
-        return execute();
-      }
-      // Start a new transaction when requireParent is false
-      return _wrapSyncWithTransaction(
-        operation: operation,
-        description: description,
-        execute: execute,
-        origin: origin,
-        attributes: attributes,
-        deriveStatus: deriveStatus,
-      );
+      return execute();
     }
 
     final span = parent.startChild(operation, description: description);
@@ -103,64 +79,6 @@ class LegacySpanWrapper implements SpanWrapper {
       rethrow;
     } finally {
       span.finish();
-    }
-  }
-
-  /// Wraps an async operation in a new transaction.
-  Future<T> _wrapWithTransaction<T>({
-    required String operation,
-    required String description,
-    required Future<T> Function() execute,
-    String? origin,
-    Map<String, Object>? attributes,
-    SpanStatus Function(T result)? deriveStatus,
-  }) async {
-    final transaction = _hub.startTransaction(
-      operation,
-      description,
-      bindToScope: true,
-    );
-    _configureSpan(transaction, origin: origin, attributes: attributes);
-
-    try {
-      final result = await execute();
-      transaction.status = deriveStatus?.call(result) ?? SpanStatus.ok();
-      return result;
-    } catch (exception) {
-      transaction.throwable = exception;
-      transaction.status = SpanStatus.internalError();
-      rethrow;
-    } finally {
-      await transaction.finish();
-    }
-  }
-
-  /// Wraps a sync operation in a new transaction.
-  T _wrapSyncWithTransaction<T>({
-    required String operation,
-    required String description,
-    required T Function() execute,
-    String? origin,
-    Map<String, Object>? attributes,
-    SpanStatus Function(T result)? deriveStatus,
-  }) {
-    final transaction = _hub.startTransaction(
-      operation,
-      description,
-      bindToScope: true,
-    );
-    _configureSpan(transaction, origin: origin, attributes: attributes);
-
-    try {
-      final result = execute();
-      transaction.status = deriveStatus?.call(result) ?? SpanStatus.ok();
-      return result;
-    } catch (exception) {
-      transaction.throwable = exception;
-      transaction.status = SpanStatus.internalError();
-      rethrow;
-    } finally {
-      transaction.finish();
     }
   }
 
