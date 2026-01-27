@@ -7,7 +7,6 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import 'utils/constants.dart' as drift_constants;
-import 'utils/internal_logger.dart';
 import 'version.dart';
 
 /// A Sentry query interceptor that wraps database operations in performance monitoring spans.
@@ -53,6 +52,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
         operation: operation ?? SentrySpanOperations.dbSqlQuery,
         description: description,
         execute: () async => execute(),
+        loggerName: drift_constants.loggerName,
         origin: SentryTraceOrigins.autoDbDriftQueryInterceptor,
         attributes: {
           SentrySpanData.dbSystemKey: SentrySpanData.dbSystemSqlite,
@@ -83,6 +83,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
       operation: SentrySpanOperations.dbSqlTransaction,
       description: SentrySpanDescriptions.dbTransaction,
       execute: () => super.beginTransaction(parent),
+      integration: drift_constants.loggerName,
       origin: SentryTraceOrigins.autoDbDriftQueryInterceptor,
       attributes: {
         SentrySpanData.dbSystemKey: SentrySpanData.dbSystemSqlite,
@@ -116,22 +117,17 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   @override
   Future<void> commitTransaction(TransactionExecutor inner) async {
-    final hadSpan = await _transactionWrapper.commitTransaction(
+    await _transactionWrapper.commitTransaction(
       () => super.commitTransaction(inner),
+      drift_constants.loggerName,
     );
-
-    if (!hadSpan) {
-      internalLogger.warning(
-        'No active transaction found. The Drift operation will not be traced: Commit Transaction',
-      );
-      return super.commitTransaction(inner);
-    }
   }
 
   @override
   Future<void> rollbackTransaction(TransactionExecutor inner) async {
     await _transactionWrapper.rollbackTransaction(
       () => super.rollbackTransaction(inner),
+      drift_constants.loggerName,
     );
   }
 

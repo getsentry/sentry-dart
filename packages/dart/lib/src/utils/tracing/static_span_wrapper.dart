@@ -23,7 +23,7 @@ class StaticSpanWrapper implements SpanWrapper {
     required String operation,
     required String description,
     required Future<T> Function() execute,
-    required String integration,
+    required String loggerName,
     String? origin,
     Map<String, Object>? attributes,
     SpanStatus Function(T result)? deriveStatus,
@@ -33,7 +33,7 @@ class StaticSpanWrapper implements SpanWrapper {
 
     if (parent == null) {
       internalLogger.warning(
-        'No active span found for $integration. The operation will not be traced for $operation $description',
+        'No active span found for $loggerName. The operation will not be traced for $operation $description',
       );
       return execute();
     }
@@ -59,7 +59,7 @@ class StaticSpanWrapper implements SpanWrapper {
     required String operation,
     required String description,
     required T Function() execute,
-    required String integration,
+    required String loggerName,
     String? origin,
     Map<String, Object>? attributes,
     SpanStatus Function(T result)? deriveStatus,
@@ -69,7 +69,7 @@ class StaticSpanWrapper implements SpanWrapper {
 
     if (parent == null) {
       internalLogger.warning(
-        'No active span found for $integration. The operation will not be traced for $operation $description',
+        'No active span found for $loggerName. The operation will not be traced for $operation $description',
       );
       return execute();
     }

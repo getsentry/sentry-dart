@@ -25,14 +25,14 @@ class StaticTransactionWrapper implements TransactionWrapper {
     required String operation,
     required String description,
     required T Function() execute,
-    required String integration,
+    required String loggerName,
     String? origin,
     Map<String, Object>? attributes,
   }) {
     final parent = currentSpan ?? _hub.getSpan();
     if (parent == null) {
       internalLogger.warning(
-        'No active transaction found for $integration. The operation `beginTransaction` will not be traced',
+        'No active transaction found for $loggerName. The operation `beginTransaction` will not be traced',
       );
       return execute();
     }
@@ -58,11 +58,11 @@ class StaticTransactionWrapper implements TransactionWrapper {
 
   @override
   Future<void> commitTransaction(
-      Future<void> Function() execute, String integration) async {
+      Future<void> Function() execute, String loggerName) async {
     final span = _transactionStack.lastOrNull;
     if (span == null) {
       internalLogger.warning(
-        'No active transaction found for $integration. The operation `commitTransaction` will not be traced',
+        'No active transaction found for $loggerName. The operation `commitTransaction` will not be traced',
       );
       return execute();
     }
@@ -82,11 +82,11 @@ class StaticTransactionWrapper implements TransactionWrapper {
 
   @override
   Future<void> rollbackTransaction(
-      Future<void> Function() execute, String integration) async {
+      Future<void> Function() execute, String loggerName) async {
     final span = _transactionStack.lastOrNull;
     if (span == null) {
       internalLogger.warning(
-        'No active transaction found for $integration. The operation `rollbackTransaction` will not be traced',
+        'No active transaction found for $loggerName. The operation `rollbackTransaction` will not be traced',
       );
       return execute();
     }
