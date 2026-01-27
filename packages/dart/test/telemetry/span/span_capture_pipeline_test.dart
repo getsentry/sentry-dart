@@ -171,7 +171,7 @@ class Fixture {
     return RecordingSentrySpanV2.root(
       name: name,
       traceId: SentryId.newId(),
-      onSpanEnd: (_) {},
+      onSpanEnd: (_) async {},
       clock: options.clock,
       dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
       samplingDecision: SentryTracesSamplingDecision(true),
