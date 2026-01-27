@@ -196,8 +196,8 @@ void main() {
         fixture.options.beforeSendSpan = (span) async {
           await Future.delayed(Duration.zero);
           asyncCompleted = true;
-          span.setAttribute('async-attr', SentryAttribute.string('async-value'));
-          return span;
+          span.setAttribute(
+              'async-attr', SentryAttribute.string('async-value'));
         };
 
         final span = fixture.createRecordingSpan();
@@ -230,9 +230,9 @@ void main() {
           () async {
         String? envValue;
         fixture.options.beforeSendSpan = (span) {
-          envValue =
-              span.attributes[SemanticAttributesConstants.sentryEnvironment]
-                  ?.value as String?;
+          envValue = span
+              .attributes[SemanticAttributesConstants.sentryEnvironment]
+              ?.value as String?;
           return span;
         };
 
