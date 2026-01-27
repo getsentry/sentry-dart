@@ -110,13 +110,13 @@ Future<void> setupSentry(
 
       // Example: Scrub sensitive data from spans before sending
       options.beforeSendSpan = (span) {
-        for (final entry in span.attributes.entries) {
-          if (entry.value.value is String) {
-            final value = entry.value.value as String;
-            if (value.contains('secret')) {
-              span.removeAttribute(entry.key);
-            }
-          }
+        final sensitiveAttributes = span.attributes.entries
+            .where((entry) =>
+                entry.value.value is String &&
+                entry.value.value.contains('secret'))
+            .toList();
+        for (final attribute in sensitiveAttributes) {
+          span.removeAttribute(attribute.key);
         }
         return span;
       };
