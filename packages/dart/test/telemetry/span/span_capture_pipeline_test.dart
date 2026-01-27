@@ -151,7 +151,6 @@ void main() {
         SentrySpanV2? receivedSpan;
         fixture.options.beforeSendSpan = (span) {
           receivedSpan = span;
-          return span;
         };
 
         final span = fixture.createRecordingSpan();
@@ -165,7 +164,6 @@ void main() {
         fixture.options.beforeSendSpan = (span) {
           span.setAttribute('modified-by-callback', SentryAttribute.bool(true));
           span.name = 'modified-span-name';
-          return span;
         };
 
         final span = fixture.createRecordingSpan(name: 'original-name');
@@ -178,7 +176,6 @@ void main() {
       test('beforeSendSpan callback can remove sensitive attributes', () async {
         fixture.options.beforeSendSpan = (span) {
           span.removeAttribute('sensitive-data');
-          return span;
         };
 
         final span = fixture.createRecordingSpan();
@@ -217,7 +214,6 @@ void main() {
 
         fixture.options.beforeSendSpan = (span) {
           callOrder.add('beforeSendSpan');
-          return span;
         };
 
         final span = fixture.createRecordingSpan();
@@ -233,7 +229,6 @@ void main() {
           envValue = span
               .attributes[SemanticAttributesConstants.sentryEnvironment]
               ?.value as String?;
-          return span;
         };
 
         final span = fixture.createRecordingSpan();
