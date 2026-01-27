@@ -46,7 +46,6 @@ export 'src/sentry_trace_origins.dart';
 export 'src/span_data_convention.dart';
 export 'src/spotlight.dart';
 export 'src/throwable_mechanism.dart';
-// ignore: invalid_export_of_internal_element
 export 'src/tracing.dart';
 export 'src/transport/transport.dart';
 export 'src/type_check_hint.dart';
@@ -64,3 +63,11 @@ export 'src/utils/breadcrumb_log_level.dart';
 export 'src/telemetry/telemetry.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/internal_logger.dart' show SentryInternalLogger;
+// ignore: invalid_export_of_internal_element
+export 'src/utils/tracing/span_wrapper.dart';
+// ignore: invalid_export_of_internal_element
+export 'src/utils/tracing/static_span_wrapper.dart';
+// ignore: invalid_export_of_internal_element
+export 'src/utils/tracing/transaction_wrapper.dart';
+// ignore: invalid_export_of_internal_element
+export 'src/utils/tracing/static_transaction_wrapper.dart';
