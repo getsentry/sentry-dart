@@ -1,13 +1,13 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:drift/drift.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
-import 'constants.dart' as drift_constants;
+import 'utils/constants.dart' as drift_constants;
+import 'utils/internal_logger.dart';
 import 'version.dart';
 
 /// A Sentry query interceptor that wraps database operations in performance monitoring spans.
@@ -18,27 +18,32 @@ import 'version.dart';
 class SentryQueryInterceptor extends QueryInterceptor {
   final String _dbName;
   final Hub _hub;
+  late final TransactionSpanWrapper _transactionSpanWrapper;
+  late final SpanWrapper _spanWrapper;
   bool _isDbOpen = false;
 
-  /// Stack of active transaction spans for nested transaction support.
-  final ListQueue<ISentrySpan?> _transactionStack = ListQueue();
-
-  /// Returns the transaction stack for testing purposes.
+  /// Returns the number of active transaction spans in the stack.
+  ///
+  /// This is used for testing to verify that transactions are properly
+  /// cleaned up after commit/rollback operations.
   @visibleForTesting
-  ListQueue<ISentrySpan?> get transactionStack => _transactionStack;
+  int get transactionStackSize => _transactionSpanWrapper.transactionStackSize;
 
-  /// Returns the current transaction span from the stack, or null if empty.
-  ISentrySpan? get _currentTransaction => _transactionStack.lastOrNull;
-
-  SentryQueryInterceptor({required String databaseName, @internal Hub? hub})
-      : _dbName = databaseName,
+  SentryQueryInterceptor({
+    required String databaseName,
+    @internal Hub? hub,
+    @internal TransactionSpanWrapper? transactionSpanWrapper,
+    @internal SpanWrapper? spanWrapper,
+  })  : _dbName = databaseName,
         _hub = hub ?? HubAdapter() {
+    // TODO(span-first): Add V2 support
+    _transactionSpanWrapper =
+        transactionSpanWrapper ?? LegacyTransactionSpanWrapper(hub: _hub);
+    _spanWrapper = spanWrapper ?? LegacySpanWrapper(hub: _hub);
     final options = _hub.options;
     options.sdk.addIntegration(drift_constants.integrationName);
     options.sdk.addPackage(packageName, sdkVersion);
   }
-
-  SpanWrapper get _spanWrapper => _hub.options.spanWrapper;
 
   /// Wraps database operations in Sentry spans.
   ///
@@ -48,18 +53,25 @@ class SentryQueryInterceptor extends QueryInterceptor {
     String description,
     FutureOr<T> Function() execute, {
     String? operation,
-  }) async =>
-      _spanWrapper.wrapAsync<T>(
-        operation: operation ?? SentrySpanOperations.dbSqlQuery,
-        description: description,
-        execute: () async => execute(),
-        origin: SentryTraceOrigins.autoDbDriftQueryInterceptor,
-        attributes: {
-          SentrySpanData.dbSystemKey: SentrySpanData.dbSystemSqlite,
-          SentrySpanData.dbNameKey: _dbName,
-        },
-        parentSpan: _currentTransaction,
+  }) async {
+    final parentSpan = _transactionSpanWrapper.currentSpan ?? _hub.getSpan();
+    if (parentSpan == null) {
+      internalLogger.warning(
+        'No active transaction found. The Drift operation will not be traced: $description',
       );
+    }
+    return _spanWrapper.wrapAsync<T>(
+      operation: operation ?? SentrySpanOperations.dbSqlQuery,
+      description: description,
+      execute: () async => execute(),
+      origin: SentryTraceOrigins.autoDbDriftQueryInterceptor,
+      attributes: {
+        SentrySpanData.dbSystemKey: SentrySpanData.dbSystemSqlite,
+        SentrySpanData.dbNameKey: _dbName,
+      },
+      parentSpan: _transactionSpanWrapper.currentSpan,
+    );
+  }
 
   @override
   Future<bool> ensureOpen(QueryExecutor executor, QueryExecutorUser user) {
@@ -79,30 +91,25 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   @override
   TransactionExecutor beginTransaction(QueryExecutor parent) {
-    final parentSpan = _currentTransaction ?? _hub.getSpan();
-    if (parentSpan == null) {
-      return super.beginTransaction(parent);
-    }
-
-    final span = parentSpan.startChild(
-      SentrySpanOperations.dbSqlTransaction,
+    final (result, spanCreated) =
+        _transactionSpanWrapper.beginTransaction<TransactionExecutor>(
+      operation: SentrySpanOperations.dbSqlTransaction,
       description: SentrySpanDescriptions.dbTransaction,
+      execute: () => super.beginTransaction(parent),
+      origin: SentryTraceOrigins.autoDbDriftQueryInterceptor,
+      attributes: {
+        SentrySpanData.dbSystemKey: SentrySpanData.dbSystemSqlite,
+        SentrySpanData.dbNameKey: _dbName,
+      },
     );
-    span.origin = SentryTraceOrigins.autoDbDriftQueryInterceptor;
-    span.setData(SentrySpanData.dbSystemKey, SentrySpanData.dbSystemSqlite);
-    span.setData(SentrySpanData.dbNameKey, _dbName);
 
-    try {
-      final result = super.beginTransaction(parent);
-      span.status = SpanStatus.unknown();
-      _transactionStack.add(span);
-      return result;
-    } catch (exception) {
-      span.throwable = exception;
-      span.status = SpanStatus.internalError();
-      span.finish();
-      rethrow;
+    if (!spanCreated) {
+      internalLogger.warning(
+        'No active transaction found. The Drift operation will not be traced: Begin Transaction',
+      );
     }
+
+    return result;
   }
 
   @override
@@ -130,41 +137,29 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   @override
   Future<void> commitTransaction(TransactionExecutor inner) async {
-    final span = _transactionStack.lastOrNull;
-    if (span == null) {
-      return super.commitTransaction(inner);
-    }
+    final hadSpan = await _transactionSpanWrapper.commitTransaction(
+      () => super.commitTransaction(inner),
+    );
 
-    try {
-      await super.commitTransaction(inner);
-      span.status = SpanStatus.ok();
-    } catch (exception) {
-      span.throwable = exception;
-      span.status = SpanStatus.internalError();
-      rethrow;
-    } finally {
-      await span.finish();
-      _transactionStack.removeLast();
+    if (!hadSpan) {
+      internalLogger.warning(
+        'No active transaction found. The Drift operation will not be traced: Commit Transaction',
+      );
+      return super.commitTransaction(inner);
     }
   }
 
   @override
   Future<void> rollbackTransaction(TransactionExecutor inner) async {
-    final span = _transactionStack.lastOrNull;
-    if (span == null) {
-      return super.rollbackTransaction(inner);
-    }
+    final hadSpan = await _transactionSpanWrapper.rollbackTransaction(
+      () => super.rollbackTransaction(inner),
+    );
 
-    try {
-      await super.rollbackTransaction(inner);
-      span.status = SpanStatus.aborted();
-    } catch (exception) {
-      span.throwable = exception;
-      span.status = SpanStatus.internalError();
-      rethrow;
-    } finally {
-      await span.finish();
-      _transactionStack.removeLast();
+    if (!hadSpan) {
+      internalLogger.warning(
+        'No active transaction found. The Drift operation will not be traced: Rollback Transaction',
+      );
+      return super.rollbackTransaction(inner);
     }
   }
 

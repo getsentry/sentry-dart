@@ -73,7 +73,7 @@ void main() {
           description: 'SELECT * FROM users',
           execute: () async => 0, // 0 rows affected
           deriveStatus: (result) =>
-              result > 0 ? TracingStatus.ok : TracingStatus.notFound,
+              result > 0 ? SpanStatus.ok() : SpanStatus.notFound(),
         );
 
         final children = fixture.tracer.children;
@@ -131,6 +131,83 @@ void main() {
 
         expect(fixture.hub.getSpanCalls, 1);
         expect(fixture.tracer.children.length, 1);
+      });
+
+      group('requireParent: false', () {
+        test('creates child span when parent exists', () async {
+          final sut = fixture.getSut();
+          fixture.setParentSpan();
+
+          final result = await sut.wrapAsync(
+            operation: 'db.query',
+            description: 'SELECT * FROM users',
+            execute: () async => 'result',
+            requireParent: false,
+          );
+
+          expect(result, 'result');
+          expect(fixture.tracer.children.length, 1);
+        });
+
+        test('starts transaction when no parent exists', () async {
+          final sut = fixture.getSut();
+
+          await sut.wrapAsync(
+            operation: 'db.query',
+            description: 'SELECT * FROM users',
+            execute: () async => 'result',
+            requireParent: false,
+          );
+
+          expect(fixture.hub.startTransactionCalls, 1);
+        });
+
+        test('sets origin on transaction', () async {
+          final sut = fixture.getSut();
+
+          await sut.wrapAsync(
+            operation: 'db.query',
+            description: 'SELECT * FROM users',
+            execute: () async => 'result',
+            origin: 'auto.db.test',
+            requireParent: false,
+          );
+
+          expect(fixture.hub.lastTransaction?.origin, 'auto.db.test');
+        });
+
+        test('sets attributes on transaction', () async {
+          final sut = fixture.getSut();
+
+          await sut.wrapAsync(
+            operation: 'db.query',
+            description: 'SELECT * FROM users',
+            execute: () async => 'result',
+            attributes: {'db.system': 'sqlite'},
+            requireParent: false,
+          );
+
+          expect(fixture.hub.lastTransaction?.data['db.system'], 'sqlite');
+        });
+
+        test('sets error status on exception', () async {
+          final sut = fixture.getSut();
+          final exception = Exception('test error');
+
+          await expectLater(
+            () => sut.wrapAsync(
+              operation: 'db.query',
+              description: 'SELECT * FROM users',
+              execute: () async => throw exception,
+              requireParent: false,
+            ),
+            throwsA(exception),
+          );
+
+          expect(
+              fixture.hub.lastTransaction?.status, SpanStatus.internalError());
+          expect(fixture.hub.lastTransaction?.throwable, exception);
+        });
       });
     });
 
@@ -194,7 +271,7 @@ void main() {
           description: 'SELECT * FROM users',
           execute: () => 0, // 0 rows affected
           deriveStatus: (result) =>
-              result > 0 ? TracingStatus.ok : TracingStatus.notFound,
+              result > 0 ? SpanStatus.ok() : SpanStatus.notFound(),
         );
 
         final children = fixture.tracer.children;
@@ -253,33 +330,82 @@ void main() {
         expect(fixture.hub.getSpanCalls, 1);
         expect(fixture.tracer.children.length, 1);
       });
-    });
 
-    group('wrapAsyncOrStartTransaction', () {
-      test('creates child span when parent exists', () async {
-        final sut = fixture.getSut();
-        fixture.setParentSpan();
+      group('requireParent: false', () {
+        test('creates child span when parent exists', () {
+          final sut = fixture.getSut();
+          fixture.setParentSpan();
 
-        final result = await sut.wrapAsyncOrStartTransaction(
-          operation: 'db.query',
-          description: 'SELECT * FROM users',
-          execute: () async => 'result',
-        );
+          final result = sut.wrapSync(
+            operation: 'db.query',
+            description: 'SELECT * FROM users',
+            execute: () => 'result',
+            requireParent: false,
+          );
 
-        expect(result, 'result');
-        expect(fixture.tracer.children.length, 1);
-      });
+          expect(result, 'result');
+          expect(fixture.tracer.children.length, 1);
+        });
 
-      test('starts transaction when no parent exists', () async {
-        final sut = fixture.getSut();
+        test('starts transaction when no parent exists', () {
+          final sut = fixture.getSut();
 
-        await sut.wrapAsyncOrStartTransaction(
-          operation: 'db.query',
-          description: 'SELECT * FROM users',
-          execute: () async => 'result',
-        );
+          sut.wrapSync(
+            operation: 'db.query',
+            description: 'SELECT * FROM users',
+            execute: () => 'result',
+            requireParent: false,
+          );
 
-        expect(fixture.hub.startTransactionCalls, 1);
+          expect(fixture.hub.startTransactionCalls, 1);
+        });
+
+        test('sets origin on transaction', () {
+          final sut = fixture.getSut();
+
+          sut.wrapSync(
+            operation: 'db.query',
+            description: 'SELECT * FROM users',
+            execute: () => 'result',
+            origin: 'auto.db.test',
+            requireParent: false,
+          );
+
+          expect(fixture.hub.lastTransaction?.origin, 'auto.db.test');
+        });
+
+        test('sets attributes on transaction', () {
+          final sut = fixture.getSut();
+
+          sut.wrapSync(
+            operation: 'db.query',
+            description: 'SELECT * FROM users',
+            execute: () => 'result',
+            attributes: {'db.system': 'sqlite'},
+            requireParent: false,
+          );
+
+          expect(fixture.hub.lastTransaction?.data['db.system'], 'sqlite');
+        });
+
+        test('sets error status on exception', () {
+          final sut = fixture.getSut();
+          final exception = Exception('test error');
+
+          expect(
+            () => sut.wrapSync(
+              operation: 'db.query',
+              description: 'SELECT * FROM users',
+              execute: () => throw exception,
+              requireParent: false,
+            ),
+            throwsA(exception),
+          );
+
+          expect(
+              fixture.hub.lastTransaction?.status, SpanStatus.internalError());
+          expect(fixture.hub.lastTransaction?.throwable, exception);
+        });
       });
     });
   });
@@ -307,6 +433,7 @@ class Fixture {
 class MockHubWithSpan extends MockHub {
   ISentrySpan? getSpanReturnValue;
   int startTransactionCalls = 0;
+  SentryTracer? lastTransaction;
 
   @override
   ISentrySpan? getSpan() {
@@ -329,6 +456,7 @@ class MockHubWithSpan extends MockHub {
   }) {
     startTransactionCalls++;
     final context = SentryTransactionContext(name, operation);
-    return SentryTracer(context, this);
+    lastTransaction = SentryTracer(context, this);
+    return lastTransaction!;
   }
 }

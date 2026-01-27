@@ -5,22 +5,12 @@ import 'package:meta/meta.dart';
 import '../../sentry.dart';
 
 /// [SpanWrapper] implementation using Sentry's legacy transaction-based tracing.
-///
-/// This implementation uses [ISentrySpan] and [SentryTracer] for span operations.
-/// It creates child spans under the current active span from the hub.
-///
-/// Integration packages should not instantiate this directly. Instead, access
-/// it via [SentryOptions.spanWrapper].
 @internal
 class LegacySpanWrapper implements SpanWrapper {
   final Hub _hub;
 
   LegacySpanWrapper({required Hub hub}) : _hub = hub;
 
-  /// Resolves the parent span from the provided [parentSpan] or falls back to hub.
-  ///
-  /// If [parentSpan] is provided and is an [ISentrySpan], it's used directly.
-  /// Otherwise, falls back to the hub's active span.
   ISentrySpan? _resolveParent(Object? parentSpan) {
     if (parentSpan is ISentrySpan) {
       return parentSpan;
@@ -35,12 +25,25 @@ class LegacySpanWrapper implements SpanWrapper {
     required Future<T> Function() execute,
     String? origin,
     Map<String, Object>? attributes,
-    TracingStatus Function(T result)? deriveStatus,
+    SpanStatus Function(T result)? deriveStatus,
     Object? parentSpan,
+    bool requireParent = true,
   }) async {
     final parent = _resolveParent(parentSpan);
+
     if (parent == null) {
-      return execute();
+      if (requireParent) {
+        return execute();
+      }
+      // Start a new transaction when requireParent is false
+      return _wrapWithTransaction(
+        operation: operation,
+        description: description,
+        execute: execute,
+        origin: origin,
+        attributes: attributes,
+        deriveStatus: deriveStatus,
+      );
     }
 
     final span = parent.startChild(operation, description: description);
@@ -48,7 +51,7 @@ class LegacySpanWrapper implements SpanWrapper {
 
     try {
       final result = await execute();
-      span.status = _toSpanStatus(deriveStatus?.call(result) ?? TracingStatus.ok);
+      span.status = deriveStatus?.call(result) ?? SpanStatus.ok();
       return result;
     } catch (exception) {
       span.throwable = exception;
@@ -66,12 +69,25 @@ class LegacySpanWrapper implements SpanWrapper {
     required T Function() execute,
     String? origin,
     Map<String, Object>? attributes,
-    TracingStatus Function(T result)? deriveStatus,
+    SpanStatus Function(T result)? deriveStatus,
     Object? parentSpan,
+    bool requireParent = true,
   }) {
     final parent = _resolveParent(parentSpan);
+
     if (parent == null) {
-      return execute();
+      if (requireParent) {
+        return execute();
+      }
+      // Start a new transaction when requireParent is false
+      return _wrapSyncWithTransaction(
+        operation: operation,
+        description: description,
+        execute: execute,
+        origin: origin,
+        attributes: attributes,
+        deriveStatus: deriveStatus,
+      );
     }
 
     final span = parent.startChild(operation, description: description);
@@ -79,7 +95,7 @@ class LegacySpanWrapper implements SpanWrapper {
 
     try {
       final result = execute();
-      span.status = _toSpanStatus(deriveStatus?.call(result) ?? TracingStatus.ok);
+      span.status = deriveStatus?.call(result) ?? SpanStatus.ok();
       return result;
     } catch (exception) {
       span.throwable = exception;
@@ -90,29 +106,15 @@ class LegacySpanWrapper implements SpanWrapper {
     }
   }
 
-  @override
-  Future<T> wrapAsyncOrStartTransaction<T>({
+  /// Wraps an async operation in a new transaction.
+  Future<T> _wrapWithTransaction<T>({
     required String operation,
     required String description,
     required Future<T> Function() execute,
     String? origin,
     Map<String, Object>? attributes,
-    TracingStatus Function(T result)? deriveStatus,
+    SpanStatus Function(T result)? deriveStatus,
   }) async {
-    final existingSpan = _hub.getSpan();
-
-    if (existingSpan != null) {
-      return wrapAsync(
-        operation: operation,
-        description: description,
-        execute: execute,
-        origin: origin,
-        attributes: attributes,
-        deriveStatus: deriveStatus,
-      );
-    }
-
-    // Start a new transaction
     final transaction = _hub.startTransaction(
       operation,
       description,
@@ -122,8 +124,7 @@ class LegacySpanWrapper implements SpanWrapper {
 
     try {
       final result = await execute();
-      transaction.status =
-          _toSpanStatus(deriveStatus?.call(result) ?? TracingStatus.ok);
+      transaction.status = deriveStatus?.call(result) ?? SpanStatus.ok();
       return result;
     } catch (exception) {
       transaction.throwable = exception;
@@ -131,6 +132,35 @@ class LegacySpanWrapper implements SpanWrapper {
       rethrow;
     } finally {
       await transaction.finish();
+    }
+  }
+
+  /// Wraps a sync operation in a new transaction.
+  T _wrapSyncWithTransaction<T>({
+    required String operation,
+    required String description,
+    required T Function() execute,
+    String? origin,
+    Map<String, Object>? attributes,
+    SpanStatus Function(T result)? deriveStatus,
+  }) {
+    final transaction = _hub.startTransaction(
+      operation,
+      description,
+      bindToScope: true,
+    );
+    _configureSpan(transaction, origin: origin, attributes: attributes);
+
+    try {
+      final result = execute();
+      transaction.status = deriveStatus?.call(result) ?? SpanStatus.ok();
+      return result;
+    } catch (exception) {
+      transaction.throwable = exception;
+      transaction.status = SpanStatus.internalError();
+      rethrow;
+    } finally {
+      transaction.finish();
     }
   }
 
@@ -143,28 +173,5 @@ class LegacySpanWrapper implements SpanWrapper {
       span.origin = origin;
     }
     attributes?.forEach((key, value) => span.setData(key, value));
-  }
-
-  /// Converts [TracingStatus] to legacy [SpanStatus].
-  SpanStatus _toSpanStatus(TracingStatus status) {
-    return switch (status) {
-      TracingStatus.ok => SpanStatus.ok(),
-      TracingStatus.cancelled => SpanStatus.cancelled(),
-      TracingStatus.unknown => SpanStatus.unknownError(),
-      TracingStatus.invalidArgument => SpanStatus.invalidArgument(),
-      TracingStatus.deadlineExceeded => SpanStatus.deadlineExceeded(),
-      TracingStatus.notFound => SpanStatus.notFound(),
-      TracingStatus.alreadyExists => SpanStatus.alreadyExists(),
-      TracingStatus.permissionDenied => SpanStatus.permissionDenied(),
-      TracingStatus.resourceExhausted => SpanStatus.resourceExhausted(),
-      TracingStatus.failedPrecondition => SpanStatus.failedPrecondition(),
-      TracingStatus.aborted => SpanStatus.aborted(),
-      TracingStatus.outOfRange => SpanStatus.outOfRange(),
-      TracingStatus.unimplemented => SpanStatus.unimplemented(),
-      TracingStatus.internalError => SpanStatus.internalError(),
-      TracingStatus.unavailable => SpanStatus.unavailable(),
-      TracingStatus.dataLoss => SpanStatus.dataLoss(),
-      TracingStatus.unauthenticated => SpanStatus.unauthenticated(),
-    };
   }
 }

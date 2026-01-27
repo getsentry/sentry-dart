@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'tracing_status.dart';
+import '../protocol/span_status.dart';
 
 /// Abstraction for span operations that enables swapping tracing implementations.
 ///
@@ -9,7 +9,7 @@ import 'tracing_status.dart';
 /// integration packages to instrument code without coupling to a specific
 /// tracing implementation.
 ///
-/// The implementation (e.g., [SentrySpanWrapper]) handles the actual span
+/// The implementation (e.g., [LegacySpanWrapper]) handles the actual span
 /// creation using the configured tracing backend.
 ///
 /// Example usage:
@@ -28,8 +28,7 @@ abstract class SpanWrapper {
   /// Wraps an asynchronous operation with a span.
   ///
   /// Creates a child span under the current active span, executes [execute],
-  /// and finishes the span when complete. If no parent span is available,
-  /// [execute] is called directly without creating a span.
+  /// and finishes the span when complete.
   ///
   /// Parameters:
   /// - [operation]: The span operation name (e.g., 'db.sql.query', 'http.client').
@@ -38,14 +37,16 @@ abstract class SpanWrapper {
   /// - [origin]: Optional origin identifier for the span.
   /// - [attributes]: Optional attributes to attach to the span.
   /// - [deriveStatus]: Optional function to derive span status from the result.
-  ///   If not provided, defaults to [TracingStatus.ok] on success.
+  ///   If not provided, defaults to [SpanStatus.ok] on success.
   /// - [parentSpan]: Optional parent span to use instead of the hub's active span.
   ///   This is useful for integrations that manage their own span hierarchy
   ///   (e.g., nested database transactions).
+  /// - [requireParent]: If true (default), only creates a span if a parent exists.
+  ///   If false and no parent exists, starts a new transaction instead.
   ///
   /// Returns the result of [execute].
   ///
-  /// On exception, the span is marked with [TracingStatus.internalError] and
+  /// On exception, the span is marked with [SpanStatus.internalError] and
   /// the exception is recorded before being rethrown.
   Future<T> wrapAsync<T>({
     required String operation,
@@ -53,15 +54,15 @@ abstract class SpanWrapper {
     required Future<T> Function() execute,
     String? origin,
     Map<String, Object>? attributes,
-    TracingStatus Function(T result)? deriveStatus,
+    SpanStatus Function(T result)? deriveStatus,
     Object? parentSpan,
+    bool requireParent = true,
   });
 
   /// Wraps a synchronous operation with a span.
   ///
   /// Creates a child span under the current active span, executes [execute],
-  /// and finishes the span when complete. If no parent span is available,
-  /// [execute] is called directly without creating a span.
+  /// and finishes the span when complete.
   ///
   /// Parameters:
   /// - [operation]: The span operation name (e.g., 'db.sql.query', 'file.read').
@@ -70,14 +71,16 @@ abstract class SpanWrapper {
   /// - [origin]: Optional origin identifier for the span.
   /// - [attributes]: Optional attributes to attach to the span.
   /// - [deriveStatus]: Optional function to derive span status from the result.
-  ///   If not provided, defaults to [TracingStatus.ok] on success.
+  ///   If not provided, defaults to [SpanStatus.ok] on success.
   /// - [parentSpan]: Optional parent span to use instead of the hub's active span.
   ///   This is useful for integrations that manage their own span hierarchy
   ///   (e.g., nested database transactions).
+  /// - [requireParent]: If true (default), only creates a span if a parent exists.
+  ///   If false and no parent exists, starts a new transaction instead.
   ///
   /// Returns the result of [execute].
   ///
-  /// On exception, the span is marked with [TracingStatus.internalError] and
+  /// On exception, the span is marked with [SpanStatus.internalError] and
   /// the exception is recorded before being rethrown.
   T wrapSync<T>({
     required String operation,
@@ -85,23 +88,8 @@ abstract class SpanWrapper {
     required T Function() execute,
     String? origin,
     Map<String, Object>? attributes,
-    TracingStatus Function(T result)? deriveStatus,
+    SpanStatus Function(T result)? deriveStatus,
     Object? parentSpan,
-  });
-
-  /// Wraps an async operation, starting a transaction if no parent span exists.
-  ///
-  /// This is useful for entry points (like GraphQL operations) where we want
-  /// to create a root transaction if there's no active span, but create a
-  /// child span if one exists.
-  ///
-  /// Parameters are the same as [wrapAsync].
-  Future<T> wrapAsyncOrStartTransaction<T>({
-    required String operation,
-    required String description,
-    required Future<T> Function() execute,
-    String? origin,
-    Map<String, Object>? attributes,
-    TracingStatus Function(T result)? deriveStatus,
+    bool requireParent = true,
   });
 }
