@@ -38,8 +38,8 @@ class SentryQueryInterceptor extends QueryInterceptor {
         _hub = hub ?? HubAdapter() {
     // TODO(span-first): Add V2 support
     _transactionSpanWrapper =
-        transactionSpanWrapper ?? LegacyTransactionWrapper(hub: _hub);
-    _spanWrapper = spanWrapper ?? LegacySpanWrapper(hub: _hub);
+        transactionSpanWrapper ?? StaticTransactionWrapper(hub: _hub);
+    _spanWrapper = spanWrapper ?? StaticSpanWrapper(hub: _hub);
     final options = _hub.options;
     options.sdk.addIntegration(drift_constants.integrationName);
     options.sdk.addPackage(packageName, sdkVersion);

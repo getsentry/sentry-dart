@@ -38,7 +38,7 @@ void main() {
     );
   });
 
-  group('$SentryQueryInterceptor with legacy span backend', () {
+  group('$SentryQueryInterceptor with static span backend', () {
     group('open operations', () {
       test('successful adds span only once', () async {
         final sut = fixture.getSut();
