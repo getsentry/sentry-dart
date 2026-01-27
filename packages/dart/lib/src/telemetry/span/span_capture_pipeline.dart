@@ -47,7 +47,7 @@ class SpanCapturePipeline {
 
           _options.telemetryProcessor.addSpan(span);
         } catch (error, stackTrace) {
-          internalLogger.error('Error while capturing span',
+          internalLogger.error('Error while capturing span ${span.name}',
               error: error, stackTrace: stackTrace);
           if (_options.automatedTestMode) {
             rethrow;
