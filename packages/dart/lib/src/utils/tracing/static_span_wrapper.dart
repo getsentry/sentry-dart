@@ -3,6 +3,7 @@
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
+import '../internal_logger.dart';
 
 @internal
 class StaticSpanWrapper implements SpanWrapper {
@@ -22,6 +23,7 @@ class StaticSpanWrapper implements SpanWrapper {
     required String operation,
     required String description,
     required Future<T> Function() execute,
+    required String integration,
     String? origin,
     Map<String, Object>? attributes,
     SpanStatus Function(T result)? deriveStatus,
@@ -30,6 +32,9 @@ class StaticSpanWrapper implements SpanWrapper {
     final parent = _resolveParent(parentSpan);
 
     if (parent == null) {
+      internalLogger.warning(
+        'No active span found for $integration. The operation will not be traced for $operation $description',
+      );
       return execute();
     }
 
@@ -54,6 +59,7 @@ class StaticSpanWrapper implements SpanWrapper {
     required String operation,
     required String description,
     required T Function() execute,
+    required String integration,
     String? origin,
     Map<String, Object>? attributes,
     SpanStatus Function(T result)? deriveStatus,
@@ -62,6 +68,9 @@ class StaticSpanWrapper implements SpanWrapper {
     final parent = _resolveParent(parentSpan);
 
     if (parent == null) {
+      internalLogger.warning(
+        'No active span found for $integration. The operation will not be traced for $operation $description',
+      );
       return execute();
     }
 

@@ -48,25 +48,18 @@ class SentryQueryInterceptor extends QueryInterceptor {
     String description,
     FutureOr<T> Function() execute, {
     String? operation,
-  }) async {
-    final parentSpan = _transactionWrapper.currentSpan ?? _hub.getSpan();
-    if (parentSpan == null) {
-      internalLogger.warning(
-        'No active transaction found. The Drift operation will not be traced: $description',
+  }) =>
+      _spanWrapper.wrapAsync<T>(
+        operation: operation ?? SentrySpanOperations.dbSqlQuery,
+        description: description,
+        execute: () async => execute(),
+        origin: SentryTraceOrigins.autoDbDriftQueryInterceptor,
+        attributes: {
+          SentrySpanData.dbSystemKey: SentrySpanData.dbSystemSqlite,
+          SentrySpanData.dbNameKey: _dbName,
+        },
+        parentSpan: _transactionWrapper.currentSpan ?? _hub.getSpan(),
       );
-    }
-    return _spanWrapper.wrapAsync<T>(
-      operation: operation ?? SentrySpanOperations.dbSqlQuery,
-      description: description,
-      execute: () async => execute(),
-      origin: SentryTraceOrigins.autoDbDriftQueryInterceptor,
-      attributes: {
-        SentrySpanData.dbSystemKey: SentrySpanData.dbSystemSqlite,
-        SentrySpanData.dbNameKey: _dbName,
-      },
-      parentSpan: _transactionWrapper.currentSpan,
-    );
-  }
 
   @override
   Future<bool> ensureOpen(QueryExecutor executor, QueryExecutorUser user) {
@@ -137,16 +130,9 @@ class SentryQueryInterceptor extends QueryInterceptor {
 
   @override
   Future<void> rollbackTransaction(TransactionExecutor inner) async {
-    final hadSpan = await _transactionWrapper.rollbackTransaction(
+    await _transactionWrapper.rollbackTransaction(
       () => super.rollbackTransaction(inner),
     );
-
-    if (!hadSpan) {
-      internalLogger.warning(
-        'No active transaction found. The Drift operation will not be traced: Rollback Transaction',
-      );
-      return super.rollbackTransaction(inner);
-    }
   }
 
   @override

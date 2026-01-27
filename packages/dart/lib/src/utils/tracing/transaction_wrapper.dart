@@ -16,11 +16,14 @@ abstract class TransactionWrapper {
     required String operation,
     required String description,
     required T Function() execute,
+    required String integration,
     String? origin,
     Map<String, Object>? attributes,
   });
 
-  Future<bool> commitTransaction(Future<void> Function() execute);
+  Future<void> commitTransaction(
+      Future<void> Function() execute, String integration);
 
-  Future<bool> rollbackTransaction(Future<void> Function() execute);
+  Future<void> rollbackTransaction(
+      Future<void> Function() execute, String integration);
 }

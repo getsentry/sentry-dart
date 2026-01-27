@@ -5,6 +5,7 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
+import '../internal_logger.dart';
 
 @internal
 class StaticTransactionWrapper implements TransactionWrapper {
@@ -24,11 +25,15 @@ class StaticTransactionWrapper implements TransactionWrapper {
     required String operation,
     required String description,
     required T Function() execute,
+    required String integration,
     String? origin,
     Map<String, Object>? attributes,
   }) {
     final parent = currentSpan ?? _hub.getSpan();
     if (parent == null) {
+      internalLogger.warning(
+        'No active transaction found for $integration. The operation `beginTransaction` will not be traced',
+      );
       return execute();
     }
 
@@ -52,16 +57,19 @@ class StaticTransactionWrapper implements TransactionWrapper {
   }
 
   @override
-  Future<bool> commitTransaction(Future<void> Function() execute) async {
+  Future<void> commitTransaction(
+      Future<void> Function() execute, String integration) async {
     final span = _transactionStack.lastOrNull;
     if (span == null) {
-      return false;
+      internalLogger.warning(
+        'No active transaction found for $integration. The operation `commitTransaction` will not be traced',
+      );
+      return execute();
     }
 
     try {
       await execute();
       span.status = SpanStatus.ok();
-      return true;
     } catch (exception) {
       span.throwable = exception;
       span.status = SpanStatus.internalError();
@@ -73,16 +81,19 @@ class StaticTransactionWrapper implements TransactionWrapper {
   }
 
   @override
-  Future<bool> rollbackTransaction(Future<void> Function() execute) async {
+  Future<void> rollbackTransaction(
+      Future<void> Function() execute, String integration) async {
     final span = _transactionStack.lastOrNull;
     if (span == null) {
-      return false;
+      internalLogger.warning(
+        'No active transaction found for $integration. The operation `rollbackTransaction` will not be traced',
+      );
+      return execute();
     }
 
     try {
       await execute();
       span.status = SpanStatus.aborted();
-      return true;
     } catch (exception) {
       span.throwable = exception;
       span.status = SpanStatus.internalError();
