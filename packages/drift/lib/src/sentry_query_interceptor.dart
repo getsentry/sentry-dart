@@ -40,10 +40,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
     options.sdk.addPackage(packageName, sdkVersion);
   }
 
-  /// Wraps database operations in Sentry spans.
-  ///
-  /// Uses the current transaction span as parent if available, otherwise
-  /// falls back to the hub's active span.
+  /// Instruments non-transactional database operations with Sentry spans.
   Future<T> _instrumentOperation<T>(
     String description,
     FutureOr<T> Function() execute, {
