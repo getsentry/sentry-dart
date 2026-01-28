@@ -1,10 +1,8 @@
 import 'package:meta/meta.dart';
 
 import '../../hint.dart';
-import '../../noop_sentry_span.dart';
 import '../../protocol.dart';
 import '../../sentry_span_interface.dart';
-import '../../sentry_trace_context_header.dart';
 
 /// Opaque span handle enabling swappable tracing backends.
 @internal
