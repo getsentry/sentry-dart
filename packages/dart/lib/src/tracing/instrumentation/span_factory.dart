@@ -9,7 +9,7 @@ import 'instrumentation_span.dart';
 @internal
 abstract class InstrumentationSpanFactory {
   /// Returns `null` if parent is null or span creation fails.
-  InstrumentationSpan? createChildSpan(
+  InstrumentationSpan? createSpan(
     InstrumentationSpan? parent,
     String operation, {
     String? description,
@@ -24,7 +24,7 @@ abstract class InstrumentationSpanFactory {
 @internal
 class LegacyInstrumentationSpanFactory implements InstrumentationSpanFactory {
   @override
-  InstrumentationSpan? createChildSpan(
+  InstrumentationSpan? createSpan(
     InstrumentationSpan? parent,
     String operation, {
     String? description,

@@ -86,7 +86,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     return Future<void>(() async {
       final parent = _spanFactory.getSpan(_hub);
       final description = 'Close DB: ${_database.path}';
-      final span = _spanFactory.createChildSpan(
+      final span = _spanFactory.createSpan(
         parent,
         dbOp,
         description: description,
@@ -151,7 +151,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     return Future<T>(() async {
       final parent = _spanFactory.getSpan(_hub);
       final description = 'Transaction DB: ${_database.path}';
-      final span = _spanFactory.createChildSpan(
+      final span = _spanFactory.createSpan(
         parent,
         _dbSqlTransactionOp,
         description: description,
@@ -211,7 +211,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     return Future<T>(() async {
       final parent = _spanFactory.getSpan(_hub);
       final description = 'Transaction DB: ${_database.path}';
-      final span = _spanFactory.createChildSpan(
+      final span = _spanFactory.createSpan(
         parent,
         _dbSqlReadTransactionOp,
         description: description,

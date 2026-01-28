@@ -56,7 +56,6 @@ class LegacyInstrumentationSpan implements InstrumentationSpan {
   Future<void> finish({
     SpanStatus? status,
     DateTime? endTimestamp,
-    Hint? hint,
   }) =>
       _span.finish(status: status, endTimestamp: endTimestamp);
 }

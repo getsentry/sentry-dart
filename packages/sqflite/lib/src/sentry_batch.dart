@@ -53,7 +53,7 @@ class SentryBatch implements Batch {
     return Future<List<Object?>>(() async {
       final parent = _spanFactory.getSpan(_hub);
 
-      final span = _spanFactory.createChildSpan(
+      final span = _spanFactory.createSpan(
         parent,
         SentryDatabase.dbOp,
         description: _buffer.toString().trim(),
@@ -107,7 +107,7 @@ class SentryBatch implements Batch {
     return Future<List<Object?>>(() async {
       final parent = _spanFactory.getSpan(_hub);
 
-      final span = _spanFactory.createChildSpan(
+      final span = _spanFactory.createSpan(
         parent,
         SentryDatabase.dbOp,
         description: _buffer.toString().trim(),

@@ -49,7 +49,7 @@ class SentrySpanHelper {
       return execute();
     }
 
-    final span = _factory.createChildSpan(
+    final span = _factory.createSpan(
       parentSpan,
       operation ?? SentrySpanOperations.dbSqlQuery,
       description: description,
@@ -99,7 +99,7 @@ class SentrySpanHelper {
       return execute();
     }
 
-    final newParent = _factory.createChildSpan(
+    final newParent = _factory.createSpan(
       parentSpan,
       SentrySpanOperations.dbSqlTransaction,
       description: SentrySpanDescriptions.dbTransaction,
@@ -148,7 +148,6 @@ class SentrySpanHelper {
       return execute();
     }
 
-    // Keep span on stack during execute() so nested operations attach correctly
     final parentSpan = _transactionStack.last;
 
     try {
@@ -162,8 +161,8 @@ class SentrySpanHelper {
 
       rethrow;
     } finally {
-      _transactionStack.removeLast();
       await parentSpan.finish();
+      _transactionStack.removeLast();
     }
   }
 
@@ -177,7 +176,6 @@ class SentrySpanHelper {
       return execute();
     }
 
-    // Keep span on stack during execute() so nested operations attach correctly
     final parentSpan = _transactionStack.last;
 
     try {
@@ -191,8 +189,8 @@ class SentrySpanHelper {
 
       rethrow;
     } finally {
-      _transactionStack.removeLast();
       await parentSpan.finish();
+      _transactionStack.removeLast();
     }
   }
 }
