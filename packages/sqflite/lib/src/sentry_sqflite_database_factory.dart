@@ -36,10 +36,16 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
     sqflite.DatabaseFactory? databaseFactory,
     @internal Hub? hub,
   })  : _databaseFactory = databaseFactory ?? sqflite.databaseFactory,
-        _hub = hub ?? HubAdapter();
+        _hub = hub ?? HubAdapter() {
+    // ignore: invalid_use_of_internal_member
+    _spanFactory = _hub.options.spanFactory;
+  }
 
   final Hub _hub;
   final sqflite.DatabaseFactory _databaseFactory;
+
+  // ignore: invalid_use_of_internal_member
+  late final InstrumentationSpanFactory _spanFactory;
 
   @override
   Future<T> invokeMethod<T>(String method, [Object? arguments]) =>
@@ -58,9 +64,10 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
     }
 
     return Future<sqflite.Database>(() async {
-      final currentSpan = _hub.getSpan();
       final description = 'Open DB: $path';
-      final span = currentSpan?.startChild(
+      final parent = _spanFactory.getSpan(_hub);
+      final span = _spanFactory.createSpan(
+        parent,
         SentryDatabase.dbOp,
         description: description,
       );
