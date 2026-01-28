@@ -60,7 +60,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
+      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,
@@ -104,7 +104,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
+      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -156,7 +156,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
+      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,
@@ -227,7 +227,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
+      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,
@@ -305,7 +305,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
+      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,
@@ -360,7 +360,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
+      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -403,7 +403,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
+      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -449,7 +449,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
+      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -496,7 +496,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
+      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -543,7 +543,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
+      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -599,7 +599,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
+      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,

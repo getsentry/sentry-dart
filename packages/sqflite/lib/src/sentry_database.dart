@@ -158,7 +158,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, dbName);
+      setDatabaseAttributeData(span, dbName);
 
       final breadcrumb = Breadcrumb(
         message: description,
@@ -218,7 +218,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, dbName);
+      setDatabaseAttributeData(span, dbName);
 
       final breadcrumb = Breadcrumb(
         message: description,

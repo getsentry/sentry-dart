@@ -61,7 +61,7 @@ class SentryBatch implements Batch {
 
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
+      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: _buffer.toString().trim(),
@@ -114,7 +114,7 @@ class SentryBatch implements Batch {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
-      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
+      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: _buffer.toString().trim(),

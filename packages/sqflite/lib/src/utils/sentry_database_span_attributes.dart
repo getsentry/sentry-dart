@@ -5,7 +5,7 @@ import '../../sentry_sqflite.dart';
 /// Sets the database attributes on the [span] using InstrumentationSpan.
 /// It contains the database system and the database name.
 // ignore: invalid_use_of_internal_member
-void setDatabaseAttributeDataOnInstrumentationSpan(
+void setDatabaseAttributeData(
   // ignore: invalid_use_of_internal_member
   InstrumentationSpan? span,
   String? dbName,
