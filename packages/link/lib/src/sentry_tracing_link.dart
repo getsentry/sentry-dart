@@ -89,7 +89,8 @@ class SentryTracingLink extends Link {
     if (parentSpan == null && shouldStartTransaction) {
       // Start a new transaction - InstrumentationSpan doesn't support this
       // so we use the legacy API and wrap it
-      final transaction = _hub.startTransaction(description, op, bindToScope: true);
+      final transaction =
+          _hub.startTransaction(description, op, bindToScope: true);
       return LegacyInstrumentationSpan(transaction);
     } else if (parentSpan != null) {
       return _spanFactory.createSpan(parentSpan, op, description: description);
