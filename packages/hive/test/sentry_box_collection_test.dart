@@ -384,9 +384,7 @@ class Fixture {
 
   Future<stub.BoxCollection> getSut({bool injectMock = false}) async {
     if (injectMock) {
-      final sbc = SentryBoxCollection(mockBoxCollection);
-      sbc.setHub(hub);
-      return sbc;
+      return SentryBoxCollection(mockBoxCollection, hub: hub);
     } else {
       return await SentryBoxCollection.open(dbName, {'people'}, hub: hub);
     }
