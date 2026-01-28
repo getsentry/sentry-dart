@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:collection';
+import 'dart:async';
 
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
@@ -126,7 +127,7 @@ class SentrySpanHelper {
     } catch (exception) {
       newParent.throwable = exception;
       newParent.status = SpanStatus.internalError();
-      newParent.finish();
+      unawaited(newParent.finish());
 
       rethrow;
     }
