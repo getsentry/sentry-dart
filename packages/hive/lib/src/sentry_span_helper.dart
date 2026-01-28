@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
@@ -128,8 +130,7 @@ class SentrySpanHelper {
       breadcrumb.level = SentryLevel.warning;
       rethrow;
     } finally {
-      // Fire-and-forget for sync operations
-      span.finish();
+      unawaited(span.finish());
       _hub.scope.addBreadcrumb(breadcrumb);
     }
   }

@@ -543,8 +543,7 @@ class SentryFile implements File {
       span?.status = SpanStatus.internalError();
       rethrow;
     } finally {
-      // Fire-and-forget for sync operations
-      span?.finish();
+      unawaited(span?.finish());
 
       _hub.addBreadcrumb(
         Breadcrumb(
