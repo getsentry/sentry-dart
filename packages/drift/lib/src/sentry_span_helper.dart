@@ -105,9 +105,6 @@ class SentrySpanHelper {
       description: SentrySpanDescriptions.dbTransaction,
     );
 
-    // If span creation failed (e.g., hit span limit), just execute without
-    // affecting the stack. Operations inside can still attach to whatever
-    // active span exists via _getParent() fallback.
     if (newParent == null) {
       return execute();
     }
