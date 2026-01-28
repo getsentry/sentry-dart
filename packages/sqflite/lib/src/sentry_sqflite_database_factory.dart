@@ -7,6 +7,7 @@ import 'package:sqflite_common/src/factory_mixin.dart';
 import 'package:sqflite/src/sqflite_impl.dart' as impl;
 
 import 'sentry_database.dart';
+import 'utils/sentry_sqflite_span_helper.dart';
 
 /// Using this factory, all [Database] instances will be wrapped with Sentry.
 ///
@@ -57,45 +58,23 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
       return databaseFactory.openDatabase(path, options: options);
     }
 
-    return Future<sqflite.Database>(() async {
-      final currentSpan = _hub.getSpan();
-      final description = 'Open DB: $path';
-      final span = currentSpan?.startChild(
-        SentryDatabase.dbOp,
-        description: description,
-      );
+    final helper = SentrySqfliteSpanHelper(
+      // ignore: invalid_use_of_internal_member
+      spanWrapper: _hub.options.spanWrapper,
+      hub: _hub,
+    );
 
-      span?.origin =
-          // ignore: invalid_use_of_internal_member
-          SentryTraceOrigins.autoDbSqfliteDatabaseFactory;
-
-      final breadcrumb = Breadcrumb(
-        message: description,
-        category: SentryDatabase.dbOp,
-        data: {},
-      );
-
-      try {
+    return helper.wrapAsync<sqflite.Database>(
+      operation: SentryDatabase.dbOp,
+      description: 'Open DB: $path',
+      execute: () async {
         final database =
             await databaseFactory.openDatabase(path, options: options);
-
-        final sentryDatabase = SentryDatabase(database, hub: _hub);
-
-        span?.status = SpanStatus.ok();
-        breadcrumb.data?['status'] = 'ok';
-
-        return sentryDatabase;
-      } catch (exception) {
-        span?.throwable = exception;
-        span?.status = SpanStatus.internalError();
-        breadcrumb.data?['status'] = 'internal_error';
-        breadcrumb.level = SentryLevel.warning;
-        rethrow;
-      } finally {
-        await span?.finish();
-        // ignore: invalid_use_of_internal_member
-        await _hub.scope.addBreadcrumb(breadcrumb);
-      }
-    });
+        return SentryDatabase(database, hub: _hub);
+      },
+      // ignore: invalid_use_of_internal_member
+      origin: SentryTraceOrigins.autoDbSqfliteDatabaseFactory,
+      parentSpan: _hub.getSpan(),
+    );
   }
 }

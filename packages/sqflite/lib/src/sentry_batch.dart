@@ -6,7 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common/src/sql_builder.dart';
 
 import 'sentry_database.dart';
-import 'utils/sentry_database_span_attributes.dart';
+import 'utils/sentry_sqflite_span_helper.dart';
 
 /// A [Batch] wrapper that adds Sentry support.
 ///
@@ -22,7 +22,7 @@ import 'utils/sentry_database_span_attributes.dart';
 class SentryBatch implements Batch {
   final Batch _batch;
   final Hub _hub;
-  final String? _dbName;
+  final SentrySqfliteSpanHelper _helper;
 
   // we don't clear the buffer because SqfliteBatch don't either
   final _buffer = StringBuffer();
@@ -40,54 +40,27 @@ class SentryBatch implements Batch {
     @internal Hub? hub,
     @internal String? dbName,
   })  : _hub = hub ?? HubAdapter(),
-        _dbName = dbName;
+        _helper = SentrySqfliteSpanHelper(
+          spanWrapper:
+              // ignore: invalid_use_of_internal_member
+              (hub ?? HubAdapter()).options.spanWrapper,
+          hub: hub ?? HubAdapter(),
+          dbName: dbName,
+        );
 
   @override
   Future<List<Object?>> apply({bool? noResult, bool? continueOnError}) {
-    return Future<List<Object?>>(() async {
-      final currentSpan = _hub.getSpan();
-
-      final span = currentSpan?.startChild(
-        SentryDatabase.dbOp,
-        description: _buffer.toString().trim(),
-      );
-
+    return _helper.wrapAsync<List<Object?>>(
+      operation: SentryDatabase.dbOp,
+      description: _buffer.toString().trim(),
+      execute: () => _batch.apply(
+        noResult: noResult,
+        continueOnError: continueOnError,
+      ),
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
-      setDatabaseAttributeData(span, _dbName);
-
-      final breadcrumb = Breadcrumb(
-        message: _buffer.toString().trim(),
-        data: {},
-        type: 'query',
-      );
-      setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
-
-      try {
-        final result = await _batch.apply(
-          noResult: noResult,
-          continueOnError: continueOnError,
-        );
-
-        span?.status = SpanStatus.ok();
-
-        breadcrumb.data?['status'] = 'ok';
-
-        return result;
-      } catch (exception) {
-        span?.throwable = exception;
-        span?.status = SpanStatus.internalError();
-
-        breadcrumb.data?['status'] = 'internal_error';
-        breadcrumb.level = SentryLevel.warning;
-
-        rethrow;
-      } finally {
-        await span?.finish();
-        // ignore: invalid_use_of_internal_member
-        await _hub.scope.addBreadcrumb(breadcrumb);
-      }
-    });
+      origin: SentryTraceOrigins.autoDbSqfliteBatch,
+      parentSpan: _hub.getSpan(),
+    );
   }
 
   /// @nodoc Disable dart doc warnings inherited from [Batch]
@@ -97,49 +70,18 @@ class SentryBatch implements Batch {
     bool? noResult,
     bool? continueOnError,
   }) {
-    return Future<List<Object?>>(() async {
-      final currentSpan = _hub.getSpan();
-
-      final span = currentSpan?.startChild(
-        SentryDatabase.dbOp,
-        description: _buffer.toString().trim(),
-      );
+    return _helper.wrapAsync<List<Object?>>(
+      operation: SentryDatabase.dbOp,
+      description: _buffer.toString().trim(),
+      execute: () => _batch.commit(
+        exclusive: exclusive,
+        noResult: noResult,
+        continueOnError: continueOnError,
+      ),
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
-      setDatabaseAttributeData(span, _dbName);
-
-      final breadcrumb = Breadcrumb(
-        message: _buffer.toString().trim(),
-        data: {},
-        type: 'query',
-      );
-      setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
-
-      try {
-        final result = await _batch.commit(
-          exclusive: exclusive,
-          noResult: noResult,
-          continueOnError: continueOnError,
-        );
-
-        span?.status = SpanStatus.ok();
-        breadcrumb.data?['status'] = 'ok';
-
-        return result;
-      } catch (exception) {
-        span?.throwable = exception;
-        span?.status = SpanStatus.internalError();
-
-        breadcrumb.data?['status'] = 'internal_error';
-        breadcrumb.level = SentryLevel.warning;
-
-        rethrow;
-      } finally {
-        await span?.finish();
-        // ignore: invalid_use_of_internal_member
-        await _hub.scope.addBreadcrumb(breadcrumb);
-      }
-    });
+      origin: SentryTraceOrigins.autoDbSqfliteBatch,
+      parentSpan: _hub.getSpan(),
+    );
   }
 
   @override

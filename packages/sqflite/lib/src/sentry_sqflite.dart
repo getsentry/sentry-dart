@@ -3,6 +3,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'sentry_database.dart';
+import 'utils/sentry_sqflite_span_helper.dart';
 
 /// Opens a database with Sentry support.
 ///
@@ -24,59 +25,38 @@ Future<Database> openDatabaseWithSentry(
   bool readOnly = false,
   bool singleInstance = true,
   @internal Hub? hub,
-}) {
-  return Future<Database>(() async {
-    final dbOptions = OpenDatabaseOptions(
-      version: version,
-      onConfigure: onConfigure,
-      onCreate: onCreate,
-      onUpgrade: onUpgrade,
-      onDowngrade: onDowngrade,
-      onOpen: onOpen,
-      readOnly: readOnly,
-      singleInstance: singleInstance,
-    );
+}) async {
+  final dbOptions = OpenDatabaseOptions(
+    version: version,
+    onConfigure: onConfigure,
+    onCreate: onCreate,
+    onUpgrade: onUpgrade,
+    onDowngrade: onDowngrade,
+    onOpen: onOpen,
+    readOnly: readOnly,
+    singleInstance: singleInstance,
+  );
 
-    final newHub = hub ?? HubAdapter();
+  final newHub = hub ?? HubAdapter();
 
-    final currentSpan = newHub.getSpan();
-    final description = 'Open DB: $path';
-    final span = currentSpan?.startChild(
-      SentryDatabase.dbOp,
-      description: description,
-    );
+  final helper = SentrySqfliteSpanHelper(
     // ignore: invalid_use_of_internal_member
-    span?.origin = SentryTraceOrigins.autoDbSqfliteOpenDatabase;
+    spanWrapper: newHub.options.spanWrapper,
+    hub: newHub,
+  );
 
-    final breadcrumb = Breadcrumb(
-      message: description,
-      category: SentryDatabase.dbOp,
-      data: {},
-    );
-
-    try {
+  return helper.wrapAsync<Database>(
+    operation: SentryDatabase.dbOp,
+    description: 'Open DB: $path',
+    execute: () async {
       final database =
           await databaseFactory.openDatabase(path, options: dbOptions);
-
-      final sentryDatabase = SentryDatabase(database, hub: newHub);
-
-      span?.status = SpanStatus.ok();
-      breadcrumb.data?['status'] = 'ok';
-
-      return sentryDatabase;
-    } catch (exception) {
-      span?.throwable = exception;
-      span?.status = SpanStatus.internalError();
-      breadcrumb.data?['status'] = 'internal_error';
-      breadcrumb.level = SentryLevel.warning;
-
-      rethrow;
-    } finally {
-      await span?.finish();
-      // ignore: invalid_use_of_internal_member
-      await newHub.scope.addBreadcrumb(breadcrumb);
-    }
-  });
+      return SentryDatabase(database, hub: newHub);
+    },
+    // ignore: invalid_use_of_internal_member
+    origin: SentryTraceOrigins.autoDbSqfliteOpenDatabase,
+    parentSpan: newHub.getSpan(),
+  );
 }
 
 /// Opens a database with Sentry support.

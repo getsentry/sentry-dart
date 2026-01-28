@@ -98,4 +98,33 @@ class StaticSpanWrapper implements SpanWrapper {
     }
     attributes?.forEach((key, value) => span.setData(key, value));
   }
+
+  @override
+  Object? startSpan({
+    required String operation,
+    required String description,
+    String? origin,
+    Map<String, Object>? attributes,
+    Object? parentSpan,
+  }) {
+    final parent = _resolveParent(parentSpan);
+    if (parent == null) return null;
+
+    final span = parent.startChild(operation, description: description);
+    _configureSpan(span, origin: origin, attributes: attributes);
+    return span;
+  }
+
+  @override
+  Future<void> finishSpan(
+    Object? span, {
+    SpanStatus? status,
+    Object? throwable,
+  }) async {
+    if (span is! ISentrySpan) return;
+
+    if (status != null) span.status = status;
+    if (throwable != null) span.throwable = throwable;
+    await span.finish();
+  }
 }
