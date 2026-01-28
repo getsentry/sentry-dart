@@ -116,16 +116,16 @@ class SentryQueryInterceptor extends QueryInterceptor {
   @override
   Future<void> commitTransaction(TransactionExecutor inner) async {
     await _transactionWrapper.commitTransaction(
-      () => super.commitTransaction(inner),
-      drift_constants.loggerName,
+      execute: () => super.commitTransaction(inner),
+      loggerName: drift_constants.loggerName,
     );
   }
 
   @override
   Future<void> rollbackTransaction(TransactionExecutor inner) async {
     await _transactionWrapper.rollbackTransaction(
-      () => super.rollbackTransaction(inner),
-      drift_constants.loggerName,
+      execute: () => super.rollbackTransaction(inner),
+      loggerName: drift_constants.loggerName,
     );
   }
 
