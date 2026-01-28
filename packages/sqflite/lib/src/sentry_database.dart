@@ -84,7 +84,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   @override
   Future<void> close() {
     return Future<void>(() async {
-      final parent = _spanFactory.getCurrentSpan(_hub);
+      final parent = _spanFactory.getSpan(_hub);
       final description = 'Close DB: ${_database.path}';
       final span = _spanFactory.createChildSpan(
         parent,
@@ -149,7 +149,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     bool? exclusive,
   }) {
     return Future<T>(() async {
-      final parent = _spanFactory.getCurrentSpan(_hub);
+      final parent = _spanFactory.getSpan(_hub);
       final description = 'Transaction DB: ${_database.path}';
       final span = _spanFactory.createChildSpan(
         parent,
@@ -209,7 +209,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   // ignore: override_on_non_overriding_member, public_member_api_docs
   Future<T> readTransaction<T>(Future<T> Function(Transaction txn) action) {
     return Future<T>(() async {
-      final parent = _spanFactory.getCurrentSpan(_hub);
+      final parent = _spanFactory.getSpan(_hub);
       final description = 'Transaction DB: ${_database.path}';
       final span = _spanFactory.createChildSpan(
         parent,

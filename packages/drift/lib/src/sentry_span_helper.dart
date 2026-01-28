@@ -30,7 +30,7 @@ class SentrySpanHelper {
   /// Returns the last transaction on the stack, or falls back to the current
   /// span from the hub's scope if the stack is empty.
   InstrumentationSpan? _getParent() {
-    return _transactionStack.lastOrNull ?? _factory.getCurrentSpan(_hub);
+    return _transactionStack.lastOrNull ?? _factory.getSpan(_hub);
   }
 
   Future<T> asyncWrapInSpan<T>(
@@ -148,7 +148,8 @@ class SentrySpanHelper {
       return execute();
     }
 
-    final parentSpan = _transactionStack.removeLast();
+    // Keep span on stack during execute() so nested operations attach correctly
+    final parentSpan = _transactionStack.last;
 
     try {
       final result = await execute();
@@ -161,6 +162,7 @@ class SentrySpanHelper {
 
       rethrow;
     } finally {
+      _transactionStack.removeLast();
       await parentSpan.finish();
     }
   }
@@ -175,7 +177,8 @@ class SentrySpanHelper {
       return execute();
     }
 
-    final parentSpan = _transactionStack.removeLast();
+    // Keep span on stack during execute() so nested operations attach correctly
+    final parentSpan = _transactionStack.last;
 
     try {
       final result = await execute();
@@ -188,6 +191,7 @@ class SentrySpanHelper {
 
       rethrow;
     } finally {
+      _transactionStack.removeLast();
       await parentSpan.finish();
     }
   }

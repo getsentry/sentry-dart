@@ -38,7 +38,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
 
   // ignore: invalid_use_of_internal_member
   InstrumentationSpan? _getParent() {
-    return _parentSpan ?? _spanFactory.getCurrentSpan(_hub);
+    return _parentSpan ?? _spanFactory.getSpan(_hub);
   }
 
   @override

@@ -17,7 +17,7 @@ abstract class InstrumentationSpanFactory {
   });
 
   /// Returns `null` if no active span or tracing disabled.
-  InstrumentationSpan? getCurrentSpan(Hub hub);
+  InstrumentationSpan? getSpan(Hub hub);
 }
 
 /// Default [InstrumentationSpanFactory] using [ISentrySpan].
@@ -47,7 +47,7 @@ class LegacyInstrumentationSpanFactory implements InstrumentationSpanFactory {
   }
 
   @override
-  InstrumentationSpan? getCurrentSpan(Hub hub) {
+  InstrumentationSpan? getSpan(Hub hub) {
     final span = hub.getSpan();
     if (span == null || span is NoOpSentrySpan) return null;
     return LegacyInstrumentationSpan(span);
