@@ -9,6 +9,7 @@ import '../noop_client.dart';
 import '../protocol.dart';
 import '../sentry_envelope.dart';
 import '../sentry_options.dart';
+import '../utils/internal_logger.dart';
 import '../utils/transport_utils.dart';
 import 'http_transport_request_handler.dart';
 import 'rate_limiter.dart';
@@ -39,9 +40,19 @@ class HttpTransport implements Transport {
 
     final streamedRequest = await _requestHandler.createRequest(envelope);
 
-    final response = await _options.httpClient
-        .send(streamedRequest)
-        .then(Response.fromStream);
+    final Response response;
+    try {
+      response = await _options.httpClient
+          .send(streamedRequest)
+          .then(Response.fromStream);
+    } catch (error, stackTrace) {
+      internalLogger.error('Failed to send envelope',
+          error: error, stackTrace: stackTrace);
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
+      return SentryId.empty();
+    }
 
     _updateRetryAfterLimits(response);
 

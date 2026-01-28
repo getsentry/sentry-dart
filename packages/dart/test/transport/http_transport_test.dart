@@ -50,6 +50,44 @@ void main() {
 
       expect(body, envelopeData);
     });
+
+    test('returns empty SentryId when client throws exception', () async {
+      final httpMock = MockClient((http.Request request) async {
+        throw http.ClientException('Connection closed before full header was received');
+      });
+
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final sentryEvent = SentryEvent();
+      final envelope = SentryEnvelope.fromEvent(
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
+
+      final result = await sut.send(envelope);
+
+      expect(result, SentryId.empty());
+    });
+
+    test('rethrows client exception when automatedTestMode is true', () async {
+      final httpMock = MockClient((http.Request request) async {
+        throw http.ClientException('Connection closed');
+      });
+
+      fixture.options.automatedTestMode = true;
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final sentryEvent = SentryEvent();
+      final envelope = SentryEnvelope.fromEvent(
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
+
+      expect(() => sut.send(envelope), throwsA(isA<http.ClientException>()));
+    });
   });
 
   group('updateRetryAfterLimits', () {
