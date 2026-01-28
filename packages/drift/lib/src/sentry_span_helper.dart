@@ -126,7 +126,7 @@ class SentrySpanHelper {
     } catch (exception) {
       newParent.throwable = exception;
       newParent.status = SpanStatus.internalError();
-      newParent.finish();
+      unawaited(newParent.finish());
 
       rethrow;
     }
