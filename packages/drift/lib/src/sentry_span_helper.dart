@@ -105,7 +105,9 @@ class SentrySpanHelper {
       description: SentrySpanDescriptions.dbTransaction,
     );
 
+    // Always push to stack to maintain nesting invariants, even if null
     if (newParent == null) {
+      _transactionStack.add(null);
       return execute();
     }
 
@@ -124,7 +126,6 @@ class SentrySpanHelper {
       final result = execute();
       newParent.status = SpanStatus.unknown();
 
-      // Only add to the stack if no error occurred
       _transactionStack.add(newParent);
 
       return result;
@@ -137,13 +138,19 @@ class SentrySpanHelper {
   }
 
   Future<T> finishTransaction<T>(Future<T> Function() execute) async {
-    final parentSpan = _transactionStack.lastOrNull;
-    if (parentSpan == null) {
+    if (_transactionStack.isEmpty) {
       _hub.options.log(
         SentryLevel.warning,
         'Active Sentry transaction does not exist, could not finish span for Drift operation: Finish Transaction',
         logger: loggerName,
       );
+      return execute();
+    }
+
+    final parentSpan = _transactionStack.removeLast();
+
+    // Span may be null if creation failed (e.g., limit reached)
+    if (parentSpan == null) {
       return execute();
     }
 
@@ -159,18 +166,23 @@ class SentrySpanHelper {
       rethrow;
     } finally {
       await parentSpan.finish();
-      _transactionStack.removeLast();
     }
   }
 
   Future<T> abortTransaction<T>(Future<T> Function() execute) async {
-    final parentSpan = _transactionStack.lastOrNull;
-    if (parentSpan == null) {
+    if (_transactionStack.isEmpty) {
       _hub.options.log(
         SentryLevel.warning,
         'Active Sentry transaction does not exist, could not finish span for Drift operation: Abort Transaction',
         logger: loggerName,
       );
+      return execute();
+    }
+
+    final parentSpan = _transactionStack.removeLast();
+
+    // Span may be null if creation failed (e.g., limit reached)
+    if (parentSpan == null) {
       return execute();
     }
 
@@ -186,7 +198,6 @@ class SentrySpanHelper {
       rethrow;
     } finally {
       await parentSpan.finish();
-      _transactionStack.removeLast();
     }
   }
 }

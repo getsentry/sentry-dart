@@ -98,7 +98,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         SentryDatabase.dbSqlExecuteOp,
         description: sql,
       );
-      span?.setData(SentryDatabase.dbSystemKey, SentryDatabase.dbSystem);
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
