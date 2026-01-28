@@ -26,7 +26,7 @@ class LegacyInstrumentationSpan implements InstrumentationSpan {
   LegacyInstrumentationSpan(this._span);
 
   @internal
-  ISentrySpan get underlyingSpan => _span;
+  ISentrySpan get spanReference => _span;
 
   @override
   void setData(String key, dynamic value) => _span.setData(key, value);

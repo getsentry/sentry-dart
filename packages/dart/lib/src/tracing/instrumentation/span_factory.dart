@@ -33,7 +33,7 @@ class LegacyInstrumentationSpanFactory implements InstrumentationSpanFactory {
     if (parent == null) return null;
 
     if (parent is LegacyInstrumentationSpan) {
-      final child = parent.underlyingSpan.startChild(
+      final child = parent.spanReference.startChild(
         operation,
         description: description,
         startTimestamp: startTimestamp,
