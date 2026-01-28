@@ -13,33 +13,6 @@ import 'span_factory.dart';
 /// This class extends the functionality of [SentryInstrumentation] by maintaining
 /// a stack of transaction spans, enabling proper parent-child relationships for
 /// nested database transactions (e.g., Drift).
-///
-/// When operations are wrapped, the parent span is determined by:
-/// 1. The last transaction on the stack (if any)
-/// 2. Otherwise, the current span from the hub's scope
-///
-/// Example usage:
-/// ```dart
-/// final instrumentation = TransactionInstrumentation(hub, 'auto.db.drift', 'sentry_drift');
-///
-/// // Begin a transaction - pushes to stack
-/// instrumentation.beginTransaction(
-///   operation: 'db.sql.transaction',
-///   description: 'Transaction',
-///   data: {'db.system': 'sqlite'},
-///   execute: () => executor.beginTransaction(),
-/// );
-///
-/// // Operations inside transaction use the transaction span as parent
-/// await instrumentation.asyncWrapInSpan(
-///   operation: 'db.sql.query',
-///   description: 'SELECT * FROM users',
-///   execute: () => executor.runSelect(...),
-/// );
-///
-/// // Finish transaction - pops from stack
-/// await instrumentation.finishTransaction(execute: () => executor.send());
-/// ```
 @internal
 class TransactionInstrumentation {
   final Hub _hub;
@@ -126,10 +99,6 @@ class TransactionInstrumentation {
   ///
   /// The transaction span becomes the parent for subsequent operations
   /// until [finishTransaction] or [abortTransaction] is called.
-  ///
-  /// If no parent is available, logs a warning and executes without tracing.
-  /// On success, sets status to [SpanStatus.unknown] and pushes to stack.
-  /// On error, sets status to [SpanStatus.internalError] and does NOT push to stack.
   T beginTransaction<T>(
     T Function() execute, {
     required String operation,
@@ -175,10 +144,6 @@ class TransactionInstrumentation {
   }
 
   /// Finishes the current transaction span and pops it from the stack.
-  ///
-  /// On success, sets status to [SpanStatus.ok].
-  /// On error, sets status to [SpanStatus.internalError].
-  /// The span is always finished and popped from the stack.
   Future<T> finishTransaction<T>(Future<T> Function() execute) async {
     final parentSpan = _transactionStack.lastOrNull;
     if (parentSpan == null) {
@@ -205,10 +170,6 @@ class TransactionInstrumentation {
   }
 
   /// Aborts the current transaction span and pops it from the stack.
-  ///
-  /// On success, sets status to [SpanStatus.aborted].
-  /// On error, sets status to [SpanStatus.internalError].
-  /// The span is always finished and popped from the stack.
   Future<T> abortTransaction<T>(Future<T> Function() execute) async {
     final parentSpan = _transactionStack.lastOrNull;
     if (parentSpan == null) {
