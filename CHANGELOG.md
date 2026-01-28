@@ -1,5 +1,15 @@
 # Changelog
 
+## 9.11.0
+
+### Internal Changes 🔧
+
+- (testflight) Update to Xcode 26.2 by @buenaflor in [#3479](https://github.com/getsentry/sentry-dart/pull/3479)
+
+### Other
+
+- Update by @buenaflor in [37316e2c](https://github.com/getsentry/sentry-dart/commit/37316e2c376ee999ab73a8d3b31095bf96376c6e)
+
 ## 9.11.0-beta.1
 
 ### Features
