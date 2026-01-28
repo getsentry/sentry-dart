@@ -7,7 +7,6 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import 'utils/constants.dart' as drift_constants;
-import 'utils/internal_logger.dart';
 import 'version.dart';
 
 /// A Sentry query interceptor that wraps database operations in performance monitoring spans.
