@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
 
-import '../../hint.dart';
 import '../../protocol.dart';
 import '../../sentry_span_interface.dart';
 
