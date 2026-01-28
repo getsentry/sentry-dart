@@ -269,9 +269,9 @@ void main() {
 
         await expectLater(
           () => sut.commitTransaction(
-                execute: () async => throw exception,
-                loggerName: 'test',
-              ),
+            execute: () async => throw exception,
+            loggerName: 'test',
+          ),
           throwsA(exception),
         );
 
@@ -384,9 +384,9 @@ void main() {
 
         await expectLater(
           () => sut.rollbackTransaction(
-                execute: () async => throw exception,
-                loggerName: 'test',
-              ),
+            execute: () async => throw exception,
+            loggerName: 'test',
+          ),
           throwsA(exception),
         );
 
