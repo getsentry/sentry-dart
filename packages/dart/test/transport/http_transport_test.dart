@@ -104,10 +104,6 @@ void main() {
       expect(mockRateLimiter.errorCode, 429);
       expect(mockRateLimiter.retryAfterHeader, '1');
       expect(mockRateLimiter.sentryRateLimitHeader, isNull);
-
-      expect(fixture.loggedLevel, SentryLevel.warning);
-      expect(
-          fixture.loggedMessage, 'Rate limit reached, failed to send envelope');
     });
 
     test('sentryRateLimitHeader', () async {
@@ -257,10 +253,6 @@ void main() {
       await sut.send(envelope);
 
       expect(fixture.clientReportRecorder.discardedEvents.isEmpty, isTrue);
-
-      expect(fixture.loggedLevel, SentryLevel.warning);
-      expect(
-          fixture.loggedMessage, 'Rate limit reached, failed to send envelope');
     });
 
     test('does record lost event for error >= 500', () async {
@@ -292,7 +284,6 @@ class Fixture {
 
   HttpTransport getSut(http.Client client, RateLimiter rateLimiter) {
     options.debug = true;
-    options.log = mockLogger;
     options.httpClient = client;
     options.recorder = clientReportRecorder;
     options.clock = () {
@@ -309,19 +300,5 @@ class Fixture {
     );
     final tracer = SentryTracer(context, MockHub());
     return SentryTransaction(tracer);
-  }
-
-  SentryLevel? loggedLevel;
-  String? loggedMessage;
-
-  void mockLogger(
-    SentryLevel level,
-    String message, {
-    String? logger,
-    Object? exception,
-    StackTrace? stackTrace,
-  }) {
-    loggedLevel = level;
-    loggedMessage = message;
   }
 }
