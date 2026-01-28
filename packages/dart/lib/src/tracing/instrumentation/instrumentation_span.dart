@@ -15,7 +15,7 @@ abstract class InstrumentationSpan {
   set throwable(dynamic throwable);
   String? get origin;
   set origin(String? origin);
-  Future<void> finish({SpanStatus? status, DateTime? endTimestamp, Hint? hint});
+  Future<void> finish({SpanStatus? status, DateTime? endTimestamp});
 }
 
 /// [InstrumentationSpan] implementation wrapping [ISentrySpan].
@@ -58,5 +58,5 @@ class LegacyInstrumentationSpan implements InstrumentationSpan {
     DateTime? endTimestamp,
     Hint? hint,
   }) =>
-      _span.finish(status: status, endTimestamp: endTimestamp, hint: hint);
+      _span.finish(status: status, endTimestamp: endTimestamp);
 }
