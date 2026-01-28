@@ -13,19 +13,29 @@ import 'utils/sentry_database_span_attributes.dart';
 // ignore: public_member_api_docs
 class SentryDatabaseExecutor implements DatabaseExecutor {
   final DatabaseExecutor _executor;
-  final ISentrySpan? _parentSpan;
+  // ignore: invalid_use_of_internal_member
+  final InstrumentationSpan? _parentSpan;
   final String? _dbName;
 
   // ignore: public_member_api_docs
   SentryDatabaseExecutor(
     this._executor, {
-    ISentrySpan? parentSpan,
+    // ignore: invalid_use_of_internal_member
+    InstrumentationSpan? parentSpan,
     @internal Hub? hub,
     @internal String? dbName,
   })  : _parentSpan = parentSpan,
         _hub = hub ?? HubAdapter(),
         _dbName = dbName;
   final Hub _hub;
+
+  // ignore: invalid_use_of_internal_member
+  InstrumentationSpanFactory get _spanFactory => _hub.options.spanFactory;
+
+  // ignore: invalid_use_of_internal_member
+  InstrumentationSpan? _getParent() {
+    return _parentSpan ?? _spanFactory.getCurrentSpan(_hub);
+  }
 
   @override
   Batch batch() => SentryBatch(_executor.batch(), hub: _hub, dbName: _dbName);
@@ -36,16 +46,17 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
   @override
   Future<int> delete(String table, {String? where, List<Object?>? whereArgs}) {
     return Future<int>(() async {
-      final currentSpan = _parentSpan ?? _hub.getSpan();
+      final parent = _getParent();
       final builder =
           SqlBuilder.delete(table, where: where, whereArgs: whereArgs);
-      final span = currentSpan?.startChild(
+      final span = _spanFactory.createChildSpan(
+        parent,
         SentryDatabase.dbSqlExecuteOp,
         description: builder.sql,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
+      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,
@@ -81,15 +92,16 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
   @override
   Future<void> execute(String sql, [List<Object?>? arguments]) {
     return Future<void>(() async {
-      final currentSpan = _parentSpan ?? _hub.getSpan();
-      final span = currentSpan?.startChild(
+      final parent = _getParent();
+      final span = _spanFactory.createChildSpan(
+        parent,
         SentryDatabase.dbSqlExecuteOp,
         description: sql,
       );
       span?.setData(SentryDatabase.dbSystemKey, SentryDatabase.dbSystem);
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
+      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -127,20 +139,21 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     ConflictAlgorithm? conflictAlgorithm,
   }) {
     return Future<int>(() async {
-      final currentSpan = _parentSpan ?? _hub.getSpan();
+      final parent = _getParent();
       final builder = SqlBuilder.insert(
         table,
         values,
         nullColumnHack: nullColumnHack,
         conflictAlgorithm: conflictAlgorithm,
       );
-      final span = currentSpan?.startChild(
+      final span = _spanFactory.createChildSpan(
+        parent,
         SentryDatabase.dbSqlExecuteOp,
         description: builder.sql,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
+      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,
@@ -191,7 +204,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     int? offset,
   }) {
     return Future<List<Map<String, Object?>>>(() async {
-      final currentSpan = _parentSpan ?? _hub.getSpan();
+      final parent = _getParent();
       final builder = SqlBuilder.query(
         table,
         distinct: distinct,
@@ -204,13 +217,14 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         offset: offset,
         whereArgs: whereArgs,
       );
-      final span = currentSpan?.startChild(
+      final span = _spanFactory.createChildSpan(
+        parent,
         SentryDatabase.dbSqlQueryOp,
         description: builder.sql,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
+      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,
@@ -268,7 +282,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     int? bufferSize,
   }) {
     return Future<QueryCursor>(() async {
-      final currentSpan = _parentSpan ?? _hub.getSpan();
+      final parent = _getParent();
       final builder = SqlBuilder.query(
         table,
         distinct: distinct,
@@ -281,13 +295,14 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         offset: offset,
         whereArgs: whereArgs,
       );
-      final span = currentSpan?.startChild(
+      final span = _spanFactory.createChildSpan(
+        parent,
         SentryDatabase.dbSqlQueryOp,
         description: builder.sql,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
+      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,
@@ -334,14 +349,15 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
   @override
   Future<int> rawDelete(String sql, [List<Object?>? arguments]) {
     return Future<int>(() async {
-      final currentSpan = _parentSpan ?? _hub.getSpan();
-      final span = currentSpan?.startChild(
+      final parent = _getParent();
+      final span = _spanFactory.createChildSpan(
+        parent,
         SentryDatabase.dbSqlExecuteOp,
         description: sql,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
+      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -376,14 +392,15 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
   @override
   Future<int> rawInsert(String sql, [List<Object?>? arguments]) {
     return Future<int>(() async {
-      final currentSpan = _parentSpan ?? _hub.getSpan();
-      final span = currentSpan?.startChild(
+      final parent = _getParent();
+      final span = _spanFactory.createChildSpan(
+        parent,
         SentryDatabase.dbSqlExecuteOp,
         description: sql,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
+      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -421,14 +438,15 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     List<Object?>? arguments,
   ]) {
     return Future<List<Map<String, Object?>>>(() async {
-      final currentSpan = _parentSpan ?? _hub.getSpan();
-      final span = currentSpan?.startChild(
+      final parent = _getParent();
+      final span = _spanFactory.createChildSpan(
+        parent,
         SentryDatabase.dbSqlQueryOp,
         description: sql,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
+      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -467,14 +485,15 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     int? bufferSize,
   }) {
     return Future<QueryCursor>(() async {
-      final currentSpan = _parentSpan ?? _hub.getSpan();
-      final span = currentSpan?.startChild(
+      final parent = _getParent();
+      final span = _spanFactory.createChildSpan(
+        parent,
         SentryDatabase.dbSqlQueryOp,
         description: sql,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
+      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -513,14 +532,15 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
   @override
   Future<int> rawUpdate(String sql, [List<Object?>? arguments]) {
     return Future<int>(() async {
-      final currentSpan = _parentSpan ?? _hub.getSpan();
-      final span = currentSpan?.startChild(
+      final parent = _getParent();
+      final span = _spanFactory.createChildSpan(
+        parent,
         SentryDatabase.dbSqlExecuteOp,
         description: sql,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
+      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -561,7 +581,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     ConflictAlgorithm? conflictAlgorithm,
   }) {
     return Future<int>(() async {
-      final currentSpan = _parentSpan ?? _hub.getSpan();
+      final parent = _getParent();
       final builder = SqlBuilder.update(
         table,
         values,
@@ -569,13 +589,14 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         whereArgs: whereArgs,
         conflictAlgorithm: conflictAlgorithm,
       );
-      final span = currentSpan?.startChild(
+      final span = _spanFactory.createChildSpan(
+        parent,
         SentryDatabase.dbSqlExecuteOp,
         description: builder.sql,
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
+      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,

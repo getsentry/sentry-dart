@@ -12,6 +12,7 @@ import 'noop_client.dart';
 import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
+import 'tracing/instrumentation/span_factory.dart';
 import 'telemetry/log/noop_logger.dart';
 import 'telemetry/metric/noop_metrics.dart';
 import 'telemetry/processing/processor.dart';
@@ -653,6 +654,15 @@ class SentryOptions {
   @internal
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
+
+  /// Factory for creating instrumentation spans.
+  ///
+  /// This can be replaced to use different span implementations
+  /// (e.g., SentrySpanV2 in the future).
+  ///
+  /// Defaults to [LegacyInstrumentationSpanFactory] which uses the legacy [ISentrySpan] API.
+  @internal
+  InstrumentationSpanFactory spanFactory = LegacyInstrumentationSpanFactory();
 
   @visibleForTesting
   void debugLog(

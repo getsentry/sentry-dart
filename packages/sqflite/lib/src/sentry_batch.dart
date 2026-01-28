@@ -27,6 +27,9 @@ class SentryBatch implements Batch {
   // we don't clear the buffer because SqfliteBatch don't either
   final _buffer = StringBuffer();
 
+  // ignore: invalid_use_of_internal_member
+  InstrumentationSpanFactory get _spanFactory => _hub.options.spanFactory;
+
   /// ```dart
   /// import 'package:sqflite/sqflite.dart';
   /// import 'package:sentry_sqflite/sentry_sqflite.dart';
@@ -45,16 +48,17 @@ class SentryBatch implements Batch {
   @override
   Future<List<Object?>> apply({bool? noResult, bool? continueOnError}) {
     return Future<List<Object?>>(() async {
-      final currentSpan = _hub.getSpan();
+      final parent = _spanFactory.getCurrentSpan(_hub);
 
-      final span = currentSpan?.startChild(
+      final span = _spanFactory.createChildSpan(
+        parent,
         SentryDatabase.dbOp,
         description: _buffer.toString().trim(),
       );
 
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
-      setDatabaseAttributeData(span, _dbName);
+      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: _buffer.toString().trim(),
@@ -98,15 +102,16 @@ class SentryBatch implements Batch {
     bool? continueOnError,
   }) {
     return Future<List<Object?>>(() async {
-      final currentSpan = _hub.getSpan();
+      final parent = _spanFactory.getCurrentSpan(_hub);
 
-      final span = currentSpan?.startChild(
+      final span = _spanFactory.createChildSpan(
+        parent,
         SentryDatabase.dbOp,
         description: _buffer.toString().trim(),
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
-      setDatabaseAttributeData(span, _dbName);
+      setDatabaseAttributeDataOnInstrumentationSpan(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: _buffer.toString().trim(),
