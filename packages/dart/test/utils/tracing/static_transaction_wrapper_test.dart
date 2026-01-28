@@ -27,6 +27,7 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () => 'result',
+          loggerName: 'test',
         );
 
         expect(sut.transactionStackSize, 1);
@@ -48,6 +49,7 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () => 'result',
+          loggerName: 'test',
         );
 
         expect(sut.currentSpan, isNotNull);
@@ -64,6 +66,7 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () => 'result',
+          loggerName: 'test',
         );
 
         expect(result, 'result');
@@ -83,6 +86,7 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () => 'result',
+          loggerName: 'test',
           origin: 'auto.db.test',
         );
 
@@ -98,6 +102,7 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () => 'result',
+          loggerName: 'test',
           attributes: {'db.system': 'sqlite', 'db.name': 'test.db'},
         );
 
@@ -114,6 +119,7 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () => 'result',
+          loggerName: 'test',
         );
 
         expect(sut.transactionStackSize, 1);
@@ -131,6 +137,7 @@ void main() {
             operation: 'db.sql.transaction',
             description: 'BEGIN',
             execute: () => throw exception,
+            loggerName: 'test',
           ),
           throwsA(exception),
         );
@@ -153,6 +160,7 @@ void main() {
             executed = true;
             return 'result';
           },
+          loggerName: 'test',
         );
 
         expect(result, 'result');
@@ -169,6 +177,7 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN outer',
           execute: () => 'outer',
+          loggerName: 'test',
         );
 
         final outerSpan = sut.currentSpan;
@@ -178,6 +187,7 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN inner',
           execute: () => 'inner',
+          loggerName: 'test',
         );
 
         final innerSpan = sut.currentSpan as SentrySpan;
@@ -198,11 +208,11 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () => 'result',
+          loggerName: 'test',
         );
 
-        final result = await sut.commitTransaction(() async {});
+        await sut.commitTransaction(execute: () async {}, loggerName: 'test');
 
-        expect(result, true);
         expect(sut.transactionStackSize, 0);
         final children = fixture.tracer.children;
         expect(children.first.status, SpanStatus.ok());
@@ -218,21 +228,31 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () => 'result',
+          loggerName: 'test',
         );
 
-        await sut.commitTransaction(() async {
-          commitExecuted = true;
-        });
+        await sut.commitTransaction(
+          execute: () async {
+            commitExecuted = true;
+          },
+          loggerName: 'test',
+        );
 
         expect(commitExecuted, true);
       });
 
-      test('returns false when no transaction is active', () async {
+      test('executes function even when no transaction is active', () async {
         final sut = fixture.getSut();
+        var executed = false;
 
-        final result = await sut.commitTransaction(() async {});
+        await sut.commitTransaction(
+          execute: () async {
+            executed = true;
+          },
+          loggerName: 'test',
+        );
 
-        expect(result, false);
+        expect(executed, true);
       });
 
       test('sets error status and rethrows on exception', () async {
@@ -244,10 +264,14 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () => 'result',
+          loggerName: 'test',
         );
 
         await expectLater(
-          () => sut.commitTransaction(() async => throw exception),
+          () => sut.commitTransaction(
+                execute: () async => throw exception,
+                loggerName: 'test',
+              ),
           throwsA(exception),
         );
 
@@ -267,6 +291,7 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN outer',
           execute: () => 'outer',
+          loggerName: 'test',
         );
 
         // Begin inner transaction
@@ -274,16 +299,17 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN inner',
           execute: () => 'inner',
+          loggerName: 'test',
         );
 
         expect(sut.transactionStackSize, 2);
 
         // Commit inner first
-        await sut.commitTransaction(() async {});
+        await sut.commitTransaction(execute: () async {}, loggerName: 'test');
         expect(sut.transactionStackSize, 1);
 
         // Commit outer
-        await sut.commitTransaction(() async {});
+        await sut.commitTransaction(execute: () async {}, loggerName: 'test');
         expect(sut.transactionStackSize, 0);
       });
     });
@@ -297,11 +323,11 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () => 'result',
+          loggerName: 'test',
         );
 
-        final result = await sut.rollbackTransaction(() async {});
+        await sut.rollbackTransaction(execute: () async {}, loggerName: 'test');
 
-        expect(result, true);
         expect(sut.transactionStackSize, 0);
         final children = fixture.tracer.children;
         expect(children.first.status, SpanStatus.aborted());
@@ -317,21 +343,31 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () => 'result',
+          loggerName: 'test',
         );
 
-        await sut.rollbackTransaction(() async {
-          rollbackExecuted = true;
-        });
+        await sut.rollbackTransaction(
+          execute: () async {
+            rollbackExecuted = true;
+          },
+          loggerName: 'test',
+        );
 
         expect(rollbackExecuted, true);
       });
 
-      test('returns false when no transaction is active', () async {
+      test('executes function even when no transaction is active', () async {
         final sut = fixture.getSut();
+        var executed = false;
 
-        final result = await sut.rollbackTransaction(() async {});
+        await sut.rollbackTransaction(
+          execute: () async {
+            executed = true;
+          },
+          loggerName: 'test',
+        );
 
-        expect(result, false);
+        expect(executed, true);
       });
 
       test('sets error status and rethrows on exception', () async {
@@ -343,10 +379,14 @@ void main() {
           operation: 'db.sql.transaction',
           description: 'BEGIN',
           execute: () => 'result',
+          loggerName: 'test',
         );
 
         await expectLater(
-          () => sut.rollbackTransaction(() async => throw exception),
+          () => sut.rollbackTransaction(
+                execute: () async => throw exception,
+                loggerName: 'test',
+              ),
           throwsA(exception),
         );
 

@@ -22,6 +22,7 @@ void main() {
           operation: 'db.query',
           description: 'SELECT * FROM users',
           execute: () async => 'result',
+          loggerName: 'test',
         );
 
         expect(result, 'result');
@@ -41,6 +42,7 @@ void main() {
           operation: 'db.query',
           description: 'SELECT * FROM users',
           execute: () async => 'result',
+          loggerName: 'test',
           origin: 'auto.db.test',
         );
 
@@ -56,6 +58,7 @@ void main() {
           operation: 'db.query',
           description: 'SELECT * FROM users',
           execute: () async => 'result',
+          loggerName: 'test',
           attributes: {'db.system': 'sqlite', 'db.name': 'test.db'},
         );
 
@@ -72,6 +75,7 @@ void main() {
           operation: 'db.query',
           description: 'SELECT * FROM users',
           execute: () async => 0, // 0 rows affected
+          loggerName: 'test',
           deriveStatus: (result) =>
               result > 0 ? SpanStatus.ok() : SpanStatus.notFound(),
         );
@@ -90,6 +94,7 @@ void main() {
             operation: 'db.query',
             description: 'SELECT * FROM users',
             execute: () async => throw exception,
+            loggerName: 'test',
           ),
           throwsA(exception),
         );
@@ -111,6 +116,7 @@ void main() {
             executed = true;
             return 'result';
           },
+          loggerName: 'test',
         );
 
         expect(result, 'result');
@@ -127,6 +133,7 @@ void main() {
           operation: 'db.query',
           description: 'SELECT * FROM users',
           execute: () async => 'result',
+          loggerName: 'test',
         );
 
         expect(fixture.hub.getSpanCalls, 1);
@@ -143,6 +150,7 @@ void main() {
           operation: 'db.query',
           description: 'SELECT * FROM users',
           execute: () => 'result',
+          loggerName: 'test',
         );
 
         expect(result, 'result');
@@ -162,6 +170,7 @@ void main() {
           operation: 'db.query',
           description: 'SELECT * FROM users',
           execute: () => 'result',
+          loggerName: 'test',
           origin: 'auto.db.test',
         );
 
@@ -177,6 +186,7 @@ void main() {
           operation: 'db.query',
           description: 'SELECT * FROM users',
           execute: () => 'result',
+          loggerName: 'test',
           attributes: {'db.system': 'sqlite', 'db.name': 'test.db'},
         );
 
@@ -193,6 +203,7 @@ void main() {
           operation: 'db.query',
           description: 'SELECT * FROM users',
           execute: () => 0, // 0 rows affected
+          loggerName: 'test',
           deriveStatus: (result) =>
               result > 0 ? SpanStatus.ok() : SpanStatus.notFound(),
         );
@@ -211,6 +222,7 @@ void main() {
             operation: 'db.query',
             description: 'SELECT * FROM users',
             execute: () => throw exception,
+            loggerName: 'test',
           ),
           throwsA(exception),
         );
@@ -232,6 +244,7 @@ void main() {
             executed = true;
             return 'result';
           },
+          loggerName: 'test',
         );
 
         expect(result, 'result');
@@ -248,6 +261,7 @@ void main() {
           operation: 'db.query',
           description: 'SELECT * FROM users',
           execute: () => 'result',
+          loggerName: 'test',
         );
 
         expect(fixture.hub.getSpanCalls, 1);

@@ -21,9 +21,13 @@ abstract class TransactionWrapper {
     Map<String, Object>? attributes,
   });
 
-  Future<void> commitTransaction(
-      Future<void> Function() execute, String loggerName);
+  Future<void> commitTransaction({
+    required Future<void> Function() execute,
+    required String loggerName,
+  });
 
-  Future<void> rollbackTransaction(
-      Future<void> Function() execute, String loggerName);
+  Future<void> rollbackTransaction({
+    required Future<void> Function() execute,
+    required String loggerName,
+  });
 }

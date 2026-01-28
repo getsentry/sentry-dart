@@ -57,8 +57,10 @@ class StaticTransactionWrapper implements TransactionWrapper {
   }
 
   @override
-  Future<void> commitTransaction(
-      Future<void> Function() execute, String loggerName) async {
+  Future<void> commitTransaction({
+    required Future<void> Function() execute,
+    required String loggerName,
+  }) async {
     final span = _transactionStack.lastOrNull;
     if (span == null) {
       internalLogger.warning(
@@ -81,8 +83,10 @@ class StaticTransactionWrapper implements TransactionWrapper {
   }
 
   @override
-  Future<void> rollbackTransaction(
-      Future<void> Function() execute, String loggerName) async {
+  Future<void> rollbackTransaction({
+    required Future<void> Function() execute,
+    required String loggerName,
+  }) async {
     final span = _transactionStack.lastOrNull;
     if (span == null) {
       internalLogger.warning(
