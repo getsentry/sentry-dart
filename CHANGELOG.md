@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Catch client exceptions in HttpTransport.send ([#3490](https://github.com/getsentry/sentry-dart/pull/3490))
+
 ## 9.11.0-beta.1
 
 ### Features
