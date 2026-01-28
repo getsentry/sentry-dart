@@ -26,11 +26,15 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     @internal String? dbName,
   })  : _parentSpan = parentSpan,
         _hub = hub ?? HubAdapter(),
-        _dbName = dbName;
+        _dbName = dbName {
+    // ignore: invalid_use_of_internal_member
+    _spanFactory = _hub.options.spanFactory;
+  }
+
   final Hub _hub;
 
   // ignore: invalid_use_of_internal_member
-  InstrumentationSpanFactory get _spanFactory => _hub.options.spanFactory;
+  late final InstrumentationSpanFactory _spanFactory;
 
   // ignore: invalid_use_of_internal_member
   InstrumentationSpan? _getParent() {

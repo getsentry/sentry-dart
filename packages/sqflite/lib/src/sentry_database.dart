@@ -52,7 +52,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   String dbName;
 
   // ignore: invalid_use_of_internal_member
-  InstrumentationSpanFactory get _spanFactory => _hub.options.spanFactory;
+  late final InstrumentationSpanFactory _spanFactory;
 
   /// ```dart
   /// import 'package:sqflite/sqflite.dart';
@@ -73,6 +73,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         ) {
     // ignore: invalid_use_of_internal_member
     final options = _hub.options;
+    _spanFactory = options.spanFactory;
     options.sdk.addIntegration('SentrySqfliteTracing');
     options.sdk.addPackage(packageName, sdkVersion);
   }

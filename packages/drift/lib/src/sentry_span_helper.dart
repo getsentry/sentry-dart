@@ -27,10 +27,16 @@ class SentrySpanHelper {
   }
 
   /// Gets the parent span for operations.
-  /// Returns the last transaction on the stack, or falls back to the current
-  /// span from the hub's scope if the stack is empty.
+  /// Returns the last transaction on the stack (even if null), or falls back
+  /// to the current span from the hub's scope only if the stack is empty.
   InstrumentationSpan? _getParent() {
-    return _transactionStack.lastOrNull ?? _factory.getCurrentSpan(_hub);
+    if (_transactionStack.isNotEmpty) {
+      // Return the actual value, even if null (span creation failed).
+      // This maintains nesting invariants - operations inside a failed-span
+      // transaction should not attach to an unrelated parent.
+      return _transactionStack.last;
+    }
+    return _factory.getCurrentSpan(_hub);
   }
 
   Future<T> asyncWrapInSpan<T>(
