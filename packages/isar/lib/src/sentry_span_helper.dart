@@ -46,6 +46,7 @@ class SentrySpanHelper {
     final breadcrumb = Breadcrumb(
       message: description,
       data: {
+        SentryIsar.dbSystemKey: SentryIsar.dbSystem,
         if (dbName != null) SentryIsar.dbNameKey: dbName,
         if (collectionName != null) SentryIsar.dbCollectionKey: collectionName,
       },
@@ -97,6 +98,7 @@ class SentrySpanHelper {
     final breadcrumb = Breadcrumb(
       message: description,
       data: {
+        SentryIsar.dbSystemKey: SentryIsar.dbSystem,
         if (dbName != null) SentryIsar.dbNameKey: dbName,
         if (collectionName != null) SentryIsar.dbCollectionKey: collectionName,
       },
