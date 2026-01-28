@@ -3,7 +3,7 @@
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
 
-import 'constants.dart';
+import 'internal_logger.dart';
 import 'sentry_supabase_request.dart';
 
 class SentrySupabaseTracingClient extends BaseClient {
@@ -62,10 +62,8 @@ class SentrySupabaseTracingClient extends BaseClient {
   InstrumentationSpan? _createSpan(SentrySupabaseRequest supabaseRequest) {
     final parentSpan = _spanFactory.getSpan(_hub);
     if (parentSpan == null) {
-      _hub.options.log(
-        SentryLevel.warning,
-        'Active Sentry transaction does not exist, could not start span for the Supabase operation: from(${supabaseRequest.table})',
-        logger: loggerName,
+      internalLogger.warning(
+        'No active span found. Skipping tracing for Supabase operation: from(${supabaseRequest.table})',
       );
       return null;
     }
