@@ -73,6 +73,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         ) {
     // ignore: invalid_use_of_internal_member
     final options = _hub.options;
+    // ignore: invalid_use_of_internal_member
     _spanFactory = options.spanFactory;
     options.sdk.addIntegration('SentrySqfliteTracing');
     options.sdk.addPackage(packageName, sdkVersion);
