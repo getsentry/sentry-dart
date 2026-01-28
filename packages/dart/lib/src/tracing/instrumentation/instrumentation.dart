@@ -8,7 +8,6 @@
 library;
 
 export 'instrumentation_span.dart';
-export 'sentry_http_instrumentation.dart';
 export 'sentry_instrumentation.dart';
 export 'span_factory.dart';
 export 'transaction_instrumentation.dart';
