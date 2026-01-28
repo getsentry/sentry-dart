@@ -67,23 +67,6 @@ void main() {
         expect(children.first.data['db.name'], 'test.db');
       });
 
-      test('uses deriveStatus when provided', () async {
-        final sut = fixture.getSut();
-        fixture.setParentSpan();
-
-        await sut.wrapAsync<int>(
-          operation: 'db.query',
-          description: 'SELECT * FROM users',
-          execute: () async => 0, // 0 rows affected
-          loggerName: 'test',
-          deriveStatus: (result) =>
-              result > 0 ? SpanStatus.ok() : SpanStatus.notFound(),
-        );
-
-        final children = fixture.tracer.children;
-        expect(children.first.status, SpanStatus.notFound());
-      });
-
       test('sets throwable and internalError status on exception', () async {
         final sut = fixture.getSut();
         fixture.setParentSpan();
@@ -193,23 +176,6 @@ void main() {
         final children = fixture.tracer.children;
         expect(children.first.data['db.system'], 'sqlite');
         expect(children.first.data['db.name'], 'test.db');
-      });
-
-      test('uses deriveStatus when provided', () {
-        final sut = fixture.getSut();
-        fixture.setParentSpan();
-
-        sut.wrapSync<int>(
-          operation: 'db.query',
-          description: 'SELECT * FROM users',
-          execute: () => 0, // 0 rows affected
-          loggerName: 'test',
-          deriveStatus: (result) =>
-              result > 0 ? SpanStatus.ok() : SpanStatus.notFound(),
-        );
-
-        final children = fixture.tracer.children;
-        expect(children.first.status, SpanStatus.notFound());
       });
 
       test('sets throwable and internalError status on exception', () {

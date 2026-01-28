@@ -17,7 +17,6 @@ abstract class SpanWrapper {
     required String loggerName,
     String? origin,
     Map<String, Object>? attributes,
-    SpanStatus Function(T result)? deriveStatus,
     Object? parentSpan,
   });
 
@@ -28,7 +27,6 @@ abstract class SpanWrapper {
     required String loggerName,
     String? origin,
     Map<String, Object>? attributes,
-    SpanStatus Function(T result)? deriveStatus,
     Object? parentSpan,
   });
 }

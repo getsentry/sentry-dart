@@ -26,7 +26,6 @@ class StaticSpanWrapper implements SpanWrapper {
     required String loggerName,
     String? origin,
     Map<String, Object>? attributes,
-    SpanStatus Function(T result)? deriveStatus,
     Object? parentSpan,
   }) async {
     final parent = _resolveParent(parentSpan);
@@ -43,7 +42,7 @@ class StaticSpanWrapper implements SpanWrapper {
 
     try {
       final result = await execute();
-      span.status = deriveStatus?.call(result) ?? SpanStatus.ok();
+      span.status = SpanStatus.ok();
       return result;
     } catch (exception) {
       span.throwable = exception;
@@ -62,7 +61,6 @@ class StaticSpanWrapper implements SpanWrapper {
     required String loggerName,
     String? origin,
     Map<String, Object>? attributes,
-    SpanStatus Function(T result)? deriveStatus,
     Object? parentSpan,
   }) {
     final parent = _resolveParent(parentSpan);
@@ -79,7 +77,7 @@ class StaticSpanWrapper implements SpanWrapper {
 
     try {
       final result = execute();
-      span.status = deriveStatus?.call(result) ?? SpanStatus.ok();
+      span.status = SpanStatus.ok();
       return result;
     } catch (exception) {
       span.throwable = exception;
