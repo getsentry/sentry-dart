@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:gql_exec/gql_exec.dart';
@@ -18,9 +20,12 @@ class SentryTracingLink extends Link {
     required this.shouldStartTransaction,
     required this.graphQlErrorsMarkTransactionAsFailed,
     Hub? hub,
-  }) : _hub = hub ?? HubAdapter();
+  }) : _hub = hub ?? HubAdapter() {
+    _spanFactory = _hub.options.spanFactory;
+  }
 
   final Hub _hub;
+  late final InstrumentationSpanFactory _spanFactory;
 
   /// If [shouldStartTransaction] is set to true, a [SentryTransaction]
   /// is automatically created for each GraphQL query/mutation.
@@ -44,7 +49,7 @@ class SentryTracingLink extends Link {
     final sentryOperation = operationType?.sentryOperation ?? 'unknown';
     final sentryType = operationType?.sentryType;
 
-    final transaction = _startSpan(
+    final span = _startSpan(
       'GraphQL: "${request.operation.operationName ?? 'unnamed'}" $sentryType',
       sentryOperation,
       shouldStartTransaction,
@@ -53,9 +58,9 @@ class SentryTracingLink extends Link {
       handleData: (data, sink) {
         final hasGraphQlError = data.errors?.isNotEmpty ?? false;
         if (graphQlErrorsMarkTransactionAsFailed && hasGraphQlError) {
-          transaction?.finish(status: const SpanStatus.unknownError());
+          unawaited(span?.finish(status: const SpanStatus.unknownError()));
         } else {
-          transaction?.finish(status: const SpanStatus.ok());
+          unawaited(span?.finish(status: const SpanStatus.ok()));
         }
 
         sink.add(data);
@@ -67,24 +72,27 @@ class SentryTracingLink extends Link {
         // The correct `SpanStatus` can be set on
         // `HttpLinkResponseContext.statusCode` or
         // `DioLinkResponseContext.statusCode`
-        transaction?.throwable = error;
-        unawaited(transaction?.finish(status: const SpanStatus.unknownError()));
+        span?.throwable = error;
+        unawaited(span?.finish(status: const SpanStatus.unknownError()));
 
         sink.addError(error, stackTrace);
       },
     ));
   }
 
-  ISentrySpan? _startSpan(
-    String op,
+  InstrumentationSpan? _startSpan(
     String description,
+    String op,
     bool shouldStartTransaction,
   ) {
-    final span = _hub.getSpan();
-    if (span == null && shouldStartTransaction) {
-      return _hub.startTransaction(description, op, bindToScope: true);
-    } else if (span != null) {
-      return span.startChild(op, description: description);
+    final parentSpan = _spanFactory.getSpan(_hub);
+    if (parentSpan == null && shouldStartTransaction) {
+      // Start a new transaction - InstrumentationSpan doesn't support this
+      // so we use the legacy API and wrap it
+      final transaction = _hub.startTransaction(description, op, bindToScope: true);
+      return LegacyInstrumentationSpan(transaction);
+    } else if (parentSpan != null) {
+      return _spanFactory.createSpan(parentSpan, op, description: description);
     }
     return null;
   }
