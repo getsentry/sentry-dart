@@ -15,6 +15,7 @@ void setDatabaseAttributeData(ISentrySpan? span, String? dbName) {
 /// It contains the database system and the database name.
 // ignore: invalid_use_of_internal_member
 void setDatabaseAttributeDataOnInstrumentationSpan(
+  // ignore: invalid_use_of_internal_member
   InstrumentationSpan? span,
   String? dbName,
 ) {
