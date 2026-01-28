@@ -693,6 +693,30 @@ void main() {
         tx.children.last,
       );
     });
+
+    test('beginTransaction error finishes span to prevent leak', () async {
+      final exception = Exception('beginTransaction failed');
+      final queryExecutor = MockQueryExecutor();
+      when(queryExecutor.ensureOpen(any)).thenAnswer((_) => Future.value(true));
+      when(queryExecutor.beginTransaction()).thenThrow(exception);
+      when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
+
+      final sut = fixture.getSut();
+      final db = AppDatabase(queryExecutor.interceptWith(sut));
+
+      final tx = _startTransaction();
+      try {
+        await db.transaction(() async {
+          await _insertRow(db);
+        });
+      } catch (e) {
+        // expected
+      }
+
+      final transactionSpan = tx.children.last;
+      expect(transactionSpan.finished, isTrue);
+      expect(sut.spanHelper.transactionStack, isEmpty);
+    });
   });
 
   group('integrations', () {

@@ -5,7 +5,7 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
-import 'constants.dart';
+import 'internal_logger.dart';
 
 @internal
 class SentrySpanHelper {
@@ -41,10 +41,8 @@ class SentrySpanHelper {
   }) async {
     final parentSpan = _getParent();
     if (parentSpan == null) {
-      _hub.options.log(
-        SentryLevel.warning,
-        'Active Sentry transaction does not exist, could not start span for the Drift operation: $description',
-        logger: loggerName,
+      internalLogger.warning(
+        'No active span found. Skipping tracing for Drift operation: $description',
       );
       return execute();
     }
@@ -91,10 +89,8 @@ class SentrySpanHelper {
   }) {
     final parentSpan = _getParent();
     if (parentSpan == null) {
-      _hub.options.log(
-        SentryLevel.warning,
-        'Active Sentry transaction does not exist, could not start span for Drift operation: Begin Transaction',
-        logger: loggerName,
+      internalLogger.warning(
+        'No active span found. Skipping tracing for Drift beginTransaction.',
       );
       return execute();
     }
@@ -130,6 +126,7 @@ class SentrySpanHelper {
     } catch (exception) {
       newParent.throwable = exception;
       newParent.status = SpanStatus.internalError();
+      newParent.finish();
 
       rethrow;
     }
@@ -137,10 +134,8 @@ class SentrySpanHelper {
 
   Future<T> finishTransaction<T>(Future<T> Function() execute) async {
     if (_transactionStack.isEmpty) {
-      _hub.options.log(
-        SentryLevel.warning,
-        'Active Sentry transaction does not exist, could not finish span for Drift operation: Finish Transaction',
-        logger: loggerName,
+      internalLogger.warning(
+        'Transaction stack is empty. Skipping span finish for Drift commitTransaction.',
       );
       return execute();
     }
@@ -165,10 +160,8 @@ class SentrySpanHelper {
 
   Future<T> abortTransaction<T>(Future<T> Function() execute) async {
     if (_transactionStack.isEmpty) {
-      _hub.options.log(
-        SentryLevel.warning,
-        'Active Sentry transaction does not exist, could not finish span for Drift operation: Abort Transaction',
-        logger: loggerName,
+      internalLogger.warning(
+        'Transaction stack is empty. Skipping span finish for Drift rollbackTransaction.',
       );
       return execute();
     }
