@@ -239,12 +239,14 @@ class SentryFile implements File {
     this._file, {
     @internal Hub? hub,
   }) : _hub = hub ?? HubAdapter() {
+    _spanFactory = _hub.options.spanFactory;
     _hub.options.sdk.addIntegration('SentryFileTracing');
     _hub.options.sdk.addPackage(packageName, sdkVersion);
   }
 
   final File _file;
   final Hub _hub;
+  late final InstrumentationSpanFactory _spanFactory;
 
   @override
   Future<File> copy(String newPath) {
@@ -421,8 +423,12 @@ class SentryFile implements File {
   Future<T> _wrap<T>(Callback<T> callback, String operation) async {
     final desc = _getDesc();
 
-    final currentSpan = _hub.getSpan();
-    final span = currentSpan?.startChild(operation, description: desc);
+    final parentSpan = _spanFactory.getSpan(_hub);
+    final span = _spanFactory.createSpan(
+      parentSpan,
+      operation,
+      description: desc,
+    );
 
     span?.origin = SentryTraceOrigins.autoFile;
     span?.setData('file.async', true);
@@ -484,8 +490,12 @@ class SentryFile implements File {
   T _wrapSync<T>(Callback<T> callback, String operation) {
     final desc = _getDesc();
 
-    final currentSpan = _hub.getSpan();
-    final span = currentSpan?.startChild(operation, description: desc);
+    final parentSpan = _spanFactory.getSpan(_hub);
+    final span = _spanFactory.createSpan(
+      parentSpan,
+      operation,
+      description: desc,
+    );
 
     span?.origin = SentryTraceOrigins.autoFile;
     span?.setData('file.async', false);
@@ -533,7 +543,7 @@ class SentryFile implements File {
       span?.status = SpanStatus.internalError();
       rethrow;
     } finally {
-      span?.finish();
+      unawaited(span?.finish());
 
       _hub.addBreadcrumb(
         Breadcrumb(

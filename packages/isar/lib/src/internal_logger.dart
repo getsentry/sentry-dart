@@ -2,4 +2,4 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 @internal
-const internalLogger = SentryInternalLogger('sentry_drift');
+const internalLogger = SentryInternalLogger('sentry_isar');

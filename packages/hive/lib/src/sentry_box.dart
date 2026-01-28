@@ -11,14 +11,15 @@ class SentryBox<E> extends SentryBoxBase<E> implements Box<E> {
   final Box<E> _box;
   final Hub _hub;
 
-  final _spanHelper = SentrySpanHelper(
-    // ignore: invalid_use_of_internal_member
-    SentryTraceOrigins.autoDbHiveBoxBase,
-  );
+  late final SentrySpanHelper _spanHelper;
 
   /// @nodoc
   SentryBox(this._box, @internal this._hub) : super(_box, _hub) {
-    _spanHelper.setHub(_hub);
+    _spanHelper = SentrySpanHelper(
+      // ignore: invalid_use_of_internal_member
+      SentryTraceOrigins.autoDbHiveBoxBase,
+      hub: _hub,
+    );
   }
 
   @override
