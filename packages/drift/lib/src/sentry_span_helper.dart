@@ -17,26 +17,20 @@ class SentrySpanHelper {
   /// These are used to allow nested spans if the user nests Drift transactions.
   /// If the transaction stack is empty, the spans are attached to the
   /// active span in the Hub's scope.
-  final ListQueue<InstrumentationSpan?> _transactionStack = ListQueue();
+  final ListQueue<InstrumentationSpan> _transactionStack = ListQueue();
 
   @visibleForTesting
-  ListQueue<InstrumentationSpan?> get transactionStack => _transactionStack;
+  ListQueue<InstrumentationSpan> get transactionStack => _transactionStack;
 
   SentrySpanHelper(this._origin, {Hub? hub}) : _hub = hub ?? HubAdapter() {
     _factory = _hub.options.spanFactory;
   }
 
   /// Gets the parent span for operations.
-  /// Returns the last transaction on the stack (even if null), or falls back
-  /// to the current span from the hub's scope only if the stack is empty.
+  /// Returns the last transaction on the stack, or falls back to the current
+  /// span from the hub's scope if the stack is empty.
   InstrumentationSpan? _getParent() {
-    if (_transactionStack.isNotEmpty) {
-      // Return the actual value, even if null (span creation failed).
-      // This maintains nesting invariants - operations inside a failed-span
-      // transaction should not attach to an unrelated parent.
-      return _transactionStack.last;
-    }
-    return _factory.getCurrentSpan(_hub);
+    return _transactionStack.lastOrNull ?? _factory.getCurrentSpan(_hub);
   }
 
   Future<T> asyncWrapInSpan<T>(
@@ -111,9 +105,10 @@ class SentrySpanHelper {
       description: SentrySpanDescriptions.dbTransaction,
     );
 
-    // Always push to stack to maintain nesting invariants, even if null
+    // If span creation failed (e.g., hit span limit), just execute without
+    // affecting the stack. Operations inside can still attach to whatever
+    // active span exists via _getParent() fallback.
     if (newParent == null) {
-      _transactionStack.add(null);
       return execute();
     }
 
@@ -155,11 +150,6 @@ class SentrySpanHelper {
 
     final parentSpan = _transactionStack.removeLast();
 
-    // Span may be null if creation failed (e.g., limit reached)
-    if (parentSpan == null) {
-      return execute();
-    }
-
     try {
       final result = await execute();
       parentSpan.status = SpanStatus.ok();
@@ -186,11 +176,6 @@ class SentrySpanHelper {
     }
 
     final parentSpan = _transactionStack.removeLast();
-
-    // Span may be null if creation failed (e.g., limit reached)
-    if (parentSpan == null) {
-      return execute();
-    }
 
     try {
       final result = await execute();
