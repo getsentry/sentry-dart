@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
-import 'internal_logger.dart';
 import 'sentry_hive_impl.dart';
 
 /// @nodoc
@@ -28,27 +27,16 @@ class SentrySpanHelper {
     String? dbName,
   }) async {
     final parentSpan = _factory.getSpan(_hub);
-    if (parentSpan == null) {
-      internalLogger.warning(
-        'No active span found. Skipping tracing for Hive operation: $description',
-      );
-      return execute();
-    }
-
     final span = _factory.createSpan(
       parentSpan,
       SentryHiveImpl.dbOp,
       description: description,
     );
 
-    if (span == null) {
-      return execute();
-    }
-
-    span.origin = _origin;
-    span.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
+    span?.origin = _origin;
+    span?.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
     if (dbName != null) {
-      span.setData(SentryHiveImpl.dbNameKey, dbName);
+      span?.setData(SentryHiveImpl.dbNameKey, dbName);
     }
 
     final breadcrumb = Breadcrumb(
@@ -62,17 +50,17 @@ class SentrySpanHelper {
 
     try {
       final result = await execute();
-      span.status = SpanStatus.ok();
+      span?.status = SpanStatus.ok();
       breadcrumb.data?['status'] = 'ok';
       return result;
     } catch (exception) {
-      span.throwable = exception;
-      span.status = SpanStatus.internalError();
+      span?.throwable = exception;
+      span?.status = SpanStatus.internalError();
       breadcrumb.data?['status'] = 'internal_error';
       breadcrumb.level = SentryLevel.warning;
       rethrow;
     } finally {
-      await span.finish();
+      await span?.finish();
       await _hub.scope.addBreadcrumb(breadcrumb);
     }
   }
@@ -85,28 +73,17 @@ class SentrySpanHelper {
     String? dbName,
   }) {
     final parentSpan = _factory.getSpan(_hub);
-    if (parentSpan == null) {
-      internalLogger.warning(
-        'No active span found. Skipping tracing for Hive operation: $description',
-      );
-      return execute();
-    }
-
     final span = _factory.createSpan(
       parentSpan,
       SentryHiveImpl.dbOp,
       description: description,
     );
 
-    if (span == null) {
-      return execute();
-    }
-
-    span.origin = _origin;
-    span.setData('sync', true);
-    span.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
+    span?.origin = _origin;
+    span?.setData('sync', true);
+    span?.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
     if (dbName != null) {
-      span.setData(SentryHiveImpl.dbNameKey, dbName);
+      span?.setData(SentryHiveImpl.dbNameKey, dbName);
     }
 
     final breadcrumb = Breadcrumb(
@@ -120,17 +97,17 @@ class SentrySpanHelper {
 
     try {
       final result = execute();
-      span.status = SpanStatus.ok();
+      span?.status = SpanStatus.ok();
       breadcrumb.data?['status'] = 'ok';
       return result;
     } catch (exception) {
-      span.throwable = exception;
-      span.status = SpanStatus.internalError();
+      span?.throwable = exception;
+      span?.status = SpanStatus.internalError();
       breadcrumb.data?['status'] = 'internal_error';
       breadcrumb.level = SentryLevel.warning;
       rethrow;
     } finally {
-      unawaited(span.finish());
+      unawaited(span?.finish());
       _hub.scope.addBreadcrumb(breadcrumb);
     }
   }

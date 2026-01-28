@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
-import 'internal_logger.dart';
 import 'sentry_isar.dart';
 
 /// @nodoc
@@ -29,30 +28,19 @@ class SentrySpanHelper {
     String? collectionName,
   }) async {
     final parentSpan = _factory.getSpan(_hub);
-    if (parentSpan == null) {
-      internalLogger.warning(
-        'No active span found. Skipping tracing for Isar operation: $description',
-      );
-      return execute();
-    }
-
     final span = _factory.createSpan(
       parentSpan,
       SentryIsar.dbOp,
       description: description,
     );
 
-    if (span == null) {
-      return execute();
-    }
-
-    span.origin = _origin;
-    span.setData(SentryIsar.dbSystemKey, SentryIsar.dbSystem);
+    span?.origin = _origin;
+    span?.setData(SentryIsar.dbSystemKey, SentryIsar.dbSystem);
     if (dbName != null) {
-      span.setData(SentryIsar.dbNameKey, dbName);
+      span?.setData(SentryIsar.dbNameKey, dbName);
     }
     if (collectionName != null) {
-      span.setData(SentryIsar.dbCollectionKey, collectionName);
+      span?.setData(SentryIsar.dbCollectionKey, collectionName);
     }
 
     final breadcrumb = Breadcrumb(
@@ -66,17 +54,17 @@ class SentrySpanHelper {
 
     try {
       final result = await execute();
-      span.status = SpanStatus.ok();
+      span?.status = SpanStatus.ok();
       breadcrumb.data?['status'] = 'ok';
       return result;
     } catch (exception) {
-      span.throwable = exception;
-      span.status = SpanStatus.internalError();
+      span?.throwable = exception;
+      span?.status = SpanStatus.internalError();
       breadcrumb.data?['status'] = 'internal_error';
       breadcrumb.level = SentryLevel.warning;
       rethrow;
     } finally {
-      await span.finish();
+      await span?.finish();
       await _hub.scope.addBreadcrumb(breadcrumb);
     }
   }
@@ -90,31 +78,20 @@ class SentrySpanHelper {
     String? collectionName,
   }) {
     final parentSpan = _factory.getSpan(_hub);
-    if (parentSpan == null) {
-      internalLogger.warning(
-        'No active span found. Skipping tracing for Isar operation: $description',
-      );
-      return execute();
-    }
-
     final span = _factory.createSpan(
       parentSpan,
       SentryIsar.dbOp,
       description: description,
     );
 
-    if (span == null) {
-      return execute();
-    }
-
-    span.origin = _origin;
-    span.setData('sync', true);
-    span.setData(SentryIsar.dbSystemKey, SentryIsar.dbSystem);
+    span?.origin = _origin;
+    span?.setData('sync', true);
+    span?.setData(SentryIsar.dbSystemKey, SentryIsar.dbSystem);
     if (dbName != null) {
-      span.setData(SentryIsar.dbNameKey, dbName);
+      span?.setData(SentryIsar.dbNameKey, dbName);
     }
     if (collectionName != null) {
-      span.setData(SentryIsar.dbCollectionKey, collectionName);
+      span?.setData(SentryIsar.dbCollectionKey, collectionName);
     }
 
     final breadcrumb = Breadcrumb(
@@ -128,17 +105,17 @@ class SentrySpanHelper {
 
     try {
       final result = execute();
-      span.status = SpanStatus.ok();
+      span?.status = SpanStatus.ok();
       breadcrumb.data?['status'] = 'ok';
       return result;
     } catch (exception) {
-      span.throwable = exception;
-      span.status = SpanStatus.internalError();
+      span?.throwable = exception;
+      span?.status = SpanStatus.internalError();
       breadcrumb.data?['status'] = 'internal_error';
       breadcrumb.level = SentryLevel.warning;
       rethrow;
     } finally {
-      unawaited(span.finish());
+      unawaited(span?.finish());
       _hub.scope.addBreadcrumb(breadcrumb);
     }
   }
