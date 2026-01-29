@@ -24,7 +24,6 @@ This skill automates the release workflow with validation, monitoring, and relea
 ```
 
 Example: `/release 9.12.0 main main`
-Example (hotfix): `/release 9.12.1 release/9.12.x main`
 
 ## Workflow Steps
 
