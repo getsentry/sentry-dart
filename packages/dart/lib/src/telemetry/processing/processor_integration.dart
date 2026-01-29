@@ -2,7 +2,6 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
-import '../span/sentry_span_v2.dart';
 import 'in_memory_buffer.dart';
 import 'processor.dart';
 

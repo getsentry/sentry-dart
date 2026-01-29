@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
-import 'sentry_span_v2.dart';
 
 @immutable
 class SentrySpanSamplingContextV2 {

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 
 import 'no_such_method_provider.dart';
 

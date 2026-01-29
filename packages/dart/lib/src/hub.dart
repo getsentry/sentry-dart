@@ -10,7 +10,6 @@ import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 import 'telemetry/span/sentry_span_sampling_context.dart';
-import 'telemetry/span/sentry_span_v2.dart';
 import 'transport/data_category.dart';
 import 'utils/internal_logger.dart';
 

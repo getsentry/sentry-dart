@@ -2,7 +2,6 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'protocol/access_aware_map.dart';
-import 'telemetry/span/sentry_span_v2.dart';
 import 'utils/sample_rate_format.dart';
 
 class SentryTraceContextHeader {
