@@ -105,6 +105,18 @@ Future<void> setupSentry(
         return metric;
       };
 
+      // Example: Scrub sensitive data from spans before sending
+      options.beforeSendSpan = (span) {
+        final sensitiveAttributes = span.attributes.entries
+            .where((entry) =>
+                entry.value.value is String &&
+                entry.value.value.contains('secret'))
+            .toList();
+        for (final attribute in sensitiveAttributes) {
+          span.removeAttribute(attribute.key);
+        }
+      };
+
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
         options.dist = '1';

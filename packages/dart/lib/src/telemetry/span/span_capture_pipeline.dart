@@ -26,24 +26,48 @@ class SpanCapturePipeline {
       case NoOpSentrySpanV2():
         return;
       case RecordingSentrySpanV2 span:
-        if (scope != null) {
-          span.addAttributesIfAbsent(scope.attributes);
+        try {
+          if (scope != null) {
+            span.addAttributesIfAbsent(scope.attributes);
+          }
+
+          await _options.lifecycleRegistry
+              .dispatchCallback<OnProcessSpan>(OnProcessSpan(span));
+
+          span.addAttributesIfAbsent(defaultAttributes(_options, scope: scope));
+          span.addAttributesIfAbsent({
+            SemanticAttributesConstants.sentrySegmentName:
+                SentryAttribute.string(span.segmentSpan.name),
+            SemanticAttributesConstants.sentrySegmentId:
+                SentryAttribute.string(span.segmentSpan.spanId.toString()),
+          });
+
+          final beforeSendSpan = _options.beforeSendSpan;
+          if (beforeSendSpan != null) {
+            try {
+              await beforeSendSpan(span);
+            } catch (exception, stackTrace) {
+              internalLogger.error(
+                'The beforeSendSpan callback threw an exception',
+                error: exception,
+                stackTrace: stackTrace,
+              );
+              if (_options.automatedTestMode) {
+                rethrow;
+              }
+            }
+          }
+
+          _options.telemetryProcessor.addSpan(span);
+        } catch (error, stackTrace) {
+          internalLogger.error('Error while capturing span ${span.name}',
+              error: error, stackTrace: stackTrace);
+          if (_options.automatedTestMode) {
+            rethrow;
+          }
         }
-
-        await _options.lifecycleRegistry
-            .dispatchCallback<OnProcessSpan>(OnProcessSpan(span));
-
-        span.addAttributesIfAbsent(defaultAttributes(_options, scope: scope));
-        span.addAttributesIfAbsent({
-          SemanticAttributesConstants.sentrySegmentName:
-              SentryAttribute.string(span.segmentSpan.name),
-          SemanticAttributesConstants.sentrySegmentId:
-              SentryAttribute.string(span.segmentSpan.spanId.toString()),
-        });
-
-        _options.telemetryProcessor.addSpan(span);
     }
   }
 
-  // TODO(next-pr): client report, beforeSendSpan
+  // TODO(next-pr): client report
 }
