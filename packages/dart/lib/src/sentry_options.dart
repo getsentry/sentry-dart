@@ -212,10 +212,6 @@ class SentryOptions {
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
   BeforeBreadcrumbCallback? beforeBreadcrumb;
 
-  /// This function is called right before a metric is about to be emitted.
-  /// Can return true to emit the metric, or false to drop it.
-  BeforeMetricCallback? beforeMetricCallback;
-
   /// This function is called right before a log is about to be sent.
   /// Can return a modified log or null to drop the log.
   BeforeSendLogCallback? beforeSendLog;
@@ -725,13 +721,6 @@ typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
   Breadcrumb? breadcrumb,
   Hint hint,
 );
-
-/// This function is called right before a metric is about to be emitted.
-/// Can return true to emit the metric, or false to drop it.
-typedef BeforeMetricCallback = bool Function(
-  String key, {
-  Map<String, String>? tags,
-});
 
 /// This function is called right before a log is about to be sent.
 /// Can return a modified log or null to drop the log.
