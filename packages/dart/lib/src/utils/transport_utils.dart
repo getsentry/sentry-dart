@@ -21,7 +21,7 @@ class TransportUtils {
     }
   }
 
-  static void recordLostEvent(
+  static void recordLostEvents(
       SentryOptions options, SentryEnvelope envelope, DiscardReason reason) {
     for (final item in envelope.items) {
       options.recorder.recordLostEvent(

@@ -49,7 +49,7 @@ class HttpTransport implements Transport {
     } catch (error, stackTrace) {
       internalLogger.error('Failed to send envelope',
           error: error, stackTrace: stackTrace);
-      TransportUtils.recordLostEvent(
+      TransportUtils.recordLostEvents(
           _options, envelope, DiscardReason.networkError);
       if (_options.automatedTestMode) {
         rethrow;
@@ -65,7 +65,7 @@ class HttpTransport implements Transport {
       return _parseEventId(response);
     }
     if (response.statusCode >= 400 && response.statusCode != 429) {
-      TransportUtils.recordLostEvent(
+      TransportUtils.recordLostEvents(
           _options, envelope, DiscardReason.networkError);
     }
     if (response.statusCode == 429) {
