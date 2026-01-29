@@ -73,7 +73,7 @@ class SentryTraceContextHeader {
   SentryBaggage toBaggage({
     SdkLogCallback? log,
   }) {
-    final baggage = SentryBaggage({}, log: log);
+    final baggage = SentryBaggage({});
     baggage.setTraceId(traceId.toString());
     baggage.setPublicKey(publicKey);
 
