@@ -48,11 +48,13 @@ Follow these steps IN ORDER. Do not skip steps.
    - **PRERELEASE**: Has `-beta`, `-rc`, or `-alpha` suffix
    - **PROMOTION**: Releasing a stable version (e.g., `9.12.0`) when prerelease versions exist (e.g., `9.12.0-beta.1`)
 
+**Validation:** Version must increment by exactly 1 from the latest release (no skipping).
+
 ### Step 2: Analyze CHANGELOG for Semantic Version Validation
 
 1. Read the CHANGELOG.md file
 2. Find the "Unreleased" section or the topmost version section
-3. Identify which subsections exist:
+3. Identify which subsections exist including:
    - `### Features` - New functionality
    - `### Enhancements` - Improvements to existing features
    - `### Fixes` - Bug fixes
@@ -169,23 +171,30 @@ Follow these steps IN ORDER. Do not skip steps.
      ```
      Stop here.
 
-### Step 5: Switch to the Release Branch
+### Step 5: Create Worktree for Validation
+
+Use a git worktree to validate the release branch without switching the user's current branch.
 
 1. Fetch the release branch:
    ```bash
    git fetch origin release/<version>
    ```
 
-2. Checkout the branch:
+2. Create a temporary worktree:
    ```bash
-   git switch release/<version>
+   git worktree add /tmp/sentry-dart-release-<version> origin/release/<version>
    ```
 
-3. If switch fails, show error and stop
+3. If worktree creation fails, show error and stop
+
+4. Store the worktree path for use in subsequent steps:
+   ```
+   WORKTREE_PATH=/tmp/sentry-dart-release-<version>
+   ```
 
 ### Step 6: Run Release Validation
 
-Run each check and record results. Use this tracking format:
+Run each check in the worktree directory and record results. Use this tracking format:
 
 ```
 ## Release Validation Results
@@ -198,7 +207,7 @@ Run each check and record results. Use this tracking format:
 
 Check all 12 packages have the correct version:
 ```bash
-grep -r "^version: " packages/*/pubspec.yaml
+grep -r "^version: " /tmp/sentry-dart-release-<version>/packages/*/pubspec.yaml
 ```
 
 - PASS: All show `version: <version>`
@@ -208,7 +217,7 @@ grep -r "^version: " packages/*/pubspec.yaml
 
 Check all packages have correct sdkVersion:
 ```bash
-grep -r "sdkVersion = " packages/*/lib/src/version.dart
+grep -r "sdkVersion = " /tmp/sentry-dart-release-<version>/packages/*/lib/src/version.dart
 ```
 
 - PASS: All show `'<version>'`
@@ -218,7 +227,7 @@ grep -r "sdkVersion = " packages/*/lib/src/version.dart
 
 Check CHANGELOG.md has the version header:
 ```bash
-grep "^## <version>" CHANGELOG.md
+grep "^## <version>" /tmp/sentry-dart-release-<version>/CHANGELOG.md
 ```
 
 - PASS: Entry `## <version>` exists
@@ -228,11 +237,20 @@ grep "^## <version>" CHANGELOG.md
 
 Check the SDK versions table has the new version:
 ```bash
-head -20 docs/sdk-versions.md
+head -20 /tmp/sentry-dart-release-<version>/docs/sdk-versions.md
 ```
 
 - PASS: First data row contains `<version>`
 - FAIL: Version not in table or not in first row
+
+#### Cleanup: Remove Worktree
+
+After all validation checks are complete (regardless of pass/fail), clean up the worktree:
+```bash
+git worktree remove /tmp/sentry-dart-release-<version>
+```
+
+If removal fails, show a warning but continue (the user can clean it up manually later).
 
 ### Step 7: Find and Comment on Publish Issue
 
@@ -307,6 +325,8 @@ Issues found that need attention:
 - <list issues>
 ```
 
+Note: Your working directory remains on your original branch. The validation was performed in an isolated worktree.
+
 ## Error Handling
 
 - If any GitHub CLI command fails, show the error output and suggest next steps
@@ -320,3 +340,4 @@ Issues found that need attention:
 - Release blockers must be resolved before running this skill
 - For hotfix releases, use a different source branch (e.g., `release/9.12.x`) and appropriate merge target
 - When promoting prereleases to stable, ensure all prerelease changelog entries are consolidated
+- Validation runs in an isolated worktree at `/tmp/sentry-dart-release-<version>` - your working directory is never changed
