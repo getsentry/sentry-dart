@@ -62,7 +62,9 @@ void main() {
       RecordingSentrySpanV2? capturedSpan;
       final span = fixture.createSpan(
         name: 'test-span',
-        onSpanEnded: (s) async { capturedSpan = s; },
+        onSpanEnded: (s) async {
+          capturedSpan = s;
+        },
       );
 
       span.end();
@@ -74,7 +76,9 @@ void main() {
       var callCount = 0;
       final span = fixture.createSpan(
         name: 'test-span',
-        onSpanEnded: (_) async { callCount++; },
+        onSpanEnded: (_) async {
+          callCount++;
+        },
       );
       final firstEndTimestamp = DateTime.utc(2024, 1, 1);
       final secondEndTimestamp = DateTime.utc(2024, 1, 2);

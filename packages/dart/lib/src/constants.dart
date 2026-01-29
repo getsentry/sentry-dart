@@ -89,7 +89,6 @@ abstract class SemanticAttributesConstants {
   static const sentryInternalReplayIsBuffering =
       'sentry._internal.replay_is_buffering';
 
-
   /// The user ID (gated by `sendDefaultPii`).
   static const userId = 'user.id';
 

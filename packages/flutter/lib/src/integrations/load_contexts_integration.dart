@@ -128,7 +128,6 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
     _cachedAttributes = null;
   }
 
-
   Future<Map<String, SentryAttribute>> _nativeContextAttributes() async {
     if (_cachedAttributes != null) {
       return _cachedAttributes!;

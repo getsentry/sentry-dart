@@ -843,8 +843,7 @@ void main() {
             'fixture-os-version');
       });
 
-      test(
-          'does not register callback when traceLifecycle is not streaming',
+      test('does not register callback when traceLifecycle is not streaming',
           () async {
         fixture.options.traceLifecycle = SentryTraceLifecycle.static;
         await fixture.registerIntegration();
@@ -866,9 +865,12 @@ void main() {
             .dispatchCallback(OnProcessSpan(span));
 
         // Attributes should remain unchanged (empty or just what was set before)
-        expect(span.attributes[SemanticAttributesConstants.deviceBrand], isNull);
-        expect(span.attributes[SemanticAttributesConstants.deviceModel], isNull);
-        expect(span.attributes[SemanticAttributesConstants.deviceFamily], isNull);
+        expect(
+            span.attributes[SemanticAttributesConstants.deviceBrand], isNull);
+        expect(
+            span.attributes[SemanticAttributesConstants.deviceModel], isNull);
+        expect(
+            span.attributes[SemanticAttributesConstants.deviceFamily], isNull);
       });
     });
 
