@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Internals
+
+- Remove deprecated `beforeMetricCallback` from options ([#3484](https://github.com/getsentry/sentry-dart/pull/3450))
+
 ## 9.11.0-beta.1
 
 ### Features
