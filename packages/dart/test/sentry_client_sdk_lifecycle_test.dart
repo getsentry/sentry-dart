@@ -4,6 +4,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_client_report_recorder.dart';
+import 'mocks/mock_span.dart';
 import 'mocks/mock_telemetry_processor.dart';
 import 'mocks/mock_transport.dart';
 import 'sentry_client_test.dart';
