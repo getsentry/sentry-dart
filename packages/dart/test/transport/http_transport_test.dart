@@ -71,6 +71,68 @@ void main() {
 
       expect(result, SentryId.empty());
     });
+
+    test('records lost event when client throws exception', () async {
+      final httpMock = MockClient((http.Request request) async {
+        throw http.ClientException(
+            'Connection closed before full header was received');
+      });
+
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final sentryEvent = SentryEvent();
+      final envelope = SentryEnvelope.fromEvent(
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
+
+      await sut.send(envelope);
+
+      expect(fixture.clientReportRecorder.discardedEvents.length, 1);
+      expect(fixture.clientReportRecorder.discardedEvents.first.reason,
+          DiscardReason.networkError);
+      expect(fixture.clientReportRecorder.discardedEvents.first.category,
+          DataCategory.error);
+    });
+
+    test('records lost transaction and spans when client throws exception',
+        () async {
+      final httpMock = MockClient((http.Request request) async {
+        throw http.ClientException(
+            'Connection closed before full header was received');
+      });
+
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final transaction = fixture.getTransaction();
+      transaction.tracer.startChild('child1');
+      transaction.tracer.startChild('child2');
+      final envelope = SentryEnvelope.fromTransaction(
+        transaction,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
+
+      await sut.send(envelope);
+
+      final transactionDiscardedEvent = fixture
+          .clientReportRecorder.discardedEvents
+          .firstWhereOrNull((element) =>
+              element.category == DataCategory.transaction &&
+              element.reason == DiscardReason.networkError);
+
+      final spanDiscardedEvent = fixture.clientReportRecorder.discardedEvents
+          .firstWhereOrNull((element) =>
+              element.category == DataCategory.span &&
+              element.reason == DiscardReason.networkError);
+
+      expect(transactionDiscardedEvent, isNotNull);
+      expect(spanDiscardedEvent, isNotNull);
+      expect(spanDiscardedEvent!.quantity, 3);
+    });
   });
 
   group('updateRetryAfterLimits', () {

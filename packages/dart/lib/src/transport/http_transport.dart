@@ -5,9 +5,11 @@ import 'package:http/http.dart';
 
 import '../http_client/client_provider.dart'
     if (dart.library.io) '../http_client/io_client_provider.dart';
+import '../client_reports/discard_reason.dart';
 import '../noop_client.dart';
 import '../protocol.dart';
 import '../sentry_envelope.dart';
+import 'data_category.dart';
 import '../sentry_options.dart';
 import '../utils/internal_logger.dart';
 import '../utils/transport_utils.dart';
@@ -48,6 +50,7 @@ class HttpTransport implements Transport {
     } catch (error, stackTrace) {
       internalLogger.error('Failed to send envelope',
           error: error, stackTrace: stackTrace);
+      _recordLostEvent(envelope);
       if (_options.automatedTestMode) {
         rethrow;
       }
@@ -94,5 +97,23 @@ class HttpTransport implements Transport {
     final sentryRateLimitHeader = response.headers['X-Sentry-Rate-Limits'];
     _rateLimiter.updateRetryAfterLimits(
         sentryRateLimitHeader, retryAfterHeader, response.statusCode);
+  }
+
+  void _recordLostEvent(SentryEnvelope envelope) {
+    for (final item in envelope.items) {
+      _options.recorder.recordLostEvent(
+        DiscardReason.networkError,
+        DataCategory.fromItemType(item.header.type),
+      );
+
+      final originalObject = item.originalObject;
+      if (originalObject is SentryTransaction) {
+        _options.recorder.recordLostEvent(
+          DiscardReason.networkError,
+          DataCategory.span,
+          count: originalObject.spans.length + 1,
+        );
+      }
+    }
   }
 }
