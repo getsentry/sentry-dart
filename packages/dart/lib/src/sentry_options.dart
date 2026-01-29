@@ -15,7 +15,6 @@ import 'sentry_stack_trace_factory.dart';
 import 'telemetry/log/noop_logger.dart';
 import 'telemetry/metric/noop_metrics.dart';
 import 'telemetry/processing/processor.dart';
-import 'telemetry/span/sentry_span_v2.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
 import 'dart:developer' as developer;
