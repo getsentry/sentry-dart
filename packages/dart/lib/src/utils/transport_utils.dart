@@ -14,10 +14,8 @@ class TransportUtils {
     if (response.statusCode != 200) {
       if (options.debug) {
         internalLogger.error(() =>
-            'Error, statusCode = ${response.statusCode}, body = ${response.body}');
+            'Failed to send envelope, statusCode = ${response.statusCode}, body = ${response.body}');
       }
-    } else if (response.statusCode == 429) {
-      internalLogger.warning('Rate limit reached, failed to send envelope');
     } else {
       internalLogger.debug(
         () =>
