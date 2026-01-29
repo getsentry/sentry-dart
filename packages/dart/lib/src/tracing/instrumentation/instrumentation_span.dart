@@ -15,12 +15,7 @@ abstract class InstrumentationSpan {
   String? get origin;
   set origin(String? origin);
   Future<void> finish({SpanStatus? status, DateTime? endTimestamp});
-
-  /// Returns trace header for distributed tracing propagation.
   SentryTraceHeader toSentryTrace();
-
-  /// Returns baggage header for distributed tracing propagation.
-  /// Returns null if no baggage is available.
   SentryBaggageHeader? toBaggageHeader();
 }
 
