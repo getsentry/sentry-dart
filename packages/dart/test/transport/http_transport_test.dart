@@ -50,6 +50,89 @@ void main() {
 
       expect(body, envelopeData);
     });
+
+    test('returns empty SentryId when client throws exception', () async {
+      final httpMock = MockClient((http.Request request) async {
+        throw http.ClientException(
+            'Connection closed before full header was received');
+      });
+
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final sentryEvent = SentryEvent();
+      final envelope = SentryEnvelope.fromEvent(
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
+
+      final result = await sut.send(envelope);
+
+      expect(result, SentryId.empty());
+    });
+
+    test('records lost event when client throws exception', () async {
+      final httpMock = MockClient((http.Request request) async {
+        throw http.ClientException(
+            'Connection closed before full header was received');
+      });
+
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final sentryEvent = SentryEvent();
+      final envelope = SentryEnvelope.fromEvent(
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
+
+      await sut.send(envelope);
+
+      expect(fixture.clientReportRecorder.discardedEvents.length, 1);
+      expect(fixture.clientReportRecorder.discardedEvents.first.reason,
+          DiscardReason.networkError);
+      expect(fixture.clientReportRecorder.discardedEvents.first.category,
+          DataCategory.error);
+    });
+
+    test('records lost transaction and spans when client throws exception',
+        () async {
+      final httpMock = MockClient((http.Request request) async {
+        throw http.ClientException(
+            'Connection closed before full header was received');
+      });
+
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final transaction = fixture.getTransaction();
+      transaction.tracer.startChild('child1');
+      transaction.tracer.startChild('child2');
+      final envelope = SentryEnvelope.fromTransaction(
+        transaction,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
+
+      await sut.send(envelope);
+
+      final transactionDiscardedEvent = fixture
+          .clientReportRecorder.discardedEvents
+          .firstWhereOrNull((element) =>
+              element.category == DataCategory.transaction &&
+              element.reason == DiscardReason.networkError);
+
+      final spanDiscardedEvent = fixture.clientReportRecorder.discardedEvents
+          .firstWhereOrNull((element) =>
+              element.category == DataCategory.span &&
+              element.reason == DiscardReason.networkError);
+
+      expect(transactionDiscardedEvent, isNotNull);
+      expect(spanDiscardedEvent, isNotNull);
+      expect(spanDiscardedEvent!.quantity, 3);
+    });
   });
 
   group('updateRetryAfterLimits', () {
@@ -83,10 +166,6 @@ void main() {
       expect(mockRateLimiter.errorCode, 429);
       expect(mockRateLimiter.retryAfterHeader, '1');
       expect(mockRateLimiter.sentryRateLimitHeader, isNull);
-
-      expect(fixture.loggedLevel, SentryLevel.warning);
-      expect(
-          fixture.loggedMessage, 'Rate limit reached, failed to send envelope');
     });
 
     test('sentryRateLimitHeader', () async {
@@ -236,10 +315,6 @@ void main() {
       await sut.send(envelope);
 
       expect(fixture.clientReportRecorder.discardedEvents.isEmpty, isTrue);
-
-      expect(fixture.loggedLevel, SentryLevel.warning);
-      expect(
-          fixture.loggedMessage, 'Rate limit reached, failed to send envelope');
     });
 
     test('does record lost event for error >= 500', () async {
@@ -271,7 +346,6 @@ class Fixture {
 
   HttpTransport getSut(http.Client client, RateLimiter rateLimiter) {
     options.debug = true;
-    options.log = mockLogger;
     options.httpClient = client;
     options.recorder = clientReportRecorder;
     options.clock = () {
@@ -288,19 +362,5 @@ class Fixture {
     );
     final tracer = SentryTracer(context, MockHub());
     return SentryTransaction(tracer);
-  }
-
-  SentryLevel? loggedLevel;
-  String? loggedMessage;
-
-  void mockLogger(
-    SentryLevel level,
-    String message, {
-    String? logger,
-    Object? exception,
-    StackTrace? stackTrace,
-  }) {
-    loggedLevel = level;
-    loggedMessage = message;
   }
 }

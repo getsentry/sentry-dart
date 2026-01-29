@@ -5,10 +5,12 @@ import 'package:http/http.dart';
 
 import '../http_client/client_provider.dart'
     if (dart.library.io) '../http_client/io_client_provider.dart';
+import '../client_reports/discard_reason.dart';
 import '../noop_client.dart';
 import '../protocol.dart';
 import '../sentry_envelope.dart';
 import '../sentry_options.dart';
+import '../utils/internal_logger.dart';
 import '../utils/transport_utils.dart';
 import 'http_transport_request_handler.dart';
 import 'rate_limiter.dart';
@@ -39,20 +41,35 @@ class HttpTransport implements Transport {
 
     final streamedRequest = await _requestHandler.createRequest(envelope);
 
-    final response = await _options.httpClient
-        .send(streamedRequest)
-        .then(Response.fromStream);
+    final Response response;
+    try {
+      response = await _options.httpClient
+          .send(streamedRequest)
+          .then(Response.fromStream);
+    } catch (error, stackTrace) {
+      internalLogger.error('Failed to send envelope',
+          error: error, stackTrace: stackTrace);
+      TransportUtils.recordLostEvents(
+          _options, envelope, DiscardReason.networkError);
+      if (_options.automatedTestMode) {
+        rethrow;
+      }
+      return SentryId.empty();
+    }
 
     _updateRetryAfterLimits(response);
 
-    TransportUtils.logResponse(_options, envelope, response, target: 'Sentry');
+    TransportUtils.logResponse(envelope, response, target: 'Sentry');
 
     if (response.statusCode == 200) {
       return _parseEventId(response);
     }
+    if (response.statusCode >= 400 && response.statusCode != 429) {
+      TransportUtils.recordLostEvents(
+          _options, envelope, DiscardReason.networkError);
+    }
     if (response.statusCode == 429) {
-      _options.log(
-          SentryLevel.warning, 'Rate limit reached, failed to send envelope');
+      internalLogger.warning('Rate limit reached, failed to send envelope');
     }
     return SentryId.empty();
   }
@@ -61,8 +78,9 @@ class HttpTransport implements Transport {
     try {
       final eventId = json.decode(response.body)['id'];
       return eventId != null ? SentryId.fromId(eventId) : null;
-    } catch (e) {
-      _options.log(SentryLevel.error, 'Error parsing response: $e');
+    } catch (error, stackTrace) {
+      internalLogger.error('Error parsing response',
+          error: error, stackTrace: stackTrace);
       if (_options.automatedTestMode) {
         rethrow;
       }
