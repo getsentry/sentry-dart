@@ -43,7 +43,21 @@ class SpanCapturePipeline {
                 SentryAttribute.string(span.segmentSpan.spanId.toString()),
           });
 
-          await _options.beforeSendSpan?.call(span);
+          final beforeSendSpan = _options.beforeSendSpan;
+          if (beforeSendSpan != null) {
+            try {
+              await beforeSendSpan(span);
+            } catch (exception, stackTrace) {
+              internalLogger.error(
+                'The beforeSendSpan callback threw an exception',
+                error: exception,
+                stackTrace: stackTrace,
+              );
+              if (_options.automatedTestMode) {
+                rethrow;
+              }
+            }
+          }
 
           _options.telemetryProcessor.addSpan(span);
         } catch (error, stackTrace) {

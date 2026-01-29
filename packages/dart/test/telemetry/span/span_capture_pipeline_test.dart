@@ -236,6 +236,21 @@ void main() {
 
         expect(envValue, 'test-env');
       });
+
+      test('span is still captured when beforeSendSpan throws exception',
+          () async {
+        fixture.options.automatedTestMode = false;
+        fixture.options.beforeSendSpan = (span) async {
+          await Future.delayed(Duration.zero);
+          throw Exception('async beforeSendSpan callback error');
+        };
+
+        final span = fixture.createRecordingSpan();
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        expect(fixture.processor.addedSpans.length, 1);
+        expect(fixture.processor.addedSpans.first, same(span));
+      });
     });
   });
 }
