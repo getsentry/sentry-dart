@@ -15,7 +15,7 @@ class UrlDetails {
   late final urlOrFallback =
       Uri.tryParse(url ?? _unknown)?.toString() ?? _unknown;
 
-  void applyToSpan(ISentrySpan? span) {
+  void applyToSpan(InstrumentationSpan? span) {
     if (span == null) {
       return;
     }

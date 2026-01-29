@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 
@@ -8,27 +10,30 @@ class SentryTransformer implements Transformer {
   // ignore: public_member_api_docs
   SentryTransformer({required Transformer transformer, Hub? hub})
       : _hub = hub ?? HubAdapter(),
-        _transformer = transformer;
+        _transformer = transformer {
+    _spanFactory = _hub.options.spanFactory;
+  }
 
   final Transformer _transformer;
   final Hub _hub;
+  late final InstrumentationSpanFactory _spanFactory;
 
   @override
   Future<String> transformRequest(RequestOptions options) async {
-    // ignore: invalid_use_of_internal_member
     final urlDetails = HttpSanitizer.sanitizeUrl(options.uri.toString());
     var description = options.method;
     if (urlDetails != null) {
       description += ' ${urlDetails.urlOrFallback}';
     }
 
-    final span = _hub.getSpan()?.startChild(
-          _serializeOp,
-          description: description,
-        );
+    final parentSpan = _spanFactory.getSpan(_hub);
+    final span = _spanFactory.createSpan(
+      parentSpan,
+      _serializeOp,
+      description: description,
+    );
 
     span?.setData('http.request.method', options.method);
-    // ignore: invalid_use_of_internal_member
     span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
 
     urlDetails?.applyToSpan(span);
@@ -53,20 +58,20 @@ class SentryTransformer implements Transformer {
     RequestOptions options,
     ResponseBody response,
   ) async {
-    // ignore: invalid_use_of_internal_member
     final urlDetails = HttpSanitizer.sanitizeUrl(options.uri.toString());
     var description = options.method;
     if (urlDetails != null) {
       description += ' ${urlDetails.urlOrFallback}';
     }
 
-    final span = _hub.getSpan()?.startChild(
-          _serializeOp,
-          description: description,
-        );
+    final parentSpan = _spanFactory.getSpan(_hub);
+    final span = _spanFactory.createSpan(
+      parentSpan,
+      _serializeOp,
+      description: description,
+    );
 
     span?.setData('http.request.method', options.method);
-    // ignore: invalid_use_of_internal_member
     span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
 
     urlDetails?.applyToSpan(span);
