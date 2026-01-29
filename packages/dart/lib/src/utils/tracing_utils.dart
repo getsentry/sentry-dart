@@ -28,6 +28,32 @@ void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
   }
 }
 
+/// Adds tracing headers using [InstrumentationSpan].
+/// Falls back to propagation context when span is null.
+void addTracingHeadersFromInstrumentationSpan(
+  Map<String, dynamic> headers,
+  Hub hub, {
+  InstrumentationSpan? span,
+}) {
+  if (span != null) {
+    final traceHeader = span.toSentryTrace();
+    if (hub.options.propagateTraceparent) {
+      _addW3CHeaderFromSentryTrace(traceHeader, headers);
+    }
+    addSentryTraceHeader(traceHeader, headers);
+    final baggage = span.toBaggageHeader();
+    if (baggage != null) {
+      addBaggageHeader(baggage, headers, log: hub.options.log);
+    }
+  } else {
+    if (hub.options.propagateTraceparent) {
+      addW3CHeaderFromScope(hub.scope, headers);
+    }
+    addSentryTraceHeaderFromScope(hub.scope, headers);
+    addBaggageHeaderFromScope(hub.scope, headers, log: hub.options.log);
+  }
+}
+
 void addSentryTraceHeaderFromScope(Scope scope, Map<String, dynamic> headers) {
   final propagationContext = scope.propagationContext;
   final traceHeader = propagationContext.toSentryTrace();

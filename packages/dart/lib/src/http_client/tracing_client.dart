@@ -50,10 +50,11 @@ class TracingClient extends BaseClient {
     // Sentry trace headers (tracing without performance).
     if (containsTargetOrMatchesRegExp(
         _hub.options.tracePropagationTargets, request.url.toString())) {
-      final sentrySpan = instrumentationSpan is LegacyInstrumentationSpan
-          ? instrumentationSpan.spanReference
-          : null;
-      addTracingHeadersToHttpHeader(request.headers, _hub, span: sentrySpan);
+      addTracingHeadersFromInstrumentationSpan(
+        request.headers,
+        _hub,
+        span: instrumentationSpan,
+      );
     }
 
     instrumentationSpan?.origin = SentryTraceOrigins.autoHttpHttp;

@@ -9,7 +9,6 @@ import 'mocks/mock_telemetry_processor.dart';
 import 'mocks/mock_transport.dart';
 import 'sentry_client_test.dart';
 import 'test_utils.dart';
-import 'utils/url_details_test.dart';
 
 void main() {
   group('SDK lifecycle callbacks', () {

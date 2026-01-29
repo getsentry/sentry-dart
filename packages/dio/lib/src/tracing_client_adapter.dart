@@ -55,10 +55,11 @@ class TracingClientAdapter implements HttpClientAdapter {
       _hub.options.tracePropagationTargets,
       options.uri.toString(),
     )) {
-      final sentrySpan = instrumentationSpan is LegacyInstrumentationSpan
-          ? instrumentationSpan.spanReference
-          : null;
-      addTracingHeadersToHttpHeader(options.headers, _hub, span: sentrySpan);
+      addTracingHeadersFromInstrumentationSpan(
+        options.headers,
+        _hub,
+        span: instrumentationSpan,
+      );
     }
 
     instrumentationSpan?.origin =
