@@ -1,29 +1,35 @@
 ---
 name: release
-description: Trigger and validate a Sentry Dart/Flutter SDK release with automated release validation
+description: Trigger and validate a Sentry Dart/Flutter SDK release. Supports precise args or guided mode.
 arguments:
   - name: version
-    description: Version to release (semver format, e.g., 9.12.0 or 9.12.0-beta.1)
-    required: true
+    description: Version to release (semver format). If omitted, agent suggests based on CHANGELOG.
+    required: false
   - name: source_branch
-    description: Branch to release from (e.g., main, release/9.12.x)
-    required: true
+    description: Branch to release from. Default: main
+    required: false
   - name: merge_target
-    description: Branch to merge the release PR into (e.g., main)
-    required: true
+    description: Branch to merge the release PR into. Default: main
+    required: false
 ---
 
 # Release Skill for Sentry Dart/Flutter SDK
 
-This skill automates the release workflow with validation, monitoring, and release validation.
+This skill automates the release workflow and validates the release.
 
 ## Usage
 
+**Precise mode** (all arguments provided):
 ```
 /release <version> <source_branch> <merge_target>
 ```
-
 Example: `/release 9.12.0 main main`
+
+**Guided mode** (agent determines version):
+```
+/release
+```
+Or natural language: "release the next version", "cut a new release from main"
 
 ## Workflow Steps
 
@@ -31,22 +37,31 @@ Follow these steps IN ORDER. Do not skip steps.
 
 ### Step 1: Parse and Validate Arguments
 
-1. Extract `version`, `source_branch`, and `merge_target` from the arguments
-2. If any argument is missing, ask the user to provide all three:
-   - "Please provide version, source branch, and merge target: `/release <version> <source_branch> <merge_target>`"
-   - Example: `/release 9.12.0 main main`
+**If all 3 arguments provided:** Extract and validate, then proceed.
 
-3. Validate the version format matches semver:
-   - Valid: `X.Y.Z`, `X.Y.Z-beta.N`, `X.Y.Z-rc.N`, `X.Y.Z-alpha.N`
-   - X, Y, Z, N must be non-negative integers
-   - If invalid, show error and stop
+**If arguments missing (guided mode):**
 
-4. Determine version type:
-   - **PATCH**: Z > 0 and no prerelease suffix (e.g., `9.12.1`)
-   - **MINOR**: Z = 0 and Y > 0 and no prerelease suffix (e.g., `9.12.0`)
-   - **MAJOR**: Y = 0 and Z = 0 (e.g., `10.0.0`)
-   - **PRERELEASE**: Has `-beta`, `-rc`, or `-alpha` suffix
-   - **PROMOTION**: Releasing a stable version (e.g., `9.12.0`) when prerelease versions exist (e.g., `9.12.0-beta.1`)
+1. Read CHANGELOG.md to find the latest released version (topmost `## X.Y.Z` entry)
+2. Determine the suggested next version based on Unreleased section contents:
+   - Has `Features` or `Enhancements` or `Dependencies` → suggest MINOR bump
+   - Only has `Fixes` → suggest PATCH bump
+   - Empty Unreleased → ask user what type of release
+3. Ask the user to confirm using AskUserQuestion:
+   - **Version**: "Next version? Suggested: `X.Y.Z` based on CHANGELOG"
+   - **Source branch**: "Release from which branch?" (default: `main`)
+   - **Merge target**: "Merge PR into which branch?" (default: `main`)
+
+**Version format validation:**
+- Valid: `X.Y.Z`, `X.Y.Z-beta.N`, `X.Y.Z-rc.N`, `X.Y.Z-alpha.N`
+- X, Y, Z, N must be non-negative integers
+- If invalid, show error and stop
+
+**Determine version type:**
+- **PATCH**: Z > 0, no prerelease suffix (e.g., `9.12.1`)
+- **MINOR**: Z = 0, Y > 0, no prerelease suffix (e.g., `9.12.0`)
+- **MAJOR**: Y = 0, Z = 0 (e.g., `10.0.0`)
+- **PRERELEASE**: Has `-beta`, `-rc`, or `-alpha` suffix
+- **PROMOTION**: Stable version when prereleases exist (e.g., `9.12.0` after `9.12.0-beta.1`)
 
 **Validation:** Version must increment by exactly 1 from the latest release (no skipping).
 
@@ -288,7 +303,7 @@ If removal fails, show a warning but continue (the user can clean it up manually
 < if NOT APPROVED, list the reasons >
 
 ---
-Automated check by Claude Code
+🤖 Automated check by [Claude Code](https://claude.com/claude-code)
 ```
 
 4. Post the comment:
