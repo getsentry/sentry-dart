@@ -50,7 +50,6 @@ class TracingClient extends BaseClient {
     // Sentry trace headers (tracing without performance).
     if (containsTargetOrMatchesRegExp(
         _hub.options.tracePropagationTargets, request.url.toString())) {
-      // Extract underlying ISentrySpan for tracing headers, or use propagation context
       final sentrySpan = instrumentationSpan is LegacyInstrumentationSpan
           ? instrumentationSpan.spanReference
           : null;
