@@ -55,7 +55,7 @@ class TracingClientAdapter implements HttpClientAdapter {
       _hub.options.tracePropagationTargets,
       options.uri.toString(),
     )) {
-      addTracingHeadersFromInstrumentationSpan(
+      addTracingHeadersToHttpHeader(
         options.headers,
         _hub,
         span: instrumentationSpan,

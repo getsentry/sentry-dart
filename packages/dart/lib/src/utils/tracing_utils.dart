@@ -7,30 +7,7 @@ SentryTraceHeader generateSentryTraceHeader(
   return SentryTraceHeader(traceId, spanId, sampled: sampled);
 }
 
-void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
-    {ISentrySpan? span}) {
-  if (span != null) {
-    if (hub.options.propagateTraceparent) {
-      addW3CHeaderFromSpan(span, headers);
-    }
-    addSentryTraceHeaderFromSpan(span, headers);
-    addBaggageHeaderFromSpan(
-      span,
-      headers,
-      log: hub.options.log,
-    );
-  } else {
-    if (hub.options.propagateTraceparent) {
-      addW3CHeaderFromScope(hub.scope, headers);
-    }
-    addSentryTraceHeaderFromScope(hub.scope, headers);
-    addBaggageHeaderFromScope(hub.scope, headers, log: hub.options.log);
-  }
-}
-
-/// Adds tracing headers using [InstrumentationSpan].
-/// Falls back to propagation context when span is null.
-void addTracingHeadersFromInstrumentationSpan(
+void addTracingHeadersToHttpHeader(
   Map<String, dynamic> headers,
   Hub hub, {
   InstrumentationSpan? span,

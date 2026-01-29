@@ -262,7 +262,8 @@ void main() {
       final span = fixture.getSut();
       hub.options.propagateTraceparent = true;
 
-      addTracingHeadersToHttpHeader(headers, hub, span: span);
+      addTracingHeadersToHttpHeader(headers, hub,
+          span: LegacyInstrumentationSpan(span));
 
       expect(headers['traceparent'],
           '00-${fixture._context.traceId}-${fixture._context.spanId}-01');
@@ -316,7 +317,8 @@ void main() {
       final hub = fixture._hub;
       final span = fixture.getSut();
 
-      addTracingHeadersToHttpHeader(headers, hub, span: span);
+      addTracingHeadersToHttpHeader(headers, hub,
+          span: LegacyInstrumentationSpan(span));
 
       final traceHeader =
           SentryTraceHeader.fromTraceHeader(headers['sentry-trace']);
