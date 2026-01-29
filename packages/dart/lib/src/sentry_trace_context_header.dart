@@ -3,7 +3,6 @@ import 'package:meta/meta.dart';
 import 'protocol/access_aware_map.dart';
 import 'protocol/sentry_id.dart';
 import 'sentry_baggage.dart';
-import 'sentry_options.dart';
 
 class SentryTraceContextHeader {
   SentryTraceContextHeader(
@@ -70,10 +69,8 @@ class SentryTraceContextHeader {
     };
   }
 
-  SentryBaggage toBaggage({
-    SdkLogCallback? log,
-  }) {
-    final baggage = SentryBaggage({}, log: log);
+  SentryBaggage toBaggage() {
+    final baggage = SentryBaggage({});
     baggage.setTraceId(traceId.toString());
     baggage.setPublicKey(publicKey);
 

@@ -15,6 +15,8 @@ abstract class InstrumentationSpan {
   String? get origin;
   set origin(String? origin);
   Future<void> finish({SpanStatus? status, DateTime? endTimestamp});
+  SentryTraceHeader toSentryTrace();
+  SentryBaggageHeader? toBaggageHeader();
 }
 
 /// [InstrumentationSpan] implementation wrapping [ISentrySpan].
@@ -57,4 +59,10 @@ class LegacyInstrumentationSpan implements InstrumentationSpan {
     DateTime? endTimestamp,
   }) =>
       _span.finish(status: status, endTimestamp: endTimestamp);
+
+  @override
+  SentryTraceHeader toSentryTrace() => _span.toSentryTrace();
+
+  @override
+  SentryBaggageHeader? toBaggageHeader() => _span.toBaggageHeader();
 }

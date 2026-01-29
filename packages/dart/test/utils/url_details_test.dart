@@ -12,7 +12,7 @@ void main() {
   test('applies all to span', () {
     final urlDetails =
         UrlDetails(url: "https://sentry.io/api", query: "q=1", fragment: "top");
-    final span = MockSpan();
+    final span = MockInstrumentationSpan();
     urlDetails.applyToSpan(span);
 
     verify(span.setData("url", "https://sentry.io/api"));
@@ -22,7 +22,7 @@ void main() {
 
   test('applies only url to span', () {
     final urlDetails = UrlDetails(url: "https://sentry.io/api");
-    final span = MockSpan();
+    final span = MockInstrumentationSpan();
     urlDetails.applyToSpan(span);
 
     verify(span.setData("url", "https://sentry.io/api"));
@@ -31,7 +31,7 @@ void main() {
 
   test('applies only query to span', () {
     final urlDetails = UrlDetails(query: "q=1");
-    final span = MockSpan();
+    final span = MockInstrumentationSpan();
     urlDetails.applyToSpan(span);
 
     verify(span.setData("http.query", "q=1"));
@@ -40,7 +40,7 @@ void main() {
 
   test('applies only fragment to span', () {
     final urlDetails = UrlDetails(fragment: "top");
-    final span = MockSpan();
+    final span = MockInstrumentationSpan();
     urlDetails.applyToSpan(span);
 
     verify(span.setData("http.fragment", "top"));
@@ -86,8 +86,4 @@ void main() {
   });
 }
 
-class MockSpan extends Mock implements SentrySpan {
-  final SentrySpanContext _context = SentrySpanContext(operation: 'test');
-  @override
-  SentrySpanContext get context => _context;
-}
+class MockInstrumentationSpan extends Mock implements InstrumentationSpan {}
