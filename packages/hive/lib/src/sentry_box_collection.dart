@@ -6,7 +6,6 @@ import 'package:hive/src/box_collection/box_collection_stub.dart'
     as impl;
 // ignore: implementation_imports
 import 'package:hive/src/box_collection/box_collection_stub.dart' as stub;
-import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import 'sentry_span_helper.dart';
@@ -15,13 +14,16 @@ import 'sentry_span_helper.dart';
 class SentryBoxCollection implements stub.BoxCollection {
   final impl.BoxCollection _boxCollection;
 
-  final _spanHelper = SentrySpanHelper(
-    // ignore: invalid_use_of_internal_member
-    SentryTraceOrigins.autoDbHiveBoxCollection,
-  );
+  late final SentrySpanHelper _spanHelper;
 
   /// Init with [impl.BoxCollection]
-  SentryBoxCollection(this._boxCollection);
+  SentryBoxCollection(this._boxCollection, {Hub? hub}) {
+    _spanHelper = SentrySpanHelper(
+      // ignore: invalid_use_of_internal_member
+      SentryTraceOrigins.autoDbHiveBoxCollection,
+      hub: hub ?? HubAdapter(),
+    );
+  }
 
   @override
   Set<String> get boxNames => _boxCollection.boxNames;
@@ -29,12 +31,6 @@ class SentryBoxCollection implements stub.BoxCollection {
   @override
   void close() {
     _boxCollection.close();
-  }
-
-  /// @nodoc
-  @internal
-  void setHub(Hub hub) {
-    _spanHelper.setHub(hub);
   }
 
   @override
@@ -59,11 +55,12 @@ class SentryBoxCollection implements stub.BoxCollection {
     HiveCipher? key,
     Hub? hub,
   }) async {
+    final resolvedHub = hub ?? HubAdapter();
     final spanHelper = SentrySpanHelper(
       // ignore: invalid_use_of_internal_member
       SentryTraceOrigins.autoDbHiveBoxCollection,
+      hub: resolvedHub,
     );
-    spanHelper.setHub(hub ?? HubAdapter());
 
     return await spanHelper.asyncWrapInSpan(
       'open',
@@ -74,9 +71,7 @@ class SentryBoxCollection implements stub.BoxCollection {
           path: path,
           key: key,
         );
-        final sbc = SentryBoxCollection(boxCollection);
-        sbc.setHub(hub ?? HubAdapter());
-        return sbc;
+        return SentryBoxCollection(boxCollection, hub: resolvedHub);
       },
       dbName: name,
     );

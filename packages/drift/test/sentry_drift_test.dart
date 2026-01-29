@@ -10,6 +10,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_drift/src/constants.dart' as drift_constants;
 import 'package:sentry_drift/src/sentry_query_interceptor.dart';
+import 'package:sentry_drift/src/sentry_span_helper.dart';
 import 'package:sentry_drift/src/version.dart';
 import 'package:sqlite3/open.dart';
 
@@ -692,6 +693,30 @@ void main() {
         tx.children.last,
       );
     });
+
+    test('beginTransaction error finishes span to prevent leak', () async {
+      final exception = Exception('beginTransaction failed');
+      final queryExecutor = MockQueryExecutor();
+      when(queryExecutor.ensureOpen(any)).thenAnswer((_) => Future.value(true));
+      when(queryExecutor.beginTransaction()).thenThrow(exception);
+      when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
+
+      final sut = fixture.getSut();
+      final db = AppDatabase(queryExecutor.interceptWith(sut));
+
+      final tx = _startTransaction();
+      try {
+        await db.transaction(() async {
+          await _insertRow(db);
+        });
+      } catch (e) {
+        // expected
+      }
+
+      final transactionSpan = tx.children.last;
+      expect(transactionSpan.finished, isTrue);
+      expect(sut.spanHelper.transactionStack, isEmpty);
+    });
   });
 
   group('integrations', () {
@@ -718,6 +743,62 @@ void main() {
       );
     });
   });
+
+  group('span creation failure', () {
+    test('beginTransaction executes successfully when createSpan returns null',
+        () async {
+      final mockHub = MockHub();
+      final mockOptions = defaultTestOptions()..tracesSampleRate = 1.0;
+
+      // Set up a factory that returns null from createSpan
+      final nullSpanFactory = _NullSpanFactory();
+      mockOptions.spanFactory = nullSpanFactory;
+
+      when(mockHub.options).thenReturn(mockOptions);
+
+      final spanHelper = SentrySpanHelper(
+        SentryTraceOrigins.autoDbDriftQueryInterceptor,
+        hub: mockHub,
+      );
+
+      // Create a mock parent span for getSpan to return
+      final tx = _startTransaction();
+      nullSpanFactory.mockParentSpan =
+          LegacyInstrumentationSpan(tx.startChild('test'));
+
+      var executed = false;
+      spanHelper.beginTransaction(() {
+        executed = true;
+        return 'result';
+      });
+
+      expect(executed, isTrue);
+      // Stack should remain empty since we don't push when createSpan returns null
+      expect(spanHelper.transactionStack, isEmpty);
+    });
+  });
+}
+
+/// A factory that returns a valid span from getSpan but null from createSpan.
+/// This simulates the case where span creation fails (e.g., span limit reached).
+class _NullSpanFactory implements InstrumentationSpanFactory {
+  InstrumentationSpan? mockParentSpan;
+
+  @override
+  InstrumentationSpan? createSpan(
+    InstrumentationSpan? parent,
+    String operation, {
+    String? description,
+    DateTime? startTimestamp,
+  }) {
+    // Always return null to simulate span creation failure
+    return null;
+  }
+
+  @override
+  InstrumentationSpan? getSpan(Hub hub) {
+    return mockParentSpan;
+  }
 }
 
 class Fixture {

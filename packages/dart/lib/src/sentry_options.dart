@@ -650,6 +650,15 @@ class SentryOptions {
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
 
+  /// Factory for creating instrumentation spans.
+  ///
+  /// This can be replaced to use different span implementations
+  /// (e.g., SentrySpanV2 in the future).
+  ///
+  /// Defaults to [LegacyInstrumentationSpanFactory] which uses the legacy [ISentrySpan] API.
+  @internal
+  InstrumentationSpanFactory spanFactory = LegacyInstrumentationSpanFactory();
+
   @visibleForTesting
   void debugLog(
     SentryLevel level,

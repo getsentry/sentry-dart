@@ -11,15 +11,15 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
   final IsarCollection<OBJ> _isarCollection;
   final Hub _hub;
   final String _dbName;
-
-  final _spanHelper = SentrySpanHelper(
-    // ignore: invalid_use_of_internal_member
-    SentryTraceOrigins.autoDbIsarCollection,
-  );
+  late final SentrySpanHelper _spanHelper;
 
   /// ctor of SentryIsarCollection
   SentryIsarCollection(this._isarCollection, this._hub, this._dbName) {
-    _spanHelper.setHub(_hub);
+    _spanHelper = SentrySpanHelper(
+      // ignore: invalid_use_of_internal_member
+      SentryTraceOrigins.autoDbIsarCollection,
+      hub: _hub,
+    );
   }
 
   @override

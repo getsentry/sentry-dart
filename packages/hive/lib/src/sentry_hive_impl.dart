@@ -33,13 +33,16 @@ class SentryHiveImpl implements SentryHiveInterface {
   final HiveInterface _hive;
   Hub _hub = HubAdapter();
 
-  /// @nodoc
-  SentryHiveImpl(this._hive);
+  late SentrySpanHelper _spanHelper;
 
-  final _spanHelper = SentrySpanHelper(
-    // ignore: invalid_use_of_internal_member
-    SentryTraceOrigins.autoDbHive,
-  );
+  /// @nodoc
+  SentryHiveImpl(this._hive) {
+    _spanHelper = SentrySpanHelper(
+      // ignore: invalid_use_of_internal_member
+      SentryTraceOrigins.autoDbHive,
+      hub: _hub,
+    );
+  }
 
   // SentryHiveInterface
 
@@ -50,7 +53,11 @@ class SentryHiveImpl implements SentryHiveInterface {
     options.sdk.addIntegration('SentryHiveTracing');
     options.sdk.addPackage(packageName, sdkVersion);
     _hub = hub;
-    _spanHelper.setHub(hub);
+    _spanHelper = SentrySpanHelper(
+      // ignore: invalid_use_of_internal_member
+      SentryTraceOrigins.autoDbHive,
+      hub: hub,
+    );
   }
 
   // HiveInterface

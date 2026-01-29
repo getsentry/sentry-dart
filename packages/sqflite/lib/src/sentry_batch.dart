@@ -27,6 +27,9 @@ class SentryBatch implements Batch {
   // we don't clear the buffer because SqfliteBatch don't either
   final _buffer = StringBuffer();
 
+  // ignore: invalid_use_of_internal_member
+  late final InstrumentationSpanFactory _spanFactory;
+
   /// ```dart
   /// import 'package:sqflite/sqflite.dart';
   /// import 'package:sentry_sqflite/sentry_sqflite.dart';
@@ -40,14 +43,18 @@ class SentryBatch implements Batch {
     @internal Hub? hub,
     @internal String? dbName,
   })  : _hub = hub ?? HubAdapter(),
-        _dbName = dbName;
+        _dbName = dbName {
+    // ignore: invalid_use_of_internal_member
+    _spanFactory = _hub.options.spanFactory;
+  }
 
   @override
   Future<List<Object?>> apply({bool? noResult, bool? continueOnError}) {
     return Future<List<Object?>>(() async {
-      final currentSpan = _hub.getSpan();
+      final parent = _spanFactory.getSpan(_hub);
 
-      final span = currentSpan?.startChild(
+      final span = _spanFactory.createSpan(
+        parent,
         SentryDatabase.dbOp,
         description: _buffer.toString().trim(),
       );
@@ -98,9 +105,10 @@ class SentryBatch implements Batch {
     bool? continueOnError,
   }) {
     return Future<List<Object?>>(() async {
-      final currentSpan = _hub.getSpan();
+      final parent = _spanFactory.getSpan(_hub);
 
-      final span = currentSpan?.startChild(
+      final span = _spanFactory.createSpan(
+        parent,
         SentryDatabase.dbOp,
         description: _buffer.toString().trim(),
       );
