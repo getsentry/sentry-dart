@@ -29,4 +29,19 @@ class UrlDetails {
       span.setData("http.fragment", fragment);
     }
   }
+
+  void applyToInstrumentationSpan(InstrumentationSpan? span) {
+    if (span == null) {
+      return;
+    }
+    if (url != null) {
+      span.setData('url', url);
+    }
+    if (query != null) {
+      span.setData("http.query", query);
+    }
+    if (fragment != null) {
+      span.setData("http.fragment", fragment);
+    }
+  }
 }

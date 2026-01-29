@@ -18,6 +18,7 @@ class TracingClientAdapter implements HttpClientAdapter {
   TracingClientAdapter({required HttpClientAdapter client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
         _client = client {
+    _spanFactory = _hub.options.spanFactory;
     if (_hub.options.isTracingEnabled()) {
       _hub.options.sdk.addIntegration(integrationName);
     }
@@ -25,6 +26,7 @@ class TracingClientAdapter implements HttpClientAdapter {
 
   final HttpClientAdapter _client;
   final Hub _hub;
+  late final InstrumentationSpanFactory _spanFactory;
 
   @override
   Future<ResponseBody> fetch(
@@ -40,15 +42,12 @@ class TracingClientAdapter implements HttpClientAdapter {
     }
 
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
-    final currentSpan = _hub.getSpan();
-    var span = currentSpan?.startChild(
+    final parentSpan = _spanFactory.getSpan(_hub);
+    final instrumentationSpan = _spanFactory.createSpan(
+      parentSpan,
       'http.client',
       description: description,
     );
-
-    if (span is NoOpSentrySpan) {
-      span = null;
-    }
 
     // Regardless whether tracing is enabled or not, we always want to attach
     // Sentry trace headers (tracing without performance).
@@ -56,30 +55,41 @@ class TracingClientAdapter implements HttpClientAdapter {
       _hub.options.tracePropagationTargets,
       options.uri.toString(),
     )) {
-      addTracingHeadersToHttpHeader(options.headers, _hub, span: span);
+      // Extract underlying ISentrySpan for tracing headers, or use propagation context
+      final sentrySpan = instrumentationSpan is LegacyInstrumentationSpan
+          ? instrumentationSpan.spanReference
+          : null;
+      addTracingHeadersToHttpHeader(options.headers, _hub, span: sentrySpan);
     }
 
-    span?.origin = SentryTraceOrigins.autoHttpDioHttpClientAdapter;
-    span?.setData('http.request.method', options.method);
-    urlDetails?.applyToSpan(span);
+    instrumentationSpan?.origin = SentryTraceOrigins.autoHttpDioHttpClientAdapter;
+    instrumentationSpan?.setData('http.request.method', options.method);
+    urlDetails?.applyToInstrumentationSpan(instrumentationSpan);
 
     ResponseBody? response;
     try {
       response = await _client.fetch(options, requestStream, cancelFuture);
-      span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
-      span?.setData('http.response.status_code', response.statusCode);
+      instrumentationSpan?.status =
+          SpanStatus.fromHttpStatusCode(response.statusCode);
+      instrumentationSpan?.setData(
+        'http.response.status_code',
+        response.statusCode,
+      );
       final contentLengthHeader =
           HttpHeaderUtils.getContentLength(response.headers);
       if (contentLengthHeader != null) {
-        span?.setData('http.response_content_length', contentLengthHeader);
+        instrumentationSpan?.setData(
+          'http.response_content_length',
+          contentLengthHeader,
+        );
       }
     } catch (exception) {
-      span?.throwable = exception;
-      span?.status = const SpanStatus.internalError();
+      instrumentationSpan?.throwable = exception;
+      instrumentationSpan?.status = const SpanStatus.internalError();
 
       rethrow;
     } finally {
-      await span?.finish();
+      await instrumentationSpan?.finish();
     }
     return response;
   }
