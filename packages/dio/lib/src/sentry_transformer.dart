@@ -36,7 +36,7 @@ class SentryTransformer implements Transformer {
     span?.setData('http.request.method', options.method);
     span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
 
-    urlDetails?.applyToInstrumentationSpan(span);
+    urlDetails?.applyToSpan(span);
 
     String? request;
     try {
@@ -74,7 +74,7 @@ class SentryTransformer implements Transformer {
     span?.setData('http.request.method', options.method);
     span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
 
-    urlDetails?.applyToInstrumentationSpan(span);
+    urlDetails?.applyToSpan(span);
 
     dynamic transformedResponse;
     try {

@@ -64,7 +64,7 @@ class TracingClientAdapter implements HttpClientAdapter {
 
     instrumentationSpan?.origin = SentryTraceOrigins.autoHttpDioHttpClientAdapter;
     instrumentationSpan?.setData('http.request.method', options.method);
-    urlDetails?.applyToInstrumentationSpan(instrumentationSpan);
+    urlDetails?.applyToSpan(instrumentationSpan);
 
     ResponseBody? response;
     try {
