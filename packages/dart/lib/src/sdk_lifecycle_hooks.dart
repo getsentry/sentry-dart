@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
-import 'telemetry/span/sentry_span_v2.dart';
 
 @internal
 typedef SdkLifecycleCallback<T extends SdkLifecycleEvent> = FutureOr<void>

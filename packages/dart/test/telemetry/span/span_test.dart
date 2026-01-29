@@ -1,6 +1,4 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_status_v2.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:test/test.dart';
 
 import '../../test_utils.dart';

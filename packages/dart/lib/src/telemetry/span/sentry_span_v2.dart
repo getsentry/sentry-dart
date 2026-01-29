@@ -4,7 +4,6 @@ import 'dart:async';
 
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
-import 'sentry_span_status_v2.dart';
 
 part 'unset_sentry_span_v2.dart';
 part 'recording_sentry_span_v2.dart';

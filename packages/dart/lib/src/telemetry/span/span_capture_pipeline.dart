@@ -3,7 +3,6 @@ import 'package:meta/meta.dart';
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
 import '../default_attributes.dart';
-import 'sentry_span_v2.dart';
 
 @internal
 class SpanCapturePipeline {

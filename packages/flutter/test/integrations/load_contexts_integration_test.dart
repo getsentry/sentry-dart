@@ -5,9 +5,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sentry/src/sdk_lifecycle_hooks.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
 

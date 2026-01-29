@@ -2,7 +2,6 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/processing/in_memory_buffer.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:test/test.dart';
 
 import '../../mocks/mock_hub.dart';
