@@ -59,7 +59,7 @@ class HttpTransport implements Transport {
 
     _updateRetryAfterLimits(response);
 
-    TransportUtils.logResponse(_options, envelope, response, target: 'Sentry');
+    TransportUtils.logResponse(envelope, response, target: 'Sentry');
 
     if (response.statusCode == 200) {
       return _parseEventId(response);

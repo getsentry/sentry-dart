@@ -8,14 +8,11 @@ import '../transport/data_category.dart';
 import 'internal_logger.dart';
 
 class TransportUtils {
-  static void logResponse(
-      SentryOptions options, SentryEnvelope envelope, Response response,
+  static void logResponse(SentryEnvelope envelope, Response response,
       {required String target}) {
     if (response.statusCode != 200) {
-      if (options.debug) {
-        internalLogger.error(() =>
-            'Failed to send envelope, statusCode = ${response.statusCode}, body = ${response.body}');
-      }
+      internalLogger.error(() =>
+          'Failed to send envelope, statusCode = ${response.statusCode}, body = ${response.body}');
     } else {
       internalLogger.debug(
         () =>
