@@ -37,7 +37,7 @@ jobs:
       KOTLIN_ANDROID_PLUGIN_VERSION: ${{ matrix.kotlin_android_plugin_version }}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup Java
         uses: actions/setup-java@v5
