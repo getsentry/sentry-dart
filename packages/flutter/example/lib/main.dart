@@ -4,9 +4,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:sentry/src/telemetry/span/sentry_span_status_v2.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
-
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart' show ApplyInterceptor;
 import 'package:feedback/feedback.dart' as feedback;
