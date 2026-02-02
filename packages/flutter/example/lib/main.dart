@@ -93,8 +93,8 @@ Future<void> setupSentry(
       options.navigatorKey = navigatorKey;
       options.traceLifecycle = SentryTraceLifecycle.streaming;
 
-      options.replay.sessionSampleRate = 1.0;
-      options.replay.onErrorSampleRate = 1.0;
+      // options.replay.sessionSampleRate = 1.0;
+      // options.replay.onErrorSampleRate = 1.0;
 
       options.enableLogs = true;
 
@@ -627,6 +627,7 @@ class MainScaffold extends StatelessWidget {
   }
 
   Future<void> isarTest() async {
+    final span = Sentry.startSpan('isarTest');
     final tr = Sentry.startTransaction(
       'isarTest',
       'db',
@@ -655,9 +656,11 @@ class MainScaffold extends StatelessWidget {
     });
 
     await tr.finish(status: const SpanStatus.ok());
+    span.end();
   }
 
   Future<void> hiveTest() async {
+    final span = Sentry.startSpan('hiveTest');
     final tr = Sentry.startTransaction(
       'hiveTest',
       'db',
@@ -676,9 +679,11 @@ class MainScaffold extends StatelessWidget {
     SentryHive.close();
 
     await tr.finish(status: const SpanStatus.ok());
+    span.end();
   }
 
   Future<void> sqfliteTest() async {
+    final span = Sentry.startSpan('sqfliteTest');
     final tr = Sentry.startTransaction(
       'sqfliteTest',
       'db',
@@ -722,9 +727,11 @@ class MainScaffold extends StatelessWidget {
     await db.close();
 
     await tr.finish(status: const SpanStatus.ok());
+    span.end();
   }
 
   Future<void> driftTest() async {
+    final span = Sentry.startSpan('driftTest');
     final tr = Sentry.startTransaction(
       'driftTest',
       'db',
@@ -748,6 +755,7 @@ class MainScaffold extends StatelessWidget {
     await db.close();
 
     await tr.finish(status: const SpanStatus.ok());
+    span.end();
   }
 }
 
@@ -1035,6 +1043,7 @@ class SecondaryScaffold extends StatelessWidget {
 }
 
 Future<void> makeWebRequest(BuildContext context) async {
+  final span = Sentry.startSpan('flutterwebrequest');
   final transaction = Sentry.getSpan() ??
       Sentry.startTransaction(
         'flutterwebrequest',
@@ -1050,6 +1059,7 @@ Future<void> makeWebRequest(BuildContext context) async {
   final response = await client.get(Uri.parse(exampleUrl));
 
   await transaction.finish(status: const SpanStatus.ok());
+  span.end();
 
   if (!context.mounted) return;
   await showDialog<void>(
@@ -1075,6 +1085,7 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
   final dio = Dio();
   dio.addSentry();
 
+  final spanFirst = Sentry.startSpan('dio-web-request');
   final transaction = Sentry.getSpan() ??
       Sentry.startTransaction(
         'dio-web-request',
@@ -1096,6 +1107,7 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
   } finally {
     await span.finish();
   }
+  spanFirst.end();
 
   if (!context.mounted) return;
   await showDialog<void>(

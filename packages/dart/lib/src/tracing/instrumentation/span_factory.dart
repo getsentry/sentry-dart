@@ -1,8 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../../hub.dart';
-import '../../noop_sentry_span.dart';
-import 'instrumentation_span.dart';
+import '../../../sentry.dart';
 
 /// Factory for creating [InstrumentationSpan] instances.
 /// Configure via [SentryOptions.spanFactory].
@@ -51,5 +49,45 @@ class LegacyInstrumentationSpanFactory implements InstrumentationSpanFactory {
     final span = hub.getSpan();
     if (span == null || span is NoOpSentrySpan) return null;
     return LegacyInstrumentationSpan(span);
+  }
+}
+
+@internal
+class StreamingInstrumentationSpanFactory
+    implements InstrumentationSpanFactory {
+  final Hub _hub;
+
+  StreamingInstrumentationSpanFactory(this._hub);
+
+  @override
+  InstrumentationSpan? createSpan(
+    InstrumentationSpan? parent,
+    String operation, {
+    String? description,
+    DateTime? startTimestamp,
+  }) {
+    if (parent == null) return null;
+
+    if (parent is StreamingInstrumentationSpan) {
+      final parentSpan = parent.spanReference;
+
+      final childSpan = _hub.startSpan(description ?? operation,
+          parentSpan: parentSpan, active: false);
+
+      if (childSpan is NoOpSentrySpanV2) return null;
+
+      childSpan.setAttribute('sentry.op', SentryAttribute.string(operation));
+
+      return StreamingInstrumentationSpan(childSpan);
+    }
+
+    return null;
+  }
+
+  @override
+  InstrumentationSpan? getSpan(Hub hub) {
+    final span = hub.scope.getActiveSpan();
+    if (span == null) return null;
+    return StreamingInstrumentationSpan(span);
   }
 }
