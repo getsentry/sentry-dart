@@ -3,14 +3,17 @@
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
 
-import 'constants.dart';
+import 'internal_logger.dart';
 import 'sentry_supabase_request.dart';
 
 class SentrySupabaseTracingClient extends BaseClient {
   final Client _innerClient;
   final Hub _hub;
+  late final InstrumentationSpanFactory _spanFactory;
 
-  SentrySupabaseTracingClient(this._innerClient, this._hub);
+  SentrySupabaseTracingClient(this._innerClient, this._hub) {
+    _spanFactory = _hub.options.spanFactory;
+  }
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
@@ -56,20 +59,24 @@ class SentrySupabaseTracingClient extends BaseClient {
 
   // Helper
 
-  ISentrySpan? _createSpan(SentrySupabaseRequest supabaseRequest) {
-    final currentSpan = _hub.getSpan();
-    if (currentSpan == null) {
-      _hub.options.log(
-        SentryLevel.warning,
-        'Active Sentry transaction does not exist, could not start span for the Supabase operation: from(${supabaseRequest.table})',
-        logger: loggerName,
+  InstrumentationSpan? _createSpan(SentrySupabaseRequest supabaseRequest) {
+    final parentSpan = _spanFactory.getSpan(_hub);
+    if (parentSpan == null) {
+      internalLogger.warning(
+        'No active span found. Skipping tracing for Supabase operation: from(${supabaseRequest.table})',
       );
       return null;
     }
-    final span = currentSpan.startChild(
+
+    final span = _spanFactory.createSpan(
+      parentSpan,
       'db.${supabaseRequest.operation.value}',
       description: 'from(${supabaseRequest.table})',
     );
+
+    if (span == null) {
+      return null;
+    }
 
     final dbSchema = supabaseRequest.request.headers['Accept-Profile'] ??
         supabaseRequest.request.headers['Content-Profile'];

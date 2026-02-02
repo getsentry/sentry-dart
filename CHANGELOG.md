@@ -1,10 +1,15 @@
 # Changelog
 
-## Unreleased
+## 9.11.0-beta.2
+
+### Fixes
+
+- Catch client exceptions in HttpTransport.send ([#3490](https://github.com/getsentry/sentry-dart/pull/3490))
 
 ### Internals
 
 - Remove deprecated `beforeMetricCallback` from options ([#3484](https://github.com/getsentry/sentry-dart/pull/3450))
+- Add span factory to allow swappable span backends in integrations ([#3488](https://github.com/getsentry/sentry-dart/pull/3450))
 
 ## 9.11.0-beta.1
 
