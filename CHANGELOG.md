@@ -1,5 +1,40 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Trace connected metrics ([#3450](https://github.com/getsentry/sentry-dart/pull/3450))
+  - This feature is enabled by default.
+  - To send metrics use the following APIs:
+    - `Sentry.metrics.gauge(...)`
+    - `Sentry.metrics.count(...)`
+    - `Sentry.metrics.distribution(...)`
+  - For more details read the [Flutter metrics documentation](https://docs.sentry.io/platforms/dart/guides/flutter/metrics/).
+- Add `captureNativeFailedRequests` option for iOS/macOS ([#3472](https://github.com/getsentry/sentry-dart/pull/3472))
+  - This option allows controlling native HTTP error capturing independently from `captureFailedRequests`.
+  - When `null` (the default), it falls back to `captureFailedRequests` for backwards compatibility.
+  - Set to `false` to disable native failed request capturing while keeping Dart-side capturing enabled.
+
+### Fixes
+
+- Catch client exceptions in HttpTransport.send ([#3490](https://github.com/getsentry/sentry-dart/pull/3490))
+
+### Dependencies
+
+- Bump Android SDK from v8.28.0 to v8.30.0 ([#3451](https://github.com/getsentry/sentry-dart/pull/3451))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8300)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.28.0...8.30.0)
+
+<details>
+<summary><b>Internal Changes</b></summary>
+
+- Refactor Logging API to be consistent with Metrics ([#3463](https://github.com/getsentry/sentry-dart/pull/3463))
+- Remove deprecated `beforeMetricCallback` from options ([#3484](https://github.com/getsentry/sentry-dart/pull/3450))
+- Add span factory to allow swappable span backends in integrations ([#3488](https://github.com/getsentry/sentry-dart/pull/3450))
+
+</details>
+
 ## 9.11.0-beta.2
 
 ### Fixes
