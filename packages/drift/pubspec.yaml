@@ -1,6 +1,6 @@
 name: sentry_drift
 description: An integration which adds support for performance tracing for the drift package.
-version: 9.11.0-beta.2
+version: 9.11.0
 homepage: https://docs.sentry.io/platforms/flutter/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
@@ -17,7 +17,7 @@ platforms:
   web:
 
 dependencies:
-  sentry: 9.11.0-beta.2
+  sentry: 9.11.0
   meta: ^1.3.0
   drift: ^2.24.0
 
