@@ -79,14 +79,16 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
 
   @override
   String? get origin {
-    final originAttribute = _span.attributes['sentry.origin'];
+    final originAttribute =
+        _span.attributes[SemanticAttributesConstants.sentryOrigin];
     return originAttribute?.value as String?;
   }
 
   @override
   set origin(String? origin) {
     if (origin != null) {
-      _span.setAttribute('sentry.origin', SentryAttribute.string(origin));
+      _span.setAttribute(SemanticAttributesConstants.sentryOrigin,
+          SentryAttribute.string(origin));
     }
   }
 
