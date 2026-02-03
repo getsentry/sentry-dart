@@ -1,5 +1,4 @@
 import '../sentry.dart';
-import 'telemetry/span/sentry_span_v2.dart';
 
 abstract class PerformanceCollector {}
 

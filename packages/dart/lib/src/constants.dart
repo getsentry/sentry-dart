@@ -115,7 +115,7 @@ abstract class SemanticAttributesConstants {
 
   /// The device family (e.g., "iOS", "Android").
   static const deviceFamily = 'device.family';
-  
+
   /// The number of total frames rendered during the lifetime of the span.
   static const framesTotal = 'frames.total';
 
