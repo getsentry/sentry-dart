@@ -28,7 +28,7 @@ void main() {
       await fixture.tearDown();
     });
 
-    test('Box.get() creates spanv2 with correct attributes', () async {
+    test('Box.get() creates spanv2', () async {
       final box = fixture.box;
 
       await box.put('test-key', Person('John Doe'));

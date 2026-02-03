@@ -25,7 +25,7 @@ void main() {
       await fixture.tearDown();
     });
 
-    test('Database.query() creates spanv2 with correct attributes', () async {
+    test('Database.query() creates spanv2', () async {
       final db = fixture.db;
 
       await db.execute('''

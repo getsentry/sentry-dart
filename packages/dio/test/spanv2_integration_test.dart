@@ -24,7 +24,7 @@ void main() {
       fixture.dispose();
     });
 
-    test('HTTP GET creates spanv2 with correct attributes', () async {
+    test('HTTP GET creates spanv2', () async {
       final dio = fixture.getDio(
         mockAdapter: fixture.getMockAdapter(
           statusCode: 200,

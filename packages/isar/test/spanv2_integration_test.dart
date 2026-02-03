@@ -27,7 +27,7 @@ void main() {
       await fixture.tearDown();
     });
 
-    test('Collection.count() creates spanv2 with correct attributes', () async {
+    test('Collection.count() creates spanv2', () async {
       final collection = fixture.isar.persons;
 
       final transactionSpan = fixture.hub.startSpan(

@@ -29,7 +29,7 @@ void main() {
       await fixture.tearDown();
     });
 
-    test('Insert operation creates spanv2 with correct attributes', () async {
+    test('Insert operation creates spanv2', () async {
       final db = fixture.db;
 
       final transactionSpan = fixture.hub.startSpan(

@@ -23,7 +23,7 @@ void main() {
       await fixture.tearDown();
     });
 
-    test('Select operation creates spanv2 with correct attributes', () async {
+    test('Select operation creates spanv2', () async {
       final client = fixture.client;
 
       final transactionSpan = fixture.hub.startSpan(

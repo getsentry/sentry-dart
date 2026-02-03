@@ -23,7 +23,7 @@ void main() {
       await fixture.tearDown();
     });
 
-    test('GraphQL query creates spanv2 with correct attributes', () async {
+    test('GraphQL query creates spanv2', () async {
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
