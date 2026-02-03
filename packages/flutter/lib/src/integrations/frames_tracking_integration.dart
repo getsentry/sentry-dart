@@ -61,7 +61,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
         collector.onSpanStarted(event.span);
       });
 
-      options.lifecycleRegistry.registerCallback<OnSpanEndV2>((event) {
+      options.lifecycleRegistry.registerCallback<OnProcessSpan>((event) {
         if (event.span.endTimestamp != null) {
           collector.onSpanFinished(event.span, event.span.endTimestamp!);
         }

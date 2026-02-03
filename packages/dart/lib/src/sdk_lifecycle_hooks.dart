@@ -105,17 +105,8 @@ class OnSpanStartV2 extends SdkLifecycleEvent {
   final SentrySpanV2 span;
 }
 
-/// Dispatched when a sampled span is ended.
-///
-/// Trigger directly after span.end() and before SDK enrichment is applied.
-@internal
-class OnSpanEndV2 extends SdkLifecycleEvent {
-  OnSpanEndV2(this.span);
-
-  final SentrySpanV2 span;
-}
-
-/// Dispatched when span is ready for processing (before default enrichment).
+/// Dispatched when a span has been captured and is ready for processing (before default enrichment)
+/// and before it's being added to the telemetry processor.
 ///
 /// This is useful for integrations to hook into e.g for enriching with attributes.
 @internal
@@ -125,7 +116,8 @@ class OnProcessSpan extends SdkLifecycleEvent {
   OnProcessSpan(this.span);
 }
 
-/// Dispatched when metric is ready for processing (before default enrichment).
+/// Dispatched when a metric has been captured and is ready for processing (before default enrichment)
+/// and before it's being added to the telemetry processor.
 @internal
 class OnProcessMetric extends SdkLifecycleEvent {
   final SentryMetric metric;
