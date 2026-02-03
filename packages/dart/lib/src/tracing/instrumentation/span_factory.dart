@@ -11,7 +11,6 @@ abstract class InstrumentationSpanFactory {
     InstrumentationSpan? parent,
     String operation, {
     String? description,
-    DateTime? startTimestamp,
   });
 
   /// Returns `null` if no active span or tracing disabled.
@@ -26,7 +25,6 @@ class LegacyInstrumentationSpanFactory implements InstrumentationSpanFactory {
     InstrumentationSpan? parent,
     String operation, {
     String? description,
-    DateTime? startTimestamp,
   }) {
     if (parent == null) return null;
 
@@ -34,7 +32,6 @@ class LegacyInstrumentationSpanFactory implements InstrumentationSpanFactory {
       final child = parent.spanReference.startChild(
         operation,
         description: description,
-        startTimestamp: startTimestamp,
       );
 
       if (child is NoOpSentrySpan) return null;
@@ -64,7 +61,6 @@ class StreamingInstrumentationSpanFactory
     InstrumentationSpan? parent,
     String operation, {
     String? description,
-    DateTime? startTimestamp,
   }) {
     if (parent == null) return null;
 
