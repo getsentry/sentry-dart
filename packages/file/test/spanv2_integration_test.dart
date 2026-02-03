@@ -25,7 +25,7 @@ void main() {
       await fixture.tearDown();
     });
 
-    test('File read creates spanv2 with correct attributes', () async {
+    test('File read creates spanv2', () async {
       final file = File('test_resources/testfile.txt');
       final sut = fixture.getSut(file, sendDefaultPii: true);
 
