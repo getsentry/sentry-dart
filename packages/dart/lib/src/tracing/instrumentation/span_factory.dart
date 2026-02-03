@@ -72,7 +72,10 @@ class StreamingInstrumentationSpanFactory
 
       if (childSpan is NoOpSentrySpanV2) return null;
 
-      childSpan.setAttribute('sentry.op', SentryAttribute.string(operation));
+      childSpan.setAttribute(
+        SemanticAttributesConstants.sentryOp,
+        SentryAttribute.string(operation),
+      );
 
       return StreamingInstrumentationSpan(childSpan);
     }

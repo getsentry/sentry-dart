@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:collection/collection.dart';
@@ -39,7 +41,9 @@ class FakeTelemetryProcessor implements TelemetryProcessor {
 
   RecordingSentrySpanV2? findSpanByOperation(String operation) {
     return capturedSpans.firstWhereOrNull(
-      (span) => span.attributes['sentry.op']?.value == operation,
+      (span) =>
+          span.attributes[SemanticAttributesConstants.sentryOp]?.value ==
+          operation,
     );
   }
 
