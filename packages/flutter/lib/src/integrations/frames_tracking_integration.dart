@@ -51,27 +51,28 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
         SentryDelayedFramesTracker(options, expectedFrameDuration);
     widgetsBinding.initializeFramesTracking(
         framesTracker.addDelayedFrame, options, expectedFrameDuration);
-    if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
-      final collector = SpanFrameMetricsCollectorV2(framesTracker,
-          resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
-          pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames());
-      _collector = collector;
+    switch (options.traceLifecycle) {
+      case SentryTraceLifecycle.streaming:
+        final collector = SpanFrameMetricsCollectorV2(framesTracker,
+            resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
+            pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames());
+        _collector = collector;
 
-      options.lifecycleRegistry.registerCallback<OnSpanStartV2>((event) {
-        collector.onSpanStarted(event.span);
-      });
+        options.lifecycleRegistry.registerCallback<OnSpanStartV2>((event) {
+          collector.onSpanStarted(event.span);
+        });
 
-      options.lifecycleRegistry.registerCallback<OnProcessSpan>((event) {
-        if (event.span.endTimestamp != null) {
-          collector.onSpanFinished(event.span, event.span.endTimestamp!);
-        }
-      });
-    } else {
-      final collector = SpanFrameMetricsCollector(options, framesTracker,
-          resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
-          pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames());
-      options.addPerformanceCollector(collector);
-      _collector = collector;
+        options.lifecycleRegistry.registerCallback<OnProcessSpan>((event) {
+          if (event.span.endTimestamp != null) {
+            collector.onSpanFinished(event.span, event.span.endTimestamp!);
+          }
+        });
+      case SentryTraceLifecycle.static:
+        final collector = SpanFrameMetricsCollector(options, framesTracker,
+            resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
+            pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames());
+        options.addPerformanceCollector(collector);
+        _collector = collector;
     }
 
     options.sdk.addIntegration(integrationName);
