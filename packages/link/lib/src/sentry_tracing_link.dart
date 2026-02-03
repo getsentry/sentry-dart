@@ -89,14 +89,27 @@ class SentryTracingLink extends Link {
     InstrumentationSpan? span;
 
     if (parentSpan == null && shouldStartTransaction) {
-      if (_hub.options.traceLifecycle == SentryTraceLifecycle.streaming) {
-        final rootSpan = _hub.startSpan(description);
-        span = StreamingInstrumentationSpan(rootSpan);
-        span.setData(SemanticAttributesConstants.sentryOp, op);
-      } else {
-        final transaction =
-            _hub.startTransaction(description, op, bindToScope: true);
-        span = LegacyInstrumentationSpan(transaction);
+      switch (_hub.options.traceLifecycle) {
+        case SentryTraceLifecycle.streaming:
+          final rootSpan = _hub.startSpan(description);
+
+          if (rootSpan is NoOpSentrySpanV2) {
+            return null;
+          }
+
+          span = StreamingInstrumentationSpan(rootSpan);
+          span.setData(SemanticAttributesConstants.sentryOp, op);
+          break;
+        case SentryTraceLifecycle.static:
+          final transaction =
+              _hub.startTransaction(description, op, bindToScope: true);
+
+          if (transaction is NoOpSentrySpan) {
+            return null;
+          }
+
+          span = LegacyInstrumentationSpan(transaction);
+          break;
       }
     } else if (parentSpan != null) {
       span = _spanFactory.createSpan(parentSpan, op, description: description);
