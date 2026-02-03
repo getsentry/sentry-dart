@@ -4,7 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
 
-/// Fake telemetry processor that captures spans for test assertions.
+/// Fake telemetry processor that captures telemetry data for test assertions.
 ///
 /// Usage:
 /// ```dart
