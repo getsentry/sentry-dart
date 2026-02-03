@@ -86,15 +86,37 @@ class SentryTracingLink extends Link {
     bool shouldStartTransaction,
   ) {
     final parentSpan = _spanFactory.getSpan(_hub);
+    InstrumentationSpan? span;
+
     if (parentSpan == null && shouldStartTransaction) {
-      // Start a new transaction - InstrumentationSpan doesn't support this
-      // so we use the legacy API and wrap it
-      final transaction =
-          _hub.startTransaction(description, op, bindToScope: true);
-      return LegacyInstrumentationSpan(transaction);
+      switch (_hub.options.traceLifecycle) {
+        case SentryTraceLifecycle.streaming:
+          final rootSpan = _hub.startSpan(description);
+
+          if (rootSpan is NoOpSentrySpanV2) {
+            return null;
+          }
+
+          span = StreamingInstrumentationSpan(rootSpan);
+          span.setData(SemanticAttributesConstants.sentryOp, op);
+          break;
+        case SentryTraceLifecycle.static:
+          final transaction =
+              _hub.startTransaction(description, op, bindToScope: true);
+
+          if (transaction is NoOpSentrySpan) {
+            return null;
+          }
+
+          span = LegacyInstrumentationSpan(transaction);
+          break;
+      }
     } else if (parentSpan != null) {
-      return _spanFactory.createSpan(parentSpan, op, description: description);
+      span = _spanFactory.createSpan(
+          parentSpan: parentSpan, operation: op, description: description);
     }
-    return null;
+
+    span?.origin = SentryTraceOrigins.autoGraphQlSentryLink;
+    return span;
   }
 }

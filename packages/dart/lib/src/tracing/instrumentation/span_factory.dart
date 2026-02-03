@@ -1,19 +1,16 @@
 import 'package:meta/meta.dart';
 
-import '../../hub.dart';
-import '../../noop_sentry_span.dart';
-import 'instrumentation_span.dart';
+import '../../../sentry.dart';
 
 /// Factory for creating [InstrumentationSpan] instances.
 /// Configure via [SentryOptions.spanFactory].
 @internal
 abstract class InstrumentationSpanFactory {
-  /// Returns `null` if parent is null or span creation fails.
-  InstrumentationSpan? createSpan(
-    InstrumentationSpan? parent,
-    String operation, {
+  /// Returns `null` if span creation fails or if the parent span is no-op.
+  InstrumentationSpan? createSpan({
+    required InstrumentationSpan parentSpan,
+    required String operation,
     String? description,
-    DateTime? startTimestamp,
   });
 
   /// Returns `null` if no active span or tracing disabled.
@@ -24,19 +21,18 @@ abstract class InstrumentationSpanFactory {
 @internal
 class LegacyInstrumentationSpanFactory implements InstrumentationSpanFactory {
   @override
-  InstrumentationSpan? createSpan(
-    InstrumentationSpan? parent,
-    String operation, {
+  InstrumentationSpan? createSpan({
+    required InstrumentationSpan parentSpan,
+    required String operation,
     String? description,
-    DateTime? startTimestamp,
   }) {
-    if (parent == null) return null;
+    if (parentSpan is LegacyInstrumentationSpan) {
+      final parentSpanRef = parentSpan.spanReference;
+      if (parentSpanRef is NoOpSentrySpan) return null;
 
-    if (parent is LegacyInstrumentationSpan) {
-      final child = parent.spanReference.startChild(
+      final child = parentSpanRef.startChild(
         operation,
         description: description,
-        startTimestamp: startTimestamp,
       );
 
       if (child is NoOpSentrySpan) return null;
@@ -51,5 +47,46 @@ class LegacyInstrumentationSpanFactory implements InstrumentationSpanFactory {
     final span = hub.getSpan();
     if (span == null || span is NoOpSentrySpan) return null;
     return LegacyInstrumentationSpan(span);
+  }
+}
+
+@internal
+class StreamingInstrumentationSpanFactory
+    implements InstrumentationSpanFactory {
+  final Hub _hub;
+
+  StreamingInstrumentationSpanFactory(this._hub);
+
+  @override
+  InstrumentationSpan? createSpan({
+    required InstrumentationSpan parentSpan,
+    required String operation,
+    String? description,
+  }) {
+    if (parentSpan is StreamingInstrumentationSpan) {
+      final parentSpanRef = parentSpan.spanReference;
+      if (parentSpanRef is NoOpSentrySpanV2) return null;
+
+      final childSpan = _hub.startSpan(description ?? operation,
+          parentSpan: parentSpanRef, active: false);
+
+      if (childSpan is NoOpSentrySpanV2) return null;
+
+      childSpan.setAttribute(
+        SemanticAttributesConstants.sentryOp,
+        SentryAttribute.string(operation),
+      );
+
+      return StreamingInstrumentationSpan(childSpan);
+    }
+
+    return null;
+  }
+
+  @override
+  InstrumentationSpan? getSpan(Hub hub) {
+    final span = hub.scope.getActiveSpan();
+    if (span == null) return null;
+    return StreamingInstrumentationSpan(span);
   }
 }

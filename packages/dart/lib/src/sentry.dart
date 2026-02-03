@@ -28,6 +28,7 @@ import 'telemetry/metric/metrics.dart';
 import 'telemetry/processing/processor_integration.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'tracing.dart';
+import 'tracing/instrumentation/span_factory_integration.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
 import 'feature_flags_integration.dart';
@@ -115,6 +116,7 @@ class Sentry {
 
     options.addIntegration(MetricsSetupIntegration());
     options.addIntegration(LoggerSetupIntegration());
+    options.addIntegration(InstrumentationSpanFactorySetupIntegration());
     options.addIntegration(FeatureFlagsIntegration());
     options.addIntegration(InMemoryTelemetryProcessorIntegration());
 

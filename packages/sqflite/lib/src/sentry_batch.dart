@@ -53,11 +53,13 @@ class SentryBatch implements Batch {
     return Future<List<Object?>>(() async {
       final parent = _spanFactory.getSpan(_hub);
 
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbOp,
-        description: _buffer.toString().trim(),
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbOp,
+              description: _buffer.toString().trim(),
+            )
+          : null;
 
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
@@ -107,11 +109,13 @@ class SentryBatch implements Batch {
     return Future<List<Object?>>(() async {
       final parent = _spanFactory.getSpan(_hub);
 
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbOp,
-        description: _buffer.toString().trim(),
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbOp,
+              description: _buffer.toString().trim(),
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
       setDatabaseAttributeData(span, _dbName);

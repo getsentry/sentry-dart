@@ -1,0 +1,16 @@
+name: _sentry_testing
+version: 0.1.0
+description: Testing utilities for Sentry Dart/Flutter SDK (internal use only)
+publish_to: none
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  sentry:
+    path: ../dart
+  meta: ^1.11.0
+  collection: ^1.18.0
+
+dev_dependencies:
+  test: ^1.24.0

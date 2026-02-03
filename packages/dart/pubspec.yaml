@@ -36,3 +36,5 @@ dev_dependencies:
   coverage: ^1.3.0
   intl: '>=0.17.0 <1.0.0'
   version: ^3.0.2
+  _sentry_testing:
+    path: ../_sentry_testing
