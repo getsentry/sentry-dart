@@ -20,20 +20,20 @@
 
 - Catch client exceptions in HttpTransport.send ([#3490](https://github.com/getsentry/sentry-dart/pull/3490))
 
-### Enhancements
-
-- Refactor Logging API to be consistent with Metrics ([#3463](https://github.com/getsentry/sentry-dart/pull/3463))
-
-### Internals
-
-- Remove deprecated `beforeMetricCallback` from options ([#3484](https://github.com/getsentry/sentry-dart/pull/3450))
-- Add span factory to allow swappable span backends in integrations ([#3488](https://github.com/getsentry/sentry-dart/pull/3450))
-
 ### Dependencies
 
 - Bump Android SDK from v8.28.0 to v8.30.0 ([#3451](https://github.com/getsentry/sentry-dart/pull/3451))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8300)
   - [diff](https://github.com/getsentry/sentry-java/compare/8.28.0...8.30.0)
+
+<details>
+<summary><b>Internal Changes</b></summary>
+
+- Refactor Logging API to be consistent with Metrics ([#3463](https://github.com/getsentry/sentry-dart/pull/3463))
+- Remove deprecated `beforeMetricCallback` from options ([#3484](https://github.com/getsentry/sentry-dart/pull/3450))
+- Add span factory to allow swappable span backends in integrations ([#3488](https://github.com/getsentry/sentry-dart/pull/3450))
+
+</details>
 
 ## 9.11.0-beta.2
 
