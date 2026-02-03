@@ -184,11 +184,9 @@ class Fixture {
   }
 
   Future<void> setUp() async {
-    // Initialize sqflite_ffi for testing on VM
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
 
-    // Open database with Sentry wrapper
     db = await SentrySqfliteDatabaseFactory(
       databaseFactory: databaseFactory,
       hub: hub,

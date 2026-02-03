@@ -1,6 +1,6 @@
 # _sentry_testing
 
-Internal testing utilities for the Sentry Dart/Flutter SDK monorepo.
+Internal testing utilities for the Sentry Dart/Flutter SDK monorepo that can be shared among packages.
 
 > ⚠️ **Internal Use Only**
 > This package is for use within the Sentry SDK development only.
@@ -8,7 +8,7 @@ Internal testing utilities for the Sentry Dart/Flutter SDK monorepo.
 
 ## Usage
 
-Add to your integration package's `dev_dependencies`:
+Add to the integration package's `dev_dependencies`:
 
 ```yaml
 dev_dependencies:
