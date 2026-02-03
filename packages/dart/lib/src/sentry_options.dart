@@ -219,6 +219,13 @@ class SentryOptions {
   /// Can return a modified metric or null to drop the metric.
   BeforeSendMetricCallback? beforeSendMetric;
 
+  /// This function is called right before a span is about to be sent.
+  /// Unlike other `beforeSend` callbacks, this callback cannot drop spans
+  /// from the span tree. Spans will always be sent after this callback runs.
+  ///
+  /// Use this callback to scrub sensitive data or PII from span data.
+  BeforeSendSpanCallback? beforeSendSpan;
+
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
   String? release;
@@ -731,6 +738,9 @@ typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
 /// Can return true to emit the metric, or false to drop it.
 typedef BeforeSendMetricCallback = FutureOr<SentryMetric?> Function(
     SentryMetric metric);
+
+/// This function is called right before a span is about to be sent.
+typedef BeforeSendSpanCallback = FutureOr<void> Function(SentrySpanV2 span);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
