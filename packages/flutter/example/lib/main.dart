@@ -1,5 +1,4 @@
 // ignore_for_file: library_private_types_in_public_api
-// ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:async';
 import 'dart:convert';
@@ -91,10 +90,9 @@ Future<void> setupSentry(
       options.enableTimeToFullDisplayTracing = true;
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.navigatorKey = navigatorKey;
-      options.traceLifecycle = SentryTraceLifecycle.streaming;
 
-      // options.replay.sessionSampleRate = 1.0;
-      // options.replay.onErrorSampleRate = 1.0;
+      options.replay.sessionSampleRate = 1.0;
+      options.replay.onErrorSampleRate = 1.0;
 
       options.enableLogs = true;
 
@@ -593,17 +591,10 @@ class MainScaffold extends StatelessWidget {
               text: 'Demonstrates the logging with Sentry Log.',
               buttonTitle: 'Sentry Log with Attribute',
             ),
-            if (Sentry.currentHub.options.traceLifecycle ==
-                SentryTraceLifecycle.streaming)
-              TooltipButton(
-                onPressed: () => spanV2Demo(),
-                text:
-                    'Demonstrates the new SpanV2 API with streaming trace lifecycle. Creates spans and sets attributes.',
-                buttonTitle: 'Emit SpanV2',
-              ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
+            // ignore: invalid_use_of_internal_member
             if (SentryFlutter.native != null)
               ElevatedButton(
                 onPressed: () async {
@@ -627,7 +618,6 @@ class MainScaffold extends StatelessWidget {
   }
 
   Future<void> isarTest() async {
-    final span = Sentry.startSpan('isarTest');
     final tr = Sentry.startTransaction(
       'isarTest',
       'db',
@@ -656,11 +646,9 @@ class MainScaffold extends StatelessWidget {
     });
 
     await tr.finish(status: const SpanStatus.ok());
-    span.end();
   }
 
   Future<void> hiveTest() async {
-    final span = Sentry.startSpan('hiveTest');
     final tr = Sentry.startTransaction(
       'hiveTest',
       'db',
@@ -679,11 +667,9 @@ class MainScaffold extends StatelessWidget {
     SentryHive.close();
 
     await tr.finish(status: const SpanStatus.ok());
-    span.end();
   }
 
   Future<void> sqfliteTest() async {
-    final span = Sentry.startSpan('sqfliteTest');
     final tr = Sentry.startTransaction(
       'sqfliteTest',
       'db',
@@ -727,11 +713,9 @@ class MainScaffold extends StatelessWidget {
     await db.close();
 
     await tr.finish(status: const SpanStatus.ok());
-    span.end();
   }
 
   Future<void> driftTest() async {
-    final span = Sentry.startSpan('driftTest');
     final tr = Sentry.startTransaction(
       'driftTest',
       'db',
@@ -755,7 +739,6 @@ class MainScaffold extends StatelessWidget {
     await db.close();
 
     await tr.finish(status: const SpanStatus.ok());
-    span.end();
   }
 }
 
@@ -829,67 +812,6 @@ Future<void> tryCatch() async {
 
 Future<void> asyncThrows() async {
   throw StateError('async throws');
-}
-
-/// Demonstrates the SpanV2 API with streaming trace lifecycle.
-Future<void> spanV2Demo() async {
-  // Create a root span using the new startSpan API
-  final rootSpan = Sentry.startSpan(
-    'spanv2-demo-root',
-    attributes: {
-      'demo.type': SentryAttribute.string('comprehensive'),
-      'demo.version': SentryAttribute.int(2),
-    },
-  );
-
-  // Set additional attributes after creation
-  rootSpan.setAttribute('root.custom', SentryAttribute.string('root-value'));
-
-  await Future.delayed(const Duration(milliseconds: 50));
-
-  // Create a child span
-  final childSpan = Sentry.startSpan(
-    'spanv2-demo-child',
-    parentSpan: rootSpan,
-  );
-
-  // Set multiple attributes at once
-  childSpan.setAttributes({
-    'child.operation': SentryAttribute.string('database-query'),
-    'child.rows': SentryAttribute.int(42),
-  });
-
-  await Future.delayed(const Duration(milliseconds: 30));
-
-  // Demonstrate setAttributesIfAbsent - this should NOT override existing
-  (childSpan as RecordingSentrySpanV2).setAttributesIfAbsent({
-    'child.operation': SentryAttribute.string('this-should-not-appear'),
-    'child.new_attr': SentryAttribute.string('this-should-appear'),
-  });
-
-  // Create a nested child span
-  final nestedSpan = Sentry.startSpan(
-    'spanv2-demo-nested',
-    parentSpan: childSpan,
-  );
-
-  nestedSpan.setAttribute('nested.level', SentryAttribute.int(2));
-  nestedSpan.status = SentrySpanStatusV2.ok;
-
-  await Future.delayed(const Duration(milliseconds: 20));
-
-  // End spans in reverse order
-  nestedSpan.end();
-
-  await Future.delayed(const Duration(milliseconds: 10));
-
-  childSpan.status = SentrySpanStatusV2.ok;
-  childSpan.end();
-
-  await Future.delayed(const Duration(milliseconds: 10));
-
-  rootSpan.status = SentrySpanStatusV2.ok;
-  rootSpan.end();
 }
 
 class IntegrationTestWidget extends StatefulWidget {
@@ -1043,7 +965,6 @@ class SecondaryScaffold extends StatelessWidget {
 }
 
 Future<void> makeWebRequest(BuildContext context) async {
-  final span = Sentry.startSpan('flutterwebrequest');
   final transaction = Sentry.getSpan() ??
       Sentry.startTransaction(
         'flutterwebrequest',
@@ -1059,7 +980,6 @@ Future<void> makeWebRequest(BuildContext context) async {
   final response = await client.get(Uri.parse(exampleUrl));
 
   await transaction.finish(status: const SpanStatus.ok());
-  span.end();
 
   if (!context.mounted) return;
   await showDialog<void>(
@@ -1085,7 +1005,6 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
   final dio = Dio();
   dio.addSentry();
 
-  final spanFirst = Sentry.startSpan('dio-web-request');
   final transaction = Sentry.getSpan() ??
       Sentry.startTransaction(
         'dio-web-request',
@@ -1107,7 +1026,6 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
   } finally {
     await span.finish();
   }
-  spanFirst.end();
 
   if (!context.mounted) return;
   await showDialog<void>(
