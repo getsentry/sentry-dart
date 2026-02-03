@@ -14,7 +14,7 @@ abstract class PerformanceContinuousCollector extends PerformanceCollector {
 }
 
 /// Used for collecting continuous data about vitals (slow, frozen frames, etc.)
-/// during a transaction/span.
+/// during a span (v2 API).
 abstract class PerformanceContinuousCollectorV2 extends PerformanceCollector {
   Future<void> onSpanStarted(SentrySpanV2 span);
 
