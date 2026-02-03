@@ -10,7 +10,7 @@ dependencies:
   sentry:
     path: ../dart
   meta: ^1.11.0
-  collection: ^1.18.0  # For firstWhereOrNull
+  collection: ^1.18.0
 
 dev_dependencies:
   test: ^1.24.0
