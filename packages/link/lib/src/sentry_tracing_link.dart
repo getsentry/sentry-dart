@@ -87,12 +87,21 @@ class SentryTracingLink extends Link {
   ) {
     final parentSpan = _spanFactory.getSpan(_hub);
     InstrumentationSpan? span;
+
     if (parentSpan == null && shouldStartTransaction) {
-      // Start a new transaction - InstrumentationSpan doesn't support this
-      // so we use the legacy API and wrap it
-      final transaction =
-          _hub.startTransaction(description, op, bindToScope: true);
-      span = LegacyInstrumentationSpan(transaction);
+      // No active span but shouldStartTransaction is true - create a root span
+      if (_hub.options.traceLifecycle == SentryTraceLifecycle.streaming) {
+        // In streaming mode, just create a new root span using v2 API
+        final rootSpan = _hub.startSpan(description, parentSpan: null, active: true);
+        span = StreamingInstrumentationSpan(rootSpan);
+        // Set the operation attribute for the root span
+        span.setData('sentry.op', op);
+      } else {
+        // In legacy mode, use the transaction API
+        final transaction =
+            _hub.startTransaction(description, op, bindToScope: true);
+        span = LegacyInstrumentationSpan(transaction);
+      }
     } else if (parentSpan != null) {
       span = _spanFactory.createSpan(parentSpan, op, description: description);
     }

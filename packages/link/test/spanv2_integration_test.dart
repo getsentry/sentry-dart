@@ -158,6 +158,46 @@ void main() {
           equals('http.graphql.query'));
       expect(span.parentSpan, equals(transactionSpan));
     });
+
+    test('shouldStartTransaction creates root spanv2 when no active span',
+        () async {
+      // Execute GraphQL query with shouldStartTransaction=true
+      final link = fixture.createSentryTracingLink(shouldStartTransaction: true);
+      final request = Request(
+        operation: Operation(
+          document: parseString('query GetUser { user(id: "1") { name } }'),
+          operationName: 'GetUser',
+        ),
+      );
+
+      try {
+        await link.request(request).first;
+      } catch (e) {
+        // Expected to complete
+      }
+
+      // Wait for async processing
+      await fixture.processor.waitForProcessing();
+
+      // Assert root span was created (no parent)
+      final allSpans = fixture.processor.capturedSpans;
+      expect(allSpans.length, greaterThan(0));
+
+      // Find the GraphQL operation span - should be a root span
+      final span = fixture.processor.findSpanByOperation('http.graphql.query');
+      expect(span, isNotNull);
+      expect(span!.isEnded, isTrue);
+      expect(span.status, equals(SentrySpanStatusV2.ok));
+
+      // Verify it's a root span (no parent)
+      expect(span.parentSpan, isNull);
+
+      // Verify operation and attributes
+      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+          equals('http.graphql.query'));
+      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+          equals('auto.graphql.sentry_link'));
+    });
   });
 }
 
@@ -183,9 +223,10 @@ class Fixture {
   Link createSentryTracingLink({
     bool shouldReturnError = false,
     bool markErrorsAsFailed = false,
+    bool shouldStartTransaction = false,
   }) {
     final sentryLink = SentryTracingLink(
-      shouldStartTransaction: false,
+      shouldStartTransaction: shouldStartTransaction,
       graphQlErrorsMarkTransactionAsFailed: markErrorsAsFailed,
       hub: hub,
     );
