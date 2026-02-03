@@ -5,7 +5,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/binding_wrapper.dart';
@@ -307,7 +306,7 @@ void main() {
         isTrue,
       );
       expect(
-        options.lifecycleRegistry.lifecycleCallbacks.containsKey(OnSpanEndV2),
+        options.lifecycleRegistry.lifecycleCallbacks.containsKey(OnProcessSpan),
         isTrue,
       );
     });
