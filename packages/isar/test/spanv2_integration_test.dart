@@ -193,7 +193,9 @@ class Fixture {
       if (isar.isOpen) {
         await isar.close(deleteFromDisk: true);
       }
-    } catch (e) {}
+    } catch (e) {
+      // Ignore errors during cleanup
+    }
 
     await hub.close();
   }

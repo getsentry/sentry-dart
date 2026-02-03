@@ -59,8 +59,10 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('db.sql.query'));
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('db.sql.query'),
+      );
       expect(
         span.attributes[SemanticAttributesConstants.dbSystem]?.value,
         equals('db.sqlite'),
@@ -107,10 +109,14 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('db.sql.query'));
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-          equals('db.sqlite'));
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('db.sql.query'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        equals('db.sqlite'),
+      );
       expect(span.parentSpan, equals(transactionSpan));
     });
 
@@ -152,10 +158,14 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('db.sql.query'));
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-          equals('db.sqlite'));
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('db.sql.query'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        equals('db.sqlite'),
+      );
       expect(span.parentSpan, equals(transactionSpan));
     });
   });
@@ -182,7 +192,6 @@ class Fixture {
   }
 
   Future<void> setUp() async {
-    // Open database with Sentry wrapper
     final queryExecutor = NativeDatabase.memory();
     final sentryQueryInterceptor = SentryQueryInterceptor(
       databaseName: dbName,
