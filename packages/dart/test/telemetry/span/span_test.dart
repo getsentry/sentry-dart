@@ -1,6 +1,4 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_status_v2.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:test/test.dart';
 
 import '../../test_utils.dart';
@@ -62,7 +60,7 @@ void main() {
       RecordingSentrySpanV2? capturedSpan;
       final span = fixture.createSpan(
         name: 'test-span',
-        onSpanEnded: (s) => capturedSpan = s,
+        onSpanEnded: (s) async { capturedSpan = s; },
       );
 
       span.end();
@@ -74,7 +72,7 @@ void main() {
       var callCount = 0;
       final span = fixture.createSpan(
         name: 'test-span',
-        onSpanEnded: (_) => callCount++,
+        onSpanEnded: (_) async { callCount++; },
       );
       final firstEndTimestamp = DateTime.utc(2024, 1, 1);
       final secondEndTimestamp = DateTime.utc(2024, 1, 2);
@@ -106,6 +104,34 @@ void main() {
       span.setAttributes(attributes);
 
       expect(span.attributes, equals(attributes));
+    });
+
+    test('setAttributesIfAbsent sets attributes only if key does not exist',
+        () {
+      final span = fixture.createSpan(name: 'test-span');
+
+      final attributes = {
+        'key1': SentryAttribute.string('value1'),
+        'key2': SentryAttribute.int(42),
+      };
+      span.setAttributesIfAbsent(attributes);
+
+      expect(span.attributes, equals(attributes));
+    });
+
+    test('setAttributesIfAbsent does not override existing attributes', () {
+      final span = fixture.createSpan(name: 'test-span');
+
+      span.setAttribute('key1', SentryAttribute.string('existing-value'));
+
+      final attributes = {
+        'key1': SentryAttribute.string('new-value'),
+        'key2': SentryAttribute.int(42),
+      };
+      span.setAttributesIfAbsent(attributes);
+
+      expect(span.attributes['key1']?.value, equals('existing-value'));
+      expect(span.attributes['key2']?.value, equals(42));
     });
 
     test('setName sets span name', () {
@@ -495,7 +521,7 @@ class Fixture {
       return RecordingSentrySpanV2.child(
         parent: parentSpan,
         name: name,
-        onSpanEnd: onSpanEnded ?? (_) {},
+        onSpanEnd: onSpanEnded ?? (_) async {},
         clock: options.clock,
         dscCreator: dscCreator ?? defaultDscCreator,
       );
@@ -503,7 +529,7 @@ class Fixture {
     return RecordingSentrySpanV2.root(
       name: name,
       traceId: traceId ?? SentryId.newId(),
-      onSpanEnd: onSpanEnded ?? (_) {},
+      onSpanEnd: onSpanEnded ?? (_) async {},
       clock: options.clock,
       dscCreator: dscCreator ?? defaultDscCreator,
       samplingDecision: samplingDecision ?? SentryTracesSamplingDecision(true),

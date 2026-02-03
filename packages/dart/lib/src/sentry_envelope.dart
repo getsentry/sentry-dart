@@ -131,6 +131,21 @@ class SentryEnvelope {
         ],
       );
 
+  /// Create a [SentryEnvelope] containing raw metric data payload.
+  /// This is used by the log batcher to send pre-encoded metric batches.
+  @internal
+  factory SentryEnvelope.fromMetricsData(
+    List<List<int>> encodedMetrics,
+    SdkVersion sdkVersion,
+  ) =>
+      SentryEnvelope(
+        SentryEnvelopeHeader(null, sdkVersion),
+        [
+          SentryEnvelopeItem.fromMetricsData(
+              _buildItemsPayload(encodedMetrics), encodedMetrics.length)
+        ],
+      );
+
   /// Stream binary data representation of `Envelope` file encoded.
   Stream<List<int>> envelopeStream(SentryOptions options) async* {
     yield utf8JsonEncoder.convert(header.toJson());

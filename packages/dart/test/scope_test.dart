@@ -3,7 +3,6 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -994,7 +993,7 @@ class Fixture {
     return RecordingSentrySpanV2.root(
       name: name,
       traceId: SentryId.newId(),
-      onSpanEnd: (_) {},
+      onSpanEnd: (_) async {},
       clock: options.clock,
       dscCreator: (_) =>
           SentryTraceContextHeader(SentryId.newId(), 'publicKey'),

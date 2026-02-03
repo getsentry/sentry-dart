@@ -11,6 +11,7 @@ import 'scope.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'telemetry/metric/metric.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'tracing.dart';
 
@@ -216,6 +217,10 @@ class HubAdapter implements Hub {
   FutureOr<void> captureLog(SentryLog log) => Sentry.currentHub.captureLog(log);
 
   @override
+  Future<void> captureMetric(SentryMetric metric) =>
+      Sentry.currentHub.captureMetric(metric);
+
+  @override
   void setAttributes(Map<String, SentryAttribute> attributes) =>
       Sentry.currentHub.setAttributes(attributes);
 
@@ -223,5 +228,6 @@ class HubAdapter implements Hub {
   void removeAttribute(String key) => Sentry.currentHub.removeAttribute(key);
 
   @override
-  void captureSpan(SentrySpanV2 span) => Sentry.currentHub.captureSpan(span);
+  Future<void> captureSpan(SentrySpanV2 span) =>
+      Sentry.currentHub.captureSpan(span);
 }

@@ -11,14 +11,15 @@ class SentryLazyBox<E> extends SentryBoxBase<E> implements LazyBox<E> {
   final LazyBox<E> _lazyBox;
   final Hub _hub;
 
-  final _spanHelper = SentrySpanHelper(
-    // ignore: invalid_use_of_internal_member
-    SentryTraceOrigins.autoDbHiveLazyBox,
-  );
+  late final SentrySpanHelper _spanHelper;
 
   /// @nodoc
   SentryLazyBox(this._lazyBox, @internal this._hub) : super(_lazyBox, _hub) {
-    _spanHelper.setHub(_hub);
+    _spanHelper = SentrySpanHelper(
+      // ignore: invalid_use_of_internal_member
+      SentryTraceOrigins.autoDbHiveLazyBox,
+      hub: _hub,
+    );
   }
 
   @override

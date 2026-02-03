@@ -9,7 +9,6 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
@@ -242,6 +241,7 @@ class MockLogItem {
 class MockTelemetryProcessor implements TelemetryProcessor {
   final List<RecordingSentrySpanV2> addedSpans = [];
   final List<SentryLog> addedLogs = [];
+  final List<SentryMetric> addedMetrics = [];
   int flushCalls = 0;
   int closeCalls = 0;
 
@@ -253,6 +253,11 @@ class MockTelemetryProcessor implements TelemetryProcessor {
   @override
   void addLog(SentryLog log) {
     addedLogs.add(log);
+  }
+
+  @override
+  void addMetric(SentryMetric metric) {
+    addedMetrics.add(metric);
   }
 
   @override

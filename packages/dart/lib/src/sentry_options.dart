@@ -12,6 +12,8 @@ import 'noop_client.dart';
 import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
+import 'telemetry/log/noop_logger.dart';
+import 'telemetry/metric/noop_metrics.dart';
 import 'telemetry/processing/processor.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
@@ -209,13 +211,13 @@ class SentryOptions {
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
   BeforeBreadcrumbCallback? beforeBreadcrumb;
 
-  /// This function is called right before a metric is about to be emitted.
-  /// Can return true to emit the metric, or false to drop it.
-  BeforeMetricCallback? beforeMetricCallback;
-
   /// This function is called right before a log is about to be sent.
   /// Can return a modified log or null to drop the log.
   BeforeSendLogCallback? beforeSendLog;
+
+  /// This function is called right before a metric is about to be sent.
+  /// Can return a modified metric or null to drop the metric.
+  BeforeSendMetricCallback? beforeSendMetric;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
@@ -342,9 +344,20 @@ class SentryOptions {
   /// - In an browser environment this can be requests which fail because of CORS.
   /// - In an mobile or desktop application this can be requests which failed
   ///   because the connection was interrupted.
-  /// Use with [SentryHttpClient] or `sentry_dio` integration for this to work,
-  /// or iOS native where it sets the value to `enableCaptureFailedRequests`.
+  /// Use with [SentryHttpClient] or `sentry_dio` integration for this to work
+  ///
+  /// If you wish to disable capturing native failed requests on iOS/macOS, use [captureNativeFailedRequests] instead.
+  // TODO(major-v10): do not sync this with native options, instead use captureNativeFailedRequests instead to sync.
   bool captureFailedRequests = true;
+
+  /// Whether failed HTTP requests are captured by the native iOS/macOS SDK.
+  ///
+  /// This allows controlling native-side HTTP error capturing independently
+  /// from [captureFailedRequests], which controls Dart-side capturing.
+  ///
+  /// When `null` (the default), falls back to [captureFailedRequests].
+  // TODO(major-v10): it's currently nullable for backwards compatibility, make non-nullable by default.
+  bool? captureNativeFailedRequests;
 
   /// Whether to records requests as breadcrumbs. This is on by default.
   /// It only has an effect when the SentryHttpClient or dio integration is in
@@ -560,12 +573,21 @@ class SentryOptions {
   /// Disabled by default.
   bool enableLogs = false;
 
+  /// Enable to capture and send metrics to Sentry.
+  ///
+  /// Enabled by default.
+  bool enableMetrics = true;
+
   /// Enables adding the module in [SentryStackFrame.module].
   /// This option only has an effect in non-obfuscated builds.
   /// Enabling this option may change grouping.
   bool includeModuleInStackTrace = false;
 
-  late final SentryLogger logger = SentryLogger(clock);
+  @internal
+  late SentryLogger logger = const NoOpSentryLogger();
+
+  @internal
+  late SentryMetrics metrics = const NoOpSentryMetrics();
 
   @internal
   TelemetryProcessor telemetryProcessor = NoOpTelemetryProcessor();
@@ -643,6 +665,15 @@ class SentryOptions {
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
 
+  /// Factory for creating instrumentation spans.
+  ///
+  /// This can be replaced to use different span implementations
+  /// (e.g., SentrySpanV2 in the future).
+  ///
+  /// Defaults to [LegacyInstrumentationSpanFactory] which uses the legacy [ISentrySpan] API.
+  @internal
+  InstrumentationSpanFactory spanFactory = LegacyInstrumentationSpanFactory();
+
   @visibleForTesting
   void debugLog(
     SentryLevel level,
@@ -692,16 +723,14 @@ typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
   Hint hint,
 );
 
-/// This function is called right before a metric is about to be emitted.
-/// Can return true to emit the metric, or false to drop it.
-typedef BeforeMetricCallback = bool Function(
-  String key, {
-  Map<String, String>? tags,
-});
-
 /// This function is called right before a log is about to be sent.
 /// Can return a modified log or null to drop the log.
 typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
+
+/// This function is called right before a metric is about to be emitted.
+/// Can return true to emit the metric, or false to drop it.
+typedef BeforeSendMetricCallback = FutureOr<SentryMetric?> Function(
+    SentryMetric metric);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();

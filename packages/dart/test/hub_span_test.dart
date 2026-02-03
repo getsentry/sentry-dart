@@ -1,5 +1,4 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_client_report_recorder.dart';
@@ -424,23 +423,23 @@ void main() {
     });
 
     group('when capturing span', () {
-      test('calls client.captureSpan with span and scope', () {
+      test('calls client.captureSpan with span and scope', () async {
         final hub = fixture.getSut();
         final span = hub.startSpan('test-span');
 
-        hub.captureSpan(span);
+        await hub.captureSpan(span);
 
         expect(fixture.client.captureSpanCalls, hasLength(1));
         expect(fixture.client.captureSpanCalls.first.span, equals(span));
         expect(fixture.client.captureSpanCalls.first.scope, isNotNull);
       });
 
-      test('removes span from active spans on scope', () {
+      test('removes span from active spans on scope', () async {
         final hub = fixture.getSut();
         final span = hub.startSpan('test-span');
         expect(hub.scope.activeSpans, contains(span));
 
-        hub.captureSpan(span);
+        await hub.captureSpan(span);
 
         expect(hub.scope.activeSpans, isNot(contains(span)));
       });
@@ -450,20 +449,23 @@ void main() {
         final span = hub.startSpan('test-span');
         await hub.close();
 
-        // Should not throw
-        hub.captureSpan(span);
+        await hub.captureSpan(span);
+
+        expect(fixture.client.captureSpanCalls, isEmpty);
+        expect(hub.scope.activeSpans, contains(span));
       });
 
-      test('does nothing when tracing is disabled', () {
+      test('does nothing when tracing is disabled', () async {
         final hub = fixture.getSut(tracesSampleRate: null);
 
         final span = hub.startSpan('test-span');
         expect(span, isA<NoOpSentrySpanV2>());
         expect(hub.scope.activeSpans, isEmpty);
 
-        hub.captureSpan(span);
+        await hub.captureSpan(span);
 
         expect(hub.scope.activeSpans, isEmpty);
+        expect(fixture.client.captureSpanCalls, isEmpty);
       });
     });
   });

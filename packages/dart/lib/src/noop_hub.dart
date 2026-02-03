@@ -10,6 +10,7 @@ import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'telemetry/metric/metric.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'tracing.dart';
 
@@ -99,6 +100,9 @@ class NoOpHub implements Hub {
   FutureOr<void> captureLog(SentryLog log) async {}
 
   @override
+  Future<void> captureMetric(SentryMetric metric) async {}
+
+  @override
   ISentrySpan startTransaction(
     String name,
     String operation, {
@@ -162,5 +166,5 @@ class NoOpHub implements Hub {
       NoOpSentrySpanV2.instance;
 
   @override
-  void captureSpan(SentrySpanV2 span) {}
+  Future<void> captureSpan(SentrySpanV2 span) async {}
 }

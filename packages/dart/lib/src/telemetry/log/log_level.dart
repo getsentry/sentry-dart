@@ -1,4 +1,4 @@
-import 'sentry_level.dart';
+import '../../protocol/sentry_level.dart';
 
 enum SentryLogLevel {
   trace('trace'),

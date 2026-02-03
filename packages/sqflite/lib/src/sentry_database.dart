@@ -51,6 +51,9 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   // ignore: public_member_api_docs
   String dbName;
 
+  // ignore: invalid_use_of_internal_member
+  late final InstrumentationSpanFactory _spanFactory;
+
   /// ```dart
   /// import 'package:sqflite/sqflite.dart';
   /// import 'package:sentry_sqflite/sentry_sqflite.dart';
@@ -70,6 +73,8 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         ) {
     // ignore: invalid_use_of_internal_member
     final options = _hub.options;
+    // ignore: invalid_use_of_internal_member
+    _spanFactory = options.spanFactory;
     options.sdk.addIntegration('SentrySqfliteTracing');
     options.sdk.addPackage(packageName, sdkVersion);
   }
@@ -79,9 +84,10 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   @override
   Future<void> close() {
     return Future<void>(() async {
-      final currentSpan = _hub.getSpan();
+      final parent = _spanFactory.getSpan(_hub);
       final description = 'Close DB: ${_database.path}';
-      final span = currentSpan?.startChild(
+      final span = _spanFactory.createSpan(
+        parent,
         dbOp,
         description: description,
       );
@@ -143,9 +149,10 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     bool? exclusive,
   }) {
     return Future<T>(() async {
-      final currentSpan = _hub.getSpan();
+      final parent = _spanFactory.getSpan(_hub);
       final description = 'Transaction DB: ${_database.path}';
-      final span = currentSpan?.startChild(
+      final span = _spanFactory.createSpan(
+        parent,
         _dbSqlTransactionOp,
         description: description,
       );
@@ -202,9 +209,10 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   // ignore: override_on_non_overriding_member, public_member_api_docs
   Future<T> readTransaction<T>(Future<T> Function(Transaction txn) action) {
     return Future<T>(() async {
-      final currentSpan = _hub.getSpan();
+      final parent = _spanFactory.getSpan(_hub);
       final description = 'Transaction DB: ${_database.path}';
-      final span = currentSpan?.startChild(
+      final span = _spanFactory.createSpan(
+        parent,
         _dbSqlReadTransactionOp,
         description: description,
       );

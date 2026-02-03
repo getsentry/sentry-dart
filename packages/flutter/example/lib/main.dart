@@ -1,4 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:async';
 import 'dart:convert';
@@ -90,11 +91,19 @@ Future<void> setupSentry(
       options.enableTimeToFullDisplayTracing = true;
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.navigatorKey = navigatorKey;
+      options.traceLifecycle = SentryTraceLifecycle.streaming;
 
       options.replay.sessionSampleRate = 1.0;
       options.replay.onErrorSampleRate = 1.0;
 
       options.enableLogs = true;
+
+      options.beforeSendMetric = (metric) {
+        if (metric.name == 'drop-metric') {
+          return null;
+        }
+        return metric;
+      };
 
       _isIntegrationTest = isIntegrationTest;
       if (_isIntegrationTest) {
@@ -545,6 +554,37 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () {
+                Sentry.metrics.count(
+                  'screen.view',
+                  1,
+                  attributes: {
+                    'screen': SentryAttribute.string('HomeScreen'),
+                    'source': SentryAttribute.string('navigation'),
+                  },
+                );
+                Sentry.metrics.gauge(
+                  'app.memory_usage',
+                  128,
+                  unit: 'megabyte',
+                  attributes: {
+                    'state': SentryAttribute.string('foreground'),
+                  },
+                );
+                Sentry.metrics.distribution(
+                  'ui.render_time',
+                  16.7,
+                  unit: 'millisecond',
+                  attributes: {
+                    'widget': SentryAttribute.string('ListView'),
+                    'item_count': SentryAttribute.int(50),
+                  },
+                );
+              },
+              text: 'Demonstrates Sentry Metrics.',
+              buttonTitle: 'Send Metrics',
+            ),
+            TooltipButton(
+              onPressed: () {
                 Sentry.logger
                     .info('Sentry Log With Test Attribute', attributes: {
                   'test-attribute': SentryAttribute.string('test-value'),
@@ -553,10 +593,17 @@ class MainScaffold extends StatelessWidget {
               text: 'Demonstrates the logging with Sentry Log.',
               buttonTitle: 'Sentry Log with Attribute',
             ),
+            if (Sentry.currentHub.options.traceLifecycle ==
+                SentryTraceLifecycle.streaming)
+              TooltipButton(
+                onPressed: () => spanV2Demo(),
+                text:
+                    'Demonstrates the new SpanV2 API with streaming trace lifecycle. Creates spans and sets attributes.',
+                buttonTitle: 'Emit SpanV2',
+              ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
-            // ignore: invalid_use_of_internal_member
             if (SentryFlutter.native != null)
               ElevatedButton(
                 onPressed: () async {
@@ -774,6 +821,67 @@ Future<void> tryCatch() async {
 
 Future<void> asyncThrows() async {
   throw StateError('async throws');
+}
+
+/// Demonstrates the SpanV2 API with streaming trace lifecycle.
+Future<void> spanV2Demo() async {
+  // Create a root span using the new startSpan API
+  final rootSpan = Sentry.startSpan(
+    'spanv2-demo-root',
+    attributes: {
+      'demo.type': SentryAttribute.string('comprehensive'),
+      'demo.version': SentryAttribute.int(2),
+    },
+  );
+
+  // Set additional attributes after creation
+  rootSpan.setAttribute('root.custom', SentryAttribute.string('root-value'));
+
+  await Future.delayed(const Duration(milliseconds: 50));
+
+  // Create a child span
+  final childSpan = Sentry.startSpan(
+    'spanv2-demo-child',
+    parentSpan: rootSpan,
+  );
+
+  // Set multiple attributes at once
+  childSpan.setAttributes({
+    'child.operation': SentryAttribute.string('database-query'),
+    'child.rows': SentryAttribute.int(42),
+  });
+
+  await Future.delayed(const Duration(milliseconds: 30));
+
+  // Demonstrate setAttributesIfAbsent - this should NOT override existing
+  (childSpan as RecordingSentrySpanV2).setAttributesIfAbsent({
+    'child.operation': SentryAttribute.string('this-should-not-appear'),
+    'child.new_attr': SentryAttribute.string('this-should-appear'),
+  });
+
+  // Create a nested child span
+  final nestedSpan = Sentry.startSpan(
+    'spanv2-demo-nested',
+    parentSpan: childSpan,
+  );
+
+  nestedSpan.setAttribute('nested.level', SentryAttribute.int(2));
+  nestedSpan.status = SentrySpanStatusV2.ok;
+
+  await Future.delayed(const Duration(milliseconds: 20));
+
+  // End spans in reverse order
+  nestedSpan.end();
+
+  await Future.delayed(const Duration(milliseconds: 10));
+
+  childSpan.status = SentrySpanStatusV2.ok;
+  childSpan.end();
+
+  await Future.delayed(const Duration(milliseconds: 10));
+
+  rootSpan.status = SentrySpanStatusV2.ok;
+  rootSpan.end();
 }
 
 class IntegrationTestWidget extends StatefulWidget {

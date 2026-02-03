@@ -1,13 +1,113 @@
 import 'dart:async';
-import 'protocol/sentry_attribute.dart';
-import 'sentry_template_string.dart';
-import 'sentry_logger.dart';
 
-class SentryLoggerFormatter {
-  SentryLoggerFormatter(this._logger);
+import '../../../sentry.dart';
+import '../../sentry_template_string.dart';
+import '../../utils/internal_logger.dart';
 
-  final SentryLogger _logger;
+typedef CaptureLogCallback = FutureOr<void> Function(SentryLog log);
+typedef ScopeProvider = Scope Function();
 
+final class DefaultSentryLogger implements SentryLogger {
+  final CaptureLogCallback _captureLogCallback;
+  final ClockProvider _clockProvider;
+  final ScopeProvider _scopeProvider;
+
+  late final SentryLoggerFormatter _formatter =
+      _DefaultSentryLoggerFormatter(this);
+
+  DefaultSentryLogger({
+    required CaptureLogCallback captureLogCallback,
+    required ClockProvider clockProvider,
+    required ScopeProvider scopeProvider,
+  })  : _captureLogCallback = captureLogCallback,
+        _clockProvider = clockProvider,
+        _scopeProvider = scopeProvider;
+
+  @override
+  FutureOr<void> trace(
+    String body, {
+    Map<String, SentryAttribute>? attributes,
+  }) {
+    return _captureLog(SentryLogLevel.trace, body, attributes: attributes);
+  }
+
+  @override
+  FutureOr<void> debug(
+    String body, {
+    Map<String, SentryAttribute>? attributes,
+  }) {
+    return _captureLog(SentryLogLevel.debug, body, attributes: attributes);
+  }
+
+  @override
+  FutureOr<void> info(
+    String body, {
+    Map<String, SentryAttribute>? attributes,
+  }) {
+    return _captureLog(SentryLogLevel.info, body, attributes: attributes);
+  }
+
+  @override
+  FutureOr<void> warn(
+    String body, {
+    Map<String, SentryAttribute>? attributes,
+  }) {
+    return _captureLog(SentryLogLevel.warn, body, attributes: attributes);
+  }
+
+  @override
+  FutureOr<void> error(
+    String body, {
+    Map<String, SentryAttribute>? attributes,
+  }) {
+    return _captureLog(SentryLogLevel.error, body, attributes: attributes);
+  }
+
+  @override
+  FutureOr<void> fatal(
+    String body, {
+    Map<String, SentryAttribute>? attributes,
+  }) {
+    return _captureLog(SentryLogLevel.fatal, body, attributes: attributes);
+  }
+
+  @override
+  SentryLoggerFormatter get fmt => _formatter;
+
+  // Helpers
+
+  FutureOr<void> _captureLog(
+    SentryLogLevel level,
+    String body, {
+    Map<String, SentryAttribute>? attributes,
+  }) {
+    internalLogger.debug(() =>
+        'Sentry.logger.${level.value}("$body") called with attributes ${_formatAttributes(attributes)}');
+
+    final log = SentryLog(
+      timestamp: _clockProvider(),
+      level: level,
+      body: body,
+      traceId: _scopeProvider().propagationContext.traceId,
+      spanId: _scopeProvider().span?.context.spanId,
+      attributes: attributes ?? {},
+    );
+
+    return _captureLogCallback(log);
+  }
+
+  String _formatAttributes(Map<String, SentryAttribute>? attributes) {
+    final formatted = attributes?.toFormattedString() ?? '';
+    return formatted.isEmpty ? '' : ' $formatted';
+  }
+}
+
+final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
+  _DefaultSentryLoggerFormatter(this._logger);
+
+  final DefaultSentryLogger _logger;
+
+  @override
   FutureOr<void> trace(
     String templateBody,
     List<dynamic> arguments, {
@@ -23,6 +123,7 @@ class SentryLoggerFormatter {
     );
   }
 
+  @override
   FutureOr<void> debug(
     String templateBody,
     List<dynamic> arguments, {
@@ -38,6 +139,7 @@ class SentryLoggerFormatter {
     );
   }
 
+  @override
   FutureOr<void> info(
     String templateBody,
     List<dynamic> arguments, {
@@ -53,6 +155,7 @@ class SentryLoggerFormatter {
     );
   }
 
+  @override
   FutureOr<void> warn(
     String templateBody,
     List<dynamic> arguments, {
@@ -68,6 +171,7 @@ class SentryLoggerFormatter {
     );
   }
 
+  @override
   FutureOr<void> error(
     String templateBody,
     List<dynamic> arguments, {
@@ -83,6 +187,7 @@ class SentryLoggerFormatter {
     );
   }
 
+  @override
   FutureOr<void> fatal(
     String templateBody,
     List<dynamic> arguments, {

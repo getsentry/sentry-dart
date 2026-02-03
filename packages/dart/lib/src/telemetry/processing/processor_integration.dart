@@ -2,7 +2,6 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
-import '../span/sentry_span_v2.dart';
 import 'in_memory_buffer.dart';
 import 'processor.dart';
 
@@ -31,6 +30,7 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
     options.telemetryProcessor = DefaultTelemetryProcessor(
       logBuffer: _createLogBuffer(options),
       spanBuffer: _createSpanBuffer(options),
+      metricBuffer: _createMetricBuffer(options),
     );
 
     options.sdk.addIntegration(integrationName);
@@ -62,4 +62,15 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
             return Future.wait(futures).then((_) {});
           },
           groupKeyExtractor: spanGroupKeyExtractor);
+
+  InMemoryTelemetryBuffer<SentryMetric> _createMetricBuffer(
+          SentryOptions options) =>
+      InMemoryTelemetryBuffer(
+          encoder: (SentryMetric item) =>
+              utf8JsonEncoder.convert(item.toJson()),
+          onFlush: (items) {
+            final envelope = SentryEnvelope.fromMetricsData(
+                items.map((item) => item).toList(), options.sdk);
+            return options.transport.send(envelope).then((_) {});
+          });
 }

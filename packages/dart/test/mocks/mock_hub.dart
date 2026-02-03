@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 
 import '../test_utils.dart';
 import 'mock_sentry_client.dart';
@@ -113,12 +112,12 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  FutureOr<void> captureLog(SentryLog log) async {
-    captureLogCalls.add(CaptureLogCall(log, null));
+  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {
+    captureLogCalls.add(CaptureLogCall(log, scope));
   }
 
   @override
-  void captureSpan(SentrySpanV2 span) {
+  Future<void> captureSpan(SentrySpanV2 span) async {
     captureSpanCalls.add(CaptureSpanCall(span));
   }
 

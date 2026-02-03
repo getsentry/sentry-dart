@@ -10,7 +10,6 @@ import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 import 'telemetry/span/sentry_span_sampling_context.dart';
-import 'telemetry/span/sentry_span_v2.dart';
 import 'transport/data_category.dart';
 import 'utils/internal_logger.dart';
 
@@ -313,6 +312,38 @@ class Hub {
         _options.log(
           SentryLevel.error,
           'Error while capturing log',
+          exception: exception,
+          stackTrace: stacktrace,
+        );
+      }
+    }
+  }
+
+  Future<void> captureMetric(SentryMetric metric) async {
+    if (!_isEnabled) {
+      _options.log(
+        SentryLevel.warning,
+        "Instance is disabled and this 'captureMetric' call is a no-op.",
+      );
+    } else {
+      final item = _peek();
+      late Scope scope;
+      final s = _cloneAndRunWithScope(item.scope, null);
+      if (s is Future<Scope>) {
+        scope = await s;
+      } else {
+        scope = s;
+      }
+
+      try {
+        await item.client.captureMetric(
+          metric,
+          scope: scope,
+        );
+      } catch (exception, stacktrace) {
+        _options.log(
+          SentryLevel.error,
+          'Error while capturing metric',
           exception: exception,
           stackTrace: stacktrace,
         );
@@ -687,7 +718,7 @@ class Hub {
     return span;
   }
 
-  void captureSpan(SentrySpanV2 span) {
+  Future<void> captureSpan(SentrySpanV2 span) async {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,

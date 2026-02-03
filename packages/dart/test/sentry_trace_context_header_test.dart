@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -221,7 +220,7 @@ class _Fixture {
     return RecordingSentrySpanV2.root(
       name: name,
       traceId: traceId ?? SentryId.newId(),
-      onSpanEnd: (_) {},
+      onSpanEnd: (_) async {},
       clock: options.clock,
       dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(
           span, options, hub.scope.replayId),
@@ -236,7 +235,7 @@ class _Fixture {
     return RecordingSentrySpanV2.child(
       parent: parent,
       name: name,
-      onSpanEnd: (_) {},
+      onSpanEnd: (_) async {},
       clock: options.clock,
       dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(
           span, options, hub.scope.replayId),

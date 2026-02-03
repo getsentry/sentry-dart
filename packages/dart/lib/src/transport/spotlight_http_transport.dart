@@ -49,8 +49,7 @@ class SpotlightHttpTransport extends Transport {
         .send(spotlightRequest)
         .then(Response.fromStream);
 
-    TransportUtils.logResponse(_options, envelope, response,
-        target: 'Spotlight');
+    TransportUtils.logResponse(envelope, response, target: 'Spotlight');
   }
 }
 

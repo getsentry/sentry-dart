@@ -67,8 +67,8 @@ class SdkLifecycleRegistry {
 }
 
 @internal
-class OnBeforeCaptureLog extends SdkLifecycleEvent {
-  OnBeforeCaptureLog(this.log);
+class OnProcessLog extends SdkLifecycleEvent {
+  OnProcessLog(this.log);
 
   final SentryLog log;
 }
@@ -113,4 +113,22 @@ class OnSpanEndV2 extends SdkLifecycleEvent {
   OnSpanEndV2(this.span);
 
   final SentrySpanV2 span;
+}
+
+/// Dispatched when span is ready for processing (before default enrichment).
+///
+/// This is useful for integrations to hook into e.g for enriching with attributes.
+@internal
+class OnProcessSpan extends SdkLifecycleEvent {
+  final RecordingSentrySpanV2 span;
+
+  OnProcessSpan(this.span);
+}
+
+/// Dispatched when metric is ready for processing (before default enrichment).
+@internal
+class OnProcessMetric extends SdkLifecycleEvent {
+  final SentryMetric metric;
+
+  OnProcessMetric(this.metric);
 }
