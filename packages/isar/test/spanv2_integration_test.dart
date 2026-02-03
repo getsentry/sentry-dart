@@ -30,39 +30,31 @@ void main() {
     test('Collection.count() creates spanv2 with correct attributes', () async {
       final collection = fixture.isar.persons;
 
-      // Start transaction span (root of this trace)
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute count operation
       final count = await collection.count();
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Verify result
       expect(count, equals(0));
 
-      // Assert child span was created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the database operation span
       final span = fixture.processor.findSpanByOperation('db');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify operation and attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db'));
       expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('isar'));
       expect(span.attributes[SemanticAttributesConstants.dbName]?.value, equals('test-db'));
       expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value, equals('auto.db.isar.collection'));
 
-      // Verify parent-child relationship
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
       expect(span.spanId, isNot(equals(transactionSpan.spanId)));
@@ -71,36 +63,29 @@ void main() {
     test('Collection.put() creates spanv2', () async {
       final collection = fixture.isar.persons;
 
-      // Start transaction span
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute put operation
       await fixture.isar.writeTxn(() async {
         await collection.put(Person()..name = 'John Doe');
       });
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Verify data was inserted
       final count = await collection.count();
       expect(count, equals(1));
 
-      // Assert child span was created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the database operation span
       final span = fixture.processor.findSpanByOperation('db');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify basic attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db'));
       expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('isar'));
       expect(span.attributes[SemanticAttributesConstants.dbName]?.value, equals('test-db'));
@@ -115,34 +100,27 @@ void main() {
         await collection.put(Person()..name = 'Jane Doe');
       });
 
-      // Start transaction span
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute get operation
       final person = await collection.get(1);
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Verify result
       expect(person, isNotNull);
       expect(person!.name, equals('Jane Doe'));
 
-      // Assert child span was created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the database operation span
       final span = fixture.processor.findSpanByOperation('db');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db'));
       expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('isar'));
       expect(span.parentSpan, equals(transactionSpan));
@@ -166,7 +144,6 @@ class Fixture {
       ..telemetryProcessor = processor;
     hub = Hub(options);
 
-    // Set up the span factory integration for streaming mode
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
     options.integrations.last.call(hub, options);
   }

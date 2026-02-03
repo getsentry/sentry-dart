@@ -28,7 +28,6 @@ void main() {
     test('Database.query() creates spanv2 with correct attributes', () async {
       final db = fixture.db;
 
-      // Create test table and insert data
       await db.execute('''
         CREATE TABLE Test (
           id INTEGER PRIMARY KEY,
@@ -37,34 +36,27 @@ void main() {
       ''');
       await db.insert('Test', {'name': 'John Doe'});
 
-      // Start transaction span (root of this trace)
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute query operation
       final result = await db.query('Test');
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Verify result
       expect(result.length, equals(1));
       expect(result.first['name'], equals('John Doe'));
 
-      // Assert child span was created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the database operation span
       final span = fixture.processor.findSpanByOperation('db.sql.query');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify operation and attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
           equals('db.sql.query'));
       expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
@@ -72,7 +64,6 @@ void main() {
       expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
           equals('auto.db.sqflite.database'));
 
-      // Verify parent-child relationship
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
       expect(span.spanId, isNot(equals(transactionSpan.spanId)));
@@ -81,7 +72,6 @@ void main() {
     test('Database.insert() creates spanv2', () async {
       final db = fixture.db;
 
-      // Create test table
       await db.execute('''
         CREATE TABLE Test (
           id INTEGER PRIMARY KEY,
@@ -89,34 +79,27 @@ void main() {
         )
       ''');
 
-      // Start transaction span
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute insert operation
       await db.insert('Test', {'name': 'Jane Doe'});
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Verify data was inserted
       final result = await db.query('Test');
       expect(result.length, equals(1));
 
-      // Assert child span was created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the database operation span
       final span = fixture.processor.findSpanByOperation('db.sql.query');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify basic attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
           equals('db.sql.query'));
       expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
@@ -127,7 +110,6 @@ void main() {
     test('Database.transaction() creates spanv2', () async {
       final db = fixture.db;
 
-      // Create test table
       await db.execute('''
         CREATE TABLE Test (
           id INTEGER PRIMARY KEY,
@@ -135,37 +117,30 @@ void main() {
         )
       ''');
 
-      // Start transaction span
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute transaction
       await db.transaction((txn) async {
         await txn.insert('Test', {'name': 'Alice'});
         await txn.insert('Test', {'name': 'Bob'});
       });
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Verify data was inserted
       final result = await db.query('Test');
       expect(result.length, equals(2));
 
-      // Assert child span was created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the transaction operation span
       final span = fixture.processor.findSpanByOperation('db.sql.transaction');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
           equals('db.sql.transaction'));
       expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
@@ -190,7 +165,6 @@ class Fixture {
       ..telemetryProcessor = processor;
     hub = Hub(options);
 
-    // Set up the span factory integration for streaming mode
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
     options.integrations.last.call(hub, options);
   }

@@ -33,41 +33,33 @@ void main() {
       // Add test data
       await box.put('test-key', Person('John Doe'));
 
-      // Start transaction span (root of this trace)
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute box.get() operation
       final result = box.get('test-key');
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Verify result
       expect(result, isNotNull);
       expect(result!.name, equals('John Doe'));
 
-      // Assert child span was created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the database operation span
       final span = fixture.processor.findSpanByOperation('db');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify operation and attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db'));
       expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('flutter_hive'));
       expect(span.attributes[SemanticAttributesConstants.dbName]?.value, equals('test-box'));
       expect(span.attributes['sync']?.value, equals(true));
       expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value, equals('auto.db.hive.box_base'));
 
-      // Verify parent-child relationship
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
       expect(span.spanId, isNot(equals(transactionSpan.spanId)));
@@ -76,30 +68,24 @@ void main() {
     test('Box.put() creates spanv2', () async {
       final box = fixture.box;
 
-      // Start transaction span
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute box.put() operation
       await box.put('new-key', Person('Jane Doe'));
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Assert child span was created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the database operation span
       final span = fixture.processor.findSpanByOperation('db');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify basic attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db'));
       expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('flutter_hive'));
       expect(span.attributes[SemanticAttributesConstants.dbName]?.value, equals('test-box'));
@@ -124,7 +110,6 @@ class Fixture {
       ..telemetryProcessor = processor;
     hub = Hub(options);
 
-    // Set up the span factory integration for streaming mode
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
     options.integrations.last.call(hub, options);
   }

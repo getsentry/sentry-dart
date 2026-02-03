@@ -24,13 +24,11 @@ void main() {
     });
 
     test('GraphQL query creates spanv2 with correct attributes', () async {
-      // Start transaction span (root of this trace)
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute GraphQL query
       final link = fixture.createSentryTracingLink();
       final request = Request(
         operation: Operation(
@@ -39,46 +37,35 @@ void main() {
         ),
       );
 
-      try {
-        await link.request(request).first;
-      } catch (e) {
-        // Expected to complete
-      }
+      await link.request(request).first;
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Assert child span was created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the GraphQL operation span
       final span = fixture.processor.findSpanByOperation('http.graphql.query');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify operation and attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
           equals('http.graphql.query'));
       expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
           equals('auto.graphql.sentry_link'));
 
-      // Verify parent-child relationship
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
       expect(span.spanId, isNot(equals(transactionSpan.spanId)));
     });
 
     test('GraphQL mutation creates spanv2', () async {
-      // Start transaction span
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute GraphQL mutation
       final link = fixture.createSentryTracingLink();
       final request = Request(
         operation: Operation(
@@ -89,41 +76,31 @@ void main() {
         variables: {'name': 'John Doe'},
       );
 
-      try {
-        await link.request(request).first;
-      } catch (e) {
-        // Expected to complete
-      }
+      await link.request(request).first;
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Assert child span was created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the GraphQL mutation span
       final span =
           fixture.processor.findSpanByOperation('http.graphql.mutation');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify basic attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
           equals('http.graphql.mutation'));
       expect(span.parentSpan, equals(transactionSpan));
     });
 
     test('GraphQL error creates spanv2 with error status', () async {
-      // Start transaction span
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute GraphQL query that will return errors
       final link = fixture.createSentryTracingLink(
         shouldReturnError: true,
         markErrorsAsFailed: true,
@@ -135,25 +112,17 @@ void main() {
         ),
       );
 
-      try {
-        await link.request(request).first;
-      } catch (e) {
-        // Expected to complete with errors
-      }
+      await link.request(request).first;
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Find the GraphQL operation span
       final span = fixture.processor.findSpanByOperation('http.graphql.query');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
 
-      // Verify span status reflects the error
       expect(span.status, equals(SentrySpanStatusV2.error));
 
-      // Verify basic attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
           equals('http.graphql.query'));
       expect(span.parentSpan, equals(transactionSpan));
@@ -161,7 +130,6 @@ void main() {
 
     test('shouldStartTransaction creates root spanv2 when no active span',
         () async {
-      // Execute GraphQL query with shouldStartTransaction=true
       final link = fixture.createSentryTracingLink(shouldStartTransaction: true);
       final request = Request(
         operation: Operation(
@@ -170,29 +138,20 @@ void main() {
         ),
       );
 
-      try {
-        await link.request(request).first;
-      } catch (e) {
-        // Expected to complete
-      }
+      await link.request(request).first;
 
-      // Wait for async processing
       await fixture.processor.waitForProcessing();
 
-      // Assert root span was created (no parent)
       final allSpans = fixture.processor.capturedSpans;
       expect(allSpans.length, greaterThan(0));
 
-      // Find the GraphQL operation span - should be a root span
       final span = fixture.processor.findSpanByOperation('http.graphql.query');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify it's a root span (no parent)
       expect(span.parentSpan, isNull);
 
-      // Verify operation and attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
           equals('http.graphql.query'));
       expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
@@ -215,7 +174,6 @@ class Fixture {
       ..telemetryProcessor = processor;
     hub = Hub(options);
 
-    // Set up the span factory integration for streaming mode
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
     options.integrations.last.call(hub, options);
   }
@@ -231,7 +189,6 @@ class Fixture {
       hub: hub,
     );
 
-    // Create a mock terminating link that returns a response
     final mockLink = _MockLink(shouldReturnError: shouldReturnError);
 
     return Link.from([sentryLink, mockLink]);

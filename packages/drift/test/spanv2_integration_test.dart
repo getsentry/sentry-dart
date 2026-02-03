@@ -32,13 +32,11 @@ void main() {
     test('Insert operation creates spanv2 with correct attributes', () async {
       final db = fixture.db;
 
-      // Start transaction span (root of this trace)
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute insert operation
       await db.into(db.todoItems).insert(
             TodoItemsCompanion.insert(
               title: 'Test Task',
@@ -46,31 +44,25 @@ void main() {
             ),
           );
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Verify data was inserted
       final result = await db.select(db.todoItems).get();
       expect(result.length, equals(1));
       expect(result.first.title, equals('Test Task'));
 
-      // Assert child spans were created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the database operation span
       final span = fixture.processor.findSpanByOperation('db.sql.query');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify operation and attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db.sql.query'));
       expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('sqlite'));
       expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value, equals('auto.db.drift'));
 
-      // Verify parent-child relationship
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
       expect(span.spanId, isNot(equals(transactionSpan.spanId)));
@@ -87,34 +79,27 @@ void main() {
             ),
           );
 
-      // Start transaction span
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute select operation
       final result = await db.select(db.todoItems).get();
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Verify result
       expect(result.length, equals(1));
       expect(result.first.title, equals('Sample Task'));
 
-      // Assert child span was created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the database operation span
       final span = fixture.processor.findSpanByOperation('db.sql.query');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify basic attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db.sql.query'));
       expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('sqlite'));
       expect(span.parentSpan, equals(transactionSpan));
@@ -131,13 +116,11 @@ void main() {
             ),
           );
 
-      // Start transaction span
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute update operation
       await (db.update(db.todoItems)
             ..where((tbl) => tbl.title.equals('Old Title')))
           .write(
@@ -146,25 +129,20 @@ void main() {
         ),
       );
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Verify data was updated
       final result = await db.select(db.todoItems).get();
       expect(result.first.title, equals('New Title'));
 
-      // Assert child span was created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the database operation span
       final span = fixture.processor.findSpanByOperation('db.sql.query');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db.sql.query'));
       expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('sqlite'));
       expect(span.parentSpan, equals(transactionSpan));
@@ -188,7 +166,6 @@ class Fixture {
       ..telemetryProcessor = processor;
     hub = Hub(options);
 
-    // Set up the span factory integration for streaming mode
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
     options.integrations.last.call(hub, options);
   }

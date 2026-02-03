@@ -32,38 +32,30 @@ void main() {
         ),
       );
 
-      // Start transaction span (root of this trace)
-      // Note: startSpan() with default active: true automatically sets it as active
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute HTTP GET request
       await dio.get<dynamic>('/api/users');
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Assert child span was created
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      // Find the HTTP client span
       final span = fixture.processor.findSpanByOperation('http.client');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      // Verify operation and attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('http.client'));
       expect(span.attributes[SemanticAttributesConstants.httpRequestMethod]?.value, equals('GET'));
       expect(span.attributes[SemanticAttributesConstants.url]?.value, equals('https://example.com/api/users'));
       expect(span.attributes[SemanticAttributesConstants.httpResponseStatusCode]?.value, equals(200));
       expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value, equals('auto.http.dio.http_client_adapter'));
 
-      // Verify parent-child relationship
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
       expect(span.spanId, isNot(equals(transactionSpan.spanId)));
@@ -77,35 +69,25 @@ void main() {
         ),
       );
 
-      // Start transaction span
       final transactionSpan = fixture.hub.startSpan(
         'test-transaction',
         parentSpan: null,
       );
 
-      // Execute HTTP GET request that will fail
       try {
         await dio.get<dynamic>('/api/users');
-      } catch (e) {
-        // Expected to throw due to 500 status
-      }
+      } catch (_) {}
 
-      // End transaction span and wait for async processing
       transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
-      // Find the HTTP client span
       final span = fixture.processor.findSpanByOperation('http.client');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
 
-      // Verify span status reflects the error
       expect(span.status, equals(SentrySpanStatusV2.error));
 
-      // Verify basic attributes
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('http.client'));
-      // Note: In error cases, the status code might not be set on the span
-      // because the exception is thrown in the catch block
       expect(span.parentSpan, equals(transactionSpan));
     });
   });
@@ -124,7 +106,6 @@ class Fixture {
       ..telemetryProcessor = processor;
     hub = Hub(options);
 
-    // Set up the span factory integration for streaming mode
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
     options.integrations.last.call(hub, options);
   }
