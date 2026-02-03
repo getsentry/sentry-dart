@@ -112,7 +112,8 @@ class SentryTracingLink extends Link {
           break;
       }
     } else if (parentSpan != null) {
-      span = _spanFactory.createSpan(parentSpan, op, description: description);
+      span = _spanFactory.createSpan(
+          parentSpan: parentSpan, operation: op, description: description);
     }
 
     span?.origin = SentryTraceOrigins.autoGraphQlSentryLink;

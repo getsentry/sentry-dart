@@ -86,11 +86,13 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     return Future<void>(() async {
       final parent = _spanFactory.getSpan(_hub);
       final description = 'Close DB: ${_database.path}';
-      final span = _spanFactory.createSpan(
-        parent,
-        dbOp,
-        description: description,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: dbOp,
+              description: description,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
 
@@ -151,11 +153,13 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     return Future<T>(() async {
       final parent = _spanFactory.getSpan(_hub);
       final description = 'Transaction DB: ${_database.path}';
-      final span = _spanFactory.createSpan(
-        parent,
-        _dbSqlTransactionOp,
-        description: description,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: _dbSqlTransactionOp,
+              description: description,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
       setDatabaseAttributeData(span, dbName);
@@ -211,11 +215,13 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     return Future<T>(() async {
       final parent = _spanFactory.getSpan(_hub);
       final description = 'Transaction DB: ${_database.path}';
-      final span = _spanFactory.createSpan(
-        parent,
-        _dbSqlReadTransactionOp,
-        description: description,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: _dbSqlReadTransactionOp,
+              description: description,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
       setDatabaseAttributeData(span, dbName);

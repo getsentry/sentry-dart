@@ -6,10 +6,10 @@ import '../../../sentry.dart';
 /// Configure via [SentryOptions.spanFactory].
 @internal
 abstract class InstrumentationSpanFactory {
-  /// Returns `null` if parent is null or span creation fails.
-  InstrumentationSpan? createSpan(
-    InstrumentationSpan? parent,
-    String operation, {
+  /// Returns `null` if span creation fails or if the parent span is no-op.
+  InstrumentationSpan? createSpan({
+    required InstrumentationSpan parentSpan,
+    required String operation,
     String? description,
   });
 
@@ -21,15 +21,16 @@ abstract class InstrumentationSpanFactory {
 @internal
 class LegacyInstrumentationSpanFactory implements InstrumentationSpanFactory {
   @override
-  InstrumentationSpan? createSpan(
-    InstrumentationSpan? parent,
-    String operation, {
+  InstrumentationSpan? createSpan({
+    required InstrumentationSpan parentSpan,
+    required String operation,
     String? description,
   }) {
-    if (parent == null) return null;
+    if (parentSpan is LegacyInstrumentationSpan) {
+      final parentSpanRef = parentSpan.spanReference;
+      if (parentSpanRef is NoOpSentrySpan) return null;
 
-    if (parent is LegacyInstrumentationSpan) {
-      final child = parent.spanReference.startChild(
+      final child = parentSpanRef.startChild(
         operation,
         description: description,
       );
@@ -57,18 +58,17 @@ class StreamingInstrumentationSpanFactory
   StreamingInstrumentationSpanFactory(this._hub);
 
   @override
-  InstrumentationSpan? createSpan(
-    InstrumentationSpan? parent,
-    String operation, {
+  InstrumentationSpan? createSpan({
+    required InstrumentationSpan parentSpan,
+    required String operation,
     String? description,
   }) {
-    if (parent == null) return null;
-
-    if (parent is StreamingInstrumentationSpan) {
-      final parentSpan = parent.spanReference;
+    if (parentSpan is StreamingInstrumentationSpan) {
+      final parentSpanRef = parentSpan.spanReference;
+      if (parentSpanRef is NoOpSentrySpanV2) return null;
 
       final childSpan = _hub.startSpan(description ?? operation,
-          parentSpan: parentSpan, active: false);
+          parentSpan: parentSpanRef, active: false);
 
       if (childSpan is NoOpSentrySpanV2) return null;
 

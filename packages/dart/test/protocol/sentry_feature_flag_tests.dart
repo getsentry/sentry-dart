@@ -1,3 +1,4 @@
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
