@@ -48,9 +48,12 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db.select'));
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('postgresql'));
-      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value, equals('auto.db.supabase'));
+      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+          equals('db.select'),);
+      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+          equals('postgresql'),);
+      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+          equals('auto.db.supabase'),);
 
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
@@ -66,7 +69,9 @@ void main() {
       );
 
       try {
-        await client.from('users').insert({'name': 'John Doe', 'email': 'john@example.com'});
+        await client
+            .from('users')
+            .insert({'name': 'John Doe', 'email': 'john@example.com'});
       } catch (e) {
         // Ignore errors from mock HTTP requests
       }
@@ -82,8 +87,10 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db.insert'));
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('postgresql'));
+      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+          equals('db.insert'),);
+      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+          equals('postgresql'),);
       expect(span.parentSpan, equals(transactionSpan));
     });
 
@@ -112,8 +119,10 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db.update'));
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('postgresql'));
+      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+          equals('db.update'),);
+      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+          equals('postgresql'),);
       expect(span.parentSpan, equals(transactionSpan));
     });
 
@@ -142,8 +151,10 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db.delete'));
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('postgresql'));
+      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+          equals('db.delete'),);
+      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+          equals('postgresql'),);
       expect(span.parentSpan, equals(transactionSpan));
     });
   });
@@ -175,7 +186,7 @@ class Fixture {
     client = SupabaseClient(
       'https://test.supabase.co',
       'test-api-key',
-      httpClient: SentrySupabaseClient(mockHttpClient, hub: hub),
+      httpClient: SentrySupabaseClient(client: mockHttpClient, hub: hub),
     );
   }
 

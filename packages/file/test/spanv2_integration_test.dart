@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
+
 @TestOn('vm')
+library;
 
 import 'dart:io';
 
@@ -47,10 +49,12 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('file.read'));
+      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+          equals('file.read'));
       expect(span.attributes['file.async']?.value, equals(true));
       expect(span.attributes['file.path']?.value, contains('testfile.txt'));
-      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value, equals('auto.file'));
+      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+          equals('auto.file'));
 
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
@@ -88,7 +92,8 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('file.write'));
+      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+          equals('file.write'));
       expect(span.attributes['file.async']?.value, equals(true));
       expect(span.attributes['file.path']?.value, contains('test_write.txt'));
       expect(span.parentSpan, equals(transactionSpan));

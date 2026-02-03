@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
-// @TestOn('vm')
+
 @TestOn('vm')
+library;
 
 import 'dart:io';
 
@@ -54,11 +55,15 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db'));
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('flutter_hive'));
-      expect(span.attributes[SemanticAttributesConstants.dbName]?.value, equals('test-box'));
+      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+          equals('db'),);
+      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+          equals('flutter_hive'),);
+      expect(span.attributes[SemanticAttributesConstants.dbName]?.value,
+          equals('test-box'),);
       expect(span.attributes['sync']?.value, equals(true));
-      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value, equals('auto.db.hive.box_base'));
+      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+          equals('auto.db.hive.box_base'),);
 
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
@@ -86,9 +91,12 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('db'));
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value, equals('flutter_hive'));
-      expect(span.attributes[SemanticAttributesConstants.dbName]?.value, equals('test-box'));
+      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+          equals('db'),);
+      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+          equals('flutter_hive'),);
+      expect(span.attributes[SemanticAttributesConstants.dbName]?.value,
+          equals('test-box'),);
       expect(span.parentSpan, equals(transactionSpan));
     });
   });

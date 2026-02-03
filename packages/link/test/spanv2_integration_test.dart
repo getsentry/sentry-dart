@@ -130,7 +130,8 @@ void main() {
 
     test('shouldStartTransaction creates root spanv2 when no active span',
         () async {
-      final link = fixture.createSentryTracingLink(shouldStartTransaction: true);
+      final link =
+          fixture.createSentryTracingLink(shouldStartTransaction: true);
       final request = Request(
         operation: Operation(
           document: parseString('query GetUser { user(id: "1") { name } }'),

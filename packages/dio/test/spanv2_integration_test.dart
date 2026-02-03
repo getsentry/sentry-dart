@@ -50,11 +50,19 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('http.client'));
-      expect(span.attributes[SemanticAttributesConstants.httpRequestMethod]?.value, equals('GET'));
-      expect(span.attributes[SemanticAttributesConstants.url]?.value, equals('https://example.com/api/users'));
-      expect(span.attributes[SemanticAttributesConstants.httpResponseStatusCode]?.value, equals(200));
-      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value, equals('auto.http.dio.http_client_adapter'));
+      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+          equals('http.client'),);
+      expect(
+          span.attributes[SemanticAttributesConstants.httpRequestMethod]?.value,
+          equals('GET'),);
+      expect(span.attributes[SemanticAttributesConstants.url]?.value,
+          equals('https://example.com/api/users'),);
+      expect(
+          span.attributes[SemanticAttributesConstants.httpResponseStatusCode]
+              ?.value,
+          equals(200),);
+      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+          equals('auto.http.dio.http_client_adapter'),);
 
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
@@ -87,7 +95,8 @@ void main() {
 
       expect(span.status, equals(SentrySpanStatusV2.error));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value, equals('http.client'));
+      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+          equals('http.client'),);
       expect(span.parentSpan, equals(transactionSpan));
     });
   });
