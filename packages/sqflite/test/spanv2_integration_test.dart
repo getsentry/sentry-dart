@@ -62,7 +62,7 @@ void main() {
       expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
           equals('sqlite'),);
       expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
-          equals('auto.db.sqflite.database'),);
+          equals('auto.db.sqflite.database_executor'),);
 
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
@@ -95,13 +95,13 @@ void main() {
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      final span = fixture.processor.findSpanByOperation('db.sql.query');
+      final span = fixture.processor.findSpanByOperation('db.sql.execute');
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('db.sql.query'),);
+          equals('db.sql.execute'),);
       expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
           equals('sqlite'),);
       expect(span.parentSpan, equals(transactionSpan));
