@@ -61,10 +61,14 @@ void main() {
 
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
           equals('db.sql.query'));
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-          equals('db.sqlite'),);
-      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
-          equals('auto.db.drift.query.interceptor'),);
+      expect(
+        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        equals('db.sqlite'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+        equals('auto.db.drift.query.interceptor'),
+      );
 
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));

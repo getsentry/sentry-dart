@@ -176,7 +176,7 @@ class Fixture {
   }
 
   Future<void> setUp() async {
-    // Open Isar database with Sentry wrapper
+    await Isar.initializeIsarCore(download: true);
     final dir = Directory.systemTemp.createTempSync('isar_test_');
     isar = await SentryIsar.open(
       [PersonSchema],
@@ -193,9 +193,7 @@ class Fixture {
       if (isar.isOpen) {
         await isar.close(deleteFromDisk: true);
       }
-    } catch (e) {
-      // Ignore errors during cleanup
-    }
+    } catch (e) {}
 
     await hub.close();
   }
