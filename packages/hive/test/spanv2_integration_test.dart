@@ -31,7 +31,6 @@ void main() {
     test('Box.get() creates spanv2 with correct attributes', () async {
       final box = fixture.box;
 
-      // Add test data
       await box.put('test-key', Person('John Doe'));
 
       final transactionSpan = fixture.hub.startSpan(
@@ -137,15 +136,12 @@ class Fixture {
   }
 
   Future<void> setUp() async {
-    // Initialize Hive with a temporary directory
     Hive.init(Directory.systemTemp.path);
 
-    // Register the Person adapter if not already registered
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(PersonAdapter());
     }
 
-    // Open box with Sentry wrapper
     SentryHive.setHub(hub);
     box = await SentryHive.openBox<Person>(boxName);
   }

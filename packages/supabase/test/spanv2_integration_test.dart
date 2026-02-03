@@ -217,7 +217,6 @@ class Fixture {
 class MockHttpClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
-    // Return a mock response
     return StreamedResponse(
       Stream.fromIterable([]),
       200,

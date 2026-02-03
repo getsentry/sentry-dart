@@ -64,7 +64,6 @@ void main() {
     test('File write creates spanv2', () async {
       final tempFile = File('${Directory.systemTemp.path}/test_write.txt');
 
-      // Ensure temp file doesn't exist
       if (await tempFile.exists()) {
         await tempFile.delete();
       }
@@ -98,7 +97,6 @@ void main() {
       expect(span.attributes['file.path']?.value, contains('test_write.txt'));
       expect(span.parentSpan, equals(transactionSpan));
 
-      // Cleanup
       await tempFile.delete();
     });
   });

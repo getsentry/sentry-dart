@@ -80,7 +80,6 @@ void main() {
     test('Select operation creates spanv2', () async {
       final db = fixture.db;
 
-      // Insert test data
       await db.into(db.todoItems).insert(
             TodoItemsCompanion.insert(
               title: 'Sample Task',
@@ -123,7 +122,6 @@ void main() {
     test('Update operation creates spanv2', () async {
       final db = fixture.db;
 
-      // Insert test data
       await db.into(db.todoItems).insert(
             TodoItemsCompanion.insert(
               title: 'Old Title',

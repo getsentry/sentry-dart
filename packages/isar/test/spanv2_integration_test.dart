@@ -116,7 +116,6 @@ void main() {
     test('Collection.get() creates spanv2', () async {
       final collection = fixture.isar.persons;
 
-      // Insert test data
       await fixture.isar.writeTxn(() async {
         await collection.put(Person()..name = 'Jane Doe');
       });
