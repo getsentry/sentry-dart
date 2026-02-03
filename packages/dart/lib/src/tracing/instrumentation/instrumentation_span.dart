@@ -175,7 +175,7 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
   }
 
   SentrySpanStatusV2 _convertToV2Status(SpanStatus status) {
-    if (status.toString() == 'ok') {
+    if (status == SpanStatus.ok()) {
       return SentrySpanStatusV2.ok;
     }
     return SentrySpanStatusV2.error;
