@@ -50,14 +50,22 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('db'),);
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-          equals('isar'),);
-      expect(span.attributes[SemanticAttributesConstants.dbName]?.value,
-          equals('test-db'),);
-      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
-          equals('auto.db.isar.collection'),);
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('db'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        equals('isar'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.dbName]?.value,
+        equals('test-db'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+        equals('auto.db.isar.collection'),
+      );
 
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
@@ -90,12 +98,18 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('db'),);
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-          equals('isar'),);
-      expect(span.attributes[SemanticAttributesConstants.dbName]?.value,
-          equals('test-db'),);
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('db'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        equals('isar'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.dbName]?.value,
+        equals('test-db'),
+      );
       expect(span.parentSpan, equals(transactionSpan));
     });
 
@@ -128,10 +142,14 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('db'),);
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-          equals('isar'),);
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('db'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        equals('isar'),
+      );
       expect(span.parentSpan, equals(transactionSpan));
     });
   });

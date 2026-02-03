@@ -57,12 +57,18 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('db.sql.query'),);
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-          equals('sqlite'),);
-      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
-          equals('auto.db.sqflite.database_executor'),);
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('db.sql.query'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        equals('sqlite'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+        equals('auto.db.sqflite.database_executor'),
+      );
 
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
@@ -100,10 +106,14 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('db.sql.execute'),);
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-          equals('sqlite'),);
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('db.sql.execute'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        equals('sqlite'),
+      );
       expect(span.parentSpan, equals(transactionSpan));
     });
 
@@ -141,10 +151,14 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('db.sql.transaction'),);
-      expect(span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-          equals('sqlite'),);
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('db.sql.transaction'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        equals('sqlite'),
+      );
       expect(span.parentSpan, equals(transactionSpan));
     });
   });
