@@ -129,7 +129,7 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
     } else if (value is SentryAttribute) {
       _span.setAttribute(key, value);
     } else {
-      internalLogger.warning(
+      internalLogger.info(
           '$StreamingInstrumentationSpan: Unsupported data type in setData: $value');
     }
   }
