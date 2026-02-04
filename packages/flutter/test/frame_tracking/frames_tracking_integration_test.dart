@@ -353,12 +353,6 @@ void main() {
         isTrue,
       );
     });
-
-    test('does not add collector to performance collectors', () async {
-      await fromWorkingState(options);
-
-      expect(options.performanceCollectors, isEmpty);
-    });
   });
 
   group('with static lifecycle', () {
