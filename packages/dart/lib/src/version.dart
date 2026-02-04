@@ -9,7 +9,7 @@
 library;
 
 /// The SDK version reported to Sentry.io in the submitted events.
-const String sdkVersion = '9.11.0';
+const String sdkVersion = '9.12.0';
 
 String sdkName(bool isWeb) => isWeb ? _browserSdkName : _ioSdkName;
 
