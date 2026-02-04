@@ -72,6 +72,8 @@ class SentrySpan extends ISentrySpan {
       endTimestamp = endTimestamp.toUtc();
     }
 
+    _endTimestamp = endTimestamp;
+
     // ignore: deprecated_member_use_from_same_package
     for (final collector in _hub.options.performanceCollectors) {
       if (collector is PerformanceContinuousCollector) {
@@ -79,23 +81,20 @@ class SentrySpan extends ISentrySpan {
       }
     }
 
-    // Set endTimestamp first so it's readable in lifecycle callbacks
-    _endTimestamp = endTimestamp;
-
-    // Dispatch OnSpanFinish lifecycle event (span is still mutable)
-    final callback = _hub.options.lifecycleRegistry
-        .dispatchCallback(OnSpanFinish(this));
+    // Dispatch OnSpanFinish lifecycle event
+    final callback =
+        _hub.options.lifecycleRegistry.dispatchCallback(OnSpanFinish(this));
     if (callback is Future) {
       await callback;
     }
-
-    // Mark as finished after callbacks complete (now immutable)
-    _finished = true;
 
     // associate error
     if (_throwable != null) {
       _hub.setSpanContext(_throwable, this, _tracer.name);
     }
+
+    _finished = true;
+
     await _finishedCallback?.call(endTimestamp: _endTimestamp, hint: hint);
     return super
         .finish(status: status, endTimestamp: _endTimestamp, hint: hint);
