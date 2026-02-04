@@ -29,7 +29,7 @@ class SpanFrameMetricsCollectorV2 implements PerformanceContinuousCollectorV2 {
   @override
   Future<void> onSpanStarted(SentrySpanV2 span) async {
     return _tryCatch('onSpanStarted', () async {
-      if (span is NoOpSentrySpan) {
+      if (span is NoOpSentrySpanV2) {
         return;
       }
 
@@ -41,7 +41,7 @@ class SpanFrameMetricsCollectorV2 implements PerformanceContinuousCollectorV2 {
   @override
   Future<void> onSpanFinished(SentrySpanV2 span, DateTime endTimestamp) async {
     return _tryCatch('onSpanFinished', () async {
-      if (span is NoOpSentrySpan) {
+      if (span is NoOpSentrySpanV2) {
         return;
       }
 
