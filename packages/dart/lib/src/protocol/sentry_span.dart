@@ -71,6 +71,7 @@ class SentrySpan extends ISentrySpan {
       endTimestamp = endTimestamp.toUtc();
     }
 
+    // ignore: deprecated_member_use_from_same_package
     for (final collector in _hub.options.performanceCollectors) {
       if (collector is PerformanceContinuousCollector) {
         await collector.onSpanFinished(this, endTimestamp);
@@ -78,8 +79,8 @@ class SentrySpan extends ISentrySpan {
     }
 
     // Dispatch OnSpanFinish lifecycle event
-    final callback =
-        _hub.options.lifecycleRegistry.dispatchCallback(OnSpanFinish(this));
+    final callback = _hub.options.lifecycleRegistry
+        .dispatchCallback(OnSpanFinish(this, endTimestamp));
     if (callback is Future) {
       await callback;
     }

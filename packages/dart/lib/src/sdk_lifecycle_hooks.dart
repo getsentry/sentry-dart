@@ -92,9 +92,10 @@ class OnSpanStart extends SdkLifecycleEvent {
 /// Dispatched when a sampled span is finished.
 @internal
 class OnSpanFinish extends SdkLifecycleEvent {
-  OnSpanFinish(this.span);
+  OnSpanFinish(this.span, this.endTimestamp);
 
   final ISentrySpan span;
+  final DateTime endTimestamp;
 }
 
 /// Dispatched when a sampled span is started.

@@ -63,7 +63,8 @@ void main() {
     if (widgetsBinding != null) {
       expect(isFramesTrackingInitialized(widgetsBinding!), isFalse);
     }
-    expect(options.performanceCollectors, isEmpty);
+    // Both streaming and static lifecycles use lifecycle callbacks, not performance collectors
+    expect(options.lifecycleRegistry.lifecycleCallbacks, isEmpty);
   }
 
   setUp(() {
@@ -84,16 +85,58 @@ void main() {
         contains(FramesTrackingIntegration.integrationName));
   });
 
-  test('properly cleans up resources on close', () async {
+  test('properly cleans up resources on close - streaming', () async {
+    options.traceLifecycle = SentryTraceLifecycle.streaming;
     await fromWorkingState(options);
 
     expect(isFramesTrackingInitialized(widgetsBinding!), isTrue);
-    expect(options.performanceCollectors, isNotEmpty);
+    expect(
+      options.lifecycleRegistry.lifecycleCallbacks.containsKey(OnSpanStartV2),
+      isTrue,
+    );
+    expect(
+      options.lifecycleRegistry.lifecycleCallbacks.containsKey(OnProcessSpan),
+      isTrue,
+    );
 
     integration.close();
 
     expect(isFramesTrackingInitialized(widgetsBinding!), isFalse);
-    expect(options.performanceCollectors, isEmpty);
+    expect(
+      options.lifecycleRegistry.lifecycleCallbacks[OnSpanStartV2],
+      isEmpty,
+    );
+    expect(
+      options.lifecycleRegistry.lifecycleCallbacks[OnProcessSpan],
+      isEmpty,
+    );
+  });
+
+  test('properly cleans up resources on close - static', () async {
+    options.traceLifecycle = SentryTraceLifecycle.static;
+    await fromWorkingState(options);
+
+    expect(isFramesTrackingInitialized(widgetsBinding!), isTrue);
+    expect(
+      options.lifecycleRegistry.lifecycleCallbacks.containsKey(OnSpanStart),
+      isTrue,
+    );
+    expect(
+      options.lifecycleRegistry.lifecycleCallbacks.containsKey(OnSpanFinish),
+      isTrue,
+    );
+
+    integration.close();
+
+    expect(isFramesTrackingInitialized(widgetsBinding!), isFalse);
+    expect(
+      options.lifecycleRegistry.lifecycleCallbacks[OnSpanStart],
+      isEmpty,
+    );
+    expect(
+      options.lifecycleRegistry.lifecycleCallbacks[OnSpanFinish],
+      isEmpty,
+    );
   });
 
   group('succeeds to initialize frames tracking', () {
@@ -315,6 +358,25 @@ void main() {
       await fromWorkingState(options);
 
       expect(options.performanceCollectors, isEmpty);
+    });
+  });
+
+  group('with static lifecycle', () {
+    setUp(() {
+      options.traceLifecycle = SentryTraceLifecycle.static;
+    });
+
+    test('registers lifecycle callbacks', () async {
+      await fromWorkingState(options);
+
+      expect(
+        options.lifecycleRegistry.lifecycleCallbacks.containsKey(OnSpanStart),
+        isTrue,
+      );
+      expect(
+        options.lifecycleRegistry.lifecycleCallbacks.containsKey(OnSpanFinish),
+        isTrue,
+      );
     });
   });
 }
