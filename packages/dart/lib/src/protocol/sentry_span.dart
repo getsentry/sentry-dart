@@ -14,6 +14,7 @@ class SentrySpan extends ISentrySpan {
   late final DateTime _startTimestamp;
   final Hub _hub;
 
+  bool _finished = false;
   bool _isRootSpan = false;
 
   bool get isRootSpan => _isRootSpan;
@@ -78,16 +79,18 @@ class SentrySpan extends ISentrySpan {
       }
     }
 
-    // Dispatch OnSpanFinish lifecycle event
+    // Set endTimestamp first so it's readable in lifecycle callbacks
+    _endTimestamp = endTimestamp;
+
+    // Dispatch OnSpanFinish lifecycle event (span is still mutable)
     final callback = _hub.options.lifecycleRegistry
-        .dispatchCallback(OnSpanFinish(this, endTimestamp));
+        .dispatchCallback(OnSpanFinish(this));
     if (callback is Future) {
       await callback;
     }
 
-    // The finished flag depends on the _endTimestamp
-    // If we set this earlier then finished is true and then we cannot use setData etc...
-    _endTimestamp = endTimestamp;
+    // Mark as finished after callbacks complete (now immutable)
+    _finished = true;
 
     // associate error
     if (_throwable != null) {
@@ -208,7 +211,7 @@ class SentrySpan extends ISentrySpan {
   }
 
   @override
-  bool get finished => _endTimestamp != null;
+  bool get finished => _finished;
 
   @override
   dynamic get throwable => _throwable;

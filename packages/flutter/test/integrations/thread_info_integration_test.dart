@@ -187,7 +187,7 @@ void main() {
       integration.call(hub, fixture.options);
       // ignore: invalid_use_of_internal_member
       await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanFinish(span, DateTime.now()));
+          .dispatchCallback(OnSpanFinish(span));
 
       final setDataCalls = span.setDataCalls;
       expect(setDataCalls.length, equals(1));
@@ -214,7 +214,7 @@ void main() {
       integration.call(hub, fixture.options);
       // ignore: invalid_use_of_internal_member
       await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanFinish(span, DateTime.now()));
+          .dispatchCallback(OnSpanFinish(span));
 
       // Should not set blocked_main_thread
       final blockedMainThreadCalls = span.setDataCalls
@@ -236,7 +236,7 @@ void main() {
       integration.call(hub, fixture.options);
       // ignore: invalid_use_of_internal_member
       await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanFinish(span, DateTime.now()));
+          .dispatchCallback(OnSpanFinish(span));
 
       // Should not add any data or remove anything
       expect(span.setDataCalls, isEmpty);
@@ -254,7 +254,7 @@ void main() {
       integration.call(hub, fixture.options);
       // ignore: invalid_use_of_internal_member
       await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanFinish(span, DateTime.now()));
+          .dispatchCallback(OnSpanFinish(span));
 
       // Should not set blocked_main_thread (sync is false)
       final blockedMainThreadCalls = span.setDataCalls
@@ -275,7 +275,7 @@ void main() {
       integration.call(hub, fixture.options);
       // ignore: invalid_use_of_internal_member
       await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanFinish(span, DateTime.now()));
+          .dispatchCallback(OnSpanFinish(span));
 
       // Should not set blocked_main_thread (no thread name)
       final blockedMainThreadCalls = span.setDataCalls
