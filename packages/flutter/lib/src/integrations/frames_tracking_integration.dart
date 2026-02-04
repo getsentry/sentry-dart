@@ -81,14 +81,14 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
             pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames());
         _collector = collector;
 
-        _onSpanStartStaticCallback = (event) async {
-          await collector.onSpanStarted(event.span);
+        _onSpanStartStaticCallback = (event) {
+          collector.onSpanStarted(event.span);
         };
         options.lifecycleRegistry
             .registerCallback<OnSpanStart>(_onSpanStartStaticCallback!);
 
-        _onSpanFinishStaticCallback = (event) async {
-          await collector.onSpanFinished(event.span, event.endTimestamp);
+        _onSpanFinishStaticCallback = (event) {
+          collector.onSpanFinished(event.span, event.endTimestamp);
         };
         options.lifecycleRegistry
             .registerCallback<OnSpanFinish>(_onSpanFinishStaticCallback!);
