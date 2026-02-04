@@ -28,7 +28,7 @@ class SpanFrameMetricsCollectorV2 implements PerformanceContinuousCollectorV2 {
 
   @override
   Future<void> onSpanStarted(SentrySpanV2 span) async {
-    return _tryCatch('onSpanStarted', () async {
+    return _tryCatch('onSpanStartedV2', () async {
       if (span is! RecordingSentrySpanV2) {
         return;
       }
@@ -40,7 +40,7 @@ class SpanFrameMetricsCollectorV2 implements PerformanceContinuousCollectorV2 {
 
   @override
   Future<void> onSpanFinished(SentrySpanV2 span, DateTime endTimestamp) async {
-    return _tryCatch('onSpanFinished', () async {
+    return _tryCatch('onSpanFinishedV2', () async {
       if (span is! RecordingSentrySpanV2) {
         return;
       }
@@ -59,7 +59,7 @@ class SpanFrameMetricsCollectorV2 implements PerformanceContinuousCollectorV2 {
             () => SentryAttribute.int(metrics.frozenFrameCount));
         attributes.putIfAbsent(SemanticAttributesConstants.framesDelay,
             () => SentryAttribute.int(metrics.framesDelay));
-        span.setAttributes(attributes);
+        span.setAttributesIfAbsent(attributes);
       }
 
       activeSpans.remove(span);
