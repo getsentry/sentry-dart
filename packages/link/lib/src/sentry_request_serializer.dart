@@ -20,11 +20,13 @@ class SentryRequestSerializer implements RequestSerializer {
   @override
   Map<String, dynamic> serializeRequest(Request request) {
     final parentSpan = _spanFactory.getSpan(_hub);
-    final span = _spanFactory.createSpan(
-      parentSpan,
-      'serialize.http.client',
-      description: 'GraphGL request serialization',
-    );
+    final span = parentSpan != null
+        ? _spanFactory.createSpan(
+            parentSpan: parentSpan,
+            operation: 'serialize.http.client',
+            description: 'GraphGL request serialization',
+          )
+        : null;
 
     Map<String, dynamic> result;
     try {

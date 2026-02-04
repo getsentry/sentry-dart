@@ -85,6 +85,9 @@ abstract class SemanticAttributesConstants {
   /// The replay ID.
   static const sentryReplayId = 'sentry.replay_id';
 
+  /// The operation name of a span.
+  static const sentryOp = 'sentry.op';
+
   /// Whether the replay is buffering (onErrorSampleRate).
   static const sentryInternalReplayIsBuffering =
       'sentry._internal.replay_is_buffering';
@@ -128,4 +131,31 @@ abstract class SemanticAttributesConstants {
   /// The sum of all delayed frame durations in seconds during the lifetime of the span.
   /// For more information see [frames delay](https://develop.sentry.dev/sdk/performance/frames-delay/).
   static const framesDelay = 'frames.delay';
+
+  /// The HTTP request method (e.g., "GET", "POST").
+  static const httpRequestMethod = 'http.request.method';
+
+  /// The URL of an HTTP request.
+  // TODO: this needs to be updated to use the new url attributes e.g url.full, etc...
+  static const url = 'url';
+
+  /// The HTTP query string (e.g., "foo=bar").
+  static const httpQuery = 'http.query';
+
+  /// The HTTP fragment (e.g., "section").
+  static const httpFragment = 'http.fragment';
+
+  /// The HTTP response status code.
+  static const httpResponseStatusCode = 'http.response.status_code';
+
+  /// The HTTP response content length.
+  static const httpResponseContentLength = 'http.response_content_length';
+
+  /// The database system identifier.
+  // TODO: deprecated, needs to be replaced later by db.system.name
+  static const dbSystem = 'db.system';
+
+  /// The database name.
+  // TODO: deprecated, needs to be replaced later by db.namespace
+  static const dbName = 'db.name';
 }

@@ -27,11 +27,13 @@ class SentrySpanHelper {
     String? dbName,
   }) async {
     final parentSpan = _factory.getSpan(_hub);
-    final span = _factory.createSpan(
-      parentSpan,
-      SentryHiveImpl.dbOp,
-      description: description,
-    );
+    final span = parentSpan != null
+        ? _factory.createSpan(
+            parentSpan: parentSpan,
+            operation: SentryHiveImpl.dbOp,
+            description: description,
+          )
+        : null;
 
     span?.origin = _origin;
     span?.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
@@ -73,11 +75,13 @@ class SentrySpanHelper {
     String? dbName,
   }) {
     final parentSpan = _factory.getSpan(_hub);
-    final span = _factory.createSpan(
-      parentSpan,
-      SentryHiveImpl.dbOp,
-      description: description,
-    );
+    final span = parentSpan != null
+        ? _factory.createSpan(
+            parentSpan: parentSpan,
+            operation: SentryHiveImpl.dbOp,
+            description: description,
+          )
+        : null;
 
     span?.origin = _origin;
     span?.setData('sync', true);

@@ -43,11 +43,13 @@ class TracingClientAdapter implements HttpClientAdapter {
 
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
     final parentSpan = _spanFactory.getSpan(_hub);
-    final instrumentationSpan = _spanFactory.createSpan(
-      parentSpan,
-      'http.client',
-      description: description,
-    );
+    final instrumentationSpan = parentSpan != null
+        ? _spanFactory.createSpan(
+            parentSpan: parentSpan,
+            operation: 'http.client',
+            description: description,
+          )
+        : null;
 
     // Regardless whether tracing is enabled or not, we always want to attach
     // Sentry trace headers (tracing without performance).

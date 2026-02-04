@@ -9,6 +9,7 @@ class SentryTraceOrigins {
   static const autoHttpDioHttpClientAdapter =
       'auto.http.dio.http_client_adapter';
   static const autoHttpDioTransformer = 'auto.http.dio.transformer';
+  static const autoGraphQlSentryLink = 'auto.graphql.sentry_link';
   static const autoFile = 'auto.file';
   static const autoFileAssetBundle = 'auto.file.asset_bundle';
   static const autoDbSqfliteOpenDatabase = 'auto.db.sqflite.open_database';

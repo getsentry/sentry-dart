@@ -49,8 +49,8 @@ class SentrySpanHelper {
     }
 
     final span = _factory.createSpan(
-      parentSpan,
-      operation ?? SentrySpanOperations.dbSqlQuery,
+      parentSpan: parentSpan,
+      operation: operation ?? SentrySpanOperations.dbSqlQuery,
       description: description,
     );
 
@@ -97,8 +97,8 @@ class SentrySpanHelper {
     }
 
     final newParent = _factory.createSpan(
-      parentSpan,
-      SentrySpanOperations.dbSqlTransaction,
+      parentSpan: parentSpan,
+      operation: SentrySpanOperations.dbSqlTransaction,
       description: SentrySpanDescriptions.dbTransaction,
     );
 
