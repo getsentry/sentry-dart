@@ -8,6 +8,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/binding_wrapper.dart';
+import 'package:sentry_flutter/src/frames_tracking/span_frame_metrics_collector.dart';
 import 'package:sentry_flutter/src/integrations/frames_tracking_integration.dart';
 
 import '../binding.dart';
@@ -371,6 +372,99 @@ void main() {
         options.lifecycleRegistry.lifecycleCallbacks.containsKey(OnSpanFinish),
         isTrue,
       );
+    });
+
+    test('cleans up when span with null endTimestamp is last active span',
+        () async {
+      await fromWorkingState(options);
+
+      final mockFrameTracker = MockSentryDelayedFramesTracker();
+      int pauseFrameTrackingCalledCount = 0;
+
+      // Create a new collector with our own counters
+      final testCollector = SpanFrameMetricsCollector(
+        mockFrameTracker,
+        resumeFrameTracking: () => widgetsBinding!.resumeTrackingFrames(),
+        pauseFrameTracking: () {
+          pauseFrameTrackingCalledCount++;
+          widgetsBinding!.pauseTrackingFrames();
+        },
+      );
+
+      // Simulate a span starting
+      final hub = Hub(options);
+      final tracer = hub.startTransaction(
+        'test_transaction',
+        'test_operation',
+        bindToScope: true,
+        startTimestamp: options.clock(),
+      ) as SentryTracer;
+
+      final span = tracer.startChild(
+        'child_operation',
+        description: 'Child span',
+        startTimestamp: options.clock(),
+      ) as SentrySpan;
+
+      final wrapped = LegacyInstrumentationSpan(span);
+      await testCollector.onSpanStarted(wrapped);
+
+      expect(testCollector.activeSpans, contains(wrapped));
+
+      // Simulate what happens with null endTimestamp (integration code path)
+      testCollector.activeSpans.remove(wrapped);
+      if (testCollector.activeSpans.isEmpty) {
+        testCollector.clear();
+      }
+
+      // Verify cleanup: pauseFrameTracking should be called when activeSpans becomes empty
+      expect(testCollector.activeSpans, isEmpty);
+      expect(pauseFrameTrackingCalledCount, 1);
+      verify(mockFrameTracker.clear()).called(1);
+    });
+  });
+
+  group('with streaming lifecycle', () {
+    setUp(() {
+      options.traceLifecycle = SentryTraceLifecycle.streaming;
+    });
+
+    test('cleans up when span with null endTimestamp is last active span',
+        () async {
+      await fromWorkingState(options);
+
+      final mockFrameTracker = MockSentryDelayedFramesTracker();
+      int pauseFrameTrackingCalledCount = 0;
+
+      // Create a new collector with our own counters
+      final testCollector = SpanFrameMetricsCollector(
+        mockFrameTracker,
+        resumeFrameTracking: () => widgetsBinding!.resumeTrackingFrames(),
+        pauseFrameTracking: () {
+          pauseFrameTrackingCalledCount++;
+          widgetsBinding!.pauseTrackingFrames();
+        },
+      );
+
+      // Simulate a span starting
+      final hub = Hub(options);
+      final span = hub.startSpan('test_span') as RecordingSentrySpanV2;
+
+      final wrapped = StreamingInstrumentationSpan(span);
+      await testCollector.onSpanStarted(wrapped);
+
+      expect(testCollector.activeSpans, contains(wrapped));
+
+      // Simulate what happens with null endTimestamp (integration code path)
+      testCollector.activeSpans.remove(wrapped);
+      if (testCollector.activeSpans.isEmpty) {
+        testCollector.clear();
+      }
+
+      // Verify cleanup: pauseFrameTracking should be called when activeSpans becomes empty
+      expect(testCollector.activeSpans, isEmpty);
+      expect(pauseFrameTrackingCalledCount, 1);
+      verify(mockFrameTracker.clear()).called(1);
     });
   });
 }

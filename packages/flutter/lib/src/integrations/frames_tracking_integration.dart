@@ -79,6 +79,9 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
             options.log(SentryLevel.warning,
                 'OnProcessSpan fired but span has no endTimestamp');
             collector.activeSpans.remove(wrapped);
+            if (collector.activeSpans.isEmpty) {
+              collector.clear();
+            }
           }
         };
         options.lifecycleRegistry
@@ -100,6 +103,9 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
             options.log(SentryLevel.warning,
                 'OnSpanFinish fired but span has no endTimestamp');
             collector.activeSpans.remove(wrapped);
+            if (collector.activeSpans.isEmpty) {
+              collector.clear();
+            }
           }
         };
         options.lifecycleRegistry
