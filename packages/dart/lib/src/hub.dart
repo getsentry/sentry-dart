@@ -12,7 +12,6 @@ import 'sentry_traces_sampler.dart';
 import 'telemetry/span/sentry_span_sampling_context.dart';
 import 'transport/data_category.dart';
 import 'utils/internal_logger.dart';
-import 'utils/stacktrace_utils.dart';
 
 /// Configures the scope through the callback.
 typedef ScopeCallback = FutureOr<void> Function(Scope);
