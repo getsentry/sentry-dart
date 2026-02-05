@@ -51,7 +51,7 @@ class SpanFrameMetricsCollector {
       );
 
       if (metrics != null) {
-        _applyFrameMetrics(span, metrics);
+        span.applyFrameMetrics(metrics);
       }
 
       activeSpans.remove(span);
@@ -61,31 +61,6 @@ class SpanFrameMetricsCollector {
         _frameTracker.removeIrrelevantFrames(activeSpans.first.startTimestamp);
       }
     });
-  }
-
-  /// Applies frame metrics based on wrapper type.
-  void _applyFrameMetrics(InstrumentationSpan span, SpanFrameMetrics metrics) {
-    if (span is LegacyInstrumentationSpan) {
-      metrics.applyTo(span.spanReference);
-    } else if (span is StreamingInstrumentationSpan) {
-      final spanRef = span.spanReference;
-      if (spanRef is RecordingSentrySpanV2) {
-        final attributes = <String, SentryAttribute>{};
-        attributes[SemanticAttributesConstants.framesTotal] =
-            SentryAttribute.int(metrics.totalFrameCount);
-        attributes[SemanticAttributesConstants.framesSlow] =
-            SentryAttribute.int(metrics.slowFrameCount);
-        attributes[SemanticAttributesConstants.framesFrozen] =
-            SentryAttribute.int(metrics.frozenFrameCount);
-        attributes[SemanticAttributesConstants.framesDelay] =
-            SentryAttribute.int(metrics.framesDelay);
-        spanRef.setAttributesIfAbsent(attributes);
-      }
-    } else {
-      internalLogger.warning(
-        'Unknown InstrumentationSpan type: ${span.runtimeType}',
-      );
-    }
   }
 
   Future<void> _tryCatch(String methodName, Future<void> Function() fn) async {
@@ -105,5 +80,31 @@ class SpanFrameMetricsCollector {
     _pauseFrameTracking();
     _frameTracker.clear();
     activeSpans.clear();
+  }
+}
+
+extension _InstrumentationSpanFrameMetrics on InstrumentationSpan {
+  void applyFrameMetrics(SpanFrameMetrics metrics) {
+    if (this is LegacyInstrumentationSpan) {
+      metrics.applyTo((this as LegacyInstrumentationSpan).spanReference);
+    } else if (this is StreamingInstrumentationSpan) {
+      final spanRef = (this as StreamingInstrumentationSpan).spanReference;
+      if (spanRef is RecordingSentrySpanV2) {
+        final attributes = <String, SentryAttribute>{};
+        attributes[SemanticAttributesConstants.framesTotal] =
+            SentryAttribute.int(metrics.totalFrameCount);
+        attributes[SemanticAttributesConstants.framesSlow] =
+            SentryAttribute.int(metrics.slowFrameCount);
+        attributes[SemanticAttributesConstants.framesFrozen] =
+            SentryAttribute.int(metrics.frozenFrameCount);
+        attributes[SemanticAttributesConstants.framesDelay] =
+            SentryAttribute.int(metrics.framesDelay);
+        spanRef.setAttributesIfAbsent(attributes);
+      }
+    } else {
+      internalLogger.warning(
+        'Unknown InstrumentationSpan type: $runtimeType',
+      );
+    }
   }
 }
