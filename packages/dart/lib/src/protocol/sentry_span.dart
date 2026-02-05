@@ -218,7 +218,7 @@ class SentrySpan extends ISentrySpan {
   }
 
   @override
-  bool get finished => _isFinished;
+  bool get finished => _isFinished && _endTimestamp != null;
 
   @override
   dynamic get throwable => _throwable;
