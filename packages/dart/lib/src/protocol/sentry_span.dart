@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use_from_same_package
-
 import 'dart:async';
 
 import 'package:meta/meta.dart';
@@ -16,7 +14,8 @@ class SentrySpan extends ISentrySpan {
   late final DateTime _startTimestamp;
   final Hub _hub;
 
-  bool _finished = false;
+  bool _isFinished = false;
+  bool _isFinishing = false;
   bool _isRootSpan = false;
 
   bool get isRootSpan => _isRootSpan;
@@ -54,51 +53,59 @@ class SentrySpan extends ISentrySpan {
   @override
   Future<void> finish(
       {SpanStatus? status, DateTime? endTimestamp, Hint? hint}) async {
-    if (finished) {
+    // Prevent concurrent or duplicate finish() calls
+    if (_isFinished || _isFinishing) {
       return;
     }
 
-    if (status != null) {
-      _status = status;
-    }
+    _isFinishing = true;
 
-    if (endTimestamp == null) {
-      endTimestamp = _hub.options.clock();
-    } else if (endTimestamp.isBefore(_startTimestamp)) {
-      _hub.options.log(
-        SentryLevel.warning,
-        'End timestamp ($endTimestamp) cannot be before start timestamp ($_startTimestamp)',
-      );
-      endTimestamp = _hub.options.clock();
-    } else {
-      endTimestamp = endTimestamp.toUtc();
-    }
-
-    _endTimestamp = endTimestamp;
-
-    for (final collector in _hub.options.performanceCollectors) {
-      if (collector is PerformanceContinuousCollector) {
-        await collector.onSpanFinished(this, endTimestamp);
+    try {
+      if (status != null) {
+        _status = status;
       }
+
+      if (endTimestamp == null) {
+        endTimestamp = _hub.options.clock();
+      } else if (endTimestamp.isBefore(_startTimestamp)) {
+        _hub.options.log(
+          SentryLevel.warning,
+          'End timestamp ($endTimestamp) cannot be before start timestamp ($_startTimestamp)',
+        );
+        endTimestamp = _hub.options.clock();
+      } else {
+        endTimestamp = endTimestamp.toUtc();
+      }
+
+      _endTimestamp = endTimestamp;
+
+      // ignore: deprecated_member_use_from_same_package
+      for (final collector in _hub.options.performanceCollectors) {
+        if (collector is PerformanceContinuousCollector) {
+          await collector.onSpanFinished(this, endTimestamp);
+        }
+      }
+
+      // Dispatch OnSpanFinish lifecycle event
+      final callback =
+          _hub.options.lifecycleRegistry.dispatchCallback(OnSpanFinish(this));
+      if (callback is Future) {
+        await callback;
+      }
+
+      // associate error
+      if (_throwable != null) {
+        _hub.setSpanContext(_throwable, this, _tracer.name);
+      }
+
+      _isFinished = true;
+
+      await _finishedCallback?.call(endTimestamp: _endTimestamp, hint: hint);
+      return super
+          .finish(status: status, endTimestamp: _endTimestamp, hint: hint);
+    } finally {
+      _isFinishing = false;
     }
-
-    // Dispatch OnSpanFinish lifecycle event
-    final callback =
-        _hub.options.lifecycleRegistry.dispatchCallback(OnSpanFinish(this));
-    if (callback is Future) {
-      await callback;
-    }
-
-    // associate error
-    if (_throwable != null) {
-      _hub.setSpanContext(_throwable, this, _tracer.name);
-    }
-
-    _finished = true;
-
-    await _finishedCallback?.call(endTimestamp: _endTimestamp, hint: hint);
-    return super
-        .finish(status: status, endTimestamp: _endTimestamp, hint: hint);
   }
 
   @override
@@ -211,7 +218,7 @@ class SentrySpan extends ISentrySpan {
   }
 
   @override
-  bool get finished => _finished;
+  bool get finished => _isFinished;
 
   @override
   dynamic get throwable => _throwable;
