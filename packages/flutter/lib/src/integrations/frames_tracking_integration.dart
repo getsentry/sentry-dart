@@ -16,8 +16,8 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
   SentryFlutterOptions? _options;
   SpanFrameMetricsCollector? _collector;
   SentryWidgetsBindingMixin? _widgetsBinding;
-  SdkLifecycleCallback<OnSpanStartV2>? _onSpanStartCallback;
-  SdkLifecycleCallback<OnProcessSpan>? _onProcessSpanCallback;
+  SdkLifecycleCallback<OnSpanStartV2>? _onSpanStartStreamCallback;
+  SdkLifecycleCallback<OnProcessSpan>? _onProcessSpanStreamCallback;
   SdkLifecycleCallback<OnSpanStart>? _onSpanStartStaticCallback;
   SdkLifecycleCallback<OnSpanFinish>? _onSpanFinishStaticCallback;
 
@@ -64,14 +64,14 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
 
     switch (options.traceLifecycle) {
       case SentryTraceLifecycle.streaming:
-        _onSpanStartCallback = (event) {
+        _onSpanStartStreamCallback = (event) {
           final wrapped = StreamingInstrumentationSpan(event.span);
           collector.onSpanStarted(wrapped);
         };
         options.lifecycleRegistry
-            .registerCallback<OnSpanStartV2>(_onSpanStartCallback!);
+            .registerCallback<OnSpanStartV2>(_onSpanStartStreamCallback!);
 
-        _onProcessSpanCallback = (event) {
+        _onProcessSpanStreamCallback = (event) {
           if (event.span.endTimestamp != null) {
             final wrapped = StreamingInstrumentationSpan(event.span);
             if (event.span.endTimestamp != null) {
@@ -83,7 +83,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
           }
         };
         options.lifecycleRegistry
-            .registerCallback<OnProcessSpan>(_onProcessSpanCallback!);
+            .registerCallback<OnProcessSpan>(_onProcessSpanStreamCallback!);
 
       case SentryTraceLifecycle.static:
         _onSpanStartStaticCallback = (event) {
@@ -124,25 +124,21 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
   void close() {
     final options = _options;
     if (options != null) {
-      if (_onSpanStartCallback != null) {
+      if (_onSpanStartStreamCallback != null) {
         options.lifecycleRegistry
-            .removeCallback<OnSpanStartV2>(_onSpanStartCallback!);
-        _onSpanStartCallback = null;
+            .removeCallback<OnSpanStartV2>(_onSpanStartStreamCallback!);
       }
-      if (_onProcessSpanCallback != null) {
+      if (_onProcessSpanStreamCallback != null) {
         options.lifecycleRegistry
-            .removeCallback<OnProcessSpan>(_onProcessSpanCallback!);
-        _onProcessSpanCallback = null;
+            .removeCallback<OnProcessSpan>(_onProcessSpanStreamCallback!);
       }
       if (_onSpanStartStaticCallback != null) {
         options.lifecycleRegistry
             .removeCallback<OnSpanStart>(_onSpanStartStaticCallback!);
-        _onSpanStartStaticCallback = null;
       }
       if (_onSpanFinishStaticCallback != null) {
         options.lifecycleRegistry
             .removeCallback<OnSpanFinish>(_onSpanFinishStaticCallback!);
-        _onSpanFinishStaticCallback = null;
       }
     }
     _collector?.clear();
