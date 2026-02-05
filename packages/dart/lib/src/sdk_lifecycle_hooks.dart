@@ -90,8 +90,6 @@ class OnSpanStart extends SdkLifecycleEvent {
 }
 
 /// Dispatched when a sampled span is finished.
-/// The span's endTimestamp is already set when this event is dispatched,
-/// but the span is still mutable until the event handlers complete.
 @internal
 class OnSpanFinish extends SdkLifecycleEvent {
   OnSpanFinish(this.span);

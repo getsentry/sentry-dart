@@ -74,7 +74,12 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
         _onProcessSpanCallback = (event) {
           if (event.span.endTimestamp != null) {
             final wrapped = StreamingInstrumentationSpan(event.span);
-            collector.onSpanFinished(wrapped, event.span.endTimestamp!);
+            if (event.span.endTimestamp != null) {
+              collector.onSpanFinished(wrapped, event.span.endTimestamp!);
+            } else {}
+            options.log(SentryLevel.warning,
+                'OnProcessSpan fired but span has no endTimestamp');
+            collector.activeSpans.remove(wrapped);
           }
         };
         options.lifecycleRegistry
@@ -90,7 +95,13 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
 
         _onSpanFinishStaticCallback = (event) {
           final wrapped = LegacyInstrumentationSpan(event.span);
-          collector.onSpanFinished(wrapped, event.span.endTimestamp!);
+          if (event.span.endTimestamp != null) {
+            collector.onSpanFinished(wrapped, event.span.endTimestamp!);
+          } else {
+            options.log(SentryLevel.warning,
+                'OnProcessSpan fired but span has no endTimestamp');
+            collector.activeSpans.remove(wrapped);
+          }
         };
         options.lifecycleRegistry
             .registerCallback<OnSpanFinish>(_onSpanFinishStaticCallback!);

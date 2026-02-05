@@ -22,7 +22,6 @@ class SpanFrameMetricsCollector {
   final void Function() _pauseFrameTracking;
 
   /// Spans currently being tracked. Frame tracking pauses when empty.
-  @visibleForTesting
   final List<InstrumentationSpan> activeSpans = [];
 
   Future<void> onSpanStarted(InstrumentationSpan span) async {
