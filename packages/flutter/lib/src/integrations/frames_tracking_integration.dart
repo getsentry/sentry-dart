@@ -72,11 +72,10 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
             .registerCallback<OnSpanStartV2>(_onSpanStartStreamCallback!);
 
         _onProcessSpanStreamCallback = (event) {
+          final wrapped = StreamingInstrumentationSpan(event.span);
           if (event.span.endTimestamp != null) {
-            final wrapped = StreamingInstrumentationSpan(event.span);
-            if (event.span.endTimestamp != null) {
-              collector.onSpanFinished(wrapped, event.span.endTimestamp!);
-            } else {}
+            collector.onSpanFinished(wrapped, event.span.endTimestamp!);
+          } else {
             options.log(SentryLevel.warning,
                 'OnProcessSpan fired but span has no endTimestamp');
             collector.activeSpans.remove(wrapped);
@@ -99,7 +98,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
             collector.onSpanFinished(wrapped, event.span.endTimestamp!);
           } else {
             options.log(SentryLevel.warning,
-                'OnProcessSpan fired but span has no endTimestamp');
+                'OnSpanFinish fired but span has no endTimestamp');
             collector.activeSpans.remove(wrapped);
           }
         };
