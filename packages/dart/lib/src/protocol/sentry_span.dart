@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'dart:async';
 
 import 'package:meta/meta.dart';
@@ -74,7 +76,6 @@ class SentrySpan extends ISentrySpan {
 
     _endTimestamp = endTimestamp;
 
-    // ignore: deprecated_member_use_from_same_package
     for (final collector in _hub.options.performanceCollectors) {
       if (collector is PerformanceContinuousCollector) {
         await collector.onSpanFinished(this, endTimestamp);

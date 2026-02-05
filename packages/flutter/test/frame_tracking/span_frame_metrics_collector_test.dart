@@ -65,7 +65,8 @@ void main() {
       expect(tracer.measurements[SentryMeasurement.totalFramesName]?.value, 10);
       expect(tracer.measurements[SentryMeasurement.slowFramesName]?.value, 2);
       expect(tracer.measurements[SentryMeasurement.frozenFramesName]?.value, 1);
-      expect(tracer.measurements[SentryMeasurement.framesDelayName]?.value, 500);
+      expect(
+          tracer.measurements[SentryMeasurement.framesDelayName]?.value, 500);
       expect(sut.activeSpans, isEmpty);
     });
 
@@ -82,7 +83,8 @@ void main() {
           startTimestamp: startTimeForSpan1, isRootSpan: true);
       final wrapper1 = LegacyInstrumentationSpan(span1);
 
-      final startTimeForSpan2 = startTimeForSpan1.add(Duration(milliseconds: 100));
+      final startTimeForSpan2 =
+          startTimeForSpan1.add(Duration(milliseconds: 100));
       final endTimeForSpan2 = startTimeForSpan2.add(Duration(seconds: 100));
       final span2 = span1.startChild('child op',
           startTimestamp: startTimeForSpan2) as SentrySpan;
@@ -124,7 +126,8 @@ void main() {
       expect(tracer.measurements[SentryMeasurement.totalFramesName]?.value, 10);
       expect(tracer.measurements[SentryMeasurement.slowFramesName]?.value, 2);
       expect(tracer.measurements[SentryMeasurement.frozenFramesName]?.value, 1);
-      expect(tracer.measurements[SentryMeasurement.framesDelayName]?.value, 500);
+      expect(
+          tracer.measurements[SentryMeasurement.framesDelayName]?.value, 500);
 
       expect(span2.data[SpanDataConvention.totalFrames], 5);
       expect(span2.data[SpanDataConvention.slowFrames], 1);
@@ -178,10 +181,13 @@ void main() {
 
       await sut.onSpanFinished(wrapper, endTime);
 
-      expect(span.attributes[SemanticAttributesConstants.framesTotal]?.value, 15);
+      expect(
+          span.attributes[SemanticAttributesConstants.framesTotal]?.value, 15);
       expect(span.attributes[SemanticAttributesConstants.framesSlow]?.value, 3);
-      expect(span.attributes[SemanticAttributesConstants.framesFrozen]?.value, 2);
-      expect(span.attributes[SemanticAttributesConstants.framesDelay]?.value, 600);
+      expect(
+          span.attributes[SemanticAttributesConstants.framesFrozen]?.value, 2);
+      expect(
+          span.attributes[SemanticAttributesConstants.framesDelay]?.value, 600);
       expect(sut.activeSpans, isEmpty);
     });
 
@@ -241,15 +247,23 @@ void main() {
       await sut.onSpanFinished(wrapper1, endTime1);
       await sut.onSpanFinished(wrapper2, endTime2);
 
-      expect(span1.attributes[SemanticAttributesConstants.framesTotal]?.value, 10);
-      expect(span1.attributes[SemanticAttributesConstants.framesSlow]?.value, 1);
-      expect(span1.attributes[SemanticAttributesConstants.framesFrozen]?.value, 0);
-      expect(span1.attributes[SemanticAttributesConstants.framesDelay]?.value, 100);
+      expect(
+          span1.attributes[SemanticAttributesConstants.framesTotal]?.value, 10);
+      expect(
+          span1.attributes[SemanticAttributesConstants.framesSlow]?.value, 1);
+      expect(
+          span1.attributes[SemanticAttributesConstants.framesFrozen]?.value, 0);
+      expect(span1.attributes[SemanticAttributesConstants.framesDelay]?.value,
+          100);
 
-      expect(span2.attributes[SemanticAttributesConstants.framesTotal]?.value, 20);
-      expect(span2.attributes[SemanticAttributesConstants.framesSlow]?.value, 4);
-      expect(span2.attributes[SemanticAttributesConstants.framesFrozen]?.value, 2);
-      expect(span2.attributes[SemanticAttributesConstants.framesDelay]?.value, 800);
+      expect(
+          span2.attributes[SemanticAttributesConstants.framesTotal]?.value, 20);
+      expect(
+          span2.attributes[SemanticAttributesConstants.framesSlow]?.value, 4);
+      expect(
+          span2.attributes[SemanticAttributesConstants.framesFrozen]?.value, 2);
+      expect(span2.attributes[SemanticAttributesConstants.framesDelay]?.value,
+          800);
 
       expect(sut.activeSpans, isEmpty);
     });
@@ -310,7 +324,8 @@ void main() {
 
       verifyNever(fixture.mockFrameTracker.clear());
       expect(fixture.pauseFrameTrackingCalledCount, 0);
-      verify(fixture.mockFrameTracker.removeIrrelevantFrames(startTime2)).called(1);
+      verify(fixture.mockFrameTracker.removeIrrelevantFrames(startTime2))
+          .called(1);
     });
 
     test('correctly removes span using wrapper equality', () async {
@@ -380,7 +395,8 @@ void main() {
       await sut.onSpanFinished(wrapper2, endTime);
 
       expect(sut.activeSpans, isEmpty);
-      expect(span.attributes[SemanticAttributesConstants.framesTotal]?.value, 15);
+      expect(
+          span.attributes[SemanticAttributesConstants.framesTotal]?.value, 15);
     });
 
     test('handles unknown InstrumentationSpan types gracefully', () async {
