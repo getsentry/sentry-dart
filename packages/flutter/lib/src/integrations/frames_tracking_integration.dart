@@ -6,7 +6,6 @@ import '../../sentry_flutter.dart';
 import '../binding_wrapper.dart';
 import '../frames_tracking/sentry_delayed_frames_tracker.dart';
 import '../frames_tracking/span_frame_metrics_collector.dart';
-import '../frames_tracking/span_frame_metrics_collector_v2.dart';
 import '../native/sentry_native_binding.dart';
 
 class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
@@ -15,7 +14,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
   static const integrationName = 'FramesTracking';
   final SentryNativeBinding _native;
   SentryFlutterOptions? _options;
-  PerformanceCollector? _collector;
+  SpanFrameMetricsCollector? _collector;
   SentryWidgetsBindingMixin? _widgetsBinding;
   SdkLifecycleCallback<OnSpanStartV2>? _onSpanStartCallback;
   SdkLifecycleCallback<OnProcessSpan>? _onProcessSpanCallback;
@@ -55,40 +54,43 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
         SentryDelayedFramesTracker(options, expectedFrameDuration);
     widgetsBinding.initializeFramesTracking(
         framesTracker.addDelayedFrame, options, expectedFrameDuration);
+
+    final collector = SpanFrameMetricsCollector(
+      framesTracker,
+      resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
+      pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames(),
+    );
+    _collector = collector;
+
     switch (options.traceLifecycle) {
       case SentryTraceLifecycle.streaming:
-        final collector = SpanFrameMetricsCollectorV2(framesTracker,
-            resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
-            pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames());
-        _collector = collector;
-
         _onSpanStartCallback = (event) {
-          collector.onSpanStarted(event.span);
+          final wrapped = StreamingInstrumentationSpan(event.span);
+          collector.onSpanStarted(wrapped);
         };
         options.lifecycleRegistry
             .registerCallback<OnSpanStartV2>(_onSpanStartCallback!);
 
         _onProcessSpanCallback = (event) {
           if (event.span.endTimestamp != null) {
-            collector.onSpanFinished(event.span, event.span.endTimestamp!);
+            final wrapped = StreamingInstrumentationSpan(event.span);
+            collector.onSpanFinished(wrapped, event.span.endTimestamp!);
           }
         };
         options.lifecycleRegistry
             .registerCallback<OnProcessSpan>(_onProcessSpanCallback!);
-      case SentryTraceLifecycle.static:
-        final collector = SpanFrameMetricsCollector(options, framesTracker,
-            resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
-            pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames());
-        _collector = collector;
 
+      case SentryTraceLifecycle.static:
         _onSpanStartStaticCallback = (event) {
-          collector.onSpanStarted(event.span);
+          final wrapped = LegacyInstrumentationSpan(event.span);
+          collector.onSpanStarted(wrapped);
         };
         options.lifecycleRegistry
             .registerCallback<OnSpanStart>(_onSpanStartStaticCallback!);
 
         _onSpanFinishStaticCallback = (event) {
-          collector.onSpanFinished(event.span, event.span.endTimestamp!);
+          final wrapped = LegacyInstrumentationSpan(event.span);
+          collector.onSpanFinished(wrapped, event.span.endTimestamp!);
         };
         options.lifecycleRegistry
             .registerCallback<OnSpanFinish>(_onSpanFinishStaticCallback!);
@@ -132,12 +134,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
         _onSpanFinishStaticCallback = null;
       }
     }
-    final collector = _collector;
-    if (collector is PerformanceContinuousCollector) {
-      collector.clear();
-    } else if (collector is PerformanceContinuousCollectorV2) {
-      collector.clear();
-    }
+    _collector?.clear();
     _widgetsBinding?.removeFramesTracking();
   }
 }

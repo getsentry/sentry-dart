@@ -3,34 +3,31 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../utils/internal_logger.dart';
 import 'sentry_delayed_frames_tracker.dart';
 
-/// Collects frames from [SentryDelayedFramesTracker], calculates the metrics
-/// and attaches them to spans.
+/// Collects frame metrics for both legacy and streaming spans via
+/// [InstrumentationSpan] wrappers.
 @internal
-class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
+class SpanFrameMetricsCollector {
   SpanFrameMetricsCollector(
-    this._options,
     this._frameTracker, {
     required void Function() resumeFrameTracking,
     required void Function() pauseFrameTracking,
   })  : _resumeFrameTracking = resumeFrameTracking,
         _pauseFrameTracking = pauseFrameTracking;
 
-  final SentryFlutterOptions _options;
   final SentryDelayedFramesTracker _frameTracker;
   final void Function() _resumeFrameTracking;
   final void Function() _pauseFrameTracking;
 
-  /// Stores the spans that are actively being tracked.
-  /// After the frames are calculated and stored in the span the span is removed from this list.
+  /// Spans currently being tracked. Frame tracking pauses when empty.
   @visibleForTesting
-  final List<ISentrySpan> activeSpans = [];
+  final List<InstrumentationSpan> activeSpans = [];
 
-  @override
-  Future<void> onSpanStarted(ISentrySpan span) async {
-    return _tryCatch('onSpanFinished', () async {
-      if (span is NoOpSentrySpan) {
+  Future<void> onSpanStarted(InstrumentationSpan span) async {
+    return _tryCatch('onSpanStarted', () async {
+      if (span.isNoop) {
         return;
       }
 
@@ -39,17 +36,24 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     });
   }
 
-  @override
-  Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) async {
+  Future<void> onSpanFinished(
+    InstrumentationSpan span,
+    DateTime endTimestamp,
+  ) async {
     return _tryCatch('onSpanFinished', () async {
-      if (span is NoOpSentrySpan) {
+      if (span.isNoop) {
         return;
       }
 
       final startTimestamp = span.startTimestamp;
       final metrics = _frameTracker.getFrameMetrics(
-          spanStartTimestamp: startTimestamp, spanEndTimestamp: endTimestamp);
-      metrics?.applyTo(span);
+        spanStartTimestamp: startTimestamp,
+        spanEndTimestamp: endTimestamp,
+      );
+
+      if (metrics != null) {
+        _applyFrameMetrics(span, metrics);
+      }
 
       activeSpans.remove(span);
       if (activeSpans.isEmpty) {
@@ -60,28 +64,47 @@ class SpanFrameMetricsCollector implements PerformanceContinuousCollector {
     });
   }
 
-  // TODO: there's already a similar implementation: [SentryNativeSafeInvoker]
-  // let's try to reuse it at some point
+  /// Applies frame metrics based on wrapper type.
+  void _applyFrameMetrics(InstrumentationSpan span, SpanFrameMetrics metrics) {
+    if (span is LegacyInstrumentationSpan) {
+      metrics.applyTo(span.spanReference);
+    } else if (span is StreamingInstrumentationSpan) {
+      final spanRef = span.spanReference;
+      if (spanRef is RecordingSentrySpanV2) {
+        final attributes = <String, SentryAttribute>{};
+        attributes[SemanticAttributesConstants.framesTotal] =
+            SentryAttribute.int(metrics.totalFrameCount);
+        attributes[SemanticAttributesConstants.framesSlow] =
+            SentryAttribute.int(metrics.slowFrameCount);
+        attributes[SemanticAttributesConstants.framesFrozen] =
+            SentryAttribute.int(metrics.frozenFrameCount);
+        attributes[SemanticAttributesConstants.framesDelay] =
+            SentryAttribute.int(metrics.framesDelay);
+        spanRef.setAttributesIfAbsent(attributes);
+      }
+    } else {
+      internalLogger.warning(
+        'Unknown InstrumentationSpan type: ${span.runtimeType}',
+      );
+    }
+  }
+
   Future<void> _tryCatch(String methodName, Future<void> Function() fn) async {
     try {
-      return fn();
+      return await fn();
     } catch (exception, stackTrace) {
-      _options.log(
-        SentryLevel.error,
+      internalLogger.error(
         'SpanFrameMetricsCollector $methodName failed',
-        exception: exception,
+        error: exception,
         stackTrace: stackTrace,
       );
       clear();
     }
   }
 
-  @override
   void clear() {
     _pauseFrameTracking();
     _frameTracker.clear();
     activeSpans.clear();
-    // we don't need to clear the expected frame duration as that realistically
-    // won't change throughout the application's lifecycle
   }
 }
