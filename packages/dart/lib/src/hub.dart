@@ -199,9 +199,6 @@ class Hub {
     Hint? hint,
     ScopeCallback? withScope,
   }) async {
-    print('check it out');
-    print(getCurrentStackTrace());
-
     var sentryId = SentryId.empty();
 
     if (!_isEnabled) {

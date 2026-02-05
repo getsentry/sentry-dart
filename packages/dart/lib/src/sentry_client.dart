@@ -321,7 +321,6 @@ class SentryClient {
         stackTrace = getCurrentStackTrace();
         hint.addAll({TypeCheckHint.currentStackTrace: true});
       }
-      print(stackTrace);
       final sentryStackTrace = _stackTraceFactory.parse(
         stackTrace,
         removeSentryFrames: hint.get(TypeCheckHint.currentStackTrace),

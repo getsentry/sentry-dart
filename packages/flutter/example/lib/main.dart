@@ -91,10 +91,10 @@ Future<void> setupSentry(
       options.enableTimeToFullDisplayTracing = true;
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.navigatorKey = navigatorKey;
-      // options.traceLifecycle = SentryTraceLifecycle.streaming;
+      options.traceLifecycle = SentryTraceLifecycle.streaming;
 
-      // options.replay.sessionSampleRate = 1.0;
-      // options.replay.onErrorSampleRate = 1.0;
+      options.replay.sessionSampleRate = 1.0;
+      options.replay.onErrorSampleRate = 1.0;
 
       options.enableLogs = true;
 
