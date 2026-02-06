@@ -407,7 +407,7 @@ void main() {
       ) as SentrySpan;
 
       final wrapped = LegacyInstrumentationSpan(span);
-      await testCollector.onSpanStarted(wrapped);
+      await testCollector.startTracking(wrapped);
 
       expect(testCollector.activeSpans, contains(wrapped));
 
@@ -451,7 +451,7 @@ void main() {
       final span = hub.startSpan('test_span') as RecordingSentrySpanV2;
 
       final wrapped = StreamingInstrumentationSpan(span);
-      await testCollector.onSpanStarted(wrapped);
+      await testCollector.startTracking(wrapped);
 
       expect(testCollector.activeSpans, contains(wrapped));
 

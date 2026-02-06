@@ -23,7 +23,7 @@ void main() {
       final noopSpan = NoOpSentrySpan();
       final wrapper = LegacyInstrumentationSpan(noopSpan);
 
-      await sut.onSpanStarted(wrapper);
+      await sut.startTracking(wrapper);
 
       expect(sut.activeSpans, isEmpty);
       expect(fixture.resumeFrameTrackingCalledCount, 0);
@@ -52,11 +52,11 @@ void main() {
         spanEndTimestamp: endTime,
       )).thenReturn(metrics);
 
-      await sut.onSpanStarted(wrapper);
+      await sut.startTracking(wrapper);
       expect(sut.activeSpans, contains(wrapper));
       expect(fixture.resumeFrameTrackingCalledCount, 1);
 
-      await sut.onSpanFinished(wrapper, endTime);
+      await sut.finishTracking(wrapper, endTime);
 
       expect(tracer.data[SpanDataConvention.totalFrames], 10);
       expect(tracer.data[SpanDataConvention.slowFrames], 2);
@@ -112,12 +112,12 @@ void main() {
         spanEndTimestamp: endTimeForSpan2,
       )).thenReturn(metricsForSpan2);
 
-      await sut.onSpanStarted(wrapper1);
-      await sut.onSpanStarted(wrapper2);
+      await sut.startTracking(wrapper1);
+      await sut.startTracking(wrapper2);
       expect(sut.activeSpans, containsAll([wrapper1, wrapper2]));
 
-      await sut.onSpanFinished(wrapper2, endTimeForSpan2);
-      await sut.onSpanFinished(wrapper1, endTimeForSpan1);
+      await sut.finishTracking(wrapper2, endTimeForSpan2);
+      await sut.finishTracking(wrapper1, endTimeForSpan1);
 
       expect(tracer.data[SpanDataConvention.totalFrames], 10);
       expect(tracer.data[SpanDataConvention.slowFrames], 2);
@@ -144,7 +144,7 @@ void main() {
       final noopSpan = NoOpSentrySpanV2();
       final wrapper = StreamingInstrumentationSpan(noopSpan);
 
-      await sut.onSpanStarted(wrapper);
+      await sut.startTracking(wrapper);
 
       expect(sut.activeSpans, isEmpty);
       expect(fixture.resumeFrameTrackingCalledCount, 0);
@@ -175,11 +175,11 @@ void main() {
         spanEndTimestamp: endTime,
       )).thenReturn(metrics);
 
-      await sut.onSpanStarted(wrapper);
+      await sut.startTracking(wrapper);
       expect(sut.activeSpans, contains(wrapper));
       expect(fixture.resumeFrameTrackingCalledCount, 1);
 
-      await sut.onSpanFinished(wrapper, endTime);
+      await sut.finishTracking(wrapper, endTime);
 
       expect(
           span.attributes[SemanticAttributesConstants.framesTotal]?.value, 15);
@@ -240,12 +240,12 @@ void main() {
         spanEndTimestamp: endTime2,
       )).thenReturn(metrics2);
 
-      await sut.onSpanStarted(wrapper1);
-      await sut.onSpanStarted(wrapper2);
+      await sut.startTracking(wrapper1);
+      await sut.startTracking(wrapper2);
       expect(sut.activeSpans, containsAll([wrapper1, wrapper2]));
 
-      await sut.onSpanFinished(wrapper1, endTime1);
-      await sut.onSpanFinished(wrapper2, endTime2);
+      await sut.finishTracking(wrapper1, endTime1);
+      await sut.finishTracking(wrapper2, endTime2);
 
       expect(
           span1.attributes[SemanticAttributesConstants.framesTotal]?.value, 10);
@@ -274,7 +274,7 @@ void main() {
       final sut = fixture.getSut();
       final span = MockSentrySpan();
       final wrapper = LegacyInstrumentationSpan(span);
-      await sut.onSpanStarted(wrapper);
+      await sut.startTracking(wrapper);
 
       sut.clear();
 
@@ -294,8 +294,8 @@ void main() {
               spanStartTimestamp: startTime, spanEndTimestamp: endTime))
           .thenReturn(null);
 
-      await sut.onSpanStarted(wrapper);
-      await sut.onSpanFinished(wrapper, endTime);
+      await sut.startTracking(wrapper);
+      await sut.finishTracking(wrapper, endTime);
 
       verify(fixture.mockFrameTracker.clear()).called(1);
       expect(fixture.pauseFrameTrackingCalledCount, 1);
@@ -317,10 +317,10 @@ void main() {
               spanStartTimestamp: startTime, spanEndTimestamp: endTime))
           .thenReturn(null);
 
-      await sut.onSpanStarted(wrapper1);
-      await sut.onSpanStarted(wrapper2);
+      await sut.startTracking(wrapper1);
+      await sut.startTracking(wrapper2);
 
-      await sut.onSpanFinished(wrapper1, endTime);
+      await sut.finishTracking(wrapper1, endTime);
 
       verifyNever(fixture.mockFrameTracker.clear());
       expect(fixture.pauseFrameTrackingCalledCount, 0);
@@ -341,7 +341,7 @@ void main() {
           startTimestamp: startTime, isRootSpan: true);
 
       final wrapper1 = LegacyInstrumentationSpan(span);
-      await sut.onSpanStarted(wrapper1);
+      await sut.startTracking(wrapper1);
       expect(sut.activeSpans, contains(wrapper1));
 
       final metrics = SpanFrameMetrics(
@@ -356,7 +356,7 @@ void main() {
       )).thenReturn(metrics);
 
       final wrapper2 = LegacyInstrumentationSpan(span);
-      await sut.onSpanFinished(wrapper2, endTime);
+      await sut.finishTracking(wrapper2, endTime);
 
       expect(sut.activeSpans, isEmpty);
       expect(tracer.data[SpanDataConvention.totalFrames], 10);
@@ -377,7 +377,7 @@ void main() {
       final endTime = startTime.add(Duration(seconds: 1));
 
       final wrapper1 = StreamingInstrumentationSpan(span);
-      await sut.onSpanStarted(wrapper1);
+      await sut.startTracking(wrapper1);
       expect(sut.activeSpans, contains(wrapper1));
 
       final metrics = SpanFrameMetrics(
@@ -392,7 +392,7 @@ void main() {
       )).thenReturn(metrics);
 
       final wrapper2 = StreamingInstrumentationSpan(span);
-      await sut.onSpanFinished(wrapper2, endTime);
+      await sut.finishTracking(wrapper2, endTime);
 
       expect(sut.activeSpans, isEmpty);
       expect(
@@ -403,7 +403,7 @@ void main() {
       final sut = fixture.getSut();
       final unknownSpan = UnknownInstrumentationSpan();
 
-      await sut.onSpanStarted(unknownSpan);
+      await sut.startTracking(unknownSpan);
       expect(sut.activeSpans, contains(unknownSpan));
 
       final startTime = unknownSpan.startTimestamp;
@@ -419,7 +419,7 @@ void main() {
         spanEndTimestamp: endTime,
       )).thenReturn(metrics);
 
-      await sut.onSpanFinished(unknownSpan, endTime);
+      await sut.finishTracking(unknownSpan, endTime);
 
       expect(sut.activeSpans, isEmpty);
     });
@@ -435,8 +435,8 @@ void main() {
               spanStartTimestamp: startTime, spanEndTimestamp: endTime))
           .thenThrow(Exception('Frame tracker error'));
 
-      await sut.onSpanStarted(wrapper);
-      await sut.onSpanFinished(wrapper, endTime);
+      await sut.startTracking(wrapper);
+      await sut.finishTracking(wrapper, endTime);
 
       verify(fixture.mockFrameTracker.clear()).called(1);
       expect(sut.activeSpans, isEmpty);
@@ -464,7 +464,7 @@ class UnknownInstrumentationSpan implements InstrumentationSpan {
   final DateTime _startTimestamp = DateTime.now();
 
   @override
-  bool get isNoop => false;
+  bool get isRecording => false;
 
   @override
   DateTime get startTimestamp => _startTimestamp;

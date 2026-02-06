@@ -66,7 +66,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
       case SentryTraceLifecycle.streaming:
         _onSpanStartStreamCallback = (event) {
           final wrapped = StreamingInstrumentationSpan(event.span);
-          collector.onSpanStarted(wrapped);
+          collector.startTracking(wrapped);
         };
         options.lifecycleRegistry
             .registerCallback<OnSpanStartV2>(_onSpanStartStreamCallback!);
@@ -74,14 +74,11 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
         _onProcessSpanStreamCallback = (event) {
           final wrapped = StreamingInstrumentationSpan(event.span);
           if (event.span.endTimestamp != null) {
-            collector.onSpanFinished(wrapped, event.span.endTimestamp!);
+            collector.finishTracking(wrapped, event.span.endTimestamp!);
           } else {
             options.log(SentryLevel.warning,
                 'OnProcessSpan fired but span has no endTimestamp');
-            collector.activeSpans.remove(wrapped);
-            if (collector.activeSpans.isEmpty) {
-              collector.clear();
-            }
+            collector.removeFromActiveSpans(wrapped);
           }
         };
         options.lifecycleRegistry
@@ -90,7 +87,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
       case SentryTraceLifecycle.static:
         _onSpanStartStaticCallback = (event) {
           final wrapped = LegacyInstrumentationSpan(event.span);
-          collector.onSpanStarted(wrapped);
+          collector.startTracking(wrapped);
         };
         options.lifecycleRegistry
             .registerCallback<OnSpanStart>(_onSpanStartStaticCallback!);
@@ -98,14 +95,11 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
         _onSpanFinishStaticCallback = (event) {
           final wrapped = LegacyInstrumentationSpan(event.span);
           if (event.span.endTimestamp != null) {
-            collector.onSpanFinished(wrapped, event.span.endTimestamp!);
+            collector.finishTracking(wrapped, event.span.endTimestamp!);
           } else {
             options.log(SentryLevel.warning,
                 'OnSpanFinish fired but span has no endTimestamp');
-            collector.activeSpans.remove(wrapped);
-            if (collector.activeSpans.isEmpty) {
-              collector.clear();
-            }
+            collector.removeFromActiveSpans(wrapped);
           }
         };
         options.lifecycleRegistry

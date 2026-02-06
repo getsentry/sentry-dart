@@ -18,8 +18,8 @@ abstract class InstrumentationSpan {
   SentryTraceHeader toSentryTrace();
   SentryBaggageHeader? toBaggageHeader();
 
-  /// Returns true if this span is a no-op span that doesn't record data.
-  bool get isNoop;
+  /// Returns true if this span is a recording span that records data.
+  bool get isRecording;
 
   /// The start timestamp of this span.
   DateTime get startTimestamp;
@@ -73,11 +73,13 @@ class LegacyInstrumentationSpan implements InstrumentationSpan {
   SentryBaggageHeader? toBaggageHeader() => _span.toBaggageHeader();
 
   @override
-  bool get isNoop => _span is NoOpSentrySpan;
+  bool get isRecording => _span is SentrySpan;
 
   @override
   DateTime get startTimestamp => _span.startTimestamp;
 
+  // Needed so List.remove in SpanFrameMetricsCollector can match different
+  // wrapper instances that wrap the same underlying span.
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -204,11 +206,13 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
   }
 
   @override
-  bool get isNoop => _span is! RecordingSentrySpanV2;
+  bool get isRecording => _span is RecordingSentrySpanV2;
 
   @override
   DateTime get startTimestamp => _span.startTimestamp;
 
+  // Needed so List.remove in SpanFrameMetricsCollector can match different
+  // wrapper instances that wrap the same underlying span.
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

@@ -21,26 +21,28 @@ class SpanFrameMetricsCollector {
   final void Function() _resumeFrameTracking;
   final void Function() _pauseFrameTracking;
 
-  /// Spans currently being tracked. Frame tracking pauses when empty.
-  final List<InstrumentationSpan> activeSpans = [];
+  /// Frame tracking pauses when empty.
+  final List<InstrumentationSpan> _activeSpans = [];
 
-  Future<void> onSpanStarted(InstrumentationSpan span) async {
+  List<InstrumentationSpan> get activeSpans => List.unmodifiable(_activeSpans);
+
+  Future<void> startTracking(InstrumentationSpan span) async {
     return _tryCatch('onSpanStarted', () async {
-      if (span.isNoop) {
+      if (!span.isRecording) {
         return;
       }
 
-      activeSpans.add(span);
+      _activeSpans.add(span);
       _resumeFrameTracking();
     });
   }
 
-  Future<void> onSpanFinished(
+  Future<void> finishTracking(
     InstrumentationSpan span,
     DateTime endTimestamp,
   ) async {
     return _tryCatch('onSpanFinished', () async {
-      if (span.isNoop) {
+      if (!span.isRecording) {
         return;
       }
 
@@ -54,13 +56,22 @@ class SpanFrameMetricsCollector {
         span.applyFrameMetrics(metrics);
       }
 
-      activeSpans.remove(span);
-      if (activeSpans.isEmpty) {
+      _activeSpans.remove(span);
+      if (_activeSpans.isEmpty) {
         clear();
       } else {
-        _frameTracker.removeIrrelevantFrames(activeSpans.first.startTimestamp);
+        _frameTracker.removeIrrelevantFrames(_activeSpans.first.startTimestamp);
       }
     });
+  }
+
+  void removeFromActiveSpans(InstrumentationSpan span) {
+    _activeSpans.remove(span);
+    if (_activeSpans.isEmpty) {
+      clear();
+    } else {
+      _frameTracker.removeIrrelevantFrames(_activeSpans.first.startTimestamp);
+    }
   }
 
   Future<void> _tryCatch(String methodName, Future<void> Function() fn) async {
@@ -79,7 +90,7 @@ class SpanFrameMetricsCollector {
   void clear() {
     _pauseFrameTracking();
     _frameTracker.clear();
-    activeSpans.clear();
+    _activeSpans.clear();
   }
 }
 
