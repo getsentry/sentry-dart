@@ -24,7 +24,8 @@ class SpanFrameMetricsCollector {
   /// Frame tracking pauses when empty.
   final List<InstrumentationSpan> _activeSpans = [];
 
-  List<InstrumentationSpan> get activeSpans => List.unmodifiable(_activeSpans);
+  @visibleForTesting
+  List<InstrumentationSpan> get activeSpans => _activeSpans;
 
   Future<void> startTracking(InstrumentationSpan span) async {
     return _tryCatch('onSpanStarted', () async {
