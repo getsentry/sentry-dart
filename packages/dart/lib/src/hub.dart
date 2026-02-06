@@ -713,6 +713,8 @@ class Hub {
       scope.setActiveSpan(span);
     }
 
+    _options.lifecycleRegistry.dispatchCallback(OnSpanStartV2(span));
+
     return span;
   }
 

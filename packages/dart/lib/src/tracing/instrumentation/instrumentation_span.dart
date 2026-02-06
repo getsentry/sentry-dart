@@ -17,6 +17,12 @@ abstract class InstrumentationSpan {
   Future<void> finish({SpanStatus? status, DateTime? endTimestamp});
   SentryTraceHeader toSentryTrace();
   SentryBaggageHeader? toBaggageHeader();
+
+  /// Returns true if this span is a recording span that records data.
+  bool get isRecording;
+
+  /// The start timestamp of this span.
+  DateTime get startTimestamp;
 }
 
 /// [InstrumentationSpan] implementation wrapping [ISentrySpan].
@@ -65,6 +71,24 @@ class LegacyInstrumentationSpan implements InstrumentationSpan {
 
   @override
   SentryBaggageHeader? toBaggageHeader() => _span.toBaggageHeader();
+
+  @override
+  bool get isRecording => _span is SentrySpan;
+
+  @override
+  DateTime get startTimestamp => _span.startTimestamp;
+
+  // Needed so List.remove in SpanFrameMetricsCollector can match different
+  // wrapper instances that wrap the same underlying span.
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LegacyInstrumentationSpan &&
+          runtimeType == other.runtimeType &&
+          identical(_span, other._span);
+
+  @override
+  int get hashCode => _span.hashCode;
 }
 
 @internal
@@ -180,4 +204,22 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
     }
     return SentrySpanStatusV2.error;
   }
+
+  @override
+  bool get isRecording => _span is RecordingSentrySpanV2;
+
+  @override
+  DateTime get startTimestamp => _span.startTimestamp;
+
+  // Needed so List.remove in SpanFrameMetricsCollector can match different
+  // wrapper instances that wrap the same underlying span.
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StreamingInstrumentationSpan &&
+          runtimeType == other.runtimeType &&
+          identical(_span, other._span);
+
+  @override
+  int get hashCode => _span.hashCode;
 }

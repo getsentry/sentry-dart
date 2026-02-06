@@ -42,6 +42,7 @@ export 'src/sentry_envelope.dart';
 export 'src/sentry_envelope_item.dart';
 export 'src/sentry_options.dart';
 export 'src/telemetry/sentry_trace_lifecycle.dart';
+export 'src/telemetry/span/sentry_span_v2.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/sentry_trace_origins.dart';
 export 'src/span_data_convention.dart';

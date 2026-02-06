@@ -657,10 +657,12 @@ class SentryOptions {
     return tracesSampleRate != null || tracesSampler != null;
   }
 
+  @Deprecated('Will be removed in the next major v10')
   List<PerformanceCollector> get performanceCollectors =>
       _performanceCollectors;
   final List<PerformanceCollector> _performanceCollectors = [];
 
+  @Deprecated('Will be removed in the next major v10')
   void addPerformanceCollector(PerformanceCollector collector) {
     _performanceCollectors.add(collector);
   }

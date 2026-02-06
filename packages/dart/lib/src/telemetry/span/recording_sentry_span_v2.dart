@@ -118,6 +118,9 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
   set status(SentrySpanStatusV2 value) => _status = value;
 
   @override
+  DateTime get startTimestamp => _startTimestamp;
+
+  @override
   DateTime? get endTimestamp => _endTimestamp;
 
   @override

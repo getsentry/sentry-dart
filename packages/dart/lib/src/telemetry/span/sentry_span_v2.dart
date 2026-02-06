@@ -32,7 +32,12 @@ sealed class SentrySpanV2 {
   /// Sets the status of this span.
   set status(SentrySpanStatusV2 status);
 
+  /// The start timestamp of this span.
+  DateTime get startTimestamp;
+
   /// The end timestamp of this span.
+  ///
+  /// Returns null if the span has not ended yet.
   DateTime? get endTimestamp;
 
   /// Whether this span has ended.

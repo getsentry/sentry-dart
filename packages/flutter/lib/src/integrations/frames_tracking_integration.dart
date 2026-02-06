@@ -1,4 +1,4 @@
-// ignore_for_file: invalid_use_of_internal_member
+// ignore_for_file: invalid_use_of_internal_member, deprecated_member_use
 
 import 'dart:core';
 
@@ -14,8 +14,12 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
   static const integrationName = 'FramesTracking';
   final SentryNativeBinding _native;
   SentryFlutterOptions? _options;
-  PerformanceCollector? _collector;
+  SpanFrameMetricsCollector? _collector;
   SentryWidgetsBindingMixin? _widgetsBinding;
+  SdkLifecycleCallback<OnSpanStartV2>? _onSpanStartStreamCallback;
+  SdkLifecycleCallback<OnProcessSpan>? _onProcessSpanStreamCallback;
+  SdkLifecycleCallback<OnSpanStart>? _onSpanStartStaticCallback;
+  SdkLifecycleCallback<OnSpanFinish>? _onSpanFinishStaticCallback;
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
@@ -50,11 +54,57 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
         SentryDelayedFramesTracker(options, expectedFrameDuration);
     widgetsBinding.initializeFramesTracking(
         framesTracker.addDelayedFrame, options, expectedFrameDuration);
-    final collector = SpanFrameMetricsCollector(options, framesTracker,
-        resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
-        pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames());
-    options.addPerformanceCollector(collector);
+
+    final collector = SpanFrameMetricsCollector(
+      framesTracker,
+      resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
+      pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames(),
+    );
     _collector = collector;
+
+    switch (options.traceLifecycle) {
+      case SentryTraceLifecycle.streaming:
+        _onSpanStartStreamCallback = (event) {
+          final wrapped = StreamingInstrumentationSpan(event.span);
+          collector.startTracking(wrapped);
+        };
+        options.lifecycleRegistry
+            .registerCallback<OnSpanStartV2>(_onSpanStartStreamCallback!);
+
+        _onProcessSpanStreamCallback = (event) {
+          final wrapped = StreamingInstrumentationSpan(event.span);
+          if (event.span.endTimestamp != null) {
+            collector.finishTracking(wrapped, event.span.endTimestamp!);
+          } else {
+            options.log(SentryLevel.warning,
+                'OnProcessSpan fired but span has no endTimestamp');
+            collector.removeFromActiveSpans(wrapped);
+          }
+        };
+        options.lifecycleRegistry
+            .registerCallback<OnProcessSpan>(_onProcessSpanStreamCallback!);
+
+      case SentryTraceLifecycle.static:
+        _onSpanStartStaticCallback = (event) {
+          final wrapped = LegacyInstrumentationSpan(event.span);
+          collector.startTracking(wrapped);
+        };
+        options.lifecycleRegistry
+            .registerCallback<OnSpanStart>(_onSpanStartStaticCallback!);
+
+        _onSpanFinishStaticCallback = (event) {
+          final wrapped = LegacyInstrumentationSpan(event.span);
+          if (event.span.endTimestamp != null) {
+            collector.finishTracking(wrapped, event.span.endTimestamp!);
+          } else {
+            options.log(SentryLevel.warning,
+                'OnSpanFinish fired but span has no endTimestamp');
+            collector.removeFromActiveSpans(wrapped);
+          }
+        };
+        options.lifecycleRegistry
+            .registerCallback<OnSpanFinish>(_onSpanFinishStaticCallback!);
+    }
 
     options.sdk.addIntegration(integrationName);
     options.log(SentryLevel.debug,
@@ -71,7 +121,26 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   void close() {
-    _options?.performanceCollectors.remove(_collector);
+    final options = _options;
+    if (options != null) {
+      if (_onSpanStartStreamCallback != null) {
+        options.lifecycleRegistry
+            .removeCallback<OnSpanStartV2>(_onSpanStartStreamCallback!);
+      }
+      if (_onProcessSpanStreamCallback != null) {
+        options.lifecycleRegistry
+            .removeCallback<OnProcessSpan>(_onProcessSpanStreamCallback!);
+      }
+      if (_onSpanStartStaticCallback != null) {
+        options.lifecycleRegistry
+            .removeCallback<OnSpanStart>(_onSpanStartStaticCallback!);
+      }
+      if (_onSpanFinishStaticCallback != null) {
+        options.lifecycleRegistry
+            .removeCallback<OnSpanFinish>(_onSpanFinishStaticCallback!);
+      }
+    }
+    _collector?.clear();
     _widgetsBinding?.removeFramesTracking();
   }
 }

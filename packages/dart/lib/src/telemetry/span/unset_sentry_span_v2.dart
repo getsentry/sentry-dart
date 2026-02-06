@@ -27,6 +27,9 @@ final class UnsetSentrySpanV2 implements SentrySpanV2 {
   SentrySpanV2? get parentSpan => _throw();
 
   @override
+  DateTime get startTimestamp => _throw();
+
+  @override
   DateTime? get endTimestamp => _throw();
 
   @override
