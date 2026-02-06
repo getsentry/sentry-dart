@@ -464,7 +464,7 @@ class UnknownInstrumentationSpan implements InstrumentationSpan {
   final DateTime _startTimestamp = DateTime.now();
 
   @override
-  bool get isRecording => false;
+  bool get isRecording => true;
 
   @override
   DateTime get startTimestamp => _startTimestamp;
