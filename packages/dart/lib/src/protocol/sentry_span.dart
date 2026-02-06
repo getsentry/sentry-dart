@@ -15,7 +15,6 @@ class SentrySpan extends ISentrySpan {
   final Hub _hub;
 
   bool _isFinished = false;
-  bool _isFinishing = false;
   bool _isRootSpan = false;
 
   bool get isRootSpan => _isRootSpan;
@@ -54,11 +53,9 @@ class SentrySpan extends ISentrySpan {
   Future<void> finish(
       {SpanStatus? status, DateTime? endTimestamp, Hint? hint}) async {
     // Prevent concurrent or duplicate finish() calls
-    if (_isFinished || _isFinishing) {
+    if (_isFinished || _endTimestamp != null) {
       return;
     }
-
-    _isFinishing = true;
 
     try {
       if (status != null) {
@@ -98,13 +95,11 @@ class SentrySpan extends ISentrySpan {
         _hub.setSpanContext(_throwable, this, _tracer.name);
       }
 
-      _isFinished = true;
-
       await _finishedCallback?.call(endTimestamp: _endTimestamp, hint: hint);
       return super
           .finish(status: status, endTimestamp: _endTimestamp, hint: hint);
     } finally {
-      _isFinishing = false;
+      _isFinished = true;
     }
   }
 
