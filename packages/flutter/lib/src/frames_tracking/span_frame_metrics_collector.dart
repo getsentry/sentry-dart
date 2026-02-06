@@ -57,12 +57,7 @@ class SpanFrameMetricsCollector {
         span.applyFrameMetrics(metrics);
       }
 
-      _activeSpans.remove(span);
-      if (_activeSpans.isEmpty) {
-        clear();
-      } else {
-        _frameTracker.removeIrrelevantFrames(_activeSpans.first.startTimestamp);
-      }
+      removeFromActiveSpans(span);
     });
   }
 
