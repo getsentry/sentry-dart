@@ -95,10 +95,16 @@ class SentrySpan extends ISentrySpan {
         _hub.setSpanContext(_throwable, this, _tracer.name);
       }
 
+      // Mark as finished before the callback so the tracer sees this span
+      // as finished when checking _haveAllChildrenFinished() during
+      // _finishedCallback.
+      _isFinished = true;
+
       await _finishedCallback?.call(endTimestamp: _endTimestamp, hint: hint);
       return super
           .finish(status: status, endTimestamp: _endTimestamp, hint: hint);
     } finally {
+      // Ensure _isFinished is set even if an exception occurs above.
       _isFinished = true;
     }
   }
