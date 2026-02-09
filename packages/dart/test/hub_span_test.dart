@@ -13,12 +13,12 @@ void main() {
       fixture = Fixture();
     });
 
-    group('startSpan', () {
+    group('startSpanManual', () {
       group('span creation', () {
         test('returns RecordingSentrySpanV2 when tracing is enabled', () {
           final hub = fixture.getSut();
 
-          final span = hub.startSpan('test-span');
+          final span = hub.startSpanManual('test-span');
 
           expect(span, isA<RecordingSentrySpanV2>());
         });
@@ -26,7 +26,7 @@ void main() {
         test('returns NoOpSentrySpanV2 when tracing is disabled', () {
           final hub = fixture.getSut(tracesSampleRate: null);
 
-          final span = hub.startSpan('test-span');
+          final span = hub.startSpanManual('test-span');
 
           expect(span, isA<NoOpSentrySpanV2>());
         });
@@ -35,7 +35,7 @@ void main() {
           final hub = fixture.getSut();
           await hub.close();
 
-          final span = hub.startSpan('test-span');
+          final span = hub.startSpanManual('test-span');
 
           expect(span, isA<NoOpSentrySpanV2>());
         });
@@ -43,7 +43,7 @@ void main() {
         test('sets span name from parameter', () {
           final hub = fixture.getSut();
 
-          final span = hub.startSpan('my-span-name');
+          final span = hub.startSpanManual('my-span-name');
 
           expect(span.name, equals('my-span-name'));
         });
@@ -55,7 +55,7 @@ void main() {
             'attr2': SentryAttribute.int(42),
           };
 
-          final span = hub.startSpan('test-span', attributes: attributes);
+          final span = hub.startSpanManual('test-span', attributes: attributes);
 
           expect(span.attributes, equals(attributes));
         });
@@ -65,7 +65,7 @@ void main() {
             traceLifecycle: SentryTraceLifecycle.static,
           );
 
-          final span = hub.startSpan('test-span');
+          final span = hub.startSpanManual('test-span');
 
           expect(span, isA<NoOpSentrySpanV2>());
         });
@@ -77,7 +77,7 @@ void main() {
               traceLifecycle: SentryTraceLifecycle.streaming,
             );
 
-            final span = hub.startSpan('test-span');
+            final span = hub.startSpanManual('test-span');
 
             expect(span, isA<RecordingSentrySpanV2>());
           },
@@ -88,7 +88,7 @@ void main() {
         test('sets span as active on scope when active is true', () {
           final hub = fixture.getSut();
 
-          final span = hub.startSpan('test-span', active: true);
+          final span = hub.startSpanManual('test-span', active: true);
 
           expect(hub.scope.getActiveSpan(), equals(span));
         });
@@ -96,7 +96,7 @@ void main() {
         test('does not set span as active on scope when active is false', () {
           final hub = fixture.getSut();
 
-          hub.startSpan('test-span', active: false);
+          hub.startSpanManual('test-span', active: false);
 
           expect(hub.scope.getActiveSpan(), isNull);
         });
@@ -106,16 +106,16 @@ void main() {
         test('creates root span when no active span exists', () {
           final hub = fixture.getSut();
 
-          final span = hub.startSpan('test-span');
+          final span = hub.startSpanManual('test-span');
 
           expect(span.parentSpan, isNull);
         });
 
         test('uses active span as parent when parentSpan is not provided', () {
           final hub = fixture.getSut();
-          final parentSpan = hub.startSpan('parent-span');
+          final parentSpan = hub.startSpanManual('parent-span');
 
-          final childSpan = hub.startSpan('child-span');
+          final childSpan = hub.startSpanManual('child-span');
 
           expect(childSpan.parentSpan, equals(parentSpan));
         });
@@ -124,10 +124,10 @@ void main() {
           'uses explicit parentSpan instead of active span when provided',
           () {
             final hub = fixture.getSut();
-            final explicitParent = hub.startSpan('explicit-parent');
-            hub.startSpan('other-span'); // Changes active span
+            final explicitParent = hub.startSpanManual('explicit-parent');
+            hub.startSpanManual('other-span'); // Changes active span
 
-            final childSpan = hub.startSpan(
+            final childSpan = hub.startSpanManual(
               'child-span',
               parentSpan: explicitParent,
               active: false,
@@ -139,10 +139,10 @@ void main() {
 
         test('allows finished span to be used as parent', () {
           final hub = fixture.getSut();
-          final finishedParent = hub.startSpan('finished-parent');
+          final finishedParent = hub.startSpanManual('finished-parent');
           finishedParent.end();
 
-          final childSpan = hub.startSpan(
+          final childSpan = hub.startSpanManual(
             'child-span',
             parentSpan: finishedParent,
           );
@@ -152,9 +152,9 @@ void main() {
 
         test('creates root span when parentSpan is explicitly set to null', () {
           final hub = fixture.getSut();
-          hub.startSpan('active-span');
+          hub.startSpanManual('active-span');
 
-          final rootSpan = hub.startSpan('root-span', parentSpan: null);
+          final rootSpan = hub.startSpanManual('root-span', parentSpan: null);
 
           expect(rootSpan.parentSpan, isNull);
         });
@@ -164,73 +164,65 @@ void main() {
         test('builds 3-level hierarchy with automatic parenting', () {
           final hub = fixture.getSut();
 
-          final grandparent = hub.startSpan('grandparent');
-          final parent = hub.startSpan('parent');
-          final child = hub.startSpan('child');
+          final grandparent = hub.startSpanManual('grandparent');
+          final parent = hub.startSpanManual('parent');
+          final child = hub.startSpanManual('child');
 
           expect(grandparent.parentSpan, isNull);
           expect(parent.parentSpan, equals(grandparent));
           expect(child.parentSpan, equals(parent));
         });
 
-        test('ending middle span allows new span to parent to grandparent', () {
+        test('ending active span clears it from scope', () {
           final hub = fixture.getSut();
 
-          final grandparent = hub.startSpan('grandparent');
-          final parent = hub.startSpan('parent');
+          hub.startSpanManual('grandparent');
+          final parent = hub.startSpanManual('parent');
           parent.end();
 
-          final sibling = hub.startSpan('sibling');
-
-          expect(sibling.parentSpan, equals(grandparent));
+          // Active span was parent, now cleared since parent ended
+          expect(hub.scope.activeSpan, isNull);
         });
 
         test('sibling spans share same parent when created as inactive', () {
           final hub = fixture.getSut();
 
-          final parent = hub.startSpan('parent');
-          final child1 = hub.startSpan('child1', active: false);
-          final child2 = hub.startSpan('child2', active: false);
+          final parent = hub.startSpanManual('parent');
+          final child1 = hub.startSpanManual('child1', active: false);
+          final child2 = hub.startSpanManual('child2', active: false);
 
           expect(child1.parentSpan, equals(parent));
           expect(child2.parentSpan, equals(parent));
         });
 
-        test(
-          'ending spans in reverse order cleans up active spans correctly',
-          () {
-            final hub = fixture.getSut();
-
-            final span1 = hub.startSpan('span1');
-            final span2 = hub.startSpan('span2');
-            final span3 = hub.startSpan('span3');
-
-            expect(hub.scope.activeSpans.length, 3);
-
-            span3.end();
-            expect(hub.scope.activeSpans.length, 2);
-            expect(hub.scope.getActiveSpan(), equals(span2));
-
-            span2.end();
-            expect(hub.scope.getActiveSpan(), equals(span1));
-
-            span1.end();
-            expect(hub.scope.getActiveSpan(), isNull);
-          },
-        );
-
-        test('ending spans out of order removes them from active spans', () {
+        test('ending active span clears scope active span', () {
           final hub = fixture.getSut();
 
-          final parent = hub.startSpan('parent');
-          final child = hub.startSpan('child');
+          hub.startSpanManual('span1');
+          hub.startSpanManual('span2');
+          final span3 = hub.startSpanManual('span3');
 
-          parent.end();
-          expect(hub.scope.activeSpans, contains(child));
-          expect(hub.scope.activeSpans, isNot(contains(parent)));
+          expect(hub.scope.getActiveSpan(), equals(span3));
+
+          span3.end();
+          expect(hub.scope.getActiveSpan(), isNull);
+        });
+
+        test(
+            'ending non-active span does not clear active span from scope', () {
+          final hub = fixture.getSut();
+
+          hub.startSpanManual('parent');
+          final child = hub.startSpanManual('child');
+          final inactive =
+              hub.startSpanManual('inactive', active: false);
+
+          inactive.end();
+          // child is still active since inactive wasn't the active span
+          expect(hub.scope.getActiveSpan(), equals(child));
 
           child.end();
-          expect(hub.scope.activeSpans, isEmpty);
+          expect(hub.scope.getActiveSpan(), isNull);
         });
 
         test(
@@ -238,22 +230,22 @@ void main() {
           () {
             final hub = fixture.getSut();
 
-            final activeRoot = hub.startSpan(
+            final activeRoot = hub.startSpanManual(
               'active-root',
               parentSpan: null,
               active: true,
             );
-            final inactiveRoot = hub.startSpan(
+            final inactiveRoot = hub.startSpanManual(
               'inactive-root',
               parentSpan: null,
               active: false,
             );
 
-            final childToActiveSpan = hub.startSpan('child');
+            final childToActiveSpan = hub.startSpanManual('child');
             expect(childToActiveSpan.parentSpan, equals(activeRoot));
             expect(childToActiveSpan.parentSpan, isNot(equals(inactiveRoot)));
 
-            final childToInactiveSpan = hub.startSpan(
+            final childToInactiveSpan = hub.startSpanManual(
               'child',
               parentSpan: inactiveRoot,
             );
@@ -267,7 +259,7 @@ void main() {
 
           final spans = <SentrySpanV2>[];
           for (var i = 0; i < 5; i++) {
-            spans.add(hub.startSpan('span-$i'));
+            spans.add(hub.startSpanManual('span-$i'));
           }
 
           // Verify chain: span0 <- span1 <- span2 <- span3 <- span4
@@ -282,7 +274,7 @@ void main() {
         test('root span has sampling decision', () {
           final hub = fixture.getSut(tracesSampleRate: 1.0);
 
-          final rootSpan = hub.startSpan('root-span');
+          final rootSpan = hub.startSpanManual('root-span');
 
           expect(rootSpan, isA<RecordingSentrySpanV2>());
           final recordingSpan = rootSpan as RecordingSentrySpanV2;
@@ -293,9 +285,9 @@ void main() {
         test('child span inherits parent sampling decision', () {
           final hub = fixture.getSut(tracesSampleRate: 1.0);
 
-          final rootSpan = hub.startSpan('root-span') as RecordingSentrySpanV2;
+          final rootSpan = hub.startSpanManual('root-span') as RecordingSentrySpanV2;
           final childSpan =
-              hub.startSpan('child-span') as RecordingSentrySpanV2;
+              hub.startSpanManual('child-span') as RecordingSentrySpanV2;
 
           // Both should have the same sampling decision
           expect(
@@ -315,10 +307,10 @@ void main() {
         test('deeply nested spans all inherit root sampling decision', () {
           final hub = fixture.getSut(tracesSampleRate: 1.0);
 
-          final rootSpan = hub.startSpan('root-span') as RecordingSentrySpanV2;
-          final child1 = hub.startSpan('child-1') as RecordingSentrySpanV2;
-          final child2 = hub.startSpan('child-2') as RecordingSentrySpanV2;
-          final child3 = hub.startSpan('child-3') as RecordingSentrySpanV2;
+          final rootSpan = hub.startSpanManual('root-span') as RecordingSentrySpanV2;
+          final child1 = hub.startSpanManual('child-1') as RecordingSentrySpanV2;
+          final child2 = hub.startSpanManual('child-2') as RecordingSentrySpanV2;
+          final child3 = hub.startSpanManual('child-3') as RecordingSentrySpanV2;
 
           final rootDecision = rootSpan.samplingDecision;
 
@@ -358,12 +350,12 @@ void main() {
           final hub = fixture.getSut(tracesSampleRate: 1.0);
 
           // Start root span (should trigger sampling evaluation)
-          final rootSpan = hub.startSpan('root-span');
+          final rootSpan = hub.startSpanManual('root-span');
           expect(rootSpan, isA<RecordingSentrySpanV2>());
 
           // Start child spans (should NOT trigger new sampling evaluations)
-          final child1 = hub.startSpan('child-1');
-          final child2 = hub.startSpan('child-2');
+          final child1 = hub.startSpanManual('child-1');
+          final child2 = hub.startSpanManual('child-2');
 
           expect(child1, isA<RecordingSentrySpanV2>());
           expect(child2, isA<RecordingSentrySpanV2>());
@@ -374,25 +366,25 @@ void main() {
         test('root span with sampleRate=0 prevents all child spans', () {
           final hub = fixture.getSut(tracesSampleRate: 0.0);
 
-          final rootSpan = hub.startSpan('root-span');
+          final rootSpan = hub.startSpanManual('root-span');
 
           // Root span should be NoOp when sampled out
           expect(rootSpan, isA<NoOpSentrySpanV2>());
 
           // Children should also be NoOp (can't have recording children of NoOp)
-          final childSpan = hub.startSpan('child-span');
+          final childSpan = hub.startSpanManual('child-span');
           expect(childSpan, isA<NoOpSentrySpanV2>());
         });
 
         test('sampleRand is reused across all spans in the same trace', () {
           final hub = fixture.getSut(tracesSampleRate: 1.0);
 
-          final rootSpan = hub.startSpan('root-span') as RecordingSentrySpanV2;
+          final rootSpan = hub.startSpanManual('root-span') as RecordingSentrySpanV2;
           final sampleRand = rootSpan.samplingDecision.sampleRand;
 
           // Create multiple child spans
-          final child1 = hub.startSpan('child-1') as RecordingSentrySpanV2;
-          final child2 = hub.startSpan('child-2') as RecordingSentrySpanV2;
+          final child1 = hub.startSpanManual('child-1') as RecordingSentrySpanV2;
+          final child2 = hub.startSpanManual('child-2') as RecordingSentrySpanV2;
 
           // All spans should use the same sampleRand
           expect(child1.samplingDecision.sampleRand, equals(sampleRand));
@@ -403,7 +395,7 @@ void main() {
           final hub = fixture.getSut(tracesSampleRate: 1.0);
 
           // First trace
-          final rootSpan1 = hub.startSpan('root-1', parentSpan: null)
+          final rootSpan1 = hub.startSpanManual('root-1', parentSpan: null)
               as RecordingSentrySpanV2;
           final decision1 = rootSpan1.samplingDecision;
 
@@ -411,7 +403,7 @@ void main() {
           hub.generateNewTrace();
 
           // Second trace
-          final rootSpan2 = hub.startSpan('root-2', parentSpan: null)
+          final rootSpan2 = hub.startSpanManual('root-2', parentSpan: null)
               as RecordingSentrySpanV2;
           final decision2 = rootSpan2.samplingDecision;
 
@@ -425,7 +417,7 @@ void main() {
     group('when capturing span', () {
       test('calls client.captureSpan with span and scope', () async {
         final hub = fixture.getSut();
-        final span = hub.startSpan('test-span');
+        final span = hub.startSpanManual('test-span');
 
         await hub.captureSpan(span);
 
@@ -434,37 +426,37 @@ void main() {
         expect(fixture.client.captureSpanCalls.first.scope, isNotNull);
       });
 
-      test('removes span from active spans on scope', () async {
+      test('clears active span from scope when it matches', () async {
         final hub = fixture.getSut();
-        final span = hub.startSpan('test-span');
-        expect(hub.scope.activeSpans, contains(span));
+        final span = hub.startSpanManual('test-span');
+        expect(hub.scope.activeSpan, equals(span));
 
         await hub.captureSpan(span);
 
-        expect(hub.scope.activeSpans, isNot(contains(span)));
+        expect(hub.scope.activeSpan, isNull);
       });
 
       test('does nothing when hub is closed', () async {
         final hub = fixture.getSut();
-        final span = hub.startSpan('test-span');
+        final span = hub.startSpanManual('test-span');
         await hub.close();
 
         await hub.captureSpan(span);
 
         expect(fixture.client.captureSpanCalls, isEmpty);
-        expect(hub.scope.activeSpans, contains(span));
+        expect(hub.scope.activeSpan, equals(span));
       });
 
       test('does nothing when tracing is disabled', () async {
         final hub = fixture.getSut(tracesSampleRate: null);
 
-        final span = hub.startSpan('test-span');
+        final span = hub.startSpanManual('test-span');
         expect(span, isA<NoOpSentrySpanV2>());
-        expect(hub.scope.activeSpans, isEmpty);
+        expect(hub.scope.activeSpan, isNull);
 
         await hub.captureSpan(span);
 
-        expect(hub.scope.activeSpans, isEmpty);
+        expect(hub.scope.activeSpan, isNull);
         expect(fixture.client.captureSpanCalls, isEmpty);
       });
     });

@@ -471,13 +471,13 @@ void main() {
     });
 
     group('when traceLifecycle is static', () {
-      test('startSpan returns NoOpSentrySpanV2', () {
+      test('startSpanManual returns NoOpSentrySpanV2', () {
         final hub = fixture.getSut(
           traceLifecycle: SentryTraceLifecycle.static,
           debug: true,
         );
 
-        final span = hub.startSpan('test-span');
+        final span = hub.startSpanManual('test-span');
 
         expect(span, isA<NoOpSentrySpanV2>());
       });

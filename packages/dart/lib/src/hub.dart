@@ -553,7 +553,7 @@ class Hub {
       if (_options.traceLifecycle == SentryTraceLifecycle.streaming) {
         internalLogger.warning(
           'Hub: startTransaction is not supported when traceLifecycle is \'streaming\'. '
-          'Use Sentry.startSpan instead.',
+          'Use Sentry.startSpanManual instead.',
         );
         return NoOpSentrySpan();
       }
@@ -616,7 +616,64 @@ class Hub {
     return NoOpSentrySpan();
   }
 
-  SentrySpanV2 startSpan(
+  static final _scopeKey = Object();
+
+  RecordingSentrySpanV2? _currentUISpan;
+
+  RecordingSentrySpanV2? getActiveSpan() {
+    // Zone → Scope → Span (matches JS SDK pattern)
+    final zoneScope = Zone.current[_scopeKey] as Scope?;
+    final activeScope = zoneScope ?? scope;
+    final activeSpan = activeScope.getActiveSpan();
+    if (activeSpan != null) return activeSpan;
+
+    // UI root fallback (Flutter-specific)
+    return _currentUISpan;
+  }
+
+  FutureOr<T> startSpan<T>(
+    String name,
+    FutureOr<T> Function(SentrySpanV2 span) callback, {
+    Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+  }) {
+    final span =
+        startSpanManual(name, parentSpan: parentSpan, attributes: attributes);
+    if (span is! RecordingSentrySpanV2) {
+      return callback(span);
+    }
+
+    final parentScope = (Zone.current[_scopeKey] as Scope?) ?? scope;
+    final forkedScope = parentScope.clone()..setActiveSpan(span);
+
+    FutureOr<T> result;
+    try {
+      result = runZoned(
+        () => callback(span),
+        zoneValues: {_scopeKey: forkedScope},
+      );
+    } catch (_) {
+      span.status = SentrySpanStatusV2.error;
+      span.end();
+      rethrow;
+    }
+
+    if (result is Future<T>) {
+      return result.then((value) {
+        span.end();
+        return value;
+      }, onError: (error, stackTrace) {
+        span.status = SentrySpanStatusV2.error;
+        span.end();
+      });
+    } else {
+      span.end();
+      return result;
+    }
+  }
+
+  @internal
+  SentrySpanV2 startSpanManual(
     String name, {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     bool active = true,
@@ -625,7 +682,7 @@ class Hub {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
-        "Instance is disabled and this 'startSpan' call is a no-op.",
+        "Instance is disabled and this 'startSpanManual' call is a no-op.",
       );
       return NoOpSentrySpanV2.instance;
     }
@@ -636,7 +693,7 @@ class Hub {
 
     if (_options.traceLifecycle == SentryTraceLifecycle.static) {
       internalLogger.warning(
-        'Hub: startSpan is not supported when traceLifecycle is \'static\'. '
+        'Hub: startSpanManual is not supported when traceLifecycle is \'static\'. '
         'Use Sentry.startTransaction instead.',
       );
       return NoOpSentrySpanV2.instance;
@@ -650,7 +707,7 @@ class Hub {
     final RecordingSentrySpanV2? resolvedParentSpan;
     switch (parentSpan) {
       case UnsetSentrySpanV2():
-        resolvedParentSpan = scope.getActiveSpan();
+        resolvedParentSpan = getActiveSpan();
       case RecordingSentrySpanV2 span:
         resolvedParentSpan = span;
       case null:
@@ -710,7 +767,8 @@ class Hub {
       span.setAttributes(attributes);
     }
     if (active) {
-      scope.setActiveSpan(span);
+      final currentScope = (Zone.current[_scopeKey] as Scope?) ?? scope;
+      currentScope.setActiveSpan(span);
     }
 
     _options.lifecycleRegistry.dispatchCallback(OnSpanStartV2(span));
@@ -737,7 +795,11 @@ class Hub {
         return;
       case RecordingSentrySpanV2 span:
         final item = _peek();
-        item.scope.removeActiveSpan(span);
+        // Clear active span from the current scope if it matches.
+        // For startSpan (callback), the forked scope is about to be popped.
+        // For startSpanManual, this cleans up the mutation.
+        final currentScope = (Zone.current[_scopeKey] as Scope?) ?? item.scope;
+        currentScope.removeActiveSpan(span);
         return item.client.captureSpan(span, scope: item.scope);
     }
   }

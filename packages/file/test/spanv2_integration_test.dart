@@ -29,7 +29,7 @@ void main() {
       final file = File('test_resources/testfile.txt');
       final sut = fixture.getSut(file, sendDefaultPii: true);
 
-      final transactionSpan = fixture.hub.startSpan(
+      final transactionSpan = fixture.hub.startSpanManual(
         'test-transaction',
         parentSpan: null,
       );
@@ -70,7 +70,7 @@ void main() {
 
       final sut = fixture.getSut(tempFile, sendDefaultPii: true);
 
-      final transactionSpan = fixture.hub.startSpan(
+      final transactionSpan = fixture.hub.startSpanManual(
         'test-transaction',
         parentSpan: null,
       );

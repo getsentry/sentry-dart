@@ -32,7 +32,7 @@ void main() {
         ),
       );
 
-      final transactionSpan = fixture.hub.startSpan(
+      final transactionSpan = fixture.hub.startSpanManual(
         'test-transaction',
         parentSpan: null,
       );
@@ -85,7 +85,7 @@ void main() {
         ),
       );
 
-      final transactionSpan = fixture.hub.startSpan(
+      final transactionSpan = fixture.hub.startSpanManual(
         'test-transaction',
         parentSpan: null,
       );

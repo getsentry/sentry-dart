@@ -36,7 +36,7 @@ void main() {
       ''');
       await db.insert('Test', {'name': 'John Doe'});
 
-      final transactionSpan = fixture.hub.startSpan(
+      final transactionSpan = fixture.hub.startSpanManual(
         'test-transaction',
         parentSpan: null,
       );
@@ -85,7 +85,7 @@ void main() {
         )
       ''');
 
-      final transactionSpan = fixture.hub.startSpan(
+      final transactionSpan = fixture.hub.startSpanManual(
         'test-transaction',
         parentSpan: null,
       );
@@ -127,7 +127,7 @@ void main() {
         )
       ''');
 
-      final transactionSpan = fixture.hub.startSpan(
+      final transactionSpan = fixture.hub.startSpanManual(
         'test-transaction',
         parentSpan: null,
       );

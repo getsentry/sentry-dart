@@ -189,8 +189,8 @@ void main() {
         final testWidget = buildTestApp(
           buttonText: 'Start Span',
           onPressed: () {
-            parentSpan = hub.startSpan('test_parent_span');
-            childSpan = hub.startSpan('test_child_span');
+            parentSpan = hub.startSpanManual('test_parent_span');
+            childSpan = hub.startSpanManual('test_child_span');
           },
         );
 
@@ -448,7 +448,7 @@ void main() {
 
       // Simulate a span starting
       final hub = Hub(options);
-      final span = hub.startSpan('test_span') as RecordingSentrySpanV2;
+      final span = hub.startSpanManual('test_span') as RecordingSentrySpanV2;
 
       final wrapped = StreamingInstrumentationSpan(span);
       await testCollector.startTracking(wrapped);

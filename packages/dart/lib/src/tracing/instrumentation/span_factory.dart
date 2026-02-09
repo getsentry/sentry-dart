@@ -67,7 +67,7 @@ class StreamingInstrumentationSpanFactory
       final parentSpanRef = parentSpan.spanReference;
       if (parentSpanRef is NoOpSentrySpanV2) return null;
 
-      final childSpan = _hub.startSpan(description ?? operation,
+      final childSpan = _hub.startSpanManual(description ?? operation,
           parentSpan: parentSpanRef, active: false);
 
       if (childSpan is NoOpSentrySpanV2) return null;
@@ -85,7 +85,7 @@ class StreamingInstrumentationSpanFactory
 
   @override
   InstrumentationSpan? getSpan(Hub hub) {
-    final span = hub.scope.getActiveSpan();
+    final span = hub.getActiveSpan();
     if (span == null) return null;
     return StreamingInstrumentationSpan(span);
   }

@@ -387,18 +387,14 @@ class Sentry {
         onFinish: onFinish,
       );
 
-  static SentrySpanV2 startSpan(
-    String name, {
-    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
-    bool active = true,
+  static FutureOr<T> startSpan<T>(
+    String name,
+    FutureOr<T> Function(SentrySpanV2 span) callback, {
     Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
   }) =>
-      _hub.startSpan(
-        name,
-        parentSpan: parentSpan,
-        active: active,
-        attributes: attributes,
-      );
+      _hub.startSpan(name, callback,
+          attributes: attributes, parentSpan: parentSpan);
 
   /// Gets the current active transaction or span bound to the scope.
   /// Returns `null` if performance is disabled in the options.
