@@ -164,16 +164,14 @@ class HubAdapter implements Hub {
       );
 
   @override
-  SentrySpanV2 startSpanManual(
+  SentrySpanV2 startInactiveSpan(
     String name, {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
-    bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) =>
-      Sentry.currentHub.startSpanManual(
+      Sentry.currentHub.startInactiveSpan(
         name,
         parentSpan: parentSpan,
-        active: active,
         attributes: attributes,
       );
 

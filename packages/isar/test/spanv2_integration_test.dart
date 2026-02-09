@@ -30,7 +30,7 @@ void main() {
     test('Collection.count() creates spanv2', () async {
       final collection = fixture.isar.persons;
 
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );
@@ -75,7 +75,7 @@ void main() {
     test('Collection.put() creates spanv2', () async {
       final collection = fixture.isar.persons;
 
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );
@@ -120,7 +120,7 @@ void main() {
         await collection.put(Person()..name = 'Jane Doe');
       });
 
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );

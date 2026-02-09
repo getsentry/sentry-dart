@@ -48,8 +48,7 @@ class Scope {
   ///
   /// This follows the JS SDK pattern where the scope (stored in zone-local
   /// storage) holds the active span. [startSpan] forks a new scope with the
-  /// span set, while [startSpanManual] with `active: true` mutates the
-  /// current scope's active span.
+  /// span set. [startInactiveSpan] does not modify the scope.
   RecordingSentrySpanV2? _activeSpan;
 
   @visibleForTesting

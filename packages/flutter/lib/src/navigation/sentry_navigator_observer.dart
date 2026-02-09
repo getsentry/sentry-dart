@@ -149,6 +149,16 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
+    Sentry.startSpan('ui.load', (span) async {
+      await Sentry.startSpan('ui.load.initial_display', (span) async {
+        final completer = Completer<void>();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          completer.complete();
+        });
+        await completer.future;
+      });
+    });
+
     _setCurrentRouteName(route);
     _setCurrentRouteNameAsTransaction(route);
 

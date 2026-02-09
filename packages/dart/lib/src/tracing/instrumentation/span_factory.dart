@@ -67,8 +67,8 @@ class StreamingInstrumentationSpanFactory
       final parentSpanRef = parentSpan.spanReference;
       if (parentSpanRef is NoOpSentrySpanV2) return null;
 
-      final childSpan = _hub.startSpanManual(description ?? operation,
-          parentSpan: parentSpanRef, active: false);
+      final childSpan = _hub.startInactiveSpan(description ?? operation,
+          parentSpan: parentSpanRef);
 
       if (childSpan is NoOpSentrySpanV2) return null;
 

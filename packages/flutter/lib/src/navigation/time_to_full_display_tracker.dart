@@ -68,10 +68,10 @@ class TimeToFullDisplayTracker {
 
   Future<bool> reportFullyDisplayed(
       {SpanId? spanId, DateTime? endTimestamp}) async {
-    final startSpanManualId = _parentSpanId;
+    final parentSpanId = _parentSpanId;
     final endSpanId = spanId;
 
-    if (startSpanManualId != null && endSpanId != null && startSpanManualId != endSpanId) {
+    if (parentSpanId != null && endSpanId != null && parentSpanId != endSpanId) {
       return true; // Called on unrelated transaction, ignore.
     }
     if (_trackingCompleter != null) {

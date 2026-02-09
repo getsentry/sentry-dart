@@ -49,7 +49,7 @@ class SentryTracingLink extends Link {
     final sentryOperation = operationType?.sentryOperation ?? 'unknown';
     final sentryType = operationType?.sentryType;
 
-    final span = _startSpanManual(
+    final span = _startInactiveSpan(
       'GraphQL: "${request.operation.operationName ?? 'unnamed'}" $sentryType',
       sentryOperation,
       shouldStartTransaction,
@@ -80,7 +80,7 @@ class SentryTracingLink extends Link {
     ));
   }
 
-  InstrumentationSpan? _startSpanManual(
+  InstrumentationSpan? _startInactiveSpan(
     String description,
     String op,
     bool shouldStartTransaction,
@@ -91,7 +91,7 @@ class SentryTracingLink extends Link {
     if (parentSpan == null && shouldStartTransaction) {
       switch (_hub.options.traceLifecycle) {
         case SentryTraceLifecycle.streaming:
-          final rootSpan = _hub.startSpanManual(description);
+          final rootSpan = _hub.startInactiveSpan(description);
 
           if (rootSpan is NoOpSentrySpanV2) {
             return null;

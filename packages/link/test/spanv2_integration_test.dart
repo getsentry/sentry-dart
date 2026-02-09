@@ -24,7 +24,7 @@ void main() {
     });
 
     test('GraphQL query creates spanv2', () async {
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );
@@ -61,7 +61,7 @@ void main() {
     });
 
     test('GraphQL mutation creates spanv2', () async {
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );
@@ -96,7 +96,7 @@ void main() {
     });
 
     test('GraphQL error creates spanv2 with error status', () async {
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );

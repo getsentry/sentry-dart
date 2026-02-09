@@ -32,7 +32,7 @@ void main() {
     test('Insert operation creates spanv2', () async {
       final db = fixture.db;
 
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );
@@ -87,7 +87,7 @@ void main() {
             ),
           );
 
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );
@@ -129,7 +129,7 @@ void main() {
             ),
           );
 
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );

@@ -33,7 +33,7 @@ void main() {
 
       await box.put('test-key', Person('John Doe'));
 
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );
@@ -80,7 +80,7 @@ void main() {
     test('Box.put() creates spanv2', () async {
       final box = fixture.box;
 
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );

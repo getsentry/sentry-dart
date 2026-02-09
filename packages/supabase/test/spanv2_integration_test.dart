@@ -26,7 +26,7 @@ void main() {
     test('Select operation creates spanv2', () async {
       final client = fixture.client;
 
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );
@@ -69,7 +69,7 @@ void main() {
     test('Insert operation creates spanv2', () async {
       final client = fixture.client;
 
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );
@@ -107,7 +107,7 @@ void main() {
     test('Update operation creates spanv2', () async {
       final client = fixture.client;
 
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );
@@ -143,7 +143,7 @@ void main() {
     test('Delete operation creates spanv2', () async {
       final client = fixture.client;
 
-      final transactionSpan = fixture.hub.startSpanManual(
+      final transactionSpan = fixture.hub.startInactiveSpan(
         'test-transaction',
         parentSpan: null,
       );

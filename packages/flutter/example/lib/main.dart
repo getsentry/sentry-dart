@@ -451,15 +451,13 @@ class MainScaffold extends StatelessWidget {
 
                       await Future.delayed(const Duration(milliseconds: 50));
 
-                      await Sentry.startSpan('childOfMyOp',
-                          (childSpan) async {
-                        childSpan.setAttribute('myNewTag',
-                            SentryAttribute.string('myNewValue'));
+                      await Sentry.startSpan('childOfMyOp', (childSpan) async {
+                        childSpan.setAttribute(
+                            'myNewTag', SentryAttribute.string('myNewValue'));
                         childSpan.setAttribute('myNewData',
                             SentryAttribute.string('myNewDataValue'));
 
-                        await Future.delayed(
-                            const Duration(milliseconds: 70));
+                        await Future.delayed(const Duration(milliseconds: 70));
 
                         await Sentry.startSpan('childOfChildOfMyOp',
                             (nestedSpan) async {
@@ -914,6 +912,24 @@ Future<void> asyncThrows() async {
 
 /// Demonstrates the SpanV2 API with streaming trace lifecycle.
 Future<void> spanV2Demo() async {
+  await Sentry.startSpan('span1 test', (_) async {
+    await Sentry.startSpan('span1 child1', (_) async {
+      await Future.delayed(const Duration(milliseconds: 50));
+    });
+    await Sentry.startSpan('span1 child2', (_) async {
+      await Future.delayed(const Duration(milliseconds: 50));
+    });
+  });
+
+  await Sentry.startSpan('span2 test', (_) async {
+    await Sentry.startSpan('span2 child1', (_) async {
+      await Future.delayed(const Duration(milliseconds: 50));
+    });
+    await Sentry.startSpan('span2 child2', (_) async {
+      await Future.delayed(const Duration(milliseconds: 50));
+    });
+  });
+
   await Sentry.startSpan(
     'spanv2-demo-root',
     (rootSpan) async {
@@ -1222,8 +1238,8 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
         .loadString('assets/lorem-ipsum.txt');
 
     if (!context.mounted) return;
-    final imageBytes = await DefaultAssetBundle.of(context)
-        .load('assets/sentry-wordmark.png');
+    final imageBytes =
+        await DefaultAssetBundle.of(context).load('assets/sentry-wordmark.png');
     await showDialog<void>(
       // ignore: use_build_context_synchronously
       context: context,

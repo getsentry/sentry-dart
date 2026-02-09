@@ -553,7 +553,7 @@ class Hub {
       if (_options.traceLifecycle == SentryTraceLifecycle.streaming) {
         internalLogger.warning(
           'Hub: startTransaction is not supported when traceLifecycle is \'streaming\'. '
-          'Use Sentry.startSpanManual instead.',
+          'Use Sentry.startInactiveSpan instead.',
         );
         return NoOpSentrySpan();
       }
@@ -618,17 +618,11 @@ class Hub {
 
   static final _scopeKey = Object();
 
-  RecordingSentrySpanV2? _currentUISpan;
-
+  @internal
   RecordingSentrySpanV2? getActiveSpan() {
-    // Zone → Scope → Span (matches JS SDK pattern)
     final zoneScope = Zone.current[_scopeKey] as Scope?;
     final activeScope = zoneScope ?? scope;
-    final activeSpan = activeScope.getActiveSpan();
-    if (activeSpan != null) return activeSpan;
-
-    // UI root fallback (Flutter-specific)
-    return _currentUISpan;
+    return activeScope.getActiveSpan();
   }
 
   FutureOr<T> startSpan<T>(
@@ -637,8 +631,11 @@ class Hub {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
   }) {
-    final span =
-        startSpanManual(name, parentSpan: parentSpan, attributes: attributes);
+    final span = _createSpan(
+      name,
+      parentSpan: parentSpan,
+      attributes: attributes,
+    );
     if (span is! RecordingSentrySpanV2) {
       return callback(span);
     }
@@ -662,9 +659,10 @@ class Hub {
       return result.then((value) {
         span.end();
         return value;
-      }, onError: (error, stackTrace) {
+      }, onError: (Object error, StackTrace stackTrace) {
         span.status = SentrySpanStatusV2.error;
         span.end();
+        return Future<T>.error(error, stackTrace);
       });
     } else {
       span.end();
@@ -673,16 +671,24 @@ class Hub {
   }
 
   @internal
-  SentrySpanV2 startSpanManual(
+  SentrySpanV2 startInactiveSpan(
     String name, {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
-    bool active = true,
+    Map<String, SentryAttribute>? attributes,
+  }) {
+    return _createSpan(name, parentSpan: parentSpan, attributes: attributes);
+  }
+
+  /// Core span creation logic shared by [startSpan] and [startInactiveSpan].
+  SentrySpanV2 _createSpan(
+    String name, {
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     Map<String, SentryAttribute>? attributes,
   }) {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
-        "Instance is disabled and this 'startSpanManual' call is a no-op.",
+        "Instance is disabled and this span creation call is a no-op.",
       );
       return NoOpSentrySpanV2.instance;
     }
@@ -693,7 +699,7 @@ class Hub {
 
     if (_options.traceLifecycle == SentryTraceLifecycle.static) {
       internalLogger.warning(
-        'Hub: startSpanManual is not supported when traceLifecycle is \'static\'. '
+        'Hub: startInactiveSpan is not supported when traceLifecycle is \'static\'. '
         'Use Sentry.startTransaction instead.',
       );
       return NoOpSentrySpanV2.instance;
@@ -766,10 +772,6 @@ class Hub {
     if (attributes != null) {
       span.setAttributes(attributes);
     }
-    if (active) {
-      final currentScope = (Zone.current[_scopeKey] as Scope?) ?? scope;
-      currentScope.setActiveSpan(span);
-    }
 
     _options.lifecycleRegistry.dispatchCallback(OnSpanStartV2(span));
 
@@ -796,8 +798,8 @@ class Hub {
       case RecordingSentrySpanV2 span:
         final item = _peek();
         // Clear active span from the current scope if it matches.
-        // For startSpan (callback), the forked scope is about to be popped.
-        // For startSpanManual, this cleans up the mutation.
+        // For startSpan (callback), this is defensive cleanup —
+        // the forked zone scope is about to become unreachable.
         final currentScope = (Zone.current[_scopeKey] as Scope?) ?? item.scope;
         currentScope.removeActiveSpan(span);
         return item.client.captureSpan(span, scope: item.scope);
