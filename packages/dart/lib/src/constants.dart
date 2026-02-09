@@ -119,6 +119,19 @@ abstract class SemanticAttributesConstants {
   /// The device family (e.g., "iOS", "Android").
   static const deviceFamily = 'device.family';
 
+  /// The number of total frames rendered during the lifetime of the span.
+  static const framesTotal = 'frames.total';
+
+  /// The number of slow frames rendered during the lifetime of the span.
+  static const framesSlow = 'frames.slow';
+
+  /// The number of frozen frames rendered during the lifetime of the span.
+  static const framesFrozen = 'frames.frozen';
+
+  /// The sum of all delayed frame durations in seconds during the lifetime of the span.
+  /// For more information see [frames delay](https://develop.sentry.dev/sdk/performance/frames-delay/).
+  static const framesDelay = 'frames.delay';
+
   /// The HTTP request method (e.g., "GET", "POST").
   static const httpRequestMethod = 'http.request.method';
 
