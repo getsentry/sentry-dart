@@ -122,18 +122,17 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
       unregisterCallbacks.forEach(SentryScreenshotWidget._onBuild.remove);
     }
 
-    // Detect the current text direction or fall back to LTR
-    final textDirection = Directionality.maybeOf(context) ?? TextDirection.ltr;
+    if (_isScreenshotButtonVisible) {
+      // Detect the current text direction or fall back to LTR
+      final textDirection =
+          Directionality.maybeOf(context) ?? TextDirection.ltr;
 
-    return RepaintBoundary(
-      child: Directionality(
-        textDirection: textDirection,
-        child: Stack(
-          children: [
-            Container(
-              child: widget.child,
-            ),
-            if (_isScreenshotButtonVisible)
+      return RepaintBoundary(
+        child: Directionality(
+          textDirection: textDirection,
+          child: Stack(
+            children: [
+              widget.child,
               PositionedDirectional(
                 end: 32,
                 bottom: 32,
@@ -168,9 +167,14 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
                   ),
                 ),
               ),
-          ],
+            ],
+          ),
         ),
-      ),
+      );
+    }
+
+    return RepaintBoundary(
+      child: widget.child,
     );
   }
 }

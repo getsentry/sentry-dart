@@ -69,6 +69,39 @@ void main() {
       SentryScreenshotWidget.reset();
     });
 
+    testWidgets('does not wrap child in Stack when button is not visible',
+        (tester) async {
+      var options = SentryFlutterOptions();
+      var hub = mocks.MockHub();
+      when(hub.options).thenReturn(options);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: SentryScreenshotWidget(
+            hub: hub,
+            child: const Text('fixture-child'),
+          ),
+        ),
+      );
+
+      // By default, the screenshot button is not visible, so no Stack should
+      // be present in the SentryScreenshotWidget subtree.
+      final screenshotWidgetElement =
+          find.byType(SentryScreenshotWidget).evaluate().first;
+      var foundStack = false;
+      screenshotWidgetElement.visitChildElements((element) {
+        if (element.widget is Stack) {
+          foundStack = true;
+        }
+        element.visitChildElements((child) {
+          if (child.widget is Stack) {
+            foundStack = true;
+          }
+        });
+      });
+      expect(foundStack, isFalse);
+    });
+
     testWidgets('shows & hides screenshot button', (tester) async {
       var options = SentryFlutterOptions();
       var hub = mocks.MockHub();
