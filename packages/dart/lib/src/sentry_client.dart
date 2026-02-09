@@ -374,6 +374,7 @@ class SentryClient {
     List<dynamic>? params,
     Scope? scope,
     Hint? hint,
+    dynamic stackTrace,
   }) {
     final event = SentryEvent(
       message: SentryMessage(formatted, template: template, params: params),
@@ -381,7 +382,8 @@ class SentryClient {
       timestamp: _options.clock(),
     );
 
-    return captureEvent(event, scope: scope, hint: hint);
+    return captureEvent(event,
+        scope: scope, hint: hint, stackTrace: stackTrace);
   }
 
   @internal

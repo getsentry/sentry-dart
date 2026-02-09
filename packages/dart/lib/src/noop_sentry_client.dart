@@ -44,6 +44,7 @@ class NoOpSentryClient implements SentryClient {
     List<dynamic>? params,
     Scope? scope,
     Hint? hint,
+    dynamic stackTrace,
   }) async =>
       SentryId.empty();
 

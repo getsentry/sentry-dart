@@ -196,6 +196,8 @@ class Hub {
     Hint? hint,
     ScopeCallback? withScope,
   }) async {
+    // Capture StackTrace early due to async gap
+    final stackTrace = StackTrace.current;
     var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
@@ -219,14 +221,13 @@ class Hub {
       }
 
       try {
-        sentryId = await item.client.captureMessage(
-          message,
-          level: level,
-          template: template,
-          params: params,
-          scope: scope,
-          hint: hint,
-        );
+        sentryId = await item.client.captureMessage(message,
+            level: level,
+            template: template,
+            params: params,
+            scope: scope,
+            hint: hint,
+            stackTrace: stackTrace);
       } catch (exception, stackTrace) {
         _options.log(
           SentryLevel.error,
