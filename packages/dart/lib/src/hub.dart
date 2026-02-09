@@ -643,6 +643,8 @@ class Hub {
     final parentScope = (Zone.current[_scopeKey] as Scope?) ?? scope;
     final forkedScope = parentScope.clone()..setActiveSpan(span);
 
+    // Error handling is split into sync and async paths to preserve the
+    // FutureOr<T> return type — callers with a sync callback get a sync result.
     FutureOr<T> result;
     try {
       result = runZoned(
@@ -675,9 +677,8 @@ class Hub {
     String name, {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     Map<String, SentryAttribute>? attributes,
-  }) {
-    return _createSpan(name, parentSpan: parentSpan, attributes: attributes);
-  }
+  }) =>
+      _createSpan(name, parentSpan: parentSpan, attributes: attributes);
 
   /// Core span creation logic shared by [startSpan] and [startInactiveSpan].
   SentrySpanV2 _createSpan(

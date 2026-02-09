@@ -877,25 +877,16 @@ class AndroidExample extends StatelessWidget {
 }
 
 void navigateToAutoCloseScreen(BuildContext context) async {
-  await Sentry.startSpan('hello parent', (span) async {
-    await Future.delayed(const Duration(seconds: 2));
-    Sentry.startSpan('hello child 1', (_) async {
-      await Future.delayed(const Duration(seconds: 1));
-    });
-    Sentry.startSpan('hello child 2', (_) async {
-      await Future.delayed(const Duration(seconds: 1));
-    });
-  });
-  // Navigator.push(
-  //   context,
-  //   MaterialPageRoute(
-  //     settings: const RouteSettings(name: 'AutoCloseScreen'),
-  //     // ignore: deprecated_member_use
-  //     builder: (context) => const SentryDisplayWidget(
-  //       child: AutoCloseScreen(),
-  //     ),
-  //   ),
-  // );
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      settings: const RouteSettings(name: 'AutoCloseScreen'),
+      // ignore: deprecated_member_use
+      builder: (context) => const SentryDisplayWidget(
+        child: AutoCloseScreen(),
+      ),
+    ),
+  );
 }
 
 Future<void> tryCatch() async {
