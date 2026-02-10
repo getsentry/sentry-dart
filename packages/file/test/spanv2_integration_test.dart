@@ -29,14 +29,17 @@ void main() {
       final file = File('test_resources/testfile.txt');
       final sut = fixture.getSut(file, sendDefaultPii: true);
 
-      final transactionSpan = fixture.hub.startSpan(
+      late SentrySpanV2 transactionSpan;
+      late String content;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          content = await sut.readAsString();
+        },
         parentSpan: null,
       );
 
-      final content = await sut.readAsString();
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       expect(content, isNotEmpty);
@@ -70,14 +73,16 @@ void main() {
 
       final sut = fixture.getSut(tempFile, sendDefaultPii: true);
 
-      final transactionSpan = fixture.hub.startSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          await sut.writeAsString('Test content');
+        },
         parentSpan: null,
       );
 
-      await sut.writeAsString('Test content');
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       expect(await tempFile.exists(), isTrue);

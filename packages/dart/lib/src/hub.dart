@@ -616,16 +616,108 @@ class Hub {
     return NoOpSentrySpan();
   }
 
-  SentrySpanV2 startSpan(
+  static final _scopeKey = Object();
+
+  /// The scope forked by the innermost [startSpan] call on the current zone
+  /// chain, or `null` if we are outside any [startSpan] callback.
+  Scope? get _zoneScope => Zone.current[_scopeKey] as Scope?;
+
+  /// Returns the active span from the current zone's forked scope, or `null`
+  /// if no span is active.
+  ///
+  /// Only zone-forked scopes (created by [startSpan]) carry an active span.
+  /// The hub's top-level scope is never mutated, so calling this outside a
+  /// [startSpan] callback always returns `null`.
+  @internal
+  RecordingSentrySpanV2? getActiveSpan() => _zoneScope?.getActiveSpan();
+
+  FutureOr<T> startSpan<T>(
+    String name,
+    FutureOr<T> Function(SentrySpanV2 span) callback, {
+    Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+  }) {
+    final span = _createSpan(
+      name,
+      parentSpan: parentSpan,
+      attributes: attributes,
+    );
+    switch (span) {
+      case NoOpSentrySpanV2():
+        internalLogger.info('Hub: startSpan returning no-op for \'$name\'.');
+        return callback(span);
+      case UnsetSentrySpanV2():
+        internalLogger.error(
+          'Hub: _createSpan returned UnsetSentrySpanV2 for \'$name\'. '
+          'This is a bug — the sentinel should never leak out of _createSpan.',
+        );
+        return callback(span);
+      case RecordingSentrySpanV2():
+        break;
+    }
+
+    final parentScope = _zoneScope ?? scope;
+    final forkedScope = parentScope.clone()..setActiveSpan(span);
+
+    // Error handling is split into sync and async paths to preserve the
+    // FutureOr<T> return type — callers with a sync callback get a sync result.
+    //
+    // Note: We intentionally use runZoned() (not runZonedGuarded()) because
+    // the purpose is to propagate zone-local scope values, not to intercept
+    // errors. Using runZonedGuarded() would create an error-zone boundary
+    // that prevents errors from reaching the caller's await / catchError.
+    // The trade-off is that fire-and-forget async work inside the callback
+    // (e.g. unawaited futures, Timer.run) can throw errors that are not
+    // caught here — this is expected Dart zone behavior.
+    void endSpan({bool isError = false}) {
+      if (isError) span.status = SentrySpanStatusV2.error;
+      span.end();
+      forkedScope.removeActiveSpan(span);
+    }
+
+    FutureOr<T> result;
+    try {
+      result = runZoned(
+        () => callback(span),
+        zoneValues: {_scopeKey: forkedScope},
+      );
+    } catch (_) {
+      endSpan(isError: true);
+      rethrow;
+    }
+
+    if (result is Future<T>) {
+      return result.then((value) {
+        endSpan();
+        return value;
+      }, onError: (Object error, StackTrace stackTrace) {
+        endSpan(isError: true);
+        return Future<T>.error(error, stackTrace);
+      });
+    }
+
+    endSpan();
+    return result;
+  }
+
+  @internal
+  SentrySpanV2 startInactiveSpan(
     String name, {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
-    bool active = true,
+    Map<String, SentryAttribute>? attributes,
+  }) =>
+      _createSpan(name, parentSpan: parentSpan, attributes: attributes);
+
+  /// Core span creation logic shared by [startSpan] and [startInactiveSpan].
+  SentrySpanV2 _createSpan(
+    String name, {
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     Map<String, SentryAttribute>? attributes,
   }) {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
-        "Instance is disabled and this 'startSpan' call is a no-op.",
+        "Instance is disabled and this span creation call is a no-op.",
       );
       return NoOpSentrySpanV2.instance;
     }
@@ -636,7 +728,7 @@ class Hub {
 
     if (_options.traceLifecycle == SentryTraceLifecycle.static) {
       internalLogger.warning(
-        'Hub: startSpan is not supported when traceLifecycle is \'static\'. '
+        'Hub: _createSpan is not supported when traceLifecycle is \'static\'. '
         'Use Sentry.startTransaction instead.',
       );
       return NoOpSentrySpanV2.instance;
@@ -650,7 +742,7 @@ class Hub {
     final RecordingSentrySpanV2? resolvedParentSpan;
     switch (parentSpan) {
       case UnsetSentrySpanV2():
-        resolvedParentSpan = scope.getActiveSpan();
+        resolvedParentSpan = getActiveSpan();
       case RecordingSentrySpanV2 span:
         resolvedParentSpan = span;
       case null:
@@ -709,9 +801,6 @@ class Hub {
     if (attributes != null) {
       span.setAttributes(attributes);
     }
-    if (active) {
-      scope.setActiveSpan(span);
-    }
 
     _options.lifecycleRegistry.dispatchCallback(OnSpanStartV2(span));
 
@@ -737,7 +826,6 @@ class Hub {
         return;
       case RecordingSentrySpanV2 span:
         final item = _peek();
-        item.scope.removeActiveSpan(span);
         return item.client.captureSpan(span, scope: item.scope);
     }
   }

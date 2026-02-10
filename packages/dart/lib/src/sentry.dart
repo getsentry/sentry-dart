@@ -387,18 +387,38 @@ class Sentry {
         onFinish: onFinish,
       );
 
-  static SentrySpanV2 startSpan(
-    String name, {
-    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
-    bool active = true,
+  /// Starts a new span, executes [callback], and ends the span automatically.
+  ///
+  /// The span is set as the active span within the [callback]'s scope via
+  /// zones, so any nested [startSpan] calls will automatically parent to it.
+  ///
+  /// If the [callback] throws or the returned future completes with an error,
+  /// the span's status is set to [SentrySpanStatusV2.error] before ending.
+  ///
+  /// By default, the span is created as a child of the currently active span.
+  /// Pass a [SentrySpanV2] as [parentSpan] to override the parent, or pass
+  /// `null` to create a root span.
+  ///
+  /// ```dart
+  /// final order = await Sentry.startSpan('checkout', (span) async {
+  ///   span.setAttribute('cart.item_count', SentryAttribute.int(cart.items.length));
+  ///
+  ///   // Automatically becomes a child of 'checkout'.
+  ///   final payment = await Sentry.startSpan('process-payment', (span) {
+  ///     return paymentService.charge(cart.total);
+  ///   });
+  ///
+  ///   return orderService.create(cart, payment);
+  /// });
+  /// ```
+  static FutureOr<T> startSpan<T>(
+    String name,
+    FutureOr<T> Function(SentrySpanV2 span) callback, {
     Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
   }) =>
-      _hub.startSpan(
-        name,
-        parentSpan: parentSpan,
-        active: active,
-        attributes: attributes,
-      );
+      _hub.startSpan(name, callback,
+          attributes: attributes, parentSpan: parentSpan);
 
   /// Gets the current active transaction or span bound to the scope.
   /// Returns `null` if performance is disabled in the options.

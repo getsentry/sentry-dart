@@ -26,18 +26,20 @@ void main() {
     test('Select operation creates spanv2', () async {
       final client = fixture.client;
 
-      final transactionSpan = fixture.hub.startSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          try {
+            await client.from('users').select().eq('id', 1);
+          } catch (e) {
+            // Ignore errors from mock HTTP requests
+          }
+        },
         parentSpan: null,
       );
 
-      try {
-        await client.from('users').select().eq('id', 1);
-      } catch (e) {
-        // Ignore errors from mock HTTP requests
-      }
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       final childSpans = fixture.processor.getChildSpans();
@@ -69,20 +71,22 @@ void main() {
     test('Insert operation creates spanv2', () async {
       final client = fixture.client;
 
-      final transactionSpan = fixture.hub.startSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          try {
+            await client
+                .from('users')
+                .insert({'name': 'John Doe', 'email': 'john@example.com'});
+          } catch (e) {
+            // Ignore errors from mock HTTP requests
+          }
+        },
         parentSpan: null,
       );
 
-      try {
-        await client
-            .from('users')
-            .insert({'name': 'John Doe', 'email': 'john@example.com'});
-      } catch (e) {
-        // Ignore errors from mock HTTP requests
-      }
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       final childSpans = fixture.processor.getChildSpans();
@@ -107,18 +111,20 @@ void main() {
     test('Update operation creates spanv2', () async {
       final client = fixture.client;
 
-      final transactionSpan = fixture.hub.startSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          try {
+            await client.from('users').update({'name': 'Jane Doe'}).eq('id', 1);
+          } catch (e) {
+            // Ignore errors from mock HTTP requests
+          }
+        },
         parentSpan: null,
       );
 
-      try {
-        await client.from('users').update({'name': 'Jane Doe'}).eq('id', 1);
-      } catch (e) {
-        // Ignore errors from mock HTTP requests
-      }
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       final childSpans = fixture.processor.getChildSpans();
@@ -143,18 +149,20 @@ void main() {
     test('Delete operation creates spanv2', () async {
       final client = fixture.client;
 
-      final transactionSpan = fixture.hub.startSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          try {
+            await client.from('users').delete().eq('id', 1);
+          } catch (e) {
+            // Ignore errors from mock HTTP requests
+          }
+        },
         parentSpan: null,
       );
 
-      try {
-        await client.from('users').delete().eq('id', 1);
-      } catch (e) {
-        // Ignore errors from mock HTTP requests
-      }
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       final childSpans = fixture.processor.getChildSpans();

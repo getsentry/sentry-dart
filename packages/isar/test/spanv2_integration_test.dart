@@ -30,14 +30,17 @@ void main() {
     test('Collection.count() creates spanv2', () async {
       final collection = fixture.isar.persons;
 
-      final transactionSpan = fixture.hub.startSpan(
+      late SentrySpanV2 transactionSpan;
+      late int count;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          count = await collection.count();
+        },
         parentSpan: null,
       );
 
-      final count = await collection.count();
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       expect(count, equals(0));
@@ -75,16 +78,18 @@ void main() {
     test('Collection.put() creates spanv2', () async {
       final collection = fixture.isar.persons;
 
-      final transactionSpan = fixture.hub.startSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          await fixture.isar.writeTxn(() async {
+            await collection.put(Person()..name = 'John Doe');
+          });
+        },
         parentSpan: null,
       );
 
-      await fixture.isar.writeTxn(() async {
-        await collection.put(Person()..name = 'John Doe');
-      });
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       final count = await collection.count();
@@ -120,14 +125,17 @@ void main() {
         await collection.put(Person()..name = 'Jane Doe');
       });
 
-      final transactionSpan = fixture.hub.startSpan(
+      late SentrySpanV2 transactionSpan;
+      late Person? person;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          person = await collection.get(1);
+        },
         parentSpan: null,
       );
 
-      final person = await collection.get(1);
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       expect(person, isNotNull);

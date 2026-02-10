@@ -44,41 +44,34 @@ class Scope {
   /// Returns active transaction or null if there is no active transaction.
   ISentrySpan? span;
 
-  /// List of active spans.
-  /// The last span in the list is the current active span.
-  final List<RecordingSentrySpanV2> _activeSpans = [];
+  /// The currently active span on this scope.
+  ///
+  /// This follows the JS SDK pattern where the scope (stored in zone-local
+  /// storage) holds the active span. [startSpan] forks a new scope with the
+  /// span set. [startInactiveSpan] does not modify the scope.
+  RecordingSentrySpanV2? _activeSpan;
 
   @visibleForTesting
-  List<RecordingSentrySpanV2> get activeSpans =>
-      List.unmodifiable(_activeSpans);
+  RecordingSentrySpanV2? get activeSpan => _activeSpan;
 
   /// Returns the currently active span, or `null` if no span is active.
-  ///
-  /// The active span is the most recently set span via [setActiveSpan].
-  /// When starting a new span with `active: true` (the default), the new span
-  /// becomes a child of this active span.
   @internal
   RecordingSentrySpanV2? getActiveSpan() {
-    return _activeSpans.lastOrNull;
+    return _activeSpan;
   }
 
   /// Sets the given recording [span] as the currently active span.
-  ///
-  /// Active spans are used to automatically parent new spans.
-  /// When a new span is started with `active: true` (the default), it becomes
-  /// a child of the currently active span.
   @internal
   void setActiveSpan(RecordingSentrySpanV2 span) {
-    _activeSpans.add(span);
+    _activeSpan = span;
   }
 
-  /// Removes the given recording [span] from the active spans list.
-  ///
-  /// This should be called when a span ends to remove it from the active
-  /// span list.
+  /// Clears the active span if it matches the given [span].
   @internal
   void removeActiveSpan(RecordingSentrySpanV2 span) {
-    _activeSpans.remove(span);
+    if (_activeSpan == span) {
+      _activeSpan = null;
+    }
   }
 
   /// The propagation context for connecting errors and spans to traces.
@@ -311,7 +304,7 @@ class Scope {
     _replayId = null;
     propagationContext = PropagationContext();
     _attributes.clear();
-    _activeSpans.clear();
+    _activeSpan = null;
 
     _clearBreadcrumbsSync();
     _setUserSync(null);
@@ -519,9 +512,7 @@ class Scope {
       clone.setAttributes(Map.from(_attributes));
     }
 
-    if (_activeSpans.isNotEmpty) {
-      clone._activeSpans.addAll(_activeSpans);
-    }
+    clone._activeSpan = _activeSpan;
 
     return clone;
   }

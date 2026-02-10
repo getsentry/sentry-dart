@@ -24,22 +24,24 @@ void main() {
     });
 
     test('GraphQL query creates spanv2', () async {
-      final transactionSpan = fixture.hub.startSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          final link = fixture.createSentryTracingLink();
+          final request = Request(
+            operation: Operation(
+              document: parseString('query GetUser { user(id: "1") { name } }'),
+              operationName: 'GetUser',
+            ),
+          );
+
+          await link.request(request).first;
+        },
         parentSpan: null,
       );
 
-      final link = fixture.createSentryTracingLink();
-      final request = Request(
-        operation: Operation(
-          document: parseString('query GetUser { user(id: "1") { name } }'),
-          operationName: 'GetUser',
-        ),
-      );
-
-      await link.request(request).first;
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       final childSpans = fixture.processor.getChildSpans();
@@ -61,24 +63,26 @@ void main() {
     });
 
     test('GraphQL mutation creates spanv2', () async {
-      final transactionSpan = fixture.hub.startSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          final link = fixture.createSentryTracingLink();
+          final request = Request(
+            operation: Operation(
+              document: parseString(
+                  'mutation CreateUser(\$name: String!) { createUser(name: \$name) { id name } }'),
+              operationName: 'CreateUser',
+            ),
+            variables: {'name': 'John Doe'},
+          );
+
+          await link.request(request).first;
+        },
         parentSpan: null,
       );
 
-      final link = fixture.createSentryTracingLink();
-      final request = Request(
-        operation: Operation(
-          document: parseString(
-              'mutation CreateUser(\$name: String!) { createUser(name: \$name) { id name } }'),
-          operationName: 'CreateUser',
-        ),
-        variables: {'name': 'John Doe'},
-      );
-
-      await link.request(request).first;
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       final childSpans = fixture.processor.getChildSpans();
@@ -96,25 +100,28 @@ void main() {
     });
 
     test('GraphQL error creates spanv2 with error status', () async {
-      final transactionSpan = fixture.hub.startSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          final link = fixture.createSentryTracingLink(
+            shouldReturnError: true,
+            markErrorsAsFailed: true,
+          );
+          final request = Request(
+            operation: Operation(
+              document:
+                  parseString('query GetUser { user(id: "999") { name } }'),
+              operationName: 'GetUser',
+            ),
+          );
+
+          await link.request(request).first;
+        },
         parentSpan: null,
       );
 
-      final link = fixture.createSentryTracingLink(
-        shouldReturnError: true,
-        markErrorsAsFailed: true,
-      );
-      final request = Request(
-        operation: Operation(
-          document: parseString('query GetUser { user(id: "999") { name } }'),
-          operationName: 'GetUser',
-        ),
-      );
-
-      await link.request(request).first;
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       final span = fixture.processor.findSpanByOperation('http.graphql.query');

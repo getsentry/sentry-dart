@@ -164,16 +164,14 @@ class HubAdapter implements Hub {
       );
 
   @override
-  SentrySpanV2 startSpan(
+  SentrySpanV2 startInactiveSpan(
     String name, {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
-    bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) =>
-      Sentry.currentHub.startSpan(
+      Sentry.currentHub.startInactiveSpan(
         name,
         parentSpan: parentSpan,
-        active: active,
         attributes: attributes,
       );
 
@@ -230,4 +228,18 @@ class HubAdapter implements Hub {
   @override
   Future<void> captureSpan(SentrySpanV2 span) =>
       Sentry.currentHub.captureSpan(span);
+
+  @override
+  RecordingSentrySpanV2? getActiveSpan() {
+    return Sentry.currentHub.getActiveSpan();
+  }
+
+  @override
+  FutureOr<T> startSpan<T>(
+      String name, FutureOr<T> Function(SentrySpanV2 span) callback,
+      {Map<String, SentryAttribute>? attributes,
+      SentrySpanV2? parentSpan = const UnsetSentrySpanV2()}) {
+    return Sentry.currentHub.startSpan(name, callback,
+        attributes: attributes, parentSpan: parentSpan);
+  }
 }

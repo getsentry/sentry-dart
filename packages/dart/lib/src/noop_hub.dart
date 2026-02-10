@@ -157,14 +157,26 @@ class NoOpHub implements Hub {
   void removeAttribute(String key) {}
 
   @override
-  SentrySpanV2 startSpan(
+  SentrySpanV2 startInactiveSpan(
     String name, {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
-    bool active = true,
     Map<String, SentryAttribute>? attributes,
   }) =>
       NoOpSentrySpanV2.instance;
 
   @override
   Future<void> captureSpan(SentrySpanV2 span) async {}
+
+  @override
+  RecordingSentrySpanV2? getActiveSpan() {
+    return null;
+  }
+
+  @override
+  FutureOr<T> startSpan<T>(
+      String name, FutureOr<T> Function(SentrySpanV2 span) callback,
+      {Map<String, SentryAttribute>? attributes,
+      SentrySpanV2? parentSpan = const UnsetSentrySpanV2()}) {
+    return callback(NoOpSentrySpanV2.instance);
+  }
 }
