@@ -618,13 +618,6 @@ class Hub {
 
   static final _scopeKey = Object();
 
-  @internal
-  RecordingSentrySpanV2? getActiveSpan() {
-    final zoneScope = Zone.current[_scopeKey] as Scope?;
-    final activeScope = zoneScope ?? scope;
-    return activeScope.getActiveSpan();
-  }
-
   FutureOr<T> startSpan<T>(
     String name,
     FutureOr<T> Function(SentrySpanV2 span) callback, {
@@ -636,8 +629,18 @@ class Hub {
       parentSpan: parentSpan,
       attributes: attributes,
     );
-    if (span is! RecordingSentrySpanV2) {
-      return callback(span);
+    switch (span) {
+      case NoOpSentrySpanV2():
+        internalLogger.info('Hub: startSpan returning no-op for \'$name\'.');
+        return callback(span);
+      case UnsetSentrySpanV2():
+        internalLogger.error(
+          'Hub: _createSpan returned UnsetSentrySpanV2 for \'$name\'. '
+          'This is a bug — the sentinel should never leak out of _createSpan.',
+        );
+        return callback(span);
+      case RecordingSentrySpanV2():
+        break;
     }
 
     final parentScope = (Zone.current[_scopeKey] as Scope?) ?? scope;
@@ -714,7 +717,9 @@ class Hub {
     final RecordingSentrySpanV2? resolvedParentSpan;
     switch (parentSpan) {
       case UnsetSentrySpanV2():
-        resolvedParentSpan = getActiveSpan();
+        final zoneScope = Zone.current[_scopeKey] as Scope?;
+        final activeScope = zoneScope ?? scope;
+        resolvedParentSpan = activeScope.getActiveSpan();
       case RecordingSentrySpanV2 span:
         resolvedParentSpan = span;
       case null:

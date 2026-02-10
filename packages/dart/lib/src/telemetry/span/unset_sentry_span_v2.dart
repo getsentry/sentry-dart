@@ -1,6 +1,6 @@
 part of 'sentry_span_v2.dart';
 
-/// This class is a marker class to represent unset / not provided span for startInactiveSpan.
+/// This class is a marker class to represent unset / not provided span.
 /// Since Dart does not have 'undefined' we use this class to circumvent that issue.
 final class UnsetSentrySpanV2 implements SentrySpanV2 {
   const UnsetSentrySpanV2();
