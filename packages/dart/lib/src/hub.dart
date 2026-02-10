@@ -618,6 +618,10 @@ class Hub {
 
   static final _scopeKey = Object();
 
+  /// The scope forked by the innermost [startSpan] call on the current zone
+  /// chain, or `null` if we are outside any [startSpan] callback.
+  Scope? get _zoneScope => Zone.current[_scopeKey] as Scope?;
+
   /// Returns the active span from the current zone's forked scope, or `null`
   /// if no span is active.
   ///
@@ -625,9 +629,7 @@ class Hub {
   /// The hub's top-level scope is never mutated, so calling this outside a
   /// [startSpan] callback always returns `null`.
   @internal
-  RecordingSentrySpanV2? getActiveSpan() {
-    return (Zone.current[_scopeKey] as Scope?)?.getActiveSpan();
-  }
+  RecordingSentrySpanV2? getActiveSpan() => _zoneScope?.getActiveSpan();
 
   FutureOr<T> startSpan<T>(
     String name,
@@ -654,7 +656,7 @@ class Hub {
         break;
     }
 
-    final parentScope = (Zone.current[_scopeKey] as Scope?) ?? scope;
+    final parentScope = _zoneScope ?? scope;
     final forkedScope = parentScope.clone()..setActiveSpan(span);
 
     // Error handling is split into sync and async paths to preserve the
@@ -727,7 +729,7 @@ class Hub {
     if (_options.traceLifecycle == SentryTraceLifecycle.static) {
       internalLogger.warning(
         'Hub: _createSpan is not supported when traceLifecycle is \'static\'. '
-        'Use Sentry.startSpan instead.',
+        'Use Sentry.startTransaction instead.',
       );
       return NoOpSentrySpanV2.instance;
     }
