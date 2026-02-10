@@ -71,7 +71,9 @@ class TimeToFullDisplayTracker {
     final parentSpanId = _parentSpanId;
     final endSpanId = spanId;
 
-    if (parentSpanId != null && endSpanId != null && parentSpanId != endSpanId) {
+    if (parentSpanId != null &&
+        endSpanId != null &&
+        parentSpanId != endSpanId) {
       return true; // Called on unrelated transaction, ignore.
     }
     if (_trackingCompleter != null) {

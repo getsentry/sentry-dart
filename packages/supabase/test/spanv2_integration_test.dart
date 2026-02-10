@@ -117,9 +117,7 @@ void main() {
         (span) async {
           transactionSpan = span;
           try {
-            await client
-                .from('users')
-                .update({'name': 'Jane Doe'}).eq('id', 1);
+            await client.from('users').update({'name': 'Jane Doe'}).eq('id', 1);
           } catch (e) {
             // Ignore errors from mock HTTP requests
           }

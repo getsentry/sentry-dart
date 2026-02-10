@@ -32,8 +32,7 @@ void main() {
           final link = fixture.createSentryTracingLink();
           final request = Request(
             operation: Operation(
-              document:
-                  parseString('query GetUser { user(id: "1") { name } }'),
+              document: parseString('query GetUser { user(id: "1") { name } }'),
               operationName: 'GetUser',
             ),
           );
