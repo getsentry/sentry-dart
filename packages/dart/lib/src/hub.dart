@@ -655,6 +655,20 @@ class Hub {
 
     // Error handling is split into sync and async paths to preserve the
     // FutureOr<T> return type — callers with a sync callback get a sync result.
+    //
+    // Note: We intentionally use runZoned() (not runZonedGuarded()) because
+    // the purpose is to propagate zone-local scope values, not to intercept
+    // errors. Using runZonedGuarded() would create an error-zone boundary
+    // that prevents errors from reaching the caller's await / catchError.
+    // The trade-off is that fire-and-forget async work inside the callback
+    // (e.g. unawaited futures, Timer.run) can throw errors that are not
+    // caught here — this is expected Dart zone behavior.
+    void endSpan({bool isError = false}) {
+      if (isError) span.status = SentrySpanStatusV2.error;
+      span.end();
+      forkedScope.removeActiveSpan(span);
+    }
+
     FutureOr<T> result;
     try {
       result = runZoned(
@@ -662,24 +676,22 @@ class Hub {
         zoneValues: {_scopeKey: forkedScope},
       );
     } catch (_) {
-      span.status = SentrySpanStatusV2.error;
-      span.end();
+      endSpan(isError: true);
       rethrow;
     }
 
     if (result is Future<T>) {
       return result.then((value) {
-        span.end();
+        endSpan();
         return value;
       }, onError: (Object error, StackTrace stackTrace) {
-        span.status = SentrySpanStatusV2.error;
-        span.end();
+        endSpan(isError: true);
         return Future<T>.error(error, stackTrace);
       });
-    } else {
-      span.end();
-      return result;
     }
+
+    endSpan();
+    return result;
   }
 
   @internal
@@ -808,11 +820,6 @@ class Hub {
         return;
       case RecordingSentrySpanV2 span:
         final item = _peek();
-        // Clear active span from the current scope if it matches.
-        // For startSpan (callback), this is defensive cleanup —
-        // the forked zone scope is about to become unreachable.
-        final currentScope = (Zone.current[_scopeKey] as Scope?) ?? item.scope;
-        currentScope.removeActiveSpan(span);
         return item.client.captureSpan(span, scope: item.scope);
     }
   }
