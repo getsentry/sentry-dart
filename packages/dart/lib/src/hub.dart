@@ -618,6 +618,13 @@ class Hub {
 
   static final _scopeKey = Object();
 
+  @internal
+  RecordingSentrySpanV2? getActiveSpan() {
+    final zoneScope = Zone.current[_scopeKey] as Scope?;
+    final activeScope = zoneScope ?? scope;
+    return activeScope.getActiveSpan();
+  }
+
   FutureOr<T> startSpan<T>(
     String name,
     FutureOr<T> Function(SentrySpanV2 span) callback, {
@@ -717,9 +724,7 @@ class Hub {
     final RecordingSentrySpanV2? resolvedParentSpan;
     switch (parentSpan) {
       case UnsetSentrySpanV2():
-        final zoneScope = Zone.current[_scopeKey] as Scope?;
-        final activeScope = zoneScope ?? scope;
-        resolvedParentSpan = activeScope.getActiveSpan();
+        resolvedParentSpan = getActiveSpan();
       case RecordingSentrySpanV2 span:
         resolvedParentSpan = span;
       case null:

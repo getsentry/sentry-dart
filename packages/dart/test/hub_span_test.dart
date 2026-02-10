@@ -57,7 +57,8 @@ void main() {
             'attr2': SentryAttribute.int(42),
           };
 
-          final span = hub.startInactiveSpan('test-span', attributes: attributes);
+          final span =
+              hub.startInactiveSpan('test-span', attributes: attributes);
 
           expect(span.attributes, equals(attributes));
         });
@@ -158,10 +159,8 @@ void main() {
           final hub = fixture.getSut();
 
           final parent = hub.startInactiveSpan('parent');
-          final child1 =
-              hub.startInactiveSpan('child1', parentSpan: parent);
-          final child2 =
-              hub.startInactiveSpan('child2', parentSpan: parent);
+          final child1 = hub.startInactiveSpan('child1', parentSpan: parent);
+          final child2 = hub.startInactiveSpan('child2', parentSpan: parent);
 
           expect(child1.parentSpan, equals(parent));
           expect(child2.parentSpan, equals(parent));
@@ -199,10 +198,10 @@ void main() {
         test('child span inherits parent sampling decision', () {
           final hub = fixture.getSut(tracesSampleRate: 1.0);
 
-          final rootSpan = hub.startInactiveSpan('root-span') as RecordingSentrySpanV2;
-          final childSpan =
-              hub.startInactiveSpan('child-span', parentSpan: rootSpan)
-                  as RecordingSentrySpanV2;
+          final rootSpan =
+              hub.startInactiveSpan('root-span') as RecordingSentrySpanV2;
+          final childSpan = hub.startInactiveSpan('child-span',
+              parentSpan: rootSpan) as RecordingSentrySpanV2;
 
           // Both should have the same sampling decision
           expect(
@@ -222,16 +221,14 @@ void main() {
         test('deeply nested spans all inherit root sampling decision', () {
           final hub = fixture.getSut(tracesSampleRate: 1.0);
 
-          final rootSpan = hub.startInactiveSpan('root-span') as RecordingSentrySpanV2;
-          final child1 =
-              hub.startInactiveSpan('child-1', parentSpan: rootSpan)
-                  as RecordingSentrySpanV2;
-          final child2 =
-              hub.startInactiveSpan('child-2', parentSpan: child1)
-                  as RecordingSentrySpanV2;
-          final child3 =
-              hub.startInactiveSpan('child-3', parentSpan: child2)
-                  as RecordingSentrySpanV2;
+          final rootSpan =
+              hub.startInactiveSpan('root-span') as RecordingSentrySpanV2;
+          final child1 = hub.startInactiveSpan('child-1', parentSpan: rootSpan)
+              as RecordingSentrySpanV2;
+          final child2 = hub.startInactiveSpan('child-2', parentSpan: child1)
+              as RecordingSentrySpanV2;
+          final child3 = hub.startInactiveSpan('child-3', parentSpan: child2)
+              as RecordingSentrySpanV2;
 
           final rootDecision = rootSpan.samplingDecision;
 
@@ -293,23 +290,23 @@ void main() {
           expect(rootSpan, isA<NoOpSentrySpanV2>());
 
           // Children should also be NoOp (can't have recording children of NoOp)
-          final childSpan = hub.startInactiveSpan('child-span', parentSpan: rootSpan);
+          final childSpan =
+              hub.startInactiveSpan('child-span', parentSpan: rootSpan);
           expect(childSpan, isA<NoOpSentrySpanV2>());
         });
 
         test('sampleRand is reused across all spans in the same trace', () {
           final hub = fixture.getSut(tracesSampleRate: 1.0);
 
-          final rootSpan = hub.startInactiveSpan('root-span') as RecordingSentrySpanV2;
+          final rootSpan =
+              hub.startInactiveSpan('root-span') as RecordingSentrySpanV2;
           final sampleRand = rootSpan.samplingDecision.sampleRand;
 
           // Create multiple child spans
-          final child1 =
-              hub.startInactiveSpan('child-1', parentSpan: rootSpan)
-                  as RecordingSentrySpanV2;
-          final child2 =
-              hub.startInactiveSpan('child-2', parentSpan: rootSpan)
-                  as RecordingSentrySpanV2;
+          final child1 = hub.startInactiveSpan('child-1', parentSpan: rootSpan)
+              as RecordingSentrySpanV2;
+          final child2 = hub.startInactiveSpan('child-2', parentSpan: rootSpan)
+              as RecordingSentrySpanV2;
 
           // All spans should use the same sampleRand
           expect(child1.samplingDecision.sampleRand, equals(sampleRand));

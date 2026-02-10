@@ -91,10 +91,14 @@ void main() {
 
       late SentrySpanV2 transactionSpan;
       late List<TodoItem> result;
-      await fixture.hub.startSpan('test-transaction', (span) async {
-        transactionSpan = span;
-        result = await db.select(db.todoItems).get();
-      }, parentSpan: null);
+      await fixture.hub.startSpan(
+        'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          result = await db.select(db.todoItems).get();
+        },
+        parentSpan: null,
+      );
 
       await fixture.processor.waitForProcessing();
 
@@ -131,16 +135,20 @@ void main() {
           );
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan('test-transaction', (span) async {
-        transactionSpan = span;
-        await (db.update(db.todoItems)
-              ..where((tbl) => tbl.title.equals('Old Title')))
-            .write(
-          TodoItemsCompanion(
-            title: Value('New Title'),
-          ),
-        );
-      }, parentSpan: null);
+      await fixture.hub.startSpan(
+        'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          await (db.update(db.todoItems)
+                ..where((tbl) => tbl.title.equals('Old Title')))
+              .write(
+            TodoItemsCompanion(
+              title: Value('New Title'),
+            ),
+          );
+        },
+        parentSpan: null,
+      );
 
       await fixture.processor.waitForProcessing();
 
