@@ -618,11 +618,15 @@ class Hub {
 
   static final _scopeKey = Object();
 
+  /// Returns the active span from the current zone's forked scope, or `null`
+  /// if no span is active.
+  ///
+  /// Only zone-forked scopes (created by [startSpan]) carry an active span.
+  /// The hub's top-level scope is never mutated, so calling this outside a
+  /// [startSpan] callback always returns `null`.
   @internal
   RecordingSentrySpanV2? getActiveSpan() {
-    final zoneScope = Zone.current[_scopeKey] as Scope?;
-    final activeScope = zoneScope ?? scope;
-    return activeScope.getActiveSpan();
+    return (Zone.current[_scopeKey] as Scope?)?.getActiveSpan();
   }
 
   FutureOr<T> startSpan<T>(
