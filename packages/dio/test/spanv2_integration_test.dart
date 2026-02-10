@@ -32,14 +32,16 @@ void main() {
         ),
       );
 
-      final transactionSpan = fixture.hub.startInactiveSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          await dio.get<dynamic>('/api/users');
+        },
         parentSpan: null,
       );
 
-      await dio.get<dynamic>('/api/users');
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       final childSpans = fixture.processor.getChildSpans();
@@ -85,16 +87,18 @@ void main() {
         ),
       );
 
-      final transactionSpan = fixture.hub.startInactiveSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          try {
+            await dio.get<dynamic>('/api/users');
+          } catch (_) {}
+        },
         parentSpan: null,
       );
 
-      try {
-        await dio.get<dynamic>('/api/users');
-      } catch (_) {}
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       final span = fixture.processor.findSpanByOperation('http.client');

@@ -36,14 +36,17 @@ void main() {
       ''');
       await db.insert('Test', {'name': 'John Doe'});
 
-      final transactionSpan = fixture.hub.startInactiveSpan(
+      late SentrySpanV2 transactionSpan;
+      late List<Map<String, Object?>> result;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          result = await db.query('Test');
+        },
         parentSpan: null,
       );
 
-      final result = await db.query('Test');
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       expect(result.length, equals(1));
@@ -85,14 +88,16 @@ void main() {
         )
       ''');
 
-      final transactionSpan = fixture.hub.startInactiveSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          await db.insert('Test', {'name': 'Jane Doe'});
+        },
         parentSpan: null,
       );
 
-      await db.insert('Test', {'name': 'Jane Doe'});
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       final result = await db.query('Test');
@@ -127,17 +132,19 @@ void main() {
         )
       ''');
 
-      final transactionSpan = fixture.hub.startInactiveSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          await db.transaction((txn) async {
+            await txn.insert('Test', {'name': 'Alice'});
+            await txn.insert('Test', {'name': 'Bob'});
+          });
+        },
         parentSpan: null,
       );
 
-      await db.transaction((txn) async {
-        await txn.insert('Test', {'name': 'Alice'});
-        await txn.insert('Test', {'name': 'Bob'});
-      });
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       final result = await db.query('Test');

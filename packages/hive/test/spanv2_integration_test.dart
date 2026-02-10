@@ -33,14 +33,17 @@ void main() {
 
       await box.put('test-key', Person('John Doe'));
 
-      final transactionSpan = fixture.hub.startInactiveSpan(
+      late SentrySpanV2 transactionSpan;
+      late Person? result;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          result = box.get('test-key');
+        },
         parentSpan: null,
       );
 
-      final result = box.get('test-key');
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       expect(result, isNotNull);
@@ -80,14 +83,16 @@ void main() {
     test('Box.put() creates spanv2', () async {
       final box = fixture.box;
 
-      final transactionSpan = fixture.hub.startInactiveSpan(
+      late SentrySpanV2 transactionSpan;
+      await fixture.hub.startSpan(
         'test-transaction',
+        (span) async {
+          transactionSpan = span;
+          await box.put('new-key', Person('Jane Doe'));
+        },
         parentSpan: null,
       );
 
-      await box.put('new-key', Person('Jane Doe'));
-
-      transactionSpan.end();
       await fixture.processor.waitForProcessing();
 
       final childSpans = fixture.processor.getChildSpans();
