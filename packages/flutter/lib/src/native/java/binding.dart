@@ -18167,6 +18167,58 @@ class SentryOptions extends jni$_.JObject {
         .check();
   }
 
+  static final _id_isEnableDatabaseTransactionTracing = _class.instanceMethodId(
+    r'isEnableDatabaseTransactionTracing',
+    r'()Z',
+  );
+
+  static final _isEnableDatabaseTransactionTracing =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallBooleanMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public boolean isEnableDatabaseTransactionTracing()`
+  bool isEnableDatabaseTransactionTracing() {
+    return _isEnableDatabaseTransactionTracing(reference.pointer,
+            _id_isEnableDatabaseTransactionTracing as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_setEnableDatabaseTransactionTracing =
+      _class.instanceMethodId(
+    r'setEnableDatabaseTransactionTracing',
+    r'(Z)V',
+  );
+
+  static final _setEnableDatabaseTransactionTracing =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int32,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setEnableDatabaseTransactionTracing(boolean z)`
+  void setEnableDatabaseTransactionTracing(
+    bool z,
+  ) {
+    _setEnableDatabaseTransactionTracing(
+            reference.pointer,
+            _id_setEnableDatabaseTransactionTracing as jni$_.JMethodIDPtr,
+            z ? 1 : 0)
+        .check();
+  }
+
   static final _id_isEnabled = _class.instanceMethodId(
     r'isEnabled',
     r'()Z',
