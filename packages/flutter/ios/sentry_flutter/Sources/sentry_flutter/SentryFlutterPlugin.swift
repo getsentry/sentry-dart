@@ -213,6 +213,12 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
                 infos["integrations"] = integrations.filter { $0 != "SentrySessionReplayIntegration" }
             }
 
+            #if SENTRY_FLUTTER_SPM
+            infos["features"] = ["SwiftPackageManager"]
+            #else
+            infos["features"] = ["Cocoapods"]
+            #endif
+
             let deviceStr = "device"
             let appStr = "app"
             if let extraContext = PrivateSentrySDKOnly.getExtraContext() as? [String: Any] {
@@ -241,8 +247,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
             // Not reading the name from PrivateSentrySDKOnly.getSdkName because
             // this is added as a package and packages should follow the sentry-release-registry format
+            #if SENTRY_FLUTTER_SPM
+            infos["package"] = ["version": PrivateSentrySDKOnly.getSdkVersionString(),
+                "sdk_name": "spm:sentry-cocoa"]
+            #else
             infos["package"] = ["version": PrivateSentrySDKOnly.getSdkVersionString(),
                 "sdk_name": "cocoapods:sentry-cocoa"]
+            #endif
 
             result(infos)
         }
@@ -317,6 +328,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
                                 sdk["integrations"] = sdkIntegrations + integrations
                             } else {
                                 sdk["integrations"] = integrations
+                            }
+                        }
+                        if let features = flutterSdk!["features"] as? [String] {
+                            if let sdkFeatures = sdk["features"] as? [String] {
+                                sdk["features"] = sdkFeatures + features
+                            } else {
+                                sdk["features"] = features
                             }
                         }
                         event.sdk = sdk
