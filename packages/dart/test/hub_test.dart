@@ -637,6 +637,20 @@ void main() {
       final newSampleRand = hub.scope.propagationContext.sampleRand;
       expect(newSampleRand, isNull);
     });
+
+    test('generateNewTrace dispatches OnTraceReset with propagation context',
+        () {
+      PropagationContext? receivedContext;
+      hub.options.lifecycleRegistry
+          .registerCallback<OnTraceReset>((event) {
+        receivedContext = event.propagationContext;
+      });
+
+      hub.generateNewTrace();
+
+      expect(receivedContext, isNotNull);
+      expect(receivedContext, hub.scope.propagationContext);
+    });
   });
 
   group('Hub scope callback', () {

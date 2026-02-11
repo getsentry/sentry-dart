@@ -276,5 +276,12 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   SentryId? get replayId => null;
 
   @override
+  bool get supportsTraceSync => false;
+
+  @override
+  FutureOr<void> setTrace(SentryId traceId,
+      {SpanId? spanId, double? sampleRate, double? sampleRand}) {}
+
+  @override
   SentryFlutterOptions get options => _options;
 }

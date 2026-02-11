@@ -388,6 +388,25 @@ class SentryNativeJava extends SentryNativeChannel {
 
         replayConfig.release();
       });
+
+  @override
+  bool get supportsTraceSync => true;
+
+  @override
+  void setTrace(SentryId traceId,
+      {SpanId? spanId, double? sampleRate, double? sampleRand}) {
+    tryCatchSync('setTrace', () {
+      using((arena) {
+        final jTraceId = traceId.toString().toJString()..releasedBy(arena);
+        final jSpanId = (spanId ?? SpanId.newId()).toString().toJString()
+          ..releasedBy(arena);
+        final jSampleRate = sampleRate?.toJDouble()?..releasedBy(arena);
+        final jSampleRand = sampleRand?.toJDouble()?..releasedBy(arena);
+        native.InternalSentrySdk.setTrace(
+            jTraceId, jSpanId, jSampleRate, jSampleRand);
+      });
+    });
+  }
 }
 
 @visibleForTesting

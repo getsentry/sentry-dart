@@ -161,6 +161,12 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             result(nil)
 #endif
 
+        case "setTrace":
+            let arguments = call.arguments as? [String: Any?]
+            let traceId = arguments?["traceId"] as? String
+            let spanId = arguments?["spanId"] as? String
+            setTrace(traceId: traceId, spanId: spanId, result: result)
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -693,6 +699,17 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
     private func resumeAppHangTracking(_ result: @escaping FlutterResult) {
         SentrySDK.resumeAppHangTracking()
+        result("")
+    }
+
+    private func setTrace(traceId: String?, spanId: String?, result: @escaping FlutterResult) {
+        guard let traceId = traceId else {
+            result("")
+            return
+        }
+        let sentryTraceId = SentryId(uuidString: traceId)
+        let sentrySpanId = spanId != nil ? SpanId(value: spanId!) : nil
+        PrivateSentrySDKOnly.setTrace(sentryTraceId, spanId: sentrySpanId)
         result("")
     }
 

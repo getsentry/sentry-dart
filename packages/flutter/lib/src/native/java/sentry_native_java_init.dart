@@ -239,6 +239,7 @@ void configureAndroidOptions({
     }
     androidOptions.setSendDefaultPii(options.sendDefaultPii);
     androidOptions.setEnableScopeSync(options.enableNdkScopeSync);
+    androidOptions.setEnableAutoTraceIdGeneration(false);
     androidOptions
         .setProguardUuid(options.proguardUuid?.toJString()?..releasedBy(arena));
     androidOptions.setEnableSpotlight(options.spotlight.enabled);

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'propagation_context.dart';
 
 @internal
 typedef SdkLifecycleCallback<T extends SdkLifecycleEvent> = FutureOr<void>
@@ -102,4 +103,11 @@ class OnProcessMetric extends SdkLifecycleEvent {
   final SentryMetric metric;
 
   OnProcessMetric(this.metric);
+}
+
+/// Dispatched when a new trace is generated via [Hub.generateNewTrace].
+@internal
+class OnTraceReset extends SdkLifecycleEvent {
+  OnTraceReset(this.propagationContext);
+  final PropagationContext propagationContext;
 }

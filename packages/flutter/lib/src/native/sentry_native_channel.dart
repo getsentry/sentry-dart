@@ -422,4 +422,24 @@ class SentryNativeChannel
   FutureOr<void> updateSession({int? errors, String? status}) {
     _logNotSupported('updating session');
   }
+
+  // Android handles supportings trace sync via JNI, not method channels.
+  @override
+  bool get supportsTraceSync => !options.platform.isAndroid;
+
+  @override
+  FutureOr<void> setTrace(SentryId traceId,
+      {SpanId? spanId, double? sampleRate, double? sampleRand}) {
+    if (options.platform.isAndroid) {
+      assert(false,
+          'setTrace should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('setTrace', {
+      'traceId': traceId.toString(),
+      if (spanId != null) 'spanId': spanId.toString(),
+      if (sampleRate != null) 'sampleRate': sampleRate,
+      if (sampleRand != null) 'sampleRand': sampleRand,
+    });
+  }
 }

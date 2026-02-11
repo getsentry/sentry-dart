@@ -25,6 +25,7 @@ import 'integrations/native_app_start_handler.dart';
 import 'integrations/replay_telemetry_integration.dart';
 import 'integrations/screenshot_integration.dart';
 import 'integrations/generic_app_start_integration.dart';
+import 'integrations/native_trace_sync_integration.dart';
 import 'integrations/thread_info_integration.dart';
 import 'integrations/web_session_integration.dart';
 import 'native/factory.dart';
@@ -189,6 +190,9 @@ mixin SentryFlutter {
       // We also need to call this before the native sdk integrations so release is properly propagated.
       integrations.add(LoadReleaseIntegration());
       integrations.add(createSdkIntegration(native));
+      if (native.supportsTraceSync) {
+        integrations.add(NativeTraceSyncIntegration(native));
+      }
       integrations.add(createLoadDebugImagesIntegration(native));
       if (!platform.isWeb) {
         if (native.supportsLoadContexts) {

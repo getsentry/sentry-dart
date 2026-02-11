@@ -610,6 +610,9 @@ class Hub {
     // Create a brand-new trace and reset the sampling flag and sampleRand so
     // that the next root transaction can set it again.
     scope.propagationContext.resetTrace();
+    // Fire-and-forget — don't await, matches current void return type.
+    _options.lifecycleRegistry
+        .dispatchCallback(OnTraceReset(scope.propagationContext));
   }
 
   /// Gets the current active transaction or span.
