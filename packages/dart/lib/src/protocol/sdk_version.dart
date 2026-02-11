@@ -21,6 +21,9 @@ import 'access_aware_map.dart';
 ///   "integrations": [
 ///     "tracing"
 ///   ],
+///   "features": [
+///     "SwiftPackageManager"
+///   ],
 ///   "packages": [
 ///     {
 ///       "name": "git:https://github.com/getsentry/sentry-cocoa.git",
@@ -116,7 +119,6 @@ class SdkVersion {
     _packages.add(package);
   }
 
-  // Adds an integration if not already added
   void addIntegration(String integration) {
     if (_integrations.contains(integration)) {
       return;
@@ -124,7 +126,6 @@ class SdkVersion {
     _integrations.add(integration);
   }
 
-  // Adds a feature if not already added
   void addFeature(String feature) {
     if (_features.contains(feature)) {
       return;
