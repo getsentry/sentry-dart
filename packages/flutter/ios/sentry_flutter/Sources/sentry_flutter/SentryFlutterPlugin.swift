@@ -216,7 +216,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             #if SENTRY_FLUTTER_SPM
             infos["features"] = ["SwiftPackageManager"]
             #else
-            infos["features"] = ["Cocoapods"]
+            infos["features"] = ["CocoaPods"]
             #endif
 
             let deviceStr = "device"
@@ -287,6 +287,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         result(debugImages.map { $0.serialize() })
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     private func initNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let arguments = call.arguments as? [String: Any], !arguments.isEmpty else {
             print("Arguments is null or empty")

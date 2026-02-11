@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Internals
+
+- Add SDK features metadata for SPM vs CocoaPods tracking ([#3508](https://github.com/getsentry/sentry-dart/pull/3508))
+
 ## 9.12.0
 
 ### Dependencies

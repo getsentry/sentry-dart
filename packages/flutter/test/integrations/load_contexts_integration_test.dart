@@ -317,9 +317,7 @@ void main() {
             await fixture.options.eventProcessors.first.apply(e, Hint());
 
         expect(
-          event?.sdk?.features
-              .where((f) => f == 'EventFeature')
-              .length,
+          event?.sdk?.features.where((f) => f == 'EventFeature').length,
           1,
         );
       });
