@@ -14,6 +14,7 @@ import 'fixture.dart';
 void main() {
   final defaultContexts = {
     'integrations': ['NativeIntegration'],
+    'features': ['SwiftPackageManager'],
     'package': {'sdk_name': 'native-package', 'version': '1.0'},
     'contexts': {
       'device': {
@@ -289,6 +290,39 @@ void main() {
             .length,
         1,
       );
+    });
+
+    group('features', () {
+      test('merges features from native into sdk', () async {
+        mockLoadContexts();
+        await fixture.registerIntegration();
+
+        final e = getEvent();
+        final event =
+            await fixture.options.eventProcessors.first.apply(e, Hint());
+
+        expect(event?.sdk?.features.contains('SwiftPackageManager'), true);
+      });
+
+      test('does not duplicate feature if already present', () async {
+        mockLoadContexts({
+          'features': ['EventFeature']
+        });
+        await fixture.registerIntegration();
+
+        final sdk = getSdkVersion();
+        sdk.addFeature('EventFeature');
+        final e = getEvent(sdk: sdk);
+        final event =
+            await fixture.options.eventProcessors.first.apply(e, Hint());
+
+        expect(
+          event?.sdk?.features
+              .where((f) => f == 'EventFeature')
+              .length,
+          1,
+        );
+      });
     });
 
     group('breadcrumbs', () {

@@ -260,6 +260,7 @@ mixin SentryFlutter {
       version: sdkVersion,
       integrations: options.sdk.integrations,
       packages: options.sdk.packages,
+      features: options.sdk.features,
     );
     sdk.addPackage('pub:sentry_flutter', sdkVersion);
     options.sdk = sdk;

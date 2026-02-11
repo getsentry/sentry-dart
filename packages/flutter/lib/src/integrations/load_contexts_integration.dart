@@ -260,6 +260,18 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         event.sdk = sdk;
       }
 
+      final featuresList = infos['features'] as List?;
+      if (featuresList != null && featuresList.isNotEmpty) {
+        final features = List<String>.from(featuresList);
+        final sdk = event.sdk ?? _options.sdk;
+
+        for (final feature in features) {
+          sdk.addFeature(feature);
+        }
+
+        event.sdk = sdk;
+      }
+
       final packageMap = infos['package'] as Map?;
       if (packageMap != null && packageMap.isNotEmpty) {
         final package = Map<String, String>.from(packageMap);
