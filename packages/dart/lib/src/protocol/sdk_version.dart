@@ -39,11 +39,13 @@ class SdkVersion {
     required this.name,
     required this.version,
     List<String>? integrations,
+    List<String>? features,
     List<SentryPackage>? packages,
     this.unknown,
   })  :
         // List.from prevents from having immutable lists
         _integrations = List.from(integrations ?? []),
+        _features = List.from(features ?? []),
         _packages = List.from(packages ?? []);
 
   /// The name of the SDK.
@@ -56,6 +58,11 @@ class SdkVersion {
 
   /// An immutable list of integrations enabled in the SDK that created the [Event].
   List<String> get integrations => List.unmodifiable(_integrations);
+
+  List<String> _features;
+
+  /// An immutable list of features enabled in the SDK.
+  List<String> get features => List.unmodifiable(_features);
 
   List<SentryPackage> _packages;
 
@@ -70,6 +77,7 @@ class SdkVersion {
     final json = AccessAwareMap(data);
     final packagesJson = json['packages'] as List<dynamic>?;
     final integrationsJson = json['integrations'] as List<dynamic>?;
+    final featuresJson = json['features'] as List<dynamic>?;
 
     return SdkVersion(
       name: json['name'],
@@ -78,6 +86,7 @@ class SdkVersion {
           ?.map((e) => SentryPackage.fromJson(e as Map<String, dynamic>))
           .toList(),
       integrations: integrationsJson?.map((e) => e as String).toList(),
+      features: featuresJson?.map((e) => e as String).toList(),
       unknown: json.notAccessed(),
     );
   }
@@ -91,6 +100,7 @@ class SdkVersion {
       if (packages.isNotEmpty)
         'packages': packages.map((p) => p.toJson()).toList(growable: false),
       if (integrations.isNotEmpty) 'integrations': integrations,
+      if (features.isNotEmpty) 'features': features,
     };
   }
 
@@ -114,17 +124,27 @@ class SdkVersion {
     _integrations.add(integration);
   }
 
+  // Adds a feature if not already added
+  void addFeature(String feature) {
+    if (_features.contains(feature)) {
+      return;
+    }
+    _features.add(feature);
+  }
+
   @Deprecated('Assign values directly to the instance.')
   SdkVersion copyWith({
     String? name,
     String? version,
     List<String>? integrations,
+    List<String>? features,
     List<SentryPackage>? packages,
   }) =>
       SdkVersion(
         name: name ?? this.name,
         version: version ?? this.version,
         integrations: integrations ?? _integrations,
+        features: features ?? _features,
         packages: packages ?? _packages,
         unknown: unknown,
       );
