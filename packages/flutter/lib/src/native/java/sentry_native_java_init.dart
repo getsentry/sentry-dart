@@ -239,7 +239,11 @@ void configureAndroidOptions({
     }
     androidOptions.setSendDefaultPii(options.sendDefaultPii);
     androidOptions.setEnableScopeSync(options.enableNdkScopeSync);
-    androidOptions.setEnableAutoTraceIdGeneration(false);
+    // Disable native auto trace ID generation if trace sync is enabled
+    // If enabled, Dart controls setting the trace ID on the native SDK.
+    if (options.enableNativeTraceSync) {
+      androidOptions.setEnableAutoTraceIdGeneration(false);
+    }
     androidOptions
         .setProguardUuid(options.proguardUuid?.toJString()?..releasedBy(arena));
     androidOptions.setEnableSpotlight(options.spotlight.enabled);

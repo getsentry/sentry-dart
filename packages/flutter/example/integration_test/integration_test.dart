@@ -279,6 +279,7 @@ void main() {
           (p) => p.name == package.name && p.version == package.version);
       expect(findMatchingPackage, isNotNull);
     }
+    expect(androidOptions.isEnableAutoTraceIdGeneration(), isFalse);
     final androidProxy = androidOptions.getProxy();
     expect(androidProxy, isNotNull);
     expect(androidProxy!.getHost()?.toDartString(), 'proxy.local');
