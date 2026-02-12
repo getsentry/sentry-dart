@@ -17,6 +17,7 @@ class NativeTraceSyncIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
+    _options = options;
     options.lifecycleRegistry
         .registerCallback<OnTraceReset>(_syncTraceToNative);
     options.sdk.addIntegration(integrationName);

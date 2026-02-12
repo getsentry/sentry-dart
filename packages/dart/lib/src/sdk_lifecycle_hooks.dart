@@ -108,6 +108,7 @@ class OnProcessMetric extends SdkLifecycleEvent {
 /// Dispatched when a new trace is generated via [Hub.generateNewTrace].
 @internal
 class OnTraceReset extends SdkLifecycleEvent {
-  OnTraceReset(this.propagationContext);
   final PropagationContext propagationContext;
+
+  OnTraceReset(this.propagationContext);
 }

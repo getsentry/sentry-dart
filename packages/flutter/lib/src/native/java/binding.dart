@@ -8181,10 +8181,10 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.SentryTraceHeader getTraceparent()`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject? getTraceparent() {
+  static SentryTraceHeader? getTraceparent() {
     return _getTraceparent(
             _class.reference.pointer, _id_getTraceparent as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+        .object<SentryTraceHeader?>(const $SentryTraceHeader$NullableType());
   }
 
   static final _id_getBaggage = _class.staticMethodId(
@@ -31458,10 +31458,10 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.SentryTraceHeader getTraceparent()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getTraceparent() {
+  SentryTraceHeader? getTraceparent() {
     return _getTraceparent(
             reference.pointer, _id_getTraceparent as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+        .object<SentryTraceHeader?>(const $SentryTraceHeader$NullableType());
   }
 
   static final _id_getBaggage = _class.instanceMethodId(
@@ -38649,6 +38649,298 @@ final class $RRWebEvent$Type extends jni$_.JObjType<RRWebEvent> {
   @core$_.override
   bool operator ==(Object other) {
     return other.runtimeType == ($RRWebEvent$Type) && other is $RRWebEvent$Type;
+  }
+}
+
+/// from: `io.sentry.SentryTraceHeader`
+class SentryTraceHeader extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<SentryTraceHeader> $type;
+
+  @jni$_.internal
+  SentryTraceHeader.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(r'io/sentry/SentryTraceHeader');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType = $SentryTraceHeader$NullableType();
+  static const type = $SentryTraceHeader$Type();
+  static final _id_SENTRY_TRACE_HEADER = _class.staticFieldId(
+    r'SENTRY_TRACE_HEADER',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String SENTRY_TRACE_HEADER`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get SENTRY_TRACE_HEADER =>
+      _id_SENTRY_TRACE_HEADER.get(_class, const jni$_.JStringNullableType());
+
+  static final _id_new$ = _class.constructorId(
+    r'(Lio/sentry/protocol/SentryId;Lio/sentry/SpanId;Ljava/lang/Boolean;)V',
+  );
+
+  static final _new$ = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void <init>(io.sentry.protocol.SentryId sentryId, io.sentry.SpanId spanId, java.lang.Boolean boolean)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory SentryTraceHeader(
+    SentryId sentryId,
+    jni$_.JObject spanId,
+    jni$_.JBoolean? boolean,
+  ) {
+    final _$sentryId = sentryId.reference;
+    final _$spanId = spanId.reference;
+    final _$boolean = boolean?.reference ?? jni$_.jNullReference;
+    return SentryTraceHeader.fromReference(_new$(
+            _class.reference.pointer,
+            _id_new$ as jni$_.JMethodIDPtr,
+            _$sentryId.pointer,
+            _$spanId.pointer,
+            _$boolean.pointer)
+        .reference);
+  }
+
+  static final _id_new$1 = _class.constructorId(
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _new$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void <init>(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory SentryTraceHeader.new$1(
+    jni$_.JString string,
+  ) {
+    final _$string = string.reference;
+    return SentryTraceHeader.fromReference(_new$1(_class.reference.pointer,
+            _id_new$1 as jni$_.JMethodIDPtr, _$string.pointer)
+        .reference);
+  }
+
+  static final _id_getName = _class.instanceMethodId(
+    r'getName',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getName = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getName()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString getName() {
+    return _getName(reference.pointer, _id_getName as jni$_.JMethodIDPtr)
+        .object<jni$_.JString>(const jni$_.JStringType());
+  }
+
+  static final _id_getValue = _class.instanceMethodId(
+    r'getValue',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getValue = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getValue()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString getValue() {
+    return _getValue(reference.pointer, _id_getValue as jni$_.JMethodIDPtr)
+        .object<jni$_.JString>(const jni$_.JStringType());
+  }
+
+  static final _id_getTraceId = _class.instanceMethodId(
+    r'getTraceId',
+    r'()Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _getTraceId = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.protocol.SentryId getTraceId()`
+  /// The returned object must be released after use, by calling the [release] method.
+  SentryId getTraceId() {
+    return _getTraceId(reference.pointer, _id_getTraceId as jni$_.JMethodIDPtr)
+        .object<SentryId>(const $SentryId$Type());
+  }
+
+  static final _id_getSpanId = _class.instanceMethodId(
+    r'getSpanId',
+    r'()Lio/sentry/SpanId;',
+  );
+
+  static final _getSpanId = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.SpanId getSpanId()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject getSpanId() {
+    return _getSpanId(reference.pointer, _id_getSpanId as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_isSampled = _class.instanceMethodId(
+    r'isSampled',
+    r'()Ljava/lang/Boolean;',
+  );
+
+  static final _isSampled = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.Boolean isSampled()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JBoolean? isSampled() {
+    return _isSampled(reference.pointer, _id_isSampled as jni$_.JMethodIDPtr)
+        .object<jni$_.JBoolean?>(const jni$_.JBooleanNullableType());
+  }
+}
+
+final class $SentryTraceHeader$NullableType
+    extends jni$_.JObjType<SentryTraceHeader?> {
+  @jni$_.internal
+  const $SentryTraceHeader$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/SentryTraceHeader;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryTraceHeader? fromReference(jni$_.JReference reference) =>
+      reference.isNull
+          ? null
+          : SentryTraceHeader.fromReference(
+              reference,
+            );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<SentryTraceHeader?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($SentryTraceHeader$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($SentryTraceHeader$NullableType) &&
+        other is $SentryTraceHeader$NullableType;
+  }
+}
+
+final class $SentryTraceHeader$Type extends jni$_.JObjType<SentryTraceHeader> {
+  @jni$_.internal
+  const $SentryTraceHeader$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/SentryTraceHeader;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryTraceHeader fromReference(jni$_.JReference reference) =>
+      SentryTraceHeader.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<SentryTraceHeader?> get nullableType =>
+      const $SentryTraceHeader$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($SentryTraceHeader$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($SentryTraceHeader$Type) &&
+        other is $SentryTraceHeader$Type;
   }
 }
 

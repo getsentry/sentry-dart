@@ -610,7 +610,8 @@ class Hub {
     // Create a brand-new trace and reset the sampling flag and sampleRand so
     // that the next root transaction can set it again.
     scope.propagationContext.resetTrace();
-    // Fire-and-forget — don't await, matches current void return type.
+    // Fire-and-forget the callback
+    // Native SDK synchronization over async method channels may be slightly delayed, but this is not problematic in practice.
     _options.lifecycleRegistry
         .dispatchCallback(OnTraceReset(scope.propagationContext));
   }
