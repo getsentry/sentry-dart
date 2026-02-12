@@ -25,6 +25,23 @@ void main() {
           contains(NativeTraceSyncIntegration.integrationName));
     });
 
+    test('does not add integration if enableNativeTraceSync is false', () {
+      fixture.options.enableNativeTraceSync = false;
+      fixture.registerIntegration();
+
+      expect(fixture.options.sdk.integrations,
+          isNot(contains(NativeTraceSyncIntegration.integrationName)));
+    });
+
+    test('does not sync trace if enableNativeTraceSync is false', () {
+      fixture.options.enableNativeTraceSync = false;
+      fixture.registerIntegration();
+
+      fixture.hub.generateNewTrace();
+
+      expect(fixture.binding.setTraceCalls, isEmpty);
+    });
+
     test('syncs initial propagation context on registration', () {
       fixture.registerIntegration();
 

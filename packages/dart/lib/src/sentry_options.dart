@@ -397,6 +397,13 @@ class SentryOptions {
   /// Send statistics to sentry when the client drops events.
   bool sendClientReports = true;
 
+  /// Whether to synchronize the Dart trace to the native SDK.
+  ///
+  /// Allows native events to share the same trace as Dart events.
+  ///
+  /// Supported on Android and iOS/macOS.
+  bool enableNativeTraceSync = true;
+
   /// If enabled, [scopeObservers] will be called when mutating scope.
   bool enableScopeSync = true;
 
