@@ -239,8 +239,9 @@ void configureAndroidOptions({
     }
     androidOptions.setSendDefaultPii(options.sendDefaultPii);
     androidOptions.setEnableScopeSync(options.enableNdkScopeSync);
-    // Disable native auto trace ID generation if trace sync is enabled
-    // If enabled, Dart controls setting the trace ID on the native SDK.
+    // When trace sync is enabled, Dart is the source of truth for propagation
+    // context and pushes it to native via setTrace. Disable native auto
+    // generation so it doesn't overwrite the Dart-provided trace ID.
     if (options.enableNativeTraceSync) {
       androidOptions.setEnableAutoTraceIdGeneration(false);
     }
