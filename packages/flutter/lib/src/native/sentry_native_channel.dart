@@ -423,7 +423,7 @@ class SentryNativeChannel
     _logNotSupported('updating session');
   }
 
-  // Android handles supportings trace sync via JNI, not method channels.
+  // Android handles supporting trace sync via JNI, not method channels.
   @override
   bool get supportsTraceSync => !options.platform.isAndroid;
 

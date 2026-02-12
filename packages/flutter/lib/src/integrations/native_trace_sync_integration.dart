@@ -6,8 +6,6 @@ import '../../sentry_flutter.dart';
 import '../native/sentry_native_binding.dart';
 import '../utils/internal_logger.dart';
 
-/// Synchronizes the Dart [PropagationContext] to the native SDK so that
-/// native crashes/errors share the same trace as Dart events.
 @internal
 class NativeTraceSyncIntegration implements Integration<SentryFlutterOptions> {
   static const integrationName = 'NativeTraceSync';
