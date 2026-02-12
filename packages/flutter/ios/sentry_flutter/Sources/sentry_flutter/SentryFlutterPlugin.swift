@@ -703,12 +703,12 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     private func setTrace(traceId: String?, spanId: String?, result: @escaping FlutterResult) {
-        guard let traceId = traceId else {
+        guard let traceId = traceId, let spanId = spanId else {
             result("")
             return
         }
         let sentryTraceId = SentryId(uuidString: traceId)
-        let sentrySpanId = spanId.flatMap { SpanId(value: $0) } ?? SpanId()
+        let sentrySpanId = SpanId(value: spanId)
         PrivateSentrySDKOnly.setTrace(sentryTraceId, spanId: sentrySpanId)
         result("")
     }

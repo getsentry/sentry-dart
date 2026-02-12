@@ -30,7 +30,6 @@ void main() {
 
       final call = fixture.binding.setTraceCalls.single;
       expect(call.traceId, fixture.hub.scope.propagationContext.traceId);
-      expect(call.sampleRand, isNull);
     });
 
     test('syncs trace when OnTraceReset is dispatched', () {
@@ -43,16 +42,6 @@ void main() {
       // instead we just assert that the call was made with the correct trace ID.
       final call = fixture.binding.setTraceCalls.single;
       expect(call.traceId, fixture.hub.scope.propagationContext.traceId);
-    });
-
-    test('passes sampleRand to native when set', () {
-      fixture.hub.scope.propagationContext.sampleRand = 0.42;
-
-      fixture.registerIntegration();
-
-      final call = fixture.binding.setTraceCalls.single;
-      expect(call.traceId, fixture.hub.scope.propagationContext.traceId);
-      expect(call.sampleRand, 0.42);
     });
 
     test('unregisters callback on close', () {
@@ -80,20 +69,16 @@ class Fixture {
 
 class _SetTraceCall {
   final SentryId traceId;
-  final SpanId? spanId;
-  final double? sampleRate;
-  final double? sampleRand;
+  final SpanId spanId;
 
-  _SetTraceCall(this.traceId, {this.spanId, this.sampleRate, this.sampleRand});
+  _SetTraceCall(this.traceId, this.spanId);
 }
 
 class _FakeNativeBinding extends Fake implements SentryNativeBinding {
   final setTraceCalls = <_SetTraceCall>[];
 
   @override
-  void setTrace(SentryId traceId,
-      {SpanId? spanId, double? sampleRate, double? sampleRand}) {
-    setTraceCalls.add(_SetTraceCall(traceId,
-        spanId: spanId, sampleRate: sampleRate, sampleRand: sampleRand));
+  void setTrace(SentryId traceId, SpanId spanId) {
+    setTraceCalls.add(_SetTraceCall(traceId, spanId));
   }
 }

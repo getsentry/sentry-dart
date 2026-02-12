@@ -315,8 +315,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   bool get supportsTraceSync => false;
 
   @override
-  FutureOr<void> setTrace(SentryId traceId,
-      {SpanId? spanId, double? sampleRate, double? sampleRand}) {}
+  FutureOr<void> setTrace(SentryId traceId, SpanId spanId) {
+    _logNotSupported('setting trace');
+  }
 }
 
 extension on binding.sentry_value_u {

@@ -258,6 +258,11 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
+  FutureOr<void> setTrace(SentryId traceId, SpanId spanId) {
+    _logNotSupported('setting trace');
+  }
+
+  @override
   int? startProfiler(SentryId traceId) {
     _logNotSupported('start profiler');
     return null;
@@ -277,10 +282,6 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   bool get supportsTraceSync => false;
-
-  @override
-  FutureOr<void> setTrace(SentryId traceId,
-      {SpanId? spanId, double? sampleRate, double? sampleRand}) {}
 
   @override
   SentryFlutterOptions get options => _options;

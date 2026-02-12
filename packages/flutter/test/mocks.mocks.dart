@@ -2071,19 +2071,15 @@ class MockSentryNativeBinding extends _i1.Mock
 
   @override
   _i12.FutureOr<void> setTrace(
-    _i2.SentryId? traceId, {
+    _i2.SentryId? traceId,
     _i2.SpanId? spanId,
-    double? sampleRate,
-    double? sampleRand,
-  }) =>
+  ) =>
       (super.noSuchMethod(Invocation.method(
         #setTrace,
-        [traceId],
-        {
-          #spanId: spanId,
-          #sampleRate: sampleRate,
-          #sampleRand: sampleRand,
-        },
+        [
+          traceId,
+          spanId,
+        ],
       )) as _i12.FutureOr<void>);
 }
 

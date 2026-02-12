@@ -98,6 +98,5 @@ abstract class SentryNativeBinding {
   bool get supportsTraceSync;
 
   /// Sets the trace context on the native SDK scope.
-  FutureOr<void> setTrace(SentryId traceId,
-      {SpanId? spanId, double? sampleRate, double? sampleRand});
+  FutureOr<void> setTrace(SentryId traceId, SpanId spanId);
 }

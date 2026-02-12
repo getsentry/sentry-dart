@@ -612,8 +612,9 @@ class Hub {
     scope.propagationContext.resetTrace();
     // Fire-and-forget the callback
     // Native SDK synchronization over async method channels may be slightly delayed, but this is not problematic in practice.
-    _options.lifecycleRegistry
-        .dispatchCallback(OnTraceReset(scope.propagationContext));
+    _options.lifecycleRegistry.dispatchCallback(OnTraceReset(
+        scope.propagationContext.traceId,
+        getSpan()?.context.spanId ?? SpanId.newId()));
   }
 
   /// Gets the current active transaction or span.

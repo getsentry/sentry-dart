@@ -428,8 +428,7 @@ class SentryNativeChannel
   bool get supportsTraceSync => !options.platform.isAndroid;
 
   @override
-  FutureOr<void> setTrace(SentryId traceId,
-      {SpanId? spanId, double? sampleRate, double? sampleRand}) {
+  FutureOr<void> setTrace(SentryId traceId, SpanId spanId) {
     if (options.platform.isAndroid) {
       assert(false,
           'setTrace should not be used through method channels on Android.');
@@ -437,9 +436,7 @@ class SentryNativeChannel
     }
     return channel.invokeMethod('setTrace', {
       'traceId': traceId.toString(),
-      if (spanId != null) 'spanId': spanId.toString(),
-      if (sampleRate != null) 'sampleRate': sampleRate,
-      if (sampleRand != null) 'sampleRand': sampleRand,
+      'spanId': spanId.toString(),
     });
   }
 }
