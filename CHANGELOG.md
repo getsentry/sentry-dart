@@ -10,6 +10,9 @@
 - Bump JavaScript SDK from v10.6.0 to v10.38.0 ([#3474](https://github.com/getsentry/sentry-dart/pull/3474))
   - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#10380)
   - [diff](https://github.com/getsentry/sentry-javascript/compare/10.6.0...10.38.0)
+- Bump Native SDK from v0.12.5 to v0.12.6 ([#3502](https://github.com/getsentry/sentry-dart/pull/3502))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0126)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.12.5...0.12.6)
 
 ## 9.12.0
 
