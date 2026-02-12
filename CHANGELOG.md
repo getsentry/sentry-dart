@@ -2,9 +2,21 @@
 
 ## Unreleased
 
-### Internals
+### Dependencies
+
+- Bump Android SDK from v8.31.0 to v8.32.0 ([#3506](https://github.com/getsentry/sentry-dart/pull/3506))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8320)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.31.0...8.32.0)
+- Bump JavaScript SDK from v10.6.0 to v10.38.0 ([#3474](https://github.com/getsentry/sentry-dart/pull/3474))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#10380)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/10.6.0...10.38.0)
+
+<details>
+<summary><b>Internal Changes</b></summary>
 
 - Add SDK features metadata for SPM vs CocoaPods tracking ([#3508](https://github.com/getsentry/sentry-dart/pull/3508))
+
+</details>
 
 ## 9.12.0
 

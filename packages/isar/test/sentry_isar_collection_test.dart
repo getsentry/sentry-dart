@@ -1,3 +1,5 @@
+// ignore_for_file: experimental_member_use, invalid_use_of_internal_member, invalid_use_of_protected_member
+
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -22,7 +24,6 @@ void main() {
     expect(span?.context.operation, SentryIsar.dbOp);
     expect(span?.context.description, description);
     expect(span?.status, SpanStatus.ok());
-    // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbIsarCollection);
     expect(span?.data[SentryIsar.dbNameKey], Fixture.dbName);
     expect(span?.data[SentryIsar.dbCollectionKey], 'Person');
@@ -32,7 +33,6 @@ void main() {
     expect(span?.context.operation, SentryIsar.dbOp);
     expect(span?.context.description, description);
     expect(span?.status, SpanStatus.internalError());
-    // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbIsarCollection);
     expect(span?.throwable, error);
   }
@@ -243,7 +243,6 @@ void main() {
       expect(span?.context.operation, SentryIsar.dbOp);
       expect(span?.context.description, description);
       expect(span?.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
       expect(span?.origin, SentryTraceOrigins.autoDbIsarCollection);
       expect(span?.data[SentryIsar.dbNameKey], Fixture.dbName);
       expect(span?.data[SentryIsar.dbCollectionKey], Fixture.dbCollection);
@@ -970,7 +969,6 @@ class Fixture {
 
   Future<void> tearDown() async {
     try {
-      // ignore: invalid_use_of_protected_member
       sentryIsar.requireOpen();
       await sentryIsar.close();
     } catch (_) {

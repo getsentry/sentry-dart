@@ -32,6 +32,14 @@
 - **Breaking changes**: Signature/behavior changes, renamed/removed symbols, altered nullability/defaults, or event/telemetry shape changes **without** deprecation/migration notes.
 - **Behavioral compatibility**: Silent changes to defaults, sampling, or feature toggles that affect existing apps.
 
+### C. Dependency Updates
+
+- **Native SDK updates**: For PRs prefixed with `chore(deps):` updating native SDKs (e.g., `chore(deps): update Android SDK to v8.32.0`, `chore(deps): update Cocoa SDK to v9.0.0`):
+  - Read the PR description which should contain the changelog.
+  - Review mentioned changes for potential compatibility issues in the current codebase.
+  - Flag breaking API changes, deprecated features being removed, new requirements, or behavioral changes that could affect existing integrations.
+  - Check if version bumps require corresponding changes in native bridge code, method channels, or platform-specific implementations.
+
 ---
 
 ## 1) General Software Quality
@@ -110,6 +118,7 @@
 
 - [ ] **CRITICAL:** No secrets/PII/logging risks introduced; safe defaults preserved.
 - [ ] **CRITICAL:** Public API/telemetry stability maintained or properly deprecated with docs.
+- [ ] **CRITICAL:** For dependency updates (`chore(deps):`), changelog reviewed for breaking changes or compatibility issues.
 - [ ] Spans started are always closed; automated spans/logs include `sentry.origin` (+ valid `sentry.op` for spans).
 - [ ] Dangerous init paths guarded; app remains usable on failure.
 - [ ] No `!` on nullable targets; async gaps guarded; resources disposed.
