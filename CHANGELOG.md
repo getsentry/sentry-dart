@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Synchronize `traceId` to native SDKs ([#3507](https://github.com/getsentry/sentry-dart/pull/3507))
+  - Native events (e.g. from Android or iOS) such as errors, logs, and spans now share the same trace as Dart events, enabling unified trace views across layers
+
 ### Dependencies
 
 - Bump Android SDK from v8.31.0 to v8.32.0 ([#3506](https://github.com/getsentry/sentry-dart/pull/3506))

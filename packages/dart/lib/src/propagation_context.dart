@@ -39,7 +39,7 @@ class PropagationContext {
   double? sampleRand;
 
   /// Starts a brand-new trace (new ID, new sampling value & sampled state).
-  void resetTrace() {
+  void generateNewTrace() {
     traceId = SentryId.newId();
     sampleRand = null;
     _sampled = null;

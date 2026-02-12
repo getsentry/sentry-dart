@@ -637,6 +637,68 @@ void main() {
       final newSampleRand = hub.scope.propagationContext.sampleRand;
       expect(newSampleRand, isNull);
     });
+
+    test('generateNewTrace dispatches OnTraceReset with traceId', () {
+      SentryId? receivedTraceId;
+      hub.options.lifecycleRegistry
+          .registerCallback<OnGenerateNewTrace>((event) {
+        receivedTraceId = event.traceId;
+      });
+
+      hub.generateNewTrace();
+
+      expect(receivedTraceId, isNotNull);
+      expect(receivedTraceId, hub.scope.propagationContext.traceId);
+    });
+
+    test(
+        'generateNewTrace dispatches OnTraceReset with spanId from active span',
+        () {
+      SpanId? receivedSpanId;
+      hub.options.tracesSampleRate = 1.0;
+      hub.options.lifecycleRegistry
+          .registerCallback<OnGenerateNewTrace>((event) {
+        receivedSpanId = event.spanId;
+      });
+
+      hub.startTransaction('name', 'op', bindToScope: true);
+      hub.generateNewTrace();
+
+      expect(receivedSpanId, isNotNull);
+      expect(receivedSpanId, hub.getSpan()?.context.spanId);
+    });
+
+    test(
+        'generateNewTrace dispatches OnTraceReset with new spanId if no active span',
+        () {
+      SpanId? receivedSpanId;
+      hub.options.tracesSampleRate = 1.0;
+      hub.options.lifecycleRegistry
+          .registerCallback<OnGenerateNewTrace>((event) {
+        receivedSpanId = event.spanId;
+      });
+
+      hub.generateNewTrace();
+
+      expect(hub.getSpan(), isNull);
+      expect(receivedSpanId, isNotNull);
+    });
+
+    test(
+        'generateNewTrace dispatches OnTraceReset with new spanId if tracing is disabled',
+        () {
+      SpanId? receivedSpanId;
+      hub.options.tracesSampleRate = null;
+      hub.options.lifecycleRegistry
+          .registerCallback<OnGenerateNewTrace>((event) {
+        receivedSpanId = event.spanId;
+      });
+
+      hub.generateNewTrace();
+
+      expect(hub.getSpan(), isNull);
+      expect(receivedSpanId, isNotNull);
+    });
   });
 
   group('Hub scope callback', () {

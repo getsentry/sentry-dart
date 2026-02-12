@@ -184,6 +184,7 @@ class NativeChannelFixture {
     handler = MockCallbacks().methodCallHandler;
     when(handler('initNativeSdk', any)).thenAnswer((_) => Future.value());
     when(handler('closeNativeSdk', any)).thenAnswer((_) => Future.value());
+    when(handler('setTrace', any)).thenAnswer((_) => Future.value());
     _messenger.setMockMethodCallHandler(
         channel, (call) => handler(call.method, call.arguments));
   }
