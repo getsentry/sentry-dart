@@ -704,6 +704,8 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
     private func setTrace(traceId: String?, spanId: String?, result: @escaping FlutterResult) {
         guard let traceId = traceId, let spanId = spanId else {
+            print("Cannot set trace: traceId or spanId is null")
+            result(FlutterError(code: "10", message: "Cannot set trace: traceId or spanId is null", details: nil))
             result("")
             return
         }
