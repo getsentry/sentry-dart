@@ -609,10 +609,10 @@ class Hub {
   void generateNewTrace() {
     // Create a brand-new trace and reset the sampling flag and sampleRand so
     // that the next root transaction can set it again.
-    scope.propagationContext.resetTrace();
+    scope.propagationContext.generateNewTrace();
     // Fire-and-forget the callback
     // Native SDK synchronization over async method channels may be slightly delayed, but this is not problematic in practice.
-    _options.lifecycleRegistry.dispatchCallback(OnTraceReset(
+    _options.lifecycleRegistry.dispatchCallback(OnGenerateNewTrace(
         scope.propagationContext.traceId,
         getSpan()?.context.spanId ?? SpanId.newId()));
   }

@@ -640,7 +640,8 @@ void main() {
 
     test('generateNewTrace dispatches OnTraceReset with traceId', () {
       SentryId? receivedTraceId;
-      hub.options.lifecycleRegistry.registerCallback<OnTraceReset>((event) {
+      hub.options.lifecycleRegistry
+          .registerCallback<OnGenerateNewTrace>((event) {
         receivedTraceId = event.traceId;
       });
 
@@ -655,7 +656,8 @@ void main() {
         () {
       SpanId? receivedSpanId;
       hub.options.tracesSampleRate = 1.0;
-      hub.options.lifecycleRegistry.registerCallback<OnTraceReset>((event) {
+      hub.options.lifecycleRegistry
+          .registerCallback<OnGenerateNewTrace>((event) {
         receivedSpanId = event.spanId;
       });
 
@@ -671,7 +673,8 @@ void main() {
         () {
       SpanId? receivedSpanId;
       hub.options.tracesSampleRate = 1.0;
-      hub.options.lifecycleRegistry.registerCallback<OnTraceReset>((event) {
+      hub.options.lifecycleRegistry
+          .registerCallback<OnGenerateNewTrace>((event) {
         receivedSpanId = event.spanId;
       });
 
@@ -686,7 +689,8 @@ void main() {
         () {
       SpanId? receivedSpanId;
       hub.options.tracesSampleRate = null;
-      hub.options.lifecycleRegistry.registerCallback<OnTraceReset>((event) {
+      hub.options.lifecycleRegistry
+          .registerCallback<OnGenerateNewTrace>((event) {
         receivedSpanId = event.spanId;
       });
 

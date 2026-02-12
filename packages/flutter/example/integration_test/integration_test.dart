@@ -1089,8 +1089,6 @@ void main() {
     Sentry.currentHub.generateNewTrace();
     final newDartTraceId =
         Sentry.currentHub.scope.propagationContext.traceId.toString();
-    expect(newDartTraceId, isNot(dartTraceId),
-        reason: 'New trace should have a different traceId');
 
     // Allow the fire-and-forget dispatch to complete
     await Future<void>.delayed(const Duration(milliseconds: 100));

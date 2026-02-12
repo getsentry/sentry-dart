@@ -25,22 +25,22 @@ class NativeTraceSyncIntegration implements Integration<SentryFlutterOptions> {
 
     _options = options;
     options.lifecycleRegistry
-        .registerCallback<OnTraceReset>(_syncTraceToNative);
+        .registerCallback<OnGenerateNewTrace>(_syncTraceToNative);
     options.sdk.addIntegration(integrationName);
 
     final traceId = hub.scope.propagationContext.traceId;
     final spanId = hub.getSpan()?.context.spanId ?? SpanId.newId();
 
     // Sync the initial PropagationContext created at Hub construction.
-    _syncTraceToNative(OnTraceReset(traceId, spanId));
+    _syncTraceToNative(OnGenerateNewTrace(traceId, spanId));
   }
 
   @override
   void close() {
     _options?.lifecycleRegistry
-        .removeCallback<OnTraceReset>(_syncTraceToNative);
+        .removeCallback<OnGenerateNewTrace>(_syncTraceToNative);
   }
 
-  FutureOr<void> _syncTraceToNative(OnTraceReset event) =>
+  FutureOr<void> _syncTraceToNative(OnGenerateNewTrace event) =>
       _native.setTrace(event.traceId, event.spanId);
 }
