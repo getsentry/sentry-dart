@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
@@ -39,7 +41,6 @@ class NativeTraceSyncIntegration implements Integration<SentryFlutterOptions> {
         .removeCallback<OnTraceReset>(_syncTraceToNative);
   }
 
-  void _syncTraceToNative(OnTraceReset event) {
-    _native.setTrace(event.traceId, event.spanId);
-  }
+  FutureOr<void> _syncTraceToNative(OnTraceReset event) =>
+      _native.setTrace(event.traceId, event.spanId);
 }
