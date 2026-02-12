@@ -1,3 +1,5 @@
+// ignore_for_file: experimental_member_use, invalid_use_of_internal_member
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -14,7 +16,6 @@ void main() {
 
   Future<void> setupSentryAndApp(WidgetTester tester) async {
     await SentryFlutter.init((options) {
-      // ignore: invalid_use_of_internal_member
       options.automatedTestMode = true;
       options.dsn = 'https://abc@def.ingest.sentry.io/1234567';
       options.debug = true;
@@ -33,7 +34,6 @@ void main() {
 
   testWidgets('native binding is initialized', (tester) async {
     await setupSentryAndApp(tester);
-    // ignore: invalid_use_of_internal_member
     expect(SentryFlutter.native, isNotNull);
   });
 

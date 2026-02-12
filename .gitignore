@@ -13,7 +13,6 @@ build/
 .cxx/
 .vscode/
 .fvm/
-.fvmrc
 
 .test_coverage.dart
 packages/**/coverage/*
