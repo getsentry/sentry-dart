@@ -1,9 +1,0 @@
-name: sentry_dart_workspace
-publish_to: 'none'
-repository: https://github.com/getsentry/sentry-dart/
-
-environment:
-  sdk: '>=3.5.0 <4.0.0'
-
-dev_dependencies:
-  melos: ^6.3.3
