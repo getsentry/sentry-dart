@@ -21,6 +21,9 @@ let package = Package(
             dependencies: [
                 "sentry_flutter_objc",
                 .product(name: "Sentry", package: "sentry-cocoa")
+            ],
+            swiftSettings: [
+                .define("SENTRY_FLUTTER_SPM")
             ]
         ),
         // SPM does not support mixed-language targets, so we need to move the ObjC files into a separate one

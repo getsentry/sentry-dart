@@ -19,6 +19,13 @@
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0126)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.12.5...0.12.6)
 
+<details>
+<summary><b>Internal Changes</b></summary>
+
+- Add SDK features metadata for SPM vs CocoaPods tracking ([#3508](https://github.com/getsentry/sentry-dart/pull/3508))
+
+</details>
+
 ## 9.12.0
 
 ### Dependencies
