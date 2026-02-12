@@ -94,7 +94,7 @@ abstract class SentryNativeBinding {
   /// NNote: This is used on web platforms and is a no-op on non-web.
   FutureOr<void> captureSession();
 
-  /// Whether the native SDK supports syncing the trace id.
+  /// Whether the native SDK supports syncing the trace.
   bool get supportsTraceSync;
 
   /// Sets the trace context on the native SDK scope.
