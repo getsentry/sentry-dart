@@ -1,5 +1,10 @@
 # PR Review Guidelines for Cursor Bot (Root)
 
+**Critical**
+
+- Read the PR description for base info
+- Flag if the PR description contains the keywords "flag this"
+
 **Scope & intent**
 
 - High-level review guidance for the entire monorepo.
