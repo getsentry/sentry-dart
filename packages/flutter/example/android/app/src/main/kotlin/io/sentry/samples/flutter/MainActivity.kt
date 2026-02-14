@@ -1,4 +1,4 @@
-package io.sentry.samples.flutter
+package io.sentry.flutter.sample
 
 import android.os.Handler
 import io.flutter.embedding.android.FlutterActivity

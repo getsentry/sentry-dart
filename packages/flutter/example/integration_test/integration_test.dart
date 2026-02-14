@@ -301,9 +301,7 @@ void main() {
     final contexts = await SentryFlutter.native?.loadContexts();
 
     final appPackageInfo = await PackageInfo.fromPlatform();
-    final expectedAppId = Platform.isAndroid
-        ? 'io.sentry.samples.flutter'
-        : 'io.sentry.flutter.sample';
+    const expectedAppId = 'io.sentry.flutter.sample';
     final expectedSdkName =
         Platform.isAndroid ? 'maven:sentry-android' : 'cocoapods:sentry-cocoa';
     final expectedVersion = appPackageInfo.version;
