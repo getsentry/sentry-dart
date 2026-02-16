@@ -12,6 +12,7 @@ import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'telemetry/metric/metric.dart';
 import 'telemetry/span/idle_span_controller.dart';
+import 'telemetry/span/sentry_span_status_v2.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'tracing.dart';
 
@@ -183,6 +184,9 @@ class NoOpHub implements Hub {
       SentrySpanV2? parentSpan = const UnsetSentrySpanV2()}) {
     return callback(NoOpSentrySpanV2.instance);
   }
+
+  @override
+  void endIdleSpan({SentrySpanStatusV2? status}) {}
 
   @override
   SentrySpanV2 startIdleSpan(

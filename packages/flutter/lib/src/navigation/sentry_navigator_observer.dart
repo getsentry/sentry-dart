@@ -161,6 +161,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _addWebSessions(from: previousRoute, to: route);
 
     final routeName = _getRouteName(route) ?? _currentRouteName;
+    _hub.endIdleSpan();
     _hub.startIdleSpan(routeName!, attributes: {
       'sentry.op': SentryAttribute.string(SentrySpanOperations.uiLoad),
     });

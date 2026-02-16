@@ -1193,6 +1193,29 @@ class _MockHub extends MockHub {
   FutureOr<void> configureScope(ScopeCallback? callback) async {
     await callback?.call(scope);
   }
+
+  @override
+  void endIdleSpan({SentrySpanStatusV2? status}) {}
+
+  @override
+  SentrySpanV2 startInactiveSpan(
+    String? name, {
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    Map<String, SentryAttribute>? attributes,
+  }) =>
+      NoOpSentrySpanV2.instance;
+
+  @override
+  SentrySpanV2 startIdleSpan(
+    String? name, {
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    Duration? idleTimeout = const Duration(seconds: 5),
+    Duration? childSpanTimeout = const Duration(seconds: 15),
+    Duration? finalTimeout = const Duration(seconds: 30),
+    bool? trimIdleSpanEndTimestamp = true,
+    Map<String, SentryAttribute>? attributes,
+  }) =>
+      NoOpSentrySpanV2.instance;
 }
 
 MockSentryTracer getMockSentryTracer({String? name, bool? finished}) {

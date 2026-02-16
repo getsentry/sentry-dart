@@ -13,6 +13,7 @@ import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'telemetry/metric/metric.dart';
 import 'telemetry/span/idle_span_controller.dart';
+import 'telemetry/span/sentry_span_status_v2.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'tracing.dart';
 
@@ -247,6 +248,10 @@ class HubAdapter implements Hub {
     return Sentry.currentHub.startSpan(name, callback,
         attributes: attributes, parentSpan: parentSpan);
   }
+
+  @override
+  void endIdleSpan({SentrySpanStatusV2? status}) =>
+      Sentry.currentHub.endIdleSpan(status: status);
 
   @override
   SentrySpanV2 startIdleSpan(

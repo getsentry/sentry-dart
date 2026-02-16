@@ -416,10 +416,12 @@ class _SentryUserInteractionWidgetState
 
     final activeSpan = _hub.getActiveSpan();
     if (activeSpan != null) {
-      final op = activeSpan.attributes['sentry.op']?.value;
+      final op =
+          activeSpan.attributes[SemanticAttributesConstants.sentryOp]?.value;
 
-      // Don't interrupt a ui.load idle span (triggered by SentryNavigatorObserver).
-      if (op == 'ui.load') {
+      // Don't interrupt a ui.load idle span (triggered by SentryNavigatorObserver)
+      // It has a higher priority than interaction idle spans
+      if (op == SentrySpanOperations.uiLoad) {
         return;
       }
 
@@ -443,8 +445,7 @@ class _SentryUserInteractionWidgetState
       }
 
       // Different widget tapped — cancel the previous idle span.
-      // startIdleSpan will end it, but mark it cancelled first.
-      activeSpan.status = SentrySpanStatusV2.cancelled;
+      _hub.endIdleSpan(status: SentrySpanStatusV2.cancelled);
     }
 
     _lastTappedWidget = info;
@@ -452,7 +453,8 @@ class _SentryUserInteractionWidgetState
     _hub.startIdleSpan(
       widgetKey,
       attributes: {
-        'sentry.op': SentryAttribute.string('ui.action.click'),
+        SemanticAttributesConstants.sentryOp:
+            SentryAttribute.string(SentrySpanOperations.uiActionClick),
       },
     );
   }
@@ -469,7 +471,7 @@ class _SentryUserInteractionWidgetState
     // is expensive, so we expect that the keys are unique across the app
     final transactionContext = SentryTransactionContext(
       widgetKey,
-      'ui.action.click',
+      SentrySpanOperations.uiActionClick,
       transactionNameSource: SentryTransactionNameSource.component,
     );
 

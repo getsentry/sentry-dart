@@ -820,6 +820,14 @@ class Hub {
   }
 
   @internal
+  void endIdleSpan({SentrySpanStatusV2? status}) {
+    if (status != null) {
+      _idleSpanController?.span.status = status;
+    }
+    _idleSpanController?.endFromSpan();
+  }
+
+  @internal
   SentrySpanV2 startIdleSpan(
     String name, {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
@@ -829,8 +837,13 @@ class Hub {
     bool trimIdleSpanEndTimestamp = true,
     Map<String, SentryAttribute>? attributes,
   }) {
-    // End any existing idle span controller.
-    _idleSpanController?.endFromSpan();
+    if (_idleSpanController != null) {
+      internalLogger.warning(
+        () => 'Hub(internal): an idle span is already running. '
+            'endIdleSpan() should be called before starting a new one.',
+      );
+      return NoOpSentrySpanV2.instance;
+    }
 
     final span = _createSpan(
       name,
