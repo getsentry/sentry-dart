@@ -131,7 +131,7 @@ class _AndroidReplayHandler extends WorkerHandler {
 
       // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
       // Note: while the generated API is nullable, the docs say the returned value cannot be null..
-      _bitmap ??= native.Bitmap.createBitmap$3(
+      _bitmap ??= native.Bitmap.createBitmap$10(
           item.width, item.height, native.Bitmap$Config.ARGB_8888);
 
       jBuffer = JByteBuffer.fromList(item.data);
