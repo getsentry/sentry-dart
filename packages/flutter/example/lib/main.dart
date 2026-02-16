@@ -104,6 +104,10 @@ Future<void> setupSentry(
         return metric;
       };
 
+      options.ignoreSpans = [
+        IgnoreSpanRule.nameContains('ignore'),
+      ];
+
       // Example: Scrub sensitive data from spans before sending
       options.beforeSendSpan = (span) {
         final sensitiveAttributes = span.attributes.entries
