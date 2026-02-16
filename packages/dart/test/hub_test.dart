@@ -637,6 +637,68 @@ void main() {
       final newSampleRand = hub.scope.propagationContext.sampleRand;
       expect(newSampleRand, isNull);
     });
+
+    test('generateNewTrace dispatches OnTraceReset with traceId', () {
+      SentryId? receivedTraceId;
+      hub.options.lifecycleRegistry
+          .registerCallback<OnGenerateNewTrace>((event) {
+        receivedTraceId = event.traceId;
+      });
+
+      hub.generateNewTrace();
+
+      expect(receivedTraceId, isNotNull);
+      expect(receivedTraceId, hub.scope.propagationContext.traceId);
+    });
+
+    test(
+        'generateNewTrace dispatches OnTraceReset with spanId from active span',
+        () {
+      SpanId? receivedSpanId;
+      hub.options.tracesSampleRate = 1.0;
+      hub.options.lifecycleRegistry
+          .registerCallback<OnGenerateNewTrace>((event) {
+        receivedSpanId = event.spanId;
+      });
+
+      hub.startTransaction('name', 'op', bindToScope: true);
+      hub.generateNewTrace();
+
+      expect(receivedSpanId, isNotNull);
+      expect(receivedSpanId, hub.getSpan()?.context.spanId);
+    });
+
+    test(
+        'generateNewTrace dispatches OnTraceReset with new spanId if no active span',
+        () {
+      SpanId? receivedSpanId;
+      hub.options.tracesSampleRate = 1.0;
+      hub.options.lifecycleRegistry
+          .registerCallback<OnGenerateNewTrace>((event) {
+        receivedSpanId = event.spanId;
+      });
+
+      hub.generateNewTrace();
+
+      expect(hub.getSpan(), isNull);
+      expect(receivedSpanId, isNotNull);
+    });
+
+    test(
+        'generateNewTrace dispatches OnTraceReset with new spanId if tracing is disabled',
+        () {
+      SpanId? receivedSpanId;
+      hub.options.tracesSampleRate = null;
+      hub.options.lifecycleRegistry
+          .registerCallback<OnGenerateNewTrace>((event) {
+        receivedSpanId = event.spanId;
+      });
+
+      hub.generateNewTrace();
+
+      expect(hub.getSpan(), isNull);
+      expect(receivedSpanId, isNotNull);
+    });
   });
 
   group('Hub scope callback', () {
@@ -941,6 +1003,61 @@ void main() {
 
       expect(fixture.client.captureLogCalls.length, 1);
       expect(fixture.client.captureLogCalls.first.log, log);
+    });
+  });
+
+  group('Hub Metrics', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    SentryMetric givenMetric() {
+      return SentryCounterMetric(
+        timestamp: DateTime.now().toUtc(),
+        name: 'test-metric',
+        value: 1,
+        traceId: SentryId.newId(),
+        attributes: {
+          'attribute': SentryAttribute.string('value'),
+        },
+      );
+    }
+
+    test('captures metrics', () async {
+      final hub = fixture.getSut();
+
+      final metric = givenMetric();
+      await hub.captureMetric(metric);
+
+      expect(fixture.client.captureMetricCalls.length, 1);
+      expect(fixture.client.captureMetricCalls.first.metric, metric);
+    });
+
+    test('does not capture metric when hub is disabled', () async {
+      final hub = fixture.getSut();
+      await hub.close();
+
+      final metric = givenMetric();
+      await hub.captureMetric(metric);
+
+      expect(fixture.client.captureMetricCalls, isEmpty);
+    });
+
+    test('passes scope to client', () async {
+      final hub = fixture.getSut();
+      hub.configureScope((scope) {
+        scope.setTag('test-tag', 'test-value');
+      });
+
+      final metric = givenMetric();
+      await hub.captureMetric(metric);
+
+      expect(fixture.client.captureMetricCalls.length, 1);
+      final capturedScope = fixture.client.captureMetricCalls.first.scope;
+      expect(capturedScope, isNotNull);
+      expect(capturedScope!.tags['test-tag'], 'test-value');
     });
   });
 }

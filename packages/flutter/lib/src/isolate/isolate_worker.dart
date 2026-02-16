@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 
 import '../../sentry_flutter.dart';
-import 'isolate_logger.dart';
+import '../utils/internal_logger.dart';
 
 typedef SpawnWorkerFn = Future<Worker> Function(WorkerConfig, WorkerEntry);
 
@@ -141,20 +141,18 @@ void runWorker(
   SendPort host,
   WorkerHandler handler,
 ) {
-  IsolateLogger.configure(
-    debug: config.debug,
-    level: config.diagnosticLevel,
-    loggerName: config.debugName,
-  );
+  // ignore: invalid_use_of_internal_member
+  SentryInternalLogger.configure(
+      isEnabled: config.debug, minLevel: config.diagnosticLevel);
 
   final inbox = ReceivePort();
   host.send(inbox.sendPort);
 
   inbox.listen((msg) async {
     if (msg == _shutdownCommand) {
-      IsolateLogger.log(SentryLevel.debug, 'Isolate received shutdown');
+      internalLogger.debug('${config.debugName}: isolate received shutdown');
       inbox.close();
-      IsolateLogger.log(SentryLevel.debug, 'Isolate closed');
+      internalLogger.debug('${config.debugName}: isolate closed');
       return;
     }
 
@@ -172,8 +170,10 @@ void runWorker(
     try {
       await handler.onMessage(msg);
     } catch (exception, stackTrace) {
-      IsolateLogger.log(SentryLevel.error, 'Isolate failed to handle message',
-          exception: exception, stackTrace: stackTrace);
+      internalLogger.error(
+          '${config.debugName}: isolate failed to handle message',
+          error: exception,
+          stackTrace: stackTrace);
     }
   });
 }

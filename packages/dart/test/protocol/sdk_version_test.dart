@@ -82,6 +82,24 @@ void main() {
       expect(1, sut.packages.length);
     });
   });
+
+  group('addFeature', () {
+    final fixture = Fixture();
+
+    test('add feature if not already present', () {
+      final sut = fixture.getSut();
+      sut.addFeature('newFeature');
+
+      expect(sut.features.last, 'newFeature');
+    });
+
+    test('does not add feature if already present', () {
+      final sut = fixture.getSut();
+      sut.addFeature('testFeature');
+
+      expect(sut.features.where((f) => f == 'testFeature').length, 1);
+    });
+  });
 }
 
 class Fixture {
@@ -95,6 +113,7 @@ class Fixture {
         'version': 'version',
       }
     ],
+    'features': ['testFeature'],
   };
 
   Fixture() {
@@ -106,6 +125,7 @@ class Fixture {
         version: 'version',
         integrations: ['test'],
         packages: [SentryPackage('name', 'version')],
+        features: ['testFeature'],
         unknown: testUnknown,
       );
 }

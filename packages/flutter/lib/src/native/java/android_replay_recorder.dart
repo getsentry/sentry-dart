@@ -6,10 +6,10 @@ import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
-import '../../isolate/isolate_logger.dart';
 import '../../isolate/isolate_worker.dart';
 import '../../replay/scheduled_recorder.dart';
 import '../../screenshot/screenshot.dart';
+import '../../utils/internal_logger.dart';
 import 'binding.dart' as native;
 
 // Note, this is currently not unit-tested because mocking JNI calls is
@@ -105,15 +105,15 @@ class _AndroidReplayHandler extends WorkerHandler {
 
   @override
   FutureOr<void> onMessage(Object? message) {
-    IsolateLogger.log(
-        SentryLevel.warning, 'Unexpected fire-and-forget message: $message');
+    internalLogger.warning(
+        '${_config.debugName}: Unexpected fire-and-forget message: $message');
   }
 
   @override
   FutureOr<Object?> onRequest(Object? payload) {
     if (payload is! _WorkItem) {
-      IsolateLogger.log(
-          SentryLevel.warning, 'Unexpected payload type: $payload');
+      internalLogger
+          .warning('${_config.debugName}: Unexpected payload type: $payload');
       return null;
     }
 
@@ -131,7 +131,7 @@ class _AndroidReplayHandler extends WorkerHandler {
 
       // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
       // Note: while the generated API is nullable, the docs say the returned value cannot be null..
-      _bitmap ??= native.Bitmap.createBitmap$3(
+      _bitmap ??= native.Bitmap.createBitmap$10(
           item.width, item.height, native.Bitmap$Config.ARGB_8888);
 
       jBuffer = JByteBuffer.fromList(item.data);
@@ -142,8 +142,8 @@ class _AndroidReplayHandler extends WorkerHandler {
 
       return null;
     } catch (exception, stackTrace) {
-      IsolateLogger.log(SentryLevel.error, 'Failed to add replay screenshot',
-          exception: exception, stackTrace: stackTrace);
+      internalLogger.error('Failed to add replay screenshot',
+          error: exception, stackTrace: stackTrace);
       if (_config.automatedTestMode) {
         rethrow;
       }

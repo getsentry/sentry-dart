@@ -67,8 +67,8 @@ class SdkLifecycleRegistry {
 }
 
 @internal
-class OnBeforeCaptureLog extends SdkLifecycleEvent {
-  OnBeforeCaptureLog(this.log);
+class OnProcessLog extends SdkLifecycleEvent {
+  OnProcessLog(this.log);
 
   final SentryLog log;
 }
@@ -95,4 +95,20 @@ class OnSpanFinish extends SdkLifecycleEvent {
   OnSpanFinish(this.span);
 
   final ISentrySpan span;
+}
+
+@internal
+class OnProcessMetric extends SdkLifecycleEvent {
+  final SentryMetric metric;
+
+  OnProcessMetric(this.metric);
+}
+
+/// Dispatched when a new trace is generated via [Hub.generateNewTrace].
+@internal
+class OnGenerateNewTrace extends SdkLifecycleEvent {
+  final SentryId traceId;
+  final SpanId spanId;
+
+  OnGenerateNewTrace(this.traceId, this.spanId);
 }

@@ -8,6 +8,7 @@ analyzer:
     missing_required_param: error
     # treat missing returns as a warning (not a hint)
     missing_return: error
+    invalid_dependency: ignore
   language:
     strict-casts: true
     strict-inference: true

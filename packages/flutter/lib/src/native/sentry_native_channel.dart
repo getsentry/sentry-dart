@@ -66,7 +66,8 @@ class SentryNativeChannel
       'proguardUuid': options.proguardUuid,
       'maxAttachmentSize': options.maxAttachmentSize,
       'recordHttpBreadcrumbs': options.recordHttpBreadcrumbs,
-      'captureFailedRequests': options.captureFailedRequests,
+      'captureFailedRequests':
+          options.captureNativeFailedRequests ?? options.captureFailedRequests,
       'enableAppHangTracking': options.enableAppHangTracking,
       'connectionTimeoutMillis': options.connectionTimeout.inMilliseconds,
       'readTimeoutMillis': options.readTimeout.inMilliseconds,
@@ -420,5 +421,22 @@ class SentryNativeChannel
   @override
   FutureOr<void> updateSession({int? errors, String? status}) {
     _logNotSupported('updating session');
+  }
+
+  // Android handles supporting trace sync via JNI, not method channels.
+  @override
+  bool get supportsTraceSync => !options.platform.isAndroid;
+
+  @override
+  FutureOr<void> setTrace(SentryId traceId, SpanId spanId) {
+    if (options.platform.isAndroid) {
+      assert(false,
+          'setTrace should not be used through method channels on Android.');
+      return null;
+    }
+    return channel.invokeMethod('setTrace', {
+      'traceId': traceId.toString(),
+      'spanId': spanId.toString(),
+    });
   }
 }

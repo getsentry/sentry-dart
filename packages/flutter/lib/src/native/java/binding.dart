@@ -709,6 +709,54 @@ class SentryAndroidOptions extends SentryOptions {
         .check();
   }
 
+  static final _id_setTombstoneEnabled = _class.instanceMethodId(
+    r'setTombstoneEnabled',
+    r'(Z)V',
+  );
+
+  static final _setTombstoneEnabled = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setTombstoneEnabled(boolean z)`
+  void setTombstoneEnabled(
+    bool z,
+  ) {
+    _setTombstoneEnabled(reference.pointer,
+            _id_setTombstoneEnabled as jni$_.JMethodIDPtr, z ? 1 : 0)
+        .check();
+  }
+
+  static final _id_isTombstoneEnabled = _class.instanceMethodId(
+    r'isTombstoneEnabled',
+    r'()Z',
+  );
+
+  static final _isTombstoneEnabled = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public boolean isTombstoneEnabled()`
+  bool isTombstoneEnabled() {
+    return _isTombstoneEnabled(
+            reference.pointer, _id_isTombstoneEnabled as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
   static final _id_isEnableActivityLifecycleBreadcrumbs =
       _class.instanceMethodId(
     r'isEnableActivityLifecycleBreadcrumbs',
@@ -1297,6 +1345,57 @@ class SentryAndroidOptions extends SentryOptions {
         .check();
   }
 
+  static final _id_isCollectExternalStorageContext = _class.instanceMethodId(
+    r'isCollectExternalStorageContext',
+    r'()Z',
+  );
+
+  static final _isCollectExternalStorageContext =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallBooleanMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public boolean isCollectExternalStorageContext()`
+  bool isCollectExternalStorageContext() {
+    return _isCollectExternalStorageContext(reference.pointer,
+            _id_isCollectExternalStorageContext as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_setCollectExternalStorageContext = _class.instanceMethodId(
+    r'setCollectExternalStorageContext',
+    r'(Z)V',
+  );
+
+  static final _setCollectExternalStorageContext =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int32,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setCollectExternalStorageContext(boolean z)`
+  void setCollectExternalStorageContext(
+    bool z,
+  ) {
+    _setCollectExternalStorageContext(
+            reference.pointer,
+            _id_setCollectExternalStorageContext as jni$_.JMethodIDPtr,
+            z ? 1 : 0)
+        .check();
+  }
+
   static final _id_isEnableFramesTracking = _class.instanceMethodId(
     r'isEnableFramesTracking',
     r'()Z',
@@ -1779,6 +1878,55 @@ class SentryAndroidOptions extends SentryOptions {
   ) {
     _setReportHistoricalAnrs(reference.pointer,
             _id_setReportHistoricalAnrs as jni$_.JMethodIDPtr, z ? 1 : 0)
+        .check();
+  }
+
+  static final _id_isReportHistoricalTombstones = _class.instanceMethodId(
+    r'isReportHistoricalTombstones',
+    r'()Z',
+  );
+
+  static final _isReportHistoricalTombstones =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallBooleanMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public boolean isReportHistoricalTombstones()`
+  bool isReportHistoricalTombstones() {
+    return _isReportHistoricalTombstones(reference.pointer,
+            _id_isReportHistoricalTombstones as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_setReportHistoricalTombstones = _class.instanceMethodId(
+    r'setReportHistoricalTombstones',
+    r'(Z)V',
+  );
+
+  static final _setReportHistoricalTombstones =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int32,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setReportHistoricalTombstones(boolean z)`
+  void setReportHistoricalTombstones(
+    bool z,
+  ) {
+    _setReportHistoricalTombstones(reference.pointer,
+            _id_setReportHistoricalTombstones as jni$_.JMethodIDPtr, z ? 1 : 0)
         .check();
   }
 
@@ -8080,10 +8228,10 @@ class Sentry extends jni$_.JObject {
 
   /// from: `static public io.sentry.SentryTraceHeader getTraceparent()`
   /// The returned object must be released after use, by calling the [release] method.
-  static jni$_.JObject? getTraceparent() {
+  static SentryTraceHeader? getTraceparent() {
     return _getTraceparent(
             _class.reference.pointer, _id_getTraceparent as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+        .object<SentryTraceHeader?>(const $SentryTraceHeader$NullableType$());
   }
 
   static final _id_getBaggage = _class.staticMethodId(
@@ -8208,6 +8356,30 @@ class Sentry extends jni$_.JObject {
   static jni$_.JObject distribution() {
     return _distribution(
             _class.reference.pointer, _id_distribution as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.$JObject$Type$());
+  }
+
+  static final _id_metrics = _class.staticMethodId(
+    r'metrics',
+    r'()Lio/sentry/metrics/IMetricsApi;',
+  );
+
+  static final _metrics = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.metrics.IMetricsApi metrics()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject metrics() {
+    return _metrics(_class.reference.pointer, _id_metrics as jni$_.JMethodIDPtr)
         .object<jni$_.JObject>(const jni$_.$JObject$Type$());
   }
 
@@ -8653,257 +8825,6 @@ final class $SentryOptions$BeforeBreadcrumbCallback$Type$
     return other.runtimeType ==
             ($SentryOptions$BeforeBreadcrumbCallback$Type$) &&
         other is $SentryOptions$BeforeBreadcrumbCallback$Type$;
-  }
-}
-
-/// from: `io.sentry.SentryOptions$BeforeEmitMetricCallback`
-class SentryOptions$BeforeEmitMetricCallback extends jni$_.JObject {
-  @jni$_.internal
-  @core$_.override
-  final jni$_.JType<SentryOptions$BeforeEmitMetricCallback> $type;
-
-  @jni$_.internal
-  SentryOptions$BeforeEmitMetricCallback.fromReference(
-    jni$_.JReference reference,
-  )   : $type = type,
-        super.fromReference(reference);
-
-  static final _class =
-      jni$_.JClass.forName(r'io/sentry/SentryOptions$BeforeEmitMetricCallback');
-
-  /// The type which includes information such as the signature of this class.
-  static const jni$_.JType<SentryOptions$BeforeEmitMetricCallback?>
-      nullableType = $SentryOptions$BeforeEmitMetricCallback$NullableType$();
-
-  /// The type which includes information such as the signature of this class.
-  static const jni$_.JType<SentryOptions$BeforeEmitMetricCallback> type =
-      $SentryOptions$BeforeEmitMetricCallback$Type$();
-  static final _id_execute = _class.instanceMethodId(
-    r'execute',
-    r'(Ljava/lang/String;Ljava/util/Map;)Z',
-  );
-
-  static final _execute = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract boolean execute(java.lang.String string, java.util.Map<java.lang.String, java.lang.String> map)`
-  bool execute(
-    jni$_.JString string,
-    jni$_.JMap<jni$_.JString?, jni$_.JString?>? map,
-  ) {
-    final _$string = string.reference;
-    final _$map = map?.reference ?? jni$_.jNullReference;
-    return _execute(reference.pointer, _id_execute as jni$_.JMethodIDPtr,
-            _$string.pointer, _$map.pointer)
-        .boolean;
-  }
-
-  /// Maps a specific port to the implemented interface.
-  static final core$_.Map<int, $SentryOptions$BeforeEmitMetricCallback>
-      _$impls = {};
-  static jni$_.JObjectPtr _$invoke(
-    int port,
-    jni$_.JObjectPtr descriptor,
-    jni$_.JObjectPtr args,
-  ) {
-    return _$invokeMethod(
-      port,
-      jni$_.MethodInvocation.fromAddresses(
-        0,
-        descriptor.address,
-        args.address,
-      ),
-    );
-  }
-
-  static final jni$_.Pointer<
-          jni$_.NativeFunction<
-              jni$_.JObjectPtr Function(
-                  jni$_.Int64, jni$_.JObjectPtr, jni$_.JObjectPtr)>>
-      _$invokePointer = jni$_.Pointer.fromFunction(_$invoke);
-
-  static jni$_.Pointer<jni$_.Void> _$invokeMethod(
-    int $p,
-    jni$_.MethodInvocation $i,
-  ) {
-    try {
-      final $d = $i.methodDescriptor.toDartString(releaseOriginal: true);
-      final $a = $i.args;
-      if ($d == r'execute(Ljava/lang/String;Ljava/util/Map;)Z') {
-        final $r = _$impls[$p]!.execute(
-          $a![0]!.as(const jni$_.$JString$Type$(), releaseOriginal: true),
-          $a![1]?.as(
-              const jni$_.$JMap$Type$<jni$_.JString?, jni$_.JString?>(
-                  jni$_.$JString$NullableType$(),
-                  jni$_.$JString$NullableType$()),
-              releaseOriginal: true),
-        );
-        return jni$_.JBoolean($r).reference.toPointer();
-      }
-    } catch (e) {
-      return jni$_.ProtectedJniExtensions.newDartException(e);
-    }
-    return jni$_.nullptr;
-  }
-
-  static void implementIn(
-    jni$_.JImplementer implementer,
-    $SentryOptions$BeforeEmitMetricCallback $impl,
-  ) {
-    late final jni$_.RawReceivePort $p;
-    $p = jni$_.RawReceivePort(($m) {
-      if ($m == null) {
-        _$impls.remove($p.sendPort.nativePort);
-        $p.close();
-        return;
-      }
-      final $i = jni$_.MethodInvocation.fromMessage($m);
-      final $r = _$invokeMethod($p.sendPort.nativePort, $i);
-      jni$_.ProtectedJniExtensions.returnResult($i.result, $r);
-    });
-    implementer.add(
-      r'io.sentry.SentryOptions$BeforeEmitMetricCallback',
-      $p,
-      _$invokePointer,
-      [],
-    );
-    final $a = $p.sendPort.nativePort;
-    _$impls[$a] = $impl;
-  }
-
-  factory SentryOptions$BeforeEmitMetricCallback.implement(
-    $SentryOptions$BeforeEmitMetricCallback $impl,
-  ) {
-    final $i = jni$_.JImplementer();
-    implementIn($i, $impl);
-    return SentryOptions$BeforeEmitMetricCallback.fromReference(
-      $i.implementReference(),
-    );
-  }
-}
-
-abstract base mixin class $SentryOptions$BeforeEmitMetricCallback {
-  factory $SentryOptions$BeforeEmitMetricCallback({
-    required bool Function(jni$_.JString string,
-            jni$_.JMap<jni$_.JString?, jni$_.JString?>? map)
-        execute,
-  }) = _$SentryOptions$BeforeEmitMetricCallback;
-
-  bool execute(
-      jni$_.JString string, jni$_.JMap<jni$_.JString?, jni$_.JString?>? map);
-}
-
-final class _$SentryOptions$BeforeEmitMetricCallback
-    with $SentryOptions$BeforeEmitMetricCallback {
-  _$SentryOptions$BeforeEmitMetricCallback({
-    required bool Function(jni$_.JString string,
-            jni$_.JMap<jni$_.JString?, jni$_.JString?>? map)
-        execute,
-  }) : _execute = execute;
-
-  final bool Function(
-          jni$_.JString string, jni$_.JMap<jni$_.JString?, jni$_.JString?>? map)
-      _execute;
-
-  bool execute(
-      jni$_.JString string, jni$_.JMap<jni$_.JString?, jni$_.JString?>? map) {
-    return _execute(string, map);
-  }
-}
-
-final class $SentryOptions$BeforeEmitMetricCallback$NullableType$
-    extends jni$_.JType<SentryOptions$BeforeEmitMetricCallback?> {
-  @jni$_.internal
-  const $SentryOptions$BeforeEmitMetricCallback$NullableType$();
-
-  @jni$_.internal
-  @core$_.override
-  String get signature => r'Lio/sentry/SentryOptions$BeforeEmitMetricCallback;';
-
-  @jni$_.internal
-  @core$_.override
-  SentryOptions$BeforeEmitMetricCallback? fromReference(
-          jni$_.JReference reference) =>
-      reference.isNull
-          ? null
-          : SentryOptions$BeforeEmitMetricCallback.fromReference(
-              reference,
-            );
-  @jni$_.internal
-  @core$_.override
-  jni$_.JType get superType => const jni$_.$JObject$NullableType$();
-
-  @jni$_.internal
-  @core$_.override
-  jni$_.JType<SentryOptions$BeforeEmitMetricCallback?> get nullableType => this;
-
-  @jni$_.internal
-  @core$_.override
-  final superCount = 1;
-
-  @core$_.override
-  int get hashCode =>
-      ($SentryOptions$BeforeEmitMetricCallback$NullableType$).hashCode;
-
-  @core$_.override
-  bool operator ==(Object other) {
-    return other.runtimeType ==
-            ($SentryOptions$BeforeEmitMetricCallback$NullableType$) &&
-        other is $SentryOptions$BeforeEmitMetricCallback$NullableType$;
-  }
-}
-
-final class $SentryOptions$BeforeEmitMetricCallback$Type$
-    extends jni$_.JType<SentryOptions$BeforeEmitMetricCallback> {
-  @jni$_.internal
-  const $SentryOptions$BeforeEmitMetricCallback$Type$();
-
-  @jni$_.internal
-  @core$_.override
-  String get signature => r'Lio/sentry/SentryOptions$BeforeEmitMetricCallback;';
-
-  @jni$_.internal
-  @core$_.override
-  SentryOptions$BeforeEmitMetricCallback fromReference(
-          jni$_.JReference reference) =>
-      SentryOptions$BeforeEmitMetricCallback.fromReference(
-        reference,
-      );
-  @jni$_.internal
-  @core$_.override
-  jni$_.JType get superType => const jni$_.$JObject$NullableType$();
-
-  @jni$_.internal
-  @core$_.override
-  jni$_.JType<SentryOptions$BeforeEmitMetricCallback?> get nullableType =>
-      const $SentryOptions$BeforeEmitMetricCallback$NullableType$();
-
-  @jni$_.internal
-  @core$_.override
-  final superCount = 1;
-
-  @core$_.override
-  int get hashCode => ($SentryOptions$BeforeEmitMetricCallback$Type$).hashCode;
-
-  @core$_.override
-  bool operator ==(Object other) {
-    return other.runtimeType ==
-            ($SentryOptions$BeforeEmitMetricCallback$Type$) &&
-        other is $SentryOptions$BeforeEmitMetricCallback$Type$;
   }
 }
 
@@ -11001,6 +10922,542 @@ final class $SentryOptions$Logs$Type$ extends jni$_.JType<SentryOptions$Logs> {
   }
 }
 
+/// from: `io.sentry.SentryOptions$Metrics$BeforeSendMetricCallback`
+class SentryOptions$Metrics$BeforeSendMetricCallback extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JType<SentryOptions$Metrics$BeforeSendMetricCallback> $type;
+
+  @jni$_.internal
+  SentryOptions$Metrics$BeforeSendMetricCallback.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(
+      r'io/sentry/SentryOptions$Metrics$BeforeSendMetricCallback');
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<SentryOptions$Metrics$BeforeSendMetricCallback?>
+      nullableType =
+      $SentryOptions$Metrics$BeforeSendMetricCallback$NullableType$();
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<SentryOptions$Metrics$BeforeSendMetricCallback>
+      type = $SentryOptions$Metrics$BeforeSendMetricCallback$Type$();
+  static final _id_execute = _class.instanceMethodId(
+    r'execute',
+    r'(Lio/sentry/SentryMetricsEvent;Lio/sentry/Hint;)Lio/sentry/SentryMetricsEvent;',
+  );
+
+  static final _execute = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract io.sentry.SentryMetricsEvent execute(io.sentry.SentryMetricsEvent sentryMetricsEvent, io.sentry.Hint hint)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? execute(
+    jni$_.JObject sentryMetricsEvent,
+    Hint hint,
+  ) {
+    final _$sentryMetricsEvent = sentryMetricsEvent.reference;
+    final _$hint = hint.reference;
+    return _execute(reference.pointer, _id_execute as jni$_.JMethodIDPtr,
+            _$sentryMetricsEvent.pointer, _$hint.pointer)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  /// Maps a specific port to the implemented interface.
+  static final core$_.Map<int, $SentryOptions$Metrics$BeforeSendMetricCallback>
+      _$impls = {};
+  static jni$_.JObjectPtr _$invoke(
+    int port,
+    jni$_.JObjectPtr descriptor,
+    jni$_.JObjectPtr args,
+  ) {
+    return _$invokeMethod(
+      port,
+      jni$_.MethodInvocation.fromAddresses(
+        0,
+        descriptor.address,
+        args.address,
+      ),
+    );
+  }
+
+  static final jni$_.Pointer<
+          jni$_.NativeFunction<
+              jni$_.JObjectPtr Function(
+                  jni$_.Int64, jni$_.JObjectPtr, jni$_.JObjectPtr)>>
+      _$invokePointer = jni$_.Pointer.fromFunction(_$invoke);
+
+  static jni$_.Pointer<jni$_.Void> _$invokeMethod(
+    int $p,
+    jni$_.MethodInvocation $i,
+  ) {
+    try {
+      final $d = $i.methodDescriptor.toDartString(releaseOriginal: true);
+      final $a = $i.args;
+      if ($d ==
+          r'execute(Lio/sentry/SentryMetricsEvent;Lio/sentry/Hint;)Lio/sentry/SentryMetricsEvent;') {
+        final $r = _$impls[$p]!.execute(
+          $a![0]!.as(const jni$_.$JObject$Type$(), releaseOriginal: true),
+          $a![1]!.as(const $Hint$Type$(), releaseOriginal: true),
+        );
+        return ($r as jni$_.JObject?)
+                ?.as(const jni$_.$JObject$Type$())
+                .reference
+                .toPointer() ??
+            jni$_.nullptr;
+      }
+    } catch (e) {
+      return jni$_.ProtectedJniExtensions.newDartException(e);
+    }
+    return jni$_.nullptr;
+  }
+
+  static void implementIn(
+    jni$_.JImplementer implementer,
+    $SentryOptions$Metrics$BeforeSendMetricCallback $impl,
+  ) {
+    late final jni$_.RawReceivePort $p;
+    $p = jni$_.RawReceivePort(($m) {
+      if ($m == null) {
+        _$impls.remove($p.sendPort.nativePort);
+        $p.close();
+        return;
+      }
+      final $i = jni$_.MethodInvocation.fromMessage($m);
+      final $r = _$invokeMethod($p.sendPort.nativePort, $i);
+      jni$_.ProtectedJniExtensions.returnResult($i.result, $r);
+    });
+    implementer.add(
+      r'io.sentry.SentryOptions$Metrics$BeforeSendMetricCallback',
+      $p,
+      _$invokePointer,
+      [],
+    );
+    final $a = $p.sendPort.nativePort;
+    _$impls[$a] = $impl;
+  }
+
+  factory SentryOptions$Metrics$BeforeSendMetricCallback.implement(
+    $SentryOptions$Metrics$BeforeSendMetricCallback $impl,
+  ) {
+    final $i = jni$_.JImplementer();
+    implementIn($i, $impl);
+    return SentryOptions$Metrics$BeforeSendMetricCallback.fromReference(
+      $i.implementReference(),
+    );
+  }
+}
+
+abstract base mixin class $SentryOptions$Metrics$BeforeSendMetricCallback {
+  factory $SentryOptions$Metrics$BeforeSendMetricCallback({
+    required jni$_.JObject? Function(
+            jni$_.JObject sentryMetricsEvent, Hint hint)
+        execute,
+  }) = _$SentryOptions$Metrics$BeforeSendMetricCallback;
+
+  jni$_.JObject? execute(jni$_.JObject sentryMetricsEvent, Hint hint);
+}
+
+final class _$SentryOptions$Metrics$BeforeSendMetricCallback
+    with $SentryOptions$Metrics$BeforeSendMetricCallback {
+  _$SentryOptions$Metrics$BeforeSendMetricCallback({
+    required jni$_.JObject? Function(
+            jni$_.JObject sentryMetricsEvent, Hint hint)
+        execute,
+  }) : _execute = execute;
+
+  final jni$_.JObject? Function(jni$_.JObject sentryMetricsEvent, Hint hint)
+      _execute;
+
+  jni$_.JObject? execute(jni$_.JObject sentryMetricsEvent, Hint hint) {
+    return _execute(sentryMetricsEvent, hint);
+  }
+}
+
+final class $SentryOptions$Metrics$BeforeSendMetricCallback$NullableType$
+    extends jni$_.JType<SentryOptions$Metrics$BeforeSendMetricCallback?> {
+  @jni$_.internal
+  const $SentryOptions$Metrics$BeforeSendMetricCallback$NullableType$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature =>
+      r'Lio/sentry/SentryOptions$Metrics$BeforeSendMetricCallback;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryOptions$Metrics$BeforeSendMetricCallback? fromReference(
+          jni$_.JReference reference) =>
+      reference.isNull
+          ? null
+          : SentryOptions$Metrics$BeforeSendMetricCallback.fromReference(
+              reference,
+            );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JType get superType => const jni$_.$JObject$NullableType$();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JType<SentryOptions$Metrics$BeforeSendMetricCallback?>
+      get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode =>
+      ($SentryOptions$Metrics$BeforeSendMetricCallback$NullableType$).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType ==
+            ($SentryOptions$Metrics$BeforeSendMetricCallback$NullableType$) &&
+        other is $SentryOptions$Metrics$BeforeSendMetricCallback$NullableType$;
+  }
+}
+
+final class $SentryOptions$Metrics$BeforeSendMetricCallback$Type$
+    extends jni$_.JType<SentryOptions$Metrics$BeforeSendMetricCallback> {
+  @jni$_.internal
+  const $SentryOptions$Metrics$BeforeSendMetricCallback$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature =>
+      r'Lio/sentry/SentryOptions$Metrics$BeforeSendMetricCallback;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryOptions$Metrics$BeforeSendMetricCallback fromReference(
+          jni$_.JReference reference) =>
+      SentryOptions$Metrics$BeforeSendMetricCallback.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JType get superType => const jni$_.$JObject$NullableType$();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JType<SentryOptions$Metrics$BeforeSendMetricCallback?>
+      get nullableType =>
+          const $SentryOptions$Metrics$BeforeSendMetricCallback$NullableType$();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode =>
+      ($SentryOptions$Metrics$BeforeSendMetricCallback$Type$).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType ==
+            ($SentryOptions$Metrics$BeforeSendMetricCallback$Type$) &&
+        other is $SentryOptions$Metrics$BeforeSendMetricCallback$Type$;
+  }
+}
+
+/// from: `io.sentry.SentryOptions$Metrics`
+class SentryOptions$Metrics extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JType<SentryOptions$Metrics> $type;
+
+  @jni$_.internal
+  SentryOptions$Metrics.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class =
+      jni$_.JClass.forName(r'io/sentry/SentryOptions$Metrics');
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<SentryOptions$Metrics?> nullableType =
+      $SentryOptions$Metrics$NullableType$();
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<SentryOptions$Metrics> type =
+      $SentryOptions$Metrics$Type$();
+  static final _id_new$ = _class.constructorId(
+    r'()V',
+  );
+
+  static final _new$ = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void <init>()`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory SentryOptions$Metrics() {
+    return SentryOptions$Metrics.fromReference(
+        _new$(_class.reference.pointer, _id_new$ as jni$_.JMethodIDPtr)
+            .reference);
+  }
+
+  static final _id_isEnabled = _class.instanceMethodId(
+    r'isEnabled',
+    r'()Z',
+  );
+
+  static final _isEnabled = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public boolean isEnabled()`
+  bool isEnabled() {
+    return _isEnabled(reference.pointer, _id_isEnabled as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_setEnabled = _class.instanceMethodId(
+    r'setEnabled',
+    r'(Z)V',
+  );
+
+  static final _setEnabled = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setEnabled(boolean z)`
+  void setEnabled(
+    bool z,
+  ) {
+    _setEnabled(
+            reference.pointer, _id_setEnabled as jni$_.JMethodIDPtr, z ? 1 : 0)
+        .check();
+  }
+
+  static final _id_getBeforeSend = _class.instanceMethodId(
+    r'getBeforeSend',
+    r'()Lio/sentry/SentryOptions$Metrics$BeforeSendMetricCallback;',
+  );
+
+  static final _getBeforeSend = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.SentryOptions$Metrics$BeforeSendMetricCallback getBeforeSend()`
+  /// The returned object must be released after use, by calling the [release] method.
+  SentryOptions$Metrics$BeforeSendMetricCallback? getBeforeSend() {
+    return _getBeforeSend(
+            reference.pointer, _id_getBeforeSend as jni$_.JMethodIDPtr)
+        .object<SentryOptions$Metrics$BeforeSendMetricCallback?>(
+            const $SentryOptions$Metrics$BeforeSendMetricCallback$NullableType$());
+  }
+
+  static final _id_setBeforeSend = _class.instanceMethodId(
+    r'setBeforeSend',
+    r'(Lio/sentry/SentryOptions$Metrics$BeforeSendMetricCallback;)V',
+  );
+
+  static final _setBeforeSend = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setBeforeSend(io.sentry.SentryOptions$Metrics$BeforeSendMetricCallback beforeSendMetricCallback)`
+  void setBeforeSend(
+    SentryOptions$Metrics$BeforeSendMetricCallback? beforeSendMetricCallback,
+  ) {
+    final _$beforeSendMetricCallback =
+        beforeSendMetricCallback?.reference ?? jni$_.jNullReference;
+    _setBeforeSend(reference.pointer, _id_setBeforeSend as jni$_.JMethodIDPtr,
+            _$beforeSendMetricCallback.pointer)
+        .check();
+  }
+
+  static final _id_getMetricsBatchProcessorFactory = _class.instanceMethodId(
+    r'getMetricsBatchProcessorFactory',
+    r'()Lio/sentry/metrics/IMetricsBatchProcessorFactory;',
+  );
+
+  static final _getMetricsBatchProcessorFactory =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallObjectMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public io.sentry.metrics.IMetricsBatchProcessorFactory getMetricsBatchProcessorFactory()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject getMetricsBatchProcessorFactory() {
+    return _getMetricsBatchProcessorFactory(reference.pointer,
+            _id_getMetricsBatchProcessorFactory as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.$JObject$Type$());
+  }
+
+  static final _id_setMetricsBatchProcessorFactory = _class.instanceMethodId(
+    r'setMetricsBatchProcessorFactory',
+    r'(Lio/sentry/metrics/IMetricsBatchProcessorFactory;)V',
+  );
+
+  static final _setMetricsBatchProcessorFactory =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(
+                          jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr,
+                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setMetricsBatchProcessorFactory(io.sentry.metrics.IMetricsBatchProcessorFactory iMetricsBatchProcessorFactory)`
+  void setMetricsBatchProcessorFactory(
+    jni$_.JObject iMetricsBatchProcessorFactory,
+  ) {
+    final _$iMetricsBatchProcessorFactory =
+        iMetricsBatchProcessorFactory.reference;
+    _setMetricsBatchProcessorFactory(
+            reference.pointer,
+            _id_setMetricsBatchProcessorFactory as jni$_.JMethodIDPtr,
+            _$iMetricsBatchProcessorFactory.pointer)
+        .check();
+  }
+}
+
+final class $SentryOptions$Metrics$NullableType$
+    extends jni$_.JType<SentryOptions$Metrics?> {
+  @jni$_.internal
+  const $SentryOptions$Metrics$NullableType$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/SentryOptions$Metrics;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryOptions$Metrics? fromReference(jni$_.JReference reference) =>
+      reference.isNull
+          ? null
+          : SentryOptions$Metrics.fromReference(
+              reference,
+            );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JType get superType => const jni$_.$JObject$NullableType$();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JType<SentryOptions$Metrics?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($SentryOptions$Metrics$NullableType$).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($SentryOptions$Metrics$NullableType$) &&
+        other is $SentryOptions$Metrics$NullableType$;
+  }
+}
+
+final class $SentryOptions$Metrics$Type$
+    extends jni$_.JType<SentryOptions$Metrics> {
+  @jni$_.internal
+  const $SentryOptions$Metrics$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/SentryOptions$Metrics;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryOptions$Metrics fromReference(jni$_.JReference reference) =>
+      SentryOptions$Metrics.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JType get superType => const jni$_.$JObject$NullableType$();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JType<SentryOptions$Metrics?> get nullableType =>
+      const $SentryOptions$Metrics$NullableType$();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($SentryOptions$Metrics$Type$).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($SentryOptions$Metrics$Type$) &&
+        other is $SentryOptions$Metrics$Type$;
+  }
+}
+
 /// from: `io.sentry.SentryOptions$OnDiscardCallback`
 class SentryOptions$OnDiscardCallback extends jni$_.JObject {
   @jni$_.internal
@@ -12744,6 +13201,8 @@ class SentryOptions extends jni$_.JObject {
   static jni$_.JString get DEFAULT_PROPAGATION_TARGETS =>
       _id_DEFAULT_PROPAGATION_TARGETS.get(_class, const jni$_.$JString$Type$());
 
+  /// from: `static public final long MAX_EVENT_SIZE_BYTES`
+  static const MAX_EVENT_SIZE_BYTES = 1048576;
   static final _id_getProfilerConverter = _class.instanceMethodId(
     r'getProfilerConverter',
     r'()Lio/sentry/IProfileConverter;',
@@ -17826,6 +18285,58 @@ class SentryOptions extends jni$_.JObject {
         .check();
   }
 
+  static final _id_isEnableDatabaseTransactionTracing = _class.instanceMethodId(
+    r'isEnableDatabaseTransactionTracing',
+    r'()Z',
+  );
+
+  static final _isEnableDatabaseTransactionTracing =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallBooleanMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public boolean isEnableDatabaseTransactionTracing()`
+  bool isEnableDatabaseTransactionTracing() {
+    return _isEnableDatabaseTransactionTracing(reference.pointer,
+            _id_isEnableDatabaseTransactionTracing as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_setEnableDatabaseTransactionTracing =
+      _class.instanceMethodId(
+    r'setEnableDatabaseTransactionTracing',
+    r'(Z)V',
+  );
+
+  static final _setEnableDatabaseTransactionTracing =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int32,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setEnableDatabaseTransactionTracing(boolean z)`
+  void setEnableDatabaseTransactionTracing(
+    bool z,
+  ) {
+    _setEnableDatabaseTransactionTracing(
+            reference.pointer,
+            _id_setEnableDatabaseTransactionTracing as jni$_.JMethodIDPtr,
+            z ? 1 : 0)
+        .check();
+  }
+
   static final _id_isEnabled = _class.instanceMethodId(
     r'isEnabled',
     r'()Z',
@@ -19792,6 +20303,56 @@ class SentryOptions extends jni$_.JObject {
     final _$logs = logs.reference;
     _setLogs(reference.pointer, _id_setLogs as jni$_.JMethodIDPtr,
             _$logs.pointer)
+        .check();
+  }
+
+  static final _id_getMetrics = _class.instanceMethodId(
+    r'getMetrics',
+    r'()Lio/sentry/SentryOptions$Metrics;',
+  );
+
+  static final _getMetrics = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.SentryOptions$Metrics getMetrics()`
+  /// The returned object must be released after use, by calling the [release] method.
+  SentryOptions$Metrics getMetrics() {
+    return _getMetrics(reference.pointer, _id_getMetrics as jni$_.JMethodIDPtr)
+        .object<SentryOptions$Metrics>(const $SentryOptions$Metrics$Type$());
+  }
+
+  static final _id_setMetrics = _class.instanceMethodId(
+    r'setMetrics',
+    r'(Lio/sentry/SentryOptions$Metrics;)V',
+  );
+
+  static final _setMetrics = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setMetrics(io.sentry.SentryOptions$Metrics metrics)`
+  void setMetrics(
+    SentryOptions$Metrics metrics,
+  ) {
+    final _$metrics = metrics.reference;
+    _setMetrics(reference.pointer, _id_setMetrics as jni$_.JMethodIDPtr,
+            _$metrics.pointer)
         .check();
   }
 
@@ -31169,10 +31730,10 @@ class ScopesAdapter extends jni$_.JObject {
 
   /// from: `public io.sentry.SentryTraceHeader getTraceparent()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getTraceparent() {
+  SentryTraceHeader? getTraceparent() {
     return _getTraceparent(
             reference.pointer, _id_getTraceparent as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+        .object<SentryTraceHeader?>(const $SentryTraceHeader$NullableType$());
   }
 
   static final _id_getBaggage = _class.instanceMethodId(
@@ -31310,6 +31871,30 @@ class ScopesAdapter extends jni$_.JObject {
   /// The returned object must be released after use, by calling the [release] method.
   jni$_.JObject logger() {
     return _logger(reference.pointer, _id_logger as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.$JObject$Type$());
+  }
+
+  static final _id_metrics = _class.instanceMethodId(
+    r'metrics',
+    r'()Lio/sentry/metrics/IMetricsApi;',
+  );
+
+  static final _metrics = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.metrics.IMetricsApi metrics()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject metrics() {
+    return _metrics(reference.pointer, _id_metrics as jni$_.JMethodIDPtr)
         .object<jni$_.JObject>(const jni$_.$JObject$Type$());
   }
 
@@ -38430,6 +39015,301 @@ final class $RRWebEvent$Type$ extends jni$_.JType<RRWebEvent> {
   }
 }
 
+/// from: `io.sentry.SentryTraceHeader`
+class SentryTraceHeader extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JType<SentryTraceHeader> $type;
+
+  @jni$_.internal
+  SentryTraceHeader.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(r'io/sentry/SentryTraceHeader');
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<SentryTraceHeader?> nullableType =
+      $SentryTraceHeader$NullableType$();
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<SentryTraceHeader> type = $SentryTraceHeader$Type$();
+  static final _id_SENTRY_TRACE_HEADER = _class.staticFieldId(
+    r'SENTRY_TRACE_HEADER',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String SENTRY_TRACE_HEADER`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get SENTRY_TRACE_HEADER =>
+      _id_SENTRY_TRACE_HEADER.get(_class, const jni$_.$JString$NullableType$());
+
+  static final _id_new$ = _class.constructorId(
+    r'(Lio/sentry/protocol/SentryId;Lio/sentry/SpanId;Ljava/lang/Boolean;)V',
+  );
+
+  static final _new$ = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void <init>(io.sentry.protocol.SentryId sentryId, io.sentry.SpanId spanId, java.lang.Boolean boolean)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory SentryTraceHeader(
+    SentryId sentryId,
+    jni$_.JObject spanId,
+    jni$_.JBoolean? boolean,
+  ) {
+    final _$sentryId = sentryId.reference;
+    final _$spanId = spanId.reference;
+    final _$boolean = boolean?.reference ?? jni$_.jNullReference;
+    return SentryTraceHeader.fromReference(_new$(
+            _class.reference.pointer,
+            _id_new$ as jni$_.JMethodIDPtr,
+            _$sentryId.pointer,
+            _$spanId.pointer,
+            _$boolean.pointer)
+        .reference);
+  }
+
+  static final _id_new$1 = _class.constructorId(
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _new$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_NewObject')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void <init>(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory SentryTraceHeader.new$1(
+    jni$_.JString string,
+  ) {
+    final _$string = string.reference;
+    return SentryTraceHeader.fromReference(_new$1(_class.reference.pointer,
+            _id_new$1 as jni$_.JMethodIDPtr, _$string.pointer)
+        .reference);
+  }
+
+  static final _id_getName = _class.instanceMethodId(
+    r'getName',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getName = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getName()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString getName() {
+    return _getName(reference.pointer, _id_getName as jni$_.JMethodIDPtr)
+        .object<jni$_.JString>(const jni$_.$JString$Type$());
+  }
+
+  static final _id_getValue = _class.instanceMethodId(
+    r'getValue',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getValue = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getValue()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString getValue() {
+    return _getValue(reference.pointer, _id_getValue as jni$_.JMethodIDPtr)
+        .object<jni$_.JString>(const jni$_.$JString$Type$());
+  }
+
+  static final _id_getTraceId = _class.instanceMethodId(
+    r'getTraceId',
+    r'()Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _getTraceId = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.protocol.SentryId getTraceId()`
+  /// The returned object must be released after use, by calling the [release] method.
+  SentryId getTraceId() {
+    return _getTraceId(reference.pointer, _id_getTraceId as jni$_.JMethodIDPtr)
+        .object<SentryId>(const $SentryId$Type$());
+  }
+
+  static final _id_getSpanId = _class.instanceMethodId(
+    r'getSpanId',
+    r'()Lio/sentry/SpanId;',
+  );
+
+  static final _getSpanId = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.SpanId getSpanId()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject getSpanId() {
+    return _getSpanId(reference.pointer, _id_getSpanId as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.$JObject$Type$());
+  }
+
+  static final _id_isSampled = _class.instanceMethodId(
+    r'isSampled',
+    r'()Ljava/lang/Boolean;',
+  );
+
+  static final _isSampled = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.Boolean isSampled()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JBoolean? isSampled() {
+    return _isSampled(reference.pointer, _id_isSampled as jni$_.JMethodIDPtr)
+        .object<jni$_.JBoolean?>(const jni$_.$JBoolean$NullableType$());
+  }
+}
+
+final class $SentryTraceHeader$NullableType$
+    extends jni$_.JType<SentryTraceHeader?> {
+  @jni$_.internal
+  const $SentryTraceHeader$NullableType$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/SentryTraceHeader;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryTraceHeader? fromReference(jni$_.JReference reference) =>
+      reference.isNull
+          ? null
+          : SentryTraceHeader.fromReference(
+              reference,
+            );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JType get superType => const jni$_.$JObject$NullableType$();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JType<SentryTraceHeader?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($SentryTraceHeader$NullableType$).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($SentryTraceHeader$NullableType$) &&
+        other is $SentryTraceHeader$NullableType$;
+  }
+}
+
+final class $SentryTraceHeader$Type$ extends jni$_.JType<SentryTraceHeader> {
+  @jni$_.internal
+  const $SentryTraceHeader$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/SentryTraceHeader;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryTraceHeader fromReference(jni$_.JReference reference) =>
+      SentryTraceHeader.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JType get superType => const jni$_.$JObject$NullableType$();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JType<SentryTraceHeader?> get nullableType =>
+      const $SentryTraceHeader$NullableType$();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($SentryTraceHeader$Type$).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($SentryTraceHeader$Type$) &&
+        other is $SentryTraceHeader$Type$;
+  }
+}
+
 /// from: `java.net.Proxy$Type`
 class Proxy$Type extends jni$_.JObject {
   @jni$_.internal
@@ -38673,30 +39553,6 @@ class Proxy extends jni$_.JObject {
         .reference);
   }
 
-  static final _id_type$1 = _class.instanceMethodId(
-    r'type',
-    r'()Ljava/net/Proxy$Type;',
-  );
-
-  static final _type$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public java.net.Proxy$Type type()`
-  /// The returned object must be released after use, by calling the [release] method.
-  Proxy$Type? type$1() {
-    return _type$1(reference.pointer, _id_type$1 as jni$_.JMethodIDPtr)
-        .object<Proxy$Type?>(const $Proxy$Type$NullableType$());
-  }
-
   static final _id_address = _class.instanceMethodId(
     r'address',
     r'()Ljava/net/SocketAddress;',
@@ -38719,30 +39575,6 @@ class Proxy extends jni$_.JObject {
   jni$_.JObject? address() {
     return _address(reference.pointer, _id_address as jni$_.JMethodIDPtr)
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_toString$1 = _class.instanceMethodId(
-    r'toString',
-    r'()Ljava/lang/String;',
-  );
-
-  static final _toString$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public java.lang.String toString()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JString? toString$1() {
-    return _toString$1(reference.pointer, _id_toString$1 as jni$_.JMethodIDPtr)
-        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
   }
 
   static final _id_equals = _class.instanceMethodId(
@@ -38792,6 +39624,54 @@ class Proxy extends jni$_.JObject {
   int hashCode$1() {
     return _hashCode$1(reference.pointer, _id_hashCode$1 as jni$_.JMethodIDPtr)
         .integer;
+  }
+
+  static final _id_toString$1 = _class.instanceMethodId(
+    r'toString',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _toString$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String toString()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? toString$1() {
+    return _toString$1(reference.pointer, _id_toString$1 as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
+  }
+
+  static final _id_type$1 = _class.instanceMethodId(
+    r'type',
+    r'()Ljava/net/Proxy$Type;',
+  );
+
+  static final _type$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.net.Proxy$Type type()`
+  /// The returned object must be released after use, by calling the [release] method.
+  Proxy$Type? type$1() {
+    return _type$1(reference.pointer, _id_type$1 as jni$_.JMethodIDPtr)
+        .object<Proxy$Type?>(const $Proxy$Type$NullableType$());
   }
 }
 
@@ -38918,16 +39798,6 @@ class Bitmap$CompressFormat extends jni$_.JObject {
   static Bitmap$CompressFormat get WEBP =>
       _id_WEBP.get(_class, const $Bitmap$CompressFormat$Type$());
 
-  static final _id_WEBP_LOSSY = _class.staticFieldId(
-    r'WEBP_LOSSY',
-    r'Landroid/graphics/Bitmap$CompressFormat;',
-  );
-
-  /// from: `static public final android.graphics.Bitmap$CompressFormat WEBP_LOSSY`
-  /// The returned object must be released after use, by calling the [release] method.
-  static Bitmap$CompressFormat get WEBP_LOSSY =>
-      _id_WEBP_LOSSY.get(_class, const $Bitmap$CompressFormat$Type$());
-
   static final _id_WEBP_LOSSLESS = _class.staticFieldId(
     r'WEBP_LOSSLESS',
     r'Landroid/graphics/Bitmap$CompressFormat;',
@@ -38937,6 +39807,16 @@ class Bitmap$CompressFormat extends jni$_.JObject {
   /// The returned object must be released after use, by calling the [release] method.
   static Bitmap$CompressFormat get WEBP_LOSSLESS =>
       _id_WEBP_LOSSLESS.get(_class, const $Bitmap$CompressFormat$Type$());
+
+  static final _id_WEBP_LOSSY = _class.staticFieldId(
+    r'WEBP_LOSSY',
+    r'Landroid/graphics/Bitmap$CompressFormat;',
+  );
+
+  /// from: `static public final android.graphics.Bitmap$CompressFormat WEBP_LOSSY`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Bitmap$CompressFormat get WEBP_LOSSY =>
+      _id_WEBP_LOSSY.get(_class, const $Bitmap$CompressFormat$Type$());
 
   static final _id_values = _class.staticMethodId(
     r'values',
@@ -39100,16 +39980,6 @@ class Bitmap$Config extends jni$_.JObject {
   static Bitmap$Config get ALPHA_8 =>
       _id_ALPHA_8.get(_class, const $Bitmap$Config$Type$());
 
-  static final _id_RGB_565 = _class.staticFieldId(
-    r'RGB_565',
-    r'Landroid/graphics/Bitmap$Config;',
-  );
-
-  /// from: `static public final android.graphics.Bitmap$Config RGB_565`
-  /// The returned object must be released after use, by calling the [release] method.
-  static Bitmap$Config get RGB_565 =>
-      _id_RGB_565.get(_class, const $Bitmap$Config$Type$());
-
   static final _id_ARGB_4444 = _class.staticFieldId(
     r'ARGB_4444',
     r'Landroid/graphics/Bitmap$Config;',
@@ -39130,16 +40000,6 @@ class Bitmap$Config extends jni$_.JObject {
   static Bitmap$Config get ARGB_8888 =>
       _id_ARGB_8888.get(_class, const $Bitmap$Config$Type$());
 
-  static final _id_RGBA_F16 = _class.staticFieldId(
-    r'RGBA_F16',
-    r'Landroid/graphics/Bitmap$Config;',
-  );
-
-  /// from: `static public final android.graphics.Bitmap$Config RGBA_F16`
-  /// The returned object must be released after use, by calling the [release] method.
-  static Bitmap$Config get RGBA_F16 =>
-      _id_RGBA_F16.get(_class, const $Bitmap$Config$Type$());
-
   static final _id_HARDWARE = _class.staticFieldId(
     r'HARDWARE',
     r'Landroid/graphics/Bitmap$Config;',
@@ -39159,6 +40019,26 @@ class Bitmap$Config extends jni$_.JObject {
   /// The returned object must be released after use, by calling the [release] method.
   static Bitmap$Config get RGBA_1010102 =>
       _id_RGBA_1010102.get(_class, const $Bitmap$Config$Type$());
+
+  static final _id_RGBA_F16 = _class.staticFieldId(
+    r'RGBA_F16',
+    r'Landroid/graphics/Bitmap$Config;',
+  );
+
+  /// from: `static public final android.graphics.Bitmap$Config RGBA_F16`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Bitmap$Config get RGBA_F16 =>
+      _id_RGBA_F16.get(_class, const $Bitmap$Config$Type$());
+
+  static final _id_RGB_565 = _class.staticFieldId(
+    r'RGB_565',
+    r'Landroid/graphics/Bitmap$Config;',
+  );
+
+  /// from: `static public final android.graphics.Bitmap$Config RGB_565`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Bitmap$Config get RGB_565 =>
+      _id_RGB_565.get(_class, const $Bitmap$Config$Type$());
 
   static final _id_values = _class.staticMethodId(
     r'values',
@@ -39319,274 +40199,65 @@ class Bitmap extends jni$_.JObject {
 
   /// from: `static public final int DENSITY_NONE`
   static const DENSITY_NONE = 0;
-  static final _id_getDensity = _class.instanceMethodId(
-    r'getDensity',
-    r'()I',
+  static final _id_asShared = _class.instanceMethodId(
+    r'asShared',
+    r'()Landroid/graphics/Bitmap;',
   );
 
-  static final _getDensity = jni$_.ProtectedJniExtensions.lookup<
+  static final _asShared = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                 jni$_.Pointer<jni$_.Void>,
                 jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallIntMethod')
+              )>>('globalEnv_CallObjectMethod')
       .asFunction<
           jni$_.JniResult Function(
             jni$_.Pointer<jni$_.Void>,
             jni$_.JMethodIDPtr,
           )>();
 
-  /// from: `public int getDensity()`
-  int getDensity() {
-    return _getDensity(reference.pointer, _id_getDensity as jni$_.JMethodIDPtr)
-        .integer;
+  /// from: `public android.graphics.Bitmap asShared()`
+  /// The returned object must be released after use, by calling the [release] method.
+  Bitmap? asShared() {
+    return _asShared(reference.pointer, _id_asShared as jni$_.JMethodIDPtr)
+        .object<Bitmap?>(const $Bitmap$NullableType$());
   }
 
-  static final _id_setDensity = _class.instanceMethodId(
-    r'setDensity',
-    r'(I)V',
+  static final _id_compress = _class.instanceMethodId(
+    r'compress',
+    r'(Landroid/graphics/Bitmap$CompressFormat;ILjava/io/OutputStream;)Z',
   );
 
-  static final _setDensity = jni$_.ProtectedJniExtensions.lookup<
+  static final _compress = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
-
-  /// from: `public void setDensity(int i)`
-  void setDensity(
-    int i,
-  ) {
-    _setDensity(reference.pointer, _id_setDensity as jni$_.JMethodIDPtr, i)
-        .check();
-  }
-
-  static final _id_reconfigure = _class.instanceMethodId(
-    r'reconfigure',
-    r'(IILandroid/graphics/Bitmap$Config;)V',
-  );
-
-  static final _reconfigure = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
+              jni$_.JniResult Function(
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.JMethodIDPtr,
                   jni$_.VarArgs<
                       (
-                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>,
                         jni$_.Int32,
                         jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, int, int, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void reconfigure(int i, int i1, android.graphics.Bitmap$Config config)`
-  void reconfigure(
-    int i,
-    int i1,
-    Bitmap$Config? config,
-  ) {
-    final _$config = config?.reference ?? jni$_.jNullReference;
-    _reconfigure(reference.pointer, _id_reconfigure as jni$_.JMethodIDPtr, i,
-            i1, _$config.pointer)
-        .check();
-  }
-
-  static final _id_setWidth = _class.instanceMethodId(
-    r'setWidth',
-    r'(I)V',
-  );
-
-  static final _setWidth = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
-
-  /// from: `public void setWidth(int i)`
-  void setWidth(
-    int i,
-  ) {
-    _setWidth(reference.pointer, _id_setWidth as jni$_.JMethodIDPtr, i).check();
-  }
-
-  static final _id_setHeight = _class.instanceMethodId(
-    r'setHeight',
-    r'(I)V',
-  );
-
-  static final _setHeight = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
-
-  /// from: `public void setHeight(int i)`
-  void setHeight(
-    int i,
-  ) {
-    _setHeight(reference.pointer, _id_setHeight as jni$_.JMethodIDPtr, i)
-        .check();
-  }
-
-  static final _id_setConfig = _class.instanceMethodId(
-    r'setConfig',
-    r'(Landroid/graphics/Bitmap$Config;)V',
-  );
-
-  static final _setConfig = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void setConfig(android.graphics.Bitmap$Config config)`
-  void setConfig(
-    Bitmap$Config? config,
-  ) {
-    final _$config = config?.reference ?? jni$_.jNullReference;
-    _setConfig(reference.pointer, _id_setConfig as jni$_.JMethodIDPtr,
-            _$config.pointer)
-        .check();
-  }
-
-  static final _id_recycle = _class.instanceMethodId(
-    r'recycle',
-    r'()V',
-  );
-
-  static final _recycle = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public void recycle()`
-  void recycle() {
-    _recycle(reference.pointer, _id_recycle as jni$_.JMethodIDPtr).check();
-  }
-
-  static final _id_isRecycled = _class.instanceMethodId(
-    r'isRecycled',
-    r'()Z',
-  );
-
-  static final _isRecycled = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallBooleanMethod')
+                      )>)>>('globalEnv_CallBooleanMethod')
       .asFunction<
           jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public boolean isRecycled()`
-  bool isRecycled() {
-    return _isRecycled(reference.pointer, _id_isRecycled as jni$_.JMethodIDPtr)
+  /// from: `public boolean compress(android.graphics.Bitmap$CompressFormat compressFormat, int i, java.io.OutputStream outputStream)`
+  bool compress(
+    Bitmap$CompressFormat? compressFormat,
+    int i,
+    jni$_.JObject? outputStream,
+  ) {
+    final _$compressFormat = compressFormat?.reference ?? jni$_.jNullReference;
+    final _$outputStream = outputStream?.reference ?? jni$_.jNullReference;
+    return _compress(reference.pointer, _id_compress as jni$_.JMethodIDPtr,
+            _$compressFormat.pointer, i, _$outputStream.pointer)
         .boolean;
-  }
-
-  static final _id_getGenerationId = _class.instanceMethodId(
-    r'getGenerationId',
-    r'()I',
-  );
-
-  static final _getGenerationId = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public int getGenerationId()`
-  int getGenerationId() {
-    return _getGenerationId(
-            reference.pointer, _id_getGenerationId as jni$_.JMethodIDPtr)
-        .integer;
-  }
-
-  static final _id_copyPixelsToBuffer = _class.instanceMethodId(
-    r'copyPixelsToBuffer',
-    r'(Ljava/nio/Buffer;)V',
-  );
-
-  static final _copyPixelsToBuffer = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void copyPixelsToBuffer(java.nio.Buffer buffer)`
-  void copyPixelsToBuffer(
-    jni$_.JBuffer? buffer,
-  ) {
-    final _$buffer = buffer?.reference ?? jni$_.jNullReference;
-    _copyPixelsToBuffer(reference.pointer,
-            _id_copyPixelsToBuffer as jni$_.JMethodIDPtr, _$buffer.pointer)
-        .check();
-  }
-
-  static final _id_copyPixelsFromBuffer = _class.instanceMethodId(
-    r'copyPixelsFromBuffer',
-    r'(Ljava/nio/Buffer;)V',
-  );
-
-  static final _copyPixelsFromBuffer = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void copyPixelsFromBuffer(java.nio.Buffer buffer)`
-  void copyPixelsFromBuffer(
-    jni$_.JBuffer? buffer,
-  ) {
-    final _$buffer = buffer?.reference ?? jni$_.jNullReference;
-    _copyPixelsFromBuffer(reference.pointer,
-            _id_copyPixelsFromBuffer as jni$_.JMethodIDPtr, _$buffer.pointer)
-        .check();
   }
 
   static final _id_copy = _class.instanceMethodId(
@@ -39618,106 +40289,56 @@ class Bitmap extends jni$_.JObject {
         .object<Bitmap?>(const $Bitmap$NullableType$());
   }
 
-  static final _id_asShared = _class.instanceMethodId(
-    r'asShared',
-    r'()Landroid/graphics/Bitmap;',
+  static final _id_copyPixelsFromBuffer = _class.instanceMethodId(
+    r'copyPixelsFromBuffer',
+    r'(Ljava/nio/Buffer;)V',
   );
 
-  static final _asShared = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
+  static final _copyPixelsFromBuffer = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
       .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public android.graphics.Bitmap asShared()`
-  /// The returned object must be released after use, by calling the [release] method.
-  Bitmap? asShared() {
-    return _asShared(reference.pointer, _id_asShared as jni$_.JMethodIDPtr)
-        .object<Bitmap?>(const $Bitmap$NullableType$());
+  /// from: `public void copyPixelsFromBuffer(java.nio.Buffer buffer)`
+  void copyPixelsFromBuffer(
+    jni$_.JBuffer? buffer,
+  ) {
+    final _$buffer = buffer?.reference ?? jni$_.jNullReference;
+    _copyPixelsFromBuffer(reference.pointer,
+            _id_copyPixelsFromBuffer as jni$_.JMethodIDPtr, _$buffer.pointer)
+        .check();
   }
 
-  static final _id_wrapHardwareBuffer = _class.staticMethodId(
-    r'wrapHardwareBuffer',
-    r'(Landroid/hardware/HardwareBuffer;Landroid/graphics/ColorSpace;)Landroid/graphics/Bitmap;',
+  static final _id_copyPixelsToBuffer = _class.instanceMethodId(
+    r'copyPixelsToBuffer',
+    r'(Ljava/nio/Buffer;)V',
   );
 
-  static final _wrapHardwareBuffer = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallStaticObjectMethod')
+  static final _copyPixelsToBuffer = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
       .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `static public android.graphics.Bitmap wrapHardwareBuffer(android.hardware.HardwareBuffer hardwareBuffer, android.graphics.ColorSpace colorSpace)`
-  /// The returned object must be released after use, by calling the [release] method.
-  static Bitmap? wrapHardwareBuffer(
-    jni$_.JObject? hardwareBuffer,
-    jni$_.JObject? colorSpace,
+  /// from: `public void copyPixelsToBuffer(java.nio.Buffer buffer)`
+  void copyPixelsToBuffer(
+    jni$_.JBuffer? buffer,
   ) {
-    final _$hardwareBuffer = hardwareBuffer?.reference ?? jni$_.jNullReference;
-    final _$colorSpace = colorSpace?.reference ?? jni$_.jNullReference;
-    return _wrapHardwareBuffer(
-            _class.reference.pointer,
-            _id_wrapHardwareBuffer as jni$_.JMethodIDPtr,
-            _$hardwareBuffer.pointer,
-            _$colorSpace.pointer)
-        .object<Bitmap?>(const $Bitmap$NullableType$());
-  }
-
-  static final _id_createScaledBitmap = _class.staticMethodId(
-    r'createScaledBitmap',
-    r'(Landroid/graphics/Bitmap;IIZ)Landroid/graphics/Bitmap;',
-  );
-
-  static final _createScaledBitmap = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallStaticObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int, int, int)>();
-
-  /// from: `static public android.graphics.Bitmap createScaledBitmap(android.graphics.Bitmap bitmap, int i, int i1, boolean z)`
-  /// The returned object must be released after use, by calling the [release] method.
-  static Bitmap? createScaledBitmap(
-    Bitmap? bitmap,
-    int i,
-    int i1,
-    bool z,
-  ) {
-    final _$bitmap = bitmap?.reference ?? jni$_.jNullReference;
-    return _createScaledBitmap(
-            _class.reference.pointer,
-            _id_createScaledBitmap as jni$_.JMethodIDPtr,
-            _$bitmap.pointer,
-            i,
-            i1,
-            z ? 1 : 0)
-        .object<Bitmap?>(const $Bitmap$NullableType$());
+    final _$buffer = buffer?.reference ?? jni$_.jNullReference;
+    _copyPixelsToBuffer(reference.pointer,
+            _id_copyPixelsToBuffer as jni$_.JMethodIDPtr, _$buffer.pointer)
+        .check();
   }
 
   static final _id_createBitmap = _class.staticMethodId(
@@ -39856,40 +40477,34 @@ class Bitmap extends jni$_.JObject {
 
   static final _id_createBitmap$3 = _class.staticMethodId(
     r'createBitmap',
-    r'(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;',
+    r'(Landroid/graphics/Picture;)Landroid/graphics/Bitmap;',
   );
 
   static final _createBitmap$3 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallStaticObjectMethod')
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticObjectMethod')
       .asFunction<
           jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, int, int, jni$_.Pointer<jni$_.Void>)>();
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `static public android.graphics.Bitmap createBitmap(int i, int i1, android.graphics.Bitmap$Config config)`
+  /// from: `static public android.graphics.Bitmap createBitmap(android.graphics.Picture picture)`
   /// The returned object must be released after use, by calling the [release] method.
   static Bitmap? createBitmap$3(
-    int i,
-    int i1,
-    Bitmap$Config? config,
+    jni$_.JObject? picture,
   ) {
-    final _$config = config?.reference ?? jni$_.jNullReference;
+    final _$picture = picture?.reference ?? jni$_.jNullReference;
     return _createBitmap$3(_class.reference.pointer,
-            _id_createBitmap$3 as jni$_.JMethodIDPtr, i, i1, _$config.pointer)
+            _id_createBitmap$3 as jni$_.JMethodIDPtr, _$picture.pointer)
         .object<Bitmap?>(const $Bitmap$NullableType$());
   }
 
   static final _id_createBitmap$4 = _class.staticMethodId(
     r'createBitmap',
-    r'(Landroid/util/DisplayMetrics;IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;',
+    r'(Landroid/graphics/Picture;IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;',
   );
 
   static final _createBitmap$4 = jni$_.ProtectedJniExtensions.lookup<
@@ -39913,20 +40528,20 @@ class Bitmap extends jni$_.JObject {
               int,
               jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `static public android.graphics.Bitmap createBitmap(android.util.DisplayMetrics displayMetrics, int i, int i1, android.graphics.Bitmap$Config config)`
+  /// from: `static public android.graphics.Bitmap createBitmap(android.graphics.Picture picture, int i, int i1, android.graphics.Bitmap$Config config)`
   /// The returned object must be released after use, by calling the [release] method.
   static Bitmap? createBitmap$4(
-    jni$_.JObject? displayMetrics,
+    jni$_.JObject? picture,
     int i,
     int i1,
     Bitmap$Config? config,
   ) {
-    final _$displayMetrics = displayMetrics?.reference ?? jni$_.jNullReference;
+    final _$picture = picture?.reference ?? jni$_.jNullReference;
     final _$config = config?.reference ?? jni$_.jNullReference;
     return _createBitmap$4(
             _class.reference.pointer,
             _id_createBitmap$4 as jni$_.JMethodIDPtr,
-            _$displayMetrics.pointer,
+            _$picture.pointer,
             i,
             i1,
             _$config.pointer)
@@ -39935,7 +40550,7 @@ class Bitmap extends jni$_.JObject {
 
   static final _id_createBitmap$5 = _class.staticMethodId(
     r'createBitmap',
-    r'(IILandroid/graphics/Bitmap$Config;Z)Landroid/graphics/Bitmap;',
+    r'(Landroid/util/DisplayMetrics;IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;',
   );
 
   static final _createBitmap$5 = jni$_.ProtectedJniExtensions.lookup<
@@ -39945,49 +40560,8 @@ class Bitmap extends jni$_.JObject {
                   jni$_.JMethodIDPtr,
                   jni$_.VarArgs<
                       (
-                        jni$_.Int32,
-                        jni$_.Int32,
                         jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallStaticObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, int, int, jni$_.Pointer<jni$_.Void>, int)>();
-
-  /// from: `static public android.graphics.Bitmap createBitmap(int i, int i1, android.graphics.Bitmap$Config config, boolean z)`
-  /// The returned object must be released after use, by calling the [release] method.
-  static Bitmap? createBitmap$5(
-    int i,
-    int i1,
-    Bitmap$Config? config,
-    bool z,
-  ) {
-    final _$config = config?.reference ?? jni$_.jNullReference;
-    return _createBitmap$5(
-            _class.reference.pointer,
-            _id_createBitmap$5 as jni$_.JMethodIDPtr,
-            i,
-            i1,
-            _$config.pointer,
-            z ? 1 : 0)
-        .object<Bitmap?>(const $Bitmap$NullableType$());
-  }
-
-  static final _id_createBitmap$6 = _class.staticMethodId(
-    r'createBitmap',
-    r'(IILandroid/graphics/Bitmap$Config;ZLandroid/graphics/ColorSpace;)Landroid/graphics/Bitmap;',
-  );
-
-  static final _createBitmap$6 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
                         jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>,
                         jni$_.Int32,
                         jni$_.Pointer<jni$_.Void>
                       )>)>>('globalEnv_CallStaticObjectMethod')
@@ -39995,40 +40569,37 @@ class Bitmap extends jni$_.JObject {
           jni$_.JniResult Function(
               jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr,
-              int,
-              int,
               jni$_.Pointer<jni$_.Void>,
+              int,
               int,
               jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `static public android.graphics.Bitmap createBitmap(int i, int i1, android.graphics.Bitmap$Config config, boolean z, android.graphics.ColorSpace colorSpace)`
+  /// from: `static public android.graphics.Bitmap createBitmap(android.util.DisplayMetrics displayMetrics, int i, int i1, android.graphics.Bitmap$Config config)`
   /// The returned object must be released after use, by calling the [release] method.
-  static Bitmap? createBitmap$6(
+  static Bitmap? createBitmap$5(
+    jni$_.JObject? displayMetrics,
     int i,
     int i1,
     Bitmap$Config? config,
-    bool z,
-    jni$_.JObject? colorSpace,
   ) {
+    final _$displayMetrics = displayMetrics?.reference ?? jni$_.jNullReference;
     final _$config = config?.reference ?? jni$_.jNullReference;
-    final _$colorSpace = colorSpace?.reference ?? jni$_.jNullReference;
-    return _createBitmap$6(
+    return _createBitmap$5(
             _class.reference.pointer,
-            _id_createBitmap$6 as jni$_.JMethodIDPtr,
+            _id_createBitmap$5 as jni$_.JMethodIDPtr,
+            _$displayMetrics.pointer,
             i,
             i1,
-            _$config.pointer,
-            z ? 1 : 0,
-            _$colorSpace.pointer)
+            _$config.pointer)
         .object<Bitmap?>(const $Bitmap$NullableType$());
   }
 
-  static final _id_createBitmap$7 = _class.staticMethodId(
+  static final _id_createBitmap$6 = _class.staticMethodId(
     r'createBitmap',
     r'(Landroid/util/DisplayMetrics;IILandroid/graphics/Bitmap$Config;Z)Landroid/graphics/Bitmap;',
   );
 
-  static final _createBitmap$7 = jni$_.ProtectedJniExtensions.lookup<
+  static final _createBitmap$6 = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                   jni$_.Pointer<jni$_.Void>,
@@ -40053,7 +40624,7 @@ class Bitmap extends jni$_.JObject {
 
   /// from: `static public android.graphics.Bitmap createBitmap(android.util.DisplayMetrics displayMetrics, int i, int i1, android.graphics.Bitmap$Config config, boolean z)`
   /// The returned object must be released after use, by calling the [release] method.
-  static Bitmap? createBitmap$7(
+  static Bitmap? createBitmap$6(
     jni$_.JObject? displayMetrics,
     int i,
     int i1,
@@ -40062,9 +40633,9 @@ class Bitmap extends jni$_.JObject {
   ) {
     final _$displayMetrics = displayMetrics?.reference ?? jni$_.jNullReference;
     final _$config = config?.reference ?? jni$_.jNullReference;
-    return _createBitmap$7(
+    return _createBitmap$6(
             _class.reference.pointer,
-            _id_createBitmap$7 as jni$_.JMethodIDPtr,
+            _id_createBitmap$6 as jni$_.JMethodIDPtr,
             _$displayMetrics.pointer,
             i,
             i1,
@@ -40073,12 +40644,12 @@ class Bitmap extends jni$_.JObject {
         .object<Bitmap?>(const $Bitmap$NullableType$());
   }
 
-  static final _id_createBitmap$8 = _class.staticMethodId(
+  static final _id_createBitmap$7 = _class.staticMethodId(
     r'createBitmap',
     r'(Landroid/util/DisplayMetrics;IILandroid/graphics/Bitmap$Config;ZLandroid/graphics/ColorSpace;)Landroid/graphics/Bitmap;',
   );
 
-  static final _createBitmap$8 = jni$_.ProtectedJniExtensions.lookup<
+  static final _createBitmap$7 = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                   jni$_.Pointer<jni$_.Void>,
@@ -40105,7 +40676,7 @@ class Bitmap extends jni$_.JObject {
 
   /// from: `static public android.graphics.Bitmap createBitmap(android.util.DisplayMetrics displayMetrics, int i, int i1, android.graphics.Bitmap$Config config, boolean z, android.graphics.ColorSpace colorSpace)`
   /// The returned object must be released after use, by calling the [release] method.
-  static Bitmap? createBitmap$8(
+  static Bitmap? createBitmap$7(
     jni$_.JObject? displayMetrics,
     int i,
     int i1,
@@ -40116,9 +40687,9 @@ class Bitmap extends jni$_.JObject {
     final _$displayMetrics = displayMetrics?.reference ?? jni$_.jNullReference;
     final _$config = config?.reference ?? jni$_.jNullReference;
     final _$colorSpace = colorSpace?.reference ?? jni$_.jNullReference;
-    return _createBitmap$8(
+    return _createBitmap$7(
             _class.reference.pointer,
-            _id_createBitmap$8 as jni$_.JMethodIDPtr,
+            _id_createBitmap$7 as jni$_.JMethodIDPtr,
             _$displayMetrics.pointer,
             i,
             i1,
@@ -40128,12 +40699,12 @@ class Bitmap extends jni$_.JObject {
         .object<Bitmap?>(const $Bitmap$NullableType$());
   }
 
-  static final _id_createBitmap$9 = _class.staticMethodId(
+  static final _id_createBitmap$8 = _class.staticMethodId(
     r'createBitmap',
-    r'([IIIIILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;',
+    r'(Landroid/util/DisplayMetrics;[IIILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;',
   );
 
-  static final _createBitmap$9 = jni$_.ProtectedJniExtensions.lookup<
+  static final _createBitmap$8 = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                   jni$_.Pointer<jni$_.Void>,
@@ -40141,8 +40712,7 @@ class Bitmap extends jni$_.JObject {
                   jni$_.VarArgs<
                       (
                         jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>,
                         jni$_.Int32,
                         jni$_.Int32,
                         jni$_.Pointer<jni$_.Void>
@@ -40152,42 +40722,40 @@ class Bitmap extends jni$_.JObject {
               jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr,
               jni$_.Pointer<jni$_.Void>,
-              int,
-              int,
+              jni$_.Pointer<jni$_.Void>,
               int,
               int,
               jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `static public android.graphics.Bitmap createBitmap(int[] is, int i, int i1, int i2, int i3, android.graphics.Bitmap$Config config)`
+  /// from: `static public android.graphics.Bitmap createBitmap(android.util.DisplayMetrics displayMetrics, int[] is, int i, int i1, android.graphics.Bitmap$Config config)`
   /// The returned object must be released after use, by calling the [release] method.
-  static Bitmap? createBitmap$9(
+  static Bitmap? createBitmap$8(
+    jni$_.JObject? displayMetrics,
     jni$_.JIntArray? is$,
     int i,
     int i1,
-    int i2,
-    int i3,
     Bitmap$Config? config,
   ) {
+    final _$displayMetrics = displayMetrics?.reference ?? jni$_.jNullReference;
     final _$is$ = is$?.reference ?? jni$_.jNullReference;
     final _$config = config?.reference ?? jni$_.jNullReference;
-    return _createBitmap$9(
+    return _createBitmap$8(
             _class.reference.pointer,
-            _id_createBitmap$9 as jni$_.JMethodIDPtr,
+            _id_createBitmap$8 as jni$_.JMethodIDPtr,
+            _$displayMetrics.pointer,
             _$is$.pointer,
             i,
             i1,
-            i2,
-            i3,
             _$config.pointer)
         .object<Bitmap?>(const $Bitmap$NullableType$());
   }
 
-  static final _id_createBitmap$10 = _class.staticMethodId(
+  static final _id_createBitmap$9 = _class.staticMethodId(
     r'createBitmap',
     r'(Landroid/util/DisplayMetrics;[IIIIILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;',
   );
 
-  static final _createBitmap$10 = jni$_.ProtectedJniExtensions.lookup<
+  static final _createBitmap$9 = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                   jni$_.Pointer<jni$_.Void>,
@@ -40216,7 +40784,7 @@ class Bitmap extends jni$_.JObject {
 
   /// from: `static public android.graphics.Bitmap createBitmap(android.util.DisplayMetrics displayMetrics, int[] is, int i, int i1, int i2, int i3, android.graphics.Bitmap$Config config)`
   /// The returned object must be released after use, by calling the [release] method.
-  static Bitmap? createBitmap$10(
+  static Bitmap? createBitmap$9(
     jni$_.JObject? displayMetrics,
     jni$_.JIntArray? is$,
     int i,
@@ -40228,9 +40796,9 @@ class Bitmap extends jni$_.JObject {
     final _$displayMetrics = displayMetrics?.reference ?? jni$_.jNullReference;
     final _$is$ = is$?.reference ?? jni$_.jNullReference;
     final _$config = config?.reference ?? jni$_.jNullReference;
-    return _createBitmap$10(
+    return _createBitmap$9(
             _class.reference.pointer,
-            _id_createBitmap$10 as jni$_.JMethodIDPtr,
+            _id_createBitmap$9 as jni$_.JMethodIDPtr,
             _$displayMetrics.pointer,
             _$is$.pointer,
             i,
@@ -40241,12 +40809,135 @@ class Bitmap extends jni$_.JObject {
         .object<Bitmap?>(const $Bitmap$NullableType$());
   }
 
+  static final _id_createBitmap$10 = _class.staticMethodId(
+    r'createBitmap',
+    r'(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;',
+  );
+
+  static final _createBitmap$10 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, int, int, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public android.graphics.Bitmap createBitmap(int i, int i1, android.graphics.Bitmap$Config config)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Bitmap? createBitmap$10(
+    int i,
+    int i1,
+    Bitmap$Config? config,
+  ) {
+    final _$config = config?.reference ?? jni$_.jNullReference;
+    return _createBitmap$10(_class.reference.pointer,
+            _id_createBitmap$10 as jni$_.JMethodIDPtr, i, i1, _$config.pointer)
+        .object<Bitmap?>(const $Bitmap$NullableType$());
+  }
+
   static final _id_createBitmap$11 = _class.staticMethodId(
+    r'createBitmap',
+    r'(IILandroid/graphics/Bitmap$Config;Z)Landroid/graphics/Bitmap;',
+  );
+
+  static final _createBitmap$11 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, int, int, jni$_.Pointer<jni$_.Void>, int)>();
+
+  /// from: `static public android.graphics.Bitmap createBitmap(int i, int i1, android.graphics.Bitmap$Config config, boolean z)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Bitmap? createBitmap$11(
+    int i,
+    int i1,
+    Bitmap$Config? config,
+    bool z,
+  ) {
+    final _$config = config?.reference ?? jni$_.jNullReference;
+    return _createBitmap$11(
+            _class.reference.pointer,
+            _id_createBitmap$11 as jni$_.JMethodIDPtr,
+            i,
+            i1,
+            _$config.pointer,
+            z ? 1 : 0)
+        .object<Bitmap?>(const $Bitmap$NullableType$());
+  }
+
+  static final _id_createBitmap$12 = _class.staticMethodId(
+    r'createBitmap',
+    r'(IILandroid/graphics/Bitmap$Config;ZLandroid/graphics/ColorSpace;)Landroid/graphics/Bitmap;',
+  );
+
+  static final _createBitmap$12 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              int,
+              int,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public android.graphics.Bitmap createBitmap(int i, int i1, android.graphics.Bitmap$Config config, boolean z, android.graphics.ColorSpace colorSpace)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Bitmap? createBitmap$12(
+    int i,
+    int i1,
+    Bitmap$Config? config,
+    bool z,
+    jni$_.JObject? colorSpace,
+  ) {
+    final _$config = config?.reference ?? jni$_.jNullReference;
+    final _$colorSpace = colorSpace?.reference ?? jni$_.jNullReference;
+    return _createBitmap$12(
+            _class.reference.pointer,
+            _id_createBitmap$12 as jni$_.JMethodIDPtr,
+            i,
+            i1,
+            _$config.pointer,
+            z ? 1 : 0,
+            _$colorSpace.pointer)
+        .object<Bitmap?>(const $Bitmap$NullableType$());
+  }
+
+  static final _id_createBitmap$13 = _class.staticMethodId(
     r'createBitmap',
     r'([IIILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;',
   );
 
-  static final _createBitmap$11 = jni$_.ProtectedJniExtensions.lookup<
+  static final _createBitmap$13 = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                   jni$_.Pointer<jni$_.Void>,
@@ -40269,105 +40960,27 @@ class Bitmap extends jni$_.JObject {
 
   /// from: `static public android.graphics.Bitmap createBitmap(int[] is, int i, int i1, android.graphics.Bitmap$Config config)`
   /// The returned object must be released after use, by calling the [release] method.
-  static Bitmap? createBitmap$11(
-    jni$_.JIntArray? is$,
-    int i,
-    int i1,
-    Bitmap$Config? config,
-  ) {
-    final _$is$ = is$?.reference ?? jni$_.jNullReference;
-    final _$config = config?.reference ?? jni$_.jNullReference;
-    return _createBitmap$11(
-            _class.reference.pointer,
-            _id_createBitmap$11 as jni$_.JMethodIDPtr,
-            _$is$.pointer,
-            i,
-            i1,
-            _$config.pointer)
-        .object<Bitmap?>(const $Bitmap$NullableType$());
-  }
-
-  static final _id_createBitmap$12 = _class.staticMethodId(
-    r'createBitmap',
-    r'(Landroid/util/DisplayMetrics;[IIILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;',
-  );
-
-  static final _createBitmap$12 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallStaticObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              int,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `static public android.graphics.Bitmap createBitmap(android.util.DisplayMetrics displayMetrics, int[] is, int i, int i1, android.graphics.Bitmap$Config config)`
-  /// The returned object must be released after use, by calling the [release] method.
-  static Bitmap? createBitmap$12(
-    jni$_.JObject? displayMetrics,
-    jni$_.JIntArray? is$,
-    int i,
-    int i1,
-    Bitmap$Config? config,
-  ) {
-    final _$displayMetrics = displayMetrics?.reference ?? jni$_.jNullReference;
-    final _$is$ = is$?.reference ?? jni$_.jNullReference;
-    final _$config = config?.reference ?? jni$_.jNullReference;
-    return _createBitmap$12(
-            _class.reference.pointer,
-            _id_createBitmap$12 as jni$_.JMethodIDPtr,
-            _$displayMetrics.pointer,
-            _$is$.pointer,
-            i,
-            i1,
-            _$config.pointer)
-        .object<Bitmap?>(const $Bitmap$NullableType$());
-  }
-
-  static final _id_createBitmap$13 = _class.staticMethodId(
-    r'createBitmap',
-    r'(Landroid/graphics/Picture;)Landroid/graphics/Bitmap;',
-  );
-
-  static final _createBitmap$13 = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallStaticObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `static public android.graphics.Bitmap createBitmap(android.graphics.Picture picture)`
-  /// The returned object must be released after use, by calling the [release] method.
   static Bitmap? createBitmap$13(
-    jni$_.JObject? picture,
+    jni$_.JIntArray? is$,
+    int i,
+    int i1,
+    Bitmap$Config? config,
   ) {
-    final _$picture = picture?.reference ?? jni$_.jNullReference;
-    return _createBitmap$13(_class.reference.pointer,
-            _id_createBitmap$13 as jni$_.JMethodIDPtr, _$picture.pointer)
+    final _$is$ = is$?.reference ?? jni$_.jNullReference;
+    final _$config = config?.reference ?? jni$_.jNullReference;
+    return _createBitmap$13(
+            _class.reference.pointer,
+            _id_createBitmap$13 as jni$_.JMethodIDPtr,
+            _$is$.pointer,
+            i,
+            i1,
+            _$config.pointer)
         .object<Bitmap?>(const $Bitmap$NullableType$());
   }
 
   static final _id_createBitmap$14 = _class.staticMethodId(
     r'createBitmap',
-    r'(Landroid/graphics/Picture;IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;',
+    r'([IIIIILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;',
   );
 
   static final _createBitmap$14 = jni$_.ProtectedJniExtensions.lookup<
@@ -40380,6 +40993,8 @@ class Bitmap extends jni$_.JObject {
                         jni$_.Pointer<jni$_.Void>,
                         jni$_.Int32,
                         jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Int32,
                         jni$_.Pointer<jni$_.Void>
                       )>)>>('globalEnv_CallStaticObjectMethod')
       .asFunction<
@@ -40389,26 +41004,448 @@ class Bitmap extends jni$_.JObject {
               jni$_.Pointer<jni$_.Void>,
               int,
               int,
+              int,
+              int,
               jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `static public android.graphics.Bitmap createBitmap(android.graphics.Picture picture, int i, int i1, android.graphics.Bitmap$Config config)`
+  /// from: `static public android.graphics.Bitmap createBitmap(int[] is, int i, int i1, int i2, int i3, android.graphics.Bitmap$Config config)`
   /// The returned object must be released after use, by calling the [release] method.
   static Bitmap? createBitmap$14(
-    jni$_.JObject? picture,
+    jni$_.JIntArray? is$,
     int i,
     int i1,
+    int i2,
+    int i3,
     Bitmap$Config? config,
   ) {
-    final _$picture = picture?.reference ?? jni$_.jNullReference;
+    final _$is$ = is$?.reference ?? jni$_.jNullReference;
     final _$config = config?.reference ?? jni$_.jNullReference;
     return _createBitmap$14(
             _class.reference.pointer,
             _id_createBitmap$14 as jni$_.JMethodIDPtr,
-            _$picture.pointer,
+            _$is$.pointer,
             i,
             i1,
+            i2,
+            i3,
             _$config.pointer)
         .object<Bitmap?>(const $Bitmap$NullableType$());
+  }
+
+  static final _id_createScaledBitmap = _class.staticMethodId(
+    r'createScaledBitmap',
+    r'(Landroid/graphics/Bitmap;IIZ)Landroid/graphics/Bitmap;',
+  );
+
+  static final _createScaledBitmap = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int, int, int)>();
+
+  /// from: `static public android.graphics.Bitmap createScaledBitmap(android.graphics.Bitmap bitmap, int i, int i1, boolean z)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Bitmap? createScaledBitmap(
+    Bitmap? bitmap,
+    int i,
+    int i1,
+    bool z,
+  ) {
+    final _$bitmap = bitmap?.reference ?? jni$_.jNullReference;
+    return _createScaledBitmap(
+            _class.reference.pointer,
+            _id_createScaledBitmap as jni$_.JMethodIDPtr,
+            _$bitmap.pointer,
+            i,
+            i1,
+            z ? 1 : 0)
+        .object<Bitmap?>(const $Bitmap$NullableType$());
+  }
+
+  static final _id_describeContents = _class.instanceMethodId(
+    r'describeContents',
+    r'()I',
+  );
+
+  static final _describeContents = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public int describeContents()`
+  int describeContents() {
+    return _describeContents(
+            reference.pointer, _id_describeContents as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_eraseColor = _class.instanceMethodId(
+    r'eraseColor',
+    r'(I)V',
+  );
+
+  static final _eraseColor = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void eraseColor(int i)`
+  void eraseColor(
+    int i,
+  ) {
+    _eraseColor(reference.pointer, _id_eraseColor as jni$_.JMethodIDPtr, i)
+        .check();
+  }
+
+  static final _id_eraseColor$1 = _class.instanceMethodId(
+    r'eraseColor',
+    r'(J)V',
+  );
+
+  static final _eraseColor$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int64,)>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void eraseColor(long j)`
+  void eraseColor$1(
+    int j,
+  ) {
+    _eraseColor$1(reference.pointer, _id_eraseColor$1 as jni$_.JMethodIDPtr, j)
+        .check();
+  }
+
+  static final _id_extractAlpha = _class.instanceMethodId(
+    r'extractAlpha',
+    r'()Landroid/graphics/Bitmap;',
+  );
+
+  static final _extractAlpha = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public android.graphics.Bitmap extractAlpha()`
+  /// The returned object must be released after use, by calling the [release] method.
+  Bitmap? extractAlpha() {
+    return _extractAlpha(
+            reference.pointer, _id_extractAlpha as jni$_.JMethodIDPtr)
+        .object<Bitmap?>(const $Bitmap$NullableType$());
+  }
+
+  static final _id_extractAlpha$1 = _class.instanceMethodId(
+    r'extractAlpha',
+    r'(Landroid/graphics/Paint;[I)Landroid/graphics/Bitmap;',
+  );
+
+  static final _extractAlpha$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public android.graphics.Bitmap extractAlpha(android.graphics.Paint paint, int[] is)`
+  /// The returned object must be released after use, by calling the [release] method.
+  Bitmap? extractAlpha$1(
+    jni$_.JObject? paint,
+    jni$_.JIntArray? is$,
+  ) {
+    final _$paint = paint?.reference ?? jni$_.jNullReference;
+    final _$is$ = is$?.reference ?? jni$_.jNullReference;
+    return _extractAlpha$1(
+            reference.pointer,
+            _id_extractAlpha$1 as jni$_.JMethodIDPtr,
+            _$paint.pointer,
+            _$is$.pointer)
+        .object<Bitmap?>(const $Bitmap$NullableType$());
+  }
+
+  static final _id_getAllocationByteCount = _class.instanceMethodId(
+    r'getAllocationByteCount',
+    r'()I',
+  );
+
+  static final _getAllocationByteCount = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public int getAllocationByteCount()`
+  int getAllocationByteCount() {
+    return _getAllocationByteCount(
+            reference.pointer, _id_getAllocationByteCount as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_getByteCount = _class.instanceMethodId(
+    r'getByteCount',
+    r'()I',
+  );
+
+  static final _getByteCount = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public int getByteCount()`
+  int getByteCount() {
+    return _getByteCount(
+            reference.pointer, _id_getByteCount as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_getColor = _class.instanceMethodId(
+    r'getColor',
+    r'(II)Landroid/graphics/Color;',
+  );
+
+  static final _getColor = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Int32, jni$_.Int32)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int, int)>();
+
+  /// from: `public android.graphics.Color getColor(int i, int i1)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getColor(
+    int i,
+    int i1,
+  ) {
+    return _getColor(
+            reference.pointer, _id_getColor as jni$_.JMethodIDPtr, i, i1)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getColorSpace = _class.instanceMethodId(
+    r'getColorSpace',
+    r'()Landroid/graphics/ColorSpace;',
+  );
+
+  static final _getColorSpace = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public android.graphics.ColorSpace getColorSpace()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getColorSpace() {
+    return _getColorSpace(
+            reference.pointer, _id_getColorSpace as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getConfig = _class.instanceMethodId(
+    r'getConfig',
+    r'()Landroid/graphics/Bitmap$Config;',
+  );
+
+  static final _getConfig = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public android.graphics.Bitmap$Config getConfig()`
+  /// The returned object must be released after use, by calling the [release] method.
+  Bitmap$Config? getConfig() {
+    return _getConfig(reference.pointer, _id_getConfig as jni$_.JMethodIDPtr)
+        .object<Bitmap$Config?>(const $Bitmap$Config$NullableType$());
+  }
+
+  static final _id_getDensity = _class.instanceMethodId(
+    r'getDensity',
+    r'()I',
+  );
+
+  static final _getDensity = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public int getDensity()`
+  int getDensity() {
+    return _getDensity(reference.pointer, _id_getDensity as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_getGainmap = _class.instanceMethodId(
+    r'getGainmap',
+    r'()Landroid/graphics/Gainmap;',
+  );
+
+  static final _getGainmap = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public android.graphics.Gainmap getGainmap()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getGainmap() {
+    return _getGainmap(reference.pointer, _id_getGainmap as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getGenerationId = _class.instanceMethodId(
+    r'getGenerationId',
+    r'()I',
+  );
+
+  static final _getGenerationId = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public int getGenerationId()`
+  int getGenerationId() {
+    return _getGenerationId(
+            reference.pointer, _id_getGenerationId as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_getHardwareBuffer = _class.instanceMethodId(
+    r'getHardwareBuffer',
+    r'()Landroid/hardware/HardwareBuffer;',
+  );
+
+  static final _getHardwareBuffer = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public android.hardware.HardwareBuffer getHardwareBuffer()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getHardwareBuffer() {
+    return _getHardwareBuffer(
+            reference.pointer, _id_getHardwareBuffer as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getHeight = _class.instanceMethodId(
+    r'getHeight',
+    r'()I',
+  );
+
+  static final _getHeight = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public int getHeight()`
+  int getHeight() {
+    return _getHeight(reference.pointer, _id_getHeight as jni$_.JMethodIDPtr)
+        .integer;
   }
 
   static final _id_getNinePatchChunk = _class.instanceMethodId(
@@ -40436,40 +41473,349 @@ class Bitmap extends jni$_.JObject {
         .object<jni$_.JByteArray?>(const jni$_.$JByteArray$NullableType$());
   }
 
-  static final _id_compress = _class.instanceMethodId(
-    r'compress',
-    r'(Landroid/graphics/Bitmap$CompressFormat;ILjava/io/OutputStream;)Z',
+  static final _id_getPixel = _class.instanceMethodId(
+    r'getPixel',
+    r'(II)I',
   );
 
-  static final _compress = jni$_.ProtectedJniExtensions.lookup<
+  static final _getPixel = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Int32, jni$_.Int32)>)>>(
+          'globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int, int)>();
+
+  /// from: `public int getPixel(int i, int i1)`
+  int getPixel(
+    int i,
+    int i1,
+  ) {
+    return _getPixel(
+            reference.pointer, _id_getPixel as jni$_.JMethodIDPtr, i, i1)
+        .integer;
+  }
+
+  static final _id_getPixels = _class.instanceMethodId(
+    r'getPixels',
+    r'([IIIIIII)V',
+  );
+
+  static final _getPixels = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
-              jni$_.JniResult Function(
+              jni$_.JThrowablePtr Function(
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.JMethodIDPtr,
                   jni$_.VarArgs<
                       (
                         jni$_.Pointer<jni$_.Void>,
                         jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallBooleanMethod')
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallVoidMethod')
       .asFunction<
-          jni$_.JniResult Function(
+          jni$_.JThrowablePtr Function(
               jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr,
               jni$_.Pointer<jni$_.Void>,
               int,
-              jni$_.Pointer<jni$_.Void>)>();
+              int,
+              int,
+              int,
+              int,
+              int)>();
 
-  /// from: `public boolean compress(android.graphics.Bitmap$CompressFormat compressFormat, int i, java.io.OutputStream outputStream)`
-  bool compress(
-    Bitmap$CompressFormat? compressFormat,
+  /// from: `public void getPixels(int[] is, int i, int i1, int i2, int i3, int i4, int i5)`
+  void getPixels(
+    jni$_.JIntArray? is$,
     int i,
-    jni$_.JObject? outputStream,
+    int i1,
+    int i2,
+    int i3,
+    int i4,
+    int i5,
   ) {
-    final _$compressFormat = compressFormat?.reference ?? jni$_.jNullReference;
-    final _$outputStream = outputStream?.reference ?? jni$_.jNullReference;
-    return _compress(reference.pointer, _id_compress as jni$_.JMethodIDPtr,
-            _$compressFormat.pointer, i, _$outputStream.pointer)
+    final _$is$ = is$?.reference ?? jni$_.jNullReference;
+    _getPixels(reference.pointer, _id_getPixels as jni$_.JMethodIDPtr,
+            _$is$.pointer, i, i1, i2, i3, i4, i5)
+        .check();
+  }
+
+  static final _id_getRowBytes = _class.instanceMethodId(
+    r'getRowBytes',
+    r'()I',
+  );
+
+  static final _getRowBytes = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public int getRowBytes()`
+  int getRowBytes() {
+    return _getRowBytes(
+            reference.pointer, _id_getRowBytes as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_getScaledHeight = _class.instanceMethodId(
+    r'getScaledHeight',
+    r'(Landroid/graphics/Canvas;)I',
+  );
+
+  static final _getScaledHeight = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public int getScaledHeight(android.graphics.Canvas canvas)`
+  int getScaledHeight(
+    jni$_.JObject? canvas,
+  ) {
+    final _$canvas = canvas?.reference ?? jni$_.jNullReference;
+    return _getScaledHeight(reference.pointer,
+            _id_getScaledHeight as jni$_.JMethodIDPtr, _$canvas.pointer)
+        .integer;
+  }
+
+  static final _id_getScaledHeight$1 = _class.instanceMethodId(
+    r'getScaledHeight',
+    r'(Landroid/util/DisplayMetrics;)I',
+  );
+
+  static final _getScaledHeight$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public int getScaledHeight(android.util.DisplayMetrics displayMetrics)`
+  int getScaledHeight$1(
+    jni$_.JObject? displayMetrics,
+  ) {
+    final _$displayMetrics = displayMetrics?.reference ?? jni$_.jNullReference;
+    return _getScaledHeight$1(
+            reference.pointer,
+            _id_getScaledHeight$1 as jni$_.JMethodIDPtr,
+            _$displayMetrics.pointer)
+        .integer;
+  }
+
+  static final _id_getScaledHeight$2 = _class.instanceMethodId(
+    r'getScaledHeight',
+    r'(I)I',
+  );
+
+  static final _getScaledHeight$2 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public int getScaledHeight(int i)`
+  int getScaledHeight$2(
+    int i,
+  ) {
+    return _getScaledHeight$2(
+            reference.pointer, _id_getScaledHeight$2 as jni$_.JMethodIDPtr, i)
+        .integer;
+  }
+
+  static final _id_getScaledWidth = _class.instanceMethodId(
+    r'getScaledWidth',
+    r'(Landroid/graphics/Canvas;)I',
+  );
+
+  static final _getScaledWidth = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public int getScaledWidth(android.graphics.Canvas canvas)`
+  int getScaledWidth(
+    jni$_.JObject? canvas,
+  ) {
+    final _$canvas = canvas?.reference ?? jni$_.jNullReference;
+    return _getScaledWidth(reference.pointer,
+            _id_getScaledWidth as jni$_.JMethodIDPtr, _$canvas.pointer)
+        .integer;
+  }
+
+  static final _id_getScaledWidth$1 = _class.instanceMethodId(
+    r'getScaledWidth',
+    r'(Landroid/util/DisplayMetrics;)I',
+  );
+
+  static final _getScaledWidth$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public int getScaledWidth(android.util.DisplayMetrics displayMetrics)`
+  int getScaledWidth$1(
+    jni$_.JObject? displayMetrics,
+  ) {
+    final _$displayMetrics = displayMetrics?.reference ?? jni$_.jNullReference;
+    return _getScaledWidth$1(
+            reference.pointer,
+            _id_getScaledWidth$1 as jni$_.JMethodIDPtr,
+            _$displayMetrics.pointer)
+        .integer;
+  }
+
+  static final _id_getScaledWidth$2 = _class.instanceMethodId(
+    r'getScaledWidth',
+    r'(I)I',
+  );
+
+  static final _getScaledWidth$2 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public int getScaledWidth(int i)`
+  int getScaledWidth$2(
+    int i,
+  ) {
+    return _getScaledWidth$2(
+            reference.pointer, _id_getScaledWidth$2 as jni$_.JMethodIDPtr, i)
+        .integer;
+  }
+
+  static final _id_getWidth = _class.instanceMethodId(
+    r'getWidth',
+    r'()I',
+  );
+
+  static final _getWidth = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public int getWidth()`
+  int getWidth() {
+    return _getWidth(reference.pointer, _id_getWidth as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_hasAlpha = _class.instanceMethodId(
+    r'hasAlpha',
+    r'()Z',
+  );
+
+  static final _hasAlpha = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public boolean hasAlpha()`
+  bool hasAlpha() {
+    return _hasAlpha(reference.pointer, _id_hasAlpha as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_hasGainmap = _class.instanceMethodId(
+    r'hasGainmap',
+    r'()Z',
+  );
+
+  static final _hasGainmap = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public boolean hasGainmap()`
+  bool hasGainmap() {
+    return _hasGainmap(reference.pointer, _id_hasGainmap as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_hasMipMap = _class.instanceMethodId(
+    r'hasMipMap',
+    r'()Z',
+  );
+
+  static final _hasMipMap = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public boolean hasMipMap()`
+  bool hasMipMap() {
+    return _hasMipMap(reference.pointer, _id_hasMipMap as jni$_.JMethodIDPtr)
         .boolean;
   }
 
@@ -40520,334 +41866,12 @@ class Bitmap extends jni$_.JObject {
         .boolean;
   }
 
-  static final _id_setPremultiplied = _class.instanceMethodId(
-    r'setPremultiplied',
-    r'(Z)V',
-  );
-
-  static final _setPremultiplied = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
-
-  /// from: `public void setPremultiplied(boolean z)`
-  void setPremultiplied(
-    bool z,
-  ) {
-    _setPremultiplied(reference.pointer,
-            _id_setPremultiplied as jni$_.JMethodIDPtr, z ? 1 : 0)
-        .check();
-  }
-
-  static final _id_getWidth = _class.instanceMethodId(
-    r'getWidth',
-    r'()I',
-  );
-
-  static final _getWidth = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public int getWidth()`
-  int getWidth() {
-    return _getWidth(reference.pointer, _id_getWidth as jni$_.JMethodIDPtr)
-        .integer;
-  }
-
-  static final _id_getHeight = _class.instanceMethodId(
-    r'getHeight',
-    r'()I',
-  );
-
-  static final _getHeight = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public int getHeight()`
-  int getHeight() {
-    return _getHeight(reference.pointer, _id_getHeight as jni$_.JMethodIDPtr)
-        .integer;
-  }
-
-  static final _id_getScaledWidth = _class.instanceMethodId(
-    r'getScaledWidth',
-    r'(Landroid/graphics/Canvas;)I',
-  );
-
-  static final _getScaledWidth = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public int getScaledWidth(android.graphics.Canvas canvas)`
-  int getScaledWidth(
-    jni$_.JObject? canvas,
-  ) {
-    final _$canvas = canvas?.reference ?? jni$_.jNullReference;
-    return _getScaledWidth(reference.pointer,
-            _id_getScaledWidth as jni$_.JMethodIDPtr, _$canvas.pointer)
-        .integer;
-  }
-
-  static final _id_getScaledHeight = _class.instanceMethodId(
-    r'getScaledHeight',
-    r'(Landroid/graphics/Canvas;)I',
-  );
-
-  static final _getScaledHeight = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public int getScaledHeight(android.graphics.Canvas canvas)`
-  int getScaledHeight(
-    jni$_.JObject? canvas,
-  ) {
-    final _$canvas = canvas?.reference ?? jni$_.jNullReference;
-    return _getScaledHeight(reference.pointer,
-            _id_getScaledHeight as jni$_.JMethodIDPtr, _$canvas.pointer)
-        .integer;
-  }
-
-  static final _id_getScaledWidth$1 = _class.instanceMethodId(
-    r'getScaledWidth',
-    r'(Landroid/util/DisplayMetrics;)I',
-  );
-
-  static final _getScaledWidth$1 = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public int getScaledWidth(android.util.DisplayMetrics displayMetrics)`
-  int getScaledWidth$1(
-    jni$_.JObject? displayMetrics,
-  ) {
-    final _$displayMetrics = displayMetrics?.reference ?? jni$_.jNullReference;
-    return _getScaledWidth$1(
-            reference.pointer,
-            _id_getScaledWidth$1 as jni$_.JMethodIDPtr,
-            _$displayMetrics.pointer)
-        .integer;
-  }
-
-  static final _id_getScaledHeight$1 = _class.instanceMethodId(
-    r'getScaledHeight',
-    r'(Landroid/util/DisplayMetrics;)I',
-  );
-
-  static final _getScaledHeight$1 = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public int getScaledHeight(android.util.DisplayMetrics displayMetrics)`
-  int getScaledHeight$1(
-    jni$_.JObject? displayMetrics,
-  ) {
-    final _$displayMetrics = displayMetrics?.reference ?? jni$_.jNullReference;
-    return _getScaledHeight$1(
-            reference.pointer,
-            _id_getScaledHeight$1 as jni$_.JMethodIDPtr,
-            _$displayMetrics.pointer)
-        .integer;
-  }
-
-  static final _id_getScaledWidth$2 = _class.instanceMethodId(
-    r'getScaledWidth',
-    r'(I)I',
-  );
-
-  static final _getScaledWidth$2 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
-
-  /// from: `public int getScaledWidth(int i)`
-  int getScaledWidth$2(
-    int i,
-  ) {
-    return _getScaledWidth$2(
-            reference.pointer, _id_getScaledWidth$2 as jni$_.JMethodIDPtr, i)
-        .integer;
-  }
-
-  static final _id_getScaledHeight$2 = _class.instanceMethodId(
-    r'getScaledHeight',
-    r'(I)I',
-  );
-
-  static final _getScaledHeight$2 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
-
-  /// from: `public int getScaledHeight(int i)`
-  int getScaledHeight$2(
-    int i,
-  ) {
-    return _getScaledHeight$2(
-            reference.pointer, _id_getScaledHeight$2 as jni$_.JMethodIDPtr, i)
-        .integer;
-  }
-
-  static final _id_getRowBytes = _class.instanceMethodId(
-    r'getRowBytes',
-    r'()I',
-  );
-
-  static final _getRowBytes = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public int getRowBytes()`
-  int getRowBytes() {
-    return _getRowBytes(
-            reference.pointer, _id_getRowBytes as jni$_.JMethodIDPtr)
-        .integer;
-  }
-
-  static final _id_getByteCount = _class.instanceMethodId(
-    r'getByteCount',
-    r'()I',
-  );
-
-  static final _getByteCount = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public int getByteCount()`
-  int getByteCount() {
-    return _getByteCount(
-            reference.pointer, _id_getByteCount as jni$_.JMethodIDPtr)
-        .integer;
-  }
-
-  static final _id_getAllocationByteCount = _class.instanceMethodId(
-    r'getAllocationByteCount',
-    r'()I',
-  );
-
-  static final _getAllocationByteCount = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public int getAllocationByteCount()`
-  int getAllocationByteCount() {
-    return _getAllocationByteCount(
-            reference.pointer, _id_getAllocationByteCount as jni$_.JMethodIDPtr)
-        .integer;
-  }
-
-  static final _id_getConfig = _class.instanceMethodId(
-    r'getConfig',
-    r'()Landroid/graphics/Bitmap$Config;',
-  );
-
-  static final _getConfig = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public android.graphics.Bitmap$Config getConfig()`
-  /// The returned object must be released after use, by calling the [release] method.
-  Bitmap$Config? getConfig() {
-    return _getConfig(reference.pointer, _id_getConfig as jni$_.JMethodIDPtr)
-        .object<Bitmap$Config?>(const $Bitmap$Config$NullableType$());
-  }
-
-  static final _id_hasAlpha = _class.instanceMethodId(
-    r'hasAlpha',
+  static final _id_isRecycled = _class.instanceMethodId(
+    r'isRecycled',
     r'()Z',
   );
 
-  static final _hasAlpha = jni$_.ProtectedJniExtensions.lookup<
+  static final _isRecycled = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                 jni$_.Pointer<jni$_.Void>,
@@ -40859,106 +41883,113 @@ class Bitmap extends jni$_.JObject {
             jni$_.JMethodIDPtr,
           )>();
 
-  /// from: `public boolean hasAlpha()`
-  bool hasAlpha() {
-    return _hasAlpha(reference.pointer, _id_hasAlpha as jni$_.JMethodIDPtr)
+  /// from: `public boolean isRecycled()`
+  bool isRecycled() {
+    return _isRecycled(reference.pointer, _id_isRecycled as jni$_.JMethodIDPtr)
         .boolean;
   }
 
-  static final _id_setHasAlpha = _class.instanceMethodId(
-    r'setHasAlpha',
-    r'(Z)V',
+  static final _id_prepareToDraw = _class.instanceMethodId(
+    r'prepareToDraw',
+    r'()V',
   );
 
-  static final _setHasAlpha = jni$_.ProtectedJniExtensions.lookup<
+  static final _prepareToDraw = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
-
-  /// from: `public void setHasAlpha(boolean z)`
-  void setHasAlpha(
-    bool z,
-  ) {
-    _setHasAlpha(
-            reference.pointer, _id_setHasAlpha as jni$_.JMethodIDPtr, z ? 1 : 0)
-        .check();
-  }
-
-  static final _id_hasMipMap = _class.instanceMethodId(
-    r'hasMipMap',
-    r'()Z',
-  );
-
-  static final _hasMipMap = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
                 jni$_.Pointer<jni$_.Void>,
                 jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallBooleanMethod')
+              )>>('globalEnv_CallVoidMethod')
       .asFunction<
-          jni$_.JniResult Function(
+          jni$_.JThrowablePtr Function(
             jni$_.Pointer<jni$_.Void>,
             jni$_.JMethodIDPtr,
           )>();
 
-  /// from: `public boolean hasMipMap()`
-  bool hasMipMap() {
-    return _hasMipMap(reference.pointer, _id_hasMipMap as jni$_.JMethodIDPtr)
-        .boolean;
+  /// from: `public void prepareToDraw()`
+  void prepareToDraw() {
+    _prepareToDraw(reference.pointer, _id_prepareToDraw as jni$_.JMethodIDPtr)
+        .check();
   }
 
-  static final _id_setHasMipMap = _class.instanceMethodId(
-    r'setHasMipMap',
-    r'(Z)V',
+  static final _id_reconfigure = _class.instanceMethodId(
+    r'reconfigure',
+    r'(IILandroid/graphics/Bitmap$Config;)V',
   );
 
-  static final _setHasMipMap = jni$_.ProtectedJniExtensions.lookup<
+  static final _reconfigure = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JThrowablePtr Function(
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
       .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, int, int, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public void setHasMipMap(boolean z)`
-  void setHasMipMap(
-    bool z,
+  /// from: `public void reconfigure(int i, int i1, android.graphics.Bitmap$Config config)`
+  void reconfigure(
+    int i,
+    int i1,
+    Bitmap$Config? config,
   ) {
-    _setHasMipMap(reference.pointer, _id_setHasMipMap as jni$_.JMethodIDPtr,
-            z ? 1 : 0)
+    final _$config = config?.reference ?? jni$_.jNullReference;
+    _reconfigure(reference.pointer, _id_reconfigure as jni$_.JMethodIDPtr, i,
+            i1, _$config.pointer)
         .check();
   }
 
-  static final _id_getColorSpace = _class.instanceMethodId(
-    r'getColorSpace',
-    r'()Landroid/graphics/ColorSpace;',
+  static final _id_recycle = _class.instanceMethodId(
+    r'recycle',
+    r'()V',
   );
 
-  static final _getColorSpace = jni$_.ProtectedJniExtensions.lookup<
+  static final _recycle = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
-              jni$_.JniResult Function(
+              jni$_.JThrowablePtr Function(
                 jni$_.Pointer<jni$_.Void>,
                 jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
+              )>>('globalEnv_CallVoidMethod')
       .asFunction<
-          jni$_.JniResult Function(
+          jni$_.JThrowablePtr Function(
             jni$_.Pointer<jni$_.Void>,
             jni$_.JMethodIDPtr,
           )>();
 
-  /// from: `public android.graphics.ColorSpace getColorSpace()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getColorSpace() {
-    return _getColorSpace(
-            reference.pointer, _id_getColorSpace as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  /// from: `public void recycle()`
+  void recycle() {
+    _recycle(reference.pointer, _id_recycle as jni$_.JMethodIDPtr).check();
+  }
+
+  static final _id_sameAs = _class.instanceMethodId(
+    r'sameAs',
+    r'(Landroid/graphics/Bitmap;)Z',
+  );
+
+  static final _sameAs = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public boolean sameAs(android.graphics.Bitmap bitmap)`
+  bool sameAs(
+    Bitmap? bitmap,
+  ) {
+    final _$bitmap = bitmap?.reference ?? jni$_.jNullReference;
+    return _sameAs(reference.pointer, _id_sameAs as jni$_.JMethodIDPtr,
+            _$bitmap.pointer)
+        .boolean;
   }
 
   static final _id_setColorSpace = _class.instanceMethodId(
@@ -40987,51 +42018,53 @@ class Bitmap extends jni$_.JObject {
         .check();
   }
 
-  static final _id_hasGainmap = _class.instanceMethodId(
-    r'hasGainmap',
-    r'()Z',
+  static final _id_setConfig = _class.instanceMethodId(
+    r'setConfig',
+    r'(Landroid/graphics/Bitmap$Config;)V',
   );
 
-  static final _hasGainmap = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallBooleanMethod')
+  static final _setConfig = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
       .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public boolean hasGainmap()`
-  bool hasGainmap() {
-    return _hasGainmap(reference.pointer, _id_hasGainmap as jni$_.JMethodIDPtr)
-        .boolean;
+  /// from: `public void setConfig(android.graphics.Bitmap$Config config)`
+  void setConfig(
+    Bitmap$Config? config,
+  ) {
+    final _$config = config?.reference ?? jni$_.jNullReference;
+    _setConfig(reference.pointer, _id_setConfig as jni$_.JMethodIDPtr,
+            _$config.pointer)
+        .check();
   }
 
-  static final _id_getGainmap = _class.instanceMethodId(
-    r'getGainmap',
-    r'()Landroid/graphics/Gainmap;',
+  static final _id_setDensity = _class.instanceMethodId(
+    r'setDensity',
+    r'(I)V',
   );
 
-  static final _getGainmap = jni$_.ProtectedJniExtensions.lookup<
+  static final _setDensity = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
       .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
 
-  /// from: `public android.graphics.Gainmap getGainmap()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getGainmap() {
-    return _getGainmap(reference.pointer, _id_getGainmap as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  /// from: `public void setDensity(int i)`
+  void setDensity(
+    int i,
+  ) {
+    _setDensity(reference.pointer, _id_setDensity as jni$_.JMethodIDPtr, i)
+        .check();
   }
 
   static final _id_setGainmap = _class.instanceMethodId(
@@ -41060,12 +42093,12 @@ class Bitmap extends jni$_.JObject {
         .check();
   }
 
-  static final _id_eraseColor = _class.instanceMethodId(
-    r'eraseColor',
-    r'(I)V',
+  static final _id_setHasAlpha = _class.instanceMethodId(
+    r'setHasAlpha',
+    r'(Z)V',
   );
 
-  static final _eraseColor = jni$_.ProtectedJniExtensions.lookup<
+  static final _setHasAlpha = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JThrowablePtr Function(
                   jni$_.Pointer<jni$_.Void>,
@@ -41075,135 +42108,59 @@ class Bitmap extends jni$_.JObject {
           jni$_.JThrowablePtr Function(
               jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
 
-  /// from: `public void eraseColor(int i)`
-  void eraseColor(
-    int i,
+  /// from: `public void setHasAlpha(boolean z)`
+  void setHasAlpha(
+    bool z,
   ) {
-    _eraseColor(reference.pointer, _id_eraseColor as jni$_.JMethodIDPtr, i)
+    _setHasAlpha(
+            reference.pointer, _id_setHasAlpha as jni$_.JMethodIDPtr, z ? 1 : 0)
         .check();
   }
 
-  static final _id_eraseColor$1 = _class.instanceMethodId(
-    r'eraseColor',
-    r'(J)V',
+  static final _id_setHasMipMap = _class.instanceMethodId(
+    r'setHasMipMap',
+    r'(Z)V',
   );
 
-  static final _eraseColor$1 = jni$_.ProtectedJniExtensions.lookup<
+  static final _setHasMipMap = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JThrowablePtr Function(
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int64,)>)>>('globalEnv_CallVoidMethod')
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
       .asFunction<
           jni$_.JThrowablePtr Function(
               jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
 
-  /// from: `public void eraseColor(long j)`
-  void eraseColor$1(
-    int j,
+  /// from: `public void setHasMipMap(boolean z)`
+  void setHasMipMap(
+    bool z,
   ) {
-    _eraseColor$1(reference.pointer, _id_eraseColor$1 as jni$_.JMethodIDPtr, j)
+    _setHasMipMap(reference.pointer, _id_setHasMipMap as jni$_.JMethodIDPtr,
+            z ? 1 : 0)
         .check();
   }
 
-  static final _id_getPixel = _class.instanceMethodId(
-    r'getPixel',
-    r'(II)I',
+  static final _id_setHeight = _class.instanceMethodId(
+    r'setHeight',
+    r'(I)V',
   );
 
-  static final _getPixel = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Int32, jni$_.Int32)>)>>(
-          'globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int, int)>();
-
-  /// from: `public int getPixel(int i, int i1)`
-  int getPixel(
-    int i,
-    int i1,
-  ) {
-    return _getPixel(
-            reference.pointer, _id_getPixel as jni$_.JMethodIDPtr, i, i1)
-        .integer;
-  }
-
-  static final _id_getColor = _class.instanceMethodId(
-    r'getColor',
-    r'(II)Landroid/graphics/Color;',
-  );
-
-  static final _getColor = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Int32, jni$_.Int32)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int, int)>();
-
-  /// from: `public android.graphics.Color getColor(int i, int i1)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getColor(
-    int i,
-    int i1,
-  ) {
-    return _getColor(
-            reference.pointer, _id_getColor as jni$_.JMethodIDPtr, i, i1)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_getPixels = _class.instanceMethodId(
-    r'getPixels',
-    r'([IIIIIII)V',
-  );
-
-  static final _getPixels = jni$_.ProtectedJniExtensions.lookup<
+  static final _setHeight = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JThrowablePtr Function(
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallVoidMethod')
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
       .asFunction<
           jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              int,
-              int,
-              int,
-              int,
-              int)>();
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
 
-  /// from: `public void getPixels(int[] is, int i, int i1, int i2, int i3, int i4, int i5)`
-  void getPixels(
-    jni$_.JIntArray? is$,
+  /// from: `public void setHeight(int i)`
+  void setHeight(
     int i,
-    int i1,
-    int i2,
-    int i3,
-    int i4,
-    int i5,
   ) {
-    final _$is$ = is$?.reference ?? jni$_.jNullReference;
-    _getPixels(reference.pointer, _id_getPixels as jni$_.JMethodIDPtr,
-            _$is$.pointer, i, i1, i2, i3, i4, i5)
+    _setHeight(reference.pointer, _id_setHeight as jni$_.JMethodIDPtr, i)
         .check();
   }
 
@@ -41281,28 +42238,88 @@ class Bitmap extends jni$_.JObject {
         .check();
   }
 
-  static final _id_describeContents = _class.instanceMethodId(
-    r'describeContents',
-    r'()I',
+  static final _id_setPremultiplied = _class.instanceMethodId(
+    r'setPremultiplied',
+    r'(Z)V',
   );
 
-  static final _describeContents = jni$_.ProtectedJniExtensions.lookup<
+  static final _setPremultiplied = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setPremultiplied(boolean z)`
+  void setPremultiplied(
+    bool z,
+  ) {
+    _setPremultiplied(reference.pointer,
+            _id_setPremultiplied as jni$_.JMethodIDPtr, z ? 1 : 0)
+        .check();
+  }
+
+  static final _id_setWidth = _class.instanceMethodId(
+    r'setWidth',
+    r'(I)V',
+  );
+
+  static final _setWidth = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setWidth(int i)`
+  void setWidth(
+    int i,
+  ) {
+    _setWidth(reference.pointer, _id_setWidth as jni$_.JMethodIDPtr, i).check();
+  }
+
+  static final _id_wrapHardwareBuffer = _class.staticMethodId(
+    r'wrapHardwareBuffer',
+    r'(Landroid/hardware/HardwareBuffer;Landroid/graphics/ColorSpace;)Landroid/graphics/Bitmap;',
+  );
+
+  static final _wrapHardwareBuffer = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallIntMethod')
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticObjectMethod')
       .asFunction<
           jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public int describeContents()`
-  int describeContents() {
-    return _describeContents(
-            reference.pointer, _id_describeContents as jni$_.JMethodIDPtr)
-        .integer;
+  /// from: `static public android.graphics.Bitmap wrapHardwareBuffer(android.hardware.HardwareBuffer hardwareBuffer, android.graphics.ColorSpace colorSpace)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Bitmap? wrapHardwareBuffer(
+    jni$_.JObject? hardwareBuffer,
+    jni$_.JObject? colorSpace,
+  ) {
+    final _$hardwareBuffer = hardwareBuffer?.reference ?? jni$_.jNullReference;
+    final _$colorSpace = colorSpace?.reference ?? jni$_.jNullReference;
+    return _wrapHardwareBuffer(
+            _class.reference.pointer,
+            _id_wrapHardwareBuffer as jni$_.JMethodIDPtr,
+            _$hardwareBuffer.pointer,
+            _$colorSpace.pointer)
+        .object<Bitmap?>(const $Bitmap$NullableType$());
   }
 
   static final _id_writeToParcel = _class.instanceMethodId(
@@ -41331,143 +42348,6 @@ class Bitmap extends jni$_.JObject {
     _writeToParcel(reference.pointer, _id_writeToParcel as jni$_.JMethodIDPtr,
             _$parcel.pointer, i)
         .check();
-  }
-
-  static final _id_extractAlpha = _class.instanceMethodId(
-    r'extractAlpha',
-    r'()Landroid/graphics/Bitmap;',
-  );
-
-  static final _extractAlpha = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public android.graphics.Bitmap extractAlpha()`
-  /// The returned object must be released after use, by calling the [release] method.
-  Bitmap? extractAlpha() {
-    return _extractAlpha(
-            reference.pointer, _id_extractAlpha as jni$_.JMethodIDPtr)
-        .object<Bitmap?>(const $Bitmap$NullableType$());
-  }
-
-  static final _id_extractAlpha$1 = _class.instanceMethodId(
-    r'extractAlpha',
-    r'(Landroid/graphics/Paint;[I)Landroid/graphics/Bitmap;',
-  );
-
-  static final _extractAlpha$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public android.graphics.Bitmap extractAlpha(android.graphics.Paint paint, int[] is)`
-  /// The returned object must be released after use, by calling the [release] method.
-  Bitmap? extractAlpha$1(
-    jni$_.JObject? paint,
-    jni$_.JIntArray? is$,
-  ) {
-    final _$paint = paint?.reference ?? jni$_.jNullReference;
-    final _$is$ = is$?.reference ?? jni$_.jNullReference;
-    return _extractAlpha$1(
-            reference.pointer,
-            _id_extractAlpha$1 as jni$_.JMethodIDPtr,
-            _$paint.pointer,
-            _$is$.pointer)
-        .object<Bitmap?>(const $Bitmap$NullableType$());
-  }
-
-  static final _id_sameAs = _class.instanceMethodId(
-    r'sameAs',
-    r'(Landroid/graphics/Bitmap;)Z',
-  );
-
-  static final _sameAs = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public boolean sameAs(android.graphics.Bitmap bitmap)`
-  bool sameAs(
-    Bitmap? bitmap,
-  ) {
-    final _$bitmap = bitmap?.reference ?? jni$_.jNullReference;
-    return _sameAs(reference.pointer, _id_sameAs as jni$_.JMethodIDPtr,
-            _$bitmap.pointer)
-        .boolean;
-  }
-
-  static final _id_prepareToDraw = _class.instanceMethodId(
-    r'prepareToDraw',
-    r'()V',
-  );
-
-  static final _prepareToDraw = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public void prepareToDraw()`
-  void prepareToDraw() {
-    _prepareToDraw(reference.pointer, _id_prepareToDraw as jni$_.JMethodIDPtr)
-        .check();
-  }
-
-  static final _id_getHardwareBuffer = _class.instanceMethodId(
-    r'getHardwareBuffer',
-    r'()Landroid/hardware/HardwareBuffer;',
-  );
-
-  static final _getHardwareBuffer = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public android.hardware.HardwareBuffer getHardwareBuffer()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getHardwareBuffer() {
-    return _getHardwareBuffer(
-            reference.pointer, _id_getHardwareBuffer as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 }
 
@@ -41715,6 +42595,17 @@ class Context extends jni$_.JObject {
   static jni$_.JString? get ACTIVITY_SERVICE =>
       _id_ACTIVITY_SERVICE.get(_class, const jni$_.$JString$NullableType$());
 
+  static final _id_ADVANCED_PROTECTION_SERVICE = _class.staticFieldId(
+    r'ADVANCED_PROTECTION_SERVICE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String ADVANCED_PROTECTION_SERVICE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get ADVANCED_PROTECTION_SERVICE =>
+      _id_ADVANCED_PROTECTION_SERVICE.get(
+          _class, const jni$_.$JString$NullableType$());
+
   static final _id_ALARM_SERVICE = _class.staticFieldId(
     r'ALARM_SERVICE',
     r'Ljava/lang/String;',
@@ -41734,6 +42625,16 @@ class Context extends jni$_.JObject {
   /// The returned object must be released after use, by calling the [release] method.
   static jni$_.JString? get APPWIDGET_SERVICE =>
       _id_APPWIDGET_SERVICE.get(_class, const jni$_.$JString$NullableType$());
+
+  static final _id_APP_FUNCTION_SERVICE = _class.staticFieldId(
+    r'APP_FUNCTION_SERVICE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String APP_FUNCTION_SERVICE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get APP_FUNCTION_SERVICE => _id_APP_FUNCTION_SERVICE
+      .get(_class, const jni$_.$JString$NullableType$());
 
   static final _id_APP_OPS_SERVICE = _class.staticFieldId(
     r'APP_OPS_SERVICE',
@@ -42178,6 +43079,16 @@ class Context extends jni$_.JObject {
   static jni$_.JString? get KEYGUARD_SERVICE =>
       _id_KEYGUARD_SERVICE.get(_class, const jni$_.$JString$NullableType$());
 
+  static final _id_KEYSTORE_SERVICE = _class.staticFieldId(
+    r'KEYSTORE_SERVICE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String KEYSTORE_SERVICE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get KEYSTORE_SERVICE =>
+      _id_KEYSTORE_SERVICE.get(_class, const jni$_.$JString$NullableType$());
+
   static final _id_LAUNCHER_APPS_SERVICE = _class.staticFieldId(
     r'LAUNCHER_APPS_SERVICE',
     r'Ljava/lang/String;',
@@ -42250,6 +43161,16 @@ class Context extends jni$_.JObject {
   static jni$_.JString? get MEDIA_PROJECTION_SERVICE =>
       _id_MEDIA_PROJECTION_SERVICE.get(
           _class, const jni$_.$JString$NullableType$());
+
+  static final _id_MEDIA_QUALITY_SERVICE = _class.staticFieldId(
+    r'MEDIA_QUALITY_SERVICE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String MEDIA_QUALITY_SERVICE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get MEDIA_QUALITY_SERVICE => _id_MEDIA_QUALITY_SERVICE
+      .get(_class, const jni$_.$JString$NullableType$());
 
   static final _id_MEDIA_ROUTER_SERVICE = _class.staticFieldId(
     r'MEDIA_ROUTER_SERVICE',
@@ -42441,6 +43362,16 @@ class Context extends jni$_.JObject {
   static jni$_.JString? get ROLE_SERVICE =>
       _id_ROLE_SERVICE.get(_class, const jni$_.$JString$NullableType$());
 
+  static final _id_SATELLITE_SERVICE = _class.staticFieldId(
+    r'SATELLITE_SERVICE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String SATELLITE_SERVICE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get SATELLITE_SERVICE =>
+      _id_SATELLITE_SERVICE.get(_class, const jni$_.$JString$NullableType$());
+
   static final _id_SEARCH_SERVICE = _class.staticFieldId(
     r'SEARCH_SERVICE',
     r'Ljava/lang/String;',
@@ -42562,6 +43493,16 @@ class Context extends jni$_.JObject {
       _id_TELEPHONY_SUBSCRIPTION_SERVICE.get(
           _class, const jni$_.$JString$NullableType$());
 
+  static final _id_TETHERING_SERVICE = _class.staticFieldId(
+    r'TETHERING_SERVICE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TETHERING_SERVICE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TETHERING_SERVICE =>
+      _id_TETHERING_SERVICE.get(_class, const jni$_.$JString$NullableType$());
+
   static final _id_TEXT_CLASSIFICATION_SERVICE = _class.staticFieldId(
     r'TEXT_CLASSIFICATION_SERVICE',
     r'Ljava/lang/String;',
@@ -42583,6 +43524,16 @@ class Context extends jni$_.JObject {
   static jni$_.JString? get TEXT_SERVICES_MANAGER_SERVICE =>
       _id_TEXT_SERVICES_MANAGER_SERVICE.get(
           _class, const jni$_.$JString$NullableType$());
+
+  static final _id_TV_AD_SERVICE = _class.staticFieldId(
+    r'TV_AD_SERVICE',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String TV_AD_SERVICE`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get TV_AD_SERVICE =>
+      _id_TV_AD_SERVICE.get(_class, const jni$_.$JString$NullableType$());
 
   static final _id_TV_INPUT_SERVICE = _class.staticFieldId(
     r'TV_INPUT_SERVICE',
@@ -42747,442 +43698,845 @@ class Context extends jni$_.JObject {
   static jni$_.JString? get WINDOW_SERVICE =>
       _id_WINDOW_SERVICE.get(_class, const jni$_.$JString$NullableType$());
 
-  static final _id_getAssets = _class.instanceMethodId(
-    r'getAssets',
-    r'()Landroid/content/res/AssetManager;',
+  static final _id_bindIsolatedService = _class.instanceMethodId(
+    r'bindIsolatedService',
+    r'(Landroid/content/Intent;Landroid/content/Context$BindServiceFlags;Ljava/lang/String;Ljava/util/concurrent/Executor;Landroid/content/ServiceConnection;)Z',
   );
 
-  static final _getAssets = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract android.content.res.AssetManager getAssets()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getAssets() {
-    return _getAssets(reference.pointer, _id_getAssets as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_getResources = _class.instanceMethodId(
-    r'getResources',
-    r'()Landroid/content/res/Resources;',
-  );
-
-  static final _getResources = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract android.content.res.Resources getResources()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getResources() {
-    return _getResources(
-            reference.pointer, _id_getResources as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_getPackageManager = _class.instanceMethodId(
-    r'getPackageManager',
-    r'()Landroid/content/pm/PackageManager;',
-  );
-
-  static final _getPackageManager = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract android.content.pm.PackageManager getPackageManager()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getPackageManager() {
-    return _getPackageManager(
-            reference.pointer, _id_getPackageManager as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_getContentResolver = _class.instanceMethodId(
-    r'getContentResolver',
-    r'()Landroid/content/ContentResolver;',
-  );
-
-  static final _getContentResolver = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract android.content.ContentResolver getContentResolver()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getContentResolver() {
-    return _getContentResolver(
-            reference.pointer, _id_getContentResolver as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_getMainLooper = _class.instanceMethodId(
-    r'getMainLooper',
-    r'()Landroid/os/Looper;',
-  );
-
-  static final _getMainLooper = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract android.os.Looper getMainLooper()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getMainLooper() {
-    return _getMainLooper(
-            reference.pointer, _id_getMainLooper as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_getMainExecutor = _class.instanceMethodId(
-    r'getMainExecutor',
-    r'()Ljava/util/concurrent/Executor;',
-  );
-
-  static final _getMainExecutor = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public java.util.concurrent.Executor getMainExecutor()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getMainExecutor() {
-    return _getMainExecutor(
-            reference.pointer, _id_getMainExecutor as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_getApplicationContext = _class.instanceMethodId(
-    r'getApplicationContext',
-    r'()Landroid/content/Context;',
-  );
-
-  static final _getApplicationContext = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract android.content.Context getApplicationContext()`
-  /// The returned object must be released after use, by calling the [release] method.
-  Context? getApplicationContext() {
-    return _getApplicationContext(
-            reference.pointer, _id_getApplicationContext as jni$_.JMethodIDPtr)
-        .object<Context?>(const $Context$NullableType$());
-  }
-
-  static final _id_registerComponentCallbacks = _class.instanceMethodId(
-    r'registerComponentCallbacks',
-    r'(Landroid/content/ComponentCallbacks;)V',
-  );
-
-  static final _registerComponentCallbacks =
-      jni$_.ProtectedJniExtensions.lookup<
-                  jni$_.NativeFunction<
-                      jni$_.JThrowablePtr Function(
-                          jni$_.Pointer<jni$_.Void>,
-                          jni$_.JMethodIDPtr,
-                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-              'globalEnv_CallVoidMethod')
-          .asFunction<
-              jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void registerComponentCallbacks(android.content.ComponentCallbacks componentCallbacks)`
-  void registerComponentCallbacks(
-    jni$_.JObject? componentCallbacks,
-  ) {
-    final _$componentCallbacks =
-        componentCallbacks?.reference ?? jni$_.jNullReference;
-    _registerComponentCallbacks(
-            reference.pointer,
-            _id_registerComponentCallbacks as jni$_.JMethodIDPtr,
-            _$componentCallbacks.pointer)
-        .check();
-  }
-
-  static final _id_unregisterComponentCallbacks = _class.instanceMethodId(
-    r'unregisterComponentCallbacks',
-    r'(Landroid/content/ComponentCallbacks;)V',
-  );
-
-  static final _unregisterComponentCallbacks =
-      jni$_.ProtectedJniExtensions.lookup<
-                  jni$_.NativeFunction<
-                      jni$_.JThrowablePtr Function(
-                          jni$_.Pointer<jni$_.Void>,
-                          jni$_.JMethodIDPtr,
-                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-              'globalEnv_CallVoidMethod')
-          .asFunction<
-              jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void unregisterComponentCallbacks(android.content.ComponentCallbacks componentCallbacks)`
-  void unregisterComponentCallbacks(
-    jni$_.JObject? componentCallbacks,
-  ) {
-    final _$componentCallbacks =
-        componentCallbacks?.reference ?? jni$_.jNullReference;
-    _unregisterComponentCallbacks(
-            reference.pointer,
-            _id_unregisterComponentCallbacks as jni$_.JMethodIDPtr,
-            _$componentCallbacks.pointer)
-        .check();
-  }
-
-  static final _id_getText = _class.instanceMethodId(
-    r'getText',
-    r'(I)Ljava/lang/CharSequence;',
-  );
-
-  static final _getText = jni$_.ProtectedJniExtensions.lookup<
+  static final _bindIsolatedService = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallObjectMethod')
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallBooleanMethod')
       .asFunction<
           jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public final java.lang.CharSequence getText(int i)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getText(
-    int i,
+  /// from: `public boolean bindIsolatedService(android.content.Intent intent, android.content.Context$BindServiceFlags bindServiceFlags, java.lang.String string, java.util.concurrent.Executor executor, android.content.ServiceConnection serviceConnection)`
+  bool bindIsolatedService(
+    jni$_.JObject? intent,
+    Context$BindServiceFlags? bindServiceFlags,
+    jni$_.JString? string,
+    jni$_.JObject? executor,
+    jni$_.JObject? serviceConnection,
   ) {
-    return _getText(reference.pointer, _id_getText as jni$_.JMethodIDPtr, i)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$bindServiceFlags =
+        bindServiceFlags?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$executor = executor?.reference ?? jni$_.jNullReference;
+    final _$serviceConnection =
+        serviceConnection?.reference ?? jni$_.jNullReference;
+    return _bindIsolatedService(
+            reference.pointer,
+            _id_bindIsolatedService as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$bindServiceFlags.pointer,
+            _$string.pointer,
+            _$executor.pointer,
+            _$serviceConnection.pointer)
+        .boolean;
   }
 
-  static final _id_getString = _class.instanceMethodId(
-    r'getString',
-    r'(I)Ljava/lang/String;',
+  static final _id_bindIsolatedService$1 = _class.instanceMethodId(
+    r'bindIsolatedService',
+    r'(Landroid/content/Intent;ILjava/lang/String;Ljava/util/concurrent/Executor;Landroid/content/ServiceConnection;)Z',
   );
 
-  static final _getString = jni$_.ProtectedJniExtensions.lookup<
+  static final _bindIsolatedService$1 = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallObjectMethod')
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallBooleanMethod')
       .asFunction<
           jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public final java.lang.String getString(int i)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JString? getString(
+  /// from: `public boolean bindIsolatedService(android.content.Intent intent, int i, java.lang.String string, java.util.concurrent.Executor executor, android.content.ServiceConnection serviceConnection)`
+  bool bindIsolatedService$1(
+    jni$_.JObject? intent,
     int i,
+    jni$_.JString? string,
+    jni$_.JObject? executor,
+    jni$_.JObject? serviceConnection,
   ) {
-    return _getString(reference.pointer, _id_getString as jni$_.JMethodIDPtr, i)
-        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$executor = executor?.reference ?? jni$_.jNullReference;
+    final _$serviceConnection =
+        serviceConnection?.reference ?? jni$_.jNullReference;
+    return _bindIsolatedService$1(
+            reference.pointer,
+            _id_bindIsolatedService$1 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            i,
+            _$string.pointer,
+            _$executor.pointer,
+            _$serviceConnection.pointer)
+        .boolean;
   }
 
-  static final _id_getString$1 = _class.instanceMethodId(
-    r'getString',
-    r'(I[Ljava/lang/Object;)Ljava/lang/String;',
+  static final _id_bindService = _class.instanceMethodId(
+    r'bindService',
+    r'(Landroid/content/Intent;Landroid/content/Context$BindServiceFlags;Ljava/util/concurrent/Executor;Landroid/content/ServiceConnection;)Z',
   );
 
-  static final _getString$1 = jni$_.ProtectedJniExtensions.lookup<
+  static final _bindService = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public boolean bindService(android.content.Intent intent, android.content.Context$BindServiceFlags bindServiceFlags, java.util.concurrent.Executor executor, android.content.ServiceConnection serviceConnection)`
+  bool bindService(
+    jni$_.JObject? intent,
+    Context$BindServiceFlags? bindServiceFlags,
+    jni$_.JObject? executor,
+    jni$_.JObject? serviceConnection,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$bindServiceFlags =
+        bindServiceFlags?.reference ?? jni$_.jNullReference;
+    final _$executor = executor?.reference ?? jni$_.jNullReference;
+    final _$serviceConnection =
+        serviceConnection?.reference ?? jni$_.jNullReference;
+    return _bindService(
+            reference.pointer,
+            _id_bindService as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$bindServiceFlags.pointer,
+            _$executor.pointer,
+            _$serviceConnection.pointer)
+        .boolean;
+  }
+
+  static final _id_bindService$1 = _class.instanceMethodId(
+    r'bindService',
+    r'(Landroid/content/Intent;Landroid/content/ServiceConnection;Landroid/content/Context$BindServiceFlags;)Z',
+  );
+
+  static final _bindService$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public boolean bindService(android.content.Intent intent, android.content.ServiceConnection serviceConnection, android.content.Context$BindServiceFlags bindServiceFlags)`
+  bool bindService$1(
+    jni$_.JObject? intent,
+    jni$_.JObject? serviceConnection,
+    Context$BindServiceFlags? bindServiceFlags,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$serviceConnection =
+        serviceConnection?.reference ?? jni$_.jNullReference;
+    final _$bindServiceFlags =
+        bindServiceFlags?.reference ?? jni$_.jNullReference;
+    return _bindService$1(
+            reference.pointer,
+            _id_bindService$1 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$serviceConnection.pointer,
+            _$bindServiceFlags.pointer)
+        .boolean;
+  }
+
+  static final _id_bindService$2 = _class.instanceMethodId(
+    r'bindService',
+    r'(Landroid/content/Intent;Landroid/content/ServiceConnection;I)Z',
+  );
+
+  static final _bindService$2 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              int)>();
+
+  /// from: `public abstract boolean bindService(android.content.Intent intent, android.content.ServiceConnection serviceConnection, int i)`
+  bool bindService$2(
+    jni$_.JObject? intent,
+    jni$_.JObject? serviceConnection,
+    int i,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$serviceConnection =
+        serviceConnection?.reference ?? jni$_.jNullReference;
+    return _bindService$2(
+            reference.pointer,
+            _id_bindService$2 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$serviceConnection.pointer,
+            i)
+        .boolean;
+  }
+
+  static final _id_bindService$3 = _class.instanceMethodId(
+    r'bindService',
+    r'(Landroid/content/Intent;ILjava/util/concurrent/Executor;Landroid/content/ServiceConnection;)Z',
+  );
+
+  static final _bindService$3 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public boolean bindService(android.content.Intent intent, int i, java.util.concurrent.Executor executor, android.content.ServiceConnection serviceConnection)`
+  bool bindService$3(
+    jni$_.JObject? intent,
+    int i,
+    jni$_.JObject? executor,
+    jni$_.JObject? serviceConnection,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$executor = executor?.reference ?? jni$_.jNullReference;
+    final _$serviceConnection =
+        serviceConnection?.reference ?? jni$_.jNullReference;
+    return _bindService$3(
+            reference.pointer,
+            _id_bindService$3 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            i,
+            _$executor.pointer,
+            _$serviceConnection.pointer)
+        .boolean;
+  }
+
+  static final _id_bindServiceAsUser = _class.instanceMethodId(
+    r'bindServiceAsUser',
+    r'(Landroid/content/Intent;Landroid/content/ServiceConnection;Landroid/content/Context$BindServiceFlags;Landroid/os/UserHandle;)Z',
+  );
+
+  static final _bindServiceAsUser = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public boolean bindServiceAsUser(android.content.Intent intent, android.content.ServiceConnection serviceConnection, android.content.Context$BindServiceFlags bindServiceFlags, android.os.UserHandle userHandle)`
+  bool bindServiceAsUser(
+    jni$_.JObject? intent,
+    jni$_.JObject? serviceConnection,
+    Context$BindServiceFlags? bindServiceFlags,
+    jni$_.JObject? userHandle,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$serviceConnection =
+        serviceConnection?.reference ?? jni$_.jNullReference;
+    final _$bindServiceFlags =
+        bindServiceFlags?.reference ?? jni$_.jNullReference;
+    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
+    return _bindServiceAsUser(
+            reference.pointer,
+            _id_bindServiceAsUser as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$serviceConnection.pointer,
+            _$bindServiceFlags.pointer,
+            _$userHandle.pointer)
+        .boolean;
+  }
+
+  static final _id_bindServiceAsUser$1 = _class.instanceMethodId(
+    r'bindServiceAsUser',
+    r'(Landroid/content/Intent;Landroid/content/ServiceConnection;ILandroid/os/UserHandle;)Z',
+  );
+
+  static final _bindServiceAsUser$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public boolean bindServiceAsUser(android.content.Intent intent, android.content.ServiceConnection serviceConnection, int i, android.os.UserHandle userHandle)`
+  bool bindServiceAsUser$1(
+    jni$_.JObject? intent,
+    jni$_.JObject? serviceConnection,
+    int i,
+    jni$_.JObject? userHandle,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$serviceConnection =
+        serviceConnection?.reference ?? jni$_.jNullReference;
+    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
+    return _bindServiceAsUser$1(
+            reference.pointer,
+            _id_bindServiceAsUser$1 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$serviceConnection.pointer,
+            i,
+            _$userHandle.pointer)
+        .boolean;
+  }
+
+  static final _id_checkCallingOrSelfPermission = _class.instanceMethodId(
+    r'checkCallingOrSelfPermission',
+    r'(Ljava/lang/String;)I',
+  );
+
+  static final _checkCallingOrSelfPermission =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JniResult Function(
+                          jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr,
+                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+              'globalEnv_CallIntMethod')
+          .asFunction<
+              jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract int checkCallingOrSelfPermission(java.lang.String string)`
+  int checkCallingOrSelfPermission(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _checkCallingOrSelfPermission(
+            reference.pointer,
+            _id_checkCallingOrSelfPermission as jni$_.JMethodIDPtr,
+            _$string.pointer)
+        .integer;
+  }
+
+  static final _id_checkCallingOrSelfUriPermission = _class.instanceMethodId(
+    r'checkCallingOrSelfUriPermission',
+    r'(Landroid/net/Uri;I)I',
+  );
+
+  static final _checkCallingOrSelfUriPermission =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<
+                          (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Int32
+                          )>)>>('globalEnv_CallIntMethod')
+          .asFunction<
+              jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
+
+  /// from: `public abstract int checkCallingOrSelfUriPermission(android.net.Uri uri, int i)`
+  int checkCallingOrSelfUriPermission(
+    jni$_.JObject? uri,
+    int i,
+  ) {
+    final _$uri = uri?.reference ?? jni$_.jNullReference;
+    return _checkCallingOrSelfUriPermission(
+            reference.pointer,
+            _id_checkCallingOrSelfUriPermission as jni$_.JMethodIDPtr,
+            _$uri.pointer,
+            i)
+        .integer;
+  }
+
+  static final _id_checkCallingOrSelfUriPermissions = _class.instanceMethodId(
+    r'checkCallingOrSelfUriPermissions',
+    r'(Ljava/util/List;I)[I',
+  );
+
+  static final _checkCallingOrSelfUriPermissions =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<
+                          (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Int32
+                          )>)>>('globalEnv_CallObjectMethod')
+          .asFunction<
+              jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
+
+  /// from: `public int[] checkCallingOrSelfUriPermissions(java.util.List<android.net.Uri> list, int i)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JIntArray? checkCallingOrSelfUriPermissions(
+    jni$_.JList<jni$_.JObject?>? list,
+    int i,
+  ) {
+    final _$list = list?.reference ?? jni$_.jNullReference;
+    return _checkCallingOrSelfUriPermissions(
+            reference.pointer,
+            _id_checkCallingOrSelfUriPermissions as jni$_.JMethodIDPtr,
+            _$list.pointer,
+            i)
+        .object<jni$_.JIntArray?>(const jni$_.$JIntArray$NullableType$());
+  }
+
+  static final _id_checkCallingPermission = _class.instanceMethodId(
+    r'checkCallingPermission',
+    r'(Ljava/lang/String;)I',
+  );
+
+  static final _checkCallingPermission = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract int checkCallingPermission(java.lang.String string)`
+  int checkCallingPermission(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _checkCallingPermission(reference.pointer,
+            _id_checkCallingPermission as jni$_.JMethodIDPtr, _$string.pointer)
+        .integer;
+  }
+
+  static final _id_checkCallingUriPermission = _class.instanceMethodId(
+    r'checkCallingUriPermission',
+    r'(Landroid/net/Uri;I)I',
+  );
+
+  static final _checkCallingUriPermission = jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
                   jni$_.JniResult Function(
                       jni$_.Pointer<jni$_.Void>,
                       jni$_.JMethodIDPtr,
                       jni$_
-                          .VarArgs<(jni$_.Int32, jni$_.Pointer<jni$_.Void>)>)>>(
-          'globalEnv_CallObjectMethod')
+                          .VarArgs<(jni$_.Pointer<jni$_.Void>, jni$_.Int32)>)>>(
+          'globalEnv_CallIntMethod')
       .asFunction<
           jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, int, jni$_.Pointer<jni$_.Void>)>();
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
 
-  /// from: `public final java.lang.String getString(int i, java.lang.Object[] objects)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JString? getString$1(
-    int i,
-    jni$_.JArray<jni$_.JObject?>? objects,
-  ) {
-    final _$objects = objects?.reference ?? jni$_.jNullReference;
-    return _getString$1(reference.pointer,
-            _id_getString$1 as jni$_.JMethodIDPtr, i, _$objects.pointer)
-        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
-  }
-
-  static final _id_getColor = _class.instanceMethodId(
-    r'getColor',
-    r'(I)I',
-  );
-
-  static final _getColor = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
-
-  /// from: `public final int getColor(int i)`
-  int getColor(
+  /// from: `public abstract int checkCallingUriPermission(android.net.Uri uri, int i)`
+  int checkCallingUriPermission(
+    jni$_.JObject? uri,
     int i,
   ) {
-    return _getColor(reference.pointer, _id_getColor as jni$_.JMethodIDPtr, i)
+    final _$uri = uri?.reference ?? jni$_.jNullReference;
+    return _checkCallingUriPermission(
+            reference.pointer,
+            _id_checkCallingUriPermission as jni$_.JMethodIDPtr,
+            _$uri.pointer,
+            i)
         .integer;
   }
 
-  static final _id_getDrawable = _class.instanceMethodId(
-    r'getDrawable',
-    r'(I)Landroid/graphics/drawable/Drawable;',
+  static final _id_checkCallingUriPermissions = _class.instanceMethodId(
+    r'checkCallingUriPermissions',
+    r'(Ljava/util/List;I)[I',
   );
 
-  static final _getDrawable = jni$_.ProtectedJniExtensions.lookup<
+  static final _checkCallingUriPermissions =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<
+                          (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Int32
+                          )>)>>('globalEnv_CallObjectMethod')
+          .asFunction<
+              jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
+
+  /// from: `public int[] checkCallingUriPermissions(java.util.List<android.net.Uri> list, int i)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JIntArray? checkCallingUriPermissions(
+    jni$_.JList<jni$_.JObject?>? list,
+    int i,
+  ) {
+    final _$list = list?.reference ?? jni$_.jNullReference;
+    return _checkCallingUriPermissions(
+            reference.pointer,
+            _id_checkCallingUriPermissions as jni$_.JMethodIDPtr,
+            _$list.pointer,
+            i)
+        .object<jni$_.JIntArray?>(const jni$_.$JIntArray$NullableType$());
+  }
+
+  static final _id_checkContentUriPermissionFull = _class.instanceMethodId(
+    r'checkContentUriPermissionFull',
+    r'(Landroid/net/Uri;III)I',
+  );
+
+  static final _checkContentUriPermissionFull =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<
+                          (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Int32,
+                            jni$_.Int32,
+                            jni$_.Int32
+                          )>)>>('globalEnv_CallIntMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.Pointer<jni$_.Void>,
+                  int,
+                  int,
+                  int)>();
+
+  /// from: `public int checkContentUriPermissionFull(android.net.Uri uri, int i, int i1, int i2)`
+  int checkContentUriPermissionFull(
+    jni$_.JObject? uri,
+    int i,
+    int i1,
+    int i2,
+  ) {
+    final _$uri = uri?.reference ?? jni$_.jNullReference;
+    return _checkContentUriPermissionFull(
+            reference.pointer,
+            _id_checkContentUriPermissionFull as jni$_.JMethodIDPtr,
+            _$uri.pointer,
+            i,
+            i1,
+            i2)
+        .integer;
+  }
+
+  static final _id_checkPermission = _class.instanceMethodId(
+    r'checkPermission',
+    r'(Ljava/lang/String;II)I',
+  );
+
+  static final _checkPermission = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallObjectMethod')
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallIntMethod')
       .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int, int)>();
 
-  /// from: `public final android.graphics.drawable.Drawable getDrawable(int i)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getDrawable(
+  /// from: `public abstract int checkPermission(java.lang.String string, int i, int i1)`
+  int checkPermission(
+    jni$_.JString? string,
     int i,
+    int i1,
   ) {
-    return _getDrawable(
-            reference.pointer, _id_getDrawable as jni$_.JMethodIDPtr, i)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _checkPermission(reference.pointer,
+            _id_checkPermission as jni$_.JMethodIDPtr, _$string.pointer, i, i1)
+        .integer;
   }
 
-  static final _id_getColorStateList = _class.instanceMethodId(
-    r'getColorStateList',
-    r'(I)Landroid/content/res/ColorStateList;',
+  static final _id_checkSelfPermission = _class.instanceMethodId(
+    r'checkSelfPermission',
+    r'(Ljava/lang/String;)I',
   );
 
-  static final _getColorStateList = jni$_.ProtectedJniExtensions.lookup<
+  static final _checkSelfPermission = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract int checkSelfPermission(java.lang.String string)`
+  int checkSelfPermission(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _checkSelfPermission(reference.pointer,
+            _id_checkSelfPermission as jni$_.JMethodIDPtr, _$string.pointer)
+        .integer;
+  }
+
+  static final _id_checkUriPermission = _class.instanceMethodId(
+    r'checkUriPermission',
+    r'(Landroid/net/Uri;III)I',
+  );
+
+  static final _checkUriPermission = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallObjectMethod')
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallIntMethod')
       .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int, int, int)>();
 
-  /// from: `public final android.content.res.ColorStateList getColorStateList(int i)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getColorStateList(
+  /// from: `public abstract int checkUriPermission(android.net.Uri uri, int i, int i1, int i2)`
+  int checkUriPermission(
+    jni$_.JObject? uri,
     int i,
+    int i1,
+    int i2,
   ) {
-    return _getColorStateList(
-            reference.pointer, _id_getColorStateList as jni$_.JMethodIDPtr, i)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+    final _$uri = uri?.reference ?? jni$_.jNullReference;
+    return _checkUriPermission(
+            reference.pointer,
+            _id_checkUriPermission as jni$_.JMethodIDPtr,
+            _$uri.pointer,
+            i,
+            i1,
+            i2)
+        .integer;
   }
 
-  static final _id_setTheme = _class.instanceMethodId(
-    r'setTheme',
-    r'(I)V',
+  static final _id_checkUriPermission$1 = _class.instanceMethodId(
+    r'checkUriPermission',
+    r'(Landroid/net/Uri;Ljava/lang/String;Ljava/lang/String;III)I',
   );
 
-  static final _setTheme = jni$_.ProtectedJniExtensions.lookup<
+  static final _checkUriPermission$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              int,
+              int)>();
+
+  /// from: `public abstract int checkUriPermission(android.net.Uri uri, java.lang.String string, java.lang.String string1, int i, int i1, int i2)`
+  int checkUriPermission$1(
+    jni$_.JObject? uri,
+    jni$_.JString? string,
+    jni$_.JString? string1,
+    int i,
+    int i1,
+    int i2,
+  ) {
+    final _$uri = uri?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$string1 = string1?.reference ?? jni$_.jNullReference;
+    return _checkUriPermission$1(
+            reference.pointer,
+            _id_checkUriPermission$1 as jni$_.JMethodIDPtr,
+            _$uri.pointer,
+            _$string.pointer,
+            _$string1.pointer,
+            i,
+            i1,
+            i2)
+        .integer;
+  }
+
+  static final _id_checkUriPermissions = _class.instanceMethodId(
+    r'checkUriPermissions',
+    r'(Ljava/util/List;III)[I',
+  );
+
+  static final _checkUriPermissions = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int, int, int)>();
+
+  /// from: `public int[] checkUriPermissions(java.util.List<android.net.Uri> list, int i, int i1, int i2)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JIntArray? checkUriPermissions(
+    jni$_.JList<jni$_.JObject?>? list,
+    int i,
+    int i1,
+    int i2,
+  ) {
+    final _$list = list?.reference ?? jni$_.jNullReference;
+    return _checkUriPermissions(
+            reference.pointer,
+            _id_checkUriPermissions as jni$_.JMethodIDPtr,
+            _$list.pointer,
+            i,
+            i1,
+            i2)
+        .object<jni$_.JIntArray?>(const jni$_.$JIntArray$NullableType$());
+  }
+
+  static final _id_clearWallpaper = _class.instanceMethodId(
+    r'clearWallpaper',
+    r'()V',
+  );
+
+  static final _clearWallpaper = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
-
-  /// from: `public abstract void setTheme(int i)`
-  void setTheme(
-    int i,
-  ) {
-    _setTheme(reference.pointer, _id_setTheme as jni$_.JMethodIDPtr, i).check();
-  }
-
-  static final _id_getTheme = _class.instanceMethodId(
-    r'getTheme',
-    r'()Landroid/content/res/Resources$Theme;',
-  );
-
-  static final _getTheme = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
                 jni$_.Pointer<jni$_.Void>,
                 jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
+              )>>('globalEnv_CallVoidMethod')
       .asFunction<
-          jni$_.JniResult Function(
+          jni$_.JThrowablePtr Function(
             jni$_.Pointer<jni$_.Void>,
             jni$_.JMethodIDPtr,
           )>();
 
-  /// from: `public abstract android.content.res.Resources$Theme getTheme()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getTheme() {
-    return _getTheme(reference.pointer, _id_getTheme as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  /// from: `public abstract void clearWallpaper()`
+  void clearWallpaper() {
+    _clearWallpaper(reference.pointer, _id_clearWallpaper as jni$_.JMethodIDPtr)
+        .check();
   }
 
-  static final _id_obtainStyledAttributes = _class.instanceMethodId(
-    r'obtainStyledAttributes',
-    r'([I)Landroid/content/res/TypedArray;',
+  static final _id_createAttributionContext = _class.instanceMethodId(
+    r'createAttributionContext',
+    r'(Ljava/lang/String;)Landroid/content/Context;',
   );
 
-  static final _obtainStyledAttributes = jni$_.ProtectedJniExtensions.lookup<
+  static final _createAttributionContext = jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
                   jni$_.JniResult Function(
                       jni$_.Pointer<jni$_.Void>,
@@ -43193,363 +44547,188 @@ class Context extends jni$_.JObject {
           jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public final android.content.res.TypedArray obtainStyledAttributes(int[] is)`
+  /// from: `public android.content.Context createAttributionContext(java.lang.String string)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? obtainStyledAttributes(
-    jni$_.JIntArray? is$,
+  Context? createAttributionContext(
+    jni$_.JString? string,
   ) {
-    final _$is$ = is$?.reference ?? jni$_.jNullReference;
-    return _obtainStyledAttributes(reference.pointer,
-            _id_obtainStyledAttributes as jni$_.JMethodIDPtr, _$is$.pointer)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _createAttributionContext(
+            reference.pointer,
+            _id_createAttributionContext as jni$_.JMethodIDPtr,
+            _$string.pointer)
+        .object<Context?>(const $Context$NullableType$());
   }
 
-  static final _id_obtainStyledAttributes$1 = _class.instanceMethodId(
-    r'obtainStyledAttributes',
-    r'(I[I)Landroid/content/res/TypedArray;',
+  static final _id_createConfigurationContext = _class.instanceMethodId(
+    r'createConfigurationContext',
+    r'(Landroid/content/res/Configuration;)Landroid/content/Context;',
   );
 
-  static final _obtainStyledAttributes$1 = jni$_.ProtectedJniExtensions.lookup<
+  static final _createConfigurationContext =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JniResult Function(
+                          jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr,
+                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+              'globalEnv_CallObjectMethod')
+          .asFunction<
+              jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract android.content.Context createConfigurationContext(android.content.res.Configuration configuration)`
+  /// The returned object must be released after use, by calling the [release] method.
+  Context? createConfigurationContext(
+    jni$_.JObject? configuration,
+  ) {
+    final _$configuration = configuration?.reference ?? jni$_.jNullReference;
+    return _createConfigurationContext(
+            reference.pointer,
+            _id_createConfigurationContext as jni$_.JMethodIDPtr,
+            _$configuration.pointer)
+        .object<Context?>(const $Context$NullableType$());
+  }
+
+  static final _id_createContext = _class.instanceMethodId(
+    r'createContext',
+    r'(Landroid/content/ContextParams;)Landroid/content/Context;',
+  );
+
+  static final _createContext = jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
                   jni$_.JniResult Function(
                       jni$_.Pointer<jni$_.Void>,
                       jni$_.JMethodIDPtr,
-                      jni$_
-                          .VarArgs<(jni$_.Int32, jni$_.Pointer<jni$_.Void>)>)>>(
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
           'globalEnv_CallObjectMethod')
       .asFunction<
           jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, int, jni$_.Pointer<jni$_.Void>)>();
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public final android.content.res.TypedArray obtainStyledAttributes(int i, int[] is)`
+  /// from: `public android.content.Context createContext(android.content.ContextParams contextParams)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? obtainStyledAttributes$1(
-    int i,
-    jni$_.JIntArray? is$,
+  Context? createContext(
+    jni$_.JObject? contextParams,
   ) {
-    final _$is$ = is$?.reference ?? jni$_.jNullReference;
-    return _obtainStyledAttributes$1(
-            reference.pointer,
-            _id_obtainStyledAttributes$1 as jni$_.JMethodIDPtr,
-            i,
-            _$is$.pointer)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+    final _$contextParams = contextParams?.reference ?? jni$_.jNullReference;
+    return _createContext(reference.pointer,
+            _id_createContext as jni$_.JMethodIDPtr, _$contextParams.pointer)
+        .object<Context?>(const $Context$NullableType$());
   }
 
-  static final _id_obtainStyledAttributes$2 = _class.instanceMethodId(
-    r'obtainStyledAttributes',
-    r'(Landroid/util/AttributeSet;[I)Landroid/content/res/TypedArray;',
+  static final _id_createContextForSplit = _class.instanceMethodId(
+    r'createContextForSplit',
+    r'(Ljava/lang/String;)Landroid/content/Context;',
   );
 
-  static final _obtainStyledAttributes$2 = jni$_.ProtectedJniExtensions.lookup<
+  static final _createContextForSplit = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract android.content.Context createContextForSplit(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  Context? createContextForSplit(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _createContextForSplit(reference.pointer,
+            _id_createContextForSplit as jni$_.JMethodIDPtr, _$string.pointer)
+        .object<Context?>(const $Context$NullableType$());
+  }
+
+  static final _id_createDeviceContext = _class.instanceMethodId(
+    r'createDeviceContext',
+    r'(I)Landroid/content/Context;',
+  );
+
+  static final _createDeviceContext = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallObjectMethod')
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallObjectMethod')
       .asFunction<
           jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
 
-  /// from: `public final android.content.res.TypedArray obtainStyledAttributes(android.util.AttributeSet attributeSet, int[] is)`
+  /// from: `public android.content.Context createDeviceContext(int i)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? obtainStyledAttributes$2(
-    jni$_.JObject? attributeSet,
-    jni$_.JIntArray? is$,
-  ) {
-    final _$attributeSet = attributeSet?.reference ?? jni$_.jNullReference;
-    final _$is$ = is$?.reference ?? jni$_.jNullReference;
-    return _obtainStyledAttributes$2(
-            reference.pointer,
-            _id_obtainStyledAttributes$2 as jni$_.JMethodIDPtr,
-            _$attributeSet.pointer,
-            _$is$.pointer)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_obtainStyledAttributes$3 = _class.instanceMethodId(
-    r'obtainStyledAttributes',
-    r'(Landroid/util/AttributeSet;[III)Landroid/content/res/TypedArray;',
-  );
-
-  static final _obtainStyledAttributes$3 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              int)>();
-
-  /// from: `public final android.content.res.TypedArray obtainStyledAttributes(android.util.AttributeSet attributeSet, int[] is, int i, int i1)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? obtainStyledAttributes$3(
-    jni$_.JObject? attributeSet,
-    jni$_.JIntArray? is$,
+  Context? createDeviceContext(
     int i,
-    int i1,
   ) {
-    final _$attributeSet = attributeSet?.reference ?? jni$_.jNullReference;
-    final _$is$ = is$?.reference ?? jni$_.jNullReference;
-    return _obtainStyledAttributes$3(
-            reference.pointer,
-            _id_obtainStyledAttributes$3 as jni$_.JMethodIDPtr,
-            _$attributeSet.pointer,
-            _$is$.pointer,
-            i,
-            i1)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+    return _createDeviceContext(
+            reference.pointer, _id_createDeviceContext as jni$_.JMethodIDPtr, i)
+        .object<Context?>(const $Context$NullableType$());
   }
 
-  static final _id_getClassLoader = _class.instanceMethodId(
-    r'getClassLoader',
-    r'()Ljava/lang/ClassLoader;',
+  static final _id_createDeviceProtectedStorageContext =
+      _class.instanceMethodId(
+    r'createDeviceProtectedStorageContext',
+    r'()Landroid/content/Context;',
   );
 
-  static final _getClassLoader = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
+  static final _createDeviceProtectedStorageContext =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallObjectMethod')
+          .asFunction<
               jni$_.JniResult Function(
                 jni$_.Pointer<jni$_.Void>,
                 jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
+              )>();
 
-  /// from: `public abstract java.lang.ClassLoader getClassLoader()`
+  /// from: `public abstract android.content.Context createDeviceProtectedStorageContext()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getClassLoader() {
-    return _getClassLoader(
-            reference.pointer, _id_getClassLoader as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  Context? createDeviceProtectedStorageContext() {
+    return _createDeviceProtectedStorageContext(reference.pointer,
+            _id_createDeviceProtectedStorageContext as jni$_.JMethodIDPtr)
+        .object<Context?>(const $Context$NullableType$());
   }
 
-  static final _id_getPackageName = _class.instanceMethodId(
-    r'getPackageName',
-    r'()Ljava/lang/String;',
+  static final _id_createDisplayContext = _class.instanceMethodId(
+    r'createDisplayContext',
+    r'(Landroid/view/Display;)Landroid/content/Context;',
   );
 
-  static final _getPackageName = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
+  static final _createDisplayContext = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallObjectMethod')
       .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public abstract java.lang.String getPackageName()`
+  /// from: `public abstract android.content.Context createDisplayContext(android.view.Display display)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JString? getPackageName() {
-    return _getPackageName(
-            reference.pointer, _id_getPackageName as jni$_.JMethodIDPtr)
-        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
+  Context? createDisplayContext(
+    jni$_.JObject? display,
+  ) {
+    final _$display = display?.reference ?? jni$_.jNullReference;
+    return _createDisplayContext(reference.pointer,
+            _id_createDisplayContext as jni$_.JMethodIDPtr, _$display.pointer)
+        .object<Context?>(const $Context$NullableType$());
   }
 
-  static final _id_getOpPackageName = _class.instanceMethodId(
-    r'getOpPackageName',
-    r'()Ljava/lang/String;',
+  static final _id_createPackageContext = _class.instanceMethodId(
+    r'createPackageContext',
+    r'(Ljava/lang/String;I)Landroid/content/Context;',
   );
 
-  static final _getOpPackageName = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public java.lang.String getOpPackageName()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JString? getOpPackageName() {
-    return _getOpPackageName(
-            reference.pointer, _id_getOpPackageName as jni$_.JMethodIDPtr)
-        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
-  }
-
-  static final _id_getAttributionTag = _class.instanceMethodId(
-    r'getAttributionTag',
-    r'()Ljava/lang/String;',
-  );
-
-  static final _getAttributionTag = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public java.lang.String getAttributionTag()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JString? getAttributionTag() {
-    return _getAttributionTag(
-            reference.pointer, _id_getAttributionTag as jni$_.JMethodIDPtr)
-        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
-  }
-
-  static final _id_getAttributionSource = _class.instanceMethodId(
-    r'getAttributionSource',
-    r'()Landroid/content/AttributionSource;',
-  );
-
-  static final _getAttributionSource = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public android.content.AttributionSource getAttributionSource()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getAttributionSource() {
-    return _getAttributionSource(
-            reference.pointer, _id_getAttributionSource as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_getParams = _class.instanceMethodId(
-    r'getParams',
-    r'()Landroid/content/ContextParams;',
-  );
-
-  static final _getParams = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public android.content.ContextParams getParams()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getParams() {
-    return _getParams(reference.pointer, _id_getParams as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_getApplicationInfo = _class.instanceMethodId(
-    r'getApplicationInfo',
-    r'()Landroid/content/pm/ApplicationInfo;',
-  );
-
-  static final _getApplicationInfo = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract android.content.pm.ApplicationInfo getApplicationInfo()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getApplicationInfo() {
-    return _getApplicationInfo(
-            reference.pointer, _id_getApplicationInfo as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_getPackageResourcePath = _class.instanceMethodId(
-    r'getPackageResourcePath',
-    r'()Ljava/lang/String;',
-  );
-
-  static final _getPackageResourcePath = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract java.lang.String getPackageResourcePath()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JString? getPackageResourcePath() {
-    return _getPackageResourcePath(
-            reference.pointer, _id_getPackageResourcePath as jni$_.JMethodIDPtr)
-        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
-  }
-
-  static final _id_getPackageCodePath = _class.instanceMethodId(
-    r'getPackageCodePath',
-    r'()Ljava/lang/String;',
-  );
-
-  static final _getPackageCodePath = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract java.lang.String getPackageCodePath()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JString? getPackageCodePath() {
-    return _getPackageCodePath(
-            reference.pointer, _id_getPackageCodePath as jni$_.JMethodIDPtr)
-        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
-  }
-
-  static final _id_getSharedPreferences = _class.instanceMethodId(
-    r'getSharedPreferences',
-    r'(Ljava/lang/String;I)Landroid/content/SharedPreferences;',
-  );
-
-  static final _getSharedPreferences = jni$_.ProtectedJniExtensions.lookup<
+  static final _createPackageContext = jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
                   jni$_.JniResult Function(
                       jni$_.Pointer<jni$_.Void>,
@@ -43561,24 +44740,24 @@ class Context extends jni$_.JObject {
           jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
 
-  /// from: `public abstract android.content.SharedPreferences getSharedPreferences(java.lang.String string, int i)`
+  /// from: `public abstract android.content.Context createPackageContext(java.lang.String string, int i)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getSharedPreferences(
+  Context? createPackageContext(
     jni$_.JString? string,
     int i,
   ) {
     final _$string = string?.reference ?? jni$_.jNullReference;
-    return _getSharedPreferences(reference.pointer,
-            _id_getSharedPreferences as jni$_.JMethodIDPtr, _$string.pointer, i)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+    return _createPackageContext(reference.pointer,
+            _id_createPackageContext as jni$_.JMethodIDPtr, _$string.pointer, i)
+        .object<Context?>(const $Context$NullableType$());
   }
 
-  static final _id_moveSharedPreferencesFrom = _class.instanceMethodId(
-    r'moveSharedPreferencesFrom',
-    r'(Landroid/content/Context;Ljava/lang/String;)Z',
+  static final _id_createWindowContext = _class.instanceMethodId(
+    r'createWindowContext',
+    r'(Landroid/view/Display;ILandroid/os/Bundle;)Landroid/content/Context;',
   );
 
-  static final _moveSharedPreferencesFrom = jni$_.ProtectedJniExtensions.lookup<
+  static final _createWindowContext = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                   jni$_.Pointer<jni$_.Void>,
@@ -43586,26 +44765,142 @@ class Context extends jni$_.JObject {
                   jni$_.VarArgs<
                       (
                         jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
                         jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallBooleanMethod')
+                      )>)>>('globalEnv_CallObjectMethod')
       .asFunction<
           jni$_.JniResult Function(
               jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr,
               jni$_.Pointer<jni$_.Void>,
+              int,
               jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public abstract boolean moveSharedPreferencesFrom(android.content.Context context, java.lang.String string)`
-  bool moveSharedPreferencesFrom(
-    Context? context,
+  /// from: `public android.content.Context createWindowContext(android.view.Display display, int i, android.os.Bundle bundle)`
+  /// The returned object must be released after use, by calling the [release] method.
+  Context? createWindowContext(
+    jni$_.JObject? display,
+    int i,
+    jni$_.JObject? bundle,
+  ) {
+    final _$display = display?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    return _createWindowContext(
+            reference.pointer,
+            _id_createWindowContext as jni$_.JMethodIDPtr,
+            _$display.pointer,
+            i,
+            _$bundle.pointer)
+        .object<Context?>(const $Context$NullableType$());
+  }
+
+  static final _id_createWindowContext$1 = _class.instanceMethodId(
+    r'createWindowContext',
+    r'(ILandroid/os/Bundle;)Landroid/content/Context;',
+  );
+
+  static final _createWindowContext$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_
+                          .VarArgs<(jni$_.Int32, jni$_.Pointer<jni$_.Void>)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, int, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public android.content.Context createWindowContext(int i, android.os.Bundle bundle)`
+  /// The returned object must be released after use, by calling the [release] method.
+  Context? createWindowContext$1(
+    int i,
+    jni$_.JObject? bundle,
+  ) {
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    return _createWindowContext$1(
+            reference.pointer,
+            _id_createWindowContext$1 as jni$_.JMethodIDPtr,
+            i,
+            _$bundle.pointer)
+        .object<Context?>(const $Context$NullableType$());
+  }
+
+  static final _id_databaseList = _class.instanceMethodId(
+    r'databaseList',
+    r'()[Ljava/lang/String;',
+  );
+
+  static final _databaseList = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract java.lang.String[] databaseList()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JArray<jni$_.JString?>? databaseList() {
+    return _databaseList(
+            reference.pointer, _id_databaseList as jni$_.JMethodIDPtr)
+        .object<jni$_.JArray<jni$_.JString?>?>(
+            const jni$_.$JArray$NullableType$<jni$_.JString?>(
+                jni$_.$JString$NullableType$()));
+  }
+
+  static final _id_deleteDatabase = _class.instanceMethodId(
+    r'deleteDatabase',
+    r'(Ljava/lang/String;)Z',
+  );
+
+  static final _deleteDatabase = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract boolean deleteDatabase(java.lang.String string)`
+  bool deleteDatabase(
     jni$_.JString? string,
   ) {
-    final _$context = context?.reference ?? jni$_.jNullReference;
     final _$string = string?.reference ?? jni$_.jNullReference;
-    return _moveSharedPreferencesFrom(
-            reference.pointer,
-            _id_moveSharedPreferencesFrom as jni$_.JMethodIDPtr,
-            _$context.pointer,
+    return _deleteDatabase(reference.pointer,
+            _id_deleteDatabase as jni$_.JMethodIDPtr, _$string.pointer)
+        .boolean;
+  }
+
+  static final _id_deleteFile = _class.instanceMethodId(
+    r'deleteFile',
+    r'(Ljava/lang/String;)Z',
+  );
+
+  static final _deleteFile = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract boolean deleteFile(java.lang.String string)`
+  bool deleteFile(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _deleteFile(reference.pointer, _id_deleteFile as jni$_.JMethodIDPtr,
             _$string.pointer)
         .boolean;
   }
@@ -43636,112 +44931,613 @@ class Context extends jni$_.JObject {
         .boolean;
   }
 
-  static final _id_openFileInput = _class.instanceMethodId(
-    r'openFileInput',
-    r'(Ljava/lang/String;)Ljava/io/FileInputStream;',
+  static final _id_enforceCallingOrSelfPermission = _class.instanceMethodId(
+    r'enforceCallingOrSelfPermission',
+    r'(Ljava/lang/String;Ljava/lang/String;)V',
   );
 
-  static final _openFileInput = jni$_.ProtectedJniExtensions.lookup<
+  static final _enforceCallingOrSelfPermission =
+      jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
-                  jni$_.JniResult Function(
+                  jni$_.JThrowablePtr Function(
                       jni$_.Pointer<jni$_.Void>,
                       jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+                      jni$_.VarArgs<
+                          (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>
+                          )>)>>('globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public abstract java.io.FileInputStream openFileInput(java.lang.String string)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? openFileInput(
+  /// from: `public abstract void enforceCallingOrSelfPermission(java.lang.String string, java.lang.String string1)`
+  void enforceCallingOrSelfPermission(
     jni$_.JString? string,
+    jni$_.JString? string1,
   ) {
     final _$string = string?.reference ?? jni$_.jNullReference;
-    return _openFileInput(reference.pointer,
-            _id_openFileInput as jni$_.JMethodIDPtr, _$string.pointer)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+    final _$string1 = string1?.reference ?? jni$_.jNullReference;
+    _enforceCallingOrSelfPermission(
+            reference.pointer,
+            _id_enforceCallingOrSelfPermission as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$string1.pointer)
+        .check();
   }
 
-  static final _id_openFileOutput = _class.instanceMethodId(
-    r'openFileOutput',
-    r'(Ljava/lang/String;I)Ljava/io/FileOutputStream;',
+  static final _id_enforceCallingOrSelfUriPermission = _class.instanceMethodId(
+    r'enforceCallingOrSelfUriPermission',
+    r'(Landroid/net/Uri;ILjava/lang/String;)V',
   );
 
-  static final _openFileOutput = jni$_.ProtectedJniExtensions.lookup<
+  static final _enforceCallingOrSelfUriPermission =
+      jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
-                  jni$_.JniResult Function(
+                  jni$_.JThrowablePtr Function(
                       jni$_.Pointer<jni$_.Void>,
                       jni$_.JMethodIDPtr,
-                      jni$_
-                          .VarArgs<(jni$_.Pointer<jni$_.Void>, jni$_.Int32)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
+                      jni$_.VarArgs<
+                          (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Int32,
+                            jni$_.Pointer<jni$_.Void>
+                          )>)>>('globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.Pointer<jni$_.Void>,
+                  int,
+                  jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public abstract java.io.FileOutputStream openFileOutput(java.lang.String string, int i)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? openFileOutput(
+  /// from: `public abstract void enforceCallingOrSelfUriPermission(android.net.Uri uri, int i, java.lang.String string)`
+  void enforceCallingOrSelfUriPermission(
+    jni$_.JObject? uri,
+    int i,
+    jni$_.JString? string,
+  ) {
+    final _$uri = uri?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _enforceCallingOrSelfUriPermission(
+            reference.pointer,
+            _id_enforceCallingOrSelfUriPermission as jni$_.JMethodIDPtr,
+            _$uri.pointer,
+            i,
+            _$string.pointer)
+        .check();
+  }
+
+  static final _id_enforceCallingPermission = _class.instanceMethodId(
+    r'enforceCallingPermission',
+    r'(Ljava/lang/String;Ljava/lang/String;)V',
+  );
+
+  static final _enforceCallingPermission = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void enforceCallingPermission(java.lang.String string, java.lang.String string1)`
+  void enforceCallingPermission(
+    jni$_.JString? string,
+    jni$_.JString? string1,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$string1 = string1?.reference ?? jni$_.jNullReference;
+    _enforceCallingPermission(
+            reference.pointer,
+            _id_enforceCallingPermission as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$string1.pointer)
+        .check();
+  }
+
+  static final _id_enforceCallingUriPermission = _class.instanceMethodId(
+    r'enforceCallingUriPermission',
+    r'(Landroid/net/Uri;ILjava/lang/String;)V',
+  );
+
+  static final _enforceCallingUriPermission =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<
+                          (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Int32,
+                            jni$_.Pointer<jni$_.Void>
+                          )>)>>('globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.Pointer<jni$_.Void>,
+                  int,
+                  jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void enforceCallingUriPermission(android.net.Uri uri, int i, java.lang.String string)`
+  void enforceCallingUriPermission(
+    jni$_.JObject? uri,
+    int i,
+    jni$_.JString? string,
+  ) {
+    final _$uri = uri?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _enforceCallingUriPermission(
+            reference.pointer,
+            _id_enforceCallingUriPermission as jni$_.JMethodIDPtr,
+            _$uri.pointer,
+            i,
+            _$string.pointer)
+        .check();
+  }
+
+  static final _id_enforcePermission = _class.instanceMethodId(
+    r'enforcePermission',
+    r'(Ljava/lang/String;IILjava/lang/String;)V',
+  );
+
+  static final _enforcePermission = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              int,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void enforcePermission(java.lang.String string, int i, int i1, java.lang.String string1)`
+  void enforcePermission(
     jni$_.JString? string,
     int i,
+    int i1,
+    jni$_.JString? string1,
   ) {
     final _$string = string?.reference ?? jni$_.jNullReference;
-    return _openFileOutput(reference.pointer,
-            _id_openFileOutput as jni$_.JMethodIDPtr, _$string.pointer, i)
+    final _$string1 = string1?.reference ?? jni$_.jNullReference;
+    _enforcePermission(
+            reference.pointer,
+            _id_enforcePermission as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            i,
+            i1,
+            _$string1.pointer)
+        .check();
+  }
+
+  static final _id_enforceUriPermission = _class.instanceMethodId(
+    r'enforceUriPermission',
+    r'(Landroid/net/Uri;IIILjava/lang/String;)V',
+  );
+
+  static final _enforceUriPermission = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              int,
+              int,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void enforceUriPermission(android.net.Uri uri, int i, int i1, int i2, java.lang.String string)`
+  void enforceUriPermission(
+    jni$_.JObject? uri,
+    int i,
+    int i1,
+    int i2,
+    jni$_.JString? string,
+  ) {
+    final _$uri = uri?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _enforceUriPermission(
+            reference.pointer,
+            _id_enforceUriPermission as jni$_.JMethodIDPtr,
+            _$uri.pointer,
+            i,
+            i1,
+            i2,
+            _$string.pointer)
+        .check();
+  }
+
+  static final _id_enforceUriPermission$1 = _class.instanceMethodId(
+    r'enforceUriPermission',
+    r'(Landroid/net/Uri;Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;)V',
+  );
+
+  static final _enforceUriPermission$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              int,
+              int,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void enforceUriPermission(android.net.Uri uri, java.lang.String string, java.lang.String string1, int i, int i1, int i2, java.lang.String string2)`
+  void enforceUriPermission$1(
+    jni$_.JObject? uri,
+    jni$_.JString? string,
+    jni$_.JString? string1,
+    int i,
+    int i1,
+    int i2,
+    jni$_.JString? string2,
+  ) {
+    final _$uri = uri?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$string1 = string1?.reference ?? jni$_.jNullReference;
+    final _$string2 = string2?.reference ?? jni$_.jNullReference;
+    _enforceUriPermission$1(
+            reference.pointer,
+            _id_enforceUriPermission$1 as jni$_.JMethodIDPtr,
+            _$uri.pointer,
+            _$string.pointer,
+            _$string1.pointer,
+            i,
+            i1,
+            i2,
+            _$string2.pointer)
+        .check();
+  }
+
+  static final _id_fileList = _class.instanceMethodId(
+    r'fileList',
+    r'()[Ljava/lang/String;',
+  );
+
+  static final _fileList = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract java.lang.String[] fileList()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JArray<jni$_.JString?>? fileList() {
+    return _fileList(reference.pointer, _id_fileList as jni$_.JMethodIDPtr)
+        .object<jni$_.JArray<jni$_.JString?>?>(
+            const jni$_.$JArray$NullableType$<jni$_.JString?>(
+                jni$_.$JString$NullableType$()));
+  }
+
+  static final _id_getApplicationContext = _class.instanceMethodId(
+    r'getApplicationContext',
+    r'()Landroid/content/Context;',
+  );
+
+  static final _getApplicationContext = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract android.content.Context getApplicationContext()`
+  /// The returned object must be released after use, by calling the [release] method.
+  Context? getApplicationContext() {
+    return _getApplicationContext(
+            reference.pointer, _id_getApplicationContext as jni$_.JMethodIDPtr)
+        .object<Context?>(const $Context$NullableType$());
+  }
+
+  static final _id_getApplicationInfo = _class.instanceMethodId(
+    r'getApplicationInfo',
+    r'()Landroid/content/pm/ApplicationInfo;',
+  );
+
+  static final _getApplicationInfo = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract android.content.pm.ApplicationInfo getApplicationInfo()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getApplicationInfo() {
+    return _getApplicationInfo(
+            reference.pointer, _id_getApplicationInfo as jni$_.JMethodIDPtr)
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 
-  static final _id_deleteFile = _class.instanceMethodId(
-    r'deleteFile',
-    r'(Ljava/lang/String;)Z',
+  static final _id_getAssets = _class.instanceMethodId(
+    r'getAssets',
+    r'()Landroid/content/res/AssetManager;',
   );
 
-  static final _deleteFile = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallBooleanMethod')
+  static final _getAssets = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
       .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
 
-  /// from: `public abstract boolean deleteFile(java.lang.String string)`
-  bool deleteFile(
-    jni$_.JString? string,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    return _deleteFile(reference.pointer, _id_deleteFile as jni$_.JMethodIDPtr,
-            _$string.pointer)
-        .boolean;
+  /// from: `public abstract android.content.res.AssetManager getAssets()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getAssets() {
+    return _getAssets(reference.pointer, _id_getAssets as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 
-  static final _id_getFileStreamPath = _class.instanceMethodId(
-    r'getFileStreamPath',
-    r'(Ljava/lang/String;)Ljava/io/File;',
+  static final _id_getAttributionSource = _class.instanceMethodId(
+    r'getAttributionSource',
+    r'()Landroid/content/AttributionSource;',
   );
 
-  static final _getFileStreamPath = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallObjectMethod')
+  static final _getAttributionSource = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
       .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
 
-  /// from: `public abstract java.io.File getFileStreamPath(java.lang.String string)`
+  /// from: `public android.content.AttributionSource getAttributionSource()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getFileStreamPath(
-    jni$_.JString? string,
+  jni$_.JObject? getAttributionSource() {
+    return _getAttributionSource(
+            reference.pointer, _id_getAttributionSource as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getAttributionTag = _class.instanceMethodId(
+    r'getAttributionTag',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getAttributionTag = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getAttributionTag()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getAttributionTag() {
+    return _getAttributionTag(
+            reference.pointer, _id_getAttributionTag as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
+  }
+
+  static final _id_getCacheDir = _class.instanceMethodId(
+    r'getCacheDir',
+    r'()Ljava/io/File;',
+  );
+
+  static final _getCacheDir = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract java.io.File getCacheDir()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getCacheDir() {
+    return _getCacheDir(
+            reference.pointer, _id_getCacheDir as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getClassLoader = _class.instanceMethodId(
+    r'getClassLoader',
+    r'()Ljava/lang/ClassLoader;',
+  );
+
+  static final _getClassLoader = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract java.lang.ClassLoader getClassLoader()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getClassLoader() {
+    return _getClassLoader(
+            reference.pointer, _id_getClassLoader as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getCodeCacheDir = _class.instanceMethodId(
+    r'getCodeCacheDir',
+    r'()Ljava/io/File;',
+  );
+
+  static final _getCodeCacheDir = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract java.io.File getCodeCacheDir()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getCodeCacheDir() {
+    return _getCodeCacheDir(
+            reference.pointer, _id_getCodeCacheDir as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getColor = _class.instanceMethodId(
+    r'getColor',
+    r'(I)I',
+  );
+
+  static final _getColor = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public final int getColor(int i)`
+  int getColor(
+    int i,
   ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    return _getFileStreamPath(reference.pointer,
-            _id_getFileStreamPath as jni$_.JMethodIDPtr, _$string.pointer)
+    return _getColor(reference.pointer, _id_getColor as jni$_.JMethodIDPtr, i)
+        .integer;
+  }
+
+  static final _id_getColorStateList = _class.instanceMethodId(
+    r'getColorStateList',
+    r'(I)Landroid/content/res/ColorStateList;',
+  );
+
+  static final _getColorStateList = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public final android.content.res.ColorStateList getColorStateList(int i)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getColorStateList(
+    int i,
+  ) {
+    return _getColorStateList(
+            reference.pointer, _id_getColorStateList as jni$_.JMethodIDPtr, i)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getContentResolver = _class.instanceMethodId(
+    r'getContentResolver',
+    r'()Landroid/content/ContentResolver;',
+  );
+
+  static final _getContentResolver = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract android.content.ContentResolver getContentResolver()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getContentResolver() {
+    return _getContentResolver(
+            reference.pointer, _id_getContentResolver as jni$_.JMethodIDPtr)
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 
@@ -43769,37 +45565,92 @@ class Context extends jni$_.JObject {
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 
-  static final _id_getFilesDir = _class.instanceMethodId(
-    r'getFilesDir',
-    r'()Ljava/io/File;',
+  static final _id_getDatabasePath = _class.instanceMethodId(
+    r'getDatabasePath',
+    r'(Ljava/lang/String;)Ljava/io/File;',
   );
 
-  static final _getFilesDir = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
+  static final _getDatabasePath = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallObjectMethod')
       .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public abstract java.io.File getFilesDir()`
+  /// from: `public abstract java.io.File getDatabasePath(java.lang.String string)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getFilesDir() {
-    return _getFilesDir(
-            reference.pointer, _id_getFilesDir as jni$_.JMethodIDPtr)
+  jni$_.JObject? getDatabasePath(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _getDatabasePath(reference.pointer,
+            _id_getDatabasePath as jni$_.JMethodIDPtr, _$string.pointer)
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 
-  static final _id_getNoBackupFilesDir = _class.instanceMethodId(
-    r'getNoBackupFilesDir',
-    r'()Ljava/io/File;',
+  static final _id_getDeviceId = _class.instanceMethodId(
+    r'getDeviceId',
+    r'()I',
   );
 
-  static final _getNoBackupFilesDir = jni$_.ProtectedJniExtensions.lookup<
+  static final _getDeviceId = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallIntMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public int getDeviceId()`
+  int getDeviceId() {
+    return _getDeviceId(
+            reference.pointer, _id_getDeviceId as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_getDir = _class.instanceMethodId(
+    r'getDir',
+    r'(Ljava/lang/String;I)Ljava/io/File;',
+  );
+
+  static final _getDir = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_
+                          .VarArgs<(jni$_.Pointer<jni$_.Void>, jni$_.Int32)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
+
+  /// from: `public abstract java.io.File getDir(java.lang.String string, int i)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getDir(
+    jni$_.JString? string,
+    int i,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _getDir(reference.pointer, _id_getDir as jni$_.JMethodIDPtr,
+            _$string.pointer, i)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getDisplay = _class.instanceMethodId(
+    r'getDisplay',
+    r'()Landroid/view/Display;',
+  );
+
+  static final _getDisplay = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                 jni$_.Pointer<jni$_.Void>,
@@ -43811,12 +45662,88 @@ class Context extends jni$_.JObject {
             jni$_.JMethodIDPtr,
           )>();
 
-  /// from: `public abstract java.io.File getNoBackupFilesDir()`
+  /// from: `public android.view.Display getDisplay()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getNoBackupFilesDir() {
-    return _getNoBackupFilesDir(
-            reference.pointer, _id_getNoBackupFilesDir as jni$_.JMethodIDPtr)
+  jni$_.JObject? getDisplay() {
+    return _getDisplay(reference.pointer, _id_getDisplay as jni$_.JMethodIDPtr)
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getDrawable = _class.instanceMethodId(
+    r'getDrawable',
+    r'(I)Landroid/graphics/drawable/Drawable;',
+  );
+
+  static final _getDrawable = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public final android.graphics.drawable.Drawable getDrawable(int i)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getDrawable(
+    int i,
+  ) {
+    return _getDrawable(
+            reference.pointer, _id_getDrawable as jni$_.JMethodIDPtr, i)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getExternalCacheDir = _class.instanceMethodId(
+    r'getExternalCacheDir',
+    r'()Ljava/io/File;',
+  );
+
+  static final _getExternalCacheDir = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract java.io.File getExternalCacheDir()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getExternalCacheDir() {
+    return _getExternalCacheDir(
+            reference.pointer, _id_getExternalCacheDir as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getExternalCacheDirs = _class.instanceMethodId(
+    r'getExternalCacheDirs',
+    r'()[Ljava/io/File;',
+  );
+
+  static final _getExternalCacheDirs = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract java.io.File[] getExternalCacheDirs()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JArray<jni$_.JObject?>? getExternalCacheDirs() {
+    return _getExternalCacheDirs(
+            reference.pointer, _id_getExternalCacheDirs as jni$_.JMethodIDPtr)
+        .object<jni$_.JArray<jni$_.JObject?>?>(
+            const jni$_.$JArray$NullableType$<jni$_.JObject?>(
+                jni$_.$JObject$NullableType$()));
   }
 
   static final _id_getExternalFilesDir = _class.instanceMethodId(
@@ -43875,6 +45802,160 @@ class Context extends jni$_.JObject {
                 jni$_.$JObject$NullableType$()));
   }
 
+  static final _id_getExternalMediaDirs = _class.instanceMethodId(
+    r'getExternalMediaDirs',
+    r'()[Ljava/io/File;',
+  );
+
+  static final _getExternalMediaDirs = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract java.io.File[] getExternalMediaDirs()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JArray<jni$_.JObject?>? getExternalMediaDirs() {
+    return _getExternalMediaDirs(
+            reference.pointer, _id_getExternalMediaDirs as jni$_.JMethodIDPtr)
+        .object<jni$_.JArray<jni$_.JObject?>?>(
+            const jni$_.$JArray$NullableType$<jni$_.JObject?>(
+                jni$_.$JObject$NullableType$()));
+  }
+
+  static final _id_getFileStreamPath = _class.instanceMethodId(
+    r'getFileStreamPath',
+    r'(Ljava/lang/String;)Ljava/io/File;',
+  );
+
+  static final _getFileStreamPath = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract java.io.File getFileStreamPath(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getFileStreamPath(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _getFileStreamPath(reference.pointer,
+            _id_getFileStreamPath as jni$_.JMethodIDPtr, _$string.pointer)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getFilesDir = _class.instanceMethodId(
+    r'getFilesDir',
+    r'()Ljava/io/File;',
+  );
+
+  static final _getFilesDir = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract java.io.File getFilesDir()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getFilesDir() {
+    return _getFilesDir(
+            reference.pointer, _id_getFilesDir as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getMainExecutor = _class.instanceMethodId(
+    r'getMainExecutor',
+    r'()Ljava/util/concurrent/Executor;',
+  );
+
+  static final _getMainExecutor = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.util.concurrent.Executor getMainExecutor()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getMainExecutor() {
+    return _getMainExecutor(
+            reference.pointer, _id_getMainExecutor as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getMainLooper = _class.instanceMethodId(
+    r'getMainLooper',
+    r'()Landroid/os/Looper;',
+  );
+
+  static final _getMainLooper = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract android.os.Looper getMainLooper()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getMainLooper() {
+    return _getMainLooper(
+            reference.pointer, _id_getMainLooper as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getNoBackupFilesDir = _class.instanceMethodId(
+    r'getNoBackupFilesDir',
+    r'()Ljava/io/File;',
+  );
+
+  static final _getNoBackupFilesDir = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract java.io.File getNoBackupFilesDir()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getNoBackupFilesDir() {
+    return _getNoBackupFilesDir(
+            reference.pointer, _id_getNoBackupFilesDir as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
   static final _id_getObbDir = _class.instanceMethodId(
     r'getObbDir',
     r'()Ljava/io/File;',
@@ -43925,12 +46006,12 @@ class Context extends jni$_.JObject {
                 jni$_.$JObject$NullableType$()));
   }
 
-  static final _id_getCacheDir = _class.instanceMethodId(
-    r'getCacheDir',
-    r'()Ljava/io/File;',
+  static final _id_getOpPackageName = _class.instanceMethodId(
+    r'getOpPackageName',
+    r'()Ljava/lang/String;',
   );
 
-  static final _getCacheDir = jni$_.ProtectedJniExtensions.lookup<
+  static final _getOpPackageName = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                 jni$_.Pointer<jni$_.Void>,
@@ -43942,20 +46023,70 @@ class Context extends jni$_.JObject {
             jni$_.JMethodIDPtr,
           )>();
 
-  /// from: `public abstract java.io.File getCacheDir()`
+  /// from: `public java.lang.String getOpPackageName()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getCacheDir() {
-    return _getCacheDir(
-            reference.pointer, _id_getCacheDir as jni$_.JMethodIDPtr)
+  jni$_.JString? getOpPackageName() {
+    return _getOpPackageName(
+            reference.pointer, _id_getOpPackageName as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
+  }
+
+  static final _id_getPackageCodePath = _class.instanceMethodId(
+    r'getPackageCodePath',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getPackageCodePath = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract java.lang.String getPackageCodePath()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getPackageCodePath() {
+    return _getPackageCodePath(
+            reference.pointer, _id_getPackageCodePath as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
+  }
+
+  static final _id_getPackageManager = _class.instanceMethodId(
+    r'getPackageManager',
+    r'()Landroid/content/pm/PackageManager;',
+  );
+
+  static final _getPackageManager = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract android.content.pm.PackageManager getPackageManager()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getPackageManager() {
+    return _getPackageManager(
+            reference.pointer, _id_getPackageManager as jni$_.JMethodIDPtr)
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 
-  static final _id_getCodeCacheDir = _class.instanceMethodId(
-    r'getCodeCacheDir',
-    r'()Ljava/io/File;',
+  static final _id_getPackageName = _class.instanceMethodId(
+    r'getPackageName',
+    r'()Ljava/lang/String;',
   );
 
-  static final _getCodeCacheDir = jni$_.ProtectedJniExtensions.lookup<
+  static final _getPackageName = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                 jni$_.Pointer<jni$_.Void>,
@@ -43967,20 +46098,69 @@ class Context extends jni$_.JObject {
             jni$_.JMethodIDPtr,
           )>();
 
-  /// from: `public abstract java.io.File getCodeCacheDir()`
+  /// from: `public abstract java.lang.String getPackageName()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getCodeCacheDir() {
-    return _getCodeCacheDir(
-            reference.pointer, _id_getCodeCacheDir as jni$_.JMethodIDPtr)
+  jni$_.JString? getPackageName() {
+    return _getPackageName(
+            reference.pointer, _id_getPackageName as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
+  }
+
+  static final _id_getPackageResourcePath = _class.instanceMethodId(
+    r'getPackageResourcePath',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getPackageResourcePath = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract java.lang.String getPackageResourcePath()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getPackageResourcePath() {
+    return _getPackageResourcePath(
+            reference.pointer, _id_getPackageResourcePath as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
+  }
+
+  static final _id_getParams = _class.instanceMethodId(
+    r'getParams',
+    r'()Landroid/content/ContextParams;',
+  );
+
+  static final _getParams = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public android.content.ContextParams getParams()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getParams() {
+    return _getParams(reference.pointer, _id_getParams as jni$_.JMethodIDPtr)
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 
-  static final _id_getExternalCacheDir = _class.instanceMethodId(
-    r'getExternalCacheDir',
-    r'()Ljava/io/File;',
+  static final _id_getResources = _class.instanceMethodId(
+    r'getResources',
+    r'()Landroid/content/res/Resources;',
   );
 
-  static final _getExternalCacheDir = jni$_.ProtectedJniExtensions.lookup<
+  static final _getResources = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                 jni$_.Pointer<jni$_.Void>,
@@ -43992,100 +46172,20 @@ class Context extends jni$_.JObject {
             jni$_.JMethodIDPtr,
           )>();
 
-  /// from: `public abstract java.io.File getExternalCacheDir()`
+  /// from: `public abstract android.content.res.Resources getResources()`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getExternalCacheDir() {
-    return _getExternalCacheDir(
-            reference.pointer, _id_getExternalCacheDir as jni$_.JMethodIDPtr)
+  jni$_.JObject? getResources() {
+    return _getResources(
+            reference.pointer, _id_getResources as jni$_.JMethodIDPtr)
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 
-  static final _id_getExternalCacheDirs = _class.instanceMethodId(
-    r'getExternalCacheDirs',
-    r'()[Ljava/io/File;',
+  static final _id_getSharedPreferences = _class.instanceMethodId(
+    r'getSharedPreferences',
+    r'(Ljava/lang/String;I)Landroid/content/SharedPreferences;',
   );
 
-  static final _getExternalCacheDirs = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract java.io.File[] getExternalCacheDirs()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JArray<jni$_.JObject?>? getExternalCacheDirs() {
-    return _getExternalCacheDirs(
-            reference.pointer, _id_getExternalCacheDirs as jni$_.JMethodIDPtr)
-        .object<jni$_.JArray<jni$_.JObject?>?>(
-            const jni$_.$JArray$NullableType$<jni$_.JObject?>(
-                jni$_.$JObject$NullableType$()));
-  }
-
-  static final _id_getExternalMediaDirs = _class.instanceMethodId(
-    r'getExternalMediaDirs',
-    r'()[Ljava/io/File;',
-  );
-
-  static final _getExternalMediaDirs = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract java.io.File[] getExternalMediaDirs()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JArray<jni$_.JObject?>? getExternalMediaDirs() {
-    return _getExternalMediaDirs(
-            reference.pointer, _id_getExternalMediaDirs as jni$_.JMethodIDPtr)
-        .object<jni$_.JArray<jni$_.JObject?>?>(
-            const jni$_.$JArray$NullableType$<jni$_.JObject?>(
-                jni$_.$JObject$NullableType$()));
-  }
-
-  static final _id_fileList = _class.instanceMethodId(
-    r'fileList',
-    r'()[Ljava/lang/String;',
-  );
-
-  static final _fileList = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract java.lang.String[] fileList()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JArray<jni$_.JString?>? fileList() {
-    return _fileList(reference.pointer, _id_fileList as jni$_.JMethodIDPtr)
-        .object<jni$_.JArray<jni$_.JString?>?>(
-            const jni$_.$JArray$NullableType$<jni$_.JString?>(
-                jni$_.$JString$NullableType$()));
-  }
-
-  static final _id_getDir = _class.instanceMethodId(
-    r'getDir',
-    r'(Ljava/lang/String;I)Ljava/io/File;',
-  );
-
-  static final _getDir = jni$_.ProtectedJniExtensions.lookup<
+  static final _getSharedPreferences = jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
                   jni$_.JniResult Function(
                       jni$_.Pointer<jni$_.Void>,
@@ -44097,15 +46197,659 @@ class Context extends jni$_.JObject {
           jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
 
-  /// from: `public abstract java.io.File getDir(java.lang.String string, int i)`
+  /// from: `public abstract android.content.SharedPreferences getSharedPreferences(java.lang.String string, int i)`
   /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getDir(
+  jni$_.JObject? getSharedPreferences(
     jni$_.JString? string,
     int i,
   ) {
     final _$string = string?.reference ?? jni$_.jNullReference;
-    return _getDir(reference.pointer, _id_getDir as jni$_.JMethodIDPtr,
-            _$string.pointer, i)
+    return _getSharedPreferences(reference.pointer,
+            _id_getSharedPreferences as jni$_.JMethodIDPtr, _$string.pointer, i)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getString = _class.instanceMethodId(
+    r'getString',
+    r'(I)Ljava/lang/String;',
+  );
+
+  static final _getString = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public final java.lang.String getString(int i)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getString(
+    int i,
+  ) {
+    return _getString(reference.pointer, _id_getString as jni$_.JMethodIDPtr, i)
+        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
+  }
+
+  static final _id_getString$1 = _class.instanceMethodId(
+    r'getString',
+    r'(I[Ljava/lang/Object;)Ljava/lang/String;',
+  );
+
+  static final _getString$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_
+                          .VarArgs<(jni$_.Int32, jni$_.Pointer<jni$_.Void>)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, int, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final java.lang.String getString(int i, java.lang.Object[] objects)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getString$1(
+    int i,
+    jni$_.JArray<jni$_.JObject?>? objects,
+  ) {
+    final _$objects = objects?.reference ?? jni$_.jNullReference;
+    return _getString$1(reference.pointer,
+            _id_getString$1 as jni$_.JMethodIDPtr, i, _$objects.pointer)
+        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
+  }
+
+  static final _id_getSystemService = _class.instanceMethodId(
+    r'getSystemService',
+    r'(Ljava/lang/Class;)Ljava/lang/Object;',
+  );
+
+  static final _getSystemService = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final T getSystemService(java.lang.Class<T> class)`
+  /// The returned object must be released after use, by calling the [release] method.
+  $T? getSystemService<$T extends jni$_.JObject?>(
+    jni$_.JObject? class$, {
+    required jni$_.JType<$T> T,
+  }) {
+    final _$class$ = class$?.reference ?? jni$_.jNullReference;
+    return _getSystemService(reference.pointer,
+            _id_getSystemService as jni$_.JMethodIDPtr, _$class$.pointer)
+        .object<$T?>(T.nullableType);
+  }
+
+  static final _id_getSystemService$1 = _class.instanceMethodId(
+    r'getSystemService',
+    r'(Ljava/lang/String;)Ljava/lang/Object;',
+  );
+
+  static final _getSystemService$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract java.lang.Object getSystemService(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getSystemService$1(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _getSystemService$1(reference.pointer,
+            _id_getSystemService$1 as jni$_.JMethodIDPtr, _$string.pointer)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getSystemServiceName = _class.instanceMethodId(
+    r'getSystemServiceName',
+    r'(Ljava/lang/Class;)Ljava/lang/String;',
+  );
+
+  static final _getSystemServiceName = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract java.lang.String getSystemServiceName(java.lang.Class<?> class)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getSystemServiceName(
+    jni$_.JObject? class$,
+  ) {
+    final _$class$ = class$?.reference ?? jni$_.jNullReference;
+    return _getSystemServiceName(reference.pointer,
+            _id_getSystemServiceName as jni$_.JMethodIDPtr, _$class$.pointer)
+        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
+  }
+
+  static final _id_getText = _class.instanceMethodId(
+    r'getText',
+    r'(I)Ljava/lang/CharSequence;',
+  );
+
+  static final _getText = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public final java.lang.CharSequence getText(int i)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getText(
+    int i,
+  ) {
+    return _getText(reference.pointer, _id_getText as jni$_.JMethodIDPtr, i)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getTheme = _class.instanceMethodId(
+    r'getTheme',
+    r'()Landroid/content/res/Resources$Theme;',
+  );
+
+  static final _getTheme = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract android.content.res.Resources$Theme getTheme()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getTheme() {
+    return _getTheme(reference.pointer, _id_getTheme as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getWallpaper = _class.instanceMethodId(
+    r'getWallpaper',
+    r'()Landroid/graphics/drawable/Drawable;',
+  );
+
+  static final _getWallpaper = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract android.graphics.drawable.Drawable getWallpaper()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getWallpaper() {
+    return _getWallpaper(
+            reference.pointer, _id_getWallpaper as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_getWallpaperDesiredMinimumHeight = _class.instanceMethodId(
+    r'getWallpaperDesiredMinimumHeight',
+    r'()I',
+  );
+
+  static final _getWallpaperDesiredMinimumHeight =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallIntMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public abstract int getWallpaperDesiredMinimumHeight()`
+  int getWallpaperDesiredMinimumHeight() {
+    return _getWallpaperDesiredMinimumHeight(reference.pointer,
+            _id_getWallpaperDesiredMinimumHeight as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_getWallpaperDesiredMinimumWidth = _class.instanceMethodId(
+    r'getWallpaperDesiredMinimumWidth',
+    r'()I',
+  );
+
+  static final _getWallpaperDesiredMinimumWidth =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallIntMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public abstract int getWallpaperDesiredMinimumWidth()`
+  int getWallpaperDesiredMinimumWidth() {
+    return _getWallpaperDesiredMinimumWidth(reference.pointer,
+            _id_getWallpaperDesiredMinimumWidth as jni$_.JMethodIDPtr)
+        .integer;
+  }
+
+  static final _id_grantUriPermission = _class.instanceMethodId(
+    r'grantUriPermission',
+    r'(Ljava/lang/String;Landroid/net/Uri;I)V',
+  );
+
+  static final _grantUriPermission = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              int)>();
+
+  /// from: `public abstract void grantUriPermission(java.lang.String string, android.net.Uri uri, int i)`
+  void grantUriPermission(
+    jni$_.JString? string,
+    jni$_.JObject? uri,
+    int i,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$uri = uri?.reference ?? jni$_.jNullReference;
+    _grantUriPermission(
+            reference.pointer,
+            _id_grantUriPermission as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$uri.pointer,
+            i)
+        .check();
+  }
+
+  static final _id_isDeviceProtectedStorage = _class.instanceMethodId(
+    r'isDeviceProtectedStorage',
+    r'()Z',
+  );
+
+  static final _isDeviceProtectedStorage = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public abstract boolean isDeviceProtectedStorage()`
+  bool isDeviceProtectedStorage() {
+    return _isDeviceProtectedStorage(reference.pointer,
+            _id_isDeviceProtectedStorage as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_isRestricted = _class.instanceMethodId(
+    r'isRestricted',
+    r'()Z',
+  );
+
+  static final _isRestricted = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public boolean isRestricted()`
+  bool isRestricted() {
+    return _isRestricted(
+            reference.pointer, _id_isRestricted as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_isUiContext = _class.instanceMethodId(
+    r'isUiContext',
+    r'()Z',
+  );
+
+  static final _isUiContext = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public boolean isUiContext()`
+  bool isUiContext() {
+    return _isUiContext(
+            reference.pointer, _id_isUiContext as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_moveDatabaseFrom = _class.instanceMethodId(
+    r'moveDatabaseFrom',
+    r'(Landroid/content/Context;Ljava/lang/String;)Z',
+  );
+
+  static final _moveDatabaseFrom = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract boolean moveDatabaseFrom(android.content.Context context, java.lang.String string)`
+  bool moveDatabaseFrom(
+    Context? context,
+    jni$_.JString? string,
+  ) {
+    final _$context = context?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _moveDatabaseFrom(
+            reference.pointer,
+            _id_moveDatabaseFrom as jni$_.JMethodIDPtr,
+            _$context.pointer,
+            _$string.pointer)
+        .boolean;
+  }
+
+  static final _id_moveSharedPreferencesFrom = _class.instanceMethodId(
+    r'moveSharedPreferencesFrom',
+    r'(Landroid/content/Context;Ljava/lang/String;)Z',
+  );
+
+  static final _moveSharedPreferencesFrom = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract boolean moveSharedPreferencesFrom(android.content.Context context, java.lang.String string)`
+  bool moveSharedPreferencesFrom(
+    Context? context,
+    jni$_.JString? string,
+  ) {
+    final _$context = context?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _moveSharedPreferencesFrom(
+            reference.pointer,
+            _id_moveSharedPreferencesFrom as jni$_.JMethodIDPtr,
+            _$context.pointer,
+            _$string.pointer)
+        .boolean;
+  }
+
+  static final _id_obtainStyledAttributes = _class.instanceMethodId(
+    r'obtainStyledAttributes',
+    r'(Landroid/util/AttributeSet;[I)Landroid/content/res/TypedArray;',
+  );
+
+  static final _obtainStyledAttributes = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final android.content.res.TypedArray obtainStyledAttributes(android.util.AttributeSet attributeSet, int[] is)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? obtainStyledAttributes(
+    jni$_.JObject? attributeSet,
+    jni$_.JIntArray? is$,
+  ) {
+    final _$attributeSet = attributeSet?.reference ?? jni$_.jNullReference;
+    final _$is$ = is$?.reference ?? jni$_.jNullReference;
+    return _obtainStyledAttributes(
+            reference.pointer,
+            _id_obtainStyledAttributes as jni$_.JMethodIDPtr,
+            _$attributeSet.pointer,
+            _$is$.pointer)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_obtainStyledAttributes$1 = _class.instanceMethodId(
+    r'obtainStyledAttributes',
+    r'(Landroid/util/AttributeSet;[III)Landroid/content/res/TypedArray;',
+  );
+
+  static final _obtainStyledAttributes$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              int)>();
+
+  /// from: `public final android.content.res.TypedArray obtainStyledAttributes(android.util.AttributeSet attributeSet, int[] is, int i, int i1)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? obtainStyledAttributes$1(
+    jni$_.JObject? attributeSet,
+    jni$_.JIntArray? is$,
+    int i,
+    int i1,
+  ) {
+    final _$attributeSet = attributeSet?.reference ?? jni$_.jNullReference;
+    final _$is$ = is$?.reference ?? jni$_.jNullReference;
+    return _obtainStyledAttributes$1(
+            reference.pointer,
+            _id_obtainStyledAttributes$1 as jni$_.JMethodIDPtr,
+            _$attributeSet.pointer,
+            _$is$.pointer,
+            i,
+            i1)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_obtainStyledAttributes$2 = _class.instanceMethodId(
+    r'obtainStyledAttributes',
+    r'(I[I)Landroid/content/res/TypedArray;',
+  );
+
+  static final _obtainStyledAttributes$2 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_
+                          .VarArgs<(jni$_.Int32, jni$_.Pointer<jni$_.Void>)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, int, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final android.content.res.TypedArray obtainStyledAttributes(int i, int[] is)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? obtainStyledAttributes$2(
+    int i,
+    jni$_.JIntArray? is$,
+  ) {
+    final _$is$ = is$?.reference ?? jni$_.jNullReference;
+    return _obtainStyledAttributes$2(
+            reference.pointer,
+            _id_obtainStyledAttributes$2 as jni$_.JMethodIDPtr,
+            i,
+            _$is$.pointer)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_obtainStyledAttributes$3 = _class.instanceMethodId(
+    r'obtainStyledAttributes',
+    r'([I)Landroid/content/res/TypedArray;',
+  );
+
+  static final _obtainStyledAttributes$3 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final android.content.res.TypedArray obtainStyledAttributes(int[] is)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? obtainStyledAttributes$3(
+    jni$_.JIntArray? is$,
+  ) {
+    final _$is$ = is$?.reference ?? jni$_.jNullReference;
+    return _obtainStyledAttributes$3(reference.pointer,
+            _id_obtainStyledAttributes$3 as jni$_.JMethodIDPtr, _$is$.pointer)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_openFileInput = _class.instanceMethodId(
+    r'openFileInput',
+    r'(Ljava/lang/String;)Ljava/io/FileInputStream;',
+  );
+
+  static final _openFileInput = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract java.io.FileInputStream openFileInput(java.lang.String string)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? openFileInput(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _openFileInput(reference.pointer,
+            _id_openFileInput as jni$_.JMethodIDPtr, _$string.pointer)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_openFileOutput = _class.instanceMethodId(
+    r'openFileOutput',
+    r'(Ljava/lang/String;I)Ljava/io/FileOutputStream;',
+  );
+
+  static final _openFileOutput = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_
+                          .VarArgs<(jni$_.Pointer<jni$_.Void>, jni$_.Int32)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
+
+  /// from: `public abstract java.io.FileOutputStream openFileOutput(java.lang.String string, int i)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? openFileOutput(
+    jni$_.JString? string,
+    int i,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _openFileOutput(reference.pointer,
+            _id_openFileOutput as jni$_.JMethodIDPtr, _$string.pointer, i)
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 
@@ -44199,148 +46943,6 @@ class Context extends jni$_.JObject {
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 
-  static final _id_moveDatabaseFrom = _class.instanceMethodId(
-    r'moveDatabaseFrom',
-    r'(Landroid/content/Context;Ljava/lang/String;)Z',
-  );
-
-  static final _moveDatabaseFrom = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract boolean moveDatabaseFrom(android.content.Context context, java.lang.String string)`
-  bool moveDatabaseFrom(
-    Context? context,
-    jni$_.JString? string,
-  ) {
-    final _$context = context?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    return _moveDatabaseFrom(
-            reference.pointer,
-            _id_moveDatabaseFrom as jni$_.JMethodIDPtr,
-            _$context.pointer,
-            _$string.pointer)
-        .boolean;
-  }
-
-  static final _id_deleteDatabase = _class.instanceMethodId(
-    r'deleteDatabase',
-    r'(Ljava/lang/String;)Z',
-  );
-
-  static final _deleteDatabase = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract boolean deleteDatabase(java.lang.String string)`
-  bool deleteDatabase(
-    jni$_.JString? string,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    return _deleteDatabase(reference.pointer,
-            _id_deleteDatabase as jni$_.JMethodIDPtr, _$string.pointer)
-        .boolean;
-  }
-
-  static final _id_getDatabasePath = _class.instanceMethodId(
-    r'getDatabasePath',
-    r'(Ljava/lang/String;)Ljava/io/File;',
-  );
-
-  static final _getDatabasePath = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract java.io.File getDatabasePath(java.lang.String string)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getDatabasePath(
-    jni$_.JString? string,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    return _getDatabasePath(reference.pointer,
-            _id_getDatabasePath as jni$_.JMethodIDPtr, _$string.pointer)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_databaseList = _class.instanceMethodId(
-    r'databaseList',
-    r'()[Ljava/lang/String;',
-  );
-
-  static final _databaseList = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract java.lang.String[] databaseList()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JArray<jni$_.JString?>? databaseList() {
-    return _databaseList(
-            reference.pointer, _id_databaseList as jni$_.JMethodIDPtr)
-        .object<jni$_.JArray<jni$_.JString?>?>(
-            const jni$_.$JArray$NullableType$<jni$_.JString?>(
-                jni$_.$JString$NullableType$()));
-  }
-
-  static final _id_getWallpaper = _class.instanceMethodId(
-    r'getWallpaper',
-    r'()Landroid/graphics/drawable/Drawable;',
-  );
-
-  static final _getWallpaper = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract android.graphics.drawable.Drawable getWallpaper()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getWallpaper() {
-    return _getWallpaper(
-            reference.pointer, _id_getWallpaper as jni$_.JMethodIDPtr)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
   static final _id_peekWallpaper = _class.instanceMethodId(
     r'peekWallpaper',
     r'()Landroid/graphics/drawable/Drawable;',
@@ -44366,430 +46968,42 @@ class Context extends jni$_.JObject {
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 
-  static final _id_getWallpaperDesiredMinimumWidth = _class.instanceMethodId(
-    r'getWallpaperDesiredMinimumWidth',
-    r'()I',
+  static final _id_registerComponentCallbacks = _class.instanceMethodId(
+    r'registerComponentCallbacks',
+    r'(Landroid/content/ComponentCallbacks;)V',
   );
 
-  static final _getWallpaperDesiredMinimumWidth =
+  static final _registerComponentCallbacks =
       jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                    jni$_.Pointer<jni$_.Void>,
-                    jni$_.JMethodIDPtr,
-                  )>>('globalEnv_CallIntMethod')
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(
+                          jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr,
+                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+              'globalEnv_CallVoidMethod')
           .asFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>();
+              jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public abstract int getWallpaperDesiredMinimumWidth()`
-  int getWallpaperDesiredMinimumWidth() {
-    return _getWallpaperDesiredMinimumWidth(reference.pointer,
-            _id_getWallpaperDesiredMinimumWidth as jni$_.JMethodIDPtr)
-        .integer;
-  }
-
-  static final _id_getWallpaperDesiredMinimumHeight = _class.instanceMethodId(
-    r'getWallpaperDesiredMinimumHeight',
-    r'()I',
-  );
-
-  static final _getWallpaperDesiredMinimumHeight =
-      jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                    jni$_.Pointer<jni$_.Void>,
-                    jni$_.JMethodIDPtr,
-                  )>>('globalEnv_CallIntMethod')
-          .asFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>();
-
-  /// from: `public abstract int getWallpaperDesiredMinimumHeight()`
-  int getWallpaperDesiredMinimumHeight() {
-    return _getWallpaperDesiredMinimumHeight(reference.pointer,
-            _id_getWallpaperDesiredMinimumHeight as jni$_.JMethodIDPtr)
-        .integer;
-  }
-
-  static final _id_setWallpaper = _class.instanceMethodId(
-    r'setWallpaper',
-    r'(Landroid/graphics/Bitmap;)V',
-  );
-
-  static final _setWallpaper = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void setWallpaper(android.graphics.Bitmap bitmap)`
-  void setWallpaper(
-    Bitmap? bitmap,
+  /// from: `public void registerComponentCallbacks(android.content.ComponentCallbacks componentCallbacks)`
+  void registerComponentCallbacks(
+    jni$_.JObject? componentCallbacks,
   ) {
-    final _$bitmap = bitmap?.reference ?? jni$_.jNullReference;
-    _setWallpaper(reference.pointer, _id_setWallpaper as jni$_.JMethodIDPtr,
-            _$bitmap.pointer)
-        .check();
-  }
-
-  static final _id_setWallpaper$1 = _class.instanceMethodId(
-    r'setWallpaper',
-    r'(Ljava/io/InputStream;)V',
-  );
-
-  static final _setWallpaper$1 = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void setWallpaper(java.io.InputStream inputStream)`
-  void setWallpaper$1(
-    jni$_.JObject? inputStream,
-  ) {
-    final _$inputStream = inputStream?.reference ?? jni$_.jNullReference;
-    _setWallpaper$1(reference.pointer, _id_setWallpaper$1 as jni$_.JMethodIDPtr,
-            _$inputStream.pointer)
-        .check();
-  }
-
-  static final _id_clearWallpaper = _class.instanceMethodId(
-    r'clearWallpaper',
-    r'()V',
-  );
-
-  static final _clearWallpaper = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public abstract void clearWallpaper()`
-  void clearWallpaper() {
-    _clearWallpaper(reference.pointer, _id_clearWallpaper as jni$_.JMethodIDPtr)
-        .check();
-  }
-
-  static final _id_startActivity = _class.instanceMethodId(
-    r'startActivity',
-    r'(Landroid/content/Intent;)V',
-  );
-
-  static final _startActivity = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void startActivity(android.content.Intent intent)`
-  void startActivity(
-    jni$_.JObject? intent,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    _startActivity(reference.pointer, _id_startActivity as jni$_.JMethodIDPtr,
-            _$intent.pointer)
-        .check();
-  }
-
-  static final _id_startActivity$1 = _class.instanceMethodId(
-    r'startActivity',
-    r'(Landroid/content/Intent;Landroid/os/Bundle;)V',
-  );
-
-  static final _startActivity$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void startActivity(android.content.Intent intent, android.os.Bundle bundle)`
-  void startActivity$1(
-    jni$_.JObject? intent,
-    jni$_.JObject? bundle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    _startActivity$1(
+    final _$componentCallbacks =
+        componentCallbacks?.reference ?? jni$_.jNullReference;
+    _registerComponentCallbacks(
             reference.pointer,
-            _id_startActivity$1 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$bundle.pointer)
+            _id_registerComponentCallbacks as jni$_.JMethodIDPtr,
+            _$componentCallbacks.pointer)
         .check();
   }
 
-  static final _id_startActivities = _class.instanceMethodId(
-    r'startActivities',
-    r'([Landroid/content/Intent;)V',
+  static final _id_registerDeviceIdChangeListener = _class.instanceMethodId(
+    r'registerDeviceIdChangeListener',
+    r'(Ljava/util/concurrent/Executor;Ljava/util/function/IntConsumer;)V',
   );
 
-  static final _startActivities = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void startActivities(android.content.Intent[] intents)`
-  void startActivities(
-    jni$_.JArray<jni$_.JObject?>? intents,
-  ) {
-    final _$intents = intents?.reference ?? jni$_.jNullReference;
-    _startActivities(reference.pointer,
-            _id_startActivities as jni$_.JMethodIDPtr, _$intents.pointer)
-        .check();
-  }
-
-  static final _id_startActivities$1 = _class.instanceMethodId(
-    r'startActivities',
-    r'([Landroid/content/Intent;Landroid/os/Bundle;)V',
-  );
-
-  static final _startActivities$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void startActivities(android.content.Intent[] intents, android.os.Bundle bundle)`
-  void startActivities$1(
-    jni$_.JArray<jni$_.JObject?>? intents,
-    jni$_.JObject? bundle,
-  ) {
-    final _$intents = intents?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    _startActivities$1(
-            reference.pointer,
-            _id_startActivities$1 as jni$_.JMethodIDPtr,
-            _$intents.pointer,
-            _$bundle.pointer)
-        .check();
-  }
-
-  static final _id_startIntentSender = _class.instanceMethodId(
-    r'startIntentSender',
-    r'(Landroid/content/IntentSender;Landroid/content/Intent;III)V',
-  );
-
-  static final _startIntentSender = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              int,
-              int)>();
-
-  /// from: `public abstract void startIntentSender(android.content.IntentSender intentSender, android.content.Intent intent, int i, int i1, int i2)`
-  void startIntentSender(
-    jni$_.JObject? intentSender,
-    jni$_.JObject? intent,
-    int i,
-    int i1,
-    int i2,
-  ) {
-    final _$intentSender = intentSender?.reference ?? jni$_.jNullReference;
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    _startIntentSender(
-            reference.pointer,
-            _id_startIntentSender as jni$_.JMethodIDPtr,
-            _$intentSender.pointer,
-            _$intent.pointer,
-            i,
-            i1,
-            i2)
-        .check();
-  }
-
-  static final _id_startIntentSender$1 = _class.instanceMethodId(
-    r'startIntentSender',
-    r'(Landroid/content/IntentSender;Landroid/content/Intent;IIILandroid/os/Bundle;)V',
-  );
-
-  static final _startIntentSender$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              int,
-              int,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void startIntentSender(android.content.IntentSender intentSender, android.content.Intent intent, int i, int i1, int i2, android.os.Bundle bundle)`
-  void startIntentSender$1(
-    jni$_.JObject? intentSender,
-    jni$_.JObject? intent,
-    int i,
-    int i1,
-    int i2,
-    jni$_.JObject? bundle,
-  ) {
-    final _$intentSender = intentSender?.reference ?? jni$_.jNullReference;
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    _startIntentSender$1(
-            reference.pointer,
-            _id_startIntentSender$1 as jni$_.JMethodIDPtr,
-            _$intentSender.pointer,
-            _$intent.pointer,
-            i,
-            i1,
-            i2,
-            _$bundle.pointer)
-        .check();
-  }
-
-  static final _id_sendBroadcast = _class.instanceMethodId(
-    r'sendBroadcast',
-    r'(Landroid/content/Intent;)V',
-  );
-
-  static final _sendBroadcast = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void sendBroadcast(android.content.Intent intent)`
-  void sendBroadcast(
-    jni$_.JObject? intent,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    _sendBroadcast(reference.pointer, _id_sendBroadcast as jni$_.JMethodIDPtr,
-            _$intent.pointer)
-        .check();
-  }
-
-  static final _id_sendBroadcast$1 = _class.instanceMethodId(
-    r'sendBroadcast',
-    r'(Landroid/content/Intent;Ljava/lang/String;)V',
-  );
-
-  static final _sendBroadcast$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void sendBroadcast(android.content.Intent intent, java.lang.String string)`
-  void sendBroadcast$1(
-    jni$_.JObject? intent,
-    jni$_.JString? string,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    _sendBroadcast$1(
-            reference.pointer,
-            _id_sendBroadcast$1 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$string.pointer)
-        .check();
-  }
-
-  static final _id_sendBroadcastWithMultiplePermissions =
-      _class.instanceMethodId(
-    r'sendBroadcastWithMultiplePermissions',
-    r'(Landroid/content/Intent;[Ljava/lang/String;)V',
-  );
-
-  static final _sendBroadcastWithMultiplePermissions =
+  static final _registerDeviceIdChangeListener =
       jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
                   jni$_.JThrowablePtr Function(
@@ -44807,767 +47021,18 @@ class Context extends jni$_.JObject {
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public void sendBroadcastWithMultiplePermissions(android.content.Intent intent, java.lang.String[] strings)`
-  void sendBroadcastWithMultiplePermissions(
-    jni$_.JObject? intent,
-    jni$_.JArray<jni$_.JString?>? strings,
+  /// from: `public void registerDeviceIdChangeListener(java.util.concurrent.Executor executor, java.util.function.IntConsumer intConsumer)`
+  void registerDeviceIdChangeListener(
+    jni$_.JObject? executor,
+    jni$_.JObject? intConsumer,
   ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$strings = strings?.reference ?? jni$_.jNullReference;
-    _sendBroadcastWithMultiplePermissions(
+    final _$executor = executor?.reference ?? jni$_.jNullReference;
+    final _$intConsumer = intConsumer?.reference ?? jni$_.jNullReference;
+    _registerDeviceIdChangeListener(
             reference.pointer,
-            _id_sendBroadcastWithMultiplePermissions as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$strings.pointer)
-        .check();
-  }
-
-  static final _id_sendBroadcast$2 = _class.instanceMethodId(
-    r'sendBroadcast',
-    r'(Landroid/content/Intent;Ljava/lang/String;Landroid/os/Bundle;)V',
-  );
-
-  static final _sendBroadcast$2 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void sendBroadcast(android.content.Intent intent, java.lang.String string, android.os.Bundle bundle)`
-  void sendBroadcast$2(
-    jni$_.JObject? intent,
-    jni$_.JString? string,
-    jni$_.JObject? bundle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    _sendBroadcast$2(
-            reference.pointer,
-            _id_sendBroadcast$2 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$string.pointer,
-            _$bundle.pointer)
-        .check();
-  }
-
-  static final _id_sendOrderedBroadcast = _class.instanceMethodId(
-    r'sendOrderedBroadcast',
-    r'(Landroid/content/Intent;Ljava/lang/String;)V',
-  );
-
-  static final _sendOrderedBroadcast = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void sendOrderedBroadcast(android.content.Intent intent, java.lang.String string)`
-  void sendOrderedBroadcast(
-    jni$_.JObject? intent,
-    jni$_.JString? string,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    _sendOrderedBroadcast(
-            reference.pointer,
-            _id_sendOrderedBroadcast as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$string.pointer)
-        .check();
-  }
-
-  static final _id_sendOrderedBroadcast$1 = _class.instanceMethodId(
-    r'sendOrderedBroadcast',
-    r'(Landroid/content/Intent;Ljava/lang/String;Landroid/os/Bundle;)V',
-  );
-
-  static final _sendOrderedBroadcast$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void sendOrderedBroadcast(android.content.Intent intent, java.lang.String string, android.os.Bundle bundle)`
-  void sendOrderedBroadcast$1(
-    jni$_.JObject? intent,
-    jni$_.JString? string,
-    jni$_.JObject? bundle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    _sendOrderedBroadcast$1(
-            reference.pointer,
-            _id_sendOrderedBroadcast$1 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$string.pointer,
-            _$bundle.pointer)
-        .check();
-  }
-
-  static final _id_sendOrderedBroadcast$2 = _class.instanceMethodId(
-    r'sendOrderedBroadcast',
-    r'(Landroid/content/Intent;Ljava/lang/String;Landroid/content/BroadcastReceiver;Landroid/os/Handler;ILjava/lang/String;Landroid/os/Bundle;)V',
-  );
-
-  static final _sendOrderedBroadcast$2 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void sendOrderedBroadcast(android.content.Intent intent, java.lang.String string, android.content.BroadcastReceiver broadcastReceiver, android.os.Handler handler, int i, java.lang.String string1, android.os.Bundle bundle)`
-  void sendOrderedBroadcast$2(
-    jni$_.JObject? intent,
-    jni$_.JString? string,
-    jni$_.JObject? broadcastReceiver,
-    jni$_.JObject? handler,
-    int i,
-    jni$_.JString? string1,
-    jni$_.JObject? bundle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$broadcastReceiver =
-        broadcastReceiver?.reference ?? jni$_.jNullReference;
-    final _$handler = handler?.reference ?? jni$_.jNullReference;
-    final _$string1 = string1?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    _sendOrderedBroadcast$2(
-            reference.pointer,
-            _id_sendOrderedBroadcast$2 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$string.pointer,
-            _$broadcastReceiver.pointer,
-            _$handler.pointer,
-            i,
-            _$string1.pointer,
-            _$bundle.pointer)
-        .check();
-  }
-
-  static final _id_sendOrderedBroadcast$3 = _class.instanceMethodId(
-    r'sendOrderedBroadcast',
-    r'(Landroid/content/Intent;Ljava/lang/String;Landroid/os/Bundle;Landroid/content/BroadcastReceiver;Landroid/os/Handler;ILjava/lang/String;Landroid/os/Bundle;)V',
-  );
-
-  static final _sendOrderedBroadcast$3 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void sendOrderedBroadcast(android.content.Intent intent, java.lang.String string, android.os.Bundle bundle, android.content.BroadcastReceiver broadcastReceiver, android.os.Handler handler, int i, java.lang.String string1, android.os.Bundle bundle1)`
-  void sendOrderedBroadcast$3(
-    jni$_.JObject? intent,
-    jni$_.JString? string,
-    jni$_.JObject? bundle,
-    jni$_.JObject? broadcastReceiver,
-    jni$_.JObject? handler,
-    int i,
-    jni$_.JString? string1,
-    jni$_.JObject? bundle1,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    final _$broadcastReceiver =
-        broadcastReceiver?.reference ?? jni$_.jNullReference;
-    final _$handler = handler?.reference ?? jni$_.jNullReference;
-    final _$string1 = string1?.reference ?? jni$_.jNullReference;
-    final _$bundle1 = bundle1?.reference ?? jni$_.jNullReference;
-    _sendOrderedBroadcast$3(
-            reference.pointer,
-            _id_sendOrderedBroadcast$3 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$string.pointer,
-            _$bundle.pointer,
-            _$broadcastReceiver.pointer,
-            _$handler.pointer,
-            i,
-            _$string1.pointer,
-            _$bundle1.pointer)
-        .check();
-  }
-
-  static final _id_sendBroadcastAsUser = _class.instanceMethodId(
-    r'sendBroadcastAsUser',
-    r'(Landroid/content/Intent;Landroid/os/UserHandle;)V',
-  );
-
-  static final _sendBroadcastAsUser = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void sendBroadcastAsUser(android.content.Intent intent, android.os.UserHandle userHandle)`
-  void sendBroadcastAsUser(
-    jni$_.JObject? intent,
-    jni$_.JObject? userHandle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
-    _sendBroadcastAsUser(
-            reference.pointer,
-            _id_sendBroadcastAsUser as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$userHandle.pointer)
-        .check();
-  }
-
-  static final _id_sendBroadcastAsUser$1 = _class.instanceMethodId(
-    r'sendBroadcastAsUser',
-    r'(Landroid/content/Intent;Landroid/os/UserHandle;Ljava/lang/String;)V',
-  );
-
-  static final _sendBroadcastAsUser$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void sendBroadcastAsUser(android.content.Intent intent, android.os.UserHandle userHandle, java.lang.String string)`
-  void sendBroadcastAsUser$1(
-    jni$_.JObject? intent,
-    jni$_.JObject? userHandle,
-    jni$_.JString? string,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    _sendBroadcastAsUser$1(
-            reference.pointer,
-            _id_sendBroadcastAsUser$1 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$userHandle.pointer,
-            _$string.pointer)
-        .check();
-  }
-
-  static final _id_sendOrderedBroadcastAsUser = _class.instanceMethodId(
-    r'sendOrderedBroadcastAsUser',
-    r'(Landroid/content/Intent;Landroid/os/UserHandle;Ljava/lang/String;Landroid/content/BroadcastReceiver;Landroid/os/Handler;ILjava/lang/String;Landroid/os/Bundle;)V',
-  );
-
-  static final _sendOrderedBroadcastAsUser =
-      jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<
-                          (
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Int32,
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>
-                          )>)>>('globalEnv_CallVoidMethod')
-          .asFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>,
-                  int,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void sendOrderedBroadcastAsUser(android.content.Intent intent, android.os.UserHandle userHandle, java.lang.String string, android.content.BroadcastReceiver broadcastReceiver, android.os.Handler handler, int i, java.lang.String string1, android.os.Bundle bundle)`
-  void sendOrderedBroadcastAsUser(
-    jni$_.JObject? intent,
-    jni$_.JObject? userHandle,
-    jni$_.JString? string,
-    jni$_.JObject? broadcastReceiver,
-    jni$_.JObject? handler,
-    int i,
-    jni$_.JString? string1,
-    jni$_.JObject? bundle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$broadcastReceiver =
-        broadcastReceiver?.reference ?? jni$_.jNullReference;
-    final _$handler = handler?.reference ?? jni$_.jNullReference;
-    final _$string1 = string1?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    _sendOrderedBroadcastAsUser(
-            reference.pointer,
-            _id_sendOrderedBroadcastAsUser as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$userHandle.pointer,
-            _$string.pointer,
-            _$broadcastReceiver.pointer,
-            _$handler.pointer,
-            i,
-            _$string1.pointer,
-            _$bundle.pointer)
-        .check();
-  }
-
-  static final _id_sendOrderedBroadcast$4 = _class.instanceMethodId(
-    r'sendOrderedBroadcast',
-    r'(Landroid/content/Intent;Ljava/lang/String;Ljava/lang/String;Landroid/content/BroadcastReceiver;Landroid/os/Handler;ILjava/lang/String;Landroid/os/Bundle;)V',
-  );
-
-  static final _sendOrderedBroadcast$4 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void sendOrderedBroadcast(android.content.Intent intent, java.lang.String string, java.lang.String string1, android.content.BroadcastReceiver broadcastReceiver, android.os.Handler handler, int i, java.lang.String string2, android.os.Bundle bundle)`
-  void sendOrderedBroadcast$4(
-    jni$_.JObject? intent,
-    jni$_.JString? string,
-    jni$_.JString? string1,
-    jni$_.JObject? broadcastReceiver,
-    jni$_.JObject? handler,
-    int i,
-    jni$_.JString? string2,
-    jni$_.JObject? bundle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$string1 = string1?.reference ?? jni$_.jNullReference;
-    final _$broadcastReceiver =
-        broadcastReceiver?.reference ?? jni$_.jNullReference;
-    final _$handler = handler?.reference ?? jni$_.jNullReference;
-    final _$string2 = string2?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    _sendOrderedBroadcast$4(
-            reference.pointer,
-            _id_sendOrderedBroadcast$4 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$string.pointer,
-            _$string1.pointer,
-            _$broadcastReceiver.pointer,
-            _$handler.pointer,
-            i,
-            _$string2.pointer,
-            _$bundle.pointer)
-        .check();
-  }
-
-  static final _id_sendStickyBroadcast = _class.instanceMethodId(
-    r'sendStickyBroadcast',
-    r'(Landroid/content/Intent;)V',
-  );
-
-  static final _sendStickyBroadcast = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void sendStickyBroadcast(android.content.Intent intent)`
-  void sendStickyBroadcast(
-    jni$_.JObject? intent,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    _sendStickyBroadcast(reference.pointer,
-            _id_sendStickyBroadcast as jni$_.JMethodIDPtr, _$intent.pointer)
-        .check();
-  }
-
-  static final _id_sendStickyBroadcast$1 = _class.instanceMethodId(
-    r'sendStickyBroadcast',
-    r'(Landroid/content/Intent;Landroid/os/Bundle;)V',
-  );
-
-  static final _sendStickyBroadcast$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void sendStickyBroadcast(android.content.Intent intent, android.os.Bundle bundle)`
-  void sendStickyBroadcast$1(
-    jni$_.JObject? intent,
-    jni$_.JObject? bundle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    _sendStickyBroadcast$1(
-            reference.pointer,
-            _id_sendStickyBroadcast$1 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$bundle.pointer)
-        .check();
-  }
-
-  static final _id_sendStickyOrderedBroadcast = _class.instanceMethodId(
-    r'sendStickyOrderedBroadcast',
-    r'(Landroid/content/Intent;Landroid/content/BroadcastReceiver;Landroid/os/Handler;ILjava/lang/String;Landroid/os/Bundle;)V',
-  );
-
-  static final _sendStickyOrderedBroadcast =
-      jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<
-                          (
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Int32,
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>
-                          )>)>>('globalEnv_CallVoidMethod')
-          .asFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>,
-                  int,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void sendStickyOrderedBroadcast(android.content.Intent intent, android.content.BroadcastReceiver broadcastReceiver, android.os.Handler handler, int i, java.lang.String string, android.os.Bundle bundle)`
-  void sendStickyOrderedBroadcast(
-    jni$_.JObject? intent,
-    jni$_.JObject? broadcastReceiver,
-    jni$_.JObject? handler,
-    int i,
-    jni$_.JString? string,
-    jni$_.JObject? bundle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$broadcastReceiver =
-        broadcastReceiver?.reference ?? jni$_.jNullReference;
-    final _$handler = handler?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    _sendStickyOrderedBroadcast(
-            reference.pointer,
-            _id_sendStickyOrderedBroadcast as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$broadcastReceiver.pointer,
-            _$handler.pointer,
-            i,
-            _$string.pointer,
-            _$bundle.pointer)
-        .check();
-  }
-
-  static final _id_removeStickyBroadcast = _class.instanceMethodId(
-    r'removeStickyBroadcast',
-    r'(Landroid/content/Intent;)V',
-  );
-
-  static final _removeStickyBroadcast = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void removeStickyBroadcast(android.content.Intent intent)`
-  void removeStickyBroadcast(
-    jni$_.JObject? intent,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    _removeStickyBroadcast(reference.pointer,
-            _id_removeStickyBroadcast as jni$_.JMethodIDPtr, _$intent.pointer)
-        .check();
-  }
-
-  static final _id_sendStickyBroadcastAsUser = _class.instanceMethodId(
-    r'sendStickyBroadcastAsUser',
-    r'(Landroid/content/Intent;Landroid/os/UserHandle;)V',
-  );
-
-  static final _sendStickyBroadcastAsUser = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void sendStickyBroadcastAsUser(android.content.Intent intent, android.os.UserHandle userHandle)`
-  void sendStickyBroadcastAsUser(
-    jni$_.JObject? intent,
-    jni$_.JObject? userHandle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
-    _sendStickyBroadcastAsUser(
-            reference.pointer,
-            _id_sendStickyBroadcastAsUser as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$userHandle.pointer)
-        .check();
-  }
-
-  static final _id_sendStickyOrderedBroadcastAsUser = _class.instanceMethodId(
-    r'sendStickyOrderedBroadcastAsUser',
-    r'(Landroid/content/Intent;Landroid/os/UserHandle;Landroid/content/BroadcastReceiver;Landroid/os/Handler;ILjava/lang/String;Landroid/os/Bundle;)V',
-  );
-
-  static final _sendStickyOrderedBroadcastAsUser =
-      jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<
-                          (
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Int32,
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>
-                          )>)>>('globalEnv_CallVoidMethod')
-          .asFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>,
-                  int,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void sendStickyOrderedBroadcastAsUser(android.content.Intent intent, android.os.UserHandle userHandle, android.content.BroadcastReceiver broadcastReceiver, android.os.Handler handler, int i, java.lang.String string, android.os.Bundle bundle)`
-  void sendStickyOrderedBroadcastAsUser(
-    jni$_.JObject? intent,
-    jni$_.JObject? userHandle,
-    jni$_.JObject? broadcastReceiver,
-    jni$_.JObject? handler,
-    int i,
-    jni$_.JString? string,
-    jni$_.JObject? bundle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
-    final _$broadcastReceiver =
-        broadcastReceiver?.reference ?? jni$_.jNullReference;
-    final _$handler = handler?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    _sendStickyOrderedBroadcastAsUser(
-            reference.pointer,
-            _id_sendStickyOrderedBroadcastAsUser as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$userHandle.pointer,
-            _$broadcastReceiver.pointer,
-            _$handler.pointer,
-            i,
-            _$string.pointer,
-            _$bundle.pointer)
-        .check();
-  }
-
-  static final _id_removeStickyBroadcastAsUser = _class.instanceMethodId(
-    r'removeStickyBroadcastAsUser',
-    r'(Landroid/content/Intent;Landroid/os/UserHandle;)V',
-  );
-
-  static final _removeStickyBroadcastAsUser =
-      jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<
-                          (
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>
-                          )>)>>('globalEnv_CallVoidMethod')
-          .asFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void removeStickyBroadcastAsUser(android.content.Intent intent, android.os.UserHandle userHandle)`
-  void removeStickyBroadcastAsUser(
-    jni$_.JObject? intent,
-    jni$_.JObject? userHandle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
-    _removeStickyBroadcastAsUser(
-            reference.pointer,
-            _id_removeStickyBroadcastAsUser as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$userHandle.pointer)
+            _id_registerDeviceIdChangeListener as jni$_.JMethodIDPtr,
+            _$executor.pointer,
+            _$intConsumer.pointer)
         .check();
   }
 
@@ -45755,12 +47220,12 @@ class Context extends jni$_.JObject {
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 
-  static final _id_unregisterReceiver = _class.instanceMethodId(
-    r'unregisterReceiver',
-    r'(Landroid/content/BroadcastReceiver;)V',
+  static final _id_removeStickyBroadcast = _class.instanceMethodId(
+    r'removeStickyBroadcast',
+    r'(Landroid/content/Intent;)V',
   );
 
-  static final _unregisterReceiver = jni$_.ProtectedJniExtensions.lookup<
+  static final _removeStickyBroadcast = jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
                   jni$_.JThrowablePtr Function(
                       jni$_.Pointer<jni$_.Void>,
@@ -45771,872 +47236,22 @@ class Context extends jni$_.JObject {
           jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public abstract void unregisterReceiver(android.content.BroadcastReceiver broadcastReceiver)`
-  void unregisterReceiver(
-    jni$_.JObject? broadcastReceiver,
+  /// from: `public abstract void removeStickyBroadcast(android.content.Intent intent)`
+  void removeStickyBroadcast(
+    jni$_.JObject? intent,
   ) {
-    final _$broadcastReceiver =
-        broadcastReceiver?.reference ?? jni$_.jNullReference;
-    _unregisterReceiver(
-            reference.pointer,
-            _id_unregisterReceiver as jni$_.JMethodIDPtr,
-            _$broadcastReceiver.pointer)
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    _removeStickyBroadcast(reference.pointer,
+            _id_removeStickyBroadcast as jni$_.JMethodIDPtr, _$intent.pointer)
         .check();
   }
 
-  static final _id_startService = _class.instanceMethodId(
-    r'startService',
-    r'(Landroid/content/Intent;)Landroid/content/ComponentName;',
+  static final _id_removeStickyBroadcastAsUser = _class.instanceMethodId(
+    r'removeStickyBroadcastAsUser',
+    r'(Landroid/content/Intent;Landroid/os/UserHandle;)V',
   );
 
-  static final _startService = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract android.content.ComponentName startService(android.content.Intent intent)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? startService(
-    jni$_.JObject? intent,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    return _startService(reference.pointer,
-            _id_startService as jni$_.JMethodIDPtr, _$intent.pointer)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_startForegroundService = _class.instanceMethodId(
-    r'startForegroundService',
-    r'(Landroid/content/Intent;)Landroid/content/ComponentName;',
-  );
-
-  static final _startForegroundService = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract android.content.ComponentName startForegroundService(android.content.Intent intent)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? startForegroundService(
-    jni$_.JObject? intent,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    return _startForegroundService(reference.pointer,
-            _id_startForegroundService as jni$_.JMethodIDPtr, _$intent.pointer)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_stopService = _class.instanceMethodId(
-    r'stopService',
-    r'(Landroid/content/Intent;)Z',
-  );
-
-  static final _stopService = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract boolean stopService(android.content.Intent intent)`
-  bool stopService(
-    jni$_.JObject? intent,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    return _stopService(reference.pointer,
-            _id_stopService as jni$_.JMethodIDPtr, _$intent.pointer)
-        .boolean;
-  }
-
-  static final _id_bindService = _class.instanceMethodId(
-    r'bindService',
-    r'(Landroid/content/Intent;Landroid/content/ServiceConnection;I)Z',
-  );
-
-  static final _bindService = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              int)>();
-
-  /// from: `public abstract boolean bindService(android.content.Intent intent, android.content.ServiceConnection serviceConnection, int i)`
-  bool bindService(
-    jni$_.JObject? intent,
-    jni$_.JObject? serviceConnection,
-    int i,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$serviceConnection =
-        serviceConnection?.reference ?? jni$_.jNullReference;
-    return _bindService(
-            reference.pointer,
-            _id_bindService as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$serviceConnection.pointer,
-            i)
-        .boolean;
-  }
-
-  static final _id_bindService$1 = _class.instanceMethodId(
-    r'bindService',
-    r'(Landroid/content/Intent;Landroid/content/ServiceConnection;Landroid/content/Context$BindServiceFlags;)Z',
-  );
-
-  static final _bindService$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public boolean bindService(android.content.Intent intent, android.content.ServiceConnection serviceConnection, android.content.Context$BindServiceFlags bindServiceFlags)`
-  bool bindService$1(
-    jni$_.JObject? intent,
-    jni$_.JObject? serviceConnection,
-    Context$BindServiceFlags? bindServiceFlags,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$serviceConnection =
-        serviceConnection?.reference ?? jni$_.jNullReference;
-    final _$bindServiceFlags =
-        bindServiceFlags?.reference ?? jni$_.jNullReference;
-    return _bindService$1(
-            reference.pointer,
-            _id_bindService$1 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$serviceConnection.pointer,
-            _$bindServiceFlags.pointer)
-        .boolean;
-  }
-
-  static final _id_bindService$2 = _class.instanceMethodId(
-    r'bindService',
-    r'(Landroid/content/Intent;ILjava/util/concurrent/Executor;Landroid/content/ServiceConnection;)Z',
-  );
-
-  static final _bindService$2 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public boolean bindService(android.content.Intent intent, int i, java.util.concurrent.Executor executor, android.content.ServiceConnection serviceConnection)`
-  bool bindService$2(
-    jni$_.JObject? intent,
-    int i,
-    jni$_.JObject? executor,
-    jni$_.JObject? serviceConnection,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$executor = executor?.reference ?? jni$_.jNullReference;
-    final _$serviceConnection =
-        serviceConnection?.reference ?? jni$_.jNullReference;
-    return _bindService$2(
-            reference.pointer,
-            _id_bindService$2 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            i,
-            _$executor.pointer,
-            _$serviceConnection.pointer)
-        .boolean;
-  }
-
-  static final _id_bindService$3 = _class.instanceMethodId(
-    r'bindService',
-    r'(Landroid/content/Intent;Landroid/content/Context$BindServiceFlags;Ljava/util/concurrent/Executor;Landroid/content/ServiceConnection;)Z',
-  );
-
-  static final _bindService$3 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public boolean bindService(android.content.Intent intent, android.content.Context$BindServiceFlags bindServiceFlags, java.util.concurrent.Executor executor, android.content.ServiceConnection serviceConnection)`
-  bool bindService$3(
-    jni$_.JObject? intent,
-    Context$BindServiceFlags? bindServiceFlags,
-    jni$_.JObject? executor,
-    jni$_.JObject? serviceConnection,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$bindServiceFlags =
-        bindServiceFlags?.reference ?? jni$_.jNullReference;
-    final _$executor = executor?.reference ?? jni$_.jNullReference;
-    final _$serviceConnection =
-        serviceConnection?.reference ?? jni$_.jNullReference;
-    return _bindService$3(
-            reference.pointer,
-            _id_bindService$3 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$bindServiceFlags.pointer,
-            _$executor.pointer,
-            _$serviceConnection.pointer)
-        .boolean;
-  }
-
-  static final _id_bindIsolatedService = _class.instanceMethodId(
-    r'bindIsolatedService',
-    r'(Landroid/content/Intent;ILjava/lang/String;Ljava/util/concurrent/Executor;Landroid/content/ServiceConnection;)Z',
-  );
-
-  static final _bindIsolatedService = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public boolean bindIsolatedService(android.content.Intent intent, int i, java.lang.String string, java.util.concurrent.Executor executor, android.content.ServiceConnection serviceConnection)`
-  bool bindIsolatedService(
-    jni$_.JObject? intent,
-    int i,
-    jni$_.JString? string,
-    jni$_.JObject? executor,
-    jni$_.JObject? serviceConnection,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$executor = executor?.reference ?? jni$_.jNullReference;
-    final _$serviceConnection =
-        serviceConnection?.reference ?? jni$_.jNullReference;
-    return _bindIsolatedService(
-            reference.pointer,
-            _id_bindIsolatedService as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            i,
-            _$string.pointer,
-            _$executor.pointer,
-            _$serviceConnection.pointer)
-        .boolean;
-  }
-
-  static final _id_bindIsolatedService$1 = _class.instanceMethodId(
-    r'bindIsolatedService',
-    r'(Landroid/content/Intent;Landroid/content/Context$BindServiceFlags;Ljava/lang/String;Ljava/util/concurrent/Executor;Landroid/content/ServiceConnection;)Z',
-  );
-
-  static final _bindIsolatedService$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public boolean bindIsolatedService(android.content.Intent intent, android.content.Context$BindServiceFlags bindServiceFlags, java.lang.String string, java.util.concurrent.Executor executor, android.content.ServiceConnection serviceConnection)`
-  bool bindIsolatedService$1(
-    jni$_.JObject? intent,
-    Context$BindServiceFlags? bindServiceFlags,
-    jni$_.JString? string,
-    jni$_.JObject? executor,
-    jni$_.JObject? serviceConnection,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$bindServiceFlags =
-        bindServiceFlags?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$executor = executor?.reference ?? jni$_.jNullReference;
-    final _$serviceConnection =
-        serviceConnection?.reference ?? jni$_.jNullReference;
-    return _bindIsolatedService$1(
-            reference.pointer,
-            _id_bindIsolatedService$1 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$bindServiceFlags.pointer,
-            _$string.pointer,
-            _$executor.pointer,
-            _$serviceConnection.pointer)
-        .boolean;
-  }
-
-  static final _id_bindServiceAsUser = _class.instanceMethodId(
-    r'bindServiceAsUser',
-    r'(Landroid/content/Intent;Landroid/content/ServiceConnection;ILandroid/os/UserHandle;)Z',
-  );
-
-  static final _bindServiceAsUser = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public boolean bindServiceAsUser(android.content.Intent intent, android.content.ServiceConnection serviceConnection, int i, android.os.UserHandle userHandle)`
-  bool bindServiceAsUser(
-    jni$_.JObject? intent,
-    jni$_.JObject? serviceConnection,
-    int i,
-    jni$_.JObject? userHandle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$serviceConnection =
-        serviceConnection?.reference ?? jni$_.jNullReference;
-    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
-    return _bindServiceAsUser(
-            reference.pointer,
-            _id_bindServiceAsUser as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$serviceConnection.pointer,
-            i,
-            _$userHandle.pointer)
-        .boolean;
-  }
-
-  static final _id_bindServiceAsUser$1 = _class.instanceMethodId(
-    r'bindServiceAsUser',
-    r'(Landroid/content/Intent;Landroid/content/ServiceConnection;Landroid/content/Context$BindServiceFlags;Landroid/os/UserHandle;)Z',
-  );
-
-  static final _bindServiceAsUser$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public boolean bindServiceAsUser(android.content.Intent intent, android.content.ServiceConnection serviceConnection, android.content.Context$BindServiceFlags bindServiceFlags, android.os.UserHandle userHandle)`
-  bool bindServiceAsUser$1(
-    jni$_.JObject? intent,
-    jni$_.JObject? serviceConnection,
-    Context$BindServiceFlags? bindServiceFlags,
-    jni$_.JObject? userHandle,
-  ) {
-    final _$intent = intent?.reference ?? jni$_.jNullReference;
-    final _$serviceConnection =
-        serviceConnection?.reference ?? jni$_.jNullReference;
-    final _$bindServiceFlags =
-        bindServiceFlags?.reference ?? jni$_.jNullReference;
-    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
-    return _bindServiceAsUser$1(
-            reference.pointer,
-            _id_bindServiceAsUser$1 as jni$_.JMethodIDPtr,
-            _$intent.pointer,
-            _$serviceConnection.pointer,
-            _$bindServiceFlags.pointer,
-            _$userHandle.pointer)
-        .boolean;
-  }
-
-  static final _id_updateServiceGroup = _class.instanceMethodId(
-    r'updateServiceGroup',
-    r'(Landroid/content/ServiceConnection;II)V',
-  );
-
-  static final _updateServiceGroup = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int, int)>();
-
-  /// from: `public void updateServiceGroup(android.content.ServiceConnection serviceConnection, int i, int i1)`
-  void updateServiceGroup(
-    jni$_.JObject? serviceConnection,
-    int i,
-    int i1,
-  ) {
-    final _$serviceConnection =
-        serviceConnection?.reference ?? jni$_.jNullReference;
-    _updateServiceGroup(
-            reference.pointer,
-            _id_updateServiceGroup as jni$_.JMethodIDPtr,
-            _$serviceConnection.pointer,
-            i,
-            i1)
-        .check();
-  }
-
-  static final _id_unbindService = _class.instanceMethodId(
-    r'unbindService',
-    r'(Landroid/content/ServiceConnection;)V',
-  );
-
-  static final _unbindService = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void unbindService(android.content.ServiceConnection serviceConnection)`
-  void unbindService(
-    jni$_.JObject? serviceConnection,
-  ) {
-    final _$serviceConnection =
-        serviceConnection?.reference ?? jni$_.jNullReference;
-    _unbindService(reference.pointer, _id_unbindService as jni$_.JMethodIDPtr,
-            _$serviceConnection.pointer)
-        .check();
-  }
-
-  static final _id_startInstrumentation = _class.instanceMethodId(
-    r'startInstrumentation',
-    r'(Landroid/content/ComponentName;Ljava/lang/String;Landroid/os/Bundle;)Z',
-  );
-
-  static final _startInstrumentation = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract boolean startInstrumentation(android.content.ComponentName componentName, java.lang.String string, android.os.Bundle bundle)`
-  bool startInstrumentation(
-    jni$_.JObject? componentName,
-    jni$_.JString? string,
-    jni$_.JObject? bundle,
-  ) {
-    final _$componentName = componentName?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    return _startInstrumentation(
-            reference.pointer,
-            _id_startInstrumentation as jni$_.JMethodIDPtr,
-            _$componentName.pointer,
-            _$string.pointer,
-            _$bundle.pointer)
-        .boolean;
-  }
-
-  static final _id_getSystemService = _class.instanceMethodId(
-    r'getSystemService',
-    r'(Ljava/lang/String;)Ljava/lang/Object;',
-  );
-
-  static final _getSystemService = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract java.lang.Object getSystemService(java.lang.String string)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getSystemService(
-    jni$_.JString? string,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    return _getSystemService(reference.pointer,
-            _id_getSystemService as jni$_.JMethodIDPtr, _$string.pointer)
-        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
-  }
-
-  static final _id_getSystemService$1 = _class.instanceMethodId(
-    r'getSystemService',
-    r'(Ljava/lang/Class;)Ljava/lang/Object;',
-  );
-
-  static final _getSystemService$1 = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public final T getSystemService(java.lang.Class<T> class)`
-  /// The returned object must be released after use, by calling the [release] method.
-  $T? getSystemService$1<$T extends jni$_.JObject?>(
-    jni$_.JObject? class$, {
-    required jni$_.JType<$T> T,
-  }) {
-    final _$class$ = class$?.reference ?? jni$_.jNullReference;
-    return _getSystemService$1(reference.pointer,
-            _id_getSystemService$1 as jni$_.JMethodIDPtr, _$class$.pointer)
-        .object<$T?>(T.nullableType);
-  }
-
-  static final _id_getSystemServiceName = _class.instanceMethodId(
-    r'getSystemServiceName',
-    r'(Ljava/lang/Class;)Ljava/lang/String;',
-  );
-
-  static final _getSystemServiceName = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract java.lang.String getSystemServiceName(java.lang.Class<?> class)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JString? getSystemServiceName(
-    jni$_.JObject? class$,
-  ) {
-    final _$class$ = class$?.reference ?? jni$_.jNullReference;
-    return _getSystemServiceName(reference.pointer,
-            _id_getSystemServiceName as jni$_.JMethodIDPtr, _$class$.pointer)
-        .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
-  }
-
-  static final _id_checkPermission = _class.instanceMethodId(
-    r'checkPermission',
-    r'(Ljava/lang/String;II)I',
-  );
-
-  static final _checkPermission = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int, int)>();
-
-  /// from: `public abstract int checkPermission(java.lang.String string, int i, int i1)`
-  int checkPermission(
-    jni$_.JString? string,
-    int i,
-    int i1,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    return _checkPermission(reference.pointer,
-            _id_checkPermission as jni$_.JMethodIDPtr, _$string.pointer, i, i1)
-        .integer;
-  }
-
-  static final _id_checkCallingPermission = _class.instanceMethodId(
-    r'checkCallingPermission',
-    r'(Ljava/lang/String;)I',
-  );
-
-  static final _checkCallingPermission = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract int checkCallingPermission(java.lang.String string)`
-  int checkCallingPermission(
-    jni$_.JString? string,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    return _checkCallingPermission(reference.pointer,
-            _id_checkCallingPermission as jni$_.JMethodIDPtr, _$string.pointer)
-        .integer;
-  }
-
-  static final _id_checkCallingOrSelfPermission = _class.instanceMethodId(
-    r'checkCallingOrSelfPermission',
-    r'(Ljava/lang/String;)I',
-  );
-
-  static final _checkCallingOrSelfPermission =
-      jni$_.ProtectedJniExtensions.lookup<
-                  jni$_.NativeFunction<
-                      jni$_.JniResult Function(
-                          jni$_.Pointer<jni$_.Void>,
-                          jni$_.JMethodIDPtr,
-                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-              'globalEnv_CallIntMethod')
-          .asFunction<
-              jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract int checkCallingOrSelfPermission(java.lang.String string)`
-  int checkCallingOrSelfPermission(
-    jni$_.JString? string,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    return _checkCallingOrSelfPermission(
-            reference.pointer,
-            _id_checkCallingOrSelfPermission as jni$_.JMethodIDPtr,
-            _$string.pointer)
-        .integer;
-  }
-
-  static final _id_checkSelfPermission = _class.instanceMethodId(
-    r'checkSelfPermission',
-    r'(Ljava/lang/String;)I',
-  );
-
-  static final _checkSelfPermission = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract int checkSelfPermission(java.lang.String string)`
-  int checkSelfPermission(
-    jni$_.JString? string,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    return _checkSelfPermission(reference.pointer,
-            _id_checkSelfPermission as jni$_.JMethodIDPtr, _$string.pointer)
-        .integer;
-  }
-
-  static final _id_enforcePermission = _class.instanceMethodId(
-    r'enforcePermission',
-    r'(Ljava/lang/String;IILjava/lang/String;)V',
-  );
-
-  static final _enforcePermission = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              int,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void enforcePermission(java.lang.String string, int i, int i1, java.lang.String string1)`
-  void enforcePermission(
-    jni$_.JString? string,
-    int i,
-    int i1,
-    jni$_.JString? string1,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$string1 = string1?.reference ?? jni$_.jNullReference;
-    _enforcePermission(
-            reference.pointer,
-            _id_enforcePermission as jni$_.JMethodIDPtr,
-            _$string.pointer,
-            i,
-            i1,
-            _$string1.pointer)
-        .check();
-  }
-
-  static final _id_enforceCallingPermission = _class.instanceMethodId(
-    r'enforceCallingPermission',
-    r'(Ljava/lang/String;Ljava/lang/String;)V',
-  );
-
-  static final _enforceCallingPermission = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void enforceCallingPermission(java.lang.String string, java.lang.String string1)`
-  void enforceCallingPermission(
-    jni$_.JString? string,
-    jni$_.JString? string1,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$string1 = string1?.reference ?? jni$_.jNullReference;
-    _enforceCallingPermission(
-            reference.pointer,
-            _id_enforceCallingPermission as jni$_.JMethodIDPtr,
-            _$string.pointer,
-            _$string1.pointer)
-        .check();
-  }
-
-  static final _id_enforceCallingOrSelfPermission = _class.instanceMethodId(
-    r'enforceCallingOrSelfPermission',
-    r'(Ljava/lang/String;Ljava/lang/String;)V',
-  );
-
-  static final _enforceCallingOrSelfPermission =
+  static final _removeStickyBroadcastAsUser =
       jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
                   jni$_.JThrowablePtr Function(
@@ -46654,59 +47269,76 @@ class Context extends jni$_.JObject {
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public abstract void enforceCallingOrSelfPermission(java.lang.String string, java.lang.String string1)`
-  void enforceCallingOrSelfPermission(
-    jni$_.JString? string,
-    jni$_.JString? string1,
+  /// from: `public abstract void removeStickyBroadcastAsUser(android.content.Intent intent, android.os.UserHandle userHandle)`
+  void removeStickyBroadcastAsUser(
+    jni$_.JObject? intent,
+    jni$_.JObject? userHandle,
   ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$string1 = string1?.reference ?? jni$_.jNullReference;
-    _enforceCallingOrSelfPermission(
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
+    _removeStickyBroadcastAsUser(
             reference.pointer,
-            _id_enforceCallingOrSelfPermission as jni$_.JMethodIDPtr,
-            _$string.pointer,
-            _$string1.pointer)
+            _id_removeStickyBroadcastAsUser as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$userHandle.pointer)
         .check();
   }
 
-  static final _id_grantUriPermission = _class.instanceMethodId(
-    r'grantUriPermission',
-    r'(Ljava/lang/String;Landroid/net/Uri;I)V',
+  static final _id_revokeSelfPermissionOnKill = _class.instanceMethodId(
+    r'revokeSelfPermissionOnKill',
+    r'(Ljava/lang/String;)V',
   );
 
-  static final _grantUriPermission = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
-              int)>();
+  static final _revokeSelfPermissionOnKill =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(
+                          jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr,
+                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public abstract void grantUriPermission(java.lang.String string, android.net.Uri uri, int i)`
-  void grantUriPermission(
+  /// from: `public void revokeSelfPermissionOnKill(java.lang.String string)`
+  void revokeSelfPermissionOnKill(
     jni$_.JString? string,
-    jni$_.JObject? uri,
-    int i,
   ) {
     final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$uri = uri?.reference ?? jni$_.jNullReference;
-    _grantUriPermission(
+    _revokeSelfPermissionOnKill(
             reference.pointer,
-            _id_grantUriPermission as jni$_.JMethodIDPtr,
-            _$string.pointer,
-            _$uri.pointer,
-            i)
+            _id_revokeSelfPermissionOnKill as jni$_.JMethodIDPtr,
+            _$string.pointer)
+        .check();
+  }
+
+  static final _id_revokeSelfPermissionsOnKill = _class.instanceMethodId(
+    r'revokeSelfPermissionsOnKill',
+    r'(Ljava/util/Collection;)V',
+  );
+
+  static final _revokeSelfPermissionsOnKill =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(
+                          jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr,
+                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void revokeSelfPermissionsOnKill(java.util.Collection<java.lang.String> collection)`
+  void revokeSelfPermissionsOnKill(
+    jni$_.JObject? collection,
+  ) {
+    final _$collection = collection?.reference ?? jni$_.jNullReference;
+    _revokeSelfPermissionsOnKill(
+            reference.pointer,
+            _id_revokeSelfPermissionsOnKill as jni$_.JMethodIDPtr,
+            _$collection.pointer)
         .check();
   }
 
@@ -46779,96 +47411,1026 @@ class Context extends jni$_.JObject {
         .check();
   }
 
-  static final _id_checkUriPermission = _class.instanceMethodId(
-    r'checkUriPermission',
-    r'(Landroid/net/Uri;III)I',
+  static final _id_sendBroadcast = _class.instanceMethodId(
+    r'sendBroadcast',
+    r'(Landroid/content/Intent;)V',
   );
 
-  static final _checkUriPermission = jni$_.ProtectedJniExtensions.lookup<
+  static final _sendBroadcast = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void sendBroadcast(android.content.Intent intent)`
+  void sendBroadcast(
+    jni$_.JObject? intent,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    _sendBroadcast(reference.pointer, _id_sendBroadcast as jni$_.JMethodIDPtr,
+            _$intent.pointer)
+        .check();
+  }
+
+  static final _id_sendBroadcast$1 = _class.instanceMethodId(
+    r'sendBroadcast',
+    r'(Landroid/content/Intent;Ljava/lang/String;)V',
+  );
+
+  static final _sendBroadcast$1 = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
-              jni$_.JniResult Function(
+              jni$_.JThrowablePtr Function(
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.JMethodIDPtr,
                   jni$_.VarArgs<
                       (
                         jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallIntMethod')
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
       .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int, int, int)>();
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public abstract int checkUriPermission(android.net.Uri uri, int i, int i1, int i2)`
-  int checkUriPermission(
-    jni$_.JObject? uri,
-    int i,
-    int i1,
-    int i2,
+  /// from: `public abstract void sendBroadcast(android.content.Intent intent, java.lang.String string)`
+  void sendBroadcast$1(
+    jni$_.JObject? intent,
+    jni$_.JString? string,
   ) {
-    final _$uri = uri?.reference ?? jni$_.jNullReference;
-    return _checkUriPermission(
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _sendBroadcast$1(
             reference.pointer,
-            _id_checkUriPermission as jni$_.JMethodIDPtr,
-            _$uri.pointer,
-            i,
-            i1,
-            i2)
-        .integer;
+            _id_sendBroadcast$1 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$string.pointer)
+        .check();
   }
 
-  static final _id_checkContentUriPermissionFull = _class.instanceMethodId(
-    r'checkContentUriPermissionFull',
-    r'(Landroid/net/Uri;III)I',
+  static final _id_sendBroadcast$2 = _class.instanceMethodId(
+    r'sendBroadcast',
+    r'(Landroid/content/Intent;Ljava/lang/String;Landroid/os/Bundle;)V',
   );
 
-  static final _checkContentUriPermissionFull =
+  static final _sendBroadcast$2 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void sendBroadcast(android.content.Intent intent, java.lang.String string, android.os.Bundle bundle)`
+  void sendBroadcast$2(
+    jni$_.JObject? intent,
+    jni$_.JString? string,
+    jni$_.JObject? bundle,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    _sendBroadcast$2(
+            reference.pointer,
+            _id_sendBroadcast$2 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$string.pointer,
+            _$bundle.pointer)
+        .check();
+  }
+
+  static final _id_sendBroadcastAsUser = _class.instanceMethodId(
+    r'sendBroadcastAsUser',
+    r'(Landroid/content/Intent;Landroid/os/UserHandle;)V',
+  );
+
+  static final _sendBroadcastAsUser = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void sendBroadcastAsUser(android.content.Intent intent, android.os.UserHandle userHandle)`
+  void sendBroadcastAsUser(
+    jni$_.JObject? intent,
+    jni$_.JObject? userHandle,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
+    _sendBroadcastAsUser(
+            reference.pointer,
+            _id_sendBroadcastAsUser as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$userHandle.pointer)
+        .check();
+  }
+
+  static final _id_sendBroadcastAsUser$1 = _class.instanceMethodId(
+    r'sendBroadcastAsUser',
+    r'(Landroid/content/Intent;Landroid/os/UserHandle;Ljava/lang/String;)V',
+  );
+
+  static final _sendBroadcastAsUser$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void sendBroadcastAsUser(android.content.Intent intent, android.os.UserHandle userHandle, java.lang.String string)`
+  void sendBroadcastAsUser$1(
+    jni$_.JObject? intent,
+    jni$_.JObject? userHandle,
+    jni$_.JString? string,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _sendBroadcastAsUser$1(
+            reference.pointer,
+            _id_sendBroadcastAsUser$1 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$userHandle.pointer,
+            _$string.pointer)
+        .check();
+  }
+
+  static final _id_sendBroadcastWithMultiplePermissions =
+      _class.instanceMethodId(
+    r'sendBroadcastWithMultiplePermissions',
+    r'(Landroid/content/Intent;[Ljava/lang/String;)V',
+  );
+
+  static final _sendBroadcastWithMultiplePermissions =
       jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
-                  jni$_.JniResult Function(
+                  jni$_.JThrowablePtr Function(
                       jni$_.Pointer<jni$_.Void>,
                       jni$_.JMethodIDPtr,
                       jni$_.VarArgs<
                           (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>
+                          )>)>>('globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void sendBroadcastWithMultiplePermissions(android.content.Intent intent, java.lang.String[] strings)`
+  void sendBroadcastWithMultiplePermissions(
+    jni$_.JObject? intent,
+    jni$_.JArray<jni$_.JString?>? strings,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$strings = strings?.reference ?? jni$_.jNullReference;
+    _sendBroadcastWithMultiplePermissions(
+            reference.pointer,
+            _id_sendBroadcastWithMultiplePermissions as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$strings.pointer)
+        .check();
+  }
+
+  static final _id_sendOrderedBroadcast = _class.instanceMethodId(
+    r'sendOrderedBroadcast',
+    r'(Landroid/content/Intent;Ljava/lang/String;)V',
+  );
+
+  static final _sendOrderedBroadcast = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void sendOrderedBroadcast(android.content.Intent intent, java.lang.String string)`
+  void sendOrderedBroadcast(
+    jni$_.JObject? intent,
+    jni$_.JString? string,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _sendOrderedBroadcast(
+            reference.pointer,
+            _id_sendOrderedBroadcast as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$string.pointer)
+        .check();
+  }
+
+  static final _id_sendOrderedBroadcast$1 = _class.instanceMethodId(
+    r'sendOrderedBroadcast',
+    r'(Landroid/content/Intent;Ljava/lang/String;Landroid/content/BroadcastReceiver;Landroid/os/Handler;ILjava/lang/String;Landroid/os/Bundle;)V',
+  );
+
+  static final _sendOrderedBroadcast$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void sendOrderedBroadcast(android.content.Intent intent, java.lang.String string, android.content.BroadcastReceiver broadcastReceiver, android.os.Handler handler, int i, java.lang.String string1, android.os.Bundle bundle)`
+  void sendOrderedBroadcast$1(
+    jni$_.JObject? intent,
+    jni$_.JString? string,
+    jni$_.JObject? broadcastReceiver,
+    jni$_.JObject? handler,
+    int i,
+    jni$_.JString? string1,
+    jni$_.JObject? bundle,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$broadcastReceiver =
+        broadcastReceiver?.reference ?? jni$_.jNullReference;
+    final _$handler = handler?.reference ?? jni$_.jNullReference;
+    final _$string1 = string1?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    _sendOrderedBroadcast$1(
+            reference.pointer,
+            _id_sendOrderedBroadcast$1 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$string.pointer,
+            _$broadcastReceiver.pointer,
+            _$handler.pointer,
+            i,
+            _$string1.pointer,
+            _$bundle.pointer)
+        .check();
+  }
+
+  static final _id_sendOrderedBroadcast$2 = _class.instanceMethodId(
+    r'sendOrderedBroadcast',
+    r'(Landroid/content/Intent;Ljava/lang/String;Landroid/os/Bundle;)V',
+  );
+
+  static final _sendOrderedBroadcast$2 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void sendOrderedBroadcast(android.content.Intent intent, java.lang.String string, android.os.Bundle bundle)`
+  void sendOrderedBroadcast$2(
+    jni$_.JObject? intent,
+    jni$_.JString? string,
+    jni$_.JObject? bundle,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    _sendOrderedBroadcast$2(
+            reference.pointer,
+            _id_sendOrderedBroadcast$2 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$string.pointer,
+            _$bundle.pointer)
+        .check();
+  }
+
+  static final _id_sendOrderedBroadcast$3 = _class.instanceMethodId(
+    r'sendOrderedBroadcast',
+    r'(Landroid/content/Intent;Ljava/lang/String;Landroid/os/Bundle;Landroid/content/BroadcastReceiver;Landroid/os/Handler;ILjava/lang/String;Landroid/os/Bundle;)V',
+  );
+
+  static final _sendOrderedBroadcast$3 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void sendOrderedBroadcast(android.content.Intent intent, java.lang.String string, android.os.Bundle bundle, android.content.BroadcastReceiver broadcastReceiver, android.os.Handler handler, int i, java.lang.String string1, android.os.Bundle bundle1)`
+  void sendOrderedBroadcast$3(
+    jni$_.JObject? intent,
+    jni$_.JString? string,
+    jni$_.JObject? bundle,
+    jni$_.JObject? broadcastReceiver,
+    jni$_.JObject? handler,
+    int i,
+    jni$_.JString? string1,
+    jni$_.JObject? bundle1,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    final _$broadcastReceiver =
+        broadcastReceiver?.reference ?? jni$_.jNullReference;
+    final _$handler = handler?.reference ?? jni$_.jNullReference;
+    final _$string1 = string1?.reference ?? jni$_.jNullReference;
+    final _$bundle1 = bundle1?.reference ?? jni$_.jNullReference;
+    _sendOrderedBroadcast$3(
+            reference.pointer,
+            _id_sendOrderedBroadcast$3 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$string.pointer,
+            _$bundle.pointer,
+            _$broadcastReceiver.pointer,
+            _$handler.pointer,
+            i,
+            _$string1.pointer,
+            _$bundle1.pointer)
+        .check();
+  }
+
+  static final _id_sendOrderedBroadcast$4 = _class.instanceMethodId(
+    r'sendOrderedBroadcast',
+    r'(Landroid/content/Intent;Ljava/lang/String;Ljava/lang/String;Landroid/content/BroadcastReceiver;Landroid/os/Handler;ILjava/lang/String;Landroid/os/Bundle;)V',
+  );
+
+  static final _sendOrderedBroadcast$4 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void sendOrderedBroadcast(android.content.Intent intent, java.lang.String string, java.lang.String string1, android.content.BroadcastReceiver broadcastReceiver, android.os.Handler handler, int i, java.lang.String string2, android.os.Bundle bundle)`
+  void sendOrderedBroadcast$4(
+    jni$_.JObject? intent,
+    jni$_.JString? string,
+    jni$_.JString? string1,
+    jni$_.JObject? broadcastReceiver,
+    jni$_.JObject? handler,
+    int i,
+    jni$_.JString? string2,
+    jni$_.JObject? bundle,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$string1 = string1?.reference ?? jni$_.jNullReference;
+    final _$broadcastReceiver =
+        broadcastReceiver?.reference ?? jni$_.jNullReference;
+    final _$handler = handler?.reference ?? jni$_.jNullReference;
+    final _$string2 = string2?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    _sendOrderedBroadcast$4(
+            reference.pointer,
+            _id_sendOrderedBroadcast$4 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$string.pointer,
+            _$string1.pointer,
+            _$broadcastReceiver.pointer,
+            _$handler.pointer,
+            i,
+            _$string2.pointer,
+            _$bundle.pointer)
+        .check();
+  }
+
+  static final _id_sendOrderedBroadcastAsUser = _class.instanceMethodId(
+    r'sendOrderedBroadcastAsUser',
+    r'(Landroid/content/Intent;Landroid/os/UserHandle;Ljava/lang/String;Landroid/content/BroadcastReceiver;Landroid/os/Handler;ILjava/lang/String;Landroid/os/Bundle;)V',
+  );
+
+  static final _sendOrderedBroadcastAsUser =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<
+                          (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>,
                             jni$_.Pointer<jni$_.Void>,
                             jni$_.Int32,
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>
+                          )>)>>('globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>,
+                  int,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void sendOrderedBroadcastAsUser(android.content.Intent intent, android.os.UserHandle userHandle, java.lang.String string, android.content.BroadcastReceiver broadcastReceiver, android.os.Handler handler, int i, java.lang.String string1, android.os.Bundle bundle)`
+  void sendOrderedBroadcastAsUser(
+    jni$_.JObject? intent,
+    jni$_.JObject? userHandle,
+    jni$_.JString? string,
+    jni$_.JObject? broadcastReceiver,
+    jni$_.JObject? handler,
+    int i,
+    jni$_.JString? string1,
+    jni$_.JObject? bundle,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$broadcastReceiver =
+        broadcastReceiver?.reference ?? jni$_.jNullReference;
+    final _$handler = handler?.reference ?? jni$_.jNullReference;
+    final _$string1 = string1?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    _sendOrderedBroadcastAsUser(
+            reference.pointer,
+            _id_sendOrderedBroadcastAsUser as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$userHandle.pointer,
+            _$string.pointer,
+            _$broadcastReceiver.pointer,
+            _$handler.pointer,
+            i,
+            _$string1.pointer,
+            _$bundle.pointer)
+        .check();
+  }
+
+  static final _id_sendStickyBroadcast = _class.instanceMethodId(
+    r'sendStickyBroadcast',
+    r'(Landroid/content/Intent;)V',
+  );
+
+  static final _sendStickyBroadcast = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void sendStickyBroadcast(android.content.Intent intent)`
+  void sendStickyBroadcast(
+    jni$_.JObject? intent,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    _sendStickyBroadcast(reference.pointer,
+            _id_sendStickyBroadcast as jni$_.JMethodIDPtr, _$intent.pointer)
+        .check();
+  }
+
+  static final _id_sendStickyBroadcast$1 = _class.instanceMethodId(
+    r'sendStickyBroadcast',
+    r'(Landroid/content/Intent;Landroid/os/Bundle;)V',
+  );
+
+  static final _sendStickyBroadcast$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void sendStickyBroadcast(android.content.Intent intent, android.os.Bundle bundle)`
+  void sendStickyBroadcast$1(
+    jni$_.JObject? intent,
+    jni$_.JObject? bundle,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    _sendStickyBroadcast$1(
+            reference.pointer,
+            _id_sendStickyBroadcast$1 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$bundle.pointer)
+        .check();
+  }
+
+  static final _id_sendStickyBroadcastAsUser = _class.instanceMethodId(
+    r'sendStickyBroadcastAsUser',
+    r'(Landroid/content/Intent;Landroid/os/UserHandle;)V',
+  );
+
+  static final _sendStickyBroadcastAsUser = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void sendStickyBroadcastAsUser(android.content.Intent intent, android.os.UserHandle userHandle)`
+  void sendStickyBroadcastAsUser(
+    jni$_.JObject? intent,
+    jni$_.JObject? userHandle,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
+    _sendStickyBroadcastAsUser(
+            reference.pointer,
+            _id_sendStickyBroadcastAsUser as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$userHandle.pointer)
+        .check();
+  }
+
+  static final _id_sendStickyOrderedBroadcast = _class.instanceMethodId(
+    r'sendStickyOrderedBroadcast',
+    r'(Landroid/content/Intent;Landroid/content/BroadcastReceiver;Landroid/os/Handler;ILjava/lang/String;Landroid/os/Bundle;)V',
+  );
+
+  static final _sendStickyOrderedBroadcast =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<
+                          (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>,
                             jni$_.Int32,
-                            jni$_.Int32
-                          )>)>>('globalEnv_CallIntMethod')
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>
+                          )>)>>('globalEnv_CallVoidMethod')
           .asFunction<
-              jni$_.JniResult Function(
+              jni$_.JThrowablePtr Function(
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.JMethodIDPtr,
                   jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>,
                   int,
-                  int,
-                  int)>();
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public int checkContentUriPermissionFull(android.net.Uri uri, int i, int i1, int i2)`
-  int checkContentUriPermissionFull(
-    jni$_.JObject? uri,
+  /// from: `public abstract void sendStickyOrderedBroadcast(android.content.Intent intent, android.content.BroadcastReceiver broadcastReceiver, android.os.Handler handler, int i, java.lang.String string, android.os.Bundle bundle)`
+  void sendStickyOrderedBroadcast(
+    jni$_.JObject? intent,
+    jni$_.JObject? broadcastReceiver,
+    jni$_.JObject? handler,
     int i,
-    int i1,
-    int i2,
+    jni$_.JString? string,
+    jni$_.JObject? bundle,
   ) {
-    final _$uri = uri?.reference ?? jni$_.jNullReference;
-    return _checkContentUriPermissionFull(
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$broadcastReceiver =
+        broadcastReceiver?.reference ?? jni$_.jNullReference;
+    final _$handler = handler?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    _sendStickyOrderedBroadcast(
             reference.pointer,
-            _id_checkContentUriPermissionFull as jni$_.JMethodIDPtr,
-            _$uri.pointer,
+            _id_sendStickyOrderedBroadcast as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$broadcastReceiver.pointer,
+            _$handler.pointer,
             i,
-            i1,
-            i2)
-        .integer;
+            _$string.pointer,
+            _$bundle.pointer)
+        .check();
   }
 
-  static final _id_checkUriPermissions = _class.instanceMethodId(
-    r'checkUriPermissions',
-    r'(Ljava/util/List;III)[I',
+  static final _id_sendStickyOrderedBroadcastAsUser = _class.instanceMethodId(
+    r'sendStickyOrderedBroadcastAsUser',
+    r'(Landroid/content/Intent;Landroid/os/UserHandle;Landroid/content/BroadcastReceiver;Landroid/os/Handler;ILjava/lang/String;Landroid/os/Bundle;)V',
   );
 
-  static final _checkUriPermissions = jni$_.ProtectedJniExtensions.lookup<
+  static final _sendStickyOrderedBroadcastAsUser =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<
+                          (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Int32,
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>
+                          )>)>>('globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>,
+                  int,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void sendStickyOrderedBroadcastAsUser(android.content.Intent intent, android.os.UserHandle userHandle, android.content.BroadcastReceiver broadcastReceiver, android.os.Handler handler, int i, java.lang.String string, android.os.Bundle bundle)`
+  void sendStickyOrderedBroadcastAsUser(
+    jni$_.JObject? intent,
+    jni$_.JObject? userHandle,
+    jni$_.JObject? broadcastReceiver,
+    jni$_.JObject? handler,
+    int i,
+    jni$_.JString? string,
+    jni$_.JObject? bundle,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$userHandle = userHandle?.reference ?? jni$_.jNullReference;
+    final _$broadcastReceiver =
+        broadcastReceiver?.reference ?? jni$_.jNullReference;
+    final _$handler = handler?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    _sendStickyOrderedBroadcastAsUser(
+            reference.pointer,
+            _id_sendStickyOrderedBroadcastAsUser as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$userHandle.pointer,
+            _$broadcastReceiver.pointer,
+            _$handler.pointer,
+            i,
+            _$string.pointer,
+            _$bundle.pointer)
+        .check();
+  }
+
+  static final _id_setTheme = _class.instanceMethodId(
+    r'setTheme',
+    r'(I)V',
+  );
+
+  static final _setTheme = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public abstract void setTheme(int i)`
+  void setTheme(
+    int i,
+  ) {
+    _setTheme(reference.pointer, _id_setTheme as jni$_.JMethodIDPtr, i).check();
+  }
+
+  static final _id_setWallpaper = _class.instanceMethodId(
+    r'setWallpaper',
+    r'(Landroid/graphics/Bitmap;)V',
+  );
+
+  static final _setWallpaper = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void setWallpaper(android.graphics.Bitmap bitmap)`
+  void setWallpaper(
+    Bitmap? bitmap,
+  ) {
+    final _$bitmap = bitmap?.reference ?? jni$_.jNullReference;
+    _setWallpaper(reference.pointer, _id_setWallpaper as jni$_.JMethodIDPtr,
+            _$bitmap.pointer)
+        .check();
+  }
+
+  static final _id_setWallpaper$1 = _class.instanceMethodId(
+    r'setWallpaper',
+    r'(Ljava/io/InputStream;)V',
+  );
+
+  static final _setWallpaper$1 = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void setWallpaper(java.io.InputStream inputStream)`
+  void setWallpaper$1(
+    jni$_.JObject? inputStream,
+  ) {
+    final _$inputStream = inputStream?.reference ?? jni$_.jNullReference;
+    _setWallpaper$1(reference.pointer, _id_setWallpaper$1 as jni$_.JMethodIDPtr,
+            _$inputStream.pointer)
+        .check();
+  }
+
+  static final _id_startActivities = _class.instanceMethodId(
+    r'startActivities',
+    r'([Landroid/content/Intent;)V',
+  );
+
+  static final _startActivities = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void startActivities(android.content.Intent[] intents)`
+  void startActivities(
+    jni$_.JArray<jni$_.JObject?>? intents,
+  ) {
+    final _$intents = intents?.reference ?? jni$_.jNullReference;
+    _startActivities(reference.pointer,
+            _id_startActivities as jni$_.JMethodIDPtr, _$intents.pointer)
+        .check();
+  }
+
+  static final _id_startActivities$1 = _class.instanceMethodId(
+    r'startActivities',
+    r'([Landroid/content/Intent;Landroid/os/Bundle;)V',
+  );
+
+  static final _startActivities$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void startActivities(android.content.Intent[] intents, android.os.Bundle bundle)`
+  void startActivities$1(
+    jni$_.JArray<jni$_.JObject?>? intents,
+    jni$_.JObject? bundle,
+  ) {
+    final _$intents = intents?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    _startActivities$1(
+            reference.pointer,
+            _id_startActivities$1 as jni$_.JMethodIDPtr,
+            _$intents.pointer,
+            _$bundle.pointer)
+        .check();
+  }
+
+  static final _id_startActivity = _class.instanceMethodId(
+    r'startActivity',
+    r'(Landroid/content/Intent;)V',
+  );
+
+  static final _startActivity = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void startActivity(android.content.Intent intent)`
+  void startActivity(
+    jni$_.JObject? intent,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    _startActivity(reference.pointer, _id_startActivity as jni$_.JMethodIDPtr,
+            _$intent.pointer)
+        .check();
+  }
+
+  static final _id_startActivity$1 = _class.instanceMethodId(
+    r'startActivity',
+    r'(Landroid/content/Intent;Landroid/os/Bundle;)V',
+  );
+
+  static final _startActivity$1 = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void startActivity(android.content.Intent intent, android.os.Bundle bundle)`
+  void startActivity$1(
+    jni$_.JObject? intent,
+    jni$_.JObject? bundle,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    _startActivity$1(
+            reference.pointer,
+            _id_startActivity$1 as jni$_.JMethodIDPtr,
+            _$intent.pointer,
+            _$bundle.pointer)
+        .check();
+  }
+
+  static final _id_startForegroundService = _class.instanceMethodId(
+    r'startForegroundService',
+    r'(Landroid/content/Intent;)Landroid/content/ComponentName;',
+  );
+
+  static final _startForegroundService = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract android.content.ComponentName startForegroundService(android.content.Intent intent)`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? startForegroundService(
+    jni$_.JObject? intent,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    return _startForegroundService(reference.pointer,
+            _id_startForegroundService as jni$_.JMethodIDPtr, _$intent.pointer)
+        .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
+  }
+
+  static final _id_startInstrumentation = _class.instanceMethodId(
+    r'startInstrumentation',
+    r'(Landroid/content/ComponentName;Ljava/lang/String;Landroid/os/Bundle;)Z',
+  );
+
+  static final _startInstrumentation = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JniResult Function(
                   jni$_.Pointer<jni$_.Void>,
@@ -46876,368 +48438,96 @@ class Context extends jni$_.JObject {
                   jni$_.VarArgs<
                       (
                         jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int, int, int)>();
-
-  /// from: `public int[] checkUriPermissions(java.util.List<android.net.Uri> list, int i, int i1, int i2)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JIntArray? checkUriPermissions(
-    jni$_.JList<jni$_.JObject?>? list,
-    int i,
-    int i1,
-    int i2,
-  ) {
-    final _$list = list?.reference ?? jni$_.jNullReference;
-    return _checkUriPermissions(
-            reference.pointer,
-            _id_checkUriPermissions as jni$_.JMethodIDPtr,
-            _$list.pointer,
-            i,
-            i1,
-            i2)
-        .object<jni$_.JIntArray?>(const jni$_.$JIntArray$NullableType$());
-  }
-
-  static final _id_checkCallingUriPermission = _class.instanceMethodId(
-    r'checkCallingUriPermission',
-    r'(Landroid/net/Uri;I)I',
-  );
-
-  static final _checkCallingUriPermission = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_
-                          .VarArgs<(jni$_.Pointer<jni$_.Void>, jni$_.Int32)>)>>(
-          'globalEnv_CallIntMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
-
-  /// from: `public abstract int checkCallingUriPermission(android.net.Uri uri, int i)`
-  int checkCallingUriPermission(
-    jni$_.JObject? uri,
-    int i,
-  ) {
-    final _$uri = uri?.reference ?? jni$_.jNullReference;
-    return _checkCallingUriPermission(
-            reference.pointer,
-            _id_checkCallingUriPermission as jni$_.JMethodIDPtr,
-            _$uri.pointer,
-            i)
-        .integer;
-  }
-
-  static final _id_checkCallingUriPermissions = _class.instanceMethodId(
-    r'checkCallingUriPermissions',
-    r'(Ljava/util/List;I)[I',
-  );
-
-  static final _checkCallingUriPermissions =
-      jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<
-                          (
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Int32
-                          )>)>>('globalEnv_CallObjectMethod')
-          .asFunction<
-              jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
-
-  /// from: `public int[] checkCallingUriPermissions(java.util.List<android.net.Uri> list, int i)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JIntArray? checkCallingUriPermissions(
-    jni$_.JList<jni$_.JObject?>? list,
-    int i,
-  ) {
-    final _$list = list?.reference ?? jni$_.jNullReference;
-    return _checkCallingUriPermissions(
-            reference.pointer,
-            _id_checkCallingUriPermissions as jni$_.JMethodIDPtr,
-            _$list.pointer,
-            i)
-        .object<jni$_.JIntArray?>(const jni$_.$JIntArray$NullableType$());
-  }
-
-  static final _id_checkCallingOrSelfUriPermission = _class.instanceMethodId(
-    r'checkCallingOrSelfUriPermission',
-    r'(Landroid/net/Uri;I)I',
-  );
-
-  static final _checkCallingOrSelfUriPermission =
-      jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<
-                          (
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Int32
-                          )>)>>('globalEnv_CallIntMethod')
-          .asFunction<
-              jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
-
-  /// from: `public abstract int checkCallingOrSelfUriPermission(android.net.Uri uri, int i)`
-  int checkCallingOrSelfUriPermission(
-    jni$_.JObject? uri,
-    int i,
-  ) {
-    final _$uri = uri?.reference ?? jni$_.jNullReference;
-    return _checkCallingOrSelfUriPermission(
-            reference.pointer,
-            _id_checkCallingOrSelfUriPermission as jni$_.JMethodIDPtr,
-            _$uri.pointer,
-            i)
-        .integer;
-  }
-
-  static final _id_checkCallingOrSelfUriPermissions = _class.instanceMethodId(
-    r'checkCallingOrSelfUriPermissions',
-    r'(Ljava/util/List;I)[I',
-  );
-
-  static final _checkCallingOrSelfUriPermissions =
-      jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<
-                          (
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Int32
-                          )>)>>('globalEnv_CallObjectMethod')
-          .asFunction<
-              jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
-
-  /// from: `public int[] checkCallingOrSelfUriPermissions(java.util.List<android.net.Uri> list, int i)`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JIntArray? checkCallingOrSelfUriPermissions(
-    jni$_.JList<jni$_.JObject?>? list,
-    int i,
-  ) {
-    final _$list = list?.reference ?? jni$_.jNullReference;
-    return _checkCallingOrSelfUriPermissions(
-            reference.pointer,
-            _id_checkCallingOrSelfUriPermissions as jni$_.JMethodIDPtr,
-            _$list.pointer,
-            i)
-        .object<jni$_.JIntArray?>(const jni$_.$JIntArray$NullableType$());
-  }
-
-  static final _id_checkUriPermission$1 = _class.instanceMethodId(
-    r'checkUriPermission',
-    r'(Landroid/net/Uri;Ljava/lang/String;Ljava/lang/String;III)I',
-  );
-
-  static final _checkUriPermission$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
                         jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Int32
-                      )>)>>('globalEnv_CallIntMethod')
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallBooleanMethod')
       .asFunction<
           jni$_.JniResult Function(
               jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr,
               jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract boolean startInstrumentation(android.content.ComponentName componentName, java.lang.String string, android.os.Bundle bundle)`
+  bool startInstrumentation(
+    jni$_.JObject? componentName,
+    jni$_.JString? string,
+    jni$_.JObject? bundle,
+  ) {
+    final _$componentName = componentName?.reference ?? jni$_.jNullReference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    return _startInstrumentation(
+            reference.pointer,
+            _id_startInstrumentation as jni$_.JMethodIDPtr,
+            _$componentName.pointer,
+            _$string.pointer,
+            _$bundle.pointer)
+        .boolean;
+  }
+
+  static final _id_startIntentSender = _class.instanceMethodId(
+    r'startIntentSender',
+    r'(Landroid/content/IntentSender;Landroid/content/Intent;III)V',
+  );
+
+  static final _startIntentSender = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
               jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>,
               int,
               int,
               int)>();
 
-  /// from: `public abstract int checkUriPermission(android.net.Uri uri, java.lang.String string, java.lang.String string1, int i, int i1, int i2)`
-  int checkUriPermission$1(
-    jni$_.JObject? uri,
-    jni$_.JString? string,
-    jni$_.JString? string1,
+  /// from: `public abstract void startIntentSender(android.content.IntentSender intentSender, android.content.Intent intent, int i, int i1, int i2)`
+  void startIntentSender(
+    jni$_.JObject? intentSender,
+    jni$_.JObject? intent,
     int i,
     int i1,
     int i2,
   ) {
-    final _$uri = uri?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$string1 = string1?.reference ?? jni$_.jNullReference;
-    return _checkUriPermission$1(
+    final _$intentSender = intentSender?.reference ?? jni$_.jNullReference;
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    _startIntentSender(
             reference.pointer,
-            _id_checkUriPermission$1 as jni$_.JMethodIDPtr,
-            _$uri.pointer,
-            _$string.pointer,
-            _$string1.pointer,
+            _id_startIntentSender as jni$_.JMethodIDPtr,
+            _$intentSender.pointer,
+            _$intent.pointer,
             i,
             i1,
             i2)
-        .integer;
+        .check();
   }
 
-  static final _id_enforceUriPermission = _class.instanceMethodId(
-    r'enforceUriPermission',
-    r'(Landroid/net/Uri;IIILjava/lang/String;)V',
+  static final _id_startIntentSender$1 = _class.instanceMethodId(
+    r'startIntentSender',
+    r'(Landroid/content/IntentSender;Landroid/content/Intent;IIILandroid/os/Bundle;)V',
   );
 
-  static final _enforceUriPermission = jni$_.ProtectedJniExtensions.lookup<
+  static final _startIntentSender$1 = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JThrowablePtr Function(
                   jni$_.Pointer<jni$_.Void>,
                   jni$_.JMethodIDPtr,
                   jni$_.VarArgs<
                       (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallVoidMethod')
-      .asFunction<
-          jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              int,
-              int,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void enforceUriPermission(android.net.Uri uri, int i, int i1, int i2, java.lang.String string)`
-  void enforceUriPermission(
-    jni$_.JObject? uri,
-    int i,
-    int i1,
-    int i2,
-    jni$_.JString? string,
-  ) {
-    final _$uri = uri?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    _enforceUriPermission(
-            reference.pointer,
-            _id_enforceUriPermission as jni$_.JMethodIDPtr,
-            _$uri.pointer,
-            i,
-            i1,
-            i2,
-            _$string.pointer)
-        .check();
-  }
-
-  static final _id_enforceCallingUriPermission = _class.instanceMethodId(
-    r'enforceCallingUriPermission',
-    r'(Landroid/net/Uri;ILjava/lang/String;)V',
-  );
-
-  static final _enforceCallingUriPermission =
-      jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<
-                          (
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Int32,
-                            jni$_.Pointer<jni$_.Void>
-                          )>)>>('globalEnv_CallVoidMethod')
-          .asFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.Pointer<jni$_.Void>,
-                  int,
-                  jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void enforceCallingUriPermission(android.net.Uri uri, int i, java.lang.String string)`
-  void enforceCallingUriPermission(
-    jni$_.JObject? uri,
-    int i,
-    jni$_.JString? string,
-  ) {
-    final _$uri = uri?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    _enforceCallingUriPermission(
-            reference.pointer,
-            _id_enforceCallingUriPermission as jni$_.JMethodIDPtr,
-            _$uri.pointer,
-            i,
-            _$string.pointer)
-        .check();
-  }
-
-  static final _id_enforceCallingOrSelfUriPermission = _class.instanceMethodId(
-    r'enforceCallingOrSelfUriPermission',
-    r'(Landroid/net/Uri;ILjava/lang/String;)V',
-  );
-
-  static final _enforceCallingOrSelfUriPermission =
-      jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<
-                          (
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Int32,
-                            jni$_.Pointer<jni$_.Void>
-                          )>)>>('globalEnv_CallVoidMethod')
-          .asFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.Pointer<jni$_.Void>,
-                  int,
-                  jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract void enforceCallingOrSelfUriPermission(android.net.Uri uri, int i, java.lang.String string)`
-  void enforceCallingOrSelfUriPermission(
-    jni$_.JObject? uri,
-    int i,
-    jni$_.JString? string,
-  ) {
-    final _$uri = uri?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    _enforceCallingOrSelfUriPermission(
-            reference.pointer,
-            _id_enforceCallingOrSelfUriPermission as jni$_.JMethodIDPtr,
-            _$uri.pointer,
-            i,
-            _$string.pointer)
-        .check();
-  }
-
-  static final _id_enforceUriPermission$1 = _class.instanceMethodId(
-    r'enforceUriPermission',
-    r'(Landroid/net/Uri;Ljava/lang/String;Ljava/lang/String;IIILjava/lang/String;)V',
-  );
-
-  static final _enforceUriPermission$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>,
                         jni$_.Pointer<jni$_.Void>,
                         jni$_.Int32,
@@ -47251,312 +48541,41 @@ class Context extends jni$_.JObject {
               jni$_.JMethodIDPtr,
               jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>,
-              jni$_.Pointer<jni$_.Void>,
               int,
               int,
               int,
               jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public abstract void enforceUriPermission(android.net.Uri uri, java.lang.String string, java.lang.String string1, int i, int i1, int i2, java.lang.String string2)`
-  void enforceUriPermission$1(
-    jni$_.JObject? uri,
-    jni$_.JString? string,
-    jni$_.JString? string1,
+  /// from: `public abstract void startIntentSender(android.content.IntentSender intentSender, android.content.Intent intent, int i, int i1, int i2, android.os.Bundle bundle)`
+  void startIntentSender$1(
+    jni$_.JObject? intentSender,
+    jni$_.JObject? intent,
     int i,
     int i1,
     int i2,
-    jni$_.JString? string2,
+    jni$_.JObject? bundle,
   ) {
-    final _$uri = uri?.reference ?? jni$_.jNullReference;
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    final _$string1 = string1?.reference ?? jni$_.jNullReference;
-    final _$string2 = string2?.reference ?? jni$_.jNullReference;
-    _enforceUriPermission$1(
+    final _$intentSender = intentSender?.reference ?? jni$_.jNullReference;
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
+    _startIntentSender$1(
             reference.pointer,
-            _id_enforceUriPermission$1 as jni$_.JMethodIDPtr,
-            _$uri.pointer,
-            _$string.pointer,
-            _$string1.pointer,
+            _id_startIntentSender$1 as jni$_.JMethodIDPtr,
+            _$intentSender.pointer,
+            _$intent.pointer,
             i,
             i1,
             i2,
-            _$string2.pointer)
-        .check();
-  }
-
-  static final _id_revokeSelfPermissionOnKill = _class.instanceMethodId(
-    r'revokeSelfPermissionOnKill',
-    r'(Ljava/lang/String;)V',
-  );
-
-  static final _revokeSelfPermissionOnKill =
-      jni$_.ProtectedJniExtensions.lookup<
-                  jni$_.NativeFunction<
-                      jni$_.JThrowablePtr Function(
-                          jni$_.Pointer<jni$_.Void>,
-                          jni$_.JMethodIDPtr,
-                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-              'globalEnv_CallVoidMethod')
-          .asFunction<
-              jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void revokeSelfPermissionOnKill(java.lang.String string)`
-  void revokeSelfPermissionOnKill(
-    jni$_.JString? string,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    _revokeSelfPermissionOnKill(
-            reference.pointer,
-            _id_revokeSelfPermissionOnKill as jni$_.JMethodIDPtr,
-            _$string.pointer)
-        .check();
-  }
-
-  static final _id_revokeSelfPermissionsOnKill = _class.instanceMethodId(
-    r'revokeSelfPermissionsOnKill',
-    r'(Ljava/util/Collection;)V',
-  );
-
-  static final _revokeSelfPermissionsOnKill =
-      jni$_.ProtectedJniExtensions.lookup<
-                  jni$_.NativeFunction<
-                      jni$_.JThrowablePtr Function(
-                          jni$_.Pointer<jni$_.Void>,
-                          jni$_.JMethodIDPtr,
-                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-              'globalEnv_CallVoidMethod')
-          .asFunction<
-              jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public void revokeSelfPermissionsOnKill(java.util.Collection<java.lang.String> collection)`
-  void revokeSelfPermissionsOnKill(
-    jni$_.JObject? collection,
-  ) {
-    final _$collection = collection?.reference ?? jni$_.jNullReference;
-    _revokeSelfPermissionsOnKill(
-            reference.pointer,
-            _id_revokeSelfPermissionsOnKill as jni$_.JMethodIDPtr,
-            _$collection.pointer)
-        .check();
-  }
-
-  static final _id_createPackageContext = _class.instanceMethodId(
-    r'createPackageContext',
-    r'(Ljava/lang/String;I)Landroid/content/Context;',
-  );
-
-  static final _createPackageContext = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_
-                          .VarArgs<(jni$_.Pointer<jni$_.Void>, jni$_.Int32)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int)>();
-
-  /// from: `public abstract android.content.Context createPackageContext(java.lang.String string, int i)`
-  /// The returned object must be released after use, by calling the [release] method.
-  Context? createPackageContext(
-    jni$_.JString? string,
-    int i,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    return _createPackageContext(reference.pointer,
-            _id_createPackageContext as jni$_.JMethodIDPtr, _$string.pointer, i)
-        .object<Context?>(const $Context$NullableType$());
-  }
-
-  static final _id_createContextForSplit = _class.instanceMethodId(
-    r'createContextForSplit',
-    r'(Ljava/lang/String;)Landroid/content/Context;',
-  );
-
-  static final _createContextForSplit = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract android.content.Context createContextForSplit(java.lang.String string)`
-  /// The returned object must be released after use, by calling the [release] method.
-  Context? createContextForSplit(
-    jni$_.JString? string,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    return _createContextForSplit(reference.pointer,
-            _id_createContextForSplit as jni$_.JMethodIDPtr, _$string.pointer)
-        .object<Context?>(const $Context$NullableType$());
-  }
-
-  static final _id_createConfigurationContext = _class.instanceMethodId(
-    r'createConfigurationContext',
-    r'(Landroid/content/res/Configuration;)Landroid/content/Context;',
-  );
-
-  static final _createConfigurationContext =
-      jni$_.ProtectedJniExtensions.lookup<
-                  jni$_.NativeFunction<
-                      jni$_.JniResult Function(
-                          jni$_.Pointer<jni$_.Void>,
-                          jni$_.JMethodIDPtr,
-                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-              'globalEnv_CallObjectMethod')
-          .asFunction<
-              jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract android.content.Context createConfigurationContext(android.content.res.Configuration configuration)`
-  /// The returned object must be released after use, by calling the [release] method.
-  Context? createConfigurationContext(
-    jni$_.JObject? configuration,
-  ) {
-    final _$configuration = configuration?.reference ?? jni$_.jNullReference;
-    return _createConfigurationContext(
-            reference.pointer,
-            _id_createConfigurationContext as jni$_.JMethodIDPtr,
-            _$configuration.pointer)
-        .object<Context?>(const $Context$NullableType$());
-  }
-
-  static final _id_createDisplayContext = _class.instanceMethodId(
-    r'createDisplayContext',
-    r'(Landroid/view/Display;)Landroid/content/Context;',
-  );
-
-  static final _createDisplayContext = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public abstract android.content.Context createDisplayContext(android.view.Display display)`
-  /// The returned object must be released after use, by calling the [release] method.
-  Context? createDisplayContext(
-    jni$_.JObject? display,
-  ) {
-    final _$display = display?.reference ?? jni$_.jNullReference;
-    return _createDisplayContext(reference.pointer,
-            _id_createDisplayContext as jni$_.JMethodIDPtr, _$display.pointer)
-        .object<Context?>(const $Context$NullableType$());
-  }
-
-  static final _id_createDeviceContext = _class.instanceMethodId(
-    r'createDeviceContext',
-    r'(I)Landroid/content/Context;',
-  );
-
-  static final _createDeviceContext = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
-
-  /// from: `public android.content.Context createDeviceContext(int i)`
-  /// The returned object must be released after use, by calling the [release] method.
-  Context? createDeviceContext(
-    int i,
-  ) {
-    return _createDeviceContext(
-            reference.pointer, _id_createDeviceContext as jni$_.JMethodIDPtr, i)
-        .object<Context?>(const $Context$NullableType$());
-  }
-
-  static final _id_createWindowContext = _class.instanceMethodId(
-    r'createWindowContext',
-    r'(ILandroid/os/Bundle;)Landroid/content/Context;',
-  );
-
-  static final _createWindowContext = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_
-                          .VarArgs<(jni$_.Int32, jni$_.Pointer<jni$_.Void>)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, int, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public android.content.Context createWindowContext(int i, android.os.Bundle bundle)`
-  /// The returned object must be released after use, by calling the [release] method.
-  Context? createWindowContext(
-    int i,
-    jni$_.JObject? bundle,
-  ) {
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    return _createWindowContext(reference.pointer,
-            _id_createWindowContext as jni$_.JMethodIDPtr, i, _$bundle.pointer)
-        .object<Context?>(const $Context$NullableType$());
-  }
-
-  static final _id_createWindowContext$1 = _class.instanceMethodId(
-    r'createWindowContext',
-    r'(Landroid/view/Display;ILandroid/os/Bundle;)Landroid/content/Context;',
-  );
-
-  static final _createWindowContext$1 = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.VarArgs<
-                      (
-                        jni$_.Pointer<jni$_.Void>,
-                        jni$_.Int32,
-                        jni$_.Pointer<jni$_.Void>
-                      )>)>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              jni$_.Pointer<jni$_.Void>,
-              int,
-              jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public android.content.Context createWindowContext(android.view.Display display, int i, android.os.Bundle bundle)`
-  /// The returned object must be released after use, by calling the [release] method.
-  Context? createWindowContext$1(
-    jni$_.JObject? display,
-    int i,
-    jni$_.JObject? bundle,
-  ) {
-    final _$display = display?.reference ?? jni$_.jNullReference;
-    final _$bundle = bundle?.reference ?? jni$_.jNullReference;
-    return _createWindowContext$1(
-            reference.pointer,
-            _id_createWindowContext$1 as jni$_.JMethodIDPtr,
-            _$display.pointer,
-            i,
             _$bundle.pointer)
-        .object<Context?>(const $Context$NullableType$());
+        .check();
   }
 
-  static final _id_createContext = _class.instanceMethodId(
-    r'createContext',
-    r'(Landroid/content/ContextParams;)Landroid/content/Context;',
+  static final _id_startService = _class.instanceMethodId(
+    r'startService',
+    r'(Landroid/content/Intent;)Landroid/content/ComponentName;',
   );
 
-  static final _createContext = jni$_.ProtectedJniExtensions.lookup<
+  static final _startService = jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
                   jni$_.JniResult Function(
                       jni$_.Pointer<jni$_.Void>,
@@ -47567,156 +48586,97 @@ class Context extends jni$_.JObject {
           jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public android.content.Context createContext(android.content.ContextParams contextParams)`
+  /// from: `public abstract android.content.ComponentName startService(android.content.Intent intent)`
   /// The returned object must be released after use, by calling the [release] method.
-  Context? createContext(
-    jni$_.JObject? contextParams,
+  jni$_.JObject? startService(
+    jni$_.JObject? intent,
   ) {
-    final _$contextParams = contextParams?.reference ?? jni$_.jNullReference;
-    return _createContext(reference.pointer,
-            _id_createContext as jni$_.JMethodIDPtr, _$contextParams.pointer)
-        .object<Context?>(const $Context$NullableType$());
-  }
-
-  static final _id_createAttributionContext = _class.instanceMethodId(
-    r'createAttributionContext',
-    r'(Ljava/lang/String;)Landroid/content/Context;',
-  );
-
-  static final _createAttributionContext = jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                      jni$_.Pointer<jni$_.Void>,
-                      jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
-
-  /// from: `public android.content.Context createAttributionContext(java.lang.String string)`
-  /// The returned object must be released after use, by calling the [release] method.
-  Context? createAttributionContext(
-    jni$_.JString? string,
-  ) {
-    final _$string = string?.reference ?? jni$_.jNullReference;
-    return _createAttributionContext(
-            reference.pointer,
-            _id_createAttributionContext as jni$_.JMethodIDPtr,
-            _$string.pointer)
-        .object<Context?>(const $Context$NullableType$());
-  }
-
-  static final _id_createDeviceProtectedStorageContext =
-      _class.instanceMethodId(
-    r'createDeviceProtectedStorageContext',
-    r'()Landroid/content/Context;',
-  );
-
-  static final _createDeviceProtectedStorageContext =
-      jni$_.ProtectedJniExtensions.lookup<
-              jni$_.NativeFunction<
-                  jni$_.JniResult Function(
-                    jni$_.Pointer<jni$_.Void>,
-                    jni$_.JMethodIDPtr,
-                  )>>('globalEnv_CallObjectMethod')
-          .asFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>();
-
-  /// from: `public abstract android.content.Context createDeviceProtectedStorageContext()`
-  /// The returned object must be released after use, by calling the [release] method.
-  Context? createDeviceProtectedStorageContext() {
-    return _createDeviceProtectedStorageContext(reference.pointer,
-            _id_createDeviceProtectedStorageContext as jni$_.JMethodIDPtr)
-        .object<Context?>(const $Context$NullableType$());
-  }
-
-  static final _id_getDisplay = _class.instanceMethodId(
-    r'getDisplay',
-    r'()Landroid/view/Display;',
-  );
-
-  static final _getDisplay = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallObjectMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public android.view.Display getDisplay()`
-  /// The returned object must be released after use, by calling the [release] method.
-  jni$_.JObject? getDisplay() {
-    return _getDisplay(reference.pointer, _id_getDisplay as jni$_.JMethodIDPtr)
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    return _startService(reference.pointer,
+            _id_startService as jni$_.JMethodIDPtr, _$intent.pointer)
         .object<jni$_.JObject?>(const jni$_.$JObject$NullableType$());
   }
 
-  static final _id_getDeviceId = _class.instanceMethodId(
-    r'getDeviceId',
-    r'()I',
+  static final _id_stopService = _class.instanceMethodId(
+    r'stopService',
+    r'(Landroid/content/Intent;)Z',
   );
 
-  static final _getDeviceId = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallIntMethod')
+  static final _stopService = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallBooleanMethod')
       .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public int getDeviceId()`
-  int getDeviceId() {
-    return _getDeviceId(
-            reference.pointer, _id_getDeviceId as jni$_.JMethodIDPtr)
-        .integer;
+  /// from: `public abstract boolean stopService(android.content.Intent intent)`
+  bool stopService(
+    jni$_.JObject? intent,
+  ) {
+    final _$intent = intent?.reference ?? jni$_.jNullReference;
+    return _stopService(reference.pointer,
+            _id_stopService as jni$_.JMethodIDPtr, _$intent.pointer)
+        .boolean;
   }
 
-  static final _id_registerDeviceIdChangeListener = _class.instanceMethodId(
-    r'registerDeviceIdChangeListener',
-    r'(Ljava/util/concurrent/Executor;Ljava/util/function/IntConsumer;)V',
+  static final _id_unbindService = _class.instanceMethodId(
+    r'unbindService',
+    r'(Landroid/content/ServiceConnection;)V',
   );
 
-  static final _registerDeviceIdChangeListener =
-      jni$_.ProtectedJniExtensions.lookup<
+  static final _unbindService = jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
                   jni$_.JThrowablePtr Function(
                       jni$_.Pointer<jni$_.Void>,
                       jni$_.JMethodIDPtr,
-                      jni$_.VarArgs<
-                          (
-                            jni$_.Pointer<jni$_.Void>,
-                            jni$_.Pointer<jni$_.Void>
-                          )>)>>('globalEnv_CallVoidMethod')
-          .asFunction<
-              jni$_.JThrowablePtr Function(
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr,
-                  jni$_.Pointer<jni$_.Void>,
-                  jni$_.Pointer<jni$_.Void>)>();
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public void registerDeviceIdChangeListener(java.util.concurrent.Executor executor, java.util.function.IntConsumer intConsumer)`
-  void registerDeviceIdChangeListener(
-    jni$_.JObject? executor,
-    jni$_.JObject? intConsumer,
+  /// from: `public abstract void unbindService(android.content.ServiceConnection serviceConnection)`
+  void unbindService(
+    jni$_.JObject? serviceConnection,
   ) {
-    final _$executor = executor?.reference ?? jni$_.jNullReference;
-    final _$intConsumer = intConsumer?.reference ?? jni$_.jNullReference;
-    _registerDeviceIdChangeListener(
+    final _$serviceConnection =
+        serviceConnection?.reference ?? jni$_.jNullReference;
+    _unbindService(reference.pointer, _id_unbindService as jni$_.JMethodIDPtr,
+            _$serviceConnection.pointer)
+        .check();
+  }
+
+  static final _id_unregisterComponentCallbacks = _class.instanceMethodId(
+    r'unregisterComponentCallbacks',
+    r'(Landroid/content/ComponentCallbacks;)V',
+  );
+
+  static final _unregisterComponentCallbacks =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(
+                          jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr,
+                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void unregisterComponentCallbacks(android.content.ComponentCallbacks componentCallbacks)`
+  void unregisterComponentCallbacks(
+    jni$_.JObject? componentCallbacks,
+  ) {
+    final _$componentCallbacks =
+        componentCallbacks?.reference ?? jni$_.jNullReference;
+    _unregisterComponentCallbacks(
             reference.pointer,
-            _id_registerDeviceIdChangeListener as jni$_.JMethodIDPtr,
-            _$executor.pointer,
-            _$intConsumer.pointer)
+            _id_unregisterComponentCallbacks as jni$_.JMethodIDPtr,
+            _$componentCallbacks.pointer)
         .check();
   }
 
@@ -47749,76 +48709,70 @@ class Context extends jni$_.JObject {
         .check();
   }
 
-  static final _id_isRestricted = _class.instanceMethodId(
-    r'isRestricted',
-    r'()Z',
+  static final _id_unregisterReceiver = _class.instanceMethodId(
+    r'unregisterReceiver',
+    r'(Landroid/content/BroadcastReceiver;)V',
   );
 
-  static final _isRestricted = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallBooleanMethod')
+  static final _unregisterReceiver = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
       .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public boolean isRestricted()`
-  bool isRestricted() {
-    return _isRestricted(
-            reference.pointer, _id_isRestricted as jni$_.JMethodIDPtr)
-        .boolean;
+  /// from: `public abstract void unregisterReceiver(android.content.BroadcastReceiver broadcastReceiver)`
+  void unregisterReceiver(
+    jni$_.JObject? broadcastReceiver,
+  ) {
+    final _$broadcastReceiver =
+        broadcastReceiver?.reference ?? jni$_.jNullReference;
+    _unregisterReceiver(
+            reference.pointer,
+            _id_unregisterReceiver as jni$_.JMethodIDPtr,
+            _$broadcastReceiver.pointer)
+        .check();
   }
 
-  static final _id_isDeviceProtectedStorage = _class.instanceMethodId(
-    r'isDeviceProtectedStorage',
-    r'()Z',
+  static final _id_updateServiceGroup = _class.instanceMethodId(
+    r'updateServiceGroup',
+    r'(Landroid/content/ServiceConnection;II)V',
   );
 
-  static final _isDeviceProtectedStorage = jni$_.ProtectedJniExtensions.lookup<
+  static final _updateServiceGroup = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallBooleanMethod')
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int32,
+                        jni$_.Int32
+                      )>)>>('globalEnv_CallVoidMethod')
       .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>, int, int)>();
 
-  /// from: `public abstract boolean isDeviceProtectedStorage()`
-  bool isDeviceProtectedStorage() {
-    return _isDeviceProtectedStorage(reference.pointer,
-            _id_isDeviceProtectedStorage as jni$_.JMethodIDPtr)
-        .boolean;
-  }
-
-  static final _id_isUiContext = _class.instanceMethodId(
-    r'isUiContext',
-    r'()Z',
-  );
-
-  static final _isUiContext = jni$_.ProtectedJniExtensions.lookup<
-          jni$_.NativeFunction<
-              jni$_.JniResult Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-              )>>('globalEnv_CallBooleanMethod')
-      .asFunction<
-          jni$_.JniResult Function(
-            jni$_.Pointer<jni$_.Void>,
-            jni$_.JMethodIDPtr,
-          )>();
-
-  /// from: `public boolean isUiContext()`
-  bool isUiContext() {
-    return _isUiContext(
-            reference.pointer, _id_isUiContext as jni$_.JMethodIDPtr)
-        .boolean;
+  /// from: `public void updateServiceGroup(android.content.ServiceConnection serviceConnection, int i, int i1)`
+  void updateServiceGroup(
+    jni$_.JObject? serviceConnection,
+    int i,
+    int i1,
+  ) {
+    final _$serviceConnection =
+        serviceConnection?.reference ?? jni$_.jNullReference;
+    _updateServiceGroup(
+            reference.pointer,
+            _id_updateServiceGroup as jni$_.JMethodIDPtr,
+            _$serviceConnection.pointer,
+            i,
+            i1)
+        .check();
   }
 }
 

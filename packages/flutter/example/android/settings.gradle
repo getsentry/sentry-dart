@@ -1,4 +1,12 @@
 pluginManagement {
+    def kotlinAndroidVersion = System.getenv("KOTLIN_ANDROID_PLUGIN_VERSION") ?: "2.0.21"
+
+    plugins {
+        id "org.jetbrains.kotlin.android" version kotlinAndroidVersion
+        id "com.android.application" version "8.2.2"
+        id "io.sentry.android.gradle" version "4.14.1"
+    }
+
     def flutterSdkPath = {
         def properties = new Properties()
         file("local.properties").withInputStream { properties.load(it) }
@@ -18,9 +26,9 @@ pluginManagement {
 
 plugins {
     id "dev.flutter.flutter-plugin-loader" version "1.0.0"
-    id "com.android.application" version "8.2.2" apply false
-    id "org.jetbrains.kotlin.android" version "2.0.21" apply false
-    id "io.sentry.android.gradle" version "4.14.1" apply false
+    id "com.android.application" apply false
+    id "org.jetbrains.kotlin.android" apply false
+    id "io.sentry.android.gradle" apply false
 }
 
 include ":app"

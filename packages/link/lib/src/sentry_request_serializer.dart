@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:gql_exec/gql_exec.dart';
@@ -7,17 +9,23 @@ import 'package:sentry/sentry.dart';
 class SentryRequestSerializer implements RequestSerializer {
   SentryRequestSerializer({RequestSerializer? inner, Hub? hub})
       : inner = inner ?? const RequestSerializer(),
-        _hub = hub ?? HubAdapter();
+        _hub = hub ?? HubAdapter() {
+    _spanFactory = _hub.options.spanFactory;
+  }
 
   final RequestSerializer inner;
   final Hub _hub;
+  late final InstrumentationSpanFactory _spanFactory;
 
   @override
   Map<String, dynamic> serializeRequest(Request request) {
-    final span = _hub.getSpan()?.startChild(
-          'serialize.http.client',
-          description: 'GraphGL request serialization',
-        );
+    final parentSpan = _spanFactory.getSpan(_hub);
+    final span = _spanFactory.createSpan(
+      parentSpan,
+      'serialize.http.client',
+      description: 'GraphGL request serialization',
+    );
+
     Map<String, dynamic> result;
     try {
       result = inner.serializeRequest(request);

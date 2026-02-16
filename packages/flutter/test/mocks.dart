@@ -8,6 +8,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/processing/processor.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
@@ -183,6 +184,7 @@ class NativeChannelFixture {
     handler = MockCallbacks().methodCallHandler;
     when(handler('initNativeSdk', any)).thenAnswer((_) => Future.value());
     when(handler('closeNativeSdk', any)).thenAnswer((_) => Future.value());
+    when(handler('setTrace', any)).thenAnswer((_) => Future.value());
     _messenger.setMockMethodCallHandler(
         channel, (call) => handler(call.method, call.arguments));
   }
@@ -235,4 +237,26 @@ class MockLogItem {
 
   const MockLogItem(this.level, this.message,
       {this.logger, this.exception, this.stackTrace});
+}
+
+class MockTelemetryProcessor implements TelemetryProcessor {
+  final List<SentryLog> addedLogs = [];
+  final List<SentryMetric> addedMetrics = [];
+  int flushCalls = 0;
+  int closeCalls = 0;
+
+  @override
+  void addLog(SentryLog log) {
+    addedLogs.add(log);
+  }
+
+  @override
+  void addMetric(SentryMetric metric) {
+    addedMetrics.add(metric);
+  }
+
+  @override
+  void flush() {
+    flushCalls++;
+  }
 }

@@ -1,5 +1,135 @@
 # Changelog
 
+## 9.13.0
+
+### Features
+
+- Synchronize `traceId` to native SDKs ([#3507](https://github.com/getsentry/sentry-dart/pull/3507))
+  - Native events (e.g. from Android or iOS) such as errors, logs, and spans now share the same trace as Dart events, enabling unified trace views across layers
+
+### Dependencies
+
+- Bump Android SDK from v8.31.0 to v8.32.0 ([#3506](https://github.com/getsentry/sentry-dart/pull/3506))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8320)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.31.0...8.32.0)
+- Bump JavaScript SDK from v10.6.0 to v10.38.0 ([#3474](https://github.com/getsentry/sentry-dart/pull/3474))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#10380)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/10.6.0...10.38.0)
+- Bump Native SDK from v0.12.5 to v0.12.6 ([#3502](https://github.com/getsentry/sentry-dart/pull/3502))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0126)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.12.5...0.12.6)
+
+<details>
+<summary><b>Internal Changes</b></summary>
+
+- Add SDK features metadata for SPM vs CocoaPods tracking ([#3508](https://github.com/getsentry/sentry-dart/pull/3508))
+
+</details>
+
+## 9.12.0
+
+### Dependencies
+
+- Bump Native SDK from v0.12.3 to v0.12.5 ([#3481](https://github.com/getsentry/sentry-dart/pull/3481))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0125)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.12.3...0.12.5)
+- Bump Android SDK from v8.30.0 to v8.31.0 ([#3476](https://github.com/getsentry/sentry-dart/pull/3476))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8310)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.30.0...8.31.0)
+
+## 9.11.0
+
+### Features
+
+- Trace connected metrics ([#3450](https://github.com/getsentry/sentry-dart/pull/3450))
+  - This feature is enabled by default.
+  - To send metrics use the following APIs:
+    - `Sentry.metrics.gauge(...)`
+    - `Sentry.metrics.count(...)`
+    - `Sentry.metrics.distribution(...)`
+  - For more details read the [Flutter metrics documentation](https://docs.sentry.io/platforms/dart/guides/flutter/metrics/).
+- Add `captureNativeFailedRequests` option for iOS/macOS ([#3472](https://github.com/getsentry/sentry-dart/pull/3472))
+  - This option allows controlling native HTTP error capturing independently from `captureFailedRequests`.
+  - When `null` (the default), it falls back to `captureFailedRequests` for backwards compatibility.
+  - Set to `false` to disable native failed request capturing while keeping Dart-side capturing enabled.
+
+### Fixes
+
+- Catch client exceptions in HttpTransport.send ([#3490](https://github.com/getsentry/sentry-dart/pull/3490))
+
+### Dependencies
+
+- Bump Android SDK from v8.28.0 to v8.30.0 ([#3451](https://github.com/getsentry/sentry-dart/pull/3451))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8300)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.28.0...8.30.0)
+
+<details>
+<summary><b>Internal Changes</b></summary>
+
+- Refactor Logging API to be consistent with Metrics ([#3463](https://github.com/getsentry/sentry-dart/pull/3463))
+- Remove deprecated `beforeMetricCallback` from options ([#3484](https://github.com/getsentry/sentry-dart/pull/3450))
+- Add span factory to allow swappable span backends in integrations ([#3488](https://github.com/getsentry/sentry-dart/pull/3450))
+
+</details>
+
+## 9.11.0-beta.2
+
+### Fixes
+
+- Catch client exceptions in HttpTransport.send ([#3490](https://github.com/getsentry/sentry-dart/pull/3490))
+
+### Internals
+
+- Remove deprecated `beforeMetricCallback` from options ([#3484](https://github.com/getsentry/sentry-dart/pull/3450))
+- Add span factory to allow swappable span backends in integrations ([#3488](https://github.com/getsentry/sentry-dart/pull/3450))
+
+## 9.11.0-beta.1
+
+### Features
+
+- Trace connected metrics ([#3450](https://github.com/getsentry/sentry-dart/pull/3450))
+  - This feature is enabled by default.
+  - To send metrics use the following APIs:
+    - `Sentry.metrics.gauge(...)`
+    - `Sentry.metrics.count(...)`
+    - `Sentry.metrics.distribution(...)`
+- Add `captureNativeFailedRequests` option for iOS/macOS ([#3472](https://github.com/getsentry/sentry-dart/pull/3472))
+  - This option allows controlling native HTTP error capturing independently from `captureFailedRequests`.
+  - When `null` (the default), it falls back to `captureFailedRequests` for backwards compatibility.
+  - Set to `false` to disable native failed request capturing while keeping Dart-side capturing enabled.
+
+### Enhancements
+
+- Refactor Logging API to be consistent with Metrics ([#3463](https://github.com/getsentry/sentry-dart/pull/3463))
+
+### Dependencies
+
+- Bump Android SDK from v8.28.0 to v8.30.0 ([#3451](https://github.com/getsentry/sentry-dart/pull/3451))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8300)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.28.0...8.30.0)
+
+## 9.10.0
+
+### Fixes
+
+- Kotlin language version handling in Android ([#3436](https://github.com/getsentry/sentry-dart/pull/3436))
+
+### Enhancements
+
+- Replace log batcher with telemetry processor ([#3448](https://github.com/getsentry/sentry-dart/pull/3448))
+
+### Dependencies
+
+- Bump Native SDK from v0.10.0 to v0.12.3 ([#3438](https://github.com/getsentry/sentry-dart/pull/3438))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0123)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.10.0...0.12.3)
+
+## 9.9.2
+
+### Fixes
+
+- Android not sending events when `autoInitializedNativeSdk` is disabled ([#3420](https://github.com/getsentry/sentry-dart/pull/3420))
+
 ## 9.9.1
 
 ### Fixes

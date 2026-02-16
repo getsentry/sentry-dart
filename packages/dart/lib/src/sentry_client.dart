@@ -18,6 +18,9 @@ import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'sentry_trace_context_header.dart';
+import 'telemetry/log/log_capture_pipeline.dart';
+import 'telemetry/metric/metric.dart';
+import 'telemetry/metric/metric_capture_pipeline.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
@@ -28,7 +31,6 @@ import 'type_check_hint.dart';
 import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
-import 'sentry_log_batcher.dart';
 import 'version.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
@@ -43,6 +45,8 @@ String get defaultIpAddress => _defaultIpAddress;
 class SentryClient {
   final SentryOptions _options;
   final Random? _random;
+  final LogCapturePipeline _logCapturePipeline;
+  final MetricCapturePipeline _metricCapturePipeline;
 
   static final _emptySentryId = Future.value(SentryId.empty());
 
@@ -50,7 +54,9 @@ class SentryClient {
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
 
   /// Instantiates a client using [SentryOptions]
-  factory SentryClient(SentryOptions options) {
+  factory SentryClient(SentryOptions options,
+      {LogCapturePipeline? logCapturePipeline,
+      MetricCapturePipeline? metricCapturePipeline}) {
     if (options.sendClientReports) {
       options.recorder = ClientReportRecorder(options.clock);
     }
@@ -75,14 +81,16 @@ class SentryClient {
     if (enableFlutterSpotlight) {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
-    if (options.enableLogs) {
-      options.logBatcher = SentryLogBatcher(options);
-    }
-    return SentryClient._(options);
+    return SentryClient._(
+      options,
+      logCapturePipeline ?? LogCapturePipeline(options),
+      metricCapturePipeline ?? MetricCapturePipeline(options),
+    );
   }
 
   /// Instantiates a client using [SentryOptions]
-  SentryClient._(this._options)
+  SentryClient._(
+      this._options, this._logCapturePipeline, this._metricCapturePipeline)
       : _random = _options.sampleRate == null ? null : Random();
 
   /// Reports an [event] to Sentry.io.
@@ -182,9 +190,8 @@ class SentryClient {
     var traceContext = scope?.span?.traceContext();
     if (traceContext == null) {
       if (scope != null) {
-        scope.propagationContext.baggage ??=
-            SentryBaggage({}, log: _options.log)
-              ..setValuesFromScope(scope, _options);
+        scope.propagationContext.baggage ??= SentryBaggage({})
+          ..setValuesFromScope(scope, _options);
         traceContext = SentryTraceContextHeader.fromBaggage(
             scope.propagationContext.baggage!);
       }
@@ -494,101 +501,14 @@ class SentryClient {
   }
 
   @internal
-  FutureOr<void> captureLog(
-    SentryLog log, {
-    Scope? scope,
-  }) async {
-    if (!_options.enableLogs) {
-      return;
-    }
+  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) =>
+      _logCapturePipeline.captureLog(log, scope: scope);
 
-    if (scope != null) {
-      final merged = Map.of(scope.attributes)..addAll(log.attributes);
-      log.attributes = merged;
-    }
-
-    log.attributes['sentry.sdk.name'] = SentryAttribute.string(
-      _options.sdk.name,
-    );
-    log.attributes['sentry.sdk.version'] = SentryAttribute.string(
-      _options.sdk.version,
-    );
-    final environment = _options.environment;
-    if (environment != null) {
-      log.attributes['sentry.environment'] = SentryAttribute.string(
-        environment,
-      );
-    }
-    final release = _options.release;
-    if (release != null) {
-      log.attributes['sentry.release'] = SentryAttribute.string(
-        release,
-      );
-    }
-
-    final propagationContext = scope?.propagationContext;
-    if (propagationContext != null) {
-      log.traceId = propagationContext.traceId;
-    }
-    final span = scope?.span;
-    if (span != null) {
-      log.attributes['sentry.trace.parent_span_id'] = SentryAttribute.string(
-        span.context.spanId.toString(),
-      );
-    }
-
-    final user = scope?.user;
-    final id = user?.id;
-    final email = user?.email;
-    final name = user?.name;
-    if (id != null) {
-      log.attributes['user.id'] = SentryAttribute.string(id);
-    }
-    if (name != null) {
-      log.attributes['user.name'] = SentryAttribute.string(name);
-    }
-    if (email != null) {
-      log.attributes['user.email'] = SentryAttribute.string(email);
-    }
-
-    final beforeSendLog = _options.beforeSendLog;
-    SentryLog? processedLog = log;
-    if (beforeSendLog != null) {
-      try {
-        final callbackResult = beforeSendLog(log);
-
-        if (callbackResult is Future<SentryLog?>) {
-          processedLog = await callbackResult;
-        } else {
-          processedLog = callbackResult;
-        }
-      } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'The beforeSendLog callback threw an exception',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options.automatedTestMode) {
-          rethrow;
-        }
-      }
-    }
-
-    if (processedLog != null) {
-      await _options.lifecycleRegistry
-          .dispatchCallback(OnBeforeCaptureLog(processedLog));
-      _options.logBatcher.addLog(processedLog);
-    } else {
-      _options.recorder.recordLostEvent(
-        DiscardReason.beforeSend,
-        DataCategory.logItem,
-      );
-    }
-  }
+  Future<void> captureMetric(SentryMetric metric, {Scope? scope}) =>
+      _metricCapturePipeline.captureMetric(metric, scope: scope);
 
   FutureOr<void> close() {
-    final flush = _options.logBatcher.flush();
+    final flush = _options.telemetryProcessor.flush();
     if (flush is Future<void>) {
       return flush.then((_) => _options.httpClient.close());
     }

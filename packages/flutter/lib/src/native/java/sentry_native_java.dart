@@ -23,7 +23,12 @@ class SentryNativeJava extends SentryNativeChannel {
   AndroidEnvelopeSender? _envelopeSender;
   native.ReplayIntegration? _nativeReplay;
 
-  SentryNativeJava(super.options);
+  SentryNativeJava(super.options) {
+    // Initialize envelope sender here in the ctor instead of init().
+    // Ensures it starts when autoInitializeNativeSdk is enabled and disabled.
+    _envelopeSender = AndroidEnvelopeSender.factory(options);
+    _envelopeSender?.start();
+  }
 
   @override
   bool get supportsReplay => true;
@@ -36,11 +41,8 @@ class SentryNativeJava extends SentryNativeChannel {
   AndroidReplayRecorder? get testRecorder => _replayRecorder;
 
   @override
-  Future<void> init(Hub hub) async {
+  void init(Hub hub) {
     initSentryAndroid(hub: hub, options: options, owner: this);
-
-    _envelopeSender = AndroidEnvelopeSender.factory(options);
-    await _envelopeSender?.start();
   }
 
   @override
@@ -389,6 +391,26 @@ class SentryNativeJava extends SentryNativeChannel {
 
         replayConfig.release();
       });
+
+  @override
+  bool get supportsTraceSync => true;
+
+  @override
+  void setTrace(SentryId traceId, SpanId spanId) {
+    tryCatchSync('setTrace', () {
+      using((arena) {
+        final jTraceId = traceId.toString().toJString()..releasedBy(arena);
+        final jSpanId = spanId.toString().toJString()..releasedBy(arena);
+        // The two double parameters are sampleRate and sampleRand.
+        // We pass null for them because we don't need to support sampleRate and sampleRand.
+        // sampleRate and sampleRand are only used by native for baggage headers
+        // on outgoing HTTP requests. Since HTTP requests in Flutter go through
+        // Dart, the Dart-side propagation context handles baggage already.
+        // When there is a use case for sampleRate and sampleRand, we can add support for them.
+        native.InternalSentrySdk.setTrace(jTraceId, jSpanId, null, null);
+      });
+    });
+  }
 }
 
 @visibleForTesting

@@ -104,30 +104,29 @@ class SentryEnvelope {
   factory SentryEnvelope.fromLogsData(
     List<List<int>> encodedLogs,
     SdkVersion sdkVersion,
-  ) {
-    // Create the payload in the format expected by Sentry
-    // Format: {"items": [log1, log2, ...]}
-    final builder = BytesBuilder(copy: false);
-    builder.add(utf8.encode('{"items":['));
-    for (int i = 0; i < encodedLogs.length; i++) {
-      if (i > 0) {
-        builder.add(utf8.encode(','));
-      }
-      builder.add(encodedLogs[i]);
-    }
-    builder.add(utf8.encode(']}'));
+  ) =>
+      SentryEnvelope(
+        SentryEnvelopeHeader(null, sdkVersion),
+        [
+          SentryEnvelopeItem.fromLogsData(
+              _buildItemsPayload(encodedLogs), encodedLogs.length)
+        ],
+      );
 
-    return SentryEnvelope(
-      SentryEnvelopeHeader(
-        null,
-        sdkVersion,
-      ),
-      [
-        SentryEnvelopeItem.fromLogsData(
-            builder.takeBytes(), encodedLogs.length),
-      ],
-    );
-  }
+  /// Create a [SentryEnvelope] containing raw metric data payload.
+  /// This is used by the log batcher to send pre-encoded metric batches.
+  @internal
+  factory SentryEnvelope.fromMetricsData(
+    List<List<int>> encodedMetrics,
+    SdkVersion sdkVersion,
+  ) =>
+      SentryEnvelope(
+        SentryEnvelopeHeader(null, sdkVersion),
+        [
+          SentryEnvelopeItem.fromMetricsData(
+              _buildItemsPayload(encodedMetrics), encodedMetrics.length)
+        ],
+      );
 
   /// Stream binary data representation of `Envelope` file encoded.
   Stream<List<int>> envelopeStream(SentryOptions options) async* {
@@ -158,6 +157,20 @@ class SentryEnvelope {
         continue;
       }
     }
+  }
+
+  /// Builds a payload in the format {"items": [item1, item2, ...]}
+  static Uint8List _buildItemsPayload(List<List<int>> encodedItems) {
+    final builder = BytesBuilder(copy: false);
+    builder.add(utf8.encode('{"items":['));
+    for (int i = 0; i < encodedItems.length; i++) {
+      if (i > 0) {
+        builder.add(utf8.encode(','));
+      }
+      builder.add(encodedItems[i]);
+    }
+    builder.add(utf8.encode(']}'));
+    return builder.takeBytes();
   }
 
   /// Add an envelope item containing client report data.

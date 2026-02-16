@@ -114,6 +114,14 @@ void main() {
       expect(sut[0].category, DataCategory.metricBucket);
       expect(sut[0].namespaces, isEmpty);
     });
+
+    test('parse trace_metric category', () {
+      final sut = RateLimitParser('60:trace_metric').parseRateLimitHeader();
+
+      expect(sut.length, 1);
+      expect(sut[0].category, DataCategory.metric);
+      expect(sut[0].duration.inMilliseconds, 60000);
+    });
   });
 
   group('parseRetryAfterHeader', () {

@@ -5,41 +5,38 @@ import '../protocol.dart';
 import '../sentry_envelope.dart';
 import '../sentry_options.dart';
 import '../transport/data_category.dart';
+import 'internal_logger.dart';
 
 class TransportUtils {
-  static void logResponse(
-      SentryOptions options, SentryEnvelope envelope, Response response,
+  static void logResponse(SentryEnvelope envelope, Response response,
       {required String target}) {
     if (response.statusCode != 200) {
-      if (options.debug) {
-        options.log(
-          SentryLevel.error,
-          'Error, statusCode = ${response.statusCode}, body = ${response.body}',
+      internalLogger.error(() =>
+          'Failed to send envelope, statusCode = ${response.statusCode}, body = ${response.body}');
+    } else {
+      internalLogger.debug(
+        () =>
+            'Envelope ${envelope.header.eventId ?? "--"} was sent successfully to $target.',
+      );
+    }
+  }
+
+  static void recordLostEvents(
+      SentryOptions options, SentryEnvelope envelope, DiscardReason reason) {
+    for (final item in envelope.items) {
+      options.recorder.recordLostEvent(
+        reason,
+        DataCategory.fromItemType(item.header.type),
+      );
+
+      final originalObject = item.originalObject;
+      if (originalObject is SentryTransaction) {
+        options.recorder.recordLostEvent(
+          reason,
+          DataCategory.span,
+          count: originalObject.spans.length + 1,
         );
       }
-
-      if (response.statusCode >= 400 && response.statusCode != 429) {
-        for (final item in envelope.items) {
-          options.recorder.recordLostEvent(
-            DiscardReason.networkError,
-            DataCategory.fromItemType(item.header.type),
-          );
-
-          final originalObject = item.originalObject;
-          if (originalObject is SentryTransaction) {
-            options.recorder.recordLostEvent(
-              DiscardReason.networkError,
-              DataCategory.span,
-              count: originalObject.spans.length + 1,
-            );
-          }
-        }
-      }
-    } else {
-      options.log(
-        SentryLevel.debug,
-        'Envelope ${envelope.header.eventId ?? "--"} was sent successfully to $target.',
-      );
     }
   }
 }

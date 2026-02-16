@@ -9,20 +9,40 @@ class RuntimeChecker {
     bool? isRootZone,
   }) : isRootZone = isRootZone ?? Zone.current == Zone.root;
 
-  /// Check if running in release/production environment
-  bool isReleaseMode() {
-    return const bool.fromEnvironment('dart.vm.product', defaultValue: false);
-  }
+  /// Whether running in release/production environment as a compile-time constant for guaranteed tree-shaking.
+  ///
+  /// If the code needs to be testable, use [isReleaseMode] instead.
+  static const bool kReleaseMode =
+      bool.fromEnvironment('dart.vm.product', defaultValue: false);
 
-  /// Check if running in debug environment
-  bool isDebugMode() {
-    return !isReleaseMode() && !isProfileMode();
-  }
+  /// Whether running in profile environment as a compile-time constant for guaranteed tree-shaking.
+  ///
+  /// If the code needs to be testable, use [isProfileMode] instead.
+  static const bool kProfileMode =
+      bool.fromEnvironment('dart.vm.profile', defaultValue: false);
 
-  /// Check if running in profile environment
-  bool isProfileMode() {
-    return const bool.fromEnvironment('dart.vm.profile', defaultValue: false);
-  }
+  /// Whether running in debug environment as a compile-time constant for guaranteed tree-shaking.
+  ///
+  /// If the code needs to be testable, use [isDebugMode] instead.
+  static const bool kDebugMode = !kReleaseMode && !kProfileMode;
+
+  /// Whether running in release/production environment.
+  ///
+  /// Code paths using this method are not guaranteed to be tree-shaken in release builds.
+  /// If tree-shaking needs to be guaranteed, use [RuntimeChecker.kReleaseMode] instead.
+  bool isReleaseMode() => kReleaseMode;
+
+  /// Whether running in debug environment.
+  ///
+  /// Code paths using this method are not guaranteed to be tree-shaken in non-debug builds.
+  /// If tree-shaking needs to be guaranteed, use [RuntimeChecker.kDebugMode] instead.
+  bool isDebugMode() => kDebugMode;
+
+  /// Whether running in profile environment.
+  ///
+  /// Code paths using this method are not guaranteed to be tree-shaken in profile builds.
+  /// If tree-shaking needs to be guaranteed, use [RuntimeChecker.kProfileMode] instead.
+  bool isProfileMode() => kProfileMode;
 
   /// Check if the Dart code is obfuscated.
   bool isAppObfuscated() {

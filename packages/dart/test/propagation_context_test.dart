@@ -126,7 +126,7 @@ void main() {
         sut.sampleRand = 1.0;
         sut.applySamplingDecision(true);
 
-        sut.resetTrace();
+        sut.generateNewTrace();
 
         expect(sut.traceId, isNot(traceId));
         expect(sut.sampleRand, isNull);
