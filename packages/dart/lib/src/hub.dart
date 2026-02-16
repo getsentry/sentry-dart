@@ -849,7 +849,10 @@ class Hub {
       name,
       parentSpan: parentSpan,
       attributes: attributes,
-      onSpanEnd: _onIdleSpanEnd,
+      onSpanEnd: (span) {
+        _idleSpanController?.endFromSpan();
+        return captureSpan(span);
+      },
     );
 
     if (span is RecordingSentrySpanV2) {
@@ -857,29 +860,20 @@ class Hub {
       fallbackRootSpan = span;
 
       _idleSpanController = IdleSpanController(
-        span: span,
-        idleTimeout: idleTimeout,
-        finalTimeout: finalTimeout,
-        childSpanTimeout: childSpanTimeout,
-        trimEndTimestamp: trimIdleSpanEndTimestamp,
-        lifecycleRegistry: _options.lifecycleRegistry,
-        previousActiveSpan: previous,
-        onFinish: _onIdleSpanControllerFinished,
-      );
+          span: span,
+          idleTimeout: idleTimeout,
+          finalTimeout: finalTimeout,
+          childSpanTimeout: childSpanTimeout,
+          trimEndTimestamp: trimIdleSpanEndTimestamp,
+          lifecycleRegistry: _options.lifecycleRegistry,
+          previousActiveSpan: previous,
+          onFinish: (controller) {
+            fallbackRootSpan = controller.previousActiveSpan;
+            _idleSpanController = null;
+          });
     }
 
     return span;
-  }
-
-  Future<void> _onIdleSpanEnd(RecordingSentrySpanV2 span) async {
-    _idleSpanController?.endFromSpan();
-
-    return captureSpan(span);
-  }
-
-  void _onIdleSpanControllerFinished(IdleSpanController controller) {
-    fallbackRootSpan = controller.previousActiveSpan;
-    _idleSpanController = null;
   }
 
   Future<void> captureSpan(SentrySpanV2 span) async {
