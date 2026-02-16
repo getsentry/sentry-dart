@@ -11,6 +11,7 @@ import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'telemetry/metric/metric.dart';
+import 'telemetry/span/idle_span_controller.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'tracing.dart';
 
@@ -173,10 +174,28 @@ class NoOpHub implements Hub {
   }
 
   @override
+  IdleSpanController? get idleSpanController => null;
+
+  @override
   FutureOr<T> startSpan<T>(
       String name, FutureOr<T> Function(SentrySpanV2 span) callback,
       {Map<String, SentryAttribute>? attributes,
       SentrySpanV2? parentSpan = const UnsetSentrySpanV2()}) {
     return callback(NoOpSentrySpanV2.instance);
   }
+
+  @override
+  SentrySpanV2 startIdleSpan(
+    String name, {
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    Duration idleTimeout = const Duration(milliseconds: 1000),
+    Duration childSpanTimeout = const Duration(milliseconds: 15000),
+    Duration finalTimeout = const Duration(milliseconds: 30000),
+    bool trimIdleSpanEndTimestamp = true,
+    Map<String, SentryAttribute>? attributes,
+  }) =>
+      NoOpSentrySpanV2.instance;
+
+  @override
+  RecordingSentrySpanV2? fallbackRootSpan;
 }

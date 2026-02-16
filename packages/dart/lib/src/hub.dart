@@ -11,6 +11,7 @@ import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 import 'telemetry/span/sentry_span_sampling_context.dart';
 import 'transport/data_category.dart';
+import 'telemetry/span/idle_span_controller.dart';
 import 'utils/internal_logger.dart';
 
 /// Configures the scope through the callback.
@@ -39,6 +40,15 @@ class Hub {
   late SentryTracesSampler _tracesSampler;
 
   late final _WeakMap _throwableToSpan;
+
+  /// Fallback root span used by [getActiveSpan] when no zone-scoped span
+  /// is active. Set to the current idle span while one is running.
+  @internal
+  RecordingSentrySpanV2? fallbackRootSpan;
+
+  @internal
+  IdleSpanController? get idleSpanController => _idleSpanController;
+  IdleSpanController? _idleSpanController;
 
   factory Hub(SentryOptions options) {
     _validateOptions(options);
@@ -629,7 +639,8 @@ class Hub {
   /// The hub's top-level scope is never mutated, so calling this outside a
   /// [startSpan] callback always returns `null`.
   @internal
-  RecordingSentrySpanV2? getActiveSpan() => _zoneScope?.getActiveSpan();
+  RecordingSentrySpanV2? getActiveSpan() =>
+      _zoneScope?.getActiveSpan() ?? fallbackRootSpan;
 
   FutureOr<T> startSpan<T>(
     String name,
@@ -713,6 +724,7 @@ class Hub {
     String name, {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     Map<String, SentryAttribute>? attributes,
+    OnSpanEndCallback? onSpanEnd,
   }) {
     if (!_isEnabled) {
       _options.log(
@@ -784,7 +796,7 @@ class Hub {
         clock: options.clock,
         dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(
             span, options, scope.replayId),
-        onSpanEnd: captureSpan,
+        onSpanEnd: onSpanEnd ?? captureSpan,
         samplingDecision: samplingDecision,
       );
     } else {
@@ -794,7 +806,7 @@ class Hub {
         clock: options.clock,
         dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(
             span, options, scope.replayId),
-        onSpanEnd: captureSpan,
+        onSpanEnd: onSpanEnd ?? captureSpan,
       );
     }
 
@@ -807,6 +819,56 @@ class Hub {
     return span;
   }
 
+  @internal
+  SentrySpanV2 startIdleSpan(
+    String name, {
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    Duration idleTimeout = const Duration(seconds: 5),
+    Duration childSpanTimeout = const Duration(seconds: 15),
+    Duration finalTimeout = const Duration(seconds: 30),
+    bool trimIdleSpanEndTimestamp = true,
+    Map<String, SentryAttribute>? attributes,
+  }) {
+    // End any existing idle span controller.
+    _idleSpanController?.endFromSpan();
+
+    final span = _createSpan(
+      name,
+      parentSpan: parentSpan,
+      attributes: attributes,
+      onSpanEnd: _onIdleSpanEnd,
+    );
+
+    if (span is RecordingSentrySpanV2) {
+      final previous = fallbackRootSpan;
+      fallbackRootSpan = span;
+
+      _idleSpanController = IdleSpanController(
+        span: span,
+        idleTimeout: idleTimeout,
+        finalTimeout: finalTimeout,
+        childSpanTimeout: childSpanTimeout,
+        trimEndTimestamp: trimIdleSpanEndTimestamp,
+        lifecycleRegistry: _options.lifecycleRegistry,
+        previousActiveSpan: previous,
+        onFinish: _onIdleSpanControllerFinished,
+      );
+    }
+
+    return span;
+  }
+
+  Future<void> _onIdleSpanEnd(RecordingSentrySpanV2 span) async {
+    _idleSpanController?.endFromSpan();
+
+    return captureSpan(span);
+  }
+
+  void _onIdleSpanControllerFinished(IdleSpanController controller) {
+    fallbackRootSpan = controller.previousActiveSpan;
+    _idleSpanController = null;
+  }
+
   Future<void> captureSpan(SentrySpanV2 span) async {
     if (!_isEnabled) {
       _options.log(
@@ -815,6 +877,8 @@ class Hub {
       );
       return;
     }
+
+    _options.lifecycleRegistry.dispatchCallback(OnSpanEndV2(span));
 
     switch (span) {
       case UnsetSentrySpanV2():

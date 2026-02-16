@@ -2,6 +2,8 @@
 
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
 

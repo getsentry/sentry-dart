@@ -157,6 +157,13 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
   /// All spans in the same segment share this DSC.
   SentryTraceContextHeader resolveDsc() => segmentSpan._getOrCreateDsc();
 
+  /// Overrides the end timestamp. Used internally by [IdleSpanController]
+  /// to trim the end timestamp to the latest child end.
+  @internal
+  void overrideEndTimestamp(DateTime timestamp) {
+    _endTimestamp = timestamp.toUtc();
+  }
+
   @override
   bool get isEnded => _endTimestamp != null;
 

@@ -42,6 +42,8 @@ export 'src/sentry_envelope.dart';
 export 'src/sentry_envelope_item.dart';
 export 'src/sentry_options.dart';
 export 'src/telemetry/sentry_trace_lifecycle.dart';
+// ignore: invalid_export_of_internal_element
+export 'src/telemetry/span/idle_span_controller.dart';
 export 'src/telemetry/span/sentry_span_v2.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/sentry_trace_origins.dart';
