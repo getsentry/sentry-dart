@@ -637,6 +637,13 @@ class Hub {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
   }) {
+    final ignoreSpan =
+        _options.ignoreSpans.any((rule) => rule.nameMatches(name));
+    if (ignoreSpan) {
+      // TODO(next-pr): client report
+      return callback(NoOpSentrySpanV2.instance);
+    }
+
     final span = _createSpan(
       name,
       parentSpan: parentSpan,

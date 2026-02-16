@@ -644,6 +644,133 @@ void main() {
         expect(fixture.client.captureSpanCalls, isEmpty);
       });
     });
+
+    group('startSpan', () {
+      group('when ignoreSpans rules are configured', () {
+        test('provides no-op span for matching nameEquals rule', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          hub.startSpan('ignored-span', (span) {
+            expect(span, isA<NoOpSentrySpanV2>());
+          });
+        });
+
+        test('provides no-op span for matching nameContains rule', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameContains('internal'),
+          ];
+          final hub = fixture.getSut();
+
+          hub.startSpan('my-internal-operation', (span) {
+            expect(span, isA<NoOpSentrySpanV2>());
+          });
+        });
+
+        test('provides no-op span for matching nameStartsWith rule', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameStartsWith('debug.'),
+          ];
+          final hub = fixture.getSut();
+
+          hub.startSpan('debug.trace', (span) {
+            expect(span, isA<NoOpSentrySpanV2>());
+          });
+        });
+
+        test('provides no-op span for matching nameEndsWith rule', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEndsWith('.internal'),
+          ];
+          final hub = fixture.getSut();
+
+          hub.startSpan('db.query.internal', (span) {
+            expect(span, isA<NoOpSentrySpanV2>());
+          });
+        });
+
+        test('provides no-op span for matching regex pattern', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameContains(RegExp(r'^debug\.\w+')),
+          ];
+          final hub = fixture.getSut();
+
+          hub.startSpan('debug.trace', (span) {
+            expect(span, isA<NoOpSentrySpanV2>());
+          });
+        });
+
+        test('matches first applicable rule from multiple rules', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('exact-match'),
+            IgnoreSpanRule.nameContains('partial'),
+          ];
+          final hub = fixture.getSut();
+
+          hub.startSpan('exact-match', (span) {
+            expect(span, isA<NoOpSentrySpanV2>());
+          });
+
+          hub.startSpan('has-partial-name', (span) {
+            expect(span, isA<NoOpSentrySpanV2>());
+          });
+        });
+
+        test('does not capture ignored span', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          hub.startSpan('ignored-span', (span) {});
+
+          expect(fixture.client.captureSpanCalls, isEmpty);
+        });
+
+        test('still returns callback result for ignored span', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          final result = hub.startSpan('ignored-span', (span) => 42);
+
+          expect(result, equals(42));
+        });
+
+        test('still returns async callback result for ignored span', () async {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          final result =
+              await hub.startSpan('ignored-span', (span) async => 42);
+
+          expect(result, equals(42));
+        });
+
+        test('ignores matching span but captures non-matching sibling', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          hub.startSpan('allowed-span', (span) {
+            expect(span, isA<RecordingSentrySpanV2>());
+          });
+
+          hub.startSpan('ignored-span', (span) {
+            expect(span, isA<NoOpSentrySpanV2>());
+          });
+
+          // Only the allowed span should be captured
+          expect(fixture.client.captureSpanCalls, hasLength(1));
+        });
+      });
+    });
   });
 }
 
