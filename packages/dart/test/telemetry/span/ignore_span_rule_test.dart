@@ -105,8 +105,7 @@ void main() {
 
       group('with regex pattern', () {
         test('matches when name starts with regex match', () {
-          final rule =
-              IgnoreSpanRule.nameStartsWith(RegExp(r'(http|grpc)\.'));
+          final rule = IgnoreSpanRule.nameStartsWith(RegExp(r'(http|grpc)\.'));
 
           expect(rule.nameMatches('http.client'), isTrue);
           expect(rule.nameMatches('grpc.call'), isTrue);
