@@ -112,12 +112,13 @@ native.SentryOptions$BeforeSendReplayCallback createBeforeSendReplayCallback(
               ?.getPayload()
               ?.use((l) => l.firstOrNull)
             ?..releasedBy(arena);
-          if (data is native.$RRWebOptionsEvent$Type) {
+          if (data != null &&
+              data.isInstanceOf(native.RRWebOptionsEvent.type.jClass)) {
             final payload = data
-                ?.as(native.RRWebOptionsEvent.type)
+                .as(native.RRWebOptionsEvent.type)
                 .getOptionsPayload()
-              ?..releasedBy(arena);
-            payload?.removeWhere((key, value) {
+              ..releasedBy(arena);
+            payload.removeWhere((key, value) {
               final shouldRemove =
                   key?.toDartString(releaseOriginal: true).contains('mask') ??
                       false;
@@ -126,7 +127,7 @@ native.SentryOptions$BeforeSendReplayCallback createBeforeSendReplayCallback(
             });
 
             final jMap = dartToJMap(options.privacy.toJson());
-            payload?.addAll(jMap);
+            payload.addAll(jMap);
             jMap.release();
           }
         });
