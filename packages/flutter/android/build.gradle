@@ -22,7 +22,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 34
+    compileSdkVersion 36
 
     // Conditional for compatibility with AGP <4.2.
     if (project.android.hasProperty("namespace")) {
@@ -35,7 +35,7 @@ android {
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 36
 
         ndk {
             // Flutter does not currently support building for x86 Android (See Issue 9253).
@@ -62,7 +62,8 @@ android {
 }
 
 dependencies {
-    api 'io.sentry:sentry-android:8.31.0'
+    api 'io.sentry:sentry-android:8.32.0'
+    debugImplementation 'io.sentry:sentry-spotlight:8.32.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Required -- JUnit 4 framework

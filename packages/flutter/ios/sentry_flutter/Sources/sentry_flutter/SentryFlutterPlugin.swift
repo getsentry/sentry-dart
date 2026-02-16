@@ -161,6 +161,12 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             result(nil)
 #endif
 
+        case "setTrace":
+            let arguments = call.arguments as? [String: Any?]
+            let traceId = arguments?["traceId"] as? String
+            let spanId = arguments?["spanId"] as? String
+            setTrace(traceId: traceId, spanId: spanId, result: result)
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -213,6 +219,12 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
                 infos["integrations"] = integrations.filter { $0 != "SentrySessionReplayIntegration" }
             }
 
+            #if SENTRY_FLUTTER_SPM
+            infos["features"] = ["SwiftPackageManager"]
+            #else
+            infos["features"] = ["CocoaPods"]
+            #endif
+
             let deviceStr = "device"
             let appStr = "app"
             if let extraContext = PrivateSentrySDKOnly.getExtraContext() as? [String: Any] {
@@ -241,8 +253,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
             // Not reading the name from PrivateSentrySDKOnly.getSdkName because
             // this is added as a package and packages should follow the sentry-release-registry format
+            #if SENTRY_FLUTTER_SPM
+            infos["package"] = ["version": PrivateSentrySDKOnly.getSdkVersionString(),
+                "sdk_name": "spm:sentry-cocoa"]
+            #else
             infos["package"] = ["version": PrivateSentrySDKOnly.getSdkVersionString(),
                 "sdk_name": "cocoapods:sentry-cocoa"]
+            #endif
 
             result(infos)
         }
@@ -276,6 +293,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         result(debugImages.map { $0.serialize() })
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     private func initNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let arguments = call.arguments as? [String: Any], !arguments.isEmpty else {
             print("Arguments is null or empty")
@@ -317,6 +335,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
                                 sdk["integrations"] = sdkIntegrations + integrations
                             } else {
                                 sdk["integrations"] = integrations
+                            }
+                        }
+                        if let features = flutterSdk!["features"] as? [String] {
+                            if let sdkFeatures = sdk["features"] as? [String] {
+                                sdk["features"] = sdkFeatures + features
+                            } else {
+                                sdk["features"] = features
                             }
                         }
                         event.sdk = sdk
@@ -693,6 +718,18 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
     private func resumeAppHangTracking(_ result: @escaping FlutterResult) {
         SentrySDK.resumeAppHangTracking()
+        result("")
+    }
+
+    private func setTrace(traceId: String?, spanId: String?, result: @escaping FlutterResult) {
+        guard let traceId = traceId, let spanId = spanId else {
+            print("Cannot set trace: traceId or spanId is null")
+            result(FlutterError(code: "10", message: "Cannot set trace: traceId or spanId is null", details: nil))
+            return
+        }
+        let sentryTraceId = SentryId(uuidString: traceId)
+        let sentrySpanId = SpanId(value: spanId)
+        PrivateSentrySDKOnly.setTrace(sentryTraceId, spanId: sentrySpanId)
         result("")
     }
 

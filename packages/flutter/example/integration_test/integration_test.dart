@@ -279,6 +279,7 @@ void main() {
           (p) => p.name == package.name && p.version == package.version);
       expect(findMatchingPackage, isNotNull);
     }
+    expect(androidOptions.isEnableAutoTraceIdGeneration(), isFalse);
     final androidProxy = androidOptions.getProxy();
     expect(androidProxy, isNotNull);
     expect(androidProxy!.getHost()?.toDartString(), 'proxy.local');
@@ -1064,6 +1065,43 @@ void main() {
       expect(contexts![extraKey], {}, reason: 'Extra are not empty');
     }
   });
+
+  // We currently only test this on Android
+  // Setting up iOS for testing this is a big time effort so we rely on manually testing there for now
+  testWidgets('setTrace syncs Dart traceId to native Android scope',
+      (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    final dartTraceId =
+        Sentry.currentHub.scope.propagationContext.traceId.toString();
+
+    final traceParent = jni.Sentry.getTraceparent();
+    expect(traceParent, isNotNull,
+        reason: 'Native traceparent should not be null');
+    final traceHeader = traceParent!.getValue().toDartString();
+
+    final nativeTraceId = traceHeader.split('-').first;
+    expect(nativeTraceId, dartTraceId,
+        reason: 'Native traceId should match Dart traceId after initial sync');
+
+    Sentry.currentHub.generateNewTrace();
+    final newDartTraceId =
+        Sentry.currentHub.scope.propagationContext.traceId.toString();
+
+    // Allow the fire-and-forget dispatch to complete
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+
+    final newTraceParent =
+        jni.Sentry.getTraceparent()?.getValue().toDartString();
+    final newTraceHeader = newTraceParent!.toString();
+
+    final newNativeTraceId = newTraceHeader.split('-').first;
+    expect(newNativeTraceId, newDartTraceId,
+        reason:
+            'Native traceId should match new Dart traceId after generateNewTrace');
+  }, skip: !Platform.isAndroid);
 
   group('e2e', () {
     var output = find.byKey(const Key('output'));
