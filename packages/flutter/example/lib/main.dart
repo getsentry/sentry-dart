@@ -114,6 +114,15 @@ Future<void> setupSentry(
     // Init your App.
     appRunner: appRunner,
   );
+
+  Sentry.configureScope((scope) {
+    final user = SentryUser(
+      id: SentryId.newId().toString(),
+      name: 'J. Smith',
+      email: 'j.smith@example.com',
+    );
+    scope.setUser(user);
+  });
 }
 
 class MyApp extends StatefulWidget {
