@@ -310,6 +310,14 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> updateSession({int? errors, String? status}) {
     _logNotSupported('updating session');
   }
+
+  @override
+  bool get supportsTraceSync => false;
+
+  @override
+  FutureOr<void> setTrace(SentryId traceId, SpanId spanId) {
+    _logNotSupported('setting trace');
+  }
 }
 
 extension on binding.sentry_value_u {

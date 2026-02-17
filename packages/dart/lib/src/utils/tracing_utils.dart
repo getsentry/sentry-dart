@@ -7,8 +7,11 @@ SentryTraceHeader generateSentryTraceHeader(
   return SentryTraceHeader(traceId, spanId, sampled: sampled);
 }
 
-void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
-    {ISentrySpan? span}) {
+void addTracingHeadersToHttpHeader(
+  Map<String, dynamic> headers,
+  Hub hub, {
+  InstrumentationSpan? span,
+}) {
   if (span != null) {
     if (hub.options.propagateTraceparent) {
       addW3CHeaderFromSpan(span, headers);
@@ -17,14 +20,13 @@ void addTracingHeadersToHttpHeader(Map<String, dynamic> headers, Hub hub,
     addBaggageHeaderFromSpan(
       span,
       headers,
-      log: hub.options.log,
     );
   } else {
     if (hub.options.propagateTraceparent) {
       addW3CHeaderFromScope(hub.scope, headers);
     }
     addSentryTraceHeaderFromScope(hub.scope, headers);
-    addBaggageHeaderFromScope(hub.scope, headers, log: hub.options.log);
+    addBaggageHeaderFromScope(hub.scope, headers);
   }
 }
 
@@ -35,7 +37,7 @@ void addSentryTraceHeaderFromScope(Scope scope, Map<String, dynamic> headers) {
 }
 
 void addSentryTraceHeaderFromSpan(
-    ISentrySpan span, Map<String, dynamic> headers) {
+    InstrumentationSpan span, Map<String, dynamic> headers) {
   final traceHeader = span.toSentryTrace();
   headers[traceHeader.name] = traceHeader.value;
 }
@@ -45,7 +47,8 @@ void addSentryTraceHeader(
   headers[traceHeader.name] = traceHeader.value;
 }
 
-void addW3CHeaderFromSpan(ISentrySpan span, Map<String, dynamic> headers) {
+void addW3CHeaderFromSpan(
+    InstrumentationSpan span, Map<String, dynamic> headers) {
   final traceHeader = span.toSentryTrace();
   _addW3CHeaderFromSentryTrace(traceHeader, headers);
 }
@@ -67,42 +70,30 @@ String formatAsW3CHeader(SentryTraceHeader traceHeader) {
   return '00-${traceHeader.traceId}-${traceHeader.spanId}-$sampledBit';
 }
 
-void addBaggageHeaderFromScope(
-  Scope scope,
-  Map<String, dynamic> headers, {
-  SdkLogCallback? log,
-}) {
+void addBaggageHeaderFromScope(Scope scope, Map<String, dynamic> headers) {
   final baggageHeader = scope.propagationContext.toBaggageHeader();
   if (baggageHeader != null) {
-    addBaggageHeader(baggageHeader, headers, log: log);
+    addBaggageHeader(baggageHeader, headers);
   }
 }
 
 void addBaggageHeaderFromSpan(
-  ISentrySpan span,
-  Map<String, dynamic> headers, {
-  SdkLogCallback? log,
-}) {
+    InstrumentationSpan span, Map<String, dynamic> headers) {
   final baggage = span.toBaggageHeader();
   if (baggage != null) {
-    addBaggageHeader(baggage, headers, log: log);
+    addBaggageHeader(baggage, headers);
   }
 }
 
 void addBaggageHeader(
-  SentryBaggageHeader baggage,
-  Map<String, dynamic> headers, {
-  SdkLogCallback? log,
-}) {
+    SentryBaggageHeader baggage, Map<String, dynamic> headers) {
   final currentValue = headers[baggage.name] as String? ?? '';
 
   final currentBaggage = SentryBaggage.fromHeader(
     currentValue,
-    log: log,
   );
   final sentryBaggage = SentryBaggage.fromHeader(
     baggage.value,
-    log: log,
   );
 
   // overwrite sentry's keys https://develop.sentry.dev/sdk/performance/dynamic-sampling-context/#baggage
@@ -114,7 +105,7 @@ void addBaggageHeader(
     ...sentryBaggage.keyValues,
   };
 
-  final newBaggage = SentryBaggage(mergedBaggage, log: log);
+  final newBaggage = SentryBaggage(mergedBaggage);
 
   headers[baggage.name] = newBaggage.toHeaderString();
 }

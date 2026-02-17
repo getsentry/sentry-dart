@@ -284,6 +284,13 @@ class SentryFlutterOptions extends SentryOptions {
   /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
   bool enableFramesTracking = true;
 
+  /// Whether to synchronize the Dart trace to the native SDK.
+  ///
+  /// Allows native events to share the same trace as Dart events.
+  ///
+  /// Supported on Android and iOS/macOS.
+  bool enableNativeTraceSync = true;
+
   /// Replay recording configuration.
   final replay = SentryReplayOptions();
 

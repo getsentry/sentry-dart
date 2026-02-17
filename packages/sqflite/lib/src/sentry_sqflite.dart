@@ -39,9 +39,12 @@ Future<Database> openDatabaseWithSentry(
 
     final newHub = hub ?? HubAdapter();
 
-    final currentSpan = newHub.getSpan();
+    // ignore: invalid_use_of_internal_member
+    final spanFactory = newHub.options.spanFactory;
     final description = 'Open DB: $path';
-    final span = currentSpan?.startChild(
+    final parent = spanFactory.getSpan(newHub);
+    final span = spanFactory.createSpan(
+      parent,
       SentryDatabase.dbOp,
       description: description,
     );

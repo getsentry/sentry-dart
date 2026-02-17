@@ -30,14 +30,15 @@ class SentryIsar implements Isar {
 
   final Isar _isar;
   final Hub _hub;
-  final _spanHelper = SentrySpanHelper(
-    // ignore: invalid_use_of_internal_member
-    SentryTraceOrigins.autoDbIsar,
-  );
+  late final SentrySpanHelper _spanHelper;
 
   /// ctor of SentryIsar
   SentryIsar(this._isar, this._hub) {
-    _spanHelper.setHub(_hub);
+    _spanHelper = SentrySpanHelper(
+      // ignore: invalid_use_of_internal_member
+      SentryTraceOrigins.autoDbIsar,
+      hub: _hub,
+    );
 
     // ignore: invalid_use_of_internal_member
     final options = _hub.options;
@@ -56,12 +57,12 @@ class SentryIsar implements Isar {
     bool inspector = true,
     Hub? hub,
   }) async {
+    final hubToUse = hub ?? HubAdapter();
     final spanHelper = SentrySpanHelper(
       // ignore: invalid_use_of_internal_member
       SentryTraceOrigins.autoDbIsar,
+      hub: hubToUse,
     );
-    final hubToUse = hub ?? HubAdapter();
-    spanHelper.setHub(hubToUse);
 
     final isar = await spanHelper.asyncWrapInSpan(
       'open',
@@ -93,12 +94,12 @@ class SentryIsar implements Isar {
     bool inspector = true,
     Hub? hub,
   }) {
+    final hubToUse = hub ?? HubAdapter();
     final spanHelper = SentrySpanHelper(
       // ignore: invalid_use_of_internal_member
       SentryTraceOrigins.autoDbIsar,
+      hub: hubToUse,
     );
-    final hubToUse = hub ?? HubAdapter();
-    spanHelper.setHub(hubToUse);
 
     final isar = spanHelper.syncWrapInSpan(
       'openSync',
