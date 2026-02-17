@@ -618,16 +618,17 @@ void main() {
           childSpanTimeout: Duration(seconds: 1),
           finalTimeout: Duration(seconds: 2),
         ) as RecordingSentrySpanV2;
-        expect(hub.currentIdleSpan, isNotNull);
+        expect(hub.getActiveSpan(), isA<IdleRecordingSentrySpanV2>());
 
-        hub.currentIdleSpan
-          ?..status = SentrySpanStatusV2.cancelled
+        final activeIdleSpan = hub.getActiveSpan() as IdleRecordingSentrySpanV2;
+        activeIdleSpan
+          ..status = SentrySpanStatusV2.cancelled
           ..end();
         await Future<void>.delayed(Duration.zero);
 
         expect(idleSpan.isEnded, isTrue);
         expect(idleSpan.status, equals(SentrySpanStatusV2.cancelled));
-        expect(hub.currentIdleSpan, isNull);
+        expect(hub.getActiveSpan(), isNull);
       });
 
       test('clears active idle span when idle span instance is ended directly',
@@ -639,13 +640,13 @@ void main() {
           childSpanTimeout: Duration(seconds: 1),
           finalTimeout: Duration(seconds: 2),
         ) as RecordingSentrySpanV2;
-        expect(hub.currentIdleSpan, isNotNull);
+        expect(hub.getActiveSpan(), isA<IdleRecordingSentrySpanV2>());
 
         idleSpan.end();
         await Future<void>.delayed(Duration.zero);
 
         expect(idleSpan.isEnded, isTrue);
-        expect(hub.currentIdleSpan, isNull);
+        expect(hub.getActiveSpan(), isNull);
       });
 
       test('does not extend idle timeout when unrelated spans end', () async {

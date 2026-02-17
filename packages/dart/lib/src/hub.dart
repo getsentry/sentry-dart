@@ -9,7 +9,6 @@ import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
-import 'telemetry/span/sentry_span_v2.dart' show IdleRecordingSentrySpanV2;
 import 'telemetry/span/sentry_span_sampling_context.dart';
 import 'transport/data_category.dart';
 import 'utils/internal_logger.dart';
@@ -41,8 +40,7 @@ class Hub {
 
   late final _WeakMap _throwableToSpan;
 
-  @visibleForTesting
-  IdleRecordingSentrySpanV2? get currentIdleSpan =>
+  IdleRecordingSentrySpanV2? get _currentIdleSpan =>
       _idleSpan?.isEnded == false ? _idleSpan : null;
 
   IdleRecordingSentrySpanV2? _idleSpan;
@@ -637,7 +635,7 @@ class Hub {
   /// [startSpan] callback always returns `null`.
   @internal
   RecordingSentrySpanV2? getActiveSpan() =>
-      _zoneScope?.getActiveSpan() ?? currentIdleSpan;
+      _zoneScope?.getActiveSpan() ?? _currentIdleSpan;
 
   FutureOr<T> startSpan<T>(
     String name,
@@ -837,7 +835,7 @@ class Hub {
     bool trimIdleSpanEndTimestamp = true,
     Map<String, SentryAttribute>? attributes,
   }) {
-    if (currentIdleSpan != null) {
+    if (_currentIdleSpan != null) {
       internalLogger.warning(
         () => 'Hub(internal): an idle span is already running. '
             'The current idle span should be ended before starting a new one.',

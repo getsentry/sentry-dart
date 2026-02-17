@@ -235,10 +235,6 @@ class HubAdapter implements Hub {
   }
 
   @override
-  IdleRecordingSentrySpanV2? get currentIdleSpan =>
-      Sentry.currentHub.currentIdleSpan;
-
-  @override
   FutureOr<T> startSpan<T>(
       String name, FutureOr<T> Function(SentrySpanV2 span) callback,
       {Map<String, SentryAttribute>? attributes,

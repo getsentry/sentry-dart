@@ -4,7 +4,7 @@ part of 'sentry_span_v2.dart';
 ///
 /// Used to log the reason why an idle span was finished.
 enum _IdleSpanFinishReason {
-  /// The idle timer expired (no child activity for [IdleRecordingSentrySpanV2.idleTimeout]).
+  /// The idle timer expired (no pending child activity within [IdleRecordingSentrySpanV2.idleTimeout]).
   idleTimeout,
 
   /// A child span ran longer than [IdleRecordingSentrySpanV2.childSpanTimeout].
@@ -13,12 +13,11 @@ enum _IdleSpanFinishReason {
   /// The absolute [IdleRecordingSentrySpanV2.finalTimeout] was reached.
   finalTimeout,
 
-  /// The span was ended externally (e.g. via [end]).
-  externalFinish,
+  /// The span was ended  manually (e.g. via [end]).
+  manualFinish,
 }
 
 /// Recording span with idle behavior built into the span itself.
-@internal
 final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   final Duration idleTimeout;
   final Duration finalTimeout;
@@ -65,7 +64,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   @override
   void end({DateTime? endTimestamp}) {
     _end(
-      _IdleSpanFinishReason.externalFinish,
+      _IdleSpanFinishReason.manualFinish,
       requestedEndTimestamp: endTimestamp,
     );
   }

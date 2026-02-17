@@ -532,6 +532,142 @@ void main() {
       });
     });
   });
+
+  group('$SentryUserInteractionWidget spanV2', () {
+    late Fixture fixture;
+    setUp(() async {
+      fixture = Fixture();
+      TestWidgetsFlutterBinding.ensureInitialized();
+    });
+
+    testWidgets('starts idle span on tap', (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(
+          enableUserInteractionTracing: true,
+          enableUserInteractionBreadcrumbs: false,
+          traceLifecycle: SentryTraceLifecycle.streaming,
+        );
+
+        await tapMe(tester, sut, 'btn_1');
+
+        final activeSpan = fixture.hub.getActiveSpan();
+        expect(activeSpan, isA<IdleRecordingSentrySpanV2>());
+        expect(activeSpan?.name, 'btn_1');
+        expect(
+          activeSpan?.attributes[SemanticAttributesConstants.sentryOp]?.value,
+          SentrySpanOperations.uiActionClick,
+        );
+      });
+    });
+
+    testWidgets('does not start idle span when ui.load span is active',
+        (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(
+          enableUserInteractionTracing: true,
+          enableUserInteractionBreadcrumbs: false,
+          traceLifecycle: SentryTraceLifecycle.streaming,
+        );
+
+        // Start a ui.load idle span before tapping
+        fixture.hub.startIdleSpan(
+          'ui.load',
+          attributes: {
+            SemanticAttributesConstants.sentryOp:
+                SentryAttribute.string(SentrySpanOperations.uiLoad),
+          },
+        );
+        final loadSpan = fixture.hub.getActiveSpan();
+        expect(loadSpan, isA<IdleRecordingSentrySpanV2>());
+
+        await tapMe(tester, sut, 'btn_1');
+
+        // The ui.load span should still be the active one (not replaced)
+        expect(fixture.hub.getActiveSpan(), same(loadSpan));
+      });
+    });
+
+    testWidgets('resets idle timer when same widget is tapped again',
+        (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(
+          enableUserInteractionTracing: true,
+          enableUserInteractionBreadcrumbs: false,
+          traceLifecycle: SentryTraceLifecycle.streaming,
+        );
+
+        await tapMe(tester, sut, 'btn_1');
+        final firstSpan = fixture.hub.getActiveSpan();
+        expect(firstSpan, isA<IdleRecordingSentrySpanV2>());
+
+        // Tap same widget again
+        await tapMe(tester, sut, 'btn_1');
+
+        // Should still be the same span (not a new one)
+        expect(fixture.hub.getActiveSpan(), same(firstSpan));
+        expect(firstSpan?.isEnded, isFalse);
+      });
+    });
+
+    testWidgets(
+        'does not start new span when tapping different widget if previous had no activity',
+        (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(
+          enableUserInteractionTracing: true,
+          enableUserInteractionBreadcrumbs: false,
+          traceLifecycle: SentryTraceLifecycle.streaming,
+        );
+
+        await tapMe(tester, sut, 'btn_1');
+        final firstSpan = fixture.hub.getActiveSpan();
+        expect(firstSpan, isA<IdleRecordingSentrySpanV2>());
+        expect((firstSpan as IdleRecordingSentrySpanV2).hadActivity, isFalse);
+
+        // Tap a different widget — but first span had no activity
+        await tapMe(tester, sut, 'btn_2', pumpWidget: false);
+
+        // First span should still be alive (not cancelled)
+        expect(firstSpan.isEnded, isFalse);
+      });
+    });
+
+    testWidgets(
+        'cancels previous idle span when tapping different widget after activity',
+        (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(
+          enableUserInteractionTracing: true,
+          enableUserInteractionBreadcrumbs: false,
+          traceLifecycle: SentryTraceLifecycle.streaming,
+        );
+
+        await tapMe(tester, sut, 'btn_1');
+        final firstSpan = fixture.hub.getActiveSpan();
+        expect(firstSpan, isA<IdleRecordingSentrySpanV2>());
+
+        // Simulate descendant activity by starting a child span
+        fixture.hub.startSpan('child-work', (span) async {
+          span.end();
+        });
+        await Future<void>.delayed(Duration.zero);
+        expect(
+            (firstSpan as IdleRecordingSentrySpanV2).hadActivity, isTrue);
+
+        // Tap a different widget
+        await tapMe(tester, sut, 'btn_2', pumpWidget: false);
+
+        // First span should be cancelled
+        expect(firstSpan.isEnded, isTrue);
+        expect(firstSpan.status, SentrySpanStatusV2.cancelled);
+
+        // New idle span should be started for btn_2
+        final newSpan = fixture.hub.getActiveSpan();
+        expect(newSpan, isA<IdleRecordingSentrySpanV2>());
+        expect(newSpan?.name, 'btn_2');
+      });
+    });
+  });
 }
 
 Future<void> tapMe(
@@ -556,6 +692,7 @@ class Fixture {
     bool enableUserInteractionBreadcrumbs = true,
     double? tracesSampleRate = 1.0,
     bool sendDefaultPii = false,
+    SentryTraceLifecycle? traceLifecycle,
   }) {
     // Missing mock exception
     when(_transport.send(any)).thenAnswer((_) async => SentryId.newId());
@@ -566,6 +703,9 @@ class Fixture {
     _options.enableUserInteractionBreadcrumbs =
         enableUserInteractionBreadcrumbs;
     _options.sendDefaultPii = sendDefaultPii;
+    if (traceLifecycle != null) {
+      _options.traceLifecycle = traceLifecycle;
+    }
 
     hub = Hub(_options);
 
