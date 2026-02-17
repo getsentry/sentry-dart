@@ -10,7 +10,7 @@ enum _IdleSpanFinishReason {
   /// The absolute [IdleRecordingSentrySpanV2.finalTimeout] was reached.
   finalTimeout,
 
-  /// The span was ended  manually (e.g. via [end]).
+  /// The span was ended manually (e.g. via [end]).
   manualFinish,
 }
 

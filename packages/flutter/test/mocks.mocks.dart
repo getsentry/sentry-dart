@@ -4450,7 +4450,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   _i2.SentrySpanV2 startIdleSpan(
     String? name, {
     Duration? idleTimeout = const Duration(seconds: 5),
-    Duration? childSpanTimeout = const Duration(seconds: 15),
     Duration? finalTimeout = const Duration(seconds: 30),
     bool? trimIdleSpanEndTimestamp = true,
     Map<String, _i2.SentryAttribute>? attributes,
@@ -4461,7 +4460,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           [name],
           {
             #idleTimeout: idleTimeout,
-            #childSpanTimeout: childSpanTimeout,
             #finalTimeout: finalTimeout,
             #trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
             #attributes: attributes,
@@ -4474,7 +4472,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             [name],
             {
               #idleTimeout: idleTimeout,
-              #childSpanTimeout: childSpanTimeout,
               #finalTimeout: finalTimeout,
               #trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
               #attributes: attributes,
