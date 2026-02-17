@@ -5,6 +5,8 @@ import 'package:meta/meta.dart';
 
 import 'sentry_js_binding.dart';
 
+const String _jsSdkName = 'sentry.javascript.browser.flutter';
+
 SentryJsBinding createJsBinding() {
   return WebSentryJsBinding();
 }
@@ -26,9 +28,21 @@ class WebSentryJsBinding implements SentryJsBinding {
       options['defaultIntegrations'] = options['defaultIntegrations']
           .map((String integration) => _createIntegration(integration));
     }
-    _init(options.jsify());
+    final jsOptions = options.jsify() as JSObject;
+    jsOptions['beforeSend'] = _beforeSend.toJS;
+    _init(jsOptions);
     _client = SentryJsClient();
     _options = _client?.getOptions();
+  }
+
+  static JSObject? _beforeSend(JSObject event, JSObject hint) {
+    var sdk = event['sdk'];
+    if (sdk == null || !sdk.isA<JSObject>()) {
+      sdk = <String, dynamic>{}.jsify() as JSObject;
+      event['sdk'] = sdk;
+    }
+    (sdk as JSObject)['name'] = _jsSdkName.toJS;
+    return event;
   }
 
   @override
