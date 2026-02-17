@@ -89,16 +89,16 @@ abstract class SemanticAttributesConstants {
   static const sentryInternalReplayIsBuffering =
       'sentry._internal.replay_is_buffering';
 
-  /// The user ID (gated by `sendDefaultPii`).
+  /// The user ID.
+  /// Users are manually set on the scope, therefore this is not gated by `sendDefaultPii`.
   static const userId = 'user.id';
 
-  /// The user email (gated by `sendDefaultPii`).
+  /// The user email.
+  /// Users are manually set on the scope, therefore this is not gated by `sendDefaultPii`.
   static const userEmail = 'user.email';
 
-  /// The user IP address (gated by `sendDefaultPii`).
-  static const userIpAddress = 'user.ip_address';
-
-  /// The user username (gated by `sendDefaultPii`).
+  /// The user username.
+  /// Users are manually set on the scope, therefore this is not gated by `sendDefaultPii`.
   static const userName = 'user.name';
 
   /// The operating system name.
