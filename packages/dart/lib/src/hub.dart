@@ -451,6 +451,10 @@ class Hub {
         "Instance is disabled and this 'close' call is a no-op.",
       );
     } else {
+      // End active idle span so its timers and lifecycle callbacks are cleaned up.
+      _idleSpan?.end();
+      _idleSpan = null;
+
       // close integrations
       for (final integration in _options.integrations) {
         final close = integration.close();
