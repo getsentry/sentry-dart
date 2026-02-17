@@ -651,8 +651,7 @@ void main() {
           span.end();
         });
         await Future<void>.delayed(Duration.zero);
-        expect(
-            (firstSpan as IdleRecordingSentrySpanV2).hadActivity, isTrue);
+        expect((firstSpan as IdleRecordingSentrySpanV2).hadActivity, isTrue);
 
         // Tap a different widget
         await tapMe(tester, sut, 'btn_2', pumpWidget: false);

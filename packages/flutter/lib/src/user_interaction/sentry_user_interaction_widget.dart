@@ -209,7 +209,6 @@ import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
-import 'package:sentry/src/telemetry/span/sentry_span_v2.dart';
 
 import '../../sentry_flutter.dart';
 import '../widget_utils.dart';
@@ -459,6 +458,8 @@ class _SentryUserInteractionWidgetState
       attributes: {
         SemanticAttributesConstants.sentryOp:
             SentryAttribute.string(SentrySpanOperations.uiActionClick),
+        SemanticAttributesConstants.sentryOrigin:
+            SentryAttribute.string(SentryTraceOrigins.autoUiInteraction),
       },
     );
   }
