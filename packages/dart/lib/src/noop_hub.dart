@@ -173,7 +173,7 @@ class NoOpHub implements Hub {
   }
 
   @override
-  IdleRecordingSentrySpanV2? get idleSpan => null;
+  IdleRecordingSentrySpanV2? get currentIdleSpan => null;
 
   @override
   FutureOr<T> startSpan<T>(

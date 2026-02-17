@@ -209,6 +209,7 @@ import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/sentry_span_v2.dart' show IdleRecordingSentrySpanV2;
 
 import '../../sentry_flutter.dart';
 import '../widget_utils.dart';
@@ -419,35 +420,36 @@ class _SentryUserInteractionWidgetState
       final op =
           activeSpan.attributes[SemanticAttributesConstants.sentryOp]?.value;
 
-      // Don't interrupt a ui.load idle span (triggered by SentryNavigatorObserver)
-      // It has a higher priority than interaction idle spans
+      // Don't interrupt a ui.load idle span (triggered by SentryNavigatorObserver).
+      // It has a higher priority than interaction idle spans.
       if (op == SentrySpanOperations.uiLoad) {
         return;
       }
 
-      final idleSpan = _hub.idleSpan;
-      final lastElement = _lastTappedWidget?.element;
-      final isSameWidget = _isElementMounted(lastElement) &&
-          _isElementMounted(info.element) &&
-          lastElement?.widget == info.element.widget;
+      if (activeSpan is IdleRecordingSentrySpanV2) {
+        final lastElement = _lastTappedWidget?.element;
+        final isSameWidget = _isElementMounted(lastElement) &&
+            _isElementMounted(info.element) &&
+            lastElement?.widget == info.element.widget;
 
-      if (isSameWidget && idleSpan != null) {
-        // Same widget tapped again — reset the idle timer to keep the span
-        // alive instead of starting a new one.
-        idleSpan.resetIdleTimer();
-        return;
+        if (isSameWidget) {
+          // Same widget tapped again — reset the idle timer to keep the span
+          // alive instead of starting a new one.
+          activeSpan.resetIdleTimer();
+          return;
+        }
+
+        // If the active idle span had no descendant activity, skip — the
+        // previous tap produced no meaningful work.
+        if (!activeSpan.hadActivity) {
+          return;
+        }
+
+        // Different widget tapped — cancel the previous idle span.
+        activeSpan
+          ..status = SentrySpanStatusV2.cancelled
+          ..end();
       }
-
-      // If the active idle span had no descendant activity, skip — the
-      // previous tap produced no meaningful work.
-      if (idleSpan != null && !idleSpan.hadActivity) {
-        return;
-      }
-
-      // Different widget tapped — cancel the previous idle span.
-      _hub.idleSpan
-        ?..status = SentrySpanStatusV2.cancelled
-        ..end();
     }
 
     _lastTappedWidget = info;
