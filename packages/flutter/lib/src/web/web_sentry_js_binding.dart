@@ -35,13 +35,8 @@ class WebSentryJsBinding implements SentryJsBinding {
     _options = _client?.getOptions();
   }
 
-  static JSObject? _beforeSend(JSObject event, JSObject hint) {
-    var sdk = event['sdk'];
-    if (sdk == null || !sdk.isA<JSObject>()) {
-      sdk = <String, dynamic>{}.jsify() as JSObject;
-      event['sdk'] = sdk;
-    }
-    (sdk as JSObject)['name'] = _jsSdkName.toJS;
+  static _JsErrorEvent? _beforeSend(_JsErrorEvent event, JSObject hint) {
+    (event.sdk ??= _createJsObject() as _JsSdkInfo).name = _jsSdkName.toJS;
     return event;
   }
 
@@ -229,3 +224,17 @@ external JSObject _dedupeIntegration();
 @JS('globalThis')
 @internal
 external JSObject get globalThis;
+
+@JS('Object')
+external JSObject _createJsObject();
+
+@JS()
+extension type _JsErrorEvent._(JSObject _) implements JSObject {
+  external _JsSdkInfo? get sdk;
+  external set sdk(_JsSdkInfo? value);
+}
+
+@JS()
+extension type _JsSdkInfo._(JSObject _) implements JSObject {
+  external set name(JSString value);
+}
