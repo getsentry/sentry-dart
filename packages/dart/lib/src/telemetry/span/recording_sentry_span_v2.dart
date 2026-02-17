@@ -193,7 +193,7 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
       'span_id': _spanId.toString(),
       'is_segment': _parentSpan == null,
       'name': _name,
-      'status': _status.name,
+      'status': _status.value,
       'end_timestamp':
           _endTimestamp == null ? null : toUnixSeconds(_endTimestamp!),
       'start_timestamp': toUnixSeconds(_startTimestamp),

@@ -1,6 +1,9 @@
 enum SentrySpanStatusV2 {
-  error,
-  cancelled,
-  deadlineExceeded,
-  ok,
+  error('error'),
+  cancelled('cancelled'),
+  deadlineExceeded('deadline_exceeded'),
+  ok('ok');
+
+  final String value;
+  const SentrySpanStatusV2(this.value);
 }
