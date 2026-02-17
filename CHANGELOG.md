@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Dont guard user attributes behind `sendDefaultPii` for logs and metrics ([#3524](https://github.com/getsentry/sentry-dart/pull/3524))
+
 ### Dependencies
 
 - Bump Native SDK from v0.12.6 to v0.12.7 ([#3514](https://github.com/getsentry/sentry-dart/pull/3514))
