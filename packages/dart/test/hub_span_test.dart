@@ -615,7 +615,6 @@ void main() {
         final idleSpan = hub.startIdleSpan(
           'idle-root',
           idleTimeout: Duration(seconds: 1),
-          childSpanTimeout: Duration(seconds: 1),
           finalTimeout: Duration(seconds: 2),
         ) as RecordingSentrySpanV2;
         expect(hub.getActiveSpan(), isA<IdleRecordingSentrySpanV2>());
@@ -637,7 +636,6 @@ void main() {
         final idleSpan = hub.startIdleSpan(
           'idle-root',
           idleTimeout: Duration(seconds: 1),
-          childSpanTimeout: Duration(seconds: 1),
           finalTimeout: Duration(seconds: 2),
         ) as RecordingSentrySpanV2;
         expect(hub.getActiveSpan(), isA<IdleRecordingSentrySpanV2>());
@@ -654,7 +652,6 @@ void main() {
         final idleSpan = hub.startIdleSpan(
           'idle-root',
           idleTimeout: Duration(milliseconds: 120),
-          childSpanTimeout: Duration(seconds: 2),
           finalTimeout: Duration(seconds: 2),
         ) as RecordingSentrySpanV2;
 
@@ -669,33 +666,11 @@ void main() {
         expect(idleSpan.isEnded, isTrue);
       });
 
-      test('times out based on the oldest active child span', () async {
-        final hub = fixture.getSut();
-        final idleSpan = hub.startIdleSpan(
-          'idle-root',
-          idleTimeout: Duration(seconds: 1),
-          childSpanTimeout: Duration(milliseconds: 200),
-          finalTimeout: Duration(seconds: 2),
-        ) as RecordingSentrySpanV2;
-
-        final child1 =
-            hub.startInactiveSpan('child-1') as RecordingSentrySpanV2;
-        await Future<void>.delayed(Duration(milliseconds: 120));
-        final child2 =
-            hub.startInactiveSpan('child-2') as RecordingSentrySpanV2;
-
-        await Future<void>.delayed(Duration(milliseconds: 120));
-        expect(idleSpan.isEnded, isTrue);
-        expect(child1.isEnded, isTrue);
-        expect(child2.isEnded, isTrue);
-      });
-
       test('finishes active children when final timeout is reached', () async {
         final hub = fixture.getSut();
         final idleSpan = hub.startIdleSpan(
           'idle-root',
           idleTimeout: Duration(seconds: 1),
-          childSpanTimeout: Duration(seconds: 1),
           finalTimeout: Duration(milliseconds: 180),
         ) as RecordingSentrySpanV2;
 
@@ -719,7 +694,6 @@ void main() {
         final idleSpan = hub.startIdleSpan(
           'idle-root',
           idleTimeout: Duration(milliseconds: 100),
-          childSpanTimeout: Duration(seconds: 1),
           finalTimeout: Duration(seconds: 1),
           trimIdleSpanEndTimestamp: true,
         ) as RecordingSentrySpanV2;

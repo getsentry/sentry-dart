@@ -7,9 +7,6 @@ enum _IdleSpanFinishReason {
   /// The idle timer expired (no pending child activity within [IdleRecordingSentrySpanV2.idleTimeout]).
   idleTimeout,
 
-  /// A child span ran longer than [IdleRecordingSentrySpanV2.childSpanTimeout].
-  childSpanTimeout,
-
   /// The absolute [IdleRecordingSentrySpanV2.finalTimeout] was reached.
   finalTimeout,
 
@@ -21,7 +18,6 @@ enum _IdleSpanFinishReason {
 final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   final Duration idleTimeout;
   final Duration finalTimeout;
-  final Duration childSpanTimeout;
   final bool trimEndTimestamp;
   final SdkLifecycleRegistry _lifecycleRegistry;
 
@@ -29,7 +25,6 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   bool _isEnded = false;
   bool _hadActivity = false;
   Timer? _idleTimer;
-  Timer? _childTimer;
   Timer? _finalTimer;
   DateTime? _latestChildEndTimestamp;
 
@@ -42,7 +37,6 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     required super.samplingDecision,
     required this.idleTimeout,
     required this.finalTimeout,
-    required this.childSpanTimeout,
     required this.trimEndTimestamp,
     required SdkLifecycleRegistry lifecycleRegistry,
   })  : _lifecycleRegistry = lifecycleRegistry,
@@ -78,7 +72,6 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
       _hadActivity = true;
 
       _cancelIdleTimer();
-      _startChildTimer();
     }
   }
 
@@ -86,19 +79,15 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     if (_isEnded) return;
 
     if (event.span case final RecordingSentrySpanV2 child) {
-      final trackedChild = _activeDescendants.remove(child.spanId);
-      if (trackedChild == null) return;
+      if (_activeDescendants.remove(child.spanId) == null) return;
 
-      final childEnd = child.endTimestamp ?? trackedChild.endTimestamp;
+      final childEnd = child.endTimestamp;
       if (childEnd != null) {
         _trackLatestChildEnd(childEnd);
       }
 
       if (_activeDescendants.isEmpty) {
-        _cancelChildTimer();
         _startIdleTimer();
-      } else {
-        _startChildTimer();
       }
     }
   }
@@ -117,28 +106,8 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
 
   void _startIdleTimer() {
     _cancelIdleTimer();
-    _cancelChildTimer();
     _idleTimer = Timer(idleTimeout, () {
       _end(_IdleSpanFinishReason.idleTimeout);
-    });
-  }
-
-  void _startChildTimer() {
-    _cancelChildTimer();
-    if (_activeDescendants.isEmpty) return;
-
-    final oldestStartTimestamp = _activeDescendants.values
-        .map((child) => child.startTimestamp)
-        .reduce((left, right) => left.isBefore(right) ? left : right);
-    final timeoutAt = oldestStartTimestamp.add(childSpanTimeout);
-    final delay = timeoutAt.difference(_clock().toUtc());
-    if (delay <= Duration.zero) {
-      _end(_IdleSpanFinishReason.childSpanTimeout);
-      return;
-    }
-
-    _childTimer = Timer(delay, () {
-      _end(_IdleSpanFinishReason.childSpanTimeout);
     });
   }
 
@@ -154,11 +123,6 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     _idleTimer = null;
   }
 
-  void _cancelChildTimer() {
-    _childTimer?.cancel();
-    _childTimer = null;
-  }
-
   void _cancelFinalTimer() {
     _finalTimer?.cancel();
     _finalTimer = null;
@@ -166,7 +130,6 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
 
   void _cancelTimers() {
     _cancelIdleTimer();
-    _cancelChildTimer();
     _cancelFinalTimer();
   }
 
@@ -202,7 +165,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   }
 
   DateTime _resolveIdleEndTimestamp(DateTime? requestedEndTimestamp) =>
-      (requestedEndTimestamp ?? endTimestamp ?? _clock()).toUtc();
+      (requestedEndTimestamp ?? _clock()).toUtc();
 
   void _finishActiveDescendants(DateTime idleEndTimestamp) {
     for (final child in _activeDescendants.values.toList()) {

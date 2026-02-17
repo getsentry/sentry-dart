@@ -247,7 +247,6 @@ class HubAdapter implements Hub {
   SentrySpanV2 startIdleSpan(
     String name, {
     Duration idleTimeout = const Duration(seconds: 5),
-    Duration childSpanTimeout = const Duration(seconds: 15),
     Duration finalTimeout = const Duration(seconds: 30),
     bool trimIdleSpanEndTimestamp = true,
     Map<String, SentryAttribute>? attributes,
@@ -255,7 +254,6 @@ class HubAdapter implements Hub {
       Sentry.currentHub.startIdleSpan(
         name,
         idleTimeout: idleTimeout,
-        childSpanTimeout: childSpanTimeout,
         finalTimeout: finalTimeout,
         trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
         attributes: attributes,
