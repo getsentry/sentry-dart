@@ -42,7 +42,8 @@ class Hub {
   late final _WeakMap _throwableToSpan;
 
   @internal
-  IdleRecordingSentrySpanV2? get idleSpan => _idleSpan;
+  IdleRecordingSentrySpanV2? get idleSpan =>
+      _idleSpan?.isEnded == false ? _idleSpan : null;
 
   IdleRecordingSentrySpanV2? _idleSpan;
 
@@ -636,7 +637,7 @@ class Hub {
   /// [startSpan] callback always returns `null`.
   @internal
   RecordingSentrySpanV2? getActiveSpan() =>
-      _zoneScope?.getActiveSpan() ?? _idleSpan;
+      _zoneScope?.getActiveSpan() ?? idleSpan;
 
   FutureOr<T> startSpan<T>(
     String name,
@@ -836,10 +837,9 @@ class Hub {
     bool trimIdleSpanEndTimestamp = true,
     Map<String, SentryAttribute>? attributes,
   }) {
-    if (_idleSpan != null) {
+    if (_idleSpan case final current? when !current.isEnded) {
       internalLogger.warning(
         () => 'Hub(internal): an idle span is already running. '
-            'An idle span is already running. '
             'End the current idle span before starting a new one.',
       );
       return NoOpSentrySpanV2.instance;
@@ -853,10 +853,7 @@ class Hub {
     final span = IdleRecordingSentrySpanV2(
       traceId: scope.propagationContext.traceId,
       name: name,
-      onSpanEnd: (span) async {
-        await captureSpan(span);
-        _idleSpan = null;
-      },
+      onSpanEnd: captureSpan,
       clock: options.clock,
       dscCreator: _dscCreator,
       samplingDecision: samplingDecision,
