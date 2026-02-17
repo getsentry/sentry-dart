@@ -1208,7 +1208,6 @@ class _MockHub extends MockHub {
   @override
   SentrySpanV2 startIdleSpan(
     String? name, {
-    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     Duration? idleTimeout = const Duration(seconds: 5),
     Duration? childSpanTimeout = const Duration(seconds: 15),
     Duration? finalTimeout = const Duration(seconds: 30),

@@ -425,22 +425,22 @@ class _SentryUserInteractionWidgetState
         return;
       }
 
-      final idleController = _hub.idleSpanController;
+      final idleSpan = _hub.idleSpan;
       final lastElement = _lastTappedWidget?.element;
       final isSameWidget = _isElementMounted(lastElement) &&
           _isElementMounted(info.element) &&
           lastElement?.widget == info.element.widget;
 
-      if (isSameWidget && idleController != null) {
+      if (isSameWidget && idleSpan != null) {
         // Same widget tapped again — reset the idle timer to keep the span
         // alive instead of starting a new one.
-        idleController.resetIdleTimer();
+        idleSpan.resetIdleTimer();
         return;
       }
 
       // If the active idle span had no descendant activity, skip — the
       // previous tap produced no meaningful work.
-      if (idleController != null && !idleController.hadActivity) {
+      if (idleSpan != null && !idleSpan.hadActivity) {
         return;
       }
 

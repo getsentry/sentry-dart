@@ -4047,15 +4047,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.Scope);
 
   @override
-  set fallbackRootSpan(_i2.RecordingSentrySpanV2? value) => super.noSuchMethod(
-        Invocation.setter(
-          #fallbackRootSpan,
-          value,
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
   set profilerFactory(_i16.SentryProfilerFactory? value) => super.noSuchMethod(
         Invocation.setter(
           #profilerFactory,
@@ -4468,7 +4459,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i2.SentrySpanV2 startIdleSpan(
     String? name, {
-    _i2.SentrySpanV2? parentSpan = const _i2.UnsetSentrySpanV2(),
     Duration? idleTimeout = const Duration(seconds: 5),
     Duration? childSpanTimeout = const Duration(seconds: 15),
     Duration? finalTimeout = const Duration(seconds: 30),
@@ -4480,7 +4470,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           #startIdleSpan,
           [name],
           {
-            #parentSpan: parentSpan,
             #idleTimeout: idleTimeout,
             #childSpanTimeout: childSpanTimeout,
             #finalTimeout: finalTimeout,
@@ -4494,7 +4483,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #startIdleSpan,
             [name],
             {
-              #parentSpan: parentSpan,
               #idleTimeout: idleTimeout,
               #childSpanTimeout: childSpanTimeout,
               #finalTimeout: finalTimeout,

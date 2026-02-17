@@ -15,7 +15,7 @@ typedef OnSpanEndCallback = Future<void> Function(RecordingSentrySpanV2 span);
 /// Use [RecordingSentrySpanV2.root] to create a root span with a sampling
 /// decision, or [RecordingSentrySpanV2.child] to create a child span that
 /// inherits sampling from its parent.
-final class RecordingSentrySpanV2 implements SentrySpanV2 {
+base class RecordingSentrySpanV2 implements SentrySpanV2 {
   final SpanId _spanId = SpanId.newId();
   final RecordingSentrySpanV2? _parentSpan;
   final ClockProvider _clock;
@@ -157,7 +157,7 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
   /// All spans in the same segment share this DSC.
   SentryTraceContextHeader resolveDsc() => segmentSpan._getOrCreateDsc();
 
-  /// Overrides the end timestamp. Used internally by [IdleSpanController]
+  /// Overrides the end timestamp.
   /// to trim the end timestamp to the latest child end.
   @internal
   void overrideEndTimestamp(DateTime timestamp) {

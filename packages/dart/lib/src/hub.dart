@@ -9,9 +9,9 @@ import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
+import 'telemetry/span/sentry_span_v2.dart' show IdleRecordingSentrySpanV2;
 import 'telemetry/span/sentry_span_sampling_context.dart';
 import 'transport/data_category.dart';
-import 'telemetry/span/idle_span_controller.dart';
 import 'utils/internal_logger.dart';
 
 /// Configures the scope through the callback.
@@ -41,14 +41,10 @@ class Hub {
 
   late final _WeakMap _throwableToSpan;
 
-  /// Fallback root span used by [getActiveSpan] when no zone-scoped span
-  /// is active. Set to the current idle span while one is running.
   @internal
-  RecordingSentrySpanV2? fallbackRootSpan;
+  IdleRecordingSentrySpanV2? get idleSpan => _idleSpan;
 
-  @internal
-  IdleSpanController? get idleSpanController => _idleSpanController;
-  IdleSpanController? _idleSpanController;
+  IdleRecordingSentrySpanV2? _idleSpan;
 
   factory Hub(SentryOptions options) {
     _validateOptions(options);
@@ -640,7 +636,7 @@ class Hub {
   /// [startSpan] callback always returns `null`.
   @internal
   RecordingSentrySpanV2? getActiveSpan() =>
-      _zoneScope?.getActiveSpan() ?? fallbackRootSpan;
+      _zoneScope?.getActiveSpan() ?? _idleSpan;
 
   FutureOr<T> startSpan<T>(
     String name,
@@ -719,32 +715,66 @@ class Hub {
   }) =>
       _createSpan(name, parentSpan: parentSpan, attributes: attributes);
 
-  /// Core span creation logic shared by [startSpan] and [startInactiveSpan].
-  SentrySpanV2 _createSpan(
-    String name, {
-    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
-    Map<String, SentryAttribute>? attributes,
-    OnSpanEndCallback? onSpanEnd,
-  }) {
+  /// Returns `true` if the hub is able to create spans.
+  bool get _canCreateSpansV2 {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
         "Instance is disabled and this span creation call is a no-op.",
       );
-      return NoOpSentrySpanV2.instance;
+      return false;
     }
 
     if (!_options.isTracingEnabled()) {
-      return NoOpSentrySpanV2.instance;
+      return false;
     }
 
     if (_options.traceLifecycle == SentryTraceLifecycle.static) {
       internalLogger.warning(
-        'Hub: _createSpan is not supported when traceLifecycle is \'static\'. '
+        'Hub: span creation is not supported when traceLifecycle is \'static\'. '
         'Use Sentry.startTransaction instead.',
       );
-      return NoOpSentrySpanV2.instance;
+      return false;
     }
+
+    return true;
+  }
+
+  /// Evaluates sampling for a new root span.
+  ///
+  /// Returns the [SentryTracesSamplingDecision] if sampled, or `null` if
+  /// the span should not be sampled (caller should return a no-op span).
+  SentryTracesSamplingDecision? _sampleRootSpan(
+    String name,
+    Map<String, SentryAttribute>? attributes,
+  ) {
+    final propagationContext = scope.propagationContext;
+    final sampleRand = propagationContext.sampleRand ??= Random().nextDouble();
+
+    final samplingContext = SentrySamplingContext.forSpanV2(
+        SentrySpanSamplingContextV2(name, attributes ?? {}));
+    final samplingDecision = _tracesSampler.sample(samplingContext, sampleRand);
+    propagationContext.applySamplingDecision(samplingDecision.sampled);
+
+    if (!samplingDecision.sampled) {
+      internalLogger.info(
+          "Span '$name' was not sampled (sample rate: ${samplingDecision.sampleRate}).");
+      return null;
+    }
+
+    return samplingDecision;
+  }
+
+  DscCreatorCallback get _dscCreator => (span) =>
+      SentryTraceContextHeader.fromRecordingSpan(span, options, scope.replayId);
+
+  /// Core span creation logic shared by [startSpan] and [startInactiveSpan].
+  SentrySpanV2 _createSpan(
+    String name, {
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    Map<String, SentryAttribute>? attributes,
+  }) {
+    if (!_canCreateSpansV2) return NoOpSentrySpanV2.instance;
 
     // Determine the parent span based on the parentSpan parameter:
     // - If parentSpan is UnsetSpan (default), use the currently active span
@@ -763,50 +793,26 @@ class Hub {
         return NoOpSentrySpanV2.instance;
     }
 
-    // Sampling is evaluated once at the root span level.
-    // All child spans automatically inherit the root span's sampling decision.
-    //
-    // Note: Incoming distributed traces (continuing a trace from a remote
-    // parent via `sentry-trace` header) are not yet supported. This would
-    // require honoring the incoming `sampled` flag from PropagationContext
-    // instead of evaluating sampling fresh. This is primarily a backend/server
-    // use case which the Dart SDK does not currently target.
     final RecordingSentrySpanV2 span;
-    bool isRootSpan = resolvedParentSpan == null;
-    if (isRootSpan) {
-      final propagationContext = scope.propagationContext;
-      final sampleRand =
-          propagationContext.sampleRand ??= Random().nextDouble();
-
-      final samplingContext = SentrySamplingContext.forSpanV2(
-          SentrySpanSamplingContextV2(name, attributes ?? {}));
-      final samplingDecision =
-          _tracesSampler.sample(samplingContext, sampleRand);
-      propagationContext.applySamplingDecision(samplingDecision.sampled);
-
-      if (!samplingDecision.sampled) {
-        internalLogger.info(
-            "Span '$name' was not sampled (sample rate: ${samplingDecision.sampleRate}).");
-        return NoOpSentrySpanV2.instance;
-      }
+    if (resolvedParentSpan == null) {
+      final samplingDecision = _sampleRootSpan(name, attributes);
+      if (samplingDecision == null) return NoOpSentrySpanV2.instance;
 
       span = RecordingSentrySpanV2.root(
         traceId: scope.propagationContext.traceId,
         name: name,
+        onSpanEnd: captureSpan,
         clock: options.clock,
-        dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(
-            span, options, scope.replayId),
-        onSpanEnd: onSpanEnd ?? captureSpan,
+        dscCreator: _dscCreator,
         samplingDecision: samplingDecision,
       );
     } else {
       span = RecordingSentrySpanV2.child(
         parent: resolvedParentSpan,
         name: name,
+        onSpanEnd: captureSpan,
         clock: options.clock,
-        dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(
-            span, options, scope.replayId),
-        onSpanEnd: onSpanEnd ?? captureSpan,
+        dscCreator: _dscCreator,
       );
     }
 
@@ -821,23 +827,26 @@ class Hub {
 
   @internal
   void endIdleSpan({SentrySpanStatusV2? status}) {
+    final idleSpan = _idleSpan;
+    if (idleSpan == null) return;
     if (status != null) {
-      _idleSpanController?.span.status = status;
+      idleSpan.status = status;
     }
-    _idleSpanController?.endFromSpan();
+    idleSpan.end();
   }
 
+  /// Starts an idle root span. Idle spans are always root spans and are never
+  /// children of another span.
   @internal
   SentrySpanV2 startIdleSpan(
     String name, {
-    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     Duration idleTimeout = const Duration(seconds: 5),
     Duration childSpanTimeout = const Duration(seconds: 15),
     Duration finalTimeout = const Duration(seconds: 30),
     bool trimIdleSpanEndTimestamp = true,
     Map<String, SentryAttribute>? attributes,
   }) {
-    if (_idleSpanController != null) {
+    if (_idleSpan != null) {
       internalLogger.warning(
         () => 'Hub(internal): an idle span is already running. '
             'endIdleSpan() should be called before starting a new one.',
@@ -845,33 +854,34 @@ class Hub {
       return NoOpSentrySpanV2.instance;
     }
 
-    final span = _createSpan(
-      name,
-      parentSpan: parentSpan,
-      attributes: attributes,
-      onSpanEnd: (span) {
-        _idleSpanController?.endFromSpan();
-        return captureSpan(span);
+    if (!_canCreateSpansV2) return NoOpSentrySpanV2.instance;
+
+    final samplingDecision = _sampleRootSpan(name, attributes);
+    if (samplingDecision == null) return NoOpSentrySpanV2.instance;
+
+    final span = IdleRecordingSentrySpanV2(
+      traceId: scope.propagationContext.traceId,
+      name: name,
+      onSpanEnd: (span) async {
+        await captureSpan(span);
+        _idleSpan = null;
       },
+      clock: options.clock,
+      dscCreator: _dscCreator,
+      samplingDecision: samplingDecision,
+      idleTimeout: idleTimeout,
+      finalTimeout: finalTimeout,
+      childSpanTimeout: childSpanTimeout,
+      trimEndTimestamp: trimIdleSpanEndTimestamp,
+      lifecycleRegistry: _options.lifecycleRegistry,
     );
 
-    if (span is RecordingSentrySpanV2) {
-      final previous = fallbackRootSpan;
-      fallbackRootSpan = span;
-
-      _idleSpanController = IdleSpanController(
-          span: span,
-          idleTimeout: idleTimeout,
-          finalTimeout: finalTimeout,
-          childSpanTimeout: childSpanTimeout,
-          trimEndTimestamp: trimIdleSpanEndTimestamp,
-          lifecycleRegistry: _options.lifecycleRegistry,
-          previousActiveSpan: previous,
-          onFinish: (controller) {
-            fallbackRootSpan = controller.previousActiveSpan;
-            _idleSpanController = null;
-          });
+    if (attributes != null) {
+      span.setAttributes(attributes);
     }
+
+    _options.lifecycleRegistry.dispatchCallback(OnSpanStartV2(span));
+    _idleSpan = span;
 
     return span;
   }
