@@ -11,7 +11,6 @@ import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'telemetry/metric/metric.dart';
-import 'telemetry/span/sentry_span_status_v2.dart';
 import 'telemetry/span/sentry_span_v2.dart';
 import 'tracing.dart';
 
@@ -185,14 +184,11 @@ class NoOpHub implements Hub {
   }
 
   @override
-  void endIdleSpan({SentrySpanStatusV2? status}) {}
-
-  @override
   SentrySpanV2 startIdleSpan(
     String name, {
-    Duration idleTimeout = const Duration(milliseconds: 1000),
-    Duration childSpanTimeout = const Duration(milliseconds: 15000),
-    Duration finalTimeout = const Duration(milliseconds: 30000),
+    Duration idleTimeout = const Duration(seconds: 5),
+    Duration childSpanTimeout = const Duration(seconds: 15),
+    Duration finalTimeout = const Duration(seconds: 30),
     bool trimIdleSpanEndTimestamp = true,
     Map<String, SentryAttribute>? attributes,
   }) =>

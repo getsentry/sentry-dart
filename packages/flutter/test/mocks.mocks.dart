@@ -4447,16 +4447,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.SentrySpanV2);
 
   @override
-  void endIdleSpan({_i2.SentrySpanStatusV2? status}) => super.noSuchMethod(
-        Invocation.method(
-          #endIdleSpan,
-          [],
-          {#status: status},
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
   _i2.SentrySpanV2 startIdleSpan(
     String? name, {
     Duration? idleTimeout = const Duration(seconds: 5),

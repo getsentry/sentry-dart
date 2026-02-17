@@ -825,16 +825,6 @@ class Hub {
     return span;
   }
 
-  @internal
-  void endIdleSpan({SentrySpanStatusV2? status}) {
-    final idleSpan = _idleSpan;
-    if (idleSpan == null) return;
-    if (status != null) {
-      idleSpan.status = status;
-    }
-    idleSpan.end();
-  }
-
   /// Starts an idle root span. Idle spans are always root spans and are never
   /// children of another span.
   @internal
@@ -849,7 +839,8 @@ class Hub {
     if (_idleSpan != null) {
       internalLogger.warning(
         () => 'Hub(internal): an idle span is already running. '
-            'endIdleSpan() should be called before starting a new one.',
+            'An idle span is already running. '
+            'End the current idle span before starting a new one.',
       );
       return NoOpSentrySpanV2.instance;
     }

@@ -161,21 +161,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _addWebSessions(from: previousRoute, to: route);
 
     final routeName = _getRouteName(route) ?? _currentRouteName;
-    _hub.endIdleSpan();
-    _hub.startIdleSpan(routeName!, attributes: {
-      'sentry.op': SentryAttribute.string(SentrySpanOperations.uiLoad),
-    });
-
-    final ttidSpan =
-        _hub.startInactiveSpan('$routeName initial display', attributes: {
-      'sentry.op':
-          SentryAttribute.string(SentrySpanOperations.uiTimeToInitialDisplay),
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ttidSpan.end();
-    });
-
     if (routeName != null && routeName != '/') {
       // Don't generate a new trace on initial app start / root
       // During SentryFlutter.init a traceId is already created

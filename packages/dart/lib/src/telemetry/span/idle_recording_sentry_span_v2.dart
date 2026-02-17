@@ -1,12 +1,8 @@
 part of 'sentry_span_v2.dart';
 
-enum _IdleSpanState {
-  running,
-  finishing,
-  finished,
-}
-
 /// Reason why an idle span was finished.
+///
+/// Used to log the reason why an idle span was finished.
 enum _IdleSpanFinishReason {
   /// The idle timer expired (no child activity for [IdleRecordingSentrySpanV2.idleTimeout]).
   idleTimeout,
@@ -17,7 +13,7 @@ enum _IdleSpanFinishReason {
   /// The absolute [IdleRecordingSentrySpanV2.finalTimeout] was reached.
   finalTimeout,
 
-  /// The span was ended externally (e.g. via [Hub.endIdleSpan] or [end]).
+  /// The span was ended externally (e.g. via [end]).
   externalFinish,
 }
 
@@ -31,7 +27,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   final SdkLifecycleRegistry _lifecycleRegistry;
 
   final Map<SpanId, RecordingSentrySpanV2> _activeDescendants = {};
-  _IdleSpanState _state = _IdleSpanState.running;
+  bool _isEnded = false;
   bool _hadActivity = false;
   Timer? _idleTimer;
   Timer? _childTimer;
@@ -61,21 +57,21 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   bool get hadActivity => _hadActivity;
 
   void resetIdleTimer() {
-    if (!_isRunning) return;
+    if (_isEnded) return;
     if (_activeDescendants.isNotEmpty) return;
     _startIdleTimer();
   }
 
   @override
   void end({DateTime? endTimestamp}) {
-    _finish(
+    _end(
       _IdleSpanFinishReason.externalFinish,
       requestedEndTimestamp: endTimestamp,
     );
   }
 
   void _onSpanStartEvent(OnSpanStartV2 event) {
-    if (!_isRunning) return;
+    if (_isEnded) return;
 
     if (event.span case final RecordingSentrySpanV2 child
         when _shouldTrackDescendant(child)) {
@@ -88,7 +84,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   }
 
   void _onSpanEndEvent(OnSpanEndV2 event) {
-    if (!_isRunning) return;
+    if (_isEnded) return;
 
     if (event.span case final RecordingSentrySpanV2 child) {
       final trackedChild = _activeDescendants.remove(child.spanId);
@@ -108,8 +104,6 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     }
   }
 
-  bool get _isRunning => _state == _IdleSpanState.running;
-
   bool _shouldTrackDescendant(RecordingSentrySpanV2 candidate) =>
       candidate != this && !candidate.isEnded && _isDescendant(candidate);
 
@@ -126,7 +120,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     _cancelIdleTimer();
     _cancelChildTimer();
     _idleTimer = Timer(idleTimeout, () {
-      _finish(_IdleSpanFinishReason.idleTimeout);
+      _end(_IdleSpanFinishReason.idleTimeout);
     });
   }
 
@@ -140,19 +134,19 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     final timeoutAt = oldestStartTimestamp.add(childSpanTimeout);
     final delay = timeoutAt.difference(_clock().toUtc());
     if (delay <= Duration.zero) {
-      _finish(_IdleSpanFinishReason.childSpanTimeout);
+      _end(_IdleSpanFinishReason.childSpanTimeout);
       return;
     }
 
     _childTimer = Timer(delay, () {
-      _finish(_IdleSpanFinishReason.childSpanTimeout);
+      _end(_IdleSpanFinishReason.childSpanTimeout);
     });
   }
 
   void _startFinalTimer() {
     _cancelFinalTimer();
     _finalTimer = Timer(finalTimeout, () {
-      _finish(_IdleSpanFinishReason.finalTimeout);
+      _end(_IdleSpanFinishReason.finalTimeout);
     });
   }
 
@@ -177,12 +171,13 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     _cancelFinalTimer();
   }
 
-  void _finish(
+  void _end(
     _IdleSpanFinishReason reason, {
     DateTime? requestedEndTimestamp,
   }) {
-    if (!_isRunning) return;
-    _state = _IdleSpanState.finishing;
+    if (_isEnded) return;
+
+    _isEnded = true;
 
     _cancelTimers();
     _lifecycleRegistry.removeCallback<OnSpanStartV2>(_onSpanStartEvent);
@@ -195,20 +190,16 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     }
 
     _finishActiveDescendants(idleEndTimestamp);
+    _activeDescendants.clear();
 
     final finalEndTimestamp = _computeFinalEndTimestamp(idleEndTimestamp);
 
-    _activeDescendants.clear();
-    _state = _IdleSpanState.finished;
+    super.end(endTimestamp: finalEndTimestamp);
 
     internalLogger.debug(
       () => 'IdleRecordingSentrySpanV2: finished idle span "$name" '
           'with reason: ${reason.name}',
     );
-
-    if (!isEnded) {
-      super.end(endTimestamp: finalEndTimestamp);
-    }
   }
 
   DateTime _resolveIdleEndTimestamp(DateTime? requestedEndTimestamp) =>
@@ -221,6 +212,8 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
 
       child.status = SentrySpanStatusV2.cancelled;
       child.end(endTimestamp: idleEndTimestamp);
+      // Track explicitly because lifecycle callbacks are already unregistered
+      // at this point, so _onSpanEndEvent won't fire for these force-ended children.
       _trackLatestChildEnd(idleEndTimestamp);
 
       internalLogger.debug(
@@ -241,33 +234,19 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     if (!trimEndTimestamp || _latestChildEndTimestamp == null) {
       return idleEndTimestamp;
     }
-    return _computeTrimmedEndTimestamp(
-      spanStartTimestamp: startTimestamp,
-      spanEndTimestamp: idleEndTimestamp,
-      latestChildEndTimestamp: _latestChildEndTimestamp!,
-      finalTimeout: finalTimeout,
-    );
-  }
-}
+    final maxEndTimestamp = startTimestamp.add(finalTimeout);
+    final upperBound = idleEndTimestamp.isBefore(maxEndTimestamp)
+        ? idleEndTimestamp
+        : maxEndTimestamp;
 
-DateTime _computeTrimmedEndTimestamp({
-  required DateTime spanStartTimestamp,
-  required DateTime spanEndTimestamp,
-  required DateTime latestChildEndTimestamp,
-  required Duration finalTimeout,
-}) {
-  final maxEndTimestamp = spanStartTimestamp.add(finalTimeout);
-  final upperBound = spanEndTimestamp.isBefore(maxEndTimestamp)
-      ? spanEndTimestamp
-      : maxEndTimestamp;
+    var trimmedEndTimestamp = _latestChildEndTimestamp!;
+    if (trimmedEndTimestamp.isBefore(startTimestamp)) {
+      trimmedEndTimestamp = startTimestamp;
+    }
+    if (trimmedEndTimestamp.isAfter(upperBound)) {
+      trimmedEndTimestamp = upperBound;
+    }
 
-  var trimmedEndTimestamp = latestChildEndTimestamp;
-  if (trimmedEndTimestamp.isBefore(spanStartTimestamp)) {
-    trimmedEndTimestamp = spanStartTimestamp;
+    return trimmedEndTimestamp;
   }
-  if (trimmedEndTimestamp.isAfter(upperBound)) {
-    trimmedEndTimestamp = upperBound;
-  }
-
-  return trimmedEndTimestamp;
 }

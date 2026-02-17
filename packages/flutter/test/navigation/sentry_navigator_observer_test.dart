@@ -1195,9 +1195,6 @@ class _MockHub extends MockHub {
   }
 
   @override
-  void endIdleSpan({SentrySpanStatusV2? status}) {}
-
-  @override
   SentrySpanV2 startInactiveSpan(
     String? name, {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),

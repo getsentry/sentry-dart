@@ -445,7 +445,9 @@ class _SentryUserInteractionWidgetState
       }
 
       // Different widget tapped — cancel the previous idle span.
-      _hub.endIdleSpan(status: SentrySpanStatusV2.cancelled);
+      _hub.idleSpan
+        ?..status = SentrySpanStatusV2.cancelled
+        ..end();
     }
 
     _lastTappedWidget = info;
