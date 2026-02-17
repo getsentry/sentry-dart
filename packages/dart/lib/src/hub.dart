@@ -840,7 +840,7 @@ class Hub {
     if (_idleSpan case final current? when !current.isEnded) {
       internalLogger.warning(
         () => 'Hub(internal): an idle span is already running. '
-            'End the current idle span before starting a new one.',
+            'The current idle span should be ended before starting a new one.',
       );
       return NoOpSentrySpanV2.instance;
     }
