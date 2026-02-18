@@ -215,6 +215,7 @@ void configureAndroidOptions({
     androidOptions
         .setAnrTimeoutIntervalMillis(options.anrTimeoutInterval.inMilliseconds);
     androidOptions.setAnrEnabled(options.anrEnabled);
+    androidOptions.setTombstoneEnabled(options.enableTombstone);
     androidOptions.setAttachThreads(options.attachThreads);
     androidOptions.setAttachStacktrace(options.attachStacktrace);
 
