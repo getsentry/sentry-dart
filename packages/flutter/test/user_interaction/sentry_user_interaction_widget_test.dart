@@ -610,33 +610,6 @@ void main() {
     });
 
     testWidgets(
-        'discards previous idle span and starts new one when tapping different widget with no activity',
-        (tester) async {
-      await tester.runAsync(() async {
-        final sut = fixture.getSut(
-          enableUserInteractionTracing: true,
-          enableUserInteractionBreadcrumbs: false,
-          traceLifecycle: SentryTraceLifecycle.streaming,
-        );
-
-        await tapMe(tester, sut, 'btn_1');
-        final firstSpan = fixture.hub.getActiveSpan();
-        expect(firstSpan, isA<IdleRecordingSentrySpanV2>());
-
-        // Tap a different widget — first span had no activity, gets discarded
-        await tapMe(tester, sut, 'btn_2', pumpWidget: false);
-
-        // First span is ended but not captured (dropped by hub)
-        expect(firstSpan!.isEnded, isTrue);
-
-        // New idle span should be started for btn_2
-        final newSpan = fixture.hub.getActiveSpan();
-        expect(newSpan, isA<IdleRecordingSentrySpanV2>());
-        expect(newSpan?.name, 'btn_2');
-      });
-    });
-
-    testWidgets(
         'cancels previous idle span when tapping different widget after activity',
         (tester) async {
       await tester.runAsync(() async {

@@ -744,44 +744,6 @@ void main() {
         expect(fixture.client.captureSpanCalls, isEmpty);
       });
 
-      test('drops idle span with no activity', () async {
-        final hub = fixture.getSut();
-        final idleSpan = hub.startIdleSpan(
-          'idle-no-activity',
-          idleTimeout: Duration(seconds: 1),
-          finalTimeout: Duration(seconds: 2),
-        );
-
-        // End immediately without any child spans
-        idleSpan.end();
-        await Future<void>.delayed(Duration.zero);
-
-        expect(idleSpan.isEnded, isTrue);
-        expect(fixture.client.captureSpanCalls, isEmpty);
-      });
-
-      test('captures idle span with activity', () async {
-        final hub = fixture.getSut();
-        hub.startIdleSpan(
-          'idle-with-activity',
-          idleTimeout: Duration(milliseconds: 100),
-          finalTimeout: Duration(seconds: 2),
-        );
-
-        // Start and end a child span to create activity
-        final child = hub.startInactiveSpan('child-work');
-        child.end();
-
-        // Wait for idle timeout to fire
-        await Future<void>.delayed(Duration(milliseconds: 150));
-
-        // Idle span should have been captured (child span + idle span)
-        expect(
-          fixture.client.captureSpanCalls
-              .where((c) => c.span.name == 'idle-with-activity'),
-          hasLength(1),
-        );
-      });
     });
   });
 }

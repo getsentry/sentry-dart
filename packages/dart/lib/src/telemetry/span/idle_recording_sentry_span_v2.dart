@@ -27,7 +27,6 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   /// This flag is set at the start of [_end] to guard against re-entrant calls
   /// while teardown (cancelling timers, finishing descendants) is still in progress.
   bool _isEnding = false;
-  bool _hadActivity = false;
   Timer? _idleTimer;
   Timer? _finalTimer;
   DateTime? _latestChildEndTimestamp;
@@ -51,8 +50,6 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     _startFinalTimer();
   }
 
-  bool get hadActivity => _hadActivity;
-
   void resetIdleTimer() {
     if (_isEnding) return;
     if (_activeDescendants.isNotEmpty) return;
@@ -73,8 +70,6 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     if (event.span case final RecordingSentrySpanV2 child
         when _shouldTrackDescendant(child)) {
       _activeDescendants[child.spanId] = child;
-      _hadActivity = true;
-
       _cancelIdleTimer();
     }
   }
@@ -150,13 +145,6 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     _lifecycleRegistry.removeCallback<OnSpanEndV2>(_onSpanEndEvent);
 
     final idleEndTimestamp = _resolveIdleEndTimestamp(requestedEndTimestamp);
-
-    if (!_hadActivity) {
-      // No children were ever started — end the span so isEnded is true,
-      // but the hub should drop it in captureSpan.
-      super.end(endTimestamp: idleEndTimestamp);
-      return;
-    }
 
     if (reason == _IdleSpanFinishReason.finalTimeout) {
       status = SentrySpanStatusV2.deadlineExceeded;
