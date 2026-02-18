@@ -23,7 +23,8 @@ Map<String, SentryAttribute> defaultAttributes(SentryOptions options,
         SentryAttribute.string(options.release!);
   }
 
-  // Users are manually set on the scope, therefore this is not gated by `sendDefaultPii`.
+  // Users are always manually set and never automatically inferred,
+  // therefore this is not gated by `sendDefaultPii`.
   final user = scope?.user;
   if (user != null) {
     if (user.id != null) {
