@@ -22,7 +22,11 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   final SdkLifecycleRegistry _lifecycleRegistry;
 
   final Map<SpanId, RecordingSentrySpanV2> _activeDescendants = {};
-  bool _isEnded = false;
+
+  /// Separate from [isEnded] which only becomes true after [super.end()].
+  /// This flag is set at the start of [_end] to guard against re-entrant calls
+  /// while teardown (cancelling timers, finishing descendants) is still in progress.
+  bool _isEnding = false;
   bool _hadActivity = false;
   Timer? _idleTimer;
   Timer? _finalTimer;
@@ -50,7 +54,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   bool get hadActivity => _hadActivity;
 
   void resetIdleTimer() {
-    if (_isEnded) return;
+    if (_isEnding) return;
     if (_activeDescendants.isNotEmpty) return;
     _startIdleTimer();
   }
@@ -64,7 +68,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   }
 
   void _onSpanStartEvent(OnSpanStartV2 event) {
-    if (_isEnded) return;
+    if (_isEnding) return;
 
     if (event.span case final RecordingSentrySpanV2 child
         when _shouldTrackDescendant(child)) {
@@ -76,7 +80,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   }
 
   void _onSpanEndEvent(OnSpanEndV2 event) {
-    if (_isEnded) return;
+    if (_isEnding) return;
 
     if (event.span case final RecordingSentrySpanV2 child) {
       if (_activeDescendants.remove(child.spanId) == null) return;
@@ -137,15 +141,22 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     _IdleSpanFinishReason reason, {
     DateTime? requestedEndTimestamp,
   }) {
-    if (_isEnded) return;
+    if (_isEnding) return;
 
-    _isEnded = true;
+    _isEnding = true;
 
     _cancelTimers();
     _lifecycleRegistry.removeCallback<OnSpanStartV2>(_onSpanStartEvent);
     _lifecycleRegistry.removeCallback<OnSpanEndV2>(_onSpanEndEvent);
 
     final idleEndTimestamp = _resolveIdleEndTimestamp(requestedEndTimestamp);
+
+    if (!_hadActivity) {
+      // No children were ever started — end the span so isEnded is true,
+      // but the hub should drop it in captureSpan.
+      super.end(endTimestamp: idleEndTimestamp);
+      return;
+    }
 
     if (reason == _IdleSpanFinishReason.finalTimeout) {
       status = SentrySpanStatusV2.deadlineExceeded;
@@ -196,19 +207,9 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     if (!trimEndTimestamp || _latestChildEndTimestamp == null) {
       return idleEndTimestamp;
     }
-    final maxEndTimestamp = startTimestamp.add(finalTimeout);
-    final upperBound = idleEndTimestamp.isBefore(maxEndTimestamp)
-        ? idleEndTimestamp
-        : maxEndTimestamp;
-
-    var trimmedEndTimestamp = _latestChildEndTimestamp!;
-    if (trimmedEndTimestamp.isBefore(startTimestamp)) {
-      trimmedEndTimestamp = startTimestamp;
-    }
-    if (trimmedEndTimestamp.isAfter(upperBound)) {
-      trimmedEndTimestamp = upperBound;
-    }
-
-    return trimmedEndTimestamp;
+    // Clamp: don't extend beyond when the idle span actually ended.
+    return _latestChildEndTimestamp!.isBefore(idleEndTimestamp)
+        ? _latestChildEndTimestamp!
+        : idleEndTimestamp;
   }
 }

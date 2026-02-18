@@ -610,7 +610,7 @@ void main() {
     });
 
     testWidgets(
-        'does not start new span when tapping different widget if previous had no activity',
+        'discards previous idle span and starts new one when tapping different widget with no activity',
         (tester) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(
@@ -622,13 +622,17 @@ void main() {
         await tapMe(tester, sut, 'btn_1');
         final firstSpan = fixture.hub.getActiveSpan();
         expect(firstSpan, isA<IdleRecordingSentrySpanV2>());
-        expect((firstSpan as IdleRecordingSentrySpanV2).hadActivity, isFalse);
 
-        // Tap a different widget — but first span had no activity
+        // Tap a different widget — first span had no activity, gets discarded
         await tapMe(tester, sut, 'btn_2', pumpWidget: false);
 
-        // First span should still be alive (not cancelled)
-        expect(firstSpan.isEnded, isFalse);
+        // First span is ended but not captured (dropped by hub)
+        expect(firstSpan!.isEnded, isTrue);
+
+        // New idle span should be started for btn_2
+        final newSpan = fixture.hub.getActiveSpan();
+        expect(newSpan, isA<IdleRecordingSentrySpanV2>());
+        expect(newSpan?.name, 'btn_2');
       });
     });
 
@@ -651,13 +655,11 @@ void main() {
           span.end();
         });
         await Future<void>.delayed(Duration.zero);
-        expect((firstSpan as IdleRecordingSentrySpanV2).hadActivity, isTrue);
-
         // Tap a different widget
         await tapMe(tester, sut, 'btn_2', pumpWidget: false);
 
         // First span should be cancelled
-        expect(firstSpan.isEnded, isTrue);
+        expect(firstSpan!.isEnded, isTrue);
         expect(firstSpan.status, SentrySpanStatusV2.cancelled);
 
         // New idle span should be started for btn_2

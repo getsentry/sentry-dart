@@ -408,9 +408,11 @@ class _SentryUserInteractionWidgetState
   }
 
   void _startSpanOnTap(UserInteractionInfo info, String? widgetKey) {
-    if (widgetKey == null ||
-        !(_options?.isTracingEnabled() ?? false) ||
-        !(_options?.enableUserInteractionTracing ?? false)) {
+    final options = _options;
+    if (widgetKey == null || options == null) {
+      return;
+    }
+    if (!options.isTracingEnabled() || !options.enableUserInteractionTracing) {
       return;
     }
 
@@ -435,12 +437,6 @@ class _SentryUserInteractionWidgetState
           // Same widget tapped again — reset the idle timer to keep the span
           // alive instead of starting a new one.
           activeSpan.resetIdleTimer();
-          return;
-        }
-
-        // If the active idle span had no descendant activity, skip — the
-        // previous tap produced no meaningful work.
-        if (!activeSpan.hadActivity) {
           return;
         }
 

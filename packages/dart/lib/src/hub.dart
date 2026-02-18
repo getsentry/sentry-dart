@@ -885,6 +885,17 @@ class Hub {
 
     _options.lifecycleRegistry.dispatchCallback(OnSpanEndV2(span));
 
+    // Drop idle spans that had no descendant activity — they represent
+    // user interactions that produced no meaningful work.
+    if (span case IdleRecordingSentrySpanV2(:final hadActivity)
+        when !hadActivity) {
+      internalLogger.info(
+        () => 'IdleRecordingSentrySpanV2: dropping idle span "${span.name}" '
+            'with no activity',
+      );
+      return;
+    }
+
     switch (span) {
       case UnsetSentrySpanV2():
         _options.log(
