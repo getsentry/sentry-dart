@@ -450,6 +450,7 @@ class _SentryUserInteractionWidgetState
     _lastTappedWidget = info;
 
     _hub.startIdleSpan(
+      idleTimeout: const Duration(seconds: 1),
       widgetKey,
       attributes: {
         SemanticAttributesConstants.sentryOp:
