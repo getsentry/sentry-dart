@@ -82,7 +82,9 @@ class WebSentryJsBinding implements SentryJsBinding {
 
   @override
   void captureEnvelope(List<Object> envelope) {
-    throwExceptionInJsRuntime();
+    if (_client != null) {
+      _client?.sendEnvelope(envelope.jsify());
+    }
   }
 
   @visibleForTesting
@@ -99,18 +101,6 @@ class WebSentryJsBinding implements SentryJsBinding {
   @override
   void captureSession() {
     _captureSession();
-  }
-
-  void throwExceptionInJsRuntime({
-    String message = 'Sentry JS runtime exception',
-    int delayMs = 0,
-  }) {
-    final escapedMessage = message
-        .replaceAll(r'\', r'\\')
-        .replaceAll("'", r"\'")
-        .replaceAll('\n', r'\n')
-        .replaceAll('\r', r'\r');
-    _setTimeout("throw new Error('$escapedMessage');".toJS, delayMs.toJS);
   }
 
   @override
@@ -225,9 +215,6 @@ external void _startSession(JSAny? context);
 
 @JS('Sentry.captureSession')
 external void _captureSession();
-
-@JS('setTimeout')
-external JSAny? _setTimeout(JSAny? handler, JSNumber timeout);
 
 @JS('Sentry.globalHandlersIntegration')
 external JSObject _globalHandlersIntegration();
