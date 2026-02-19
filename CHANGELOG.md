@@ -8,11 +8,15 @@
   - When enabled, uses Android's `ApplicationExitInfo.REASON_CRASH_NATIVE` to capture native crashes with more detailed thread information
   - Disabled by default
 
+### Fixes
+
+- Dont guard user attributes behind `sendDefaultPii` for logs and metrics ([#3524](https://github.com/getsentry/sentry-dart/pull/3524))
+
 ### Dependencies
 
-- Bump Native SDK from v0.12.6 to v0.12.7 ([#3514](https://github.com/getsentry/sentry-dart/pull/3514))
-  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0127)
-  - [diff](https://github.com/getsentry/sentry-native/compare/0.12.6...0.12.7)
+- Bump Native SDK from v0.12.6 to v0.12.8 ([#3514](https://github.com/getsentry/sentry-dart/pull/3514), [#3520](https://github.com/getsentry/sentry-dart/pull/3520))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0128)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.12.6...0.12.8)
 
 ## 9.13.0
 
