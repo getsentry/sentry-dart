@@ -7,6 +7,7 @@ import '../../utils/internal_logger.dart';
 
 part 'unset_sentry_span_v2.dart';
 part 'recording_sentry_span_v2.dart';
+part 'idle_recording_sentry_span_v2.dart';
 part 'noop_sentry_span_v2.dart';
 
 /// Represents a basic telemetry span.

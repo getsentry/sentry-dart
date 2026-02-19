@@ -195,12 +195,22 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
         return SpanStatus.ok();
       case SentrySpanStatusV2.error:
         return SpanStatus.unknownError();
+      case SentrySpanStatusV2.cancelled:
+        return SpanStatus.cancelled();
+      case SentrySpanStatusV2.deadlineExceeded:
+        return SpanStatus.deadlineExceeded();
     }
   }
 
   SentrySpanStatusV2 _convertToV2Status(SpanStatus status) {
     if (status == SpanStatus.ok()) {
       return SentrySpanStatusV2.ok;
+    }
+    if (status == SpanStatus.cancelled()) {
+      return SentrySpanStatusV2.cancelled;
+    }
+    if (status == SpanStatus.deadlineExceeded()) {
+      return SentrySpanStatusV2.deadlineExceeded;
     }
     return SentrySpanStatusV2.error;
   }

@@ -10,6 +10,7 @@ class SentrySpanOperations {
   static const String dbSqlBatch = 'db.sql.batch';
   static const String dbOpen = 'db.open';
   static const String dbClose = 'db.close';
+  static const String uiActionClick = 'ui.action.click';
 }
 
 @internal

@@ -242,4 +242,20 @@ class HubAdapter implements Hub {
     return Sentry.currentHub.startSpan(name, callback,
         attributes: attributes, parentSpan: parentSpan);
   }
+
+  @override
+  SentrySpanV2 startIdleSpan(
+    String name, {
+    Duration idleTimeout = const Duration(seconds: 5),
+    Duration finalTimeout = const Duration(seconds: 30),
+    bool trimIdleSpanEndTimestamp = true,
+    Map<String, SentryAttribute>? attributes,
+  }) =>
+      Sentry.currentHub.startIdleSpan(
+        name,
+        idleTimeout: idleTimeout,
+        finalTimeout: finalTimeout,
+        trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
+        attributes: attributes,
+      );
 }

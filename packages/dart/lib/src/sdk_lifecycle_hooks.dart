@@ -105,6 +105,14 @@ class OnSpanStartV2 extends SdkLifecycleEvent {
   final SentrySpanV2 span;
 }
 
+/// Dispatched when a sampled span is ended.
+@internal
+class OnSpanEndV2 extends SdkLifecycleEvent {
+  OnSpanEndV2(this.span);
+
+  final SentrySpanV2 span;
+}
+
 /// Dispatched when a span has been captured and is ready for processing (before default enrichment)
 /// and before it's being added to the telemetry processor.
 ///

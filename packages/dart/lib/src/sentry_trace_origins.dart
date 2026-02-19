@@ -29,4 +29,5 @@ class SentryTraceOrigins {
   static const autoUiTimeToDisplay = 'auto.ui.time_to_display';
   static const manualUiTimeToDisplay = 'manual.ui.time_to_display';
   static const autoDbSupabase = 'auto.db.supabase';
+  static const autoUiInteraction = 'auto.ui.interaction';
 }
