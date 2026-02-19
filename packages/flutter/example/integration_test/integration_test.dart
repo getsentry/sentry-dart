@@ -217,7 +217,7 @@ void main() {
         options.anrTimeoutInterval = const Duration(seconds: 2);
         options.connectionTimeout = const Duration(milliseconds: 1234);
         options.readTimeout = const Duration(milliseconds: 2345);
-        options.enableTombstone = false;
+        options.enableTombstone = true;
       });
     });
 
@@ -281,7 +281,7 @@ void main() {
       expect(findMatchingPackage, isNotNull);
     }
     expect(androidOptions.isEnableAutoTraceIdGeneration(), isFalse);
-    expect(androidOptions.isTombstoneEnabled(), isFalse);
+    expect(androidOptions.isTombstoneEnabled(), isTrue);
 
     final androidProxy = androidOptions.getProxy();
     expect(androidProxy, isNotNull);
