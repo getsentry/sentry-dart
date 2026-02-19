@@ -24,20 +24,24 @@ class SentryDisplay {
     if (options is! SentryFlutterOptions) {
       return;
     }
-    try {
-      return options.timeToDisplayTracker.reportFullyDisplayed(
-        spanId: spanId,
-      );
-    } catch (exception, stackTrace) {
-      if (options.automatedTestMode) {
-        rethrow;
+    if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
+      return options.timeToDisplayTrackerV2?.reportFullyDisplayed(spanId);
+    } else {
+      try {
+        return options.timeToDisplayTracker.reportFullyDisplayed(
+          spanId: spanId,
+        );
+      } catch (exception, stackTrace) {
+        if (options.automatedTestMode) {
+          rethrow;
+        }
+        options.log(
+          SentryLevel.error,
+          'Error while reporting TTFD',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
       }
-      options.log(
-        SentryLevel.error,
-        'Error while reporting TTFD',
-        exception: exception,
-        stackTrace: stackTrace,
-      );
     }
   }
 }

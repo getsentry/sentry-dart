@@ -14,6 +14,7 @@ import '../event_processor/flutter_enricher_event_processor.dart';
 import '../integrations/web_session_integration.dart';
 import '../web/web_session_handler.dart';
 import 'time_to_display_tracker.dart';
+import 'time_to_display_tracker_v2.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -96,6 +97,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
     _timeToDisplayTracker = _initializeTimeToDisplayTracker();
+    _timeToDisplayTrackerV2 = _initializeTimeToDisplayTrackerV2();
     final webSessionIntegration = _hub.options.integrations
         .whereType<WebSessionIntegration>()
         .firstOrNull;
@@ -113,6 +115,18 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
+  /// Initializes the V2 tracker for streaming trace lifecycle and stores it on options.
+  TimeToDisplayTrackerV2? _initializeTimeToDisplayTrackerV2() {
+    final options = _hub.options;
+    if (options is SentryFlutterOptions) {
+      final tracker = TimeToDisplayTrackerV2(hub: _hub);
+      options.timeToDisplayTrackerV2 = tracker;
+      return tracker;
+    } else {
+      return null;
+    }
+  }
+
   final Hub _hub;
   final bool _enableAutoTransactions;
   final bool _enableNewTraceOnNavigation;
@@ -122,6 +136,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final AdditionalInfoExtractor? _additionalInfoProvider;
   final List<String> _ignoreRoutes;
   TimeToDisplayTracker? _timeToDisplayTracker;
+  TimeToDisplayTrackerV2? _timeToDisplayTrackerV2;
 
   WebSessionHandler? _webSessionHandler;
 
@@ -167,7 +182,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _startNewTraceIfEnabled();
 
       // App start TTID/TTFD is taken care of by app start integrations
-      _instrumentTimeToDisplayOnPush(routeName, route.settings.arguments);
+      if (_hub.options.traceLifecycle == SentryTraceLifecycle.streaming) {
+        _timeToDisplayTrackerV2?.trackRoute(routeName);
+      } else {
+        _instrumentTimeToDisplayOnPush(routeName, route.settings.arguments);
+      }
     }
   }
 
