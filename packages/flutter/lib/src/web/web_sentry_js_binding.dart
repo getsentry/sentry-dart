@@ -5,7 +5,8 @@ import 'package:meta/meta.dart';
 
 import 'sentry_js_binding.dart';
 
-const String _jsSdkName = 'sentry.javascript.browser.flutter';
+@visibleForTesting
+const String jsSdkName = 'sentry.javascript.browser.flutter';
 
 SentryJsBinding createJsBinding() {
   return WebSentryJsBinding();
@@ -35,8 +36,8 @@ class WebSentryJsBinding implements SentryJsBinding {
     _options = _client?.getOptions();
   }
 
-  static _JsErrorEvent? _beforeSend(_JsErrorEvent event, JSObject hint) {
-    (event.sdk ??= _createJsObject() as _JsSdkInfo).name = _jsSdkName.toJS;
+  static _JsErrorEvent? _beforeSend(_JsErrorEvent event, JSAny? _) {
+    (event.sdk ??= _createJsObject() as _JsSdkInfo).name = jsSdkName.toJS;
     return event;
   }
 
@@ -81,9 +82,7 @@ class WebSentryJsBinding implements SentryJsBinding {
 
   @override
   void captureEnvelope(List<Object> envelope) {
-    if (_client != null) {
-      _client?.sendEnvelope(envelope.jsify());
-    }
+    throwExceptionInJsRuntime();
   }
 
   @visibleForTesting
@@ -100,6 +99,18 @@ class WebSentryJsBinding implements SentryJsBinding {
   @override
   void captureSession() {
     _captureSession();
+  }
+
+  void throwExceptionInJsRuntime({
+    String message = 'Sentry JS runtime exception',
+    int delayMs = 0,
+  }) {
+    final escapedMessage = message
+        .replaceAll(r'\', r'\\')
+        .replaceAll("'", r"\'")
+        .replaceAll('\n', r'\n')
+        .replaceAll('\r', r'\r');
+    _setTimeout("throw new Error('$escapedMessage');".toJS, delayMs.toJS);
   }
 
   @override
@@ -214,6 +225,9 @@ external void _startSession(JSAny? context);
 
 @JS('Sentry.captureSession')
 external void _captureSession();
+
+@JS('setTimeout')
+external JSAny? _setTimeout(JSAny? handler, JSNumber timeout);
 
 @JS('Sentry.globalHandlersIntegration')
 external JSObject _globalHandlersIntegration();
