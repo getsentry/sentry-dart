@@ -17,6 +17,9 @@
 - Bump Native SDK from v0.12.6 to v0.12.8 ([#3514](https://github.com/getsentry/sentry-dart/pull/3514), [#3520](https://github.com/getsentry/sentry-dart/pull/3520))
   - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0128)
   - [diff](https://github.com/getsentry/sentry-native/compare/0.12.6...0.12.8)
+- Bump Android SDK from v8.32.0 to v8.33.0 ([#3529](https://github.com/getsentry/sentry-dart/pull/3529))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8330)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.32.0...8.33.0)
 
 ## 9.13.0
 
