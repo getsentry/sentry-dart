@@ -45,6 +45,15 @@ jobs:
           coverage: sentry_logging
           min-coverage: 90
 
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() && matrix.sdk == 'stable' }}
+        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # pin@v1.2.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: logging-tests-${{ runner.os }}-${{ matrix.sdk }}
+          flags: logging-${{ matrix.os }}
+          verbose: true
+
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
