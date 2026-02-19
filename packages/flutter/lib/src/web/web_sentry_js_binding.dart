@@ -5,6 +5,9 @@ import 'package:meta/meta.dart';
 
 import 'sentry_js_binding.dart';
 
+@visibleForTesting
+const String jsSdkName = 'sentry.javascript.browser.flutter';
+
 SentryJsBinding createJsBinding() {
   return WebSentryJsBinding();
 }
@@ -26,9 +29,16 @@ class WebSentryJsBinding implements SentryJsBinding {
       options['defaultIntegrations'] = options['defaultIntegrations']
           .map((String integration) => _createIntegration(integration));
     }
-    _init(options.jsify());
+    final jsOptions = options.jsify() as JSObject;
+    jsOptions['beforeSend'] = _beforeSend.toJS;
+    _init(jsOptions);
     _client = SentryJsClient();
     _options = _client?.getOptions();
+  }
+
+  static _JsErrorEvent? _beforeSend(_JsErrorEvent event, JSAny? _) {
+    (event.sdk ??= _JsSdkInfo()).name = jsSdkName.toJS;
+    return event;
   }
 
   @override
@@ -215,3 +225,16 @@ external JSObject _dedupeIntegration();
 @JS('globalThis')
 @internal
 external JSObject get globalThis;
+
+@JS()
+extension type _JsErrorEvent._(JSObject _) implements JSObject {
+  external _JsSdkInfo? get sdk;
+  external set sdk(_JsSdkInfo? value);
+}
+
+@JS()
+extension type _JsSdkInfo._(JSObject _) implements JSObject {
+  external set name(JSString value);
+
+  factory _JsSdkInfo() => _JsSdkInfo._(JSObject());
+}

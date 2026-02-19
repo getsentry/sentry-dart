@@ -2,11 +2,30 @@
 
 ## Unreleased
 
+### Features
+
+- Add `enableTombstone` option for improved native crash reporting on Android 12+ ([#3526](https://github.com/getsentry/sentry-dart/pull/3526))
+  - When enabled, uses Android's `ApplicationExitInfo.REASON_CRASH_NATIVE` to capture native crashes with more detailed thread information
+  - Disabled by default
+
+### Fixes
+
+- Dont guard user attributes behind `sendDefaultPii` for logs and metrics ([#3524](https://github.com/getsentry/sentry-dart/pull/3524))
+
 ### Dependencies
 
-- Bump Native SDK from v0.12.6 to v0.12.7 ([#3514](https://github.com/getsentry/sentry-dart/pull/3514))
-  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0127)
-  - [diff](https://github.com/getsentry/sentry-native/compare/0.12.6...0.12.7)
+- Bump Native SDK from v0.12.6 to v0.12.8 ([#3514](https://github.com/getsentry/sentry-dart/pull/3514), [#3520](https://github.com/getsentry/sentry-dart/pull/3520))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0128)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.12.6...0.12.8)
+- Bump Android SDK from v8.32.0 to v8.33.0 ([#3529](https://github.com/getsentry/sentry-dart/pull/3529))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8330)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.32.0...8.33.0)
+
+<summary><b>Internal Changes</b></summary>
+
+- Add `sentry.javascript.browser.flutter` sdk name for native js errors ([#3525](https://github.com/getsentry/sentry-dart/pull/3525))
+
+</details>
 
 ## 9.13.0
 

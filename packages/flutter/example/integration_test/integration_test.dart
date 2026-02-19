@@ -217,6 +217,7 @@ void main() {
         options.anrTimeoutInterval = const Duration(seconds: 2);
         options.connectionTimeout = const Duration(milliseconds: 1234);
         options.readTimeout = const Duration(milliseconds: 2345);
+        options.enableTombstone = true;
       });
     });
 
@@ -280,12 +281,15 @@ void main() {
       expect(findMatchingPackage, isNotNull);
     }
     expect(androidOptions.isEnableAutoTraceIdGeneration(), isFalse);
+    expect(androidOptions.isTombstoneEnabled(), isTrue);
+
     final androidProxy = androidOptions.getProxy();
     expect(androidProxy, isNotNull);
     expect(androidProxy!.getHost()?.toDartString(), 'proxy.local');
     expect(androidProxy.getPort()?.toDartString(), '8084');
     expect(androidProxy.getUser()?.toDartString(), 'u');
     expect(androidProxy.getPass()?.toDartString(), 'p');
+
     final r = androidOptions.getSessionReplay();
     expect(r.getQuality(), jni.SentryReplayOptions$SentryReplayQuality.HIGH);
     expect(r.getSessionSampleRate(), isNotNull);
