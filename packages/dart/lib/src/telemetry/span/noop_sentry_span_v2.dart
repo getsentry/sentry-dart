@@ -5,9 +5,6 @@ final class NoOpSentrySpanV2 implements SentrySpanV2 {
 
   static const instance = NoOpSentrySpanV2();
 
-  factory NoOpSentrySpanV2.ignored(RecordingSentrySpanV2 parent) =>
-      NoOpSentrySpanV2(recordingParent: parent, isIgnored: true);
-
   /// The nearest recording ancestor.
   /// Only set and used when this span was ignored by [SentryOptions.ignoreSpans].
   @internal
