@@ -314,23 +314,18 @@ mixin SentryFlutter {
     if (options is! SentryFlutterOptions) {
       return null;
     }
+    final SpanId? spanId;
     if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
-      final spanId = options.timeToDisplayTrackerV2?.ttfdSpanId;
-      if (spanId == null) {
-        internalLogger.error(
-            'Could not process TTFD for screen ${SentryNavigatorObserver.currentRouteName} - spanId should not be null');
-        return null;
-      }
-      return SentryDisplay(spanId, hub: hub);
+      spanId = options.timeToDisplayTrackerV2.ttfdSpanId;
     } else {
-      final transactionId = options.timeToDisplayTracker.transactionId;
-      if (transactionId == null) {
-        internalLogger.error(
-            'Could not process TTFD for screen ${SentryNavigatorObserver.currentRouteName} - transactionId should not be null');
-        return null;
-      }
-      return SentryDisplay(transactionId, hub: hub);
+      spanId = options.timeToDisplayTracker.transactionId;
     }
+    if (spanId == null) {
+      internalLogger.error(
+          'Could not process TTFD for screen ${SentryNavigatorObserver.currentRouteName} - spanId should not be null');
+      return null;
+    }
+    return SentryDisplay(spanId, hub: hub);
   }
 
   /// Pauses the app hang tracking.

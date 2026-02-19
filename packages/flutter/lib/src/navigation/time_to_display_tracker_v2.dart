@@ -12,9 +12,9 @@ class TimeToDisplayTrackerV2 {
   SentrySpanV2? _ttfdSpan;
 
   TimeToDisplayTrackerV2({
-    required Hub hub,
+    Hub? hub,
     FrameCallbackHandler? frameCallbackHandler,
-  })  : _hub = hub,
+  })  : _hub = hub ?? HubAdapter(),
         _frameCallbackHandler =
             frameCallbackHandler ?? DefaultFrameCallbackHandler();
 
@@ -36,8 +36,8 @@ class TimeToDisplayTrackerV2 {
       '$routeName initial display',
       parentSpan: uiLoadSpan,
       attributes: {
-        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
-            SentrySpanOperations.uiTimeToInitialDisplay),
+        SemanticAttributesConstants.sentryOp:
+            SentryAttribute.string(SentrySpanOperations.uiTimeToInitialDisplay),
         SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
             SentryTraceOrigins.autoNavigationRouteObserver),
       },
@@ -47,8 +47,8 @@ class TimeToDisplayTrackerV2 {
       '$routeName full display',
       parentSpan: uiLoadSpan,
       attributes: {
-        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
-            SentrySpanOperations.uiTimeToFullDisplay),
+        SemanticAttributesConstants.sentryOp:
+            SentryAttribute.string(SentrySpanOperations.uiTimeToFullDisplay),
         SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
             SentryTraceOrigins.autoNavigationRouteObserver),
       },

@@ -115,13 +115,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  /// Initializes the V2 tracker for streaming trace lifecycle and stores it on options.
   TimeToDisplayTrackerV2? _initializeTimeToDisplayTrackerV2() {
     final options = _hub.options;
     if (options is SentryFlutterOptions) {
-      final tracker = TimeToDisplayTrackerV2(hub: _hub);
-      options.timeToDisplayTrackerV2 = tracker;
-      return tracker;
+      return options.timeToDisplayTrackerV2;
     } else {
       return null;
     }
@@ -233,8 +230,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     _addWebSessions(from: route, to: previousRoute);
 
-    final timestamp = _hub.options.clock();
-    _finishTransaction(endTimestamp: timestamp);
+    if (_hub.options.traceLifecycle == SentryTraceLifecycle.streaming) {
+      _hub.getActiveSpan()
+        ?..status = SentrySpanStatusV2.cancelled
+        ..end();
+    } else {
+      final timestamp = _hub.options.clock();
+      _finishTransaction(endTimestamp: timestamp);
+    }
   }
 
   void _startNewTraceIfEnabled() {

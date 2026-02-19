@@ -16,6 +16,8 @@ class AutoCloseScreen extends StatefulWidget {
 }
 
 class AutoCloseScreenState extends State<AutoCloseScreen> {
+  final dio = Dio()..addSentry();
+
   @override
   void initState() {
     super.initState();
@@ -23,8 +25,6 @@ class AutoCloseScreenState extends State<AutoCloseScreen> {
   }
 
   Future<void> _doComplexOperationThenClose() async {
-    final dio = Dio();
-    dio.addSentry();
     try {
       // Add a bit of delay to demonstrate TTFD
       await Future.delayed(const Duration(seconds: 3));

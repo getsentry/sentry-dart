@@ -221,7 +221,7 @@ class SentryFlutterOptions extends SentryOptions {
   );
 
   @meta.internal
-  TimeToDisplayTrackerV2? timeToDisplayTrackerV2;
+  late TimeToDisplayTrackerV2 timeToDisplayTrackerV2 = TimeToDisplayTrackerV2();
 
   /// Sets the Proguard uuid for Android platform.
   String? proguardUuid;
