@@ -812,7 +812,7 @@ class Hub {
     }
 
     final ignoreSpan =
-        _options.ignoreSpans.any((rule) => rule.nameMatches(name));
+        _options.ignoreSpans.any((rule) => rule.appliesToName(name));
     if (ignoreSpan) {
       // TODO(next-pr): client report
       return NoOpSentrySpanV2(

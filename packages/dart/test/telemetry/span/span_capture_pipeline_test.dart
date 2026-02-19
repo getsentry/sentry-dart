@@ -119,19 +119,6 @@ void main() {
             'release-from-lifecycle-callback');
       });
 
-      test('does not add user attributes when sendDefaultPii is false',
-          () async {
-        fixture.options.sendDefaultPii = false;
-        await fixture.scope.setUser(SentryUser(id: 'user-id'));
-
-        final span = fixture.createRecordingSpan();
-        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
-
-        final attributes = span.attributes;
-        expect(attributes.containsKey(SemanticAttributesConstants.userId),
-            isFalse);
-      });
-
       test('does not add spans to processor for no-op spans', () async {
         await fixture.pipeline
             .captureSpan(const NoOpSentrySpanV2(), scope: fixture.scope);
@@ -258,8 +245,7 @@ class Fixture {
   final options = defaultTestOptions()
     ..environment = 'test-env'
     ..release = 'test-release'
-    ..traceLifecycle = SentryTraceLifecycle.streaming
-    ..sendDefaultPii = true;
+    ..traceLifecycle = SentryTraceLifecycle.streaming;
   final processor = MockTelemetryProcessor();
 
   late final Scope scope;

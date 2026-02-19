@@ -9,7 +9,7 @@ sealed class IgnoreSpanRule {
   factory IgnoreSpanRule.nameEndsWith(String value) = _NameEndsWith;
 
   @internal
-  bool nameMatches(String name);
+  bool appliesToName(String name);
 }
 
 class _NameContains extends IgnoreSpanRule {
@@ -18,7 +18,7 @@ class _NameContains extends IgnoreSpanRule {
   const _NameContains(this.pattern);
 
   @override
-  bool nameMatches(String name) => name.contains(pattern);
+  bool appliesToName(String name) => name.contains(pattern);
 }
 
 class _NameEquals extends IgnoreSpanRule {
@@ -27,7 +27,7 @@ class _NameEquals extends IgnoreSpanRule {
   const _NameEquals(this.value);
 
   @override
-  bool nameMatches(String name) => name == value;
+  bool appliesToName(String name) => name == value;
 }
 
 class _NameStartsWith extends IgnoreSpanRule {
@@ -36,7 +36,7 @@ class _NameStartsWith extends IgnoreSpanRule {
   const _NameStartsWith(this.pattern);
 
   @override
-  bool nameMatches(String name) => name.startsWith(pattern);
+  bool appliesToName(String name) => name.startsWith(pattern);
 }
 
 class _NameEndsWith extends IgnoreSpanRule {
@@ -45,7 +45,7 @@ class _NameEndsWith extends IgnoreSpanRule {
   const _NameEndsWith(this.value);
 
   @override
-  bool nameMatches(String name) => name.endsWith(value);
+  bool appliesToName(String name) => name.endsWith(value);
 }
 
 // TODO(later): add support for ignoring spans based on attributes
