@@ -743,7 +743,6 @@ void main() {
         expect(hub.scope.activeSpan, isNull);
         expect(fixture.client.captureSpanCalls, isEmpty);
       });
-
     });
   });
 }
