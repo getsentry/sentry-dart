@@ -1,4 +1,5 @@
 import '../../sentry_flutter.dart';
+import '../utils/internal_logger.dart';
 
 /// Represents the current route and allows to report the time to full display.
 ///
@@ -35,10 +36,9 @@ class SentryDisplay {
         if (options.automatedTestMode) {
           rethrow;
         }
-        options.log(
-          SentryLevel.error,
+        internalLogger.error(
           'Error while reporting TTFD',
-          exception: exception,
+          error: exception,
           stackTrace: stackTrace,
         );
       }
