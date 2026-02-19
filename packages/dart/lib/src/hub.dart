@@ -743,11 +743,25 @@ class Hub {
     return true;
   }
 
-  /// Evaluates sampling for a new root span.
+  /// Evaluates sampling for a span that the caller has identified as a root.
+  ///
+  /// This helper does not verify root-ness. Callers must only invoke it when
+  /// creating a root span (that is, when no parent span is resolved).
+  /// Child spans inherit their parent's sampling decision and are not sampled
+  /// independently.
+  ///
+  /// The sampled flag is also stored in [PropagationContext] for trace
+  /// propagation.
   ///
   /// Returns the [SentryTracesSamplingDecision] if sampled, or `null` if
   /// the span should not be sampled (caller should return a no-op span).
-  SentryTracesSamplingDecision? _sampleRootSpan(
+  ///
+  /// Note: Incoming distributed traces (continuing a trace from a remote
+  /// parent via `sentry-trace` header) are not yet supported. This would
+  /// require honoring the incoming `sampled` flag from PropagationContext
+  /// instead of evaluating sampling fresh. This is primarily a backend/server
+  /// use case which the Dart SDK does not currently target.
+  SentryTracesSamplingDecision? _sampleForRootSpan(
     String name,
     Map<String, SentryAttribute>? attributes,
   ) {
@@ -798,7 +812,7 @@ class Hub {
 
     final RecordingSentrySpanV2 span;
     if (resolvedParentSpan == null) {
-      final samplingDecision = _sampleRootSpan(name, attributes);
+      final samplingDecision = _sampleForRootSpan(name, attributes);
       if (samplingDecision == null) return NoOpSentrySpanV2.instance;
 
       span = RecordingSentrySpanV2.root(
@@ -848,7 +862,7 @@ class Hub {
 
     if (!_canCreateSpansV2) return NoOpSentrySpanV2.instance;
 
-    final samplingDecision = _sampleRootSpan(name, attributes);
+    final samplingDecision = _sampleForRootSpan(name, attributes);
     if (samplingDecision == null) return NoOpSentrySpanV2.instance;
 
     final span = IdleRecordingSentrySpanV2(
