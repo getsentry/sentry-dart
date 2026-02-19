@@ -8,11 +8,12 @@ final class NoOpSentrySpanV2 implements SentrySpanV2 {
   factory NoOpSentrySpanV2.ignored(RecordingSentrySpanV2 parent) =>
       NoOpSentrySpanV2(recordingParent: parent, isIgnored: true);
 
-  /// Nearest recording ancestor. Only set when [isIgnored] is true.
+  /// The nearest recording ancestor.
+  /// Only set and used when this span was ignored by [SentryOptions.ignoreSpans].
   @internal
   final RecordingSentrySpanV2? recordingParent;
 
-  /// Whether this was created by an ignoreSpans rule (vs unsampled/disabled).
+  /// Whether this was created by an [SentryOptions.ignoreSpans] rule.
   @internal
   final bool isIgnored;
 
