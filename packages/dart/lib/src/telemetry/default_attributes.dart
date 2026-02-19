@@ -23,21 +23,21 @@ Map<String, SentryAttribute> defaultAttributes(SentryOptions options,
         SentryAttribute.string(options.release!);
   }
 
-  if (options.sendDefaultPii) {
-    final user = scope?.user;
-    if (user != null) {
-      if (user.id != null) {
-        attributes[SemanticAttributesConstants.userId] =
-            SentryAttribute.string(user.id!);
-      }
-      if (user.name != null) {
-        attributes[SemanticAttributesConstants.userName] =
-            SentryAttribute.string(user.name!);
-      }
-      if (user.email != null) {
-        attributes[SemanticAttributesConstants.userEmail] =
-            SentryAttribute.string(user.email!);
-      }
+  // Users are always manually set and never automatically inferred,
+  // therefore this is not gated by `sendDefaultPii`.
+  final user = scope?.user;
+  if (user != null) {
+    if (user.id != null) {
+      attributes[SemanticAttributesConstants.userId] =
+          SentryAttribute.string(user.id!);
+    }
+    if (user.name != null) {
+      attributes[SemanticAttributesConstants.userName] =
+          SentryAttribute.string(user.name!);
+    }
+    if (user.email != null) {
+      attributes[SemanticAttributesConstants.userEmail] =
+          SentryAttribute.string(user.email!);
     }
   }
 

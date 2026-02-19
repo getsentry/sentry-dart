@@ -118,21 +118,6 @@ void main() {
         expect(attributes[SemanticAttributesConstants.sentryEnvironment]?.value,
             'callback-env');
       });
-
-      test('does not add user attributes when sendDefaultPii is false',
-          () async {
-        fixture.options.sendDefaultPii = false;
-        await fixture.scope.setUser(SentryUser(id: 'user-id'));
-
-        final metric = fixture.createMetric();
-
-        await fixture.pipeline.captureMetric(metric, scope: fixture.scope);
-
-        expect(
-          metric.attributes.containsKey(SemanticAttributesConstants.userId),
-          isFalse,
-        );
-      });
     });
 
     group('when metrics are disabled', () {
@@ -196,7 +181,6 @@ class Fixture {
   final options = defaultTestOptions()
     ..environment = 'test-env'
     ..release = 'test-release'
-    ..sendDefaultPii = true
     ..enableMetrics = true;
 
   final processor = MockTelemetryProcessor();
