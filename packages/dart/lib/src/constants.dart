@@ -10,6 +10,7 @@ class SentrySpanOperations {
   static const String dbSqlBatch = 'db.sql.batch';
   static const String dbOpen = 'db.open';
   static const String dbClose = 'db.close';
+  static const String uiActionClick = 'ui.action.click';
 }
 
 @internal
@@ -92,16 +93,19 @@ abstract class SemanticAttributesConstants {
   static const sentryInternalReplayIsBuffering =
       'sentry._internal.replay_is_buffering';
 
-  /// The user ID (gated by `sendDefaultPii`).
+  /// The user ID.
+  /// Users are always manually set and never automatically inferred,
+  /// therefore this is not gated by `sendDefaultPii`.
   static const userId = 'user.id';
 
-  /// The user email (gated by `sendDefaultPii`).
+  /// The user email.
+  /// Users are always manually set and never automatically inferred,
+  /// therefore this is not gated by `sendDefaultPii`.
   static const userEmail = 'user.email';
 
-  /// The user IP address (gated by `sendDefaultPii`).
-  static const userIpAddress = 'user.ip_address';
-
-  /// The user username (gated by `sendDefaultPii`).
+  /// The user username.
+  /// Users are always manually set and never automatically inferred,
+  /// therefore this is not gated by `sendDefaultPii`.
   static const userName = 'user.name';
 
   /// The operating system name.

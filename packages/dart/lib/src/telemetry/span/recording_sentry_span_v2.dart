@@ -15,7 +15,7 @@ typedef OnSpanEndCallback = Future<void> Function(RecordingSentrySpanV2 span);
 /// Use [RecordingSentrySpanV2.root] to create a root span with a sampling
 /// decision, or [RecordingSentrySpanV2.child] to create a child span that
 /// inherits sampling from its parent.
-final class RecordingSentrySpanV2 implements SentrySpanV2 {
+base class RecordingSentrySpanV2 implements SentrySpanV2 {
   final SpanId _spanId = SpanId.newId();
   final RecordingSentrySpanV2? _parentSpan;
   final ClockProvider _clock;
@@ -193,7 +193,7 @@ final class RecordingSentrySpanV2 implements SentrySpanV2 {
       'span_id': _spanId.toString(),
       'is_segment': _parentSpan == null,
       'name': _name,
-      'status': _status.name,
+      'status': _status.value,
       'end_timestamp':
           _endTimestamp == null ? null : toUnixSeconds(_endTimestamp!),
       'start_timestamp': toUnixSeconds(_startTimestamp),

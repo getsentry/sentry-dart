@@ -179,4 +179,14 @@ class NoOpHub implements Hub {
       SentrySpanV2? parentSpan = const UnsetSentrySpanV2()}) {
     return callback(NoOpSentrySpanV2.instance);
   }
+
+  @override
+  SentrySpanV2 startIdleSpan(
+    String name, {
+    Duration idleTimeout = const Duration(seconds: 5),
+    Duration finalTimeout = const Duration(seconds: 30),
+    bool trimIdleSpanEndTimestamp = true,
+    Map<String, SentryAttribute>? attributes,
+  }) =>
+      NoOpSentrySpanV2.instance;
 }
