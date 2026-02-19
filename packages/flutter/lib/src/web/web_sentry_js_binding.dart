@@ -37,7 +37,7 @@ class WebSentryJsBinding implements SentryJsBinding {
   }
 
   static _JsErrorEvent? _beforeSend(_JsErrorEvent event, JSAny? _) {
-    (event.sdk ??= _createJsObject() as _JsSdkInfo).name = jsSdkName.toJS;
+    (event.sdk ??= _JsSdkInfo()).name = jsSdkName.toJS;
     return event;
   }
 
@@ -226,9 +226,6 @@ external JSObject _dedupeIntegration();
 @internal
 external JSObject get globalThis;
 
-@JS('Object')
-external JSObject _createJsObject();
-
 @JS()
 extension type _JsErrorEvent._(JSObject _) implements JSObject {
   external _JsSdkInfo? get sdk;
@@ -238,4 +235,6 @@ extension type _JsErrorEvent._(JSObject _) implements JSObject {
 @JS()
 extension type _JsSdkInfo._(JSObject _) implements JSObject {
   external set name(JSString value);
+
+  factory _JsSdkInfo() => _JsSdkInfo._(JSObject());
 }
