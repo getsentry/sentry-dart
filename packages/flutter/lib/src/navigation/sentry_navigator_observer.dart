@@ -12,6 +12,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
 import '../integrations/web_session_integration.dart';
+import '../utils/internal_logger.dart';
 import '../web/web_session_handler.dart';
 import 'time_to_display_tracker.dart';
 import 'time_to_display_tracker_v2.dart';
@@ -178,12 +179,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       // During SentryFlutter.init a traceId is already created
       _startNewTraceIfEnabled();
 
-      // App start TTID/TTFD is taken care of by app start integrations
-      if (_hub.options.traceLifecycle == SentryTraceLifecycle.streaming) {
-        _timeToDisplayTrackerV2?.trackRoute(routeName);
-      } else {
-        _instrumentTimeToDisplayOnPush(routeName, route.settings.arguments);
-      }
+      _instrumentTimeToDisplayOnPush(routeName, route.settings.arguments);
     }
   }
 
@@ -246,17 +242,24 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   void _instrumentTimeToDisplayOnPush(String routeName, Object? arguments) {
     if (!_enableAutoTransactions) {
+      internalLogger.info(
+        'SentryNavigatorObserver: auto transactions disabled, skipping time-to-display instrumentation.',
+      );
       return;
     }
 
-    // Clearing the display tracker here is safe since didPush happens before the Widget is built
-    _timeToDisplayTracker?.clear();
+    if (_hub.options.traceLifecycle == SentryTraceLifecycle.streaming) {
+      _timeToDisplayTrackerV2?.trackRoute(routeName);
+    } else {
+      // Clearing the display tracker here is safe since didPush happens before the Widget is built
+      _timeToDisplayTracker?.clear();
 
-    DateTime timestamp = _hub.options.clock();
-    _finishTransaction(endTimestamp: timestamp);
+      DateTime timestamp = _hub.options.clock();
+      _finishTransaction(endTimestamp: timestamp);
 
-    final transactionContext = _createTransactionContext(routeName);
-    _startTransaction(timestamp, transactionContext, arguments);
+      final transactionContext = _createTransactionContext(routeName);
+      _startTransaction(timestamp, transactionContext, arguments);
+    }
   }
 
   void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {
@@ -366,10 +369,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         );
       }
     } catch (exception, stacktrace) {
-      _hub.options.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Error while finishing transaction',
-        exception: exception,
+        error: exception,
         stackTrace: stacktrace,
       );
       if (_hub.options.automatedTestMode) {

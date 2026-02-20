@@ -1237,6 +1237,14 @@ void main() {
       expect(streamingFixture.hub.getActiveSpan(), isNull);
     });
 
+    test('didPush on opt-out does not track V2', () {
+      final sut = streamingFixture.getSut(enableAutoTransactions: false);
+
+      sut.didPush(route(RouteSettings(name: '/dashboard')), null);
+
+      expect(streamingFixture.hub.getActiveSpan(), isNull);
+    });
+
     test('didPop cancels active idle span', () {
       final sut = streamingFixture.getSut();
 
@@ -1356,10 +1364,12 @@ class _StreamingFixture {
   }
 
   SentryNavigatorObserver getSut({
+    bool enableAutoTransactions = true,
     List<String>? ignoreRoutes,
   }) {
     return SentryNavigatorObserver(
       hub: hub,
+      enableAutoTransactions: enableAutoTransactions,
       ignoreRoutes: ignoreRoutes,
     );
   }
