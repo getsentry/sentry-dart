@@ -66,9 +66,6 @@ class TimeToDisplayTrackerV2 {
   }
 
   void clear() {
-    _ttfdSpan
-      ?..status = SentrySpanStatusV2.cancelled
-      ..end();
     _ttfdSpan = null;
   }
 }

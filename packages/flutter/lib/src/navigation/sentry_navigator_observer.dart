@@ -234,6 +234,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _hub.getActiveSpan()
         ?..status = SentrySpanStatusV2.cancelled
         ..end();
+      _timeToDisplayTrackerV2?.clear();
     } else {
       final timestamp = _hub.options.clock();
       _finishTransaction(endTimestamp: timestamp);
