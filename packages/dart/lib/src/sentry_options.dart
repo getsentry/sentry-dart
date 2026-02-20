@@ -266,6 +266,15 @@ class SentryOptions {
   /// To use regex add the `^` and the `$` to the string.
   List<String> ignoreTransactions = [];
 
+  /// Rules that determine which spans are ignored.
+  ///
+  /// Rules are evaluated when a span starts, in the order they are added.
+  /// The first rule that matches the span name determines whether the span is
+  /// ignored.
+  ///
+  /// If empty, all spans are processed.
+  List<IgnoreSpanRule> ignoreSpans = [];
+
   final List<String> _inAppExcludes = [];
 
   /// A list of string prefixes of packages names that do not belong to the app, but rather third-party

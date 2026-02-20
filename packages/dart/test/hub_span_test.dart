@@ -95,6 +95,98 @@ void main() {
         });
       });
 
+      group('when ignoreSpans rules are configured', () {
+        test('returns NoOpSentrySpanV2 for matching rule', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          final span = hub.startInactiveSpan('ignored-span');
+
+          expect(span, isA<NoOpSentrySpanV2>());
+        });
+
+        test('returns RecordingSentrySpanV2 for non-matching rule', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          final span = hub.startInactiveSpan('other-span');
+
+          expect(span, isA<RecordingSentrySpanV2>());
+        });
+
+        test('re-parents through multiple consecutive ignored spans', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-1'),
+            IgnoreSpanRule.nameEquals('ignored-2'),
+            IgnoreSpanRule.nameEquals('ignored-3'),
+          ];
+          final hub = fixture.getSut();
+
+          final root = hub.startInactiveSpan('root', parentSpan: null);
+          final ignored1 = hub.startInactiveSpan('ignored-1', parentSpan: root);
+          final ignored2 =
+              hub.startInactiveSpan('ignored-2', parentSpan: ignored1);
+          final ignored3 =
+              hub.startInactiveSpan('ignored-3', parentSpan: ignored2);
+          final child = hub.startInactiveSpan('child', parentSpan: ignored3);
+
+          expect(child, isA<RecordingSentrySpanV2>());
+          expect(child.parentSpan, same(root));
+        });
+
+        test('re-parents correctly with ignored spans at different levels', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          // root -> ignored -> child1 -> ignored -> child2
+          final root = hub.startInactiveSpan('root', parentSpan: null);
+          final ignored1 =
+              hub.startInactiveSpan('ignored-span', parentSpan: root);
+          final child1 = hub.startInactiveSpan('child1', parentSpan: ignored1);
+          final ignored2 =
+              hub.startInactiveSpan('ignored-span', parentSpan: child1);
+          final child2 = hub.startInactiveSpan('child2', parentSpan: ignored2);
+
+          expect(child1, isA<RecordingSentrySpanV2>());
+          expect(child1.parentSpan, same(root));
+          expect(child2, isA<RecordingSentrySpanV2>());
+          expect(child2.parentSpan, same(child1));
+        });
+
+        test('creates root span when ignored span has no parent', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-root'),
+          ];
+          final hub = fixture.getSut();
+
+          final ignored =
+              hub.startInactiveSpan('ignored-root', parentSpan: null);
+          final child = hub.startInactiveSpan('child', parentSpan: ignored);
+
+          expect(child, isA<RecordingSentrySpanV2>());
+          expect(child.parentSpan, isNull);
+        });
+
+        test('does not re-parent when parent is unsampled NoOp', () {
+          final hub = fixture.getSut(tracesSampleRate: 0.0);
+
+          final unsampledRoot = hub.startInactiveSpan('root', parentSpan: null);
+          expect(unsampledRoot, isA<NoOpSentrySpanV2>());
+
+          final child =
+              hub.startInactiveSpan('child', parentSpan: unsampledRoot);
+
+          expect(child, isA<NoOpSentrySpanV2>());
+          expect((child as NoOpSentrySpanV2).isIgnored, isFalse);
+        });
+      });
+
       group('parent span resolution', () {
         test('creates root span when no active span exists', () {
           final hub = fixture.getSut();
@@ -742,6 +834,132 @@ void main() {
 
         expect(hub.scope.activeSpan, isNull);
         expect(fixture.client.captureSpanCalls, isEmpty);
+      });
+    });
+
+    group('startSpan', () {
+      group('when ignoreSpans rules are configured', () {
+        test('provides NoOpSentrySpanV2 for matching rule', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          hub.startSpan('ignored-span', (span) {
+            expect(span, isA<NoOpSentrySpanV2>());
+          });
+        });
+
+        test('provides RecordingSentrySpanV2 for non-matching rule', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          hub.startSpan('other-span', (span) {
+            expect(span, isA<RecordingSentrySpanV2>());
+          });
+        });
+
+        test('does not capture ignored span', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          hub.startSpan('ignored-span', (span) {});
+
+          expect(fixture.client.captureSpanCalls, isEmpty);
+        });
+
+        test('still returns sync callback result for ignored span', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          final result = hub.startSpan('ignored-span', (span) => 42);
+
+          expect(result, equals(42));
+        });
+
+        test('still returns async callback result for ignored span', () async {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          final result =
+              await hub.startSpan('ignored-span', (span) async => 42);
+
+          expect(result, equals(42));
+        });
+
+        test('re-parents through multiple consecutive ignored spans', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-1'),
+            IgnoreSpanRule.nameEquals('ignored-2'),
+            IgnoreSpanRule.nameEquals('ignored-3'),
+          ];
+          final hub = fixture.getSut();
+
+          final root = hub.startInactiveSpan('root', parentSpan: null);
+          final ignored1 = hub.startInactiveSpan('ignored-1', parentSpan: root);
+          final ignored2 =
+              hub.startInactiveSpan('ignored-2', parentSpan: ignored1);
+          final ignored3 =
+              hub.startInactiveSpan('ignored-3', parentSpan: ignored2);
+
+          hub.startSpan('child', parentSpan: ignored3, (span) {
+            expect(span, isA<RecordingSentrySpanV2>());
+            expect(span.parentSpan, same(root));
+          });
+        });
+
+        test('re-parents correctly with ignored spans at different levels', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          final root = hub.startInactiveSpan('root', parentSpan: null);
+          final ignored1 =
+              hub.startInactiveSpan('ignored-span', parentSpan: root);
+          final child1 = hub.startInactiveSpan('child1', parentSpan: ignored1);
+          final ignored2 =
+              hub.startInactiveSpan('ignored-span', parentSpan: child1);
+
+          hub.startSpan('child2', parentSpan: ignored2, (span) {
+            expect(span, isA<RecordingSentrySpanV2>());
+            expect(span.parentSpan, same(child1));
+          });
+        });
+
+        test('creates root span when ignored span has no parent', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-root'),
+          ];
+          final hub = fixture.getSut();
+
+          final ignored =
+              hub.startInactiveSpan('ignored-root', parentSpan: null);
+
+          hub.startSpan('child', parentSpan: ignored, (span) {
+            expect(span, isA<RecordingSentrySpanV2>());
+            expect(span.parentSpan, isNull);
+          });
+        });
+
+        test('does not re-parent when parent is unsampled NoOp', () {
+          final hub = fixture.getSut(tracesSampleRate: 0.0);
+
+          final unsampledRoot = hub.startInactiveSpan('root', parentSpan: null);
+
+          hub.startSpan('child', parentSpan: unsampledRoot, (span) {
+            expect(span, isA<NoOpSentrySpanV2>());
+            expect((span as NoOpSentrySpanV2).isIgnored, isFalse);
+          });
+        });
       });
     });
   });
