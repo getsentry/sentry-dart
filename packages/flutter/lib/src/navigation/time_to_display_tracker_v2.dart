@@ -22,20 +22,29 @@ class TimeToDisplayTrackerV2 {
 
   SpanId? get ttfdSpanId => _ttfdSpan?.spanId;
 
-  void trackRoute(String routeName) {
+  SentrySpanV2 trackRoute(
+    String routeName, {
+    DateTime? startTimestamp,
+    DateTime? ttidEndTimestamp,
+  }) {
     cancelCurrentRoute();
 
-    final routeSpan = _hub.startIdleSpan(routeName, attributes: {
-      SemanticAttributesConstants.sentryOp:
-          SentryAttribute.string(SentrySpanOperations.uiLoad),
-      SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-          SentryTraceOrigins.autoNavigationRouteObserver),
-    });
+    final routeSpan = _hub.startIdleSpan(routeName,
+        startTimestamp: startTimestamp,
+        attributes: {
+          SemanticAttributesConstants.sentryOp:
+              SentryAttribute.string(SentrySpanOperations.uiLoad),
+          SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+              SentryTraceOrigins.autoNavigationRouteObserver),
+        });
     _routeSpan = routeSpan;
 
+    // ttidSpan is intentionally local — it's either ended immediately (app start)
+    // or captured by the post-frame callback closure (normal navigation).
     final ttidSpan = _hub.startInactiveSpan(
       '$routeName initial display',
       parentSpan: routeSpan,
+      startTimestamp: startTimestamp,
       attributes: {
         SemanticAttributesConstants.sentryOp:
             SentryAttribute.string(SentrySpanOperations.uiTimeToInitialDisplay),
@@ -47,6 +56,7 @@ class TimeToDisplayTrackerV2 {
     _ttfdSpan = _hub.startInactiveSpan(
       '$routeName full display',
       parentSpan: routeSpan,
+      startTimestamp: startTimestamp,
       attributes: {
         SemanticAttributesConstants.sentryOp:
             SentryAttribute.string(SentrySpanOperations.uiTimeToFullDisplay),
@@ -55,9 +65,15 @@ class TimeToDisplayTrackerV2 {
       },
     );
 
-    _frameCallbackHandler.addPostFrameCallback((_) {
-      ttidSpan.end();
-    });
+    if (ttidEndTimestamp != null) {
+      ttidSpan.end(endTimestamp: ttidEndTimestamp);
+    } else {
+      _frameCallbackHandler.addPostFrameCallback((_) {
+        ttidSpan.end();
+      });
+    }
+
+    return routeSpan;
   }
 
   void reportFullyDisplayed(SpanId spanId) {

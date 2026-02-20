@@ -93,6 +93,39 @@ void main() {
 
           expect(hub.scope.getActiveSpan(), isNull);
         });
+
+        test('uses startTimestamp when provided', () {
+          final hub = fixture.getSut();
+          final past = DateTime(2024, 1, 1, 12, 0, 0);
+
+          final span = hub.startInactiveSpan('test-span',
+              startTimestamp: past) as RecordingSentrySpanV2;
+
+          expect(span.startTimestamp, equals(past));
+        });
+
+        test('uses clock when startTimestamp is not provided', () {
+          final hub = fixture.getSut();
+
+          final span =
+              hub.startInactiveSpan('test-span') as RecordingSentrySpanV2;
+
+          expect(span.startTimestamp, isNotNull);
+          expect(span.startTimestamp.difference(DateTime.now()).abs(),
+              lessThan(Duration(seconds: 1)));
+        });
+
+        test('child span uses startTimestamp when provided', () {
+          final hub = fixture.getSut();
+          final past = DateTime(2024, 1, 1, 12, 0, 0);
+
+          final root = hub.startInactiveSpan('root', parentSpan: null);
+          final child = hub.startInactiveSpan('child',
+              parentSpan: root,
+              startTimestamp: past) as RecordingSentrySpanV2;
+
+          expect(child.startTimestamp, equals(past));
+        });
       });
 
       group('when ignoreSpans rules are configured', () {
@@ -702,6 +735,20 @@ void main() {
     });
 
     group('when using idle spans', () {
+      test('uses startTimestamp when provided', () {
+        final hub = fixture.getSut();
+        final past = DateTime(2024, 1, 1, 12, 0, 0);
+
+        final idleSpan = hub.startIdleSpan(
+          'idle-root',
+          startTimestamp: past,
+          idleTimeout: Duration(seconds: 1),
+          finalTimeout: Duration(seconds: 2),
+        ) as RecordingSentrySpanV2;
+
+        expect(idleSpan.startTimestamp, equals(past));
+      });
+
       test('clears active idle span when ended directly', () async {
         final hub = fixture.getSut();
         final idleSpan = hub.startIdleSpan(

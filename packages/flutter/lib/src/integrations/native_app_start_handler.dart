@@ -1,8 +1,8 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import '../../sentry_flutter.dart';
-import '../native/native_app_start.dart';
 import '../native/sentry_native_binding.dart';
+import 'native_app_start_data.dart';
 
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
@@ -18,9 +18,6 @@ class NativeAppStartHandler {
   late final Hub _hub;
   late final SentryFlutterOptions _options;
 
-  /// We filter out App starts more than 60s
-  static const _maxAppStartMillis = 60000;
-
   Future<void> call(
     Hub hub,
     SentryFlutterOptions options, {
@@ -34,7 +31,8 @@ class NativeAppStartHandler {
     if (nativeAppStart == null) {
       return;
     }
-    final appStartInfo = _infoNativeAppStart(nativeAppStart, appStartEnd);
+    final appStartInfo =
+        parseNativeAppStart(nativeAppStart, appStartEnd, options);
     if (appStartInfo == null) {
       return;
     }
@@ -71,68 +69,8 @@ class NativeAppStartHandler {
     );
   }
 
-  _AppStartInfo? _infoNativeAppStart(
-    NativeAppStart nativeAppStart,
-    DateTime appStartEnd,
-  ) {
-    final sentrySetupStartDateTime = SentryFlutter.sentrySetupStartTime;
-    if (sentrySetupStartDateTime == null) {
-      return null;
-    }
-
-    final appStartDateTime =
-        DateTime.fromMillisecondsSinceEpoch(nativeAppStart.appStartTime);
-    final pluginRegistrationDateTime = DateTime.fromMillisecondsSinceEpoch(
-        nativeAppStart.pluginRegistrationTime);
-
-    final duration = appStartEnd.difference(appStartDateTime);
-
-    // We filter out app start more than 60s.
-    // This could be due to many different reasons.
-    // If you do the manual init and init the SDK too late and it does not
-    // compute the app start end in the very first Screen.
-    // If the process starts but the App isn't in the foreground.
-    // If the system forked the process earlier to accelerate the app start.
-    // And some unknown reasons that could not be reproduced.
-    // We've seen app starts with hours, days and even months.
-    if (duration.inMilliseconds > _maxAppStartMillis) {
-      return null;
-    }
-
-    List<_TimeSpan> nativeSpanTimes = [];
-    for (final entry in nativeAppStart.nativeSpanTimes.entries) {
-      try {
-        final startTimestampMs =
-            entry.value['startTimestampMsSinceEpoch'] as int;
-        final endTimestampMs = entry.value['stopTimestampMsSinceEpoch'] as int;
-        nativeSpanTimes.add(_TimeSpan(
-          start: DateTime.fromMillisecondsSinceEpoch(startTimestampMs),
-          end: DateTime.fromMillisecondsSinceEpoch(endTimestampMs),
-          description: entry.key as String,
-        ));
-      } catch (e) {
-        _options.log(
-            SentryLevel.warning, 'Failed to parse native span times: $e');
-        continue;
-      }
-    }
-
-    // We want to sort because the native spans are not guaranteed to be in order.
-    // Performance wise this won't affect us since the native span amount is very low.
-    nativeSpanTimes.sort((a, b) => a.start.compareTo(b.start));
-
-    return _AppStartInfo(
-      nativeAppStart.isColdStart ? _AppStartType.cold : _AppStartType.warm,
-      start: appStartDateTime,
-      end: appStartEnd,
-      pluginRegistration: pluginRegistrationDateTime,
-      sentrySetupStart: sentrySetupStartDateTime,
-      nativeSpanTimes: nativeSpanTimes,
-    );
-  }
-
   Future<void> _attachAppStartSpans(
-      _AppStartInfo appStartInfo, SentryTracer transaction) async {
+      AppStartInfo appStartInfo, SentryTracer transaction) async {
     final transactionTraceId = transaction.context.traceId;
     final appStartEnd = appStartInfo.end;
 
@@ -191,11 +129,11 @@ class NativeAppStartHandler {
   }
 
   Future<void> _attachNativeSpans(
-    _AppStartInfo appStartInfo,
+    AppStartInfo appStartInfo,
     SentryTracer transaction,
     SentrySpan parent,
   ) async {
-    await Future.forEach<_TimeSpan>(appStartInfo.nativeSpanTimes,
+    await Future.forEach<TimeSpan>(appStartInfo.nativeSpanTimes,
         (timeSpan) async {
       try {
         final span = await _createAndFinishSpan(
@@ -242,51 +180,4 @@ class NativeAppStartHandler {
     await span.finish(endTimestamp: endTimestamp);
     return span;
   }
-}
-
-enum _AppStartType { cold, warm }
-
-class _AppStartInfo {
-  _AppStartInfo(
-    this.type, {
-    required this.start,
-    required this.end,
-    required this.pluginRegistration,
-    required this.sentrySetupStart,
-    required this.nativeSpanTimes,
-  });
-
-  final _AppStartType type;
-  final DateTime start;
-  final DateTime end;
-  final List<_TimeSpan> nativeSpanTimes;
-
-  final DateTime pluginRegistration;
-  final DateTime sentrySetupStart;
-
-  Duration get duration => end.difference(start);
-
-  SentryMeasurement toMeasurement() {
-    final duration = this.duration;
-    return type == _AppStartType.cold
-        ? SentryMeasurement.coldAppStart(duration)
-        : SentryMeasurement.warmAppStart(duration);
-  }
-
-  String get appStartTypeOperation => 'app.start.${type.name}';
-
-  String get appStartTypeDescription =>
-      type == _AppStartType.cold ? 'Cold Start' : 'Warm Start';
-  final pluginRegistrationDescription = 'App start to plugin registration';
-  final sentrySetupDescription = 'Before Sentry Init Setup';
-  final firstFrameRenderDescription = 'First frame render';
-}
-
-class _TimeSpan {
-  _TimeSpan(
-      {required this.start, required this.end, required this.description});
-
-  final DateTime start;
-  final DateTime end;
-  final String description;
 }

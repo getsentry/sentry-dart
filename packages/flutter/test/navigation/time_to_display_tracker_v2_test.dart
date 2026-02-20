@@ -117,6 +117,84 @@ void main() {
       });
     });
 
+    group('when tracking a route with startTimestamp', () {
+      test('backdates idle root span start time', () {
+        final sut = fixture.getSut();
+        final past = DateTime(2024, 1, 1, 12, 0, 0);
+
+        sut.trackRoute('root /', startTimestamp: past);
+
+        final activeSpan =
+            fixture.hub.getActiveSpan() as RecordingSentrySpanV2;
+        expect(activeSpan.startTimestamp, equals(past));
+      });
+
+      test('backdates TTID and TTFD child spans', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+        final past = DateTime(2024, 1, 1, 12, 0, 0);
+
+        sut.trackRoute('root /', startTimestamp: past);
+
+        final ttidSpan = childSpans.firstWhere(
+          (s) => s.name == 'root / initial display',
+        );
+        final ttfdSpan = childSpans.firstWhere(
+          (s) => s.name == 'root / full display',
+        );
+
+        expect(ttidSpan.startTimestamp, equals(past));
+        expect(ttfdSpan.startTimestamp, equals(past));
+      });
+
+      test('returns the created route span', () {
+        final sut = fixture.getSut();
+
+        final routeSpan = sut.trackRoute('/test-route');
+
+        expect(routeSpan, isA<RecordingSentrySpanV2>());
+        expect(routeSpan.name, '/test-route');
+      });
+    });
+
+    group('when tracking a route with ttidEndTimestamp', () {
+      test('ends TTID span immediately with provided timestamp', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+        final ttidEnd = DateTime.utc(2024, 1, 1, 12, 0, 5);
+
+        sut.trackRoute('root /', ttidEndTimestamp: ttidEnd);
+
+        final ttidSpan = childSpans.firstWhere(
+          (s) => s.name == 'root / initial display',
+        );
+
+        expect(ttidSpan.isEnded, isTrue);
+        expect(ttidSpan.endTimestamp, equals(ttidEnd));
+      });
+
+      test('does not register frame callback when ttidEndTimestamp is set',
+          () {
+        final sut = fixture.getSut();
+
+        sut.trackRoute('root /', ttidEndTimestamp: DateTime.now());
+
+        expect(fixture.frameCallbackHandler.postFrameCallback, isNull);
+      });
+
+      test('TTFD span remains open when ttidEndTimestamp is set', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+
+        sut.trackRoute('root /', ttidEndTimestamp: DateTime.now());
+
+        final ttfdSpan = childSpans.firstWhere(
+          (s) => s.name == 'root / full display',
+        );
+        expect(ttfdSpan.isEnded, isFalse);
+      });
+    });
+
     group('when reporting fully displayed', () {
       test('ends TTFD span with matching spanId', () {
         final sut = fixture.getSut();

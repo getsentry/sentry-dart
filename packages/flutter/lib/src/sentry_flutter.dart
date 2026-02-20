@@ -22,6 +22,7 @@ import 'integrations/flutter_framework_feature_flag_integration.dart';
 import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
+import 'integrations/native_app_start_handler_v2.dart';
 import 'integrations/replay_telemetry_integration.dart';
 import 'integrations/screenshot_integration.dart';
 import 'integrations/generic_app_start_integration.dart';
@@ -205,6 +206,7 @@ mixin SentryFlutter {
             NativeAppStartIntegration(
               DefaultFrameCallbackHandler(),
               NativeAppStartHandler(native),
+              NativeAppStartHandlerV2(native),
             ),
           );
         }

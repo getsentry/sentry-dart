@@ -7,18 +7,27 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
 import 'native_app_start_handler.dart';
+import 'native_app_start_handler_v2.dart';
 
-/// Integration which calls [NativeAppStartHandler] after
-/// [SchedulerBinding.instance.addPostFrameCallback] is called.
+/// Integration which calls [NativeAppStartHandler] or [NativeAppStartHandlerV2]
+/// after [SchedulerBinding.instance.addPostFrameCallback] is called.
+///
+/// Branches on [SentryFlutterOptions.traceLifecycle]:
+/// - **static (V1)**: Creates a [SentryTransactionContext] and delegates to [NativeAppStartHandler]
+/// - **streaming (V2)**: Delegates to [NativeAppStartHandlerV2] which uses [TimeToDisplayTrackerV2]
 class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   NativeAppStartIntegration(
-      this._frameCallbackHandler, this._nativeAppStartHandler);
+    this._frameCallbackHandler,
+    this._nativeAppStartHandler,
+    this._nativeAppStartHandlerV2,
+  );
 
   @internal
   static const integrationName = 'NativeAppStart';
 
   final FrameCallbackHandler _frameCallbackHandler;
   final NativeAppStartHandler _nativeAppStartHandler;
+  final NativeAppStartHandlerV2 _nativeAppStartHandlerV2;
 
   bool _allowProcessing = true;
 
@@ -30,13 +39,16 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       return;
     }
 
-    // Create context early so we have an id to refernce for reporting full display
-    final context = SentryTransactionContext(
-      'root /',
-      SentrySpanOperations.uiLoad,
-      origin: SentryTraceOrigins.autoUiTimeToDisplay,
-    );
-    options.timeToDisplayTracker.transactionId = context.spanId;
+    // V1 path: Create context early so we have an id to reference for reporting full display
+    SentryTransactionContext? context;
+    if (options.traceLifecycle == SentryTraceLifecycle.static) {
+      context = SentryTransactionContext(
+        'root /',
+        SentrySpanOperations.uiLoad,
+        origin: SentryTraceOrigins.autoUiTimeToDisplay,
+      );
+      options.timeToDisplayTracker.transactionId = context.spanId;
+    }
 
     void timingsCallback(List<FrameTiming> timings) async {
       if (!_allowProcessing) {
@@ -49,12 +61,21 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       try {
         final appStartEnd = DateTime.fromMicrosecondsSinceEpoch(timings.first
             .timestampInMicroseconds(FramePhase.rasterFinishWallTime));
-        await _nativeAppStartHandler.call(
-          hub,
-          options,
-          context: context,
-          appStartEnd: appStartEnd,
-        );
+
+        if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
+          await _nativeAppStartHandlerV2.call(
+            hub,
+            options,
+            appStartEnd: appStartEnd,
+          );
+        } else {
+          await _nativeAppStartHandler.call(
+            hub,
+            options,
+            context: context!,
+            appStartEnd: appStartEnd,
+          );
+        }
       } catch (exception, stackTrace) {
         options.log(
           SentryLevel.error,
