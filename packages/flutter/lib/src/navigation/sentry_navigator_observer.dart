@@ -370,7 +370,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       }
     } catch (exception, stacktrace) {
       internalLogger.error(
-        'Error while finishing transaction',
+        'SentryNavigatorObserver: error while finishing transaction',
         error: exception,
         stackTrace: stacktrace,
       );
