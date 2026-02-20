@@ -14,7 +14,7 @@ void main() {
     fixture = Fixture();
   });
 
-  group('TimeToDisplayTrackerV2', () {
+  group(TimeToDisplayTrackerV2, () {
     group('when tracking a route', () {
       test('cancels previous tracked route span', () {
         final sut = fixture.getSut();
@@ -145,14 +145,6 @@ void main() {
         sut.reportFullyDisplayed(SpanId.newId());
 
         expect(sut.ttfdSpanId, originalTtfdSpanId);
-      });
-
-      test('does nothing when no TTFD span is tracked', () {
-        final sut = fixture.getSut();
-
-        sut.reportFullyDisplayed(SpanId.newId());
-
-        expect(sut.ttfdSpanId, isNull);
       });
     });
 

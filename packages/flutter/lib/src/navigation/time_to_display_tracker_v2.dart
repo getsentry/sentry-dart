@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
+import '../utils/internal_logger.dart';
 
 @internal
 class TimeToDisplayTrackerV2 {
@@ -60,20 +61,22 @@ class TimeToDisplayTrackerV2 {
   }
 
   void reportFullyDisplayed(SpanId spanId) {
-    if (_ttfdSpan?.spanId != spanId) return;
+    final ttfdSpanId = _ttfdSpan?.spanId;
+    if (ttfdSpanId != spanId) {
+      internalLogger.debug(
+        'Ignoring reportFullyDisplayed for span $spanId because active TTFD span is $ttfdSpanId.',
+      );
+      return;
+    }
     _ttfdSpan?.end();
     _ttfdSpan = null;
   }
 
   void cancelCurrentRoute() {
-    final ttfdSpan = _ttfdSpan;
-    if (ttfdSpan != null && !ttfdSpan.isEnded) {
-      ttfdSpan
-        ..status = SentrySpanStatusV2.cancelled
-        ..end();
-    }
     _ttfdSpan = null;
 
+    // Ending the route idle span cascades cancellation to any unfinished
+    // descendant spans, including TTID and TTFD.
     final routeSpan = _routeSpan;
     if (routeSpan != null && !routeSpan.isEnded) {
       routeSpan
