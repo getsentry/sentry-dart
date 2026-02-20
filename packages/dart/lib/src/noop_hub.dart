@@ -183,7 +183,7 @@ class NoOpHub implements Hub {
   @override
   SentrySpanV2 startIdleSpan(
     String name, {
-    Duration idleTimeout = const Duration(seconds: 5),
+    Duration idleTimeout = const Duration(seconds: 3),
     Duration finalTimeout = const Duration(seconds: 30),
     bool trimIdleSpanEndTimestamp = true,
     Map<String, SentryAttribute>? attributes,
