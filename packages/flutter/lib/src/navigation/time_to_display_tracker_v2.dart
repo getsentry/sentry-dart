@@ -9,6 +9,7 @@ import '../frame_callback_handler.dart';
 class TimeToDisplayTrackerV2 {
   final Hub _hub;
   final FrameCallbackHandler _frameCallbackHandler;
+  SentrySpanV2? _routeSpan;
   SentrySpanV2? _ttfdSpan;
 
   TimeToDisplayTrackerV2({
@@ -21,20 +22,19 @@ class TimeToDisplayTrackerV2 {
   SpanId? get ttfdSpanId => _ttfdSpan?.spanId;
 
   void trackRoute(String routeName) {
-    _hub.getActiveSpan()
-      ?..status = SentrySpanStatusV2.cancelled
-      ..end();
+    cancelCurrentRoute();
 
-    final uiLoadSpan = _hub.startIdleSpan(routeName, attributes: {
+    final routeSpan = _hub.startIdleSpan(routeName, attributes: {
       SemanticAttributesConstants.sentryOp:
           SentryAttribute.string(SentrySpanOperations.uiLoad),
       SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
           SentryTraceOrigins.autoNavigationRouteObserver),
     });
+    _routeSpan = routeSpan;
 
     final ttidSpan = _hub.startInactiveSpan(
       '$routeName initial display',
-      parentSpan: uiLoadSpan,
+      parentSpan: routeSpan,
       attributes: {
         SemanticAttributesConstants.sentryOp:
             SentryAttribute.string(SentrySpanOperations.uiTimeToInitialDisplay),
@@ -45,7 +45,7 @@ class TimeToDisplayTrackerV2 {
 
     _ttfdSpan = _hub.startInactiveSpan(
       '$routeName full display',
-      parentSpan: uiLoadSpan,
+      parentSpan: routeSpan,
       attributes: {
         SemanticAttributesConstants.sentryOp:
             SentryAttribute.string(SentrySpanOperations.uiTimeToFullDisplay),
@@ -65,7 +65,21 @@ class TimeToDisplayTrackerV2 {
     _ttfdSpan = null;
   }
 
-  void clear() {
+  void cancelCurrentRoute() {
+    final ttfdSpan = _ttfdSpan;
+    if (ttfdSpan != null && !ttfdSpan.isEnded) {
+      ttfdSpan
+        ..status = SentrySpanStatusV2.cancelled
+        ..end();
+    }
     _ttfdSpan = null;
+
+    final routeSpan = _routeSpan;
+    if (routeSpan != null && !routeSpan.isEnded) {
+      routeSpan
+        ..status = SentrySpanStatusV2.cancelled
+        ..end();
+    }
+    _routeSpan = null;
   }
 }

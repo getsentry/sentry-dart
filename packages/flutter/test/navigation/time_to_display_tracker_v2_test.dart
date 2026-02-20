@@ -16,11 +16,13 @@ void main() {
 
   group('TimeToDisplayTrackerV2', () {
     group('when tracking a route', () {
-      test('cancels previous active span', () {
+      test('cancels previous tracked route span', () {
         final sut = fixture.getSut();
 
-        final activeSpan = fixture.hub.startIdleSpan('previous route');
-        expect(activeSpan.isEnded, isFalse);
+        sut.trackRoute('/previous-route');
+        final activeSpan = fixture.hub.getActiveSpan();
+        expect(activeSpan, isNotNull);
+        expect(activeSpan!.isEnded, isFalse);
 
         sut.trackRoute('/new-route');
 
@@ -59,8 +61,7 @@ void main() {
 
         expect(ttidSpan.isEnded, isFalse);
 
-        fixture.frameCallbackHandler.postFrameCallback
-            ?.call(Duration.zero);
+        fixture.frameCallbackHandler.postFrameCallback?.call(Duration.zero);
 
         expect(ttidSpan.isEnded, isTrue);
       });
@@ -90,8 +91,7 @@ void main() {
           SentrySpanOperations.uiTimeToInitialDisplay,
         );
         expect(
-          ttidSpan
-              .attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+          ttidSpan.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
           SentryTraceOrigins.autoNavigationRouteObserver,
         );
       });
@@ -111,8 +111,7 @@ void main() {
           SentrySpanOperations.uiTimeToFullDisplay,
         );
         expect(
-          ttfdSpan
-              .attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+          ttfdSpan.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
           SentryTraceOrigins.autoNavigationRouteObserver,
         );
       });
@@ -157,7 +156,7 @@ void main() {
       });
     });
 
-    group('when cleared', () {
+    group('when cancelling current route', () {
       test('ends TTFD span with cancelled status', () {
         final sut = fixture.getSut();
         final childSpans = fixture.captureChildSpans();
@@ -169,11 +168,26 @@ void main() {
         );
         expect(ttfdSpan.isEnded, isFalse);
 
-        sut.clear();
+        sut.cancelCurrentRoute();
 
         expect(ttfdSpan.isEnded, isTrue);
         expect(ttfdSpan.status, SentrySpanStatusV2.cancelled);
         expect(sut.ttfdSpanId, isNull);
+      });
+
+      test('ends active idle route span with cancelled status', () {
+        final sut = fixture.getSut();
+
+        sut.trackRoute('/test-route');
+
+        final activeSpan = fixture.hub.getActiveSpan();
+        expect(activeSpan, isNotNull);
+        expect(activeSpan!.isEnded, isFalse);
+
+        sut.cancelCurrentRoute();
+
+        expect(activeSpan.isEnded, isTrue);
+        expect(activeSpan.status, SentrySpanStatusV2.cancelled);
       });
     });
   });

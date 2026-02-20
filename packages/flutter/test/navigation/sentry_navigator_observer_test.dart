@@ -1254,6 +1254,26 @@ void main() {
       expect(activeSpan.status, SentrySpanStatusV2.cancelled);
     });
 
+    test('didPop cancels active TTFD span', () {
+      final sut = streamingFixture.getSut();
+      final childSpans = streamingFixture.captureChildSpans();
+
+      sut.didPush(route(RouteSettings(name: '/dashboard')), null);
+
+      final ttfdSpan = childSpans.firstWhere(
+        (s) => s.name == '/dashboard full display',
+      );
+      expect(ttfdSpan.isEnded, isFalse);
+
+      sut.didPop(
+        route(RouteSettings(name: '/dashboard')),
+        route(RouteSettings(name: '/')),
+      );
+
+      expect(ttfdSpan.isEnded, isTrue);
+      expect(ttfdSpan.status, SentrySpanStatusV2.cancelled);
+    });
+
     test('didPush with ignored route does not track V2', () {
       final sut = streamingFixture.getSut(ignoreRoutes: ['/ignored']);
 

@@ -231,10 +231,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _addWebSessions(from: route, to: previousRoute);
 
     if (_hub.options.traceLifecycle == SentryTraceLifecycle.streaming) {
-      _hub.getActiveSpan()
-        ?..status = SentrySpanStatusV2.cancelled
-        ..end();
-      _timeToDisplayTrackerV2?.clear();
+      _timeToDisplayTrackerV2?.cancelCurrentRoute();
     } else {
       final timestamp = _hub.options.clock();
       _finishTransaction(endTimestamp: timestamp);
