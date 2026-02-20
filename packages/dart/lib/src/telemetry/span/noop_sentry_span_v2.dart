@@ -1,9 +1,18 @@
 part of 'sentry_span_v2.dart';
 
 final class NoOpSentrySpanV2 implements SentrySpanV2 {
-  const NoOpSentrySpanV2();
+  const NoOpSentrySpanV2({this.recordingParent, this.isIgnored = false});
 
   static const instance = NoOpSentrySpanV2();
+
+  /// The nearest recording ancestor.
+  /// Only set and used when this span was ignored by [SentryOptions.ignoreSpans].
+  @internal
+  final RecordingSentrySpanV2? recordingParent;
+
+  /// Whether this was created by an [SentryOptions.ignoreSpans] rule.
+  @internal
+  final bool isIgnored;
 
   @override
   SpanId get spanId => SpanId.empty();

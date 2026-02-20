@@ -104,6 +104,13 @@ Future<void> setupSentry(
         return metric;
       };
 
+      options.ignoreSpans = [
+        IgnoreSpanRule.nameContains('ignore'),
+        IgnoreSpanRule.nameContains('ignoreSpan1'),
+        IgnoreSpanRule.nameContains('ignoreSpan2'),
+        IgnoreSpanRule.nameContains('Open DB'),
+      ];
+
       // Example: Scrub sensitive data from spans before sending
       options.beforeSendSpan = (span) {
         final sensitiveAttributes = span.attributes.entries
@@ -912,6 +919,14 @@ Future<void> asyncThrows() async {
 /// Demonstrates the SpanV2 API with streaming trace lifecycle.
 Future<void> spanV2Demo() async {
   await Sentry.startSpan('span1 test', (_) async {
+    // span1 test should be parent of deep child as spans inbetween are ignored
+    await Sentry.startSpan('ignoreSpan1', (_) async {
+      await Sentry.startSpan('ignoreSpan2', (_) async {
+        await Sentry.startSpan('deep child', (_) async {
+          await Future.delayed(const Duration(milliseconds: 50));
+        });
+      });
+    });
     await Sentry.startSpan('span1 child1', (_) async {
       await Future.delayed(const Duration(milliseconds: 50));
     });

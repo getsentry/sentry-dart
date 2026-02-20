@@ -793,21 +793,32 @@ class Hub {
   }) {
     if (!_canCreateSpansV2) return NoOpSentrySpanV2.instance;
 
-    // Determine the parent span based on the parentSpan parameter:
-    // - If parentSpan is UnsetSpan (default), use the currently active span
-    // - If parentSpan is a recording Span, use that as the parent
-    // - If parentSpan is null, create a root/segment span (no parent)
-    // - If parentSpan is no-op (e.g., not sampled), return it
     final RecordingSentrySpanV2? resolvedParentSpan;
     switch (parentSpan) {
       case UnsetSentrySpanV2():
         resolvedParentSpan = getActiveSpan();
-      case RecordingSentrySpanV2 span:
-        resolvedParentSpan = span;
+      case RecordingSentrySpanV2 parent:
+        resolvedParentSpan = parent;
       case null:
         resolvedParentSpan = null;
-      case NoOpSentrySpanV2():
-        return NoOpSentrySpanV2.instance;
+      case NoOpSentrySpanV2 parent:
+        if (parent.isIgnored) {
+          // Ignored spans: prune the selected span(s), preserve descendants via re-parenting
+          resolvedParentSpan = parent.recordingParent;
+        } else {
+          // Unsampled spans: subtree is effectively NoOp / not recorded
+          return NoOpSentrySpanV2.instance;
+        }
+    }
+
+    final ignoreSpan =
+        _options.ignoreSpans.any((rule) => rule.appliesToName(name));
+    if (ignoreSpan) {
+      // TODO(next-pr): client report
+      return NoOpSentrySpanV2(
+        recordingParent: resolvedParentSpan,
+        isIgnored: true,
+      );
     }
 
     final RecordingSentrySpanV2 span;
