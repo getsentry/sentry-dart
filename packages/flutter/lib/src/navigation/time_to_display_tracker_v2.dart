@@ -11,6 +11,8 @@ class TimeToDisplayTrackerV2 {
   final Hub _hub;
   final FrameCallbackHandler _frameCallbackHandler;
   SentrySpanV2? _ttfdSpan;
+  SentrySpanV2? _routeSpan;
+  bool _isPrepared = false;
 
   TimeToDisplayTrackerV2({
     Hub? hub,
@@ -21,23 +23,77 @@ class TimeToDisplayTrackerV2 {
 
   SpanId? get ttfdSpanId => _ttfdSpan?.spanId;
 
-  SentrySpanV2 trackRoute(
-    String routeName, {
-    DateTime? startTimestamp,
-    DateTime? ttidEndTimestamp,
-  }) {
+  void prepareRouteSpan(String routeName) {
     cancelCurrentRoute();
 
-    final routeSpan = _hub
-        .startIdleSpan(routeName, startTimestamp: startTimestamp, attributes: {
+    final routeSpan = _hub.startIdleSpan(routeName, attributes: {
       SemanticAttributesConstants.sentryOp:
           SentryAttribute.string(SentrySpanOperations.uiLoad),
       SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
           SentryTraceOrigins.autoNavigationRouteObserver),
     });
+    _routeSpan = routeSpan;
 
-    // ttidSpan is intentionally local — it's either ended immediately (app start)
-    // or captured by the post-frame callback closure (normal navigation).
+    _ttfdSpan = _hub.startInactiveSpan(
+      '$routeName full display',
+      parentSpan: routeSpan,
+      attributes: {
+        SemanticAttributesConstants.sentryOp:
+            SentryAttribute.string(SentrySpanOperations.uiTimeToFullDisplay),
+        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+            SentryTraceOrigins.autoNavigationRouteObserver),
+      },
+    );
+
+    _isPrepared = true;
+  }
+
+  SentrySpanV2 trackRoute(
+    String routeName, {
+    DateTime? startTimestamp,
+    DateTime? ttidEndTimestamp,
+  }) {
+    final SentrySpanV2 routeSpan;
+
+    if (_isPrepared && _routeSpan != null && !_routeSpan!.isEnded) {
+      _isPrepared = false;
+      routeSpan = _routeSpan!;
+      // Backdate prepared idle span and TTFD
+      if (startTimestamp != null) {
+        if (routeSpan case RecordingSentrySpanV2 span) {
+          span.startTimestamp = startTimestamp;
+        }
+        if (_ttfdSpan case RecordingSentrySpanV2 span) {
+          span.startTimestamp = startTimestamp;
+        }
+      }
+    } else {
+      cancelCurrentRoute();
+
+      routeSpan = _hub.startIdleSpan(routeName,
+          startTimestamp: startTimestamp,
+          attributes: {
+            SemanticAttributesConstants.sentryOp:
+                SentryAttribute.string(SentrySpanOperations.uiLoad),
+            SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+                SentryTraceOrigins.autoNavigationRouteObserver),
+          });
+      _routeSpan = routeSpan;
+
+      _ttfdSpan = _hub.startInactiveSpan(
+        '$routeName full display',
+        parentSpan: routeSpan,
+        startTimestamp: startTimestamp,
+        attributes: {
+          SemanticAttributesConstants.sentryOp:
+              SentryAttribute.string(SentrySpanOperations.uiTimeToFullDisplay),
+          SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+              SentryTraceOrigins.autoNavigationRouteObserver),
+        },
+      );
+    }
+
+    // Always create TTID fresh (never pre-created in prepareRouteSpan)
     final ttidSpan = _hub.startInactiveSpan(
       '$routeName initial display',
       parentSpan: routeSpan,
@@ -45,18 +101,6 @@ class TimeToDisplayTrackerV2 {
       attributes: {
         SemanticAttributesConstants.sentryOp:
             SentryAttribute.string(SentrySpanOperations.uiTimeToInitialDisplay),
-        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-            SentryTraceOrigins.autoNavigationRouteObserver),
-      },
-    );
-
-    _ttfdSpan = _hub.startInactiveSpan(
-      '$routeName full display',
-      parentSpan: routeSpan,
-      startTimestamp: startTimestamp,
-      attributes: {
-        SemanticAttributesConstants.sentryOp:
-            SentryAttribute.string(SentrySpanOperations.uiTimeToFullDisplay),
         SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
             SentryTraceOrigins.autoNavigationRouteObserver),
       },
@@ -87,6 +131,7 @@ class TimeToDisplayTrackerV2 {
 
   void cancelCurrentRoute() {
     _ttfdSpan = null;
+    _isPrepared = false;
 
     // Cancel any active idle span (navigation or user interaction) so
     // startIdleSpan can create a fresh one on the next route.

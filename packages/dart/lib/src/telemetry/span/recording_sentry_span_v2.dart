@@ -20,7 +20,7 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
   final RecordingSentrySpanV2? _parentSpan;
   final ClockProvider _clock;
   final OnSpanEndCallback _onSpanEnd;
-  final DateTime _startTimestamp;
+  DateTime _startTimestamp;
   final SentryId _traceId;
   final RecordingSentrySpanV2? _segmentSpan;
   final DscCreatorCallback _dscCreator;
@@ -124,6 +124,9 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
 
   @override
   DateTime get startTimestamp => _startTimestamp;
+
+  @internal
+  set startTimestamp(DateTime value) => _startTimestamp = value.toUtc();
 
   @override
   DateTime? get endTimestamp => _endTimestamp;
