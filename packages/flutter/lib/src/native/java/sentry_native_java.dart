@@ -59,7 +59,6 @@ class SentryNativeJava extends SentryNativeChannel {
       final instructionAddresses =
           stackTrace.frames.map((f) => f.instructionAddr).nonNulls.toList();
 
-      print('loadDebugImages');
       return await compute(_loadDebugImagesInBackground, instructionAddresses);
     } catch (exception, stackTrace) {
       internalLogger.error('JNI: Failed to load debug images',
