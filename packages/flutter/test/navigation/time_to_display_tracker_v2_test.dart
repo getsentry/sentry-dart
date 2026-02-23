@@ -96,6 +96,36 @@ void main() {
         );
       });
 
+      test('creates TTFD span when enableTimeToFullDisplayTracing is true', () {
+        fixture.options.enableTimeToFullDisplayTracing = true;
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+
+        sut.trackRoute('/test-route');
+
+        final ttfdSpans = childSpans.where(
+          (s) => s.name == '/test-route full display',
+        );
+        expect(ttfdSpans, hasLength(1));
+        expect(sut.ttfdSpanId, isNotNull);
+      });
+
+      test(
+          'does not create TTFD span when enableTimeToFullDisplayTracing is false',
+          () {
+        fixture.options.enableTimeToFullDisplayTracing = false;
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+
+        sut.trackRoute('/test-route');
+
+        final ttfdSpans = childSpans.where(
+          (s) => s.name == '/test-route full display',
+        );
+        expect(ttfdSpans, isEmpty);
+        expect(sut.ttfdSpanId, isNull);
+      });
+
       test('creates TTFD span with correct op and origin', () {
         final sut = fixture.getSut();
         final childSpans = fixture.captureChildSpans();
@@ -259,6 +289,20 @@ void main() {
         expect(activeSpan.isEnded, isTrue);
         expect(activeSpan.status, SentrySpanStatusV2.cancelled);
       });
+
+      test('cancels an existing idle span not created by trackRoute', () {
+        final sut = fixture.getSut();
+
+        // Create an idle span externally (e.g. simulating a user interaction span)
+        final externalIdleSpan =
+            fixture.hub.startIdleSpan('user interaction span');
+        expect(externalIdleSpan.isEnded, isFalse);
+
+        sut.cancelCurrentRoute();
+
+        expect(externalIdleSpan.isEnded, isTrue);
+        expect(externalIdleSpan.status, SentrySpanStatusV2.cancelled);
+      });
     });
   });
 }
@@ -266,7 +310,8 @@ void main() {
 class Fixture {
   final options = defaultTestOptions()
     ..tracesSampleRate = 1.0
-    ..traceLifecycle = SentryTraceLifecycle.streaming;
+    ..traceLifecycle = SentryTraceLifecycle.streaming
+    ..enableTimeToFullDisplayTracing = true;
 
   late final hub = Hub(options);
   final frameCallbackHandler = FakeFrameCallbackHandler();

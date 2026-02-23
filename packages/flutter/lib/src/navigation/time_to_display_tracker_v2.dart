@@ -34,16 +34,19 @@ class TimeToDisplayTrackerV2 {
     });
     _routeSpan = routeSpan;
 
-    _ttfdSpan = _hub.startInactiveSpan(
-      '$routeName full display',
-      parentSpan: routeSpan,
-      attributes: {
-        SemanticAttributesConstants.sentryOp:
-            SentryAttribute.string(SentrySpanOperations.uiTimeToFullDisplay),
-        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-            SentryTraceOrigins.autoNavigationRouteObserver),
-      },
-    );
+    if (_hub.options
+        case SentryFlutterOptions(enableTimeToFullDisplayTracing: true)) {
+      _ttfdSpan = _hub.startInactiveSpan(
+        '$routeName full display',
+        parentSpan: routeSpan,
+        attributes: {
+          SemanticAttributesConstants.sentryOp:
+              SentryAttribute.string(SentrySpanOperations.uiTimeToFullDisplay),
+          SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+              SentryTraceOrigins.autoNavigationRouteObserver),
+        },
+      );
+    }
 
     _isPrepared = true;
   }
@@ -80,17 +83,20 @@ class TimeToDisplayTrackerV2 {
           });
       _routeSpan = routeSpan;
 
-      _ttfdSpan = _hub.startInactiveSpan(
-        '$routeName full display',
-        parentSpan: routeSpan,
-        startTimestamp: startTimestamp,
-        attributes: {
-          SemanticAttributesConstants.sentryOp:
-              SentryAttribute.string(SentrySpanOperations.uiTimeToFullDisplay),
-          SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-              SentryTraceOrigins.autoNavigationRouteObserver),
-        },
-      );
+      if (_hub.options
+          case SentryFlutterOptions(enableTimeToFullDisplayTracing: true)) {
+        _ttfdSpan = _hub.startInactiveSpan(
+          '$routeName full display',
+          parentSpan: routeSpan,
+          startTimestamp: startTimestamp,
+          attributes: {
+            SemanticAttributesConstants.sentryOp: SentryAttribute.string(
+                SentrySpanOperations.uiTimeToFullDisplay),
+            SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+                SentryTraceOrigins.autoNavigationRouteObserver),
+          },
+        );
+      }
     }
 
     // Always create TTID fresh (never pre-created in prepareRouteSpan)
