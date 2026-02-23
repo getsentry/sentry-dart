@@ -41,8 +41,8 @@ class TimeToDisplayTrackerV2 {
       },
     );
 
-    final options = _hub.options as SentryFlutterOptions;
-    if (options.enableTimeToFullDisplayTracing) {
+    if (_hub.options
+        case SentryFlutterOptions(enableTimeToFullDisplayTracing: true)) {
       _ttfdSpan = _hub.startInactiveSpan(
         '$routeName full display',
         parentSpan: routeSpan,
