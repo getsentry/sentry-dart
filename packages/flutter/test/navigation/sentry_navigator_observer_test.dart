@@ -10,9 +10,9 @@ import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
-
 import '../mocks.dart';
 import '../mocks.mocks.dart';
+import 'fake_time_to_display_tracker_v2.dart';
 
 void main() {
   late Fixture fixture;
@@ -1144,6 +1144,74 @@ void main() {
       verify(fixture.mockTimeToDisplayTracker.clear()).called(1);
     });
   });
+
+  group('time to display (streaming)', () {
+    late _StreamingFixture streamingFixture;
+
+    setUp(() {
+      streamingFixture = _StreamingFixture();
+    });
+
+    test('didPush calls trackRoute with route name', () {
+      final sut = streamingFixture.getSut();
+
+      sut.didPush(route(RouteSettings(name: '/dashboard')), null);
+
+      expect(streamingFixture.fakeTracker.trackRouteCalls, ['/dashboard']);
+    });
+
+    test('sequential didPush calls trackRoute for each route', () {
+      final sut = streamingFixture.getSut();
+
+      sut.didPush(route(RouteSettings(name: '/route-a')), null);
+      sut.didPush(
+        route(RouteSettings(name: '/route-b')),
+        route(RouteSettings(name: '/route-a')),
+      );
+
+      expect(streamingFixture.fakeTracker.trackRouteCalls,
+          ['/route-a', '/route-b']);
+    });
+
+    test('didPush on root route does not call trackRoute', () {
+      final sut = streamingFixture.getSut();
+
+      sut.didPush(route(RouteSettings(name: '/')), null);
+
+      expect(streamingFixture.fakeTracker.trackRouteCalls, isEmpty);
+    });
+
+    test('didPush with auto transactions disabled does not call trackRoute',
+        () {
+      final sut = streamingFixture.getSut(enableAutoTransactions: false);
+
+      sut.didPush(route(RouteSettings(name: '/dashboard')), null);
+
+      expect(streamingFixture.fakeTracker.trackRouteCalls, isEmpty);
+    });
+
+    test('didPop calls cancelCurrentRoute', () {
+      final sut = streamingFixture.getSut();
+
+      sut.didPush(route(RouteSettings(name: '/dashboard')), null);
+      streamingFixture.fakeTracker.cancelCurrentRouteCalls = 0;
+
+      sut.didPop(
+        route(RouteSettings(name: '/dashboard')),
+        route(RouteSettings(name: '/')),
+      );
+
+      expect(streamingFixture.fakeTracker.cancelCurrentRouteCalls, 1);
+    });
+
+    test('didPush with ignored route does not call trackRoute', () {
+      final sut = streamingFixture.getSut(ignoreRoutes: ['/ignored']);
+
+      sut.didPush(route(RouteSettings(name: '/ignored')), null);
+
+      expect(streamingFixture.fakeTracker.trackRouteCalls, isEmpty);
+    });
+  });
 }
 
 class Fixture {
@@ -1200,6 +1268,30 @@ MockSentryTracer getMockSentryTracer({String? name, bool? finished}) {
   when(tracer.name).thenReturn(name ?? 'name');
   when(tracer.finished).thenReturn(finished ?? true);
   return tracer;
+}
+
+class _StreamingFixture {
+  final options = defaultTestOptions()
+    ..tracesSampleRate = 1.0
+    ..traceLifecycle = SentryTraceLifecycle.streaming;
+
+  late final hub = Hub(options);
+  final fakeTracker = FakeTimeToDisplayTrackerV2();
+
+  _StreamingFixture() {
+    options.timeToDisplayTrackerV2 = fakeTracker;
+  }
+
+  SentryNavigatorObserver getSut({
+    bool enableAutoTransactions = true,
+    List<String>? ignoreRoutes,
+  }) {
+    return SentryNavigatorObserver(
+      hub: hub,
+      enableAutoTransactions: enableAutoTransactions,
+      ignoreRoutes: ignoreRoutes,
+    );
+  }
 }
 
 extension RouteSettingsExtensions on RouteSettings {
