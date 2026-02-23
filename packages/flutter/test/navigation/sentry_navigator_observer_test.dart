@@ -10,11 +10,9 @@ import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
-import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
-
-import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
 import '../mocks.mocks.dart';
+import 'fake_time_to_display_tracker_v2.dart';
 
 void main() {
   late Fixture fixture;
@@ -1154,140 +1152,64 @@ void main() {
       streamingFixture = _StreamingFixture();
     });
 
-    test('didPush creates ui.load idle span with TTID and TTFD children', () {
+    test('didPush calls trackRoute with route name', () {
       final sut = streamingFixture.getSut();
-      final childSpans = streamingFixture.captureChildSpans();
 
       sut.didPush(route(RouteSettings(name: '/dashboard')), null);
 
-      final activeSpan = streamingFixture.hub.getActiveSpan();
-      expect(activeSpan, isNotNull);
-      expect(activeSpan!.name, '/dashboard');
-      expect(
-        activeSpan.attributes[SemanticAttributesConstants.sentryOp]?.value,
-        SentrySpanOperations.uiLoad,
-      );
-
-      final ttidSpan = childSpans.firstWhere(
-        (s) => s.name == '/dashboard initial display',
-      );
-      expect(
-        ttidSpan.attributes[SemanticAttributesConstants.sentryOp]?.value,
-        SentrySpanOperations.uiTimeToInitialDisplay,
-      );
-
-      final ttfdSpan = childSpans.firstWhere(
-        (s) => s.name == '/dashboard full display',
-      );
-      expect(
-        ttfdSpan.attributes[SemanticAttributesConstants.sentryOp]?.value,
-        SentrySpanOperations.uiTimeToFullDisplay,
-      );
+      expect(streamingFixture.fakeTracker.trackRouteCalls, ['/dashboard']);
     });
 
-    test('didPush ends TTID span after frame callback', () {
-      final sut = streamingFixture.getSut();
-      final childSpans = streamingFixture.captureChildSpans();
-
-      sut.didPush(route(RouteSettings(name: '/dashboard')), null);
-
-      final ttidSpan = childSpans.firstWhere(
-        (s) => s.name == '/dashboard initial display',
-      );
-      final ttfdSpan = childSpans.firstWhere(
-        (s) => s.name == '/dashboard full display',
-      );
-
-      expect(ttidSpan.isEnded, isFalse);
-      expect(ttfdSpan.isEnded, isFalse);
-
-      streamingFixture.frameCallbackHandler.postFrameCallback
-          ?.call(Duration.zero);
-
-      expect(ttidSpan.isEnded, isTrue);
-      expect(ttfdSpan.isEnded, isFalse);
-    });
-
-    test('sequential navigation cancels previous route spans', () {
+    test('sequential didPush calls trackRoute for each route', () {
       final sut = streamingFixture.getSut();
 
       sut.didPush(route(RouteSettings(name: '/route-a')), null);
-
-      final routeASpan = streamingFixture.hub.getActiveSpan()!;
-      expect(routeASpan.name, '/route-a');
-
       sut.didPush(
         route(RouteSettings(name: '/route-b')),
         route(RouteSettings(name: '/route-a')),
       );
 
-      expect(routeASpan.isEnded, isTrue);
-      expect(routeASpan.status, SentrySpanStatusV2.cancelled);
-
-      final routeBSpan = streamingFixture.hub.getActiveSpan()!;
-      expect(routeBSpan.name, '/route-b');
-      expect(routeBSpan.isEnded, isFalse);
+      expect(streamingFixture.fakeTracker.trackRouteCalls,
+          ['/route-a', '/route-b']);
     });
 
-    test('didPush on root route does not track V2', () {
+    test('didPush on root route does not call trackRoute', () {
       final sut = streamingFixture.getSut();
 
       sut.didPush(route(RouteSettings(name: '/')), null);
 
-      expect(streamingFixture.hub.getActiveSpan(), isNull);
+      expect(streamingFixture.fakeTracker.trackRouteCalls, isEmpty);
     });
 
-    test('didPush on opt-out does not track V2', () {
+    test('didPush with auto transactions disabled does not call trackRoute',
+        () {
       final sut = streamingFixture.getSut(enableAutoTransactions: false);
 
       sut.didPush(route(RouteSettings(name: '/dashboard')), null);
 
-      expect(streamingFixture.hub.getActiveSpan(), isNull);
+      expect(streamingFixture.fakeTracker.trackRouteCalls, isEmpty);
     });
 
-    test('didPop cancels active idle span', () {
+    test('didPop calls cancelCurrentRoute', () {
       final sut = streamingFixture.getSut();
 
       sut.didPush(route(RouteSettings(name: '/dashboard')), null);
-
-      final activeSpan = streamingFixture.hub.getActiveSpan()!;
-      expect(activeSpan.isEnded, isFalse);
+      streamingFixture.fakeTracker.cancelCurrentRouteCalls = 0;
 
       sut.didPop(
         route(RouteSettings(name: '/dashboard')),
         route(RouteSettings(name: '/')),
       );
 
-      expect(activeSpan.isEnded, isTrue);
-      expect(activeSpan.status, SentrySpanStatusV2.cancelled);
+      expect(streamingFixture.fakeTracker.cancelCurrentRouteCalls, 1);
     });
 
-    test('didPop cancels active TTFD span', () {
-      final sut = streamingFixture.getSut();
-      final childSpans = streamingFixture.captureChildSpans();
-
-      sut.didPush(route(RouteSettings(name: '/dashboard')), null);
-
-      final ttfdSpan = childSpans.firstWhere(
-        (s) => s.name == '/dashboard full display',
-      );
-      expect(ttfdSpan.isEnded, isFalse);
-
-      sut.didPop(
-        route(RouteSettings(name: '/dashboard')),
-        route(RouteSettings(name: '/')),
-      );
-
-      expect(ttfdSpan.isEnded, isTrue);
-      expect(ttfdSpan.status, SentrySpanStatusV2.cancelled);
-    });
-
-    test('didPush with ignored route does not track V2', () {
+    test('didPush with ignored route does not call trackRoute', () {
       final sut = streamingFixture.getSut(ignoreRoutes: ['/ignored']);
 
       sut.didPush(route(RouteSettings(name: '/ignored')), null);
 
-      expect(streamingFixture.hub.getActiveSpan(), isNull);
+      expect(streamingFixture.fakeTracker.trackRouteCalls, isEmpty);
     });
   });
 }
@@ -1354,13 +1276,10 @@ class _StreamingFixture {
     ..traceLifecycle = SentryTraceLifecycle.streaming;
 
   late final hub = Hub(options);
-  final frameCallbackHandler = FakeFrameCallbackHandler();
+  final fakeTracker = FakeTimeToDisplayTrackerV2();
 
   _StreamingFixture() {
-    options.timeToDisplayTrackerV2 = TimeToDisplayTrackerV2(
-      hub: hub,
-      frameCallbackHandler: frameCallbackHandler,
-    );
+    options.timeToDisplayTrackerV2 = fakeTracker;
   }
 
   SentryNavigatorObserver getSut({
@@ -1372,17 +1291,6 @@ class _StreamingFixture {
       enableAutoTransactions: enableAutoTransactions,
       ignoreRoutes: ignoreRoutes,
     );
-  }
-
-  List<RecordingSentrySpanV2> captureChildSpans() {
-    final capturedSpans = <RecordingSentrySpanV2>[];
-    options.lifecycleRegistry.registerCallback<OnSpanStartV2>((event) {
-      if (event.span case final RecordingSentrySpanV2 span
-          when span.parentSpan != null) {
-        capturedSpans.add(span);
-      }
-    });
-    return capturedSpans;
   }
 }
 

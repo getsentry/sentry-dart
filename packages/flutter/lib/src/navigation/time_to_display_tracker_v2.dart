@@ -41,16 +41,19 @@ class TimeToDisplayTrackerV2 {
       },
     );
 
-    _ttfdSpan = _hub.startInactiveSpan(
-      '$routeName full display',
-      parentSpan: routeSpan,
-      attributes: {
-        SemanticAttributesConstants.sentryOp:
-            SentryAttribute.string(SentrySpanOperations.uiTimeToFullDisplay),
-        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-            SentryTraceOrigins.autoNavigationRouteObserver),
-      },
-    );
+    final options = _hub.options as SentryFlutterOptions;
+    if (options.enableTimeToFullDisplayTracing) {
+      _ttfdSpan = _hub.startInactiveSpan(
+        '$routeName full display',
+        parentSpan: routeSpan,
+        attributes: {
+          SemanticAttributesConstants.sentryOp:
+              SentryAttribute.string(SentrySpanOperations.uiTimeToFullDisplay),
+          SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+              SentryTraceOrigins.autoNavigationRouteObserver),
+        },
+      );
+    }
 
     _frameCallbackHandler.addPostFrameCallback((_) {
       ttidSpan.end();
