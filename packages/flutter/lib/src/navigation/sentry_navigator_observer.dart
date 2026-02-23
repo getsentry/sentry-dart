@@ -179,6 +179,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       // During SentryFlutter.init a traceId is already created
       _startNewTraceIfEnabled();
 
+      // App start TTID/TTFD is taken care of by app start integrations
       _instrumentTimeToDisplayOnPush(routeName, route.settings.arguments);
     }
   }

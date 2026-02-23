@@ -10,7 +10,6 @@ import '../utils/internal_logger.dart';
 class TimeToDisplayTrackerV2 {
   final Hub _hub;
   final FrameCallbackHandler _frameCallbackHandler;
-  SentrySpanV2? _routeSpan;
   SentrySpanV2? _ttfdSpan;
 
   TimeToDisplayTrackerV2({
@@ -29,15 +28,13 @@ class TimeToDisplayTrackerV2 {
   }) {
     cancelCurrentRoute();
 
-    final routeSpan = _hub.startIdleSpan(routeName,
-        startTimestamp: startTimestamp,
-        attributes: {
-          SemanticAttributesConstants.sentryOp:
-              SentryAttribute.string(SentrySpanOperations.uiLoad),
-          SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-              SentryTraceOrigins.autoNavigationRouteObserver),
-        });
-    _routeSpan = routeSpan;
+    final routeSpan = _hub
+        .startIdleSpan(routeName, startTimestamp: startTimestamp, attributes: {
+      SemanticAttributesConstants.sentryOp:
+          SentryAttribute.string(SentrySpanOperations.uiLoad),
+      SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+          SentryTraceOrigins.autoNavigationRouteObserver),
+    });
 
     // ttidSpan is intentionally local — it's either ended immediately (app start)
     // or captured by the post-frame callback closure (normal navigation).
@@ -91,14 +88,13 @@ class TimeToDisplayTrackerV2 {
   void cancelCurrentRoute() {
     _ttfdSpan = null;
 
-    // Ending the route idle span cascades cancellation to any unfinished
-    // descendant spans, including TTID and TTFD.
-    final routeSpan = _routeSpan;
-    if (routeSpan != null && !routeSpan.isEnded) {
-      routeSpan
+    // Cancel any active idle span (navigation or user interaction) so
+    // startIdleSpan can create a fresh one on the next route.
+    final activeSpan = _hub.getActiveSpan();
+    if (activeSpan is IdleRecordingSentrySpanV2) {
+      activeSpan
         ..status = SentrySpanStatusV2.cancelled
         ..end();
     }
-    _routeSpan = null;
   }
 }
