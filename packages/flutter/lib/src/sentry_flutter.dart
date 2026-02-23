@@ -314,6 +314,11 @@ mixin SentryFlutter {
     if (options is! SentryFlutterOptions) {
       return null;
     }
+    if (!options.enableTimeToFullDisplayTracing) {
+      internalLogger
+          .debug('TTFD is not enabled. Returning null for currentDisplay.');
+      return null;
+    }
     final SpanId? spanId;
     if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
       spanId = options.timeToDisplayTrackerV2.ttfdSpanId;
