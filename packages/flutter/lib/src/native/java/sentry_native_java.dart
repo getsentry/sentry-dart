@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show compute;
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
+import '../../utils/internal_logger.dart';
 import '../../replay/replay_config.dart';
 import '../../replay/scheduled_recorder_config.dart';
 import '../native_app_start.dart';
@@ -52,55 +54,20 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
-    JSet<JString>? instructionAddressSet;
-    Set<JString>? instructionAddressJStrings;
-    JByteArray? imagesUtf8JsonBytes;
-
+  Future<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) async {
     try {
-      instructionAddressJStrings = stackTrace.frames
-          .map((f) => f.instructionAddr)
-          .nonNulls
-          .map((s) => s.toJString())
-          .toSet();
+      final instructionAddresses =
+          stackTrace.frames.map((f) => f.instructionAddr).nonNulls.toList();
 
-      instructionAddressSet = instructionAddressJStrings.nonNulls
-          .cast<JString>()
-          .toJSet(JString.type);
-
-      // Use a single JNI call to get images as UTF-8 encoded JSON instead of
-      // making multiple JNI calls to convert each object individually. This approach
-      // is significantly faster because images can be large.
-      // Local benchmarks show this method is ~4x faster than the alternative
-      // approach of converting JNI objects to Dart objects one by one.
-
-      // NOTE: when instructionAddressSet is empty, loadDebugImagesAsBytes will return
-      // all debug images as fallback.
-      imagesUtf8JsonBytes = native.SentryFlutterPlugin.loadDebugImagesAsBytes(
-          instructionAddressSet);
-      if (imagesUtf8JsonBytes == null) return null;
-
-      final byteRange =
-          imagesUtf8JsonBytes.getRange(0, imagesUtf8JsonBytes.length);
-      final bytes = Uint8List.view(
-          byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
-      final debugImageMaps = decodeUtf8JsonListOfMaps(bytes);
-      return debugImageMaps.map(DebugImage.fromJson).toList(growable: false);
+      print('loadDebugImages');
+      return await compute(_loadDebugImagesInBackground, instructionAddresses);
     } catch (exception, stackTrace) {
-      options.log(SentryLevel.error, 'JNI: Failed to load debug images',
-          exception: exception, stackTrace: stackTrace);
+      internalLogger.error('JNI: Failed to load debug images',
+          error: exception, stackTrace: stackTrace);
       if (options.automatedTestMode) {
         rethrow;
       }
-    } finally {
-      // Release JNI refs
-      for (final js in instructionAddressJStrings ?? const <JString>[]) {
-        js.release();
-      }
-      instructionAddressSet?.release();
-      imagesUtf8JsonBytes?.release();
     }
-
     return null;
   }
 
@@ -407,6 +374,49 @@ class SentryNativeJava extends SentryNativeChannel {
         native.InternalSentrySdk.setTrace(jTraceId, jSpanId, null, null);
       });
     });
+  }
+}
+
+/// Top-level function for use with compute() - runs JNI call in background
+/// isolate to avoid blocking the main isolate (and thus the UI thread).
+List<DebugImage>? _loadDebugImagesInBackground(
+    List<String> instructionAddresses) {
+  JSet<JString>? instructionAddressSet;
+  Set<JString>? instructionAddressJStrings;
+  JByteArray? imagesUtf8JsonBytes;
+
+  try {
+    instructionAddressJStrings =
+        instructionAddresses.map((s) => s.toJString()).toSet();
+
+    instructionAddressSet = instructionAddressJStrings.nonNulls
+        .cast<JString>()
+        .toJSet(JString.type);
+
+    // Use a single JNI call to get images as UTF-8 encoded JSON instead of
+    // making multiple JNI calls to convert each object individually. This
+    // approach is significantly faster because images can be large.
+    // Local benchmarks show this method is ~4x faster than the alternative
+    // approach of converting JNI objects to Dart objects one by one.
+
+    // NOTE: when instructionAddressSet is empty, loadDebugImagesAsBytes will
+    // return all debug images as fallback.
+    imagesUtf8JsonBytes = native.SentryFlutterPlugin.loadDebugImagesAsBytes(
+        instructionAddressSet);
+    if (imagesUtf8JsonBytes == null) return null;
+
+    final byteRange =
+        imagesUtf8JsonBytes.getRange(0, imagesUtf8JsonBytes.length);
+    final bytes = Uint8List.view(
+        byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
+    final debugImageMaps = decodeUtf8JsonListOfMaps(bytes);
+    return debugImageMaps.map(DebugImage.fromJson).toList(growable: false);
+  } finally {
+    for (final js in instructionAddressJStrings ?? const <JString>[]) {
+      js.release();
+    }
+    instructionAddressSet?.release();
+    imagesUtf8JsonBytes?.release();
   }
 }
 
