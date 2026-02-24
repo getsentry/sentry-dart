@@ -233,6 +233,50 @@ void main() {
       await db.close();
     });
 
+    test('getVersion does not throw TypeError', () async {
+      final db = await fixture.getSut();
+      
+      final Database dbAsDatabase = db;
+      final version = await dbAsDatabase.getVersion();
+      expect(version, isA<int>());
+
+      await db.close();
+    });
+
+    test('setVersion does not throw TypeError', () async {
+      final db = await fixture.getSut();
+
+      final Database dbAsDatabase = db;
+      await dbAsDatabase.setVersion(42);
+      final version = await dbAsDatabase.getVersion();
+      expect(version, 42);
+
+      await db.close();
+    });
+
+    test('getVersion within transaction does not throw TypeError', () async {
+      final db = await fixture.getSut();
+
+      await db.transaction((txn) async {
+        final version = await txn.getVersion();
+        expect(version, isA<int>());
+      });
+
+      await db.close();
+    });
+
+    test('setVersion within transaction does not throw TypeError', () async {
+      final db = await fixture.getSut();
+
+      await db.transaction((txn) async {
+        await txn.setVersion(7);
+      });
+      final version = await db.getVersion();
+      expect(version, 7);
+
+      await db.close();
+    });
+
     test('closing db sets currentDbName to null', () async {
       final db = await fixture.getSut();
 
