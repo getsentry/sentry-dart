@@ -357,8 +357,8 @@ void main() {
 
         // Page2's btn_page_2 fills the entire screen (SizedBox.expand).
         // Tap at btn_1's center, which is inside both buttons' bounds.
-        final btn1Center = tester.getCenter(
-            find.byKey(Key('btn_1'), skipOffstage: false));
+        final btn1Center =
+            tester.getCenter(find.byKey(Key('btn_1'), skipOffstage: false));
         await tester.tapAt(btn1Center);
 
         final data = fixture.getBreadcrumb().data;
