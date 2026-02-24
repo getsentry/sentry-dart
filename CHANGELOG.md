@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Implement `SqfliteDatabaseExecutor` to prevent `TypeError` on `getVersion/setVersion` ([3539](https://github.com/getsentry/sentry-dart/pull/3539))
+
 ## 9.14.0
 
 ### Features
