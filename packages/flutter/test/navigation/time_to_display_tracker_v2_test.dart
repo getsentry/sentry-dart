@@ -96,8 +96,7 @@ void main() {
         );
       });
 
-      test('creates TTFD span when enableTimeToFullDisplayTracing is true',
-          () {
+      test('creates TTFD span when enableTimeToFullDisplayTracing is true', () {
         fixture.options.enableTimeToFullDisplayTracing = true;
         final sut = fixture.getSut();
         final childSpans = fixture.captureChildSpans();
@@ -325,8 +324,7 @@ void main() {
         sut.prepareRootNavigation();
         sut.trackRootNavigation(startTimestamp: past);
 
-        final activeSpan =
-            fixture.hub.getActiveSpan() as RecordingSentrySpanV2;
+        final activeSpan = fixture.hub.getActiveSpan() as RecordingSentrySpanV2;
         expect(activeSpan.startTimestamp, equals(past));
       });
 

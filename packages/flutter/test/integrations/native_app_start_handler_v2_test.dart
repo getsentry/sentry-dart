@@ -50,8 +50,7 @@ void main() {
     test('creates plugin registration phase span', () async {
       await fixture.call();
 
-      final span =
-          fixture.findSpanByName('App start to plugin registration');
+      final span = fixture.findSpanByName('App start to plugin registration');
       expect(span, isNotNull);
       expect(span!.startTimestamp, fixture.appStartDateTime);
       expect(span.endTimestamp, fixture.pluginRegistrationDateTime.toUtc());

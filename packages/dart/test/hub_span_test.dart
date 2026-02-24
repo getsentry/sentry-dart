@@ -98,8 +98,8 @@ void main() {
           final hub = fixture.getSut();
           final past = DateTime(2024, 1, 1, 12, 0, 0);
 
-          final span = hub.startInactiveSpan('test-span',
-              startTimestamp: past) as RecordingSentrySpanV2;
+          final span = hub.startInactiveSpan('test-span', startTimestamp: past)
+              as RecordingSentrySpanV2;
 
           expect(span.startTimestamp, equals(past));
         });
@@ -121,8 +121,7 @@ void main() {
 
           final root = hub.startInactiveSpan('root', parentSpan: null);
           final child = hub.startInactiveSpan('child',
-              parentSpan: root,
-              startTimestamp: past) as RecordingSentrySpanV2;
+              parentSpan: root, startTimestamp: past) as RecordingSentrySpanV2;
 
           expect(child.startTimestamp, equals(past));
         });

@@ -51,8 +51,7 @@ class AppStartInfo {
 
 @internal
 class TimeSpan {
-  TimeSpan(
-      {required this.start, required this.end, required this.description});
+  TimeSpan({required this.start, required this.end, required this.description});
 
   final DateTime start;
   final DateTime end;
@@ -95,8 +94,7 @@ AppStartInfo? parseNativeAppStart(
   List<TimeSpan> nativeSpanTimes = [];
   for (final entry in nativeAppStart.nativeSpanTimes.entries) {
     try {
-      final startTimestampMs =
-          entry.value['startTimestampMsSinceEpoch'] as int;
+      final startTimestampMs = entry.value['startTimestampMsSinceEpoch'] as int;
       final endTimestampMs = entry.value['stopTimestampMsSinceEpoch'] as int;
       nativeSpanTimes.add(TimeSpan(
         start: DateTime.fromMillisecondsSinceEpoch(startTimestampMs),
@@ -104,8 +102,7 @@ AppStartInfo? parseNativeAppStart(
         description: entry.key as String,
       ));
     } catch (e) {
-      options.log(
-          SentryLevel.warning, 'Failed to parse native span times: $e');
+      options.log(SentryLevel.warning, 'Failed to parse native span times: $e');
       continue;
     }
   }
