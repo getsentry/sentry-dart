@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Stop re-triggering hitTest in SentryUserInteractionWidget on pointerUp ([#3540](https://github.com/getsentry/sentry-dart/pull/3540))
+
 ## 9.14.0
 
 ### Features
