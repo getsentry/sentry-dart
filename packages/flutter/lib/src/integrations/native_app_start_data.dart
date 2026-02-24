@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../native/native_app_start.dart';
+import '../utils/internal_logger.dart';
 
 /// We filter out App starts more than 60s
 @internal
@@ -102,7 +103,7 @@ AppStartInfo? parseNativeAppStart(
         description: entry.key as String,
       ));
     } catch (e) {
-      options.log(SentryLevel.warning, 'Failed to parse native span times: $e');
+      internalLogger.warning('Failed to parse native span times: $e');
       continue;
     }
   }

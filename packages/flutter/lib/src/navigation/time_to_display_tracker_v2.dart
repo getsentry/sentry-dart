@@ -58,13 +58,13 @@ class TimeToDisplayTrackerV2 {
   }) {
     final SentrySpanV2 routeSpan;
     switch (_preparedRootNavigationSpan) {
-      case final SentrySpanV2 prepared:
+      case final prepared?:
         _preparedRootNavigationSpan = null;
         if (startTimestamp != null) {
-          if (prepared case RecordingSentrySpanV2 span) {
+          if (prepared case final RecordingSentrySpanV2 span) {
             span.startTimestamp = startTimestamp;
           }
-          if (_ttfdSpan case RecordingSentrySpanV2 ttfd) {
+          if (_ttfdSpan case final RecordingSentrySpanV2 ttfd) {
             ttfd.startTimestamp = startTimestamp;
           }
         }
