@@ -142,10 +142,6 @@ class SentryDatabase extends SentryDatabaseExecutor
     return _database.devInvokeSqlMethod(method, sql);
   }
 
-  // Implement SqfliteDatabaseExecutor so that the cast in
-  // SqfliteDatabaseExecutorExt (this as SqfliteDatabaseExecutor) succeeds.
-  // Without this, calling getVersion()/setVersion() on a SentryDatabase
-  // crashes with a TypeError.
   @override
   SqfliteDatabase get db => (_database as SqfliteDatabaseExecutor).db;
 

@@ -46,10 +46,6 @@ class SentryDatabaseExecutor
     return _parentSpan ?? _spanFactory.getSpan(_hub);
   }
 
-  // Implement SqfliteDatabaseExecutor so that the cast in
-  // SqfliteDatabaseExecutorExt (this as SqfliteDatabaseExecutor) succeeds.
-  // Without this, calling getVersion()/setVersion() on a SentryDatabaseExecutor
-  // crashes with a TypeError.
   @override
   SqfliteDatabase get db => (_executor as SqfliteDatabaseExecutor).db;
 

@@ -37,10 +37,6 @@ class SentrySqfliteTransaction extends Transaction
   })  : _hub = hub ?? HubAdapter(),
         _dbName = dbName;
 
-  // Implement SqfliteDatabaseExecutor so that the cast in
-  // SqfliteDatabaseExecutorExt (this as SqfliteDatabaseExecutor) succeeds.
-  // Without this, calling getVersion()/setVersion() on a SentrySqfliteTransaction
-  // crashes with a TypeError.
   @override
   SqfliteDatabase get db => (_executor as SqfliteDatabaseExecutor).db;
 
