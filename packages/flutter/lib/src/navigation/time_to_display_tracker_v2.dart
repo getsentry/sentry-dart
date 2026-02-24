@@ -14,7 +14,9 @@ class TimeToDisplayTrackerV2 {
   final FrameCallbackHandler _frameCallbackHandler;
   SentrySpanV2? _ttfdSpan;
 
-  /// Consumed by [trackRootNavigation]; null means nothing was prepared.
+  /// Prepared root idle span, consumed by [trackRootNavigation].
+  ///
+  /// Null when no preparation is pending.
   SentrySpanV2? _preparedRootNavigationSpan;
 
   TimeToDisplayTrackerV2({
@@ -24,9 +26,11 @@ class TimeToDisplayTrackerV2 {
         _frameCallbackHandler =
             frameCallbackHandler ?? DefaultFrameCallbackHandler();
 
+  /// The active TTFD span's ID, used by [SentryFlutter.currentDisplay].
   SpanId? get ttfdSpanId => _ttfdSpan?.spanId;
 
-  /// Early parenting hook — native app start only.
+  /// Prepares the root navigation span for native app start.
+  ///
   /// Creates an idle span so child spans can attach before navigation fires.
   /// Also creates the TTFD span so [ttfdSpanId] is available for
   /// [SentryFlutter.currentDisplay] before [trackRootNavigation] fires.
@@ -42,7 +46,7 @@ class TimeToDisplayTrackerV2 {
     _ensureTtfdSpan(routeSpan, _rootRouteName);
   }
 
-  /// App-start navigation (native or generic).
+  /// Tracks the root app-start navigation (native or generic).
   ///
   /// If [prepareRootNavigation] was called earlier, reuses that span and
   /// backdates it (along with the pre-created TTFD span) to [startTimestamp].
@@ -66,7 +70,6 @@ class TimeToDisplayTrackerV2 {
         }
         routeSpan = prepared;
       case null:
-        cancelCurrentRoute();
         routeSpan =
             _createRouteSpan(_rootRouteName, startTimestamp: startTimestamp);
     }
@@ -80,8 +83,9 @@ class TimeToDisplayTrackerV2 {
     return routeSpan;
   }
 
-  /// Subsequent in-app navigation (push / replace).
-  /// Always cancels the previous route and starts fresh.
+  /// Tracks a subsequent in-app navigation (push/replace).
+  ///
+  /// Cancels the previous route and starts fresh.
   SentrySpanV2 trackNonRootNavigation(String routeName) {
     cancelCurrentRoute();
 
@@ -100,8 +104,7 @@ class TimeToDisplayTrackerV2 {
                 SentryTraceOrigins.autoNavigationRouteObserver),
           });
 
-  /// Creates the TTFD span only if one doesn't already exist (i.e., was not
-  /// already created during [prepareRootNavigation]).
+  /// Ensures the TTFD span exists, creating it if not already present.
   void _ensureTtfdSpan(
     SentrySpanV2 parentSpan,
     String routeName, {
@@ -124,6 +127,7 @@ class TimeToDisplayTrackerV2 {
     }
   }
 
+  /// Creates TTID and TTFD child spans for the given route span.
   void _trackDisplaySpans(
     SentrySpanV2 routeSpan,
     String routeName, {
@@ -153,6 +157,7 @@ class TimeToDisplayTrackerV2 {
     }
   }
 
+  /// Ends the active TTFD span if [spanId] matches, otherwise ignores the call.
   void reportFullyDisplayed(SpanId spanId) {
     final ttfdSpanId = _ttfdSpan?.spanId;
     if (ttfdSpanId != spanId) {
@@ -165,6 +170,7 @@ class TimeToDisplayTrackerV2 {
     _ttfdSpan = null;
   }
 
+  /// Cancels all spans for the current route and resets tracker state.
   void cancelCurrentRoute() {
     _ttfdSpan = null;
     _preparedRootNavigationSpan = null;
