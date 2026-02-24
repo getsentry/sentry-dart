@@ -20,7 +20,6 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
   final RecordingSentrySpanV2? _parentSpan;
   final ClockProvider _clock;
   final OnSpanEndCallback _onSpanEnd;
-  DateTime _startTimestamp;
   final SentryId _traceId;
   final RecordingSentrySpanV2? _segmentSpan;
   final DscCreatorCallback _dscCreator;
@@ -28,6 +27,7 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
   final SentryTracesSamplingDecision _samplingDecision;
 
   // Mutable span state.
+  DateTime _startTimestamp;
   SentrySpanStatusV2 _status = SentrySpanStatusV2.ok;
   DateTime? _endTimestamp;
   String _name;
