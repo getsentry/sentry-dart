@@ -4,14 +4,10 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../native/sentry_native_binding.dart';
+import '../utils/internal_logger.dart';
 import 'native_app_start_data.dart';
 
 /// V2 handler for native app start spans using the streaming span API.
-///
-/// Unlike the V1 handler, this handler:
-/// - Uses [TimeToDisplayTrackerV2.trackRoute] to create the root idle span
-/// - Creates backdated child spans via [Hub.startInactiveSpan]
-/// - Does not create transactions or bind to scope
 @internal
 class NativeAppStartHandlerV2 {
   NativeAppStartHandlerV2(this._native);
@@ -40,7 +36,6 @@ class NativeAppStartHandlerV2 {
       ttidEndTimestamp: appStartInfo.end,
     );
 
-    // Step 4: Create app start parent span (inactive, backdated)
     final appStartSpan = hub.startInactiveSpan(
       appStartInfo.appStartTypeDescription,
       parentSpan: rootSpan,
@@ -53,7 +48,6 @@ class NativeAppStartHandlerV2 {
       },
     );
 
-    // Step 5: Create child phase spans (inactive, backdated) under app start span
     final pluginRegistrationSpan = hub.startInactiveSpan(
       appStartInfo.pluginRegistrationDescription,
       parentSpan: appStartSpan,
@@ -90,7 +84,6 @@ class NativeAppStartHandlerV2 {
       },
     );
 
-    // Step 6: Create native spans (inactive, backdated) under app start span
     final nativeSpans = <SentrySpanV2>[];
     for (final timeSpan in appStartInfo.nativeSpanTimes) {
       try {
@@ -106,14 +99,12 @@ class NativeAppStartHandlerV2 {
           },
         );
         nativeSpans.add(nativeSpan);
-      } catch (e) {
-        options.log(SentryLevel.warning,
-            'Failed to attach native span to app start: $e');
+      } catch (error, stackTrace) {
+        internalLogger.error('Failed to attach native span to app start',
+            error: error, stackTrace: stackTrace);
       }
     }
 
-    // Step 7: End all spans with their respective endTimestamps.
-    // End children first, then parent.
     pluginRegistrationSpan.end(endTimestamp: appStartInfo.pluginRegistration);
     sentrySetupSpan.end(endTimestamp: appStartInfo.sentrySetupStart);
     firstFrameRenderSpan.end(endTimestamp: appStartEnd);
@@ -124,8 +115,6 @@ class NativeAppStartHandlerV2 {
 
     appStartSpan.end(endTimestamp: appStartEnd);
 
-    // TODO: Add measurement when V2 span measurement API is available.
-    // V2 spans don't currently support measurements. When the API is added:
-    // rootSpan.setMeasurement(appStartInfo.toMeasurement());
+    // TODO(next-pr): add mobile vitals specific attributes later
   }
 }
