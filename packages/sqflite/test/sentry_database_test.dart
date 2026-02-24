@@ -235,7 +235,7 @@ void main() {
 
     test('getVersion does not throw TypeError', () async {
       final db = await fixture.getSut();
-      
+
       final Database dbAsDatabase = db;
       final version = await dbAsDatabase.getVersion();
       expect(version, isA<int>());

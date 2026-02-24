@@ -15,7 +15,8 @@ import 'utils/sentry_database_span_attributes.dart';
 
 @internal
 // ignore: public_member_api_docs
-class SentryDatabaseExecutor implements DatabaseExecutor, SqfliteDatabaseExecutor {
+class SentryDatabaseExecutor
+    implements DatabaseExecutor, SqfliteDatabaseExecutor {
   final DatabaseExecutor _executor;
   // ignore: invalid_use_of_internal_member
   final InstrumentationSpan? _parentSpan;
