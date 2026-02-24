@@ -10,9 +10,9 @@ import 'native_app_start_data.dart';
 /// V2 handler for native app start spans using the streaming span API.
 @internal
 class NativeAppStartHandlerV2 {
-  NativeAppStartHandlerV2(this._native);
-
   final SentryNativeBinding _native;
+
+  NativeAppStartHandlerV2(this._native);
 
   Future<void> call(
     Hub hub,

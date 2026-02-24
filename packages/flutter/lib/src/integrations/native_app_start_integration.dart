@@ -11,10 +11,6 @@ import 'native_app_start_handler_v2.dart';
 
 /// Integration which calls [NativeAppStartHandler] or [NativeAppStartHandlerV2]
 /// after [SchedulerBinding.instance.addPostFrameCallback] is called.
-///
-/// Branches on [SentryFlutterOptions.traceLifecycle]:
-/// - **static (V1)**: Creates a [SentryTransactionContext] and delegates to [NativeAppStartHandler]
-/// - **streaming (V2)**: Delegates to [NativeAppStartHandlerV2] which uses [TimeToDisplayTrackerV2]
 class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   NativeAppStartIntegration(
     this._frameCallbackHandler,

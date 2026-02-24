@@ -19,7 +19,7 @@ void main() {
     fixture = Fixture();
   });
 
-  group('$NativeAppStartHandlerV2', () {
+  group(NativeAppStartHandlerV2, () {
     test('creates root idle span via tracker with backdated start', () async {
       await fixture.call();
 
