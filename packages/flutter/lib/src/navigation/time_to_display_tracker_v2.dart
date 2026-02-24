@@ -6,13 +6,16 @@ import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
 import '../utils/internal_logger.dart';
 
+const _rootRouteName = 'root /';
+
 @internal
 class TimeToDisplayTrackerV2 {
   final Hub _hub;
   final FrameCallbackHandler _frameCallbackHandler;
   SentrySpanV2? _ttfdSpan;
-  SentrySpanV2? _routeSpan;
-  bool _isPrepared = false;
+
+  /// Consumed by [trackRootNavigation]; null means nothing was prepared.
+  SentrySpanV2? _preparedRootNavigationSpan;
 
   TimeToDisplayTrackerV2({
     Hub? hub,
@@ -23,22 +26,94 @@ class TimeToDisplayTrackerV2 {
 
   SpanId? get ttfdSpanId => _ttfdSpan?.spanId;
 
-  void prepareRouteSpan(String routeName) {
+  /// Early parenting hook — native app start only.
+  /// Creates an idle span so child spans can attach before navigation fires.
+  /// Also creates the TTFD span so [ttfdSpanId] is available for
+  /// [SentryFlutter.currentDisplay] before [trackRootNavigation] fires.
+  /// Timestamps are backdated later in [trackRootNavigation].
+  void prepareRootNavigation() {
+    assert(_preparedRootNavigationSpan == null,
+        'prepareRootNavigation called while a prepared span is still pending');
+
     cancelCurrentRoute();
 
-    final routeSpan = _hub.startIdleSpan(routeName, attributes: {
-      SemanticAttributesConstants.sentryOp:
-          SentryAttribute.string(SentrySpanOperations.uiLoad),
-      SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-          SentryTraceOrigins.autoNavigationRouteObserver),
-    });
-    _routeSpan = routeSpan;
+    final routeSpan = _createRouteSpan(_rootRouteName);
+    _preparedRootNavigationSpan = routeSpan;
+    _ensureTtfdSpan(routeSpan, _rootRouteName);
+  }
 
+  /// App-start navigation (native or generic).
+  ///
+  /// If [prepareRootNavigation] was called earlier, reuses that span and
+  /// backdates it (along with the pre-created TTFD span) to [startTimestamp].
+  /// Otherwise creates a fresh idle span (covers [GenericAppStartIntegration]
+  /// which skips preparation).
+  SentrySpanV2 trackRootNavigation({
+    DateTime? startTimestamp,
+    DateTime? ttidEndTimestamp,
+  }) {
+    final SentrySpanV2 routeSpan;
+    switch (_preparedRootNavigationSpan) {
+      case final SentrySpanV2 prepared:
+        _preparedRootNavigationSpan = null;
+        if (startTimestamp != null) {
+          if (prepared case RecordingSentrySpanV2 span) {
+            span.startTimestamp = startTimestamp;
+          }
+          if (_ttfdSpan case RecordingSentrySpanV2 ttfd) {
+            ttfd.startTimestamp = startTimestamp;
+          }
+        }
+        routeSpan = prepared;
+      case null:
+        cancelCurrentRoute();
+        routeSpan =
+            _createRouteSpan(_rootRouteName, startTimestamp: startTimestamp);
+    }
+
+    _trackDisplaySpans(
+      routeSpan,
+      _rootRouteName,
+      startTimestamp: startTimestamp,
+      ttidEndTimestamp: ttidEndTimestamp,
+    );
+    return routeSpan;
+  }
+
+  /// Subsequent in-app navigation (push / replace).
+  /// Always cancels the previous route and starts fresh.
+  SentrySpanV2 trackNonRootNavigation(String routeName) {
+    cancelCurrentRoute();
+
+    final routeSpan = _createRouteSpan(routeName);
+    _trackDisplaySpans(routeSpan, routeName);
+    return routeSpan;
+  }
+
+  SentrySpanV2 _createRouteSpan(String routeName, {DateTime? startTimestamp}) =>
+      _hub.startIdleSpan(routeName,
+          startTimestamp: startTimestamp,
+          attributes: {
+            SemanticAttributesConstants.sentryOp:
+                SentryAttribute.string(SentrySpanOperations.uiLoad),
+            SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+                SentryTraceOrigins.autoNavigationRouteObserver),
+          });
+
+  /// Creates the TTFD span only if one doesn't already exist (i.e., was not
+  /// already created during [prepareRootNavigation]).
+  void _ensureTtfdSpan(
+    SentrySpanV2 parentSpan,
+    String routeName, {
+    DateTime? startTimestamp,
+  }) {
+    if (_ttfdSpan != null) return;
     if (_hub.options
         case SentryFlutterOptions(enableTimeToFullDisplayTracing: true)) {
       _ttfdSpan = _hub.startInactiveSpan(
         '$routeName full display',
-        parentSpan: routeSpan,
+        parentSpan: parentSpan,
+        startTimestamp: startTimestamp,
         attributes: {
           SemanticAttributesConstants.sentryOp:
               SentryAttribute.string(SentrySpanOperations.uiTimeToFullDisplay),
@@ -47,59 +122,16 @@ class TimeToDisplayTrackerV2 {
         },
       );
     }
-
-    _isPrepared = true;
   }
 
-  SentrySpanV2 trackRoute(
+  void _trackDisplaySpans(
+    SentrySpanV2 routeSpan,
     String routeName, {
     DateTime? startTimestamp,
     DateTime? ttidEndTimestamp,
   }) {
-    final SentrySpanV2 routeSpan;
+    _ensureTtfdSpan(routeSpan, routeName, startTimestamp: startTimestamp);
 
-    if (_isPrepared && _routeSpan != null && !_routeSpan!.isEnded) {
-      _isPrepared = false;
-      routeSpan = _routeSpan!;
-      // Backdate prepared idle span and TTFD
-      if (startTimestamp != null) {
-        if (routeSpan case RecordingSentrySpanV2 span) {
-          span.startTimestamp = startTimestamp;
-        }
-        if (_ttfdSpan case RecordingSentrySpanV2 span) {
-          span.startTimestamp = startTimestamp;
-        }
-      }
-    } else {
-      cancelCurrentRoute();
-
-      routeSpan = _hub.startIdleSpan(routeName,
-          startTimestamp: startTimestamp,
-          attributes: {
-            SemanticAttributesConstants.sentryOp:
-                SentryAttribute.string(SentrySpanOperations.uiLoad),
-            SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-                SentryTraceOrigins.autoNavigationRouteObserver),
-          });
-      _routeSpan = routeSpan;
-
-      if (_hub.options
-          case SentryFlutterOptions(enableTimeToFullDisplayTracing: true)) {
-        _ttfdSpan = _hub.startInactiveSpan(
-          '$routeName full display',
-          parentSpan: routeSpan,
-          startTimestamp: startTimestamp,
-          attributes: {
-            SemanticAttributesConstants.sentryOp: SentryAttribute.string(
-                SentrySpanOperations.uiTimeToFullDisplay),
-            SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-                SentryTraceOrigins.autoNavigationRouteObserver),
-          },
-        );
-      }
-    }
-
-    // Always create TTID fresh (never pre-created in prepareRouteSpan)
     final ttidSpan = _hub.startInactiveSpan(
       '$routeName initial display',
       parentSpan: routeSpan,
@@ -119,8 +151,6 @@ class TimeToDisplayTrackerV2 {
         ttidSpan.end();
       });
     }
-
-    return routeSpan;
   }
 
   void reportFullyDisplayed(SpanId spanId) {
@@ -137,10 +167,8 @@ class TimeToDisplayTrackerV2 {
 
   void cancelCurrentRoute() {
     _ttfdSpan = null;
-    _isPrepared = false;
+    _preparedRootNavigationSpan = null;
 
-    // Cancel any active idle span (navigation or user interaction) so
-    // startIdleSpan can create a fresh one on the next route.
     final activeSpan = _hub.getActiveSpan();
     if (activeSpan is IdleRecordingSentrySpanV2) {
       activeSpan

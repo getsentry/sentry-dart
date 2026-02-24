@@ -34,10 +34,8 @@ class NativeAppStartHandlerV2 {
       return;
     }
 
-    // Step 3: Create root idle span via tracker
     final tracker = options.timeToDisplayTrackerV2;
-    final rootSpan = tracker.trackRoute(
-      'root /',
+    final rootSpan = tracker.trackRootNavigation(
       startTimestamp: appStartInfo.start,
       ttidEndTimestamp: appStartInfo.end,
     );
