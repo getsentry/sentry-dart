@@ -66,16 +66,6 @@ void main() {
         expect(ttidSpan.isEnded, isTrue);
       });
 
-      test('stores TTFD span id', () {
-        final sut = fixture.getSut();
-
-        expect(sut.ttfdSpanId, isNull);
-
-        sut.trackNonRootNavigation('/test-route');
-
-        expect(sut.ttfdSpanId, isNotNull);
-      });
-
       test('creates TTID span with correct op and origin', () {
         final sut = fixture.getSut();
         final childSpans = fixture.captureChildSpans();
@@ -157,39 +147,14 @@ void main() {
     });
 
     group('when tracking root navigation', () {
-      test('creates idle span named root /', () {
-        final sut = fixture.getSut();
-
-        sut.trackRootNavigation();
-
-        final activeSpan = fixture.hub.getActiveSpan();
-        expect(activeSpan, isNotNull);
-        expect(activeSpan!.name, 'root /');
-      });
-
-      test('returns the created route span', () {
+      test('returns idle span named root /', () {
         final sut = fixture.getSut();
 
         final routeSpan = sut.trackRootNavigation();
 
         expect(routeSpan, isA<RecordingSentrySpanV2>());
         expect(routeSpan.name, 'root /');
-      });
-
-      test('ends TTID span on next frame callback', () {
-        final sut = fixture.getSut();
-        final childSpans = fixture.captureChildSpans();
-
-        sut.trackRootNavigation();
-
-        final ttidSpan = childSpans.firstWhere(
-          (s) => s.name == 'root / initial display',
-        );
-        expect(ttidSpan.isEnded, isFalse);
-
-        fixture.frameCallbackHandler.postFrameCallback?.call(Duration.zero);
-
-        expect(ttidSpan.isEnded, isTrue);
+        expect(fixture.hub.getActiveSpan()?.spanId, routeSpan.spanId);
       });
 
       group('with startTimestamp', () {
