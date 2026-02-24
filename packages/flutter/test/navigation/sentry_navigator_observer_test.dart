@@ -1166,8 +1166,7 @@ void main() {
 
       sut.didPush(route(RouteSettings(name: '/')), null);
 
-      expect(
-          streamingFixture.fakeTracker.trackNonRootNavigationCalls, isEmpty);
+      expect(streamingFixture.fakeTracker.trackNonRootNavigationCalls, isEmpty);
     });
 
     test('didPush does not call tracker when auto transactions disabled', () {
@@ -1175,8 +1174,7 @@ void main() {
 
       sut.didPush(route(RouteSettings(name: '/dashboard')), null);
 
-      expect(
-          streamingFixture.fakeTracker.trackNonRootNavigationCalls, isEmpty);
+      expect(streamingFixture.fakeTracker.trackNonRootNavigationCalls, isEmpty);
     });
 
     test('didPush does not call tracker for ignored routes', () {
@@ -1184,8 +1182,7 @@ void main() {
 
       sut.didPush(route(RouteSettings(name: '/ignored')), null);
 
-      expect(
-          streamingFixture.fakeTracker.trackNonRootNavigationCalls, isEmpty);
+      expect(streamingFixture.fakeTracker.trackNonRootNavigationCalls, isEmpty);
     });
 
     test('didPop calls cancelCurrentRoute', () {
