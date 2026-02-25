@@ -26,7 +26,7 @@ void main() {
       final rootSpan = fixture.hub.getActiveSpan();
       expect(rootSpan, isNotNull);
       expect(rootSpan!.name, 'root /');
-      expect(rootSpan.startTimestamp, fixture.appStartDateTime);
+      expect(rootSpan.startTimestamp, fixture.appStartDateTime.toUtc());
       expect(
         rootSpan.attributes[SemanticAttributesConstants.sentryOp]?.value,
         SentrySpanOperations.uiLoad,
@@ -38,7 +38,7 @@ void main() {
 
       final appStartSpan = fixture.findSpanByName('Cold Start');
       expect(appStartSpan, isNotNull);
-      expect(appStartSpan!.startTimestamp, fixture.appStartDateTime);
+      expect(appStartSpan!.startTimestamp, fixture.appStartDateTime.toUtc());
       expect(appStartSpan.isEnded, isTrue);
       expect(appStartSpan.endTimestamp, fixture.appStartEnd.toUtc());
       expect(
@@ -52,7 +52,7 @@ void main() {
 
       final span = fixture.findSpanByName('App start to plugin registration');
       expect(span, isNotNull);
-      expect(span!.startTimestamp, fixture.appStartDateTime);
+      expect(span!.startTimestamp, fixture.appStartDateTime.toUtc());
       expect(span.endTimestamp, fixture.pluginRegistrationDateTime.toUtc());
       expect(span.isEnded, isTrue);
     });
@@ -62,7 +62,7 @@ void main() {
 
       final span = fixture.findSpanByName('Before Sentry Init Setup');
       expect(span, isNotNull);
-      expect(span!.startTimestamp, fixture.pluginRegistrationDateTime);
+      expect(span!.startTimestamp, fixture.pluginRegistrationDateTime.toUtc());
       expect(span.endTimestamp, fixture.sentrySetupStartDateTime.toUtc());
       expect(span.isEnded, isTrue);
     });
@@ -72,7 +72,7 @@ void main() {
 
       final span = fixture.findSpanByName('First frame render');
       expect(span, isNotNull);
-      expect(span!.startTimestamp, fixture.sentrySetupStartDateTime);
+      expect(span!.startTimestamp, fixture.sentrySetupStartDateTime.toUtc());
       expect(span.endTimestamp, fixture.appStartEnd.toUtc());
       expect(span.isEnded, isTrue);
     });
@@ -134,14 +134,14 @@ void main() {
       expect(nativeSpan1!.parentSpan?.spanId, appStartSpan!.spanId);
       expect(nativeSpan2!.parentSpan?.spanId, appStartSpan.spanId);
 
-      expect(
-          nativeSpan1.startTimestamp, DateTime.fromMillisecondsSinceEpoch(1));
+      expect(nativeSpan1.startTimestamp,
+          DateTime.fromMillisecondsSinceEpoch(1).toUtc());
       expect(nativeSpan1.endTimestamp,
           DateTime.fromMillisecondsSinceEpoch(2).toUtc());
       expect(nativeSpan1.isEnded, isTrue);
 
-      expect(
-          nativeSpan2.startTimestamp, DateTime.fromMillisecondsSinceEpoch(3));
+      expect(nativeSpan2.startTimestamp,
+          DateTime.fromMillisecondsSinceEpoch(3).toUtc());
       expect(nativeSpan2.endTimestamp,
           DateTime.fromMillisecondsSinceEpoch(4).toUtc());
       expect(nativeSpan2.isEnded, isTrue);
@@ -231,9 +231,8 @@ void main() {
 }
 
 class Fixture {
-  // Note: parseNativeAppStart creates DateTimes via DateTime.fromMillisecondsSinceEpoch
-  // (local time). V2 span startTimestamp stores as-is, but endTimestamp converts to UTC.
-  // Test assertions must account for this: use .toUtc() when comparing endTimestamps.
+  // parseNativeAppStart creates DateTimes via DateTime.fromMillisecondsSinceEpoch
+  // (local time), and span timestamps are normalized to UTC.
   final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(0);
   final pluginRegistrationDateTime = DateTime.fromMillisecondsSinceEpoch(10);
   final sentrySetupStartDateTime = DateTime.fromMillisecondsSinceEpoch(15);
