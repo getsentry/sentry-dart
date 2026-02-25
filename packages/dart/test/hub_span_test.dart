@@ -101,7 +101,8 @@ void main() {
           final span = hub.startInactiveSpan('test-span', startTimestamp: past)
               as RecordingSentrySpanV2;
 
-          expect(span.startTimestamp, equals(past));
+          expect(span.startTimestamp, equals(past.toUtc()));
+          expect(span.startTimestamp.isUtc, isTrue);
         });
 
         test('uses clock when startTimestamp is not provided', () {
@@ -123,7 +124,8 @@ void main() {
           final child = hub.startInactiveSpan('child',
               parentSpan: root, startTimestamp: past) as RecordingSentrySpanV2;
 
-          expect(child.startTimestamp, equals(past));
+          expect(child.startTimestamp, equals(past.toUtc()));
+          expect(child.startTimestamp.isUtc, isTrue);
         });
       });
 
@@ -745,7 +747,8 @@ void main() {
           finalTimeout: Duration(seconds: 2),
         ) as RecordingSentrySpanV2;
 
-        expect(idleSpan.startTimestamp, equals(past));
+        expect(idleSpan.startTimestamp, equals(past.toUtc()));
+        expect(idleSpan.startTimestamp.isUtc, isTrue);
       });
 
       test('clears active idle span when ended directly', () async {
