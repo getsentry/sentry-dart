@@ -102,7 +102,6 @@ void main() {
               as RecordingSentrySpanV2;
 
           expect(span.startTimestamp, equals(past.toUtc()));
-          expect(span.startTimestamp.isUtc, isTrue);
         });
 
         test('uses clock when startTimestamp is not provided', () {
