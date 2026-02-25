@@ -48,7 +48,7 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
         _parentSpan = parentSpan,
         _clock = clock,
         _onSpanEnd = onSpanEnd,
-        _startTimestamp = startTimestamp ?? clock(),
+        _startTimestamp = (startTimestamp ?? clock()).toUtc(),
         _segmentSpan = parentSpan?.segmentSpan,
         _dscCreator = dscCreator,
         _samplingDecision = samplingDecision;
