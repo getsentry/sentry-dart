@@ -64,19 +64,20 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
         final appStartEnd = DateTime.fromMicrosecondsSinceEpoch(timings.first
             .timestampInMicroseconds(FramePhase.rasterFinishWallTime));
 
-        if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
-          await _nativeAppStartHandlerV2.call(
-            hub,
-            options,
-            appStartEnd: appStartEnd,
-          );
-        } else {
-          await _nativeAppStartHandler.call(
-            hub,
-            options,
-            context: context!,
-            appStartEnd: appStartEnd,
-          );
+        switch (options.traceLifecycle) {
+          case SentryTraceLifecycle.streaming:
+            await _nativeAppStartHandlerV2.call(
+              hub,
+              options,
+              appStartEnd: appStartEnd,
+            );
+          case SentryTraceLifecycle.static:
+            await _nativeAppStartHandler.call(
+              hub,
+              options,
+              context: context!,
+              appStartEnd: appStartEnd,
+            );
         }
       } catch (exception, stackTrace) {
         options.log(

@@ -21,11 +21,13 @@ class NativeAppStartHandlerV2 {
   }) async {
     final nativeAppStart = await _native.fetchNativeAppStart();
     if (nativeAppStart == null) {
+      options.timeToDisplayTrackerV2.cancelCurrentRoute();
       return;
     }
 
     final appStartInfo = parseNativeAppStart(nativeAppStart, appStartEnd);
     if (appStartInfo == null) {
+      options.timeToDisplayTrackerV2.cancelCurrentRoute();
       return;
     }
 
