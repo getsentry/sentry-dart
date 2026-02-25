@@ -231,8 +231,6 @@ void main() {
 }
 
 class Fixture {
-  // parseNativeAppStart creates DateTimes via DateTime.fromMillisecondsSinceEpoch
-  // (local time), and span timestamps are normalized to UTC.
   final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(0);
   final pluginRegistrationDateTime = DateTime.fromMillisecondsSinceEpoch(10);
   final sentrySetupStartDateTime = DateTime.fromMillisecondsSinceEpoch(15);

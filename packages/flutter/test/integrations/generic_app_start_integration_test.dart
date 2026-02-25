@@ -260,19 +260,15 @@ void main() {
 
       sut.call(fixture.hub, fixture.options);
 
-      // V1 binds to scope.span as SentryTracer; V2 does not
       expect(fixture.hub.scope.span, isNull);
     });
 
     test('does not register own post frame callback', () {
-      // Reset the fakeFrameHandler to clear any callback set by the tracker
       final integrationFrameHandler = FakeFrameCallbackHandler();
       final sut = GenericAppStartIntegration(integrationFrameHandler);
 
       sut.call(fixture.hub, fixture.options);
 
-      // The integration itself does not register a frame callback in V2 mode;
-      // trackRootNavigation internally does, but on its own handler.
       expect(integrationFrameHandler.postFrameCallback, isNull);
     });
   });
