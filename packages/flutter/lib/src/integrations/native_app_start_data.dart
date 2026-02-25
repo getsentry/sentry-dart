@@ -66,7 +66,6 @@ class TimeSpan {
 AppStartInfo? parseNativeAppStart(
   NativeAppStart nativeAppStart,
   DateTime appStartEnd,
-  SentryFlutterOptions options,
 ) {
   final sentrySetupStartDateTime = SentryFlutter.sentrySetupStartTime;
   if (sentrySetupStartDateTime == null) {

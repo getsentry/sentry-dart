@@ -245,7 +245,7 @@ void main() {
       expect(fixture.options.sdk.integrations, contains('GenericAppStart'));
     });
 
-    test('calls trackRoute on timeToDisplayTrackerV2', () {
+    test('calls trackRootNavigation on timeToDisplayTrackerV2', () {
       final sut = fixture.getSut();
 
       sut.call(fixture.hub, fixture.options);
@@ -272,7 +272,7 @@ void main() {
       sut.call(fixture.hub, fixture.options);
 
       // The integration itself does not register a frame callback in V2 mode;
-      // trackRoute internally does, but on its own handler.
+      // trackRootNavigation internally does, but on its own handler.
       expect(integrationFrameHandler.postFrameCallback, isNull);
     });
   });

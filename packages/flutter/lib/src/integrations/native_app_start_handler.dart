@@ -32,7 +32,7 @@ class NativeAppStartHandler {
       return;
     }
     final appStartInfo =
-        parseNativeAppStart(nativeAppStart, appStartEnd, options);
+        parseNativeAppStart(nativeAppStart, appStartEnd);
     if (appStartInfo == null) {
       return;
     }

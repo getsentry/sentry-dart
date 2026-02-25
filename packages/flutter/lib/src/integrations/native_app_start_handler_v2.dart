@@ -25,7 +25,7 @@ class NativeAppStartHandlerV2 {
     }
 
     final appStartInfo =
-        parseNativeAppStart(nativeAppStart, appStartEnd, options);
+        parseNativeAppStart(nativeAppStart, appStartEnd);
     if (appStartInfo == null) {
       return;
     }
@@ -84,7 +84,6 @@ class NativeAppStartHandlerV2 {
       },
     );
 
-    final nativeSpans = <SentrySpanV2>[];
     for (final timeSpan in appStartInfo.nativeSpanTimes) {
       try {
         final nativeSpan = hub.startInactiveSpan(
@@ -98,7 +97,7 @@ class NativeAppStartHandlerV2 {
                 SentryAttribute.string(SentryTraceOrigins.autoUiTimeToDisplay),
           },
         );
-        nativeSpans.add(nativeSpan);
+        nativeSpan.end(endTimestamp: timeSpan.end);
       } catch (error, stackTrace) {
         internalLogger.error('Failed to attach native span to app start',
             error: error, stackTrace: stackTrace);
@@ -108,10 +107,6 @@ class NativeAppStartHandlerV2 {
     pluginRegistrationSpan.end(endTimestamp: appStartInfo.pluginRegistration);
     sentrySetupSpan.end(endTimestamp: appStartInfo.sentrySetupStart);
     firstFrameRenderSpan.end(endTimestamp: appStartEnd);
-
-    for (int i = 0; i < nativeSpans.length; i++) {
-      nativeSpans[i].end(endTimestamp: appStartInfo.nativeSpanTimes[i].end);
-    }
 
     appStartSpan.end(endTimestamp: appStartEnd);
 
