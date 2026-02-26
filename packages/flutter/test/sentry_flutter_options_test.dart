@@ -51,5 +51,12 @@ void main() {
       expect(options.enableMemoryPressureBreadcrumbs, isTrue);
       expect(options.enableAutoNativeBreadcrumbs, isFalse);
     });
+
+    testWidgets('enableTombstone defaults to false',
+        (WidgetTester tester) async {
+      final options = defaultTestOptions();
+
+      expect(options.enableTombstone, isFalse);
+    });
   });
 }
