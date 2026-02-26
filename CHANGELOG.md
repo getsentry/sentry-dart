@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Experimental span-streaming API with `startSpan`
+
 ## 9.14.0
 
 ### Features
