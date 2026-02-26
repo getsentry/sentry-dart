@@ -569,7 +569,8 @@ class _SentryUserInteractionWidgetState
         // skip offstage elements (e.g. routes behind the current page).
         // This avoids the need for hitTest-based visibility checking which
         // has the side effect of propagating to descendant render objects
-        // and overwriting their state (see #3503).
+        // and overwriting their state.
+        // https://github.com/getsentry/sentry-dart/issues/3503
         element.debugVisitOnstageChildren(elementFinder);
       }
     }

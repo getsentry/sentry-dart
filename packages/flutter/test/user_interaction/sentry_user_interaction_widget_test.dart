@@ -562,7 +562,7 @@ void main() {
   });
 
   // Regression tests for https://github.com/getsentry/sentry-dart/issues/3503
-  group('$SentryUserInteractionWidget tap distortion (#3503)', () {
+  group('$SentryUserInteractionWidget tap distortion', () {
     testWidgets(
       'does not re-trigger hitTest on descendant render objects during pointerUp',
       (tester) async {
