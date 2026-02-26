@@ -15,6 +15,9 @@ import 'utils/sentry_database_span_attributes.dart';
 
 @internal
 // ignore: public_member_api_docs
+// Workaround: sqflite hard-casts DatabaseExecutor to SqfliteDatabaseExecutor
+// (see sqlite_api.dart SqfliteDatabaseExecutorExt), causing a TypeError when wrapped.
+// https://github.com/tekartik/sqflite/blob/c28b35b17f98e714cee6e540ef6a96e48642aafd/sqflite_common/lib/sqlite_api.dart#L349
 class SentryDatabaseExecutor
     implements DatabaseExecutor, SqfliteDatabaseExecutor {
   final DatabaseExecutor _executor;
