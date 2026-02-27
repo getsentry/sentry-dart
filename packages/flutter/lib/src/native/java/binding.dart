@@ -10299,6 +10299,28 @@ class SentryOptions$DistributionOptions extends jni$_.JObject {
   set buildConfiguration(jni$_.JString? value) => _id_buildConfiguration.set(
       this, const jni$_.$JString$NullableType$(), value);
 
+  static final _id_installGroupsOverride = _class.instanceFieldId(
+    r'installGroupsOverride',
+    r'Ljava/util/List;',
+  );
+
+  /// from: `public java.util.List<java.lang.String> installGroupsOverride`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JList<jni$_.JString?>? get installGroupsOverride =>
+      _id_installGroupsOverride.get(
+          this,
+          const jni$_.$JList$NullableType$<jni$_.JString?>(
+              jni$_.$JString$NullableType$()));
+
+  /// from: `public java.util.List<java.lang.String> installGroupsOverride`
+  /// The returned object must be released after use, by calling the [release] method.
+  set installGroupsOverride(jni$_.JList<jni$_.JString?>? value) =>
+      _id_installGroupsOverride.set(
+          this,
+          const jni$_.$JList$NullableType$<jni$_.JString?>(
+              jni$_.$JString$NullableType$()),
+          value);
+
   static final _id_new$ = _class.constructorId(
     r'()V',
   );
@@ -13254,6 +13276,28 @@ class SentryOptions extends jni$_.JObject {
             _id_setProfilerConverter as jni$_.JMethodIDPtr,
             _$iProfileConverter.pointer)
         .check();
+  }
+
+  static final _id_activate = _class.instanceMethodId(
+    r'activate',
+    r'()V',
+  );
+
+  static final _activate = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void activate()`
+  void activate() {
+    _activate(reference.pointer, _id_activate as jni$_.JMethodIDPtr).check();
   }
 
   static final _id_addEventProcessor = _class.instanceMethodId(
@@ -20789,6 +20833,17 @@ class SentryReplayOptions extends jni$_.JObject {
   static jni$_.JString? get VIDEO_VIEW_CLASS_NAME => _id_VIDEO_VIEW_CLASS_NAME
       .get(_class, const jni$_.$JString$NullableType$());
 
+  static final _id_CAMERAX_PREVIEW_VIEW_CLASS_NAME = _class.staticFieldId(
+    r'CAMERAX_PREVIEW_VIEW_CLASS_NAME',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String CAMERAX_PREVIEW_VIEW_CLASS_NAME`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get CAMERAX_PREVIEW_VIEW_CLASS_NAME =>
+      _id_CAMERAX_PREVIEW_VIEW_CLASS_NAME.get(
+          _class, const jni$_.$JString$NullableType$());
+
   static final _id_ANDROIDX_MEDIA_VIEW_CLASS_NAME = _class.staticFieldId(
     r'ANDROIDX_MEDIA_VIEW_CLASS_NAME',
     r'Ljava/lang/String;',
@@ -21479,6 +21534,30 @@ class SentryReplayOptions extends jni$_.JObject {
     return _getUnmaskViewContainerClass(reference.pointer,
             _id_getUnmaskViewContainerClass as jni$_.JMethodIDPtr)
         .object<jni$_.JString?>(const jni$_.$JString$NullableType$());
+  }
+
+  static final _id_trackCustomMasking = _class.instanceMethodId(
+    r'trackCustomMasking',
+    r'()V',
+  );
+
+  static final _trackCustomMasking = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void trackCustomMasking()`
+  void trackCustomMasking() {
+    _trackCustomMasking(
+            reference.pointer, _id_trackCustomMasking as jni$_.JMethodIDPtr)
+        .check();
   }
 
   static final _id_isTrackConfiguration = _class.instanceMethodId(
