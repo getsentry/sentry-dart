@@ -68,6 +68,12 @@ class SentryFlutterOptions extends SentryOptions {
   /// Available only for Android. Enabled by default.
   bool anrEnabled = true;
 
+  /// Enable or disable Tombstone reporting for improved native crash reporting.
+  /// When enabled, uses Android's `ApplicationExitInfo.REASON_CRASH_NATIVE` to
+  /// capture native crashes with more detailed thread information.
+  /// Available only for Android 12+ (API level 30+). Disabled by default.
+  bool enableTombstone = false;
+
   Duration _anrTimeoutInterval = Duration(milliseconds: 5000);
 
   /// ANR Timeout internal. Default is 5000 milliseconds or 5 seconds.
