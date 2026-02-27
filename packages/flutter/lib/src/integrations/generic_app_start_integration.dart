@@ -27,6 +27,12 @@ class GenericAppStartIntegration extends Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) {
     if (!options.isTracingEnabled()) return;
 
+    if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
+      options.timeToDisplayTrackerV2.trackRootNavigation();
+      options.sdk.addIntegration(integrationName);
+      return;
+    }
+
     final transactionContext = SentryTransactionContext(
       'root /',
       SentrySpanOperations.uiLoad,

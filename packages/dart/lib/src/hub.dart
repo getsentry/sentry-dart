@@ -715,8 +715,12 @@ class Hub {
     String name, {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     Map<String, SentryAttribute>? attributes,
+    DateTime? startTimestamp,
   }) =>
-      _createSpan(name, parentSpan: parentSpan, attributes: attributes);
+      _createSpan(name,
+          parentSpan: parentSpan,
+          attributes: attributes,
+          startTimestamp: startTimestamp);
 
   /// Returns `true` if the hub is able to create spans.
   bool get _canCreateSpansV2 {
@@ -790,6 +794,7 @@ class Hub {
     String name, {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     Map<String, SentryAttribute>? attributes,
+    DateTime? startTimestamp,
   }) {
     if (!_canCreateSpansV2) return NoOpSentrySpanV2.instance;
 
@@ -833,6 +838,7 @@ class Hub {
         clock: options.clock,
         dscCreator: _dscCreator,
         samplingDecision: samplingDecision,
+        startTimestamp: startTimestamp,
       );
     } else {
       span = RecordingSentrySpanV2.child(
@@ -841,6 +847,7 @@ class Hub {
         onSpanEnd: captureSpan,
         clock: options.clock,
         dscCreator: _dscCreator,
+        startTimestamp: startTimestamp,
       );
     }
 
@@ -862,6 +869,7 @@ class Hub {
     Duration finalTimeout = const Duration(seconds: 30),
     bool trimIdleSpanEndTimestamp = true,
     Map<String, SentryAttribute>? attributes,
+    DateTime? startTimestamp,
   }) {
     if (_currentIdleSpan != null) {
       internalLogger.warning(
@@ -887,6 +895,7 @@ class Hub {
       finalTimeout: finalTimeout,
       trimEndTimestamp: trimIdleSpanEndTimestamp,
       lifecycleRegistry: _options.lifecycleRegistry,
+      startTimestamp: startTimestamp,
     );
 
     if (attributes != null) {

@@ -15,25 +15,25 @@ void main() {
   });
 
   group(TimeToDisplayTrackerV2, () {
-    group('when tracking a route', () {
+    group('when tracking non-root navigation', () {
       test('cancels previous tracked route span', () {
         final sut = fixture.getSut();
 
-        sut.trackRoute('/previous-route');
+        sut.trackNonRootNavigation('/previous-route');
         final activeSpan = fixture.hub.getActiveSpan();
         expect(activeSpan, isNotNull);
         expect(activeSpan!.isEnded, isFalse);
 
-        sut.trackRoute('/new-route');
+        sut.trackNonRootNavigation('/new-route');
 
         expect(activeSpan.isEnded, isTrue);
         expect(activeSpan.status, SentrySpanStatusV2.cancelled);
       });
 
-      test('starts idle root span with ui.load op', () {
+      test('starts idle root span with ui.load op and correct origin', () {
         final sut = fixture.getSut();
 
-        sut.trackRoute('/test-route');
+        sut.trackNonRootNavigation('/test-route');
 
         final activeSpan = fixture.hub.getActiveSpan();
         expect(activeSpan, isNotNull);
@@ -53,7 +53,7 @@ void main() {
         final sut = fixture.getSut();
         final childSpans = fixture.captureChildSpans();
 
-        sut.trackRoute('/test-route');
+        sut.trackNonRootNavigation('/test-route');
 
         final ttidSpan = childSpans.firstWhere(
           (s) => s.name == '/test-route initial display',
@@ -66,21 +66,11 @@ void main() {
         expect(ttidSpan.isEnded, isTrue);
       });
 
-      test('stores TTFD span id', () {
-        final sut = fixture.getSut();
-
-        expect(sut.ttfdSpanId, isNull);
-
-        sut.trackRoute('/test-route');
-
-        expect(sut.ttfdSpanId, isNotNull);
-      });
-
       test('creates TTID span with correct op and origin', () {
         final sut = fixture.getSut();
         final childSpans = fixture.captureChildSpans();
 
-        sut.trackRoute('/settings');
+        sut.trackNonRootNavigation('/settings');
 
         final ttidSpan = childSpans.firstWhere(
           (s) => s.name == '/settings initial display',
@@ -101,7 +91,7 @@ void main() {
         final sut = fixture.getSut();
         final childSpans = fixture.captureChildSpans();
 
-        sut.trackRoute('/test-route');
+        sut.trackNonRootNavigation('/test-route');
 
         final ttfdSpans = childSpans.where(
           (s) => s.name == '/test-route full display',
@@ -117,7 +107,7 @@ void main() {
         final sut = fixture.getSut();
         final childSpans = fixture.captureChildSpans();
 
-        sut.trackRoute('/test-route');
+        sut.trackNonRootNavigation('/test-route');
 
         final ttfdSpans = childSpans.where(
           (s) => s.name == '/test-route full display',
@@ -130,7 +120,7 @@ void main() {
         final sut = fixture.getSut();
         final childSpans = fixture.captureChildSpans();
 
-        sut.trackRoute('/settings');
+        sut.trackNonRootNavigation('/settings');
 
         final ttfdSpan = childSpans.firstWhere(
           (s) => s.name == '/settings full display',
@@ -145,6 +135,223 @@ void main() {
           SentryTraceOrigins.autoNavigationRouteObserver,
         );
       });
+
+      test('returns the created route span', () {
+        final sut = fixture.getSut();
+
+        final routeSpan = sut.trackNonRootNavigation('/test-route');
+
+        expect(routeSpan, isA<RecordingSentrySpanV2>());
+        expect(routeSpan.name, '/test-route');
+      });
+    });
+
+    group('when tracking root navigation', () {
+      test('returns idle span named root /', () {
+        final sut = fixture.getSut();
+
+        final routeSpan = sut.trackRootNavigation();
+
+        expect(routeSpan, isA<RecordingSentrySpanV2>());
+        expect(routeSpan.name, 'root /');
+        expect(fixture.hub.getActiveSpan()?.spanId, routeSpan.spanId);
+      });
+
+      group('with startTimestamp', () {
+        test('backdates idle root span start time', () {
+          final sut = fixture.getSut();
+          final past = DateTime.utc(2024, 1, 1, 12, 0, 0);
+
+          sut.trackRootNavigation(startTimestamp: past);
+
+          final activeSpan =
+              fixture.hub.getActiveSpan() as RecordingSentrySpanV2;
+          expect(activeSpan.startTimestamp, equals(past));
+        });
+
+        test('backdates TTID and TTFD child spans', () {
+          final sut = fixture.getSut();
+          final childSpans = fixture.captureChildSpans();
+          final past = DateTime.utc(2024, 1, 1, 12, 0, 0);
+
+          sut.trackRootNavigation(startTimestamp: past);
+
+          final ttidSpan = childSpans.firstWhere(
+            (s) => s.name == 'root / initial display',
+          );
+          final ttfdSpan = childSpans.firstWhere(
+            (s) => s.name == 'root / full display',
+          );
+
+          expect(ttidSpan.startTimestamp, equals(past));
+          expect(ttfdSpan.startTimestamp, equals(past));
+        });
+      });
+
+      group('with ttidEndTimestamp', () {
+        test('ends TTID span immediately with provided timestamp', () {
+          final sut = fixture.getSut();
+          final childSpans = fixture.captureChildSpans();
+          final ttidEnd = DateTime.utc(2024, 1, 1, 12, 0, 5);
+
+          sut.trackRootNavigation(ttidEndTimestamp: ttidEnd);
+
+          final ttidSpan = childSpans.firstWhere(
+            (s) => s.name == 'root / initial display',
+          );
+
+          expect(ttidSpan.isEnded, isTrue);
+          expect(ttidSpan.endTimestamp, equals(ttidEnd));
+        });
+
+        test('does not register frame callback', () {
+          final sut = fixture.getSut();
+
+          sut.trackRootNavigation(ttidEndTimestamp: DateTime.now());
+
+          expect(fixture.frameCallbackHandler.postFrameCallback, isNull);
+        });
+
+        test('keeps TTFD span open', () {
+          final sut = fixture.getSut();
+          final childSpans = fixture.captureChildSpans();
+
+          sut.trackRootNavigation(ttidEndTimestamp: DateTime.now());
+
+          final ttfdSpan = childSpans.firstWhere(
+            (s) => s.name == 'root / full display',
+          );
+          expect(ttfdSpan.isEnded, isFalse);
+        });
+      });
+    });
+
+    group('when preparing root navigation', () {
+      test('creates idle span eagerly', () {
+        final sut = fixture.getSut();
+
+        sut.prepareRootNavigation();
+
+        final activeSpan = fixture.hub.getActiveSpan();
+        expect(activeSpan, isNotNull);
+        expect(activeSpan!.name, 'root /');
+      });
+
+      test('makes ttfdSpanId available immediately', () {
+        final sut = fixture.getSut();
+
+        expect(sut.ttfdSpanId, isNull);
+
+        sut.prepareRootNavigation();
+
+        expect(sut.ttfdSpanId, isNotNull);
+      });
+
+      test('does not create TTFD span when disabled', () {
+        fixture.options.enableTimeToFullDisplayTracing = false;
+        final sut = fixture.getSut();
+
+        sut.prepareRootNavigation();
+
+        expect(sut.ttfdSpanId, isNull);
+      });
+
+      test('cancels existing route before preparing', () {
+        final sut = fixture.getSut();
+
+        sut.trackNonRootNavigation('/existing-route');
+        final existingSpan = fixture.hub.getActiveSpan();
+        expect(existingSpan!.isEnded, isFalse);
+
+        sut.prepareRootNavigation();
+
+        expect(existingSpan.isEnded, isTrue);
+        expect(existingSpan.status, SentrySpanStatusV2.cancelled);
+      });
+    });
+
+    group('when tracking root navigation after prepare', () {
+      test('reuses prepared idle span', () {
+        final sut = fixture.getSut();
+
+        sut.prepareRootNavigation();
+        final preparedSpan = fixture.hub.getActiveSpan();
+
+        final routeSpan = sut.trackRootNavigation();
+
+        expect(routeSpan.spanId, equals(preparedSpan!.spanId));
+      });
+
+      test('backdates prepared span start timestamp', () {
+        final sut = fixture.getSut();
+        final past = DateTime.utc(2024, 1, 1, 12, 0, 0);
+
+        sut.prepareRootNavigation();
+        sut.trackRootNavigation(startTimestamp: past);
+
+        final activeSpan = fixture.hub.getActiveSpan() as RecordingSentrySpanV2;
+        expect(activeSpan.startTimestamp, equals(past));
+      });
+
+      test('backdates pre-created TTFD span start timestamp', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+        final past = DateTime.utc(2024, 1, 1, 12, 0, 0);
+
+        sut.prepareRootNavigation();
+        sut.trackRootNavigation(startTimestamp: past);
+
+        final ttfdSpan = childSpans.firstWhere(
+          (s) => s.name == 'root / full display',
+        );
+        expect(ttfdSpan.startTimestamp, equals(past));
+      });
+
+      test('creates TTID span as child of prepared route span', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+
+        sut.prepareRootNavigation();
+        sut.trackRootNavigation();
+
+        final ttidSpan = childSpans.firstWhere(
+          (s) => s.name == 'root / initial display',
+        );
+        expect(ttidSpan, isNotNull);
+        expect(ttidSpan.isEnded, isFalse);
+
+        fixture.frameCallbackHandler.postFrameCallback?.call(Duration.zero);
+
+        expect(ttidSpan.isEnded, isTrue);
+      });
+
+      test('does not create duplicate TTFD span', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+
+        sut.prepareRootNavigation();
+        sut.trackRootNavigation();
+
+        final ttfdSpans = childSpans.where(
+          (s) => s.name == 'root / full display',
+        );
+        expect(ttfdSpans, hasLength(1));
+      });
+
+      test('ends TTID immediately with ttidEndTimestamp', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+        final ttidEnd = DateTime.utc(2024, 1, 1, 12, 0, 5);
+
+        sut.prepareRootNavigation();
+        sut.trackRootNavigation(ttidEndTimestamp: ttidEnd);
+
+        final ttidSpan = childSpans.firstWhere(
+          (s) => s.name == 'root / initial display',
+        );
+        expect(ttidSpan.isEnded, isTrue);
+        expect(ttidSpan.endTimestamp, equals(ttidEnd));
+      });
     });
 
     group('when reporting fully displayed', () {
@@ -152,7 +359,7 @@ void main() {
         final sut = fixture.getSut();
         final childSpans = fixture.captureChildSpans();
 
-        sut.trackRoute('/test-route');
+        sut.trackNonRootNavigation('/test-route');
         final ttfdSpanId = sut.ttfdSpanId!;
 
         final ttfdSpan = childSpans.firstWhere(
@@ -169,7 +376,7 @@ void main() {
       test('ignores mismatched spanId', () {
         final sut = fixture.getSut();
 
-        sut.trackRoute('/test-route');
+        sut.trackNonRootNavigation('/test-route');
         final originalTtfdSpanId = sut.ttfdSpanId;
 
         sut.reportFullyDisplayed(SpanId.newId());
@@ -179,28 +386,21 @@ void main() {
     });
 
     group('when cancelling current route', () {
-      test('ends TTFD span with cancelled status', () {
+      test('clears TTFD span id', () {
         final sut = fixture.getSut();
-        final childSpans = fixture.captureChildSpans();
 
-        sut.trackRoute('/test-route');
-
-        final ttfdSpan = childSpans.firstWhere(
-          (s) => s.name == '/test-route full display',
-        );
-        expect(ttfdSpan.isEnded, isFalse);
+        sut.trackNonRootNavigation('/test-route');
+        expect(sut.ttfdSpanId, isNotNull);
 
         sut.cancelCurrentRoute();
 
-        expect(ttfdSpan.isEnded, isTrue);
-        expect(ttfdSpan.status, SentrySpanStatusV2.cancelled);
         expect(sut.ttfdSpanId, isNull);
       });
 
       test('ends active idle route span with cancelled status', () {
         final sut = fixture.getSut();
 
-        sut.trackRoute('/test-route');
+        sut.trackNonRootNavigation('/test-route');
 
         final activeSpan = fixture.hub.getActiveSpan();
         expect(activeSpan, isNotNull);
@@ -212,10 +412,9 @@ void main() {
         expect(activeSpan.status, SentrySpanStatusV2.cancelled);
       });
 
-      test('cancels an existing idle span not created by trackRoute', () {
+      test('cancels an existing idle span not created by the tracker', () {
         final sut = fixture.getSut();
 
-        // Create an idle span externally (e.g. simulating a user interaction span)
         final externalIdleSpan =
             fixture.hub.startIdleSpan('user interaction span');
         expect(externalIdleSpan.isEnded, isFalse);
@@ -224,6 +423,19 @@ void main() {
 
         expect(externalIdleSpan.isEnded, isTrue);
         expect(externalIdleSpan.status, SentrySpanStatusV2.cancelled);
+      });
+
+      test('clears prepared root navigation span', () {
+        final sut = fixture.getSut();
+
+        sut.prepareRootNavigation();
+        final preparedSpan = fixture.hub.getActiveSpan();
+        expect(preparedSpan!.isEnded, isFalse);
+
+        sut.cancelCurrentRoute();
+
+        expect(preparedSpan.isEnded, isTrue);
+        expect(preparedSpan.status, SentrySpanStatusV2.cancelled);
       });
     });
   });
