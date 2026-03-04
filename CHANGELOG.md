@@ -6,6 +6,12 @@
 
 - Stop re-triggering hitTest in SentryUserInteractionWidget on pointerUp ([#3540](https://github.com/getsentry/sentry-dart/pull/3540))
 
+### Dependencies
+
+- Bump JavaScript SDK from v10.38.0 to v10.42.0 ([#3515](https://github.com/getsentry/sentry-dart/pull/3515))
+  - [changelog](https://github.com/getsentry/sentry-javascript/blob/develop/CHANGELOG.md#10420)
+  - [diff](https://github.com/getsentry/sentry-javascript/compare/10.38.0...10.42.0)
+
 ## 9.14.0
 
 ### Features
