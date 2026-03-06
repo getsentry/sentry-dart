@@ -6,6 +6,12 @@
 
 - Stop re-triggering hitTest in SentryUserInteractionWidget on pointerUp ([#3540](https://github.com/getsentry/sentry-dart/pull/3540))
 
+### Dependencies
+
+- Bump Android SDK from v8.33.0 to v8.34.1 ([#3546](https://github.com/getsentry/sentry-dart/pull/3546))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8341)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.33.0...8.34.1)
+
 ## 9.14.0
 
 ### Features
