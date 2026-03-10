@@ -285,7 +285,7 @@ class Hub {
     return sentryId;
   }
 
-  FutureOr<void> captureLog(SentryLog log) async {
+  FutureOr<void> captureLog(SentryLog log, {Hint? hint}) async {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
@@ -305,6 +305,7 @@ class Hub {
         await item.client.captureLog(
           log,
           scope: scope,
+          hint: hint,
         );
       } catch (exception, stacktrace) {
         _options.log(

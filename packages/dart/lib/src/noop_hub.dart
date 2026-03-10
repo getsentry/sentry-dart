@@ -96,7 +96,7 @@ class NoOpHub implements Hub {
       SentryId.empty();
 
   @override
-  FutureOr<void> captureLog(SentryLog log) async {}
+  FutureOr<void> captureLog(SentryLog log, {Hint? hint}) async {}
 
   @override
   Future<void> captureMetric(SentryMetric metric) async {}

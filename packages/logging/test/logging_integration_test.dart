@@ -344,6 +344,29 @@ void main() {
       expect(fullAttributes.containsKey('stackTrace'), false);
     });
 
+    test('passes LogRecord hint to sentry logger calls', () async {
+      final mockLogger = MockSentryLogger();
+      final options = TestSentryOptions(mockLogger)..enableLogs = true;
+
+      final sut = fixture.createSut(minSentryLogLevel: Level.INFO);
+      sut.call(fixture.hub, options);
+
+      final log = Logger('TestLogger');
+      final customObject = {'key': 'value'};
+      log.info(customObject);
+
+      await Future<void>.delayed(Duration(milliseconds: 10));
+
+      expect(mockLogger.infoCalls.length, 1);
+      final hint = mockLogger.infoCalls.first.hint;
+      expect(hint, isNotNull);
+
+      final record = hint!.get(TypeCheckHint.record) as LogRecord;
+      expect(record.loggerName, 'TestLogger');
+      expect(record.level, Level.INFO);
+      expect(record.object, same(customObject));
+    });
+
     test('Level.OFF is never sent to sentry logger', () async {
       final mockLogger = MockSentryLogger();
       final options = TestSentryOptions(mockLogger)..enableLogs = true;
@@ -492,48 +515,54 @@ class MockSentryLogger implements SentryLogger {
   Future<void> trace(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) async {
-    traceCalls.add(MockLogCall(body, attributes));
+    traceCalls.add(MockLogCall(body, attributes, hint));
   }
 
   @override
   Future<void> debug(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) async {
-    debugCalls.add(MockLogCall(body, attributes));
+    debugCalls.add(MockLogCall(body, attributes, hint));
   }
 
   @override
   Future<void> info(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) async {
-    infoCalls.add(MockLogCall(body, attributes));
+    infoCalls.add(MockLogCall(body, attributes, hint));
   }
 
   @override
   Future<void> warn(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) async {
-    warnCalls.add(MockLogCall(body, attributes));
+    warnCalls.add(MockLogCall(body, attributes, hint));
   }
 
   @override
   Future<void> error(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) async {
-    errorCalls.add(MockLogCall(body, attributes));
+    errorCalls.add(MockLogCall(body, attributes, hint));
   }
 
   @override
   Future<void> fatal(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) async {
-    fatalCalls.add(MockLogCall(body, attributes));
+    fatalCalls.add(MockLogCall(body, attributes, hint));
   }
 
   @override
@@ -543,8 +572,9 @@ class MockSentryLogger implements SentryLogger {
 class MockLogCall {
   final String message;
   final Map<String, SentryAttribute>? attributes;
+  final Hint? hint;
 
-  MockLogCall(this.message, this.attributes);
+  MockLogCall(this.message, this.attributes, this.hint);
 }
 
 class TestSentryOptions extends SentryOptions {

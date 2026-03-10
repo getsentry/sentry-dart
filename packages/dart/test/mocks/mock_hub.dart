@@ -111,8 +111,8 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {
-    captureLogCalls.add(CaptureLogCall(log, scope));
+  FutureOr<void> captureLog(SentryLog log, {Hint? hint}) async {
+    captureLogCalls.add(CaptureLogCall(log, null, hint));
   }
 
   @override

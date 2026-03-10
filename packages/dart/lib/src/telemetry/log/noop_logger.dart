@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../../hint.dart';
 import '../../protocol/sentry_attribute.dart';
 import 'logger.dart';
 
@@ -12,36 +13,42 @@ final class NoOpSentryLogger implements SentryLogger {
   FutureOr<void> trace(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
   FutureOr<void> debug(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
   FutureOr<void> info(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
   FutureOr<void> warn(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
   FutureOr<void> error(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
   FutureOr<void> fatal(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override

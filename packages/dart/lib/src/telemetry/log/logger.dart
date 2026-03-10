@@ -12,36 +12,42 @@ abstract interface class SentryLogger {
   FutureOr<void> trace(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   });
 
   /// Logs a message at DEBUG level.
   FutureOr<void> debug(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   });
 
   /// Logs a message at INFO level.
   FutureOr<void> info(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   });
 
   /// Logs a message at WARN level.
   FutureOr<void> warn(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   });
 
   /// Logs a message at ERROR level.
   FutureOr<void> error(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   });
 
   /// Logs a message at FATAL level.
   FutureOr<void> fatal(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   });
 
   /// Provides formatted logging with template strings.

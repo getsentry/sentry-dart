@@ -98,7 +98,7 @@ void main() {
               event.log.attributes.containsKey('scope-attr');
         });
 
-        fixture.options.beforeSendLog = (log) {
+        fixture.options.beforeSendLog = (log, {Hint? hint}) {
           operations.add('beforeSendLog');
           return log;
         };
@@ -145,7 +145,7 @@ void main() {
 
     group('when beforeSendLog is configured', () {
       test('returning null drops the log', () async {
-        fixture.options.beforeSendLog = (_) => null;
+        fixture.options.beforeSendLog = (_, {Hint? hint}) => null;
 
         final log = givenLog();
 
@@ -155,7 +155,7 @@ void main() {
       });
 
       test('returning null records lost event in client report', () async {
-        fixture.options.beforeSendLog = (_) => null;
+        fixture.options.beforeSendLog = (_, {Hint? hint}) => null;
 
         final log = givenLog();
 
@@ -169,7 +169,7 @@ void main() {
       });
 
       test('can mutate the log', () async {
-        fixture.options.beforeSendLog = (log) {
+        fixture.options.beforeSendLog = (log, {Hint? hint}) {
           log.body = 'modified-body';
           log.attributes['added-key'] = SentryAttribute.string('added');
           return log;
@@ -186,7 +186,7 @@ void main() {
       });
 
       test('async callback is awaited', () async {
-        fixture.options.beforeSendLog = (log) async {
+        fixture.options.beforeSendLog = (log, {Hint? hint}) async {
           await Future.delayed(Duration(milliseconds: 10));
           log.body = 'async-modified';
           return log;
@@ -204,7 +204,7 @@ void main() {
       test('exception in callback is caught and log is still captured',
           () async {
         fixture.options.automatedTestMode = false;
-        fixture.options.beforeSendLog = (log) {
+        fixture.options.beforeSendLog = (log, {Hint? hint}) {
           throw Exception('test');
         };
 

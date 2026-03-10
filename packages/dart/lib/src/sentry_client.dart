@@ -501,8 +501,8 @@ class SentryClient {
   }
 
   @internal
-  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) =>
-      _logCapturePipeline.captureLog(log, scope: scope);
+  FutureOr<void> captureLog(SentryLog log, {Scope? scope, Hint? hint}) =>
+      _logCapturePipeline.captureLog(log, scope: scope, hint: hint);
 
   Future<void> captureMetric(SentryMetric metric, {Scope? scope}) =>
       _metricCapturePipeline.captureMetric(metric, scope: scope);
