@@ -27,7 +27,7 @@ class SentryLog {
 
   Map<String, dynamic> toJson() {
     return {
-      'timestamp': timestamp.toIso8601String(),
+      'timestamp': timestamp.microsecondsSinceEpoch / 1000000.0,
       'trace_id': traceId.toString(),
       if (spanId != null) 'span_id': spanId.toString(),
       'level': level.value,
