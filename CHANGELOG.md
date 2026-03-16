@@ -5,6 +5,7 @@
 ### Fixes
 
 - Stop re-triggering hitTest in SentryUserInteractionWidget on pointerUp ([#3540](https://github.com/getsentry/sentry-dart/pull/3540))
+- Use seconds since the Unix epoch for `log.timestamp` ([#3558](https://github.com/getsentry/sentry-dart/pull/3558))
 
 ## 9.14.0
 
