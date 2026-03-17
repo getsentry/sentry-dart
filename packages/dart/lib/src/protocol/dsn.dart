@@ -7,6 +7,7 @@ final RegExp _orgIdFromHostRegExp = RegExp(r'^o(\d+)\.');
 ///
 /// Returns the numeric org ID as a string, or `null` if the host does not
 /// match the expected pattern (e.g. `o123.ingest.sentry.io`).
+@internal
 String? extractOrgIdFromDsnHost(String host) {
   final match = _orgIdFromHostRegExp.firstMatch(host);
   return match?.group(1);
@@ -38,7 +39,8 @@ class Dsn {
 
   Uri get postUri {
     final uriCopy = uri!;
-    final port = uriCopy.hasPort &&
+    final port =
+        uriCopy.hasPort &&
             ((uriCopy.scheme == 'http' && uriCopy.port != 80) ||
                 (uriCopy.scheme == 'https' && uriCopy.port != 443))
         ? ':${uriCopy.port}'
@@ -49,8 +51,8 @@ class Dsn {
     String apiPath;
     if (pathLength > 1) {
       // some paths would present before the projectID in the uri
-      apiPath =
-          (uriCopy.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
+      apiPath = (uriCopy.pathSegments.sublist(0, pathLength - 1) + ['api'])
+          .join('/');
     } else {
       apiPath = 'api';
     }
