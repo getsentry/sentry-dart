@@ -1,7 +1,9 @@
 import 'protocol.dart';
 import 'sentry_baggage.dart';
+import 'sentry_options.dart';
 import 'sentry_trace_origins.dart';
 import 'tracing.dart';
+import 'utils/tracing_utils.dart';
 
 class SentryTransactionContext extends SentrySpanContext {
   String name;
@@ -30,7 +32,21 @@ class SentryTransactionContext extends SentrySpanContext {
     SentryTraceHeader traceHeader, {
     SentryTransactionNameSource? transactionNameSource,
     SentryBaggage? baggage,
+    SentryOptions? options,
   }) {
+    // Validate org ID before continuing the incoming trace
+    if (options != null &&
+        !shouldContinueTrace(options, baggage?.getOrgId())) {
+      // Start a new trace instead of continuing the incoming one
+      return SentryTransactionContext(
+        name,
+        operation,
+        transactionNameSource:
+            transactionNameSource ?? SentryTransactionNameSource.custom,
+        origin: SentryTraceOrigins.manual,
+      );
+    }
+
     final sampleRate = baggage?.getSampleRate();
     final sampleRand = baggage?.getSampleRand();
     return SentryTransactionContext(

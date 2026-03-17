@@ -132,6 +132,49 @@ bool containsTargetOrMatchesRegExp(
   return false;
 }
 
+/// Determines whether an incoming trace should be continued based on org ID matching.
+///
+/// Returns `true` if the trace should be continued, `false` if a new trace
+/// should be started instead.
+///
+/// The decision matrix:
+/// - Both org IDs present and matching: continue
+/// - Both org IDs present and different: new trace (always)
+/// - One or both missing, strict=false: continue
+/// - One or both missing, strict=true: new trace (unless both missing)
+bool shouldContinueTrace(SentryOptions options, String? baggageOrgId) {
+  final sdkOrgId = options.effectiveOrgId;
+
+  // Mismatched org IDs always reject regardless of strict mode
+  if (sdkOrgId != null && baggageOrgId != null && sdkOrgId != baggageOrgId) {
+    options.log(
+      SentryLevel.debug,
+      "Not continuing trace because org IDs don't match "
+          '(incoming baggage: $baggageOrgId, SDK: $sdkOrgId)',
+    );
+    return false;
+  }
+
+  if (options.strictTraceContinuation) {
+    // Both missing is OK
+    if (sdkOrgId == null && baggageOrgId == null) {
+      return true;
+    }
+    // One missing means reject
+    if (sdkOrgId == null || baggageOrgId == null) {
+      options.log(
+        SentryLevel.debug,
+        'Starting a new trace because strict trace continuation is enabled '
+            'but one org ID is missing '
+            '(incoming baggage: $baggageOrgId, SDK: $sdkOrgId)',
+      );
+      return false;
+    }
+  }
+
+  return true;
+}
+
 bool isValidSampleRate(double? sampleRate) {
   if (sampleRate == null) {
     return false;

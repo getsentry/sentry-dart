@@ -1,5 +1,17 @@
 import 'package:meta/meta.dart';
 
+/// Regex to extract the org ID from a DSN host (e.g. `o123.ingest.sentry.io` -> `123`).
+final RegExp _orgIdFromHostRegExp = RegExp(r'^o(\d+)\.');
+
+/// Extracts the organization ID from a DSN host string.
+///
+/// Returns the numeric org ID as a string, or `null` if the host does not
+/// match the expected pattern (e.g. `o123.ingest.sentry.io`).
+String? extractOrgIdFromDsnHost(String host) {
+  final match = _orgIdFromHostRegExp.firstMatch(host);
+  return match?.group(1);
+}
+
 /// The Data Source Name (DSN) tells the SDK where to send the events
 @immutable
 class Dsn {

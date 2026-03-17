@@ -391,6 +391,7 @@ class SentryTracer extends ISentrySpan {
       sampleRate: _sampleRateToString(_rootSpan.samplingDecision?.sampleRate),
       sampleRand: _sampleRandToString(_rootSpan.samplingDecision?.sampleRand),
       sampled: _rootSpan.samplingDecision?.sampled.toString(),
+      orgId: _hub.options.effectiveOrgId,
     );
 
     return _sentryTraceContextHeader;
