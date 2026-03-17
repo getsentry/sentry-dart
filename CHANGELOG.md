@@ -6,6 +6,13 @@
 
 - Stop re-triggering hitTest in SentryUserInteractionWidget on pointerUp ([#3540](https://github.com/getsentry/sentry-dart/pull/3540))
 - Use seconds since the Unix epoch for `log.timestamp` ([#3558](https://github.com/getsentry/sentry-dart/pull/3558))
+- Implement `SqfliteDatabaseExecutor` to prevent `TypeError` on `getVersion/setVersion` ([3539](https://github.com/getsentry/sentry-dart/pull/3539))
+
+### Dependencies
+
+- Bump Android SDK from v8.33.0 to v8.35.0 ([#3546](https://github.com/getsentry/sentry-dart/pull/3546))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8350)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.33.0...8.35.0)
 
 ## 9.14.0
 
