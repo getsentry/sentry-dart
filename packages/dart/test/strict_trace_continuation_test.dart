@@ -246,8 +246,7 @@ void main() {
     group('fromSentryTrace', () {
       test('continues trace when org IDs match', () {
         final options = defaultTestOptions()..orgId = '123';
-        final header =
-            SentryTraceHeader(traceId, spanId, sampled: true);
+        final header = SentryTraceHeader(traceId, spanId, sampled: true);
         final baggage = SentryBaggage({})..setOrgId('123');
 
         final context = SentryTransactionContext.fromSentryTrace(
@@ -264,8 +263,7 @@ void main() {
 
       test('starts new trace when org IDs do not match', () {
         final options = defaultTestOptions()..orgId = '123';
-        final header =
-            SentryTraceHeader(traceId, spanId, sampled: true);
+        final header = SentryTraceHeader(traceId, spanId, sampled: true);
         final baggage = SentryBaggage({})..setOrgId('456');
 
         final context = SentryTransactionContext.fromSentryTrace(
@@ -281,8 +279,7 @@ void main() {
       });
 
       test('continues trace when options is null (backwards compat)', () {
-        final header =
-            SentryTraceHeader(traceId, spanId, sampled: true);
+        final header = SentryTraceHeader(traceId, spanId, sampled: true);
         final baggage = SentryBaggage({})..setOrgId('456');
 
         final context = SentryTransactionContext.fromSentryTrace(
@@ -301,8 +298,7 @@ void main() {
           final options = defaultTestOptions()
             ..orgId = '123'
             ..strictTraceContinuation = true;
-          final header =
-              SentryTraceHeader(traceId, spanId, sampled: true);
+          final header = SentryTraceHeader(traceId, spanId, sampled: true);
 
           final context = SentryTransactionContext.fromSentryTrace(
             'name',
@@ -318,8 +314,7 @@ void main() {
         test('starts new trace when SDK org ID is missing', () {
           final options = defaultTestOptions()
             ..strictTraceContinuation = true;
-          final header =
-              SentryTraceHeader(traceId, spanId, sampled: true);
+          final header = SentryTraceHeader(traceId, spanId, sampled: true);
           final baggage = SentryBaggage({})..setOrgId('123');
 
           final context = SentryTransactionContext.fromSentryTrace(
@@ -337,8 +332,7 @@ void main() {
         test('continues trace when both org IDs are missing', () {
           final options = defaultTestOptions()
             ..strictTraceContinuation = true;
-          final header =
-              SentryTraceHeader(traceId, spanId, sampled: true);
+          final header = SentryTraceHeader(traceId, spanId, sampled: true);
 
           final context = SentryTransactionContext.fromSentryTrace(
             'name',

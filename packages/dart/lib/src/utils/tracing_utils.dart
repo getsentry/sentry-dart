@@ -150,7 +150,7 @@ bool shouldContinueTrace(SentryOptions options, String? baggageOrgId) {
     options.log(
       SentryLevel.debug,
       "Not continuing trace because org IDs don't match "
-          '(incoming baggage: $baggageOrgId, SDK: $sdkOrgId)',
+      '(incoming baggage: $baggageOrgId, SDK: $sdkOrgId)',
     );
     return false;
   }
@@ -165,8 +165,8 @@ bool shouldContinueTrace(SentryOptions options, String? baggageOrgId) {
       options.log(
         SentryLevel.debug,
         'Starting a new trace because strict trace continuation is enabled '
-            'but one org ID is missing '
-            '(incoming baggage: $baggageOrgId, SDK: $sdkOrgId)',
+        'but one org ID is missing '
+        '(incoming baggage: $baggageOrgId, SDK: $sdkOrgId)',
       );
       return false;
     }
