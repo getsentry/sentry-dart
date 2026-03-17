@@ -1,4 +1,6 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/protocol/dsn.dart';
+import 'package:sentry/src/utils/tracing_utils.dart';
 import 'package:test/test.dart';
 
 import 'test_utils.dart';

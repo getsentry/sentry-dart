@@ -22,7 +22,7 @@ export 'src/noop_isolate_error_integration.dart'
     if (dart.library.io) 'src/isolate_error_integration.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/performance_collector.dart';
-export 'src/protocol.dart';
+export 'src/protocol.dart' hide extractOrgIdFromDsnHost;
 export 'src/protocol/sentry_feature_flag.dart';
 export 'src/protocol/sentry_feature_flags.dart';
 export 'src/protocol/sentry_feedback.dart';
@@ -57,7 +57,7 @@ export 'src/utils.dart';
 export 'src/utils/http_header_utils.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/http_sanitizer.dart';
-export 'src/utils/tracing_utils.dart';
+export 'src/utils/tracing_utils.dart' hide shouldContinueTrace;
 // ignore: invalid_export_of_internal_element
 export 'src/utils/url_details.dart';
 // ignore: invalid_export_of_internal_element
