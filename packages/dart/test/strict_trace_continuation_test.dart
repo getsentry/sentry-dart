@@ -49,16 +49,16 @@ void main() {
 
       test('returns DSN-extracted org id when orgId is not set', () {
         final options = SentryOptions(
-            dsn: 'https://public@o123.ingest.sentry.io/1')
-          ..automatedTestMode = true;
+          dsn: 'https://public@o123.ingest.sentry.io/1',
+        )..automatedTestMode = true;
         expect(options.effectiveOrgId, '123');
       });
 
       test('prefers explicit orgId over DSN-extracted org id', () {
-        final options = SentryOptions(
-            dsn: 'https://public@o123.ingest.sentry.io/1')
-          ..automatedTestMode = true
-          ..orgId = '456';
+        final options =
+            SentryOptions(dsn: 'https://public@o123.ingest.sentry.io/1')
+              ..automatedTestMode = true
+              ..orgId = '456';
         expect(options.effectiveOrgId, '456');
       });
     });
@@ -99,8 +99,7 @@ void main() {
       });
 
       test('continues trace when SDK org ID is missing', () {
-        final options = defaultTestOptions()
-          ..strictTraceContinuation = false;
+        final options = defaultTestOptions()..strictTraceContinuation = false;
         expect(shouldContinueTrace(options, '123'), isTrue);
       });
     });
@@ -114,14 +113,12 @@ void main() {
       });
 
       test('starts new trace when SDK org ID is missing', () {
-        final options = defaultTestOptions()
-          ..strictTraceContinuation = true;
+        final options = defaultTestOptions()..strictTraceContinuation = true;
         expect(shouldContinueTrace(options, '123'), isFalse);
       });
 
       test('continues trace when both org IDs are missing', () {
-        final options = defaultTestOptions()
-          ..strictTraceContinuation = true;
+        final options = defaultTestOptions()..strictTraceContinuation = true;
         expect(shouldContinueTrace(options, null), isTrue);
       });
 
@@ -155,8 +152,8 @@ void main() {
 
     test('setValuesFromScope includes org_id when available', () {
       final options = SentryOptions(
-          dsn: 'https://public@o123.ingest.sentry.io/1')
-        ..automatedTestMode = true;
+        dsn: 'https://public@o123.ingest.sentry.io/1',
+      )..automatedTestMode = true;
       final scope = Scope(options);
       final baggage = SentryBaggage({});
 
@@ -201,10 +198,7 @@ void main() {
     });
 
     test('does not include orgId in toBaggage when null', () {
-      final context = SentryTraceContextHeader(
-        SentryId.newId(),
-        'publicKey',
-      );
+      final context = SentryTraceContextHeader(SentryId.newId(), 'publicKey');
       final baggage = context.toBaggage();
       expect(baggage.getOrgId(), isNull);
     });
@@ -312,8 +306,7 @@ void main() {
         });
 
         test('starts new trace when SDK org ID is missing', () {
-          final options = defaultTestOptions()
-            ..strictTraceContinuation = true;
+          final options = defaultTestOptions()..strictTraceContinuation = true;
           final header = SentryTraceHeader(traceId, spanId, sampled: true);
           final baggage = SentryBaggage({})..setOrgId('123');
 
@@ -330,8 +323,7 @@ void main() {
         });
 
         test('continues trace when both org IDs are missing', () {
-          final options = defaultTestOptions()
-            ..strictTraceContinuation = true;
+          final options = defaultTestOptions()..strictTraceContinuation = true;
           final header = SentryTraceHeader(traceId, spanId, sampled: true);
 
           final context = SentryTransactionContext.fromSentryTrace(
