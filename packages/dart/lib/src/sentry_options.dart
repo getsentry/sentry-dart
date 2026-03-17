@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
+import 'protocol/dsn.dart';
 import 'client_reports/noop_client_report_recorder.dart';
 import 'diagnostic_log.dart';
 import 'environment/environment_variables.dart';
