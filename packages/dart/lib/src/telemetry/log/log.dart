@@ -1,6 +1,7 @@
 import '../../protocol/sentry_attribute.dart';
 import '../../protocol/sentry_id.dart';
 import '../../protocol/span_id.dart';
+import '../../utils/date_time_extension.dart';
 import 'log_level.dart';
 
 class SentryLog {
@@ -27,7 +28,7 @@ class SentryLog {
 
   Map<String, dynamic> toJson() {
     return {
-      'timestamp': timestamp.toIso8601String(),
+      'timestamp': timestamp.secondsSinceEpoch,
       'trace_id': traceId.toString(),
       if (spanId != null) 'span_id': spanId.toString(),
       'level': level.value,
