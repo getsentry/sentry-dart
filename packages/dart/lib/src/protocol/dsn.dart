@@ -39,8 +39,7 @@ class Dsn {
 
   Uri get postUri {
     final uriCopy = uri!;
-    final port =
-        uriCopy.hasPort &&
+    final port = uriCopy.hasPort &&
             ((uriCopy.scheme == 'http' && uriCopy.port != 80) ||
                 (uriCopy.scheme == 'https' && uriCopy.port != 443))
         ? ':${uriCopy.port}'
@@ -51,8 +50,8 @@ class Dsn {
     String apiPath;
     if (pathLength > 1) {
       // some paths would present before the projectID in the uri
-      apiPath = (uriCopy.pathSegments.sublist(0, pathLength - 1) + ['api'])
-          .join('/');
+      apiPath =
+          (uriCopy.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
     } else {
       apiPath = 'api';
     }
