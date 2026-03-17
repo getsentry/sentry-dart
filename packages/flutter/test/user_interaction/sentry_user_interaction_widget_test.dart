@@ -15,7 +15,9 @@ import '../mocks.mocks.dart';
 
 // The Scaffold widget tree uses AnimatedBuilder on stable but Builder on beta.
 // Use anyOf to accept either name since this is a framework-internal detail.
-final _animatedBuilderElement = {'element': anyOf('AnimatedBuilder', 'Builder')};
+final _animatedBuilderElement = {
+  'element': anyOf('AnimatedBuilder', 'Builder')
+};
 
 void main() {
   late Fixture fixture;
