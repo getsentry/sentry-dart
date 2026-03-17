@@ -1,10 +1,9 @@
 import 'package:test/test.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/utils/date_time_extension.dart';
 
 void main() {
   test('$SentryLog to json', () {
-    final timestamp = DateTime.now();
+    final timestamp = DateTime.utc(2024, 1, 15, 10, 30, 0, 123, 456);
     final traceId = SentryId.newId();
     final spanId = SpanId.newId();
 
@@ -26,7 +25,7 @@ void main() {
     final json = logItem.toJson();
 
     expect(json, {
-      'timestamp': timestamp.secondsSinceEpoch,
+      'timestamp': 1705314600.123456,
       'trace_id': traceId.toString(),
       'span_id': spanId.toString(),
       'level': 'info',
