@@ -26,7 +26,7 @@ void main() {
     final json = logItem.toJson();
 
     expect(json, {
-      'timestamp': timestamp.microsecondsSinceEpoch / 1000000.0,
+      'timestamp': timestamp.secondsSinceEpoch,
       'trace_id': traceId.toString(),
       'span_id': spanId.toString(),
       'level': 'info',
