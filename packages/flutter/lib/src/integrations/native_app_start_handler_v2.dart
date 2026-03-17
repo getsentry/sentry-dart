@@ -32,6 +32,13 @@ class NativeAppStartHandlerV2 {
     }
 
     final tracker = options.timeToDisplayTrackerV2;
+    final attributes = {
+      SemanticAttributesConstants.sentryOp:
+          SentryAttribute.string(appStartInfo.appStartTypeOperation),
+      SemanticAttributesConstants.sentryOrigin:
+          SentryAttribute.string(SentryTraceOrigins.autoUiTimeToDisplay),
+    };
+
     final rootSpan = tracker.trackRootNavigation(
       startTimestamp: appStartInfo.start,
       ttidEndTimestamp: appStartInfo.end,
@@ -41,48 +48,28 @@ class NativeAppStartHandlerV2 {
       appStartInfo.appStartTypeDescription,
       parentSpan: rootSpan,
       startTimestamp: appStartInfo.start,
-      attributes: {
-        SemanticAttributesConstants.sentryOp:
-            SentryAttribute.string(appStartInfo.appStartTypeOperation),
-        SemanticAttributesConstants.sentryOrigin:
-            SentryAttribute.string(SentryTraceOrigins.autoUiTimeToDisplay),
-      },
+      attributes: attributes,
     );
 
     final pluginRegistrationSpan = hub.startInactiveSpan(
       appStartInfo.pluginRegistrationDescription,
       parentSpan: appStartSpan,
       startTimestamp: appStartInfo.start,
-      attributes: {
-        SemanticAttributesConstants.sentryOp:
-            SentryAttribute.string(appStartInfo.appStartTypeOperation),
-        SemanticAttributesConstants.sentryOrigin:
-            SentryAttribute.string(SentryTraceOrigins.autoUiTimeToDisplay),
-      },
+      attributes: attributes,
     );
 
     final sentrySetupSpan = hub.startInactiveSpan(
       appStartInfo.sentrySetupDescription,
       parentSpan: appStartSpan,
       startTimestamp: appStartInfo.pluginRegistration,
-      attributes: {
-        SemanticAttributesConstants.sentryOp:
-            SentryAttribute.string(appStartInfo.appStartTypeOperation),
-        SemanticAttributesConstants.sentryOrigin:
-            SentryAttribute.string(SentryTraceOrigins.autoUiTimeToDisplay),
-      },
+      attributes: attributes,
     );
 
     final firstFrameRenderSpan = hub.startInactiveSpan(
       appStartInfo.firstFrameRenderDescription,
       parentSpan: appStartSpan,
       startTimestamp: appStartInfo.sentrySetupStart,
-      attributes: {
-        SemanticAttributesConstants.sentryOp:
-            SentryAttribute.string(appStartInfo.appStartTypeOperation),
-        SemanticAttributesConstants.sentryOrigin:
-            SentryAttribute.string(SentryTraceOrigins.autoUiTimeToDisplay),
-      },
+      attributes: attributes,
     );
 
     for (final timeSpan in appStartInfo.nativeSpanTimes) {
@@ -91,12 +78,7 @@ class NativeAppStartHandlerV2 {
           timeSpan.description,
           parentSpan: appStartSpan,
           startTimestamp: timeSpan.start,
-          attributes: {
-            SemanticAttributesConstants.sentryOp:
-                SentryAttribute.string(appStartInfo.appStartTypeOperation),
-            SemanticAttributesConstants.sentryOrigin:
-                SentryAttribute.string(SentryTraceOrigins.autoUiTimeToDisplay),
-          },
+          attributes: attributes,
         );
         nativeSpan.end(endTimestamp: timeSpan.end);
       } catch (error, stackTrace) {
