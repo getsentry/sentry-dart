@@ -1,6 +1,7 @@
 import '../../protocol/sentry_attribute.dart';
 import '../../protocol/sentry_id.dart';
 import '../../protocol/span_id.dart';
+import '../../utils/date_time_extension.dart';
 import 'log_level.dart';
 
 class SentryLog {

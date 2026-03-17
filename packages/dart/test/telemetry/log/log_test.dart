@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/utils/date_time_extension.dart';
 
 void main() {
   test('$SentryLog to json', () {
