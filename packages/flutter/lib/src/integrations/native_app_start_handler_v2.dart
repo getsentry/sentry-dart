@@ -19,19 +19,20 @@ class NativeAppStartHandlerV2 {
     SentryFlutterOptions options, {
     required DateTime appStartEnd,
   }) async {
+    final tracker = options.timeToDisplayTrackerV2;
+
     final nativeAppStart = await _native.fetchNativeAppStart();
     if (nativeAppStart == null) {
-      options.timeToDisplayTrackerV2.cancelCurrentRoute();
+      tracker.cancelCurrentRoute();
       return;
     }
 
     final appStartInfo = parseNativeAppStart(nativeAppStart, appStartEnd);
     if (appStartInfo == null) {
-      options.timeToDisplayTrackerV2.cancelCurrentRoute();
+      tracker.cancelCurrentRoute();
       return;
     }
 
-    final tracker = options.timeToDisplayTrackerV2;
     final attributes = {
       SemanticAttributesConstants.sentryOp:
           SentryAttribute.string(appStartInfo.appStartTypeOperation),
