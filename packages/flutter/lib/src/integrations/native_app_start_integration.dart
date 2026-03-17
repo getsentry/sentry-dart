@@ -72,10 +72,15 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
               appStartEnd: appStartEnd,
             );
           case SentryTraceLifecycle.static:
+            if (context == null) {
+              options.log(SentryLevel.warning,
+                  'Skipping native app start integration because context is null');
+              return;
+            }
             await _nativeAppStartHandler.call(
               hub,
               options,
-              context: context!,
+              context: context,
               appStartEnd: appStartEnd,
             );
         }
