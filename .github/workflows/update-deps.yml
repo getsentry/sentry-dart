@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
 
 permissions:
   contents: write
@@ -31,7 +32,7 @@ jobs:
         with:
           path: packages/flutter/scripts/update-cocoa.sh
           name: Cocoa SDK
-          pattern: '^8\.' # Only update Cocoa SDK 8.x.x until the next major v10
+          pattern: '^8\.' # Only update Cocoa SDK 8.x.x until the next Sentry Flutter major v10
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   js:
