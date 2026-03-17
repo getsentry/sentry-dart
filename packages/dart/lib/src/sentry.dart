@@ -420,6 +420,40 @@ class Sentry {
       _hub.startSpan(name, callback,
           attributes: attributes, parentSpan: parentSpan);
 
+  /// Creates a span that is not set as the active span.
+  ///
+  /// Unlike [startSpan], this span does not use a callback and is not propagated through zones.
+  /// This means:
+  /// - Other spans will **not** automatically become children of this span.
+  /// - You control the span's lifetime by calling [SentrySpanV2.end] manually.
+  ///
+  /// By default, the span is created as a child of the currently active span.
+  /// Pass a [SentrySpanV2] as [parentSpan] to override the parent, or pass
+  /// `null` to create a root span.
+  ///
+  /// Prefer [startSpan] when the work fits inside a single callback. Use
+  /// this method when the span must survive across execution boundaries
+  /// that a callback cannot wrap — for example, widget lifecycles, stream
+  /// subscriptions, or platform channel round-trips.
+  ///
+  /// Example:
+  /// ```dart
+  /// final paymentSpan = Sentry.startInactiveSpan('payment',
+  ///   attributes: {'payment.provider': SentryAttribute.string('stripe')});`
+  ///
+  /// // ...later, from a completely different entry point
+  /// void onDeepLink(Uri uri) {
+  ///   paymentSpan.end();
+  /// }
+  /// ```
+  static SentrySpanV2 startInactiveSpan(
+    String name, {
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    Map<String, SentryAttribute>? attributes,
+  }) =>
+      _hub.startInactiveSpan(name,
+          parentSpan: parentSpan, attributes: attributes);
+
   /// Gets the current active transaction or span bound to the scope.
   /// Returns `null` if performance is disabled in the options.
   static ISentrySpan? getSpan() => _hub.getSpan();

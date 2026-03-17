@@ -710,7 +710,6 @@ class Hub {
     return result;
   }
 
-  @internal
   SentrySpanV2 startInactiveSpan(
     String name, {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
