@@ -3,7 +3,7 @@ name: Update Dependencies
 on:
   # Run every day.
   schedule:
-    - cron: "0 3 * * *"
+    - cron: '0 3 * * *'
   # And on every PR merge so we get the updated dependencies ASAP, and to make sure the changelog doesn't conflict.
   push:
     branches:
@@ -31,6 +31,7 @@ jobs:
         with:
           path: packages/flutter/scripts/update-cocoa.sh
           name: Cocoa SDK
+          pattern: '^8\.' # Only update Cocoa SDK 8.x.x until the next major v10
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   js:
