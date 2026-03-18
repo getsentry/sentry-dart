@@ -391,7 +391,8 @@ class Sentry {
   /// automatically when the returned future completes.
   ///
   /// The span is set as the active span within the [callback]'s scope via
-  /// zones, so any nested [startSpan] calls will automatically parent to it.
+  /// zones, so any nested [startSpan] or [startSpanSync] calls will
+  /// automatically parent to it.
   ///
   /// If the [callback] throws or the returned future completes with an error,
   /// the span's status is set to [SentrySpanStatusV2.error] before ending.
