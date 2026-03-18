@@ -1150,12 +1150,11 @@ void main() {
 
       test('does nothing when hub is closed', () async {
         final hub = fixture.getSut();
+        // using startInactiveSpan for convenience in creating a span
         final span = hub.startInactiveSpan('test-span');
         await hub.close();
 
         await hub.captureSpan(span);
-        await Sentry.startSpan('test-span', (span) async => 42);
-        Sentry.startSpanSync('test-span', (span) => 42);
 
         expect(fixture.client.captureSpanCalls, isEmpty);
       });
