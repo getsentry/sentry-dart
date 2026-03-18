@@ -1,6 +1,10 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
+// ignore: implementation_imports
+import 'package:sqflite_common/src/database.dart';
+// ignore: implementation_imports
+import 'package:sqflite_common/src/transaction.dart';
 
 import 'sentry_batch.dart';
 
@@ -18,7 +22,8 @@ import 'sentry_batch.dart';
 /// });
 /// ```
 @experimental
-class SentrySqfliteTransaction extends Transaction implements DatabaseExecutor {
+class SentrySqfliteTransaction extends Transaction
+    implements DatabaseExecutor, SqfliteDatabaseExecutor {
   final DatabaseExecutor _executor;
   final Hub _hub;
   final String? _dbName;
@@ -31,6 +36,12 @@ class SentrySqfliteTransaction extends Transaction implements DatabaseExecutor {
     @internal String? dbName,
   })  : _hub = hub ?? HubAdapter(),
         _dbName = dbName;
+
+  @override
+  SqfliteDatabase get db => (_executor as SqfliteDatabaseExecutor).db;
+
+  @override
+  SqfliteTransaction? get txn => (_executor as SqfliteDatabaseExecutor).txn;
 
   @override
   Batch batch() => SentryBatch(_executor.batch(), hub: _hub, dbName: _dbName);

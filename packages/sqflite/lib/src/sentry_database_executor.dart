@@ -3,7 +3,11 @@ import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
 
 // ignore: implementation_imports
+import 'package:sqflite_common/src/database.dart';
+// ignore: implementation_imports
 import 'package:sqflite_common/src/sql_builder.dart';
+// ignore: implementation_imports
+import 'package:sqflite_common/src/transaction.dart';
 
 import 'sentry_batch.dart';
 import 'sentry_database.dart';
@@ -11,7 +15,11 @@ import 'utils/sentry_database_span_attributes.dart';
 
 @internal
 // ignore: public_member_api_docs
-class SentryDatabaseExecutor implements DatabaseExecutor {
+// Workaround: sqflite hard-casts DatabaseExecutor to SqfliteDatabaseExecutor
+// (see sqlite_api.dart SqfliteDatabaseExecutorExt), causing a TypeError when wrapped.
+// https://github.com/tekartik/sqflite/blob/c28b35b17f98e714cee6e540ef6a96e48642aafd/sqflite_common/lib/sqlite_api.dart#L349
+class SentryDatabaseExecutor
+    implements DatabaseExecutor, SqfliteDatabaseExecutor {
   final DatabaseExecutor _executor;
   // ignore: invalid_use_of_internal_member
   final InstrumentationSpan? _parentSpan;
@@ -40,6 +48,12 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
   InstrumentationSpan? _getParent() {
     return _parentSpan ?? _spanFactory.getSpan(_hub);
   }
+
+  @override
+  SqfliteDatabase get db => (_executor as SqfliteDatabaseExecutor).db;
+
+  @override
+  SqfliteTransaction? get txn => (_executor as SqfliteDatabaseExecutor).txn;
 
   @override
   Batch batch() => SentryBatch(_executor.batch(), hub: _hub, dbName: _dbName);

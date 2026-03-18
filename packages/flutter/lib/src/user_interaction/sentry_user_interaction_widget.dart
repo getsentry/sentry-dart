@@ -205,7 +205,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
@@ -603,14 +602,6 @@ class _SentryUserInteractionWidgetState
         return;
       }
 
-      var hitFound = true;
-      if (renderObject is RenderPointerListener) {
-        final hitResult = BoxHitTestResult();
-
-        // Returns false if the hit can continue to other objects below this one.
-        hitFound = renderObject.hitTest(hitResult, position: position);
-      }
-
       final transform = renderObject.getTransformTo(rootElement.renderObject);
       final paintBounds =
           MatrixUtils.transformRect(transform, renderObject.paintBounds);
@@ -627,12 +618,18 @@ class _SentryUserInteractionWidgetState
         );
       }
 
-      if (tappedWidget == null || !hitFound) {
-        element.visitChildElements(elementFinder);
+      if (tappedWidget == null) {
+        // Use debugVisitOnstageChildren instead of visitChildElements to
+        // skip offstage elements (e.g. routes behind the current page).
+        // This avoids the need for hitTest-based visibility checking which
+        // has the side effect of propagating to descendant render objects
+        // and overwriting their state.
+        // https://github.com/getsentry/sentry-dart/issues/3503
+        element.debugVisitOnstageChildren(elementFinder);
       }
     }
 
-    rootElement.visitChildElements(elementFinder);
+    rootElement.debugVisitOnstageChildren(elementFinder);
 
     return tappedWidget;
   }
