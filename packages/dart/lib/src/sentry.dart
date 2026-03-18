@@ -439,7 +439,7 @@ class Sentry {
   /// Example:
   /// ```dart
   /// final paymentSpan = Sentry.startInactiveSpan('payment',
-  ///   attributes: {'payment.provider': SentryAttribute.string('stripe')});`
+  ///   attributes: {'payment.provider': SentryAttribute.string('stripe')});
   ///
   /// // ...later, from a completely different entry point
   /// void onDeepLink(Uri uri) {
