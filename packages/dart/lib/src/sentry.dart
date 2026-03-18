@@ -387,13 +387,15 @@ class Sentry {
         onFinish: onFinish,
       );
 
-  /// Starts a new span, executes [callback], and ends the span automatically.
+  /// Starts a new span, executes an async [callback], and ends the span
+  /// automatically when the returned future completes.
   ///
   /// The span is set as the active span within the [callback]'s scope via
   /// zones, so any nested [startSpan] calls will automatically parent to it.
   ///
   /// If the [callback] throws or the returned future completes with an error,
   /// the span's status is set to [SentrySpanStatusV2.error] before ending.
+  /// Use [startSpanSync] when the work completes synchronously.
   ///
   /// By default, the span is created as a child of the currently active span.
   /// Pass a [SentrySpanV2] as [parentSpan] to override the parent, or pass
@@ -411,14 +413,31 @@ class Sentry {
   ///   return orderService.create(cart, payment);
   /// });
   /// ```
-  static T startSpan<T>(
+  static Future<T> startSpan<T>(
+    String name,
+    Future<T> Function(SentrySpanV2 span) callback, {
+    Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
+  }) =>
+      _hub.startSpan(name, callback,
+          attributes: attributes,
+          parentSpan: parentSpan,
+          startTimestamp: startTimestamp);
+
+  /// Starts a new span, executes a synchronous [callback], and ends the span
+  /// before returning the callback result.
+  ///
+  /// This is the synchronous variant of [startSpan]. Use [startSpan] when the
+  /// work is asynchronous.
+  static T startSpanSync<T>(
     String name,
     T Function(SentrySpanV2 span) callback, {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     DateTime? startTimestamp,
   }) =>
-      _hub.startSpan(name, callback,
+      _hub.startSpanSync(name, callback,
           attributes: attributes,
           parentSpan: parentSpan,
           startTimestamp: startTimestamp);
@@ -434,8 +453,8 @@ class Sentry {
   /// Pass a [SentrySpanV2] as [parentSpan] to override the parent, or pass
   /// `null` to create a root span.
   ///
-  /// Prefer [startSpan] when the work fits inside a single callback. Use
-  /// this method when the span must survive across execution boundaries
+  /// Prefer [startSpan] or [startSpanSync] when the work fits inside a single
+  /// callback. Use this method when the span must survive across execution boundaries
   /// that a callback cannot wrap — for example, widget lifecycles, stream
   /// subscriptions, or platform channel round-trips.
   ///

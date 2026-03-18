@@ -461,12 +461,12 @@ void main() {
       });
     });
 
-    group('startSpan', () {
+    group('startSpanSync', () {
       group('with sync callback', () {
         test('returns callback result', () {
           final hub = fixture.getSut();
 
-          final result = hub.startSpan('test-span', (span) => 42);
+          final result = hub.startSpanSync('test-span', (span) => 42);
 
           expect(result, equals(42));
         });
@@ -475,7 +475,7 @@ void main() {
           final hub = fixture.getSut();
           late RecordingSentrySpanV2 capturedSpan;
 
-          hub.startSpan('test-span', (span) {
+          hub.startSpanSync('test-span', (span) {
             capturedSpan = span as RecordingSentrySpanV2;
             expect(span.isEnded, isFalse);
           });
@@ -486,7 +486,7 @@ void main() {
         test('provides RecordingSentrySpanV2 when tracing is enabled', () {
           final hub = fixture.getSut();
 
-          hub.startSpan('test-span', (span) {
+          hub.startSpanSync('test-span', (span) {
             expect(span, isA<RecordingSentrySpanV2>());
           });
         });
@@ -494,7 +494,7 @@ void main() {
         test('provides NoOpSentrySpanV2 when tracing is disabled', () {
           final hub = fixture.getSut(tracesSampleRate: null);
 
-          hub.startSpan('test-span', (span) {
+          hub.startSpanSync('test-span', (span) {
             expect(span, isA<NoOpSentrySpanV2>());
           });
         });
@@ -504,7 +504,7 @@ void main() {
           late RecordingSentrySpanV2 capturedSpan;
 
           expect(
-            () => hub.startSpan('test-span', (span) {
+            () => hub.startSpanSync('test-span', (span) {
               capturedSpan = span as RecordingSentrySpanV2;
               throw StateError('test error');
             }),
@@ -516,6 +516,179 @@ void main() {
         });
       });
 
+      group('with zone-based scope forking', () {
+        test('nested calls build correct parent-child chain', () {
+          final hub = fixture.getSut();
+          late SentrySpanV2 outerSpan;
+          late SentrySpanV2 innerSpan;
+
+          hub.startSpanSync('outer', (span) {
+            outerSpan = span;
+            hub.startSpanSync('inner', (span) {
+              innerSpan = span;
+            });
+          });
+
+          expect(outerSpan.parentSpan, isNull);
+          expect(innerSpan.parentSpan, equals(outerSpan));
+        });
+
+        test('sibling spans share same parent', () {
+          final hub = fixture.getSut();
+          late SentrySpanV2 parent;
+          late SentrySpanV2 child1;
+          late SentrySpanV2 child2;
+
+          hub.startSpanSync('parent', (span) {
+            parent = span;
+            hub.startSpanSync('child-1', (span) {
+              child1 = span;
+            });
+            hub.startSpanSync('child-2', (span) {
+              child2 = span;
+            });
+          });
+
+          expect(child1.parentSpan, equals(parent));
+          expect(child2.parentSpan, equals(parent));
+        });
+
+        test('does not leak active span to outer scope after callback', () {
+          final hub = fixture.getSut();
+
+          hub.startSpanSync('outer', (span) {
+            final outerActiveSpan = hub.getActiveSpan();
+            expect(outerActiveSpan, equals(span));
+
+            hub.startSpanSync('inner', (innerSpan) {
+              final innerActiveSpan = hub.getActiveSpan();
+              expect(innerActiveSpan, equals(innerSpan));
+            });
+
+            final afterInner = hub.getActiveSpan();
+            expect(afterInner, equals(span));
+          });
+        });
+
+        test('does not pollute hub scope active span', () {
+          final hub = fixture.getSut();
+
+          expect(hub.scope.activeSpan, isNull);
+
+          hub.startSpanSync('test-span', (span) {});
+
+          expect(hub.scope.activeSpan, isNull);
+        });
+      });
+
+      group('with explicit parentSpan', () {
+        test('uses provided parent instead of zone-resolved parent', () {
+          final hub = fixture.getSut();
+          late SentrySpanV2 explicitParent;
+          late SentrySpanV2 child;
+
+          hub.startSpanSync('explicit-parent', (span) {
+            explicitParent = span;
+          });
+
+          hub.startSpanSync('outer', (outerSpan) {
+            hub.startSpanSync('child', (span) {
+              child = span;
+            }, parentSpan: explicitParent);
+          });
+
+          expect(child.parentSpan, equals(explicitParent));
+        });
+
+        test('creates root span when parentSpan is null', () {
+          final hub = fixture.getSut();
+          late SentrySpanV2 child;
+
+          hub.startSpanSync('outer', (outerSpan) {
+            hub.startSpanSync('root-child', (span) {
+              child = span;
+            }, parentSpan: null);
+          });
+
+          expect(child.parentSpan, isNull);
+        });
+      });
+
+      group('with attributes', () {
+        test('passes attributes to created span', () {
+          final hub = fixture.getSut();
+          final attrs = {
+            'http.method': SentryAttribute.string('GET'),
+            'http.status_code': SentryAttribute.int(200),
+          };
+
+          hub.startSpanSync('test-span', (span) {
+            expect(span.attributes, equals(attrs));
+          }, attributes: attrs);
+        });
+      });
+
+      group('with startTimestamp', () {
+        test('uses provided timestamp', () {
+          final hub = fixture.getSut();
+          final past = DateTime(2024, 1, 1, 12, 0, 0);
+          late RecordingSentrySpanV2 capturedSpan;
+
+          hub.startSpanSync('test-span', (span) {
+            capturedSpan = span as RecordingSentrySpanV2;
+          }, startTimestamp: past);
+
+          expect(capturedSpan.startTimestamp, equals(past.toUtc()));
+          expect(capturedSpan.startTimestamp.isUtc, isTrue);
+        });
+      });
+
+      group('when capturing spans', () {
+        test('captures span via client on end', () {
+          final hub = fixture.getSut();
+
+          hub.startSpanSync('test-span', (span) {});
+
+          expect(fixture.client.captureSpanCalls, hasLength(1));
+        });
+
+        test('captures all nested spans', () {
+          final hub = fixture.getSut();
+
+          hub.startSpanSync('outer', (span) {
+            hub.startSpanSync('inner', (span) {});
+          });
+
+          expect(fixture.client.captureSpanCalls, hasLength(2));
+        });
+      });
+
+      group('when ignoreSpans rules are configured', () {
+        test('does not capture ignored span', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          hub.startSpanSync('ignored-span', (span) {});
+
+          expect(fixture.client.captureSpanCalls, isEmpty);
+        });
+
+        test('still returns sync callback result for ignored span', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          final result = hub.startSpanSync('ignored-span', (span) => 42);
+
+          expect(result, equals(42));
+        });
+      });
+    });
+
+    group('startSpan', () {
       group('with async callback', () {
         test('returns callback result', () async {
           final hub = fixture.getSut();
@@ -537,6 +710,23 @@ void main() {
           expect(capturedSpan.isEnded, isTrue);
         });
 
+        test('provides RecordingSentrySpanV2 when tracing is enabled',
+            () async {
+          final hub = fixture.getSut();
+
+          await hub.startSpan('test-span', (span) async {
+            expect(span, isA<RecordingSentrySpanV2>());
+          });
+        });
+
+        test('provides NoOpSentrySpanV2 when tracing is disabled', () async {
+          final hub = fixture.getSut(tracesSampleRate: null);
+
+          await hub.startSpan('test-span', (span) async {
+            expect(span, isA<NoOpSentrySpanV2>());
+          });
+        });
+
         test('sets error status and ends span on async error', () async {
           final hub = fixture.getSut();
           late RecordingSentrySpanV2 capturedSpan;
@@ -555,15 +745,16 @@ void main() {
       });
 
       group('with zone-based scope forking', () {
-        test('nested calls build correct parent-child chain', () {
+        test('nested calls build correct parent-child chain', () async {
           final hub = fixture.getSut();
           late SentrySpanV2 outerSpan;
           late SentrySpanV2 innerSpan;
 
-          hub.startSpan('outer', (span) {
+          await hub.startSpan('outer', (span) async {
             outerSpan = span;
-            hub.startSpan('inner', (span) {
+            await hub.startSpan('inner', (span) async {
               innerSpan = span;
+              await Future<void>.delayed(Duration.zero);
             });
           });
 
@@ -571,39 +762,18 @@ void main() {
           expect(innerSpan.parentSpan, equals(outerSpan));
         });
 
-        test('3-level nesting builds correct parent chain', () {
-          final hub = fixture.getSut();
-          late SentrySpanV2 level1;
-          late SentrySpanV2 level2;
-          late SentrySpanV2 level3;
-
-          hub.startSpan('level-1', (span) {
-            level1 = span;
-            hub.startSpan('level-2', (span) {
-              level2 = span;
-              hub.startSpan('level-3', (span) {
-                level3 = span;
-              });
-            });
-          });
-
-          expect(level1.parentSpan, isNull);
-          expect(level2.parentSpan, equals(level1));
-          expect(level3.parentSpan, equals(level2));
-        });
-
-        test('sibling spans share same parent', () {
+        test('sibling spans share same parent', () async {
           final hub = fixture.getSut();
           late SentrySpanV2 parent;
           late SentrySpanV2 child1;
           late SentrySpanV2 child2;
 
-          hub.startSpan('parent', (span) {
+          await hub.startSpan('parent', (span) async {
             parent = span;
-            hub.startSpan('child-1', (span) {
+            await hub.startSpan('child-1', (span) async {
               child1 = span;
             });
-            hub.startSpan('child-2', (span) {
+            await hub.startSpan('child-2', (span) async {
               child2 = span;
             });
           });
@@ -612,20 +782,20 @@ void main() {
           expect(child2.parentSpan, equals(parent));
         });
 
-        test('does not leak active span to outer scope after callback', () {
+        test('does not leak active span to outer scope after callback',
+            () async {
           final hub = fixture.getSut();
 
-          hub.startSpan('outer', (span) {
+          await hub.startSpan('outer', (span) async {
             final outerActiveSpan = hub.getActiveSpan();
             expect(outerActiveSpan, equals(span));
 
-            hub.startSpan('inner', (innerSpan) {
+            await hub.startSpan('inner', (innerSpan) async {
               final innerActiveSpan = hub.getActiveSpan();
               expect(innerActiveSpan, equals(innerSpan));
+              await Future<void>.delayed(Duration.zero);
             });
 
-            // After inner callback, zone pops so active span should still
-            // be the outer span in this zone.
             final afterInner = hub.getActiveSpan();
             expect(afterInner, equals(span));
           });
@@ -637,60 +807,59 @@ void main() {
           late SentrySpanV2 child1;
           late SentrySpanV2 child2;
 
-          await hub.startSpan<void>('parent', (span) async {
+          await hub.startSpan('parent', (span) async {
             parent = span;
-            final f1 = hub.startSpan<void>('child-1', (span) async {
+            final f1 = hub.startSpan('child-1', (span) async {
               child1 = span;
-              await Future.delayed(Duration.zero);
+              await Future<void>.delayed(Duration.zero);
             });
-            final f2 = hub.startSpan<void>('child-2', (span) async {
+            final f2 = hub.startSpan('child-2', (span) async {
               child2 = span;
-              await Future.delayed(Duration.zero);
+              await Future<void>.delayed(Duration.zero);
             });
-            await Future.wait([f1 as Future<void>, f2 as Future<void>]);
+            await Future.wait([f1, f2]);
           });
 
           expect(child1.parentSpan, equals(parent));
           expect(child2.parentSpan, equals(parent));
         });
 
-        test('does not pollute hub scope active span', () {
+        test('does not pollute hub scope active span', () async {
           final hub = fixture.getSut();
 
           expect(hub.scope.activeSpan, isNull);
 
-          hub.startSpan('test-span', (span) {});
+          await hub.startSpan('test-span', (span) async {});
 
           expect(hub.scope.activeSpan, isNull);
         });
       });
 
       group('with explicit parentSpan', () {
-        test('uses provided parent instead of zone-resolved parent', () {
+        test('uses provided parent instead of zone-resolved parent', () async {
           final hub = fixture.getSut();
           late SentrySpanV2 explicitParent;
           late SentrySpanV2 child;
 
-          hub.startSpan('explicit-parent', (span) {
+          await hub.startSpan('explicit-parent', (span) async {
             explicitParent = span;
           });
 
-          hub.startSpan('outer', (outerSpan) {
-            child = hub.startInactiveSpan(
-              'child',
-              parentSpan: explicitParent,
-            );
+          await hub.startSpan('outer', (outerSpan) async {
+            await hub.startSpan('child', (span) async {
+              child = span;
+            }, parentSpan: explicitParent);
           });
 
           expect(child.parentSpan, equals(explicitParent));
         });
 
-        test('creates root span when parentSpan is null', () {
+        test('creates root span when parentSpan is null', () async {
           final hub = fixture.getSut();
           late SentrySpanV2 child;
 
-          hub.startSpan('outer', (outerSpan) {
-            hub.startSpan('root-child', (span) {
+          await hub.startSpan('outer', (outerSpan) async {
+            await hub.startSpan('root-child', (span) async {
               child = span;
             }, parentSpan: null);
           });
@@ -700,36 +869,76 @@ void main() {
       });
 
       group('with attributes', () {
-        test('passes attributes to created span', () {
+        test('passes attributes to created span', () async {
           final hub = fixture.getSut();
           final attrs = {
             'http.method': SentryAttribute.string('GET'),
             'http.status_code': SentryAttribute.int(200),
           };
 
-          hub.startSpan('test-span', (span) {
+          await hub.startSpan('test-span', (span) async {
             expect(span.attributes, equals(attrs));
           }, attributes: attrs);
         });
       });
 
+      group('with startTimestamp', () {
+        test('uses provided timestamp', () async {
+          final hub = fixture.getSut();
+          final past = DateTime(2024, 1, 1, 12, 0, 0);
+          late RecordingSentrySpanV2 capturedSpan;
+
+          await hub.startSpan('test-span', (span) async {
+            capturedSpan = span as RecordingSentrySpanV2;
+          }, startTimestamp: past);
+
+          expect(capturedSpan.startTimestamp, equals(past.toUtc()));
+          expect(capturedSpan.startTimestamp.isUtc, isTrue);
+        });
+      });
+
       group('when capturing spans', () {
-        test('captures span via client on end', () {
+        test('captures span via client on end', () async {
           final hub = fixture.getSut();
 
-          hub.startSpan('test-span', (span) {});
+          await hub.startSpan('test-span', (span) async {});
 
           expect(fixture.client.captureSpanCalls, hasLength(1));
         });
 
-        test('captures all nested spans', () {
+        test('captures all nested spans', () async {
           final hub = fixture.getSut();
 
-          hub.startSpan('outer', (span) {
-            hub.startSpan('inner', (span) {});
+          await hub.startSpan('outer', (span) async {
+            await hub.startSpan('inner', (span) async {});
           });
 
           expect(fixture.client.captureSpanCalls, hasLength(2));
+        });
+      });
+
+      group('when ignoreSpans rules are configured', () {
+        test('does not capture ignored span', () async {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          await hub.startSpan('ignored-span', (span) async {});
+
+          expect(fixture.client.captureSpanCalls, isEmpty);
+        });
+
+        test('still returns async callback result for ignored span', () async {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-span'),
+          ];
+          final hub = fixture.getSut();
+
+          final result =
+              await hub.startSpan('ignored-span', (span) async => 42);
+
+          expect(result, equals(42));
         });
       });
     });
@@ -867,6 +1076,8 @@ void main() {
         await hub.close();
 
         await hub.captureSpan(span);
+        await Sentry.startSpan('test-span', (span) async => 42);
+        Sentry.startSpanSync('test-span', (span) => 42);
 
         expect(fixture.client.captureSpanCalls, isEmpty);
       });
@@ -882,132 +1093,6 @@ void main() {
 
         expect(hub.scope.activeSpan, isNull);
         expect(fixture.client.captureSpanCalls, isEmpty);
-      });
-    });
-
-    group('startSpan', () {
-      group('when ignoreSpans rules are configured', () {
-        test('provides NoOpSentrySpanV2 for matching rule', () {
-          fixture.options.ignoreSpans = [
-            IgnoreSpanRule.nameEquals('ignored-span'),
-          ];
-          final hub = fixture.getSut();
-
-          hub.startSpan('ignored-span', (span) {
-            expect(span, isA<NoOpSentrySpanV2>());
-          });
-        });
-
-        test('provides RecordingSentrySpanV2 for non-matching rule', () {
-          fixture.options.ignoreSpans = [
-            IgnoreSpanRule.nameEquals('ignored-span'),
-          ];
-          final hub = fixture.getSut();
-
-          hub.startSpan('other-span', (span) {
-            expect(span, isA<RecordingSentrySpanV2>());
-          });
-        });
-
-        test('does not capture ignored span', () {
-          fixture.options.ignoreSpans = [
-            IgnoreSpanRule.nameEquals('ignored-span'),
-          ];
-          final hub = fixture.getSut();
-
-          hub.startSpan('ignored-span', (span) {});
-
-          expect(fixture.client.captureSpanCalls, isEmpty);
-        });
-
-        test('still returns sync callback result for ignored span', () {
-          fixture.options.ignoreSpans = [
-            IgnoreSpanRule.nameEquals('ignored-span'),
-          ];
-          final hub = fixture.getSut();
-
-          final result = hub.startSpan('ignored-span', (span) => 42);
-
-          expect(result, equals(42));
-        });
-
-        test('still returns async callback result for ignored span', () async {
-          fixture.options.ignoreSpans = [
-            IgnoreSpanRule.nameEquals('ignored-span'),
-          ];
-          final hub = fixture.getSut();
-
-          final result =
-              await hub.startSpan('ignored-span', (span) async => 42);
-
-          expect(result, equals(42));
-        });
-
-        test('re-parents through multiple consecutive ignored spans', () {
-          fixture.options.ignoreSpans = [
-            IgnoreSpanRule.nameEquals('ignored-1'),
-            IgnoreSpanRule.nameEquals('ignored-2'),
-            IgnoreSpanRule.nameEquals('ignored-3'),
-          ];
-          final hub = fixture.getSut();
-
-          final root = hub.startInactiveSpan('root', parentSpan: null);
-          final ignored1 = hub.startInactiveSpan('ignored-1', parentSpan: root);
-          final ignored2 =
-              hub.startInactiveSpan('ignored-2', parentSpan: ignored1);
-          final ignored3 =
-              hub.startInactiveSpan('ignored-3', parentSpan: ignored2);
-
-          hub.startSpan('child', parentSpan: ignored3, (span) {
-            expect(span, isA<RecordingSentrySpanV2>());
-            expect(span.parentSpan, same(root));
-          });
-        });
-
-        test('re-parents correctly with ignored spans at different levels', () {
-          fixture.options.ignoreSpans = [
-            IgnoreSpanRule.nameEquals('ignored-span'),
-          ];
-          final hub = fixture.getSut();
-
-          final root = hub.startInactiveSpan('root', parentSpan: null);
-          final ignored1 =
-              hub.startInactiveSpan('ignored-span', parentSpan: root);
-          final child1 = hub.startInactiveSpan('child1', parentSpan: ignored1);
-          final ignored2 =
-              hub.startInactiveSpan('ignored-span', parentSpan: child1);
-
-          hub.startSpan('child2', parentSpan: ignored2, (span) {
-            expect(span, isA<RecordingSentrySpanV2>());
-            expect(span.parentSpan, same(child1));
-          });
-        });
-
-        test('creates root span when ignored span has no parent', () {
-          fixture.options.ignoreSpans = [
-            IgnoreSpanRule.nameEquals('ignored-root'),
-          ];
-          final hub = fixture.getSut();
-
-          final ignored =
-              hub.startInactiveSpan('ignored-root', parentSpan: null);
-
-          hub.startSpan('child', parentSpan: ignored, (span) {
-            expect(span, isA<RecordingSentrySpanV2>());
-            expect(span.parentSpan, isNull);
-          });
-        });
-
-        test('does not re-parent when parent is unsampled NoOp', () {
-          final hub = fixture.getSut(tracesSampleRate: 0.0);
-
-          final unsampledRoot = hub.startInactiveSpan('root', parentSpan: null);
-
-          hub.startSpan('child', parentSpan: unsampledRoot, (span) {
-            expect(span, isA<NoOpSentrySpanV2>());
-            expect((span as NoOpSentrySpanV2).isIgnored, isFalse);
-          });
-        });
       });
     });
   });

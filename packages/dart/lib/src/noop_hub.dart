@@ -174,7 +174,16 @@ class NoOpHub implements Hub {
   }
 
   @override
-  T startSpan<T>(String name, T Function(SentrySpanV2 span) callback,
+  Future<T> startSpan<T>(
+      String name, Future<T> Function(SentrySpanV2 span) callback,
+      {Map<String, SentryAttribute>? attributes,
+      SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+      DateTime? startTimestamp}) {
+    return callback(NoOpSentrySpanV2.instance);
+  }
+
+  @override
+  T startSpanSync<T>(String name, T Function(SentrySpanV2 span) callback,
       {Map<String, SentryAttribute>? attributes,
       SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
       DateTime? startTimestamp}) {

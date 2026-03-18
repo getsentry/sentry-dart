@@ -627,23 +627,24 @@ class Hub {
 
   static final _scopeKey = Object();
 
-  /// The scope forked by the innermost [startSpan] call on the current zone
-  /// chain, or `null` if we are outside any [startSpan] callback.
+  /// The scope forked by the innermost [startSpan] or [startSpanSync] call on
+  /// the current zone chain, or `null` if we are outside any span callback.
   Scope? get _zoneScope => Zone.current[_scopeKey] as Scope?;
 
   /// Returns the active span from the current zone's forked scope, or `null`
   /// if no span is active.
   ///
-  /// Only zone-forked scopes (created by [startSpan]) carry an active span.
+  /// Only zone-forked scopes (created by [startSpan] or [startSpanSync]) carry
+  /// an active span.
   /// The hub's top-level scope is never mutated, so calling this outside a
   /// [startSpan] callback always returns `null`.
   @internal
   RecordingSentrySpanV2? getActiveSpan() =>
       _zoneScope?.getActiveSpan() ?? _currentIdleSpan;
 
-  T startSpan<T>(
+  Future<T> startSpan<T>(
     String name,
-    T Function(SentrySpanV2 span) callback, {
+    Future<T> Function(SentrySpanV2 span) callback, {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     DateTime? startTimestamp,
@@ -664,52 +665,79 @@ class Hub {
           'This is a bug — the sentinel should never leak out of _createSpan.',
         );
         return callback(span);
-      case RecordingSentrySpanV2():
-        break;
+      case RecordingSentrySpanV2 recordingSpan:
+        return () async {
+          final forkedScope = _forkScopeWithActiveSpan(recordingSpan);
+          try {
+            final result = await runZoned(
+              () => callback(recordingSpan),
+              zoneValues: {_scopeKey: forkedScope},
+            );
+            _endActiveSpan(recordingSpan, forkedScope);
+            return result;
+          } catch (_) {
+            _endActiveSpan(recordingSpan, forkedScope, isError: true);
+            rethrow;
+          }
+        }();
     }
+  }
 
+  T startSpanSync<T>(
+    String name,
+    T Function(SentrySpanV2 span) callback, {
+    Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
+  }) {
+    final span = _createSpan(
+      name,
+      parentSpan: parentSpan,
+      attributes: attributes,
+      startTimestamp: startTimestamp,
+    );
+    switch (span) {
+      case NoOpSentrySpanV2():
+        internalLogger
+            .info('Hub: startSpanSync returning no-op for \'$name\'.');
+        return callback(span);
+      case UnsetSentrySpanV2():
+        internalLogger.error(
+          'Hub: _createSpan returned UnsetSentrySpanV2 for \'$name\'. '
+          'This is a bug — the sentinel should never leak out of _createSpan.',
+        );
+        return callback(span);
+      case RecordingSentrySpanV2 recordingSpan:
+        final forkedScope = _forkScopeWithActiveSpan(recordingSpan);
+        try {
+          final result = runZoned(
+            () => callback(recordingSpan),
+            zoneValues: {_scopeKey: forkedScope},
+          );
+          _endActiveSpan(recordingSpan, forkedScope);
+          return result;
+        } catch (_) {
+          _endActiveSpan(recordingSpan, forkedScope, isError: true);
+          rethrow;
+        }
+    }
+  }
+
+  Scope _forkScopeWithActiveSpan(RecordingSentrySpanV2 span) {
     final parentScope = _zoneScope ?? scope;
-    final forkedScope = parentScope.clone()..setActiveSpan(span);
+    return parentScope.clone()..setActiveSpan(span);
+  }
 
-    // Error handling is split into sync and async paths to preserve the
-    // FutureOr<T> return type — callers with a sync callback get a sync result.
-    //
-    // Note: We intentionally use runZoned() (not runZonedGuarded()) because
-    // the purpose is to propagate zone-local scope values, not to intercept
-    // errors. Using runZonedGuarded() would create an error-zone boundary
-    // that prevents errors from reaching the caller's await / catchError.
-    // The trade-off is that fire-and-forget async work inside the callback
-    // (e.g. unawaited futures, Timer.run) can throw errors that are not
-    // caught here — this is expected Dart zone behavior.
-    void endSpan({bool isError = false}) {
-      if (isError) span.status = SentrySpanStatusV2.error;
-      span.end();
-      forkedScope.removeActiveSpan(span);
+  void _endActiveSpan(
+    RecordingSentrySpanV2 span,
+    Scope forkedScope, {
+    bool isError = false,
+  }) {
+    if (isError) {
+      span.status = SentrySpanStatusV2.error;
     }
-
-    T result;
-    try {
-      result = runZoned(
-        () => callback(span),
-        zoneValues: {_scopeKey: forkedScope},
-      );
-    } catch (_) {
-      endSpan(isError: true);
-      rethrow;
-    }
-
-    if (result is Future) {
-      return (result as Future).then((value) {
-        endSpan();
-        return value;
-      }, onError: (Object error, StackTrace stackTrace) {
-        endSpan(isError: true);
-        return Future<T>.error(error, stackTrace);
-      }) as T;
-    }
-
-    endSpan();
-    return result;
+    span.end();
+    forkedScope.removeActiveSpan(span);
   }
 
   SentrySpanV2 startInactiveSpan(
