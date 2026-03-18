@@ -59,6 +59,7 @@ body:
     attributes:
       description: Are you using any other error monitoring solution alongside Sentry?
       label: Other Error Monitoring Solution
+      default: 0
       options:
         - "No"
         - "Yes"
