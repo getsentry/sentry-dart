@@ -168,11 +168,13 @@ class HubAdapter implements Hub {
     String name, {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
   }) =>
       Sentry.currentHub.startInactiveSpan(
         name,
         attributes: attributes,
         parentSpan: parentSpan,
+        startTimestamp: startTimestamp,
       );
 
   @override
@@ -250,6 +252,7 @@ class HubAdapter implements Hub {
     Duration finalTimeout = const Duration(seconds: 30),
     bool trimIdleSpanEndTimestamp = true,
     Map<String, SentryAttribute>? attributes,
+    DateTime? startTimestamp,
   }) =>
       Sentry.currentHub.startIdleSpan(
         name,
@@ -257,5 +260,6 @@ class HubAdapter implements Hub {
         finalTimeout: finalTimeout,
         trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
         attributes: attributes,
+        startTimestamp: startTimestamp,
       );
 }

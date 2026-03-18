@@ -155,11 +155,18 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+
+    doWork();
+  }
+
+  void doWork() async {
     final rootDisplay = SentryFlutter.currentDisplay();
-    Future.delayed(const Duration(seconds: 3), () {
-      // Do some long running work...
-      rootDisplay?.reportFullyDisplayed();
+
+    await Sentry.startSpan('Custom span that runs during app start', (_) async {
+      await Future.delayed(const Duration(seconds: 1));
     });
+
+    rootDisplay?.reportFullyDisplayed();
   }
 
   @override

@@ -20,7 +20,6 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
   final RecordingSentrySpanV2? _parentSpan;
   final ClockProvider _clock;
   final OnSpanEndCallback _onSpanEnd;
-  final DateTime _startTimestamp;
   final SentryId _traceId;
   final RecordingSentrySpanV2? _segmentSpan;
   final DscCreatorCallback _dscCreator;
@@ -28,6 +27,7 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
   final SentryTracesSamplingDecision _samplingDecision;
 
   // Mutable span state.
+  DateTime _startTimestamp;
   SentrySpanStatusV2 _status = SentrySpanStatusV2.ok;
   DateTime? _endTimestamp;
   String _name;
@@ -42,12 +42,13 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
     required RecordingSentrySpanV2? parentSpan,
     required DscCreatorCallback dscCreator,
     required SentryTracesSamplingDecision samplingDecision,
+    DateTime? startTimestamp,
   })  : _traceId = parentSpan?.traceId ?? traceId,
         _name = name,
         _parentSpan = parentSpan,
         _clock = clock,
         _onSpanEnd = onSpanEnd,
-        _startTimestamp = clock(),
+        _startTimestamp = (startTimestamp ?? clock()).toUtc(),
         _segmentSpan = parentSpan?.segmentSpan,
         _dscCreator = dscCreator,
         _samplingDecision = samplingDecision;
@@ -62,6 +63,7 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
     required ClockProvider clock,
     required DscCreatorCallback dscCreator,
     required SentryTracesSamplingDecision samplingDecision,
+    DateTime? startTimestamp,
   }) {
     return RecordingSentrySpanV2._(
       traceId: traceId,
@@ -71,6 +73,7 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
       parentSpan: null,
       dscCreator: dscCreator,
       samplingDecision: samplingDecision,
+      startTimestamp: startTimestamp,
     );
   }
 
@@ -84,6 +87,7 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
     required OnSpanEndCallback onSpanEnd,
     required ClockProvider clock,
     required DscCreatorCallback dscCreator,
+    DateTime? startTimestamp,
   }) {
     return RecordingSentrySpanV2._(
       traceId: parent.traceId,
@@ -93,6 +97,7 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
       parentSpan: parent,
       dscCreator: dscCreator,
       samplingDecision: parent.samplingDecision,
+      startTimestamp: startTimestamp,
     );
   }
 
@@ -119,6 +124,9 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
 
   @override
   DateTime get startTimestamp => _startTimestamp;
+
+  @internal
+  set startTimestamp(DateTime value) => _startTimestamp = value.toUtc();
 
   @override
   DateTime? get endTimestamp => _endTimestamp;

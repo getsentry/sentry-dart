@@ -42,6 +42,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     required this.finalTimeout,
     required this.trimEndTimestamp,
     required SdkLifecycleRegistry lifecycleRegistry,
+    super.startTimestamp,
   })  : _lifecycleRegistry = lifecycleRegistry,
         super._(parentSpan: null) {
     _lifecycleRegistry.registerCallback<OnSpanStartV2>(_onSpanStartEvent);

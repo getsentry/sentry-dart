@@ -6,7 +6,7 @@ void main() {
     test('serializes all fields correctly', () {
       final traceId = SentryId.newId();
       final spanId = SpanId.newId();
-      final timestamp = DateTime.utc(2024, 1, 15, 10, 30, 0);
+      final timestamp = DateTime.utc(2024, 1, 15, 10, 30, 0, 123, 456);
 
       final metric = SentryCounterMetric(
         timestamp: timestamp,
@@ -20,7 +20,7 @@ void main() {
 
       final json = metric.toJson();
 
-      expect(json['timestamp'], 1705314600.0);
+      expect(json['timestamp'], 1705314600.123456);
       expect(json['type'], 'counter');
       expect(json['name'], 'button_clicks');
       expect(json['value'], 5);

@@ -161,6 +161,7 @@ class NoOpHub implements Hub {
     String name, {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
   }) =>
       NoOpSentrySpanV2.instance;
 
@@ -187,6 +188,7 @@ class NoOpHub implements Hub {
     Duration finalTimeout = const Duration(seconds: 30),
     bool trimIdleSpanEndTimestamp = true,
     Map<String, SentryAttribute>? attributes,
+    DateTime? startTimestamp,
   }) =>
       NoOpSentrySpanV2.instance;
 }
