@@ -1152,13 +1152,13 @@ void main() {
       streamingFixture = _StreamingFixture();
     });
 
-    test('didPush calls trackNonRootNavigation with route name', () {
+    test('didPush tracks the new route change', () {
       final sut = streamingFixture.getSut();
 
       sut.didPush(route(RouteSettings(name: '/dashboard')), null);
 
-      expect(streamingFixture.fakeTracker.trackNonRootNavigationCalls,
-          ['/dashboard']);
+      expect(
+          streamingFixture.fakeTracker.trackRouteChangeCalls, ['/dashboard']);
     });
 
     test('didPush does not call tracker for root route', () {
@@ -1166,7 +1166,7 @@ void main() {
 
       sut.didPush(route(RouteSettings(name: '/')), null);
 
-      expect(streamingFixture.fakeTracker.trackNonRootNavigationCalls, isEmpty);
+      expect(streamingFixture.fakeTracker.trackRouteChangeCalls, isEmpty);
     });
 
     test('didPush does not call tracker when auto transactions disabled', () {
@@ -1174,7 +1174,7 @@ void main() {
 
       sut.didPush(route(RouteSettings(name: '/dashboard')), null);
 
-      expect(streamingFixture.fakeTracker.trackNonRootNavigationCalls, isEmpty);
+      expect(streamingFixture.fakeTracker.trackRouteChangeCalls, isEmpty);
     });
 
     test('didPush does not call tracker for ignored routes', () {
@@ -1182,10 +1182,10 @@ void main() {
 
       sut.didPush(route(RouteSettings(name: '/ignored')), null);
 
-      expect(streamingFixture.fakeTracker.trackNonRootNavigationCalls, isEmpty);
+      expect(streamingFixture.fakeTracker.trackRouteChangeCalls, isEmpty);
     });
 
-    test('didPop calls cancelCurrentRoute', () {
+    test('didPop cancels the current route', () {
       final sut = streamingFixture.getSut();
 
       sut.didPop(

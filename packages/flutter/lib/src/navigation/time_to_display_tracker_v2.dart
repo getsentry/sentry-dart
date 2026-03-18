@@ -14,7 +14,7 @@ class TimeToDisplayTrackerV2 {
   final FrameCallbackHandler _frameCallbackHandler;
   SentrySpanV2? _ttfdSpan;
 
-  /// Prepared root idle span, consumed by [trackRootNavigation].
+  /// Prepared root idle span, consumed by [trackAppStart].
   ///
   /// Null when no preparation is pending.
   SentrySpanV2? _preparedRootNavigationSpan;
@@ -33,9 +33,9 @@ class TimeToDisplayTrackerV2 {
   ///
   /// Creates an idle span so child spans can attach before navigation fires.
   /// Also creates the TTFD span so [ttfdSpanId] is available for
-  /// [SentryFlutter.currentDisplay] before [trackRootNavigation] fires.
-  /// Timestamps are backdated later in [trackRootNavigation].
-  void prepareRootNavigation() {
+  /// [SentryFlutter.currentDisplay] before [trackAppStart] fires.
+  /// Timestamps are backdated later in [trackAppStart].
+  void prepareAppStart() {
     assert(_preparedRootNavigationSpan == null,
         'prepareRootNavigation called while a prepared span is still pending');
 
@@ -46,13 +46,13 @@ class TimeToDisplayTrackerV2 {
     _ensureTtfdSpan(routeSpan, _rootRouteName);
   }
 
-  /// Tracks the root app-start navigation (native or generic).
+  /// Tracks the app start (native or generic).
   ///
-  /// If [prepareRootNavigation] was called earlier, reuses that span and
+  /// If [prepareAppStart] was called earlier, reuses that span and
   /// backdates it (along with the pre-created TTFD span) to [startTimestamp].
   /// Otherwise creates a fresh idle span (covers [GenericAppStartIntegration]
   /// which skips preparation).
-  SentrySpanV2 trackRootNavigation({
+  SentrySpanV2 trackAppStart({
     DateTime? startTimestamp,
     DateTime? ttidEndTimestamp,
   }) {
@@ -86,7 +86,7 @@ class TimeToDisplayTrackerV2 {
   /// Tracks a subsequent in-app navigation (push/replace).
   ///
   /// Cancels the previous route and starts fresh.
-  SentrySpanV2 trackNonRootNavigation(String routeName) {
+  SentrySpanV2 trackRoute(String routeName) {
     cancelCurrentRoute();
 
     final routeSpan = _createRouteSpan(routeName);

@@ -250,7 +250,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
 
     if (_hub.options.traceLifecycle == SentryTraceLifecycle.streaming) {
-      _timeToDisplayTrackerV2?.trackNonRootNavigation(routeName);
+      _timeToDisplayTrackerV2?.trackRoute(routeName);
     } else {
       // Clearing the display tracker here is safe since didPush happens before the Widget is built
       _timeToDisplayTracker?.clear();

@@ -40,7 +40,7 @@ class NativeAppStartHandlerV2 {
           SentryAttribute.string(SentryTraceOrigins.autoUiTimeToDisplay),
     };
 
-    final rootSpan = tracker.trackRootNavigation(
+    final rootSpan = tracker.trackAppStart(
       startTimestamp: appStartInfo.start,
       ttidEndTimestamp: appStartInfo.end,
     );

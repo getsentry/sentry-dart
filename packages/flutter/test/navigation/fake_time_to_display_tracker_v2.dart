@@ -4,12 +4,12 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 
 class FakeTimeToDisplayTrackerV2 extends TimeToDisplayTrackerV2 {
-  final List<String> trackNonRootNavigationCalls = [];
+  final List<String> trackRouteChangeCalls = [];
   int cancelCurrentRouteCalls = 0;
 
   @override
-  SentrySpanV2 trackNonRootNavigation(String routeName) {
-    trackNonRootNavigationCalls.add(routeName);
+  SentrySpanV2 trackRoute(String routeName) {
+    trackRouteChangeCalls.add(routeName);
     return NoOpSentrySpanV2();
   }
 

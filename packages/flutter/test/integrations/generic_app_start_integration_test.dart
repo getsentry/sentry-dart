@@ -245,7 +245,7 @@ void main() {
       expect(fixture.options.sdk.integrations, contains('GenericAppStart'));
     });
 
-    test('calls trackRootNavigation on timeToDisplayTrackerV2', () {
+    test('sets app start span as active span', () {
       final sut = fixture.getSut();
 
       sut.call(fixture.hub, fixture.options);

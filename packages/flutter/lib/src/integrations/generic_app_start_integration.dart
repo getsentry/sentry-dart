@@ -28,7 +28,7 @@ class GenericAppStartIntegration extends Integration<SentryFlutterOptions> {
     if (!options.isTracingEnabled()) return;
 
     if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
-      options.timeToDisplayTrackerV2.trackRootNavigation();
+      options.timeToDisplayTrackerV2.trackAppStart();
       options.sdk.addIntegration(integrationName);
       return;
     }
