@@ -673,11 +673,13 @@ class Hub {
               () => callback(recordingSpan),
               zoneValues: {_scopeKey: forkedScope},
             );
-            _endActiveSpan(recordingSpan, forkedScope);
             return result;
           } catch (_) {
-            _endActiveSpan(recordingSpan, forkedScope, isError: true);
+            span.status = SentrySpanStatusV2.error;
             rethrow;
+          } finally {
+            span.end();
+            forkedScope.removeActiveSpan(span);
           }
         }();
     }
@@ -714,11 +716,13 @@ class Hub {
             () => callback(recordingSpan),
             zoneValues: {_scopeKey: forkedScope},
           );
-          _endActiveSpan(recordingSpan, forkedScope);
           return result;
         } catch (_) {
-          _endActiveSpan(recordingSpan, forkedScope, isError: true);
+          span.status = SentrySpanStatusV2.error;
           rethrow;
+        } finally {
+          span.end();
+          forkedScope.removeActiveSpan(span);
         }
     }
   }
@@ -726,18 +730,6 @@ class Hub {
   Scope _forkScopeWithActiveSpan(RecordingSentrySpanV2 span) {
     final parentScope = _zoneScope ?? scope;
     return parentScope.clone()..setActiveSpan(span);
-  }
-
-  void _endActiveSpan(
-    RecordingSentrySpanV2 span,
-    Scope forkedScope, {
-    bool isError = false,
-  }) {
-    if (isError) {
-      span.status = SentrySpanStatusV2.error;
-    }
-    span.end();
-    forkedScope.removeActiveSpan(span);
   }
 
   SentrySpanV2 startInactiveSpan(
