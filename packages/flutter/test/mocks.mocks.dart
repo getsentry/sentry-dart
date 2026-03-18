@@ -4423,6 +4423,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     String? name, {
     _i2.SentrySpanV2? parentSpan = const _i2.UnsetSentrySpanV2(),
     Map<String, _i2.SentryAttribute>? attributes,
+    DateTime? startTimestamp,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -4431,6 +4432,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           {
             #parentSpan: parentSpan,
             #attributes: attributes,
+            #startTimestamp: startTimestamp,
           },
         ),
         returnValue: _i15.dummyValue<_i2.SentrySpanV2>(
@@ -4441,6 +4443,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             {
               #parentSpan: parentSpan,
               #attributes: attributes,
+              #startTimestamp: startTimestamp,
             },
           ),
         ),
@@ -4449,10 +4452,11 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   @override
   _i2.SentrySpanV2 startIdleSpan(
     String? name, {
-    Duration? idleTimeout = const Duration(seconds: 5),
+    Duration? idleTimeout = const Duration(seconds: 3),
     Duration? finalTimeout = const Duration(seconds: 30),
     bool? trimIdleSpanEndTimestamp = true,
     Map<String, _i2.SentryAttribute>? attributes,
+    DateTime? startTimestamp,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -4463,6 +4467,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #finalTimeout: finalTimeout,
             #trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
             #attributes: attributes,
+            #startTimestamp: startTimestamp,
           },
         ),
         returnValue: _i15.dummyValue<_i2.SentrySpanV2>(
@@ -4475,6 +4480,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
               #finalTimeout: finalTimeout,
               #trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
               #attributes: attributes,
+              #startTimestamp: startTimestamp,
             },
           ),
         ),
