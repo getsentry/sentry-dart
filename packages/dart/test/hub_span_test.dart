@@ -514,6 +514,45 @@ void main() {
           expect(capturedSpan.isEnded, isTrue);
           expect(capturedSpan.status, equals(SentrySpanStatusV2.error));
         });
+
+        test(
+          'provides NoOpSentrySpanV2 and still calls callback when hub is closed',
+          () async {
+            final hub = fixture.getSut();
+            await hub.close();
+            var callbackInvoked = false;
+
+            final result = hub.startSpanSync('test-span', (span) {
+              callbackInvoked = true;
+              expect(span, isA<NoOpSentrySpanV2>());
+              return 42;
+            });
+
+            expect(callbackInvoked, isTrue);
+            expect(result, equals(42));
+            expect(fixture.client.captureSpanCalls, isEmpty);
+          },
+        );
+
+        test(
+          'provides NoOpSentrySpanV2 and still calls callback when traceLifecycle is static',
+          () {
+            final hub = fixture.getSut(
+              traceLifecycle: SentryTraceLifecycle.static,
+            );
+            var callbackInvoked = false;
+
+            final result = hub.startSpanSync('test-span', (span) {
+              callbackInvoked = true;
+              expect(span, isA<NoOpSentrySpanV2>());
+              return 42;
+            });
+
+            expect(callbackInvoked, isTrue);
+            expect(result, equals(42));
+            expect(fixture.client.captureSpanCalls, isEmpty);
+          },
+        );
       });
 
       group('with zone-based scope forking', () {
@@ -742,6 +781,45 @@ void main() {
           expect(capturedSpan.isEnded, isTrue);
           expect(capturedSpan.status, equals(SentrySpanStatusV2.error));
         });
+
+        test(
+          'provides NoOpSentrySpanV2 and still calls callback when hub is closed',
+          () async {
+            final hub = fixture.getSut();
+            await hub.close();
+            var callbackInvoked = false;
+
+            final result = await hub.startSpan('test-span', (span) async {
+              callbackInvoked = true;
+              expect(span, isA<NoOpSentrySpanV2>());
+              return 42;
+            });
+
+            expect(callbackInvoked, isTrue);
+            expect(result, equals(42));
+            expect(fixture.client.captureSpanCalls, isEmpty);
+          },
+        );
+
+        test(
+          'provides NoOpSentrySpanV2 and still calls callback when traceLifecycle is static',
+          () async {
+            final hub = fixture.getSut(
+              traceLifecycle: SentryTraceLifecycle.static,
+            );
+            var callbackInvoked = false;
+
+            final result = await hub.startSpan('test-span', (span) async {
+              callbackInvoked = true;
+              expect(span, isA<NoOpSentrySpanV2>());
+              return 42;
+            });
+
+            expect(callbackInvoked, isTrue);
+            expect(result, equals(42));
+            expect(fixture.client.captureSpanCalls, isEmpty);
+          },
+        );
       });
 
       group('with zone-based scope forking', () {
