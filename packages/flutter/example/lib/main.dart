@@ -952,7 +952,7 @@ Future<void> spanV2Demo() async {
   });
 
   final syncResult =
-      Sentry.startSpan('span3 sync function', (_) => 'sync works!');
+      Sentry.startSpanSync('span3 sync function', (_) => 'sync works!');
   // ignore: avoid_print
   print('span3 sync function result: $syncResult');
 
