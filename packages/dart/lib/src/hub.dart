@@ -669,11 +669,10 @@ class Hub {
         return () async {
           final forkedScope = _forkScopeWithActiveSpan(recordingSpan);
           try {
-            final result = await runZoned(
+            return await runZoned(
               () => callback(recordingSpan),
               zoneValues: {_scopeKey: forkedScope},
             );
-            return result;
           } catch (_) {
             span.status = SentrySpanStatusV2.error;
             rethrow;
@@ -712,11 +711,10 @@ class Hub {
       case RecordingSentrySpanV2 recordingSpan:
         final forkedScope = _forkScopeWithActiveSpan(recordingSpan);
         try {
-          final result = runZoned(
+          return runZoned(
             () => callback(recordingSpan),
             zoneValues: {_scopeKey: forkedScope},
           );
-          return result;
         } catch (_) {
           span.status = SentrySpanStatusV2.error;
           rethrow;
