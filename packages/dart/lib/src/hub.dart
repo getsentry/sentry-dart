@@ -641,16 +641,18 @@ class Hub {
   RecordingSentrySpanV2? getActiveSpan() =>
       _zoneScope?.getActiveSpan() ?? _currentIdleSpan;
 
-  FutureOr<T> startSpan<T>(
+  T startSpan<T>(
     String name,
-    FutureOr<T> Function(SentrySpanV2 span) callback, {
+    T Function(SentrySpanV2 span) callback, {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
   }) {
     final span = _createSpan(
       name,
       parentSpan: parentSpan,
       attributes: attributes,
+      startTimestamp: startTimestamp,
     );
     switch (span) {
       case NoOpSentrySpanV2():
@@ -685,7 +687,7 @@ class Hub {
       forkedScope.removeActiveSpan(span);
     }
 
-    FutureOr<T> result;
+    T result;
     try {
       result = runZoned(
         () => callback(span),
@@ -696,14 +698,14 @@ class Hub {
       rethrow;
     }
 
-    if (result is Future<T>) {
-      return result.then((value) {
+    if (result is Future) {
+      return (result as Future).then((value) {
         endSpan();
         return value;
       }, onError: (Object error, StackTrace stackTrace) {
         endSpan(isError: true);
         return Future<T>.error(error, stackTrace);
-      });
+      }) as T;
     }
 
     endSpan();

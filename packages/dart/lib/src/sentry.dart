@@ -411,14 +411,17 @@ class Sentry {
   ///   return orderService.create(cart, payment);
   /// });
   /// ```
-  static FutureOr<T> startSpan<T>(
+  static T startSpan<T>(
     String name,
-    FutureOr<T> Function(SentrySpanV2 span) callback, {
+    T Function(SentrySpanV2 span) callback, {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
   }) =>
       _hub.startSpan(name, callback,
-          attributes: attributes, parentSpan: parentSpan);
+          attributes: attributes,
+          parentSpan: parentSpan,
+          startTimestamp: startTimestamp);
 
   /// Creates a span that is not set as the active span.
   ///
