@@ -159,8 +159,8 @@ class NoOpHub implements Hub {
   @override
   SentrySpanV2 startInactiveSpan(
     String name, {
-    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     DateTime? startTimestamp,
   }) =>
       NoOpSentrySpanV2.instance;

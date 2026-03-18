@@ -710,16 +710,15 @@ class Hub {
     return result;
   }
 
-  @internal
   SentrySpanV2 startInactiveSpan(
     String name, {
-    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     DateTime? startTimestamp,
   }) =>
       _createSpan(name,
-          parentSpan: parentSpan,
           attributes: attributes,
+          parentSpan: parentSpan,
           startTimestamp: startTimestamp);
 
   /// Returns `true` if the hub is able to create spans.
