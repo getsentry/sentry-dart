@@ -448,11 +448,11 @@ class Sentry {
   /// ```
   static SentrySpanV2 startInactiveSpan(
     String name, {
-    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
   }) =>
       _hub.startInactiveSpan(name,
-          parentSpan: parentSpan, attributes: attributes);
+          attributes: attributes, parentSpan: parentSpan);
 
   /// Gets the current active transaction or span bound to the scope.
   /// Returns `null` if performance is disabled in the options.
