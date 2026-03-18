@@ -4367,11 +4367,12 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.ISentrySpan);
 
   @override
-  _i12.FutureOr<T> startSpan<T>(
+  _i12.Future<T> startSpan<T>(
     String? name,
-    _i12.FutureOr<T> Function(_i2.SentrySpanV2)? callback, {
+    _i12.Future<T> Function(_i2.SentrySpanV2)? callback, {
     Map<String, _i2.SentryAttribute>? attributes,
     _i2.SentrySpanV2? parentSpan = const _i2.UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -4383,6 +4384,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           {
             #attributes: attributes,
             #parentSpan: parentSpan,
+            #startTimestamp: startTimestamp,
           },
         ),
         returnValue: _i15.ifNotNull(
@@ -4397,6 +4399,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
                   {
                     #attributes: attributes,
                     #parentSpan: parentSpan,
+                    #startTimestamp: startTimestamp,
                   },
                 ),
               ),
@@ -4413,16 +4416,55 @@ class MockHub extends _i1.Mock implements _i2.Hub {
                 {
                   #attributes: attributes,
                   #parentSpan: parentSpan,
+                  #startTimestamp: startTimestamp,
                 },
               ),
             ),
-      ) as _i12.FutureOr<T>);
+      ) as _i12.Future<T>);
+
+  @override
+  T startSpanSync<T>(
+    String? name,
+    T Function(_i2.SentrySpanV2)? callback, {
+    Map<String, _i2.SentryAttribute>? attributes,
+    _i2.SentrySpanV2? parentSpan = const _i2.UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #startSpanSync,
+          [
+            name,
+            callback,
+          ],
+          {
+            #attributes: attributes,
+            #parentSpan: parentSpan,
+            #startTimestamp: startTimestamp,
+          },
+        ),
+        returnValue: _i15.dummyValue<T>(
+          this,
+          Invocation.method(
+            #startSpanSync,
+            [
+              name,
+              callback,
+            ],
+            {
+              #attributes: attributes,
+              #parentSpan: parentSpan,
+              #startTimestamp: startTimestamp,
+            },
+          ),
+        ),
+      ) as T);
 
   @override
   _i2.SentrySpanV2 startInactiveSpan(
     String? name, {
-    _i2.SentrySpanV2? parentSpan = const _i2.UnsetSentrySpanV2(),
     Map<String, _i2.SentryAttribute>? attributes,
+    _i2.SentrySpanV2? parentSpan = const _i2.UnsetSentrySpanV2(),
     DateTime? startTimestamp,
   }) =>
       (super.noSuchMethod(
@@ -4430,8 +4472,8 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           #startInactiveSpan,
           [name],
           {
-            #parentSpan: parentSpan,
             #attributes: attributes,
+            #parentSpan: parentSpan,
             #startTimestamp: startTimestamp,
           },
         ),
@@ -4441,8 +4483,8 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #startInactiveSpan,
             [name],
             {
-              #parentSpan: parentSpan,
               #attributes: attributes,
+              #parentSpan: parentSpan,
               #startTimestamp: startTimestamp,
             },
           ),
