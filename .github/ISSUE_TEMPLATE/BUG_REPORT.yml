@@ -60,8 +60,8 @@ body:
       description: Are you using any other error monitoring solution alongside Sentry?
       label: Other Error Monitoring Solution
       options:
-        - "Yes"
         - "No"
+        - "Yes"
     validations:
       required: true
 
