@@ -654,7 +654,7 @@ class Hub {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     DateTime? startTimestamp,
-  }) {
+  }) async {
     final span = _createSpan(
       name,
       parentSpan: parentSpan,
@@ -672,21 +672,19 @@ class Hub {
         );
         return callback(span);
       case RecordingSentrySpanV2 recordingSpan:
-        return () async {
-          final forkedScope = _forkScopeWithActiveSpan(recordingSpan);
-          try {
-            return await runZoned(
-              () => callback(recordingSpan),
-              zoneValues: {_scopeKey: forkedScope},
-            );
-          } catch (_) {
-            span.status = SentrySpanStatusV2.error;
-            rethrow;
-          } finally {
-            span.end();
-            forkedScope.removeActiveSpan(span);
-          }
-        }();
+        final forkedScope = _forkScopeWithActiveSpan(recordingSpan);
+        try {
+          return await runZoned(
+            () => callback(recordingSpan),
+            zoneValues: {_scopeKey: forkedScope},
+          );
+        } catch (_) {
+          span.status = SentrySpanStatusV2.error;
+          rethrow;
+        } finally {
+          span.end();
+          forkedScope.removeActiveSpan(span);
+        }
     }
   }
 
