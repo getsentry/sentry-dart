@@ -627,15 +627,23 @@ class Hub {
 
   static final _scopeKey = Object();
 
-  /// The scope forked by the innermost [startSpan] or [startSpanSync] call on
-  /// the current zone chain, or `null` if we are outside any span callback.
+  /// The [Scope] forked by the innermost [startSpan] or [startSpanSync] call
+  /// on the current zone chain, or `null` if the current zone has no
+  /// associated scope (i.e. we are outside any span callback).
+  ///
+  /// Each call to [startSpan]/[startSpanSync] creates a new [Zone] with a
+  /// forked scope stored under [_scopeKey]. Walking up the zone chain via
+  /// `Zone.current[_scopeKey]` therefore gives the most recently pushed scope.
   Scope? get _zoneScope => Zone.current[_scopeKey] as Scope?;
 
-  /// Returns the active span from the current zone's forked scope, or `null`
-  /// if no span is active.
+  /// Returns the currently active span, or `null` if no span is in progress.
   ///
-  /// The hub's top-level scope is never mutated, so calling this outside a
-  /// [startSpan] callback always returns `null`.
+  /// Resolution order:
+  /// 1. The active span on the zone-forked scope ([_zoneScope]) — this is set
+  ///    when code is running inside a [startSpan] or [startSpanSync] callback.
+  /// 2. The hub-level idle span ([_currentIdleSpan]) — present when an idle
+  ///    span has been started and has not yet ended.
+  /// 3. `null` — no span is active.
   @internal
   RecordingSentrySpanV2? getActiveSpan() =>
       _zoneScope?.getActiveSpan() ?? _currentIdleSpan;
