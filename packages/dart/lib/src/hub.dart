@@ -634,8 +634,6 @@ class Hub {
   /// Returns the active span from the current zone's forked scope, or `null`
   /// if no span is active.
   ///
-  /// Only zone-forked scopes (created by [startSpan] or [startSpanSync]) carry
-  /// an active span.
   /// The hub's top-level scope is never mutated, so calling this outside a
   /// [startSpan] callback always returns `null`.
   @internal
