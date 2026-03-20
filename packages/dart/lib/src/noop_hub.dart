@@ -178,7 +178,7 @@ class NoOpHub implements Hub {
       String name, Future<T> Function(SentrySpanV2 span) callback,
       {Map<String, SentryAttribute>? attributes,
       SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
-      DateTime? startTimestamp}) {
+      DateTime? startTimestamp}) async {
     return callback(NoOpSentrySpanV2.instance);
   }
 
@@ -186,7 +186,7 @@ class NoOpHub implements Hub {
   T startSpanSync<T>(String name, T Function(SentrySpanV2 span) callback,
       {Map<String, SentryAttribute>? attributes,
       SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
-      DateTime? startTimestamp}) {
+      DateTime? startTimestamp}) async {
     return callback(NoOpSentrySpanV2.instance);
   }
 
