@@ -13,6 +13,12 @@ import 'package:sentry/src/sentry_tracer.dart';
 import '../mocks.dart';
 import '../mocks.mocks.dart';
 
+// The Scaffold widget tree uses AnimatedBuilder on stable but Builder on beta.
+// Use anyOf to accept either name since this is a framework-internal detail.
+final _animatedBuilderElement = {
+  'element': anyOf('AnimatedBuilder', 'Builder')
+};
+
 void main() {
   late Fixture fixture;
   setUp(() async {
@@ -121,7 +127,7 @@ void main() {
                 {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
                 {'element': 'CustomMultiChildLayout'},
                 {'element': 'Actions'},
-                {'element': 'AnimatedBuilder'},
+                _animatedBuilderElement,
                 {'element': 'DefaultTextStyle'}
               ],
               'view.id': 'btn_1',
@@ -148,7 +154,7 @@ void main() {
                 {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
                 {'element': 'CustomMultiChildLayout'},
                 {'element': 'Actions'},
-                {'element': 'AnimatedBuilder'},
+                _animatedBuilderElement,
                 {'element': 'DefaultTextStyle'}
               ],
               'label': 'Button 1',
@@ -176,7 +182,7 @@ void main() {
                 {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
                 {'element': 'CustomMultiChildLayout'},
                 {'element': 'Actions'},
-                {'element': 'AnimatedBuilder'},
+                _animatedBuilderElement,
                 {'element': 'DefaultTextStyle'}
               ],
               'label': 'My Icon',
@@ -204,7 +210,7 @@ void main() {
                 {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
                 {'element': 'CustomMultiChildLayout'},
                 {'element': 'Actions'},
-                {'element': 'AnimatedBuilder'},
+                _animatedBuilderElement,
                 {'element': 'DefaultTextStyle'}
               ],
               'label': 'Button 2',
@@ -276,7 +282,7 @@ void main() {
                 {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
                 {'element': 'CustomMultiChildLayout'},
                 {'element': 'Actions'},
-                {'element': 'AnimatedBuilder'},
+                _animatedBuilderElement,
                 {'element': 'DefaultTextStyle'}
               ],
               'view.id': 'popup_menu_button',
@@ -394,7 +400,7 @@ void main() {
                 {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
                 {'element': 'CustomMultiChildLayout'},
                 {'element': 'Actions'},
-                {'element': 'AnimatedBuilder'},
+                _animatedBuilderElement,
                 {'element': 'DefaultTextStyle'}
               ],
               'label': 'Button 5',
