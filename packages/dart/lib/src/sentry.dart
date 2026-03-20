@@ -398,6 +398,13 @@ class Sentry {
   /// the span's status is set to [SentrySpanStatusV2.error] before ending.
   /// Use [startSpanSync] when the work completes synchronously.
   ///
+  /// Both variants can be freely nested — parent-child relationships resolve
+  /// correctly across sync/async boundaries.
+  ///
+  /// When the span is not sent — due to sampling or ignore rules — the
+  /// [callback] still executes but receives a [NoOpSentrySpanV2]. All
+  /// operations on it (e.g. [SentrySpanV2.setAttribute]) are safe no-ops.
+  ///
   /// By default, the span is created as a child of the currently active span.
   /// Pass a [SentrySpanV2] as [parentSpan] to override the parent, or pass
   /// `null` to create a root span.
@@ -429,8 +436,24 @@ class Sentry {
   /// Starts a new span, executes a synchronous [callback], and ends the span
   /// before returning the callback result.
   ///
-  /// This is the synchronous variant of [startSpan]. Use [startSpan] when the
-  /// work is asynchronous.
+  /// The span is set as the active span within the [callback]'s scope via
+  /// zones, so any nested [startSpan] or [startSpanSync] calls will
+  /// automatically parent to it.
+  ///
+  /// If the [callback] throws, the span's status is set to
+  /// [SentrySpanStatusV2.error] before ending.
+  /// Use [startSpan] when the work is asynchronous.
+  ///
+  /// Both variants can be freely nested — parent-child relationships resolve
+  /// correctly across sync/async boundaries.
+  ///
+  /// When the span is not sent — due to sampling or ignore rules — the
+  /// [callback] still executes but receives a [NoOpSentrySpanV2]. All
+  /// operations on it (e.g. [SentrySpanV2.setAttribute]) are safe no-ops.
+  ///
+  /// By default, the span is created as a child of the currently active span.
+  /// Pass a [SentrySpanV2] as [parentSpan] to override the parent, or pass
+  /// `null` to create a root span.
   static T startSpanSync<T>(
     String name,
     T Function(SentrySpanV2 span) callback, {

@@ -1021,6 +1021,132 @@ void main() {
       });
     });
 
+    group('when mixing startSpan and startSpanSync', () {
+      test('parents sync child to async parent', () async {
+        final hub = fixture.getSut();
+        late SentrySpanV2 asyncParent;
+        late SentrySpanV2 syncChild;
+
+        await hub.startSpan('async-parent', (span) async {
+          asyncParent = span;
+          hub.startSpanSync('sync-child', (span) {
+            syncChild = span;
+          });
+        });
+
+        expect(asyncParent.parentSpan, isNull);
+        expect(syncChild.parentSpan, equals(asyncParent));
+      });
+
+      test('parents async child to sync parent', () async {
+        final hub = fixture.getSut();
+        late SentrySpanV2 syncParent;
+        late SentrySpanV2 asyncChild;
+
+        await hub.startSpanSync('sync-parent', (span) {
+          syncParent = span;
+          return hub.startSpan('async-child', (span) async {
+            asyncChild = span;
+          });
+        });
+
+        expect(syncParent.parentSpan, isNull);
+        expect(asyncChild.parentSpan, equals(syncParent));
+      });
+
+      test('builds correct chain with deeply nested alternating calls',
+          () async {
+        final hub = fixture.getSut();
+        late SentrySpanV2 span1;
+        late SentrySpanV2 span2;
+        late SentrySpanV2 span3;
+        late SentrySpanV2 span4;
+
+        await hub.startSpan('async-1', (s1) async {
+          span1 = s1;
+          hub.startSpanSync('sync-2', (s2) {
+            span2 = s2;
+            hub.startSpanSync('sync-3', (s3) {
+              span3 = s3;
+            });
+          });
+          await hub.startSpan('async-4', (s4) async {
+            span4 = s4;
+          });
+        });
+
+        expect(span1.parentSpan, isNull);
+        expect(span2.parentSpan, equals(span1));
+        expect(span3.parentSpan, equals(span2));
+        expect(span4.parentSpan, equals(span1));
+      });
+
+      test('resolves active span to sync child inside async parent', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpan('async-parent', (asyncSpan) async {
+          hub.startSpanSync('sync-child', (syncSpan) {
+            expect(hub.getActiveSpan(), equals(syncSpan));
+          });
+          expect(hub.getActiveSpan(), equals(asyncSpan));
+        });
+      });
+
+      test('resolves active span to async child inside sync parent', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpanSync('sync-parent', (syncSpan) {
+          expect(hub.getActiveSpan(), equals(syncSpan));
+          return hub.startSpan('async-child', (asyncSpan) async {
+            expect(hub.getActiveSpan(), equals(asyncSpan));
+          });
+        });
+      });
+
+      test('parents sibling sync and async children to same parent', () async {
+        final hub = fixture.getSut();
+        late SentrySpanV2 parent;
+        late SentrySpanV2 syncChild;
+        late SentrySpanV2 asyncChild;
+
+        await hub.startSpan('parent', (span) async {
+          parent = span;
+          hub.startSpanSync('sync-child', (span) {
+            syncChild = span;
+          });
+          await hub.startSpan('async-child', (span) async {
+            asyncChild = span;
+          });
+        });
+
+        expect(syncChild.parentSpan, equals(parent));
+        expect(asyncChild.parentSpan, equals(parent));
+      });
+
+      test('does not pollute hub scope active span', () async {
+        final hub = fixture.getSut();
+
+        expect(hub.scope.activeSpan, isNull);
+
+        await hub.startSpan('async-parent', (span) async {
+          hub.startSpanSync('sync-child', (span) {});
+        });
+
+        expect(hub.scope.activeSpan, isNull);
+      });
+
+      test('captures all nested spans', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpan('async-root', (span) async {
+          hub.startSpanSync('sync-child', (span) {});
+          await hub.startSpan('async-child', (span) async {});
+        });
+
+        expect(fixture.client.captureSpanCalls, hasLength(3));
+      });
+    });
+
     group('when using idle spans', () {
       test('uses startTimestamp when provided', () {
         final hub = fixture.getSut();
