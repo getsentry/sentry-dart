@@ -57,7 +57,7 @@ jobs:
       # TODO: fix emulator caching, in ubuntu-latest emulator won't boot: https://github.com/ReactiveCircus/android-emulator-runner/issues/278
 
       - name: Launch Android emulator & run Flutter Android integration test
-        uses: reactivecircus/android-emulator-runner@b530d96654c385303d652368551fb075bc2f0b6b #pin@v2.35.0
+        uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a #pin@v2.37.0
         with:
           working-directory: packages/flutter/example
           api-level: 31
