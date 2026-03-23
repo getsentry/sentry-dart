@@ -237,12 +237,26 @@ class HubAdapter implements Hub {
   }
 
   @override
-  FutureOr<T> startSpan<T>(
-      String name, FutureOr<T> Function(SentrySpanV2 span) callback,
+  Future<T> startSpan<T>(
+      String name, Future<T> Function(SentrySpanV2 span) callback,
       {Map<String, SentryAttribute>? attributes,
-      SentrySpanV2? parentSpan = const UnsetSentrySpanV2()}) {
+      SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+      DateTime? startTimestamp}) {
     return Sentry.currentHub.startSpan(name, callback,
-        attributes: attributes, parentSpan: parentSpan);
+        attributes: attributes,
+        parentSpan: parentSpan,
+        startTimestamp: startTimestamp);
+  }
+
+  @override
+  T startSpanSync<T>(String name, T Function(SentrySpanV2 span) callback,
+      {Map<String, SentryAttribute>? attributes,
+      SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+      DateTime? startTimestamp}) {
+    return Sentry.currentHub.startSpanSync(name, callback,
+        attributes: attributes,
+        parentSpan: parentSpan,
+        startTimestamp: startTimestamp);
   }
 
   @override

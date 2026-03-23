@@ -658,9 +658,8 @@ void main() {
         expect(firstSpan, isA<IdleRecordingSentrySpanV2>());
 
         // Simulate descendant activity by starting a child span
-        fixture.hub.startSpan('child-work', (span) async {
-          span.end();
-        });
+        fixture.hub.startSpanSync('child-work', (_) {});
+
         await Future<void>.delayed(Duration.zero);
         // Tap a different widget
         await tapMe(tester, sut, 'btn_2', pumpWidget: false);
