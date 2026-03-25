@@ -93,6 +93,35 @@ abstract class SemanticAttributesConstants {
   static const sentryInternalReplayIsBuffering =
       'sentry._internal.replay_is_buffering';
 
+  /// Internal build identifier, as it appears on the platform.
+  static const appAppBuild = 'app.app_build';
+
+  /// Version-independent application identifier, often a dotted bundle ID.
+  static const appAppIdentifier = 'app.app_identifier';
+
+  /// Human readable application name, as it appears on the platform.
+  static const appAppName = 'app.app_name';
+
+  /// Formatted UTC timestamp when the user started the application.
+  static const appAppStartTime = 'app.app_start_time';
+
+  /// Human readable application version, as it appears on the platform.
+  static const appAppVersion = 'app.app_version';
+
+  /// Whether the application is currently in the foreground.
+  static const appInForeground = 'app.in_foreground';
+
+  /// Whether the application uses split APKs (Android).
+  static const appIsSplitApks = 'app.is_split_apks';
+
+  /// The granted status of an application permission, where [permissionName]
+  /// is the permission name (e.g., "internet_access").
+  static String appPermission(String permissionName) =>
+      'app.permissions.$permissionName';
+
+  /// The names of the active views or fragments in the application.
+  static const appViewNames = 'app.view_names';
+
   /// The user ID.
   /// Users are always manually set and never automatically inferred,
   /// therefore this is not gated by `sendDefaultPii`.
@@ -114,14 +143,117 @@ abstract class SemanticAttributesConstants {
   /// The operating system version.
   static const osVersion = 'os.version';
 
+  /// Independent kernel version string, typically from uname.
+  static const osKernelVersion = 'os.kernel_version';
+
+  /// Unprocessed OS description string.
+  static const osRawDescription = 'os.raw_description';
+
+  /// Whether the OS has been jailbroken or rooted.
+  static const osRooted = 'os.rooted';
+
+  /// Whether the OS runs in dark or light mode.
+  static const osTheme = 'os.theme';
+
+  /// Battery level as a percentage (0-100).
+  static const deviceBatteryLevel = 'device.battery_level';
+
+  /// Battery temperature in Celsius.
+  static const deviceBatteryTemperature = 'device.battery_temperature';
+
+  /// Formatted UTC timestamp of when the system was booted.
+  static const deviceBootTime = 'device.boot_time';
+
   /// The device brand (e.g., "Apple", "Samsung").
   static const deviceBrand = 'device.brand';
+
+  /// Whether the device was charging.
+  static const deviceCharging = 'device.charging';
+
+  /// Chipset of the device.
+  static const deviceChipset = 'device.chipset';
+
+  /// Device classification (e.g., low, medium, high), typically inferred by Relay.
+  static const deviceClass = 'device.class';
+
+  /// Internet connection type currently used by the device.
+  // TODO: deprecated, needs to be replaced later by network.connection.type
+  static const deviceConnectionType = 'device.connection_type';
+
+  /// Description of the device CPU.
+  static const deviceCpuDescription = 'device.cpu_description';
+
+  /// External storage free size in bytes.
+  static const deviceExternalFreeStorage = 'device.external_free_storage';
+
+  /// External storage total size in bytes.
+  static const deviceExternalStorageSize = 'device.external_storage_size';
+
+  /// The device family (e.g., "iOS", "Android").
+  static const deviceFamily = 'device.family';
+
+  /// Free system memory in bytes.
+  static const deviceFreeMemory = 'device.free_memory';
+
+  /// Free device storage in bytes.
+  static const deviceFreeStorage = 'device.free_storage';
+
+  /// Unique device identifier.
+  static const deviceId = 'device.id';
+
+  /// Whether the device was low on memory.
+  static const deviceLowMemory = 'device.low_memory';
+
+  /// Manufacturer of the device.
+  static const deviceManufacturer = 'device.manufacturer';
+
+  /// Total system memory in bytes.
+  static const deviceMemorySize = 'device.memory_size';
 
   /// The device model identifier (e.g., "iPhone14,2").
   static const deviceModel = 'device.model';
 
-  /// The device family (e.g., "iOS", "Android").
-  static const deviceFamily = 'device.family';
+  /// Internal hardware revision to identify the device exactly.
+  static const deviceModelId = 'device.model_id';
+
+  /// User-assigned device name (mobile) or hostname (server/desktop).
+  static const deviceName = 'device.name';
+
+  /// Whether the device was online.
+  static const deviceOnline = 'device.online';
+
+  /// Device orientation (portrait or landscape).
+  static const deviceOrientation = 'device.orientation';
+
+  /// Number of logical processors.
+  static const deviceProcessorCount = 'device.processor_count';
+
+  /// Processor frequency in MHz.
+  static const deviceProcessorFrequency = 'device.processor_frequency';
+
+  /// Screen density of the device.
+  static const deviceScreenDensity = 'device.screen_density';
+
+  /// Screen density in dots-per-inch (DPI).
+  static const deviceScreenDpi = 'device.screen_dpi';
+
+  /// Height of the device screen in pixels.
+  static const deviceScreenHeightPixels = 'device.screen_height_pixels';
+
+  /// Width of the device screen in pixels.
+  static const deviceScreenWidthPixels = 'device.screen_width_pixels';
+
+  /// Whether the device is a simulator or actual device.
+  static const deviceSimulator = 'device.simulator';
+
+  /// Total device storage in bytes.
+  static const deviceStorageSize = 'device.storage_size';
+
+  /// Thermal state (nominal, fair, serious, critical).
+  static const deviceThermalState = 'device.thermal_state';
+
+  /// Memory usable for the app in bytes.
+  static const deviceUsableMemory = 'device.usable_memory';
 
   /// The number of total frames rendered during the lifetime of the span.
   static const framesTotal = 'frames.total';
