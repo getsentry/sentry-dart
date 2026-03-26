@@ -4,7 +4,17 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'packages/**'
+      - 'metrics/flutter.properties'
+      - '.github/workflows/size-analysis.yml'
+      - '.github/actions/size-analysis-setup/**'
   pull_request:
+    paths:
+      - 'packages/**'
+      - 'metrics/flutter.properties'
+      - '.github/workflows/size-analysis.yml'
+      - '.github/actions/size-analysis-setup/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
