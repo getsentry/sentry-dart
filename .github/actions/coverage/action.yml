@@ -27,6 +27,7 @@ runs:
         name: ${{ inputs.coverage }}
         files: ./${{ inputs.directory }}/coverage/lcov.info
         fail_ci_if_error: false
+        verbose: true
         token: ${{ inputs.token }}
 
     - uses: VeryGoodOpenSource/very_good_coverage@c953fca3e24a915e111cc6f55f03f756dcb3964c # pin@v3.0.0
