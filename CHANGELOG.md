@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 9.16.0
 
 ### Dependencies
 
