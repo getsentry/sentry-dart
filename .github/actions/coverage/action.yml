@@ -21,10 +21,10 @@ runs:
   using: composite
 
   steps:
-    - uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # pin@v3
+    - uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # pin@v5
       if: ${{ inputs.coverage != '' }}
       with:
-        name: ${{ inputs.coverage != '' }}
+        name: ${{ inputs.coverage }}
         files: ./${{ inputs.directory }}/coverage/lcov.info
         token: ${{ inputs.token }}
 
