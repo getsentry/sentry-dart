@@ -7,16 +7,13 @@ name: Sync JNI Branch
 on:
   release:
     types: [published]
-  push:
-    branches:
-      - deps/jni-0.15.x
 
 env:
   JNI_BRANCH: deps/jni-0.15.x
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: sync-jni-branch
+  cancel-in-progress: false
 
 jobs:
   sync:
@@ -26,9 +23,7 @@ jobs:
       pull-requests: write
       issues: write
     timeout-minutes: 30
-    if: >-
-      github.event_name == 'release' &&
-      !github.event.release.prerelease
+    if: ${{ !github.event.release.prerelease }}
 
     steps:
       - name: Get auth token
@@ -175,73 +170,3 @@ jobs:
           gh issue create \
             --title "JNI branch sync failed for release $TAG" \
             --body-file /tmp/issue-body.md
-
-  update-tracker:
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-    if: github.event_name == 'push'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          fetch-depth: 10
-
-      - name: Extract version from pubspec
-        id: version
-        run: |
-          TAG="$(sed -n 's/^version: *//p' packages/dart/pubspec.yaml)"
-          if [ -z "$TAG" ]; then
-            echo "Could not read version from pubspec.yaml"
-            echo "skip=true" >> $GITHUB_OUTPUT
-          else
-            echo "tag=$TAG" >> $GITHUB_OUTPUT
-            echo "skip=false" >> $GITHUB_OUTPUT
-            echo "Found version: $TAG"
-          fi
-
-      - name: Get auth token
-        if: steps.version.outputs.skip != 'true'
-        id: token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
-        with:
-          app-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
-          private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
-
-      - name: Update version tracker on issue
-        if: steps.version.outputs.skip != 'true'
-        env:
-          GH_TOKEN: ${{ steps.token.outputs.token }}
-          TAG: ${{ steps.version.outputs.tag }}
-          COMMIT_SHA: ${{ github.sha }}
-          REPO: ${{ github.repository }}
-        run: |
-          SHORT_SHA="${COMMIT_SHA:0:7}"
-          DATE="$(date -u +%Y-%m-%d)"
-          NEW_ROW="| \`$TAG\` | [\`$SHORT_SHA\`](https://github.com/$REPO/commit/$COMMIT_SHA) | $DATE |"
-
-          # Fetch current issue body
-          gh issue view 3373 --repo "$REPO" --json body --jq .body > /tmp/issue-body.txt
-
-          # Check if the version tracking table already exists
-          if grep -q "<!-- jni-version-tracker -->" /tmp/issue-body.txt; then
-            # Insert new row after the table header separator (|---|---|---|)
-            awk -v row="$NEW_ROW" \
-              '/^\|[-[:space:]|]+\|$/ && found { print; print row; found=0; next }
-               /<!-- jni-version-tracker -->/ { found=1 }
-               { print }' /tmp/issue-body.txt > /tmp/issue-body-updated.txt
-          else
-            # Append a new table to the issue body
-            cp /tmp/issue-body.txt /tmp/issue-body-updated.txt
-            {
-              echo ""
-              echo "<!-- jni-version-tracker -->"
-              echo "## Version Tracking"
-              echo ""
-              echo "| Version | Commit | Date |"
-              echo "|---------|--------|------|"
-              echo "$NEW_ROW"
-            } >> /tmp/issue-body-updated.txt
-          fi
-
-          gh issue edit 3373 --repo "$REPO" --body-file /tmp/issue-body-updated.txt
