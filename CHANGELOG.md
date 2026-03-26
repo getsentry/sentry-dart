@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+### Dependencies
+
+- Bump Android SDK from v8.36.0 to v8.37.0 ([#3588](https://github.com/getsentry/sentry-dart/pull/3588))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8370)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.36.0...8.37.0)
+- Bump Native SDK from v0.13.2 to v0.13.3 ([#3577](https://github.com/getsentry/sentry-dart/pull/3577))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0133)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.13.2...0.13.3)
+
+## 9.15.0
+
+### Fixes
+
+- Stop re-triggering hitTest in SentryUserInteractionWidget on pointerUp ([#3540](https://github.com/getsentry/sentry-dart/pull/3540))
+- Use seconds since the Unix epoch for `log.timestamp` ([#3558](https://github.com/getsentry/sentry-dart/pull/3558))
+- Implement `SqfliteDatabaseExecutor` to prevent `TypeError` on `getVersion/setVersion` ([3539](https://github.com/getsentry/sentry-dart/pull/3539))
+
+### Dependencies
+
+- Bump Android SDK from v8.33.0 to v8.36.0 ([#3546](https://github.com/getsentry/sentry-dart/pull/3546), [#3569](https://github.com/getsentry/sentry-dart/pull/3569))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8360)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.33.0...8.36.0)
+- Bump Native SDK from v0.12.8 to v0.13.2 ([#3535](https://github.com/getsentry/sentry-dart/pull/3535))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0132)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.12.8...0.13.2)
+- Bump Cocoa SDK from v8.56.2 to v8.58.0 ([#3475](https://github.com/getsentry/sentry-dart/pull/3475))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8580)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.56.2...8.58.0)
+
+## 9.14.0
+
 ### Features
 
 - Add `enableTombstone` option for improved native crash reporting on Android 12+ ([#3526](https://github.com/getsentry/sentry-dart/pull/3526))

@@ -3,7 +3,7 @@ name: Update Dependencies
 on:
   # Run every day.
   schedule:
-    - cron: "0 3 * * *"
+    - cron: '0 3 * * *'
   # And on every PR merge so we get the updated dependencies ASAP, and to make sure the changelog doesn't conflict.
   push:
     branches:
@@ -18,7 +18,7 @@ jobs:
   android:
     runs-on: ubuntu-latest
     steps:
-      - uses: getsentry/github-workflows/updater@v3
+      - uses: getsentry/github-workflows/updater@26f565c05d0dd49f703d238706b775883037d76b # v3
         with:
           path: packages/flutter/scripts/update-android.sh
           name: Android SDK
@@ -27,16 +27,17 @@ jobs:
   cocoa:
     runs-on: macos-latest
     steps:
-      - uses: getsentry/github-workflows/updater@v3
+      - uses: getsentry/github-workflows/updater@26f565c05d0dd49f703d238706b775883037d76b # v3
         with:
           path: packages/flutter/scripts/update-cocoa.sh
           name: Cocoa SDK
+          pattern: '^8\.' # Only update Cocoa SDK 8.x.x until the next Sentry Flutter major v10
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   js:
     runs-on: ubuntu-latest
     steps:
-      - uses: getsentry/github-workflows/updater@v3
+      - uses: getsentry/github-workflows/updater@26f565c05d0dd49f703d238706b775883037d76b # v3
         with:
           path: packages/flutter/scripts/update-js.sh
           name: JavaScript SDK
@@ -45,7 +46,7 @@ jobs:
   native:
     runs-on: ubuntu-latest
     steps:
-      - uses: getsentry/github-workflows/updater@v3
+      - uses: getsentry/github-workflows/updater@26f565c05d0dd49f703d238706b775883037d76b # v3
         with:
           path: packages/flutter/scripts/update-native.sh
           name: Native SDK
@@ -54,7 +55,7 @@ jobs:
   metrics-flutter:
     runs-on: ubuntu-latest
     steps:
-      - uses: getsentry/github-workflows/updater@v3
+      - uses: getsentry/github-workflows/updater@26f565c05d0dd49f703d238706b775883037d76b # v3
         with:
           path: metrics/flutter.properties
           name: Flutter SDK Metrics
@@ -64,7 +65,7 @@ jobs:
   symbol-collector:
     runs-on: ubuntu-latest
     steps:
-      - uses: getsentry/github-workflows/updater@v3
+      - uses: getsentry/github-workflows/updater@26f565c05d0dd49f703d238706b775883037d76b # v3
         with:
           path: scripts/update-symbol-collector.sh
           name: Symbol Collector CLI
