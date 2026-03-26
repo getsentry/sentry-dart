@@ -10,8 +10,8 @@ runs:
       shell: bash
       working-directory: packages/flutter/example
       run: |
-        version=$(grep "version" ../../../metrics/flutter.properties | cut -d'=' -f2 | xargs)
-        echo "flutter=$version" >> "$GITHUB_OUTPUT"
+        flutter_version=$(grep "version" ../../../metrics/flutter.properties | cut -d'=' -f2 | xargs)
+        echo "flutter=$flutter_version" >> "$GITHUB_OUTPUT"
 
     - name: Install Flutter v${{ steps.conf.outputs.flutter }}
       uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
@@ -21,7 +21,7 @@ runs:
     - name: Install Sentry CLI
       if: env.SENTRY_AUTH_TOKEN != ''
       shell: bash
-      run: curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION=2.58.2 sh
+      run: curl -sL https://sentry.io/get-cli/ | sh
 
     - name: Determine build version
       shell: bash

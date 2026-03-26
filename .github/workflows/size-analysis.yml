@@ -6,11 +6,13 @@ on:
       - main
     paths:
       - 'packages/**'
+      - 'metrics/flutter.properties'
       - '.github/workflows/size-analysis.yml'
       - '.github/actions/size-analysis-setup/**'
   pull_request:
     paths:
       - 'packages/**'
+      - 'metrics/flutter.properties'
       - '.github/workflows/size-analysis.yml'
       - '.github/actions/size-analysis-setup/**'
 
@@ -46,8 +48,10 @@ jobs:
 
       - name: Build Android Appbundle
         run: |
-          flutter pub get
-          flutter build appbundle --release \
+          flutter build appbundle \
+            --release \
+            --obfuscate \
+            --split-debug-info=build/symbols \
             --build-name "$SIZE_VERSION" \
             --build-number "$SIZE_BUILD"
 
@@ -62,7 +66,7 @@ jobs:
 
   ios:
     name: iOS
-    runs-on: macos-15
+    runs-on: macos-latest
     timeout-minutes: 45
     defaults:
       run:
@@ -75,14 +79,13 @@ jobs:
 
       - uses: ./.github/actions/size-analysis-setup
 
-      # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
-      - name: Switch to Xcode 16.4 for iOS 18.5
-        run: sudo xcode-select --switch /Applications/Xcode_16.4.app
-
       - name: Build Flutter iOS
         run: |
-          flutter pub get
-          flutter build ipa --release --no-codesign \
+          flutter build ipa \
+            --release \
+            --no-codesign \
+            --obfuscate \
+            --split-debug-info=build/symbols \
             --build-name "$SIZE_VERSION" \
             --build-number "$SIZE_BUILD"
 
