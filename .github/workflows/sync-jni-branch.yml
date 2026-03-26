@@ -1,3 +1,7 @@
+# This workflow is only needed for the maintenance of the jni 0.15.x branch.
+# See https://github.com/getsentry/sentry-dart/issues/3373
+# This can be removed in v10 when we can support jni 0.15.x in the main branch.
+
 name: Sync JNI Branch
 
 on:
@@ -78,6 +82,8 @@ jobs:
           echo "name=$SYNC_BRANCH" >> $GITHUB_OUTPUT
 
       - name: Merge release tag
+        id: merge
+        continue-on-error: true
         env:
           TAG: ${{ steps.release.outputs.tag }}
           BRANCH: ${{ env.JNI_BRANCH }}
@@ -87,13 +93,14 @@ jobs:
 
       - name: Regenerate JNI bindings
         id: regenerate
+        if: steps.merge.outcome == 'success'
         continue-on-error: true
         working-directory: packages/flutter
         run: |
           scripts/safe-regenerate-jni.sh 2>&1 | tee /tmp/jni-regen.log
 
       - name: Commit regenerated bindings
-        if: steps.regenerate.outcome == 'success'
+        if: steps.merge.outcome == 'success' && steps.regenerate.outcome == 'success'
         env:
           TAG: ${{ steps.release.outputs.tag }}
         run: |
@@ -103,7 +110,7 @@ jobs:
           fi
 
       - name: Push and create PR
-        if: steps.regenerate.outcome == 'success'
+        if: steps.merge.outcome == 'success' && steps.regenerate.outcome == 'success'
         env:
           GH_TOKEN: ${{ steps.token.outputs.token }}
           TAG: ${{ steps.release.outputs.tag }}
@@ -129,19 +136,27 @@ jobs:
             --body-file /tmp/pr-body.md
 
       - name: Create issue on failure
-        if: steps.regenerate.outcome == 'failure'
+        if: steps.merge.outcome == 'failure' || steps.regenerate.outcome == 'failure'
         env:
           GH_TOKEN: ${{ steps.token.outputs.token }}
           TAG: ${{ steps.release.outputs.tag }}
           BRANCH: ${{ env.JNI_BRANCH }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           REPO: ${{ github.repository }}
+          MERGE_OUTCOME: ${{ steps.merge.outcome }}
+          REGENERATE_OUTCOME: ${{ steps.regenerate.outcome }}
         run: |
-          LOG_TAIL="$(tail -100 /tmp/jni-regen.log || echo 'No log output available')"
+          if [ "$MERGE_OUTCOME" = "failure" ]; then
+            FAILED_STEP="Merge release tag"
+          else
+            FAILED_STEP="Regenerate JNI bindings"
+          fi
+          LOG_TAIL="$(tail -100 /tmp/jni-regen.log 2>/dev/null || echo 'No log output available')"
           {
             echo "## JNI Branch Sync Failure"
             echo "The automated sync of the JNI compatibility branch failed for release \`$TAG\`."
             echo ""
+            echo "**Failed step:** $FAILED_STEP"
             echo "**Workflow run:** $RUN_URL"
             echo "**Target branch:** \`$BRANCH\`"
             echo ""
