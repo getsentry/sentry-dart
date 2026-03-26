@@ -11,6 +11,7 @@ set -euo pipefail
 #
 # This script is only needed for the maintenance of the jni 0.15.x branch. 
 # See https://github.com/getsentry/sentry-dart/issues/3373
+# This can be removed in v10 when we can support jni 0.15.x in the main branch.
 
 cd "$(dirname "$0")/../"
 

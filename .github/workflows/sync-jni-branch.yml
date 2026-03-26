@@ -137,9 +137,7 @@ jobs:
           TAG: ${{ steps.release.outputs.tag }}
           BRANCH: ${{ env.JNI_BRANCH }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          REPO: ${{ github.repository }}
           MERGE_OUTCOME: ${{ steps.merge.outcome }}
-          REGENERATE_OUTCOME: ${{ steps.regenerate.outcome }}
         run: |
           if [ "$MERGE_OUTCOME" = "failure" ]; then
             FAILED_STEP="Merge release tag"
