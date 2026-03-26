@@ -16,8 +16,8 @@ permissions:
   issues: write
 
 concurrency:
-  group: sync-jni-branch
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   sync:
