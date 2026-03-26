@@ -89,6 +89,7 @@ platform :ios do
     sentry_upload_build(
       org_slug: ENV["SENTRY_ORG"],
       project_slug: ENV["SENTRY_PROJECT"],
+      ipa_path: "./build/sentry_flutter_sample.ipa",
       build_configuration: "Release"
     )
   end
