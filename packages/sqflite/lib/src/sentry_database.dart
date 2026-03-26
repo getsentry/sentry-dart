@@ -3,6 +3,10 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
+// ignore: implementation_imports
+import 'package:sqflite_common/src/database.dart';
+// ignore: implementation_imports
+import 'package:sqflite_common/src/transaction.dart';
 
 import 'sentry_database_executor.dart';
 import 'sentry_sqflite_transaction.dart';
@@ -20,7 +24,8 @@ import 'package:path/path.dart' as p;
 /// final sentryDatabase = SentryDatabase(database);
 /// ```
 @experimental
-class SentryDatabase extends SentryDatabaseExecutor implements Database {
+class SentryDatabase extends SentryDatabaseExecutor
+    implements Database, SqfliteDatabaseExecutor {
   final Database _database;
   final Hub _hub;
 
@@ -136,6 +141,12 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     // ignore: deprecated_member_use
     return _database.devInvokeSqlMethod(method, sql);
   }
+
+  @override
+  SqfliteDatabase get db => (_database as SqfliteDatabaseExecutor).db;
+
+  @override
+  SqfliteTransaction? get txn => (_database as SqfliteDatabaseExecutor).txn;
 
   @override
   bool get isOpen => _database.isOpen;

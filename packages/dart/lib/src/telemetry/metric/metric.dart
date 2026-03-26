@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
+import '../../utils/date_time_extension.dart';
 
 /// Base class for metric data points sent to Sentry.
 ///
@@ -47,7 +48,7 @@ abstract class SentryMetric {
   @internal
   Map<String, dynamic> toJson() {
     return {
-      'timestamp': timestamp.millisecondsSinceEpoch / 1000.0,
+      'timestamp': timestamp.secondsSinceEpoch,
       'type': type,
       'name': name,
       'value': value,
