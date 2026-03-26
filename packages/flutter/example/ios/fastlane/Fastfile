@@ -84,6 +84,15 @@ platform :ios do
     )
   end
 
+  desc "Upload build to Sentry Size Analysis"
+  lane :upload_size_analysis do
+    sentry_upload_build(
+      org_slug: ENV["SENTRY_ORG"],
+      project_slug: ENV["SENTRY_PROJECT"],
+      build_configuration: "Release"
+    )
+  end
+
   desc "Fetch ASC API Key"
   lane :fetch_api_key do
     app_store_connect_api_key(

@@ -1,6 +1,7 @@
 source "https://rubygems.org"
 
 gem "fastlane"
+gem "fastlane-plugin-sentry"
 
 # Ruby 3.4.0 has removed some libraries from the standard library.
 gem "mutex_m"

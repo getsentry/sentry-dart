@@ -84,15 +84,31 @@ jobs:
       - name: Build Flutter iOS
         run: |
           flutter pub get
-          flutter build ipa --release --no-codesign \
+          flutter build ios --release --no-codesign \
             --build-name "$SIZE_VERSION" \
             --build-number "$SIZE_BUILD"
 
-      - name: Upload iOS XCArchive to Sentry Size Analysis
+      - uses: ruby/setup-ruby@dffb23f65a78bba8db45d387d5ea1bbd6be3ef18 # pin@v1.293.0
+        with:
+          ruby-version: '2.7.5'
+
+      - name: Install Fastlane
+        working-directory: packages/flutter/example/ios
+        run: bundle install
+
+      - name: Build signed IPA
+        working-directory: packages/flutter/example/ios
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+        run: bundle exec fastlane build_release
+
+      - name: Upload iOS build to Sentry Size Analysis
         if: env.SENTRY_AUTH_TOKEN != ''
-        run: |
-          sentry-cli build upload \
-            "build/ios/archive/Runner.xcarchive" \
-            --org "${{ env.SENTRY_ORG }}" \
-            --project "${{ env.SENTRY_PROJECT }}" \
-            --build-configuration "Release"
+        working-directory: packages/flutter/example/ios
+        run: bundle exec fastlane upload_size_analysis
