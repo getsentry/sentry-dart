@@ -6,13 +6,11 @@ on:
       - main
     paths:
       - 'packages/**'
-      - 'metrics/flutter.properties'
       - '.github/workflows/size-analysis.yml'
       - '.github/actions/size-analysis-setup/**'
   pull_request:
     paths:
       - 'packages/**'
-      - 'metrics/flutter.properties'
       - '.github/workflows/size-analysis.yml'
       - '.github/actions/size-analysis-setup/**'
 
