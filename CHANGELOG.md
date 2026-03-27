@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Add Hint support to `beforeSendLog` and pass LogRecord from sentry_logging ([#3549](https://github.com/getsentry/sentry-dart/pull/3549))
+
 ## 9.16.0
 
 ### Dependencies
