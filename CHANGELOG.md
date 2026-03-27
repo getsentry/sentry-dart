@@ -1,5 +1,16 @@
 # Changelog
 
+## 9.16.0
+
+### Dependencies
+
+- Bump Android SDK from v8.36.0 to v8.37.1 ([#3588](https://github.com/getsentry/sentry-dart/pull/3588), [#3595](https://github.com/getsentry/sentry-dart/pull/3595))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8371)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.36.0...8.37.1)
+- Bump Native SDK from v0.13.2 to v0.13.3 ([#3577](https://github.com/getsentry/sentry-dart/pull/3577))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0133)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.13.2...0.13.3)
+
 ## 9.15.0
 
 ### Fixes

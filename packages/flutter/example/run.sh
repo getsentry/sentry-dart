@@ -23,7 +23,7 @@ if [ "$1" == "ios" ]; then
 elif [ "$1" == "android" ]; then
     flutter build apk --split-debug-info=$symbolsDir --obfuscate
     adb install build/app/outputs/flutter-apk/app-release.apk
-    launchCmd='adb shell am start -n io.sentry.samples.flutter/io.sentry.samples.flutter.MainActivity'
+    launchCmd='adb shell am start -n io.sentry.flutter.sample/io.sentry.flutter.sample.MainActivity'
     echo -e "[\033[92mrun\033[0m] Android app installed"
 elif [ "$1" == "web" ]; then
     flutter build web --dart-define=SENTRY_RELEASE="$SENTRY_RELEASE" --source-maps

@@ -18530,6 +18530,54 @@ class SentryOptions extends jni$_.JObject {
         .check();
   }
 
+  static final _id_isEnableCacheTracing = _class.instanceMethodId(
+    r'isEnableCacheTracing',
+    r'()Z',
+  );
+
+  static final _isEnableCacheTracing = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public boolean isEnableCacheTracing()`
+  bool isEnableCacheTracing() {
+    return _isEnableCacheTracing(
+            reference.pointer, _id_isEnableCacheTracing as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_setEnableCacheTracing = _class.instanceMethodId(
+    r'setEnableCacheTracing',
+    r'(Z)V',
+  );
+
+  static final _setEnableCacheTracing = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setEnableCacheTracing(boolean z)`
+  void setEnableCacheTracing(
+    bool z,
+  ) {
+    _setEnableCacheTracing(reference.pointer,
+            _id_setEnableCacheTracing as jni$_.JMethodIDPtr, z ? 1 : 0)
+        .check();
+  }
+
   static final _id_isEnabled = _class.instanceMethodId(
     r'isEnabled',
     r'()Z',
@@ -20395,6 +20443,60 @@ class SentryOptions extends jni$_.JObject {
         .check();
   }
 
+  static final _id_getScopesStorageFactory = _class.instanceMethodId(
+    r'getScopesStorageFactory',
+    r'()Lio/sentry/IScopesStorageFactory;',
+  );
+
+  static final _getScopesStorageFactory = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.IScopesStorageFactory getScopesStorageFactory()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getScopesStorageFactory() {
+    return _getScopesStorageFactory(reference.pointer,
+            _id_getScopesStorageFactory as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
+  static final _id_setScopesStorageFactory = _class.instanceMethodId(
+    r'setScopesStorageFactory',
+    r'(Lio/sentry/IScopesStorageFactory;)V',
+  );
+
+  static final _setScopesStorageFactory = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setScopesStorageFactory(io.sentry.IScopesStorageFactory iScopesStorageFactory)`
+  void setScopesStorageFactory(
+    jni$_.JObject? iScopesStorageFactory,
+  ) {
+    final _$iScopesStorageFactory =
+        iScopesStorageFactory?.reference ?? jni$_.jNullReference;
+    _setScopesStorageFactory(
+            reference.pointer,
+            _id_setScopesStorageFactory as jni$_.JMethodIDPtr,
+            _$iScopesStorageFactory.pointer)
+        .check();
+  }
+
   static final _id_getLogs = _class.instanceMethodId(
     r'getLogs',
     r'()Lio/sentry/SentryOptions$Logs;',
@@ -20621,6 +20723,247 @@ final class $SentryOptions$Type extends jni$_.JObjType<SentryOptions> {
   bool operator ==(Object other) {
     return other.runtimeType == ($SentryOptions$Type) &&
         other is $SentryOptions$Type;
+  }
+}
+
+/// from: `io.sentry.SentryReplayOptions$BeforeErrorSamplingCallback`
+class SentryReplayOptions$BeforeErrorSamplingCallback extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<SentryReplayOptions$BeforeErrorSamplingCallback> $type;
+
+  @jni$_.internal
+  SentryReplayOptions$BeforeErrorSamplingCallback.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(
+      r'io/sentry/SentryReplayOptions$BeforeErrorSamplingCallback');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType =
+      $SentryReplayOptions$BeforeErrorSamplingCallback$NullableType();
+  static const type = $SentryReplayOptions$BeforeErrorSamplingCallback$Type();
+  static final _id_execute = _class.instanceMethodId(
+    r'execute',
+    r'(Lio/sentry/SentryEvent;Lio/sentry/Hint;)Z',
+  );
+
+  static final _execute = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract boolean execute(io.sentry.SentryEvent sentryEvent, io.sentry.Hint hint)`
+  bool execute(
+    SentryEvent sentryEvent,
+    Hint hint,
+  ) {
+    final _$sentryEvent = sentryEvent.reference;
+    final _$hint = hint.reference;
+    return _execute(reference.pointer, _id_execute as jni$_.JMethodIDPtr,
+            _$sentryEvent.pointer, _$hint.pointer)
+        .boolean;
+  }
+
+  /// Maps a specific port to the implemented interface.
+  static final core$_.Map<int, $SentryReplayOptions$BeforeErrorSamplingCallback>
+      _$impls = {};
+  static jni$_.JObjectPtr _$invoke(
+    int port,
+    jni$_.JObjectPtr descriptor,
+    jni$_.JObjectPtr args,
+  ) {
+    return _$invokeMethod(
+      port,
+      jni$_.MethodInvocation.fromAddresses(
+        0,
+        descriptor.address,
+        args.address,
+      ),
+    );
+  }
+
+  static final jni$_.Pointer<
+          jni$_.NativeFunction<
+              jni$_.JObjectPtr Function(
+                  jni$_.Int64, jni$_.JObjectPtr, jni$_.JObjectPtr)>>
+      _$invokePointer = jni$_.Pointer.fromFunction(_$invoke);
+
+  static jni$_.Pointer<jni$_.Void> _$invokeMethod(
+    int $p,
+    jni$_.MethodInvocation $i,
+  ) {
+    try {
+      final $d = $i.methodDescriptor.toDartString(releaseOriginal: true);
+      final $a = $i.args;
+      if ($d == r'execute(Lio/sentry/SentryEvent;Lio/sentry/Hint;)Z') {
+        final $r = _$impls[$p]!.execute(
+          $a![0]!.as(const $SentryEvent$Type(), releaseOriginal: true),
+          $a![1]!.as(const $Hint$Type(), releaseOriginal: true),
+        );
+        return jni$_.JBoolean($r).reference.toPointer();
+      }
+    } catch (e) {
+      return jni$_.ProtectedJniExtensions.newDartException(e);
+    }
+    return jni$_.nullptr;
+  }
+
+  static void implementIn(
+    jni$_.JImplementer implementer,
+    $SentryReplayOptions$BeforeErrorSamplingCallback $impl,
+  ) {
+    late final jni$_.RawReceivePort $p;
+    $p = jni$_.RawReceivePort(($m) {
+      if ($m == null) {
+        _$impls.remove($p.sendPort.nativePort);
+        $p.close();
+        return;
+      }
+      final $i = jni$_.MethodInvocation.fromMessage($m);
+      final $r = _$invokeMethod($p.sendPort.nativePort, $i);
+      jni$_.ProtectedJniExtensions.returnResult($i.result, $r);
+    });
+    implementer.add(
+      r'io.sentry.SentryReplayOptions$BeforeErrorSamplingCallback',
+      $p,
+      _$invokePointer,
+      [],
+    );
+    final $a = $p.sendPort.nativePort;
+    _$impls[$a] = $impl;
+  }
+
+  factory SentryReplayOptions$BeforeErrorSamplingCallback.implement(
+    $SentryReplayOptions$BeforeErrorSamplingCallback $impl,
+  ) {
+    final $i = jni$_.JImplementer();
+    implementIn($i, $impl);
+    return SentryReplayOptions$BeforeErrorSamplingCallback.fromReference(
+      $i.implementReference(),
+    );
+  }
+}
+
+abstract base mixin class $SentryReplayOptions$BeforeErrorSamplingCallback {
+  factory $SentryReplayOptions$BeforeErrorSamplingCallback({
+    required bool Function(SentryEvent sentryEvent, Hint hint) execute,
+  }) = _$SentryReplayOptions$BeforeErrorSamplingCallback;
+
+  bool execute(SentryEvent sentryEvent, Hint hint);
+}
+
+final class _$SentryReplayOptions$BeforeErrorSamplingCallback
+    with $SentryReplayOptions$BeforeErrorSamplingCallback {
+  _$SentryReplayOptions$BeforeErrorSamplingCallback({
+    required bool Function(SentryEvent sentryEvent, Hint hint) execute,
+  }) : _execute = execute;
+
+  final bool Function(SentryEvent sentryEvent, Hint hint) _execute;
+
+  bool execute(SentryEvent sentryEvent, Hint hint) {
+    return _execute(sentryEvent, hint);
+  }
+}
+
+final class $SentryReplayOptions$BeforeErrorSamplingCallback$NullableType
+    extends jni$_.JObjType<SentryReplayOptions$BeforeErrorSamplingCallback?> {
+  @jni$_.internal
+  const $SentryReplayOptions$BeforeErrorSamplingCallback$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature =>
+      r'Lio/sentry/SentryReplayOptions$BeforeErrorSamplingCallback;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryReplayOptions$BeforeErrorSamplingCallback? fromReference(
+          jni$_.JReference reference) =>
+      reference.isNull
+          ? null
+          : SentryReplayOptions$BeforeErrorSamplingCallback.fromReference(
+              reference,
+            );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<SentryReplayOptions$BeforeErrorSamplingCallback?>
+      get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode =>
+      ($SentryReplayOptions$BeforeErrorSamplingCallback$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType ==
+            ($SentryReplayOptions$BeforeErrorSamplingCallback$NullableType) &&
+        other is $SentryReplayOptions$BeforeErrorSamplingCallback$NullableType;
+  }
+}
+
+final class $SentryReplayOptions$BeforeErrorSamplingCallback$Type
+    extends jni$_.JObjType<SentryReplayOptions$BeforeErrorSamplingCallback> {
+  @jni$_.internal
+  const $SentryReplayOptions$BeforeErrorSamplingCallback$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature =>
+      r'Lio/sentry/SentryReplayOptions$BeforeErrorSamplingCallback;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryReplayOptions$BeforeErrorSamplingCallback fromReference(
+          jni$_.JReference reference) =>
+      SentryReplayOptions$BeforeErrorSamplingCallback.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<SentryReplayOptions$BeforeErrorSamplingCallback?>
+      get nullableType =>
+          const $SentryReplayOptions$BeforeErrorSamplingCallback$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode =>
+      ($SentryReplayOptions$BeforeErrorSamplingCallback$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType ==
+            ($SentryReplayOptions$BeforeErrorSamplingCallback$Type) &&
+        other is $SentryReplayOptions$BeforeErrorSamplingCallback$Type;
   }
 }
 
@@ -21854,6 +22197,62 @@ class SentryReplayOptions extends jni$_.JObject {
     final _$list = list.reference;
     _setNetworkResponseHeaders(reference.pointer,
             _id_setNetworkResponseHeaders as jni$_.JMethodIDPtr, _$list.pointer)
+        .check();
+  }
+
+  static final _id_getBeforeErrorSampling = _class.instanceMethodId(
+    r'getBeforeErrorSampling',
+    r'()Lio/sentry/SentryReplayOptions$BeforeErrorSamplingCallback;',
+  );
+
+  static final _getBeforeErrorSampling = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.SentryReplayOptions$BeforeErrorSamplingCallback getBeforeErrorSampling()`
+  /// The returned object must be released after use, by calling the [release] method.
+  SentryReplayOptions$BeforeErrorSamplingCallback? getBeforeErrorSampling() {
+    return _getBeforeErrorSampling(
+            reference.pointer, _id_getBeforeErrorSampling as jni$_.JMethodIDPtr)
+        .object<SentryReplayOptions$BeforeErrorSamplingCallback?>(
+            const $SentryReplayOptions$BeforeErrorSamplingCallback$NullableType());
+  }
+
+  static final _id_setBeforeErrorSampling = _class.instanceMethodId(
+    r'setBeforeErrorSampling',
+    r'(Lio/sentry/SentryReplayOptions$BeforeErrorSamplingCallback;)V',
+  );
+
+  static final _setBeforeErrorSampling = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setBeforeErrorSampling(io.sentry.SentryReplayOptions$BeforeErrorSamplingCallback beforeErrorSamplingCallback)`
+  void setBeforeErrorSampling(
+    SentryReplayOptions$BeforeErrorSamplingCallback?
+        beforeErrorSamplingCallback,
+  ) {
+    final _$beforeErrorSamplingCallback =
+        beforeErrorSamplingCallback?.reference ?? jni$_.jNullReference;
+    _setBeforeErrorSampling(
+            reference.pointer,
+            _id_setBeforeErrorSampling as jni$_.JMethodIDPtr,
+            _$beforeErrorSamplingCallback.pointer)
         .check();
   }
 }
