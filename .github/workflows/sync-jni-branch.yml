@@ -21,7 +21,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      issues: write
     timeout-minutes: 30
     if: ${{ !github.event.release.prerelease }}
 
@@ -129,42 +128,3 @@ jobs:
             --base "$BRANCH" \
             --title "Sync JNI branch with release $TAG" \
             --body-file /tmp/pr-body.md
-
-      - name: Create issue on failure
-        if: steps.merge.outcome == 'failure' || steps.regenerate.outcome == 'failure'
-        env:
-          GH_TOKEN: ${{ steps.token.outputs.token }}
-          TAG: ${{ steps.release.outputs.tag }}
-          BRANCH: ${{ env.JNI_BRANCH }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          MERGE_OUTCOME: ${{ steps.merge.outcome }}
-        run: |
-          if [ "$MERGE_OUTCOME" = "failure" ]; then
-            FAILED_STEP="Merge release tag"
-          else
-            FAILED_STEP="Regenerate JNI bindings"
-          fi
-          LOG_TAIL="$(tail -100 /tmp/jni-regen.log 2>/dev/null || echo 'No log output available')"
-          {
-            echo "## JNI Branch Sync Failure"
-            echo "The automated sync of the JNI compatibility branch failed for release \`$TAG\`."
-            echo ""
-            echo "**Failed step:** $FAILED_STEP"
-            echo "**Workflow run:** $RUN_URL"
-            echo "**Target branch:** \`$BRANCH\`"
-            echo ""
-            echo "## Error Logs (last 100 lines)"
-            echo '```'
-            echo "$LOG_TAIL"
-            echo '```'
-            echo ""
-            echo "## Manual Remediation"
-            echo "1. Checkout the JNI branch: \`git checkout $BRANCH\`"
-            echo "2. Merge the release tag: \`git merge $TAG\`"
-            echo "3. Run: \`cd packages/flutter && scripts/safe-regenerate-jni.sh\`"
-            echo "4. Resolve any issues manually"
-            echo "5. Commit and push the changes"
-          } > /tmp/issue-body.md
-          gh issue create \
-            --title "JNI branch sync failed for release $TAG" \
-            --body-file /tmp/issue-body.md
