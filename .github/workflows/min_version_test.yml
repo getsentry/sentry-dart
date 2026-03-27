@@ -32,7 +32,7 @@ jobs:
 
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.35.6'
 
       - name: Build Android
         run: |
@@ -49,7 +49,7 @@ jobs:
 
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.35.6'
 
       - uses: ruby/setup-ruby@319994f95fa847cf3fb3cd3dbe89f6dcde9f178f # pin@v1.295.0
         with:
@@ -84,7 +84,7 @@ jobs:
 
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.35.6'
 
       - name: Build web
         run: |
