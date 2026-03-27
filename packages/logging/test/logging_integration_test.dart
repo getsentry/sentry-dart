@@ -361,8 +361,9 @@ void main() {
       final hint = mockLogger.infoCalls.first.hint;
       expect(hint, isNotNull);
 
-      final record = hint!.get(TypeCheckHint.record) as LogRecord;
-      expect(record.loggerName, 'TestLogger');
+      final record = hint!.logRecord;
+      expect(record, isNotNull);
+      expect(record!.loggerName, 'TestLogger');
       expect(record.level, Level.INFO);
       expect(record.object, same(customObject));
     });

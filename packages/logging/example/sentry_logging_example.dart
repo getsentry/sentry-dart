@@ -12,6 +12,16 @@ Future<void> main() async {
     (options) {
       options.dsn = dsn;
       options.addIntegration(LoggingIntegration());
+      options.enableLogs = true;
+      options.beforeSendLog = (log, hint) {
+        // Access the original LogRecord from the logging package via the hint.
+        final record = hint.logRecord;
+        if (record != null) {
+          print('LogRecord logger: ${record.loggerName}');
+          print('LogRecord object: ${record.object}');
+        }
+        return log;
+      };
     },
     appRunner: runApp,
   );
