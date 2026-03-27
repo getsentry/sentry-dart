@@ -1,0 +1,39 @@
+# Smoke test to ensure the JNI branch keeps jni/jnigen at ^0.15.0.
+# This catches sync merges that accidentally revert the dependency version.
+# This can be removed in v10 when we can support jni 0.15.x in the main branch.
+
+name: JNI Version Check
+
+on:
+  pull_request:
+    branches:
+      - deps/jni-0.15.x
+
+jobs:
+  check-jni-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Verify jni and jnigen versions
+        run: |
+          errors=0
+
+          jni_version=$(sed -n 's/^ *jni: *\(.*\)/\1/p' packages/flutter/pubspec.yaml)
+          jnigen_version=$(sed -n 's/^ *jnigen: *\(.*\)/\1/p' packages/flutter/pubspec.yaml)
+
+          echo "jni: $jni_version"
+          echo "jnigen: $jnigen_version"
+
+          if [[ "$jni_version" != *"0.15"* ]]; then
+            echo "::error::jni version must be ^0.15.x, got: $jni_version"
+            errors=1
+          fi
+
+          if [[ "$jnigen_version" != *"0.15"* ]]; then
+            echo "::error::jnigen version must be ^0.15.x, got: $jnigen_version"
+            errors=1
+          fi
+
+          exit $errors
