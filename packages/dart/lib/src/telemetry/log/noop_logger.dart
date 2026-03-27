@@ -63,6 +63,7 @@ final class _NoOpSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
@@ -70,6 +71,7 @@ final class _NoOpSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
@@ -77,6 +79,7 @@ final class _NoOpSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
@@ -84,6 +87,7 @@ final class _NoOpSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
@@ -91,6 +95,7 @@ final class _NoOpSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
@@ -98,5 +103,6 @@ final class _NoOpSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 }

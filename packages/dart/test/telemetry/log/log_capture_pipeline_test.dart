@@ -98,7 +98,7 @@ void main() {
               event.log.attributes.containsKey('scope-attr');
         });
 
-        fixture.options.beforeSendLog = (log, {Hint? hint}) {
+        fixture.options.beforeSendLog = (log, hint) {
           operations.add('beforeSendLog');
           return log;
         };
@@ -145,7 +145,7 @@ void main() {
 
     group('when beforeSendLog is configured', () {
       test('returning null drops the log', () async {
-        fixture.options.beforeSendLog = (_, {Hint? hint}) => null;
+        fixture.options.beforeSendLog = (_, hint) => null;
 
         final log = givenLog();
 
@@ -155,7 +155,7 @@ void main() {
       });
 
       test('returning null records lost event in client report', () async {
-        fixture.options.beforeSendLog = (_, {Hint? hint}) => null;
+        fixture.options.beforeSendLog = (_, hint) => null;
 
         final log = givenLog();
 
@@ -169,7 +169,7 @@ void main() {
       });
 
       test('can mutate the log', () async {
-        fixture.options.beforeSendLog = (log, {Hint? hint}) {
+        fixture.options.beforeSendLog = (log, hint) {
           log.body = 'modified-body';
           log.attributes['added-key'] = SentryAttribute.string('added');
           return log;
@@ -186,7 +186,7 @@ void main() {
       });
 
       test('async callback is awaited', () async {
-        fixture.options.beforeSendLog = (log, {Hint? hint}) async {
+        fixture.options.beforeSendLog = (log, hint) async {
           await Future.delayed(Duration(milliseconds: 10));
           log.body = 'async-modified';
           return log;
@@ -201,10 +201,41 @@ void main() {
         expect(captured.body, 'async-modified');
       });
 
+      test('forwards hint to beforeSendLog callback', () async {
+        Hint? receivedHint;
+        fixture.options.beforeSendLog = (log, hint) {
+          receivedHint = hint;
+          return log;
+        };
+
+        final log = givenLog();
+        final hint = Hint.withMap({'custom-key': 'custom-value'});
+
+        await fixture.pipeline
+            .captureLog(log, scope: fixture.scope, hint: hint);
+
+        expect(receivedHint, isNotNull);
+        expect(receivedHint!.get('custom-key'), 'custom-value');
+      });
+
+      test('provides empty Hint when no hint is passed', () async {
+        Hint? receivedHint;
+        fixture.options.beforeSendLog = (log, hint) {
+          receivedHint = hint;
+          return log;
+        };
+
+        final log = givenLog();
+
+        await fixture.pipeline.captureLog(log, scope: fixture.scope);
+
+        expect(receivedHint, isNotNull);
+      });
+
       test('exception in callback is caught and log is still captured',
           () async {
         fixture.options.automatedTestMode = false;
-        fixture.options.beforeSendLog = (log, {Hint? hint}) {
+        fixture.options.beforeSendLog = (log, hint) {
           throw Exception('test');
         };
 

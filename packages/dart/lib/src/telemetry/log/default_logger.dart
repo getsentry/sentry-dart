@@ -126,13 +126,15 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
     return _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.trace(formattedBody, attributes: allAttributes);
+        return _logger.trace(formattedBody,
+            attributes: allAttributes, hint: hint);
       },
     );
   }
@@ -142,13 +144,15 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
     return _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.debug(formattedBody, attributes: allAttributes);
+        return _logger.debug(formattedBody,
+            attributes: allAttributes, hint: hint);
       },
     );
   }
@@ -158,13 +162,15 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
     return _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.info(formattedBody, attributes: allAttributes);
+        return _logger.info(formattedBody,
+            attributes: allAttributes, hint: hint);
       },
     );
   }
@@ -174,13 +180,15 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
     return _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.warn(formattedBody, attributes: allAttributes);
+        return _logger.warn(formattedBody,
+            attributes: allAttributes, hint: hint);
       },
     );
   }
@@ -190,13 +198,15 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
     return _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.error(formattedBody, attributes: allAttributes);
+        return _logger.error(formattedBody,
+            attributes: allAttributes, hint: hint);
       },
     );
   }
@@ -206,13 +216,15 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
     return _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.fatal(formattedBody, attributes: allAttributes);
+        return _logger.fatal(formattedBody,
+            attributes: allAttributes, hint: hint);
       },
     );
   }

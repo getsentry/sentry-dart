@@ -40,7 +40,7 @@ class LogCapturePipeline {
       SentryLog? processedLog = log;
       if (beforeSendLog != null) {
         try {
-          final callbackResult = beforeSendLog(log, hint: hint);
+          final callbackResult = beforeSendLog(log, hint ?? Hint());
 
           if (callbackResult is Future<SentryLog?>) {
             processedLog = await callbackResult;

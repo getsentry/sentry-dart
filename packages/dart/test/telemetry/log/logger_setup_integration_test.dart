@@ -135,6 +135,7 @@ class _CustomSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
@@ -142,6 +143,7 @@ class _CustomSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
@@ -149,6 +151,7 @@ class _CustomSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
@@ -156,6 +159,7 @@ class _CustomSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
@@ -163,6 +167,7 @@ class _CustomSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 
   @override
@@ -170,5 +175,6 @@ class _CustomSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {}
 }

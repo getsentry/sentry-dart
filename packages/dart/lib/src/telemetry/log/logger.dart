@@ -63,6 +63,7 @@ abstract interface class SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   });
 
   /// Logs a formatted message at DEBUG level.
@@ -70,6 +71,7 @@ abstract interface class SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   });
 
   /// Logs a formatted message at INFO level.
@@ -77,6 +79,7 @@ abstract interface class SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   });
 
   /// Logs a formatted message at WARN level.
@@ -84,6 +87,7 @@ abstract interface class SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   });
 
   /// Logs a formatted message at ERROR level.
@@ -91,6 +95,7 @@ abstract interface class SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   });
 
   /// Logs a formatted message at FATAL level.
@@ -98,5 +103,6 @@ abstract interface class SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   });
 }
