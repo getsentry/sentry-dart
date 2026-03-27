@@ -55,6 +55,28 @@ Read these files **only when relevant** to your current task:
 - `docs/agent_instructions/test-conventions.md` - Writing or modifying tests
 - `docs/agent_instructions/code-guidelines.md` - Implementing new features, refactoring, or reviewing code
 
+## JNI Branch Sync (`deps/jni-0.15.x`)
+
+This branch maintains `jni`/`jnigen` at `^0.15.0`. When merging a release tag into this branch:
+
+### Conflict resolution rules
+
+- **Take theirs (release tag)** for all files
+- **Then patch**:
+  - `packages/flutter/pubspec.yaml`: restore `jni: ^0.15.0`, `jnigen: ^0.15.0`, and `flutter: '>=3.35.6'`
+  - `min_version_test/pubspec.yaml`: ensure `flutter: '3.35.6'` (jni 0.15.x requires it)
+  - `.github/workflows/min_version_test.yml`: ensure `flutter-version: '3.35.6'`
+
+### After resolving conflicts
+
+1. Regenerate JNI bindings: `cd packages/flutter && scripts/safe-regenerate-jni.sh`
+2. Verify no conflict markers remain: `grep -r '<<<<<<' --include='*.dart' --include='*.yaml'`
+3. Verify jni version: `grep 'jni:' packages/flutter/pubspec.yaml` must show `^0.15.0`
+
+### Why
+
+The JNI branch exists because `jni 0.15.x` has breaking API changes not yet supported on `main`. The only meaningful difference from `main` is the JNI binding layer and the `^0.15.0` dependency pin. Everything else should stay in sync with releases.
+
 ## Key Principles
 
 - **Development**: Always ask clarifying questions if needed and/or propose a plan before implementation
