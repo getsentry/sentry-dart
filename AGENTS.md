@@ -64,8 +64,7 @@ This branch maintains `jni`/`jnigen` at `^0.15.0`. When merging a release tag in
 - **Take theirs (release tag)** for all files
 - **Then patch**:
   - `packages/flutter/pubspec.yaml`: restore `jni: ^0.15.0`, `jnigen: ^0.15.0`, and `flutter: '>=3.35.6'`
-  - `min_version_test/pubspec.yaml`: ensure `flutter: '3.35.6'` and `sdk: '3.9.0'` (jni 0.15.x requires Flutter 3.35.6 which ships Dart 3.9.x)
-  - `.github/workflows/min_version_test.yml`: ensure `flutter-version: '3.35.6'`
+  - `.github/workflows/min_version_test.yml`: ensure all jobs have `if: false` (disabled on JNI branch)
 
 ### After resolving conflicts
 
