@@ -7,6 +7,8 @@ packages:
 ignore:
   - 'packages/dart/example_web/build'
 
+sdkPath: .fvm/flutter_sdk
+
 command:
   bootstrap:
     runPubGetInParallel: false
@@ -33,7 +35,7 @@ scripts:
       dirExists: lib
 
   format:check:
-    run: melos exec --fail-fast -- dart format --set-exit-if-changed lib test
+    run: melos exec --fail-fast -- bash -c 'dart format --set-exit-if-changed lib $([ -d test ] && echo test)'
     description: Check formatting of all packages.
     packageFilters:
       dirExists: lib

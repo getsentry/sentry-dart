@@ -7,31 +7,36 @@ you get started.
 
 ### Required Tools
 
-* **Dart SDK** - Required for all packages
-* **Flutter SDK** - Required for `sentry-flutter` and Flutter integrations
+* **Dart SDK** `>=3.5.0` - Required for all packages
+* **Flutter SDK** `>=3.24.0` - Required for `sentry-flutter` and Flutter integrations
+* **[fvm](https://fvm.app/)** - For Flutter/Dart version management
 * **[melos](https://melos.invertase.dev/)** - For managing the monorepo
 
 ## Environment Setup
 
-### 1. Install melos
+### 1. Install fvm and melos
 
 ```bash
+dart pub global activate fvm
 dart pub global activate melos
 ```
 
-### 2. Bootstrap the project
+### 2. Install the Flutter SDK via fvm
 
-At the repository root, run:
+```bash
+fvm use stable
+```
+
+This reads `.fvmrc` and installs the pinned Flutter version. It also creates a `.fvm/flutter_sdk`
+symlink that melos uses to resolve `dart`/`flutter` commands (via `sdkPath` in `melos.yaml`).
+
+### 3. Bootstrap the project
 
 ```bash
 melos bootstrap
 ```
 
-If you're using [fvm](https://fvm.app/), specify the SDK path:
-
-```bash
-melos bootstrap --sdk-path=/Users/user/fvm/default/
-```
+This resolves all package dependencies and configures git hooks for pre-commit checks.
 
 ## Project Structure
 
@@ -82,18 +87,31 @@ The Flutter SDK embeds platform-specific native SDKs:
   `packages/flutter/sentry-native/`)
 * **Web**: [sentry-javascript](https://github.com/getsentry/sentry-javascript) (loaded via CDN)
 
-[//]: # (TODO: buenaflor - properly set up precommit hooks)
-[//]: # (### Static Code Analysis, Tests, Formatting, Pub Score and Dry publish)
+## Pre-commit Hooks
 
-[//]: # ()
-[//]: # (* Dart/Flutter)
+After `melos bootstrap`, git is configured to use `.githooks/` for hooks. The pre-commit hook
+automatically runs static analysis and formatting checks before each commit:
 
-[//]: # (  * Execute `./tool/presubmit.sh` within the `dart` and `flutter` folders)
+```bash
+melos run precommit
+```
 
-[//]: # (* Swift/CocoaPods)
+This runs `analyze:dart`, `analyze:flutter`, and `format:check` across all packages.
 
-[//]: # (  * Use `swiftlint` and `pod lib lint`)
+To run the full suite including tests:
 
-[//]: # (* Kotlin)
+```bash
+melos run precommit:full
+```
 
-[//]: # (  * Use `ktlint` and `detekt`)
+### Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `melos run analyze:dart` | Run `dart analyze` on Dart-only packages |
+| `melos run analyze:flutter` | Run `flutter analyze` on Flutter packages |
+| `melos run format:check` | Check formatting across all packages |
+| `melos run test:dart` | Run tests for Dart-only packages |
+| `melos run test:flutter` | Run tests for Flutter packages |
+| `melos run precommit` | Run analysis + format checks |
+| `melos run precommit:full` | Run analysis + format checks + tests |
