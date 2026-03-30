@@ -4,6 +4,72 @@ packages:
   - 'packages/*/*'
   - 'packages/*/*/*'
 
+ignore:
+  - 'packages/dart/example_web/build'
+
+command:
+  bootstrap:
+    runPubGetInParallel: false
+
 ide:
   intellij:
     moduleNamePrefix: ''
+
+scripts:
+  analyze:dart:
+    run: melos exec -c 1 --fail-fast -- dart analyze --fatal-warnings
+    description: Run dart analyze on Dart-only packages.
+    packageFilters:
+      flutter: false
+      dirExists: lib
+
+  analyze:flutter:
+    run: melos exec -c 1 --fail-fast -- flutter analyze --fatal-warnings
+    description: Run flutter analyze on Flutter packages.
+    packageFilters:
+      flutter: true
+      dirExists: lib
+
+  format:check:
+    run: melos exec --fail-fast -- dart format --set-exit-if-changed lib test
+    description: Check formatting of all packages.
+    packageFilters:
+      dirExists: lib
+
+  test:dart:
+    run: melos exec --fail-fast -- dart test
+    description: Run tests for Dart-only packages.
+    packageFilters:
+      flutter: false
+      dirExists: test
+
+  test:flutter:
+    run: melos exec --fail-fast -- flutter test
+    description: Run tests for Flutter packages.
+    packageFilters:
+      flutter: true
+      dirExists: test
+
+  precommit:
+    description: Run all pre-commit checks.
+    steps:
+      - analyze:dart
+      - analyze:flutter
+      - format:check
+
+  precommit:full:
+    description: Run all checks including tests.
+    steps:
+      - analyze:dart
+      - analyze:flutter
+      - format:check
+      - test:dart
+      - test:flutter
+
+  postbootstrap:
+    run: git config core.hooksPath .githooks
+    description: Configure git to use .githooks directory.
+
+  postclean:
+    run: melos exec -- flutter clean
+    description: Run flutter clean in all packages.
