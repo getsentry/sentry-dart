@@ -1,5 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import '../../sentry_flutter.dart';
@@ -90,6 +92,16 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   SentryAttachment? _screenshot;
   Future<Uint8List>? _screenshotFuture;
 
+  /// Whether the feedback was submitted successfully and the success message
+  /// is being shown.
+  bool _submitted = false;
+
+  /// Timer for auto-dismissing the success message.
+  Timer? _successTimer;
+
+  @visibleForTesting
+  static const successMessageTimeout = Duration(seconds: 5);
+
   @override
   void initState() {
     super.initState();
@@ -123,6 +135,12 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
       resizeToAvoidBottomInset: widget.options.resizeToAvoidBottomInset,
       appBar: AppBar(
         title: Text(widget.options.title),
+        leading: _submitted
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => _dismiss(pendingAssociatedEventId: false),
+              )
+            : null,
         actions: [
           if (widget.options.showBranding)
             Padding(
@@ -132,244 +150,35 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
             ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: _submitted ? _buildSuccessBody(context) : _buildFormBody(context),
+    );
+  }
+
+  Widget _buildSuccessBody(BuildContext context) {
+    final successColor = widget.options.successColor;
+    return GestureDetector(
+      key: const ValueKey('sentry_feedback_success'),
+      onTap: () => _dismiss(pendingAssociatedEventId: false),
+      behavior: HitTestBehavior.opaque,
+      child: Center(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.options.showName) ...[
-                        Row(
-                          children: [
-                            Text(
-                              key: const ValueKey('sentry_feedback_name_label'),
-                              widget.options.nameLabel,
-                              style: Theme.of(context).textTheme.labelMedium,
-                            ),
-                            const SizedBox(width: 4),
-                            if (widget.options.isNameRequired)
-                              Text(
-                                key: const ValueKey(
-                                    'sentry_feedback_name_required_label'),
-                                widget.options.isRequiredLabel,
-                                style: Theme.of(context).textTheme.labelMedium,
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        TextFormField(
-                          key: const ValueKey('sentry_feedback_name_textfield'),
-                          style: Theme.of(context).textTheme.bodyLarge,
-                          controller: _nameController,
-                          decoration: InputDecoration(
-                            border: const OutlineInputBorder(),
-                            hintText: widget.options.namePlaceholder,
-                          ),
-                          keyboardType: TextInputType.text,
-                          validator: (String? value) {
-                            return _errorText(
-                                value, widget.options.isNameRequired);
-                          },
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                      if (widget.options.showEmail) ...[
-                        Row(
-                          children: [
-                            Text(
-                              key:
-                                  const ValueKey('sentry_feedback_email_label'),
-                              widget.options.emailLabel,
-                              style: Theme.of(context).textTheme.labelMedium,
-                            ),
-                            const SizedBox(width: 4),
-                            if (widget.options.isEmailRequired)
-                              Text(
-                                key: const ValueKey(
-                                    'sentry_feedback_email_required_label'),
-                                widget.options.isRequiredLabel,
-                                style: Theme.of(context).textTheme.labelMedium,
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        TextFormField(
-                          key:
-                              const ValueKey('sentry_feedback_email_textfield'),
-                          controller: _emailController,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                          decoration: InputDecoration(
-                            border: const OutlineInputBorder(),
-                            hintText: widget.options.emailPlaceholder,
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (String? value) {
-                            return _errorText(
-                                value, widget.options.isEmailRequired);
-                          },
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                      Row(
-                        children: [
-                          Text(
-                            key:
-                                const ValueKey('sentry_feedback_message_label'),
-                            widget.options.messageLabel,
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            key: const ValueKey(
-                                'sentry_feedback_message_required_label'),
-                            widget.options.isRequiredLabel,
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      TextFormField(
-                        key:
-                            const ValueKey('sentry_feedback_message_textfield'),
-                        controller: _messageController,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                        minLines: 5,
-                        maxLines: null,
-                        decoration: InputDecoration(
-                          border: const OutlineInputBorder(),
-                          hintText: widget.options.messagePlaceholder,
-                        ),
-                        keyboardType: TextInputType.multiline,
-                        validator: (String? value) {
-                          return _errorText(value, true);
-                        },
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(4096),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: Row(
-                          children: [
-                            if (_screenshotFuture != null) ...[
-                              SizedBox(
-                                width: 48,
-                                height: 48,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(4),
-                                  child: FutureBuilder<Uint8List>(
-                                    future: _screenshotFuture,
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return const Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      }
-                                      if (snapshot.hasError) {
-                                        return const Icon(Icons.error);
-                                      }
-                                      if (!snapshot.hasData) {
-                                        return const SizedBox();
-                                      }
-                                      return Image.memory(
-                                        snapshot.data!,
-                                        fit: BoxFit.cover,
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                            ],
-                            if (_screenshot != null)
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    setState(() {
-                                      _screenshot = null;
-                                      _screenshotFuture = null;
-                                    });
-                                  },
-                                  child: Text(
-                                      key: const ValueKey(
-                                          'sentry_feedback_remove_screenshot_button'),
-                                      widget
-                                          .options.removeScreenshotButtonLabel),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      if (_screenshot == null &&
-                          widget.options.showCaptureScreenshot)
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            key: const ValueKey(
-                                'sentry_feedback_capture_screenshot_button'),
-                            onPressed: () async {
-                              _dismiss(pendingAssociatedEventId: true);
-                              SentryScreenshotWidget.showTakeScreenshotButton();
-                            },
-                            child: Text(
-                              widget.options.captureScreenshotButtonLabel,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
+            Icon(
+              key: const ValueKey('sentry_feedback_success_icon'),
+              Icons.check_circle,
+              color: successColor,
+              size: 48,
             ),
-            const SizedBox(height: 8),
-            Column(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    key: const ValueKey('sentry_feedback_submit_button'),
-                    onPressed: () async {
-                      if (!_formKey.currentState!.validate()) {
-                        return;
-                      }
-                      final feedback = SentryFeedback(
-                        message: _messageController.text,
-                        contactEmail: _emailController.text,
-                        name: _nameController.text,
-                        associatedEventId: widget.associatedEventId,
-                      );
-                      Hint? hint;
-                      if (_screenshot != null) {
-                        hint = Hint.withScreenshot(_screenshot!);
-                      }
-                      await _captureFeedback(feedback, hint);
-                      _dismiss(pendingAssociatedEventId: false);
-                    },
-                    child: Text(widget.options.submitButtonLabel),
+            const SizedBox(height: 16),
+            Text(
+              key: const ValueKey('sentry_feedback_success_text'),
+              widget.options.successMessageText,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: successColor,
+                    fontWeight: FontWeight.w600,
                   ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    key: const ValueKey('sentry_feedback_close_button'),
-                    onPressed: () {
-                      _dismiss(pendingAssociatedEventId: false);
-                    },
-                    child: Text(widget.options.cancelButtonLabel),
-                  ),
-                ),
-              ],
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -377,12 +186,268 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
     );
   }
 
+  Widget _buildFormBody(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.options.showName) ...[
+                      Row(
+                        children: [
+                          Text(
+                            key: const ValueKey('sentry_feedback_name_label'),
+                            widget.options.nameLabel,
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                          const SizedBox(width: 4),
+                          if (widget.options.isNameRequired)
+                            Text(
+                              key: const ValueKey(
+                                  'sentry_feedback_name_required_label'),
+                              widget.options.isRequiredLabel,
+                              style: Theme.of(context).textTheme.labelMedium,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        key: const ValueKey('sentry_feedback_name_textfield'),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          hintText: widget.options.namePlaceholder,
+                        ),
+                        keyboardType: TextInputType.text,
+                        validator: (String? value) {
+                          return _errorText(
+                              value, widget.options.isNameRequired);
+                        },
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    if (widget.options.showEmail) ...[
+                      Row(
+                        children: [
+                          Text(
+                            key: const ValueKey('sentry_feedback_email_label'),
+                            widget.options.emailLabel,
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                          const SizedBox(width: 4),
+                          if (widget.options.isEmailRequired)
+                            Text(
+                              key: const ValueKey(
+                                  'sentry_feedback_email_required_label'),
+                              widget.options.isRequiredLabel,
+                              style: Theme.of(context).textTheme.labelMedium,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      TextFormField(
+                        key: const ValueKey('sentry_feedback_email_textfield'),
+                        controller: _emailController,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          hintText: widget.options.emailPlaceholder,
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (String? value) {
+                          return _errorText(
+                              value, widget.options.isEmailRequired);
+                        },
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    Row(
+                      children: [
+                        Text(
+                          key: const ValueKey('sentry_feedback_message_label'),
+                          widget.options.messageLabel,
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          key: const ValueKey(
+                              'sentry_feedback_message_required_label'),
+                          widget.options.isRequiredLabel,
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    TextFormField(
+                      key: const ValueKey('sentry_feedback_message_textfield'),
+                      controller: _messageController,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      minLines: 5,
+                      maxLines: null,
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        hintText: widget.options.messagePlaceholder,
+                      ),
+                      keyboardType: TextInputType.multiline,
+                      validator: (String? value) {
+                        return _errorText(value, true);
+                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(4096),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Row(
+                        children: [
+                          if (_screenshotFuture != null) ...[
+                            SizedBox(
+                              width: 48,
+                              height: 48,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: FutureBuilder<Uint8List>(
+                                  future: _screenshotFuture,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+                                    if (snapshot.hasError) {
+                                      return const Icon(Icons.error);
+                                    }
+                                    if (!snapshot.hasData) {
+                                      return const SizedBox();
+                                    }
+                                    return Image.memory(
+                                      snapshot.data!,
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          if (_screenshot != null)
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  setState(() {
+                                    _screenshot = null;
+                                    _screenshotFuture = null;
+                                  });
+                                },
+                                child: Text(
+                                    key: const ValueKey(
+                                        'sentry_feedback_remove_screenshot_button'),
+                                    widget.options.removeScreenshotButtonLabel),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    if (_screenshot == null &&
+                        widget.options.showCaptureScreenshot)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          key: const ValueKey(
+                              'sentry_feedback_capture_screenshot_button'),
+                          onPressed: () async {
+                            _dismiss(pendingAssociatedEventId: true);
+                            SentryScreenshotWidget.showTakeScreenshotButton();
+                          },
+                          child: Text(
+                            widget.options.captureScreenshotButtonLabel,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Column(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  key: const ValueKey('sentry_feedback_submit_button'),
+                  onPressed: _submit,
+                  child: Text(widget.options.submitButtonLabel),
+                ),
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  key: const ValueKey('sentry_feedback_close_button'),
+                  onPressed: () {
+                    _dismiss(pendingAssociatedEventId: false);
+                  },
+                  child: Text(widget.options.cancelButtonLabel),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
+    _successTimer?.cancel();
     _nameController.dispose();
     _emailController.dispose();
     _messageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final feedback = SentryFeedback(
+      message: _messageController.text,
+      contactEmail: _emailController.text,
+      name: _nameController.text,
+      associatedEventId: widget.associatedEventId,
+    );
+    Hint? hint;
+    if (_screenshot != null) {
+      hint = Hint.withScreenshot(_screenshot!);
+    }
+
+    final sentryId = await _captureFeedback(feedback, hint);
+
+    if (!mounted) return;
+
+    widget.options.onSubmitSuccess?.call(feedback, sentryId);
+    setState(() {
+      _submitted = true;
+    });
+    _successTimer = Timer(successMessageTimeout, () {
+      if (mounted && _submitted) {
+        _dismiss(pendingAssociatedEventId: false);
+      }
+    });
   }
 
   String? _errorText(String? value, bool isRequired) {

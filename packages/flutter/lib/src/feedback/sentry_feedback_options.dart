@@ -1,3 +1,6 @@
+import 'dart:ui';
+import '../../sentry_flutter.dart';
+
 class SentryFeedbackOptions {
   // Form Configuration
 
@@ -74,4 +77,16 @@ class SentryFeedbackOptions {
 
   /// The label of the take screenshot button shown outside of the feedback widget.
   String takeScreenshotButtonLabel = 'Take Screenshot';
+
+  // Theme Configuration
+
+  /// Color used for success-related components.
+  Color successColor = const Color(0xFF268D75);
+
+  // Event Callbacks
+
+  /// Called when feedback is successfully submitted.
+  ///
+  /// This is called in addition to the default success message behavior.
+  void Function(SentryFeedback feedback, SentryId eventId)? onSubmitSuccess;
 }
