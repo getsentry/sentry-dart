@@ -799,7 +799,7 @@ void main() {
     });
   });
 
-  group('$SentryFeedbackWidget', () {
+  group('$SentryFeedbackWidget success message', () {
     late Fixture fixture;
 
     setUp(() {
