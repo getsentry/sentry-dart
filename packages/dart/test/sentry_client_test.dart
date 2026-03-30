@@ -2389,6 +2389,56 @@ void main() {
     });
   });
 
+  group('SentryClient beforeSend features', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('adds beforeSendEvent feature when beforeSend is configured', () {
+      fixture.getSut(beforeSend: beforeSendCallback);
+      expect(fixture.options.sdk.features, contains('beforeSendEvent'));
+    });
+
+    test('adds beforeSendTransaction feature when configured', () {
+      fixture.getSut(beforeSendTransaction: beforeSendTransactionCallback);
+      expect(
+          fixture.options.sdk.features, contains('beforeSendTransaction'));
+    });
+
+    test('adds beforeSendFeedback feature when configured', () {
+      fixture.getSut(beforeSendFeedback: beforeSendFeedbackCallback);
+      expect(fixture.options.sdk.features, contains('beforeSendFeedback'));
+    });
+
+    test('adds beforeSendLog feature when configured', () {
+      fixture.options.beforeSendLog = (log) => log;
+      SentryClient(fixture.options);
+      expect(fixture.options.sdk.features, contains('beforeSendLog'));
+    });
+
+    test('adds beforeSendMetric feature when configured', () {
+      fixture.options.beforeSendMetric = (metric) => metric;
+      SentryClient(fixture.options);
+      expect(fixture.options.sdk.features, contains('beforeSendMetric'));
+    });
+
+    test('does not add beforeSend features when callbacks are not set', () {
+      fixture.getSut();
+      expect(
+          fixture.options.sdk.features, isNot(contains('beforeSendEvent')));
+      expect(fixture.options.sdk.features,
+          isNot(contains('beforeSendTransaction')));
+      expect(fixture.options.sdk.features,
+          isNot(contains('beforeSendFeedback')));
+      expect(
+          fixture.options.sdk.features, isNot(contains('beforeSendLog')));
+      expect(
+          fixture.options.sdk.features, isNot(contains('beforeSendMetric')));
+    });
+  });
+
   group('SentryClient close', () {
     late Fixture fixture;
 

@@ -81,6 +81,22 @@ class SentryClient {
     if (enableFlutterSpotlight) {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
+    if (options.beforeSend != null) {
+      options.sdk.addFeature('beforeSendEvent');
+    }
+    if (options.beforeSendTransaction != null) {
+      options.sdk.addFeature('beforeSendTransaction');
+    }
+    if (options.beforeSendFeedback != null) {
+      options.sdk.addFeature('beforeSendFeedback');
+    }
+    if (options.beforeSendLog != null) {
+      options.sdk.addFeature('beforeSendLog');
+    }
+    if (options.beforeSendMetric != null) {
+      options.sdk.addFeature('beforeSendMetric');
+    }
+
     return SentryClient._(
       options,
       logCapturePipeline ?? LogCapturePipeline(options),
