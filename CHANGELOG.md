@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Show success message after feedback submission ([#3609](https://github.com/getsentry/sentry-dart/pull/3609))
+
 ## 9.16.0
 
 ### Dependencies
