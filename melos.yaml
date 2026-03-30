@@ -10,6 +10,8 @@ ignore:
 command:
   bootstrap:
     runPubGetInParallel: false
+    hooks:
+      post: git config core.hooksPath .githooks
 
 ide:
   intellij:
@@ -66,10 +68,7 @@ scripts:
       - test:dart
       - test:flutter
 
-  postbootstrap:
-    run: git config core.hooksPath .githooks
-    description: Configure git to use .githooks directory.
+  # Lifecycle script, executed when `melos clean` is run.
+  postclean: >
+    melos exec -c 6 -- "flutter clean"
 
-  postclean:
-    run: melos exec -- flutter clean
-    description: Run flutter clean in all packages.
