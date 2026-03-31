@@ -76,7 +76,6 @@ scripts:
       - test:dart
       - test:flutter
 
-  # Lifecycle script, executed when `melos clean` is run.
-  postclean: >
-    melos exec -- "flutter clean"
+  # Lifecycle script, executed as part of `melos clean`.
+  postclean: melos exec -- "flutter clean"
 
