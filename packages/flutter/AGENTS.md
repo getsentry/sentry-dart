@@ -6,7 +6,7 @@ Flutter SDK with native integrations across all platforms.
 
 `lib/sentry_flutter.dart` is the public barrel file. Changes here affect all downstream packages and users.
 
-- Every new public type must be exported from `lib/sentry.dart`
+- Every new public type must be exported from `lib/sentry_flutter.dart`
 
 ## Native Code
 

@@ -35,13 +35,13 @@ scripts:
       dirExists: lib
 
   format:
-    run: melos exec -- bash -c 'dart format lib $([ -d test ] && echo test)'
+    run: melos exec -- dart format .
     description: Apply formatting to all packages.
     packageFilters:
       dirExists: lib
 
   format:check:
-    run: melos exec --fail-fast -- bash -c 'dart format --set-exit-if-changed lib $([ -d test ] && echo test)'
+    run: melos exec --fail-fast -- dart format --set-exit-if-changed .
     description: Check formatting of all packages.
     packageFilters:
       dirExists: lib
