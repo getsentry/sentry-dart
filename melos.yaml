@@ -22,14 +22,14 @@ ide:
 scripts:
   analyze:dart:
     run: melos exec --fail-fast -- dart analyze --fatal-warnings
-    description: Run dart analyze on Dart-only packages.
+    description: Run dart analyze on all Dart-only packages.
     packageFilters:
       flutter: false
       dirExists: lib
 
   analyze:flutter:
     run: melos exec --fail-fast -- flutter analyze --fatal-warnings
-    description: Run flutter analyze on Flutter packages.
+    description: Run flutter analyze on all Flutter packages.
     packageFilters:
       flutter: true
       dirExists: lib
@@ -37,12 +37,6 @@ scripts:
   format:
     run: melos exec -- dart format .
     description: Apply formatting to all packages.
-    packageFilters:
-      dirExists: lib
-
-  format:check:
-    run: melos exec --fail-fast -- dart format --set-exit-if-changed .
-    description: Check formatting of all packages.
     packageFilters:
       dirExists: lib
 
@@ -59,22 +53,6 @@ scripts:
     packageFilters:
       flutter: true
       dirExists: test
-
-  precommit:
-    description: Run all pre-commit checks.
-    steps:
-      - analyze:dart
-      - analyze:flutter
-      - format
-
-  precommit:full:
-    description: Run all checks including tests.
-    steps:
-      - analyze:dart
-      - analyze:flutter
-      - format:check
-      - test:dart
-      - test:flutter
 
   # Lifecycle script, executed as part of `melos clean`.
   postclean: melos exec -- "flutter clean"
