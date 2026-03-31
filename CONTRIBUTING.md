@@ -57,8 +57,8 @@ Located under `packages/`, we maintain integrations for popular Dart/Flutter lib
 * **sentry_drift** - Integration for [drift](https://pub.dev/packages/drift) database
 * **sentry_hive** - Integration for [hive](https://pub.dev/packages/hive) database
 * **sentry_isar** - Integration for [isar](https://pub.dev/packages/isar) database
-* **sentry_file** - File I/O operations integration
-* **sentry_link** - GraphQL integration via [gql_link](https://pub.dev/packages/gql_link)
+* **sentry_file** - Integration for File I/O operations
+* **sentry_link** - Integration for GraphQL via [gql_link](https://pub.dev/packages/gql_link)
 * **sentry_firebase_remote_config** - Integration
   for [firebase_remote_config](https://pub.dev/packages/firebase_remote_config)
 
@@ -66,12 +66,12 @@ Located under `packages/`, we maintain integrations for popular Dart/Flutter lib
 
 The Flutter SDK supports the following platforms:
 
-* Android
 * iOS
 * macOS
+* Android
+* Web
 * Linux
 * Windows
-* Web
 
 We test the example app on Windows, macOS, and Linux to ensure cross-platform compatibility. CI runs
 against Flutter `stable` and `beta` channels.
@@ -98,8 +98,6 @@ automatically:
 
 Only packages with staged changes are analyzed — no need to wait for the full monorepo.
 
-To run the full suite including tests manually:
+## Code Style
 
-```bash
-melos run precommit:full
-```
+We follow [Effective Dart](https://dart.dev/effective-dart) conventions.
