@@ -91,9 +91,13 @@ Non-changelog types require `#skip-changelog` in PR description. Breaking change
 - **Draft PRs** — use for work-in-progress; convert to ready when seeking review
 - **CI automation** — Danger runs on PR open/sync/edit (shared Dangerfile from `getsentry/github-workflows`)
 
-## Nested AGENTS.md
+## Context-Aware Loading
 
-`packages/dart/` and `packages/flutter/` have their own `AGENTS.md` — additionally use them when working in those packages.
+Use the right AGENTS.md for the area you're working in:
+
+- **Core SDK** (`packages/dart/`) → `packages/dart/AGENTS.md`
+- **Flutter SDK** (`packages/flutter/`) → `packages/flutter/AGENTS.md`
+- **General** → This file for monorepo-wide commands and conventions
 
 ## Skills
 
