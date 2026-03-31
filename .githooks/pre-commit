@@ -1,28 +1,43 @@
 #!/bin/sh
 
-# Get unique package directories from staged files under packages/
-CHANGED_DIRS=$(git diff --cached --name-only | grep '^packages/' | cut -d'/' -f1-2 | sort -u)
+# Find the nearest pubspec.yaml for a file path and print the package name
+resolve_package() {
+  dir=$(dirname "$1")
+  while [ "$dir" != "." ]; do
+    if [ -f "$dir/pubspec.yaml" ]; then
+      grep '^name:' "$dir/pubspec.yaml" | head -1 | sed 's/name: *//'
+      return
+    fi
+    dir=$(dirname "$dir")
+  done
+}
 
-if [ -z "$CHANGED_DIRS" ]; then
+# Resolve each staged file under packages/ to its package name
+STAGED_FILES=$(git diff --cached --name-only | grep '^packages/')
+
+if [ -z "$STAGED_FILES" ]; then
   echo "No package changes staged, skipping pre-commit checks."
   exit 0
 fi
 
-# Resolve directory names to actual package names via pubspec.yaml
-SCOPE=""
 NAMES=""
-for dir in $CHANGED_DIRS; do
-  if [ -f "$dir/pubspec.yaml" ]; then
-    name=$(grep '^name:' "$dir/pubspec.yaml" | head -1 | sed 's/name: *//')
-    SCOPE="$SCOPE --scope=$name"
+for file in $STAGED_FILES; do
+  name=$(resolve_package "$file")
+  if [ -n "$name" ]; then
     NAMES="$NAMES $name"
   fi
 done
+NAMES=$(echo "$NAMES" | tr ' ' '\n' | sort -u | tr '\n' ' ' | sed 's/^ *//;s/ *$//')
 
-if [ -z "$SCOPE" ]; then
+if [ -z "$NAMES" ]; then
   echo "No packages found in staged changes, skipping pre-commit checks."
   exit 0
 fi
+
+SCOPE=""
+for name in $NAMES; do
+  SCOPE="$SCOPE --scope=$name"
+done
 
 # Auto-format staged .dart files and re-stage them
 STAGED_DART=$(git diff --cached --name-only --diff-filter=d -- '*.dart')
