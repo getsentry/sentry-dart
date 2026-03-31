@@ -43,13 +43,6 @@ Run from within the package directory (e.g., `cd packages/dart/`):
 | Fix | `dart fix --apply` | `dart fix --apply` |
 | Web test | — | `flutter test -d chrome path/to/test.dart` |
 
-## Commit Attribution
-
-AI commits MUST include:
-```
-Co-Authored-By: Claude <noreply@anthropic.com>
-```
-
 ## Conventions
 
 - Ask clarifying questions and/or propose a plan before implementation
@@ -70,6 +63,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ## Commits
 
 - **Conventional Commits 1.0.0** — subject max 50 chars, body max 72 chars/line
+- **AI attribution** — AI-generated commits must include a `Co-Authored-By` footer (e.g., `Co-Authored-By: Claude <noreply@anthropic.com>`)
 - **File renames** — always use `git mv`, never `mv` + `git add`
 
 | Type    | Changelog? | Purpose                               |
