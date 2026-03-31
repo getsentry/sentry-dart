@@ -55,5 +55,5 @@ scripts:
       dirExists: test
 
   # Lifecycle script, executed as part of `melos clean`.
-  postclean: melos exec -- "flutter clean"
+  postclean: melos exec --flutter -- "flutter clean"
 
