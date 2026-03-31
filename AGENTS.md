@@ -48,7 +48,6 @@ Run from within the package directory (e.g., `cd packages/dart/`):
 - Ask clarifying questions and/or propose a plan before implementation
 - Write failing tests before implementation; fix regressions with a reproducing test first
 - **NEVER** commit or push code unless explicitly asked
-- Lint rules live in per-package `analysis_options.yaml` — don't duplicate here
 - See `CONTRIBUTING.md` for setup and contribution workflow
 
 ## Command Execution
