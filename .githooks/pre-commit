@@ -1,3 +1,28 @@
 #!/bin/sh
 
-melos run precommit
+# Get unique package names from staged files under packages/
+CHANGED=$(git diff --cached --name-only | grep '^packages/' | cut -d'/' -f2 | sort -u)
+
+if [ -z "$CHANGED" ]; then
+  echo "No package changes staged, skipping pre-commit checks."
+  exit 0
+fi
+
+# Build --scope flags for melos exec
+SCOPE=""
+for pkg in $CHANGED; do
+  SCOPE="$SCOPE --scope=*${pkg}*"
+done
+
+# Auto-format staged .dart files and re-stage them
+STAGED_DART=$(git diff --cached --name-only --diff-filter=d -- '*.dart')
+if [ -n "$STAGED_DART" ]; then
+  echo "Formatting staged .dart files..."
+  dart format $STAGED_DART
+  git add $STAGED_DART
+fi
+
+echo "Running pre-commit checks for changed packages: $CHANGED"
+
+melos exec $SCOPE --fail-fast --no-flutter --dir-exists=lib -- dart analyze --fatal-warnings &&
+melos exec $SCOPE --fail-fast --flutter --dir-exists=lib -- flutter analyze --fatal-warnings
