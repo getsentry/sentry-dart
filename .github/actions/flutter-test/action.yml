@@ -50,9 +50,8 @@ runs:
           testCmd="flutter test --test-randomize-ordering-seed=random"
         fi
 
-        TEST_EXIT=0
         if ${{ (matrix.target == 'linux' && matrix.sdk == 'stable' && 'true') || 'false' }} ; then
-          $testCmd --coverage --reporter json > test-vm.jsonl || TEST_EXIT=$?
+          $testCmd --coverage --reporter json > test-vm.jsonl
           if [[ "$INPUT_DIRECTORY" == 'packages/flutter' ]]; then
             # Remove native binding/bridge files from coverage.
             # These FFI/JNI bindings are currently not unit tested due to limitations of FFI/JNI mocking.
@@ -62,15 +61,16 @@ runs:
             dart run remove_from_coverage -f coverage/lcov.info -r '^lib/src/native/cocoa/.*\.dart$'
           fi
         elif [ "${{ matrix.sdk }}" = "stable" ]; then
-          $testCmd --reporter json > test-vm.jsonl || TEST_EXIT=$?
+          $testCmd --reporter json > test-vm.jsonl
         else
           $testCmd
         fi
 
-        if [ "${{ matrix.sdk }}" = "stable" ] && [ -f test-vm.jsonl ]; then
-          dart pub global run flutter_junitreport:tojunit --input test-vm.jsonl --output TEST-vm-junit.xml
-        fi
-        exit $TEST_EXIT
+    - name: Convert test results to JUnit XML
+      if: ${{ !cancelled() && matrix.sdk == 'stable' && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
+      working-directory: ${{ inputs.directory }}
+      shell: bash
+      run: dart pub global run flutter_junitreport:tojunit --input test-vm.jsonl --output TEST-vm-junit.xml
 
     - name: Test web (${{ matrix.target }})
       if: matrix.target == 'js' || matrix.target == 'wasm'
