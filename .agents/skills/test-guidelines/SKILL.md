@@ -301,6 +301,7 @@ test('sends event', () {
   third-party interface where writing a full fake isn't worth the effort.
 - Use test doubles already defined in the project.
 - When creating a new fake, implement the interface directly and keep it minimal — only the methods the tests actually exercise.
+- Existing mocks are typically found in `mocks.dart` files.
 
 ```dart
 // GOOD: Hand-written fake that captures state
