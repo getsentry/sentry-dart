@@ -35,10 +35,10 @@ runs:
       run: |
         testCmd="dart test -p vm --test-randomize-ordering-seed=random --chain-stack-traces"
         if [ "${{ matrix.sdk }}" = "stable" ]; then
-          $testCmd --coverage=coverage --reporter json > test-vm.jsonl
+          $testCmd --coverage=coverage --file-reporter json:test-vm.jsonl
           dart run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
         else
-          $testCmd --reporter json > test-vm.jsonl
+          $testCmd --file-reporter json:test-vm.jsonl
         fi
 
     - name: Convert test results to JUnit XML
