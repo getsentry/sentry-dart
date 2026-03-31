@@ -90,28 +90,16 @@ The Flutter SDK embeds platform-specific native SDKs:
 ## Pre-commit Hooks
 
 After `melos bootstrap`, git is configured to use `.githooks/` for hooks. The pre-commit hook
-automatically runs static analysis and formatting checks before each commit:
+automatically:
 
-```bash
-melos run precommit
-```
+1. **Auto-formats** staged `.dart` files and re-stages them
+2. **Runs `dart analyze`** on changed Dart-only packages
+3. **Runs `flutter analyze`** on changed Flutter packages
 
-This runs `analyze:dart`, `analyze:flutter`, and `format:check` across all packages.
+Only packages with staged changes are analyzed — no need to wait for the full monorepo.
 
-To run the full suite including tests:
+To run the full suite including tests manually:
 
 ```bash
 melos run precommit:full
 ```
-
-### Available Scripts
-
-| Script | Description |
-|--------|-------------|
-| `melos run analyze:dart` | Run `dart analyze` on Dart-only packages |
-| `melos run analyze:flutter` | Run `flutter analyze` on Flutter packages |
-| `melos run format:check` | Check formatting across all packages |
-| `melos run test:dart` | Run tests for Dart-only packages |
-| `melos run test:flutter` | Run tests for Flutter packages |
-| `melos run precommit` | Run analysis + format checks |
-| `melos run precommit:full` | Run analysis + format checks + tests |

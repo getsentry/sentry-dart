@@ -2,10 +2,6 @@
 
 Core Dart SDK — foundation for all other packages in this monorepo.
 
-## Type
-
-Dart-only package.
-
 ## Public API Surface
 
 `lib/sentry.dart` is the public barrel file. Changes here affect all downstream packages and users.
