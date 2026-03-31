@@ -47,11 +47,12 @@ jobs:
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() && matrix.sdk == 'stable' }}
-        uses: codecov/test-results-action@0fa95f0e1eeaafde2c782583b36b28ad0d8c77d3 # pin@v1.2.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # pin@v5.5.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: logging-tests-${{ runner.os }}-${{ matrix.sdk }}
           flags: logging-${{ matrix.os }}
+          report_type: test_results
           verbose: true
 
   analyze:
