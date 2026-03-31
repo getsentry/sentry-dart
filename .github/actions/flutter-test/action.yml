@@ -32,6 +32,11 @@ runs:
       shell: bash
       working-directory: ${{ inputs.directory }}
 
+    - name: Install flutter_junitreport
+      if: (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') && matrix.sdk == 'stable'
+      shell: bash
+      run: dart pub global activate --source git https://github.com/waffiqaziz/flutter-junitreport.git --git-ref main
+
     - name: Test VM
       if: matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos'
       working-directory: ${{ inputs.directory }}
@@ -46,7 +51,7 @@ runs:
         fi
 
         if ${{ (matrix.target == 'linux' && matrix.sdk == 'stable' && 'true') || 'false' }} ; then
-          $testCmd --coverage
+          $testCmd --coverage --reporter json > test-vm.jsonl
           if [[ "$INPUT_DIRECTORY" == 'packages/flutter' ]]; then
             # Remove native binding/bridge files from coverage.
             # These FFI/JNI bindings are currently not unit tested due to limitations of FFI/JNI mocking.
@@ -55,8 +60,14 @@ runs:
             dart run remove_from_coverage -f coverage/lcov.info -r '^lib/src/native/java/.*\.dart$'
             dart run remove_from_coverage -f coverage/lcov.info -r '^lib/src/native/cocoa/.*\.dart$'
           fi
+        elif [ "${{ matrix.sdk }}" = "stable" ]; then
+          $testCmd --reporter json > test-vm.jsonl
         else
           $testCmd
+        fi
+
+        if [ "${{ matrix.sdk }}" = "stable" ] && [ -f test-vm.jsonl ]; then
+          dart pub global run flutter_junitreport:tojunit --input test-vm.jsonl --output TEST-vm-junit.xml
         fi
 
     - name: Test web (${{ matrix.target }})

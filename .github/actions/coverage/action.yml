@@ -25,6 +25,7 @@ runs:
       if: ${{ inputs.coverage != '' }}
       with:
         name: ${{ inputs.coverage }}
+        flags: ${{ inputs.coverage }}
         files: ./${{ inputs.directory }}/coverage/lcov.info
         fail_ci_if_error: false
         verbose: true

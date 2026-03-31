@@ -12,6 +12,7 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
+      - '.github/actions/test-results/**'
       - 'packages/dart/**'
 
 concurrency:
@@ -51,15 +52,12 @@ jobs:
           coverage: sentry
           min-coverage: 85
 
-      - name: Upload test results to Codecov
+      - uses: ./.github/actions/test-results
         if: ${{ !cancelled() && matrix.sdk == 'stable' }}
-        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # pin@v5.5.2
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: dart-tests-${{ runner.os }}-${{ matrix.sdk }}
-          flags: dart-${{ matrix.os }}
-          report_type: test_results
-          verbose: true
+          name: sentry-${{ runner.os }}
+          flags: sentry
 
       - name: Build example
         working-directory: packages/dart/example

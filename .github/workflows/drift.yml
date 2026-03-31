@@ -12,6 +12,7 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
+      - '.github/actions/test-results/**'
       - 'packages/dart/**'
       - 'packages/drift/**'
 
@@ -60,6 +61,13 @@ jobs:
           directory: packages/drift
           coverage: sentry_drift
           min-coverage: 80
+
+      - uses: ./.github/actions/test-results
+        if: ${{ !cancelled() && matrix.sdk == 'stable' }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: sentry_drift-${{ runner.os }}
+          flags: sentry_drift
 
   analyze:
     uses: ./.github/workflows/analyze.yml

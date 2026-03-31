@@ -6,3 +6,13 @@ coverage:
     patch:
       default:
         informational: true
+
+test_analytics:
+  status: true
+
+flag_management:
+  default_rules:
+    carryforward: true
+    statuses:
+      - type: project
+        target: auto
