@@ -101,7 +101,7 @@ Use the right AGENTS.md for the area you're working in:
 
 ## Skills
 
-- **test-conventions** — Writing or modifying tests
+- **test-guidelines** — Writing or modifying tests
 - **code-guidelines** — Implementing features, refactoring, or reviewing code
 
 ## Maintaining Agent Docs
@@ -109,7 +109,7 @@ Use the right AGENTS.md for the area you're working in:
 When you hit a wall that an instruction would have prevented, a documented command/path is wrong, or a convention has changed — propose an update to the relevant file:
 
 - `AGENTS.md` — commands, environment, package structure, conventions
-- `.agents/skills/test-conventions/SKILL.md` — Writing or modifying tests
+- `.agents/skills/test-guidelines/SKILL.md` — Writing or modifying tests
 - `.agents/skills/code-guidelines/SKILL.md` — Implementing features, refactoring, or reviewing code
 
 Do NOT add task-specific fixes, things discoverable from code, or duplicates of what linters enforce. Always propose changes — do not silently edit these files.

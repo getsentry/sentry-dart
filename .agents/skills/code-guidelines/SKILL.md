@@ -7,7 +7,7 @@ Apply these guidelines to all new and modified code across every package in this
 
 Use only language features available in the Dart/Flutter versions specified in `AGENTS.md`.
 
-When writing or modifying tests as part of implementation, also load the **test-conventions** skill.
+When writing or modifying tests as part of implementation, also load the **test-guidelines** skill.
 
 ## SDK Development Rules
 
