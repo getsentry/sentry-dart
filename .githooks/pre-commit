@@ -1,18 +1,28 @@
 #!/bin/sh
 
-# Get unique package names from staged files under packages/
-CHANGED=$(git diff --cached --name-only | grep '^packages/' | cut -d'/' -f2 | sort -u)
+# Get unique package directories from staged files under packages/
+CHANGED_DIRS=$(git diff --cached --name-only | grep '^packages/' | cut -d'/' -f1-2 | sort -u)
 
-if [ -z "$CHANGED" ]; then
+if [ -z "$CHANGED_DIRS" ]; then
   echo "No package changes staged, skipping pre-commit checks."
   exit 0
 fi
 
-# Build --scope flags for melos exec
+# Resolve directory names to actual package names via pubspec.yaml
 SCOPE=""
-for pkg in $CHANGED; do
-  SCOPE="$SCOPE --scope=*${pkg}*"
+NAMES=""
+for dir in $CHANGED_DIRS; do
+  if [ -f "$dir/pubspec.yaml" ]; then
+    name=$(grep '^name:' "$dir/pubspec.yaml" | head -1 | sed 's/name: *//')
+    SCOPE="$SCOPE --scope=$name"
+    NAMES="$NAMES $name"
+  fi
 done
+
+if [ -z "$SCOPE" ]; then
+  echo "No packages found in staged changes, skipping pre-commit checks."
+  exit 0
+fi
 
 # Auto-format staged .dart files and re-stage them
 STAGED_DART=$(git diff --cached --name-only --diff-filter=d -- '*.dart')
@@ -22,7 +32,7 @@ if [ -n "$STAGED_DART" ]; then
   git add $STAGED_DART
 fi
 
-echo "Running pre-commit checks for changed packages: $CHANGED"
+echo "Running pre-commit checks for:$NAMES"
 
 melos exec $SCOPE --fail-fast --no-flutter --dir-exists=lib -- dart analyze --fatal-warnings &&
 melos exec $SCOPE --fail-fast --flutter --dir-exists=lib -- flutter analyze --fatal-warnings
