@@ -149,3 +149,9 @@ Always use `defaultTestOptions()` from `test_utils.dart` to create options — n
 
 - Keep tests deterministic. No reliance on real clocks, network, or filesystem unless writing an integration test.
 - Do not duplicate test utilities. If you need test utilities across different packages then add them to `packages/_sentry_testing`
+
+## Integration / E2E Tests
+
+- Integration tests live in `packages/flutter/example/integration_test`.
+- JNI and FFI bindings cannot be mocked or faked — integration tests are required when working with native interop.
+- Prefer integration tests for any behavior that depends on native platform APIs.
