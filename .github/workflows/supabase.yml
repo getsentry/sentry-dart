@@ -41,14 +41,19 @@ jobs:
           directory: packages/supabase
           web: false
 
-#       TODO: don't set coverage for now to finish publishing it
-#      - uses: ./.github/actions/coverage
-#        if: runner.os == 'Linux' && matrix.sdk == 'stable'
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          directory: packages/supabase
-#          coverage: sentry_supabase
-#          min-coverage: 55
+      - uses: ./.github/actions/coverage
+        if: runner.os == 'Linux' && matrix.sdk == 'stable'
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: packages/supabase
+          coverage: sentry_supabase
+          min-coverage: 55
+
+      - uses: ./.github/actions/test-results
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: sentry_supabase-${{ runner.os }}-${{ matrix.sdk }}
 
   analyze:
     uses: ./.github/workflows/analyze.yml
