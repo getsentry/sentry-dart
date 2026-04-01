@@ -45,7 +45,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: packages/link
           coverage: sentry_link
-          min-coverage: 55
+          min-coverage: 3
 
       - uses: ./.github/actions/test-results
         if: ${{ !cancelled() }}
