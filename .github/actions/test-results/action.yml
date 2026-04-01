@@ -4,11 +4,8 @@ inputs:
   token:
     description: Codecov token
     required: true
-  name:
-    description: Display name for the upload
-    required: true
   flags:
-    description: Codecov flag name (typically the package name)
+    description: Codecov flag name (e.g. sentry_dio-Linux-stable)
     required: true
 
 runs:
@@ -18,7 +15,6 @@ runs:
     - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # pin@v5.5.2
       with:
         token: ${{ inputs.token }}
-        name: ${{ inputs.name }}
         flags: ${{ inputs.flags }}
         report_type: test_results
         fail_ci_if_error: false

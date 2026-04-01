@@ -51,8 +51,7 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: sentry_hive-${{ runner.os }}-${{ matrix.sdk }}
-          flags: sentry_hive
+          flags: sentry_hive-${{ runner.os }}-${{ matrix.sdk }}
 
   analyze:
     uses: ./.github/workflows/analyze.yml

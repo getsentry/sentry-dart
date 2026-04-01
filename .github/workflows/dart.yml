@@ -56,8 +56,7 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: sentry-${{ runner.os }}-${{ matrix.sdk }}
-          flags: sentry
+          flags: sentry-${{ runner.os }}-${{ matrix.sdk }}
 
       - name: Build example
         working-directory: packages/dart/example

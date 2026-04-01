@@ -50,8 +50,7 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: sentry_isar-${{ matrix.target }}-${{ matrix.sdk }}
-          flags: sentry_isar
+          flags: sentry_isar-${{ matrix.target }}-${{ matrix.sdk }}
 
   analyze:
     uses: ./.github/workflows/analyze.yml
