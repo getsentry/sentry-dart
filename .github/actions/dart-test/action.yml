@@ -23,6 +23,7 @@ runs:
       working-directory: ${{ inputs.directory }}
 
     - name: Install flutter_junitreport
+      if: ${{ !startsWith(matrix.sdk, '3.5') }}
       shell: bash
       run: dart pub global activate --source git https://github.com/waffiqaziz/flutter-junitreport.git --git-ref main
 
@@ -39,7 +40,7 @@ runs:
         fi
 
     - name: Convert test results to JUnit XML
-      if: ${{ !cancelled() }}
+      if: ${{ !cancelled() && !startsWith(matrix.sdk, '3.5') }}
       working-directory: ${{ inputs.directory }}
       shell: bash
       run: dart pub global run flutter_junitreport:tojunit --input test-vm.jsonl --output TEST-vm-junit.xml
