@@ -12,6 +12,7 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
+      - '.github/actions/test-results/**'
       - 'packages/dart/**'
       - 'packages/flutter/**'
       - 'packages/firebase_remote_config/**'

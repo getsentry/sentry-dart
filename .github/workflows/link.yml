@@ -12,6 +12,7 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
+      - '.github/actions/test-results/**'
       - 'packages/dart/**'
       - 'packages/link/**'
 
@@ -46,6 +47,12 @@ jobs:
   #          directory: link
   #          coverage: sentry_link
   #          min-coverage: 55
+
+      - uses: ./.github/actions/test-results
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: sentry_link-${{ runner.os }}-${{ matrix.sdk }}
 
   analyze:
     uses: ./.github/workflows/analyze.yml
