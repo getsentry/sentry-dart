@@ -49,7 +49,7 @@ jobs:
   #          min-coverage: 55
 
       - uses: ./.github/actions/test-results
-        if: ${{ !cancelled() && matrix.sdk == 'stable' }}
+        if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: sentry_link-${{ runner.os }}

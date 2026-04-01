@@ -33,7 +33,7 @@ runs:
       working-directory: ${{ inputs.directory }}
 
     - name: Install flutter_junitreport
-      if: (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') && matrix.sdk == 'stable'
+      if: matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos'
       shell: bash
       run: dart pub global activate --source git https://github.com/waffiqaziz/flutter-junitreport.git --git-ref main
 
@@ -60,14 +60,12 @@ runs:
             dart run remove_from_coverage -f coverage/lcov.info -r '^lib/src/native/java/.*\.dart$'
             dart run remove_from_coverage -f coverage/lcov.info -r '^lib/src/native/cocoa/.*\.dart$'
           fi
-        elif [ "${{ matrix.sdk }}" = "stable" ]; then
-          $testCmd --file-reporter json:test-vm.jsonl
         else
-          $testCmd
+          $testCmd --file-reporter json:test-vm.jsonl
         fi
 
     - name: Convert test results to JUnit XML
-      if: ${{ !cancelled() && matrix.sdk == 'stable' && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
+      if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
       working-directory: ${{ inputs.directory }}
       shell: bash
       run: dart pub global run flutter_junitreport:tojunit --input test-vm.jsonl --output TEST-vm-junit.xml

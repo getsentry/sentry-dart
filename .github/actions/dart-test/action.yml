@@ -24,10 +24,7 @@ runs:
 
     - name: Install flutter_junitreport
       shell: bash
-      run: |
-        if [[ "${{ matrix.sdk }}" != 3.5* ]]; then
-          dart pub global activate --source git https://github.com/waffiqaziz/flutter-junitreport.git --git-ref main
-        fi
+      run: dart pub global activate --source git https://github.com/waffiqaziz/flutter-junitreport.git --git-ref main
 
     - name: Test VM
       working-directory: ${{ inputs.directory }}
@@ -42,7 +39,7 @@ runs:
         fi
 
     - name: Convert test results to JUnit XML
-      if: ${{ !cancelled() && matrix.sdk != '3.5' }}
+      if: ${{ !cancelled() }}
       working-directory: ${{ inputs.directory }}
       shell: bash
       run: dart pub global run flutter_junitreport:tojunit --input test-vm.jsonl --output TEST-vm-junit.xml

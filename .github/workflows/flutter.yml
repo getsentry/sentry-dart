@@ -65,7 +65,7 @@ jobs:
           min-coverage: 85
 
       - uses: ./.github/actions/test-results
-        if: ${{ !cancelled() && matrix.sdk == 'stable' && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
+        if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: sentry_flutter-${{ matrix.target }}
