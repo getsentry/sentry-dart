@@ -52,7 +52,7 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: sentry_link-${{ runner.os }}
+          name: sentry_link-${{ runner.os }}-${{ matrix.sdk }}
           flags: sentry_link
 
   analyze:

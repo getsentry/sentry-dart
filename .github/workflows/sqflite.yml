@@ -54,7 +54,7 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: sentry_sqflite-${{ matrix.target }}
+          name: sentry_sqflite-${{ matrix.target }}-${{ matrix.sdk }}
           flags: sentry_sqflite
 
   analyze:

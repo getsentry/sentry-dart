@@ -56,7 +56,7 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: sentry-${{ runner.os }}
+          name: sentry-${{ runner.os }}-${{ matrix.sdk }}
           flags: sentry
 
       - name: Build example

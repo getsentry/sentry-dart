@@ -68,7 +68,7 @@ jobs:
         if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: sentry_flutter-${{ matrix.target }}
+          name: sentry_flutter-${{ matrix.target }}-${{ matrix.sdk }}
           flags: sentry_flutter
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656

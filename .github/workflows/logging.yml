@@ -50,7 +50,7 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: sentry_logging-${{ runner.os }}
+          name: sentry_logging-${{ runner.os }}-${{ matrix.sdk }}
           flags: sentry_logging
 
   analyze:

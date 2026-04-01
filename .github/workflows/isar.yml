@@ -50,7 +50,7 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: sentry_isar-${{ matrix.target }}
+          name: sentry_isar-${{ matrix.target }}-${{ matrix.sdk }}
           flags: sentry_isar
 
   analyze:
