@@ -1,8 +1,13 @@
-# Dart/Flutter Code Guidelines
+---
+name: code-guidelines
+description: Enforce Sentry Dart/Flutter SDK code guidelines for implementation, refactoring, and review. Use when implementing features, adding new functionality, refactoring code, reviewing code, designing APIs, modifying public API surface, handling breaking changes, deprecating APIs, writing integrations, or making architecture decisions in any package in this Melos monorepo.
+---
 
-> **Note:** Existing code may not follow these conventions. New and modified code should adhere to these guidelines.
+Apply these guidelines to all new and modified code across every package in this monorepo. Existing code may not follow these conventions — do not refactor it unless asked.
 
 Use only language features available in the Dart/Flutter versions specified in `AGENTS.md`.
+
+When writing or modifying tests as part of implementation, also load the **test-guidelines** skill.
 
 ## SDK Development Rules
 
@@ -15,6 +20,39 @@ Encapsulate SDK features as `Integration` classes that implement `call()` and `c
 - Clean up resources in `close()` if needed
 - See `packages/flutter/lib/src/integrations/` for examples
 - Integrations should be order-independent; if yours requires running before/after another, reconsider the design
+
+### Logging
+
+Use `internalLogger` for all diagnostic logging. `options.log` is deprecated — migrate any `options.log` calls you encounter to `internalLogger`.
+
+Each package must have its own `internalLogger` instance. If one doesn't exist, create `lib/src/internal_logger.dart`:
+
+```dart
+import 'package:meta/meta.dart';
+import 'package:sentry/sentry.dart';
+
+/// Logger for the Sentry <Package> SDK.
+@internal
+const internalLogger = SentryInternalLogger('sentry_<package>');
+```
+
+**Log levels:**
+
+| Level | Use for |
+|-------|---------|
+| `debug` | Routine lifecycle events, configuration confirmations, verbose tracing |
+| `info` | Notable but expected events (parsing results, fallback paths taken) |
+| `warning` | Recoverable problems (rate limits hit, missing optional config, degraded functionality) |
+| `error` | Failures that affect SDK behavior (transport errors, parsing failures) |
+| `fatal` | Unrecoverable errors requiring SDK shutdown |
+
+**Lazy evaluation** — use a closure when the message involves expensive computation:
+
+```dart
+internalLogger.debug(() => 'Envelope size: ${envelope.computeSize()}');
+```
+
+**Logs are debug-only** — all logging is tree-shaken in release builds via `RuntimeChecker.kDebugMode`.
 
 ### Privacy
 
