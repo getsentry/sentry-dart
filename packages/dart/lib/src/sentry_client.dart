@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import 'client_reports/client_report_recorder.dart';
+import 'constants.dart';
 import 'client_reports/discard_reason.dart';
 import 'event_processor/run_event_processors.dart';
 import 'hint.dart';
@@ -82,19 +83,19 @@ class SentryClient {
       options.transport = SpotlightHttpTransport(options, options.transport);
     }
     if (options.beforeSend != null) {
-      options.sdk.addFeature('beforeSendEvent');
+      options.sdk.addFeature(SentryFeatures.beforeSendEvent);
     }
     if (options.beforeSendTransaction != null) {
-      options.sdk.addFeature('beforeSendTransaction');
+      options.sdk.addFeature(SentryFeatures.beforeSendTransaction);
     }
     if (options.beforeSendFeedback != null) {
-      options.sdk.addFeature('beforeSendFeedback');
+      options.sdk.addFeature(SentryFeatures.beforeSendFeedback);
     }
     if (options.beforeSendLog != null) {
-      options.sdk.addFeature('beforeSendLog');
+      options.sdk.addFeature(SentryFeatures.beforeSendLog);
     }
     if (options.beforeSendMetric != null) {
-      options.sdk.addFeature('beforeSendMetric');
+      options.sdk.addFeature(SentryFeatures.beforeSendMetric);
     }
 
     return SentryClient._(
