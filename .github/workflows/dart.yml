@@ -12,6 +12,7 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
+      - '.github/actions/test-results/**'
       - 'packages/dart/**'
 
 concurrency:
@@ -50,6 +51,12 @@ jobs:
           directory: packages/dart
           coverage: sentry
           min-coverage: 85
+
+      - uses: ./.github/actions/test-results
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: sentry-${{ runner.os }}-${{ matrix.sdk }}
 
       - name: Build example
         working-directory: packages/dart/example

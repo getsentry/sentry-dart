@@ -7,31 +7,36 @@ you get started.
 
 ### Required Tools
 
-* **Dart SDK** - Required for all packages
-* **Flutter SDK** - Required for `sentry-flutter` and Flutter integrations
+* **Dart SDK** `>=3.5.0` - Required for all packages
+* **Flutter SDK** `>=3.24.0` - Required for `sentry-flutter` and Flutter integrations
+* **[fvm](https://fvm.app/)** - For Flutter/Dart version management
 * **[melos](https://melos.invertase.dev/)** - For managing the monorepo
 
 ## Environment Setup
 
-### 1. Install melos
+### 1. Install fvm and melos
 
 ```bash
+dart pub global activate fvm
 dart pub global activate melos
 ```
 
-### 2. Bootstrap the project
+### 2. Install the Flutter SDK via fvm
 
-At the repository root, run:
+```bash
+fvm use stable
+```
+
+This reads `.fvmrc` and installs the pinned Flutter version. It also creates a `.fvm/flutter_sdk`
+symlink that melos uses to resolve `dart`/`flutter` commands (via `sdkPath` in `melos.yaml`).
+
+### 3. Bootstrap the project
 
 ```bash
 melos bootstrap
 ```
 
-If you're using [fvm](https://fvm.app/), specify the SDK path:
-
-```bash
-melos bootstrap --sdk-path=/Users/user/fvm/default/
-```
+This resolves all package dependencies and configures git hooks for pre-commit checks.
 
 ## Project Structure
 
@@ -52,8 +57,8 @@ Located under `packages/`, we maintain integrations for popular Dart/Flutter lib
 * **sentry_drift** - Integration for [drift](https://pub.dev/packages/drift) database
 * **sentry_hive** - Integration for [hive](https://pub.dev/packages/hive) database
 * **sentry_isar** - Integration for [isar](https://pub.dev/packages/isar) database
-* **sentry_file** - File I/O operations integration
-* **sentry_link** - GraphQL integration via [gql_link](https://pub.dev/packages/gql_link)
+* **sentry_file** - Integration for File I/O operations
+* **sentry_link** - Integration for GraphQL via [gql_link](https://pub.dev/packages/gql_link)
 * **sentry_firebase_remote_config** - Integration
   for [firebase_remote_config](https://pub.dev/packages/firebase_remote_config)
 
@@ -61,12 +66,12 @@ Located under `packages/`, we maintain integrations for popular Dart/Flutter lib
 
 The Flutter SDK supports the following platforms:
 
-* Android
 * iOS
 * macOS
+* Android
+* Web
 * Linux
 * Windows
-* Web
 
 We test the example app on Windows, macOS, and Linux to ensure cross-platform compatibility. CI runs
 against Flutter `stable` and `beta` channels.
@@ -82,18 +87,17 @@ The Flutter SDK embeds platform-specific native SDKs:
   `packages/flutter/sentry-native/`)
 * **Web**: [sentry-javascript](https://github.com/getsentry/sentry-javascript) (loaded via CDN)
 
-[//]: # (TODO: buenaflor - properly set up precommit hooks)
-[//]: # (### Static Code Analysis, Tests, Formatting, Pub Score and Dry publish)
+## Pre-commit Hooks
 
-[//]: # ()
-[//]: # (* Dart/Flutter)
+After `melos bootstrap`, git is configured to use `.githooks/` for hooks. The pre-commit hook
+automatically:
 
-[//]: # (  * Execute `./tool/presubmit.sh` within the `dart` and `flutter` folders)
+1. **Auto-formats** staged `.dart` files and re-stages them
+2. **Runs `dart analyze`** on changed Dart-only packages
+3. **Runs `flutter analyze`** on changed Flutter packages
 
-[//]: # (* Swift/CocoaPods)
+Only packages with staged changes are analyzed — no need to wait for the full monorepo.
 
-[//]: # (  * Use `swiftlint` and `pod lib lint`)
+## Code Style
 
-[//]: # (* Kotlin)
-
-[//]: # (  * Use `ktlint` and `detekt`)
+We follow [Effective Dart](https://dart.dev/effective-dart) conventions.
