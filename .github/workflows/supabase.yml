@@ -46,7 +46,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: packages/supabase
           coverage: sentry_supabase
-          min-coverage: 55
+          min-coverage: 85
 
       - uses: ./.github/actions/test-results
         if: ${{ !cancelled() }}
