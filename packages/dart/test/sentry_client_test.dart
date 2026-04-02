@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
-import 'package:sentry/src/constants.dart';
 import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
 import 'package:sentry/src/event_processor/exception/exception_group_event_processor.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
