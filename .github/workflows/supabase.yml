@@ -24,13 +24,13 @@ concurrency:
 
 jobs:
   build:
-    name: '${{ matrix.os }} | ${{ matrix.sdk }}'
-    runs-on: ${{ matrix.os }}-latest
+    name: '${{ matrix.target }} | ${{ matrix.sdk }}'
+    runs-on: ${{ matrix.target == 'linux' && 'ubuntu' || matrix.target }}-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        os: [macos, ubuntu, windows]
+        target: [macos, linux, windows]
         sdk: [stable, beta]
 
     steps:
@@ -39,16 +39,20 @@ jobs:
       - uses: ./.github/actions/flutter-test
         with:
           directory: packages/supabase
-          web: false
 
-#       TODO: don't set coverage for now to finish publishing it
-#      - uses: ./.github/actions/coverage
-#        if: runner.os == 'Linux' && matrix.sdk == 'stable'
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          directory: packages/supabase
-#          coverage: sentry_supabase
-#          min-coverage: 55
+      - uses: ./.github/actions/coverage
+        if: matrix.target == 'linux' && matrix.sdk == 'stable'
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: packages/supabase
+          coverage: sentry_supabase
+          min-coverage: 85
+
+      - uses: ./.github/actions/test-results
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: sentry_supabase-${{ matrix.target }}-${{ matrix.sdk }}
 
   analyze:
     uses: ./.github/workflows/analyze.yml
