@@ -45,7 +45,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: packages/firebase_remote_config
           coverage: sentry_firebase_remote_config
-          min-coverage: 55
+          min-coverage: 85
 
       - uses: ./.github/actions/test-results
         if: ${{ !cancelled() }}
