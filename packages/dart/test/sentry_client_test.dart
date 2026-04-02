@@ -2418,8 +2418,8 @@ void main() {
     test('adds beforeSendLog feature when configured', () {
       fixture.options.beforeSendLog = (log) => log;
       SentryClient(fixture.options);
-      expect(fixture.options.sdk.features,
-          contains(SentryFeatures.beforeSendLog));
+      expect(
+          fixture.options.sdk.features, contains(SentryFeatures.beforeSendLog));
     });
 
     test('adds beforeSendMetric feature when configured', () {
