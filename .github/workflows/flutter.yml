@@ -10,6 +10,7 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/flutter-test/**'
       - '.github/actions/coverage/**'
+      - '.github/actions/test-results/**'
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - 'packages/dart/**'
@@ -62,6 +63,12 @@ jobs:
           directory: packages/flutter
           coverage: sentry_flutter
           min-coverage: 85
+
+      - uses: ./.github/actions/test-results
+        if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: sentry_flutter-${{ matrix.target }}-${{ matrix.sdk }}
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5

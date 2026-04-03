@@ -1,0 +1,101 @@
+version = 1
+gitignore = false
+agents = ["claude", "cursor"]
+
+[trust]
+github_repos = [ "getsentry/skills", "getsentry/sdk-skills", "getsentry/dotagents" ]
+
+
+[[skills]]
+name = "dotagents"
+source = "getsentry/dotagents"
+
+# getsentry/skills — core development
+[[skills]]
+name = "commit"
+source = "getsentry/skills"
+
+[[skills]]
+name = "pr-writer"
+source = "getsentry/skills"
+
+[[skills]]
+name = "create-pr"
+source = "getsentry/skills"
+
+[[skills]]
+name = "create-branch"
+source = "getsentry/skills"
+
+[[skills]]
+name = "iterate-pr"
+source = "getsentry/skills"
+
+[[skills]]
+name = "code-review"
+source = "getsentry/skills"
+
+[[skills]]
+name = "code-simplifier"
+source = "getsentry/skills"
+
+[[skills]]
+name = "find-bugs"
+source = "getsentry/skills"
+
+[[skills]]
+name = "agents-md"
+source = "getsentry/skills"
+
+[[skills]]
+name = "skill-writer"
+source = "getsentry/skills"
+
+[[skills]]
+name = "skill-creator"
+source = "getsentry/skills"
+
+[[skills]]
+name = "skill-scanner"
+source = "getsentry/skills"
+
+[[skills]]
+name = "claude-settings-audit"
+source = "getsentry/skills"
+
+[[skills]]
+name = "security-review"
+source = "getsentry/skills"
+
+[[skills]]
+name = "gha-security-review"
+source = "getsentry/skills"
+
+[[skills]]
+name = "gh-review-requests"
+source = "getsentry/skills"
+
+# getsentry/sdk-skills — SDK-specific
+[[skills]]
+name = "sdk-feature-implementation"
+source = "getsentry/sdk-skills"
+
+[[skills]]
+name = "span-convention-review"
+source = "getsentry/sdk-skills"
+
+[[skills]]
+name = "linear-initiative"
+source = "getsentry/sdk-skills"
+
+[[skills]]
+name = "linear-type-labeler"
+source = "getsentry/sdk-skills"
+
+[[skills]]
+name = "linear-sdk-telemetry-labeler"
+source = "getsentry/sdk-skills"
+
+[[skills]]
+name = "contributing-md"
+source = "getsentry/sdk-skills"
