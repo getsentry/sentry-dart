@@ -22,17 +22,28 @@ runs:
       shell: bash
       working-directory: ${{ inputs.directory }}
 
+    - name: Install flutter_junitreport
+      if: ${{ !startsWith(matrix.sdk, '3.5') }}
+      shell: bash
+      run: dart pub global activate --source git https://github.com/waffiqaziz/flutter-junitreport.git --git-ref main
+
     - name: Test VM
       working-directory: ${{ inputs.directory }}
       shell: bash
       run: |
         testCmd="dart test -p vm --test-randomize-ordering-seed=random --chain-stack-traces"
-        if ${{ (matrix.os == 'ubuntu' && matrix.sdk == 'stable' && 'true') || 'false' }} ; then
-          $testCmd --coverage=coverage
+        if [ "${{ matrix.sdk }}" = "stable" ]; then
+          $testCmd --coverage=coverage --file-reporter json:test-vm.jsonl
           dart run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
         else
-          $testCmd
+          $testCmd --file-reporter json:test-vm.jsonl
         fi
+
+    - name: Convert test results to JUnit XML
+      if: ${{ !cancelled() && !startsWith(matrix.sdk, '3.5') }}
+      working-directory: ${{ inputs.directory }}
+      shell: bash
+      run: dart pub global run flutter_junitreport:tojunit --input test-vm.jsonl --output TEST-vm-junit.xml
 
     - name: Test dart2js
       if: ${{ inputs.web == 'true' }}
