@@ -37,6 +37,12 @@ extension LogRecordX on LogRecord {
   }
 }
 
+extension SentryLoggingHint on Hint {
+  /// The original [LogRecord] from the `logging` package, if this
+  /// log originated from [LoggingIntegration].
+  LogRecord? get logRecord => get(TypeCheckHint.record) as LogRecord?;
+}
+
 extension LogLevelX on Level {
   SentryLevel? toSentryLevel() {
     return <Level, SentryLevel?>{

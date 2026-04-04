@@ -108,25 +108,32 @@ class LoggingIntegration implements Integration<SentryOptions> {
         'sentry.origin': SentryAttribute.string(origin),
       };
 
+      final hint = Hint.withMap({TypeCheckHint.record: record});
+
       // Map log levels based on value ranges
       final levelValue = record.level.value;
       if (levelValue >= Level.SEVERE.value) {
         // >= 1000 → error
-        await _options.logger.error(record.message, attributes: attributes);
+        await _options.logger
+            .error(record.message, attributes: attributes, hint: hint);
       } else if (levelValue >= Level.WARNING.value) {
         // >= 900 → warn
-        await _options.logger.warn(record.message, attributes: attributes);
+        await _options.logger
+            .warn(record.message, attributes: attributes, hint: hint);
       } else if (levelValue >= Level.INFO.value) {
         // >= 800 → info
-        await _options.logger.info(record.message, attributes: attributes);
+        await _options.logger
+            .info(record.message, attributes: attributes, hint: hint);
       } else if (levelValue >= Level.CONFIG.value ||
           levelValue == Level.FINE.value ||
           levelValue == Level.ALL.value) {
         // >= 700 || 500 || 0 → debug
-        await _options.logger.debug(record.message, attributes: attributes);
+        await _options.logger
+            .debug(record.message, attributes: attributes, hint: hint);
       } else {
         // < 700 → trace
-        await _options.logger.trace(record.message, attributes: attributes);
+        await _options.logger
+            .trace(record.message, attributes: attributes, hint: hint);
       }
     }
   }

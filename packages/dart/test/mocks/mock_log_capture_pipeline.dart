@@ -13,7 +13,7 @@ class MockLogCapturePipeline extends LogCapturePipeline {
   int get callCount => captureLogCalls.length;
 
   @override
-  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {
-    captureLogCalls.add(CaptureLogCall(log, scope));
+  FutureOr<void> captureLog(SentryLog log, {Scope? scope, Hint? hint}) async {
+    captureLogCalls.add(CaptureLogCall(log, scope, hint));
   }
 }

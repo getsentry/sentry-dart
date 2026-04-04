@@ -14,7 +14,7 @@ class LogCapturePipeline {
 
   LogCapturePipeline(this._options);
 
-  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {
+  FutureOr<void> captureLog(SentryLog log, {Scope? scope, Hint? hint}) async {
     if (!_options.enableLogs) {
       internalLogger
           .debug('$LogCapturePipeline: Logs disabled, dropping ${log.body}');
@@ -40,7 +40,7 @@ class LogCapturePipeline {
       SentryLog? processedLog = log;
       if (beforeSendLog != null) {
         try {
-          final callbackResult = beforeSendLog(log);
+          final callbackResult = beforeSendLog(log, hint ?? Hint());
 
           if (callbackResult is Future<SentryLog?>) {
             processedLog = await callbackResult;

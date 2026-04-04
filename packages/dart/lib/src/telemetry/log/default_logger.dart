@@ -4,7 +4,8 @@ import '../../../sentry.dart';
 import '../../sentry_template_string.dart';
 import '../../utils/internal_logger.dart';
 
-typedef CaptureLogCallback = FutureOr<void> Function(SentryLog log);
+typedef CaptureLogCallback = FutureOr<void> Function(SentryLog log,
+    {Hint? hint});
 typedef ScopeProvider = Scope Function();
 
 final class DefaultSentryLogger implements SentryLogger {
@@ -27,48 +28,60 @@ final class DefaultSentryLogger implements SentryLogger {
   FutureOr<void> trace(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
-    return _captureLog(SentryLogLevel.trace, body, attributes: attributes);
+    return _captureLog(SentryLogLevel.trace, body,
+        attributes: attributes, hint: hint);
   }
 
   @override
   FutureOr<void> debug(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
-    return _captureLog(SentryLogLevel.debug, body, attributes: attributes);
+    return _captureLog(SentryLogLevel.debug, body,
+        attributes: attributes, hint: hint);
   }
 
   @override
   FutureOr<void> info(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
-    return _captureLog(SentryLogLevel.info, body, attributes: attributes);
+    return _captureLog(SentryLogLevel.info, body,
+        attributes: attributes, hint: hint);
   }
 
   @override
   FutureOr<void> warn(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
-    return _captureLog(SentryLogLevel.warn, body, attributes: attributes);
+    return _captureLog(SentryLogLevel.warn, body,
+        attributes: attributes, hint: hint);
   }
 
   @override
   FutureOr<void> error(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
-    return _captureLog(SentryLogLevel.error, body, attributes: attributes);
+    return _captureLog(SentryLogLevel.error, body,
+        attributes: attributes, hint: hint);
   }
 
   @override
   FutureOr<void> fatal(
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
-    return _captureLog(SentryLogLevel.fatal, body, attributes: attributes);
+    return _captureLog(SentryLogLevel.fatal, body,
+        attributes: attributes, hint: hint);
   }
 
   @override
@@ -80,6 +93,7 @@ final class DefaultSentryLogger implements SentryLogger {
     SentryLogLevel level,
     String body, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
     internalLogger.debug(() =>
         'Sentry.logger.${level.value}("$body") called with attributes ${_formatAttributes(attributes)}');
@@ -93,7 +107,7 @@ final class DefaultSentryLogger implements SentryLogger {
       attributes: attributes ?? {},
     );
 
-    return _captureLogCallback(log);
+    return _captureLogCallback(log, hint: hint);
   }
 
   String _formatAttributes(Map<String, SentryAttribute>? attributes) {
@@ -112,13 +126,15 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
     return _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.trace(formattedBody, attributes: allAttributes);
+        return _logger.trace(formattedBody,
+            attributes: allAttributes, hint: hint);
       },
     );
   }
@@ -128,13 +144,15 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
     return _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.debug(formattedBody, attributes: allAttributes);
+        return _logger.debug(formattedBody,
+            attributes: allAttributes, hint: hint);
       },
     );
   }
@@ -144,13 +162,15 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
     return _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.info(formattedBody, attributes: allAttributes);
+        return _logger.info(formattedBody,
+            attributes: allAttributes, hint: hint);
       },
     );
   }
@@ -160,13 +180,15 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
     return _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.warn(formattedBody, attributes: allAttributes);
+        return _logger.warn(formattedBody,
+            attributes: allAttributes, hint: hint);
       },
     );
   }
@@ -176,13 +198,15 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
     return _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.error(formattedBody, attributes: allAttributes);
+        return _logger.error(formattedBody,
+            attributes: allAttributes, hint: hint);
       },
     );
   }
@@ -192,13 +216,15 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
+    Hint? hint,
   }) {
     return _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.fatal(formattedBody, attributes: allAttributes);
+        return _logger.fatal(formattedBody,
+            attributes: allAttributes, hint: hint);
       },
     );
   }
