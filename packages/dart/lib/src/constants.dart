@@ -94,19 +94,24 @@ abstract class SemanticAttributesConstants {
       'sentry._internal.replay_is_buffering';
 
   /// Internal build identifier, as it appears on the platform.
-  static const appBuild = 'app.build';
+  // TODO: deprecated, needs to be replaced later by app.build
+  static const appAppBuild = 'app.app_build';
 
   /// Version-independent application identifier, often a dotted bundle ID.
-  static const appIdentifier = 'app.identifier';
+  // TODO: deprecated, needs to be replaced later by app.identifier
+  static const appAppIdentifier = 'app.app_identifier';
 
   /// Human readable application name, as it appears on the platform.
-  static const appName = 'app.name';
+  // TODO: deprecated, needs to be replaced later by app.name
+  static const appAppName = 'app.app_name';
 
   /// Formatted UTC timestamp when the user started the application.
-  static const appStartTime = 'app.start_time';
+  // TODO: deprecated, needs to be replaced later by app.start_time
+  static const appAppStartTime = 'app.app_start_time';
 
   /// Human readable application version, as it appears on the platform.
-  static const appVersion = 'app.version';
+  // TODO: deprecated, needs to be replaced later by app.version
+  static const appAppVersion = 'app.app_version';
 
   /// Whether the application is currently in the foreground.
   static const appInForeground = 'app.in_foreground';
@@ -121,23 +126,6 @@ abstract class SemanticAttributesConstants {
 
   /// The names of the active views or fragments in the application.
   static const appViewNames = 'app.view_names';
-
-  // Deprecated app attributes - use the non-prefixed versions above.
-
-  /// Deprecated: use [appBuild] instead.
-  static const appAppBuild = 'app.app_build';
-
-  /// Deprecated: use [appIdentifier] instead.
-  static const appAppIdentifier = 'app.app_identifier';
-
-  /// Deprecated: use [appName] instead.
-  static const appAppName = 'app.app_name';
-
-  /// Deprecated: use [appStartTime] instead.
-  static const appAppStartTime = 'app.app_start_time';
-
-  /// Deprecated: use [appVersion] instead.
-  static const appAppVersion = 'app.app_version';
 
   /// The user ID.
   /// Users are always manually set and never automatically inferred,
@@ -161,7 +149,8 @@ abstract class SemanticAttributesConstants {
   static const osVersion = 'os.version';
 
   /// The build ID of the operating system.
-  static const osBuildId = 'os.build_id';
+  // TODO: deprecated, needs to be replaced later by os.build_id
+  static const osBuild = 'os.build';
 
   /// Independent kernel version string, typically from uname.
   static const osKernelVersion = 'os.kernel_version';
@@ -174,11 +163,6 @@ abstract class SemanticAttributesConstants {
 
   /// Whether the OS runs in dark or light mode.
   static const osTheme = 'os.theme';
-
-  // Deprecated OS attributes - use the replacements above.
-
-  /// Deprecated: use [osBuildId] instead.
-  static const osBuild = 'os.build';
 
   /// Battery level as a percentage (0-100).
   static const deviceBatteryLevel = 'device.battery_level';
@@ -202,7 +186,7 @@ abstract class SemanticAttributesConstants {
   static const deviceClass = 'device.class';
 
   /// Internet connection type currently used by the device.
-  /// Deprecated: use [networkConnectionType] instead.
+  // TODO: deprecated, needs to be replaced later by network.connection.type
   static const deviceConnectionType = 'device.connection_type';
 
   /// Description of the device CPU.
@@ -283,26 +267,13 @@ abstract class SemanticAttributesConstants {
   /// The CPU architectures of the device.
   static const deviceArchs = 'device.archs';
 
-  // Deprecated device attributes - use the replacements below.
-
-  /// Deprecated: use [cultureLocale] instead.
+  /// The locale of the device.
+  // TODO: deprecated, needs to be replaced later by culture.locale
   static const deviceLocale = 'device.locale';
 
-  /// Deprecated: use [cultureTimezone] instead.
-  static const deviceTimezone = 'device.timezone';
-
-  // Culture attributes
-
-  /// The locale of the device.
-  static const cultureLocale = 'culture.locale';
-
   /// The timezone of the device.
-  static const cultureTimezone = 'culture.timezone';
-
-  // Network attributes
-
-  /// The internet connection type currently used by the host.
-  static const networkConnectionType = 'network.connection.type';
+  // TODO: deprecated, needs to be replaced later by culture.timezone
+  static const deviceTimezone = 'device.timezone';
 
   /// The number of total frames rendered during the lifetime of the span.
   static const framesTotal = 'frames.total';
