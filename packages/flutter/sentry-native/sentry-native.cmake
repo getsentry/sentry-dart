@@ -1,4 +1,4 @@
-load_cache("${CMAKE_CURRENT_LIST_DIR}" READ_WITH_PREFIX SENTRY_NATIVE_ repo version)
+load_cache("${CMAKE_CURRENT_LIST_DIR}" READ_WITH_PREFIX SENTRY_NATIVE_ repo version sha256)
 
 set(SENTRY_NATIVE_URL "${SENTRY_NATIVE_repo}/releases/download/${SENTRY_NATIVE_version}/sentry-native.zip")
 message(STATUS "Fetching Sentry native version: ${SENTRY_NATIVE_version} from ${SENTRY_NATIVE_URL}")
@@ -18,6 +18,7 @@ endif()
 FetchContent_Declare(
     sentry-native
     URL ${SENTRY_NATIVE_URL}
+    URL_HASH SHA256=${SENTRY_NATIVE_sha256}
     EXCLUDE_FROM_ALL
 )
 
