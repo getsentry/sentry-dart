@@ -94,19 +94,19 @@ abstract class SemanticAttributesConstants {
       'sentry._internal.replay_is_buffering';
 
   /// Internal build identifier, as it appears on the platform.
-  static const appAppBuild = 'app.app_build';
+  static const appBuild = 'app.build';
 
   /// Version-independent application identifier, often a dotted bundle ID.
-  static const appAppIdentifier = 'app.app_identifier';
+  static const appIdentifier = 'app.identifier';
 
   /// Human readable application name, as it appears on the platform.
-  static const appAppName = 'app.app_name';
+  static const appName = 'app.name';
 
   /// Formatted UTC timestamp when the user started the application.
-  static const appAppStartTime = 'app.app_start_time';
+  static const appStartTime = 'app.start_time';
 
   /// Human readable application version, as it appears on the platform.
-  static const appAppVersion = 'app.app_version';
+  static const appVersion = 'app.version';
 
   /// Whether the application is currently in the foreground.
   static const appInForeground = 'app.in_foreground';
@@ -121,6 +121,23 @@ abstract class SemanticAttributesConstants {
 
   /// The names of the active views or fragments in the application.
   static const appViewNames = 'app.view_names';
+
+  // Deprecated app attributes - use the non-prefixed versions above.
+
+  /// Deprecated: use [appBuild] instead.
+  static const appAppBuild = 'app.app_build';
+
+  /// Deprecated: use [appIdentifier] instead.
+  static const appAppIdentifier = 'app.app_identifier';
+
+  /// Deprecated: use [appName] instead.
+  static const appAppName = 'app.app_name';
+
+  /// Deprecated: use [appStartTime] instead.
+  static const appAppStartTime = 'app.app_start_time';
+
+  /// Deprecated: use [appVersion] instead.
+  static const appAppVersion = 'app.app_version';
 
   /// The user ID.
   /// Users are always manually set and never automatically inferred,
@@ -143,6 +160,9 @@ abstract class SemanticAttributesConstants {
   /// The operating system version.
   static const osVersion = 'os.version';
 
+  /// The build ID of the operating system.
+  static const osBuildId = 'os.build_id';
+
   /// Independent kernel version string, typically from uname.
   static const osKernelVersion = 'os.kernel_version';
 
@@ -154,6 +174,11 @@ abstract class SemanticAttributesConstants {
 
   /// Whether the OS runs in dark or light mode.
   static const osTheme = 'os.theme';
+
+  // Deprecated OS attributes - use the replacements above.
+
+  /// Deprecated: use [osBuildId] instead.
+  static const osBuild = 'os.build';
 
   /// Battery level as a percentage (0-100).
   static const deviceBatteryLevel = 'device.battery_level';
@@ -177,7 +202,7 @@ abstract class SemanticAttributesConstants {
   static const deviceClass = 'device.class';
 
   /// Internet connection type currently used by the device.
-  // TODO: deprecated, needs to be replaced later by network.connection.type
+  /// Deprecated: use [networkConnectionType] instead.
   static const deviceConnectionType = 'device.connection_type';
 
   /// Description of the device CPU.
@@ -254,6 +279,30 @@ abstract class SemanticAttributesConstants {
 
   /// Memory usable for the app in bytes.
   static const deviceUsableMemory = 'device.usable_memory';
+
+  /// The CPU architectures of the device.
+  static const deviceArchs = 'device.archs';
+
+  // Deprecated device attributes - use the replacements below.
+
+  /// Deprecated: use [cultureLocale] instead.
+  static const deviceLocale = 'device.locale';
+
+  /// Deprecated: use [cultureTimezone] instead.
+  static const deviceTimezone = 'device.timezone';
+
+  // Culture attributes
+
+  /// The locale of the device.
+  static const cultureLocale = 'culture.locale';
+
+  /// The timezone of the device.
+  static const cultureTimezone = 'culture.timezone';
+
+  // Network attributes
+
+  /// The internet connection type currently used by the host.
+  static const networkConnectionType = 'network.connection.type';
 
   /// The number of total frames rendered during the lifetime of the span.
   static const framesTotal = 'frames.total';
