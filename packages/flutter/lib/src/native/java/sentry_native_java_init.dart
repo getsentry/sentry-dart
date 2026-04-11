@@ -120,11 +120,11 @@ native.SentryOptions$BeforeSendReplayCallback createBeforeSendReplayCallback(
               final iterator = keys.iterator()!..releasedBy(arena);
               while (iterator.hasNext()) {
                 final key = iterator.next();
-                if (key != null) {
-                  final keyStr = key.toDartString(releaseOriginal: true);
-                  if (keyStr.contains('mask')) {
-                    keysToRemove.add(keyStr.toJString());
-                  }
+                if (key == null) continue;
+                if (key.toDartString().contains('mask')) {
+                  keysToRemove.add(key);
+                } else {
+                  key.release();
                 }
               }
             }
