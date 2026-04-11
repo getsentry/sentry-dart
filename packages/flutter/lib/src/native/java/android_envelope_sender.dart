@@ -99,7 +99,7 @@ void _captureEnvelope(Uint8List envelopeData, bool containsUnhandledException,
   JObject? id;
   JByteArray? byteArray;
   try {
-    byteArray = JByteArray.from(envelopeData);
+    byteArray = JByteArray.of(envelopeData);
     id = native.InternalSentrySdk.captureEnvelope(
         byteArray, containsUnhandledException);
 

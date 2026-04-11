@@ -122,8 +122,7 @@ class _AndroidReplayHandler extends WorkerHandler {
 
     try {
       if (_bitmap != null) {
-        if (_bitmap!.getWidth() != item.width ||
-            _bitmap!.getHeight() != item.height) {
+        if (_bitmap!.width != item.width || _bitmap!.height != item.height) {
           _bitmap!.release();
           _bitmap = null;
         }

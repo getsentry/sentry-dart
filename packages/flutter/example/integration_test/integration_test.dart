@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:jni/jni.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
@@ -221,57 +222,56 @@ void main() {
       });
     });
 
-    final ref = jni.ScopesAdapter.getInstance()?.getOptions().reference;
-    expect(ref, isNotNull);
-    final androidOptions = jni.SentryAndroidOptions.fromReference(ref!);
+    final scopesAdapter = jni.ScopesAdapter.instance;
+    expect(scopesAdapter, isNotNull);
+    final androidOptions =
+        scopesAdapter!.options.as(jni.SentryAndroidOptions.type);
 
     expect(androidOptions, isNotNull);
-    expect(androidOptions.getDsn()?.toDartString(), fakeDsn);
-    expect(androidOptions.isDebug(), isTrue);
-    final diagnostic = androidOptions.getDiagnosticLevel();
+    expect(androidOptions.dsn?.toDartString(), fakeDsn);
+    expect(androidOptions.isDebug, isTrue);
+    final diagnostic = androidOptions.diagnosticLevel;
     expect(
       diagnostic,
       jni.SentryLevel.ERROR,
     );
-    expect(androidOptions.getEnvironment()?.toDartString(), 'init-test-env');
-    expect(androidOptions.getRelease()?.toDartString(), '1.2.3+9');
-    expect(androidOptions.getDist()?.toDartString(), '42');
-    expect(androidOptions.isSendDefaultPii(), isTrue);
-    expect(androidOptions.isAttachStacktrace(), isFalse);
-    expect(androidOptions.isAttachThreads(), isTrue);
-    expect(androidOptions.getMaxBreadcrumbs(), 7);
-    expect(androidOptions.getMaxCacheItems(), 77);
-    expect(androidOptions.getMaxAttachmentSize(), 512);
-    expect(androidOptions.isEnableScopeSync(), isTrue);
-    expect(androidOptions.isAnrEnabled(), isFalse);
-    expect(androidOptions.getAnrTimeoutIntervalMillis(), 2000);
-    expect(androidOptions.isEnableActivityLifecycleBreadcrumbs(), isFalse);
-    expect(androidOptions.isEnableAppLifecycleBreadcrumbs(), isFalse);
-    expect(androidOptions.isEnableSystemEventBreadcrumbs(), isFalse);
-    expect(androidOptions.isEnableAppComponentBreadcrumbs(), isFalse);
-    expect(androidOptions.isEnableUserInteractionBreadcrumbs(), isFalse);
-    expect(androidOptions.getConnectionTimeoutMillis(), 1234);
-    expect(androidOptions.getReadTimeoutMillis(), 2345);
-    expect(androidOptions.isEnableSpotlight(), isTrue);
-    expect(androidOptions.isSendClientReports(), isFalse);
+    expect(androidOptions.environment?.toDartString(), 'init-test-env');
+    expect(androidOptions.release$1?.toDartString(), '1.2.3+9');
+    expect(androidOptions.dist?.toDartString(), '42');
+    expect(androidOptions.isSendDefaultPii, isTrue);
+    expect(androidOptions.isAttachStacktrace, isFalse);
+    expect(androidOptions.isAttachThreads, isTrue);
+    expect(androidOptions.maxBreadcrumbs, 7);
+    expect(androidOptions.maxCacheItems, 77);
+    expect(androidOptions.maxAttachmentSize, 512);
+    expect(androidOptions.isEnableScopeSync, isTrue);
+    expect(androidOptions.isAnrEnabled, isFalse);
+    expect(androidOptions.anrTimeoutIntervalMillis, 2000);
+    expect(androidOptions.isEnableActivityLifecycleBreadcrumbs, isFalse);
+    expect(androidOptions.isEnableAppLifecycleBreadcrumbs, isFalse);
+    expect(androidOptions.isEnableSystemEventBreadcrumbs, isFalse);
+    expect(androidOptions.isEnableAppComponentBreadcrumbs, isFalse);
+    expect(androidOptions.isEnableUserInteractionBreadcrumbs, isFalse);
+    expect(androidOptions.connectionTimeoutMillis, 1234);
+    expect(androidOptions.readTimeoutMillis, 2345);
+    expect(androidOptions.isEnableSpotlight, isTrue);
+    expect(androidOptions.isSendClientReports, isFalse);
     expect(
-      androidOptions.getSpotlightConnectionUrl()?.toDartString(),
+      androidOptions.spotlightConnectionUrl?.toDartString(),
       Sentry.currentHub.options.spotlight.url,
     );
-    expect(androidOptions.getSentryClientName()?.toDartString(),
+    expect(androidOptions.sentryClientName?.toDartString(),
         '$androidSdkName/${jni.BuildConfig.VERSION_NAME?.toDartString()}');
-    expect(androidOptions.getNativeSdkName()?.toDartString(), nativeSdkName);
-    expect(androidOptions.getSdkVersion()?.getName().toDartString(),
-        androidSdkName);
-    expect(androidOptions.getSdkVersion()?.getVersion().toDartString(),
+    expect(androidOptions.nativeSdkName?.toDartString(), nativeSdkName);
+    expect(androidOptions.sdkVersion?.name.toDartString(), androidSdkName);
+    expect(androidOptions.sdkVersion?.version.toDartString(),
         jni.BuildConfig.VERSION_NAME?.toDartString());
-    final allPackages = androidOptions
-        .getSdkVersion()
-        ?.getPackageSet()
+    final allPackages = androidOptions.sdkVersion?.packageSet
+        .asDart()
         .map((pkg) {
           if (pkg == null) return null;
           return SentryPackage(
-              pkg.getName().toDartString(), pkg.getVersion().toDartString());
+              pkg.name.toDartString(), pkg.version.toDartString());
         })
         .nonNulls
         .toList();
@@ -280,21 +280,21 @@ void main() {
           (p) => p.name == package.name && p.version == package.version);
       expect(findMatchingPackage, isNotNull);
     }
-    expect(androidOptions.isEnableAutoTraceIdGeneration(), isFalse);
-    expect(androidOptions.isTombstoneEnabled(), isTrue);
+    expect(androidOptions.isEnableAutoTraceIdGeneration, isFalse);
+    expect(androidOptions.isTombstoneEnabled, isTrue);
 
-    final androidProxy = androidOptions.getProxy();
+    final androidProxy = androidOptions.proxy;
     expect(androidProxy, isNotNull);
-    expect(androidProxy!.getHost()?.toDartString(), 'proxy.local');
-    expect(androidProxy.getPort()?.toDartString(), '8084');
-    expect(androidProxy.getUser()?.toDartString(), 'u');
-    expect(androidProxy.getPass()?.toDartString(), 'p');
+    expect(androidProxy!.host?.toDartString(), 'proxy.local');
+    expect(androidProxy.port?.toDartString(), '8084');
+    expect(androidProxy.user?.toDartString(), 'u');
+    expect(androidProxy.pass?.toDartString(), 'p');
 
-    final r = androidOptions.getSessionReplay();
-    expect(r.getQuality(), jni.SentryReplayOptions$SentryReplayQuality.HIGH);
-    expect(r.getSessionSampleRate(), isNotNull);
-    expect(r.getOnErrorSampleRate(), isNotNull);
-    expect(r.isTrackConfiguration(), isFalse);
+    final r = androidOptions.sessionReplay;
+    expect(r.quality, jni.SentryReplayOptions$SentryReplayQuality.HIGH);
+    expect(r.sessionSampleRate, isNotNull);
+    expect(r.onErrorSampleRate, isNotNull);
+    expect(r.isTrackConfiguration, isFalse);
   }, skip: !Platform.isAndroid);
 
   testWidgets('loads native contexts through loadContexts', (tester) async {
@@ -1079,10 +1079,10 @@ void main() {
     final dartTraceId =
         Sentry.currentHub.scope.propagationContext.traceId.toString();
 
-    final traceParent = jni.Sentry.getTraceparent();
+    final traceParent = jni.Sentry.traceparent;
     expect(traceParent, isNotNull,
         reason: 'Native traceparent should not be null');
-    final traceHeader = traceParent!.getValue().toDartString();
+    final traceHeader = traceParent!.value.toDartString();
 
     final nativeTraceId = traceHeader.split('-').first;
     expect(nativeTraceId, dartTraceId,
@@ -1095,8 +1095,7 @@ void main() {
     // Allow the fire-and-forget dispatch to complete
     await Future<void>.delayed(const Duration(milliseconds: 100));
 
-    final newTraceParent =
-        jni.Sentry.getTraceparent()?.getValue().toDartString();
+    final newTraceParent = jni.Sentry.traceparent?.value.toDartString();
     final newTraceHeader = newTraceParent!.toString();
 
     final newNativeTraceId = newTraceHeader.split('-').first;
