@@ -62,8 +62,8 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 /// if those happen to take longer. The transaction will be set to [Scope.span]
 /// if the latter is empty.
 ///
-/// If [enableNewTraceOnNavigation] is true (default), a
-/// fresh trace is generated before each push, pop, or replace event.
+/// If [enableNewTraceOnNavigation] is true, a fresh trace is generated
+/// before each push, pop, or replace event. Defaults to `false`.
 ///
 /// Enabling the [setRouteNameAsTransaction] option overrides the current
 /// [Scope.transaction] which will also override the name of the current
@@ -77,7 +77,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   SentryNavigatorObserver({
     Hub? hub,
     bool enableAutoTransactions = true,
-    bool enableNewTraceOnNavigation = true,
+    bool enableNewTraceOnNavigation = false,
     Duration autoFinishAfter = const Duration(seconds: 3),
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,

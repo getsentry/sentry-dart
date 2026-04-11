@@ -16,12 +16,47 @@ void main() {
   });
 
   group('SentryNavigatorObserver', () {
-    group('when starting traces on navigation is enabled (default)', () {
+    group('when starting traces on navigation is disabled (default)', () {
+      test('didPush should not start a new trace', () {
+        final from = _route(RouteSettings(name: 'From Route'));
+        final to = _route(RouteSettings(name: 'To Route'));
+        final beforeTraceId = fixture.hub.scope.propagationContext.traceId;
+
+        fixture.getSut().didPush(to, from);
+
+        final afterTraceId = fixture.hub.scope.propagationContext.traceId;
+        expect(afterTraceId, equals(beforeTraceId));
+      });
+
+      test('didPop should not start a new trace', () {
+        final from = _route(RouteSettings(name: 'From Route'));
+        final to = _route(RouteSettings(name: 'To Route'));
+        final beforeTraceId = fixture.hub.scope.propagationContext.traceId;
+
+        fixture.getSut().didPop(to, from);
+
+        final afterTraceId = fixture.hub.scope.propagationContext.traceId;
+        expect(afterTraceId, equals(beforeTraceId));
+      });
+
+      test('didReplace should not start a new trace', () {
+        final from = _route(RouteSettings(name: 'From Route'));
+        final to = _route(RouteSettings(name: 'To Route'));
+        final beforeTraceId = fixture.hub.scope.propagationContext.traceId;
+
+        fixture.getSut().didReplace(newRoute: to, oldRoute: from);
+
+        final afterTraceId = fixture.hub.scope.propagationContext.traceId;
+        expect(afterTraceId, equals(beforeTraceId));
+      });
+    });
+
+    group('when starting traces on navigation is enabled', () {
       test('didPush should not start a new trace on root', () {
         final to = _route(RouteSettings(name: '/'));
         final beforeTraceId = fixture.hub.scope.propagationContext.traceId;
 
-        fixture.getSut().didPush(to, null);
+        fixture.getSut(enableNewTraceOnNavigation: true).didPush(to, null);
 
         final afterTraceId = fixture.hub.scope.propagationContext.traceId;
         expect(afterTraceId, equals(beforeTraceId));
@@ -32,7 +67,7 @@ void main() {
         final to = _route(RouteSettings(name: 'To Route'));
         final beforeTraceId = fixture.hub.scope.propagationContext.traceId;
 
-        fixture.getSut().didPush(to, from);
+        fixture.getSut(enableNewTraceOnNavigation: true).didPush(to, from);
 
         final afterTraceId = fixture.hub.scope.propagationContext.traceId;
         expect(afterTraceId, isNot(beforeTraceId));
@@ -43,7 +78,7 @@ void main() {
         final to = _route(RouteSettings(name: 'To Route'));
         final beforeTraceId = fixture.hub.scope.propagationContext.traceId;
 
-        fixture.getSut().didPop(to, from);
+        fixture.getSut(enableNewTraceOnNavigation: true).didPop(to, from);
 
         final afterTraceId = fixture.hub.scope.propagationContext.traceId;
         expect(afterTraceId, isNot(beforeTraceId));
@@ -54,7 +89,9 @@ void main() {
         final to = _route(RouteSettings(name: 'To Route'));
         final beforeTraceId = fixture.hub.scope.propagationContext.traceId;
 
-        fixture.getSut().didReplace(newRoute: to, oldRoute: from);
+        fixture
+            .getSut(enableNewTraceOnNavigation: true)
+            .didReplace(newRoute: to, oldRoute: from);
 
         final afterTraceId = fixture.hub.scope.propagationContext.traceId;
         expect(afterTraceId, isNot(beforeTraceId));
@@ -84,7 +121,10 @@ void main() {
           final to = _route(RouteSettings(name: 'To Route'));
 
           _stubHub();
-          final sut = fixture.getSut(hub: fixture.mockHub);
+          final sut = fixture.getSut(
+            hub: fixture.mockHub,
+            enableNewTraceOnNavigation: true,
+          );
           sut.didPush(to, from);
 
           verifyInOrder([
@@ -103,43 +143,6 @@ void main() {
         });
       });
     });
-
-    group('when starting traces on navigation is disabled', () {
-      test('didPush should not start a new trace', () {
-        final from = _route(RouteSettings(name: 'From Route'));
-        final to = _route(RouteSettings(name: 'To Route'));
-        final beforeTraceId = fixture.hub.scope.propagationContext.traceId;
-
-        fixture.getSut(enableNewTraceOnNavigation: false).didPush(to, from);
-
-        final afterTraceId = fixture.hub.scope.propagationContext.traceId;
-        expect(afterTraceId, equals(beforeTraceId));
-      });
-
-      test('didPop should not start a new trace', () {
-        final from = _route(RouteSettings(name: 'From Route'));
-        final to = _route(RouteSettings(name: 'To Route'));
-        final beforeTraceId = fixture.hub.scope.propagationContext.traceId;
-
-        fixture.getSut(enableNewTraceOnNavigation: false).didPop(to, from);
-
-        final afterTraceId = fixture.hub.scope.propagationContext.traceId;
-        expect(afterTraceId, equals(beforeTraceId));
-      });
-
-      test('didReplace should not start a new trace', () {
-        final from = _route(RouteSettings(name: 'From Route'));
-        final to = _route(RouteSettings(name: 'To Route'));
-        final beforeTraceId = fixture.hub.scope.propagationContext.traceId;
-
-        fixture
-            .getSut(enableNewTraceOnNavigation: false)
-            .didReplace(newRoute: to, oldRoute: from);
-
-        final afterTraceId = fixture.hub.scope.propagationContext.traceId;
-        expect(afterTraceId, equals(beforeTraceId));
-      });
-    });
   });
 }
 
@@ -155,7 +158,7 @@ class Fixture {
 
   SentryNavigatorObserver getSut({
     Hub? hub,
-    bool enableNewTraceOnNavigation = true,
+    bool enableNewTraceOnNavigation = false,
   }) {
     hub ??= this.hub;
     if (hub == mockHub) {

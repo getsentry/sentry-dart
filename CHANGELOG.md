@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- Change default of `enableNewTraceOnNavigation` in `SentryNavigatorObserver` from `true` to `false` ([#XXXX](https://github.com/getsentry/sentry-dart/pull/XXXX))
+
 ## 9.16.1
 
 ### Fixes
