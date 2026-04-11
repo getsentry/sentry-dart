@@ -3,4 +3,3 @@
 
 repo=https://github.com/getsentry/sentry-native
 version=0.13.6
-sha256=b83292650c6a725c867a6c7f9ad7903b178ad13bacb362998fc09bb045acf06d
