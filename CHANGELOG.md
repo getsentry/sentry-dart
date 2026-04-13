@@ -5,6 +5,7 @@
 ### Fixes
 
 - Show success message after feedback submission ([#3609](https://github.com/getsentry/sentry-dart/pull/3609))
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.58.0 to v8.58.1 ([#3632](https://github.com/getsentry/sentry-dart/pull/3632))
