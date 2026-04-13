@@ -8,6 +8,7 @@ import 'sentry_feedback_options.dart';
 import 'package:flutter/services.dart';
 import 'sentry_logo.dart';
 import '../replay/integration.dart';
+import '../utils/internal_logger.dart';
 
 class SentryFeedbackWidget extends StatefulWidget {
   SentryFeedbackWidget({
@@ -388,7 +389,16 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
     if (!mounted) return;
 
-    widget.options.onSubmitSuccess?.call(feedback, sentryId);
+    try {
+      widget.options.onSubmitSuccess?.call(feedback, sentryId);
+    } catch (exception, stackTrace) {
+      internalLogger.warning(
+        'Failed to execute onSubmitSuccess callback',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+    }
+
     _showSuccessSnackBar();
     _dismiss(pendingAssociatedEventId: false);
   }

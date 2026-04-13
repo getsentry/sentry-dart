@@ -889,6 +889,30 @@ void main() {
         expect(receivedEventId, isNotNull);
         expect(receivedEventId, isNot(const SentryId.empty()));
       });
+
+      testWidgets('dismisses the feedback widget when onSubmitSuccess throws',
+          (tester) async {
+        fixture.options.feedback.onSubmitSuccess = (_, __) {
+          throw StateError('boom');
+        };
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'test-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(SentryFeedbackWidget), findsNothing);
+        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.text('Thank you for your report!'), findsOneWidget);
+        expect(SentryFeedbackWidget.pendingAssociatedEventId, isNull);
+      });
     });
   });
 }
