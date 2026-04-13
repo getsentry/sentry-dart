@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Revert fetching `sentry-native` from release zip, use git source instead to fix permission issues ([#3630](https://github.com/getsentry/sentry-dart/issues/3630))
+
 ### Dependencies
 
 - Bump Native SDK from v0.13.3 to v0.13.6 ([#3606](https://github.com/getsentry/sentry-dart/pull/3606))
