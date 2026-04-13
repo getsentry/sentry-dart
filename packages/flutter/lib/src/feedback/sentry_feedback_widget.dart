@@ -1,7 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api
 
-import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import '../../sentry_flutter.dart';
@@ -92,16 +90,6 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   SentryAttachment? _screenshot;
   Future<Uint8List>? _screenshotFuture;
 
-  /// Whether the feedback was submitted successfully and the success message
-  /// is being shown.
-  bool _submitted = false;
-
-  /// Timer for auto-dismissing the success message.
-  Timer? _successTimer;
-
-  @visibleForTesting
-  static const successMessageTimeout = Duration(seconds: 5);
-
   @override
   void initState() {
     super.initState();
@@ -135,54 +123,16 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
       resizeToAvoidBottomInset: widget.options.resizeToAvoidBottomInset,
       appBar: AppBar(
         title: Text(widget.options.title),
-        leading: _submitted
-            ? IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => _dismiss(pendingAssociatedEventId: false),
-              )
-            : null,
         actions: [
           if (widget.options.showBranding)
             Padding(
               key: const ValueKey('sentry_feedback_branding_logo'),
-              padding: EdgeInsets.only(right: 16.0),
+              padding: const EdgeInsets.only(right: 16.0),
               child: SentryLogo(width: 32),
             ),
         ],
       ),
-      body: _submitted ? _buildSuccessBody(context) : _buildFormBody(context),
-    );
-  }
-
-  Widget _buildSuccessBody(BuildContext context) {
-    final successColor = widget.options.successColor;
-    return GestureDetector(
-      key: const ValueKey('sentry_feedback_success'),
-      onTap: () => _dismiss(pendingAssociatedEventId: false),
-      behavior: HitTestBehavior.opaque,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              key: const ValueKey('sentry_feedback_success_icon'),
-              Icons.check_circle,
-              color: successColor,
-              size: 48,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              key: const ValueKey('sentry_feedback_success_text'),
-              widget.options.successMessageText,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: successColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
+      body: _buildFormBody(context),
     );
   }
 
@@ -412,7 +362,6 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
   @override
   void dispose() {
-    _successTimer?.cancel();
     _nameController.dispose();
     _emailController.dispose();
     _messageController.dispose();
@@ -440,14 +389,31 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
     if (!mounted) return;
 
     widget.options.onSubmitSuccess?.call(feedback, sentryId);
-    setState(() {
-      _submitted = true;
-    });
-    _successTimer = Timer(successMessageTimeout, () {
-      if (mounted && _submitted) {
-        _dismiss(pendingAssociatedEventId: false);
-      }
-    });
+    _showSuccessSnackBar();
+    _dismiss(pendingAssociatedEventId: false);
+  }
+
+  void _showSuccessSnackBar() {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) {
+      return;
+    }
+
+    final successColor = widget.options.successColor;
+    final foregroundColor =
+        ThemeData.estimateBrightnessForColor(successColor) == Brightness.dark
+            ? Colors.white
+            : Colors.black;
+
+    messenger.showSnackBar(
+      SnackBar(
+        backgroundColor: successColor,
+        content: Text(
+          widget.options.successMessageText,
+          style: TextStyle(color: foregroundColor),
+        ),
+      ),
+    );
   }
 
   String? _errorText(String? value, bool isRequired) {

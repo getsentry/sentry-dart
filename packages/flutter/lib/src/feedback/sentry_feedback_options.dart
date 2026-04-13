@@ -80,13 +80,13 @@ class SentryFeedbackOptions {
 
   // Theme Configuration
 
-  /// Color used for success-related components.
+  /// Background color used for the success snack bar.
   Color successColor = const Color(0xFF268D75);
 
   // Event Callbacks
 
   /// Called when feedback is successfully submitted.
   ///
-  /// This is called in addition to the default success message behavior.
+  /// This is called in addition to the default success snack bar behavior.
   void Function(SentryFeedback feedback, SentryId eventId)? onSubmitSuccess;
 }
