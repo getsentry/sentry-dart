@@ -123,10 +123,10 @@ jobs:
         with:
           channel: main
 
+      - run: flutter config --enable-swift-package-manager
+
       - name: Log Flutter version
         run: flutter --version
-
-      - run: flutter config --enable-swift-package-manager
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5
