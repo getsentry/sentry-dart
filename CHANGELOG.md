@@ -2,8 +2,15 @@
 
 ## Unreleased
 
+### Fixes
+
+- Revert fetching `sentry-native` from release zip, use git source instead to fix permission issues ([#3630](https://github.com/getsentry/sentry-dart/issues/3630))
+
 ### Dependencies
 
+- Bump Native SDK from v0.13.3 to v0.13.6 ([#3606](https://github.com/getsentry/sentry-dart/pull/3606))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0136)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.13.3...0.13.6)
 - Bump Cocoa SDK from v8.58.0 to v8.58.1 ([#3632](https://github.com/getsentry/sentry-dart/pull/3632))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8581)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.58.0...8.58.1)
