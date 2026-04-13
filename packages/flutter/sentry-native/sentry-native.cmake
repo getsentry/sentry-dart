@@ -1,5 +1,7 @@
-load_cache("${CMAKE_CURRENT_LIST_DIR}" READ_WITH_PREFIX SENTRY_NATIVE_ repo version)
-message(STATUS "Fetching Sentry native version: ${SENTRY_NATIVE_version} from ${SENTRY_NATIVE_repo}")
+load_cache("${CMAKE_CURRENT_LIST_DIR}" READ_WITH_PREFIX SENTRY_NATIVE_ repo version sha256)
+
+set(SENTRY_NATIVE_URL "${SENTRY_NATIVE_repo}/releases/download/${SENTRY_NATIVE_version}/sentry-native.zip")
+message(STATUS "Fetching Sentry native version: ${SENTRY_NATIVE_version} from ${SENTRY_NATIVE_URL}")
 
 set(SENTRY_SDK_NAME "sentry.native.flutter" CACHE STRING "The SDK name to report when sending events." FORCE)
 set(SENTRY_BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" FORCE)
@@ -10,10 +12,13 @@ if(NOT "$ENV{SENTRY_NATIVE_BACKEND}" STREQUAL "")
 endif()
 
 include(FetchContent)
+if(POLICY CMP0135)
+    cmake_policy(SET CMP0135 NEW)
+endif()
 FetchContent_Declare(
     sentry-native
-    GIT_REPOSITORY ${SENTRY_NATIVE_repo}
-    GIT_TAG ${SENTRY_NATIVE_version}
+    URL ${SENTRY_NATIVE_URL}
+    URL_HASH SHA256=${SENTRY_NATIVE_sha256}
     EXCLUDE_FROM_ALL
 )
 

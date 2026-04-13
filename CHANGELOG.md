@@ -5,6 +5,11 @@
 ### Fixes
 
 - Show success message after feedback submission ([#3609](https://github.com/getsentry/sentry-dart/pull/3609))
+## 9.16.1
+
+### Fixes
+
+- Sentry Native not building due to failing `git clone` ([#3621](https://github.com/getsentry/sentry-dart/pull/3621))
 
 ## 9.16.0
 
