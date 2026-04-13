@@ -17572,6 +17572,129 @@ class SentryOptions extends jni$_.JObject {
         .check();
   }
 
+  static final _id_isStrictTraceContinuation = _class.instanceMethodId(
+    r'isStrictTraceContinuation',
+    r'()Z',
+  );
+
+  static final _isStrictTraceContinuation = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public boolean isStrictTraceContinuation()`
+  bool isStrictTraceContinuation() {
+    return _isStrictTraceContinuation(reference.pointer,
+            _id_isStrictTraceContinuation as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_setStrictTraceContinuation = _class.instanceMethodId(
+    r'setStrictTraceContinuation',
+    r'(Z)V',
+  );
+
+  static final _setStrictTraceContinuation =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int32,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setStrictTraceContinuation(boolean z)`
+  void setStrictTraceContinuation(
+    bool z,
+  ) {
+    _setStrictTraceContinuation(reference.pointer,
+            _id_setStrictTraceContinuation as jni$_.JMethodIDPtr, z ? 1 : 0)
+        .check();
+  }
+
+  static final _id_getOrgId = _class.instanceMethodId(
+    r'getOrgId',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getOrgId = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getOrgId()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getOrgId() {
+    return _getOrgId(reference.pointer, _id_getOrgId as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.JStringNullableType());
+  }
+
+  static final _id_setOrgId = _class.instanceMethodId(
+    r'setOrgId',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _setOrgId = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setOrgId(java.lang.String string)`
+  void setOrgId(
+    jni$_.JString? string,
+  ) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _setOrgId(reference.pointer, _id_setOrgId as jni$_.JMethodIDPtr,
+            _$string.pointer)
+        .check();
+  }
+
+  static final _id_getEffectiveOrgId = _class.instanceMethodId(
+    r'getEffectiveOrgId',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _getEffectiveOrgId = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getEffectiveOrgId()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? getEffectiveOrgId() {
+    return _getEffectiveOrgId(
+            reference.pointer, _id_getEffectiveOrgId as jni$_.JMethodIDPtr)
+        .object<jni$_.JString?>(const jni$_.JStringNullableType());
+  }
+
   static final _id_getProguardUuid = _class.instanceMethodId(
     r'getProguardUuid',
     r'()Ljava/lang/String;',
