@@ -111,10 +111,6 @@ jobs:
     name: 'SPM'
     runs-on: macos-15
     timeout-minutes: 30
-    defaults:
-      run:
-        shell: bash
-        working-directory: packages/flutter/example
     strategy:
       fail-fast: false
       matrix:
@@ -129,16 +125,28 @@ jobs:
 
       - run: flutter config --enable-swift-package-manager
 
+      - name: Log Flutter version
+        run: flutter --version
+
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5
         run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
+      # Flutter main derives the local SwiftPM package identity from the plugin path basename on macOS.
+      # Our package lives in packages/flutter, which makes Xcode resolve it as "flutter" and fail with:
+      # "unable to override package 'sentry_flutter' because its identity 'flutter' doesn't match override's identity (directory name) 'sentry_flutter'"
+      - name: Rename sentry_flutter package for macOS SwiftPM
+        if: matrix.target == 'macos'
+        run: mv packages/flutter packages/sentry_flutter
+
       - name: Run on iOS
         if: matrix.target == 'ios'
+        working-directory: packages/flutter/example
         run: flutter build ios --no-codesign
 
       - name: Run on macOS
         if: matrix.target == 'macos'
+        working-directory: packages/sentry_flutter/example
         run: flutter build macos --debug
 
   analyze:

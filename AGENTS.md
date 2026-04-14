@@ -64,32 +64,16 @@ Run from within the package directory (e.g., `cd packages/dart/`):
 - **Conventional Commits 1.0.0** — subject max 50 chars, body max 72 chars/line
 - **AI attribution** — AI-generated commits must include a `Co-Authored-By` footer (e.g., `Co-Authored-By: Claude <noreply@anthropic.com>`)
 - **File renames** — always use `git mv`, never `mv` + `git add`
-
-| Type    | Changelog? | Purpose                               |
-| ------- | ---------- | ------------------------------------- |
-| `feat`  | yes        | New feature (MINOR)                   |
-| `fix`   | yes        | Bug fix (PATCH)                       |
-| `impr`  | yes        | Improvement to existing functionality |
-| `ref`   | no         | Refactoring (no behavior change)      |
-| `test`  | no         | Test additions/corrections            |
-| `docs`  | no         | Documentation only                    |
-| `build` | no         | Build system/dependencies             |
-| `ci`    | no         | CI configuration                      |
-| `chore` | no         | Maintenance                           |
-| `perf`  | no         | Performance improvement               |
-| `style` | no         | Formatting (no logic change)          |
-
-Non-changelog types require `#skip-changelog` in PR description. Breaking changes: `feat!:` or `BREAKING CHANGE:` footer.
+- **Commit types** — see [`.github/release.yml`](.github/release.yml) for the list of types and how they map to changelog categories
 
 ## Pull Requests
 
-- **Title** — same format as commit subject (Conventional Commits): `type: description`
+- **Title** — same format as commit subject (Conventional Commits): `type(scope): description`
 - **Branch naming** — `<type>/<short-description>` (e.g., `feat/session-replay-privacy`, `fix/memory-leak-scope`)
 - **PR template** — `.github/pull_request_template.md` includes: description, motivation, how tested, checklist
 - **Reviewers** — assigned via `CODEOWNERS` (`.github/CODEOWNERS`); one maintainer approval is sufficient
-- **Changelog** — `feat`, `fix`, `impr` PRs need a changelog entry; all others need `#skip-changelog` in the description
+- **Changelog** — auto-generated from PR titles; see [CONTRIBUTING.md](CONTRIBUTING.md#changelog) for policy and custom entries
 - **Draft PRs** — use for work-in-progress; convert to ready when seeking review
-- **CI automation** — Danger runs on PR open/sync/edit (shared Dangerfile from `getsentry/github-workflows`)
 
 ## Context-Aware Loading
 

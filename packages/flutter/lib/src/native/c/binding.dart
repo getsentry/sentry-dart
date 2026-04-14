@@ -720,7 +720,10 @@ class SentryNative {
   ///
   /// Note that this does not uninstall any crash handler installed by our
   /// backends, which will still process crashes after `sentry_close()`, except
-  /// when using `crashpad` on Linux or the `inproc` backend.
+  /// when using `crashpad` on Linux or the `inproc` backend. The Android
+  /// preload mode of `inproc` is a special case: a lightweight signal-chain
+  /// placeholder may remain installed across `sentry_close()` to preserve
+  /// ordering relative to the managed runtime until a later re-init.
   ///
   /// Further note that this function will block the thread it was called from
   /// until the sentry background worker has finished its work, or it timed out,
