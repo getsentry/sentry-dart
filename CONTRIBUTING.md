@@ -123,13 +123,13 @@ the desired changelog text:
 
 Add `foo` function, and add unit tests to thoroughly check all edge cases.
 
+### Motivation & Context
+
+Closes #123
+
 ### Changelog Entry
 
 Add a new function called `foo` which prints "Hello, world!"
-
-### Issues
-
-Closes #123
 ```
 
 The text under "Changelog Entry" will be used verbatim in the changelog instead of the PR title. If
