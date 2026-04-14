@@ -387,19 +387,20 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
     final sentryId = await _captureFeedback(feedback, hint);
 
-    if (!mounted) return;
+    if (mounted) {
+      try {
+        widget.options.onSubmitSuccess?.call(feedback, sentryId);
+      } catch (exception, stackTrace) {
+        internalLogger.warning(
+          'Failed to execute onSubmitSuccess callback',
+          error: exception,
+          stackTrace: stackTrace,
+        );
+      }
 
-    try {
-      widget.options.onSubmitSuccess?.call(feedback, sentryId);
-    } catch (exception, stackTrace) {
-      internalLogger.warning(
-        'Failed to execute onSubmitSuccess callback',
-        error: exception,
-        stackTrace: stackTrace,
-      );
+      _showSuccessSnackBar();
     }
 
-    _showSuccessSnackBar();
     _dismiss(pendingAssociatedEventId: false);
   }
 
