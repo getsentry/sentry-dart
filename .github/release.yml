@@ -26,4 +26,4 @@ changelog:
       semver: patch
     - title: Internal Changes
       commit_patterns:
-        - "^(?<type>(?:build|refactor|meta|chore|ci|ref|perf|tests?|style|docs)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
+        - "^(?<type>(?:build|refactor|meta|chore|ci|ref|tests?|style|docs)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
