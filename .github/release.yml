@@ -20,7 +20,7 @@ changelog:
         - "^(?<type>fix(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
         - '^Revert "'
       semver: patch
-    - title: Internal Changes 🔧
+    - title: Internal Changes
       commit_patterns:
         - "^(?<type>(?:build|refactor|meta|chore|ci|ref|perf|tests?|style)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
       semver: patch
