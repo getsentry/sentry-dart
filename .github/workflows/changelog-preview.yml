@@ -2,15 +2,16 @@ name: Changelog Preview
 on:
   pull_request:
     types:
-    - opened
-    - synchronize
-    - reopened
-    - edited
-    - labeled
-    - unlabeled
+      - opened
+      - synchronize
+      - reopened
+      - edited
+      - labeled
+      - unlabeled
 permissions:
   contents: write
   pull-requests: write
+  statuses: write
 
 jobs:
   changelog-preview:
