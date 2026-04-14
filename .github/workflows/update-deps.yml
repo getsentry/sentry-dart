@@ -14,6 +14,14 @@ permissions:
   pull-requests: write
   actions: write
 
+# Changelog strategy:
+# We use craft (release.yml) for auto-generated changelogs, not the updater's
+# built-in changelog entries, so all jobs set changelog-entry: false.
+# Android, Cocoa, JS, and Native are SDK dependency updates that should appear
+# in the changelog under "Dependencies". Metrics and Symbol Collector should not.
+# Since craft's exclude mechanism doesn't support per-PR conditions yet, we add
+# the skip-changelog label to metrics-flutter and symbol-collector PRs so craft
+# ignores them, while the SDK dependency PRs still get picked up.
 jobs:
   android:
     runs-on: ubuntu-latest
