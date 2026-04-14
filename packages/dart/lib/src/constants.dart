@@ -40,6 +40,7 @@ class SentrySpanDescriptions {
   static String dbClose({required String dbName}) => 'Close database $dbName';
 }
 
+/// Features are SDK metadata to help use query usage and analytics internally.
 @internal
 class SentryFeatures {
   static const String beforeSendEvent = 'beforeSendEvent';
