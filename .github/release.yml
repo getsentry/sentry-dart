@@ -27,6 +27,7 @@ changelog:
     - title: Dependencies
       commit_patterns:
         - "^(?<type>(?:deps)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
+        - "^chore\\(deps\\): update (JavaScript|Native|Cocoa|Android) SDK"
       semver: patch
     - title: Internal Changes
       commit_patterns:
