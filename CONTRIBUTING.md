@@ -98,6 +98,45 @@ automatically:
 
 Only packages with staged changes are analyzed — no need to wait for the full monorepo.
 
+## Changelog
+
+Changelogs are generated automatically during the release process using
+[craft](https://github.com/getsentry/craft). The policy is defined in
+[`.github/release.yml`](.github/release.yml).
+
+PR titles must follow [Conventional Commits](https://www.conventionalcommits.org/) format (e.g.,
+`feat(scope): Add feature`, `fix: Handle null`) since craft uses them to categorize entries and
+determine the semver bump. No manual changelog entries are needed. A changelog preview is posted on
+each PR so you can verify how the entry will look before merging.
+
+If a PR should be excluded from the changelog, apply the `skip-changelog` label.
+
+### Custom Changelog Entries from PR Descriptions
+
+By default, the changelog entry for a PR is generated from its title. However, PR authors can
+override this by adding a "Changelog Entry" section to the PR description. This allows for more
+detailed, user-facing changelog entries without cluttering the PR title.
+
+Add a markdown heading (level 2 or 3) titled "Changelog Entry" to your PR description, followed by
+the desired changelog text:
+
+```markdown
+### Description
+
+Add `foo` function, and add unit tests to thoroughly check all edge cases.
+
+### Motivation & Context
+
+Closes #123
+
+### Changelog Entry
+
+Add a new function called `foo` which prints "Hello, world!"
+```
+
+The text under "Changelog Entry" will be used verbatim in the changelog instead of the PR title. If
+no such section is present, the PR title is used as usual.
+
 ## Code Style
 
 We follow [Effective Dart](https://dart.dev/effective-dart) conventions.
