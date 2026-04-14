@@ -24,6 +24,10 @@ changelog:
       commit_patterns:
         - "^(?<type>(?:perf|impr|enh)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
       semver: patch
+    - title: Dependencies
+      commit_patterns:
+        - "^(?<type>(?:deps)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
+      semver: patch
     - title: Internal Changes
       commit_patterns:
         - "^(?<type>(?:build|refactor|meta|chore|ci|ref|tests?|style|docs)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
