@@ -5,7 +5,7 @@ changelog:
     authors:
       - dependabot
       - renovate
-      - github-actions
+      - github-actions[bot]
 
   categories:
     - title: Breaking Changes
