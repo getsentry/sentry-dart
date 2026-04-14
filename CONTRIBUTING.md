@@ -109,6 +109,8 @@ PR titles must follow [Conventional Commits](https://www.conventionalcommits.org
 determine the semver bump. No manual changelog entries are needed. A changelog preview is posted on
 each PR so you can verify how the entry will look before merging.
 
+If a PR should be excluded from the changelog, apply the `skip-changelog` label.
+
 ### Custom Changelog Entries from PR Descriptions
 
 By default, the changelog entry for a PR is generated from its title. However, PR authors can
