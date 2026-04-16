@@ -1,5 +1,19 @@
 # Changelog
 
+## 9.18.0
+
+### Dependencies
+
+- chore(deps): update Native SDK to v0.13.7 by @github-actions in [#3645](https://github.com/getsentry/sentry-dart/pull/3645)
+
+### Internal Changes
+
+- (flutter-example) Fix macOS SPM build and bump AGP to 8.6.0 by @buenaflor in [#3644](https://github.com/getsentry/sentry-dart/pull/3644)
+- (supabase) Fix flaky error client test for postgrest retry by @buenaflor in [#3643](https://github.com/getsentry/sentry-dart/pull/3643)
+- Add SDK features for beforeSend callbacks by @buenaflor in [#3608](https://github.com/getsentry/sentry-dart/pull/3608)
+- Add dep update pattern to Dependencies changelog category by @buenaflor in [#3642](https://github.com/getsentry/sentry-dart/pull/3642)
+- Replace Danger with release.yml changelog policy by @buenaflor in [#3641](https://github.com/getsentry/sentry-dart/pull/3641)
+
 ## 9.17.0
 
 ### Fixes
