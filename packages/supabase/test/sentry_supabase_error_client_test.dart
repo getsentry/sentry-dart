@@ -77,7 +77,9 @@ void main() {
         expect(e, error); // Error is rethrown
       }
 
-      // Supabase retries the request up to 3 times, so we expect at least 1 event.
+      // postgrest (Supabase dependency) retries GET requests on transient failures, so multiple
+      // captureEvent calls may occur. Duplicates are deduplicated by event
+      // processors in the full pipeline, which is not applied here.
       expect(fixture.mockHub.captureEventCalls.length, greaterThanOrEqualTo(1));
       final event = fixture.mockHub.captureEventCalls.first.$1;
 
