@@ -9,8 +9,11 @@ import 'sentry_options.dart';
 /// This allows us to track which callbacks are used in the SDK.
 @internal
 class TrackBeforeSendUsageIntegration extends Integration<SentryOptions> {
+  static const _integrationName = 'TrackBeforeSendUsageIntegration';
+
   @override
   void call(Hub hub, SentryOptions options) {
+    options.sdk.addIntegration(_integrationName);
     if (options.beforeSend != null) {
       options.sdk.addFeature(SentryFeatures.beforeSendEvent);
     }

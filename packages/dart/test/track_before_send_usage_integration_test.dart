@@ -13,6 +13,13 @@ void main() {
       fixture = Fixture();
     });
 
+    test('adds itself to sdk.integrations', () {
+      fixture.getSut().call(fixture.hub, fixture.options);
+
+      expect(fixture.options.sdk.integrations,
+          contains('TrackBeforeSendUsageIntegration'));
+    });
+
     test('adds beforeSendEvent feature when beforeSend is configured', () {
       fixture.options.beforeSend = (event, hint) => event;
 
