@@ -7,31 +7,36 @@ you get started.
 
 ### Required Tools
 
-* **Dart SDK** - Required for all packages
-* **Flutter SDK** - Required for `sentry-flutter` and Flutter integrations
+* **Dart SDK** `>=3.5.0` - Required for all packages
+* **Flutter SDK** `>=3.24.0` - Required for `sentry-flutter` and Flutter integrations
+* **[fvm](https://fvm.app/)** - For Flutter/Dart version management
 * **[melos](https://melos.invertase.dev/)** - For managing the monorepo
 
 ## Environment Setup
 
-### 1. Install melos
+### 1. Install fvm and melos
 
 ```bash
+dart pub global activate fvm
 dart pub global activate melos
 ```
 
-### 2. Bootstrap the project
+### 2. Install the Flutter SDK via fvm
 
-At the repository root, run:
+```bash
+fvm use stable
+```
+
+This reads `.fvmrc` and installs the pinned Flutter version. It also creates a `.fvm/flutter_sdk`
+symlink that melos uses to resolve `dart`/`flutter` commands (via `sdkPath` in `melos.yaml`).
+
+### 3. Bootstrap the project
 
 ```bash
 melos bootstrap
 ```
 
-If you're using [fvm](https://fvm.app/), specify the SDK path:
-
-```bash
-melos bootstrap --sdk-path=/Users/user/fvm/default/
-```
+This resolves all package dependencies and configures git hooks for pre-commit checks.
 
 ## Project Structure
 
@@ -52,8 +57,8 @@ Located under `packages/`, we maintain integrations for popular Dart/Flutter lib
 * **sentry_drift** - Integration for [drift](https://pub.dev/packages/drift) database
 * **sentry_hive** - Integration for [hive](https://pub.dev/packages/hive) database
 * **sentry_isar** - Integration for [isar](https://pub.dev/packages/isar) database
-* **sentry_file** - File I/O operations integration
-* **sentry_link** - GraphQL integration via [gql_link](https://pub.dev/packages/gql_link)
+* **sentry_file** - Integration for File I/O operations
+* **sentry_link** - Integration for GraphQL via [gql_link](https://pub.dev/packages/gql_link)
 * **sentry_firebase_remote_config** - Integration
   for [firebase_remote_config](https://pub.dev/packages/firebase_remote_config)
 
@@ -61,12 +66,12 @@ Located under `packages/`, we maintain integrations for popular Dart/Flutter lib
 
 The Flutter SDK supports the following platforms:
 
-* Android
 * iOS
 * macOS
+* Android
+* Web
 * Linux
 * Windows
-* Web
 
 We test the example app on Windows, macOS, and Linux to ensure cross-platform compatibility. CI runs
 against Flutter `stable` and `beta` channels.
@@ -82,18 +87,56 @@ The Flutter SDK embeds platform-specific native SDKs:
   `packages/flutter/sentry-native/`)
 * **Web**: [sentry-javascript](https://github.com/getsentry/sentry-javascript) (loaded via CDN)
 
-[//]: # (TODO: buenaflor - properly set up precommit hooks)
-[//]: # (### Static Code Analysis, Tests, Formatting, Pub Score and Dry publish)
+## Pre-commit Hooks
 
-[//]: # ()
-[//]: # (* Dart/Flutter)
+After `melos bootstrap`, git is configured to use `.githooks/` for hooks. The pre-commit hook
+automatically:
 
-[//]: # (  * Execute `./tool/presubmit.sh` within the `dart` and `flutter` folders)
+1. **Auto-formats** staged `.dart` files and re-stages them
+2. **Runs `dart analyze`** on changed Dart-only packages
+3. **Runs `flutter analyze`** on changed Flutter packages
 
-[//]: # (* Swift/CocoaPods)
+Only packages with staged changes are analyzed — no need to wait for the full monorepo.
 
-[//]: # (  * Use `swiftlint` and `pod lib lint`)
+## Changelog
 
-[//]: # (* Kotlin)
+Changelogs are generated automatically during the release process using
+[craft](https://github.com/getsentry/craft). The policy is defined in
+[`.github/release.yml`](.github/release.yml).
 
-[//]: # (  * Use `ktlint` and `detekt`)
+PR titles must follow [Conventional Commits](https://www.conventionalcommits.org/) format (e.g.,
+`feat(scope): Add feature`, `fix: Handle null`) since craft uses them to categorize entries and
+determine the semver bump. No manual changelog entries are needed. A changelog preview is posted on
+each PR so you can verify how the entry will look before merging.
+
+If a PR should be excluded from the changelog, apply the `skip-changelog` label.
+
+### Custom Changelog Entries from PR Descriptions
+
+By default, the changelog entry for a PR is generated from its title. However, PR authors can
+override this by adding a "Changelog Entry" section to the PR description. This allows for more
+detailed, user-facing changelog entries without cluttering the PR title.
+
+Add a markdown heading (level 2 or 3) titled "Changelog Entry" to your PR description, followed by
+the desired changelog text:
+
+```markdown
+### Description
+
+Add `foo` function, and add unit tests to thoroughly check all edge cases.
+
+### Motivation & Context
+
+Closes #123
+
+### Changelog Entry
+
+Add a new function called `foo` which prints "Hello, world!"
+```
+
+The text under "Changelog Entry" will be used verbatim in the changelog instead of the PR title. If
+no such section is present, the PR title is used as usual.
+
+## Code Style
+
+We follow [Effective Dart](https://dart.dev/effective-dart) conventions.

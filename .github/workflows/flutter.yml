@@ -10,6 +10,7 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/flutter-test/**'
       - '.github/actions/coverage/**'
+      - '.github/actions/test-results/**'
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - 'packages/dart/**'
@@ -49,7 +50,7 @@ jobs:
           - target: wasm
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - uses: ./.github/actions/flutter-test
         with:
@@ -62,6 +63,12 @@ jobs:
           directory: packages/flutter
           coverage: sentry_flutter
           min-coverage: 85
+
+      - uses: ./.github/actions/test-results
+        if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: sentry_flutter-${{ matrix.target }}-${{ matrix.sdk }}
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5
@@ -104,17 +111,13 @@ jobs:
     name: 'SPM'
     runs-on: macos-15
     timeout-minutes: 30
-    defaults:
-      run:
-        shell: bash
-        working-directory: packages/flutter/example
     strategy:
       fail-fast: false
       matrix:
         target: [ios, macos]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
@@ -122,16 +125,28 @@ jobs:
 
       - run: flutter config --enable-swift-package-manager
 
+      - name: Log Flutter version
+        run: flutter --version
+
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5
         run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
+      # Flutter main derives the local SwiftPM package identity from the plugin path basename on macOS.
+      # Our package lives in packages/flutter, which makes Xcode resolve it as "flutter" and fail with:
+      # "unable to override package 'sentry_flutter' because its identity 'flutter' doesn't match override's identity (directory name) 'sentry_flutter'"
+      - name: Rename sentry_flutter package for macOS SwiftPM
+        if: matrix.target == 'macos'
+        run: mv packages/flutter packages/sentry_flutter
+
       - name: Run on iOS
         if: matrix.target == 'ios'
+        working-directory: packages/flutter/example
         run: flutter build ios --no-codesign
 
       - name: Run on macOS
         if: matrix.target == 'macos'
+        working-directory: packages/sentry_flutter/example
         run: flutter build macos --debug
 
   analyze:
@@ -147,7 +162,7 @@ jobs:
       run:
         working-directory: packages/flutter
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
@@ -163,7 +178,7 @@ jobs:
       run:
         working-directory: packages/flutter
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@3.2.1
         with:
           args: --strict
@@ -175,7 +190,7 @@ jobs:
       run:
         working-directory: packages/flutter
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: ktlint
         uses: ScaCap/action-ktlint@26c5e9b625966139d9956cbbb6217375480d4e14 # pin@1.9.0
@@ -189,7 +204,7 @@ jobs:
 #    runs-on: ubuntu-latest
 #    timeout-minutes: 20
 #    steps:
-#      - uses: actions/checkout@v6
+#      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 #      # To recreate baseline run: detekt -i packages/flutter/android,packages/flutter/example/android -b packages/flutter/config/detekt-bl.xml -cb
 #      - uses: natiginfo/action-detekt-all@45229fbbe47eaff1160b6c956d7ffe14dc23c206 # pin@1.23.8
 #        with:

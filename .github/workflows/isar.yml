@@ -12,6 +12,7 @@ on:
       - '.github/workflows/analyze.yml'
       - '.github/actions/flutter-test/**'
       - '.github/actions/coverage/**'
+      - '.github/actions/test-results/**'
       - 'packages/dart/**'
       - 'packages/isar/**'
 
@@ -31,7 +32,7 @@ jobs:
         sdk: [stable, beta]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - uses: ./.github/actions/flutter-test
         with:
@@ -44,6 +45,12 @@ jobs:
           directory: packages/isar
           coverage: sentry_isar
           min-coverage: 55
+
+      - uses: ./.github/actions/test-results
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: sentry_isar-${{ matrix.target }}-${{ matrix.sdk }}
 
   analyze:
     uses: ./.github/workflows/analyze.yml
