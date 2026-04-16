@@ -77,7 +77,8 @@ void main() {
         expect(e, error); // Error is rethrown
       }
 
-      expect(fixture.mockHub.captureEventCalls.length, 1);
+      // Supabase retries the request up to 3 times, so we expect at least 1 event.
+      expect(fixture.mockHub.captureEventCalls.length, greaterThanOrEqualTo(1));
       final event = fixture.mockHub.captureEventCalls.first.$1;
 
       expect(event.throwableMechanism, isA<ThrowableMechanism>());
