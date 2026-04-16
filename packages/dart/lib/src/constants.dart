@@ -40,6 +40,16 @@ class SentrySpanDescriptions {
   static String dbClose({required String dbName}) => 'Close database $dbName';
 }
 
+/// Features are SDK metadata to help us query SDK usage and analytics internally.
+@internal
+class SentryFeatures {
+  static const String beforeSendEvent = 'beforeSendEvent';
+  static const String beforeSendTransaction = 'beforeSendTransaction';
+  static const String beforeSendFeedback = 'beforeSendFeedback';
+  static const String beforeSendLog = 'beforeSendLog';
+  static const String beforeSendMetric = 'beforeSendMetric';
+}
+
 /// Semantic attributes for telemetry.
 ///
 /// Not all attributes apply to every telemetry type.
