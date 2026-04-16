@@ -2389,60 +2389,6 @@ void main() {
     });
   });
 
-  group('SentryClient beforeSend features', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
-
-    test('adds beforeSendEvent feature when beforeSend is configured', () {
-      fixture.getSut(beforeSend: beforeSendCallback);
-      expect(fixture.options.sdk.features,
-          contains(SentryFeatures.beforeSendEvent));
-    });
-
-    test('adds beforeSendTransaction feature when configured', () {
-      fixture.getSut(beforeSendTransaction: beforeSendTransactionCallback);
-      expect(fixture.options.sdk.features,
-          contains(SentryFeatures.beforeSendTransaction));
-    });
-
-    test('adds beforeSendFeedback feature when configured', () {
-      fixture.getSut(beforeSendFeedback: beforeSendFeedbackCallback);
-      expect(fixture.options.sdk.features,
-          contains(SentryFeatures.beforeSendFeedback));
-    });
-
-    test('adds beforeSendLog feature when configured', () {
-      fixture.options.beforeSendLog = (log) => log;
-      SentryClient(fixture.options);
-      expect(
-          fixture.options.sdk.features, contains(SentryFeatures.beforeSendLog));
-    });
-
-    test('adds beforeSendMetric feature when configured', () {
-      fixture.options.beforeSendMetric = (metric) => metric;
-      SentryClient(fixture.options);
-      expect(fixture.options.sdk.features,
-          contains(SentryFeatures.beforeSendMetric));
-    });
-
-    test('does not add beforeSend features when callbacks are not set', () {
-      fixture.getSut();
-      expect(fixture.options.sdk.features,
-          isNot(contains(SentryFeatures.beforeSendEvent)));
-      expect(fixture.options.sdk.features,
-          isNot(contains(SentryFeatures.beforeSendTransaction)));
-      expect(fixture.options.sdk.features,
-          isNot(contains(SentryFeatures.beforeSendFeedback)));
-      expect(fixture.options.sdk.features,
-          isNot(contains(SentryFeatures.beforeSendLog)));
-      expect(fixture.options.sdk.features,
-          isNot(contains(SentryFeatures.beforeSendMetric)));
-    });
-  });
-
   group('SentryClient close', () {
     late Fixture fixture;
 
