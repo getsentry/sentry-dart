@@ -14803,6 +14803,127 @@ extension SentryOptions$$Methods on SentryOptions {
         .check();
   }
 
+  static final _id_get$isStrictTraceContinuation =
+      SentryOptions._class.instanceMethodId(
+    r'isStrictTraceContinuation',
+    r'()Z',
+  );
+
+  static final _get$isStrictTraceContinuation =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallBooleanMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public boolean isStrictTraceContinuation()`
+  core$_.bool get isStrictTraceContinuation {
+    return _get$isStrictTraceContinuation(
+            reference.pointer, _id_get$isStrictTraceContinuation.pointer)
+        .boolean;
+  }
+
+  static final _id_set$strictTraceContinuation =
+      SentryOptions._class.instanceMethodId(
+    r'setStrictTraceContinuation',
+    r'(Z)V',
+  );
+
+  static final _set$strictTraceContinuation =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int32,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, core$_.int)>();
+
+  /// from: `public void setStrictTraceContinuation(boolean z)`
+  set strictTraceContinuation(core$_.bool z) {
+    _set$strictTraceContinuation(reference.pointer,
+            _id_set$strictTraceContinuation.pointer, z ? 1 : 0)
+        .check();
+  }
+
+  static final _id_get$orgId = SentryOptions._class.instanceMethodId(
+    r'getOrgId',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _get$orgId = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getOrgId()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? get orgId {
+    return _get$orgId(reference.pointer, _id_get$orgId.pointer)
+        .object<jni$_.JString?>();
+  }
+
+  static final _id_set$orgId = SentryOptions._class.instanceMethodId(
+    r'setOrgId',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _set$orgId = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setOrgId(java.lang.String string)`
+  set orgId(jni$_.JString? string) {
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _set$orgId(reference.pointer, _id_set$orgId.pointer, _$string.pointer)
+        .check();
+  }
+
+  static final _id_get$effectiveOrgId = SentryOptions._class.instanceMethodId(
+    r'getEffectiveOrgId',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _get$effectiveOrgId = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.lang.String getEffectiveOrgId()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? get effectiveOrgId {
+    return _get$effectiveOrgId(
+            reference.pointer, _id_get$effectiveOrgId.pointer)
+        .object<jni$_.JString?>();
+  }
+
   static final _id_get$proguardUuid = SentryOptions._class.instanceMethodId(
     r'getProguardUuid',
     r'()Ljava/lang/String;',
