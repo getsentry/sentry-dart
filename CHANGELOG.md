@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes 
+
+- Harden float JSON encoding (#7802)
+
 ## 9.18.0
 
 ### Dependencies
@@ -18,7 +24,6 @@
 
 ### Fixes
 
-- Show success message after feedback submission ([#3609](https://github.com/getsentry/sentry-dart/pull/3609))
 - Revert fetching `sentry-native` from release zip, use git source instead to fix permission issues ([#3630](https://github.com/getsentry/sentry-dart/issues/3630))
 
 ### Dependencies
