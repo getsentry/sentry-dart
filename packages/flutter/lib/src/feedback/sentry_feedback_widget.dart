@@ -398,7 +398,9 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
         );
       }
 
-      _showSuccessSnackBar();
+      if (widget.options.showSuccessMessage) {
+        _showSuccessSnackBar();
+      }
     }
 
     _dismiss(pendingAssociatedEventId: false);

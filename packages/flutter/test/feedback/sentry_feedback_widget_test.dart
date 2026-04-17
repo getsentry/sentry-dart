@@ -864,6 +864,35 @@ void main() {
         expect(snackBar.backgroundColor, Colors.blue);
       });
 
+      testWidgets('does not show a snackbar when disabled', (tester) async {
+        SentryFeedback? receivedFeedback;
+        SentryId? receivedEventId;
+        fixture.options.feedback.showSuccessMessage = false;
+        fixture.options.feedback.onSubmitSuccess = (feedback, eventId) {
+          receivedFeedback = feedback;
+          receivedEventId = eventId;
+        };
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'callback-test',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(SentryFeedbackWidget), findsNothing);
+        expect(find.byType(SnackBar), findsNothing);
+        expect(receivedFeedback, isNotNull);
+        expect(receivedFeedback!.message, 'callback-test');
+        expect(receivedEventId, isNotNull);
+        expect(receivedEventId, isNot(const SentryId.empty()));
+      });
+
       testWidgets('calls onSubmitSuccess callback', (tester) async {
         SentryFeedback? receivedFeedback;
         SentryId? receivedEventId;

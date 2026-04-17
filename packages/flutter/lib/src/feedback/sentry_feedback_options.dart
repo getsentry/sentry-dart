@@ -48,6 +48,9 @@ class SentryFeedbackOptions {
   /// The message displayed after a successful feedback submission.
   String successMessageText = 'Thank you for your report!';
 
+  /// Whether to show the default success message after a successful feedback submission.
+  bool showSuccessMessage = true;
+
   /// The label next to the name input field.
   String nameLabel = 'Name';
 
@@ -86,7 +89,5 @@ class SentryFeedbackOptions {
   // Event Callbacks
 
   /// Called when feedback is successfully submitted.
-  ///
-  /// This is called in addition to the default success snack bar behavior.
   void Function(SentryFeedback feedback, SentryId eventId)? onSubmitSuccess;
 }
