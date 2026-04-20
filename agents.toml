@@ -10,6 +10,10 @@ github_repos = [ "getsentry/skills", "getsentry/sdk-skills", "getsentry/dotagent
 name = "dotagents"
 source = "getsentry/dotagents"
 
+[[skills]]
+name = "warden"
+source = "getsentry/warden"
+
 # getsentry/skills — core development
 [[skills]]
 name = "commit"
