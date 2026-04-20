@@ -3,7 +3,7 @@ gitignore = false
 agents = ["claude", "cursor"]
 
 [trust]
-github_repos = [ "getsentry/skills", "getsentry/sdk-skills", "getsentry/dotagents" ]
+github_repos = [ "getsentry/skills", "getsentry/sdk-skills", "getsentry/dotagents", "getsentry/warden" ]
 
 
 [[skills]]
