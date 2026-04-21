@@ -34,6 +34,7 @@ import 'transport/task_queue.dart';
 import 'feature_flags_integration.dart';
 import 'telemetry/log/logger.dart';
 import 'telemetry/log/logger_setup_integration.dart';
+import 'track_before_send_usage_integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -119,6 +120,7 @@ class Sentry {
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
     options.addIntegration(FeatureFlagsIntegration());
     options.addIntegration(InMemoryTelemetryProcessorIntegration());
+    options.addIntegration(TrackBeforeSendUsageIntegration());
 
     options.addEventProcessor(EnricherEventProcessor(options));
     options.addEventProcessor(ExceptionEventProcessor(options));

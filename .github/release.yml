@@ -1,0 +1,34 @@
+changelog:
+  exclude:
+    labels:
+      - skip-changelog
+    authors:
+      - dependabot[bot]
+      - renovate
+
+  categories:
+    - title: Breaking Changes
+      commit_patterns:
+        - "^(?<type>\\w+(?:\\((?<scope>[^)]+)\\))?!:\\s*)"
+      semver: major
+    - title: Features
+      commit_patterns:
+        - "^(?<type>feat(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
+      semver: minor
+    - title: Fixes
+      commit_patterns:
+        - "^(?<type>fix(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
+        - '^Revert "'
+      semver: patch
+    - title: Enhancements
+      commit_patterns:
+        - "^(?<type>(?:perf|impr|enh)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
+      semver: patch
+    - title: Dependencies
+      commit_patterns:
+        - "^(?<type>(?:deps)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
+        - "^chore\\(deps\\): update (JavaScript|Native|Cocoa|Android) SDK"
+      semver: patch
+    - title: Internal Changes
+      commit_patterns:
+        - "^(?<type>(?:build|refactor|meta|chore|ci|ref|tests?|style|docs)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"

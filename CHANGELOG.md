@@ -1,6 +1,38 @@
 # Changelog
 
-## Unreleased
+## 9.18.0
+
+### Dependencies
+
+- chore(deps): update Native SDK to v0.13.7 by @github-actions in [#3645](https://github.com/getsentry/sentry-dart/pull/3645)
+
+### Internal Changes
+
+- (flutter-example) Fix macOS SPM build and bump AGP to 8.6.0 by @buenaflor in [#3644](https://github.com/getsentry/sentry-dart/pull/3644)
+- (supabase) Fix flaky error client test for postgrest retry by @buenaflor in [#3643](https://github.com/getsentry/sentry-dart/pull/3643)
+- Add SDK features for beforeSend callbacks by @buenaflor in [#3608](https://github.com/getsentry/sentry-dart/pull/3608)
+- Add dep update pattern to Dependencies changelog category by @buenaflor in [#3642](https://github.com/getsentry/sentry-dart/pull/3642)
+- Replace Danger with release.yml changelog policy by @buenaflor in [#3641](https://github.com/getsentry/sentry-dart/pull/3641)
+
+## 9.17.0
+
+### Fixes
+
+- Revert fetching `sentry-native` from release zip, use git source instead to fix permission issues ([#3630](https://github.com/getsentry/sentry-dart/issues/3630))
+
+### Dependencies
+
+- Bump Native SDK from v0.13.3 to v0.13.6 ([#3606](https://github.com/getsentry/sentry-dart/pull/3606))
+  - [changelog](https://github.com/getsentry/sentry-native/blob/master/CHANGELOG.md#0136)
+  - [diff](https://github.com/getsentry/sentry-native/compare/0.13.3...0.13.6)
+- Bump Cocoa SDK from v8.58.0 to v8.58.1 ([#3632](https://github.com/getsentry/sentry-dart/pull/3632))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8581)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.58.0...8.58.1)
+- Bump Android SDK from v8.37.1 to v8.38.0 ([#3631](https://github.com/getsentry/sentry-dart/pull/3631))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#8380)
+  - [diff](https://github.com/getsentry/sentry-java/compare/8.37.1...8.38.0)
+
+## 9.16.1
 
 - Experimental span-streaming API with `startSpan`
 ### Fixes
