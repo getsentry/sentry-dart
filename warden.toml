@@ -30,6 +30,7 @@ actions = ["opened", "synchronize", "reopened"]
 
 [[skills]]
 name = "gha-security-review"
+paths = [".github/**/*"]
 remote = "getsentry/skills"
 
 [[skills.triggers]]
