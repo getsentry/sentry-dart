@@ -92,8 +92,17 @@ class NativeAppStartHandlerV2 {
     sentrySetupSpan.end(endTimestamp: appStartInfo.sentrySetupStart);
     firstFrameRenderSpan.end(endTimestamp: appStartEnd);
 
-    appStartSpan.end(endTimestamp: appStartEnd);
+    final appStartValueKey = switch (appStartInfo.type) {
+      AppStartType.cold => SemanticAttributesConstants.appVitalsStartColdValue,
+      AppStartType.warm => SemanticAttributesConstants.appVitalsStartWarmValue,
+    };
+    appStartSpan.setAttribute(
+        appStartValueKey,
+        SentryAttribute.double(appStartEnd
+            .difference(appStartInfo.start)
+            .inMilliseconds
+            .toDouble()));
 
-    // TODO(next-pr): add mobile vitals specific attributes later
+    appStartSpan.end(endTimestamp: appStartEnd);
   }
 }

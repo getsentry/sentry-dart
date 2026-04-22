@@ -147,26 +147,49 @@ class TimeToDisplayTrackerV2 {
             SentryTraceOrigins.autoNavigationRouteObserver),
       },
     );
-
     if (ttidEndTimestamp != null) {
+      if (startTimestamp != null) {
+        ttidSpan.setAttribute(
+            SemanticAttributesConstants.appVitalsTtidValue,
+            SentryAttribute.double(ttidEndTimestamp
+                .difference(startTimestamp)
+                .inMilliseconds
+                .toDouble()));
+      }
       ttidSpan.end(endTimestamp: ttidEndTimestamp);
     } else {
       _frameCallbackHandler.addPostFrameCallback((_) {
-        ttidSpan.end();
+        final endTimestamp = DateTime.now();
+        if (startTimestamp != null) {
+          ttidSpan.setAttribute(
+              SemanticAttributesConstants.appVitalsTtidValue,
+              SentryAttribute.double(endTimestamp
+                  .difference(startTimestamp)
+                  .inMilliseconds
+                  .toDouble()));
+        }
+        ttidSpan.end(endTimestamp: endTimestamp);
       });
     }
   }
 
   /// Ends the active TTFD span if [spanId] matches, otherwise ignores the call.
   void reportFullyDisplayed(SpanId spanId) {
-    final ttfdSpanId = _ttfdSpan?.spanId;
-    if (ttfdSpanId != spanId) {
+    final ttfdSpan = _ttfdSpan;
+    if (ttfdSpan == null || ttfdSpan.spanId != spanId) {
       internalLogger.debug(
-        'Ignoring reportFullyDisplayed for span $spanId because active TTFD span is $ttfdSpanId.',
+        'Ignoring reportFullyDisplayed for span $spanId because active TTFD span is ${ttfdSpan?.spanId}.',
       );
       return;
     }
-    _ttfdSpan?.end();
+    final endTimestamp = DateTime.now();
+    ttfdSpan.setAttribute(
+        SemanticAttributesConstants.appVitalsTtfdValue,
+        SentryAttribute.double(endTimestamp
+            .difference(ttfdSpan.startTimestamp)
+            .inMilliseconds
+            .toDouble()));
+    ttfdSpan.end(endTimestamp: endTimestamp);
     _ttfdSpan = null;
   }
 
