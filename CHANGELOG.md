@@ -5,6 +5,36 @@
 ### Features
 
 - Span-first trace lifecycle (experimental) by @buenaflor in [#3659](https://github.com/getsentry/sentry-dart/pull/3659)
+  - Streams spans to Sentry as each one finishes instead of buffering them into a transaction envelope at the root.
+  - Opt in via `options.traceLifecycle`. The classic transaction-based `SentryTraceLifecycle.static` remains the default.
+  - In stream mode, create spans with the new `Sentry.startSpan` / `Sentry.startSpanSync` APIs — the transaction APIs (`Sentry.startTransaction`, `ISentrySpan.startChild`) do nothing in this mode.
+  - Auto-instrumentations (frames, app start, TTID/TTFD, navigation, user interaction, HTTP, databases, GraphQL link) automatically switch to the streaming API when enabled.
+
+```dart
+// Opt in during SDK init.
+await SentryFlutter.init((options) {
+  options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+  options.tracesSampleRate = 1.0;
+  options.traceLifecycle = SentryTraceLifecycle.stream;
+});
+
+// Async work — the span ends and is sent when the future completes.
+final order = await Sentry.startSpan('checkout', (span) async {
+  span.setAttribute('cart.item_count', SentryAttribute.int(cart.items.length));
+
+  // Automatically parents to 'checkout' via zones.
+  final payment = await Sentry.startSpan('process-payment', (span) {
+    return paymentService.charge(cart.total);
+  });
+
+  return orderService.create(cart, payment: payment);
+});
+
+// Sync variant.
+final total = Sentry.startSpanSync('calculate-total', (span) {
+  return cart.items.fold<double>(0, (sum, item) => sum + item.price);
+});
+```
 
 ### Fixes
 
@@ -12,7 +42,15 @@
 
 ### Enhancements
 
-- (navigator-observer) Make new trace id on navigation opt-in instead of opt-out by @buenaflor in [#3657](https://github.com/getsentry/sentry-dart/pull/3657)
+- (navigator-observer) `enableNewTraceOnNavigation` is now opt-in by @buenaflor in [#3657](https://github.com/getsentry/sentry-dart/pull/3657)
+  - `SentryNavigatorObserver` no longer generates a fresh trace id on every push/pop/replace by default. One trace per session (the previous opt-in behavior) is now the default and preserves trace continuity across navigations.
+  - If you relied on the old behavior, opt back in explicitly:
+
+```dart
+SentryNavigatorObserver(
+  enableNewTraceOnNavigation: true,
+);
+```
 
 ### Dependencies
 
