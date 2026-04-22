@@ -60,6 +60,27 @@ void main() {
               ..orgId = '456';
         expect(options.effectiveOrgId, '456');
       });
+
+      test('empty explicit orgId falls back to DSN', () {
+        final options =
+            SentryOptions(dsn: 'https://public@o123.ingest.sentry.io/1')
+              ..automatedTestMode = true
+              ..orgId = '';
+        expect(options.effectiveOrgId, '123');
+      });
+
+      test('whitespace-only explicit orgId falls back to DSN', () {
+        final options =
+            SentryOptions(dsn: 'https://public@o123.ingest.sentry.io/1')
+              ..automatedTestMode = true
+              ..orgId = '   ';
+        expect(options.effectiveOrgId, '123');
+      });
+
+      test('trims whitespace from explicit orgId', () {
+        final options = defaultTestOptions()..orgId = '  456  ';
+        expect(options.effectiveOrgId, '456');
+      });
     });
 
     test('strictTraceContinuation defaults to false', () {
@@ -87,6 +108,25 @@ void main() {
     test('returns false when org IDs do not match', () {
       final options = defaultTestOptions()..orgId = '123';
       expect(shouldContinueTrace(options, '456'), isFalse);
+    });
+
+    test('treats empty baggage org ID as missing', () {
+      final options = defaultTestOptions()
+        ..orgId = '123'
+        ..strictTraceContinuation = true;
+      expect(shouldContinueTrace(options, ''), isFalse);
+    });
+
+    test('treats whitespace-only baggage org ID as missing', () {
+      final options = defaultTestOptions()
+        ..orgId = '123'
+        ..strictTraceContinuation = true;
+      expect(shouldContinueTrace(options, '   '), isFalse);
+    });
+
+    test('trims whitespace from baggage org ID before comparison', () {
+      final options = defaultTestOptions()..orgId = '123';
+      expect(shouldContinueTrace(options, '  123  '), isTrue);
     });
 
     group('when strictTraceContinuation is false', () {

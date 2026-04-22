@@ -617,10 +617,14 @@ class SentryOptions {
   String? orgId;
 
   /// The effective organization ID, preferring [orgId] over the DSN-parsed value.
+  ///
+  /// Empty or whitespace-only explicit [orgId] values are treated as unset
+  /// and fall back to the DSN.
   @internal
   String? get effectiveOrgId {
-    if (orgId != null) {
-      return orgId;
+    final explicit = orgId?.trim();
+    if (explicit != null && explicit.isNotEmpty) {
+      return explicit;
     }
     try {
       final host = parsedDsn.uri?.host;

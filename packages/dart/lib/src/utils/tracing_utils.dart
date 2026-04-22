@@ -147,6 +147,11 @@ bool containsTargetOrMatchesRegExp(
 @internal
 bool shouldContinueTrace(SentryOptions options, String? baggageOrgId) {
   final sdkOrgId = options.effectiveOrgId;
+  // Treat empty/whitespace-only baggage org IDs as absent
+  final trimmedBaggageOrgId = baggageOrgId?.trim();
+  baggageOrgId = (trimmedBaggageOrgId != null && trimmedBaggageOrgId.isNotEmpty)
+      ? trimmedBaggageOrgId
+      : null;
 
   // Mismatched org IDs always reject regardless of strict mode
   if (sdkOrgId != null && baggageOrgId != null && sdkOrgId != baggageOrgId) {

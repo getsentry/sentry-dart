@@ -1,4 +1,5 @@
 import 'protocol.dart';
+import 'sentry.dart';
 import 'sentry_baggage.dart';
 import 'sentry_options.dart';
 import 'sentry_trace_origins.dart';
@@ -34,8 +35,11 @@ class SentryTransactionContext extends SentrySpanContext {
     SentryBaggage? baggage,
     SentryOptions? options,
   }) {
-    // Validate org ID before continuing the incoming trace
-    if (options != null && !shouldContinueTrace(options, baggage?.getOrgId())) {
+    // Fall back to the current hub's options when not explicitly provided.
+    final effectiveOptions = options ?? Sentry.currentHub.options;
+
+    // Validate org ID before continuing the incoming trace.
+    if (!shouldContinueTrace(effectiveOptions, baggage?.getOrgId())) {
       // Start a new trace instead of continuing the incoming one
       return SentryTransactionContext(
         name,
