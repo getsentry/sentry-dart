@@ -90,7 +90,7 @@ Future<void> setupSentry(
       options.enableTimeToFullDisplayTracing = true;
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.navigatorKey = navigatorKey;
-      options.traceLifecycle = SentryTraceLifecycle.streaming;
+      options.traceLifecycle = SentryTraceLifecycle.stream;
 
       options.replay.sessionSampleRate = 1.0;
       options.replay.onErrorSampleRate = 1.0;
@@ -462,7 +462,7 @@ class MainScaffold extends StatelessWidget {
             TooltipButton(
               onPressed: () async {
                 if (Sentry.currentHub.options.traceLifecycle ==
-                    SentryTraceLifecycle.streaming) {
+                    SentryTraceLifecycle.stream) {
                   await Sentry.startSpan(
                     'myNewSpanWithChildren',
                     (rootSpan) async {
@@ -660,7 +660,7 @@ class MainScaffold extends StatelessWidget {
               buttonTitle: 'Sentry Log with Attribute',
             ),
             if (Sentry.currentHub.options.traceLifecycle ==
-                SentryTraceLifecycle.streaming)
+                SentryTraceLifecycle.stream)
               TooltipButton(
                 onPressed: () => spanV2Demo(),
                 text:
@@ -717,7 +717,7 @@ class MainScaffold extends StatelessWidget {
 
   Future<void> isarTest() async {
     if (Sentry.currentHub.options.traceLifecycle ==
-        SentryTraceLifecycle.streaming) {
+        SentryTraceLifecycle.stream) {
       await Sentry.startSpan('isarTest', (span) async {
         await runIsarOperations();
       });
@@ -747,7 +747,7 @@ class MainScaffold extends StatelessWidget {
 
   Future<void> hiveTest() async {
     if (Sentry.currentHub.options.traceLifecycle ==
-        SentryTraceLifecycle.streaming) {
+        SentryTraceLifecycle.stream) {
       await Sentry.startSpan('hiveTest', (span) async {
         await runHiveOperations();
       });
@@ -800,7 +800,7 @@ class MainScaffold extends StatelessWidget {
 
   Future<void> sqfliteTest() async {
     if (Sentry.currentHub.options.traceLifecycle ==
-        SentryTraceLifecycle.streaming) {
+        SentryTraceLifecycle.stream) {
       await Sentry.startSpan('sqfliteTest', (span) async {
         await runSqfliteOperations();
       });
@@ -835,7 +835,7 @@ class MainScaffold extends StatelessWidget {
 
   Future<void> driftTest() async {
     if (Sentry.currentHub.options.traceLifecycle ==
-        SentryTraceLifecycle.streaming) {
+        SentryTraceLifecycle.stream) {
       await Sentry.startSpan('driftTest', (span) async {
         await runDriftOperations();
       });
@@ -1147,8 +1147,7 @@ Future<void> makeWebRequest(BuildContext context) async {
     failedRequestStatusCodes: [SentryStatusCode.range(400, 500)],
   );
 
-  if (Sentry.currentHub.options.traceLifecycle ==
-      SentryTraceLifecycle.streaming) {
+  if (Sentry.currentHub.options.traceLifecycle == SentryTraceLifecycle.stream) {
     await Sentry.startSpan('flutterwebrequest', (span) async {
       final response = await client.get(Uri.parse(exampleUrl));
 
@@ -1201,8 +1200,7 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
 
   Response<String>? response;
 
-  if (Sentry.currentHub.options.traceLifecycle ==
-      SentryTraceLifecycle.streaming) {
+  if (Sentry.currentHub.options.traceLifecycle == SentryTraceLifecycle.stream) {
     await Sentry.startSpan('dio-web-request', (span) async {
       try {
         response = await dio.get<String>(exampleUrl);
@@ -1304,8 +1302,7 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
     );
   }
 
-  if (Sentry.currentHub.options.traceLifecycle ==
-      SentryTraceLifecycle.streaming) {
+  if (Sentry.currentHub.options.traceLifecycle == SentryTraceLifecycle.stream) {
     await Sentry.startSpan('asset-bundle-load', (span) async {
       await loadAndShowAssets();
     });
