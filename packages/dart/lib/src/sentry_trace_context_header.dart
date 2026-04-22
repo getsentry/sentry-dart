@@ -144,6 +144,7 @@ class SentryTraceContextHeader {
       sampleRand: span.samplingDecision.sampleRand?.toString(),
       sampled: span.samplingDecision.sampled.toString(),
       replayId: replayId,
+      orgId: options.effectiveOrgId,
     );
   }
 }
