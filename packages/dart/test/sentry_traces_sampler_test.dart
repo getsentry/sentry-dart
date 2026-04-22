@@ -40,7 +40,7 @@ void main() {
       test('uses tracesSampler callback when provided', () {
         double? sampler(SentrySamplingContext samplingContext) {
           expect(samplingContext.traceLifecycle,
-              equals(SentryTraceLifecycle.streaming));
+              equals(SentryTraceLifecycle.stream));
           return 1.0;
         }
 

@@ -559,7 +559,7 @@ class Hub {
         "Instance is disabled and this 'startTransaction' call is a no-op.",
       );
     } else if (_options.isTracingEnabled()) {
-      if (_options.traceLifecycle == SentryTraceLifecycle.streaming) {
+      if (_options.traceLifecycle == SentryTraceLifecycle.stream) {
         internalLogger.warning(
           'Hub: startTransaction is not supported when traceLifecycle is \'streaming\'. '
           'Use Sentry.startSpan instead.',

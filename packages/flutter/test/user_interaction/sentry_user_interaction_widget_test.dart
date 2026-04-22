@@ -579,7 +579,7 @@ void main() {
         final sut = fixture.getSut(
           enableUserInteractionTracing: true,
           enableUserInteractionBreadcrumbs: false,
-          traceLifecycle: SentryTraceLifecycle.streaming,
+          traceLifecycle: SentryTraceLifecycle.stream,
         );
 
         await tapMe(tester, sut, 'btn_1');
@@ -600,7 +600,7 @@ void main() {
         final sut = fixture.getSut(
           enableUserInteractionTracing: true,
           enableUserInteractionBreadcrumbs: false,
-          traceLifecycle: SentryTraceLifecycle.streaming,
+          traceLifecycle: SentryTraceLifecycle.stream,
         );
 
         // Start a ui.load idle span before tapping
@@ -627,7 +627,7 @@ void main() {
         final sut = fixture.getSut(
           enableUserInteractionTracing: true,
           enableUserInteractionBreadcrumbs: false,
-          traceLifecycle: SentryTraceLifecycle.streaming,
+          traceLifecycle: SentryTraceLifecycle.stream,
         );
 
         await tapMe(tester, sut, 'btn_1');
@@ -650,7 +650,7 @@ void main() {
         final sut = fixture.getSut(
           enableUserInteractionTracing: true,
           enableUserInteractionBreadcrumbs: false,
-          traceLifecycle: SentryTraceLifecycle.streaming,
+          traceLifecycle: SentryTraceLifecycle.stream,
         );
 
         await tapMe(tester, sut, 'btn_1');

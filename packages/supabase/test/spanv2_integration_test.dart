@@ -198,7 +198,7 @@ class Fixture {
     options = SentryOptions(dsn: 'https://abc@def.ingest.sentry.io/1234567')
       ..automatedTestMode = true
       ..tracesSampleRate = 1.0
-      ..traceLifecycle = SentryTraceLifecycle.streaming
+      ..traceLifecycle = SentryTraceLifecycle.stream
       ..telemetryProcessor = processor;
     hub = Hub(options);
 

@@ -48,7 +48,7 @@ void main() {
 
     group('$SentrySpanV2', () {
       test('captureSpan triggers $OnProcessSpan', () async {
-        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+        fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
 
         final scope = Scope(fixture.options);
         final client = fixture.getSut();

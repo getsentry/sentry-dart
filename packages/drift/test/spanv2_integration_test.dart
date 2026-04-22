@@ -188,7 +188,7 @@ class Fixture {
     processor = FakeTelemetryProcessor();
     options = defaultTestOptions()
       ..tracesSampleRate = 1.0
-      ..traceLifecycle = SentryTraceLifecycle.streaming
+      ..traceLifecycle = SentryTraceLifecycle.stream
       ..telemetryProcessor = processor;
     hub = Hub(options);
 

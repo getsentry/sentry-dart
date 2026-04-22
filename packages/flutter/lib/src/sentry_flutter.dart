@@ -322,7 +322,7 @@ mixin SentryFlutter {
       return null;
     }
     final SpanId? spanId;
-    if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
+    if (options.traceLifecycle == SentryTraceLifecycle.stream) {
       spanId = options.timeToDisplayTrackerV2.ttfdSpanId;
     } else {
       spanId = options.timeToDisplayTracker.transactionId;

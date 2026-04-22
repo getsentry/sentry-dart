@@ -447,7 +447,7 @@ void main() {
     group('when traceLifecycle is streaming', () {
       test('startTransaction returns NoOpSentrySpan', () {
         final hub = fixture.getSut(
-          traceLifecycle: SentryTraceLifecycle.streaming,
+          traceLifecycle: SentryTraceLifecycle.stream,
           debug: true,
         );
 
@@ -458,7 +458,7 @@ void main() {
 
       test('startTransactionWithContext returns NoOpSentrySpan', () {
         final hub = fixture.getSut(
-          traceLifecycle: SentryTraceLifecycle.streaming,
+          traceLifecycle: SentryTraceLifecycle.stream,
           debug: true,
         );
 

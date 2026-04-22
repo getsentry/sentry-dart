@@ -11,7 +11,7 @@ void main() {
 
         final context = SentrySamplingContext.forSpanV2(spanContext);
 
-        expect(context.traceLifecycle, equals(SentryTraceLifecycle.streaming));
+        expect(context.traceLifecycle, equals(SentryTraceLifecycle.stream));
       });
 
       test('provides access to span context', () {

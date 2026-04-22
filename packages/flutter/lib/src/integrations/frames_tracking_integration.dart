@@ -63,7 +63,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
     _collector = collector;
 
     switch (options.traceLifecycle) {
-      case SentryTraceLifecycle.streaming:
+      case SentryTraceLifecycle.stream:
         _onSpanStartStreamCallback = (event) {
           final wrapped = StreamingInstrumentationSpan(event.span);
           collector.startTracking(wrapped);

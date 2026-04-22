@@ -87,7 +87,7 @@ void main() {
   });
 
   test('properly cleans up resources on close - streaming', () async {
-    options.traceLifecycle = SentryTraceLifecycle.streaming;
+    options.traceLifecycle = SentryTraceLifecycle.stream;
     await fromWorkingState(options);
 
     expect(isFramesTrackingInitialized(widgetsBinding!), isTrue);
@@ -183,7 +183,7 @@ void main() {
       late SentrySpanV2 childSpan;
 
       await fromWorkingState(
-          options..traceLifecycle = SentryTraceLifecycle.streaming);
+          options..traceLifecycle = SentryTraceLifecycle.stream);
 
       await tester.runAsync(() async {
         final testWidget = buildTestApp(
@@ -339,7 +339,7 @@ void main() {
 
   group('with streaming lifecycle', () {
     setUp(() {
-      options.traceLifecycle = SentryTraceLifecycle.streaming;
+      options.traceLifecycle = SentryTraceLifecycle.stream;
     });
 
     test('registers lifecycle callbacks', () async {
@@ -426,7 +426,7 @@ void main() {
 
   group('with streaming lifecycle', () {
     setUp(() {
-      options.traceLifecycle = SentryTraceLifecycle.streaming;
+      options.traceLifecycle = SentryTraceLifecycle.stream;
     });
 
     test('cleans up when span with null endTimestamp is last active span',

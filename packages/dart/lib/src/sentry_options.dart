@@ -243,7 +243,7 @@ class SentryOptions {
 
   /// Chooses between two tracing systems. You can only use one at a time.
   ///
-  /// [SentryTraceLifecycle.streaming] sends each span to Sentry as it finishes.
+  /// [SentryTraceLifecycle.stream] sends each span to Sentry as it finishes.
   /// Use [Sentry.startSpan] to create spans. The older transaction APIs
   /// ([Sentry.startTransaction], [ISentrySpan.startChild]) will do nothing.
   ///

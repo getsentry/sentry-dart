@@ -90,7 +90,7 @@ class SentryTracingLink extends Link {
 
     if (parentSpan == null && shouldStartTransaction) {
       switch (_hub.options.traceLifecycle) {
-        case SentryTraceLifecycle.streaming:
+        case SentryTraceLifecycle.stream:
           final rootSpan = _hub.startInactiveSpan(description);
 
           if (rootSpan is NoOpSentrySpanV2) {

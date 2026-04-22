@@ -27,7 +27,7 @@ class GenericAppStartIntegration extends Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) {
     if (!options.isTracingEnabled()) return;
 
-    if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
+    if (options.traceLifecycle == SentryTraceLifecycle.stream) {
       options.timeToDisplayTrackerV2.trackAppStart();
       options.sdk.addIntegration(integrationName);
       return;

@@ -245,7 +245,7 @@ class Fixture {
   final options = defaultTestOptions()
     ..environment = 'test-env'
     ..release = 'test-release'
-    ..traceLifecycle = SentryTraceLifecycle.streaming;
+    ..traceLifecycle = SentryTraceLifecycle.stream;
   final processor = MockTelemetryProcessor();
 
   late final Scope scope;

@@ -3,7 +3,7 @@ enum SentryTraceLifecycle {
   /// Spans are sent individually as they complete.
   ///
   /// Each span is buffered and transmitted independently without waiting for the entire trace to finish.
-  streaming,
+  stream,
 
   /// Spans are buffered and sent as a complete transaction.
   ///
@@ -11,5 +11,3 @@ enum SentryTraceLifecycle {
   /// root span ends, matching the traditional transaction model.
   static,
 }
-
-// TODO(next-pr): Guard the APIs that are not supported for the different lifecycle modes.

@@ -444,7 +444,7 @@ void main() {
 class Fixture {
   final options = defaultTestOptions()
     ..tracesSampleRate = 1.0
-    ..traceLifecycle = SentryTraceLifecycle.streaming
+    ..traceLifecycle = SentryTraceLifecycle.stream
     ..enableTimeToFullDisplayTracing = true;
 
   late final hub = Hub(options);

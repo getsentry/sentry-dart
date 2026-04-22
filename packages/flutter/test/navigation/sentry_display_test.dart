@@ -36,7 +36,7 @@ void main() {
           () async {
         final streamingTracker = _CapturingTimeToDisplayTrackerV2();
         fixture.options
-          ..traceLifecycle = SentryTraceLifecycle.streaming
+          ..traceLifecycle = SentryTraceLifecycle.stream
           ..timeToDisplayTrackerV2 = streamingTracker;
 
         final spanId = SpanId.newId();
@@ -52,7 +52,7 @@ void main() {
           'does not throw in streaming mode when tracker throws and automated test mode is false',
           () async {
         fixture.options
-          ..traceLifecycle = SentryTraceLifecycle.streaming
+          ..traceLifecycle = SentryTraceLifecycle.stream
           ..timeToDisplayTrackerV2 = _ThrowingTimeToDisplayTrackerV2()
           ..automatedTestMode = false;
 

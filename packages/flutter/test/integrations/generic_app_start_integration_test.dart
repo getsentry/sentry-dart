@@ -230,7 +230,7 @@ void main() {
     setUp(() {
       fixture = Fixture();
       fixture.options.tracesSampleRate = 1.0;
-      fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+      fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
       fixture.options.timeToDisplayTrackerV2 = TimeToDisplayTrackerV2(
         hub: fixture.hub,
         frameCallbackHandler: fixture.fakeFrameHandler,

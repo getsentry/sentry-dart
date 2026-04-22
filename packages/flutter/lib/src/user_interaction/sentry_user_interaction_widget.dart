@@ -347,7 +347,7 @@ class _SentryUserInteractionWidgetState
 
     final widgetKey = WidgetUtils.toStringValue(tapInfo.element.widget.key);
     _createBreadcrumbOnTap(tapInfo, widgetKey);
-    if (_options?.traceLifecycle == SentryTraceLifecycle.streaming) {
+    if (_options?.traceLifecycle == SentryTraceLifecycle.stream) {
       _startSpanOnTap(tapInfo, widgetKey);
     } else {
       _startTransactionOnTap(tapInfo, widgetKey);

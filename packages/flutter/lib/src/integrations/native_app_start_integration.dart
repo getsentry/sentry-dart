@@ -48,7 +48,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
     // V2 path: Create root idle span early so user spans in initState
     // can parent to it. Timestamps will be backdated when native data arrives.
-    if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
+    if (options.traceLifecycle == SentryTraceLifecycle.stream) {
       options.timeToDisplayTrackerV2.prepareAppStart();
     }
 
@@ -65,7 +65,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             .timestampInMicroseconds(FramePhase.rasterFinishWallTime));
 
         switch (options.traceLifecycle) {
-          case SentryTraceLifecycle.streaming:
+          case SentryTraceLifecycle.stream:
             await _nativeAppStartHandlerV2.call(
               hub,
               options,

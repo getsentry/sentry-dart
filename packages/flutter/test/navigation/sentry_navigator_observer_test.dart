@@ -1257,7 +1257,7 @@ MockSentryTracer getMockSentryTracer({String? name, bool? finished}) {
 class _StreamingFixture {
   final options = defaultTestOptions()
     ..tracesSampleRate = 1.0
-    ..traceLifecycle = SentryTraceLifecycle.streaming
+    ..traceLifecycle = SentryTraceLifecycle.stream
     ..enableTimeToFullDisplayTracing = true;
 
   late final hub = Hub(options);

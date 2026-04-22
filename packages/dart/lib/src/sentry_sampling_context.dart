@@ -40,7 +40,7 @@ class SentrySamplingContext {
   SentrySamplingContext.forSpanV2(SentrySpanSamplingContextV2 spanContext)
       : _transactionContext = _unusedTransactionContext,
         _spanContext = spanContext,
-        _traceLifecycle = SentryTraceLifecycle.streaming,
+        _traceLifecycle = SentryTraceLifecycle.stream,
         _customSamplingContext = {};
 
   /// Creates a sampling context for legacy transactions (static mode).
@@ -77,7 +77,7 @@ class SentrySamplingContext {
   /// TODO: Remove the runtime check once legacy transaction API is removed.
   /// This runtime check is a temporary solution for backwards compatibility.
   SentrySpanSamplingContextV2 get spanContext {
-    if (_traceLifecycle != SentryTraceLifecycle.streaming) {
+    if (_traceLifecycle != SentryTraceLifecycle.stream) {
       internalLogger.error('spanContext is only available in streaming mode. '
           'Use transactionContext for static mode.');
     }

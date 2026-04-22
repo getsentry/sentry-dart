@@ -227,7 +227,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     _addWebSessions(from: route, to: previousRoute);
 
-    if (_hub.options.traceLifecycle == SentryTraceLifecycle.streaming) {
+    if (_hub.options.traceLifecycle == SentryTraceLifecycle.stream) {
       _timeToDisplayTrackerV2?.cancelCurrentRoute();
     } else {
       final timestamp = _hub.options.clock();
@@ -249,7 +249,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    if (_hub.options.traceLifecycle == SentryTraceLifecycle.streaming) {
+    if (_hub.options.traceLifecycle == SentryTraceLifecycle.stream) {
       _timeToDisplayTrackerV2?.trackRoute(routeName);
     } else {
       // Clearing the display tracker here is safe since didPush happens before the Widget is built

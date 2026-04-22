@@ -77,7 +77,7 @@ void main() {
           'returns RecordingSentrySpanV2 when traceLifecycle is streaming',
           () {
             final hub = fixture.getSut(
-              traceLifecycle: SentryTraceLifecycle.streaming,
+              traceLifecycle: SentryTraceLifecycle.stream,
             );
 
             final span = hub.startInactiveSpan('test-span');
@@ -1311,7 +1311,7 @@ class Fixture {
     double? tracesSampleRate = 1.0,
     TracesSamplerCallback? tracesSampler,
     bool debug = false,
-    SentryTraceLifecycle traceLifecycle = SentryTraceLifecycle.streaming,
+    SentryTraceLifecycle traceLifecycle = SentryTraceLifecycle.stream,
   }) {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
