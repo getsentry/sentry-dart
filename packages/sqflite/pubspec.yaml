@@ -22,6 +22,8 @@ dependencies:
   path: ^1.8.3
 
 dev_dependencies:
+  _sentry_testing:
+    path: ../_sentry_testing
   lints: '>=2.0.0'
   flutter_test:
     sdk: flutter

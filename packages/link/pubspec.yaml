@@ -16,6 +16,8 @@ dependencies:
   sentry: 9.18.0
 
 dev_dependencies:
+  _sentry_testing:
+    path: ../_sentry_testing
   lints: ^4.0.0
   test: ^1.16.0
   graphql: ^5.1.3

@@ -67,11 +67,13 @@ class SentryDatabaseExecutor
       final parent = _getParent();
       final builder =
           SqlBuilder.delete(table, where: where, whereArgs: whereArgs);
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbSqlExecuteOp,
-        description: builder.sql,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbSqlExecuteOp,
+              description: builder.sql,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
@@ -111,11 +113,13 @@ class SentryDatabaseExecutor
   Future<void> execute(String sql, [List<Object?>? arguments]) {
     return Future<void>(() async {
       final parent = _getParent();
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbSqlExecuteOp,
-        description: sql,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbSqlExecuteOp,
+              description: sql,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
@@ -163,11 +167,13 @@ class SentryDatabaseExecutor
         nullColumnHack: nullColumnHack,
         conflictAlgorithm: conflictAlgorithm,
       );
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbSqlExecuteOp,
-        description: builder.sql,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbSqlExecuteOp,
+              description: builder.sql,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
@@ -234,11 +240,13 @@ class SentryDatabaseExecutor
         offset: offset,
         whereArgs: whereArgs,
       );
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbSqlQueryOp,
-        description: builder.sql,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbSqlQueryOp,
+              description: builder.sql,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
@@ -312,11 +320,13 @@ class SentryDatabaseExecutor
         offset: offset,
         whereArgs: whereArgs,
       );
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbSqlQueryOp,
-        description: builder.sql,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbSqlQueryOp,
+              description: builder.sql,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
@@ -367,11 +377,13 @@ class SentryDatabaseExecutor
   Future<int> rawDelete(String sql, [List<Object?>? arguments]) {
     return Future<int>(() async {
       final parent = _getParent();
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbSqlExecuteOp,
-        description: sql,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbSqlExecuteOp,
+              description: sql,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
@@ -410,11 +422,13 @@ class SentryDatabaseExecutor
   Future<int> rawInsert(String sql, [List<Object?>? arguments]) {
     return Future<int>(() async {
       final parent = _getParent();
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbSqlExecuteOp,
-        description: sql,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbSqlExecuteOp,
+              description: sql,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
@@ -456,11 +470,13 @@ class SentryDatabaseExecutor
   ]) {
     return Future<List<Map<String, Object?>>>(() async {
       final parent = _getParent();
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbSqlQueryOp,
-        description: sql,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbSqlQueryOp,
+              description: sql,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
@@ -503,11 +519,13 @@ class SentryDatabaseExecutor
   }) {
     return Future<QueryCursor>(() async {
       final parent = _getParent();
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbSqlQueryOp,
-        description: sql,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbSqlQueryOp,
+              description: sql,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
@@ -550,11 +568,13 @@ class SentryDatabaseExecutor
   Future<int> rawUpdate(String sql, [List<Object?>? arguments]) {
     return Future<int>(() async {
       final parent = _getParent();
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbSqlExecuteOp,
-        description: sql,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbSqlExecuteOp,
+              description: sql,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);
@@ -606,11 +626,13 @@ class SentryDatabaseExecutor
         whereArgs: whereArgs,
         conflictAlgorithm: conflictAlgorithm,
       );
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbSqlExecuteOp,
-        description: builder.sql,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbSqlExecuteOp,
+              description: builder.sql,
+            )
+          : null;
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
       setDatabaseAttributeData(span, _dbName);

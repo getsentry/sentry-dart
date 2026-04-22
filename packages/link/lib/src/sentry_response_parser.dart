@@ -20,12 +20,14 @@ class SentryResponseParser implements ResponseParser {
   @override
   Response parseResponse(Map<String, dynamic> body) {
     final parentSpan = _spanFactory.getSpan(_hub);
-    final span = _spanFactory.createSpan(
-      parentSpan,
-      'serialize.http.client',
-      description: 'Response deserialization '
-          'from JSON map to Response object',
-    );
+    final span = parentSpan != null
+        ? _spanFactory.createSpan(
+            parentSpan: parentSpan,
+            operation: 'serialize.http.client',
+            description: 'Response deserialization '
+                'from JSON map to Response object',
+          )
+        : null;
 
     Response result;
     try {

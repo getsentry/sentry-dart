@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api, experimental_member_use
+// ignore_for_file: library_private_types_in_public_api, invalid_use_of_internal_member, experimental_member_use
 
 import 'dart:async';
 import 'dart:convert';
@@ -88,9 +88,9 @@ Future<void> setupSentry(
       options.debug = kDebugMode;
       options.spotlight = Spotlight(enabled: true);
       options.enableTimeToFullDisplayTracing = true;
-
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.navigatorKey = navigatorKey;
+      options.traceLifecycle = SentryTraceLifecycle.stream;
 
       options.replay.sessionSampleRate = 1.0;
       options.replay.onErrorSampleRate = 1.0;
@@ -102,6 +102,25 @@ Future<void> setupSentry(
           return null;
         }
         return metric;
+      };
+
+      options.ignoreSpans = [
+        IgnoreSpanRule.nameContains('ignore'),
+        IgnoreSpanRule.nameContains('ignoreSpan1'),
+        IgnoreSpanRule.nameContains('ignoreSpan2'),
+        IgnoreSpanRule.nameContains('Open DB'),
+      ];
+
+      // Example: Scrub sensitive data from spans before sending
+      options.beforeSendSpan = (span) {
+        final sensitiveAttributes = span.attributes.entries
+            .where((entry) =>
+                entry.value.value is String &&
+                entry.value.value.contains('secret'))
+            .toList();
+        for (final attribute in sensitiveAttributes) {
+          span.removeAttribute(attribute.key);
+        }
       };
 
       _isIntegrationTest = isIntegrationTest;
@@ -136,11 +155,18 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+
+    doWork();
+  }
+
+  void doWork() async {
     final rootDisplay = SentryFlutter.currentDisplay();
-    Future.delayed(const Duration(seconds: 3), () {
-      // Do some long running work...
-      rootDisplay?.reportFullyDisplayed();
+
+    await Sentry.startSpan('Custom span that runs during app start', (_) async {
+      await Future.delayed(const Duration(seconds: 1));
     });
+
+    rootDisplay?.reportFullyDisplayed();
   }
 
   @override
@@ -435,52 +461,84 @@ class MainScaffold extends StatelessWidget {
             ),
             TooltipButton(
               onPressed: () async {
-                final transaction = Sentry.getSpan() ??
-                    Sentry.startTransaction(
-                      'myNewTrWithError3',
-                      'myNewOp',
-                      description: 'myTr myOp',
-                    );
-                transaction.setTag('myTag', 'myValue');
-                transaction.setData('myExtra', 'myExtraValue');
+                if (Sentry.currentHub.options.traceLifecycle ==
+                    SentryTraceLifecycle.stream) {
+                  await Sentry.startSpan(
+                    'myNewSpanWithChildren',
+                    (rootSpan) async {
+                      rootSpan.setAttribute(
+                          'myTag', SentryAttribute.string('myValue'));
+                      rootSpan.setAttribute(
+                          'myExtra', SentryAttribute.string('myExtraValue'));
 
-                await Future.delayed(const Duration(milliseconds: 50));
+                      await Future.delayed(const Duration(milliseconds: 50));
 
-                final span = transaction.startChild(
-                  'childOfMyOp',
-                  description: 'childOfMyOp span',
-                );
-                span.setTag('myNewTag', 'myNewValue');
-                span.setData('myNewData', 'myNewDataValue');
+                      await Sentry.startSpan('childOfMyOp', (childSpan) async {
+                        childSpan.setAttribute(
+                            'myNewTag', SentryAttribute.string('myNewValue'));
+                        childSpan.setAttribute('myNewData',
+                            SentryAttribute.string('myNewDataValue'));
 
-                await Future.delayed(const Duration(milliseconds: 70));
+                        await Future.delayed(const Duration(milliseconds: 70));
 
-                await span.finish(status: const SpanStatus.resourceExhausted());
+                        await Sentry.startSpan('childOfChildOfMyOp',
+                            (nestedSpan) async {
+                          await Future.delayed(
+                              const Duration(milliseconds: 110));
+                        });
+                      });
 
-                await Future.delayed(const Duration(milliseconds: 90));
+                      await Future.delayed(const Duration(milliseconds: 50));
+                    },
+                  );
+                } else {
+                  final transaction = Sentry.getSpan() ??
+                      Sentry.startTransaction(
+                        'myNewTrWithError3',
+                        'myNewOp',
+                        description: 'myTr myOp',
+                      );
+                  transaction.setTag('myTag', 'myValue');
+                  transaction.setData('myExtra', 'myExtraValue');
 
-                final spanChild = span.startChild(
-                  'childOfChildOfMyOp',
-                  description: 'childOfChildOfMyOp span',
-                );
+                  await Future.delayed(const Duration(milliseconds: 50));
 
-                await Future.delayed(const Duration(milliseconds: 110));
+                  final span = transaction.startChild(
+                    'childOfMyOp',
+                    description: 'childOfMyOp span',
+                  );
+                  span.setTag('myNewTag', 'myNewValue');
+                  span.setData('myNewData', 'myNewDataValue');
 
-                spanChild.startChild(
-                  'unfinishedChild',
-                  description: 'I wont finish',
-                );
+                  await Future.delayed(const Duration(milliseconds: 70));
 
-                await spanChild.finish(
-                    status: const SpanStatus.internalError());
+                  await span.finish(
+                      status: const SpanStatus.resourceExhausted());
 
-                await Future.delayed(const Duration(milliseconds: 50));
-                // findPrimeNumber(1000000); // Uncomment to see it with profiling
-                await transaction.finish(status: const SpanStatus.ok());
+                  await Future.delayed(const Duration(milliseconds: 90));
+
+                  final spanChild = span.startChild(
+                    'childOfChildOfMyOp',
+                    description: 'childOfChildOfMyOp span',
+                  );
+
+                  await Future.delayed(const Duration(milliseconds: 110));
+
+                  spanChild.startChild(
+                    'unfinishedChild',
+                    description: 'I wont finish',
+                  );
+
+                  await spanChild.finish(
+                      status: const SpanStatus.internalError());
+
+                  await Future.delayed(const Duration(milliseconds: 50));
+                  await transaction.finish(status: const SpanStatus.ok());
+                }
               },
               text:
-                  'Creates a custom transaction, adds child spans and send them to Sentry.',
-              buttonTitle: 'Capture transaction',
+                  'Creates a custom transaction or nested spans and sends them to Sentry.',
+              buttonTitle: 'Capture transaction / spans',
             ),
             TooltipButton(
               onPressed: () {
@@ -601,10 +659,17 @@ class MainScaffold extends StatelessWidget {
               text: 'Demonstrates the logging with Sentry Log.',
               buttonTitle: 'Sentry Log with Attribute',
             ),
+            if (Sentry.currentHub.options.traceLifecycle ==
+                SentryTraceLifecycle.stream)
+              TooltipButton(
+                onPressed: () => spanV2Demo(),
+                text:
+                    'Demonstrates the new SpanV2 API with streaming trace lifecycle. Creates spans and sets attributes.',
+                buttonTitle: 'Emit SpanV2',
+              ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
-            // ignore: invalid_use_of_internal_member
             if (SentryFlutter.native != null)
               ElevatedButton(
                 onPressed: () async {
@@ -627,13 +692,7 @@ class MainScaffold extends StatelessWidget {
     );
   }
 
-  Future<void> isarTest() async {
-    final tr = Sentry.startTransaction(
-      'isarTest',
-      'db',
-      bindToScope: true,
-    );
-
+  Future<void> runIsarOperations() async {
     final dir = await getApplicationDocumentsDirectory();
 
     final isar = await SentryIsar.open(
@@ -654,17 +713,26 @@ class MainScaffold extends StatelessWidget {
     await isar.writeTxn(() async {
       await isar.users.delete(existingUser!.id); // delete
     });
-
-    await tr.finish(status: const SpanStatus.ok());
   }
 
-  Future<void> hiveTest() async {
-    final tr = Sentry.startTransaction(
-      'hiveTest',
-      'db',
-      bindToScope: true,
-    );
+  Future<void> isarTest() async {
+    if (Sentry.currentHub.options.traceLifecycle ==
+        SentryTraceLifecycle.stream) {
+      await Sentry.startSpan('isarTest', (span) async {
+        await runIsarOperations();
+      });
+    } else {
+      final tr = Sentry.startTransaction(
+        'isarTest',
+        'db',
+        bindToScope: true,
+      );
+      await runIsarOperations();
+      await tr.finish(status: const SpanStatus.ok());
+    }
+  }
 
+  Future<void> runHiveOperations() async {
     final appDir = await getApplicationDocumentsDirectory();
     SentryHive.init(appDir.path);
 
@@ -675,19 +743,26 @@ class MainScaffold extends StatelessWidget {
     await catsBox.close();
 
     SentryHive.close();
-
-    await tr.finish(status: const SpanStatus.ok());
   }
 
-  Future<void> sqfliteTest() async {
-    final tr = Sentry.startTransaction(
-      'sqfliteTest',
-      'db',
-      bindToScope: true,
-    );
+  Future<void> hiveTest() async {
+    if (Sentry.currentHub.options.traceLifecycle ==
+        SentryTraceLifecycle.stream) {
+      await Sentry.startSpan('hiveTest', (span) async {
+        await runHiveOperations();
+      });
+    } else {
+      final tr = Sentry.startTransaction(
+        'hiveTest',
+        'db',
+        bindToScope: true,
+      );
+      await runHiveOperations();
+      await tr.finish(status: const SpanStatus.ok());
+    }
+  }
 
-    // databaseFactory = databaseFactoryFfiWeb; // or databaseFactoryFfi // or SentrySqfliteDatabaseFactory()
-
+  Future<void> runSqfliteOperations() async {
     // final sqfDb = await openDatabase(inMemoryDatabasePath);
     final db = await openDatabaseWithSentry(inMemoryDatabasePath);
     // final db = SentryDatabase(sqfDb);
@@ -721,17 +796,26 @@ class MainScaffold extends StatelessWidget {
     // await batch.commit();
 
     await db.close();
-
-    await tr.finish(status: const SpanStatus.ok());
   }
 
-  Future<void> driftTest() async {
-    final tr = Sentry.startTransaction(
-      'driftTest',
-      'db',
-      bindToScope: true,
-    );
+  Future<void> sqfliteTest() async {
+    if (Sentry.currentHub.options.traceLifecycle ==
+        SentryTraceLifecycle.stream) {
+      await Sentry.startSpan('sqfliteTest', (span) async {
+        await runSqfliteOperations();
+      });
+    } else {
+      final tr = Sentry.startTransaction(
+        'sqfliteTest',
+        'db',
+        bindToScope: true,
+      );
+      await runSqfliteOperations();
+      await tr.finish(status: const SpanStatus.ok());
+    }
+  }
 
+  Future<void> runDriftOperations() async {
     final executor = inMemoryExecutor().interceptWith(
         SentryQueryInterceptor(databaseName: 'sentry_in_memory_db'));
 
@@ -747,8 +831,23 @@ class MainScaffold extends StatelessWidget {
     await db.select(db.todoItems).get();
 
     await db.close();
+  }
 
-    await tr.finish(status: const SpanStatus.ok());
+  Future<void> driftTest() async {
+    if (Sentry.currentHub.options.traceLifecycle ==
+        SentryTraceLifecycle.stream) {
+      await Sentry.startSpan('driftTest', (span) async {
+        await runDriftOperations();
+      });
+    } else {
+      final tr = Sentry.startTransaction(
+        'driftTest',
+        'db',
+        bindToScope: true,
+      );
+      await runDriftOperations();
+      await tr.finish(status: const SpanStatus.ok());
+    }
   }
 }
 
@@ -799,7 +898,7 @@ class AndroidExample extends StatelessWidget {
   }
 }
 
-void navigateToAutoCloseScreen(BuildContext context) {
+void navigateToAutoCloseScreen(BuildContext context) async {
   Navigator.push(
     context,
     MaterialPageRoute(
@@ -822,6 +921,75 @@ Future<void> tryCatch() async {
 
 Future<void> asyncThrows() async {
   throw StateError('async throws');
+}
+
+/// Demonstrates the SpanV2 API with streaming trace lifecycle.
+Future<void> spanV2Demo() async {
+  await Sentry.startSpan('span1 test', (_) async {
+    // span1 test should be parent of deep child as spans inbetween are ignored
+    await Sentry.startSpan('ignoreSpan1', (_) async {
+      await Sentry.startSpan('ignoreSpan2', (_) async {
+        await Sentry.startSpan('deep child', (_) async {
+          await Future.delayed(const Duration(milliseconds: 50));
+        });
+      });
+    });
+    await Sentry.startSpan('span1 child1', (_) async {
+      await Future.delayed(const Duration(milliseconds: 50));
+    });
+    await Sentry.startSpan('span1 child2', (_) async {
+      await Future.delayed(const Duration(milliseconds: 50));
+    });
+  });
+
+  await Sentry.startSpan('span2 test', (_) async {
+    await Sentry.startSpan('span2 child1', (_) async {
+      await Future.delayed(const Duration(milliseconds: 50));
+    });
+    await Sentry.startSpan('span2 child2', (_) async {
+      await Future.delayed(const Duration(milliseconds: 50));
+    });
+  });
+
+  final syncResult =
+      Sentry.startSpanSync('span3 sync function', (_) => 'sync works!');
+  // ignore: avoid_print
+  print('span3 sync function result: $syncResult');
+
+  await Sentry.startSpan(
+    'spanv2-demo-root',
+    (rootSpan) async {
+      // Set attributes on the root span
+      rootSpan.setAttributes({
+        'demo.type': SentryAttribute.string('comprehensive'),
+        'demo.version': SentryAttribute.int(2),
+      });
+      rootSpan.setAttribute(
+          'root.custom', SentryAttribute.string('root-value'));
+
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      // Create a child span (automatically parented to root)
+      await Sentry.startSpan('spanv2-demo-child', (childSpan) async {
+        childSpan.setAttributes({
+          'child.operation': SentryAttribute.string('database-query'),
+          'child.rows': SentryAttribute.int(42),
+        });
+
+        await Future.delayed(const Duration(milliseconds: 30));
+
+        // Create a nested child span
+        await Sentry.startSpan('spanv2-demo-nested', (nestedSpan) async {
+          nestedSpan.setAttribute('nested.level', SentryAttribute.int(2));
+
+          await Future.delayed(const Duration(milliseconds: 20));
+        });
+      });
+    },
+    attributes: {
+      'demo.source': SentryAttribute.string('example-app'),
+    },
+  );
 }
 
 class IntegrationTestWidget extends StatefulWidget {
@@ -975,30 +1143,45 @@ class SecondaryScaffold extends StatelessWidget {
 }
 
 Future<void> makeWebRequest(BuildContext context) async {
-  final transaction = Sentry.getSpan() ??
-      Sentry.startTransaction(
-        'flutterwebrequest',
-        'request',
-        bindToScope: true,
-      );
-
   final client = SentryHttpClient(
     failedRequestStatusCodes: [SentryStatusCode.range(400, 500)],
   );
-  // We don't do any exception handling here.
-  // In case of an exception, let it get caught and reported to Sentry
-  final response = await client.get(Uri.parse(exampleUrl));
 
-  await transaction.finish(status: const SpanStatus.ok());
+  if (Sentry.currentHub.options.traceLifecycle == SentryTraceLifecycle.stream) {
+    await Sentry.startSpan('flutterwebrequest', (span) async {
+      final response = await client.get(Uri.parse(exampleUrl));
 
-  if (!context.mounted) return;
+      if (!context.mounted) return;
+      await _showWebResponseDialog(context, response.statusCode, response.body);
+    });
+  } else {
+    final transaction = Sentry.getSpan() ??
+        Sentry.startTransaction(
+          'flutterwebrequest',
+          'request',
+          bindToScope: true,
+        );
+
+    // We don't do any exception handling here.
+    // In case of an exception, let it get caught and reported to Sentry
+    final response = await client.get(Uri.parse(exampleUrl));
+
+    await transaction.finish(status: const SpanStatus.ok());
+
+    if (!context.mounted) return;
+    await _showWebResponseDialog(context, response.statusCode, response.body);
+  }
+}
+
+Future<void> _showWebResponseDialog(
+    BuildContext context, int? statusCode, String body) async {
   await showDialog<void>(
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: Text('Response ${response.statusCode}'),
+        title: Text('Response $statusCode'),
         content: SingleChildScrollView(
-          child: Text(response.body),
+          child: Text(body),
         ),
         actions: [
           MaterialButton(
@@ -1015,29 +1198,45 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
   final dio = Dio();
   dio.addSentry();
 
-  final transaction = Sentry.getSpan() ??
-      Sentry.startTransaction(
-        'dio-web-request',
-        'request',
-        bindToScope: true,
-      );
-  final span = transaction.startChild(
-    'dio',
-    description: 'desc',
-  );
   Response<String>? response;
-  try {
-    response = await dio.get<String>(exampleUrl);
-    span.status = const SpanStatus.ok();
-  } catch (exception, stackTrace) {
-    span.throwable = exception;
-    span.status = const SpanStatus.internalError();
-    await Sentry.captureException(exception, stackTrace: stackTrace);
-  } finally {
-    await span.finish();
+
+  if (Sentry.currentHub.options.traceLifecycle == SentryTraceLifecycle.stream) {
+    await Sentry.startSpan('dio-web-request', (span) async {
+      try {
+        response = await dio.get<String>(exampleUrl);
+      } catch (exception, stackTrace) {
+        await Sentry.captureException(exception, stackTrace: stackTrace);
+      }
+    });
+  } else {
+    final transaction = Sentry.getSpan() ??
+        Sentry.startTransaction(
+          'dio-web-request',
+          'request',
+          bindToScope: true,
+        );
+    final span = transaction.startChild(
+      'dio',
+      description: 'desc',
+    );
+    try {
+      response = await dio.get<String>(exampleUrl);
+      span.status = const SpanStatus.ok();
+    } catch (exception, stackTrace) {
+      span.throwable = exception;
+      span.status = const SpanStatus.internalError();
+      await Sentry.captureException(exception, stackTrace: stackTrace);
+    } finally {
+      await span.finish();
+    }
   }
 
   if (!context.mounted) return;
+  await _showDioResponseDialog(context, response);
+}
+
+Future<void> _showDioResponseDialog(
+    BuildContext context, Response<String>? response) async {
   await showDialog<void>(
     context: context,
     builder: (context) {
@@ -1058,55 +1257,65 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
 }
 
 Future<void> showDialogWithTextAndImage(BuildContext context) async {
-  final transaction = Sentry.getSpan() ??
-      Sentry.startTransaction(
-        'asset-bundle-transaction',
-        'load',
-        bindToScope: true,
-      );
-  final text =
-      await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
+  Future<void> loadAndShowAssets() async {
+    final text = await DefaultAssetBundle.of(context)
+        .loadString('assets/lorem-ipsum.txt');
 
-  if (!context.mounted) return;
-  final imageBytes =
-      await DefaultAssetBundle.of(context).load('assets/sentry-wordmark.png');
-  await showDialog<void>(
-    // ignore: use_build_context_synchronously
-    context: context,
-    // gets tracked if using SentryNavigatorObserver
-    routeSettings: const RouteSettings(
-      name: 'AssetBundle dialog',
-    ),
-    builder: (context) {
-      return AlertDialog(
-        title: const Text('Asset Example'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Use various ways an image is included in the app.
-              // Local asset images are not obscured in replay recording.
-              Image.asset('assets/sentry-wordmark.png'),
-              Image.asset('assets/sentry-wordmark.png', bundle: rootBundle),
-              Image.asset('assets/sentry-wordmark.png',
-                  bundle: DefaultAssetBundle.of(context)),
-              Image.network(
-                  'https://www.gstatic.com/recaptcha/api2/logo_48.png'),
-              Image.memory(imageBytes.buffer.asUint8List()),
-              Text(text),
-            ],
+    if (!context.mounted) return;
+    final imageBytes =
+        await DefaultAssetBundle.of(context).load('assets/sentry-wordmark.png');
+    await showDialog<void>(
+      // ignore: use_build_context_synchronously
+      context: context,
+      // gets tracked if using SentryNavigatorObserver
+      routeSettings: const RouteSettings(
+        name: 'AssetBundle dialog',
+      ),
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Asset Example'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Use various ways an image is included in the app.
+                // Local asset images are not obscured in replay recording.
+                Image.asset('assets/sentry-wordmark.png'),
+                Image.asset('assets/sentry-wordmark.png', bundle: rootBundle),
+                Image.asset('assets/sentry-wordmark.png',
+                    bundle: DefaultAssetBundle.of(context)),
+                Image.network(
+                    'https://www.gstatic.com/recaptcha/api2/logo_48.png'),
+                Image.memory(imageBytes.buffer.asUint8List()),
+                Text(text),
+              ],
+            ),
           ),
-        ),
-        actions: [
-          MaterialButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          )
-        ],
-      );
-    },
-  );
-  await transaction.finish(status: const SpanStatus.ok());
+          actions: [
+            MaterialButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  if (Sentry.currentHub.options.traceLifecycle == SentryTraceLifecycle.stream) {
+    await Sentry.startSpan('asset-bundle-load', (span) async {
+      await loadAndShowAssets();
+    });
+  } else {
+    final transaction = Sentry.getSpan() ??
+        Sentry.startTransaction(
+          'asset-bundle-transaction',
+          'load',
+          bindToScope: true,
+        );
+    await loadAndShowAssets();
+    await transaction.finish(status: const SpanStatus.ok());
+  }
 }
 
 class ThemeProvider extends ChangeNotifier {

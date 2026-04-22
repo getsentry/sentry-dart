@@ -437,6 +437,53 @@ void main() {
     });
   });
 
+  group('Hub traceLifecycle guards', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    group('when traceLifecycle is streaming', () {
+      test('startTransaction returns NoOpSentrySpan', () {
+        final hub = fixture.getSut(
+          traceLifecycle: SentryTraceLifecycle.stream,
+          debug: true,
+        );
+
+        final tr = hub.startTransaction('name', 'op');
+
+        expect(tr, isA<NoOpSentrySpan>());
+      });
+
+      test('startTransactionWithContext returns NoOpSentrySpan', () {
+        final hub = fixture.getSut(
+          traceLifecycle: SentryTraceLifecycle.stream,
+          debug: true,
+        );
+
+        final tr = hub.startTransactionWithContext(
+          SentryTransactionContext('name', 'op'),
+        );
+
+        expect(tr, isA<NoOpSentrySpan>());
+      });
+    });
+
+    group('when traceLifecycle is static', () {
+      test('startInactiveSpan returns NoOpSentrySpanV2', () {
+        final hub = fixture.getSut(
+          traceLifecycle: SentryTraceLifecycle.static,
+          debug: true,
+        );
+
+        final span = hub.startInactiveSpan('test-span');
+
+        expect(span, isA<NoOpSentrySpanV2>());
+      });
+    });
+  });
+
   group('Hub profiles', () {
     late Fixture fixture;
 
@@ -1079,11 +1126,15 @@ class Fixture {
     TracesSamplerCallback? tracesSampler,
     bool? sampled = true,
     bool debug = false,
+    SentryTraceLifecycle? traceLifecycle,
   }) {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
     options.debug = debug;
     options.log = mockLogger; // Enable logging in DiagnosticsLogger
+    if (traceLifecycle != null) {
+      options.traceLifecycle = traceLifecycle;
+    }
 
     final hub = Hub(options);
 

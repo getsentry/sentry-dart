@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 
+import '../constants.dart';
 import 'access_aware_map.dart';
+import 'sentry_attribute.dart';
 
 /// Describes the operating system on which the event was created.
 ///
@@ -77,6 +79,52 @@ class SentryOperatingSystem {
       if (rawDescription != null) 'raw_description': rawDescription,
       if (theme != null) 'theme': theme,
     };
+  }
+
+  /// A map of stable semantic span attributes derived from this operating system.
+  ///
+  /// Only fields with a defined stable key in [SemanticAttributesConstants]
+  /// are included. Intended for span v2 attributes; error and transaction
+  /// payloads continue to use [toJson].
+  @internal
+  Map<String, SentryAttribute> toAttributes() {
+    final attributes = <String, SentryAttribute>{};
+    final name = this.name;
+    if (name != null) {
+      attributes[SemanticAttributesConstants.osName] =
+          SentryAttribute.string(name);
+    }
+    final version = this.version;
+    if (version != null) {
+      attributes[SemanticAttributesConstants.osVersion] =
+          SentryAttribute.string(version);
+    }
+    final build = this.build;
+    if (build != null) {
+      attributes[SemanticAttributesConstants.osBuildId] =
+          SentryAttribute.string(build);
+    }
+    final kernelVersion = this.kernelVersion;
+    if (kernelVersion != null) {
+      attributes[SemanticAttributesConstants.osKernelVersion] =
+          SentryAttribute.string(kernelVersion);
+    }
+    final rooted = this.rooted;
+    if (rooted != null) {
+      attributes[SemanticAttributesConstants.osRooted] =
+          SentryAttribute.bool(rooted);
+    }
+    final rawDescription = this.rawDescription;
+    if (rawDescription != null) {
+      attributes[SemanticAttributesConstants.osRawDescription] =
+          SentryAttribute.string(rawDescription);
+    }
+    final theme = this.theme;
+    if (theme != null) {
+      attributes[SemanticAttributesConstants.osTheme] =
+          SentryAttribute.string(theme);
+    }
+    return attributes;
   }
 
   @Deprecated('Will be removed in a future version.')

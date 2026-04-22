@@ -66,11 +66,13 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
     return Future<sqflite.Database>(() async {
       final description = 'Open DB: $path';
       final parent = _spanFactory.getSpan(_hub);
-      final span = _spanFactory.createSpan(
-        parent,
-        SentryDatabase.dbOp,
-        description: description,
-      );
+      final span = parent != null
+          ? _spanFactory.createSpan(
+              parentSpan: parent,
+              operation: SentryDatabase.dbOp,
+              description: description,
+            )
+          : null;
 
       span?.origin =
           // ignore: invalid_use_of_internal_member

@@ -40,6 +40,7 @@
 
 ## 9.16.1
 
+- Experimental span-streaming API with `startSpan`
 ### Fixes
 
 - Sentry Native not building due to failing `git clone` ([#3621](https://github.com/getsentry/sentry-dart/pull/3621))

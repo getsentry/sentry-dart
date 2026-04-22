@@ -424,11 +424,13 @@ class SentryFile implements File {
     final desc = _getDesc();
 
     final parentSpan = _spanFactory.getSpan(_hub);
-    final span = _spanFactory.createSpan(
-      parentSpan,
-      operation,
-      description: desc,
-    );
+    final span = parentSpan != null
+        ? _spanFactory.createSpan(
+            parentSpan: parentSpan,
+            operation: operation,
+            description: desc,
+          )
+        : null;
 
     span?.origin = SentryTraceOrigins.autoFile;
     span?.setData('file.async', true);
@@ -491,11 +493,13 @@ class SentryFile implements File {
     final desc = _getDesc();
 
     final parentSpan = _spanFactory.getSpan(_hub);
-    final span = _spanFactory.createSpan(
-      parentSpan,
-      operation,
-      description: desc,
-    );
+    final span = parentSpan != null
+        ? _spanFactory.createSpan(
+            parentSpan: parentSpan,
+            operation: operation,
+            description: desc,
+          )
+        : null;
 
     span?.origin = SentryTraceOrigins.autoFile;
     span?.setData('file.async', false);

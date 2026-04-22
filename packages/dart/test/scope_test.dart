@@ -352,6 +352,27 @@ void main() {
     expect(sut.extra['test'], null);
   });
 
+  test('setActiveSpan sets the active span on scope', () {
+    final sut = fixture.getSut();
+
+    final span = fixture.createSpan(name: 'span1');
+    sut.setActiveSpan(span);
+
+    expect(sut.activeSpan, span);
+    expect(sut.getActiveSpan(), span);
+  });
+
+  test('setActiveSpan overwrites the previous active span', () {
+    final sut = fixture.getSut();
+
+    final span = fixture.createSpan(name: 'span1');
+    final span2 = fixture.createSpan(name: 'span2');
+    sut.setActiveSpan(span);
+    sut.setActiveSpan(span2);
+
+    expect(sut.getActiveSpan(), span2);
+  });
+
   test('clears $Scope', () {
     final sut = fixture.getSut();
 
@@ -390,6 +411,7 @@ void main() {
     expect(sut.eventProcessors.length, 0);
     expect(sut.replayId, isNull);
     expect(sut.attributes, isEmpty);
+    expect(sut.activeSpan, isNull);
   });
 
   test('clones', () async {
@@ -407,6 +429,7 @@ void main() {
     await sut.setTag('key', 'vakye');
     await sut.setExtra('key', 'vakye');
     sut.transaction = 'transaction';
+    sut.setActiveSpan(fixture.createSpan(name: 'random-span'));
 
     final clone = sut.clone();
     expect(sut.user, clone.user);
@@ -424,6 +447,7 @@ void main() {
     );
     expect(sut.span, clone.span);
     expect(sut.replayId, clone.replayId);
+    expect(sut.activeSpan, clone.activeSpan);
   });
 
   test('clone copies attributes and keeps them independent', () {
@@ -945,6 +969,18 @@ class Fixture {
 
   SentryLevel? loggedLevel;
   Object? loggedException;
+
+  RecordingSentrySpanV2 createSpan({String name = 'test-span'}) {
+    return RecordingSentrySpanV2.root(
+      name: name,
+      traceId: SentryId.newId(),
+      onSpanEnd: (_) async {},
+      clock: options.clock,
+      dscCreator: (_) =>
+          SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+      samplingDecision: SentryTracesSamplingDecision(true),
+    );
+  }
 
   Scope getSut({
     int maxBreadcrumbs = 100,
