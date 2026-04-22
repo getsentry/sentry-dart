@@ -103,6 +103,21 @@ abstract class SemanticAttributesConstants {
   static const sentryInternalReplayIsBuffering =
       'sentry._internal.replay_is_buffering';
 
+  /// The build identifier of the application.
+  static const appBuild = 'app.build';
+
+  /// The version-independent application identifier, often a dotted bundle ID.
+  static const appIdentifier = 'app.identifier';
+
+  /// The human readable application name, as it appears on the platform.
+  static const appName = 'app.name';
+
+  /// The formatted UTC timestamp when the user started the application.
+  static const appStartTime = 'app.start_time';
+
+  /// The human readable application version, as it appears on the platform.
+  static const appVersion = 'app.version';
+
   /// Internal build identifier, as it appears on the platform.
   // TODO: deprecated, needs to be replaced later by app.build
   static const appAppBuild = 'app.app_build';
@@ -137,6 +152,23 @@ abstract class SemanticAttributesConstants {
   /// The names of the active views or fragments in the application.
   static const appViewNames = 'app.view_names';
 
+  /// The value of the time to initial display in milliseconds.
+  static const appVitalsTtidValue = 'app.vitals.ttid.value';
+
+  /// The value of the time to full display in milliseconds.
+  static const appVitalsTtfdValue = 'app.vitals.ttfd.value';
+
+  /// The value of the cold app start in milliseconds.
+  /// This will later be replaced by app.vitals.start.value
+  static const appVitalsStartColdValue = 'app.vitals.start.cold.value';
+
+  /// The value of the warm app start in milliseconds.
+  /// This will later be replaced by app.vitals.start.value
+  static const appVitalsStartWarmValue = 'app.vitals.start.warm.value';
+
+  /// The type of the app start. (cold or warm)
+  static const appVitalsStartType = 'app.vitals.start.type';
+
   /// The user ID.
   /// Users are always manually set and never automatically inferred,
   /// therefore this is not gated by `sendDefaultPii`.
@@ -152,6 +184,24 @@ abstract class SemanticAttributesConstants {
   /// therefore this is not gated by `sendDefaultPii`.
   static const userName = 'user.name';
 
+  /// The user's IP address.
+  static const userIpAddress = 'user.ip_address';
+
+  /// Human readable city name of the user.
+  static const userGeoCity = 'user.geo.city';
+
+  /// Two-letter country code (ISO 3166-1 alpha-2) of the user.
+  static const userGeoCountryCode = 'user.geo.country_code';
+
+  /// Human readable region name or code of the user.
+  static const userGeoRegion = 'user.geo.region';
+
+  /// Subregion of the user (e.g. a continental area).
+  static const userGeoSubregion = 'user.geo.subregion';
+
+  /// Subdivision of the user (e.g. state, province).
+  static const userGeoSubdivision = 'user.geo.subdivision';
+
   /// The operating system name.
   static const osName = 'os.name';
 
@@ -161,6 +211,9 @@ abstract class SemanticAttributesConstants {
   /// The build ID of the operating system.
   // TODO: deprecated, needs to be replaced later by os.build_id
   static const osBuild = 'os.build';
+
+  /// The build ID of the operating system.
+  static const osBuildId = 'os.build_id';
 
   /// Independent kernel version string, typically from uname.
   static const osKernelVersion = 'os.kernel_version';
@@ -275,6 +328,7 @@ abstract class SemanticAttributesConstants {
   static const deviceUsableMemory = 'device.usable_memory';
 
   /// The CPU architectures of the device.
+  /// Should be used later when relay supports array attributes instead of `device.arch` as it is deprecated.
   static const deviceArchs = 'device.archs';
 
   /// The locale of the device.
@@ -284,6 +338,32 @@ abstract class SemanticAttributesConstants {
   /// The timezone of the device.
   // TODO: deprecated, needs to be replaced later by culture.timezone
   static const deviceTimezone = 'device.timezone';
+
+  /// The calendar of the culture (e.g. `GregorianCalendar`).
+  static const cultureCalendar = 'culture.calendar';
+
+  /// Human readable display name of the culture (e.g. `English (United States)`).
+  static const cultureDisplayName = 'culture.display_name';
+
+  /// The name identifier of the culture, usually following RFC 4646
+  /// (e.g. `en-US` or `pt-BR`).
+  static const cultureLocale = 'culture.locale';
+
+  /// Whether the culture uses a 24-hour time format.
+  static const cultureIs24HourFormat = 'culture.is_24_hour_format';
+
+  /// The timezone of the culture (e.g. `Europe/Vienna`).
+  static const cultureTimezone = 'culture.timezone';
+
+  /// The name of the runtime of this process.
+  static const processRuntimeName = 'process.runtime.name';
+
+  /// The version of the runtime of this process.
+  static const processRuntimeVersion = 'process.runtime.version';
+
+  /// Additional description about the runtime of the process, for example a
+  /// specific vendor customization of the standard runtime.
+  static const processRuntimeDescription = 'process.runtime.description';
 
   /// The number of total frames rendered during the lifetime of the span.
   static const framesTotal = 'frames.total';
@@ -324,4 +404,27 @@ abstract class SemanticAttributesConstants {
   /// The database name.
   // TODO: deprecated, needs to be replaced later by db.namespace
   static const dbName = 'db.name';
+}
+
+/// Attribute keys emitted by the SDK that are not (yet) codified in
+/// [Sentry Conventions](https://getsentry.github.io/sentry-conventions/).
+///
+/// Values here are considered candidates for promotion to
+/// [SemanticAttributesConstants]. Treat them as unstable: names may change
+/// once a convention is adopted. Add entries with a doc comment explaining
+/// why they exist and what canonical attribute (if any) should replace them.
+@internal
+abstract class ProposedSemanticAttributes {
+  ProposedSemanticAttributes._();
+
+  /// The Flutter SDK version used to compile the app (e.g. `3.24.0`).
+  ///
+  /// Emitted separately from [SemanticAttributesConstants.processRuntimeName]
+  /// because `process.runtime.*` describes the process runtime (Dart VM), not
+  /// the framework on top of it.
+  static const flutterVersion = 'flutter.version';
+
+  /// The Flutter release channel used to compile the app
+  /// (e.g. `stable`, `beta`, `master`).
+  static const flutterChannel = 'flutter.channel';
 }

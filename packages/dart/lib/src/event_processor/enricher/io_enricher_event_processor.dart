@@ -49,6 +49,17 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
     return event;
   }
 
+  @override
+  Future<Contexts> buildContexts() async {
+    return Contexts(
+      device: await _getDevice(null),
+      operatingSystem: _getOperatingSystem(null),
+      runtimes: _getRuntimes(null),
+      app: _getApp(null),
+      culture: _getSentryCulture(null),
+    );
+  }
+
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
     // Pure Dart doesn't have specific runtimes per build mode
     // like Flutter: https://flutter.dev/docs/testing/build-modes

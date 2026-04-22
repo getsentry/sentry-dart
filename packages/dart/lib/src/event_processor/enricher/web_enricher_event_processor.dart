@@ -37,6 +37,15 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
       ..transaction = event.transaction ?? _window.location.pathname;
   }
 
+  @override
+  Future<Contexts> buildContexts() async {
+    return Contexts(
+      device: _getDevice(null),
+      culture: _getSentryCulture(null),
+      runtimes: _getRuntimes(null),
+    );
+  }
+
   // As seen in
   // https://github.com/getsentry/sentry-javascript/blob/a6f8dc26a4c7ae2146ae64995a2018c8578896a6/packages/browser/src/integrations/useragent.ts
   SentryRequest _getRequest(SentryRequest? request) {
