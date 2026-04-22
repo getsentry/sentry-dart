@@ -1,11 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Fixes 
-
-- Harden float JSON encoding (#7802)
-
 ## 9.18.0
 
 ### Dependencies
