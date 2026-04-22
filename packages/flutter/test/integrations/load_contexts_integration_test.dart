@@ -703,7 +703,7 @@ void main() {
     });
 
     group('logs', () {
-      test('adds os and device attributes to log', () async {
+      test('adds device attributes to log from native contexts', () async {
         fixture.options.enableLogs = true;
         await fixture.registerIntegration();
 
@@ -713,8 +713,10 @@ void main() {
         final log = givenLog();
         await fixture.hub.captureLog(log);
 
-        expect(log.attributes['os.name']?.value, 'fixture-os-name');
-        expect(log.attributes['os.version']?.value, 'fixture-os-version');
+        // os.* comes from the enricher's minimal context path (Dart-level OS
+        // detection), so we don't assert the native fixture values here.
+        // Device attributes are the integration's responsibility on the
+        // cached/minimal path.
         expect(log.attributes['device.brand']?.value, 'fixture-device-brand');
         expect(log.attributes['device.model']?.value, 'fixture-device-model');
         expect(log.attributes['device.family']?.value, 'fixture-device-family');
@@ -748,8 +750,9 @@ void main() {
         final log = givenLog();
         await fixture.hub.captureLog(log);
 
-        // os.name and os.version are set by defaultAttributes() from Dart-level
-        // OS detection, not from native loadContexts(), so we only check device.*
+        // os.name and os.version come from the enricher's minimal context
+        // path (Dart-level OS detection), not from native loadContexts(), so
+        // we only assert device.*
         expect(log.attributes['device.brand'], isNull);
         expect(log.attributes['device.model'], isNull);
         expect(log.attributes['device.family'], isNull);
@@ -764,8 +767,9 @@ void main() {
         final log = givenLog();
         await fixture.hub.captureLog(log);
 
-        // os.name and os.version are set by defaultAttributes() from Dart-level
-        // OS detection, not from native loadContexts(), so we only check device.*
+        // os.name and os.version come from the enricher's minimal context
+        // path (Dart-level OS detection), not from native loadContexts(), so
+        // we only assert device.*
         expect(log.attributes['device.brand'], isNull);
         expect(log.attributes['device.model'], isNull);
         expect(log.attributes['device.family'], isNull);
@@ -773,7 +777,7 @@ void main() {
     });
 
     group('metrics', () {
-      test('adds native attributes to metric when metrics enabled', () async {
+      test('adds device attributes to metric when metrics enabled', () async {
         fixture.options.enableMetrics = true;
         mockLoadContexts();
         await fixture.registerIntegration();
@@ -792,10 +796,6 @@ void main() {
 
         verify(fixture.binding.loadContexts()).called(1);
         final attributes = metric.attributes;
-        expect(attributes[SemanticAttributesConstants.osName]?.value,
-            'fixture-os-name');
-        expect(attributes[SemanticAttributesConstants.osVersion]?.value,
-            'fixture-os-version');
         expect(attributes[SemanticAttributesConstants.deviceBrand]?.value,
             'fixture-device-brand');
         expect(attributes[SemanticAttributesConstants.deviceModel]?.value,
@@ -826,7 +826,7 @@ void main() {
 
       test('adds native attributes to span when traceLifecycle is streaming',
           () async {
-        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+        fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
         mockLoadContexts();
         await fixture.registerIntegration();
 
@@ -854,7 +854,7 @@ void main() {
       });
 
       test('does not override existing span attributes', () async {
-        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+        fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
         mockLoadContexts();
         await fixture.registerIntegration();
 
@@ -885,7 +885,7 @@ void main() {
       });
 
       test('handles throw during loadContexts', () async {
-        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+        fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
         await fixture.registerIntegration();
 
         when(fixture.binding.loadContexts()).thenThrow(Exception('test'));
@@ -938,7 +938,7 @@ void main() {
       });
 
       test('removes span callback from lifecycle registry', () async {
-        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+        fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
         mockLoadContexts();
         await fixture.registerIntegration();
 
@@ -958,7 +958,7 @@ void main() {
       test('removes all callbacks when all features enabled', () async {
         fixture.options.enableMetrics = true;
         fixture.options.enableLogs = true;
-        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+        fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
         mockLoadContexts();
         await fixture.registerIntegration();
 
@@ -1002,7 +1002,7 @@ void main() {
       });
 
       test('span callback is not invoked after close', () async {
-        fixture.options.traceLifecycle = SentryTraceLifecycle.streaming;
+        fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
         mockLoadContexts();
         await fixture.registerIntegration();
 

@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 import 'package:collection/collection.dart';
 import 'package:sentry/src/event_processor/enricher/enricher_event_processor.dart';
+import 'package:sentry/src/telemetry/default_attributes.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 import '../utils/internal_logger.dart';
@@ -53,7 +54,7 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
     if (options.enableLogs) {
       _logCallback = (event) async {
         try {
-          final attributes = await _nativeContextAttributes();
+          final attributes = await _cachedSessionAttributes();
           event.log.attributes.addAllIfAbsent(attributes);
         } catch (exception, stackTrace) {
           internalLogger.error(
@@ -71,7 +72,7 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
     if (options.enableMetrics) {
       _metricCallback = (event) async {
         try {
-          final attributes = await _nativeContextAttributes();
+          final attributes = await _cachedSessionAttributes();
           event.metric.attributes.addAllIfAbsent(attributes);
         } catch (exception, stackTrace) {
           internalLogger.error(
@@ -86,11 +87,14 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
       );
     }
 
-    if (options.traceLifecycle == SentryTraceLifecycle.streaming) {
+    if (options.traceLifecycle == SentryTraceLifecycle.stream) {
       _spanCallback = (event) async {
         try {
-          final attributes = await _nativeContextAttributes();
-          event.span.setAttributesIfAbsent(attributes);
+          final span = event.span;
+          final attributes = identical(span, span.segmentSpan)
+              ? await _freshSegmentAttributes()
+              : await _cachedSessionAttributes();
+          span.setAttributesIfAbsent(attributes);
         } catch (exception, stackTrace) {
           internalLogger.error(
             'LoadContextsIntegration failed to load contexts for $OnProcessSpan',
@@ -128,42 +132,34 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
     _cachedAttributes = null;
   }
 
-  Future<Map<String, SentryAttribute>> _nativeContextAttributes() async {
-    if (_cachedAttributes != null) {
-      return _cachedAttributes!;
+  Future<Map<String, SentryAttribute>> _cachedSessionAttributes() async {
+    final cached = _cachedAttributes;
+    if (cached != null) {
+      return cached;
     }
 
-    final nativeContexts = await _native.loadContexts() ?? {};
+    final contexts = await _loadNativeContexts();
+    final full = contexts.toAttributes();
+    final attributes = <String, SentryAttribute>{
+      for (final key in minimalContextAttributes)
+        if (full.containsKey(key)) key: full[key]!,
+    };
 
+    _cachedAttributes = attributes;
+    return attributes;
+  }
+
+  Future<Map<String, SentryAttribute>> _freshSegmentAttributes() async {
+    final contexts = await _loadNativeContexts();
+    return contexts.toAttributes();
+  }
+
+  Future<Contexts> _loadNativeContexts() async {
+    final nativeContexts = await _native.loadContexts() ?? {};
     final contextsMap = nativeContexts['contexts'] as Map?;
     final contexts = Contexts();
     _mergeNativeWithLocalContexts(contextsMap, contexts);
-
-    final attributes = <String, SentryAttribute>{};
-    if (contexts.operatingSystem?.name != null) {
-      attributes[SemanticAttributesConstants.osName] =
-          SentryAttribute.string(contexts.operatingSystem!.name!);
-    }
-    if (contexts.operatingSystem?.version != null) {
-      attributes[SemanticAttributesConstants.osVersion] =
-          SentryAttribute.string(contexts.operatingSystem!.version!);
-    }
-    if (contexts.device?.brand != null) {
-      attributes[SemanticAttributesConstants.deviceBrand] =
-          SentryAttribute.string(contexts.device!.brand!);
-    }
-    if (contexts.device?.model != null) {
-      attributes[SemanticAttributesConstants.deviceModel] =
-          SentryAttribute.string(contexts.device!.model!);
-    }
-    if (contexts.device?.family != null) {
-      attributes[SemanticAttributesConstants.deviceFamily] =
-          SentryAttribute.string(contexts.device!.family!);
-    }
-
-    _cachedAttributes = attributes;
-
-    return attributes;
+    return contexts;
   }
 }
 

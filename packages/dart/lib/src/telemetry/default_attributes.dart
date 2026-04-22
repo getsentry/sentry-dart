@@ -1,7 +1,26 @@
-import '../../sentry.dart';
-import '../utils/os_utils.dart';
+import 'package:meta/meta.dart';
 
-final _operatingSystem = getSentryOperatingSystem();
+import '../../sentry.dart';
+
+/// Attribute keys attached to lightweight telemetry signals
+/// (logs, metrics, and non-segment spans) by the enricher.
+///
+/// Kept intentionally small due to size concerns. Other attribute layers
+/// (sdk, environment, release, user) are provided by [defaultAttributes].
+/// Segment spans use the full projection from [Contexts.toAttributes] instead.
+@internal
+const Set<String> minimalContextAttributes = {
+  SemanticAttributesConstants.deviceBrand,
+  SemanticAttributesConstants.deviceModel,
+  SemanticAttributesConstants.deviceFamily,
+  SemanticAttributesConstants.osName,
+  SemanticAttributesConstants.osVersion,
+  SemanticAttributesConstants.osBuildId,
+  SemanticAttributesConstants.osKernelVersion,
+  SemanticAttributesConstants.osRooted,
+  SemanticAttributesConstants.osRawDescription,
+  SemanticAttributesConstants.osTheme,
+};
 
 Map<String, SentryAttribute> defaultAttributes(SentryOptions options,
     {Scope? scope}) {
@@ -23,32 +42,9 @@ Map<String, SentryAttribute> defaultAttributes(SentryOptions options,
         SentryAttribute.string(options.release!);
   }
 
-  // Users are always manually set and never automatically inferred,
-  // therefore this is not gated by `sendDefaultPii`.
   final user = scope?.user;
   if (user != null) {
-    if (user.id != null) {
-      attributes[SemanticAttributesConstants.userId] =
-          SentryAttribute.string(user.id!);
-    }
-    if (user.name != null) {
-      attributes[SemanticAttributesConstants.userName] =
-          SentryAttribute.string(user.name!);
-    }
-    if (user.email != null) {
-      attributes[SemanticAttributesConstants.userEmail] =
-          SentryAttribute.string(user.email!);
-    }
-  }
-
-  if (_operatingSystem.name != null) {
-    attributes[SemanticAttributesConstants.osName] =
-        SentryAttribute.string(_operatingSystem.name!);
-  }
-
-  if (_operatingSystem.version != null) {
-    attributes[SemanticAttributesConstants.osVersion] =
-        SentryAttribute.string(_operatingSystem.version!);
+    attributes.addAllIfAbsent(user.toAttributes());
   }
 
   return attributes;
