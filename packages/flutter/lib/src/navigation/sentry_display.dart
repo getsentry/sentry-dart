@@ -1,3 +1,5 @@
+// ignore_for_file: experimental_member_use
+
 import '../../sentry_flutter.dart';
 import '../utils/internal_logger.dart';
 

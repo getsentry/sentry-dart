@@ -254,6 +254,7 @@ class SentryOptions {
   /// Integrations automatically switch to the correct API based on this setting.
   ///
   /// Defaults to [SentryTraceLifecycle.static].
+  @experimental
   SentryTraceLifecycle traceLifecycle = SentryTraceLifecycle.static;
 
   /// The ignoreErrors tells the SDK which errors should be not sent to the sentry server.
