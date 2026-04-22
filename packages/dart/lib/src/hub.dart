@@ -801,6 +801,8 @@ class Hub {
     propagationContext.applySamplingDecision(samplingDecision.sampled);
 
     if (!samplingDecision.sampled) {
+      _options.recorder
+          .recordLostEvent(DiscardReason.sampleRate, DataCategory.span);
       internalLogger.info(
           "Span '$name' was not sampled (sample rate: ${samplingDecision.sampleRate}).");
       return null;
@@ -830,11 +832,23 @@ class Hub {
       case null:
         resolvedParentSpan = null;
       case NoOpSentrySpanV2 parent:
+        if (parent.isIgnored && parent.recordingParent == null) {
+          // Ignored segment: cascade the ignore to all descendants per the
+          // filtering spec. Each attempted child counts as an ignored span
+          // for client reports.
+          _options.recorder
+              .recordLostEvent(DiscardReason.ignored, DataCategory.span);
+          return NoOpSentrySpanV2.instance;
+        }
         if (parent.isIgnored) {
-          // Ignored spans: prune the selected span(s), preserve descendants via re-parenting
+          // Ignored child: prune this span, re-parent descendants to the
+          // nearest recording ancestor.
           resolvedParentSpan = parent.recordingParent;
         } else {
-          // Unsampled spans: subtree is effectively NoOp / not recorded
+          // Unsampled subtree: cascade NoOp and record one sample_rate
+          // outcome per attempted child.
+          _options.recorder
+              .recordLostEvent(DiscardReason.sampleRate, DataCategory.span);
           return NoOpSentrySpanV2.instance;
         }
     }
@@ -842,7 +856,8 @@ class Hub {
     final ignoreSpan =
         _options.ignoreSpans.any((rule) => rule.appliesToName(name));
     if (ignoreSpan) {
-      // TODO(next-pr): client report
+      _options.recorder
+          .recordLostEvent(DiscardReason.ignored, DataCategory.span);
       return NoOpSentrySpanV2(
         recordingParent: resolvedParentSpan,
         isIgnored: true,

@@ -68,6 +68,4 @@ class SpanCapturePipeline {
         }
     }
   }
-
-  // TODO(next-pr): client report
 }

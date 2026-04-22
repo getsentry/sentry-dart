@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/client_reports/discarded_event.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_client_report_recorder.dart';
@@ -192,7 +195,7 @@ void main() {
           expect(child2.parentSpan, same(child1));
         });
 
-        test('creates root span when ignored span has no parent', () {
+        test('cascades NoOp to attempted children of an ignored segment', () {
           fixture.options.ignoreSpans = [
             IgnoreSpanRule.nameEquals('ignored-root'),
           ];
@@ -201,9 +204,12 @@ void main() {
           final ignored =
               hub.startInactiveSpan('ignored-root', parentSpan: null);
           final child = hub.startInactiveSpan('child', parentSpan: ignored);
+          final grandchild =
+              hub.startInactiveSpan('grandchild', parentSpan: child);
 
-          expect(child, isA<RecordingSentrySpanV2>());
-          expect(child.parentSpan, isNull);
+          expect(ignored, isA<NoOpSentrySpanV2>());
+          expect(child, same(NoOpSentrySpanV2.instance));
+          expect(grandchild, same(NoOpSentrySpanV2.instance));
         });
 
         test('does not re-parent when parent is unsampled NoOp', () {
@@ -1298,7 +1304,131 @@ void main() {
         expect(fixture.client.captureSpanCalls, isEmpty);
       });
     });
+
+    group('when recording client reports for span discards', () {
+      group('with ignoreSpans rule matching a segment', () {
+        test('records ignored span outcome for the segment', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-root'),
+          ];
+          final hub = fixture.getSut();
+
+          hub.startInactiveSpan('ignored-root', parentSpan: null);
+
+          expect(
+            fixture.recorder.discardedEvents,
+            [_discarded(DiscardReason.ignored, DataCategory.span)],
+          );
+        });
+
+        test('records ignored span outcome for each attempted child', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-root'),
+          ];
+          final hub = fixture.getSut();
+
+          final ignored =
+              hub.startInactiveSpan('ignored-root', parentSpan: null);
+          hub.startInactiveSpan('child-1', parentSpan: ignored);
+          hub.startInactiveSpan('child-2', parentSpan: ignored);
+
+          expect(
+            fixture.recorder.discardedEvents,
+            List.filled(
+              3,
+              _discarded(DiscardReason.ignored, DataCategory.span),
+            ),
+          );
+        });
+      });
+
+      group('with ignoreSpans rule matching a child', () {
+        test('records one ignored span outcome for the matched child', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-child'),
+          ];
+          final hub = fixture.getSut();
+
+          final root = hub.startInactiveSpan('root', parentSpan: null);
+          hub.startInactiveSpan('ignored-child', parentSpan: root);
+
+          expect(
+            fixture.recorder.discardedEvents,
+            [_discarded(DiscardReason.ignored, DataCategory.span)],
+          );
+        });
+
+        test(
+            'does not record an outcome for re-parented grandchildren that do '
+            'not match a rule', () {
+          fixture.options.ignoreSpans = [
+            IgnoreSpanRule.nameEquals('ignored-child'),
+          ];
+          final hub = fixture.getSut();
+
+          final root = hub.startInactiveSpan('root', parentSpan: null);
+          final ignored =
+              hub.startInactiveSpan('ignored-child', parentSpan: root);
+          hub.startInactiveSpan('grandchild', parentSpan: ignored);
+
+          expect(
+            fixture.recorder.discardedEvents,
+            [_discarded(DiscardReason.ignored, DataCategory.span)],
+          );
+        });
+      });
+
+      group('with a negatively sampled root span', () {
+        test('records sample_rate span outcome for the root', () {
+          final hub = fixture.getSut(tracesSampleRate: 0.0);
+
+          hub.startInactiveSpan('root', parentSpan: null);
+
+          expect(
+            fixture.recorder.discardedEvents,
+            [_discarded(DiscardReason.sampleRate, DataCategory.span)],
+          );
+        });
+
+        test('records sample_rate span outcome for each attempted child', () {
+          final hub = fixture.getSut(tracesSampleRate: 0.0);
+
+          final unsampled = hub.startInactiveSpan('root', parentSpan: null);
+          hub.startInactiveSpan('child-1', parentSpan: unsampled);
+          hub.startInactiveSpan('child-2', parentSpan: unsampled);
+
+          expect(
+            fixture.recorder.discardedEvents,
+            List.filled(
+              3,
+              _discarded(DiscardReason.sampleRate, DataCategory.span),
+            ),
+          );
+        });
+      });
+
+      group('with a negatively sampled idle span', () {
+        test('records sample_rate span outcome', () {
+          final hub = fixture.getSut(tracesSampleRate: 0.0);
+
+          hub.startIdleSpan('idle');
+
+          expect(
+            fixture.recorder.discardedEvents,
+            [_discarded(DiscardReason.sampleRate, DataCategory.span)],
+          );
+        });
+      });
+    });
   });
+}
+
+Matcher _discarded(DiscardReason reason, DataCategory category,
+    {int quantity = 1}) {
+  return isA<DiscardedEvent>()
+      .having((e) => e.reason, 'reason', reason)
+      .having((e) => e.category, 'category', category)
+      .having((e) => e.quantity, 'quantity', quantity);
 }
 
 class Fixture {
