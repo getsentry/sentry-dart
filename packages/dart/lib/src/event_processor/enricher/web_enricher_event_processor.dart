@@ -1,34 +1,31 @@
-import 'package:web/web.dart' as web show window, Window, Navigator;
-import 'dart:js_interop';
+import 'package:web/web.dart' as web show window, Window;
 
 import '../../../sentry.dart';
+import '../../platform/platform_context_provider.dart';
 import 'enricher_event_processor.dart';
-import 'flutter_runtime.dart';
 
-EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
-  return WebEnricherEventProcessor(
-    web.window,
-    options,
-  );
+EnricherEventProcessor enricherEventProcessor(
+  SentryOptions options,
+  PlatformContextProvider provider,
+) {
+  return WebEnricherEventProcessor(web.window, options, provider);
 }
 
 class WebEnricherEventProcessor implements EnricherEventProcessor {
-  WebEnricherEventProcessor(
-    this._window,
-    this._options,
-  );
+  WebEnricherEventProcessor(this._window, this._options, this._provider);
 
   final web.Window _window;
-
   final SentryOptions _options;
+  final PlatformContextProvider _provider;
 
   @override
-  SentryEvent? apply(SentryEvent event, Hint hint) {
-    // Web has no native integration, so no need to check for it
+  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
+    final platform = await _provider.buildContexts();
+
     event.contexts
-      ..device = _getDevice(event.contexts.device)
-      ..culture = _getSentryCulture(event.contexts.culture)
-      ..runtimes = _getRuntimes(event.contexts.runtimes);
+      ..device = _mergeDevice(event.contexts.device, platform.device)
+      ..culture = _mergeCulture(event.contexts.culture, platform.culture)
+      ..runtimes = _mergeRuntimes(event.contexts.runtimes, platform.runtimes);
 
     event.contexts['dart_context'] = _getDartContext();
 
@@ -37,13 +34,28 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
       ..transaction = event.transaction ?? _window.location.pathname;
   }
 
-  @override
-  Future<Contexts> buildContexts() async {
-    return Contexts(
-      device: _getDevice(null),
-      culture: _getSentryCulture(null),
-      runtimes: _getRuntimes(null),
-    );
+  SentryDevice _mergeDevice(SentryDevice? existing, SentryDevice? detected) {
+    existing ??= SentryDevice();
+    return existing
+      ..online = existing.online ?? detected?.online
+      ..memorySize = existing.memorySize ?? detected?.memorySize
+      ..orientation = existing.orientation ?? detected?.orientation
+      ..screenHeightPixels =
+          existing.screenHeightPixels ?? detected?.screenHeightPixels
+      ..screenWidthPixels =
+          existing.screenWidthPixels ?? detected?.screenWidthPixels
+      ..screenDensity = existing.screenDensity ?? detected?.screenDensity;
+  }
+
+  SentryCulture _mergeCulture(
+      SentryCulture? existing, SentryCulture? detected) {
+    existing ??= SentryCulture();
+    return existing..timezone = existing.timezone ?? detected?.timezone;
+  }
+
+  List<SentryRuntime> _mergeRuntimes(
+      List<SentryRuntime> existing, List<SentryRuntime> detected) {
+    return [...existing, ...detected];
   }
 
   // As seen in
@@ -63,77 +75,9 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
       ..sanitize();
   }
 
-  SentryDevice _getDevice(SentryDevice? device) {
-    device ??= SentryDevice();
-    return device
-      ..online = device.online ?? _window.navigator.onLine
-      ..memorySize = device.memorySize ?? _getMemorySize()
-      ..orientation = device.orientation ?? _getScreenOrientation()
-      ..screenHeightPixels =
-          device.screenHeightPixels ?? _window.screen.availHeight
-      ..screenWidthPixels =
-          device.screenWidthPixels ?? _window.screen.availWidth
-      ..screenDensity =
-          device.screenDensity ?? _window.devicePixelRatio.toDouble();
-  }
-
-  int? _getMemorySize() {
-    // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/deviceMemory
-    final size = _window.navigator.safeDeviceMemory?.toDouble();
-    final memoryByteSize = size != null ? size * 1024 * 1024 * 1024 : null;
-    return memoryByteSize?.toInt();
-  }
-
-  SentryOrientation? _getScreenOrientation() {
-    // https://developer.mozilla.org/en-US/docs/Web/API/ScreenOrientation
-    final screenOrientation = _window.screen.orientation;
-    if (screenOrientation.type.startsWith('portrait')) {
-      return SentryOrientation.portrait;
-    }
-    if (screenOrientation.type.startsWith('landscape')) {
-      return SentryOrientation.landscape;
-    }
-    return null;
-  }
-
   Map<String, dynamic> _getDartContext() {
     return <String, dynamic>{
       'compile_mode': _options.runtimeChecker.compileMode,
     };
   }
-
-  SentryCulture _getSentryCulture(SentryCulture? culture) {
-    culture ??= SentryCulture();
-    return culture..timezone = culture.timezone ?? DateTime.now().timeZoneName;
-  }
-
-  List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
-    final flRuntime = flutterRuntime;
-    final dartFlRuntime = dartFlutterRuntime;
-
-    if (runtimes == null) {
-      return [
-        if (flRuntime != null) flRuntime,
-        if (dartFlRuntime != null) dartFlRuntime,
-      ];
-    }
-    return [
-      ...runtimes,
-      if (flRuntime != null) flRuntime,
-      if (dartFlRuntime != null) dartFlRuntime,
-    ];
-  }
-}
-
-/// Some Navigator properties are not fully supported in all browsers.
-/// However, package:web does not provide a safe way to access these properties,
-/// and assumes they are always not null.
-///
-/// This extension provides a safe way to access these properties.
-///
-/// See: https://github.com/dart-lang/web/issues/326
-///      https://github.com/fluttercommunity/plus_plugins/issues/3391
-extension SafeNavigationGetterExtensions on web.Navigator {
-  @JS('deviceMemory')
-  external double? get safeDeviceMemory;
 }

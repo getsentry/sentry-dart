@@ -1,9 +1,10 @@
-import 'dart:async';
+// ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
 import 'package:meta/meta.dart';
 
 import '../../hub.dart';
 import '../../integration.dart';
+import '../../platform/platform_context_provider.dart';
 import '../../protocol.dart';
 import '../../sdk_lifecycle_hooks.dart';
 import '../../sentry_options.dart';
@@ -13,8 +14,8 @@ import '../../utils.dart';
 import '../../utils/internal_logger.dart';
 import 'enricher_event_processor.dart';
 
-/// Registers an [EnricherEventProcessor] for events and wires its
-/// platform-derived contexts onto logs, metrics, and spans via lifecycle
+/// Registers an [EnricherEventProcessor] for events and wires a shared
+/// [PlatformContextProvider] onto logs, metrics, and spans via lifecycle
 /// callbacks.
 ///
 /// On the attribute path, non-segment spans plus logs and metrics receive
@@ -25,9 +26,10 @@ import 'enricher_event_processor.dart';
 /// data set by other producers (e.g. native integrations) wins.
 @internal
 class EnricherIntegration implements Integration<SentryOptions> {
-  EnricherIntegration(this._enricher);
+  EnricherIntegration(this._enricher, this._provider);
 
   final EnricherEventProcessor _enricher;
+  final PlatformContextProvider _provider;
 
   SentryOptions? _options;
   SdkLifecycleCallback<OnProcessLog>? _logCallback;
@@ -42,7 +44,8 @@ class EnricherIntegration implements Integration<SentryOptions> {
     if (options.enableLogs) {
       _logCallback = (event) async {
         try {
-          event.log.attributes.addAllIfAbsent(await _minimalAttributes());
+          final contexts = await _provider.buildContexts();
+          event.log.attributes.addAllIfAbsent(contexts.toMinimalAttributes());
         } catch (exception, stackTrace) {
           internalLogger.error(
             'EnricherIntegration failed to build contexts for $OnProcessLog',
@@ -57,7 +60,9 @@ class EnricherIntegration implements Integration<SentryOptions> {
     if (options.enableMetrics) {
       _metricCallback = (event) async {
         try {
-          event.metric.attributes.addAllIfAbsent(await _minimalAttributes());
+          final contexts = await _provider.buildContexts();
+          event.metric.attributes
+              .addAllIfAbsent(contexts.toMinimalAttributes());
         } catch (exception, stackTrace) {
           internalLogger.error(
             'EnricherIntegration failed to build contexts for $OnProcessMetric',
@@ -74,10 +79,10 @@ class EnricherIntegration implements Integration<SentryOptions> {
       _spanCallback = (event) async {
         try {
           final span = event.span;
-          final contexts = await _enricher.buildContexts();
+          final contexts = await _provider.buildContexts();
           final attributes = identical(span, span.segmentSpan)
               ? contexts.toAttributes()
-              : _filterMinimal(contexts);
+              : contexts.toMinimalAttributes();
           span.setAttributesIfAbsent(attributes);
         } catch (exception, stackTrace) {
           internalLogger.error(
@@ -111,17 +116,5 @@ class EnricherIntegration implements Integration<SentryOptions> {
       options.lifecycleRegistry.removeCallback<OnProcessSpan>(_spanCallback!);
       _spanCallback = null;
     }
-  }
-
-  Future<Map<String, SentryAttribute>> _minimalAttributes() async {
-    return _filterMinimal(await _enricher.buildContexts());
-  }
-
-  Map<String, SentryAttribute> _filterMinimal(Contexts contexts) {
-    final full = contexts.toAttributes();
-    return {
-      for (final key in minimalContextAttributes)
-        if (full.containsKey(key)) key: full[key]!,
-    };
   }
 }

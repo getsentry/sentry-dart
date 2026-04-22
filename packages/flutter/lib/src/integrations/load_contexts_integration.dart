@@ -139,11 +139,7 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
     }
 
     final contexts = await _loadNativeContexts();
-    final full = contexts.toAttributes();
-    final attributes = <String, SentryAttribute>{
-      for (final key in minimalContextAttributes)
-        if (full.containsKey(key)) key: full[key]!,
-    };
+    final attributes = contexts.toMinimalAttributes();
 
     _cachedAttributes = attributes;
     return attributes;

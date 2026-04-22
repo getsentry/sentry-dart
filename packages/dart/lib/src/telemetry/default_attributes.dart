@@ -22,6 +22,21 @@ const Set<String> minimalContextAttributes = {
   SemanticAttributesConstants.osTheme,
 };
 
+/// Projections of [Contexts] onto the attribute subsets consumed by the
+/// telemetry pipeline.
+@internal
+extension ContextsTelemetryAttributes on Contexts {
+  /// Returns only the attributes in [minimalContextAttributes] from
+  /// [Contexts.toAttributes], for logs, metrics, and non-segment spans.
+  Map<String, SentryAttribute> toMinimalAttributes() {
+    final full = toAttributes();
+    return {
+      for (final key in minimalContextAttributes)
+        if (full.containsKey(key)) key: full[key]!,
+    };
+  }
+}
+
 Map<String, SentryAttribute> defaultAttributes(SentryOptions options,
     {Scope? scope}) {
   final attributes = <String, SentryAttribute>{};

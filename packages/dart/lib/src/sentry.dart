@@ -7,6 +7,7 @@ import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
 import 'event_processor/enricher/enricher_integration.dart';
+import 'platform/platform_context_provider.dart';
 import 'event_processor/exception/exception_event_processor.dart';
 import 'event_processor/exception/exception_group_event_processor.dart';
 import 'hint.dart';
@@ -123,8 +124,12 @@ class Sentry {
     options.addIntegration(InMemoryTelemetryProcessorIntegration());
     options.addIntegration(TrackBeforeSendUsageIntegration());
 
+    final platformContextProvider = PlatformContextProvider(options);
     options.addIntegration(
-      EnricherIntegration(EnricherEventProcessor(options)),
+      EnricherIntegration(
+        EnricherEventProcessor(options, platformContextProvider),
+        platformContextProvider,
+      ),
     );
     options.addEventProcessor(ExceptionEventProcessor(options));
     options.addEventProcessor(DeduplicationEventProcessor(options));

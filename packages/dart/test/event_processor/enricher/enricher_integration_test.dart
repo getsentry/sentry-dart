@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/enricher/enricher_event_processor.dart';
 import 'package:sentry/src/event_processor/enricher/enricher_integration.dart';
+import 'package:sentry/src/platform/platform_context_provider.dart';
 import 'package:test/test.dart';
 
 import '../../test_utils.dart';
@@ -27,11 +28,10 @@ void main() {
         );
       });
 
-      test('adds enricherIntegration to SDK integrations', () {
+      test('adds Enricher to SDK integrations', () {
         fixture.getSut().call(HubAdapter(), fixture.options);
 
-        expect(
-            fixture.options.sdk.integrations, contains('enricherIntegration'));
+        expect(fixture.options.sdk.integrations, contains('Enricher'));
       });
     });
 
@@ -209,7 +209,9 @@ void main() {
 class _FakeEnricherEventProcessor implements EnricherEventProcessor {
   @override
   SentryEvent? apply(SentryEvent event, Hint hint) => event;
+}
 
+class _FakePlatformContextProvider implements PlatformContextProvider {
   @override
   Future<Contexts> buildContexts() async {
     return Contexts(
@@ -227,6 +229,7 @@ class _FakeEnricherEventProcessor implements EnricherEventProcessor {
 class Fixture {
   final options = defaultTestOptions();
   final enricher = _FakeEnricherEventProcessor();
+  final provider = _FakePlatformContextProvider();
 
   SentryLog givenLog() {
     return SentryLog(
@@ -270,5 +273,5 @@ class Fixture {
     );
   }
 
-  EnricherIntegration getSut() => EnricherIntegration(enricher);
+  EnricherIntegration getSut() => EnricherIntegration(enricher, provider);
 }
