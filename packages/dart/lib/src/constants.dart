@@ -166,6 +166,11 @@ abstract class SemanticAttributesConstants {
   /// This will later be replaced by app.vitals.start.value
   static const appVitalsStartWarmValue = 'app.vitals.start.warm.value';
 
+  /// The value of the app start duration in milliseconds.
+  ///
+  /// The cold/warm distinction is carried by [appVitalsStartType].
+  static const appVitalsStartValue = 'app.vitals.start.value';
+
   /// The type of the app start. (cold or warm)
   static const appVitalsStartType = 'app.vitals.start.type';
 

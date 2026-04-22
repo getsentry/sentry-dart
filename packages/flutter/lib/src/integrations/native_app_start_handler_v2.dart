@@ -92,16 +92,19 @@ class NativeAppStartHandlerV2 {
     sentrySetupSpan.end(endTimestamp: appStartInfo.sentrySetupStart);
     firstFrameRenderSpan.end(endTimestamp: appStartEnd);
 
-    final appStartValueKey = switch (appStartInfo.type) {
+    final durationMs = SentryAttribute.double(
+        appStartEnd.difference(appStartInfo.start).inMilliseconds.toDouble());
+    // Emit both the legacy cold/warm split and the unified value+type pair
+    // during the deprecation window for the former.
+    final legacyValueKey = switch (appStartInfo.type) {
       AppStartType.cold => SemanticAttributesConstants.appVitalsStartColdValue,
       AppStartType.warm => SemanticAttributesConstants.appVitalsStartWarmValue,
     };
+    appStartSpan.setAttribute(legacyValueKey, durationMs);
     appStartSpan.setAttribute(
-        appStartValueKey,
-        SentryAttribute.double(appStartEnd
-            .difference(appStartInfo.start)
-            .inMilliseconds
-            .toDouble()));
+        SemanticAttributesConstants.appVitalsStartValue, durationMs);
+    appStartSpan.setAttribute(SemanticAttributesConstants.appVitalsStartType,
+        SentryAttribute.string(appStartInfo.type.name));
 
     appStartSpan.end(endTimestamp: appStartEnd);
   }
