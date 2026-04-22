@@ -261,6 +261,7 @@ void configureAndroidOptions({
     androidOptions.setMaxAttachmentSize(options.maxAttachmentSize);
     androidOptions.setStrictTraceContinuation(options.strictTraceContinuation);
     androidOptions
+        // ignore: invalid_use_of_internal_member
         .setOrgId(options.effectiveOrgId?.toJString()?..releasedBy(arena));
     androidOptions
         .setConnectionTimeoutMillis(options.connectionTimeout.inMilliseconds);
