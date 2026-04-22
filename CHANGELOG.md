@@ -1,5 +1,35 @@
 # Changelog
 
+## 9.19.0
+
+### Features
+
+- Span-first trace lifecycle (experimental) by @buenaflor in [#3659](https://github.com/getsentry/sentry-dart/pull/3659)
+
+### Fixes
+
+- (feedback) Show success message after feedback submission by @denrase in [#3609](https://github.com/getsentry/sentry-dart/pull/3609)
+
+### Enhancements
+
+- (navigator-observer) Make new trace id on navigation opt-in instead of opt-out by @buenaflor in [#3657](https://github.com/getsentry/sentry-dart/pull/3657)
+
+### Dependencies
+
+- chore(deps): update Android SDK to v8.39.1 by @github-actions in [#3646](https://github.com/getsentry/sentry-dart/pull/3646)
+
+### Internal Changes
+
+#### Deps
+
+- Bump actions/create-github-app-token from 3.0.0 to 3.1.1 by @dependabot in [#3652](https://github.com/getsentry/sentry-dart/pull/3652)
+- Bump getsentry/craft/.github/workflows/changelog-preview.yml from 2.25.2 to 2.25.4 by @dependabot in [#3655](https://github.com/getsentry/sentry-dart/pull/3655)
+- Bump actions/cache from 5.0.4 to 5.0.5 by @dependabot in [#3656](https://github.com/getsentry/sentry-dart/pull/3656)
+
+#### Other
+
+- Integrate Warden for AI-powered PR code review by @buenaflor in [#3651](https://github.com/getsentry/sentry-dart/pull/3651)
+
 ## 9.18.0
 
 ### Dependencies
