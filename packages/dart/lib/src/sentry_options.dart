@@ -220,6 +220,13 @@ class SentryOptions {
   /// Can return a modified metric or null to drop the metric.
   BeforeSendMetricCallback? beforeSendMetric;
 
+  /// This function is called right before a span is about to be sent.
+  /// Unlike other `beforeSend` callbacks, this callback cannot drop spans
+  /// from the span tree. Spans will always be sent after this callback runs.
+  ///
+  /// Use this callback to scrub sensitive data or PII from span data.
+  BeforeSendSpanCallback? beforeSendSpan;
+
   /// Sets the release. SDK will try to automatically configure a release out of the box
   /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
   String? release;
@@ -235,6 +242,22 @@ class SentryOptions {
   /// sent. Events are picked randomly. Default is null (disabled)
   double? sampleRate;
 
+  /// Chooses between two tracing systems. You can only use one at a time.
+  ///
+  /// [SentryTraceLifecycle.stream] sends each span to Sentry as it finishes.
+  /// Use [Sentry.startSpan] to create spans. The older transaction APIs
+  /// ([Sentry.startTransaction], [ISentrySpan.startChild]) will do nothing.
+  ///
+  /// [SentryTraceLifecycle.static] collects all spans and sends them together
+  /// when the transaction ends. Use [Sentry.startTransaction] to create traces.
+  /// The newer span APIs ([Sentry.startSpan]) will do nothing.
+  ///
+  /// Integrations automatically switch to the correct API based on this setting.
+  ///
+  /// Defaults to [SentryTraceLifecycle.static].
+  @experimental
+  SentryTraceLifecycle traceLifecycle = SentryTraceLifecycle.static;
+
   /// The ignoreErrors tells the SDK which errors should be not sent to the sentry server.
   /// If an null or an empty list is used, the SDK will send all transactions.
   /// To use regex add the `^` and the `$` to the string.
@@ -244,6 +267,15 @@ class SentryOptions {
   /// If null or an empty list is used, the SDK will send all transactions.
   /// To use regex add the `^` and the `$` to the string.
   List<String> ignoreTransactions = [];
+
+  /// Rules that determine which spans are ignored.
+  ///
+  /// Rules are evaluated when a span starts, in the order they are added.
+  /// The first rule that matches the span name determines whether the span is
+  /// ignored.
+  ///
+  /// If empty, all spans are processed.
+  List<IgnoreSpanRule> ignoreSpans = [];
 
   final List<String> _inAppExcludes = [];
 
@@ -669,10 +701,12 @@ class SentryOptions {
     return tracesSampleRate != null || tracesSampler != null;
   }
 
+  @Deprecated('Will be removed in the next major v10')
   List<PerformanceCollector> get performanceCollectors =>
       _performanceCollectors;
   final List<PerformanceCollector> _performanceCollectors = [];
 
+  @Deprecated('Will be removed in the next major v10')
   void addPerformanceCollector(PerformanceCollector collector) {
     _performanceCollectors.add(collector);
   }
@@ -750,6 +784,9 @@ typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
 /// Can return true to emit the metric, or false to drop it.
 typedef BeforeSendMetricCallback = FutureOr<SentryMetric?> Function(
     SentryMetric metric);
+
+/// This function is called right before a span is about to be sent.
+typedef BeforeSendSpanCallback = FutureOr<void> Function(SentrySpanV2 span);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();

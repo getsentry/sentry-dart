@@ -134,6 +134,41 @@ void main() {
       expect(actualData, expectedData);
     });
 
+    test('fromSpansData', () async {
+      final span1 = jsonEncode({
+        'trace_id':
+            Sentry.currentHub.scope.propagationContext.traceId.toString(),
+        'span_id': SpanId.newId().toString(),
+        'name': 'GET /users',
+        'status': 'ok',
+        'is_segment': true,
+        'start_timestamp': 1742921669.158209,
+        'end_timestamp': 1742921669.180536,
+      });
+      final span2 = jsonEncode({
+        'trace_id':
+            Sentry.currentHub.scope.propagationContext.traceId.toString(),
+        'span_id': SpanId.newId().toString(),
+        'name': 'GET /posts',
+        'status': 'ok',
+        'is_segment': true,
+        'start_timestamp': 1742921669.158209,
+        'end_timestamp': 1742921669.180536,
+      });
+      final payload = utf8.encode('{"items":[$span1,$span2]');
+      final spansCount = 2;
+
+      final sut = SentryEnvelopeItem.fromSpansData(payload, spansCount);
+
+      expect(
+          sut.header.contentType, 'application/vnd.sentry.items.span.v2+json');
+      expect(sut.header.type, SentryItemType.span);
+      expect(sut.header.itemCount, spansCount);
+
+      final actualData = await sut.dataFactory();
+      expect(actualData, payload);
+    });
+
     test('fromLogsData', () async {
       final payload =
           utf8.encode('{"items":[{"test":"data1"},{"test":"data2"}]');

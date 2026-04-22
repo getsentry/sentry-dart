@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 
+import '../constants.dart';
 import 'access_aware_map.dart';
+import 'sentry_attribute.dart';
 
 /// Describes a runtime in more detail.
 ///
@@ -60,6 +62,32 @@ class SentryRuntime {
       build: json['build'],
       unknown: json.notAccessed(),
     );
+  }
+
+  /// A map of stable semantic span attributes derived from this runtime.
+  ///
+  /// Emits the OpenTelemetry `process.runtime.*` keys defined in
+  /// [SemanticAttributesConstants]. Intended for span v2 attributes; event
+  /// payloads continue to use [toJson].
+  @internal
+  Map<String, SentryAttribute> toAttributes() {
+    final attributes = <String, SentryAttribute>{};
+    final name = this.name;
+    if (name != null) {
+      attributes[SemanticAttributesConstants.processRuntimeName] =
+          SentryAttribute.string(name);
+    }
+    final version = this.version;
+    if (version != null) {
+      attributes[SemanticAttributesConstants.processRuntimeVersion] =
+          SentryAttribute.string(version);
+    }
+    final rawDescription = this.rawDescription;
+    if (rawDescription != null) {
+      attributes[SemanticAttributesConstants.processRuntimeDescription] =
+          SentryAttribute.string(rawDescription);
+    }
+    return attributes;
   }
 
   /// Produces a [Map] that can be serialized to JSON.

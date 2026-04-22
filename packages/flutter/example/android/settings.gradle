@@ -3,7 +3,7 @@ pluginManagement {
 
     plugins {
         id "org.jetbrains.kotlin.android" version kotlinAndroidVersion
-        id "com.android.application" version "8.2.2"
+        id "com.android.application" version "8.6.0"
         id "io.sentry.android.gradle" version "4.14.1"
     }
 

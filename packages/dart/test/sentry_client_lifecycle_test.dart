@@ -45,6 +45,41 @@ void main() {
         expect(capturedEvent.release, '999');
       });
     });
+
+    group('$SentrySpanV2', () {
+      test('captureSpan triggers $OnProcessSpan', () async {
+        fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
+
+        final scope = Scope(fixture.options);
+        final client = fixture.getSut();
+        final mockProcessor = MockTelemetryProcessor();
+        fixture.options.telemetryProcessor = mockProcessor;
+
+        fixture.options.lifecycleRegistry
+            .registerCallback<OnProcessSpan>((event) {
+          event.span.setAttribute(
+            'test-attribute',
+            SentryAttribute.string('test-value'),
+          );
+        });
+
+        final span = RecordingSentrySpanV2.root(
+          name: 'test-span',
+          traceId: SentryId.newId(),
+          onSpanEnd: (_) async {},
+          clock: fixture.options.clock,
+          dscCreator: (_) => SentryTraceContextHeader(SentryId.newId(), 'key'),
+          samplingDecision: SentryTracesSamplingDecision(true),
+        );
+
+        await client.captureSpan(span, scope: scope);
+
+        expect(mockProcessor.addedSpans.length, 1);
+        final capturedSpan = mockProcessor.addedSpans.first;
+        expect(capturedSpan, same(span));
+        expect(capturedSpan.attributes['test-attribute']?.value, 'test-value');
+      });
+    });
   });
 }
 

@@ -14,6 +14,7 @@ class SentrySpan extends ISentrySpan {
   late final DateTime _startTimestamp;
   final Hub _hub;
 
+  bool _isFinished = false;
   bool _isRootSpan = false;
 
   bool get isRootSpan => _isRootSpan;
@@ -51,48 +52,53 @@ class SentrySpan extends ISentrySpan {
   @override
   Future<void> finish(
       {SpanStatus? status, DateTime? endTimestamp, Hint? hint}) async {
-    if (finished) {
+    // Prevent concurrent or duplicate finish() calls
+    if (_isFinished || _endTimestamp != null) {
       return;
     }
 
-    if (status != null) {
-      _status = status;
-    }
-
-    if (endTimestamp == null) {
-      endTimestamp = _hub.options.clock();
-    } else if (endTimestamp.isBefore(_startTimestamp)) {
-      _hub.options.log(
-        SentryLevel.warning,
-        'End timestamp ($endTimestamp) cannot be before start timestamp ($_startTimestamp)',
-      );
-      endTimestamp = _hub.options.clock();
-    } else {
-      endTimestamp = endTimestamp.toUtc();
-    }
-
-    for (final collector in _hub.options.performanceCollectors) {
-      if (collector is PerformanceContinuousCollector) {
-        await collector.onSpanFinished(this, endTimestamp);
+    try {
+      if (status != null) {
+        _status = status;
       }
+
+      if (endTimestamp == null) {
+        endTimestamp = _hub.options.clock();
+      } else if (endTimestamp.isBefore(_startTimestamp)) {
+        _hub.options.log(
+          SentryLevel.warning,
+          'End timestamp ($endTimestamp) cannot be before start timestamp ($_startTimestamp)',
+        );
+        endTimestamp = _hub.options.clock();
+      } else {
+        endTimestamp = endTimestamp.toUtc();
+      }
+
+      _endTimestamp = endTimestamp;
+
+      // ignore: deprecated_member_use_from_same_package
+      for (final collector in _hub.options.performanceCollectors) {
+        if (collector is PerformanceContinuousCollector) {
+          await collector.onSpanFinished(this, endTimestamp);
+        }
+      }
+
+      // Dispatch OnSpanFinish lifecycle event
+      final callback =
+          _hub.options.lifecycleRegistry.dispatchCallback(OnSpanFinish(this));
+      if (callback is Future) {
+        await callback;
+      }
+
+      // associate error
+      if (_throwable != null) {
+        _hub.setSpanContext(_throwable, this, _tracer.name);
+      }
+    } finally {
+      _isFinished = true;
+      await _finishedCallback?.call(endTimestamp: _endTimestamp, hint: hint);
     }
 
-    // Dispatch OnSpanFinish lifecycle event
-    final callback =
-        _hub.options.lifecycleRegistry.dispatchCallback(OnSpanFinish(this));
-    if (callback is Future) {
-      await callback;
-    }
-
-    // The finished flag depends on the _endTimestamp
-    // If we set this earlier then finished is true and then we cannot use setData etc...
-    _endTimestamp = endTimestamp;
-
-    // associate error
-    if (_throwable != null) {
-      _hub.setSpanContext(_throwable, this, _tracer.name);
-    }
-    await _finishedCallback?.call(endTimestamp: _endTimestamp, hint: hint);
     return super
         .finish(status: status, endTimestamp: _endTimestamp, hint: hint);
   }
@@ -207,7 +213,7 @@ class SentrySpan extends ISentrySpan {
   }
 
   @override
-  bool get finished => _endTimestamp != null;
+  bool get finished => _isFinished && _endTimestamp != null;
 
   @override
   dynamic get throwable => _throwable;

@@ -1,10 +1,11 @@
-// ignore_for_file: invalid_use_of_internal_member
+// ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/generic_app_start_integration.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 // Internal import is fine in tests.
 import 'package:sentry/src/sentry_tracer.dart';
 
@@ -220,6 +221,55 @@ void main() {
       test('has correct integration name', () {
         expect(GenericAppStartIntegration.integrationName, 'GenericAppStart');
       });
+    });
+  });
+
+  group('GenericAppStartIntegration V2 (streaming)', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+      fixture.options.tracesSampleRate = 1.0;
+      fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
+      fixture.options.timeToDisplayTrackerV2 = TimeToDisplayTrackerV2(
+        hub: fixture.hub,
+        frameCallbackHandler: fixture.fakeFrameHandler,
+      );
+    });
+
+    test('adds sdk integration', () {
+      final sut = fixture.getSut();
+
+      sut.call(fixture.hub, fixture.options);
+
+      expect(fixture.options.sdk.integrations, contains('GenericAppStart'));
+    });
+
+    test('sets app start span as active span', () {
+      final sut = fixture.getSut();
+
+      sut.call(fixture.hub, fixture.options);
+
+      final activeSpan = fixture.hub.getActiveSpan();
+      expect(activeSpan, isNotNull);
+      expect(activeSpan!.name, 'root /');
+    });
+
+    test('does not create V1 transaction', () {
+      final sut = fixture.getSut();
+
+      sut.call(fixture.hub, fixture.options);
+
+      expect(fixture.hub.scope.span, isNull);
+    });
+
+    test('does not register own post frame callback', () {
+      final integrationFrameHandler = FakeFrameCallbackHandler();
+      final sut = GenericAppStartIntegration(integrationFrameHandler);
+
+      sut.call(fixture.hub, fixture.options);
+
+      expect(integrationFrameHandler.postFrameCallback, isNull);
     });
   });
 }

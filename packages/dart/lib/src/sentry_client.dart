@@ -21,6 +21,8 @@ import 'sentry_trace_context_header.dart';
 import 'telemetry/log/log_capture_pipeline.dart';
 import 'telemetry/metric/metric.dart';
 import 'telemetry/metric/metric_capture_pipeline.dart';
+import 'telemetry/span/span_capture_pipeline.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 import 'transport/client_report_transport.dart';
 import 'transport/data_category.dart';
 import 'transport/http_transport.dart';
@@ -47,6 +49,7 @@ class SentryClient {
   final Random? _random;
   final LogCapturePipeline _logCapturePipeline;
   final MetricCapturePipeline _metricCapturePipeline;
+  final SpanCapturePipeline _spanCapturePipeline;
 
   static final _emptySentryId = Future.value(SentryId.empty());
 
@@ -54,9 +57,12 @@ class SentryClient {
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
 
   /// Instantiates a client using [SentryOptions]
-  factory SentryClient(SentryOptions options,
-      {LogCapturePipeline? logCapturePipeline,
-      MetricCapturePipeline? metricCapturePipeline}) {
+  factory SentryClient(
+    SentryOptions options, {
+    LogCapturePipeline? logCapturePipeline,
+    MetricCapturePipeline? metricCapturePipeline,
+    SpanCapturePipeline? spanCapturePipeline,
+  }) {
     if (options.sendClientReports) {
       options.recorder = ClientReportRecorder(options.clock);
     }
@@ -85,13 +91,17 @@ class SentryClient {
       options,
       logCapturePipeline ?? LogCapturePipeline(options),
       metricCapturePipeline ?? MetricCapturePipeline(options),
+      spanCapturePipeline ?? SpanCapturePipeline(options),
     );
   }
 
   /// Instantiates a client using [SentryOptions]
   SentryClient._(
-      this._options, this._logCapturePipeline, this._metricCapturePipeline)
-      : _random = _options.sampleRate == null ? null : Random();
+    this._options,
+    this._logCapturePipeline,
+    this._metricCapturePipeline,
+    this._spanCapturePipeline,
+  ) : _random = _options.sampleRate == null ? null : Random();
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -499,6 +509,9 @@ class SentryClient {
       hint: hint,
     );
   }
+
+  Future<void> captureSpan(SentrySpanV2 span, {Scope? scope}) =>
+      _spanCapturePipeline.captureSpan(span, scope: scope);
 
   @internal
   FutureOr<void> captureLog(SentryLog log, {Scope? scope}) =>

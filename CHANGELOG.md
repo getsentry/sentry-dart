@@ -8,6 +8,19 @@
   - By default, the SDK now extracts the organization ID from the DSN (e.g. `o123.ingest.sentry.io`) and compares it with the `sentry-org_id` value in incoming baggage headers. When the two differ, the SDK starts a fresh trace instead of continuing the foreign one. This guards against accidentally linking traces across organizations.
   - New option `strictTraceContinuation` (default `false`): when enabled, both the SDK's org ID **and** the incoming baggage org ID must be present and match for a trace to be continued. Traces with a missing org ID on either side are rejected.
   - New option `orgId`: allows explicitly setting the organization ID for self-hosted and Relay setups where it cannot be extracted from the DSN.
+## 9.18.0
+
+### Dependencies
+
+- chore(deps): update Native SDK to v0.13.7 by @github-actions in [#3645](https://github.com/getsentry/sentry-dart/pull/3645)
+
+### Internal Changes
+
+- (flutter-example) Fix macOS SPM build and bump AGP to 8.6.0 by @buenaflor in [#3644](https://github.com/getsentry/sentry-dart/pull/3644)
+- (supabase) Fix flaky error client test for postgrest retry by @buenaflor in [#3643](https://github.com/getsentry/sentry-dart/pull/3643)
+- Add SDK features for beforeSend callbacks by @buenaflor in [#3608](https://github.com/getsentry/sentry-dart/pull/3608)
+- Add dep update pattern to Dependencies changelog category by @buenaflor in [#3642](https://github.com/getsentry/sentry-dart/pull/3642)
+- Replace Danger with release.yml changelog policy by @buenaflor in [#3641](https://github.com/getsentry/sentry-dart/pull/3641)
 
 ## 9.17.0
 
@@ -29,6 +42,7 @@
 
 ## 9.16.1
 
+- Experimental span-streaming API with `startSpan`
 ### Fixes
 
 - Sentry Native not building due to failing `git clone` ([#3621](https://github.com/getsentry/sentry-dart/pull/3621))

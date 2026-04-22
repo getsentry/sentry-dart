@@ -113,6 +113,24 @@ class SentryEnvelope {
         ],
       );
 
+  /// Create a [SentryEnvelope] containing raw span data payload.
+  /// This is used by the span buffer to send pre-encoded spans.
+  @internal
+  factory SentryEnvelope.fromSpansData(
+    List<List<int>> encodedSpans,
+    SdkVersion sdkVersion, {
+    String? dsn,
+    SentryTraceContextHeader? traceContext,
+  }) =>
+      SentryEnvelope(
+        SentryEnvelopeHeader(null, sdkVersion,
+            dsn: dsn, traceContext: traceContext),
+        [
+          SentryEnvelopeItem.fromSpansData(
+              _buildItemsPayload(encodedSpans), encodedSpans.length)
+        ],
+      );
+
   /// Create a [SentryEnvelope] containing raw metric data payload.
   /// This is used by the log batcher to send pre-encoded metric batches.
   @internal

@@ -8,6 +8,7 @@ import 'package:sentry/sentry.dart';
 import 'binding_wrapper.dart';
 import 'event_processor/screenshot_event_processor.dart';
 import 'navigation/time_to_display_tracker.dart';
+import 'navigation/time_to_display_tracker_v2.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
 import 'sentry_privacy_options.dart';
@@ -218,6 +219,9 @@ class SentryFlutterOptions extends SentryOptions {
   late TimeToDisplayTracker timeToDisplayTracker = TimeToDisplayTracker(
     options: this,
   );
+
+  @meta.internal
+  late TimeToDisplayTrackerV2 timeToDisplayTrackerV2 = TimeToDisplayTrackerV2();
 
   /// Sets the Proguard uuid for Android platform.
   String? proguardUuid;

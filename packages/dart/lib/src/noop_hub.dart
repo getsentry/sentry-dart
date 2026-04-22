@@ -11,6 +11,7 @@ import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'telemetry/metric/metric.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 import 'tracing.dart';
 
 class NoOpHub implements Hub {
@@ -154,4 +155,49 @@ class NoOpHub implements Hub {
 
   @override
   void removeAttribute(String key) {}
+
+  @override
+  SentrySpanV2 startInactiveSpan(
+    String name, {
+    Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
+  }) =>
+      NoOpSentrySpanV2.instance;
+
+  @override
+  Future<void> captureSpan(SentrySpanV2 span) async {}
+
+  @override
+  RecordingSentrySpanV2? getActiveSpan() {
+    return null;
+  }
+
+  @override
+  Future<T> startSpan<T>(
+      String name, Future<T> Function(SentrySpanV2 span) callback,
+      {Map<String, SentryAttribute>? attributes,
+      SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+      DateTime? startTimestamp}) async {
+    return callback(NoOpSentrySpanV2.instance);
+  }
+
+  @override
+  T startSpanSync<T>(String name, T Function(SentrySpanV2 span) callback,
+      {Map<String, SentryAttribute>? attributes,
+      SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+      DateTime? startTimestamp}) {
+    return callback(NoOpSentrySpanV2.instance);
+  }
+
+  @override
+  SentrySpanV2 startIdleSpan(
+    String name, {
+    Duration idleTimeout = const Duration(seconds: 3),
+    Duration finalTimeout = const Duration(seconds: 30),
+    bool trimIdleSpanEndTimestamp = true,
+    Map<String, SentryAttribute>? attributes,
+    DateTime? startTimestamp,
+  }) =>
+      NoOpSentrySpanV2.instance;
 }

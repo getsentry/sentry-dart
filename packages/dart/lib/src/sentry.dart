@@ -6,6 +6,8 @@ import 'dart_exception_type_identifier.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
+import 'event_processor/enricher/enricher_integration.dart';
+import 'platform/platform_context_provider.dart';
 import 'event_processor/exception/exception_event_processor.dart';
 import 'event_processor/exception/exception_group_event_processor.dart';
 import 'hint.dart';
@@ -26,12 +28,15 @@ import 'sentry_run_zoned_guarded.dart';
 import 'telemetry/metric/metrics_setup_integration.dart';
 import 'telemetry/metric/metrics.dart';
 import 'telemetry/processing/processor_integration.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 import 'tracing.dart';
+import 'tracing/instrumentation/span_factory_integration.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
 import 'feature_flags_integration.dart';
 import 'telemetry/log/logger.dart';
 import 'telemetry/log/logger_setup_integration.dart';
+import 'track_before_send_usage_integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -114,10 +119,18 @@ class Sentry {
 
     options.addIntegration(MetricsSetupIntegration());
     options.addIntegration(LoggerSetupIntegration());
+    options.addIntegration(InstrumentationSpanFactorySetupIntegration());
     options.addIntegration(FeatureFlagsIntegration());
     options.addIntegration(InMemoryTelemetryProcessorIntegration());
+    options.addIntegration(TrackBeforeSendUsageIntegration());
 
-    options.addEventProcessor(EnricherEventProcessor(options));
+    final platformContextProvider = PlatformContextProvider(options);
+    options.addIntegration(
+      EnricherIntegration(
+        EnricherEventProcessor(options, platformContextProvider),
+        platformContextProvider,
+      ),
+    );
     options.addEventProcessor(ExceptionEventProcessor(options));
     options.addEventProcessor(DeduplicationEventProcessor(options));
 
@@ -383,6 +396,121 @@ class Sentry {
         trimEnd: trimEnd,
         onFinish: onFinish,
       );
+
+  /// Starts a new span, executes an async [callback], and ends the span
+  /// automatically when the returned future completes.
+  ///
+  /// The span is set as the active span within the [callback]'s scope via
+  /// zones, so any nested [startSpan] or [startSpanSync] calls will
+  /// automatically parent to it.
+  ///
+  /// If the [callback] throws or the returned future completes with an error,
+  /// the span's status is set to [SentrySpanStatusV2.error] before ending.
+  /// Use [startSpanSync] when the work completes synchronously.
+  ///
+  /// Both variants can be freely nested — parent-child relationships resolve
+  /// correctly across sync/async boundaries.
+  ///
+  /// When the span is not sent — due to sampling or ignore rules — the
+  /// [callback] still executes but receives a [NoOpSentrySpanV2]. All
+  /// operations on it (e.g. [SentrySpanV2.setAttribute]) are safe no-ops.
+  ///
+  /// By default, the span is created as a child of the currently active span.
+  /// Pass a [SentrySpanV2] as [parentSpan] to override the parent, or pass
+  /// `null` to create a root span.
+  ///
+  /// ```dart
+  /// final order = await Sentry.startSpan('checkout', (span) async {
+  ///   span.setAttribute('cart.item_count', SentryAttribute.int(cart.items.length));
+  ///
+  ///   // Automatically becomes a child of 'checkout'.
+  ///   final payment = await Sentry.startSpan('process-payment', (span) {
+  ///     return paymentService.charge(cart.total);
+  ///   });
+  ///
+  ///   return orderService.create(cart, payment);
+  /// });
+  /// ```
+  @experimental
+  static Future<T> startSpan<T>(
+    String name,
+    Future<T> Function(SentrySpanV2 span) callback, {
+    Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
+  }) =>
+      _hub.startSpan(name, callback,
+          attributes: attributes,
+          parentSpan: parentSpan,
+          startTimestamp: startTimestamp);
+
+  /// Starts a new span, executes a synchronous [callback], and ends the span
+  /// before returning the callback result.
+  ///
+  /// The span is set as the active span within the [callback]'s scope via
+  /// zones, so any nested [startSpan] or [startSpanSync] calls will
+  /// automatically parent to it.
+  ///
+  /// If the [callback] throws, the span's status is set to
+  /// [SentrySpanStatusV2.error] before ending.
+  /// Use [startSpan] when the work is asynchronous.
+  ///
+  /// Both variants can be freely nested — parent-child relationships resolve
+  /// correctly across sync/async boundaries.
+  ///
+  /// When the span is not sent — due to sampling or ignore rules — the
+  /// [callback] still executes but receives a [NoOpSentrySpanV2]. All
+  /// operations on it (e.g. [SentrySpanV2.setAttribute]) are safe no-ops.
+  ///
+  /// By default, the span is created as a child of the currently active span.
+  /// Pass a [SentrySpanV2] as [parentSpan] to override the parent, or pass
+  /// `null` to create a root span.
+  @experimental
+  static T startSpanSync<T>(
+    String name,
+    T Function(SentrySpanV2 span) callback, {
+    Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
+  }) =>
+      _hub.startSpanSync(name, callback,
+          attributes: attributes,
+          parentSpan: parentSpan,
+          startTimestamp: startTimestamp);
+
+  /// Creates a span that is not set as the active span.
+  ///
+  /// Unlike [startSpan], this span does not use a callback and is not propagated through zones.
+  /// This means:
+  /// - Other spans will **not** automatically become children of this span.
+  /// - You control the span's lifetime by calling [SentrySpanV2.end] manually.
+  ///
+  /// By default, the span is created as a child of the currently active span.
+  /// Pass a [SentrySpanV2] as [parentSpan] to override the parent, or pass
+  /// `null` to create a root span.
+  ///
+  /// Prefer [startSpan] or [startSpanSync] when the work fits inside a single
+  /// callback. Use this method when the span must survive across execution boundaries
+  /// that a callback cannot wrap — for example, widget lifecycles, stream
+  /// subscriptions, or platform channel round-trips.
+  ///
+  /// Example:
+  /// ```dart
+  /// final paymentSpan = Sentry.startInactiveSpan('payment',
+  ///   attributes: {'payment.provider': SentryAttribute.string('stripe')});
+  ///
+  /// // ...later, from a completely different entry point
+  /// void onDeepLink(Uri uri) {
+  ///   paymentSpan.end();
+  /// }
+  /// ```
+  static SentrySpanV2 startInactiveSpan(
+    String name, {
+    Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+  }) =>
+      _hub.startInactiveSpan(name,
+          attributes: attributes, parentSpan: parentSpan);
 
   /// Gets the current active transaction or span bound to the scope.
   /// Returns `null` if performance is disabled in the options.

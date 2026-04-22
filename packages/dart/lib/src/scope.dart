@@ -13,6 +13,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_options.dart';
 import 'sentry_span_interface.dart';
 import 'sentry_tracer.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 
 typedef _OnScopeObserver = Future<void> Function(ScopeObserver observer);
 
@@ -42,6 +43,36 @@ class Scope {
 
   /// Returns active transaction or null if there is no active transaction.
   ISentrySpan? span;
+
+  /// The currently active span on this scope.
+  ///
+  /// This follows the JS SDK pattern where the scope (stored in zone-local
+  /// storage) holds the active span. [startSpan] forks a new scope with the
+  /// span set. [startInactiveSpan] does not modify the scope.
+  RecordingSentrySpanV2? _activeSpan;
+
+  @visibleForTesting
+  RecordingSentrySpanV2? get activeSpan => _activeSpan;
+
+  /// Returns the currently active span, or `null` if no span is active.
+  @internal
+  RecordingSentrySpanV2? getActiveSpan() {
+    return _activeSpan;
+  }
+
+  /// Sets the given recording [span] as the currently active span.
+  @internal
+  void setActiveSpan(RecordingSentrySpanV2 span) {
+    _activeSpan = span;
+  }
+
+  /// Clears the active span if it matches the given [span].
+  @internal
+  void removeActiveSpan(RecordingSentrySpanV2 span) {
+    if (_activeSpan == span) {
+      _activeSpan = null;
+    }
+  }
 
   /// The propagation context for connecting errors and spans to traces.
   /// There should always be a propagation context available at all times.
@@ -273,6 +304,7 @@ class Scope {
     _replayId = null;
     propagationContext = PropagationContext();
     _attributes.clear();
+    _activeSpan = null;
 
     _clearBreadcrumbsSync();
     _setUserSync(null);
@@ -479,6 +511,8 @@ class Scope {
     if (_attributes.isNotEmpty) {
       clone.setAttributes(Map.from(_attributes));
     }
+
+    clone._activeSpan = _activeSpan;
 
     return clone;
   }
