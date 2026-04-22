@@ -311,7 +311,9 @@ void main() {
         expect(context.parentSpanId, isNull);
       });
 
-      test('continues trace when options is null (backwards compat)', () {
+      test(
+          'falls back to NoOp hub options when options is null and Sentry is not initialized',
+          () {
         final header = SentryTraceHeader(traceId, spanId, sampled: true);
         final baggage = SentryBaggage({})..setOrgId('456');
 
@@ -322,6 +324,8 @@ void main() {
           baggage: baggage,
         );
 
+        // NoOp hub has no org ID configured, so there's nothing to mismatch
+        // against and the trace should be continued.
         expect(context.traceId, traceId);
         expect(context.parentSpanId, spanId);
       });

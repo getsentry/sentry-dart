@@ -27,6 +27,14 @@ class SentryTransactionContext extends SentrySpanContext {
           operation: operation,
         );
 
+  /// Creates a [SentryTransactionContext] from an incoming [traceHeader] and
+  /// optional [baggage].
+  ///
+  /// Validates the incoming trace's `sentry-org_id` against the SDK's
+  /// organization ID (see [SentryOptions.strictTraceContinuation]). When the
+  /// trace should not be continued, a new trace is started instead.
+  ///
+  /// If [options] is not provided, the current hub's options are used.
   factory SentryTransactionContext.fromSentryTrace(
     String name,
     String operation,
