@@ -173,6 +173,66 @@ void main() {
       expect(actualItemData, expectedItemData);
     });
 
+    test('fromSpansData', () async {
+      final span1 = utf8JsonEncoder.convert({
+        'trace_id':
+            Sentry.currentHub.scope.propagationContext.traceId.toString(),
+        'span_id': SpanId.newId().toString(),
+        'name': 'GET /users',
+        'status': 'ok',
+        'is_segment': true,
+        'start_timestamp': 1742921669.158209,
+        'end_timestamp': 1742921669.180536,
+      });
+      final span2 = utf8JsonEncoder.convert({
+        'trace_id':
+            Sentry.currentHub.scope.propagationContext.traceId.toString(),
+        'span_id': SpanId.newId().toString(),
+        'name': 'GET /posts',
+        'status': 'ok',
+        'is_segment': true,
+        'start_timestamp': 1742921669.158209,
+        'end_timestamp': 1742921669.180536,
+      });
+      final spansCount = 2;
+      final sdkVersion = SdkVersion(
+        name: 'fixture-name',
+        version: 'fixture-version',
+      );
+      final traceContext = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${SentryId.newId()}',
+        'public_key': '123',
+      });
+
+      final sut = SentryEnvelope.fromSpansData([span1, span2], sdkVersion,
+          dsn: fakeDsn, traceContext: traceContext);
+
+      expect(sut.header.eventId, null);
+      expect(sut.header.sdkVersion, sdkVersion);
+      expect(sut.header.traceContext, traceContext);
+      expect(sut.header.dsn, fakeDsn);
+      expect(sut.items.length, 1);
+
+      final expectedEnvelopeItem = SentryEnvelopeItem.fromSpansData(
+        // The envelope should create the final payload with {"items": [...]} wrapper
+        utf8.encode('{"items":[') +
+            span1 +
+            utf8.encode(',') +
+            span2 +
+            utf8.encode(']}'),
+        spansCount,
+      );
+
+      expect(sut.items[0].header.contentType,
+          expectedEnvelopeItem.header.contentType);
+      expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
+      expect(sut.items[0].header.itemCount, spansCount);
+
+      final actualItem = await sut.items[0].dataFactory();
+      final expectedItem = await expectedEnvelopeItem.dataFactory();
+      expect(actualItem, expectedItem);
+    });
+
     test('fromLogsData', () async {
       final encodedLogs = [
         utf8.encode(

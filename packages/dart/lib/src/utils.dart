@@ -6,7 +6,7 @@ import 'dart:convert';
 
 import 'package:meta/meta.dart';
 
-import 'protocol/sentry_attribute.dart';
+import '../sentry.dart';
 
 /// Sentry does not take a timezone and instead expects the date-time to be
 /// submitted in UTC timezone.
@@ -35,6 +35,22 @@ Object? jsonSerializationFallback(Object? nonEncodable) {
     return null;
   }
   return nonEncodable.toString();
+}
+
+@internal
+extension SpanAttributeUtils on SentrySpanV2 {
+  void addAttributesIfAbsent(Map<String, SentryAttribute> attributes) {
+    if (attributes.isEmpty) {
+      return;
+    }
+
+    final existing = this.attributes;
+    for (final entry in attributes.entries) {
+      if (!existing.containsKey(entry.key)) {
+        setAttribute(entry.key, entry.value);
+      }
+    }
+  }
 }
 
 @internal

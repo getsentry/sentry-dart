@@ -1,8 +1,8 @@
 import 'dart:collection';
 import 'package:meta/meta.dart';
 
-import '../protocol.dart';
-import 'sentry_feedback.dart';
+import '../../sentry.dart';
+import '../event_processor/enricher/flutter_runtime.dart';
 
 /// The context interfaces provide additional context data.
 ///
@@ -161,6 +161,50 @@ class Contexts extends MapView<String, dynamic> {
   SentryFeatureFlags? get flags => this[SentryFeatureFlags.type];
 
   set flags(SentryFeatureFlags? value) => this[SentryFeatureFlags.type] = value;
+
+  /// A map of stable semantic span attributes derived from these contexts.
+  ///
+  /// Aggregates the attribute projections of individual sub-contexts
+  /// (operating system, device, app, culture, Dart runtime). Only fields
+  /// with a defined stable or soon to be stable key in [SemanticAttributesConstants] are included.
+  /// Intended for span v2 attributes; event payloads continue to use [toJson].
+  @internal
+  Map<String, SentryAttribute> toAttributes() {
+    final attributes = <String, SentryAttribute>{};
+    final os = operatingSystem;
+    if (os != null) {
+      attributes.addAll(os.toAttributes());
+    }
+    final d = device;
+    if (d != null) {
+      attributes.addAll(d.toAttributes());
+    }
+    final a = app;
+    if (a != null) {
+      attributes.addAll(a.toAttributes());
+    }
+    final c = culture;
+    if (c != null) {
+      attributes.addAll(c.toAttributes());
+    }
+    for (final runtime in runtimes) {
+      if (runtime.name == 'Dart') {
+        attributes.addAll(runtime.toAttributes());
+        break;
+      }
+    }
+    final flutterVersion = FlutterVersion.version;
+    if (flutterVersion != null) {
+      attributes.putIfAbsent(ProposedSemanticAttributes.flutterVersion,
+          () => SentryAttribute.string(flutterVersion));
+    }
+    final flutterChannel = FlutterVersion.channel;
+    if (flutterChannel != null) {
+      attributes.putIfAbsent(ProposedSemanticAttributes.flutterChannel,
+          () => SentryAttribute.string(flutterChannel));
+    }
+    return attributes;
+  }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {

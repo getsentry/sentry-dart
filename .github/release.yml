@@ -3,7 +3,7 @@ changelog:
     labels:
       - skip-changelog
     authors:
-      - dependabot
+      - dependabot[bot]
       - renovate
 
   categories:
@@ -28,7 +28,7 @@ changelog:
       commit_patterns:
         - "^(?<type>(?:deps)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"
         - "^chore\\(deps\\): update (JavaScript|Native|Cocoa|Android) SDK"
-      semver: patch
+      semver: minor
     - title: Internal Changes
       commit_patterns:
         - "^(?<type>(?:build|refactor|meta|chore|ci|ref|tests?|style|docs)(?:\\((?<scope>[^)]+)\\))?!?:\\s*)"

@@ -27,11 +27,13 @@ class SentryTransformer implements Transformer {
     }
 
     final parentSpan = _spanFactory.getSpan(_hub);
-    final span = _spanFactory.createSpan(
-      parentSpan,
-      _serializeOp,
-      description: description,
-    );
+    final span = parentSpan != null
+        ? _spanFactory.createSpan(
+            parentSpan: parentSpan,
+            operation: _serializeOp,
+            description: description,
+          )
+        : null;
 
     span?.setData('http.request.method', options.method);
     span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
@@ -65,11 +67,13 @@ class SentryTransformer implements Transformer {
     }
 
     final parentSpan = _spanFactory.getSpan(_hub);
-    final span = _spanFactory.createSpan(
-      parentSpan,
-      _serializeOp,
-      description: description,
-    );
+    final span = parentSpan != null
+        ? _spanFactory.createSpan(
+            parentSpan: parentSpan,
+            operation: _serializeOp,
+            description: description,
+          )
+        : null;
 
     span?.setData('http.request.method', options.method);
     span?.origin = SentryTraceOrigins.autoHttpDioTransformer;

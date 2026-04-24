@@ -9,6 +9,8 @@ import 'package:sentry/sentry.dart';
 import '../navigation/sentry_navigator_observer.dart';
 import '../sentry_flutter_options.dart';
 
+// TODO(buenaflor): port this to spanv2 later (low prio)
+
 typedef WidgetBindingGetter = WidgetsBinding? Function();
 
 /// Enriches [SentryEvent]s with various kinds of information.

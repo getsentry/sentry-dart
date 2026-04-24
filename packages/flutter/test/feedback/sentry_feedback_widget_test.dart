@@ -571,12 +571,6 @@ void main() {
           SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
       SentryFeedbackWidget.pendingAssociatedEventId = associatedEventId;
 
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer((_) async => SentryId.empty());
-
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(hub: hub),
@@ -587,6 +581,10 @@ void main() {
         "fixture-message",
       );
       await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+
+      // Success screen is shown, advance past the auto-dismiss timeout
+      await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
 
       expect(SentryFeedbackWidget.pendingAssociatedEventId, isNull);
@@ -696,12 +694,6 @@ void main() {
       SentryFeedbackWidget.preservedEmail = "test@example.com";
       SentryFeedbackWidget.preservedMessage = "test-message";
 
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer((_) async => SentryId.empty());
-
       await fixture.pumpFeedbackWidget(
         tester,
         (hub) => SentryFeedbackWidget(hub: hub),
@@ -712,6 +704,10 @@ void main() {
         "new-message",
       );
       await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+
+      // Success screen is shown, advance past the auto-dismiss timeout
+      await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
 
       // Verify preserved data is cleared
@@ -802,6 +798,152 @@ void main() {
           fixture.options.sdk.integrations, contains('MobileFeedbackWidget'));
     });
   });
+
+  group('$SentryFeedbackWidget success message', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    group('when submission succeeds', () {
+      testWidgets('shows a snackbar and dismisses the feedback widget',
+          (tester) async {
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'test-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(SentryFeedbackWidget), findsNothing);
+        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.text('Thank you for your report!'), findsOneWidget);
+        expect(SentryFeedbackWidget.pendingAssociatedEventId, isNull);
+      });
+
+      testWidgets('uses custom success message text', (tester) async {
+        fixture.options.feedback.successMessageText = 'Custom success!';
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'test-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Custom success!'), findsOneWidget);
+      });
+
+      testWidgets('uses custom success color', (tester) async {
+        fixture.options.feedback.successColor = Colors.blue;
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'test-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        final snackBar = tester.widget<SnackBar>(find.byType(SnackBar));
+        expect(snackBar.backgroundColor, Colors.blue);
+      });
+
+      testWidgets('does not show a snackbar when disabled', (tester) async {
+        SentryFeedback? receivedFeedback;
+        SentryId? receivedEventId;
+        fixture.options.feedback.showSuccessMessage = false;
+        fixture.options.feedback.onSubmitSuccess = (feedback, eventId) {
+          receivedFeedback = feedback;
+          receivedEventId = eventId;
+        };
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'callback-test',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(SentryFeedbackWidget), findsNothing);
+        expect(find.byType(SnackBar), findsNothing);
+        expect(receivedFeedback, isNotNull);
+        expect(receivedFeedback!.message, 'callback-test');
+        expect(receivedEventId, isNotNull);
+        expect(receivedEventId, isNot(const SentryId.empty()));
+      });
+
+      testWidgets('calls onSubmitSuccess callback', (tester) async {
+        SentryFeedback? receivedFeedback;
+        SentryId? receivedEventId;
+        fixture.options.feedback.onSubmitSuccess = (feedback, eventId) {
+          receivedFeedback = feedback;
+          receivedEventId = eventId;
+        };
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'callback-test',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(receivedFeedback, isNotNull);
+        expect(receivedFeedback!.message, 'callback-test');
+        expect(receivedEventId, isNotNull);
+        expect(receivedEventId, isNot(const SentryId.empty()));
+      });
+
+      testWidgets('dismisses the feedback widget when onSubmitSuccess throws',
+          (tester) async {
+        fixture.options.feedback.onSubmitSuccess = (_, __) {
+          throw StateError('boom');
+        };
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'test-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(SentryFeedbackWidget), findsNothing);
+        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.text('Thank you for your report!'), findsOneWidget);
+        expect(SentryFeedbackWidget.pendingAssociatedEventId, isNull);
+      });
+    });
+  });
 }
 
 class Fixture {
@@ -817,7 +959,8 @@ class Fixture {
       any,
       hint: anyNamed('hint'),
       withScope: anyNamed('withScope'),
-    )).thenAnswer((_) async => SentryId.empty());
+    )).thenAnswer(
+        (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
     when(hub.configureScope(any)).thenAnswer((invocation) {
       final callback = invocation.positionalArguments.first;
       callback(scope);
@@ -839,6 +982,23 @@ class Fixture {
     await tester.pumpWidget(
       MaterialApp(
         home: builder(hub),
+      ),
+    );
+  }
+
+  Future<void> pumpFeedbackHost(WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                SentryFeedbackWidget.show(context, hub: hub);
+              },
+              child: const Text('Show Feedback'),
+            ),
+          ),
+        ),
       ),
     );
   }

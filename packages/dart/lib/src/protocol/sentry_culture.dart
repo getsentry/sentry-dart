@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 
+import '../constants.dart';
 import 'access_aware_map.dart';
+import 'sentry_attribute.dart';
 
 /// Culture Context describes certain properties of the culture in which the
 /// software is used.
@@ -47,6 +49,42 @@ class SentryCulture {
 
   @internal
   final Map<String, dynamic>? unknown;
+
+  /// A map of stable semantic span attributes derived from this culture.
+  ///
+  /// Only fields with a defined stable key in [SemanticAttributesConstants]
+  /// are included. Intended for span v2 attributes; error and transaction
+  /// payloads continue to use [toJson].
+  @internal
+  Map<String, SentryAttribute> toAttributes() {
+    final attributes = <String, SentryAttribute>{};
+    final calendar = this.calendar;
+    if (calendar != null) {
+      attributes[SemanticAttributesConstants.cultureCalendar] =
+          SentryAttribute.string(calendar);
+    }
+    final displayName = this.displayName;
+    if (displayName != null) {
+      attributes[SemanticAttributesConstants.cultureDisplayName] =
+          SentryAttribute.string(displayName);
+    }
+    final locale = this.locale;
+    if (locale != null) {
+      attributes[SemanticAttributesConstants.cultureLocale] =
+          SentryAttribute.string(locale);
+    }
+    final is24HourFormat = this.is24HourFormat;
+    if (is24HourFormat != null) {
+      attributes[SemanticAttributesConstants.cultureIs24HourFormat] =
+          SentryAttribute.bool(is24HourFormat);
+    }
+    final timezone = this.timezone;
+    if (timezone != null) {
+      attributes[SemanticAttributesConstants.cultureTimezone] =
+          SentryAttribute.string(timezone);
+    }
+    return attributes;
+  }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {

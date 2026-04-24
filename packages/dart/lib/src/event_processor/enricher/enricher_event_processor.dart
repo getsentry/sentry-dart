@@ -1,9 +1,13 @@
 import '../../event_processor.dart';
+import '../../platform/platform_context_provider.dart';
 import '../../sentry_options.dart';
 import 'io_enricher_event_processor.dart'
     if (dart.library.js_interop) 'web_enricher_event_processor.dart';
 
 abstract class EnricherEventProcessor implements EventProcessor {
-  factory EnricherEventProcessor(SentryOptions options) =>
-      enricherEventProcessor(options);
+  factory EnricherEventProcessor(
+    SentryOptions options,
+    PlatformContextProvider provider,
+  ) =>
+      enricherEventProcessor(options, provider);
 }

@@ -1,0 +1,85 @@
+name: 'PR Title'
+on:
+  pull_request:
+    types:
+      [
+        opened,
+        synchronize,
+        edited,
+        reopened,
+        ready_for_review,
+        labeled,
+        unlabeled,
+      ]
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check Conventional PR Title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const TITLE_RE = /^(ci|build|docs|feat|fix|perf|ref|refactor|impr|enh|deps|style|chore|tests?|meta)(\([^)]+\))?!?: [A-Z`'"].*[^,.]$/;
+            const AUTOMATED_TITLE_RE = /^(ci|build|docs|feat|fix|perf|ref|refactor|impr|enh|deps|style|chore|tests?|meta)(\([^)]+\))?!?: [A-Za-z`'"].*[^,.]$/;
+
+            function isRevert(title) {
+              return /^Revert ".*"$/.test(title || '');
+            }
+
+            function isAutomatedPr(pr) {
+              const login = (pr.user?.login || '').toLowerCase();
+              return (
+                pr.user?.type === 'Bot' ||
+                login === 'github-actions' ||
+                login === 'github-actions[bot]' ||
+                login === 'dependabot[bot]' ||
+                login === 'renovate' ||
+                login === 'renovate[bot]'
+              );
+            }
+
+            function validateTitle(pr) {
+              if (pr.merged || pr.draft) {
+                return null;
+              }
+
+              const titleRe = isAutomatedPr(pr) ? AUTOMATED_TITLE_RE : TITLE_RE;
+              if (titleRe.test(pr.title || '') || isRevert(pr.title)) {
+                return null;
+              }
+
+              return `#${pr.number}: "${pr.title}"`;
+            }
+
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.setFailed('Missing pull_request payload.');
+              return;
+            }
+
+            const failures = [validateTitle(pr)].filter(Boolean);
+            if (failures.length > 0) {
+              core.setFailed(
+                `PR title does not match Sentry conventions:\n${failures.join('\n')}`
+              );
+              core.info(
+                'Please follow the Sentry commit message conventions: https://develop.sentry.dev/engineering-practices/commit-messages/'
+              );
+              core.info('Format: <type>(<scope>): <subject>');
+              core.info(
+                'For human-authored PRs, subject must be capitalized and must not end with a period.'
+              );
+              core.info(
+                'Automated bot PRs (dependabot/github-actions/renovate) may start with lowercase.'
+              );
+            } else {
+              core.info('Validated PR title.');
+            }
