@@ -1,7 +1,16 @@
 name: 'PR Title'
 on:
   pull_request:
-    types: [opened, edited, reopened, ready_for_review, labeled, unlabeled]
+    types:
+      [
+        opened,
+        synchronize,
+        edited,
+        reopened,
+        ready_for_review,
+        labeled,
+        unlabeled,
+      ]
   merge_group:
 
 permissions:
