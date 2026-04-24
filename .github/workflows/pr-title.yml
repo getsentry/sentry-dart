@@ -1,8 +1,12 @@
-name: "PR Title"
+name: 'PR Title'
 on:
   pull_request:
     types: [opened, edited, reopened, ready_for_review, labeled, unlabeled]
   merge_group:
+
+permissions:
+  contents: read
+  pull-requests: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -13,13 +17,73 @@ jobs:
     name: Check PR title
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v8
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           script: |
+            const TITLE_RE = /^(ci|build|docs|feat|fix|perf|ref|refactor|impr|enh|deps|style|chore|tests?|meta)(\([^)]+\))?!?: [A-Za-z`'"].*[^,.]$/;
+            const IGNORE_LABEL = 'ignore-title';
+
+            function isRevert(title) {
+              return /^Revert ".*"$/.test(title || '');
+            }
+
+            function hasIgnoreLabel(pr) {
+              core.info(
+                'Ignoring title check because the PR has the `ignore-title` label.'
+              );
+              return (pr.labels || []).some((label) => label.name === IGNORE_LABEL);
+            }
+
+            function validateTitle(pr) {
+              if (pr.merged || pr.draft || hasIgnoreLabel(pr)) {
+                return null;
+              }
+
+              if (TITLE_RE.test(pr.title || '') || isRevert(pr.title)) {
+                return null;
+              }
+
+              return `#${pr.number}: "${pr.title}"`;
+            }
+
+            async function getMergeGroupPrs() {
+              const headSha = context.payload.merge_group?.head_sha;
+              if (!headSha) {
+                core.setFailed('merge_group payload does not include merge_group.head_sha.');
+                return [];
+              }
+
+              return github.paginate(github.rest.repos.listPullRequestsAssociatedWithCommit, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                commit_sha: headSha,
+              });
+            }
+
+            let prs = [];
             if (context.payload.pull_request) {
-              const prTitle = require('./.github/actions/pr-title/index.js')
-              await prTitle({github, context, core})
+              prs = [context.payload.pull_request];
+            } else if (context.eventName === 'merge_group') {
+              prs = await getMergeGroupPrs();
+              if (prs.length === 0) {
+                core.setFailed(
+                  'No pull requests are associated with this merge_group head SHA.'
+                );
+              }
+            } else {
+              core.setFailed(`Unsupported event: ${context.eventName}`);
+            }
+
+            const failures = prs.map(validateTitle).filter(Boolean);
+            if (failures.length > 0) {
+              core.setFailed(
+                `PR title does not match Sentry conventions:\n${failures.join('\n')}`
+              );
+              core.info(
+                'Please follow the Sentry commit message conventions: https://develop.sentry.dev/engineering-practices/commit-messages/'
+              );
+              core.info('Format: <type>(<scope>): <subject>');
+              core.info('Subject line must not end with a period.');
+            } else if (prs.length > 0) {
+              core.info(`Validated ${prs.length} PR title(s).`);
             }
