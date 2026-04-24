@@ -11,8 +11,6 @@ on:
         labeled,
         unlabeled,
       ]
-  merge_group:
-
 permissions:
   contents: read
   pull-requests: read
@@ -47,35 +45,13 @@ jobs:
               return `#${pr.number}: "${pr.title}"`;
             }
 
-            async function getMergeGroupPrs() {
-              const headSha = context.payload.merge_group?.head_sha;
-              if (!headSha) {
-                core.setFailed('merge_group payload does not include merge_group.head_sha.');
-                return [];
-              }
-
-              return github.paginate(github.rest.repos.listPullRequestsAssociatedWithCommit, {
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                commit_sha: headSha,
-              });
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.setFailed('Missing pull_request payload.');
+              return;
             }
 
-            let prs = [];
-            if (context.payload.pull_request) {
-              prs = [context.payload.pull_request];
-            } else if (context.eventName === 'merge_group') {
-              prs = await getMergeGroupPrs();
-              if (prs.length === 0) {
-                core.setFailed(
-                  'No pull requests are associated with this merge_group head SHA.'
-                );
-              }
-            } else {
-              core.setFailed(`Unsupported event: ${context.eventName}`);
-            }
-
-            const failures = prs.map(validateTitle).filter(Boolean);
+            const failures = [validateTitle(pr)].filter(Boolean);
             if (failures.length > 0) {
               core.setFailed(
                 `PR title does not match Sentry conventions:\n${failures.join('\n')}`
@@ -85,6 +61,6 @@ jobs:
               );
               core.info('Format: <type>(<scope>): <subject>');
               core.info('Subject line must not end with a period.');
-            } else if (prs.length > 0) {
-              core.info(`Validated ${prs.length} PR title(s).`);
+            } else {
+              core.info('Validated PR title.');
             }
