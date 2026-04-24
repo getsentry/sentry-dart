@@ -24,13 +24,26 @@ jobs:
     name: Check Conventional PR Title
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v8
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         with:
           script: |
-            const TITLE_RE = /^(ci|build|docs|feat|fix|perf|ref|refactor|impr|enh|deps|style|chore|tests?|meta)(\([^)]+\))?!?: [A-Za-z`'"].*[^,.]$/;
+            const TITLE_RE = /^(ci|build|docs|feat|fix|perf|ref|refactor|impr|enh|deps|style|chore|tests?|meta)(\([^)]+\))?!?: [A-Z`'"].*[^,.]$/;
+            const AUTOMATED_TITLE_RE = /^(ci|build|docs|feat|fix|perf|ref|refactor|impr|enh|deps|style|chore|tests?|meta)(\([^)]+\))?!?: [A-Za-z`'"].*[^,.]$/;
 
             function isRevert(title) {
               return /^Revert ".*"$/.test(title || '');
+            }
+
+            function isAutomatedPr(pr) {
+              const login = (pr.user?.login || '').toLowerCase();
+              return (
+                pr.user?.type === 'Bot' ||
+                login === 'github-actions' ||
+                login === 'github-actions[bot]' ||
+                login === 'dependabot[bot]' ||
+                login === 'renovate' ||
+                login === 'renovate[bot]'
+              );
             }
 
             function validateTitle(pr) {
@@ -38,7 +51,8 @@ jobs:
                 return null;
               }
 
-              if (TITLE_RE.test(pr.title || '') || isRevert(pr.title)) {
+              const titleRe = isAutomatedPr(pr) ? AUTOMATED_TITLE_RE : TITLE_RE;
+              if (titleRe.test(pr.title || '') || isRevert(pr.title)) {
                 return null;
               }
 
@@ -60,7 +74,12 @@ jobs:
                 'Please follow the Sentry commit message conventions: https://develop.sentry.dev/engineering-practices/commit-messages/'
               );
               core.info('Format: <type>(<scope>): <subject>');
-              core.info('Subject line must not end with a period.');
+              core.info(
+                'For human-authored PRs, subject must be capitalized and must not end with a period.'
+              );
+              core.info(
+                'Automated bot PRs (dependabot/github-actions/renovate) may start with lowercase.'
+              );
             } else {
               core.info('Validated PR title.');
             }
