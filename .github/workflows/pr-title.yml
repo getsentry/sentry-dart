@@ -30,21 +30,13 @@ jobs:
         with:
           script: |
             const TITLE_RE = /^(ci|build|docs|feat|fix|perf|ref|refactor|impr|enh|deps|style|chore|tests?|meta)(\([^)]+\))?!?: [A-Za-z`'"].*[^,.]$/;
-            const IGNORE_LABEL = 'ignore-title';
 
             function isRevert(title) {
               return /^Revert ".*"$/.test(title || '');
             }
 
-            function hasIgnoreLabel(pr) {
-              core.info(
-                'Ignoring title check because the PR has the `ignore-title` label.'
-              );
-              return (pr.labels || []).some((label) => label.name === IGNORE_LABEL);
-            }
-
             function validateTitle(pr) {
-              if (pr.merged || pr.draft || hasIgnoreLabel(pr)) {
+              if (pr.merged || pr.draft) {
                 return null;
               }
 
