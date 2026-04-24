@@ -11,8 +11,9 @@ module.exports = async ({ github, context, core }) => {
       return;
     }
 
-    // From: <https://develop.sentry.dev/engineering-practices/commit-messages/>.
-    const TITLE_RE = /^(ci|build|docs|feat|fix|perf|ref|style|chore|test|meta|license)(\([^)]+\))?: [A-Z`'"].*[^,.]$/;
+    // Types must align with the categories defined in `.github/release.yml`.
+    // Optional `!` marks breaking changes (e.g. `feat!: …`).
+    const TITLE_RE = /^(ci|build|docs|feat|fix|perf|ref|refactor|impr|enh|deps|style|chore|tests?|meta)(\([^)]+\))?!?: [A-Z`'"].*[^,.]$/;
 
     if (pr.title.match(TITLE_RE) === null && !isRevert(pr.title)) {
       core.setFailed('PR title does not match Sentry conventions.');
