@@ -69,6 +69,7 @@ Run from within the package directory (e.g., `cd packages/dart/`):
 ## Pull Requests
 
 - **Title** — same format as commit subject (Conventional Commits): `type(scope): description`
+- **Description** — keep PR body minimal by default (1-3 short paragraphs focused on what/why); avoid test-plan checklists unless explicitly requested
 - **Branch naming** — `<type>/<short-description>` (e.g., `feat/session-replay-privacy`, `fix/memory-leak-scope`)
 - **PR template** — `.github/pull_request_template.md` includes: description, motivation, how tested, checklist
 - **Reviewers** — assigned via `CODEOWNERS` (`.github/CODEOWNERS`); one maintainer approval is sufficient
