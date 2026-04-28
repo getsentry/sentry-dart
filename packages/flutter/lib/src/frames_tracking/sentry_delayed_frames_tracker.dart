@@ -263,7 +263,11 @@ class SpanFrameMetrics {
       span.setMeasurement(SentryMeasurement.totalFramesName, totalFrameCount);
       span.setMeasurement(SentryMeasurement.slowFramesName, slowFrameCount);
       span.setMeasurement(SentryMeasurement.frozenFramesName, frozenFrameCount);
-      span.setMeasurement(SentryMeasurement.framesDelayName, framesDelay);
+      span.setMeasurement(
+        SentryMeasurement.framesDelayName,
+        framesDelay,
+        unit: DurationSentryMeasurementUnit.second,
+      );
     } else {
       _setData(span);
     }

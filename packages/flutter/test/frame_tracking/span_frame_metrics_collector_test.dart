@@ -67,6 +67,8 @@ void main() {
       expect(tracer.measurements[SentryMeasurement.frozenFramesName]?.value, 1);
       expect(
           tracer.measurements[SentryMeasurement.framesDelayName]?.value, 0.5);
+      expect(tracer.measurements[SentryMeasurement.framesDelayName]?.unit,
+          DurationSentryMeasurementUnit.second);
       expect(sut.activeSpans, isEmpty);
     });
 
@@ -128,6 +130,8 @@ void main() {
       expect(tracer.measurements[SentryMeasurement.frozenFramesName]?.value, 1);
       expect(
           tracer.measurements[SentryMeasurement.framesDelayName]?.value, 0.5);
+      expect(tracer.measurements[SentryMeasurement.framesDelayName]?.unit,
+          DurationSentryMeasurementUnit.second);
 
       expect(span2.data[SpanDataConvention.totalFrames], 5);
       expect(span2.data[SpanDataConvention.slowFrames], 1);

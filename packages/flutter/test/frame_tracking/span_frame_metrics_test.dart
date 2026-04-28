@@ -43,8 +43,11 @@ void main() {
     verify(span.setMeasurement(SentryMeasurement.slowFramesName, 2)).called(1);
     verify(span.setMeasurement(SentryMeasurement.frozenFramesName, 1))
         .called(1);
-    verify(span.setMeasurement(SentryMeasurement.framesDelayName, 0.03))
-        .called(1);
+    verify(span.setMeasurement(
+      SentryMeasurement.framesDelayName,
+      0.03,
+      unit: DurationSentryMeasurementUnit.second,
+    )).called(1);
   });
 }
 
