@@ -146,10 +146,12 @@ class SentryFlutterPlugin :
               event.setTag("event.origin", "flutter")
               event.setTag("event.environment", "dart")
             }
+
             "sentry.java.android.flutter" -> {
               event.setTag("event.origin", "android")
               event.setTag("event.environment", "java")
             }
+
             "sentry.native.android.flutter" -> {
               event.setTag("event.origin", "android")
               event.setTag("event.environment", "native")
