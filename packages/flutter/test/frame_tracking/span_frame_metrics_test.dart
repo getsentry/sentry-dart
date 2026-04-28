@@ -22,7 +22,7 @@ void main() {
     verify(span.setData(SpanDataConvention.totalFrames, 10)).called(1);
     verify(span.setData(SpanDataConvention.slowFrames, 2)).called(1);
     verify(span.setData(SpanDataConvention.frozenFrames, 1)).called(1);
-    verify(span.setData(SpanDataConvention.framesDelay, 30)).called(1);
+    verify(span.setData(SpanDataConvention.framesDelay, 0.03)).called(1);
   });
 
   test('applyTo sets data and measurements on root spans', () {
@@ -36,14 +36,14 @@ void main() {
     verify(tracer.setData(SpanDataConvention.totalFrames, 10)).called(1);
     verify(tracer.setData(SpanDataConvention.slowFrames, 2)).called(1);
     verify(tracer.setData(SpanDataConvention.frozenFrames, 1)).called(1);
-    verify(tracer.setData(SpanDataConvention.framesDelay, 30)).called(1);
+    verify(tracer.setData(SpanDataConvention.framesDelay, 0.03)).called(1);
 
     verify(span.setMeasurement(SentryMeasurement.totalFramesName, 10))
         .called(1);
     verify(span.setMeasurement(SentryMeasurement.slowFramesName, 2)).called(1);
     verify(span.setMeasurement(SentryMeasurement.frozenFramesName, 1))
         .called(1);
-    verify(span.setMeasurement(SentryMeasurement.framesDelayName, 30))
+    verify(span.setMeasurement(SentryMeasurement.framesDelayName, 0.03))
         .called(1);
   });
 }
@@ -54,7 +54,7 @@ class _Fixture {
       totalFrameCount: 10,
       slowFrameCount: 2,
       frozenFrameCount: 1,
-      framesDelay: 30,
+      framesDelay: 0.03,
     );
   }
 }

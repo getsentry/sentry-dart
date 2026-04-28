@@ -30,7 +30,7 @@ class SentryMeasurement {
       : name = frozenFramesName,
         unit = SentryMeasurementUnit.none;
 
-  /// Total duration of frames delayed.
+  /// Total duration of frames delayed in seconds.
   SentryMeasurement.framesDelay(this.value)
       : name = framesDelayName,
         unit = SentryMeasurementUnit.none;

@@ -45,7 +45,7 @@ void main() {
         totalFrameCount: 10,
         slowFrameCount: 2,
         frozenFrameCount: 1,
-        framesDelay: 500,
+        framesDelay: 0.5,
       );
       when(fixture.mockFrameTracker.getFrameMetrics(
         spanStartTimestamp: startTime,
@@ -61,12 +61,12 @@ void main() {
       expect(tracer.data[SpanDataConvention.totalFrames], 10);
       expect(tracer.data[SpanDataConvention.slowFrames], 2);
       expect(tracer.data[SpanDataConvention.frozenFrames], 1);
-      expect(tracer.data[SpanDataConvention.framesDelay], 500);
+      expect(tracer.data[SpanDataConvention.framesDelay], 0.5);
       expect(tracer.measurements[SentryMeasurement.totalFramesName]?.value, 10);
       expect(tracer.measurements[SentryMeasurement.slowFramesName]?.value, 2);
       expect(tracer.measurements[SentryMeasurement.frozenFramesName]?.value, 1);
       expect(
-          tracer.measurements[SentryMeasurement.framesDelayName]?.value, 500);
+          tracer.measurements[SentryMeasurement.framesDelayName]?.value, 0.5);
       expect(sut.activeSpans, isEmpty);
     });
 
@@ -94,7 +94,7 @@ void main() {
         totalFrameCount: 10,
         slowFrameCount: 2,
         frozenFrameCount: 1,
-        framesDelay: 500,
+        framesDelay: 0.5,
       );
       when(fixture.mockFrameTracker.getFrameMetrics(
         spanStartTimestamp: startTimeForSpan1,
@@ -105,7 +105,7 @@ void main() {
         totalFrameCount: 5,
         slowFrameCount: 1,
         frozenFrameCount: 3,
-        framesDelay: 400,
+        framesDelay: 0.4,
       );
       when(fixture.mockFrameTracker.getFrameMetrics(
         spanStartTimestamp: startTimeForSpan2,
@@ -122,17 +122,17 @@ void main() {
       expect(tracer.data[SpanDataConvention.totalFrames], 10);
       expect(tracer.data[SpanDataConvention.slowFrames], 2);
       expect(tracer.data[SpanDataConvention.frozenFrames], 1);
-      expect(tracer.data[SpanDataConvention.framesDelay], 500);
+      expect(tracer.data[SpanDataConvention.framesDelay], 0.5);
       expect(tracer.measurements[SentryMeasurement.totalFramesName]?.value, 10);
       expect(tracer.measurements[SentryMeasurement.slowFramesName]?.value, 2);
       expect(tracer.measurements[SentryMeasurement.frozenFramesName]?.value, 1);
       expect(
-          tracer.measurements[SentryMeasurement.framesDelayName]?.value, 500);
+          tracer.measurements[SentryMeasurement.framesDelayName]?.value, 0.5);
 
       expect(span2.data[SpanDataConvention.totalFrames], 5);
       expect(span2.data[SpanDataConvention.slowFrames], 1);
       expect(span2.data[SpanDataConvention.frozenFrames], 3);
-      expect(span2.data[SpanDataConvention.framesDelay], 400);
+      expect(span2.data[SpanDataConvention.framesDelay], 0.4);
 
       expect(sut.activeSpans, isEmpty);
     });
@@ -168,7 +168,7 @@ void main() {
         totalFrameCount: 15,
         slowFrameCount: 3,
         frozenFrameCount: 2,
-        framesDelay: 600,
+        framesDelay: 0.6,
       );
       when(fixture.mockFrameTracker.getFrameMetrics(
         spanStartTimestamp: startTime,
@@ -187,7 +187,7 @@ void main() {
       expect(
           span.attributes[SemanticAttributesConstants.framesFrozen]?.value, 2);
       expect(
-          span.attributes[SemanticAttributesConstants.framesDelay]?.value, 600);
+          span.attributes[SemanticAttributesConstants.framesDelay]?.value, 0.6);
       expect(sut.activeSpans, isEmpty);
     });
 
@@ -222,7 +222,7 @@ void main() {
         totalFrameCount: 10,
         slowFrameCount: 1,
         frozenFrameCount: 0,
-        framesDelay: 100,
+        framesDelay: 0.1,
       );
       when(fixture.mockFrameTracker.getFrameMetrics(
         spanStartTimestamp: startTime1,
@@ -233,7 +233,7 @@ void main() {
         totalFrameCount: 20,
         slowFrameCount: 4,
         frozenFrameCount: 2,
-        framesDelay: 800,
+        framesDelay: 0.8,
       );
       when(fixture.mockFrameTracker.getFrameMetrics(
         spanStartTimestamp: startTime2,
@@ -254,7 +254,7 @@ void main() {
       expect(
           span1.attributes[SemanticAttributesConstants.framesFrozen]?.value, 0);
       expect(span1.attributes[SemanticAttributesConstants.framesDelay]?.value,
-          100);
+          0.1);
 
       expect(
           span2.attributes[SemanticAttributesConstants.framesTotal]?.value, 20);
@@ -263,7 +263,7 @@ void main() {
       expect(
           span2.attributes[SemanticAttributesConstants.framesFrozen]?.value, 2);
       expect(span2.attributes[SemanticAttributesConstants.framesDelay]?.value,
-          800);
+          0.8);
 
       expect(sut.activeSpans, isEmpty);
     });
@@ -348,7 +348,7 @@ void main() {
         totalFrameCount: 10,
         slowFrameCount: 2,
         frozenFrameCount: 1,
-        framesDelay: 500,
+        framesDelay: 0.5,
       );
       when(fixture.mockFrameTracker.getFrameMetrics(
         spanStartTimestamp: startTime,
@@ -384,7 +384,7 @@ void main() {
         totalFrameCount: 15,
         slowFrameCount: 3,
         frozenFrameCount: 2,
-        framesDelay: 600,
+        framesDelay: 0.6,
       );
       when(fixture.mockFrameTracker.getFrameMetrics(
         spanStartTimestamp: startTime,
@@ -412,7 +412,7 @@ void main() {
         totalFrameCount: 10,
         slowFrameCount: 2,
         frozenFrameCount: 1,
-        framesDelay: 500,
+        framesDelay: 0.5,
       );
       when(fixture.mockFrameTracker.getFrameMetrics(
         spanStartTimestamp: startTime,
