@@ -33,11 +33,13 @@ class NativeAppStartHandlerV2 {
       return;
     }
 
+    final appStartType = SentryAttribute.string(appStartInfo.type.name);
     final attributes = {
       SemanticAttributesConstants.sentryOp:
           SentryAttribute.string(appStartInfo.appStartTypeOperation),
       SemanticAttributesConstants.sentryOrigin:
           SentryAttribute.string(SentryTraceOrigins.autoUiTimeToDisplay),
+      SemanticAttributesConstants.appVitalsStartType: appStartType,
     };
 
     final rootSpan = tracker.trackAppStart(
@@ -103,8 +105,8 @@ class NativeAppStartHandlerV2 {
     appStartSpan.setAttribute(legacyValueKey, durationMs);
     appStartSpan.setAttribute(
         SemanticAttributesConstants.appVitalsStartValue, durationMs);
-    appStartSpan.setAttribute(SemanticAttributesConstants.appVitalsStartType,
-        SentryAttribute.string(appStartInfo.type.name));
+    appStartSpan.setAttribute(
+        SemanticAttributesConstants.appVitalsStartType, appStartType);
 
     appStartSpan.end(endTimestamp: appStartEnd);
   }

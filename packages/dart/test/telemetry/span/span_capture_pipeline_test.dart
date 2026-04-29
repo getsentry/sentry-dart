@@ -30,7 +30,7 @@ void main() {
           'custom': SentryAttribute.string('scope-custom'),
         });
 
-        final span = fixture.createRecordingSpan();
+        final span = fixture.createChildRecordingSpan();
         span.setAttributes({
           'custom': SentryAttribute.string('span-custom'),
           SemanticAttributesConstants.sentryRelease:
@@ -51,6 +51,8 @@ void main() {
         expect(
             attributes[SemanticAttributesConstants.userId]?.value, 'user-id');
         expect(attributes[SemanticAttributesConstants.sentrySegmentName]?.value,
+            span.segmentSpan.name);
+        expect(attributes[SemanticAttributesConstants.sentryTransaction]?.value,
             span.segmentSpan.name);
         expect(attributes[SemanticAttributesConstants.sentrySegmentId]?.value,
             span.segmentSpan.spanId.toString());
@@ -265,6 +267,19 @@ class Fixture {
       clock: options.clock,
       dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
       samplingDecision: SentryTracesSamplingDecision(true),
+    );
+  }
+
+  RecordingSentrySpanV2 createChildRecordingSpan({
+    String rootName = 'root-span',
+    String childName = 'child-span',
+  }) {
+    return RecordingSentrySpanV2.child(
+      parent: createRecordingSpan(name: rootName),
+      name: childName,
+      onSpanEnd: (_) async {},
+      clock: options.clock,
+      dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
     );
   }
 }
