@@ -109,7 +109,7 @@ void main() {
       expect(metrics!.totalFrameCount, 63); // 1000ms / 16ms ≈ 63 frames
       expect(metrics.slowFrameCount, 0);
       expect(metrics.frozenFrameCount, 0);
-      expect(metrics.framesDelay, 0);
+      expect(metrics.framesDelay, 0.0);
     });
 
     test('calculates metrics for frames fully contained within span', () {
@@ -132,7 +132,7 @@ void main() {
       expect(metrics!.totalFrameCount, 63);
       expect(metrics.slowFrameCount, 1);
       expect(metrics.frozenFrameCount, 0);
-      expect(metrics.framesDelay, 4); // 20ms - 16ms = 4ms delay
+      expect(metrics.framesDelay, 0.004); // 20ms - 16ms = 4ms delay
     });
 
     test('calculates metrics for frames partially contained within span', () {
@@ -156,7 +156,7 @@ void main() {
       expect(metrics!.totalFrameCount, 24); // ~500ms / 16ms = 31 frames
       expect(metrics.slowFrameCount, 2);
       expect(metrics.frozenFrameCount, 0);
-      expect(metrics.framesDelay, 134);
+      expect(metrics.framesDelay, 0.134);
     });
 
     test('calculates metrics for frozen frames', () {
@@ -175,7 +175,7 @@ void main() {
       expect(metrics, isNotNull);
       expect(metrics!.frozenFrameCount, 1);
       expect(metrics.slowFrameCount, 0);
-      expect(metrics.framesDelay, 784); // 800ms - 16ms = 784ms delay
+      expect(metrics.framesDelay, 0.784); // 800ms - 16ms = 784ms delay
     });
 
     test('removeIrrelevantFrames removes the correct frames', () {
