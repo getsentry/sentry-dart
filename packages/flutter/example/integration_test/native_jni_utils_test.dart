@@ -84,7 +84,8 @@ void main() {
 
     test('dartToJObject converts list (drops nulls)', () {
       using((arena) {
-        final javaList = dartToJObject(inputList).as(JList.type(JObject.type))
+        final javaList = dartToJObject(inputList).as(JList.type)
+            as JList<JObject>
           ..releasedBy(arena);
         _expectJniList(javaList, expectedList, arena);
       });
@@ -92,8 +93,8 @@ void main() {
 
     test('dartToJObject converts map (drops null values)', () {
       using((arena) {
-        final javaMap = dartToJObject(inputMap)
-            .as(JMap.type(JString.type, JObject.type))
+        final javaMap = dartToJObject(inputMap).as(JMap.type)
+            as JMap<JString, JObject>
           ..releasedBy(arena);
         _expectJniMap(javaMap, expectedMap, arena);
       });
@@ -124,45 +125,45 @@ void _expectJniStringEquals(JObject? javaObject, String expected) {
 void _expectJniLongEquals(JObject? javaObject, int expected) {
   expect(javaObject, isNotNull);
   final javaLong = javaObject!.as(JLong.type);
-  expect(javaLong.longValue(releaseOriginal: true), expected);
+  expect(javaLong.toDartInt(releaseOriginal: true), expected);
 }
 
 void _expectJniDoubleEquals(JObject? javaObject, double expected) {
   expect(javaObject, isNotNull);
   final javaDouble = javaObject!.as(JDouble.type);
-  expect(javaDouble.doubleValue(releaseOriginal: true), expected);
+  expect(javaDouble.toDartDouble(releaseOriginal: true), expected);
 }
 
 void _expectJniBoolEquals(JObject? javaObject, bool expected) {
   expect(javaObject, isNotNull);
   final javaBoolean = javaObject!.as(JBoolean.type);
-  expect(javaBoolean.booleanValue(releaseOriginal: true), expected);
+  expect(javaBoolean.toDartBool(releaseOriginal: true), expected);
 }
 
 JObject? _get(JMap<JString, JObject> javaMap, String key, Arena arena) =>
-    javaMap[key.toJString()..releasedBy(arena)];
+    javaMap.get(key.toJString()..releasedBy(arena));
 
 void _expectJniList(
   JList<JObject> javaList,
   List<Object?> expectedListValues,
   Arena arena,
 ) {
-  expect(javaList.length, expectedListValues.length);
+  expect(javaList.size(), expectedListValues.length);
 
-  _expectJniStringEquals(javaList[0], expectedListValues[0] as String);
-  _expectJniLongEquals(javaList[1], expectedListValues[1] as int);
-  _expectJniDoubleEquals(javaList[2], expectedListValues[2] as double);
-  _expectJniBoolEquals(javaList[3], expectedListValues[3] as bool);
-  _expectJniStringEquals(javaList[4], expectedListValues[4] as String);
+  _expectJniStringEquals(javaList.get(0), expectedListValues[0] as String);
+  _expectJniLongEquals(javaList.get(1), expectedListValues[1] as int);
+  _expectJniDoubleEquals(javaList.get(2), expectedListValues[2] as double);
+  _expectJniBoolEquals(javaList.get(3), expectedListValues[3] as bool);
+  _expectJniStringEquals(javaList.get(4), expectedListValues[4] as String);
 
-  final nestedList = javaList[5].as(JList.type(JObject.type))
+  final nestedList = javaList.get(5)!.as(JList.type) as JList<JObject>
     ..releasedBy(arena);
   final expectedNestedList = expectedListValues[5] as List<Object?>;
-  expect(nestedList.length, expectedNestedList.length);
-  _expectJniStringEquals(nestedList[0], expectedNestedList[0] as String);
-  _expectJniLongEquals(nestedList[1], expectedNestedList[1] as int);
+  expect(nestedList.size(), expectedNestedList.length);
+  _expectJniStringEquals(nestedList.get(0), expectedNestedList[0] as String);
+  _expectJniLongEquals(nestedList.get(1), expectedNestedList[1] as int);
 
-  final nestedMap = javaList[6].as(JMap.type(JString.type, JObject.type))
+  final nestedMap = javaList.get(6)!.as(JMap.type) as JMap<JString, JObject>
     ..releasedBy(arena);
   _expectJniNestedMap(
     nestedMap,
@@ -177,7 +178,7 @@ void _expectJniMap(
   Map<String, Object?> expectedMapValues,
   Arena arena,
 ) {
-  expect(javaMap.length, expectedMapValues.length);
+  expect(javaMap.size(), expectedMapValues.length);
 
   final expectedList = expectedMapValues['list']! as List<Object?>;
   final expectedNestedList = expectedList[5] as List<Object?>;
@@ -195,12 +196,13 @@ void _expectJniMap(
   _expectJniStringEquals(
       _get(javaMap, 'key5', arena), expectedMapValues['key5'] as String);
 
-  final nestedList = _get(javaMap, 'list', arena)!.as(JList.type(JObject.type))
+  final nestedList = _get(javaMap, 'list', arena)!.as(JList.type)
+      as JList<JObject>
     ..releasedBy(arena);
   _expectJniList(nestedList, expectedList, arena);
 
-  final nestedMap = _get(javaMap, 'nestedMap', arena)!
-      .as(JMap.type(JString.type, JObject.type))
+  final nestedMap = _get(javaMap, 'nestedMap', arena)!.as(JMap.type)
+      as JMap<JString, JObject>
     ..releasedBy(arena);
   _expectJniNestedMap(
       nestedMap, expectedNestedMap, expectedNestedList.length, arena);
@@ -217,13 +219,13 @@ void _expectJniNestedMap(
   _expectJniStringEquals(_get(javaNestedMap, 'innerString', arena),
       expectedNestedMapValues['innerString'] as String);
 
-  final innerList = _get(javaNestedMap, 'innerList', arena)!
-      .as(JList.type(JObject.type))
+  final innerList = _get(javaNestedMap, 'innerList', arena)!.as(JList.type)
+      as JList<JObject>
     ..releasedBy(arena);
-  expect(innerList.length, expectedNestedListLength);
-  _expectJniLongEquals(innerList[0],
+  expect(innerList.size(), expectedNestedListLength);
+  _expectJniLongEquals(innerList.get(0),
       (expectedNestedMapValues['innerList']! as List<Object?>)[0] as int);
-  _expectJniLongEquals(innerList[1],
+  _expectJniLongEquals(innerList.get(1),
       (expectedNestedMapValues['innerList']! as List<Object?>)[1] as int);
 
   expect(_get(javaNestedMap, 'innerNull', arena), isNull);

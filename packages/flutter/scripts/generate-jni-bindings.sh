@@ -14,14 +14,10 @@ fi
 # Move to the Flutter package root (…/flutter).
 cd "$(dirname "$0")/../"
 
-binding_path="lib/src/native/java/binding.dart"
-
 cd example
 flutter build apk
 cd -
 
-# Regenerate the bindings.
-dart run jnigen --config ffi-jni.yaml
-
-# Format the generated code so that it passes CI linters.
-dart format "$binding_path"
+# Regenerate the bindings (uses custom visitor to exclude methods with
+# getter/setter nullability mismatches).
+dart run tool/generate_jni.dart --config ffi-jni.yaml

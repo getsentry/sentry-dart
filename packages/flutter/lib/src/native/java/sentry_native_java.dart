@@ -64,9 +64,8 @@ class SentryNativeJava extends SentryNativeChannel {
           .map((s) => s.toJString())
           .toSet();
 
-      instructionAddressSet = instructionAddressJStrings.nonNulls
-          .cast<JString>()
-          .toJSet(JString.type);
+      instructionAddressSet =
+          instructionAddressJStrings.nonNulls.cast<JString>().toJSet();
 
       // Use a single JNI call to get images as UTF-8 encoded JSON instead of
       // making multiple JNI calls to convert each object individually. This approach
@@ -137,8 +136,8 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   int? displayRefreshRate() => tryCatchSync('displayRefreshRate', () {
-        return native.SentryFlutterPlugin.getDisplayRefreshRate()
-            ?.intValue(releaseOriginal: true);
+        return native.SentryFlutterPlugin.displayRefreshRate
+            ?.toDartInt(releaseOriginal: true);
       });
 
   @override
@@ -191,10 +190,10 @@ class SentryNativeJava extends SentryNativeChannel {
   void addBreadcrumb(Breadcrumb breadcrumb) =>
       tryCatchSync('addBreadcrumb', () {
         using((arena) {
-          final scopesAdapter = native.ScopesAdapter.getInstance()
+          final scopesAdapter = native.ScopesAdapter.instance
             ?..releasedBy(arena);
           if (scopesAdapter == null) return;
-          final nativeOptions = scopesAdapter.getOptions()..releasedBy(arena);
+          final nativeOptions = scopesAdapter.options..releasedBy(arena);
 
           final jMap = dartToJMap(breadcrumb.toJson());
           final nativeBreadcrumb =
@@ -216,12 +215,12 @@ class SentryNativeJava extends SentryNativeChannel {
   void setUser(SentryUser? user) => tryCatchSync('setUser', () {
         using((arena) {
           if (user == null) {
-            native.Sentry.setUser(null);
+            native.Sentry.user = null;
           } else {
-            final scopesAdapter = native.ScopesAdapter.getInstance()
+            final scopesAdapter = native.ScopesAdapter.instance
               ?..releasedBy(arena);
             if (scopesAdapter == null) return;
-            final nativeOptions = scopesAdapter.getOptions()..releasedBy(arena);
+            final nativeOptions = scopesAdapter.options..releasedBy(arena);
 
             final jMap = dartToJMap(user.toJson());
             final nativeUser = native.User.fromMap(jMap, nativeOptions)
@@ -230,7 +229,7 @@ class SentryNativeJava extends SentryNativeChannel {
             jMap.release();
             if (nativeUser == null) return;
 
-            native.Sentry.setUser(nativeUser);
+            native.Sentry.user = nativeUser;
           }
         });
       });
@@ -245,8 +244,7 @@ class SentryNativeJava extends SentryNativeChannel {
                   final jKey = key.toJString()..releasedBy(arena);
                   final jVal = dartToJObject(value)..releasedBy(arena);
 
-                  final scope = iScope.as(const native.$Scope$Type())
-                    ..releasedBy(arena);
+                  final scope = iScope.as(native.Scope.type)..releasedBy(arena);
                   scope.setContexts(jKey, jVal);
                 });
               },
@@ -261,8 +259,7 @@ class SentryNativeJava extends SentryNativeChannel {
             native.ScopeCallback.implement(native.$ScopeCallback(run: (iScope) {
           using((arena) {
             final jKey = key.toJString()..releasedBy(arena);
-            final scope = iScope.as(const native.$Scope$Type())
-              ..releasedBy(arena);
+            final scope = iScope.as(native.Scope.type)..releasedBy(arena);
             scope.removeContexts(jKey);
           });
         })));
@@ -313,7 +310,7 @@ class SentryNativeJava extends SentryNativeChannel {
         // The passed parameter is `isTerminating`
         _nativeReplay?.captureReplay(false.toJBoolean()..releasedBy(arena));
 
-        final nativeReplayId = _nativeReplay?.getReplayId();
+        final nativeReplayId = _nativeReplay?.replayId;
         nativeReplayId?.releasedBy(arena);
 
         JString? jString;
@@ -423,7 +420,7 @@ JObject dartToJObject(Object? value) => switch (value) {
 
 @visibleForTesting
 JList<JObject> dartToJList(List<dynamic> values) {
-  final jList = JList.array(JObject.type);
+  final jList = (JArrayList() as JObject) as JList<JObject>;
   for (final v in values.nonNulls) {
     final j = dartToJObject(v);
     jList.add(j);
@@ -434,11 +431,11 @@ JList<JObject> dartToJList(List<dynamic> values) {
 
 @visibleForTesting
 JMap<JString, JObject> dartToJMap(Map<String, dynamic> json) {
-  final jMap = JMap.hash(JString.type, JObject.type);
+  final jMap = (JHashMap() as JObject) as JMap<JString, JObject>;
   for (final entry in json.entries.where((e) => e.value != null)) {
     final jk = entry.key.toJString();
     final jv = dartToJObject(entry.value);
-    jMap[jk] = jv;
+    jMap.put(jk, jv);
     jk.release();
     jv.release();
   }
