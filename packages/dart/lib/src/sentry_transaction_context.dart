@@ -43,12 +43,9 @@ class SentryTransactionContext extends SentrySpanContext {
     SentryBaggage? baggage,
     SentryOptions? options,
   }) {
-    // Fall back to the current hub's options when not explicitly provided.
     final effectiveOptions = options ?? Sentry.currentHub.options;
 
-    // Validate org ID before continuing the incoming trace.
     if (!shouldContinueTrace(effectiveOptions, baggage?.getOrgId())) {
-      // Start a new trace instead of continuing the incoming one
       return SentryTransactionContext(
         name,
         operation,
