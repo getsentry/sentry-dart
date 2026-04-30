@@ -10,6 +10,7 @@ import 'package:http/http.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter_example/app_config.dart';
 import 'package:sentry_flutter_example/main.dart';
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 import 'package:sentry_flutter/src/native/java/binding.dart' as jni;
@@ -53,7 +54,7 @@ void main() {
     await setupSentryAndApp(tester);
 
     // Find any UI element and verify it is present.
-    expect(find.text('Open another Scaffold'), findsOneWidget);
+    expect(find.text('Errors'), findsOneWidget);
   });
 
   testWidgets('setup sentry and capture event', (tester) async {
