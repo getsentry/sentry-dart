@@ -84,6 +84,11 @@ abstract class SemanticAttributesConstants {
   /// The segment name (e.g., "GET /users")
   static const sentrySegmentName = 'sentry.segment.name';
 
+  /// The Sentry transaction name, also known as the segment name.
+  /// This is deprecated in favor of [sentrySegmentName].
+  /// We should remove this later when Sentry itself supports this deprecation.
+  static const sentryTransaction = 'sentry.transaction';
+
   /// The span id of the segment that this span belongs to.
   static const sentrySegmentId = 'sentry.segment.id';
 
