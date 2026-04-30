@@ -164,11 +164,9 @@ bool shouldContinueTrace(SentryOptions options, String? baggageOrgId) {
   }
 
   if (options.strictTraceContinuation) {
-    // Both missing is OK
     if (sdkOrgId == null && baggageOrgId == null) {
       return true;
     }
-    // One missing means reject
     if (sdkOrgId == null || baggageOrgId == null) {
       options.log(
         SentryLevel.debug,
