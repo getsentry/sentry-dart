@@ -3,6 +3,8 @@ import 'dart:isolate';
 
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 import '../../sentry_flutter.dart';
 import '../jvm/jvm_exception.dart';
 import '../jvm/jvm_frame.dart';
@@ -89,7 +91,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     MapEntry<SentryException, List<SentryThread>>? detailsStackTrace,
   ) {
     _markDartThreadsAsNonCrashed(event.threads);
-    final exception = event.exceptions?.firstOrNull;
+    final exception = event.exceptions.firstOrNull;
 
     // Assumption is that the first exception is the original exception and there is only one.
     if (exception == null) {

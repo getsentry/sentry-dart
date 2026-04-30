@@ -1,7 +1,8 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../sentry_flutter.dart';
 import 'time_to_full_display_tracker.dart';
@@ -90,10 +91,15 @@ class TimeToDisplayTracker {
   // away from the current route before TTFD or TTID is finished.
   Future<void> cancelUnfinishedSpans(
       SentryTracer transaction, DateTime endTimestamp) async {
-    final ttidSpan = transaction.children.firstWhereOrNull((child) =>
-        child.context.operation == SentrySpanOperations.uiTimeToInitialDisplay);
-    final ttfdSpan = transaction.children.firstWhereOrNull((child) =>
-        child.context.operation == SentrySpanOperations.uiTimeToFullDisplay);
+    final ttidSpan = transaction.children.firstWhereOrNull(
+      (child) =>
+          child.context.operation ==
+          SentrySpanOperations.uiTimeToInitialDisplay,
+    );
+    final ttfdSpan = transaction.children.firstWhereOrNull(
+      (child) =>
+          child.context.operation == SentrySpanOperations.uiTimeToFullDisplay,
+    );
 
     if (ttidSpan != null && !ttidSpan.finished) {
       await ttidSpan.finish(

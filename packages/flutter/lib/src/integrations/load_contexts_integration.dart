@@ -3,9 +3,9 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
-import 'package:collection/collection.dart';
 import 'package:sentry/src/event_processor/enricher/enricher_event_processor.dart';
 import 'package:sentry/src/telemetry/default_attributes.dart';
+import 'package:sentry/src/utils/iterable_utils.dart';
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 import '../utils/internal_logger.dart';

@@ -1,9 +1,10 @@
 // ignore_for_file: library_private_types_in_public_api
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import '../../sentry_flutter.dart';
 import 'package:meta/meta.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'sentry_feedback_options.dart';
 import 'package:flutter/services.dart';
 import 'sentry_logo.dart';
@@ -110,7 +111,8 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
   Future<void> _captureReplay() async {
     // ignore: invalid_use_of_internal_member
-    final replayIntegration = widget._hub.options.integrations.firstWhereOrNull(
+    final integrations = widget._hub.options.integrations;
+    final replayIntegration = integrations.firstWhereOrNull(
       (element) => element is ReplayIntegration,
     ) as ReplayIntegration?;
     if (replayIntegration != null) {
