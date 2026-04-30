@@ -53,7 +53,7 @@ class SentryTraceContextHeader {
       sampled: json['sampled'],
       replayId:
           json['replay_id'] == null ? null : SentryId.fromId(json['replay_id']),
-      orgId: json['org_id'] as String?,
+      orgId: json.getValueOrNull('org_id'),
       unknown: json.notAccessed(),
     );
   }
