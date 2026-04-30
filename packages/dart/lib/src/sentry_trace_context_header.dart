@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'protocol/access_aware_map.dart';
 import 'utils/sample_rate_format.dart';
+import 'utils/type_safe_map_access.dart';
 
 class SentryTraceContextHeader {
   SentryTraceContextHeader(
