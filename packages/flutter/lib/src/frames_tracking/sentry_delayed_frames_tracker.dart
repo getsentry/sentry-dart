@@ -129,7 +129,7 @@ class SentryDelayedFramesTracker {
               (spanDuration / _expectedFrameDuration.inMilliseconds).ceil(),
           slowFrameCount: 0,
           frozenFrameCount: 0,
-          framesDelay: 0);
+          framesDelay: 0.0);
     }
 
     final spanStartMs = spanStartTimestamp.millisecondsSinceEpoch;
@@ -141,7 +141,7 @@ class SentryDelayedFramesTracker {
     int frozenFrameCount = 0;
     int slowFramesDuration = 0;
     int frozenFramesDuration = 0;
-    int framesDelay = 0;
+    int framesDelayMs = 0;
 
     for (final timing in relevantFrames) {
       final frameStartMs = timing.startTimestamp.millisecondsSinceEpoch;
@@ -188,7 +188,7 @@ class SentryDelayedFramesTracker {
         slowFramesDuration += effectiveDuration;
       }
 
-      framesDelay += effectiveDelay;
+      framesDelayMs += effectiveDelay;
     }
 
     final normalFramesCount =
@@ -200,7 +200,7 @@ class SentryDelayedFramesTracker {
     if (totalFrameCount < 0 ||
         slowFrameCount < 0 ||
         frozenFrameCount < 0 ||
-        framesDelay < 0) {
+        framesDelayMs < 0) {
       return null;
     }
 
@@ -213,7 +213,7 @@ class SentryDelayedFramesTracker {
         totalFrameCount: totalFrameCount,
         slowFrameCount: slowFrameCount,
         frozenFrameCount: frozenFrameCount,
-        framesDelay: framesDelay);
+        framesDelay: framesDelayMs / Duration.millisecondsPerSecond);
   }
 
   /// Clears the state of the tracker.
@@ -242,7 +242,9 @@ class SpanFrameMetrics {
   final int totalFrameCount;
   final int slowFrameCount;
   final int frozenFrameCount;
-  final int framesDelay;
+
+  /// Total delayed frame duration in seconds.
+  final double framesDelay;
 
   SpanFrameMetrics({
     required this.totalFrameCount,
@@ -261,7 +263,11 @@ class SpanFrameMetrics {
       span.setMeasurement(SentryMeasurement.totalFramesName, totalFrameCount);
       span.setMeasurement(SentryMeasurement.slowFramesName, slowFrameCount);
       span.setMeasurement(SentryMeasurement.frozenFramesName, frozenFrameCount);
-      span.setMeasurement(SentryMeasurement.framesDelayName, framesDelay);
+      span.setMeasurement(
+        SentryMeasurement.framesDelayName,
+        framesDelay,
+        unit: DurationSentryMeasurementUnit.second,
+      );
     } else {
       _setData(span);
     }

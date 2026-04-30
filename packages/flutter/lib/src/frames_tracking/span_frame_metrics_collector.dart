@@ -105,7 +105,7 @@ extension _InstrumentationSpanFrameMetrics on InstrumentationSpan {
         attributes[SemanticAttributesConstants.framesFrozen] =
             SentryAttribute.int(metrics.frozenFrameCount);
         attributes[SemanticAttributesConstants.framesDelay] =
-            SentryAttribute.int(metrics.framesDelay);
+            SentryAttribute.double(metrics.framesDelay);
         spanRef.setAttributesIfAbsent(attributes);
       }
     } else {
