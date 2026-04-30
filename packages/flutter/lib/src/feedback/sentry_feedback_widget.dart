@@ -1,10 +1,8 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: invalid_use_of_internal_member, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
 import '../../sentry_flutter.dart';
 import 'package:meta/meta.dart';
-// ignore: implementation_imports
-import 'package:sentry/src/utils/iterable_utils.dart';
 import 'sentry_feedback_options.dart';
 import 'package:flutter/services.dart';
 import 'sentry_logo.dart';
@@ -19,10 +17,8 @@ class SentryFeedbackWidget extends StatefulWidget {
     @internal Hub? hub,
   })  : assert(associatedEventId != const SentryId.empty()),
         _hub = hub ?? HubAdapter() {
-    // ignore: invalid_use_of_internal_member
     assert(_hub.options is SentryFlutterOptions,
         'SentryFlutterOptions is required');
-    // ignore: invalid_use_of_internal_member
     final options = _hub.options as SentryFlutterOptions;
     this.options = options.feedback;
   }
@@ -110,7 +106,6 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
   }
 
   Future<void> _captureReplay() async {
-    // ignore: invalid_use_of_internal_member
     final integrations = widget._hub.options.integrations;
     final replayIntegration = integrations.firstWhereOrNull(
       (element) => element is ReplayIntegration,
@@ -440,7 +435,6 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
   Future<SentryId> _captureFeedback(SentryFeedback feedback, Hint? hint) {
     hint ??= Hint();
-    // ignore: invalid_use_of_internal_member
     hint.set(TypeCheckHint.isWidgetFeedback, true);
     return widget._hub.captureFeedback(feedback, hint: hint);
   }

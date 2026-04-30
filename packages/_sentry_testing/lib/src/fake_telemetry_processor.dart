@@ -3,8 +3,6 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
-// ignore: implementation_imports
-import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
 
 /// Fake telemetry processor that captures telemetry data for test assertions.

@@ -1,8 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'package:meta/meta.dart';
-// ignore: implementation_imports
-import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../sentry_flutter.dart';
 import 'time_to_full_display_tracker.dart';

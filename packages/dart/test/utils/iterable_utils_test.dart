@@ -1,5 +1,4 @@
-// ignore: implementation_imports
-import 'package:sentry/src/utils/iterable_utils.dart';
+import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {

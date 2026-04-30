@@ -1,3 +1,6 @@
+import 'package:meta/meta.dart';
+
+@internal
 extension SentryIterableUtils<T> on Iterable<T>? {
   T? get firstOrNull {
     final iterator = this?.iterator;

@@ -1,10 +1,10 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 import 'dart:typed_data';
 
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_item_type.dart';
-// ignore: implementation_imports
-import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../sentry_flutter.dart';
 import '../native/native_app_start.dart';
