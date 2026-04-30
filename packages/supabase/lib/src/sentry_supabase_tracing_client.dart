@@ -69,8 +69,8 @@ class SentrySupabaseTracingClient extends BaseClient {
     }
 
     final span = _spanFactory.createSpan(
-      parentSpan,
-      'db.${supabaseRequest.operation.value}',
+      parentSpan: parentSpan,
+      operation: 'db.${supabaseRequest.operation.value}',
       description: 'from(${supabaseRequest.table})',
     );
 

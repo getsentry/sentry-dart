@@ -124,4 +124,93 @@ void main() {
       );
     });
   });
+
+  group('toAttributes', () {
+    test('returns empty map when operating system and device are null', () {
+      expect(Contexts().toAttributes(), isEmpty);
+    });
+
+    test('aggregates attributes from operating system and device', () {
+      final contexts = Contexts(
+        operatingSystem: SentryOperatingSystem(name: 'iOS', version: '17.4'),
+        device: SentryDevice(brand: 'Apple', model: 'iPhone14,2'),
+      );
+
+      final attributes = contexts.toAttributes();
+
+      expect(attributes[SemanticAttributesConstants.osName]?.value, 'iOS');
+      expect(attributes[SemanticAttributesConstants.osVersion]?.value, '17.4');
+      expect(
+          attributes[SemanticAttributesConstants.deviceBrand]?.value, 'Apple');
+      expect(attributes[SemanticAttributesConstants.deviceModel]?.value,
+          'iPhone14,2');
+    });
+
+    test('omits sub-contexts that are null', () {
+      final contexts = Contexts(
+        operatingSystem: SentryOperatingSystem(name: 'iOS'),
+      );
+
+      final attributes = contexts.toAttributes();
+
+      expect(attributes[SemanticAttributesConstants.osName]?.value, 'iOS');
+      expect(attributes.containsKey(SemanticAttributesConstants.deviceBrand),
+          false);
+    });
+
+    test('includes culture attributes when culture is present', () {
+      final contexts = Contexts(
+        culture: SentryCulture(locale: 'en-US', timezone: 'Europe/Vienna'),
+      );
+
+      final attributes = contexts.toAttributes();
+
+      expect(attributes[SemanticAttributesConstants.cultureLocale]?.value,
+          'en-US');
+      expect(attributes[SemanticAttributesConstants.cultureTimezone]?.value,
+          'Europe/Vienna');
+    });
+
+    test('emits process.runtime.* from the Dart runtime regardless of order',
+        () {
+      final contexts = Contexts(
+        runtimes: [
+          SentryRuntime(name: 'Flutter', version: '3.24.0'),
+          SentryRuntime(name: 'Dart', version: '3.5.0'),
+        ],
+      );
+
+      final attributes = contexts.toAttributes();
+
+      expect(attributes[SemanticAttributesConstants.processRuntimeName]?.value,
+          'Dart');
+      expect(
+          attributes[SemanticAttributesConstants.processRuntimeVersion]?.value,
+          '3.5.0');
+    });
+
+    test('does not emit process.runtime.* when no Dart runtime is present', () {
+      final contexts = Contexts(
+        runtimes: [SentryRuntime(name: 'Flutter', version: '3.24.0')],
+      );
+
+      final attributes = contexts.toAttributes();
+
+      expect(
+          attributes
+              .containsKey(SemanticAttributesConstants.processRuntimeName),
+          false);
+    });
+
+    test('does not emit process.runtime.* when runtimes list is empty', () {
+      final contexts = Contexts();
+
+      final attributes = contexts.toAttributes();
+
+      expect(
+          attributes
+              .containsKey(SemanticAttributesConstants.processRuntimeName),
+          false);
+    });
+  });
 }

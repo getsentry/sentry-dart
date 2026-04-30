@@ -8,9 +8,12 @@ import 'buffer.dart';
 
 /// Interface for processing and buffering telemetry data before sending.
 ///
-/// Implementations collect logs, buffering them until flushed.
+/// Implementations collect spans and logs, buffering them until flushed.
 /// This enables batching of telemetry data for efficient transport.
 abstract class TelemetryProcessor {
+  /// Adds a span to be processed and buffered.
+  void addSpan(RecordingSentrySpanV2 span);
+
   /// Adds a log to be processed and buffered.
   void addLog(SentryLog log);
 
@@ -26,54 +29,61 @@ abstract class TelemetryProcessor {
 
 /// Default telemetry processor that routes items to type-specific buffers.
 ///
-/// Logs are dispatched to their respective [TelemetryBuffer]
+/// Spans and logs are dispatched to their respective [TelemetryBuffer]
 /// instances. If no buffer is registered for a telemetry type, items are
 /// dropped with a warning.
 class DefaultTelemetryProcessor implements TelemetryProcessor {
-  /// The buffer for metric data, or `null` if metric buffering is disabled.
-  final TelemetryBuffer<SentryMetric>? _metricBuffer;
-
+  /// The buffer for span data, or `null` if span buffering is disabled.
   @visibleForTesting
-  TelemetryBuffer<SentryMetric>? get metricBuffer => _metricBuffer;
+  TelemetryBuffer<RecordingSentrySpanV2>? spanBuffer;
 
   /// The buffer for log data, or `null` if log buffering is disabled.
-  final TelemetryBuffer<SentryLog>? _logBuffer;
-
   @visibleForTesting
-  TelemetryBuffer<SentryLog>? get logBuffer => _logBuffer;
+  TelemetryBuffer<SentryLog>? logBuffer;
+
+  /// The buffer for metric data, or `null` if metric buffering is disabled.
+  @visibleForTesting
+  TelemetryBuffer<SentryMetric>? metricBuffer;
 
   DefaultTelemetryProcessor({
-    TelemetryBuffer<SentryMetric>? metricBuffer,
-    TelemetryBuffer<SentryLog>? logBuffer,
-  })  : _metricBuffer = metricBuffer,
-        _logBuffer = logBuffer;
+    this.spanBuffer,
+    this.logBuffer,
+    this.metricBuffer,
+  });
+
+  @override
+  void addSpan(RecordingSentrySpanV2 span) {
+    if (spanBuffer == null) {
+      internalLogger.warning(
+        '$runtimeType: No buffer registered for ${span.runtimeType} - item was dropped',
+      );
+      return;
+    }
+    spanBuffer!.add(span);
+  }
 
   @override
   void addLog(SentryLog log) {
-    if (_logBuffer == null) {
+    if (logBuffer == null) {
       internalLogger.warning(
         '$runtimeType: No buffer registered for ${log.runtimeType} - item was dropped',
       );
       return;
     }
-
-    _logBuffer.add(log);
-
+    logBuffer!.add(log);
     internalLogger.debug(() =>
         '$runtimeType: Log "${log.body}" (${log.level.name}) added to buffer');
   }
 
   @override
   void addMetric(SentryMetric metric) {
-    if (_metricBuffer == null) {
+    if (metricBuffer == null) {
       internalLogger.warning(
         '$runtimeType: No buffer registered for ${metric.runtimeType} - item was dropped',
       );
       return;
     }
-
-    _metricBuffer.add(metric);
-
+    metricBuffer!.add(metric);
     internalLogger.debug(() =>
         '$runtimeType: Metric "${metric.name}" (${metric.value}) added to buffer');
   }
@@ -82,7 +92,11 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
   FutureOr<void> flush() {
     internalLogger.debug('$runtimeType: Clearing buffers');
 
-    final results = [_logBuffer?.flush(), _metricBuffer?.flush()];
+    final results = <FutureOr<void>>[
+      spanBuffer?.flush(),
+      logBuffer?.flush(),
+      metricBuffer?.flush(),
+    ];
 
     final futures = results.whereType<Future>().toList();
     if (futures.isEmpty) {
@@ -94,6 +108,9 @@ class DefaultTelemetryProcessor implements TelemetryProcessor {
 }
 
 class NoOpTelemetryProcessor implements TelemetryProcessor {
+  @override
+  void addSpan(RecordingSentrySpanV2 span) {}
+
   @override
   void addLog(SentryLog log) {}
 

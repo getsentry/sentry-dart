@@ -1,72 +1,77 @@
 import 'dart:io';
 
 import '../../../sentry.dart';
+import '../../platform/platform_context_provider.dart';
 import 'enricher_event_processor.dart';
-import 'flutter_runtime.dart';
-import 'io_platform_memory.dart';
-import '../../utils/os_utils.dart';
 
-EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
-  return IoEnricherEventProcessor(options);
+EnricherEventProcessor enricherEventProcessor(
+  SentryOptions options,
+  PlatformContextProvider provider,
+) {
+  return IoEnricherEventProcessor(options, provider);
 }
 
 /// Enriches [SentryEvent]s with various kinds of information.
-/// Uses Darts [Platform](https://api.dart.dev/stable/dart-io/Platform-class.html)
-/// class to read information.
+///
+/// Platform detection is delegated to [PlatformContextProvider]; this
+/// processor is responsible for merging the detected data into
+/// `event.contexts` while preserving user-supplied values.
 class IoEnricherEventProcessor implements EnricherEventProcessor {
-  IoEnricherEventProcessor(this._options);
+  IoEnricherEventProcessor(this._options, this._provider);
 
   final SentryOptions _options;
-  late final String _dartVersion = _extractDartVersion(Platform.version);
-  late final SentryOperatingSystem _os = getSentryOperatingSystem();
-  bool _fetchedTotalPhysicalMemory = false;
-  int? _totalPhysicalMemory;
-
-  /// Extracts the semantic version and channel from the full version string.
-  ///
-  /// Example:
-  /// Input: "3.5.0-180.3.beta (beta) (Wed Jun 5 15:06:15 2024 +0000) on "android_arm64""
-  /// Output: "3.5.0-180.3.beta (beta)"
-  ///
-  /// Falls back to the full version if the matching fails.
-  String _extractDartVersion(String fullVersion) {
-    RegExp channelRegex = RegExp(r'\((stable|beta|dev)\)');
-    Match? match = channelRegex.firstMatch(fullVersion);
-    // if match is null this will return the full version
-    return fullVersion.substring(0, match?.end);
-  }
+  final PlatformContextProvider _provider;
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
+    final platform = await _provider.buildContexts();
+
     event.contexts
-      ..device = await _getDevice(event.contexts.device)
-      ..operatingSystem = _getOperatingSystem(event.contexts.operatingSystem)
-      ..runtimes = _getRuntimes(event.contexts.runtimes)
-      ..app = _getApp(event.contexts.app)
-      ..culture = _getSentryCulture(event.contexts.culture);
+      ..device = _mergeDevice(event.contexts.device, platform.device)
+      ..operatingSystem =
+          _mergeOperatingSystem(event.contexts.operatingSystem, platform)
+      ..runtimes = _mergeRuntimes(event.contexts.runtimes, platform.runtimes)
+      ..app = _mergeApp(event.contexts.app, platform.app)
+      ..culture = _mergeCulture(event.contexts.culture, platform.culture);
 
     event.contexts['dart_context'] = _getDartContext();
     return event;
   }
 
-  List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
-    // Pure Dart doesn't have specific runtimes per build mode
-    // like Flutter: https://flutter.dev/docs/testing/build-modes
-    final dartRuntime = SentryRuntime(
-      name: 'Dart',
-      version: _dartVersion,
-      rawDescription: Platform.version,
-    );
-    final flRuntime = flutterRuntime;
+  SentryDevice _mergeDevice(SentryDevice? existing, SentryDevice? detected) {
+    existing ??= SentryDevice();
+    return existing
+      ..name = existing.name ?? detected?.name
+      ..processorCount = existing.processorCount ?? detected?.processorCount
+      ..memorySize = existing.memorySize ?? detected?.memorySize
+      ..freeMemory = existing.freeMemory;
+  }
 
-    if (runtimes == null) {
-      return [dartRuntime, if (flRuntime != null) flRuntime];
+  SentryOperatingSystem _mergeOperatingSystem(
+      SentryOperatingSystem? existing, Contexts platform) {
+    final detected = platform.operatingSystem;
+    if (existing == null) {
+      return detected ?? SentryOperatingSystem();
     }
-    return [
-      ...runtimes,
-      dartRuntime,
-      if (flRuntime != null) flRuntime,
-    ];
+    return detected?.mergeWith(existing) ?? existing;
+  }
+
+  List<SentryRuntime> _mergeRuntimes(
+      List<SentryRuntime> existing, List<SentryRuntime> detected) {
+    return [...existing, ...detected];
+  }
+
+  SentryApp _mergeApp(SentryApp? existing, SentryApp? detected) {
+    existing ??= SentryApp();
+    return existing..appMemory = existing.appMemory ?? detected?.appMemory;
+  }
+
+  SentryCulture _mergeCulture(
+      SentryCulture? existing, SentryCulture? detected) {
+    existing ??= SentryCulture();
+    return existing
+      ..locale = existing.locale ?? detected?.locale
+      ..timezone = existing.timezone ?? detected?.timezone;
   }
 
   Map<String, dynamic> _getDartContext() {
@@ -90,53 +95,5 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
           'executable_arguments': Platform.executableArguments,
       },
     };
-  }
-
-  Future<SentryDevice> _getDevice(SentryDevice? device) async {
-    device ??= SentryDevice();
-    return device
-      ..name = device.name ??
-          (_options.sendDefaultPii ? Platform.localHostname : null)
-      ..processorCount = device.processorCount ?? Platform.numberOfProcessors
-      ..memorySize = device.memorySize ?? await _getTotalPhysicalMemory()
-      ..freeMemory = device.freeMemory;
-  }
-
-  Future<int?> _getTotalPhysicalMemory() async {
-    if (!_fetchedTotalPhysicalMemory) {
-      _totalPhysicalMemory =
-          await PlatformMemory(_options).getTotalPhysicalMemory();
-      _fetchedTotalPhysicalMemory = true;
-    }
-    return _totalPhysicalMemory;
-  }
-
-  SentryApp _getApp(SentryApp? app) {
-    app ??= SentryApp();
-    return app..appMemory = app.appMemory ?? ProcessInfo.currentRss;
-  }
-
-  SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
-    if (os == null) {
-      return SentryOperatingSystem(
-        name: _os.name,
-        version: _os.version,
-        build: _os.build,
-        kernelVersion: _os.kernelVersion,
-        rooted: _os.rooted,
-        rawDescription: _os.rawDescription,
-        theme: _os.theme,
-        unknown: _os.unknown,
-      );
-    } else {
-      return _os.mergeWith(os);
-    }
-  }
-
-  SentryCulture _getSentryCulture(SentryCulture? culture) {
-    culture ??= SentryCulture();
-    return culture
-      ..locale = culture.locale ?? Platform.localeName
-      ..timezone = culture.timezone ?? DateTime.now().timeZoneName;
   }
 }

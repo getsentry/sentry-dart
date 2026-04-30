@@ -1,7 +1,9 @@
 import 'package:meta/meta.dart';
+import '../constants.dart';
 import '../sentry_options.dart';
 import '../utils/type_safe_map_access.dart';
 import 'access_aware_map.dart';
+import 'sentry_attribute.dart';
 
 /// If a device is on portrait or landscape mode
 enum SentryOrientation { portrait, landscape }
@@ -271,6 +273,157 @@ class SentryDevice {
       if (supportsLocationService != null)
         'supports_location_service': supportsLocationService,
     };
+  }
+
+  /// A map of stable semantic span attributes derived from this device.
+  ///
+  /// Only fields with a defined stable key in [SemanticAttributesConstants]
+  /// are included. Intended for span v2 attributes; error and transaction
+  /// payloads continue to use [toJson].
+  @internal
+  Map<String, SentryAttribute> toAttributes() {
+    final attributes = <String, SentryAttribute>{};
+    final name = this.name;
+    if (name != null) {
+      attributes[SemanticAttributesConstants.deviceName] =
+          SentryAttribute.string(name);
+    }
+    final family = this.family;
+    if (family != null) {
+      attributes[SemanticAttributesConstants.deviceFamily] =
+          SentryAttribute.string(family);
+    }
+    final model = this.model;
+    if (model != null) {
+      attributes[SemanticAttributesConstants.deviceModel] =
+          SentryAttribute.string(model);
+    }
+    final modelId = this.modelId;
+    if (modelId != null) {
+      attributes[SemanticAttributesConstants.deviceModelId] =
+          SentryAttribute.string(modelId);
+    }
+    final batteryLevel = this.batteryLevel;
+    if (batteryLevel != null) {
+      attributes[SemanticAttributesConstants.deviceBatteryLevel] =
+          SentryAttribute.double(batteryLevel);
+    }
+    final orientation = this.orientation;
+    if (orientation != null) {
+      attributes[SemanticAttributesConstants.deviceOrientation] =
+          SentryAttribute.string(orientation.name);
+    }
+    final manufacturer = this.manufacturer;
+    if (manufacturer != null) {
+      attributes[SemanticAttributesConstants.deviceManufacturer] =
+          SentryAttribute.string(manufacturer);
+    }
+    final brand = this.brand;
+    if (brand != null) {
+      attributes[SemanticAttributesConstants.deviceBrand] =
+          SentryAttribute.string(brand);
+    }
+    final screenHeightPixels = this.screenHeightPixels;
+    if (screenHeightPixels != null) {
+      attributes[SemanticAttributesConstants.deviceScreenHeightPixels] =
+          SentryAttribute.int(screenHeightPixels);
+    }
+    final screenWidthPixels = this.screenWidthPixels;
+    if (screenWidthPixels != null) {
+      attributes[SemanticAttributesConstants.deviceScreenWidthPixels] =
+          SentryAttribute.int(screenWidthPixels);
+    }
+    final screenDensity = this.screenDensity;
+    if (screenDensity != null) {
+      attributes[SemanticAttributesConstants.deviceScreenDensity] =
+          SentryAttribute.double(screenDensity);
+    }
+    final screenDpi = this.screenDpi;
+    if (screenDpi != null) {
+      attributes[SemanticAttributesConstants.deviceScreenDpi] =
+          SentryAttribute.int(screenDpi);
+    }
+    final online = this.online;
+    if (online != null) {
+      attributes[SemanticAttributesConstants.deviceOnline] =
+          SentryAttribute.bool(online);
+    }
+    final charging = this.charging;
+    if (charging != null) {
+      attributes[SemanticAttributesConstants.deviceCharging] =
+          SentryAttribute.bool(charging);
+    }
+    final lowMemory = this.lowMemory;
+    if (lowMemory != null) {
+      attributes[SemanticAttributesConstants.deviceLowMemory] =
+          SentryAttribute.bool(lowMemory);
+    }
+    final simulator = this.simulator;
+    if (simulator != null) {
+      attributes[SemanticAttributesConstants.deviceSimulator] =
+          SentryAttribute.bool(simulator);
+    }
+    final memorySize = this.memorySize;
+    if (memorySize != null) {
+      attributes[SemanticAttributesConstants.deviceMemorySize] =
+          SentryAttribute.int(memorySize);
+    }
+    final freeMemory = this.freeMemory;
+    if (freeMemory != null) {
+      attributes[SemanticAttributesConstants.deviceFreeMemory] =
+          SentryAttribute.int(freeMemory);
+    }
+    final usableMemory = this.usableMemory;
+    if (usableMemory != null) {
+      attributes[SemanticAttributesConstants.deviceUsableMemory] =
+          SentryAttribute.int(usableMemory);
+    }
+    final storageSize = this.storageSize;
+    if (storageSize != null) {
+      attributes[SemanticAttributesConstants.deviceStorageSize] =
+          SentryAttribute.int(storageSize);
+    }
+    final freeStorage = this.freeStorage;
+    if (freeStorage != null) {
+      attributes[SemanticAttributesConstants.deviceFreeStorage] =
+          SentryAttribute.int(freeStorage);
+    }
+    final externalStorageSize = this.externalStorageSize;
+    if (externalStorageSize != null) {
+      attributes[SemanticAttributesConstants.deviceExternalStorageSize] =
+          SentryAttribute.int(externalStorageSize);
+    }
+    final externalFreeStorage = this.externalFreeStorage;
+    if (externalFreeStorage != null) {
+      attributes[SemanticAttributesConstants.deviceExternalFreeStorage] =
+          SentryAttribute.int(externalFreeStorage);
+    }
+    final bootTime = this.bootTime;
+    if (bootTime != null) {
+      attributes[SemanticAttributesConstants.deviceBootTime] =
+          SentryAttribute.string(bootTime.toIso8601String());
+    }
+    final processorCount = this.processorCount;
+    if (processorCount != null) {
+      attributes[SemanticAttributesConstants.deviceProcessorCount] =
+          SentryAttribute.int(processorCount);
+    }
+    final cpuDescription = this.cpuDescription;
+    if (cpuDescription != null) {
+      attributes[SemanticAttributesConstants.deviceCpuDescription] =
+          SentryAttribute.string(cpuDescription);
+    }
+    final processorFrequency = this.processorFrequency;
+    if (processorFrequency != null) {
+      attributes[SemanticAttributesConstants.deviceProcessorFrequency] =
+          SentryAttribute.double(processorFrequency);
+    }
+    final deviceUniqueIdentifier = this.deviceUniqueIdentifier;
+    if (deviceUniqueIdentifier != null) {
+      attributes[SemanticAttributesConstants.deviceId] =
+          SentryAttribute.string(deviceUniqueIdentifier);
+    }
+    return attributes;
   }
 
   @Deprecated('Will be removed in a future version.')

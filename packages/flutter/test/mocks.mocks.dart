@@ -1754,6 +1754,21 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
       ) as _i12.Future<_i2.SentryId>);
 
   @override
+  _i12.Future<void> captureSpan(
+    _i2.SentrySpanV2? span, {
+    _i2.Scope? scope,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #captureSpan,
+          [span],
+          {#scope: scope},
+        ),
+        returnValue: _i12.Future<void>.value(),
+        returnValueForMissingStub: _i12.Future<void>.value(),
+      ) as _i12.Future<void>);
+
+  @override
   _i12.FutureOr<void> captureLog(
     _i2.SentryLog? log, {
     _i2.Scope? scope,
@@ -4350,6 +4365,178 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           ),
         ),
       ) as _i2.ISentrySpan);
+
+  @override
+  _i12.Future<T> startSpan<T>(
+    String? name,
+    _i12.Future<T> Function(_i2.SentrySpanV2)? callback, {
+    Map<String, _i2.SentryAttribute>? attributes,
+    _i2.SentrySpanV2? parentSpan = const _i2.UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #startSpan,
+          [
+            name,
+            callback,
+          ],
+          {
+            #attributes: attributes,
+            #parentSpan: parentSpan,
+            #startTimestamp: startTimestamp,
+          },
+        ),
+        returnValue: _i15.ifNotNull(
+              _i15.dummyValueOrNull<T>(
+                this,
+                Invocation.method(
+                  #startSpan,
+                  [
+                    name,
+                    callback,
+                  ],
+                  {
+                    #attributes: attributes,
+                    #parentSpan: parentSpan,
+                    #startTimestamp: startTimestamp,
+                  },
+                ),
+              ),
+              (T v) => _i12.Future<T>.value(v),
+            ) ??
+            _FakeFuture_31<T>(
+              this,
+              Invocation.method(
+                #startSpan,
+                [
+                  name,
+                  callback,
+                ],
+                {
+                  #attributes: attributes,
+                  #parentSpan: parentSpan,
+                  #startTimestamp: startTimestamp,
+                },
+              ),
+            ),
+      ) as _i12.Future<T>);
+
+  @override
+  T startSpanSync<T>(
+    String? name,
+    T Function(_i2.SentrySpanV2)? callback, {
+    Map<String, _i2.SentryAttribute>? attributes,
+    _i2.SentrySpanV2? parentSpan = const _i2.UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #startSpanSync,
+          [
+            name,
+            callback,
+          ],
+          {
+            #attributes: attributes,
+            #parentSpan: parentSpan,
+            #startTimestamp: startTimestamp,
+          },
+        ),
+        returnValue: _i15.dummyValue<T>(
+          this,
+          Invocation.method(
+            #startSpanSync,
+            [
+              name,
+              callback,
+            ],
+            {
+              #attributes: attributes,
+              #parentSpan: parentSpan,
+              #startTimestamp: startTimestamp,
+            },
+          ),
+        ),
+      ) as T);
+
+  @override
+  _i2.SentrySpanV2 startInactiveSpan(
+    String? name, {
+    Map<String, _i2.SentryAttribute>? attributes,
+    _i2.SentrySpanV2? parentSpan = const _i2.UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #startInactiveSpan,
+          [name],
+          {
+            #attributes: attributes,
+            #parentSpan: parentSpan,
+            #startTimestamp: startTimestamp,
+          },
+        ),
+        returnValue: _i15.dummyValue<_i2.SentrySpanV2>(
+          this,
+          Invocation.method(
+            #startInactiveSpan,
+            [name],
+            {
+              #attributes: attributes,
+              #parentSpan: parentSpan,
+              #startTimestamp: startTimestamp,
+            },
+          ),
+        ),
+      ) as _i2.SentrySpanV2);
+
+  @override
+  _i2.SentrySpanV2 startIdleSpan(
+    String? name, {
+    Duration? idleTimeout = const Duration(seconds: 3),
+    Duration? finalTimeout = const Duration(seconds: 30),
+    bool? trimIdleSpanEndTimestamp = true,
+    Map<String, _i2.SentryAttribute>? attributes,
+    DateTime? startTimestamp,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #startIdleSpan,
+          [name],
+          {
+            #idleTimeout: idleTimeout,
+            #finalTimeout: finalTimeout,
+            #trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
+            #attributes: attributes,
+            #startTimestamp: startTimestamp,
+          },
+        ),
+        returnValue: _i15.dummyValue<_i2.SentrySpanV2>(
+          this,
+          Invocation.method(
+            #startIdleSpan,
+            [name],
+            {
+              #idleTimeout: idleTimeout,
+              #finalTimeout: finalTimeout,
+              #trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
+              #attributes: attributes,
+              #startTimestamp: startTimestamp,
+            },
+          ),
+        ),
+      ) as _i2.SentrySpanV2);
+
+  @override
+  _i12.Future<void> captureSpan(_i2.SentrySpanV2? span) => (super.noSuchMethod(
+        Invocation.method(
+          #captureSpan,
+          [span],
+        ),
+        returnValue: _i12.Future<void>.value(),
+        returnValueForMissingStub: _i12.Future<void>.value(),
+      ) as _i12.Future<void>);
 
   @override
   void generateNewTrace() => super.noSuchMethod(

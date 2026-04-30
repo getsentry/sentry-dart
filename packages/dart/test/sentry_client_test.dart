@@ -16,6 +16,7 @@ import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
+import 'package:sentry/src/telemetry/span/span_capture_pipeline.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:http/http.dart' as http;
@@ -25,6 +26,7 @@ import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_hub.dart';
 import 'mocks/mock_log_capture_pipeline.dart';
 import 'mocks/mock_metric_capture_pipeline.dart';
+import 'mocks/mock_span_capture_pipeline.dart';
 import 'mocks/mock_telemetry_processor.dart';
 import 'mocks/mock_transport.dart';
 import 'test_utils.dart';
@@ -1801,6 +1803,28 @@ void main() {
     });
   });
 
+  group('SentryClient', () {
+    group('when capturing span', () {
+      late Fixture fixture;
+
+      setUp(() {
+        fixture = Fixture();
+      });
+
+      test('delegates to span capture pipeline', () async {
+        final pipeline = FakeSpanCapturePipeline();
+        final client = fixture.getSut(spanCapturePipeline: pipeline);
+        final span = const NoOpSentrySpanV2();
+        final scope = Scope(fixture.options);
+
+        await client.captureSpan(span, scope: scope);
+
+        expect(pipeline.capturedSpan, same(span));
+        expect(pipeline.capturedScope, same(scope));
+      });
+    });
+  });
+
   group('SentryClient captures envelope', () {
     late Fixture fixture;
     final fakeEnvelope = getFakeEnvelope();
@@ -2550,6 +2574,7 @@ class Fixture {
     BeforeSendTransactionCallback? beforeSendTransaction,
     BeforeSendCallback? beforeSendFeedback,
     EventProcessor? eventProcessor,
+    SpanCapturePipeline? spanCapturePipeline,
     bool provideMockRecorder = true,
     bool debug = false,
     Transport? transport,
@@ -2581,7 +2606,10 @@ class Fixture {
     options.transport = transport ?? this.transport;
 
     // Again create SentryClient instance
-    final client = SentryClient(options);
+    final client = SentryClient(
+      options,
+      spanCapturePipeline: spanCapturePipeline,
+    );
 
     if (provideMockRecorder) {
       options.recorder = recorder;

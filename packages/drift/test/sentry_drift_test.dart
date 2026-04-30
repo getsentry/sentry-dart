@@ -785,11 +785,10 @@ class _NullSpanFactory implements InstrumentationSpanFactory {
   InstrumentationSpan? mockParentSpan;
 
   @override
-  InstrumentationSpan? createSpan(
-    InstrumentationSpan? parent,
-    String operation, {
+  InstrumentationSpan? createSpan({
+    required InstrumentationSpan parentSpan,
+    required String operation,
     String? description,
-    DateTime? startTimestamp,
   }) {
     // Always return null to simulate span creation failure
     return null;

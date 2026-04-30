@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/enricher/io_enricher_event_processor.dart';
+import 'package:sentry/src/platform/io_platform_context_provider.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:test/test.dart';
 
@@ -263,6 +264,9 @@ class Fixture {
           hasNativeIntegration ? MockPlatform.iOS() : MockPlatform.fuchsia()
       ..sendDefaultPii = includePii;
 
-    return IoEnricherEventProcessor(options);
+    return IoEnricherEventProcessor(
+      options,
+      IoPlatformContextProvider(options),
+    );
   }
 }

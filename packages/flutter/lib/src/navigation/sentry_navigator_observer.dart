@@ -1,4 +1,4 @@
-// ignore_for_file: invalid_use_of_internal_member
+// ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
 import 'dart:async';
 
@@ -12,8 +12,10 @@ import 'package:sentry/src/sentry_tracer.dart';
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
 import '../integrations/web_session_integration.dart';
+import '../utils/internal_logger.dart';
 import '../web/web_session_handler.dart';
 import 'time_to_display_tracker.dart';
+import 'time_to_display_tracker_v2.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -62,8 +64,8 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 /// if those happen to take longer. The transaction will be set to [Scope.span]
 /// if the latter is empty.
 ///
-/// If [enableNewTraceOnNavigation] is true (default), a
-/// fresh trace is generated before each push, pop, or replace event.
+/// If [enableNewTraceOnNavigation] is true, a fresh trace is generated
+/// before each push, pop, or replace event. Disabled by default.
 ///
 /// Enabling the [setRouteNameAsTransaction] option overrides the current
 /// [Scope.transaction] which will also override the name of the current
@@ -77,7 +79,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   SentryNavigatorObserver({
     Hub? hub,
     bool enableAutoTransactions = true,
-    bool enableNewTraceOnNavigation = true,
+    bool enableNewTraceOnNavigation = false,
     Duration autoFinishAfter = const Duration(seconds: 3),
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
@@ -96,6 +98,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _hub.options.sdk.addIntegration('UINavigationTracing');
     }
     _timeToDisplayTracker = _initializeTimeToDisplayTracker();
+    _timeToDisplayTrackerV2 = _initializeTimeToDisplayTrackerV2();
     final webSessionIntegration = _hub.options.integrations
         .whereType<WebSessionIntegration>()
         .firstOrNull;
@@ -113,6 +116,15 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
+  TimeToDisplayTrackerV2? _initializeTimeToDisplayTrackerV2() {
+    final options = _hub.options;
+    if (options is SentryFlutterOptions) {
+      return options.timeToDisplayTrackerV2;
+    } else {
+      return null;
+    }
+  }
+
   final Hub _hub;
   final bool _enableAutoTransactions;
   final bool _enableNewTraceOnNavigation;
@@ -122,6 +134,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final AdditionalInfoExtractor? _additionalInfoProvider;
   final List<String> _ignoreRoutes;
   TimeToDisplayTracker? _timeToDisplayTracker;
+  TimeToDisplayTrackerV2? _timeToDisplayTrackerV2;
 
   WebSessionHandler? _webSessionHandler;
 
@@ -214,8 +227,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     _addWebSessions(from: route, to: previousRoute);
 
-    final timestamp = _hub.options.clock();
-    _finishTransaction(endTimestamp: timestamp);
+    if (_hub.options.traceLifecycle == SentryTraceLifecycle.stream) {
+      _timeToDisplayTrackerV2?.cancelCurrentRoute();
+    } else {
+      final timestamp = _hub.options.clock();
+      _finishTransaction(endTimestamp: timestamp);
+    }
   }
 
   void _startNewTraceIfEnabled() {
@@ -226,17 +243,24 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   void _instrumentTimeToDisplayOnPush(String routeName, Object? arguments) {
     if (!_enableAutoTransactions) {
+      internalLogger.info(
+        'SentryNavigatorObserver: auto transactions disabled, skipping time-to-display instrumentation.',
+      );
       return;
     }
 
-    // Clearing the display tracker here is safe since didPush happens before the Widget is built
-    _timeToDisplayTracker?.clear();
+    if (_hub.options.traceLifecycle == SentryTraceLifecycle.stream) {
+      _timeToDisplayTrackerV2?.trackRoute(routeName);
+    } else {
+      // Clearing the display tracker here is safe since didPush happens before the Widget is built
+      _timeToDisplayTracker?.clear();
 
-    DateTime timestamp = _hub.options.clock();
-    _finishTransaction(endTimestamp: timestamp);
+      DateTime timestamp = _hub.options.clock();
+      _finishTransaction(endTimestamp: timestamp);
 
-    final transactionContext = _createTransactionContext(routeName);
-    _startTransaction(timestamp, transactionContext, arguments);
+      final transactionContext = _createTransactionContext(routeName);
+      _startTransaction(timestamp, transactionContext, arguments);
+    }
   }
 
   void _addWebSessions({Route<dynamic>? from, Route<dynamic>? to}) async {
@@ -346,10 +370,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         );
       }
     } catch (exception, stacktrace) {
-      _hub.options.log(
-        SentryLevel.error,
-        'Error while finishing transaction',
-        exception: exception,
+      internalLogger.error(
+        'SentryNavigatorObserver: error while finishing transaction',
+        error: exception,
         stackTrace: stacktrace,
       );
       if (_hub.options.automatedTestMode) {

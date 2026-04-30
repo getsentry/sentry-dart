@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member, experimental_member_use
+
 // Adapted from https://github.com/ueman/sentry-dart-tools/blob/8e41418c0f2c62dc88292cf32a4f22e79112b744/sentry_flutter_plus/lib/src/widgets/click_tracker.dart
 //                                Apache License
 //                          Version 2.0, January 2004
@@ -250,12 +252,9 @@ class SentryUserInteractionWidget extends StatefulWidget {
 
   late final Hub _hub;
 
-  SentryFlutterOptions? get _options =>
-      // ignore: invalid_use_of_internal_member
-      _hub.options is SentryFlutterOptions
-          // ignore: invalid_use_of_internal_member
-          ? _hub.options as SentryFlutterOptions
-          : null;
+  SentryFlutterOptions? get _options => _hub.options is SentryFlutterOptions
+      ? _hub.options as SentryFlutterOptions
+      : null;
 
   @override
   StatefulElement createElement() {
@@ -305,7 +304,6 @@ class _SentryUserInteractionWidgetState
         exception: exception,
         stackTrace: stacktrace,
       );
-      // ignore: invalid_use_of_internal_member
       if (_options?.automatedTestMode ?? false) {
         rethrow;
       }
@@ -335,7 +333,6 @@ class _SentryUserInteractionWidgetState
         exception: exception,
         stackTrace: stacktrace,
       );
-      // ignore: invalid_use_of_internal_member
       if (_options?.automatedTestMode ?? false) {
         rethrow;
       }
@@ -350,7 +347,11 @@ class _SentryUserInteractionWidgetState
 
     final widgetKey = WidgetUtils.toStringValue(tapInfo.element.widget.key);
     _createBreadcrumbOnTap(tapInfo, widgetKey);
-    _startTransactionOnTap(tapInfo, widgetKey);
+    if (_options?.traceLifecycle == SentryTraceLifecycle.stream) {
+      _startSpanOnTap(tapInfo, widgetKey);
+    } else {
+      _startTransactionOnTap(tapInfo, widgetKey);
+    }
   }
 
   void _createBreadcrumbOnTap(UserInteractionInfo info, String? widgetKey) {
@@ -405,6 +406,60 @@ class _SentryUserInteractionWidgetState
     return path;
   }
 
+  void _startSpanOnTap(UserInteractionInfo info, String? widgetKey) {
+    final options = _options;
+    if (widgetKey == null || options == null) {
+      return;
+    }
+    if (!options.isTracingEnabled() || !options.enableUserInteractionTracing) {
+      return;
+    }
+
+    final activeSpan = _hub.getActiveSpan();
+    if (activeSpan != null) {
+      final op =
+          activeSpan.attributes[SemanticAttributesConstants.sentryOp]?.value;
+
+      // Don't interrupt a ui.load idle span (triggered by SentryNavigatorObserver).
+      // It has a higher priority than interaction idle spans.
+      if (op == SentrySpanOperations.uiLoad) {
+        return;
+      }
+
+      if (activeSpan is IdleRecordingSentrySpanV2) {
+        final lastElement = _lastTappedWidget?.element;
+        final isSameWidget = _isElementMounted(lastElement) &&
+            _isElementMounted(info.element) &&
+            lastElement?.widget == info.element.widget;
+
+        if (isSameWidget) {
+          // Same widget tapped again — reset the idle timer to keep the span
+          // alive instead of starting a new one.
+          activeSpan.resetIdleTimer();
+          return;
+        }
+
+        // Different widget tapped — cancel the previous idle span.
+        activeSpan
+          ..status = SentrySpanStatusV2.cancelled
+          ..end();
+      }
+    }
+
+    _lastTappedWidget = info;
+
+    _hub.startIdleSpan(
+      idleTimeout: const Duration(seconds: 1),
+      widgetKey,
+      attributes: {
+        SemanticAttributesConstants.sentryOp:
+            SentryAttribute.string(SentrySpanOperations.uiActionClick),
+        SemanticAttributesConstants.sentryOrigin:
+            SentryAttribute.string(SentryTraceOrigins.autoUiInteraction),
+      },
+    );
+  }
+
   void _startTransactionOnTap(UserInteractionInfo info, String? widgetKey) {
     if (widgetKey == null ||
         !(_options?.isTracingEnabled() ?? false) ||
@@ -417,7 +472,7 @@ class _SentryUserInteractionWidgetState
     // is expensive, so we expect that the keys are unique across the app
     final transactionContext = SentryTransactionContext(
       widgetKey,
-      'ui.action.click',
+      SentrySpanOperations.uiActionClick,
       transactionNameSource: SentryTransactionNameSource.component,
     );
 
@@ -428,7 +483,6 @@ class _SentryUserInteractionWidgetState
           _isElementMounted(element) &&
           lastElement?.widget == element.widget &&
           !activeTransaction.finished) {
-        // ignore: invalid_use_of_internal_member
         if (activeTransaction is SentryTracer &&
             activeTransaction.children.isNotEmpty) {
           activeTransaction.finish();

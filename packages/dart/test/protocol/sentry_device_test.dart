@@ -467,6 +467,104 @@ void main() {
       expect(2, copy.screenWidthPixels);
     });
   });
+
+  group('toAttributes', () {
+    test('returns empty map when all fields are null', () {
+      expect(SentryDevice().toAttributes(), isEmpty);
+    });
+
+    test('maps populated fields to stable semantic attribute keys', () {
+      final attributes = sentryDevice.toAttributes();
+
+      void expectAttribute(String key, Object? value, String type) {
+        expect(attributes[key]?.value, value, reason: key);
+        expect(attributes[key]?.type, type, reason: '$key.type');
+      }
+
+      expectAttribute(
+          SemanticAttributesConstants.deviceName, 'testDevice', 'string');
+      expectAttribute(
+          SemanticAttributesConstants.deviceFamily, 'testFamily', 'string');
+      expectAttribute(
+          SemanticAttributesConstants.deviceModel, 'testModel', 'string');
+      expectAttribute(
+          SemanticAttributesConstants.deviceModelId, 'testModelId', 'string');
+      expectAttribute(
+          SemanticAttributesConstants.deviceManufacturer, 'testOEM', 'string');
+      expectAttribute(
+          SemanticAttributesConstants.deviceBrand, 'testBrand', 'string');
+      expectAttribute(
+          SemanticAttributesConstants.deviceBatteryLevel, 23.0, 'double');
+      expectAttribute(
+          SemanticAttributesConstants.deviceScreenHeightPixels, 100, 'integer');
+      expectAttribute(
+          SemanticAttributesConstants.deviceScreenWidthPixels, 100, 'integer');
+      expectAttribute(
+          SemanticAttributesConstants.deviceScreenDensity, 99.1, 'double');
+      expectAttribute(
+          SemanticAttributesConstants.deviceScreenDpi, 100, 'integer');
+      expectAttribute(
+          SemanticAttributesConstants.deviceOnline, false, 'boolean');
+      expectAttribute(
+          SemanticAttributesConstants.deviceCharging, true, 'boolean');
+      expectAttribute(
+          SemanticAttributesConstants.deviceLowMemory, false, 'boolean');
+      expectAttribute(
+          SemanticAttributesConstants.deviceSimulator, true, 'boolean');
+      expectAttribute(
+          SemanticAttributesConstants.deviceMemorySize, 1234567, 'integer');
+      expectAttribute(
+          SemanticAttributesConstants.deviceFreeMemory, 12345, 'integer');
+      expectAttribute(
+          SemanticAttributesConstants.deviceUsableMemory, 9876, 'integer');
+      expectAttribute(
+          SemanticAttributesConstants.deviceStorageSize, 1234567, 'integer');
+      expectAttribute(
+          SemanticAttributesConstants.deviceFreeStorage, 1234567, 'integer');
+      expectAttribute(SemanticAttributesConstants.deviceExternalStorageSize,
+          98765, 'integer');
+      expectAttribute(SemanticAttributesConstants.deviceExternalFreeStorage,
+          98765, 'integer');
+      expectAttribute(
+          SemanticAttributesConstants.deviceProcessorCount, 4, 'integer');
+      expectAttribute(SemanticAttributesConstants.deviceCpuDescription,
+          'M1 Pro Max Ultra', 'string');
+      expectAttribute(
+          SemanticAttributesConstants.deviceProcessorFrequency, 1.2, 'double');
+      expectAttribute(SemanticAttributesConstants.deviceId, 'uuid', 'string');
+    });
+
+    test('serializes orientation as its name', () {
+      final device = SentryDevice(orientation: SentryOrientation.portrait);
+      final attribute =
+          device.toAttributes()[SemanticAttributesConstants.deviceOrientation];
+      expect(attribute?.value, 'portrait');
+      expect(attribute?.type, 'string');
+    });
+
+    test('serializes bootTime as ISO-8601 string', () {
+      final bootTime = DateTime.utc(2024, 1, 15, 12, 0, 0);
+      final device = SentryDevice(bootTime: bootTime);
+      final attribute =
+          device.toAttributes()[SemanticAttributesConstants.deviceBootTime];
+      expect(attribute?.value, bootTime.toIso8601String());
+      expect(attribute?.type, 'string');
+    });
+
+    test('does not include fields without a stable semantic key', () {
+      final device = SentryDevice(
+        arch: 'arm64',
+        deviceType: 'handheld',
+        batteryStatus: 'Charging',
+        supportsAccelerometer: true,
+        supportsGyroscope: true,
+        supportsAudio: true,
+        supportsLocationService: true,
+        supportsVibration: true,
+      );
+      expect(device.toAttributes(), isEmpty);
+    });
+  });
 }
 
 SentryDevice _generate({DateTime? testBootTime}) => SentryDevice(

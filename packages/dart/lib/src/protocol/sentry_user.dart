@@ -119,6 +119,68 @@ class SentryUser {
     );
   }
 
+  /// A map of stable semantic span attributes derived from this user.
+  ///
+  /// Emits the `user.id`, `user.name`, and `user.email` attributes defined in
+  /// [SemanticAttributesConstants]. Intended for span v2 attributes; event
+  /// payloads continue to use [toJson].
+  ///
+  /// Users are always manually set and never automatically inferred, therefore
+  /// this is not gated by `sendDefaultPii`.
+  @internal
+  Map<String, SentryAttribute> toAttributes() {
+    final attributes = <String, SentryAttribute>{};
+    final id = this.id;
+    if (id != null) {
+      attributes[SemanticAttributesConstants.userId] =
+          SentryAttribute.string(id);
+    }
+    final name = this.name;
+    if (name != null) {
+      attributes[SemanticAttributesConstants.userName] =
+          SentryAttribute.string(name);
+    }
+    final email = this.email;
+    if (email != null) {
+      attributes[SemanticAttributesConstants.userEmail] =
+          SentryAttribute.string(email);
+    }
+    final ipAddress = this.ipAddress;
+    if (ipAddress != null) {
+      attributes[SemanticAttributesConstants.userIpAddress] =
+          SentryAttribute.string(ipAddress);
+    }
+    final geo = this.geo;
+    if (geo != null) {
+      final city = geo.city;
+      if (city != null) {
+        attributes[SemanticAttributesConstants.userGeoCity] =
+            SentryAttribute.string(city);
+      }
+      final countryCode = geo.countryCode;
+      if (countryCode != null) {
+        attributes[SemanticAttributesConstants.userGeoCountryCode] =
+            SentryAttribute.string(countryCode);
+      }
+      final region = geo.region;
+      if (region != null) {
+        attributes[SemanticAttributesConstants.userGeoRegion] =
+            SentryAttribute.string(region);
+      }
+      final subregion = geo.subregion;
+      if (subregion != null) {
+        attributes[SemanticAttributesConstants.userGeoSubregion] =
+            SentryAttribute.string(subregion);
+      }
+      final subdivision = geo.subdivision;
+      if (subdivision != null) {
+        attributes[SemanticAttributesConstants.userGeoSubdivision] =
+            SentryAttribute.string(subdivision);
+      }
+    }
+    return attributes;
+  }
+
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final geoJson = geo?.toJson();

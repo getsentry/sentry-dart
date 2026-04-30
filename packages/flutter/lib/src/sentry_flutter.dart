@@ -1,4 +1,4 @@
-// ignore_for_file: invalid_use_of_internal_member
+// ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
 import 'dart:async';
 import 'dart:ui';
@@ -22,6 +22,7 @@ import 'integrations/flutter_framework_feature_flag_integration.dart';
 import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
 import 'integrations/native_app_start_handler.dart';
+import 'integrations/native_app_start_handler_v2.dart';
 import 'integrations/replay_telemetry_integration.dart';
 import 'integrations/screenshot_integration.dart';
 import 'integrations/generic_app_start_integration.dart';
@@ -34,6 +35,7 @@ import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'replay/integration.dart';
 import 'screenshot/screenshot_support.dart';
+import 'utils/internal_logger.dart';
 import 'utils/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
@@ -204,6 +206,7 @@ mixin SentryFlutter {
             NativeAppStartIntegration(
               DefaultFrameCallbackHandler(),
               NativeAppStartHandler(native),
+              NativeAppStartHandlerV2(native),
             ),
           );
         }
@@ -313,13 +316,23 @@ mixin SentryFlutter {
     if (options is! SentryFlutterOptions) {
       return null;
     }
-    final transactionId = options.timeToDisplayTracker.transactionId;
-    if (transactionId == null) {
-      hub.options.log(SentryLevel.error,
-          'Could not process TTFD for screen ${SentryNavigatorObserver.currentRouteName} - transactionId should not be null');
+    if (!options.enableTimeToFullDisplayTracing) {
+      internalLogger
+          .debug('TTFD is not enabled. Returning null for currentDisplay.');
       return null;
     }
-    return SentryDisplay(transactionId, hub: hub);
+    final SpanId? spanId;
+    if (options.traceLifecycle == SentryTraceLifecycle.stream) {
+      spanId = options.timeToDisplayTrackerV2.ttfdSpanId;
+    } else {
+      spanId = options.timeToDisplayTracker.transactionId;
+    }
+    if (spanId == null) {
+      internalLogger.error(
+          'Could not process TTFD for screen ${SentryNavigatorObserver.currentRouteName} - spanId should not be null');
+      return null;
+    }
+    return SentryDisplay(spanId, hub: hub);
   }
 
   /// Pauses the app hang tracking.

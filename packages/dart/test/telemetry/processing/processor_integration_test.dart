@@ -9,7 +9,7 @@ import '../../mocks/mock_transport.dart';
 import '../../test_utils.dart';
 
 void main() {
-  group('DefaultTelemetryProcessorIntegration', () {
+  group('InMemoryTelemetryProcessorIntegration', () {
     late _Fixture fixture;
 
     setUp(() {
@@ -57,6 +57,42 @@ void main() {
       expect(processor.logBuffer, isA<InMemoryTelemetryBuffer<SentryLog>>());
     });
 
+    test('configures span buffer as GroupedInMemoryTelemetryBuffer', () {
+      final options = fixture.options;
+
+      fixture.getSut().call(fixture.hub, options);
+
+      final processor = options.telemetryProcessor as DefaultTelemetryProcessor;
+      expect(processor.spanBuffer,
+          isA<GroupedInMemoryTelemetryBuffer<RecordingSentrySpanV2>>());
+    });
+
+    test('configures span buffer with group key extractor', () {
+      final options = fixture.options;
+
+      final integration = fixture.getSut();
+      integration.call(fixture.hub, options);
+
+      final processor = options.telemetryProcessor as DefaultTelemetryProcessor;
+
+      expect(
+          (processor.spanBuffer
+                  as GroupedInMemoryTelemetryBuffer<RecordingSentrySpanV2>)
+              .groupKey,
+          integration.spanGroupKeyExtractor);
+    });
+
+    test('spanGroupKeyExtractor uses traceId-spanId format', () {
+      final options = fixture.options;
+
+      final integration = fixture.getSut();
+      integration.call(fixture.hub, options);
+
+      final span = fixture.createSpan();
+      final key = integration.spanGroupKeyExtractor(span);
+
+      expect(key, '${span.traceId}-${span.spanId}');
+    });
     group('flush', () {
       test('log reaches transport as envelope', () async {
         final options = fixture.options;
@@ -65,6 +101,20 @@ void main() {
         final processor =
             options.telemetryProcessor as DefaultTelemetryProcessor;
         processor.addLog(fixture.createLog());
+        await processor.flush();
+
+        expect(fixture.transport.envelopes, hasLength(1));
+      });
+
+      test('span reaches transport as envelope', () async {
+        final options = fixture.options;
+        fixture.getSut().call(fixture.hub, options);
+
+        final processor =
+            options.telemetryProcessor as DefaultTelemetryProcessor;
+        final span = fixture.createSpan();
+        span.end();
+        processor.addSpan(span);
         await processor.flush();
 
         expect(fixture.transport.envelopes, hasLength(1));
@@ -92,6 +142,18 @@ class _Fixture {
       level: SentryLogLevel.info,
       body: 'test log',
       attributes: {},
+    );
+  }
+
+  RecordingSentrySpanV2 createSpan() {
+    return RecordingSentrySpanV2.root(
+      name: 'test-span',
+      traceId: SentryId.newId(),
+      onSpanEnd: (_) async {},
+      clock: options.clock,
+      dscCreator: (_) =>
+          SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+      samplingDecision: SentryTracesSamplingDecision(true),
     );
   }
 }

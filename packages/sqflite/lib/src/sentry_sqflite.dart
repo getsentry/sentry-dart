@@ -43,11 +43,13 @@ Future<Database> openDatabaseWithSentry(
     final spanFactory = newHub.options.spanFactory;
     final description = 'Open DB: $path';
     final parent = spanFactory.getSpan(newHub);
-    final span = spanFactory.createSpan(
-      parent,
-      SentryDatabase.dbOp,
-      description: description,
-    );
+    final span = parent != null
+        ? spanFactory.createSpan(
+            parentSpan: parent,
+            operation: SentryDatabase.dbOp,
+            description: description,
+          )
+        : null;
     // ignore: invalid_use_of_internal_member
     span?.origin = SentryTraceOrigins.autoDbSqfliteOpenDatabase;
 

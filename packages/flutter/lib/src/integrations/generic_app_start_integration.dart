@@ -1,4 +1,4 @@
-// ignore_for_file: invalid_use_of_internal_member
+// ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
 import 'package:meta/meta.dart';
 
@@ -26,6 +26,12 @@ class GenericAppStartIntegration extends Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     if (!options.isTracingEnabled()) return;
+
+    if (options.traceLifecycle == SentryTraceLifecycle.stream) {
+      options.timeToDisplayTrackerV2.trackAppStart();
+      options.sdk.addIntegration(integrationName);
+      return;
+    }
 
     final transactionContext = SentryTransactionContext(
       'root /',

@@ -9,6 +9,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_handler.dart';
+import 'package:sentry_flutter/src/integrations/native_app_start_handler_v2.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
 
 import '../fake_frame_callback_handler.dart';
@@ -154,10 +155,12 @@ class Fixture {
 
   final frameCallbackHandler = FakeFrameCallbackHandler();
   final nativeAppStartHandler = FakeNativeAppStartHandler();
+  final nativeAppStartHandlerV2 = FakeNativeAppStartHandlerV2();
 
   late NativeAppStartIntegration sut = NativeAppStartIntegration(
     frameCallbackHandler,
     nativeAppStartHandler,
+    nativeAppStartHandlerV2,
   );
 
   Fixture() {
@@ -180,6 +183,18 @@ class FakeNativeAppStartHandler implements NativeAppStartHandler {
       required SentryTransactionContext context}) async {
     this.appStartEnd = appStartEnd;
     this.context = context;
+    calls += 1;
+  }
+}
+
+class FakeNativeAppStartHandlerV2 implements NativeAppStartHandlerV2 {
+  DateTime? appStartEnd;
+  var calls = 0;
+
+  @override
+  Future<void> call(Hub hub, SentryFlutterOptions options,
+      {required DateTime appStartEnd}) async {
+    this.appStartEnd = appStartEnd;
     calls += 1;
   }
 }

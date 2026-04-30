@@ -12,6 +12,7 @@ import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'telemetry/metric/metric.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 import 'tracing.dart';
 
 /// Hub adapter to make Integrations testable
@@ -163,6 +164,20 @@ class HubAdapter implements Hub {
       );
 
   @override
+  SentrySpanV2 startInactiveSpan(
+    String name, {
+    Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
+  }) =>
+      Sentry.currentHub.startInactiveSpan(
+        name,
+        attributes: attributes,
+        parentSpan: parentSpan,
+        startTimestamp: startTimestamp,
+      );
+
+  @override
   void generateNewTrace() => Sentry.currentHub.generateNewTrace();
 
   @override
@@ -211,4 +226,54 @@ class HubAdapter implements Hub {
 
   @override
   void removeAttribute(String key) => Sentry.currentHub.removeAttribute(key);
+
+  @override
+  Future<void> captureSpan(SentrySpanV2 span) =>
+      Sentry.currentHub.captureSpan(span);
+
+  @override
+  RecordingSentrySpanV2? getActiveSpan() {
+    return Sentry.currentHub.getActiveSpan();
+  }
+
+  @override
+  Future<T> startSpan<T>(
+      String name, Future<T> Function(SentrySpanV2 span) callback,
+      {Map<String, SentryAttribute>? attributes,
+      SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+      DateTime? startTimestamp}) {
+    return Sentry.currentHub.startSpan(name, callback,
+        attributes: attributes,
+        parentSpan: parentSpan,
+        startTimestamp: startTimestamp);
+  }
+
+  @override
+  T startSpanSync<T>(String name, T Function(SentrySpanV2 span) callback,
+      {Map<String, SentryAttribute>? attributes,
+      SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+      DateTime? startTimestamp}) {
+    return Sentry.currentHub.startSpanSync(name, callback,
+        attributes: attributes,
+        parentSpan: parentSpan,
+        startTimestamp: startTimestamp);
+  }
+
+  @override
+  SentrySpanV2 startIdleSpan(
+    String name, {
+    Duration idleTimeout = const Duration(seconds: 3),
+    Duration finalTimeout = const Duration(seconds: 30),
+    bool trimIdleSpanEndTimestamp = true,
+    Map<String, SentryAttribute>? attributes,
+    DateTime? startTimestamp,
+  }) =>
+      Sentry.currentHub.startIdleSpan(
+        name,
+        idleTimeout: idleTimeout,
+        finalTimeout: finalTimeout,
+        trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
+        attributes: attributes,
+        startTimestamp: startTimestamp,
+      );
 }

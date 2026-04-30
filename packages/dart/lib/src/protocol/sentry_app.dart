@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 
+import '../constants.dart';
 import 'access_aware_map.dart';
+import 'sentry_attribute.dart';
 
 /// App context describes the application.
 ///
@@ -99,6 +101,47 @@ class SentryApp {
       if (viewNames != null && viewNames!.isNotEmpty) 'view_names': viewNames!,
       if (textScale != null) 'text_scale': textScale!,
     };
+  }
+
+  /// A map of stable semantic span attributes derived from this app.
+  ///
+  /// Only fields with a defined stable key in [SemanticAttributesConstants]
+  /// are included. Intended for span v2 attributes; error and transaction
+  /// payloads continue to use [toJson].
+  @internal
+  Map<String, SentryAttribute> toAttributes() {
+    final attributes = <String, SentryAttribute>{};
+    final name = this.name;
+    if (name != null) {
+      attributes[SemanticAttributesConstants.appName] =
+          SentryAttribute.string(name);
+    }
+    final version = this.version;
+    if (version != null) {
+      attributes[SemanticAttributesConstants.appVersion] =
+          SentryAttribute.string(version);
+    }
+    final identifier = this.identifier;
+    if (identifier != null) {
+      attributes[SemanticAttributesConstants.appIdentifier] =
+          SentryAttribute.string(identifier);
+    }
+    final build = this.build;
+    if (build != null) {
+      attributes[SemanticAttributesConstants.appBuild] =
+          SentryAttribute.string(build);
+    }
+    final startTime = this.startTime;
+    if (startTime != null) {
+      attributes[SemanticAttributesConstants.appStartTime] =
+          SentryAttribute.string(startTime.toIso8601String());
+    }
+    final inForeground = this.inForeground;
+    if (inForeground != null) {
+      attributes[SemanticAttributesConstants.appInForeground] =
+          SentryAttribute.bool(inForeground);
+    }
+    return attributes;
   }
 
   @Deprecated('Will be removed in a future version.')

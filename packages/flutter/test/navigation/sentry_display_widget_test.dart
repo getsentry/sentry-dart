@@ -57,7 +57,9 @@ void main() {
 }
 
 class Fixture {
-  final options = defaultTestOptions()..tracesSampleRate = 1.0;
+  final options = defaultTestOptions()
+    ..tracesSampleRate = 1.0
+    ..enableTimeToFullDisplayTracing = true;
 
   late SentrySpanContext mockSentrySpanContext;
   late MockSentryTracer mockSentryTracer;
