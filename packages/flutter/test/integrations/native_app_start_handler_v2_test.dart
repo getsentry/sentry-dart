@@ -303,10 +303,11 @@ void main() {
       }
     });
 
-    test('all app start child spans have app start type', () async {
+    test('all app start spans have app start type', () async {
       await fixture.call();
 
-      final childSpanNames = [
+      final appStartSpanNames = [
+        'Cold Start',
         'App start to plugin registration',
         'Before Sentry Init Setup',
         'First frame render',
@@ -314,7 +315,7 @@ void main() {
         'native span 2',
       ];
 
-      for (final name in childSpanNames) {
+      for (final name in appStartSpanNames) {
         final span = fixture.findSpanByName(name);
         expect(span, isNotNull, reason: 'Expected span: $name');
         expect(
