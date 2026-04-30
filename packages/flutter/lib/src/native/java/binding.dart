@@ -4599,6 +4599,94 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .object<ReplayIntegration?>(const $ReplayIntegration$NullableType());
   }
 
+  static final _id_setupBeforeSend = _class.instanceMethodId(
+    r'setupBeforeSend',
+    r'(Lio/sentry/android/core/SentryAndroidOptions;)V',
+  );
+
+  static final _setupBeforeSend = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final void setupBeforeSend(io.sentry.android.core.SentryAndroidOptions sentryAndroidOptions)`
+  void setupBeforeSend(
+    SentryAndroidOptions sentryAndroidOptions,
+  ) {
+    final _$sentryAndroidOptions = sentryAndroidOptions.reference;
+    _setupBeforeSend(
+            reference.pointer,
+            _id_setupBeforeSend as jni$_.JMethodIDPtr,
+            _$sentryAndroidOptions.pointer)
+        .check();
+  }
+
+  static final _id_setContext = _class.instanceMethodId(
+    r'setContext',
+    r'(Ljava/lang/String;Ljava/lang/Object;)V',
+  );
+
+  static final _setContext = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final void setContext(java.lang.String string, java.lang.Object object)`
+  void setContext(
+    jni$_.JString string,
+    jni$_.JObject? object,
+  ) {
+    final _$string = string.reference;
+    final _$object = object?.reference ?? jni$_.jNullReference;
+    _setContext(reference.pointer, _id_setContext as jni$_.JMethodIDPtr,
+            _$string.pointer, _$object.pointer)
+        .check();
+  }
+
+  static final _id_removeContext = _class.instanceMethodId(
+    r'removeContext',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _removeContext = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final void removeContext(java.lang.String string)`
+  void removeContext(
+    jni$_.JString string,
+  ) {
+    final _$string = string.reference;
+    _removeContext(reference.pointer, _id_removeContext as jni$_.JMethodIDPtr,
+            _$string.pointer)
+        .check();
+  }
+
   static final _id_setupReplay = _class.instanceMethodId(
     r'setupReplay',
     r'(Lio/sentry/android/core/SentryAndroidOptions;Lio/sentry/flutter/ReplayRecorderCallbacks;)V',
@@ -5165,6 +5253,94 @@ class SentryFlutterPlugin extends jni$_.JObject {
     return _privateSentryGetReplayIntegration(_class.reference.pointer,
             _id_privateSentryGetReplayIntegration as jni$_.JMethodIDPtr)
         .object<ReplayIntegration?>(const $ReplayIntegration$NullableType());
+  }
+
+  static final _id_setupBeforeSend = _class.staticMethodId(
+    r'setupBeforeSend',
+    r'(Lio/sentry/android/core/SentryAndroidOptions;)V',
+  );
+
+  static final _setupBeforeSend = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public final void setupBeforeSend(io.sentry.android.core.SentryAndroidOptions sentryAndroidOptions)`
+  static void setupBeforeSend(
+    SentryAndroidOptions sentryAndroidOptions,
+  ) {
+    final _$sentryAndroidOptions = sentryAndroidOptions.reference;
+    _setupBeforeSend(
+            _class.reference.pointer,
+            _id_setupBeforeSend as jni$_.JMethodIDPtr,
+            _$sentryAndroidOptions.pointer)
+        .check();
+  }
+
+  static final _id_setContext = _class.staticMethodId(
+    r'setContext',
+    r'(Ljava/lang/String;Ljava/lang/Object;)V',
+  );
+
+  static final _setContext = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public final void setContext(java.lang.String string, java.lang.Object object)`
+  static void setContext(
+    jni$_.JString string,
+    jni$_.JObject? object,
+  ) {
+    final _$string = string.reference;
+    final _$object = object?.reference ?? jni$_.jNullReference;
+    _setContext(_class.reference.pointer, _id_setContext as jni$_.JMethodIDPtr,
+            _$string.pointer, _$object.pointer)
+        .check();
+  }
+
+  static final _id_removeContext = _class.staticMethodId(
+    r'removeContext',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _removeContext = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public final void removeContext(java.lang.String string)`
+  static void removeContext(
+    jni$_.JString string,
+  ) {
+    final _$string = string.reference;
+    _removeContext(_class.reference.pointer,
+            _id_removeContext as jni$_.JMethodIDPtr, _$string.pointer)
+        .check();
   }
 
   static final _id_setupReplay = _class.staticMethodId(

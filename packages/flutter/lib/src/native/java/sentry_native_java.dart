@@ -237,35 +237,21 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void setContexts(String key, value) => tryCatchSync('setContexts', () {
-        native.Sentry.configureScope(
-          native.ScopeCallback.implement(
-            native.$ScopeCallback(
-              run: (iScope) {
-                using((arena) {
-                  final jKey = key.toJString()..releasedBy(arena);
-                  final jVal = dartToJObject(value)..releasedBy(arena);
+        using((arena) {
+          final jKey = key.toJString()..releasedBy(arena);
+          final jVal = dartToJObject(value)..releasedBy(arena);
 
-                  final scope = iScope.as(const native.$Scope$Type())
-                    ..releasedBy(arena);
-                  scope.setContexts(jKey, jVal);
-                });
-              },
-            ),
-          ),
-        );
+          native.SentryFlutterPlugin.setContext(jKey, jVal);
+        });
       });
 
   @override
   void removeContexts(String key) => tryCatchSync('removeContexts', () {
-        native.Sentry.configureScope(
-            native.ScopeCallback.implement(native.$ScopeCallback(run: (iScope) {
-          using((arena) {
-            final jKey = key.toJString()..releasedBy(arena);
-            final scope = iScope.as(const native.$Scope$Type())
-              ..releasedBy(arena);
-            scope.removeContexts(jKey);
-          });
-        })));
+        using((arena) {
+          final jKey = key.toJString()..releasedBy(arena);
+
+          native.SentryFlutterPlugin.removeContext(jKey);
+        });
       });
 
   @override
