@@ -1,7 +1,8 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:collection/collection.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_item_type.dart';
 
@@ -177,10 +178,11 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
       return null;
     }
 
-    final frame = stackTrace.frames.firstWhereOrNull((frame) {
-      return debugIdMap.containsKey(frame.absPath) ||
-          debugIdMap.containsKey(frame.fileName);
-    });
+    final frame = stackTrace.frames.firstWhereOrNull(
+      (frame) =>
+          debugIdMap.containsKey(frame.absPath) ||
+          debugIdMap.containsKey(frame.fileName),
+    );
     if (frame == null) {
       _log('Could not find any frame with a matching debug id.');
       return null;

@@ -1,9 +1,10 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:collection/collection.dart';
 import 'package:ffi/ffi.dart';
 import 'package:meta/meta.dart';
 

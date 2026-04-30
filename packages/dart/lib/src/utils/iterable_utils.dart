@@ -1,11 +1,17 @@
 import 'package:meta/meta.dart';
 
 @internal
-class IterableUtils {
-  static T? firstWhereOrNull<T>(
-    Iterable<T>? iterable,
-    bool Function(T item) test,
-  ) {
+extension SentryIterableUtils<T> on Iterable<T>? {
+  T? get firstOrNull {
+    final iterator = this?.iterator;
+    if (iterator == null || !iterator.moveNext()) {
+      return null;
+    }
+    return iterator.current;
+  }
+
+  T? firstWhereOrNull(bool Function(T item) test) {
+    final iterable = this;
     if (iterable == null) {
       return null;
     }

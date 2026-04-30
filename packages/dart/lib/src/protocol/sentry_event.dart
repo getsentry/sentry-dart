@@ -1,9 +1,9 @@
-import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 import '../protocol.dart';
 import '../throwable_mechanism.dart';
 import '../utils.dart';
+import '../utils/iterable_utils.dart';
 import 'access_aware_map.dart';
 
 /// An event to be reported to Sentry.io.
@@ -415,6 +415,6 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   // Returns first non-null stack trace of this event
   @internal
   SentryStackTrace? get stacktrace =>
-      exceptions?.firstWhereOrNull((e) => e.stackTrace != null)?.stackTrace ??
-      threads?.firstWhereOrNull((t) => t.stacktrace != null)?.stacktrace;
+      exceptions.firstWhereOrNull((e) => e.stackTrace != null)?.stackTrace ??
+      threads.firstWhereOrNull((t) => t.stacktrace != null)?.stacktrace;
 }
