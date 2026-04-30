@@ -4,6 +4,7 @@ changelog:
       - skip-changelog
     authors:
       - dependabot[bot]
+      - dependabot
       - renovate
 
   categories:
