@@ -600,6 +600,43 @@ class SentryOptions {
   /// Enabling this option may change grouping.
   bool includeModuleInStackTrace = false;
 
+  /// Whether the SDK requires matching org IDs to continue an incoming trace.
+  ///
+  /// When `true`, both the SDK's org ID and the incoming baggage `sentry-org_id`
+  /// must be present and match for a trace to be continued. When `false`
+  /// (the default), a mismatch between present org IDs still starts a new
+  /// trace, but missing org IDs on either side are tolerated.
+  bool strictTraceContinuation = false;
+
+  /// The organization ID for your Sentry project.
+  ///
+  /// The SDK tries to extract the organization ID from the DSN automatically.
+  /// If it cannot be found, or if you need to override it, provide the ID
+  /// with this option. The organization ID is used for trace propagation and
+  /// for features like [strictTraceContinuation].
+  String? orgId;
+
+  /// The effective organization ID, preferring [orgId] over the DSN-parsed value.
+  ///
+  /// Empty or whitespace-only explicit [orgId] values are treated as unset
+  /// and fall back to the DSN.
+  @internal
+  String? get effectiveOrgId {
+    final explicit = orgId?.trim();
+    if (explicit != null && explicit.isNotEmpty) {
+      return explicit;
+    }
+    try {
+      final host = parsedDsn.uri?.host;
+      if (host != null) {
+        return extractOrgIdFromDsnHost(host);
+      }
+    } catch (_) {
+      // DSN may not be set or parseable
+    }
+    return null;
+  }
+
   @internal
   late SentryLogger logger = const NoOpSentryLogger();
 

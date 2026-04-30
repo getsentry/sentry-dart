@@ -97,6 +97,10 @@ class SentryBaggage {
     if (scope.replayId != null && scope.replayId != SentryId.empty()) {
       setReplayId(scope.replayId.toString());
     }
+    final effectiveOrgId = options.effectiveOrgId;
+    if (effectiveOrgId != null) {
+      setOrgId(effectiveOrgId);
+    }
   }
 
   static Map<String, String> _extractKeyValuesFromBaggageString(
@@ -194,6 +198,12 @@ class SentryBaggage {
 
     return double.tryParse(sampleRand);
   }
+
+  void setOrgId(String value) {
+    set('sentry-org_id', value);
+  }
+
+  String? getOrgId() => get('sentry-org_id');
 
   void setReplayId(String value) => set('sentry-replay_id', value);
 

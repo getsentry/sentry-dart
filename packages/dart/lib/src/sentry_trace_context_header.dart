@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'protocol/access_aware_map.dart';
 import 'utils/sample_rate_format.dart';
+import 'utils/type_safe_map_access.dart';
 
 class SentryTraceContextHeader {
   SentryTraceContextHeader(
@@ -17,6 +18,7 @@ class SentryTraceContextHeader {
     this.sampled,
     this.unknown,
     this.replayId,
+    this.orgId,
   });
 
   final SentryId traceId;
@@ -35,6 +37,9 @@ class SentryTraceContextHeader {
   @internal
   SentryId? replayId;
 
+  /// The organization ID associated with this trace.
+  final String? orgId;
+
   /// Deserializes a [SentryTraceContextHeader] from JSON [Map].
   factory SentryTraceContextHeader.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
@@ -49,6 +54,7 @@ class SentryTraceContextHeader {
       sampled: json['sampled'],
       replayId:
           json['replay_id'] == null ? null : SentryId.fromId(json['replay_id']),
+      orgId: json.getValueOrNull('org_id'),
       unknown: json.notAccessed(),
     );
   }
@@ -66,6 +72,7 @@ class SentryTraceContextHeader {
       if (sampleRate != null) 'sample_rate': sampleRate,
       if (sampled != null) 'sampled': sampled,
       if (replayId != null) 'replay_id': replayId.toString(),
+      if (orgId != null) 'org_id': orgId,
     };
   }
 
@@ -98,6 +105,9 @@ class SentryTraceContextHeader {
     if (replayId != null) {
       baggage.setReplayId(replayId.toString());
     }
+    if (orgId != null) {
+      baggage.setOrgId(orgId!);
+    }
     return baggage;
   }
 
@@ -109,6 +119,7 @@ class SentryTraceContextHeader {
       release: baggage.get('sentry-release'),
       environment: baggage.get('sentry-environment'),
       replayId: baggage.getReplayId(),
+      orgId: baggage.getOrgId(),
     );
   }
 
@@ -134,6 +145,7 @@ class SentryTraceContextHeader {
       sampleRand: span.samplingDecision.sampleRand?.toString(),
       sampled: span.samplingDecision.sampled.toString(),
       replayId: replayId,
+      orgId: options.effectiveOrgId,
     );
   }
 }
