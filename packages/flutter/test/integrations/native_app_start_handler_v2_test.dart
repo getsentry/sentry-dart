@@ -1,6 +1,5 @@
 // ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
-import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';

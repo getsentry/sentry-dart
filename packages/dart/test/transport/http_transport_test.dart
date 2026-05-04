@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sentry/sentry.dart';

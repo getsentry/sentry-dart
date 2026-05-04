@@ -415,6 +415,6 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   // Returns first non-null stack trace of this event
   @internal
   SentryStackTrace? get stacktrace =>
-      exceptions.firstWhereOrNull((e) => e.stackTrace != null)?.stackTrace ??
-      threads.firstWhereOrNull((t) => t.stacktrace != null)?.stacktrace;
+      exceptions?.firstWhereOrNull((e) => e.stackTrace != null)?.stackTrace ??
+      threads?.firstWhereOrNull((t) => t.stacktrace != null)?.stacktrace;
 }

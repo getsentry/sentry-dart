@@ -52,7 +52,7 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
       // https://api.dart.dev/stable/dart-io/SocketException/osError.html
       // https://api.dart.dev/stable/dart-io/OSError-class.html
       osException = _sentryExceptionFromOsError(osError);
-      final exception = event.exceptions.firstOrNull;
+      final exception = event.exceptions?.firstOrNull;
       if (exception != null) {
         exception.addException(osException);
       } else {
@@ -100,7 +100,7 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
       // https://api.dart.dev/stable/dart-io/SocketException/osError.html
       // https://api.dart.dev/stable/dart-io/OSError-class.html
       final osException = _sentryExceptionFromOsError(osError);
-      final exception = event.exceptions.firstOrNull;
+      final exception = event.exceptions?.firstOrNull;
       if (exception != null) {
         exception.addException(osException);
       } else {
