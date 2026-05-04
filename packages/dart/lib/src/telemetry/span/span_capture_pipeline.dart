@@ -38,6 +38,8 @@ class SpanCapturePipeline {
           span.addAttributesIfAbsent({
             SemanticAttributesConstants.sentrySegmentName:
                 SentryAttribute.string(span.segmentSpan.name),
+            SemanticAttributesConstants.sentryTransaction:
+                SentryAttribute.string(span.segmentSpan.name),
             SemanticAttributesConstants.sentrySegmentId:
                 SentryAttribute.string(span.segmentSpan.spanId.toString()),
           });
