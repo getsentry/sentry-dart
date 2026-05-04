@@ -302,6 +302,30 @@ void main() {
         );
       }
     });
+
+    test('all app start spans have app start type', () async {
+      await fixture.call();
+
+      final appStartSpanNames = [
+        'Cold Start',
+        'App start to plugin registration',
+        'Before Sentry Init Setup',
+        'First frame render',
+        'native span 1',
+        'native span 2',
+      ];
+
+      for (final name in appStartSpanNames) {
+        final span = fixture.findSpanByName(name);
+        expect(span, isNotNull, reason: 'Expected span: $name');
+        expect(
+          span!.attributes[SemanticAttributesConstants.appVitalsStartType]
+              ?.value,
+          'cold',
+          reason: 'Wrong app start type for span: $name',
+        );
+      }
+    });
   });
 }
 
