@@ -400,6 +400,9 @@ class Fixture {
   }
 
   RecordingSentrySpanV2? findSpanByName(String name) {
-    return capturedSpans.firstWhereOrNull((s) => s.name == name);
+    return SentryIterableUtils.firstWhereOrNull(
+      capturedSpans,
+      (s) => s.name == name,
+    );
   }
 }

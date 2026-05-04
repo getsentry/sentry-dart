@@ -231,13 +231,15 @@ void main() {
 
     expect(fixture.mockRecorder.discardedEvents.length, 2);
 
-    final transactionDiscardedEvent = fixture.mockRecorder.discardedEvents
-        .firstWhereOrNull((element) =>
+    final transactionDiscardedEvent = SentryIterableUtils.firstWhereOrNull(
+        fixture.mockRecorder.discardedEvents,
+        (element) =>
             element.category == DataCategory.transaction &&
             element.reason == DiscardReason.rateLimitBackoff);
 
-    final spanDiscardedEvent = fixture.mockRecorder.discardedEvents
-        .firstWhereOrNull((element) =>
+    final spanDiscardedEvent = SentryIterableUtils.firstWhereOrNull(
+        fixture.mockRecorder.discardedEvents,
+        (element) =>
             element.category == DataCategory.span &&
             element.reason == DiscardReason.rateLimitBackoff);
 

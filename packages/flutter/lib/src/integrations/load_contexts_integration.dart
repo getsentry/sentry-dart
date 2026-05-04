@@ -43,7 +43,8 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
     // - user-set context values
     // - context values set from native (this)
     // - values set from IOEnricherEventProcessor
-    final enricherEventProcessor = options.eventProcessors.firstWhereOrNull(
+    final enricherEventProcessor = SentryIterableUtils.firstWhereOrNull(
+      options.eventProcessors,
       (element) => element is EnricherEventProcessor,
     );
     if (enricherEventProcessor != null) {

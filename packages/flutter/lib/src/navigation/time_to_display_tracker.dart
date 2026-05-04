@@ -89,12 +89,14 @@ class TimeToDisplayTracker {
   // away from the current route before TTFD or TTID is finished.
   Future<void> cancelUnfinishedSpans(
       SentryTracer transaction, DateTime endTimestamp) async {
-    final ttidSpan = transaction.children.firstWhereOrNull(
+    final ttidSpan = SentryIterableUtils.firstWhereOrNull(
+      transaction.children,
       (child) =>
           child.context.operation ==
           SentrySpanOperations.uiTimeToInitialDisplay,
     );
-    final ttfdSpan = transaction.children.firstWhereOrNull(
+    final ttfdSpan = SentryIterableUtils.firstWhereOrNull(
+      transaction.children,
       (child) =>
           child.context.operation == SentrySpanOperations.uiTimeToFullDisplay,
     );

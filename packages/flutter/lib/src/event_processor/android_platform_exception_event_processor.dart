@@ -89,7 +89,10 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     MapEntry<SentryException, List<SentryThread>>? detailsStackTrace,
   ) {
     _markDartThreadsAsNonCrashed(event.threads);
-    final exception = event.exceptions?.firstOrNull;
+    final eventExceptions = event.exceptions;
+    final exception = eventExceptions == null
+        ? null
+        : SentryIterableUtils.firstOrNull(eventExceptions);
 
     // Assumption is that the first exception is the original exception and there is only one.
     if (exception == null) {

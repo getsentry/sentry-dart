@@ -455,7 +455,10 @@ String? _getDefaultCrashpadPath() {
         '$appDir${Platform.pathSeparator}bin${Platform.pathSeparator}crashpad_handler',
         '$appDir${Platform.pathSeparator}lib${Platform.pathSeparator}crashpad_handler'
       ];
-      return candidates.firstWhereOrNull((path) => File(path).existsSync());
+      return SentryIterableUtils.firstWhereOrNull(
+        candidates,
+        (path) => File(path).existsSync(),
+      );
     }
   }
   return null;

@@ -98,9 +98,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
     _timeToDisplayTracker = _initializeTimeToDisplayTracker();
     _timeToDisplayTrackerV2 = _initializeTimeToDisplayTrackerV2();
-    final webSessionIntegration = _hub.options.integrations
-        .whereType<WebSessionIntegration>()
-        .firstOrNull;
+    final webSessionIntegration = SentryIterableUtils.firstOrNull(
+      _hub.options.integrations.whereType<WebSessionIntegration>(),
+    );
     webSessionIntegration?.enable();
     _webSessionHandler = webSessionIntegration?.webSessionHandler;
   }

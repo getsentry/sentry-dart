@@ -41,14 +41,16 @@ void testConfiguration({
   Integration? nativeIntegration;
   Integration? loadDebugImagesIntegration;
   if (kIsWeb) {
-    nativeIntegration = integrations.firstWhereOrNull(
-        (x) => x.runtimeType.toString() == 'WebSdkIntegration');
-    loadDebugImagesIntegration = integrations.firstWhereOrNull(
+    nativeIntegration = SentryIterableUtils.firstWhereOrNull(
+        integrations, (x) => x.runtimeType.toString() == 'WebSdkIntegration');
+    loadDebugImagesIntegration = SentryIterableUtils.firstWhereOrNull(
+        integrations,
         (x) => x.runtimeType.toString() == 'LoadWebDebugImagesIntegration');
   } else {
-    nativeIntegration = integrations.firstWhereOrNull(
+    nativeIntegration = SentryIterableUtils.firstWhereOrNull(integrations,
         (x) => x.runtimeType.toString() == 'NativeSdkIntegration');
-    loadDebugImagesIntegration = integrations.firstWhereOrNull(
+    loadDebugImagesIntegration = SentryIterableUtils.firstWhereOrNull(
+        integrations,
         (x) => x.runtimeType.toString() == 'LoadNativeDebugImagesIntegration');
   }
   expect(loadDebugImagesIntegration, isNotNull);

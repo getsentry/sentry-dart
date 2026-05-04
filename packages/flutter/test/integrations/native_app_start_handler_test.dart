@@ -88,16 +88,21 @@ void main() {
 
       final spans = transaction.spans;
 
-      final appStartSpan = spans.firstWhereOrNull(
-          (element) => element.context.description == 'Cold Start');
+      final appStartSpan = SentryIterableUtils.firstWhereOrNull(
+          spans, (element) => element.context.description == 'Cold Start');
 
-      final pluginRegistrationSpan = spans.firstWhereOrNull((element) =>
-          element.context.description == 'App start to plugin registration');
+      final pluginRegistrationSpan = SentryIterableUtils.firstWhereOrNull(
+          spans,
+          (element) =>
+              element.context.description ==
+              'App start to plugin registration');
 
-      final sentrySetupSpan = spans.firstWhereOrNull((element) =>
-          element.context.description == 'Before Sentry Init Setup');
+      final sentrySetupSpan = SentryIterableUtils.firstWhereOrNull(
+          spans,
+          (element) =>
+              element.context.description == 'Before Sentry Init Setup');
 
-      final firstFrameRenderSpan = spans.firstWhereOrNull(
+      final firstFrameRenderSpan = SentryIterableUtils.firstWhereOrNull(spans,
           (element) => element.context.description == 'First frame render');
 
       expect(appStartSpan, isNotNull);
@@ -208,12 +213,17 @@ void main() {
 
       final transaction = fixture.capturedTransaction();
 
-      final ttidSpan = transaction.spans.firstWhereOrNull((child) =>
-          child.context.operation ==
-          SentrySpanOperations.uiTimeToInitialDisplay);
+      final ttidSpan = SentryIterableUtils.firstWhereOrNull(
+          transaction.spans,
+          (child) =>
+              child.context.operation ==
+              SentrySpanOperations.uiTimeToInitialDisplay);
 
-      final ttfdSpan = transaction.spans.firstWhereOrNull((child) =>
-          child.context.operation == SentrySpanOperations.uiTimeToFullDisplay);
+      final ttfdSpan = SentryIterableUtils.firstWhereOrNull(
+          transaction.spans,
+          (child) =>
+              child.context.operation ==
+              SentrySpanOperations.uiTimeToFullDisplay);
 
       expect(ttidSpan, isNotNull);
       expect(ttfdSpan, isNotNull);
@@ -397,16 +407,21 @@ void main() {
 
       final spans = enriched.spans;
 
-      coldStartSpan = spans.firstWhereOrNull(
-          (element) => element.context.description == 'Cold Start');
+      coldStartSpan = SentryIterableUtils.firstWhereOrNull(
+          spans, (element) => element.context.description == 'Cold Start');
 
-      pluginRegistrationSpan = spans.firstWhereOrNull((element) =>
-          element.context.description == 'App start to plugin registration');
+      pluginRegistrationSpan = SentryIterableUtils.firstWhereOrNull(
+          spans,
+          (element) =>
+              element.context.description ==
+              'App start to plugin registration');
 
-      sentrySetupSpan = spans.firstWhereOrNull((element) =>
-          element.context.description == 'Before Sentry Init Setup');
+      sentrySetupSpan = SentryIterableUtils.firstWhereOrNull(
+          spans,
+          (element) =>
+              element.context.description == 'Before Sentry Init Setup');
 
-      firstFrameRenderSpan = spans.firstWhereOrNull(
+      firstFrameRenderSpan = SentryIterableUtils.firstWhereOrNull(spans,
           (element) => element.context.description == 'First frame render');
     });
 

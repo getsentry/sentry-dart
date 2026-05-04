@@ -117,14 +117,15 @@ void main() {
 
       await sut.send(envelope);
 
-      final transactionDiscardedEvent = fixture
-          .clientReportRecorder.discardedEvents
-          .firstWhereOrNull((element) =>
+      final transactionDiscardedEvent = SentryIterableUtils.firstWhereOrNull(
+          fixture.clientReportRecorder.discardedEvents,
+          (element) =>
               element.category == DataCategory.transaction &&
               element.reason == DiscardReason.networkError);
 
-      final spanDiscardedEvent = fixture.clientReportRecorder.discardedEvents
-          .firstWhereOrNull((element) =>
+      final spanDiscardedEvent = SentryIterableUtils.firstWhereOrNull(
+          fixture.clientReportRecorder.discardedEvents,
+          (element) =>
               element.category == DataCategory.span &&
               element.reason == DiscardReason.networkError);
 
@@ -258,14 +259,15 @@ void main() {
       );
       await sut.send(envelope);
 
-      final transactionDiscardedEvent = fixture
-          .clientReportRecorder.discardedEvents
-          .firstWhereOrNull((element) =>
+      final transactionDiscardedEvent = SentryIterableUtils.firstWhereOrNull(
+          fixture.clientReportRecorder.discardedEvents,
+          (element) =>
               element.category == DataCategory.transaction &&
               element.reason == DiscardReason.networkError);
 
-      final spanDiscardedEvent = fixture.clientReportRecorder.discardedEvents
-          .firstWhereOrNull((element) =>
+      final spanDiscardedEvent = SentryIterableUtils.firstWhereOrNull(
+          fixture.clientReportRecorder.discardedEvents,
+          (element) =>
               element.category == DataCategory.span &&
               element.reason == DiscardReason.networkError);
 

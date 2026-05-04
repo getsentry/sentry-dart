@@ -178,7 +178,8 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
       return null;
     }
 
-    final frame = stackTrace.frames.firstWhereOrNull(
+    final frame = SentryIterableUtils.firstWhereOrNull(
+      stackTrace.frames,
       (frame) =>
           debugIdMap.containsKey(frame.absPath) ||
           debugIdMap.containsKey(frame.fileName),

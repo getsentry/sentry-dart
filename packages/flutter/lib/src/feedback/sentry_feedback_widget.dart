@@ -107,7 +107,8 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
   Future<void> _captureReplay() async {
     final integrations = widget._hub.options.integrations;
-    final replayIntegration = integrations.firstWhereOrNull(
+    final replayIntegration = SentryIterableUtils.firstWhereOrNull(
+      integrations,
       (element) => element is ReplayIntegration,
     ) as ReplayIntegration?;
     if (replayIntegration != null) {

@@ -2245,7 +2245,8 @@ void main() {
       await sut.captureEvent(fakeEvent, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+      final attachmentItem = SentryIterableUtils.firstWhereOrNull(
+        capturedEnvelope.items,
         (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
       );
       expect(attachmentItem?.header.attachmentType,
@@ -2261,7 +2262,8 @@ void main() {
       await sut.captureFeedback(fakeFeedback, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+      final attachmentItem = SentryIterableUtils.firstWhereOrNull(
+        capturedEnvelope.items,
         (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
       );
       expect(attachmentItem?.header.attachmentType,
@@ -2304,8 +2306,10 @@ void main() {
       await client.captureEvent(fakeEvent, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
+      final attachmentItem = SentryIterableUtils.firstWhereOrNull(
+        capturedEnvelope.items,
+        (element) => element.header.type == SentryItemType.attachment,
+      );
       expect(attachmentItem?.header.fileName, 'screenshot.png');
     });
 
@@ -2319,8 +2323,10 @@ void main() {
       await client.captureFeedback(fakeFeedback, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
+      final attachmentItem = SentryIterableUtils.firstWhereOrNull(
+        capturedEnvelope.items,
+        (element) => element.header.type == SentryItemType.attachment,
+      );
       expect(attachmentItem?.header.fileName, 'screenshot.png');
     });
 
@@ -2333,8 +2339,10 @@ void main() {
       await client.captureEvent(fakeEvent, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
+      final attachmentItem = SentryIterableUtils.firstWhereOrNull(
+        capturedEnvelope.items,
+        (element) => element.header.type == SentryItemType.attachment,
+      );
 
       expect(attachmentItem?.header.attachmentType,
           SentryAttachment.typeViewHierarchy);
@@ -2350,7 +2358,8 @@ void main() {
       await client.captureFeedback(fakeFeedback, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+      final attachmentItem = SentryIterableUtils.firstWhereOrNull(
+        capturedEnvelope.items,
         (element) => element.header.type == SentryItemType.attachment,
       );
       expect(attachmentItem, isNull);

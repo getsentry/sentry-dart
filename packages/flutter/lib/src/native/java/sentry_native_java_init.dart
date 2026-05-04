@@ -65,7 +65,7 @@ native.SentryOptions$BeforeSendReplayCallback createBeforeSendReplayCallback(
           final data = hint
               .getReplayRecording()
               ?.getPayload()
-              ?.use((payload) => payload.firstOrNull)
+              ?.use(SentryIterableUtils.firstOrNull)
             ?..releasedBy(arena);
           if (data is native.$RRWebOptionsEvent$Type) {
             final payload = data

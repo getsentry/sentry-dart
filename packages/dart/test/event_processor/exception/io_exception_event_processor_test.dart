@@ -105,7 +105,10 @@ void main() {
       final rootException = event?.exceptions?.first;
       expect(rootException, sentryException);
 
-      final childException = rootException?.exceptions?.firstOrNull;
+      final childExceptions = rootException?.exceptions;
+      final childException = childExceptions == null
+          ? null
+          : SentryIterableUtils.firstOrNull(childExceptions);
       // Due to the test setup, there's no SentryException for the FileSystemException.
       // And thus only one entry for the added OSError
       expect(childException?.type, 'OSError');

@@ -39,7 +39,8 @@ class FakeTelemetryProcessor implements TelemetryProcessor {
   }
 
   RecordingSentrySpanV2? findSpanByOperation(String operation) {
-    return capturedSpans.firstWhereOrNull(
+    return SentryIterableUtils.firstWhereOrNull(
+      capturedSpans,
       (span) =>
           span.attributes[SemanticAttributesConstants.sentryOp]?.value ==
           operation,
