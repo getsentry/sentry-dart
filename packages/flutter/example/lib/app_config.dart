@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 const String exampleDsn =
     'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
 
+/// This is an exampleUrl that will be used to demonstrate how http requests are captured.
 const String exampleUrl = 'https://jsonplaceholder.typicode.com/todos/';
 
 const _methodChannel = MethodChannel('example.flutter.sentry.io');
