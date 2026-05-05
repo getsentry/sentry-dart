@@ -23,6 +23,7 @@ Podfile.lock
 
 .gradle
 packages/flutter/.gradle
+packages/link/devtools_options.yaml
 
 # Local Claude Code settings that should not be committed
 .claude/settings.local.json
