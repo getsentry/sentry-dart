@@ -6,6 +6,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/http_transport.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
 
 import '../mocks.dart';
@@ -117,15 +118,14 @@ void main() {
 
       await sut.send(envelope);
 
-      final transactionDiscardedEvent = SentryIterableUtils.firstWhereOrNull(
-          fixture.clientReportRecorder.discardedEvents,
-          (element) =>
+      final transactionDiscardedEvent = fixture
+          .clientReportRecorder.discardedEvents
+          .firstWhereOrNull((element) =>
               element.category == DataCategory.transaction &&
               element.reason == DiscardReason.networkError);
 
-      final spanDiscardedEvent = SentryIterableUtils.firstWhereOrNull(
-          fixture.clientReportRecorder.discardedEvents,
-          (element) =>
+      final spanDiscardedEvent = fixture.clientReportRecorder.discardedEvents
+          .firstWhereOrNull((element) =>
               element.category == DataCategory.span &&
               element.reason == DiscardReason.networkError);
 
@@ -259,15 +259,14 @@ void main() {
       );
       await sut.send(envelope);
 
-      final transactionDiscardedEvent = SentryIterableUtils.firstWhereOrNull(
-          fixture.clientReportRecorder.discardedEvents,
-          (element) =>
+      final transactionDiscardedEvent = fixture
+          .clientReportRecorder.discardedEvents
+          .firstWhereOrNull((element) =>
               element.category == DataCategory.transaction &&
               element.reason == DiscardReason.networkError);
 
-      final spanDiscardedEvent = SentryIterableUtils.firstWhereOrNull(
-          fixture.clientReportRecorder.discardedEvents,
-          (element) =>
+      final spanDiscardedEvent = fixture.clientReportRecorder.discardedEvents
+          .firstWhereOrNull((element) =>
               element.category == DataCategory.span &&
               element.reason == DiscardReason.networkError);
 

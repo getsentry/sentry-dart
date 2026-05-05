@@ -7,6 +7,8 @@ import 'time_to_full_display_tracker.dart';
 import 'time_to_initial_display_tracker.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 
 @internal
 class TimeToDisplayTracker {
@@ -89,14 +91,12 @@ class TimeToDisplayTracker {
   // away from the current route before TTFD or TTID is finished.
   Future<void> cancelUnfinishedSpans(
       SentryTracer transaction, DateTime endTimestamp) async {
-    final ttidSpan = SentryIterableUtils.firstWhereOrNull(
-      transaction.children,
+    final ttidSpan = transaction.children.firstWhereOrNull(
       (child) =>
           child.context.operation ==
           SentrySpanOperations.uiTimeToInitialDisplay,
     );
-    final ttfdSpan = SentryIterableUtils.firstWhereOrNull(
-      transaction.children,
+    final ttfdSpan = transaction.children.firstWhereOrNull(
       (child) =>
           child.context.operation == SentrySpanOperations.uiTimeToFullDisplay,
     );

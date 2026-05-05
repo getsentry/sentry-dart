@@ -4,6 +4,7 @@ import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_client_report_recorder.dart';
@@ -231,15 +232,13 @@ void main() {
 
     expect(fixture.mockRecorder.discardedEvents.length, 2);
 
-    final transactionDiscardedEvent = SentryIterableUtils.firstWhereOrNull(
-        fixture.mockRecorder.discardedEvents,
-        (element) =>
+    final transactionDiscardedEvent = fixture.mockRecorder.discardedEvents
+        .firstWhereOrNull((element) =>
             element.category == DataCategory.transaction &&
             element.reason == DiscardReason.rateLimitBackoff);
 
-    final spanDiscardedEvent = SentryIterableUtils.firstWhereOrNull(
-        fixture.mockRecorder.discardedEvents,
-        (element) =>
+    final spanDiscardedEvent = fixture.mockRecorder.discardedEvents
+        .firstWhereOrNull((element) =>
             element.category == DataCategory.span &&
             element.reason == DiscardReason.rateLimitBackoff);
 

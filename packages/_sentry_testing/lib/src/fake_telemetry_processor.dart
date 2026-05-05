@@ -4,6 +4,8 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 
 /// Fake telemetry processor that captures telemetry data for test assertions.
 ///
@@ -39,8 +41,7 @@ class FakeTelemetryProcessor implements TelemetryProcessor {
   }
 
   RecordingSentrySpanV2? findSpanByOperation(String operation) {
-    return SentryIterableUtils.firstWhereOrNull(
-      capturedSpans,
+    return capturedSpans.firstWhereOrNull(
       (span) =>
           span.attributes[SemanticAttributesConstants.sentryOp]?.value ==
           operation,

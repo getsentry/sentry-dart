@@ -5,8 +5,9 @@ import 'dart:io';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/exception/io_exception_event_processor.dart';
-import 'package:test/test.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
+import 'package:sentry/src/utils/iterable_utils.dart';
+import 'package:test/test.dart';
 
 import '../../test_utils.dart';
 
@@ -105,10 +106,7 @@ void main() {
       final rootException = event?.exceptions?.first;
       expect(rootException, sentryException);
 
-      final childExceptions = rootException?.exceptions;
-      final childException = childExceptions == null
-          ? null
-          : SentryIterableUtils.firstOrNull(childExceptions);
+      final childException = rootException?.exceptions?.firstOrNull;
       // Due to the test setup, there's no SentryException for the FileSystemException.
       // And thus only one entry for the added OSError
       expect(childException?.type, 'OSError');

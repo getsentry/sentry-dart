@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import '../../sentry_flutter.dart';
 import 'package:meta/meta.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'sentry_feedback_options.dart';
 import 'package:flutter/services.dart';
 import 'sentry_logo.dart';
@@ -107,8 +109,7 @@ class _SentryFeedbackWidgetState extends State<SentryFeedbackWidget> {
 
   Future<void> _captureReplay() async {
     final integrations = widget._hub.options.integrations;
-    final replayIntegration = SentryIterableUtils.firstWhereOrNull(
-      integrations,
+    final replayIntegration = integrations.firstWhereOrNull(
       (element) => element is ReplayIntegration,
     ) as ReplayIntegration?;
     if (replayIntegration != null) {

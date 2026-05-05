@@ -3,6 +3,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_handler_v2.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
@@ -400,8 +402,7 @@ class Fixture {
   }
 
   RecordingSentrySpanV2? findSpanByName(String name) {
-    return SentryIterableUtils.firstWhereOrNull(
-      capturedSpans,
+    return capturedSpans.firstWhereOrNull(
       (s) => s.name == name,
     );
   }

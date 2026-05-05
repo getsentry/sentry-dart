@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:sentry_flutter/src/native/native_scope_observer.dart';
 
 void testScopeObserver(
@@ -41,16 +43,14 @@ void testConfiguration({
   Integration? nativeIntegration;
   Integration? loadDebugImagesIntegration;
   if (kIsWeb) {
-    nativeIntegration = SentryIterableUtils.firstWhereOrNull(
-        integrations, (x) => x.runtimeType.toString() == 'WebSdkIntegration');
-    loadDebugImagesIntegration = SentryIterableUtils.firstWhereOrNull(
-        integrations,
+    nativeIntegration = integrations.firstWhereOrNull(
+        (x) => x.runtimeType.toString() == 'WebSdkIntegration');
+    loadDebugImagesIntegration = integrations.firstWhereOrNull(
         (x) => x.runtimeType.toString() == 'LoadWebDebugImagesIntegration');
   } else {
-    nativeIntegration = SentryIterableUtils.firstWhereOrNull(integrations,
+    nativeIntegration = integrations.firstWhereOrNull(
         (x) => x.runtimeType.toString() == 'NativeSdkIntegration');
-    loadDebugImagesIntegration = SentryIterableUtils.firstWhereOrNull(
-        integrations,
+    loadDebugImagesIntegration = integrations.firstWhereOrNull(
         (x) => x.runtimeType.toString() == 'LoadNativeDebugImagesIntegration');
   }
   expect(loadDebugImagesIntegration, isNotNull);

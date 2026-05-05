@@ -15,6 +15,7 @@ import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
 import 'package:sentry/src/telemetry/span/span_capture_pipeline.dart';
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:http/http.dart' as http;
@@ -2245,8 +2246,7 @@ void main() {
       await sut.captureEvent(fakeEvent, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = SentryIterableUtils.firstWhereOrNull(
-        capturedEnvelope.items,
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
         (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
       );
       expect(attachmentItem?.header.attachmentType,
@@ -2262,8 +2262,7 @@ void main() {
       await sut.captureFeedback(fakeFeedback, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = SentryIterableUtils.firstWhereOrNull(
-        capturedEnvelope.items,
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
         (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
       );
       expect(attachmentItem?.header.attachmentType,
@@ -2306,8 +2305,7 @@ void main() {
       await client.captureEvent(fakeEvent, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = SentryIterableUtils.firstWhereOrNull(
-        capturedEnvelope.items,
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
         (element) => element.header.type == SentryItemType.attachment,
       );
       expect(attachmentItem?.header.fileName, 'screenshot.png');
@@ -2323,8 +2321,7 @@ void main() {
       await client.captureFeedback(fakeFeedback, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = SentryIterableUtils.firstWhereOrNull(
-        capturedEnvelope.items,
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
         (element) => element.header.type == SentryItemType.attachment,
       );
       expect(attachmentItem?.header.fileName, 'screenshot.png');
@@ -2339,8 +2336,7 @@ void main() {
       await client.captureEvent(fakeEvent, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = SentryIterableUtils.firstWhereOrNull(
-        capturedEnvelope.items,
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
         (element) => element.header.type == SentryItemType.attachment,
       );
 
@@ -2358,8 +2354,7 @@ void main() {
       await client.captureFeedback(fakeFeedback, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = SentryIterableUtils.firstWhereOrNull(
-        capturedEnvelope.items,
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
         (element) => element.header.type == SentryItemType.attachment,
       );
       expect(attachmentItem, isNull);

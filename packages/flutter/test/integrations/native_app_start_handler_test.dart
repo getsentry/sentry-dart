@@ -8,6 +8,8 @@ import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_handler.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 
@@ -88,21 +90,16 @@ void main() {
 
       final spans = transaction.spans;
 
-      final appStartSpan = SentryIterableUtils.firstWhereOrNull(
-          spans, (element) => element.context.description == 'Cold Start');
+      final appStartSpan = spans.firstWhereOrNull(
+          (element) => element.context.description == 'Cold Start');
 
-      final pluginRegistrationSpan = SentryIterableUtils.firstWhereOrNull(
-          spans,
-          (element) =>
-              element.context.description ==
-              'App start to plugin registration');
+      final pluginRegistrationSpan = spans.firstWhereOrNull((element) =>
+          element.context.description == 'App start to plugin registration');
 
-      final sentrySetupSpan = SentryIterableUtils.firstWhereOrNull(
-          spans,
-          (element) =>
-              element.context.description == 'Before Sentry Init Setup');
+      final sentrySetupSpan = spans.firstWhereOrNull((element) =>
+          element.context.description == 'Before Sentry Init Setup');
 
-      final firstFrameRenderSpan = SentryIterableUtils.firstWhereOrNull(spans,
+      final firstFrameRenderSpan = spans.firstWhereOrNull(
           (element) => element.context.description == 'First frame render');
 
       expect(appStartSpan, isNotNull);
@@ -213,17 +210,12 @@ void main() {
 
       final transaction = fixture.capturedTransaction();
 
-      final ttidSpan = SentryIterableUtils.firstWhereOrNull(
-          transaction.spans,
-          (child) =>
-              child.context.operation ==
-              SentrySpanOperations.uiTimeToInitialDisplay);
+      final ttidSpan = transaction.spans.firstWhereOrNull((child) =>
+          child.context.operation ==
+          SentrySpanOperations.uiTimeToInitialDisplay);
 
-      final ttfdSpan = SentryIterableUtils.firstWhereOrNull(
-          transaction.spans,
-          (child) =>
-              child.context.operation ==
-              SentrySpanOperations.uiTimeToFullDisplay);
+      final ttfdSpan = transaction.spans.firstWhereOrNull((child) =>
+          child.context.operation == SentrySpanOperations.uiTimeToFullDisplay);
 
       expect(ttidSpan, isNotNull);
       expect(ttfdSpan, isNotNull);
@@ -407,21 +399,16 @@ void main() {
 
       final spans = enriched.spans;
 
-      coldStartSpan = SentryIterableUtils.firstWhereOrNull(
-          spans, (element) => element.context.description == 'Cold Start');
+      coldStartSpan = spans.firstWhereOrNull(
+          (element) => element.context.description == 'Cold Start');
 
-      pluginRegistrationSpan = SentryIterableUtils.firstWhereOrNull(
-          spans,
-          (element) =>
-              element.context.description ==
-              'App start to plugin registration');
+      pluginRegistrationSpan = spans.firstWhereOrNull((element) =>
+          element.context.description == 'App start to plugin registration');
 
-      sentrySetupSpan = SentryIterableUtils.firstWhereOrNull(
-          spans,
-          (element) =>
-              element.context.description == 'Before Sentry Init Setup');
+      sentrySetupSpan = spans.firstWhereOrNull((element) =>
+          element.context.description == 'Before Sentry Init Setup');
 
-      firstFrameRenderSpan = SentryIterableUtils.firstWhereOrNull(spans,
+      firstFrameRenderSpan = spans.firstWhereOrNull(
           (element) => element.context.description == 'First frame render');
     });
 

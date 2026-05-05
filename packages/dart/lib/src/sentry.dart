@@ -522,9 +522,9 @@ class Sentry {
       return;
     }
 
-    final featureFlagsIntegration = SentryIterableUtils.firstOrNull(
-      currentHub.options.integrations.whereType<FeatureFlagsIntegration>(),
-    );
+    final featureFlagsIntegration = currentHub.options.integrations
+        .whereType<FeatureFlagsIntegration>()
+        .firstOrNull;
 
     if (featureFlagsIntegration == null) {
       currentHub.options.log(

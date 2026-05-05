@@ -8,6 +8,9 @@ Core Dart SDK — foundation for all other packages in this monorepo.
 
 - Every new public type must be exported from `lib/sentry.dart`
 - Integration packages (`sentry_flutter`, `sentry_dio`, etc.) depend on this package — regressions here cascade everywhere
+- Do not export internal helpers from `lib/sentry.dart` only for sibling packages; prefer direct `src/` imports within this monorepo when the API is not meant for SDK users
+- Avoid exporting extensions on common Dart/core types like `Iterable`, `String`, or `Map`; they affect user extension resolution and can conflict with `dart:*` or popular packages
+- If a helper truly must be public, prefer an explicit named API over extension methods for common types
 
 ## Key Directories
 

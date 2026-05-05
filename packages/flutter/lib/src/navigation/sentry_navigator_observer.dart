@@ -7,6 +7,8 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../sentry_flutter.dart';
 import '../event_processor/flutter_enricher_event_processor.dart';
@@ -98,9 +100,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
     _timeToDisplayTracker = _initializeTimeToDisplayTracker();
     _timeToDisplayTrackerV2 = _initializeTimeToDisplayTrackerV2();
-    final webSessionIntegration = SentryIterableUtils.firstOrNull(
-      _hub.options.integrations.whereType<WebSessionIntegration>(),
-    );
+    final webSessionIntegration = _hub.options.integrations
+        .whereType<WebSessionIntegration>()
+        .firstOrNull;
     webSessionIntegration?.enable();
     _webSessionHandler = webSessionIntegration?.webSessionHandler;
   }
