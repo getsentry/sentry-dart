@@ -9,6 +9,11 @@ on:
         description: Which version to notify issues for
         required: true
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
 jobs:
   release-comment-issues:
     runs-on: ubuntu-24.04
