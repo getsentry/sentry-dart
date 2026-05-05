@@ -1,7 +1,8 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:sentry_flutter/src/native/native_scope_observer.dart';
 
 void testScopeObserver(

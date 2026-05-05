@@ -5,8 +5,9 @@ import 'dart:io';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/exception/io_exception_event_processor.dart';
-import 'package:test/test.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
+import 'package:sentry/src/utils/iterable_utils.dart';
+import 'package:test/test.dart';
 
 import '../../test_utils.dart';
 

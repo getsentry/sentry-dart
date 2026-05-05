@@ -1,11 +1,14 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:collection/collection.dart';
 import 'package:ffi/ffi.dart';
 import 'package:meta/meta.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
@@ -454,7 +457,9 @@ String? _getDefaultCrashpadPath() {
         '$appDir${Platform.pathSeparator}bin${Platform.pathSeparator}crashpad_handler',
         '$appDir${Platform.pathSeparator}lib${Platform.pathSeparator}crashpad_handler'
       ];
-      return candidates.firstWhereOrNull((path) => File(path).existsSync());
+      return candidates.firstWhereOrNull(
+        (path) => File(path).existsSync(),
+      );
     }
   }
   return null;

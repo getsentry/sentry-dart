@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
@@ -15,8 +14,8 @@ import 'package:sentry/src/transport/client_report_transport.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/noop_transport.dart';
 import 'package:sentry/src/transport/spotlight_http_transport.dart';
-import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:sentry/src/telemetry/span/span_capture_pipeline.dart';
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:http/http.dart' as http;
@@ -2247,8 +2246,7 @@ void main() {
       await sut.captureEvent(fakeEvent, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = IterableUtils.firstWhereOrNull(
-        capturedEnvelope.items,
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
         (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
       );
       expect(attachmentItem?.header.attachmentType,
@@ -2264,8 +2262,7 @@ void main() {
       await sut.captureFeedback(fakeFeedback, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = IterableUtils.firstWhereOrNull(
-        capturedEnvelope.items,
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
         (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
       );
       expect(attachmentItem?.header.attachmentType,
@@ -2309,7 +2306,8 @@ void main() {
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
+        (element) => element.header.type == SentryItemType.attachment,
+      );
       expect(attachmentItem?.header.fileName, 'screenshot.png');
     });
 
@@ -2324,7 +2322,8 @@ void main() {
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
+        (element) => element.header.type == SentryItemType.attachment,
+      );
       expect(attachmentItem?.header.fileName, 'screenshot.png');
     });
 
@@ -2338,7 +2337,8 @@ void main() {
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
+        (element) => element.header.type == SentryItemType.attachment,
+      );
 
       expect(attachmentItem?.header.attachmentType,
           SentryAttachment.typeViewHierarchy);
