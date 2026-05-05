@@ -1,3 +1,6 @@
+import 'package:meta/meta.dart';
+
+@internal
 abstract final class SentryIterableUtils {
   static T? firstOrNull<T>(Iterable<T> iterable) {
     final iterator = iterable.iterator;
