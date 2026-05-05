@@ -111,6 +111,11 @@ each PR so you can verify how the entry will look before merging.
 
 If a PR should be excluded from the changelog, apply the `skip-changelog` label.
 
+If a PR should notify a linked issue after release, use a GitHub closing keyword in the PR
+description, such as `Fixes #123`, `Closes #123`, or `Resolves #123`. Release notification
+automation only comments on issues GitHub recognizes as closed by the released PR; mentioning an
+issue without a closing keyword is not enough.
+
 ### Custom Changelog Entries from PR Descriptions
 
 By default, the changelog entry for a PR is generated from its title. However, PR authors can
