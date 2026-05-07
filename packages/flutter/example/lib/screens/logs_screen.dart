@@ -20,6 +20,7 @@ class LogsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 8,
                 children: [
                   TooltipButton(
                     onPressed: () {

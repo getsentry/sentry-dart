@@ -22,6 +22,7 @@ class ErrorsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 8,
                 children: [
                   const TooltipButton(
                     onPressed: tryCatch,
@@ -169,7 +170,7 @@ class AndroidExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
+    return Column(spacing: 8, children: [
       ElevatedButton(
         onPressed: () async => execute('throw'),
         child: const Text('Kotlin Throw unhandled exception'),
@@ -204,7 +205,7 @@ class CocoaExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
+    return Column(spacing: 8, children: [
       ElevatedButton(
         onPressed: () async => execute('fatalError'),
         child: const Text('Swift fatalError'),
