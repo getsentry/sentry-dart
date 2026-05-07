@@ -8662,6 +8662,31 @@ class Sentry extends jni$_.JObject {
         .object<jni$_.JObject>(const jni$_.JObjectType());
   }
 
+  static final _id_feedback = _class.staticMethodId(
+    r'feedback',
+    r'()Lio/sentry/IFeedbackApi;',
+  );
+
+  static final _feedback = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.IFeedbackApi feedback()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject feedback() {
+    return _feedback(
+            _class.reference.pointer, _id_feedback as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
   static final _id_showUserFeedbackDialog = _class.staticMethodId(
     r'showUserFeedbackDialog',
     r'()V',
@@ -18877,6 +18902,54 @@ class SentryOptions extends jni$_.JObject {
         .check();
   }
 
+  static final _id_isEnableQueueTracing = _class.instanceMethodId(
+    r'isEnableQueueTracing',
+    r'()Z',
+  );
+
+  static final _isEnableQueueTracing = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public boolean isEnableQueueTracing()`
+  bool isEnableQueueTracing() {
+    return _isEnableQueueTracing(
+            reference.pointer, _id_isEnableQueueTracing as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_setEnableQueueTracing = _class.instanceMethodId(
+    r'setEnableQueueTracing',
+    r'(Z)V',
+  );
+
+  static final _setEnableQueueTracing = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setEnableQueueTracing(boolean z)`
+  void setEnableQueueTracing(
+    bool z,
+  ) {
+    _setEnableQueueTracing(reference.pointer,
+            _id_setEnableQueueTracing as jni$_.JMethodIDPtr, z ? 1 : 0)
+        .check();
+  }
+
   static final _id_isEnabled = _class.instanceMethodId(
     r'isEnabled',
     r'()Z',
@@ -22240,6 +22313,54 @@ class SentryReplayOptions extends jni$_.JObject {
             reference.pointer,
             _id_setScreenshotStrategy as jni$_.JMethodIDPtr,
             _$screenshotStrategyType.pointer)
+        .check();
+  }
+
+  static final _id_isCaptureSurfaceViews = _class.instanceMethodId(
+    r'isCaptureSurfaceViews',
+    r'()Z',
+  );
+
+  static final _isCaptureSurfaceViews = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public boolean isCaptureSurfaceViews()`
+  bool isCaptureSurfaceViews() {
+    return _isCaptureSurfaceViews(
+            reference.pointer, _id_isCaptureSurfaceViews as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_setCaptureSurfaceViews = _class.instanceMethodId(
+    r'setCaptureSurfaceViews',
+    r'(Z)V',
+  );
+
+  static final _setCaptureSurfaceViews = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setCaptureSurfaceViews(boolean z)`
+  void setCaptureSurfaceViews(
+    bool z,
+  ) {
+    _setCaptureSurfaceViews(reference.pointer,
+            _id_setCaptureSurfaceViews as jni$_.JMethodIDPtr, z ? 1 : 0)
         .check();
   }
 
@@ -32424,6 +32545,30 @@ class ScopesAdapter extends jni$_.JObject {
   /// The returned object must be released after use, by calling the [release] method.
   jni$_.JObject metrics() {
     return _metrics(reference.pointer, _id_metrics as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_feedback = _class.instanceMethodId(
+    r'feedback',
+    r'()Lio/sentry/IFeedbackApi;',
+  );
+
+  static final _feedback = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.IFeedbackApi feedback()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject feedback() {
+    return _feedback(reference.pointer, _id_feedback as jni$_.JMethodIDPtr)
         .object<jni$_.JObject>(const jni$_.JObjectType());
   }
 
