@@ -1,5 +1,37 @@
 # Changelog
 
+## 9.20.0
+
+### Features
+
+- (span-first) Add transaction and app start type span attributes by @buenaflor in [#3678](https://github.com/getsentry/sentry-dart/pull/3678)
+- Prevent cross-organization trace continuation by @antonis in [#3567](https://github.com/getsentry/sentry-dart/pull/3567)
+  - By default, the SDK now extracts the organization ID from the DSN (e.g. `o123.ingest.sentry.io`) and compares it with the `sentry-org_id` value in incoming baggage headers. When the two differ, the SDK starts a fresh trace instead of continuing the foreign one. This guards against accidentally linking traces across organizations.
+  - New option `strictTraceContinuation` (default `false`): when enabled, both the SDK's org ID **and** the incoming baggage org ID must be present and match for a trace to be continued. Traces with a missing org ID on either side are rejected.
+  - New option `orgId`: allows explicitly setting the organization ID for self-hosted and Relay setups where it cannot be extracted from the DSN.
+  - Options are also applied to the native Android SDK. On iOS, only the Dart layer enforces strict trace continuation.
+
+### Fixes
+
+#### Flutter
+
+- Avoid JNI callbacks for Android scope sync by @denrase in [#3676](https://github.com/getsentry/sentry-dart/pull/3676)
+- Send frame delay in seconds by @buenaflor in [#3677](https://github.com/getsentry/sentry-dart/pull/3677)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Android SDK to v8.41.0 by @github-actions in [#3687](https://github.com/getsentry/sentry-dart/pull/3687)
+- chore(deps): update Cocoa SDK to v8.58.2 by @github-actions in [#3664](https://github.com/getsentry/sentry-dart/pull/3664)
+- chore(deps): update Native SDK to v0.13.8 by @github-actions in [#3667](https://github.com/getsentry/sentry-dart/pull/3667)
+
+### Internal Changes
+
+- Remove collection runtime dependency by @buenaflor in [#3680](https://github.com/getsentry/sentry-dart/pull/3680)
+- Notify linked issues on release by @buenaflor in [#3685](https://github.com/getsentry/sentry-dart/pull/3685)
+- Enforce conventional commit format for PR titles by @buenaflor in [#3666](https://github.com/getsentry/sentry-dart/pull/3666)
+
 ## 9.19.0
 
 ### Features
