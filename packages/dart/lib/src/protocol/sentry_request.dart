@@ -86,10 +86,11 @@ class SentryRequest {
         _headers = headers != null ? Map.from(headers) : null,
         // Look for a 'Set-Cookie' header (case insensitive) if not given.
         cookies = cookies ??
-            IterableUtils.firstWhereOrNull(
-              headers?.entries,
-              (MapEntry<String, String> e) => e.key.toLowerCase() == 'cookie',
-            )?.value,
+            headers?.entries
+                .firstWhereOrNull(
+                  (e) => e.key.toLowerCase() == 'cookie',
+                )
+                ?.value,
         _env = env != null ? Map.from(env) : null;
 
   factory SentryRequest.fromUri({

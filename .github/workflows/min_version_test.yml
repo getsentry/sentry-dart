@@ -51,7 +51,7 @@ jobs:
         with:
           flutter-version: '3.24.0'
 
-      - uses: ruby/setup-ruby@3ff19f5e2baf30647122352b96108b1fbe250c64 # pin@v1.299.0
+      - uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # pin@v1.306.0
         with:
           ruby-version: '3.1.2' # https://github.com/flutter/flutter/issues/109385#issuecomment-1212614125
 

@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
       - run: xcodes select 26.2
-      - uses: ruby/setup-ruby@3ff19f5e2baf30647122352b96108b1fbe250c64 # pin@v1.299.0
+      - uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # pin@v1.306.0
         with:
           ruby-version: '2.7.5'
           bundler-cache: true
