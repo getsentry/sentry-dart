@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/utils/internal_logger.dart';
 import 'package:test/test.dart';
@@ -164,6 +166,32 @@ void main() {
 
         expect(logs, hasLength(1));
         expect(logs.first.stackTrace, stackTrace);
+      });
+    });
+
+    group('default platform routing', () {
+      // When no custom `logOutput` is supplied, the logger must dispatch to
+      // the platform-specific default. On the VM this is `dart:developer.log`,
+      // so nothing should reach the zone's `print` hook. On Flutter Web, a
+      // companion file (`_web_default_log_output.dart`) routes to `print` so
+      // diagnostic output is visible in the browser dev console — see #3043.
+      test('on VM, default output does not call print', () {
+        final captured = <String>[];
+
+        runZoned(
+          () {
+            SentryInternalLogger.configure(
+              isEnabled: true,
+              minLevel: SentryLevel.debug,
+            );
+            internalLogger.warning('routed via dev.log on the VM');
+          },
+          zoneSpecification: ZoneSpecification(
+            print: (_, __, ___, line) => captured.add(line),
+          ),
+        );
+
+        expect(captured, isEmpty);
       });
     });
 
