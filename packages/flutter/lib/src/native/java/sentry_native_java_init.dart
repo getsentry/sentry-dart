@@ -107,8 +107,9 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
             SentryId.fromId(replayIdString.toDartString(releaseOriginal: true));
 
         owner._replayId = replayId;
-        owner._nativeReplay =
-            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
+        owner._setNativeReplay(
+          native.SentryFlutterPlugin.privateSentryGetReplayIntegration(),
+        );
         owner._replayRecorder = AndroidReplayRecorder.factory(options);
         await owner._replayRecorder!.start();
         hub.configureScope((s) {
@@ -131,6 +132,7 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
         final future = owner._replayRecorder?.stop();
         owner._replayRecorder = null;
         await future;
+        owner._setNativeReplay(null);
       },
       replayReset: () {
         // ignored
@@ -236,17 +238,18 @@ void configureAndroidOptions({
 
     native.SdkVersion? sdkVersion = androidOptions.getSdkVersion()
       ?..releasedBy(arena);
+    final versionName = native.BuildConfig.VERSION_NAME!..releasedBy(arena);
+    final versionNameString = versionName.toDartString();
     if (sdkVersion == null) {
       sdkVersion = native.SdkVersion(
         androidSdkName.toJString()..releasedBy(arena),
-        native.BuildConfig.VERSION_NAME!..releasedBy(arena),
+        versionName,
       )..releasedBy(arena);
     } else {
       sdkVersion.setName(androidSdkName.toJString()..releasedBy(arena));
     }
     androidOptions.setSentryClientName(
-        '$androidSdkName/${native.BuildConfig.VERSION_NAME}'.toJString()
-          ..releasedBy(arena));
+        '$androidSdkName/$versionNameString'.toJString()..releasedBy(arena));
     androidOptions
         .setNativeSdkName(nativeSdkName.toJString()..releasedBy(arena));
     for (final integration in options.sdk.integrations) {
