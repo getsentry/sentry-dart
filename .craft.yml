@@ -1,4 +1,4 @@
-minVersion: 1.21.0
+minVersion: 2.26.3
 changelogPolicy: auto
 artifactProvider:
   name: none
