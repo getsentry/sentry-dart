@@ -40,6 +40,11 @@ class SentryNativeJava extends SentryNativeChannel {
   @visibleForTesting
   AndroidReplayRecorder? get testRecorder => _replayRecorder;
 
+  void _setNativeReplay(native.ReplayIntegration? nativeReplay) {
+    _nativeReplay?.release();
+    _nativeReplay = nativeReplay;
+  }
+
   @override
   void init(Hub hub) {
     initSentryAndroid(hub: hub, options: options, owner: this);
@@ -183,7 +188,7 @@ class SentryNativeJava extends SentryNativeChannel {
   Future<void> close() async {
     await _replayRecorder?.stop();
     await _envelopeSender?.close();
-    _nativeReplay?.release();
+    _setNativeReplay(null);
     return super.close();
   }
 

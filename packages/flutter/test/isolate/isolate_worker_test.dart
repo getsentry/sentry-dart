@@ -51,6 +51,22 @@ class _DebugNameHandler extends WorkerHandler {
   }
 }
 
+class _CloseAckHandler extends WorkerHandler {
+  SendPort? _closeAckPort;
+
+  @override
+  Future<void> onMessage(Object? message) async {
+    if (message is SendPort) {
+      _closeAckPort = message;
+    }
+  }
+
+  @override
+  void close() {
+    _closeAckPort?.send('closed');
+  }
+}
+
 void _entryEcho((SendPort, WorkerConfig) init) {
   final (host, config) = init;
   runWorker(config, host, _EchoHandler());
@@ -69,6 +85,11 @@ void _entryDelay((SendPort, WorkerConfig) init) {
 void _entryDebugName((SendPort, WorkerConfig) init) {
   final (host, config) = init;
   runWorker(config, host, _DebugNameHandler());
+}
+
+void _entryCloseAck((SendPort, WorkerConfig) init) {
+  final (host, config) = init;
+  runWorker(config, host, _CloseAckHandler());
 }
 
 void main() {
@@ -195,6 +216,30 @@ void main() {
         final result = await worker.request(null);
         expect(result, debugName);
       } finally {
+        worker.close();
+      }
+    });
+
+    test('close notifies handler before shutdown', () async {
+      final worker = await spawnWorker(
+        const WorkerConfig(
+          debug: true,
+          diagnosticLevel: SentryLevel.debug,
+          debugName: 'CloseAckWorker',
+        ),
+        _entryCloseAck,
+      );
+      final closeAck = ReceivePort();
+      try {
+        worker.send(closeAck.sendPort);
+        worker.close();
+
+        expect(
+          await closeAck.first.timeout(const Duration(seconds: 5)),
+          'closed',
+        );
+      } finally {
+        closeAck.close();
         worker.close();
       }
     });

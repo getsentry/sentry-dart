@@ -56,23 +56,28 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   }
 
   Future<void> _addReplayScreenshot(
-      Screenshot screenshot, bool isNewlyCaptured) async {
+    Screenshot screenshot,
+    bool isNewlyCaptured,
+  ) async {
     final timestamp = screenshot.timestamp.millisecondsSinceEpoch;
 
     try {
       final data = await screenshot.rawRgbaData;
       options.log(
-          SentryLevel.debug,
-          '$logName: captured screenshot ('
-          '${screenshot.width}x${screenshot.height} pixels, '
-          '${data.lengthInBytes} bytes)');
+        SentryLevel.debug,
+        '$logName: captured screenshot ('
+        '${screenshot.width}x${screenshot.height} pixels, '
+        '${data.lengthInBytes} bytes)',
+      );
 
-      await _worker!.request(_WorkItem(
-        timestamp: timestamp,
-        data: data.buffer.asUint8List(),
-        width: screenshot.width,
-        height: screenshot.height,
-      ));
+      await _worker!.request(
+        _WorkItem(
+          timestamp: timestamp,
+          data: data.buffer.asUint8List(),
+          width: screenshot.width,
+          height: screenshot.height,
+        ),
+      );
     } catch (error, stackTrace) {
       options.log(
         SentryLevel.error,
@@ -96,7 +101,7 @@ class _AndroidReplayHandler extends WorkerHandler {
   final WorkerConfig _config;
   // Android Bitmap creation is a bit costly so we reuse it between captures.
   native.Bitmap? _bitmap;
-  late final native.ReplayIntegration _nativeReplay;
+  native.ReplayIntegration? _nativeReplay;
 
   _AndroidReplayHandler(this._config) {
     _nativeReplay =
@@ -106,14 +111,25 @@ class _AndroidReplayHandler extends WorkerHandler {
   @override
   FutureOr<void> onMessage(Object? message) {
     internalLogger.warning(
-        '${_config.debugName}: Unexpected fire-and-forget message: $message');
+      '${_config.debugName}: Unexpected fire-and-forget message: $message',
+    );
+  }
+
+  @override
+  FutureOr<void> close() {
+    _bitmap?.release();
+    _bitmap = null;
+
+    _nativeReplay?.release();
+    _nativeReplay = null;
   }
 
   @override
   FutureOr<Object?> onRequest(Object? payload) {
     if (payload is! _WorkItem) {
-      internalLogger
-          .warning('${_config.debugName}: Unexpected payload type: $payload');
+      internalLogger.warning(
+        '${_config.debugName}: Unexpected payload type: $payload',
+      );
       return null;
     }
 
@@ -129,21 +145,35 @@ class _AndroidReplayHandler extends WorkerHandler {
         }
       }
 
-      // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
-      // Note: while the generated API is nullable, the docs say the returned value cannot be null..
-      _bitmap ??= native.Bitmap.createBitmap$10(
-          item.width, item.height, native.Bitmap$Config.ARGB_8888);
+      if (_bitmap == null) {
+        // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
+        // Note: while the generated API is nullable, the docs say the returned value cannot be null..
+        native.Bitmap$Config? bitmapConfig;
+        try {
+          bitmapConfig = native.Bitmap$Config.ARGB_8888;
+          _bitmap = native.Bitmap.createBitmap$10(
+            item.width,
+            item.height,
+            bitmapConfig,
+          );
+        } finally {
+          bitmapConfig?.release();
+        }
+      }
 
       jBuffer = JByteBuffer.fromList(item.data);
       _bitmap!.copyPixelsFromBuffer(jBuffer);
 
       // TODO timestamp is currently missing in onScreenshotRecorded()
-      _nativeReplay.onScreenshotRecorded(_bitmap!);
+      _nativeReplay?.onScreenshotRecorded(_bitmap!);
 
       return null;
     } catch (exception, stackTrace) {
-      internalLogger.error('Failed to add replay screenshot',
-          error: exception, stackTrace: stackTrace);
+      internalLogger.error(
+        'Failed to add replay screenshot',
+        error: exception,
+        stackTrace: stackTrace,
+      );
       if (_config.automatedTestMode) {
         rethrow;
       }
