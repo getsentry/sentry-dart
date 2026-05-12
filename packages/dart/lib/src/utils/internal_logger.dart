@@ -1,8 +1,8 @@
-import 'dart:developer' as dev;
-
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
+import '_io_default_log_output.dart'
+    if (dart.library.js_interop) '_web_default_log_output.dart' as log_output;
 
 typedef LogOutputFunction = void Function({
   required String name,
@@ -70,13 +70,12 @@ class SentryInternalLogger {
     Object? error,
     StackTrace? stackTrace,
   }) {
-    dev.log(
-      '[${level.name}] $message',
+    log_output.defaultLogOutput(
       name: name,
-      level: level.toDartLogLevel(),
+      level: level,
+      message: message,
       error: error,
       stackTrace: stackTrace,
-      time: DateTime.now(),
     );
   }
 
