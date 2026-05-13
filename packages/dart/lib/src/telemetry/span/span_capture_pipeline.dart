@@ -31,8 +31,9 @@ class SpanCapturePipeline {
             span.addAttributesIfAbsent(scope.attributes);
           }
 
-          await _options.lifecycleRegistry
-              .dispatchCallback<OnProcessSpan>(OnProcessSpan(span));
+          await _options.lifecycleRegistry.dispatchCallback<OnProcessSpan>(
+            OnProcessSpan(span),
+          );
 
           span.addAttributesIfAbsent(defaultAttributes(_options, scope: scope));
           span.addAttributesIfAbsent({
@@ -40,8 +41,9 @@ class SpanCapturePipeline {
                 SentryAttribute.string(span.segmentSpan.name),
             SemanticAttributesConstants.sentryTransaction:
                 SentryAttribute.string(span.segmentSpan.name),
-            SemanticAttributesConstants.sentrySegmentId:
-                SentryAttribute.string(span.segmentSpan.spanId.toString()),
+            SemanticAttributesConstants.sentrySegmentId: SentryAttribute.string(
+              span.segmentSpan.spanId.toString(),
+            ),
           });
 
           final beforeSendSpan = _options.beforeSendSpan;
@@ -62,8 +64,11 @@ class SpanCapturePipeline {
 
           _options.telemetryProcessor.addSpan(span);
         } catch (error, stackTrace) {
-          internalLogger.error('Error while capturing span ${span.name}',
-              error: error, stackTrace: stackTrace);
+          internalLogger.error(
+            'Error while capturing span ${span.name}',
+            error: error,
+            stackTrace: stackTrace,
+          );
           if (_options.automatedTestMode) {
             rethrow;
           }
