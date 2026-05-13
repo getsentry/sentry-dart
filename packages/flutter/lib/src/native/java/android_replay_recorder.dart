@@ -118,23 +118,19 @@ class _AndroidReplayHandler extends WorkerHandler {
 
     final item = payload;
     native.Bitmap? bitmap;
+    native.Bitmap$Config? bitmapConfig;
     JByteBuffer? jBuffer;
     native.ReplayIntegration? nativeReplay;
 
     try {
       // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
       // Note: while the generated API is nullable, the docs say the returned value cannot be null..
-      native.Bitmap$Config? bitmapConfig;
-      try {
-        bitmapConfig = native.Bitmap$Config.ARGB_8888;
-        bitmap = native.Bitmap.createBitmap$10(
-          item.width,
-          item.height,
-          bitmapConfig,
-        );
-      } finally {
-        bitmapConfig?.release();
-      }
+      bitmapConfig = native.Bitmap$Config.ARGB_8888;
+      bitmap = native.Bitmap.createBitmap$10(
+        item.width,
+        item.height,
+        bitmapConfig,
+      );
 
       jBuffer = JByteBuffer.fromList(item.data);
       bitmap!.copyPixelsFromBuffer(jBuffer);
@@ -157,6 +153,7 @@ class _AndroidReplayHandler extends WorkerHandler {
       return null;
     } finally {
       bitmap?.release();
+      bitmapConfig?.release();
       jBuffer?.release();
       nativeReplay?.release();
     }
