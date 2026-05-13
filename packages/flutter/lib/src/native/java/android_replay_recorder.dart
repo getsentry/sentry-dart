@@ -126,19 +126,24 @@ class _AndroidReplayHandler extends WorkerHandler {
       // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
       // Note: while the generated API is nullable, the docs say the returned value cannot be null..
       bitmapConfig = native.Bitmap$Config.ARGB_8888;
-      bitmap = native.Bitmap.createBitmap$10(
+      final bitmapRef = native.Bitmap.createBitmap$10(
         item.width,
         item.height,
         bitmapConfig,
       );
+      if (bitmapRef == null) {
+        internalLogger.error('Failed to create replay bitmap');
+        return null;
+      }
+      bitmap = bitmapRef;
 
       jBuffer = JByteBuffer.fromList(item.data);
-      bitmap!.copyPixelsFromBuffer(jBuffer);
+      bitmapRef.copyPixelsFromBuffer(jBuffer);
 
       // TODO timestamp is currently missing in onScreenshotRecorded()
       nativeReplay =
           native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
-      nativeReplay?.onScreenshotRecorded(bitmap);
+      nativeReplay?.onScreenshotRecorded(bitmapRef);
 
       return null;
     } catch (exception, stackTrace) {
