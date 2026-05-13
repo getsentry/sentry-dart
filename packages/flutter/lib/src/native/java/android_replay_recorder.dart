@@ -51,8 +51,22 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   @override
   Future<void> stop() async {
     await super.stop();
-    _worker?.close();
-    _worker = null;
+    final worker = _worker;
+    try {
+      await worker?.request(const _CloseRequest());
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        '$logName: native call `close` failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      if (options.automatedTestMode) {
+        rethrow;
+      }
+    } finally {
+      worker?.close();
+      _worker = null;
+    }
   }
 
   Future<void> _addReplayScreenshot(
@@ -97,6 +111,8 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
 
 class _AndroidReplayHandler extends WorkerHandler {
   final WorkerConfig _config;
+  // Android Bitmap creation is a bit costly so we reuse it between captures.
+  native.Bitmap? _bitmap;
 
   _AndroidReplayHandler(this._config);
 
@@ -109,6 +125,11 @@ class _AndroidReplayHandler extends WorkerHandler {
 
   @override
   FutureOr<Object?> onRequest(Object? payload) {
+    if (payload is _CloseRequest) {
+      _releaseBitmap();
+      return null;
+    }
+
     if (payload is! _WorkItem) {
       internalLogger.warning(
         '${_config.debugName}: Unexpected payload type: $payload',
@@ -118,32 +139,43 @@ class _AndroidReplayHandler extends WorkerHandler {
 
     final item = payload;
     JByteBuffer? jBuffer;
-    native.Bitmap? bitmap;
     native.Bitmap$Config? bitmapConfig;
     native.ReplayIntegration? nativeReplay;
 
     try {
-      // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
-      // Note: while the generated API is nullable, the docs say the returned value cannot be null..
-      bitmapConfig = native.Bitmap$Config.ARGB_8888;
-      final bitmapRef = native.Bitmap.createBitmap$10(
-        item.width,
-        item.height,
-        bitmapConfig,
-      );
-      if (bitmapRef == null) {
-        internalLogger.error('Failed to create replay bitmap');
-        return null;
+      var bitmap = _bitmap;
+      if (bitmap != null) {
+        if (bitmap.getWidth() != item.width ||
+            bitmap.getHeight() != item.height) {
+          _releaseBitmap();
+          bitmap = null;
+        }
       }
-      bitmap = bitmapRef;
+
+      if (bitmap == null) {
+        // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
+        // Note: while the generated API is nullable, the docs say the returned value cannot be null..
+        bitmapConfig = native.Bitmap$Config.ARGB_8888;
+        final newBitmap = native.Bitmap.createBitmap$10(
+          item.width,
+          item.height,
+          bitmapConfig,
+        );
+        if (newBitmap == null) {
+          internalLogger.error('Failed to create replay bitmap');
+          return null;
+        }
+        _bitmap = newBitmap;
+        bitmap = newBitmap;
+      }
 
       jBuffer = JByteBuffer.fromList(item.data);
-      bitmapRef.copyPixelsFromBuffer(jBuffer);
+      bitmap.copyPixelsFromBuffer(jBuffer);
 
       // TODO timestamp is currently missing in onScreenshotRecorded()
       nativeReplay =
           native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
-      nativeReplay?.onScreenshotRecorded(bitmapRef);
+      nativeReplay?.onScreenshotRecorded(bitmap);
 
       return null;
     } catch (exception, stackTrace) {
@@ -157,12 +189,20 @@ class _AndroidReplayHandler extends WorkerHandler {
       }
       return null;
     } finally {
-      bitmap?.release();
       bitmapConfig?.release();
       jBuffer?.release();
       nativeReplay?.release();
     }
   }
+
+  void _releaseBitmap() {
+    _bitmap?.release();
+    _bitmap = null;
+  }
+}
+
+class _CloseRequest {
+  const _CloseRequest();
 }
 
 class _WorkItem {
