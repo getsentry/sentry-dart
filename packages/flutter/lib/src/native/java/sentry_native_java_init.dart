@@ -24,7 +24,7 @@ void initSentryAndroid({
     final context = native.SentryFlutterPlugin.getApplicationContext()
       ?..releasedBy(arena);
     if (context == null) {
-      options.log(SentryLevel.error,
+      internalLogger.error(
           'Failed to initialize Sentry Android, application context is null.');
       return;
     }
