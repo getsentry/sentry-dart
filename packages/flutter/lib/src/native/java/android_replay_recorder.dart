@@ -101,27 +101,14 @@ class _AndroidReplayHandler extends WorkerHandler {
   final WorkerConfig _config;
   // Android Bitmap creation is a bit costly so we reuse it between captures.
   native.Bitmap? _bitmap;
-  native.ReplayIntegration? _nativeReplay;
 
-  _AndroidReplayHandler(this._config) {
-    _nativeReplay =
-        native.SentryFlutterPlugin.privateSentryGetReplayIntegration()!;
-  }
+  _AndroidReplayHandler(this._config);
 
   @override
   FutureOr<void> onMessage(Object? message) {
     internalLogger.warning(
       '${_config.debugName}: Unexpected fire-and-forget message: $message',
     );
-  }
-
-  @override
-  FutureOr<void> close() {
-    _bitmap?.release();
-    _bitmap = null;
-
-    _nativeReplay?.release();
-    _nativeReplay = null;
   }
 
   @override
@@ -135,6 +122,7 @@ class _AndroidReplayHandler extends WorkerHandler {
 
     final item = payload;
     JByteBuffer? jBuffer;
+    native.ReplayIntegration? nativeReplay;
 
     try {
       if (_bitmap != null) {
@@ -165,7 +153,9 @@ class _AndroidReplayHandler extends WorkerHandler {
       _bitmap!.copyPixelsFromBuffer(jBuffer);
 
       // TODO timestamp is currently missing in onScreenshotRecorded()
-      _nativeReplay?.onScreenshotRecorded(_bitmap!);
+      nativeReplay =
+          native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
+      nativeReplay?.onScreenshotRecorded(_bitmap!);
 
       return null;
     } catch (exception, stackTrace) {
@@ -180,6 +170,7 @@ class _AndroidReplayHandler extends WorkerHandler {
       return null;
     } finally {
       jBuffer?.release();
+      nativeReplay?.release();
     }
   }
 }

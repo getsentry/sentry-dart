@@ -129,9 +129,6 @@ abstract class WorkerHandler {
   /// Handle request/response payloads sent from the host.
   /// Return value is sent back to the host. Default: no-op.
   FutureOr<Object?> onRequest(Object? payload) => {};
-
-  /// Release resources held by the worker handler before isolate shutdown.
-  FutureOr<void> close() {}
 }
 
 /// Runs the Sentry worker loop inside a background isolate.
@@ -154,21 +151,8 @@ void runWorker(
   inbox.listen((msg) async {
     if (msg == _shutdownCommand) {
       internalLogger.debug('${config.debugName}: isolate received shutdown');
-      try {
-        await handler.close();
-      } catch (exception, stackTrace) {
-        internalLogger.error(
-          '${config.debugName}: isolate failed to close handler',
-          error: exception,
-          stackTrace: stackTrace,
-        );
-        if (config.automatedTestMode) {
-          rethrow;
-        }
-      } finally {
-        inbox.close();
-        internalLogger.debug('${config.debugName}: isolate closed');
-      }
+      inbox.close();
+      internalLogger.debug('${config.debugName}: isolate closed');
       return;
     }
 
