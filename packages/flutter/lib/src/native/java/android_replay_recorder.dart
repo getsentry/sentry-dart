@@ -97,8 +97,6 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
 
 class _AndroidReplayHandler extends WorkerHandler {
   final WorkerConfig _config;
-  // Android Bitmap creation is a bit costly so we reuse it between captures.
-  native.Bitmap? _bitmap;
 
   _AndroidReplayHandler(this._config);
 
@@ -119,41 +117,32 @@ class _AndroidReplayHandler extends WorkerHandler {
     }
 
     final item = payload;
+    native.Bitmap? bitmap;
     JByteBuffer? jBuffer;
     native.ReplayIntegration? nativeReplay;
 
     try {
-      if (_bitmap != null) {
-        if (_bitmap!.getWidth() != item.width ||
-            _bitmap!.getHeight() != item.height) {
-          _bitmap!.release();
-          _bitmap = null;
-        }
-      }
-
-      if (_bitmap == null) {
-        // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
-        // Note: while the generated API is nullable, the docs say the returned value cannot be null..
-        native.Bitmap$Config? bitmapConfig;
-        try {
-          bitmapConfig = native.Bitmap$Config.ARGB_8888;
-          _bitmap = native.Bitmap.createBitmap$10(
-            item.width,
-            item.height,
-            bitmapConfig,
-          );
-        } finally {
-          bitmapConfig?.release();
-        }
+      // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int,%20int,%20android.graphics.Bitmap.Config)
+      // Note: while the generated API is nullable, the docs say the returned value cannot be null..
+      native.Bitmap$Config? bitmapConfig;
+      try {
+        bitmapConfig = native.Bitmap$Config.ARGB_8888;
+        bitmap = native.Bitmap.createBitmap$10(
+          item.width,
+          item.height,
+          bitmapConfig,
+        );
+      } finally {
+        bitmapConfig?.release();
       }
 
       jBuffer = JByteBuffer.fromList(item.data);
-      _bitmap!.copyPixelsFromBuffer(jBuffer);
+      bitmap!.copyPixelsFromBuffer(jBuffer);
 
       // TODO timestamp is currently missing in onScreenshotRecorded()
       nativeReplay =
           native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
-      nativeReplay?.onScreenshotRecorded(_bitmap!);
+      nativeReplay?.onScreenshotRecorded(bitmap);
 
       return null;
     } catch (exception, stackTrace) {
@@ -167,6 +156,7 @@ class _AndroidReplayHandler extends WorkerHandler {
       }
       return null;
     } finally {
+      bitmap?.release();
       jBuffer?.release();
       nativeReplay?.release();
     }
