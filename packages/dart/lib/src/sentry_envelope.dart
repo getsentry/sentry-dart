@@ -17,6 +17,14 @@ class SentryEnvelope {
   SentryEnvelope(this.header, this.items,
       {this.containsUnhandledException = false});
 
+  static const _spanV2PayloadProperties = <String, Object>{
+    'version': 2,
+    'ingest_settings': <String, String>{
+      'infer_ip': 'auto',
+      'infer_user_agent': 'auto',
+    },
+  };
+
   /// Header describing envelope content.
   final SentryEnvelopeHeader header;
 
@@ -127,7 +135,9 @@ class SentryEnvelope {
             dsn: dsn, traceContext: traceContext),
         [
           SentryEnvelopeItem.fromSpansData(
-              _buildItemsPayload(encodedSpans), encodedSpans.length)
+              _buildItemsPayload(encodedSpans,
+                  additionalTopLevelProperties: _spanV2PayloadProperties),
+              encodedSpans.length)
         ],
       );
 
@@ -177,13 +187,41 @@ class SentryEnvelope {
     }
   }
 
-  /// Builds a payload in the format {"items": [item1, item2, ...]}
-  static Uint8List _buildItemsPayload(List<List<int>> encodedItems) {
+  /// Builds a payload with optional top-level properties and an items array.
+  ///
+  /// [additionalTopLevelProperties] are serialized before `items` and are used
+  /// for signal-specific envelope item metadata, such as the span v2 `version`
+  /// and `ingest_settings` fields.
+  static Uint8List _buildItemsPayload(
+    List<List<int>> encodedItems, {
+    Map<String, Object?> additionalTopLevelProperties = const {},
+  }) {
     final builder = BytesBuilder(copy: false);
-    builder.add(utf8.encode('{"items":['));
+    final comma = utf8.encode(',');
+    final colon = utf8.encode(':');
+
+    builder.add(utf8.encode('{'));
+
+    var needsComma = false;
+    void addCommaIfNeeded() {
+      if (needsComma) {
+        builder.add(comma);
+      }
+      needsComma = true;
+    }
+
+    for (final entry in additionalTopLevelProperties.entries) {
+      addCommaIfNeeded();
+      builder.add(utf8JsonEncoder.convert(entry.key));
+      builder.add(colon);
+      builder.add(utf8JsonEncoder.convert(entry.value));
+    }
+
+    addCommaIfNeeded();
+    builder.add(utf8.encode('"items":['));
     for (int i = 0; i < encodedItems.length; i++) {
       if (i > 0) {
-        builder.add(utf8.encode(','));
+        builder.add(comma);
       }
       builder.add(encodedItems[i]);
     }
