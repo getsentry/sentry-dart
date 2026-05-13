@@ -117,9 +117,9 @@ class _AndroidReplayHandler extends WorkerHandler {
     }
 
     final item = payload;
+    JByteBuffer? jBuffer;
     native.Bitmap? bitmap;
     native.Bitmap$Config? bitmapConfig;
-    JByteBuffer? jBuffer;
     native.ReplayIntegration? nativeReplay;
 
     try {
