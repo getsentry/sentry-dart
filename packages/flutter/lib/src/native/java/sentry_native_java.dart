@@ -11,6 +11,7 @@ import 'package:sentry/src/utils/iterable_utils.dart';
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../../replay/scheduled_recorder_config.dart';
+import '../../utils/internal_logger.dart';
 import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
 import '../utils/data_normalizer.dart';
@@ -43,6 +44,11 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @visibleForTesting
   AndroidReplayRecorder? get testRecorder => _replayRecorder;
+
+  void _setNativeReplay(native.ReplayIntegration? nativeReplay) {
+    _nativeReplay?.release();
+    _nativeReplay = nativeReplay;
+  }
 
   @override
   void init(Hub hub) {
@@ -91,8 +97,11 @@ class SentryNativeJava extends SentryNativeChannel {
       final debugImageMaps = decodeUtf8JsonListOfMaps(bytes);
       return debugImageMaps.map(DebugImage.fromJson).toList(growable: false);
     } catch (exception, stackTrace) {
-      options.log(SentryLevel.error, 'JNI: Failed to load debug images',
-          exception: exception, stackTrace: stackTrace);
+      internalLogger.error(
+        'JNI: Failed to load debug images',
+        error: exception,
+        stackTrace: stackTrace,
+      );
       if (options.automatedTestMode) {
         rethrow;
       }
@@ -127,8 +136,11 @@ class SentryNativeJava extends SentryNativeChannel {
           byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
       return decodeUtf8JsonMap(bytes);
     } catch (exception, stackTrace) {
-      options.log(SentryLevel.error, 'JNI: Failed to load contexts',
-          exception: exception, stackTrace: stackTrace);
+      internalLogger.error(
+        'JNI: Failed to load contexts',
+        error: exception,
+        stackTrace: stackTrace,
+      );
       if (options.automatedTestMode) {
         rethrow;
       }
@@ -187,7 +199,7 @@ class SentryNativeJava extends SentryNativeChannel {
   Future<void> close() async {
     await _replayRecorder?.stop();
     await _envelopeSender?.close();
-    _nativeReplay?.release();
+    _setNativeReplay(null);
     return super.close();
   }
 
@@ -335,13 +347,13 @@ class SentryNativeJava extends SentryNativeChannel {
             config.windowWidth == 0.0 ||
             config.windowHeight == 0.0;
         if (invalidConfig) {
-          options.log(
-              SentryLevel.error,
-              'Replay config is not valid: '
-              'width: ${config.width}, '
-              'height: ${config.height}, '
-              'windowWidth: ${config.windowWidth}, '
-              'windowHeight: ${config.windowHeight}');
+          internalLogger.error(
+            'Replay config is not valid: '
+            'width: ${config.width}, '
+            'height: ${config.height}, '
+            'windowWidth: ${config.windowWidth}, '
+            'windowHeight: ${config.windowHeight}',
+          );
           return;
         }
 
