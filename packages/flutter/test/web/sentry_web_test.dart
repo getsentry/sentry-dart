@@ -168,6 +168,44 @@ void main() {
       });
     });
 
+    group('with real replay binding', () {
+      late SentryWeb sut;
+      late SentryJsBinding binding;
+
+      setUp(() async {
+        final loader = SentryScriptLoader(options: options);
+        await loader.loadWebSdk(debugReplayScripts);
+        binding = createJsBinding();
+        sut = SentryWeb(binding, options);
+      });
+
+      tearDown(() async {
+        await sut.close();
+      });
+
+      test('init maps replay options to JS SDK', () async {
+        const expectedSessionSampleRate = 0.1;
+        const expectedOnErrorSampleRate = 1.0;
+        options.replay.enableWebCanvasRecording = true;
+        options.replay.sessionSampleRate = expectedSessionSampleRate;
+        options.replay.onErrorSampleRate = expectedOnErrorSampleRate;
+
+        await sut.init(hub);
+
+        final jsOptions = binding.getJsOptions();
+        final integrations = jsOptions['integrations'] as List<dynamic>;
+
+        expect(
+            jsOptions['replaysSessionSampleRate'], expectedSessionSampleRate);
+        expect(
+            jsOptions['replaysOnErrorSampleRate'], expectedOnErrorSampleRate);
+        final integrationNames =
+            integrations.map((integration) => integration.toString());
+        expect(integrationNames, contains(contains('name: Replay')));
+        expect(integrationNames, contains(contains('name: ReplayCanvas')));
+      });
+    });
+
     group('with mock binding', () {
       late MockSentryJsBinding mockBinding;
       late SentryWeb sut;

@@ -11,3 +11,19 @@ const productionIntegrity =
 @internal
 const debugIntegrity =
     'sha384-9BkiiMtTHx82WK2Pxl4Y2NsqQJChBS1XQaV0yzkW/Fz3lsa8A2E2chXICFsAFFew';
+
+@internal
+const productionReplayIntegrity =
+    'sha384-XDXFmBaNWlQ7XLfEYTin+MajORWXtav1ePcSXtuFHSM8q1JXxmiihPepvYcZBLqD';
+
+@internal
+const debugReplayIntegrity =
+    'sha384-iBSo+dj6ktQwSI0sNLcXgUgKu7561IMtobLgnxKL25zKycpuE1os1K9y2z1/kaon';
+
+@internal
+const productionReplayCanvasIntegrity =
+    'sha384-cQEbU3qVkUpsuxRJuPJAUgAX6+UKmdtizM4w6EGYlwWQvM3wVPJu2Z5nqG/I+L8x';
+
+@internal
+const debugReplayCanvasIntegrity =
+    'sha384-ZlIMEpZJ33WpvFLLHdKwPZYSuE/2G8IY5gkqC5Us7To+cAH2Ur9rxOqtUUnsX60k';

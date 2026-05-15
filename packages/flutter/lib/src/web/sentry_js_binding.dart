@@ -12,6 +12,7 @@ abstract class SentryJsBinding {
   void updateSession({int? errors, String? status});
   void captureSession();
   Map<String, String>? getFilenameToDebugIdMap();
+  String? getReplayId({bool onlyIfSampled = false});
   @visibleForTesting
   dynamic getJsOptions();
 }
@@ -22,4 +23,6 @@ class SentryJsIntegrationName {
 
   static const String globalHandlers = 'globalHandlersIntegration';
   static const String dedupe = 'dedupeIntegration';
+  static const String replay = 'replayIntegration';
+  static const String replayCanvas = 'replayCanvasIntegration';
 }

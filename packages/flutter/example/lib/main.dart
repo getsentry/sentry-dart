@@ -106,6 +106,8 @@ Future<void> setupSentry(
       options.replay.onErrorSampleRate = 1.0;
       options.replay.networkDetailAllowUrls.add(config.exampleUrl);
       options.replay.networkRequestHeaders.add('foo');
+      options.replay.enableWebCanvasRecording = true;
+
       options.enableLogs = true;
 
       options.beforeSendMetric = (metric) {

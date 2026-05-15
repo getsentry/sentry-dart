@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/src/integrations/web_sdk_integration.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
+import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -40,6 +41,18 @@ void main() {
         await sut.call(fixture.hub, fixture.options);
 
         expect(fixture.scriptLoader.loadScriptsCalls, 1);
+        expect(fixture.scriptLoader.loadedScripts, same(debugScripts));
+        verify(fixture.web.init(fixture.hub)).called(1);
+      });
+
+      test('loads replay scripts when web canvas recording is enabled',
+          () async {
+        fixture.options.replay.enableWebCanvasRecording = true;
+
+        await sut.call(fixture.hub, fixture.options);
+
+        expect(fixture.scriptLoader.loadScriptsCalls, 1);
+        expect(fixture.scriptLoader.loadedScripts, same(debugReplayScripts));
         verify(fixture.web.init(fixture.hub)).called(1);
       });
     });
@@ -107,11 +120,13 @@ class FakeSentryScriptLoader extends SentryScriptLoader {
 
   int loadScriptsCalls = 0;
   int closeCalls = 0;
+  List<Map<String, String>>? loadedScripts;
 
   @override
   Future<void> loadWebSdk(List<Map<String, String>> scripts,
       {String trustedTypePolicyName = defaultTrustedPolicyName}) {
     loadScriptsCalls += 1;
+    loadedScripts = scripts;
 
     return super
         .loadWebSdk(scripts, trustedTypePolicyName: trustedTypePolicyName);

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
-import '../sentry_js_bundle.dart';
 import 'script_dom_api.dart';
 
 @internal
@@ -17,6 +16,7 @@ class SentryScriptLoader {
 
   final SentryOptions _options;
   bool _scriptLoaded = false;
+  List<Map<String, String>> _loadedScripts = const [];
 
   /// Loads the scripts into the web page with support for Trusted Types security policy.
   ///
@@ -45,6 +45,7 @@ class SentryScriptLoader {
       });
 
       _scriptLoaded = true;
+      _loadedScripts = List.unmodifiable(scripts);
       _options.log(SentryLevel.debug,
           'JS SDK integration: all Sentry scripts loaded successfully.');
     } catch (e) {
@@ -57,18 +58,20 @@ class SentryScriptLoader {
   }
 
   Future<void> close() async {
-    final scriptsToRemove = _options.runtimeChecker.isReleaseMode()
-        ? productionScripts
-        : debugScripts;
+    if (_loadedScripts.isEmpty) {
+      return;
+    }
 
     // no risk of injection since the scripts are constants
-    final selectors = scriptsToRemove.map((script) {
+    final selectors = _loadedScripts.map((script) {
       return 'script[src="${script['url']}"][integrity="${script['integrity']}"]';
     }).join(', ');
     final sentryScripts = fetchScripts(selectors);
     for (final script in sentryScripts) {
       script.remove();
     }
+    _loadedScripts = const [];
+    _scriptLoaded = false;
   }
 }
 
