@@ -9,6 +9,7 @@ import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../sentry_flutter.dart';
+import '../event_processor/web_replay_event_processor.dart';
 import '../native/native_app_start.dart';
 import '../native/sentry_native_binding.dart';
 import '../native/sentry_native_invoker.dart';
@@ -47,7 +48,20 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
           SentryJsIntegrationName.dedupe
         },
       };
+      if (_options.replay.enableWebCanvasRecording) {
+        jsOptions.addAll({
+          'replaysSessionSampleRate': _options.replay.sessionSampleRate ?? 0,
+          'replaysOnErrorSampleRate': _options.replay.onErrorSampleRate ?? 0,
+          'integrations': <String>[
+            SentryJsIntegrationName.replay,
+            SentryJsIntegrationName.replayCanvas,
+          ],
+        });
+      }
       _binding.init(jsOptions);
+      if (_options.replay.enableWebCanvasRecording) {
+        _options.addEventProcessor(WebReplayEventProcessor(_binding));
+      }
     });
   }
 
@@ -282,7 +296,10 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   bool get supportsReplay => false;
 
   @override
-  SentryId? get replayId => null;
+  SentryId? get replayId {
+    final replayId = _binding.getReplayId(onlyIfSampled: true);
+    return replayId == null ? null : SentryId.fromId(replayId);
+  }
 
   @override
   bool get supportsTraceSync => false;

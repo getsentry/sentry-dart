@@ -31,6 +31,13 @@ class SentryReplayOptions {
   /// more CPU load, defaults to MEDIUM.
   var quality = SentryReplayQuality.medium;
 
+  /// Whether Flutter Web records canvas elements with the JS SDK Replay integration.
+  ///
+  /// Canvas recordings are not PII-scrubbed. Keep this internal until the privacy
+  /// behavior is safe for general use.
+  @internal
+  bool enableWebCanvasRecording = false;
+
   @internal
   bool get isEnabled =>
       ((sessionSampleRate ?? 0) > 0) || ((onErrorSampleRate ?? 0) > 0);

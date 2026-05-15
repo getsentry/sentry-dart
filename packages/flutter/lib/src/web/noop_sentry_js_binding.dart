@@ -37,4 +37,9 @@ class NoOpSentryJsBinding implements SentryJsBinding {
   Map<String, String>? getFilenameToDebugIdMap() {
     return {};
   }
+
+  @override
+  String? getReplayId({bool onlyIfSampled = false}) {
+    return null;
+  }
 }

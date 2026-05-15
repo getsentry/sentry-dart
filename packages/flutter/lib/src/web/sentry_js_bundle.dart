@@ -21,3 +21,29 @@ const debugScripts = [
     'integrity': debugIntegrity,
   },
 ];
+
+@internal
+const productionReplayScripts = [
+  {
+    'url':
+        'https://browser.sentry-cdn.com/$jsSdkVersion/bundle.tracing.replay.min.js',
+    'integrity': productionReplayIntegrity,
+  },
+  {
+    'url': 'https://browser.sentry-cdn.com/$jsSdkVersion/replay-canvas.min.js',
+    'integrity': productionReplayCanvasIntegrity,
+  }
+];
+
+@internal
+const debugReplayScripts = [
+  {
+    'url':
+        'https://browser.sentry-cdn.com/$jsSdkVersion/bundle.tracing.replay.js',
+    'integrity': debugReplayIntegrity,
+  },
+  {
+    'url': 'https://browser.sentry-cdn.com/$jsSdkVersion/replay-canvas.js',
+    'integrity': debugReplayCanvasIntegrity,
+  },
+];

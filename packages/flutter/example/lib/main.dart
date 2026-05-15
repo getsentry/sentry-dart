@@ -67,6 +67,7 @@ Future<void> setupSentry(
 
       options.replay.sessionSampleRate = 1.0;
       options.replay.onErrorSampleRate = 1.0;
+      options.replay.enableWebCanvasRecording = true;
 
       options.enableLogs = true;
 

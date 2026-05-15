@@ -25,10 +25,8 @@ class WebSentryJsBinding implements SentryJsBinding {
 
   @override
   void init(Map<String, dynamic> options) {
-    if (options['defaultIntegrations'] != null) {
-      options['defaultIntegrations'] = options['defaultIntegrations']
-          .map((String integration) => _createIntegration(integration));
-    }
+    _setIntegrations(options, 'defaultIntegrations');
+    _setIntegrations(options, 'integrations');
     final jsOptions = options.jsify() as JSObject;
     jsOptions['beforeSend'] = _beforeSend.toJS;
     _init(jsOptions);
@@ -60,12 +58,23 @@ class WebSentryJsBinding implements SentryJsBinding {
     isolationScope.setSession(currentSession);
   }
 
+  void _setIntegrations(Map<String, dynamic> options, String key) {
+    final integrations = options[key];
+    if (integrations is Iterable<String>) {
+      options[key] = integrations.map(_createIntegration);
+    }
+  }
+
   JSObject? _createIntegration(String integration) {
     switch (integration) {
       case SentryJsIntegrationName.globalHandlers:
         return _globalHandlersIntegration();
       case SentryJsIntegrationName.dedupe:
         return _dedupeIntegration();
+      case SentryJsIntegrationName.replay:
+        return _replayIntegration();
+      case SentryJsIntegrationName.replayCanvas:
+        return _replayCanvasIntegration();
       default:
         return null;
     }
@@ -135,6 +144,18 @@ class WebSentryJsBinding implements SentryJsBinding {
     }
 
     return Map.unmodifiable(_filenameToDebugIds);
+  }
+
+  @override
+  String? getReplayId({bool onlyIfSampled = false}) {
+    try {
+      final replay = _getReplay();
+      final replayId =
+          replay?.callMethod<JSString?>('getReplayId'.toJS, onlyIfSampled.toJS);
+      return replayId?.toDart;
+    } catch (_) {
+      return null;
+    }
   }
 
   void _buildFilenameToDebugIdMap(
@@ -216,11 +237,20 @@ external void _startSession(JSAny? context);
 @JS('Sentry.captureSession')
 external void _captureSession();
 
+@JS('Sentry.getReplay')
+external JSObject? _getReplay();
+
 @JS('Sentry.globalHandlersIntegration')
 external JSObject _globalHandlersIntegration();
 
 @JS('Sentry.dedupeIntegration')
 external JSObject _dedupeIntegration();
+
+@JS('Sentry.replayIntegration')
+external JSObject _replayIntegration();
+
+@JS('Sentry.replayCanvasIntegration')
+external JSObject _replayCanvasIntegration();
 
 @JS('globalThis')
 @internal

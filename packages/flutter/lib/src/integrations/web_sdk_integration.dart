@@ -33,9 +33,7 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
     _options = options;
 
     try {
-      final scripts = options.runtimeChecker.isDebugMode()
-          ? debugScripts
-          : productionScripts;
+      final scripts = _scriptsForOptions(options);
       await _scriptLoader.loadWebSdk(scripts);
       await _web.init(hub);
       options.sdk.addIntegration(name);
@@ -50,6 +48,18 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
         rethrow;
       }
     }
+  }
+
+  List<Map<String, String>> _scriptsForOptions(SentryFlutterOptions options) {
+    if (options.replay.enableWebCanvasRecording) {
+      return options.runtimeChecker.isDebugMode()
+          ? debugReplayScripts
+          : productionReplayScripts;
+    }
+
+    return options.runtimeChecker.isDebugMode()
+        ? debugScripts
+        : productionScripts;
   }
 
   @override
