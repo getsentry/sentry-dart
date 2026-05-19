@@ -7,7 +7,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/native/java/android_envelope_sender.dart';
+import 'package:sentry_flutter/src/native/java/android_core_worker.dart';
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 
 void main() {
@@ -52,24 +52,24 @@ void main() {
     });
   });
 
-  group('EnvelopeSender initialization', () {
-    late AndroidEnvelopeSender Function(SentryFlutterOptions) originalFactory;
+  group('CoreWorker initialization', () {
+    late AndroidCoreWorker Function(SentryFlutterOptions) originalFactory;
 
     setUp(() {
-      originalFactory = AndroidEnvelopeSender.factory;
+      originalFactory = AndroidCoreWorker.factory;
     });
 
     tearDown(() {
-      AndroidEnvelopeSender.factory = originalFactory;
+      AndroidCoreWorker.factory = originalFactory;
     });
 
-    test('starts envelope sender in constructor', () {
+    test('starts core worker in constructor', () {
       var factoryCalled = false;
       var startCalled = false;
 
-      AndroidEnvelopeSender.factory = (options) {
+      AndroidCoreWorker.factory = (options) {
         factoryCalled = true;
-        return _FakeEnvelopeSender(onStart: () => startCalled = true);
+        return _FakeCoreWorker(onStart: () => startCalled = true);
       };
 
       final options =
@@ -84,11 +84,11 @@ void main() {
   });
 }
 
-/// Fake envelope sender for testing that tracks method calls.
-class _FakeEnvelopeSender implements AndroidEnvelopeSender {
+/// Fake core worker for testing that tracks method calls.
+class _FakeCoreWorker implements AndroidCoreWorker {
   final void Function()? onStart;
 
-  _FakeEnvelopeSender({this.onStart});
+  _FakeCoreWorker({this.onStart});
 
   @override
   FutureOr<void> start() {
@@ -103,6 +103,31 @@ class _FakeEnvelopeSender implements AndroidEnvelopeSender {
   @override
   void captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
+    // No-op for testing
+  }
+
+  @override
+  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
+    return null;
+  }
+
+  @override
+  FutureOr<Map<String, dynamic>?> loadContexts() {
+    return null;
+  }
+
+  @override
+  void addBreadcrumb(Breadcrumb breadcrumb) {
+    // No-op for testing
+  }
+
+  @override
+  void setUser(SentryUser? user) {
+    // No-op for testing
+  }
+
+  @override
+  void setContexts(String key, value) {
     // No-op for testing
   }
 }
