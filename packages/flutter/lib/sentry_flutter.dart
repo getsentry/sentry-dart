@@ -17,12 +17,13 @@ export 'src/replay/replay_quality.dart';
 export 'src/screenshot/masking_config.dart' show SentryMaskingDecision;
 export 'src/screenshot/sentry_mask_widget.dart';
 export 'src/screenshot/sentry_screenshot_quality.dart';
-export 'src/screenshot/sentry_screenshot_widget.dart';
+export 'src/screenshot/sentry_screenshot_widget.dart'
+    hide sentryScreenshotWidgetGlobalKey;
 export 'src/screenshot/sentry_unmask_widget.dart';
 export 'src/sentry_asset_bundle.dart' show SentryAssetBundle;
 export 'src/sentry_flutter.dart';
 export 'src/sentry_flutter_options.dart';
 export 'src/sentry_privacy_options.dart';
 export 'src/sentry_replay_options.dart';
-export 'src/sentry_widget.dart';
+export 'src/sentry_widget.dart' hide sentryWidgetGlobalKey;
 export 'src/user_interaction/sentry_user_interaction_widget.dart';
