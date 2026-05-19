@@ -64,10 +64,6 @@ jobs:
         if: matrix.target == 'macos'
         run: mv packages/flutter packages/sentry_flutter
 
-      - name: Clear SwiftPM cache
-        if: matrix.target == 'macos'
-        run: bash ./.github/scripts/clear-swiftpm-cache.sh
-
       - uses: ./.github/actions/flutter-test
         with:
           directory: ${{ matrix.target == 'macos' && 'packages/sentry_flutter' || 'packages/flutter' }}
