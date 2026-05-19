@@ -65,26 +65,32 @@ native.SentryOptions$BeforeSendReplayCallback createBeforeSendReplayCallback(
           using((arena) {
             final replayRecording = hint.getReplayRecording()
               ?..releasedBy(arena);
-            final data = replayRecording
-                ?.getPayload()
-                ?.use((payload) => payload.firstOrNull)
-              ?..releasedBy(arena);
-            if (data is native.$RRWebOptionsEvent$Type) {
-              final payload = data
-                  ?.as(native.RRWebOptionsEvent.type)
-                  .getOptionsPayload()
-                ?..releasedBy(arena);
-              payload?.removeWhere((key, value) {
-                final shouldRemove =
-                    key?.toDartString(releaseOriginal: true).contains('mask') ??
-                        false;
-                value?.release(); // release the materialized value handle
-                return shouldRemove;
-              });
+            final data = replayRecording?.getPayload()?.use(
+                  (payload) => payload.firstOrNull,
+                )?..releasedBy(arena);
+            if (data?.isA(native.RRWebOptionsEvent.type) ?? false) {
+              final optionsEvent = data!.as(native.RRWebOptionsEvent.type)
+                ..releasedBy(arena);
+              final payload = optionsEvent.getOptionsPayload()
+                ..releasedBy(arena);
 
-              final jMap = dartToJMap(options.privacy.toJson());
-              payload?.addAll(jMap);
-              jMap.release();
+              final keys = payload.keys..releasedBy(arena);
+              final iterator = keys.iterator..releasedBy(arena);
+              final keysToRemove = <JString>[];
+              while (iterator.moveNext()) {
+                final key = iterator.current?..releasedBy(arena);
+                if (key?.toDartString().contains('mask') ?? false) {
+                  keysToRemove.add(key!);
+                }
+              }
+
+              for (final key in keysToRemove) {
+                payload.remove(key)?.releasedBy(arena);
+              }
+
+              final jMap = dartToJMap(options.privacy.toJson())
+                ..releasedBy(arena);
+              payload.addAll(jMap);
             }
           });
           return sentryReplayEvent;
