@@ -104,12 +104,21 @@ jobs:
         shell: bash
         run: |
           TARGET=${{ matrix.target }}
+          clear_swiftpm_cache() {
+            bash ../../../.github/actions/clear-swiftpm-cache/clear-swiftpm-cache.sh
+          }
           case $TARGET in
           ios)
-          flutter build ios --no-codesign
+          flutter build ios --no-codesign || {
+            clear_swiftpm_cache
+            flutter build ios --no-codesign
+          }
           ;;
           macos)
-          flutter build macos
+          flutter build macos || {
+            clear_swiftpm_cache
+            flutter build macos
+          }
           ;;
           android)
           flutter build appbundle

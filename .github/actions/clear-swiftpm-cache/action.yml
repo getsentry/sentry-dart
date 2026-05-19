@@ -6,7 +6,4 @@ runs:
   steps:
     - name: Clear SwiftPM cache
       shell: bash
-      run: |
-        rm -rf "$HOME/Library/Caches/org.swift.swiftpm"
-        rm -rf "$HOME/Library/org.swift.swiftpm"
-        rm -rf "$HOME/Library/Developer/Xcode/DerivedData"/*/SourcePackages
+      run: bash ./.github/actions/clear-swiftpm-cache/clear-swiftpm-cache.sh
