@@ -207,19 +207,9 @@ class SentryNativeJava extends SentryNativeChannel {
   void addBreadcrumb(Breadcrumb breadcrumb) =>
       tryCatchSync('addBreadcrumb', () {
         using((arena) {
-          final scopesAdapter = native.ScopesAdapter.getInstance()
-            ?..releasedBy(arena);
-          if (scopesAdapter == null) return;
-          final nativeOptions = scopesAdapter.getOptions()..releasedBy(arena);
-
-          final jMap = dartToJMap(breadcrumb.toJson());
-          final nativeBreadcrumb =
-              native.Breadcrumb.fromMap(jMap, nativeOptions)
-                ?..releasedBy(arena);
-          // release jMap directly after use
-          jMap.release();
-          if (nativeBreadcrumb == null) return;
-          native.Sentry.addBreadcrumb$1(nativeBreadcrumb);
+          final jBytes = jsonToJByteArray(breadcrumb.toJson())
+            ..releasedBy(arena);
+          native.SentryFlutterPlugin.addBreadcrumbFromJsonBytes(jBytes);
         });
       });
 
@@ -232,21 +222,10 @@ class SentryNativeJava extends SentryNativeChannel {
   void setUser(SentryUser? user) => tryCatchSync('setUser', () {
         using((arena) {
           if (user == null) {
-            native.Sentry.setUser(null);
+            native.SentryFlutterPlugin.setUserFromJsonBytes(null);
           } else {
-            final scopesAdapter = native.ScopesAdapter.getInstance()
-              ?..releasedBy(arena);
-            if (scopesAdapter == null) return;
-            final nativeOptions = scopesAdapter.getOptions()..releasedBy(arena);
-
-            final jMap = dartToJMap(user.toJson());
-            final nativeUser = native.User.fromMap(jMap, nativeOptions)
-              ?..releasedBy(arena);
-            // release jMap directly after use
-            jMap.release();
-            if (nativeUser == null) return;
-
-            native.Sentry.setUser(nativeUser);
+            final jBytes = jsonToJByteArray(user.toJson())..releasedBy(arena);
+            native.SentryFlutterPlugin.setUserFromJsonBytes(jBytes);
           }
         });
       });
@@ -255,9 +234,9 @@ class SentryNativeJava extends SentryNativeChannel {
   void setContexts(String key, value) => tryCatchSync('setContexts', () {
         using((arena) {
           final jKey = key.toJString()..releasedBy(arena);
-          final jVal = dartToJObject(value)..releasedBy(arena);
+          final jBytes = jsonToJByteArray(value)..releasedBy(arena);
 
-          native.SentryFlutterPlugin.setContext(jKey, jVal);
+          native.SentryFlutterPlugin.setContextFromJsonBytes(jKey, jBytes);
         });
       });
 
@@ -412,6 +391,11 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 }
 
+// Direct JNI conversion is fine for primitives. Use the Map/List conversion
+// branches below only for small, known-shape payloads. Arbitrary,
+// user-controlled, or potentially large maps/lists should cross JNI as UTF-8
+// JSON bytes and be deserialized on the Java/Kotlin side to avoid per-entry JNI
+// calls and local reference churn.
 @visibleForTesting
 JObject dartToJObject(Object? value) => switch (value) {
       String s => s.toJString(),
@@ -422,6 +406,10 @@ JObject dartToJObject(Object? value) => switch (value) {
       Map<String, dynamic> m => dartToJMap(m),
       _ => value.toString().toJString()
     };
+
+@visibleForTesting
+JByteArray jsonToJByteArray(Object? value) =>
+    JByteArray.from(encodeUtf8Json(normalizeNativeJson(value)));
 
 @visibleForTesting
 JList<JObject> dartToJList(List<dynamic> values) {

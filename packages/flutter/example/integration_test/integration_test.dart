@@ -151,6 +151,64 @@ void main() {
     });
   });
 
+  testWidgets('syncs large scope maps to native on Android', (tester) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
+
+    final largeItems = List.generate(
+      64,
+      (index) => {
+        'index': index,
+        'label': 'item-$index',
+        'nested': {
+          'enabled': index.isEven,
+          'value': index * 1.5,
+          'nullEntry': null,
+        },
+      },
+    );
+
+    await Sentry.configureScope((scope) async {
+      await scope.setContexts('large_context', {
+        'items': largeItems,
+        'customObject': CustomObject(),
+        'nullEntry': null,
+      });
+      await scope.setUser(SentryUser(
+        id: 'large-user',
+        data: {
+          'items': largeItems,
+          'customObject': CustomObject(),
+        },
+      ));
+      await scope.addBreadcrumb(Breadcrumb(
+        message: 'large-breadcrumb',
+        data: {
+          'items': largeItems,
+          'customObject': CustomObject(),
+          'nullEntry': null,
+        },
+      ));
+    });
+
+    final nativeContexts = await SentryFlutter.native?.loadContexts();
+    final contextData = nativeContexts?['contexts'] as Map?;
+    final largeContext = contextData?['large_context'] as Map?;
+    final nativeUser = nativeContexts?['user'] as Map?;
+    final breadcrumbs = nativeContexts?['breadcrumbs'] as List?;
+    final nativeBreadcrumb = breadcrumbs?.cast<Map>().firstWhere(
+          (breadcrumb) => breadcrumb['message'] == 'large-breadcrumb',
+        );
+
+    expect((largeContext?['items'] as List?)?.length, 64);
+    expect(largeContext?['customObject'], CustomObject().toString());
+    expect(nativeUser?['id'], 'large-user');
+    expect(((nativeUser?['data'] as Map?)?['items'] as List?)?.length, 64);
+    expect(
+        ((nativeBreadcrumb?['data'] as Map?)?['items'] as List?)?.length, 64);
+  }, skip: !Platform.isAndroid);
+
   testWidgets('setup sentry and start transaction', (tester) async {
     await setupSentryAndApp(tester);
 
@@ -806,23 +864,12 @@ void main() {
     expect(user['data']['map'], isNotNull);
     expect(user['data']['list'], isNotNull);
     expect(user['data']['custom object'], equals(customObject.toString()));
-
-    if (Platform.isAndroid) {
-      // On Android, the Java SDK's User.data field only supports Map<String, String>.
-      // Nested Maps and Lists are converted to Java's HashMap/ArrayList toString()
-      // format (e.g., {key=value} instead of {"key":"value"}).
-      expect(user['data']['map'],
-          equals('{nested=data, custom object=${customObject.toString()}}'));
-      expect(
-          user['data']['list'], equals('[1, ${customObject.toString()}, 3]'));
-    } else {
-      expect(user['data']['map']['nested'], equals('data'));
-      expect(user['data']['map']['custom object'],
-          equals(customObject.toString()));
-      expect(user['data']['list'][0], equals(1));
-      expect(user['data']['list'][1], equals(customObject.toString()));
-      expect(user['data']['list'][2], equals(3));
-    }
+    expect(user['data']['map']['nested'], equals('data'));
+    expect(
+        user['data']['map']['custom object'], equals(customObject.toString()));
+    expect(user['data']['list'][0], equals(1));
+    expect(user['data']['list'][1], equals(customObject.toString()));
+    expect(user['data']['list'][2], equals(3));
 
     // 3. Clear user (after clearing the id should remain)
     await Sentry.configureScope((scope) async {

@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, invalid_use_of_internal_member
 @TestOn('vm')
 
 import 'dart:io';
@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:test/test.dart';
 import 'package:jni/jni.dart';
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
+import 'package:sentry_flutter/src/native/utils/utf8_json.dart';
 
 import 'utils.dart';
 
@@ -47,6 +48,10 @@ void main() {
     'innerList': [1, 2],
     'innerNull': null,
   };
+  final expectedNormalizedNestedMap = {
+    'innerString': 'nested',
+    'innerList': [1, 2],
+  };
   final expectedList = [
     'value',
     1,
@@ -65,6 +70,19 @@ void main() {
     'key5': customObject.toString(),
     'list': expectedList,
     'nestedMap': expectedNestedMap,
+  };
+  final expectedNormalizedMap = {
+    ...expectedMap,
+    'list': [
+      'value',
+      1,
+      1.1,
+      true,
+      customObject.toString(),
+      expectedNestedList,
+      expectedNormalizedNestedMap,
+    ],
+    'nestedMap': expectedNormalizedNestedMap,
   };
 
   group('JNI (Android)', () {
@@ -110,6 +128,23 @@ void main() {
       using((arena) {
         final javaMap = dartToJMap(inputMap)..releasedBy(arena);
         _expectJniMap(javaMap, expectedMap, arena);
+      });
+    });
+
+    test('normalizeNativeJson normalizes values for JSON bytes', () {
+      final actual = normalizeNativeJson(inputMap);
+
+      expect(actual, expectedNormalizedMap);
+    });
+
+    test('jsonToJByteArray converts normalized JSON to bytes', () {
+      using((arena) {
+        final javaBytes = jsonToJByteArray(inputMap)..releasedBy(arena);
+        final byteRange = javaBytes.getRange(0, javaBytes.length);
+        final bytes = byteRange.buffer
+            .asUint8List(byteRange.offsetInBytes, byteRange.length);
+
+        expect(bytes, isNotEmpty);
       });
     });
   }, skip: !Platform.isAndroid);
