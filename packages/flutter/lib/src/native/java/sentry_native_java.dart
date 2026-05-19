@@ -409,7 +409,7 @@ JObject dartToJObject(Object? value) => switch (value) {
 
 @visibleForTesting
 JByteArray jsonToJByteArray(Object? value) =>
-    JByteArray.from(encodeUtf8Json(normalizeNativeJson(value)));
+    JByteArray.from(encodeUtf8Json(normalize(value)));
 
 @visibleForTesting
 JList<JObject> dartToJList(List<dynamic> values) {

@@ -10,21 +10,6 @@ Uint8List encodeUtf8Json(Object? data) {
 }
 
 @internal
-Object? normalizeNativeJson(Object? value) => switch (value) {
-      null => 'null',
-      String s => s,
-      bool b => b,
-      num n => n,
-      List<dynamic> l =>
-        l.nonNulls.map(normalizeNativeJson).toList(growable: false),
-      Map<String, dynamic> m => {
-          for (final entry in m.entries.where((e) => e.value != null))
-            entry.key: normalizeNativeJson(entry.value)
-        },
-      _ => value.toString()
-    };
-
-@internal
 Map<String, dynamic> decodeUtf8JsonMap(Uint8List bytes) {
   final jsonString = utf8.decode(bytes);
   final decoded = json.decode(jsonString);
