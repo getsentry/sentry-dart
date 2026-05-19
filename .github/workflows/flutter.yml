@@ -82,6 +82,10 @@ jobs:
         if: matrix.target == 'macos'
         run: mv packages/flutter packages/sentry_flutter
 
+      - name: Clear SwiftPM artifact cache
+        if: matrix.target == 'ios' || matrix.target == 'macos'
+        run: rm -rf "$HOME/Library/Caches/org.swift.swiftpm/artifacts"
+
       - name: Build example for ${{ matrix.target }}
         # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.
         if: matrix.target != 'wasm'
