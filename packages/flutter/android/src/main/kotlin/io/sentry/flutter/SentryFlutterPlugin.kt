@@ -456,7 +456,9 @@ class SentryFlutterPlugin :
     }
 
     private fun jsonObjectReader(bytes: ByteArray): JsonObjectReader =
-      JsonObjectReader(InputStreamReader(ByteArrayInputStream(bytes), Charsets.UTF_8))
+      JsonObjectReader(
+        InputStreamReader(ByteArrayInputStream(bytes), Charsets.UTF_8),
+      )
 
     private fun Any?.toKotlinJsonValue(): Any? =
       when (this) {
