@@ -7,6 +7,7 @@ export 'package:sentry/sentry.dart';
 export 'src/binding_wrapper.dart'
     show BindingWrapper, SentryWidgetsFlutterBinding;
 export 'src/feedback/sentry_feedback_form.dart';
+// ignore: deprecated_member_use_from_same_package
 export 'src/feedback/sentry_feedback_widget.dart' show SentryFeedbackWidget;
 export 'src/flutter_sentry_attachment.dart';
 export 'src/integrations/load_release_integration.dart';
