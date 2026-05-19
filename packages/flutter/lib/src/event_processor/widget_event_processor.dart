@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:sentry/sentry.dart';
 
-import '../../sentry_flutter.dart';
+import '../sentry_widget.dart' show sentryWidgetGlobalKey;
 
 class WidgetEventProcessor implements EventProcessor {
   @override
