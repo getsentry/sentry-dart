@@ -1,0 +1,12 @@
+name: Clear SwiftPM cache
+description: Remove stale SwiftPM package and binary artifact caches
+
+runs:
+  using: composite
+  steps:
+    - name: Clear SwiftPM cache
+      shell: bash
+      run: |
+        rm -rf "$HOME/Library/Caches/org.swift.swiftpm"
+        rm -rf "$HOME/Library/org.swift.swiftpm"
+        rm -rf "$HOME/Library/Developer/Xcode/DerivedData"/*/SourcePackages

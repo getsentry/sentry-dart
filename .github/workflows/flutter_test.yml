@@ -101,12 +101,11 @@ jobs:
         if: matrix.target == 'macos'
         run: mv packages/flutter packages/sentry_flutter
 
-      - name: Clear SwiftPM artifact cache
-        run: rm -rf "$HOME/Library/Caches/org.swift.swiftpm/artifacts"
-
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
           channel: ${{ matrix.sdk }}
+
+      - uses: ./.github/actions/clear-swiftpm-cache
 
       - run: flutter pub get
         working-directory: ${{ matrix.target == 'macos' && 'packages/sentry_flutter/example' || 'packages/flutter/example' }}
