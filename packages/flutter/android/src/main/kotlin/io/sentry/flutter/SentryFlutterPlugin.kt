@@ -34,7 +34,6 @@ import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import org.json.JSONArray
 import org.json.JSONObject
-import org.json.JSONTokener
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
 import java.lang.ref.WeakReference
@@ -458,44 +457,15 @@ class SentryFlutterPlugin :
         "debug_file" to debugFile,
       )
 
-    private fun parseJsonBytes(bytes: ByteArray): Any? {
-      val json = String(bytes, Charsets.UTF_8)
-      return toKotlinJsonValue(JSONTokener(json).nextValue())
-    }
+    private fun parseJsonBytes(bytes: ByteArray): Any? =
+      jsonObjectReader(bytes).use { reader ->
+        reader.nextObjectOrNull()
+      }
 
     private fun jsonObjectReader(bytes: ByteArray): JsonObjectReader =
       JsonObjectReader(
         InputStreamReader(ByteArrayInputStream(bytes), Charsets.UTF_8),
       )
-
-    private fun toKotlinJsonValue(value: Any?): Any? =
-      when (value) {
-        null, JSONObject.NULL -> {
-          null
-        }
-
-        is JSONObject -> {
-          val map = mutableMapOf<String, Any?>()
-          val keys = value.keys()
-          while (keys.hasNext()) {
-            val key = keys.next()
-            map[key] = toKotlinJsonValue(value.opt(key))
-          }
-          map
-        }
-
-        is JSONArray -> {
-          val list = mutableListOf<Any?>()
-          for (i in 0 until value.length()) {
-            list.add(toKotlinJsonValue(value.opt(i)))
-          }
-          list
-        }
-
-        else -> {
-          value
-        }
-      }
 
     private fun Double.adjustReplaySizeToBlockSize(): Double {
       val remainder = this % VIDEO_BLOCK_SIZE
