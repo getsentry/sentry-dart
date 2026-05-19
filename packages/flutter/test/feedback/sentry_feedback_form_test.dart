@@ -660,6 +660,41 @@ void main() {
       expect(SentryFeedbackForm.preservedMessage, "test-message");
     });
 
+    testWidgets(
+        'preserves form data when taking screenshot without associatedEventId',
+        (tester) async {
+      fixture.options.feedback.showName = true;
+      fixture.options.feedback.showEmail = true;
+
+      await fixture.pumpFeedbackForm(
+        tester,
+        (hub) => SentryFeedbackForm(hub: hub),
+      );
+
+      await tester.enterText(
+        find.byKey(ValueKey('sentry_feedback_name_textfield')),
+        "test-name",
+      );
+      await tester.enterText(
+        find.byKey(ValueKey('sentry_feedback_email_textfield')),
+        "test@example.com",
+      );
+      await tester.enterText(
+        find.byKey(ValueKey('sentry_feedback_message_textfield')),
+        "test-message",
+      );
+
+      final button = find
+          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
+      expect(SentryFeedbackForm.preservedName, "test-name");
+      expect(SentryFeedbackForm.preservedEmail, "test@example.com");
+      expect(SentryFeedbackForm.preservedMessage, "test-message");
+    });
+
     testWidgets('restores form data when widget is reopened', (tester) async {
       fixture.options.feedback.showName = true;
       fixture.options.feedback.showEmail = true;
@@ -942,6 +977,33 @@ void main() {
         expect(find.text('Thank you for your report!'), findsOneWidget);
         expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
       });
+    });
+  });
+
+  group('SentryFeedbackWidget deprecated alias', () {
+    tearDown(() {
+      SentryFeedbackForm.pendingAssociatedEventId = null;
+      SentryFeedbackForm.clearPreservedData();
+    });
+
+    test('is a deprecated alias for SentryFeedbackForm', () {
+      expect(SentryFeedbackWidget, SentryFeedbackForm);
+    });
+
+    test('shares static form state with SentryFeedbackForm', () {
+      final associatedEventId = SentryId.fromId(
+        '1988bb1b6f0d4c509e232f0cb9aaeaea',
+      );
+
+      SentryFeedbackWidget.pendingAssociatedEventId = associatedEventId;
+      SentryFeedbackWidget.preservedName = 'fixture-name';
+      SentryFeedbackWidget.preservedEmail = 'fixture@example.com';
+      SentryFeedbackWidget.preservedMessage = 'fixture-message';
+
+      expect(SentryFeedbackForm.pendingAssociatedEventId, associatedEventId);
+      expect(SentryFeedbackForm.preservedName, 'fixture-name');
+      expect(SentryFeedbackForm.preservedEmail, 'fixture@example.com');
+      expect(SentryFeedbackForm.preservedMessage, 'fixture-message');
     });
   });
 }

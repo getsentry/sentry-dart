@@ -320,7 +320,7 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                           key: const ValueKey(
                               'sentry_feedback_capture_screenshot_button'),
                           onPressed: () async {
-                            _dismiss(pendingAssociatedEventId: true);
+                            _dismiss(preserveFormData: true);
                             SentryScreenshotWidget.showTakeScreenshotButton();
                           },
                           child: Text(
@@ -349,7 +349,7 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                 child: TextButton(
                   key: const ValueKey('sentry_feedback_close_button'),
                   onPressed: () {
-                    _dismiss(pendingAssociatedEventId: false);
+                    _dismiss(preserveFormData: false);
                   },
                   child: Text(widget.options.cancelButtonLabel),
                 ),
@@ -403,7 +403,7 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
       }
     }
 
-    _dismiss(pendingAssociatedEventId: false);
+    _dismiss(preserveFormData: false);
   }
 
   void _showSuccessSnackBar() {
@@ -442,11 +442,11 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
     return widget._hub.captureFeedback(feedback, hint: hint);
   }
 
-  void _dismiss({required bool pendingAssociatedEventId}) {
+  void _dismiss({required bool preserveFormData}) {
     SentryFeedbackForm.pendingAssociatedEventId =
-        pendingAssociatedEventId ? widget.associatedEventId : null;
+        preserveFormData ? widget.associatedEventId : null;
 
-    _writePreservedData();
+    _writePreservedData(preserveFormData: preserveFormData);
 
     if (mounted) {
       Navigator.maybePop(context);
@@ -490,13 +490,14 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
     }
   }
 
-  void _writePreservedData() {
-    if (SentryFeedbackForm.pendingAssociatedEventId != null) {
-      SentryFeedbackForm.preservedName = _nameController.text;
-      SentryFeedbackForm.preservedEmail = _emailController.text;
-      SentryFeedbackForm.preservedMessage = _messageController.text;
-    } else {
+  void _writePreservedData({required bool preserveFormData}) {
+    if (!preserveFormData) {
       SentryFeedbackForm.clearPreservedData();
+      return;
     }
+
+    SentryFeedbackForm.preservedName = _nameController.text;
+    SentryFeedbackForm.preservedEmail = _emailController.text;
+    SentryFeedbackForm.preservedMessage = _messageController.text;
   }
 }
