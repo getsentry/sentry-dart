@@ -462,7 +462,10 @@ class SentryFlutterPlugin :
 
     private fun Any?.toKotlinJsonValue(): Any? =
       when (this) {
-        null, JSONObject.NULL -> null
+        null, JSONObject.NULL -> {
+          null
+        }
+
         is JSONObject -> {
           val map = mutableMapOf<String, Any?>()
           val keys = keys()
@@ -475,6 +478,7 @@ class SentryFlutterPlugin :
           }
           map
         }
+
         is JSONArray -> {
           val list = mutableListOf<Any?>()
           for (i in 0 until length()) {
@@ -485,7 +489,10 @@ class SentryFlutterPlugin :
           }
           list
         }
-        else -> this
+
+        else -> {
+          this
+        }
       }
 
     private fun Double.adjustReplaySizeToBlockSize(): Double {
