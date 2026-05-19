@@ -96,7 +96,7 @@ jobs:
 
       - name: Clear SwiftPM cache
         if: matrix.target == 'ios' || matrix.target == 'macos'
-        run: bash ./.github/actions/clear-swiftpm-cache/clear-swiftpm-cache.sh
+        run: bash ./.github/scripts/clear-swiftpm-cache.sh
 
       - name: Build example for ${{ matrix.target }}
         # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.
@@ -106,7 +106,7 @@ jobs:
         run: |
           TARGET=${{ matrix.target }}
           clear_swiftpm_cache() {
-            bash ../../../.github/actions/clear-swiftpm-cache/clear-swiftpm-cache.sh
+            bash ../../../.github/scripts/clear-swiftpm-cache.sh
           }
           case $TARGET in
           ios)

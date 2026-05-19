@@ -23,7 +23,7 @@ runs:
     - name: Clear SwiftPM cache
       if: matrix.target == 'ios' || matrix.target == 'macos'
       shell: bash
-      run: bash ./.github/actions/clear-swiftpm-cache/clear-swiftpm-cache.sh
+      run: bash ./.github/scripts/clear-swiftpm-cache.sh
 
     # Install required dependencies for Flutter on Linux on Ubuntu
     - name: 'Setup Linux'

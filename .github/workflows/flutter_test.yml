@@ -106,7 +106,7 @@ jobs:
           channel: ${{ matrix.sdk }}
 
       - name: Clear SwiftPM cache
-        run: bash ./.github/actions/clear-swiftpm-cache/clear-swiftpm-cache.sh
+        run: bash ./.github/scripts/clear-swiftpm-cache.sh
 
       - run: flutter pub get
         working-directory: ${{ matrix.target == 'macos' && 'packages/sentry_flutter/example' || 'packages/flutter/example' }}
