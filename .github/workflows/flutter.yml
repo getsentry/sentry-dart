@@ -52,24 +52,6 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - uses: ./.github/actions/flutter-test
-        with:
-          directory: packages/flutter
-
-      - uses: ./.github/actions/coverage
-        if: matrix.target == 'linux' && matrix.sdk == 'stable'
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          directory: packages/flutter
-          coverage: sentry_flutter
-          min-coverage: 85
-
-      - uses: ./.github/actions/test-results
-        if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: sentry_flutter-${{ matrix.target }}-${{ matrix.sdk }}
-
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5
         if: matrix.os == 'macos'
@@ -85,6 +67,24 @@ jobs:
       - name: Clear SwiftPM artifact cache
         if: matrix.target == 'ios' || matrix.target == 'macos'
         run: rm -rf "$HOME/Library/Caches/org.swift.swiftpm/artifacts"
+
+      - uses: ./.github/actions/flutter-test
+        with:
+          directory: ${{ matrix.target == 'macos' && 'packages/sentry_flutter' || 'packages/flutter' }}
+
+      - uses: ./.github/actions/coverage
+        if: matrix.target == 'linux' && matrix.sdk == 'stable'
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: packages/flutter
+          coverage: sentry_flutter
+          min-coverage: 85
+
+      - uses: ./.github/actions/test-results
+        if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: sentry_flutter-${{ matrix.target }}-${{ matrix.sdk }}
 
       - name: Build example for ${{ matrix.target }}
         # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.
