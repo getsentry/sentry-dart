@@ -15,6 +15,8 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.Breadcrumb
 import io.sentry.DateUtils
+import io.sentry.IScope
+import io.sentry.JsonObjectReader
 import io.sentry.ScopesAdapter
 import io.sentry.Sentry
 import io.sentry.SentryOptions
@@ -31,8 +33,10 @@ import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
-import org.json.JSONObject
 import org.json.JSONArray
+import org.json.JSONObject
+import java.io.ByteArrayInputStream
+import java.io.InputStreamReader
 import java.lang.ref.WeakReference
 import java.net.Proxy.Type
 import kotlin.math.roundToInt
@@ -113,6 +117,14 @@ class SentryFlutterPlugin :
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
+    private val breadcrumbDeserializer by lazy {
+      Breadcrumb.Deserializer()
+    }
+
+    private val userDeserializer by lazy {
+      User.Deserializer()
+    }
+
     /**
      * Tears down the current ReplayIntegration to avoid invoking callbacks from a stale
      * Flutter isolate after hot restart.
@@ -161,14 +173,54 @@ class SentryFlutterPlugin :
         }
     }
 
-    @Suppress("unused") // Used by native/jni bindings
+    @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
-    fun setContext(
+    fun addBreadcrumbFromJsonBytes(bytes: ByteArray) {
+      try {
+        val options = ScopesAdapter.getInstance().options
+        val breadcrumb =
+          jsonObjectReader(bytes).use { reader ->
+            breadcrumbDeserializer.deserialize(reader, options.logger)
+          }
+        Sentry.addBreadcrumb(breadcrumb)
+      } catch (e: Exception) {
+        Log.e("Sentry", "Failed to add breadcrumb from JSON bytes", e)
+      }
+    }
+
+    @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
+    @JvmStatic
+    fun setUserFromJsonBytes(bytes: ByteArray?) {
+      try {
+        if (bytes == null) {
+          Sentry.setUser(null)
+          return
+        }
+
+        val options = ScopesAdapter.getInstance().options
+        val user =
+          jsonObjectReader(bytes).use { reader ->
+            userDeserializer.deserialize(reader, options.logger)
+          }
+        Sentry.setUser(user)
+      } catch (e: Exception) {
+        Log.e("Sentry", "Failed to set user from JSON bytes", e)
+      }
+    }
+
+    @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
+    @JvmStatic
+    fun setContextFromJsonBytes(
       key: String,
-      value: Any?,
+      bytes: ByteArray,
     ) {
-      Sentry.configureScope { scope ->
-        scope.setContexts(key, value)
+      try {
+        val value = parseJsonBytes(bytes)
+        Sentry.configureScope { scope ->
+          setContextValue(scope, key, value)
+        }
+      } catch (e: Exception) {
+        Log.e("Sentry", "Failed to set context from JSON bytes", e)
       }
     }
 
@@ -393,6 +445,37 @@ class SentryFlutterPlugin :
         "debug_id" to debugId,
         "code_id" to codeId,
         "debug_file" to debugFile,
+      )
+
+    private fun setContextValue(
+      scope: IScope,
+      key: String,
+      value: Any?,
+    ) {
+      // Force sentry-java's typed overloads so primitive contexts are wrapped
+      // as {"value": ...} instead of being stored as invalid raw values.
+      when (value) {
+        null -> scope.setContexts(key, null as Any?)
+        is Boolean -> scope.setContexts(key, value)
+        is String -> scope.setContexts(key, value)
+        is Number -> scope.setContexts(key, value)
+        is Collection<*> -> scope.setContexts(key, value)
+        is Array<*> -> scope.setContexts(key, value)
+        is Char -> scope.setContexts(key, value)
+        else -> scope.setContexts(key, value)
+      }
+    }
+
+    private fun parseJsonBytes(bytes: ByteArray): Any? =
+      jsonObjectReader(bytes).use { reader ->
+        // Despite the name, sentry-java's JsonObjectReader accepts
+        // primitives here as well as objects and arrays.
+        reader.nextObjectOrNull()
+      }
+
+    private fun jsonObjectReader(bytes: ByteArray): JsonObjectReader =
+      JsonObjectReader(
+        InputStreamReader(ByteArrayInputStream(bytes), Charsets.UTF_8),
       )
 
     private fun Double.adjustReplaySizeToBlockSize(): Double {
