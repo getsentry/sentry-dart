@@ -20,6 +20,11 @@ runs:
         java-version: '17'
         distribution: 'adopt'
 
+    - name: Clear SwiftPM artifact cache
+      if: matrix.target == 'ios' || matrix.target == 'macos'
+      shell: bash
+      run: rm -rf "$HOME/Library/Caches/org.swift.swiftpm/artifacts"
+
     # Install required dependencies for Flutter on Linux on Ubuntu
     - name: 'Setup Linux'
       if: matrix.target == 'linux'

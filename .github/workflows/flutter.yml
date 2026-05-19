@@ -100,6 +100,9 @@ jobs:
             rm -rf "$HOME/Library/Caches/org.swift.swiftpm/artifacts"
           fi
           flutter pub get
+          if [[ "$TARGET" == "ios" || "$TARGET" == "macos" ]]; then
+            rm -rf "$HOME/Library/Caches/org.swift.swiftpm/artifacts"
+          fi
           case $TARGET in
           ios)
           flutter build ios --no-codesign
