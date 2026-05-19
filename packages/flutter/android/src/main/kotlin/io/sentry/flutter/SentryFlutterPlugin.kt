@@ -459,6 +459,8 @@ class SentryFlutterPlugin :
 
     private fun parseJsonBytes(bytes: ByteArray): Any? =
       jsonObjectReader(bytes).use { reader ->
+        // Despite the name, sentry-java's JsonObjectReader accepts
+        // primitives here as well as objects and arrays.
         reader.nextObjectOrNull()
       }
 
