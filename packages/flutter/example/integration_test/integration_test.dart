@@ -174,12 +174,15 @@ void main() {
         'items': largeItems,
         'customObject': CustomObject(),
         'nullEntry': null,
+        'sparseList': ['a', null, 'c'],
       });
       await scope.setUser(SentryUser(
         id: 'large-user',
         data: {
           'items': largeItems,
           'customObject': CustomObject(),
+          'nullEntry': null,
+          'sparseList': ['a', null, 'c'],
         },
       ));
       await scope.addBreadcrumb(Breadcrumb(
@@ -188,6 +191,7 @@ void main() {
           'items': largeItems,
           'customObject': CustomObject(),
           'nullEntry': null,
+          'sparseList': ['a', null, 'c'],
         },
       ));
     });
@@ -203,10 +207,17 @@ void main() {
 
     expect((largeContext?['items'] as List?)?.length, 64);
     expect(largeContext?['customObject'], CustomObject().toString());
+    expect(largeContext?.containsKey('nullEntry'), isTrue);
+    expect(largeContext?['nullEntry'], isNull);
+    expect(largeContext?['sparseList'], ['a', null, 'c']);
     expect(nativeUser?['id'], 'large-user');
-    expect(((nativeUser?['data'] as Map?)?['items'] as List?)?.length, 64);
-    expect(
-        ((nativeBreadcrumb?['data'] as Map?)?['items'] as List?)?.length, 64);
+    final userData = nativeUser?['data'] as Map?;
+    expect((userData?['items'] as List?)?.length, 64);
+    expect(userData?['sparseList'], ['a', null, 'c']);
+
+    final breadcrumbData = nativeBreadcrumb?['data'] as Map?;
+    expect((breadcrumbData?['items'] as List?)?.length, 64);
+    expect(breadcrumbData?['sparseList'], ['a', null, 'c']);
   }, skip: !Platform.isAndroid);
 
   testWidgets('setup sentry and start transaction', (tester) async {

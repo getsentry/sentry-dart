@@ -471,10 +471,7 @@ class SentryFlutterPlugin :
           val keys = keys()
           while (keys.hasNext()) {
             val key = keys.next()
-            val value = opt(key).toKotlinJsonValue()
-            if (value != null) {
-              map[key] = value
-            }
+            map[key] = opt(key).toKotlinJsonValue()
           }
           map
         }
@@ -482,10 +479,7 @@ class SentryFlutterPlugin :
         is JSONArray -> {
           val list = mutableListOf<Any?>()
           for (i in 0 until length()) {
-            val value = opt(i).toKotlinJsonValue()
-            if (value != null) {
-              list.add(value)
-            }
+            list.add(opt(i).toKotlinJsonValue())
           }
           list
         }
