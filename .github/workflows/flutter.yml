@@ -96,6 +96,9 @@ jobs:
           flutter config --enable-macos-desktop
           flutter config --enable-linux-desktop
           TARGET=${{ matrix.target }}
+          if [[ "$TARGET" == "ios" || "$TARGET" == "macos" ]]; then
+            rm -rf "$HOME/Library/Caches/org.swift.swiftpm/artifacts"
+          fi
           flutter pub get
           case $TARGET in
           ios)
