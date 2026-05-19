@@ -68,11 +68,11 @@ class SentryNativeJava extends SentryNativeChannel {
     JByteArray? imagesUtf8JsonBytes;
 
     try {
-      instructionAddressJStrings = stackTrace.frames
-          .map((f) => f.instructionAddr)
-          .nonNulls
-          .map((s) => s.toJString())
-          .toSet();
+      final instructionAddresses =
+          stackTrace.frames.map((f) => f.instructionAddr).nonNulls.toSet();
+
+      instructionAddressJStrings =
+          instructionAddresses.map((s) => s.toJString()).toSet();
 
       instructionAddressSet = instructionAddressJStrings.nonNulls
           .cast<JString>()

@@ -61,31 +61,36 @@ native.SentryOptions$BeforeSendReplayCallback createBeforeSendReplayCallback(
   return native.SentryOptions$BeforeSendReplayCallback.implement(
     native.$SentryOptions$BeforeSendReplayCallback(
       execute: (sentryReplayEvent, hint) {
-        using((arena) {
-          final data = hint
-              .getReplayRecording()
-              ?.getPayload()
-              ?.use((payload) => payload.firstOrNull)
-            ?..releasedBy(arena);
-          if (data is native.$RRWebOptionsEvent$Type) {
-            final payload = data
-                ?.as(native.RRWebOptionsEvent.type)
-                .getOptionsPayload()
+        try {
+          using((arena) {
+            final replayRecording = hint.getReplayRecording()
               ?..releasedBy(arena);
-            payload?.removeWhere((key, value) {
-              final shouldRemove =
-                  key?.toDartString(releaseOriginal: true).contains('mask') ??
-                      false;
-              value?.release(); // release the materialized value handle
-              return shouldRemove;
-            });
+            final data = replayRecording
+                ?.getPayload()
+                ?.use((payload) => payload.firstOrNull)
+              ?..releasedBy(arena);
+            if (data is native.$RRWebOptionsEvent$Type) {
+              final payload = data
+                  ?.as(native.RRWebOptionsEvent.type)
+                  .getOptionsPayload()
+                ?..releasedBy(arena);
+              payload?.removeWhere((key, value) {
+                final shouldRemove =
+                    key?.toDartString(releaseOriginal: true).contains('mask') ??
+                        false;
+                value?.release(); // release the materialized value handle
+                return shouldRemove;
+              });
 
-            final jMap = dartToJMap(options.privacy.toJson());
-            payload?.addAll(jMap);
-            jMap.release();
-          }
-        });
-        return sentryReplayEvent;
+              final jMap = dartToJMap(options.privacy.toJson());
+              payload?.addAll(jMap);
+              jMap.release();
+            }
+          });
+          return sentryReplayEvent;
+        } finally {
+          hint.release();
+        }
       },
     ),
   );
