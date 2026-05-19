@@ -117,6 +117,14 @@ class SentryFlutterPlugin :
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
+    private val breadcrumbDeserializer by lazy {
+      Breadcrumb.Deserializer()
+    }
+
+    private val userDeserializer by lazy {
+      User.Deserializer()
+    }
+
     /**
      * Tears down the current ReplayIntegration to avoid invoking callbacks from a stale
      * Flutter isolate after hot restart.
@@ -183,7 +191,7 @@ class SentryFlutterPlugin :
         val options = ScopesAdapter.getInstance().options
         val breadcrumb =
           jsonObjectReader(bytes).use { reader ->
-            Breadcrumb.Deserializer().deserialize(reader, options.logger)
+            breadcrumbDeserializer.deserialize(reader, options.logger)
           }
         Sentry.addBreadcrumb(breadcrumb)
       } catch (e: Exception) {
@@ -203,7 +211,7 @@ class SentryFlutterPlugin :
         val options = ScopesAdapter.getInstance().options
         val user =
           jsonObjectReader(bytes).use { reader ->
-            User.Deserializer().deserialize(reader, options.logger)
+            userDeserializer.deserialize(reader, options.logger)
           }
         Sentry.setUser(user)
       } catch (e: Exception) {
@@ -452,7 +460,7 @@ class SentryFlutterPlugin :
 
     private fun parseJsonBytes(bytes: ByteArray): Any? {
       val json = String(bytes, Charsets.UTF_8)
-      return JSONTokener(json).nextValue().toKotlinJsonValue()
+      return toKotlinJsonValue(JSONTokener(json).nextValue())
     }
 
     private fun jsonObjectReader(bytes: ByteArray): JsonObjectReader =
@@ -460,32 +468,32 @@ class SentryFlutterPlugin :
         InputStreamReader(ByteArrayInputStream(bytes), Charsets.UTF_8),
       )
 
-    private fun Any?.toKotlinJsonValue(): Any? =
-      when (this) {
+    private fun toKotlinJsonValue(value: Any?): Any? =
+      when (value) {
         null, JSONObject.NULL -> {
           null
         }
 
         is JSONObject -> {
           val map = mutableMapOf<String, Any?>()
-          val keys = keys()
+          val keys = value.keys()
           while (keys.hasNext()) {
             val key = keys.next()
-            map[key] = opt(key).toKotlinJsonValue()
+            map[key] = toKotlinJsonValue(value.opt(key))
           }
           map
         }
 
         is JSONArray -> {
           val list = mutableListOf<Any?>()
-          for (i in 0 until length()) {
-            list.add(opt(i).toKotlinJsonValue())
+          for (i in 0 until value.length()) {
+            list.add(toKotlinJsonValue(value.opt(i)))
           }
           list
         }
 
         else -> {
-          this
+          value
         }
       }
 
