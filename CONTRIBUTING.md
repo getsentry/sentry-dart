@@ -103,7 +103,7 @@ Only packages with staged changes are analyzed — no need to wait for the full 
 Use the format `git-username/type/short-description` for branch names.
 
 * `git-username` should match your Git username or GitHub handle.
-* `type` should be a conventional change type such as `feat`, `fix`, `docs`, `test`, or `chore`.
+* `type` should be a conventional change type according to [conventional commits](https://www.conventionalcommits.org/) such as `feat`, `fix`, `docs`, `test`, or `chore`.
 * `short-description` should be lowercase, hyphen-separated, and describe the change.
 
 For example: `octocat/feat/add-http-timeout`.
