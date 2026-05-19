@@ -308,7 +308,7 @@ void main() {
     final appPackageInfo = await PackageInfo.fromPlatform();
     const expectedAppId = 'io.sentry.flutter.sample';
     final expectedSdkName =
-        Platform.isAndroid ? 'maven:sentry-android' : 'cocoapods:sentry-cocoa';
+        Platform.isAndroid ? 'maven:sentry-android' : 'spm:sentry-cocoa';
     final expectedVersion = appPackageInfo.version;
 
     // === BASIC VALIDATION ===
