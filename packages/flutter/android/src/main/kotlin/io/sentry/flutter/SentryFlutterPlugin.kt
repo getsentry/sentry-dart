@@ -15,6 +15,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.Breadcrumb
 import io.sentry.DateUtils
+import io.sentry.IScope
 import io.sentry.JsonObjectReader
 import io.sentry.ScopesAdapter
 import io.sentry.Sentry
@@ -172,17 +173,6 @@ class SentryFlutterPlugin :
         }
     }
 
-    @Suppress("unused") // Used by native/jni bindings
-    @JvmStatic
-    fun setContext(
-      key: String,
-      value: Any?,
-    ) {
-      Sentry.configureScope { scope ->
-        scope.setContexts(key, value)
-      }
-    }
-
     @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun addBreadcrumbFromJsonBytes(bytes: ByteArray) {
@@ -227,7 +217,7 @@ class SentryFlutterPlugin :
       try {
         val value = parseJsonBytes(bytes)
         Sentry.configureScope { scope ->
-          scope.setContexts(key, value)
+          setContextValue(scope, key, value)
         }
       } catch (e: Exception) {
         Log.e("Sentry", "Failed to set context from JSON bytes", e)
@@ -456,6 +446,25 @@ class SentryFlutterPlugin :
         "code_id" to codeId,
         "debug_file" to debugFile,
       )
+
+    private fun setContextValue(
+      scope: IScope,
+      key: String,
+      value: Any?,
+    ) {
+      // Force sentry-java's typed overloads so primitive contexts are wrapped
+      // as {"value": ...} instead of being stored as invalid raw values.
+      when (value) {
+        null -> scope.setContexts(key, null as Any?)
+        is Boolean -> scope.setContexts(key, value)
+        is String -> scope.setContexts(key, value)
+        is Number -> scope.setContexts(key, value)
+        is Collection<*> -> scope.setContexts(key, value)
+        is Array<*> -> scope.setContexts(key, value)
+        is Char -> scope.setContexts(key, value)
+        else -> scope.setContexts(key, value)
+      }
+    }
 
     private fun parseJsonBytes(bytes: ByteArray): Any? =
       jsonObjectReader(bytes).use { reader ->
