@@ -37,7 +37,19 @@ SentryFlutterOptions defaultTestOptions(
     {Platform? platform, RuntimeChecker? checker}) {
   return SentryFlutterOptions(
       dsn: fakeDsn, platform: platform, checker: checker)
-    ..automatedTestMode = true;
+    ..automatedTestMode = true
+    // defaultTestOptions() is networkless by design. Tests that intentionally
+    // use a real DSN must override `transport` after changing `dsn`.
+    // Do not use NoOpTransport here: SentryClient treats it as unset and
+    // replaces it with HttpTransport, which would send to fakeDsn.
+    ..transport = _NoOpTestTransport();
+}
+
+class _NoOpTestTransport implements Transport {
+  @override
+  Future<SentryId?> send(SentryEnvelope envelope) async {
+    return envelope.header.eventId;
+  }
 }
 
 // https://github.com/dart-lang/mockito/blob/master/NULL_SAFETY_README.md#fallback-generators
