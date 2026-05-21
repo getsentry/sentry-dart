@@ -4627,12 +4627,65 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .check();
   }
 
-  static final _id_setContext = _class.instanceMethodId(
-    r'setContext',
-    r'(Ljava/lang/String;Ljava/lang/Object;)V',
+  static final _id_addBreadcrumbFromJsonBytes = _class.instanceMethodId(
+    r'addBreadcrumbFromJsonBytes',
+    r'([B)V',
   );
 
-  static final _setContext = jni$_.ProtectedJniExtensions.lookup<
+  static final _addBreadcrumbFromJsonBytes =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(
+                          jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr,
+                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final void addBreadcrumbFromJsonBytes(byte[] bs)`
+  void addBreadcrumbFromJsonBytes(
+    jni$_.JByteArray bs,
+  ) {
+    final _$bs = bs.reference;
+    _addBreadcrumbFromJsonBytes(reference.pointer,
+            _id_addBreadcrumbFromJsonBytes as jni$_.JMethodIDPtr, _$bs.pointer)
+        .check();
+  }
+
+  static final _id_setUserFromJsonBytes = _class.instanceMethodId(
+    r'setUserFromJsonBytes',
+    r'([B)V',
+  );
+
+  static final _setUserFromJsonBytes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final void setUserFromJsonBytes(byte[] bs)`
+  void setUserFromJsonBytes(
+    jni$_.JByteArray? bs,
+  ) {
+    final _$bs = bs?.reference ?? jni$_.jNullReference;
+    _setUserFromJsonBytes(reference.pointer,
+            _id_setUserFromJsonBytes as jni$_.JMethodIDPtr, _$bs.pointer)
+        .check();
+  }
+
+  static final _id_setContextFromJsonBytes = _class.instanceMethodId(
+    r'setContextFromJsonBytes',
+    r'(Ljava/lang/String;[B)V',
+  );
+
+  static final _setContextFromJsonBytes = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JThrowablePtr Function(
                   jni$_.Pointer<jni$_.Void>,
@@ -4649,15 +4702,18 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
               jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public final void setContext(java.lang.String string, java.lang.Object object)`
-  void setContext(
+  /// from: `public final void setContextFromJsonBytes(java.lang.String string, byte[] bs)`
+  void setContextFromJsonBytes(
     jni$_.JString string,
-    jni$_.JObject? object,
+    jni$_.JByteArray bs,
   ) {
     final _$string = string.reference;
-    final _$object = object?.reference ?? jni$_.jNullReference;
-    _setContext(reference.pointer, _id_setContext as jni$_.JMethodIDPtr,
-            _$string.pointer, _$object.pointer)
+    final _$bs = bs.reference;
+    _setContextFromJsonBytes(
+            reference.pointer,
+            _id_setContextFromJsonBytes as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$bs.pointer)
         .check();
   }
 
@@ -5283,12 +5339,65 @@ class SentryFlutterPlugin extends jni$_.JObject {
         .check();
   }
 
-  static final _id_setContext = _class.staticMethodId(
-    r'setContext',
-    r'(Ljava/lang/String;Ljava/lang/Object;)V',
+  static final _id_addBreadcrumbFromJsonBytes = _class.staticMethodId(
+    r'addBreadcrumbFromJsonBytes',
+    r'([B)V',
   );
 
-  static final _setContext = jni$_.ProtectedJniExtensions.lookup<
+  static final _addBreadcrumbFromJsonBytes =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(
+                          jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr,
+                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+              'globalEnv_CallStaticVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public final void addBreadcrumbFromJsonBytes(byte[] bs)`
+  static void addBreadcrumbFromJsonBytes(
+    jni$_.JByteArray bs,
+  ) {
+    final _$bs = bs.reference;
+    _addBreadcrumbFromJsonBytes(_class.reference.pointer,
+            _id_addBreadcrumbFromJsonBytes as jni$_.JMethodIDPtr, _$bs.pointer)
+        .check();
+  }
+
+  static final _id_setUserFromJsonBytes = _class.staticMethodId(
+    r'setUserFromJsonBytes',
+    r'([B)V',
+  );
+
+  static final _setUserFromJsonBytes = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public final void setUserFromJsonBytes(byte[] bs)`
+  static void setUserFromJsonBytes(
+    jni$_.JByteArray? bs,
+  ) {
+    final _$bs = bs?.reference ?? jni$_.jNullReference;
+    _setUserFromJsonBytes(_class.reference.pointer,
+            _id_setUserFromJsonBytes as jni$_.JMethodIDPtr, _$bs.pointer)
+        .check();
+  }
+
+  static final _id_setContextFromJsonBytes = _class.staticMethodId(
+    r'setContextFromJsonBytes',
+    r'(Ljava/lang/String;[B)V',
+  );
+
+  static final _setContextFromJsonBytes = jni$_.ProtectedJniExtensions.lookup<
           jni$_.NativeFunction<
               jni$_.JThrowablePtr Function(
                   jni$_.Pointer<jni$_.Void>,
@@ -5305,15 +5414,18 @@ class SentryFlutterPlugin extends jni$_.JObject {
               jni$_.Pointer<jni$_.Void>,
               jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `static public final void setContext(java.lang.String string, java.lang.Object object)`
-  static void setContext(
+  /// from: `static public final void setContextFromJsonBytes(java.lang.String string, byte[] bs)`
+  static void setContextFromJsonBytes(
     jni$_.JString string,
-    jni$_.JObject? object,
+    jni$_.JByteArray bs,
   ) {
     final _$string = string.reference;
-    final _$object = object?.reference ?? jni$_.jNullReference;
-    _setContext(_class.reference.pointer, _id_setContext as jni$_.JMethodIDPtr,
-            _$string.pointer, _$object.pointer)
+    final _$bs = bs.reference;
+    _setContextFromJsonBytes(
+            _class.reference.pointer,
+            _id_setContextFromJsonBytes as jni$_.JMethodIDPtr,
+            _$string.pointer,
+            _$bs.pointer)
         .check();
   }
 
