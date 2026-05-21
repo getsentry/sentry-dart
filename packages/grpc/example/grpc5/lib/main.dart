@@ -5,14 +5,12 @@ import 'package:grpc/grpc.dart';
 import 'package:http/http.dart' as http;
 import 'package:sentry/sentry.dart';
 import 'package:sentry_grpc/sentry_grpc.dart';
-
-// Replace with your own DSN from https://sentry.io
-const _dsn = 'https://examplePublicKey@o0.ingest.sentry.io/0';
+import 'app_config.dart' as config;
 
 void main() async {
   await Sentry.init(
     (options) {
-      options.dsn = _dsn;
+      options.dsn = config.exampleDsn;
       options.tracesSampleRate = 1.0;
       options.debug = true;
     },
@@ -86,109 +84,53 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _goodRequest() => _run('Good request', () async {
-        final transaction = Sentry.startTransaction(
-          'good-request',
-          'http.client',
-          bindToScope: true,
-        );
         try {
-          final response =
-              await http.get(Uri.parse('https://rsa4096.badssl.com/'));
-          transaction.status = response.statusCode < 400
-              ? const SpanStatus.ok()
-              : const SpanStatus.internalError();
+          await http.get(Uri.parse('https://rsa4096.badssl.com/'));
         } catch (e, s) {
-          transaction.throwable = e;
-          transaction.status = const SpanStatus.internalError();
           await Sentry.captureException(e, stackTrace: s);
           rethrow;
-        } finally {
-          await transaction.finish();
         }
         return null;
       });
 
   Future<void> _badRequest() => _run('Bad request', () async {
-        final transaction = Sentry.startTransaction(
-          'bad-request',
-          'http.client',
-          bindToScope: true,
-        );
         try {
-          final response =
-              await http.get(Uri.parse('https://expired.badssl.com/'));
-          transaction.status = response.statusCode < 400
-              ? const SpanStatus.ok()
-              : const SpanStatus.internalError();
+          await http.get(Uri.parse('https://expired.badssl.com/'));
         } catch (e, s) {
-          transaction.throwable = e;
-          transaction.status = const SpanStatus.internalError();
           await Sentry.captureException(e, stackTrace: s);
           rethrow;
-        } finally {
-          await transaction.finish();
         }
         return null;
       });
 
   Future<void> _grpcRequest() => _run('gRPC request', () async {
-        final transaction = Sentry.startTransaction(
-          'grpcb-empty',
-          'grpc.client',
-          bindToScope: true,
-        );
         try {
           await _grpcClient.empty();
-          transaction.status = const SpanStatus.ok();
         } catch (e, s) {
-          transaction.throwable = e;
-          transaction.status = const SpanStatus.internalError();
           await Sentry.captureException(e, stackTrace: s);
           rethrow;
-        } finally {
-          await transaction.finish();
         }
         return null;
       });
 
   Future<void> _dummyUnaryRequest() => _run('DummyUnary', () async {
-        final transaction = Sentry.startTransaction(
-          'grpcb-dummy-unary',
-          'grpc.client',
-          bindToScope: true,
-        );
         try {
           final response = await _grpcClient.dummyUnary(
             _encodeDummyMessage('hello from sentry_grpc'),
           );
-          transaction.status = const SpanStatus.ok();
           return 'echo: "${_decodeDummyFString(response)}"';
         } catch (e, s) {
-          transaction.throwable = e;
-          transaction.status = const SpanStatus.internalError();
           await Sentry.captureException(e, stackTrace: s);
           rethrow;
-        } finally {
-          await transaction.finish();
         }
       });
 
   Future<void> _randomErrorRequest() => _run('RandomError', () async {
-        final transaction = Sentry.startTransaction(
-          'grpcb-random-error',
-          'grpc.client',
-          bindToScope: true,
-        );
         try {
           await _grpcClient.randomError();
-          transaction.status = const SpanStatus.ok();
         } catch (e, s) {
-          transaction.throwable = e;
-          transaction.status = const SpanStatus.internalError();
           await Sentry.captureException(e, stackTrace: s);
           rethrow;
-        } finally {
-          await transaction.finish();
         }
         return null;
       });
