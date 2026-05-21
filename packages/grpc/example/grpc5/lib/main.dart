@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
 import 'package:http/http.dart' as http;
@@ -68,14 +70,14 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  Future<void> _run(String label, Future<void> Function() work) async {
+  Future<void> _run(String label, Future<String?> Function() work) async {
     setState(() {
       _loading = true;
       _result = '$label…';
     });
     try {
-      await work();
-      if (mounted) setState(() => _result = '$label — done ✓');
+      final detail = await work();
+      if (mounted) setState(() => _result = detail ?? '$label — done ✓');
     } catch (e) {
       if (mounted) setState(() => _result = '$label — failed:\n$e');
     } finally {
@@ -103,6 +105,7 @@ class _HomePageState extends State<HomePage> {
         } finally {
           await transaction.finish();
         }
+        return null;
       });
 
   Future<void> _badRequest() => _run('Bad request', () async {
@@ -125,6 +128,7 @@ class _HomePageState extends State<HomePage> {
         } finally {
           await transaction.finish();
         }
+        return null;
       });
 
   Future<void> _grpcRequest() => _run('gRPC request', () async {
@@ -144,6 +148,49 @@ class _HomePageState extends State<HomePage> {
         } finally {
           await transaction.finish();
         }
+        return null;
+      });
+
+  Future<void> _dummyUnaryRequest() => _run('DummyUnary', () async {
+        final transaction = Sentry.startTransaction(
+          'grpcb-dummy-unary',
+          'grpc.client',
+          bindToScope: true,
+        );
+        try {
+          final response = await _grpcClient.dummyUnary(
+            _encodeDummyMessage('hello from sentry_grpc'),
+          );
+          transaction.status = const SpanStatus.ok();
+          return 'echo: "${_decodeDummyFString(response)}"';
+        } catch (e, s) {
+          transaction.throwable = e;
+          transaction.status = const SpanStatus.internalError();
+          await Sentry.captureException(e, stackTrace: s);
+          rethrow;
+        } finally {
+          await transaction.finish();
+        }
+      });
+
+  Future<void> _randomErrorRequest() => _run('RandomError', () async {
+        final transaction = Sentry.startTransaction(
+          'grpcb-random-error',
+          'grpc.client',
+          bindToScope: true,
+        );
+        try {
+          await _grpcClient.randomError();
+          transaction.status = const SpanStatus.ok();
+        } catch (e, s) {
+          transaction.throwable = e;
+          transaction.status = const SpanStatus.internalError();
+          await Sentry.captureException(e, stackTrace: s);
+          rethrow;
+        } finally {
+          await transaction.finish();
+        }
+        return null;
       });
 
   @override
@@ -195,6 +242,20 @@ class _HomePageState extends State<HomePage> {
                   subtitle: 'grpcb.in:9001 — GRPCBin/Empty',
                   color: theme.colorScheme.primary,
                   onPressed: _loading ? null : _grpcRequest,
+                ),
+                const SizedBox(height: 12),
+                _RequestButton(
+                  label: 'DummyUnary',
+                  subtitle: 'grpcb.in:9001 — GRPCBin/DummyUnary',
+                  color: Colors.orange.shade700,
+                  onPressed: _loading ? null : _dummyUnaryRequest,
+                ),
+                const SizedBox(height: 12),
+                _RequestButton(
+                  label: 'RandomError',
+                  subtitle: 'grpcb.in:9001 — GRPCBin/RandomError',
+                  color: Colors.purple.shade600,
+                  onPressed: _loading ? null : _randomErrorRequest,
                 ),
                 if (_loading) ...[
                   const SizedBox(height: 32),
@@ -248,11 +309,38 @@ class _RequestButton extends StatelessWidget {
   }
 }
 
-// Minimal gRPC client for grpcb.in — GRPCBin.Empty (EmptyMessage → EmptyMessage).
-// EmptyMessage has no fields, so it serializes to/from an empty byte list.
+// Proto-encodes DummyMessage { f_string: value } (field 1, wire type 2).
+List<int> _encodeDummyMessage(String value) {
+  final bytes = utf8.encode(value);
+  return [0x0A, bytes.length, ...bytes];
+}
+
+// Decodes f_string from a DummyMessage byte payload (field 1, wire type 2).
+String _decodeDummyFString(List<int> bytes) {
+  if (bytes.length < 2 || bytes[0] != 0x0A) return '(no f_string)';
+  final len = bytes[1];
+  if (bytes.length < 2 + len) return '(truncated)';
+  return utf8.decode(bytes.sublist(2, 2 + len));
+}
+
+// Minimal gRPC client for grpcb.in.
+// Messages with no fields (EmptyMessage) serialize to/from an empty byte list.
+// DummyMessage is hand-encoded — see proto helpers above.
 class _GrpcBinClient extends Client {
   static final _emptyCall = ClientMethod<List<int>, List<int>>(
     '/grpcbin.GRPCBin/Empty',
+    (data) => data,
+    (data) => data,
+  );
+
+  static final _dummyUnaryCall = ClientMethod<List<int>, List<int>>(
+    '/grpcbin.GRPCBin/DummyUnary',
+    (data) => data,
+    (data) => data,
+  );
+
+  static final _randomErrorCall = ClientMethod<List<int>, List<int>>(
+    '/grpcbin.GRPCBin/RandomError',
     (data) => data,
     (data) => data,
   );
@@ -261,4 +349,10 @@ class _GrpcBinClient extends Client {
 
   ResponseFuture<List<int>> empty() =>
       $createUnaryCall(_emptyCall, const <int>[]);
+
+  ResponseFuture<List<int>> dummyUnary(List<int> request) =>
+      $createUnaryCall(_dummyUnaryCall, request);
+
+  ResponseFuture<List<int>> randomError() =>
+      $createUnaryCall(_randomErrorCall, const <int>[]);
 }
