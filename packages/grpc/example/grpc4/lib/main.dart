@@ -114,24 +114,14 @@ class _HomePageState extends State<HomePage> {
   Future<void> _dummyUnaryRequest() async {
     String? echoResult;
     await _run('DummyUnary', () async {
-      final transaction = Sentry.startTransaction(
-        'grpcb-dummy-unary',
-        'grpc.client',
-        bindToScope: true,
-      );
       try {
         final response = await _grpcClient.dummyUnary(
           _encodeDummyMessage('hello from sentry_grpc'),
         );
-        transaction.status = const SpanStatus.ok();
         echoResult = 'echo: "${_decodeDummyFString(response)}"';
       } catch (e, s) {
-        transaction.throwable = e;
-        transaction.status = const SpanStatus.internalError();
         await Sentry.captureException(e, stackTrace: s);
         rethrow;
-      } finally {
-        await transaction.finish();
       }
     });
     if (mounted && echoResult != null) setState(() => _result = echoResult!);
