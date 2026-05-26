@@ -205,7 +205,9 @@ class AndroidCoreWorker {
   ) async {
     try {
       await client.request(
-        _AddBreadcrumbRequest(normalizeMap(breadcrumb.toJson())!),
+        _AddBreadcrumbRequest(
+          normalize(breadcrumb.toJson()) as Map<String, dynamic>,
+        ),
       );
     } catch (exception, stackTrace) {
       internalLogger.error(
@@ -233,9 +235,7 @@ class AndroidCoreWorker {
 
   Future<void> _clearBreadcrumbsFromWorker(Worker client) async {
     try {
-      await client.request(
-        const _ClearBreadcrumbsRequest(),
-      );
+      await client.request(const _ClearBreadcrumbsRequest());
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Android core worker failed to clear breadcrumbs',
@@ -263,7 +263,11 @@ class AndroidCoreWorker {
   Future<void> _setUserFromWorker(Worker client, SentryUser? user) async {
     try {
       await client.request(
-        _SetUserRequest(user == null ? null : normalizeMap(user.toJson())),
+        _SetUserRequest(
+          user == null
+              ? null
+              : normalize(user.toJson()) as Map<String, dynamic>,
+        ),
       );
     } catch (exception, stackTrace) {
       internalLogger.error(
@@ -300,9 +304,7 @@ class AndroidCoreWorker {
     Object? value,
   ) async {
     try {
-      await client.request(
-        _SetContextsRequest(key, value),
-      );
+      await client.request(_SetContextsRequest(key, value));
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Android core worker failed to set context',
@@ -329,9 +331,7 @@ class AndroidCoreWorker {
 
   Future<void> _removeContextsFromWorker(Worker client, String key) async {
     try {
-      await client.request(
-        _RemoveContextsRequest(key),
-      );
+      await client.request(_RemoveContextsRequest(key));
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Android core worker failed to remove context',
