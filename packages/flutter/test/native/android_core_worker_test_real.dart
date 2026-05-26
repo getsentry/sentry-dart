@@ -272,6 +272,20 @@ void main() {
       expect(await resultFuture, isNull);
     });
 
+    test('returns null for debug images after close', () async {
+      final fixture = _Fixture();
+      fixture.options.automatedTestMode = true;
+      final worker = fixture.getSut();
+      await worker.start();
+      await worker.close();
+
+      final result = worker.loadDebugImages(SentryStackTrace(frames: [
+        SentryStackFrame(instructionAddr: '0x1'),
+      ]));
+
+      expect(await Future<List<DebugImage>?>.value(result), isNull);
+    });
+
     test('requests native contexts', () async {
       final fixture = _Fixture();
       final worker = fixture.getSut();
@@ -301,6 +315,18 @@ void main() {
       fixture.respondError(id);
 
       expect(await resultFuture, isNull);
+    });
+
+    test('returns null for native contexts after close', () async {
+      final fixture = _Fixture();
+      fixture.options.automatedTestMode = true;
+      final worker = fixture.getSut();
+      await worker.start();
+      await worker.close();
+
+      final result = worker.loadContexts();
+
+      expect(await Future<Map<String, dynamic>?>.value(result), isNull);
     });
 
     test('sends breadcrumb update and awaits response', () async {

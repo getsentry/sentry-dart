@@ -100,6 +100,8 @@ class AndroidCoreWorker {
   }
 
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
+    if (_isClosed) return null;
+
     final instructionAddresses =
         stackTrace.frames.map((f) => f.instructionAddr).nonNulls.toList(
               growable: false,
@@ -140,6 +142,8 @@ class AndroidCoreWorker {
   }
 
   FutureOr<Map<String, dynamic>?> loadContexts() {
+    if (_isClosed) return null;
+
     final client = _worker;
     if (client == null) {
       return _loadContexts(automatedTestMode: _config.automatedTestMode);
