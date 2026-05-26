@@ -1968,6 +1968,54 @@ class SentryAndroidOptions extends SentryOptions {
         .check();
   }
 
+  static final _id_isAttachRawTombstone = _class.instanceMethodId(
+    r'isAttachRawTombstone',
+    r'()Z',
+  );
+
+  static final _isAttachRawTombstone = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public boolean isAttachRawTombstone()`
+  bool isAttachRawTombstone() {
+    return _isAttachRawTombstone(
+            reference.pointer, _id_isAttachRawTombstone as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_setAttachRawTombstone = _class.instanceMethodId(
+    r'setAttachRawTombstone',
+    r'(Z)V',
+  );
+
+  static final _setAttachRawTombstone = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setAttachRawTombstone(boolean z)`
+  void setAttachRawTombstone(
+    bool z,
+  ) {
+    _setAttachRawTombstone(reference.pointer,
+            _id_setAttachRawTombstone as jni$_.JMethodIDPtr, z ? 1 : 0)
+        .check();
+  }
+
   static final _id_isEnablePerformanceV2 = _class.instanceMethodId(
     r'isEnablePerformanceV2',
     r'()Z',
@@ -28188,6 +28236,57 @@ class Hint extends jni$_.JObject {
         .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
   }
 
+  static final _id_setTombstone = _class.instanceMethodId(
+    r'setTombstone',
+    r'(Lio/sentry/Attachment;)V',
+  );
+
+  static final _setTombstone = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setTombstone(io.sentry.Attachment attachment)`
+  void setTombstone(
+    jni$_.JObject? attachment,
+  ) {
+    final _$attachment = attachment?.reference ?? jni$_.jNullReference;
+    _setTombstone(reference.pointer, _id_setTombstone as jni$_.JMethodIDPtr,
+            _$attachment.pointer)
+        .check();
+  }
+
+  static final _id_getTombstone = _class.instanceMethodId(
+    r'getTombstone',
+    r'()Lio/sentry/Attachment;',
+  );
+
+  static final _getTombstone = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.Attachment getTombstone()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject? getTombstone() {
+    return _getTombstone(
+            reference.pointer, _id_getTombstone as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
   static final _id_getReplayRecording = _class.instanceMethodId(
     r'getReplayRecording',
     r'()Lio/sentry/ReplayRecording;',
@@ -35183,6 +35282,30 @@ class Scope extends jni$_.JObject {
     final _$boolean = boolean?.reference ?? jni$_.jNullReference;
     _addFeatureFlag(reference.pointer, _id_addFeatureFlag as jni$_.JMethodIDPtr,
             _$string.pointer, _$boolean.pointer)
+        .check();
+  }
+
+  static final _id_clearFeatureFlags = _class.instanceMethodId(
+    r'clearFeatureFlags',
+    r'()V',
+  );
+
+  static final _clearFeatureFlags = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void clearFeatureFlags()`
+  void clearFeatureFlags() {
+    _clearFeatureFlags(
+            reference.pointer, _id_clearFeatureFlags as jni$_.JMethodIDPtr)
         .check();
   }
 
