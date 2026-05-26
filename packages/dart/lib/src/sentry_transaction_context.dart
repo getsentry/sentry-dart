@@ -1,7 +1,10 @@
 import 'protocol.dart';
+import 'sentry.dart';
 import 'sentry_baggage.dart';
+import 'sentry_options.dart';
 import 'sentry_trace_origins.dart';
 import 'tracing.dart';
+import 'utils/tracing_utils.dart';
 
 class SentryTransactionContext extends SentrySpanContext {
   String name;
@@ -24,13 +27,34 @@ class SentryTransactionContext extends SentrySpanContext {
           operation: operation,
         );
 
+  /// Creates a [SentryTransactionContext] from an incoming [traceHeader] and
+  /// optional [baggage].
+  ///
+  /// Validates the incoming trace's `sentry-org_id` against the SDK's
+  /// organization ID (see [SentryOptions.strictTraceContinuation]). When the
+  /// trace should not be continued, a new trace is started instead.
+  ///
+  /// If [options] is not provided, the current hub's options are used.
   factory SentryTransactionContext.fromSentryTrace(
     String name,
     String operation,
     SentryTraceHeader traceHeader, {
     SentryTransactionNameSource? transactionNameSource,
     SentryBaggage? baggage,
+    SentryOptions? options,
   }) {
+    final effectiveOptions = options ?? Sentry.currentHub.options;
+
+    if (!shouldContinueTrace(effectiveOptions, baggage?.getOrgId())) {
+      return SentryTransactionContext(
+        name,
+        operation,
+        transactionNameSource:
+            transactionNameSource ?? SentryTransactionNameSource.custom,
+        origin: SentryTraceOrigins.manual,
+      );
+    }
+
     final sampleRate = baggage?.getSampleRate();
     final sampleRand = baggage?.getSampleRand();
     return SentryTransactionContext(

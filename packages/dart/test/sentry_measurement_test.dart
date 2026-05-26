@@ -18,6 +18,11 @@ void main() {
           SentryMeasurement.frozenFrames(10).unit, SentryMeasurementUnit.none);
     });
 
+    test('frames delay has seconds unit', () {
+      expect(SentryMeasurement.framesDelay(1.5).unit,
+          DurationSentryMeasurementUnit.second);
+    });
+
     test('warm start has milliseconds unit', () {
       expect(SentryMeasurement.warmAppStart(Duration(seconds: 1)).unit,
           DurationSentryMeasurementUnit.milliSecond);

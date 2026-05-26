@@ -3,6 +3,7 @@ import 'dart:io';
 import '../../hint.dart';
 import '../../protocol.dart';
 import '../../sentry_options.dart';
+import '../../utils/iterable_utils.dart';
 import 'exception_event_processor.dart';
 
 ExceptionEventProcessor exceptionEventProcessor(SentryOptions options) =>

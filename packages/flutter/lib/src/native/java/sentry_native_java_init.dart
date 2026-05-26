@@ -1,7 +1,5 @@
 part of 'sentry_native_java.dart';
 
-const _flutterSdkName = 'sentry.dart.flutter';
-
 @internal
 const androidSdkName = 'sentry.java.android.flutter';
 
@@ -21,7 +19,6 @@ void initSentryAndroid({
   );
 
   final beforeSendReplayCallback = createBeforeSendReplayCallback(options);
-  final beforeSendEventCallback = createBeforeSendCallback();
 
   using((arena) {
     final context = native.SentryFlutterPlugin.applicationContext
@@ -40,7 +37,6 @@ void initSentryAndroid({
           configureAndroidOptions(
             androidOptions: androidOptions,
             options: options,
-            beforeSend: beforeSendEventCallback,
             beforeSendReplay: beforeSendReplayCallback,
           );
 
@@ -55,47 +51,6 @@ void initSentryAndroid({
       native.SentryAndroid.init$2(context, cb);
     });
   });
-}
-
-/// Builds the general beforeSend callback to tag events with origin/environment
-/// based on SDK name.
-native.SentryOptions$BeforeSendCallback createBeforeSendCallback() {
-  return native.SentryOptions$BeforeSendCallback.implement(
-    native.$SentryOptions$BeforeSendCallback(
-      execute: (sentryEvent, hint) {
-        using((arena) {
-          final sdk = sentryEvent.sdk?..releasedBy(arena);
-          if (sdk == null) return;
-
-          final originKey = 'event.origin'.toJString()..releasedBy(arena);
-          final environmentKey = 'event.environment'.toJString()
-            ..releasedBy(arena);
-
-          void setTagPair(String origin, String environment) {
-            final originVal = origin.toJString()..releasedBy(arena);
-            final envVal = environment.toJString()..releasedBy(arena);
-            sentryEvent.setTag(originKey, originVal);
-            sentryEvent.setTag(environmentKey, envVal);
-          }
-
-          switch (sdk.name.toDartString(releaseOriginal: true)) {
-            case _flutterSdkName:
-              setTagPair('flutter', 'dart');
-              break;
-            case androidSdkName:
-              setTagPair('android', 'java');
-              break;
-            case nativeSdkName:
-              setTagPair('android', 'native');
-              break;
-            default:
-              break;
-          }
-        });
-        return sentryEvent;
-      },
-    ),
-  );
 }
 
 /// Builds the beforeSendReplay callback to override rrweb masking options
@@ -206,7 +161,6 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
 void configureAndroidOptions({
   required native.SentryAndroidOptions androidOptions,
   required SentryFlutterOptions options,
-  required native.SentryOptions$BeforeSendCallback beforeSend,
   required native.SentryOptions$BeforeSendReplayCallback beforeSendReplay,
 }) {
   using((arena) {
@@ -266,6 +220,10 @@ void configureAndroidOptions({
 
     androidOptions.sendClientReports = options.sendClientReports;
     androidOptions.maxAttachmentSize = options.maxAttachmentSize;
+    androidOptions.strictTraceContinuation = options.strictTraceContinuation;
+    // ignore: invalid_use_of_internal_member
+    androidOptions.orgId = options.effectiveOrgId?.toJString()
+      ?..releasedBy(arena);
     androidOptions.connectionTimeoutMillis =
         options.connectionTimeout.inMilliseconds;
     androidOptions.readTimeoutMillis = options.readTimeout.inMilliseconds;
@@ -307,9 +265,7 @@ void configureAndroidOptions({
       );
     }
 
-    beforeSend.use((cb) {
-      androidOptions.beforeSend = cb;
-    });
+    native.SentryFlutterPlugin.setupBeforeSend(androidOptions);
 
     final sessionReplay = androidOptions.sessionReplay..releasedBy(arena);
     switch (options.replay.quality) {

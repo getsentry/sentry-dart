@@ -26,6 +26,10 @@ else
     DART="dart"
 fi
 
+run_jnigen() {
+    $DART run tool/generate_jni.dart --config ffi-jni.yaml
+}
+
 echo "=== Attempting normal JNI binding regeneration ==="
 
 # The normal path: build APK (compiles Dart + Java), then run jnigen.
@@ -38,7 +42,7 @@ normal_build=$?
 set -e
 
 if [ $normal_build -eq 0 ]; then
-    $DART run jnigen --config ffi-jni.yaml
+    run_jnigen
     $DART format "$binding_path"
     echo "=== Normal regeneration succeeded ==="
     exit 0
@@ -81,7 +85,7 @@ jar cf example/build/app/intermediates/flutter/release/libs.jar -C "$stub_dir" .
 rm -rf "$stub_dir"
 
 echo "Step 4: Running jnigen..."
-$DART run jnigen --config ffi-jni.yaml
+run_jnigen
 
 echo "Step 5: Formatting generated binding..."
 $DART format "$binding_path"

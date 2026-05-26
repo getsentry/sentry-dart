@@ -14,6 +14,7 @@ build/
 .vscode/
 .fvm/
 .fvmrc
+**/devtools_options.yaml
 
 .test_coverage.dart
 packages/**/coverage/*

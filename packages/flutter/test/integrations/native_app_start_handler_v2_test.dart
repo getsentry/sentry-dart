@@ -1,9 +1,10 @@
 // ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
-import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_handler_v2.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
@@ -302,6 +303,30 @@ void main() {
         );
       }
     });
+
+    test('all app start spans have app start type', () async {
+      await fixture.call();
+
+      final appStartSpanNames = [
+        'Cold Start',
+        'App start to plugin registration',
+        'Before Sentry Init Setup',
+        'First frame render',
+        'native span 1',
+        'native span 2',
+      ];
+
+      for (final name in appStartSpanNames) {
+        final span = fixture.findSpanByName(name);
+        expect(span, isNotNull, reason: 'Expected span: $name');
+        expect(
+          span!.attributes[SemanticAttributesConstants.appVitalsStartType]
+              ?.value,
+          'cold',
+          reason: 'Wrong app start type for span: $name',
+        );
+      }
+    });
   });
 }
 
@@ -377,6 +402,8 @@ class Fixture {
   }
 
   RecordingSentrySpanV2? findSpanByName(String name) {
-    return capturedSpans.firstWhereOrNull((s) => s.name == name);
+    return capturedSpans.firstWhereOrNull(
+      (s) => s.name == name,
+    );
   }
 }

@@ -17,6 +17,7 @@ import io.sentry.Breadcrumb
 import io.sentry.DateUtils
 import io.sentry.ScopesAdapter
 import io.sentry.Sentry
+import io.sentry.SentryOptions
 import io.sentry.SentryOptions.Proxy
 import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.InternalSentrySdk
@@ -134,6 +135,50 @@ class SentryFlutterPlugin :
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun setupBeforeSend(options: SentryAndroidOptions) {
+      options.beforeSend =
+        SentryOptions.BeforeSendCallback { event, _ ->
+          when (event.sdk?.name) {
+            "sentry.dart.flutter" -> {
+              event.setTag("event.origin", "flutter")
+              event.setTag("event.environment", "dart")
+            }
+
+            "sentry.java.android.flutter" -> {
+              event.setTag("event.origin", "android")
+              event.setTag("event.environment", "java")
+            }
+
+            "sentry.native.android.flutter" -> {
+              event.setTag("event.origin", "android")
+              event.setTag("event.environment", "native")
+            }
+          }
+          event
+        }
+    }
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun setContext(
+      key: String,
+      value: Any?,
+    ) {
+      Sentry.configureScope { scope ->
+        scope.setContexts(key, value)
+      }
+    }
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun removeContext(key: String) {
+      Sentry.configureScope { scope ->
+        scope.removeContexts(key)
+      }
+    }
 
     @JvmStatic
     fun setupReplay(

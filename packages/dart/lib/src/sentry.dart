@@ -33,6 +33,7 @@ import 'tracing.dart';
 import 'tracing/instrumentation/span_factory_integration.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
+import 'utils/iterable_utils.dart';
 import 'feature_flags_integration.dart';
 import 'telemetry/log/logger.dart';
 import 'telemetry/log/logger_setup_integration.dart';

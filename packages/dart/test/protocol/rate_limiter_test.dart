@@ -1,10 +1,10 @@
-import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_client_report_recorder.dart';
