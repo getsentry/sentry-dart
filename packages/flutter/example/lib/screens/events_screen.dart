@@ -101,7 +101,7 @@ class EventsScreen extends StatelessWidget {
                     onPressed: () async {
                       final id = await Sentry.captureMessage('UserFeedback');
                       if (!context.mounted) return;
-                      SentryFeedbackWidget.show(
+                      SentryFeedbackForm.show(
                         context,
                         associatedEventId: id,
                       );
