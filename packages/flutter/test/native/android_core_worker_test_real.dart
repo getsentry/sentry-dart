@@ -411,8 +411,8 @@ void main() {
       await worker.start();
 
       final payload = await fixture.expectPendingRequest(
-        worker.setContexts('fixture-key', <dynamic, dynamic>{
-          'nested': <dynamic, dynamic>{'value': true}
+        worker.setContexts('fixture-key', <String, dynamic>{
+          'nested': <String, dynamic>{'value': true}
         }),
       );
 

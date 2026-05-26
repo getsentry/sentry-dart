@@ -205,7 +205,7 @@ class AndroidCoreWorker {
   ) async {
     try {
       await client.request(
-        _AddBreadcrumbRequest(_normalizeJsonMap(breadcrumb.toJson())),
+        _AddBreadcrumbRequest(normalizeMap(breadcrumb.toJson())!),
       );
     } catch (exception, stackTrace) {
       internalLogger.error(
@@ -263,7 +263,7 @@ class AndroidCoreWorker {
   Future<void> _setUserFromWorker(Worker client, SentryUser? user) async {
     try {
       await client.request(
-        _SetUserRequest(user == null ? null : _normalizeJsonMap(user.toJson())),
+        _SetUserRequest(user == null ? null : normalizeMap(user.toJson())),
       );
     } catch (exception, stackTrace) {
       internalLogger.error(
@@ -280,7 +280,7 @@ class AndroidCoreWorker {
   FutureOr<void> setContexts(String key, dynamic value) {
     if (_isClosed) return null;
 
-    final normalizedValue = _normalizeJson(value);
+    final normalizedValue = normalize(value);
     final client = _worker;
     if (client == null) {
       _setContexts(
@@ -734,19 +734,4 @@ void _removeContexts(String key, {bool automatedTestMode = false}) {
 }
 
 JByteArray _jsonToJByteArray(Object? value) =>
-    JByteArray.from(encodeUtf8Json(_normalizeJson(value)));
-
-Map<String, dynamic> _normalizeJsonMap(Map<String, dynamic> value) =>
-    _normalizeJson(value) as Map<String, dynamic>;
-
-Object? _normalizeJson(Object? value) {
-  if (value is Map) {
-    return value.map(
-      (key, value) => MapEntry(key.toString(), _normalizeJson(value)),
-    );
-  }
-  if (value is List) {
-    return value.map(_normalizeJson).toList(growable: false);
-  }
-  return normalize(value);
-}
+    JByteArray.from(encodeUtf8Json(normalize(value)));
