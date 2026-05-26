@@ -52,15 +52,22 @@ class AndroidCoreWorker {
         return;
       }
       _worker = worker;
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Failed to start Android core worker',
+        error: exception,
+        stackTrace: stackTrace,
+      );
     } finally {
       _startFuture = null;
     }
   }
 
-  FutureOr<void> close() {
+  FutureOr<void> close() async {
+    _isClosed = true;
+    await _startFuture;
     _worker?.close();
     _worker = null;
-    _isClosed = true;
   }
 
   void captureEnvelope(
@@ -183,6 +190,25 @@ class AndroidCoreWorker {
         'add breadcrumb',
       );
 
+  FutureOr<void> clearBreadcrumbs() {
+    if (_isClosed) return null;
+
+    final client = _worker;
+    if (client == null) {
+      _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
+      return null;
+    }
+
+    return _clearBreadcrumbsFromWorker(client);
+  }
+
+  Future<void> _clearBreadcrumbsFromWorker(Worker client) =>
+      _sendScopeUpdateToWorker(
+        client,
+        const _ClearBreadcrumbsRequest(),
+        'clear breadcrumbs',
+      );
+
   FutureOr<void> setUser(SentryUser? user) {
     if (_isClosed) return null;
 
@@ -232,6 +258,28 @@ class AndroidCoreWorker {
         'set context',
       );
 
+  FutureOr<void> removeContexts(String key) {
+    if (_isClosed) return null;
+
+    final client = _worker;
+    if (client == null) {
+      _removeContexts(key, automatedTestMode: _config.automatedTestMode);
+      return null;
+    }
+
+    return _removeContextsFromWorker(client, key);
+  }
+
+  Future<void> _removeContextsFromWorker(
+    Worker client,
+    String key,
+  ) =>
+      _sendScopeUpdateToWorker(
+        client,
+        _RemoveContextsRequest(key),
+        'remove context',
+      );
+
   Future<void> _sendScopeUpdateToWorker(
     Worker client,
     Object request,
@@ -273,11 +321,16 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
           case _AddBreadcrumbRequest request:
             _addBreadcrumb(request.breadcrumb,
                 automatedTestMode: _config.automatedTestMode);
+          case _ClearBreadcrumbsRequest _:
+            _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
           case _SetUserRequest request:
             _setUser(request.user,
                 automatedTestMode: _config.automatedTestMode);
           case _SetContextsRequest request:
             _setContexts(request.key, request.value,
+                automatedTestMode: _config.automatedTestMode);
+          case _RemoveContextsRequest request:
+            _removeContexts(request.key,
                 automatedTestMode: _config.automatedTestMode);
           default:
             _unexpectedMessage(msg);
@@ -298,12 +351,19 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
             _addBreadcrumb(request.breadcrumb,
                 automatedTestMode: _config.automatedTestMode);
             return null;
+          case _ClearBreadcrumbsRequest _:
+            _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
+            return null;
           case _SetUserRequest request:
             _setUser(request.user,
                 automatedTestMode: _config.automatedTestMode);
             return null;
           case _SetContextsRequest request:
             _setContexts(request.key, request.value,
+                automatedTestMode: _config.automatedTestMode);
+            return null;
+          case _RemoveContextsRequest request:
+            _removeContexts(request.key,
                 automatedTestMode: _config.automatedTestMode);
             return null;
           default:
@@ -354,6 +414,10 @@ class _AddBreadcrumbRequest {
   const _AddBreadcrumbRequest(this.breadcrumb);
 }
 
+class _ClearBreadcrumbsRequest {
+  const _ClearBreadcrumbsRequest();
+}
+
 class _SetUserRequest {
   final Map<String, dynamic>? user;
 
@@ -365,6 +429,12 @@ class _SetContextsRequest {
   final Object? value;
 
   const _SetContextsRequest(this.key, this.value);
+}
+
+class _RemoveContextsRequest {
+  final String key;
+
+  const _RemoveContextsRequest(this.key);
 }
 
 void _captureEnvelope(Uint8List envelopeData, bool containsUnhandledException,
@@ -487,6 +557,18 @@ void _addBreadcrumb(Map<String, dynamic> breadcrumb,
   }
 }
 
+void _clearBreadcrumbs({bool automatedTestMode = false}) {
+  try {
+    native.Sentry.clearBreadcrumbs();
+  } catch (exception, stackTrace) {
+    internalLogger.error('JNI: Failed to clear breadcrumbs',
+        error: exception, stackTrace: stackTrace);
+    if (automatedTestMode) {
+      rethrow;
+    }
+  }
+}
+
 void _setUser(Map<String, dynamic>? user, {bool automatedTestMode = false}) {
   JByteArray? jBytes;
   try {
@@ -524,6 +606,22 @@ void _setContexts(String key, Object? value, {bool automatedTestMode = false}) {
   } finally {
     jKey?.release();
     jBytes?.release();
+  }
+}
+
+void _removeContexts(String key, {bool automatedTestMode = false}) {
+  JString? jKey;
+  try {
+    jKey = key.toJString();
+    native.SentryFlutterPlugin.removeContext(jKey);
+  } catch (exception, stackTrace) {
+    internalLogger.error('JNI: Failed to remove context',
+        error: exception, stackTrace: stackTrace);
+    if (automatedTestMode) {
+      rethrow;
+    }
+  } finally {
+    jKey?.release();
   }
 }
 

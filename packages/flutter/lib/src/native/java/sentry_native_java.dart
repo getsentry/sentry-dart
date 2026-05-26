@@ -125,9 +125,7 @@ class SentryNativeJava extends SentryNativeChannel {
       _coreWorker?.addBreadcrumb(breadcrumb);
 
   @override
-  void clearBreadcrumbs() => tryCatchSync('clearBreadcrumbs', () {
-        native.Sentry.clearBreadcrumbs();
-      });
+  FutureOr<void> clearBreadcrumbs() => _coreWorker?.clearBreadcrumbs();
 
   @override
   FutureOr<void> setUser(SentryUser? user) => _coreWorker?.setUser(user);
@@ -137,13 +135,7 @@ class SentryNativeJava extends SentryNativeChannel {
       _coreWorker?.setContexts(key, value);
 
   @override
-  void removeContexts(String key) => tryCatchSync('removeContexts', () {
-        using((arena) {
-          final jKey = key.toJString()..releasedBy(arena);
-
-          native.SentryFlutterPlugin.removeContext(jKey);
-        });
-      });
+  FutureOr<void> removeContexts(String key) => _coreWorker?.removeContexts(key);
 
   @override
   void setTag(String key, String value) => tryCatchSync('setTag', () {

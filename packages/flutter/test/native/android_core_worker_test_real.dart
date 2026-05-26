@@ -80,6 +80,69 @@ void main() {
       expect(() => worker.close(), returnsNormally);
     });
 
+    test('logs when start fails', () async {
+      final options = SentryFlutterOptions();
+      final logs = <(SentryLevel, String)>[];
+      SentryInternalLogger.configure(
+        isEnabled: true,
+        minLevel: SentryLevel.debug,
+        logOutput: ({
+          required String name,
+          required SentryLevel level,
+          required String message,
+          Object? error,
+          StackTrace? stackTrace,
+        }) {
+          logs.add((level, message.toString()));
+        },
+      );
+
+      Future<Worker> fakeSpawn(WorkerConfig config, WorkerEntry entry) async {
+        throw StateError('spawn failed');
+      }
+
+      final worker = AndroidCoreWorker(options, spawn: fakeSpawn);
+      await worker.start();
+
+      expect(
+        logs.any((e) =>
+            e.$1 == SentryLevel.error &&
+            e.$2.contains('Failed to start Android core worker')),
+        isTrue,
+      );
+    });
+
+    test('close waits for in-flight start', () async {
+      final options = SentryFlutterOptions();
+      final spawnCompleter = Completer<Worker>();
+      late ReceivePort inbox;
+      late ReceivePort replies;
+
+      Future<Worker> fakeSpawn(WorkerConfig config, WorkerEntry entry) {
+        inbox = ReceivePort();
+        addTearDown(inbox.close);
+        replies = ReceivePort();
+        addTearDown(replies.close);
+        return spawnCompleter.future;
+      }
+
+      final worker = AndroidCoreWorker(options, spawn: fakeSpawn);
+      unawaited(Future<void>.value(worker.start()));
+
+      final closeFuture = Future<void>.value(worker.close());
+      var closeCompleted = false;
+      unawaited(closeFuture.then((_) => closeCompleted = true));
+
+      await pumpEventQueue();
+      expect(closeCompleted, isFalse);
+
+      spawnCompleter.complete(Worker(inbox.sendPort, replies));
+
+      await closeFuture;
+      expect(closeCompleted, isTrue);
+      expect(await inbox.first, '_shutdown_');
+    });
+
     test('sends envelope capture request after start', () async {
       final options = SentryFlutterOptions();
       options.debug = true;
@@ -269,6 +332,18 @@ void main() {
       });
     });
 
+    test('sends breadcrumb clear request and awaits response', () async {
+      final fixture = _Fixture();
+      final worker = fixture.getSut();
+      await worker.start();
+
+      final payload = await fixture.expectPendingRequest(
+        worker.clearBreadcrumbs(),
+      );
+
+      expect(payload.runtimeType.toString(), '_ClearBreadcrumbsRequest');
+    });
+
     test('sends user update and awaits response', () async {
       final fixture = _Fixture();
       final worker = fixture.getSut();
@@ -319,6 +394,18 @@ void main() {
       expect((payload as dynamic).value, {
         'nested': {'value': true}
       });
+    });
+
+    test('sends context remove request and awaits response', () async {
+      final fixture = _Fixture();
+      final worker = fixture.getSut();
+      await worker.start();
+
+      final payload = await fixture.expectPendingRequest(
+        worker.removeContexts('fixture-key'),
+      );
+
+      expect((payload as dynamic).key, 'fixture-key');
     });
   });
 }

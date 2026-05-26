@@ -122,12 +122,22 @@ class _FakeCoreWorker implements AndroidCoreWorker {
   }
 
   @override
+  FutureOr<void> clearBreadcrumbs() {
+    // No-op for testing
+  }
+
+  @override
   void setUser(SentryUser? user) {
     // No-op for testing
   }
 
   @override
   void setContexts(String key, value) {
+    // No-op for testing
+  }
+
+  @override
+  FutureOr<void> removeContexts(String key) {
     // No-op for testing
   }
 }
