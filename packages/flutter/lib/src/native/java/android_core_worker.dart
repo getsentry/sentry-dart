@@ -199,12 +199,25 @@ class AndroidCoreWorker {
     return _addBreadcrumbFromWorker(client, breadcrumb);
   }
 
-  Future<void> _addBreadcrumbFromWorker(Worker client, Breadcrumb breadcrumb) =>
-      _sendScopeUpdateToWorker(
-        client,
+  Future<void> _addBreadcrumbFromWorker(
+    Worker client,
+    Breadcrumb breadcrumb,
+  ) async {
+    try {
+      await client.request(
         _AddBreadcrumbRequest(_normalizeJsonMap(breadcrumb.toJson())),
-        'add breadcrumb',
       );
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Android core worker failed to add breadcrumb',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
+    }
+  }
 
   FutureOr<void> clearBreadcrumbs() {
     if (_isClosed) return null;
@@ -218,12 +231,22 @@ class AndroidCoreWorker {
     return _clearBreadcrumbsFromWorker(client);
   }
 
-  Future<void> _clearBreadcrumbsFromWorker(Worker client) =>
-      _sendScopeUpdateToWorker(
-        client,
+  Future<void> _clearBreadcrumbsFromWorker(Worker client) async {
+    try {
+      await client.request(
         const _ClearBreadcrumbsRequest(),
-        'clear breadcrumbs',
       );
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Android core worker failed to clear breadcrumbs',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
+    }
+  }
 
   FutureOr<void> setUser(SentryUser? user) {
     if (_isClosed) return null;
@@ -237,12 +260,22 @@ class AndroidCoreWorker {
     return _setUserFromWorker(client, user);
   }
 
-  Future<void> _setUserFromWorker(Worker client, SentryUser? user) =>
-      _sendScopeUpdateToWorker(
-        client,
+  Future<void> _setUserFromWorker(Worker client, SentryUser? user) async {
+    try {
+      await client.request(
         _SetUserRequest(user == null ? null : _normalizeJsonMap(user.toJson())),
-        'set user',
       );
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Android core worker failed to set user',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
+    }
+  }
 
   FutureOr<void> setContexts(String key, dynamic value) {
     if (_isClosed) return null;
@@ -265,12 +298,22 @@ class AndroidCoreWorker {
     Worker client,
     String key,
     Object? value,
-  ) =>
-      _sendScopeUpdateToWorker(
-        client,
+  ) async {
+    try {
+      await client.request(
         _SetContextsRequest(key, value),
-        'set context',
       );
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Android core worker failed to set context',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
+    }
+  }
 
   FutureOr<void> removeContexts(String key) {
     if (_isClosed) return null;
@@ -284,23 +327,14 @@ class AndroidCoreWorker {
     return _removeContextsFromWorker(client, key);
   }
 
-  Future<void> _removeContextsFromWorker(Worker client, String key) =>
-      _sendScopeUpdateToWorker(
-        client,
-        _RemoveContextsRequest(key),
-        'remove context',
-      );
-
-  Future<void> _sendScopeUpdateToWorker(
-    Worker client,
-    Object request,
-    String operation,
-  ) async {
+  Future<void> _removeContextsFromWorker(Worker client, String key) async {
     try {
-      await client.request(request);
+      await client.request(
+        _RemoveContextsRequest(key),
+      );
     } catch (exception, stackTrace) {
       internalLogger.error(
-        'Android core worker failed to $operation',
+        'Android core worker failed to remove context',
         error: exception,
         stackTrace: stackTrace,
       );
