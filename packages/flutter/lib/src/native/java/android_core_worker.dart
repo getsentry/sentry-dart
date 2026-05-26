@@ -71,7 +71,9 @@ class AndroidCoreWorker {
   }
 
   void captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
+    Uint8List envelopeData,
+    bool containsUnhandledException,
+  ) {
     if (_isClosed) return;
 
     final client = _worker;
@@ -79,13 +81,19 @@ class AndroidCoreWorker {
       internalLogger.info(
         'captureEnvelope called before core worker started: sending envelope in main isolate instead',
       );
-      _captureEnvelope(envelopeData, containsUnhandledException,
-          automatedTestMode: _config.automatedTestMode);
+      _captureEnvelope(
+        envelopeData,
+        containsUnhandledException,
+        automatedTestMode: _config.automatedTestMode,
+      );
       return;
     }
 
     _captureEnvelopeFromWorker(
-        client, envelopeData, containsUnhandledException);
+      client,
+      envelopeData,
+      containsUnhandledException,
+    );
   }
 
   void _captureEnvelopeFromWorker(
@@ -93,24 +101,28 @@ class AndroidCoreWorker {
     Uint8List envelopeData,
     bool containsUnhandledException,
   ) {
-    client.send(_CaptureEnvelopeRequest(
-      TransferableTypedData.fromList([envelopeData]),
-      containsUnhandledException,
-    ));
+    client.send(
+      _CaptureEnvelopeRequest(
+        TransferableTypedData.fromList([envelopeData]),
+        containsUnhandledException,
+      ),
+    );
   }
 
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
     if (_isClosed) return null;
 
-    final instructionAddresses =
-        stackTrace.frames.map((f) => f.instructionAddr).nonNulls.toList(
-              growable: false,
-            );
+    final instructionAddresses = stackTrace.frames
+        .map((f) => f.instructionAddr)
+        .nonNulls
+        .toList(growable: false);
 
     final client = _worker;
     if (client == null) {
-      return _loadDebugImages(instructionAddresses,
-          automatedTestMode: _config.automatedTestMode);
+      return _loadDebugImages(
+        instructionAddresses,
+        automatedTestMode: _config.automatedTestMode,
+      );
     }
 
     return _loadDebugImagesFromWorker(client, instructionAddresses);
@@ -121,8 +133,9 @@ class AndroidCoreWorker {
     List<String> instructionAddresses,
   ) async {
     try {
-      final response =
-          await client.request(_LoadDebugImagesRequest(instructionAddresses));
+      final response = await client.request(
+        _LoadDebugImagesRequest(instructionAddresses),
+      );
       final maps = (response as List?)
           ?.whereType<Map<dynamic, dynamic>>()
           .map((e) => Map<String, dynamic>.from(e))
@@ -176,18 +189,17 @@ class AndroidCoreWorker {
 
     final client = _worker;
     if (client == null) {
-      _addBreadcrumb(breadcrumb.toJson(),
-          automatedTestMode: _config.automatedTestMode);
+      _addBreadcrumb(
+        breadcrumb.toJson(),
+        automatedTestMode: _config.automatedTestMode,
+      );
       return null;
     }
 
     return _addBreadcrumbFromWorker(client, breadcrumb);
   }
 
-  Future<void> _addBreadcrumbFromWorker(
-    Worker client,
-    Breadcrumb breadcrumb,
-  ) =>
+  Future<void> _addBreadcrumbFromWorker(Worker client, Breadcrumb breadcrumb) =>
       _sendScopeUpdateToWorker(
         client,
         _AddBreadcrumbRequest(_normalizeJsonMap(breadcrumb.toJson())),
@@ -225,15 +237,10 @@ class AndroidCoreWorker {
     return _setUserFromWorker(client, user);
   }
 
-  Future<void> _setUserFromWorker(
-    Worker client,
-    SentryUser? user,
-  ) =>
+  Future<void> _setUserFromWorker(Worker client, SentryUser? user) =>
       _sendScopeUpdateToWorker(
         client,
-        _SetUserRequest(
-          user == null ? null : _normalizeJsonMap(user.toJson()),
-        ),
+        _SetUserRequest(user == null ? null : _normalizeJsonMap(user.toJson())),
         'set user',
       );
 
@@ -243,8 +250,11 @@ class AndroidCoreWorker {
     final normalizedValue = _normalizeJson(value);
     final client = _worker;
     if (client == null) {
-      _setContexts(key, normalizedValue,
-          automatedTestMode: _config.automatedTestMode);
+      _setContexts(
+        key,
+        normalizedValue,
+        automatedTestMode: _config.automatedTestMode,
+      );
       return null;
     }
 
@@ -274,10 +284,7 @@ class AndroidCoreWorker {
     return _removeContextsFromWorker(client, key);
   }
 
-  Future<void> _removeContextsFromWorker(
-    Worker client,
-    String key,
-  ) =>
+  Future<void> _removeContextsFromWorker(Worker client, String key) =>
       _sendScopeUpdateToWorker(
         client,
         _RemoveContextsRequest(key),
@@ -320,22 +327,32 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
         switch (msg) {
           case _CaptureEnvelopeRequest request:
             final data = request.envelopeData.materialize().asUint8List();
-            _captureEnvelope(data, request.containsUnhandledException,
-                automatedTestMode: _config.automatedTestMode);
+            _captureEnvelope(
+              data,
+              request.containsUnhandledException,
+              automatedTestMode: _config.automatedTestMode,
+            );
           case _AddBreadcrumbRequest request:
-            _addBreadcrumb(request.breadcrumb,
-                automatedTestMode: _config.automatedTestMode);
+            _addBreadcrumb(
+              request.breadcrumb,
+              automatedTestMode: _config.automatedTestMode,
+            );
           case _ClearBreadcrumbsRequest _:
             _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
           case _SetUserRequest request:
             _setUser(request.user,
                 automatedTestMode: _config.automatedTestMode);
           case _SetContextsRequest request:
-            _setContexts(request.key, request.value,
-                automatedTestMode: _config.automatedTestMode);
+            _setContexts(
+              request.key,
+              request.value,
+              automatedTestMode: _config.automatedTestMode,
+            );
           case _RemoveContextsRequest request:
-            _removeContexts(request.key,
-                automatedTestMode: _config.automatedTestMode);
+            _removeContexts(
+              request.key,
+              automatedTestMode: _config.automatedTestMode,
+            );
           default:
             _unexpectedMessage(msg);
         }
@@ -352,8 +369,10 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
           case _LoadContextsRequest _:
             return _loadContexts(automatedTestMode: _config.automatedTestMode);
           case _AddBreadcrumbRequest request:
-            _addBreadcrumb(request.breadcrumb,
-                automatedTestMode: _config.automatedTestMode);
+            _addBreadcrumb(
+              request.breadcrumb,
+              automatedTestMode: _config.automatedTestMode,
+            );
             return null;
           case _ClearBreadcrumbsRequest _:
             _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
@@ -363,19 +382,24 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
                 automatedTestMode: _config.automatedTestMode);
             return null;
           case _SetContextsRequest request:
-            _setContexts(request.key, request.value,
-                automatedTestMode: _config.automatedTestMode);
+            _setContexts(
+              request.key,
+              request.value,
+              automatedTestMode: _config.automatedTestMode,
+            );
             return null;
           case _RemoveContextsRequest request:
-            _removeContexts(request.key,
-                automatedTestMode: _config.automatedTestMode);
+            _removeContexts(
+              request.key,
+              automatedTestMode: _config.automatedTestMode,
+            );
             return null;
           default:
             return _unexpectedPayload(payload);
         }
       });
 
-  /// Serializes JNI work inside the worker isolate.
+  /// Serializes worker actions so JNI calls run in request order.
   Future<T> _enqueue<T>(FutureOr<T> Function() action) {
     final next = _queue.then((_) => action());
     _queue = next.then<void>((_) {}, onError: (_) {});
@@ -383,14 +407,16 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
   }
 
   Object? _unexpectedPayload(Object? payload) {
-    internalLogger
-        .warning('${_config.debugName}: unexpected payload type: $payload');
+    internalLogger.warning(
+      '${_config.debugName}: unexpected payload type: $payload',
+    );
     return null;
   }
 
   void _unexpectedMessage(Object? msg) {
-    internalLogger
-        .warning('${_config.debugName}: unexpected message type: $msg');
+    internalLogger.warning(
+      '${_config.debugName}: unexpected message type: $msg',
+    );
   }
 }
 
@@ -399,7 +425,9 @@ class _CaptureEnvelopeRequest {
   final bool containsUnhandledException;
 
   const _CaptureEnvelopeRequest(
-      this.envelopeData, this.containsUnhandledException);
+    this.envelopeData,
+    this.containsUnhandledException,
+  );
 }
 
 class _LoadDebugImagesRequest {
@@ -441,22 +469,31 @@ class _RemoveContextsRequest {
   const _RemoveContextsRequest(this.key);
 }
 
-void _captureEnvelope(Uint8List envelopeData, bool containsUnhandledException,
-    {bool automatedTestMode = false}) {
+void _captureEnvelope(
+  Uint8List envelopeData,
+  bool containsUnhandledException, {
+  bool automatedTestMode = false,
+}) {
   JObject? id;
   JByteArray? byteArray;
   try {
     byteArray = JByteArray.from(envelopeData);
     id = native.InternalSentrySdk.captureEnvelope(
-        byteArray, containsUnhandledException);
+      byteArray,
+      containsUnhandledException,
+    );
 
     if (id == null) {
-      internalLogger
-          .error('Native Android SDK returned null when capturing envelope');
+      internalLogger.error(
+        'Native Android SDK returned null when capturing envelope',
+      );
     }
   } catch (exception, stackTrace) {
-    internalLogger.error('Failed to capture envelope',
-        error: exception, stackTrace: stackTrace);
+    internalLogger.error(
+      'Failed to capture envelope',
+      error: exception,
+      stackTrace: stackTrace,
+    );
     if (automatedTestMode) {
       rethrow;
     }
@@ -466,16 +503,21 @@ void _captureEnvelope(Uint8List envelopeData, bool containsUnhandledException,
   }
 }
 
-List<DebugImage>? _loadDebugImages(List<String> instructionAddresses,
-    {bool automatedTestMode = false}) {
-  final debugImageMaps = _loadDebugImageMaps(instructionAddresses,
-      automatedTestMode: automatedTestMode);
+List<DebugImage>? _loadDebugImages(
+  List<String> instructionAddresses, {
+  bool automatedTestMode = false,
+}) {
+  final debugImageMaps = _loadDebugImageMaps(
+    instructionAddresses,
+    automatedTestMode: automatedTestMode,
+  );
   return debugImageMaps?.map(DebugImage.fromJson).toList(growable: false);
 }
 
 List<Map<String, dynamic>>? _loadDebugImageMaps(
-    List<String> instructionAddresses,
-    {bool automatedTestMode = false}) {
+  List<String> instructionAddresses, {
+  bool automatedTestMode = false,
+}) {
   JSet<JString>? instructionAddressSet;
   final instructionAddressJStrings = <JString>[];
   JByteArray? imagesUtf8JsonBytes;
@@ -488,13 +530,19 @@ List<Map<String, dynamic>>? _loadDebugImageMaps(
     instructionAddressSet = instructionAddressJStrings.toJSet(JString.type);
 
     imagesUtf8JsonBytes = native.SentryFlutterPlugin.loadDebugImagesAsBytes(
-        instructionAddressSet);
+      instructionAddressSet,
+    );
     if (imagesUtf8JsonBytes == null) return null;
 
-    final byteRange =
-        imagesUtf8JsonBytes.getRange(0, imagesUtf8JsonBytes.length);
+    final byteRange = imagesUtf8JsonBytes.getRange(
+      0,
+      imagesUtf8JsonBytes.length,
+    );
     final bytes = Uint8List.view(
-        byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
+      byteRange.buffer,
+      byteRange.offsetInBytes,
+      byteRange.length,
+    );
     return decodeUtf8JsonListOfMaps(bytes);
   } catch (exception, stackTrace) {
     internalLogger.error(
@@ -523,10 +571,15 @@ Map<String, dynamic>? _loadContexts({bool automatedTestMode = false}) {
     contextsUtf8JsonBytes = native.SentryFlutterPlugin.loadContextsAsBytes();
     if (contextsUtf8JsonBytes == null) return null;
 
-    final byteRange =
-        contextsUtf8JsonBytes.getRange(0, contextsUtf8JsonBytes.length);
+    final byteRange = contextsUtf8JsonBytes.getRange(
+      0,
+      contextsUtf8JsonBytes.length,
+    );
     final bytes = Uint8List.view(
-        byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
+      byteRange.buffer,
+      byteRange.offsetInBytes,
+      byteRange.length,
+    );
     return decodeUtf8JsonMap(bytes);
   } catch (exception, stackTrace) {
     internalLogger.error(
@@ -544,15 +597,20 @@ Map<String, dynamic>? _loadContexts({bool automatedTestMode = false}) {
   return null;
 }
 
-void _addBreadcrumb(Map<String, dynamic> breadcrumb,
-    {bool automatedTestMode = false}) {
+void _addBreadcrumb(
+  Map<String, dynamic> breadcrumb, {
+  bool automatedTestMode = false,
+}) {
   JByteArray? jBytes;
   try {
     jBytes = _jsonToJByteArray(breadcrumb);
     native.SentryFlutterPlugin.addBreadcrumbFromJsonBytes(jBytes);
   } catch (exception, stackTrace) {
-    internalLogger.error('JNI: Failed to add breadcrumb',
-        error: exception, stackTrace: stackTrace);
+    internalLogger.error(
+      'JNI: Failed to add breadcrumb',
+      error: exception,
+      stackTrace: stackTrace,
+    );
     if (automatedTestMode) {
       rethrow;
     }
@@ -565,8 +623,11 @@ void _clearBreadcrumbs({bool automatedTestMode = false}) {
   try {
     native.Sentry.clearBreadcrumbs();
   } catch (exception, stackTrace) {
-    internalLogger.error('JNI: Failed to clear breadcrumbs',
-        error: exception, stackTrace: stackTrace);
+    internalLogger.error(
+      'JNI: Failed to clear breadcrumbs',
+      error: exception,
+      stackTrace: stackTrace,
+    );
     if (automatedTestMode) {
       rethrow;
     }
@@ -583,8 +644,11 @@ void _setUser(Map<String, dynamic>? user, {bool automatedTestMode = false}) {
       native.SentryFlutterPlugin.setUserFromJsonBytes(jBytes);
     }
   } catch (exception, stackTrace) {
-    internalLogger.error('JNI: Failed to set user',
-        error: exception, stackTrace: stackTrace);
+    internalLogger.error(
+      'JNI: Failed to set user',
+      error: exception,
+      stackTrace: stackTrace,
+    );
     if (automatedTestMode) {
       rethrow;
     }
@@ -602,8 +666,11 @@ void _setContexts(String key, Object? value, {bool automatedTestMode = false}) {
 
     native.SentryFlutterPlugin.setContextFromJsonBytes(jKey, jBytes);
   } catch (exception, stackTrace) {
-    internalLogger.error('JNI: Failed to set context',
-        error: exception, stackTrace: stackTrace);
+    internalLogger.error(
+      'JNI: Failed to set context',
+      error: exception,
+      stackTrace: stackTrace,
+    );
     if (automatedTestMode) {
       rethrow;
     }
@@ -619,8 +686,11 @@ void _removeContexts(String key, {bool automatedTestMode = false}) {
     jKey = key.toJString();
     native.SentryFlutterPlugin.removeContext(jKey);
   } catch (exception, stackTrace) {
-    internalLogger.error('JNI: Failed to remove context',
-        error: exception, stackTrace: stackTrace);
+    internalLogger.error(
+      'JNI: Failed to remove context',
+      error: exception,
+      stackTrace: stackTrace,
+    );
     if (automatedTestMode) {
       rethrow;
     }
