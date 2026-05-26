@@ -111,13 +111,25 @@ class AndroidCoreWorker {
     Worker client,
     List<String> instructionAddresses,
   ) async {
-    final response =
-        await client.request(_LoadDebugImagesRequest(instructionAddresses));
-    final maps = (response as List?)
-        ?.whereType<Map<dynamic, dynamic>>()
-        .map((e) => Map<String, dynamic>.from(e))
-        .toList(growable: false);
-    return maps?.map(DebugImage.fromJson).toList(growable: false);
+    try {
+      final response =
+          await client.request(_LoadDebugImagesRequest(instructionAddresses));
+      final maps = (response as List?)
+          ?.whereType<Map<dynamic, dynamic>>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList(growable: false);
+      return maps?.map(DebugImage.fromJson).toList(growable: false);
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Android core worker failed to load debug images',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
+      return null;
+    }
   }
 
   FutureOr<Map<String, dynamic>?> loadContexts() {
@@ -130,8 +142,22 @@ class AndroidCoreWorker {
   }
 
   Future<Map<String, dynamic>?> _loadContextsFromWorker(Worker client) async {
-    final response = await client.request(const _LoadContextsRequest());
-    return response == null ? null : Map<String, dynamic>.from(response as Map);
+    try {
+      final response = await client.request(const _LoadContextsRequest());
+      return response == null
+          ? null
+          : Map<String, dynamic>.from(response as Map);
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Android core worker failed to load contexts',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
+      return null;
+    }
   }
 
   void addBreadcrumb(Breadcrumb breadcrumb) {
@@ -151,7 +177,7 @@ class AndroidCoreWorker {
     Worker client,
     Breadcrumb breadcrumb,
   ) {
-    client.send(_AddBreadcrumbRequest(breadcrumb.toJson()));
+    client.send(_AddBreadcrumbRequest(_normalizeJsonMap(breadcrumb.toJson())));
   }
 
   void setUser(SentryUser? user) {
@@ -170,13 +196,15 @@ class AndroidCoreWorker {
     Worker client,
     SentryUser? user,
   ) {
-    client.send(_SetUserRequest(user?.toJson()));
+    client.send(_SetUserRequest(
+      user == null ? null : _normalizeJsonMap(user.toJson()),
+    ));
   }
 
   void setContexts(String key, dynamic value) {
     if (_isClosed) return;
 
-    final normalizedValue = normalize(value);
+    final normalizedValue = _normalizeJson(value);
     final client = _worker;
     if (client == null) {
       _setContexts(key, normalizedValue,
@@ -333,16 +361,15 @@ List<Map<String, dynamic>>? _loadDebugImageMaps(
     List<String> instructionAddresses,
     {bool automatedTestMode = false}) {
   JSet<JString>? instructionAddressSet;
-  Set<JString>? instructionAddressJStrings;
+  final instructionAddressJStrings = <JString>[];
   JByteArray? imagesUtf8JsonBytes;
 
   try {
-    instructionAddressJStrings =
-        instructionAddresses.map((s) => s.toJString()).toSet();
+    for (final instructionAddress in instructionAddresses) {
+      instructionAddressJStrings.add(instructionAddress.toJString());
+    }
 
-    instructionAddressSet = instructionAddressJStrings.nonNulls
-        .cast<JString>()
-        .toJSet(JString.type);
+    instructionAddressSet = instructionAddressJStrings.toJSet(JString.type);
 
     imagesUtf8JsonBytes = native.SentryFlutterPlugin.loadDebugImagesAsBytes(
         instructionAddressSet);
@@ -363,7 +390,7 @@ List<Map<String, dynamic>>? _loadDebugImageMaps(
       rethrow;
     }
   } finally {
-    for (final js in instructionAddressJStrings ?? const <JString>[]) {
+    for (final js in instructionAddressJStrings) {
       js.release();
     }
     instructionAddressSet?.release();
@@ -459,4 +486,19 @@ void _setContexts(String key, Object? value, {bool automatedTestMode = false}) {
 }
 
 JByteArray _jsonToJByteArray(Object? value) =>
-    JByteArray.from(encodeUtf8Json(normalize(value)));
+    JByteArray.from(encodeUtf8Json(_normalizeJson(value)));
+
+Map<String, dynamic> _normalizeJsonMap(Map<String, dynamic> value) =>
+    _normalizeJson(value) as Map<String, dynamic>;
+
+Object? _normalizeJson(Object? value) {
+  if (value is Map) {
+    return value.map(
+      (key, value) => MapEntry(key.toString(), _normalizeJson(value)),
+    );
+  }
+  if (value is List) {
+    return value.map(_normalizeJson).toList(growable: false);
+  }
+  return normalize(value);
+}

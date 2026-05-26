@@ -193,6 +193,21 @@ void main() {
       expect(result.first.debugId, 'debug-id');
     });
 
+    test('returns null when debug image request fails', () async {
+      final fixture = _Fixture();
+      final worker = fixture.getSut();
+      await worker.start();
+
+      final resultFuture = worker.loadDebugImages(SentryStackTrace(frames: [
+        SentryStackFrame(instructionAddr: '0x1'),
+      ]));
+
+      final (id, _) = await fixture.nextRequest;
+      fixture.respondError(id);
+
+      expect(await resultFuture, isNull);
+    });
+
     test('requests native contexts', () async {
       final fixture = _Fixture();
       final worker = fixture.getSut();
@@ -211,6 +226,19 @@ void main() {
       });
     });
 
+    test('returns null when native contexts request fails', () async {
+      final fixture = _Fixture();
+      final worker = fixture.getSut();
+      await worker.start();
+
+      final resultFuture = worker.loadContexts();
+
+      final (id, _) = await fixture.nextRequest;
+      fixture.respondError(id);
+
+      expect(await resultFuture, isNull);
+    });
+
     test('sends breadcrumb update without awaiting response', () async {
       final fixture = _Fixture();
       final worker = fixture.getSut();
@@ -220,6 +248,22 @@ void main() {
 
       final payload = await fixture.nextMessage;
       expect((payload as dynamic).breadcrumb['message'], 'crumb');
+    });
+
+    test('normalizes breadcrumb update before sending', () async {
+      final fixture = _Fixture();
+      final worker = fixture.getSut();
+      await worker.start();
+
+      worker.addBreadcrumb(Breadcrumb(
+        message: 'crumb',
+        data: {'value': _UnserializableValue()},
+      ));
+
+      final payload = await fixture.nextMessage;
+      expect((payload as dynamic).breadcrumb['data'], {
+        'value': 'normalized-value',
+      });
     });
 
     test('sends user update without awaiting response', () async {
@@ -233,13 +277,35 @@ void main() {
       expect((payload as dynamic).user['id'], 'fixture-user');
     });
 
+    test('normalizes user update before sending', () async {
+      final fixture = _Fixture();
+      final worker = fixture.getSut();
+      await worker.start();
+
+      worker.setUser(SentryUser(
+        id: 'fixture-user',
+        data: {'value': _UnserializableValue()},
+        // ignore: deprecated_member_use
+        extras: {'extra': _UnserializableValue()},
+      ));
+
+      final payload = await fixture.nextMessage;
+      final user = (payload as dynamic).user as Map;
+      expect(user['data'], {
+        'value': 'normalized-value',
+      });
+      expect(user['extras'], {
+        'extra': 'normalized-value',
+      });
+    });
+
     test('sends context update without awaiting response', () async {
       final fixture = _Fixture();
       final worker = fixture.getSut();
       await worker.start();
 
-      worker.setContexts('fixture-key', {
-        'nested': {'value': true}
+      worker.setContexts('fixture-key', <dynamic, dynamic>{
+        'nested': <dynamic, dynamic>{'value': true}
       });
 
       final payload = await fixture.nextMessage;
@@ -272,6 +338,10 @@ class _Fixture {
     responsePorts.last.send((id, response));
   }
 
+  void respondError(int id) {
+    respond(id, RemoteError('worker failure', StackTrace.current.toString()));
+  }
+
   Future<Worker> _fakeSpawn(WorkerConfig config, WorkerEntry entry) async {
     final inbox = ReceivePort();
     inboxes.add(inbox);
@@ -283,4 +353,9 @@ class _Fixture {
 
     return Worker(inbox.sendPort, replies);
   }
+}
+
+class _UnserializableValue {
+  @override
+  String toString() => 'normalized-value';
 }
