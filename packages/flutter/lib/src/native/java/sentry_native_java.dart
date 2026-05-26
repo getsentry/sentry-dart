@@ -121,9 +121,8 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
-    _coreWorker?.addBreadcrumb(breadcrumb);
-  }
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) =>
+      _coreWorker?.addBreadcrumb(breadcrumb);
 
   @override
   void clearBreadcrumbs() => tryCatchSync('clearBreadcrumbs', () {
@@ -131,14 +130,11 @@ class SentryNativeJava extends SentryNativeChannel {
       });
 
   @override
-  FutureOr<void> setUser(SentryUser? user) {
-    _coreWorker?.setUser(user);
-  }
+  FutureOr<void> setUser(SentryUser? user) => _coreWorker?.setUser(user);
 
   @override
-  FutureOr<void> setContexts(String key, value) {
-    _coreWorker?.setContexts(key, value);
-  }
+  FutureOr<void> setContexts(String key, value) =>
+      _coreWorker?.setContexts(key, value);
 
   @override
   void removeContexts(String key) => tryCatchSync('removeContexts', () {

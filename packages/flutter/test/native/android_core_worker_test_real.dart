@@ -2,6 +2,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 library;
 
+import 'dart:async';
 import 'dart:isolate';
 import 'dart:typed_data';
 
@@ -239,14 +240,15 @@ void main() {
       expect(await resultFuture, isNull);
     });
 
-    test('sends breadcrumb update without awaiting response', () async {
+    test('sends breadcrumb update and awaits response', () async {
       final fixture = _Fixture();
       final worker = fixture.getSut();
       await worker.start();
 
-      worker.addBreadcrumb(Breadcrumb(message: 'crumb'));
+      final payload = await fixture.expectPendingRequest(
+        worker.addBreadcrumb(Breadcrumb(message: 'crumb')),
+      );
 
-      final payload = await fixture.nextMessage;
       expect((payload as dynamic).breadcrumb['message'], 'crumb');
     });
 
@@ -255,25 +257,27 @@ void main() {
       final worker = fixture.getSut();
       await worker.start();
 
-      worker.addBreadcrumb(Breadcrumb(
-        message: 'crumb',
-        data: {'value': _UnserializableValue()},
-      ));
+      final payload = await fixture.expectPendingRequest(
+        worker.addBreadcrumb(Breadcrumb(
+          message: 'crumb',
+          data: {'value': _UnserializableValue()},
+        )),
+      );
 
-      final payload = await fixture.nextMessage;
       expect((payload as dynamic).breadcrumb['data'], {
         'value': 'normalized-value',
       });
     });
 
-    test('sends user update without awaiting response', () async {
+    test('sends user update and awaits response', () async {
       final fixture = _Fixture();
       final worker = fixture.getSut();
       await worker.start();
 
-      worker.setUser(SentryUser(id: 'fixture-user'));
+      final payload = await fixture.expectPendingRequest(
+        worker.setUser(SentryUser(id: 'fixture-user')),
+      );
 
-      final payload = await fixture.nextMessage;
       expect((payload as dynamic).user['id'], 'fixture-user');
     });
 
@@ -282,14 +286,15 @@ void main() {
       final worker = fixture.getSut();
       await worker.start();
 
-      worker.setUser(SentryUser(
-        id: 'fixture-user',
-        data: {'value': _UnserializableValue()},
-        // ignore: deprecated_member_use
-        extras: {'extra': _UnserializableValue()},
-      ));
+      final payload = await fixture.expectPendingRequest(
+        worker.setUser(SentryUser(
+          id: 'fixture-user',
+          data: {'value': _UnserializableValue()},
+          // ignore: deprecated_member_use
+          extras: {'extra': _UnserializableValue()},
+        )),
+      );
 
-      final payload = await fixture.nextMessage;
       final user = (payload as dynamic).user as Map;
       expect(user['data'], {
         'value': 'normalized-value',
@@ -299,16 +304,17 @@ void main() {
       });
     });
 
-    test('sends context update without awaiting response', () async {
+    test('sends context update and awaits response', () async {
       final fixture = _Fixture();
       final worker = fixture.getSut();
       await worker.start();
 
-      worker.setContexts('fixture-key', <dynamic, dynamic>{
-        'nested': <dynamic, dynamic>{'value': true}
-      });
+      final payload = await fixture.expectPendingRequest(
+        worker.setContexts('fixture-key', <dynamic, dynamic>{
+          'nested': <dynamic, dynamic>{'value': true}
+        }),
+      );
 
-      final payload = await fixture.nextMessage;
       expect((payload as dynamic).key, 'fixture-key');
       expect((payload as dynamic).value, {
         'nested': {'value': true}
@@ -332,14 +338,27 @@ class _Fixture {
     return request;
   }
 
-  Future<Object?> get nextMessage => inboxes.last.first;
-
   void respond(int id, Object? response) {
     responsePorts.last.send((id, response));
   }
 
   void respondError(int id) {
     respond(id, RemoteError('worker failure', StackTrace.current.toString()));
+  }
+
+  Future<Object?> expectPendingRequest(FutureOr<void> update) async {
+    final updateFuture = Future<void>.value(update);
+    var completed = false;
+    unawaited(updateFuture.then((_) => completed = true));
+
+    final (id, payload) = await nextRequest;
+    await pumpEventQueue();
+    expect(completed, isFalse);
+
+    respond(id, null);
+    await updateFuture;
+    expect(completed, isTrue);
+    return payload;
   }
 
   Future<Worker> _fakeSpawn(WorkerConfig config, WorkerEntry entry) async {

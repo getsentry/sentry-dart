@@ -160,67 +160,95 @@ class AndroidCoreWorker {
     }
   }
 
-  void addBreadcrumb(Breadcrumb breadcrumb) {
-    if (_isClosed) return;
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
+    if (_isClosed) return null;
 
     final client = _worker;
     if (client == null) {
       _addBreadcrumb(breadcrumb.toJson(),
           automatedTestMode: _config.automatedTestMode);
-      return;
+      return null;
     }
 
-    _addBreadcrumbFromWorker(client, breadcrumb);
+    return _addBreadcrumbFromWorker(client, breadcrumb);
   }
 
-  void _addBreadcrumbFromWorker(
+  Future<void> _addBreadcrumbFromWorker(
     Worker client,
     Breadcrumb breadcrumb,
-  ) {
-    client.send(_AddBreadcrumbRequest(_normalizeJsonMap(breadcrumb.toJson())));
-  }
+  ) =>
+      _sendScopeUpdateToWorker(
+        client,
+        _AddBreadcrumbRequest(_normalizeJsonMap(breadcrumb.toJson())),
+        'add breadcrumb',
+      );
 
-  void setUser(SentryUser? user) {
-    if (_isClosed) return;
+  FutureOr<void> setUser(SentryUser? user) {
+    if (_isClosed) return null;
 
     final client = _worker;
     if (client == null) {
       _setUser(user?.toJson(), automatedTestMode: _config.automatedTestMode);
-      return;
+      return null;
     }
 
-    _setUserFromWorker(client, user);
+    return _setUserFromWorker(client, user);
   }
 
-  void _setUserFromWorker(
+  Future<void> _setUserFromWorker(
     Worker client,
     SentryUser? user,
-  ) {
-    client.send(_SetUserRequest(
-      user == null ? null : _normalizeJsonMap(user.toJson()),
-    ));
-  }
+  ) =>
+      _sendScopeUpdateToWorker(
+        client,
+        _SetUserRequest(
+          user == null ? null : _normalizeJsonMap(user.toJson()),
+        ),
+        'set user',
+      );
 
-  void setContexts(String key, dynamic value) {
-    if (_isClosed) return;
+  FutureOr<void> setContexts(String key, dynamic value) {
+    if (_isClosed) return null;
 
     final normalizedValue = _normalizeJson(value);
     final client = _worker;
     if (client == null) {
       _setContexts(key, normalizedValue,
           automatedTestMode: _config.automatedTestMode);
-      return;
+      return null;
     }
 
-    _setContextsFromWorker(client, key, normalizedValue);
+    return _setContextsFromWorker(client, key, normalizedValue);
   }
 
-  void _setContextsFromWorker(
+  Future<void> _setContextsFromWorker(
     Worker client,
     String key,
     Object? value,
-  ) {
-    client.send(_SetContextsRequest(key, value));
+  ) =>
+      _sendScopeUpdateToWorker(
+        client,
+        _SetContextsRequest(key, value),
+        'set context',
+      );
+
+  Future<void> _sendScopeUpdateToWorker(
+    Worker client,
+    Object request,
+    String operation,
+  ) async {
+    try {
+      await client.request(request);
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Android core worker failed to $operation',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
+    }
   }
 
   static void _entryPoint((SendPort, WorkerConfig) init) {
@@ -258,15 +286,29 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
 
   @override
   FutureOr<Object?> onRequest(Object? payload) => _enqueue<Object?>(() {
-        return switch (payload) {
-          _LoadDebugImagesRequest request => _loadDebugImageMaps(
+        switch (payload) {
+          case _LoadDebugImagesRequest request:
+            return _loadDebugImageMaps(
               request.instructionAddresses,
               automatedTestMode: _config.automatedTestMode,
-            ),
-          _LoadContextsRequest _ =>
-            _loadContexts(automatedTestMode: _config.automatedTestMode),
-          _ => _unexpectedPayload(payload),
-        };
+            );
+          case _LoadContextsRequest _:
+            return _loadContexts(automatedTestMode: _config.automatedTestMode);
+          case _AddBreadcrumbRequest request:
+            _addBreadcrumb(request.breadcrumb,
+                automatedTestMode: _config.automatedTestMode);
+            return null;
+          case _SetUserRequest request:
+            _setUser(request.user,
+                automatedTestMode: _config.automatedTestMode);
+            return null;
+          case _SetContextsRequest request:
+            _setContexts(request.key, request.value,
+                automatedTestMode: _config.automatedTestMode);
+            return null;
+          default:
+            return _unexpectedPayload(payload);
+        }
       });
 
   /// Serializes JNI work inside the worker isolate.
