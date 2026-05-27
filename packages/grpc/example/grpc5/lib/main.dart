@@ -104,35 +104,86 @@ class _HomePageState extends State<HomePage> {
       });
 
   Future<void> _grpcRequest() => _run('gRPC request', () async {
+        final transaction = Sentry.startTransaction(
+          'grpcb-empty',
+          'grpc.client',
+          bindToScope: true,
+        );
         try {
           await _grpcClient.empty();
+          transaction.status = const SpanStatus.ok();
         } catch (e, s) {
+          transaction.throwable = e;
+          transaction.status = const SpanStatus.internalError();
           await Sentry.captureException(e, stackTrace: s);
           rethrow;
+        } finally {
+          await transaction.finish();
         }
         return null;
       });
 
   Future<void> _dummyUnaryRequest() => _run('DummyUnary', () async {
+        final transaction = Sentry.startTransaction(
+          'grpcb-dummy-unary',
+          'grpc.client',
+          bindToScope: true,
+        );
         try {
           final response = await _grpcClient.dummyUnary(
-            _encodeDummyMessage('hello from sentry_grpc'),
+            const DummyMessage(fString: 'hello from sentry_grpc'),
           );
-          return 'echo: "${_decodeDummyFString(response)}"';
+          transaction.status = const SpanStatus.ok();
+          return 'echo: "${response.fString}"';
         } catch (e, s) {
+          transaction.throwable = e;
+          transaction.status = const SpanStatus.internalError();
           await Sentry.captureException(e, stackTrace: s);
           rethrow;
+        } finally {
+          await transaction.finish();
         }
       });
 
   Future<void> _randomErrorRequest() => _run('RandomError', () async {
+        final transaction = Sentry.startTransaction(
+          'grpcb-random-error',
+          'grpc.client',
+          bindToScope: true,
+        );
         try {
           await _grpcClient.randomError();
+          transaction.status = const SpanStatus.ok();
         } catch (e, s) {
+          transaction.throwable = e;
+          transaction.status = const SpanStatus.internalError();
           await Sentry.captureException(e, stackTrace: s);
           rethrow;
+        } finally {
+          await transaction.finish();
         }
         return null;
+      });
+
+  Future<void> _withHeadersRequest() => _run('WithHeaders', () async {
+        final transaction = Sentry.startTransaction(
+          'grpcb-with-headers',
+          'grpc.client',
+          bindToScope: true,
+        );
+        try {
+          const request = DummyMessage(fString: 'bar', fInt32: 42);
+          final response = await _grpcClient.dummyUnaryWithHeaders(request);
+          transaction.status = const SpanStatus.ok();
+          return 'echo: "${response.fString}"';
+        } catch (e, s) {
+          transaction.throwable = e;
+          transaction.status = const SpanStatus.internalError();
+          await Sentry.captureException(e, stackTrace: s);
+          rethrow;
+        } finally {
+          await transaction.finish();
+        }
       });
 
   @override
@@ -199,6 +250,13 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.purple.shade600,
                   onPressed: _loading ? null : _randomErrorRequest,
                 ),
+                const SizedBox(height: 12),
+                _RequestButton(
+                  label: 'WithHeaders',
+                  subtitle: 'grpcb.in:9001 — DummyUnary + meat: vegetable',
+                  color: Colors.teal.shade600,
+                  onPressed: _loading ? null : _withHeadersRequest,
+                ),
                 if (_loading) ...[
                   const SizedBox(height: 32),
                   const Center(child: CircularProgressIndicator()),
@@ -251,23 +309,55 @@ class _RequestButton extends StatelessWidget {
   }
 }
 
-// Proto-encodes DummyMessage { f_string: value } (field 1, wire type 2).
-List<int> _encodeDummyMessage(String value) {
-  final bytes = utf8.encode(value);
-  return [0x0A, bytes.length, ...bytes];
-}
+/// Typed representation of grpcb.in's DummyMessage proto.
+///
+/// Handles only the fields used by this example (f_string, f_int32).
+/// Wire format matches the proto definition so it interoperates with grpcb.in.
+class DummyMessage {
+  const DummyMessage({this.fString = '', this.fInt32 = 0});
 
-// Decodes f_string from a DummyMessage byte payload (field 1, wire type 2).
-String _decodeDummyFString(List<int> bytes) {
-  if (bytes.length < 2 || bytes[0] != 0x0A) return '(no f_string)';
-  final len = bytes[1];
-  if (bytes.length < 2 + len) return '(truncated)';
-  return utf8.decode(bytes.sublist(2, 2 + len));
+  factory DummyMessage.fromBytes(List<int> bytes) {
+    String fString = '';
+    int fInt32 = 0;
+    int i = 0;
+    while (i < bytes.length) {
+      final tag = bytes[i++];
+      final field = tag >> 3;
+      final wireType = tag & 0x7;
+      if (field == 1 && wireType == 2) {
+        final len = bytes[i++];
+        fString = utf8.decode(bytes.sublist(i, i + len));
+        i += len;
+      } else if (field == 3 && wireType == 0) {
+        fInt32 = bytes[i++];
+      } else {
+        break;
+      }
+    }
+    return DummyMessage(fString: fString, fInt32: fInt32);
+  }
+
+  final String fString;
+  final int fInt32;
+
+  List<int> toBytes() {
+    final result = <int>[];
+    if (fString.isNotEmpty) {
+      final encoded = utf8.encode(fString);
+      result.addAll([0x0A, encoded.length, ...encoded]);
+    }
+    if (fInt32 != 0) {
+      result.addAll([0x18, fInt32]);
+    }
+    return result;
+  }
+
+  @override
+  String toString() => 'DummyMessage(fString: "$fString", fInt32: $fInt32)';
 }
 
 // Minimal gRPC client for grpcb.in.
-// Messages with no fields (EmptyMessage) serialize to/from an empty byte list.
-// DummyMessage is hand-encoded — see proto helpers above.
+// EmptyMessage has no fields and serializes to/from an empty byte list.
 class _GrpcBinClient extends Client {
   static final _emptyCall = ClientMethod<List<int>, List<int>>(
     '/grpcbin.GRPCBin/Empty',
@@ -275,10 +365,10 @@ class _GrpcBinClient extends Client {
     (data) => data,
   );
 
-  static final _dummyUnaryCall = ClientMethod<List<int>, List<int>>(
+  static final _dummyUnaryCall = ClientMethod<DummyMessage, DummyMessage>(
     '/grpcbin.GRPCBin/DummyUnary',
-    (data) => data,
-    (data) => data,
+    (msg) => msg.toBytes(),
+    DummyMessage.fromBytes,
   );
 
   static final _randomErrorCall = ClientMethod<List<int>, List<int>>(
@@ -292,8 +382,15 @@ class _GrpcBinClient extends Client {
   ResponseFuture<List<int>> empty() =>
       $createUnaryCall(_emptyCall, const <int>[]);
 
-  ResponseFuture<List<int>> dummyUnary(List<int> request) =>
+  ResponseFuture<DummyMessage> dummyUnary(DummyMessage request) =>
       $createUnaryCall(_dummyUnaryCall, request);
+
+  ResponseFuture<DummyMessage> dummyUnaryWithHeaders(DummyMessage request) =>
+      $createUnaryCall(
+        _dummyUnaryCall,
+        request,
+        options: CallOptions(metadata: {'meat': 'vegetable'}),
+      );
 
   ResponseFuture<List<int>> randomError() =>
       $createUnaryCall(_randomErrorCall, const <int>[]);

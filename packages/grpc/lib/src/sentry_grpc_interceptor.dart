@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member, implementation_imports
 
 import 'package:grpc/grpc.dart';
+import 'package:grpc/src/generated/google/rpc/error_details.pb.dart' as rpc;
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/tracing/instrumentation/instrumentation.dart';
 import 'package:sentry/src/utils/tracing_utils.dart';
@@ -33,19 +34,34 @@ class SentryGrpcInterceptor extends ClientInterceptor {
   /// Integration name registered with the Sentry SDK.
   static const String integrationName = 'GrpcClientTracing';
 
+  // Headers that may contain credentials; omitted unless sendDefaultPii is on.
+  static const _sensitiveHeaders = {
+    'authorization',
+    'cookie',
+    'set-cookie',
+    'proxy-authorization',
+  };
+
   /// Creates a [SentryGrpcInterceptor].
   ///
   /// [captureFailedRequests] overrides [SentryOptions.captureFailedRequests].
   /// When `null`, the global option is used.
   ///
   /// Set [recordBreadcrumbs] to `false` to disable breadcrumb recording.
+  ///
+  /// Set [captureRequestHeaders] to `false` to suppress attaching outgoing
+  /// gRPC metadata (request headers) to the span. Sensitive headers
+  /// (`authorization`, `cookie`, etc.) are redacted unless
+  /// [SentryOptions.sendDefaultPii] is enabled. Defaults to `true`.
   SentryGrpcInterceptor({
     Hub? hub,
     bool? captureFailedRequests,
     bool recordBreadcrumbs = true,
+    bool captureRequestHeaders = true,
   })  : _hub = hub ?? HubAdapter(),
         _captureFailedRequests = captureFailedRequests,
-        _recordBreadcrumbs = recordBreadcrumbs {
+        _recordBreadcrumbs = recordBreadcrumbs,
+        _captureRequestHeaders = captureRequestHeaders {
     _spanFactory = _hub.options.spanFactory;
     if (_hub.options.isTracingEnabled()) {
       _hub.options.sdk.addIntegration(integrationName);
@@ -56,6 +72,7 @@ class SentryGrpcInterceptor extends ClientInterceptor {
   final Hub _hub;
   final bool? _captureFailedRequests;
   final bool _recordBreadcrumbs;
+  final bool _captureRequestHeaders;
   late final InstrumentationSpanFactory _spanFactory;
 
   @override
@@ -75,6 +92,10 @@ class SentryGrpcInterceptor extends ClientInterceptor {
         : null;
 
     span?.origin = SentryTraceOrigins.autoGrpcClientInterceptor;
+
+    if (span != null) {
+      _attachRequestData(span, method, request, options);
+    }
 
     final modifiedOptions = _buildModifiedOptions(options, span);
     final stopwatch = _recordBreadcrumbs ? (Stopwatch()..start()) : null;
@@ -99,6 +120,9 @@ class SentryGrpcInterceptor extends ClientInterceptor {
         final grpcError = error is GrpcError ? error : null;
         span?.throwable = error;
         span?.status = _grpcStatusToSpanStatus(grpcError);
+        if (span != null && grpcError != null) {
+          _attachErrorDetails(span, grpcError);
+        }
         await span?.finish();
         if (_recordBreadcrumbs) {
           stopwatch!.stop();
@@ -130,6 +154,22 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     final parentSpan = _spanFactory.getSpan(_hub);
     final modifiedOptions = _buildModifiedOptions(options, parentSpan);
     return invoker(method, requests, modifiedOptions);
+  }
+
+  void _attachRequestData<Q, R>(
+    InstrumentationSpan span,
+    ClientMethod<Q, R> method,
+    Q request,
+    CallOptions options,
+  ) {
+    if (_captureRequestHeaders) {
+      final sendPii = _hub.options.sendDefaultPii;
+      options.metadata.forEach((key, value) {
+        final normalizedKey = key.toLowerCase();
+        if (!sendPii && _sensitiveHeaders.contains(normalizedKey)) return;
+        span.setData('http.request.header.$normalizedKey', value);
+      });
+    }
   }
 
   CallOptions _buildModifiedOptions(
@@ -193,6 +233,53 @@ class SentryGrpcInterceptor extends ClientInterceptor {
           });
         },
       );
+
+  void _attachErrorDetails(InstrumentationSpan span, GrpcError error) {
+    final details = error.details;
+    if (details == null || details.isEmpty) return;
+
+    for (final detail in details) {
+      if (detail is rpc.ErrorInfo) {
+        span.setData('grpc.error_info.reason', detail.reason);
+        span.setData('grpc.error_info.domain', detail.domain);
+        if (detail.metadata.isNotEmpty) {
+          span.setData('grpc.error_info.metadata', detail.metadata.toString());
+        }
+      } else if (detail is rpc.BadRequest) {
+        span.setData(
+          'grpc.bad_request.field_violations',
+          detail.fieldViolations
+              .map((v) => '${v.field_1}: ${v.description}')
+              .join('; '),
+        );
+      } else if (detail is rpc.RetryInfo) {
+        span.setData(
+          'grpc.retry_info.retry_delay',
+          '${detail.retryDelay.seconds}s',
+        );
+      } else if (detail is rpc.DebugInfo) {
+        span.setData('grpc.debug_info.detail', detail.detail);
+      } else if (detail is rpc.PreconditionFailure) {
+        span.setData(
+          'grpc.precondition_failure.violations',
+          detail.violations
+              .map((v) => '${v.type}: ${v.subject} - ${v.description}')
+              .join('; '),
+        );
+      } else if (detail is rpc.ResourceInfo) {
+        span.setData('grpc.resource_info.type', detail.resourceType);
+        span.setData('grpc.resource_info.name', detail.resourceName);
+        span.setData('grpc.resource_info.description', detail.description);
+      } else if (detail is rpc.QuotaFailure) {
+        span.setData(
+          'grpc.quota_failure.violations',
+          detail.violations
+              .map((v) => '${v.subject}: ${v.description}')
+              .join('; '),
+        );
+      }
+    }
+  }
 
   SpanStatus _grpcStatusToSpanStatus(GrpcError? error) {
     if (error == null) return const SpanStatus.internalError();

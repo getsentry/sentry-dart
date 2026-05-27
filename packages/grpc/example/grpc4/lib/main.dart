@@ -3,19 +3,24 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
 import 'package:http/http.dart' as http;
-import 'package:sentry/sentry.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_grpc/sentry_grpc.dart';
 
 import 'app_config.dart' as config;
 
 void main() async {
-  await Sentry.init(
+  await SentryFlutter.init(
     (options) {
       options.dsn = config.exampleDsn;
       options.tracesSampleRate = 1.0;
+      options.captureFailedRequests = true;
       options.debug = true;
     },
-    appRunner: () => runApp(const App()),
+    appRunner: () => runApp(
+      SentryWidget(
+        child: const App(),
+      ),
+    ),
   );
 }
 
@@ -103,36 +108,66 @@ class _HomePageState extends State<HomePage> {
       });
 
   Future<void> _grpcRequest() => _run('gRPC request', () async {
+        final transaction = Sentry.startTransaction(
+          'grpcb-empty',
+          'grpc.client',
+          bindToScope: true,
+        );
         try {
           await _grpcClient.empty();
+          transaction.status = const SpanStatus.ok();
         } catch (e, s) {
+          transaction.throwable = e;
+          transaction.status = const SpanStatus.internalError();
           await Sentry.captureException(e, stackTrace: s);
           rethrow;
+        } finally {
+          await transaction.finish();
         }
       });
 
   Future<void> _dummyUnaryRequest() async {
     String? echoResult;
     await _run('DummyUnary', () async {
+      final transaction = Sentry.startTransaction(
+        'grpcb-dummy-unary',
+        'grpc.client',
+        bindToScope: true,
+      );
       try {
         final response = await _grpcClient.dummyUnary(
           _encodeDummyMessage('hello from sentry_grpc'),
         );
+        transaction.status = const SpanStatus.ok();
         echoResult = 'echo: "${_decodeDummyFString(response)}"';
       } catch (e, s) {
+        transaction.throwable = e;
+        transaction.status = const SpanStatus.internalError();
         await Sentry.captureException(e, stackTrace: s);
         rethrow;
+      } finally {
+        await transaction.finish();
       }
     });
     if (mounted && echoResult != null) setState(() => _result = echoResult!);
   }
 
   Future<void> _randomErrorRequest() => _run('RandomError', () async {
+        final transaction = Sentry.startTransaction(
+          'grpcb-random-error',
+          'grpc.client',
+          bindToScope: true,
+        );
         try {
           await _grpcClient.randomError();
+          transaction.status = const SpanStatus.ok();
         } catch (e, s) {
+          transaction.throwable = e;
+          transaction.status = const SpanStatus.internalError();
           await Sentry.captureException(e, stackTrace: s);
           rethrow;
+        } finally {
+          await transaction.finish();
         }
       });
 

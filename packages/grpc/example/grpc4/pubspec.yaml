@@ -13,6 +13,7 @@ dependencies:
   grpc: '>=4.0.4 <5.0.0'
   http: ^1.2.0
   sentry: 9.20.0
+  sentry_flutter: 9.20.0
   sentry_grpc:
     path: ../..
 
