@@ -397,6 +397,55 @@ class SentryNative {
   late final _options_get_dsn = _options_get_dsnPtr.asFunction<
       ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
 
+  /// Sets the sample rate, which should be a double between `0.0` and `1.0`.
+  /// Sentry will randomly discard any event that is captured using
+  /// `sentry_capture_event` when a sample rate < 1 is set.
+  ///
+  /// The sampling happens at the end of the event processing according to the
+  /// following order:
+  ///
+  /// https://develop.sentry.dev/sdk/sessions/#filter-order
+  ///
+  /// Only items 3. to 6. are currently applicable to sentry-native. This means
+  /// each processing step is executed even if the sampling discards the event
+  /// before sending it to the backend. This is particularly relevant to users of
+  /// the `before_send` callback.
+  ///
+  /// The above is in contrast to versions up to 0.4.18 where the sampling happened
+  /// at the beginning of the processing/filter sequence.
+  void options_set_sample_rate(
+    ffi.Pointer<sentry_options_s> opts,
+    double sample_rate,
+  ) {
+    return _options_set_sample_rate(
+      opts,
+      sample_rate,
+    );
+  }
+
+  late final _options_set_sample_ratePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Double)>>('sentry_options_set_sample_rate');
+  late final _options_set_sample_rate = _options_set_sample_ratePtr
+      .asFunction<void Function(ffi.Pointer<sentry_options_s>, double)>();
+
+  /// Gets the sample rate.
+  double options_get_sample_rate(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_sample_rate(
+      opts,
+    );
+  }
+
+  late final _options_get_sample_ratePtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Double Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_get_sample_rate');
+  late final _options_get_sample_rate = _options_get_sample_ratePtr
+      .asFunction<double Function(ffi.Pointer<sentry_options_s>)>();
+
   /// Sets the release.
   void options_set_release(
     ffi.Pointer<sentry_options_s> opts,
