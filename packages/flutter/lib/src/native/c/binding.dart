@@ -58,7 +58,7 @@ class SentryNative {
   }
 
   late final _value_new_int32Ptr =
-      _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Int)>>(
+      _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Int32)>>(
           'sentry_value_new_int32');
   late final _value_new_int32 =
       _value_new_int32Ptr.asFunction<sentry_value_u Function(int)>();
@@ -271,7 +271,7 @@ class SentryNative {
   }
 
   late final _value_as_int32Ptr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(sentry_value_u)>>(
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(sentry_value_u)>>(
           'sentry_value_as_int32');
   late final _value_as_int32 =
       _value_as_int32Ptr.asFunction<int Function(sentry_value_u)>();
@@ -975,7 +975,7 @@ class SentryNative {
 /// automatically happens for some shared values in the event payload like
 /// the module list.
 final class sentry_value_u extends ffi.Union {
-  @ffi.Int()
+  @ffi.Uint64()
   external int _bits;
 
   @ffi.Double()
