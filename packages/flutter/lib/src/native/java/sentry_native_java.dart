@@ -16,7 +16,7 @@ import '../native_app_start.dart';
 import '../sentry_native_channel.dart';
 import '../utils/data_normalizer.dart';
 import '../utils/utf8_json.dart';
-import 'android_envelope_sender.dart';
+import 'android_core_worker.dart';
 import 'android_replay_recorder.dart';
 import 'binding.dart' as native;
 
@@ -25,14 +25,14 @@ part 'sentry_native_java_init.dart';
 @internal
 class SentryNativeJava extends SentryNativeChannel {
   AndroidReplayRecorder? _replayRecorder;
-  AndroidEnvelopeSender? _envelopeSender;
+  AndroidCoreWorker? _coreWorker;
   native.ReplayIntegration? _nativeReplay;
 
   SentryNativeJava(super.options) {
-    // Initialize envelope sender here in the ctor instead of init().
+    // Initialize core worker here in the ctor instead of init().
     // Ensures it starts when autoInitializeNativeSdk is enabled and disabled.
-    _envelopeSender = AndroidEnvelopeSender.factory(options);
-    _envelopeSender?.start();
+    _coreWorker = AndroidCoreWorker.factory(options);
+    _coreWorker?.start();
   }
 
   @override
@@ -58,98 +58,15 @@ class SentryNativeJava extends SentryNativeChannel {
   @override
   FutureOr<void> captureEnvelope(
       Uint8List envelopeData, bool containsUnhandledException) {
-    _envelopeSender?.captureEnvelope(envelopeData, containsUnhandledException);
+    _coreWorker?.captureEnvelope(envelopeData, containsUnhandledException);
   }
 
   @override
-  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
-    JSet<JString>? instructionAddressSet;
-    Set<JString>? instructionAddressJStrings;
-    JByteArray? imagesUtf8JsonBytes;
-
-    try {
-      instructionAddressJStrings = stackTrace.frames
-          .map((f) => f.instructionAddr)
-          .nonNulls
-          .map((s) => s.toJString())
-          .toSet();
-
-      instructionAddressSet = instructionAddressJStrings.nonNulls
-          .cast<JString>()
-          .toJSet(JString.type);
-
-      // Use a single JNI call to get images as UTF-8 encoded JSON instead of
-      // making multiple JNI calls to convert each object individually. This approach
-      // is significantly faster because images can be large.
-      // Local benchmarks show this method is ~4x faster than the alternative
-      // approach of converting JNI objects to Dart objects one by one.
-
-      // NOTE: when instructionAddressSet is empty, loadDebugImagesAsBytes will return
-      // all debug images as fallback.
-      imagesUtf8JsonBytes = native.SentryFlutterPlugin.loadDebugImagesAsBytes(
-          instructionAddressSet);
-      if (imagesUtf8JsonBytes == null) return null;
-
-      final byteRange =
-          imagesUtf8JsonBytes.getRange(0, imagesUtf8JsonBytes.length);
-      final bytes = Uint8List.view(
-          byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
-      final debugImageMaps = decodeUtf8JsonListOfMaps(bytes);
-      return debugImageMaps.map(DebugImage.fromJson).toList(growable: false);
-    } catch (exception, stackTrace) {
-      internalLogger.error(
-        'JNI: Failed to load debug images',
-        error: exception,
-        stackTrace: stackTrace,
-      );
-      if (options.automatedTestMode) {
-        rethrow;
-      }
-    } finally {
-      // Release JNI refs
-      for (final js in instructionAddressJStrings ?? const <JString>[]) {
-        js.release();
-      }
-      instructionAddressSet?.release();
-      imagesUtf8JsonBytes?.release();
-    }
-
-    return null;
-  }
+  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
+      _coreWorker?.loadDebugImages(stackTrace);
 
   @override
-  FutureOr<Map<String, dynamic>?> loadContexts() {
-    JByteArray? contextsUtf8JsonBytes;
-
-    try {
-      // Use a single JNI call to get contexts as UTF-8 encoded JSON instead of
-      // making multiple JNI calls to convert each object individually. This approach
-      // is significantly faster because contexts can be large and contain many nested
-      // objects. Local benchmarks show this method is ~4x faster than the alternative
-      // approach of converting JNI objects to Dart objects one by one.
-      contextsUtf8JsonBytes = native.SentryFlutterPlugin.loadContextsAsBytes();
-      if (contextsUtf8JsonBytes == null) return null;
-
-      final byteRange =
-          contextsUtf8JsonBytes.getRange(0, contextsUtf8JsonBytes.length);
-      final bytes = Uint8List.view(
-          byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
-      return decodeUtf8JsonMap(bytes);
-    } catch (exception, stackTrace) {
-      internalLogger.error(
-        'JNI: Failed to load contexts',
-        error: exception,
-        stackTrace: stackTrace,
-      );
-      if (options.automatedTestMode) {
-        rethrow;
-      }
-    } finally {
-      contextsUtf8JsonBytes?.release();
-    }
-
-    return null;
-  }
+  FutureOr<Map<String, dynamic>?> loadContexts() => _coreWorker?.loadContexts();
 
   @override
   int? displayRefreshRate() => tryCatchSync('displayRefreshRate', () {
@@ -198,56 +115,27 @@ class SentryNativeJava extends SentryNativeChannel {
   @override
   Future<void> close() async {
     await _replayRecorder?.stop();
-    await _envelopeSender?.close();
+    await _coreWorker?.close();
     _setNativeReplay(null);
     return super.close();
   }
 
   @override
-  void addBreadcrumb(Breadcrumb breadcrumb) =>
-      tryCatchSync('addBreadcrumb', () {
-        using((arena) {
-          final jBytes = jsonToJByteArray(breadcrumb.toJson())
-            ..releasedBy(arena);
-          native.SentryFlutterPlugin.addBreadcrumbFromJsonBytes(jBytes);
-        });
-      });
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) =>
+      _coreWorker?.addBreadcrumb(breadcrumb);
 
   @override
-  void clearBreadcrumbs() => tryCatchSync('clearBreadcrumbs', () {
-        native.Sentry.clearBreadcrumbs();
-      });
+  FutureOr<void> clearBreadcrumbs() => _coreWorker?.clearBreadcrumbs();
 
   @override
-  void setUser(SentryUser? user) => tryCatchSync('setUser', () {
-        using((arena) {
-          if (user == null) {
-            native.SentryFlutterPlugin.setUserFromJsonBytes(null);
-          } else {
-            final jBytes = jsonToJByteArray(user.toJson())..releasedBy(arena);
-            native.SentryFlutterPlugin.setUserFromJsonBytes(jBytes);
-          }
-        });
-      });
+  FutureOr<void> setUser(SentryUser? user) => _coreWorker?.setUser(user);
 
   @override
-  void setContexts(String key, value) => tryCatchSync('setContexts', () {
-        using((arena) {
-          final jKey = key.toJString()..releasedBy(arena);
-          final jBytes = jsonToJByteArray(value)..releasedBy(arena);
-
-          native.SentryFlutterPlugin.setContextFromJsonBytes(jKey, jBytes);
-        });
-      });
+  FutureOr<void> setContexts(String key, value) =>
+      _coreWorker?.setContexts(key, value);
 
   @override
-  void removeContexts(String key) => tryCatchSync('removeContexts', () {
-        using((arena) {
-          final jKey = key.toJString()..releasedBy(arena);
-
-          native.SentryFlutterPlugin.removeContext(jKey);
-        });
-      });
+  FutureOr<void> removeContexts(String key) => _coreWorker?.removeContexts(key);
 
   @override
   void setTag(String key, String value) => tryCatchSync('setTag', () {
