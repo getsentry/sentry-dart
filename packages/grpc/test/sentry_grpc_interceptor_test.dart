@@ -283,6 +283,151 @@ void main() {
         });
       });
 
+      group('captureRequestHeaders', () {
+        test('attaches metadata to span as http.request.header.* data',
+            () async {
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await client.testMethod(
+            'hello',
+            options: CallOptions(metadata: {'x-custom': 'value'}),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first.data,
+            containsPair('http.request.header.x-custom', 'value'),
+          );
+        });
+
+        test('normalizes header keys to lowercase', () async {
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await client.testMethod(
+            'hello',
+            options: CallOptions(metadata: {'X-Custom': 'value'}),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first.data,
+            containsPair('http.request.header.x-custom', 'value'),
+          );
+          expect(
+            tracer.children.first.data,
+            isNot(contains('http.request.header.X-Custom')),
+          );
+        });
+
+        test('does not attach metadata when captureRequestHeaders is false',
+            () async {
+          final client = fixture.getSut(captureRequestHeaders: false);
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await client.testMethod(
+            'hello',
+            options: CallOptions(metadata: {'x-custom': 'value'}),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first.data.keys,
+            isNot(anyElement(startsWith('http.request.header.'))),
+          );
+        });
+
+        group('when sendDefaultPii is false', () {
+          setUp(() {
+            fixture.hub.options.sendDefaultPii = false;
+          });
+
+          test('omits sensitive headers', () async {
+            final client = fixture.getSut();
+            final tr =
+                fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+            await client.testMethod(
+              'hello',
+              options: CallOptions(metadata: {
+                'authorization': 'Bearer secret',
+                'cookie': 'session=abc',
+                'set-cookie': 'id=1',
+                'proxy-authorization': 'Basic xyz',
+              }),
+            );
+            await tr.finish();
+
+            final tracer = tr as SentryTracer;
+            final data = tracer.children.first.data;
+            expect(data, isNot(contains('http.request.header.authorization')));
+            expect(data, isNot(contains('http.request.header.cookie')));
+            expect(data, isNot(contains('http.request.header.set-cookie')));
+            expect(
+              data,
+              isNot(contains('http.request.header.proxy-authorization')),
+            );
+          });
+
+          test('includes non-sensitive headers alongside sensitive ones',
+              () async {
+            final client = fixture.getSut();
+            final tr =
+                fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+            await client.testMethod(
+              'hello',
+              options: CallOptions(metadata: {
+                'authorization': 'Bearer secret',
+                'x-custom': 'value',
+              }),
+            );
+            await tr.finish();
+
+            final tracer = tr as SentryTracer;
+            expect(
+              tracer.children.first.data,
+              containsPair('http.request.header.x-custom', 'value'),
+            );
+          });
+        });
+
+        group('when sendDefaultPii is true', () {
+          setUp(() {
+            fixture.hub.options.sendDefaultPii = true;
+          });
+
+          test('includes sensitive headers', () async {
+            final client = fixture.getSut();
+            final tr =
+                fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+            await client.testMethod(
+              'hello',
+              options:
+                  CallOptions(metadata: {'authorization': 'Bearer secret'}),
+            );
+            await tr.finish();
+
+            final tracer = tr as SentryTracer;
+            expect(
+              tracer.children.first.data,
+              containsPair(
+                'http.request.header.authorization',
+                'Bearer secret',
+              ),
+            );
+          });
+        });
+      });
+
       group('span status mapping', () {
         test('sets cancelled for CANCELLED error', () async {
           fixture.service.errorToThrow = GrpcError.cancelled();
@@ -496,11 +641,13 @@ class Fixture {
     bool? captureFailedRequests,
     bool recordBreadcrumbs = true,
     bool spanFirst = false,
+    bool captureRequestHeaders = true,
   }) {
     final interceptor = SentryGrpcInterceptor(
       hub: mockHub ?? (spanFirst ? spanFirstHub : hub),
       captureFailedRequests: captureFailedRequests,
       recordBreadcrumbs: recordBreadcrumbs,
+      captureRequestHeaders: captureRequestHeaders,
     );
     return _TestClient(_channel, interceptors: [interceptor]);
   }
