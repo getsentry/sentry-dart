@@ -46,3 +46,6 @@ app.*.map.json
 /macos/
 /web/
 /windows/
+
+# Flutter tool metadata (not needed for building).
+.metadata

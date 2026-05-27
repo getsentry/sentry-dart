@@ -49,3 +49,6 @@ app.*.map.json
 
 # Breadcrumb and Event cache.
 .sentry-native
+
+# Flutter tool metadata (not needed for building).
+.metadata
