@@ -253,6 +253,7 @@ void main() {
       }, (options) {
         options.dsn = fakeDsn;
         options.debug = true;
+        options.sampleRate = 0.25;
         options.diagnosticLevel = SentryLevel.error;
         options.environment = 'init-test-env';
         options.release = '1.2.3+9';
@@ -297,6 +298,7 @@ void main() {
 
     expect(androidOptions, isNotNull);
     expect(androidOptions.getDsn()?.toDartString(), fakeDsn);
+    expect(androidOptions.getSampleRate()?.doubleValue(), 0.25);
     expect(androidOptions.isDebug(), isTrue);
     final diagnostic = androidOptions.getDiagnosticLevel();
     expect(

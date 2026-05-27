@@ -170,6 +170,8 @@ void configureAndroidOptions({
 }) {
   using((arena) {
     androidOptions.setDsn(options.dsn?.toJString()?..releasedBy(arena));
+    androidOptions
+        .setSampleRate(options.sampleRate?.toJDouble()?..releasedBy(arena));
     androidOptions.setDebug(options.debug);
     androidOptions
         .setEnvironment(options.environment?.toJString()?..releasedBy(arena));
