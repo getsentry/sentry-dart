@@ -1,17 +1,38 @@
-# grpc5
+# grpc5 — sentry_grpc Dart example
 
-A new Flutter project.
+Flutter app demonstrating `SentryGrpcInterceptor` with the plain Dart `Sentry.init` (no Flutter-specific SDK).
 
-## Getting Started
+## What it shows
 
-This project is a starting point for a Flutter application.
+- `Sentry.init` (not `SentryFlutter`) — suitable for pure Dart or minimal-Flutter setups
+- `SentryGrpcInterceptor` with `captureFailedRequests: true`
+- Request header capture in spans — the **WithHeaders** call passes `meat: vegetable` custom metadata, visible as `http.request.header.meat` in the span data
+- Typed proto serialization via a hand-written `DummyMessage` class (field-level encode/decode)
 
-A few resources to get you started if this is your first Flutter project:
+## Buttons
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+| Button | Endpoint | Purpose |
+|--------|----------|---------|
+| Good Request | `rsa4096.badssl.com` (HTTPS) | Successful HTTP request |
+| Bad Request | `expired.badssl.com` (HTTPS) | SSL error — captured as exception |
+| gRPC Request | `GRPCBin/Empty` | Successful unary RPC; creates a span |
+| DummyUnary | `GRPCBin/DummyUnary` | Typed `DummyMessage` round-trip |
+| RandomError | `GRPCBin/RandomError` | Randomly fails; tests error span + capture |
+| WithHeaders | `GRPCBin/DummyUnary` + metadata | Verifies header capture in span data |
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Differences from grpc4
+
+| | grpc4 | grpc5 |
+|-|-------|-------|
+| SDK init | `SentryFlutter.init` + `SentryWidget` | `Sentry.init` |
+| Proto encoding | Inline byte helpers | Typed `DummyMessage` class |
+| WithHeaders button | No | Yes |
+
+## Run
+
+```sh
+cd packages/grpc/example/grpc5
+flutter run
+```
+
+Set your DSN in `lib/app_config.dart` before running.

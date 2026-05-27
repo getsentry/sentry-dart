@@ -1,17 +1,28 @@
-# grpc4
+# grpc4 — sentry_grpc Flutter example
 
-A new Flutter project.
+Flutter example app demonstrating `SentryGrpcInterceptor` with `SentryFlutter`.
 
-## Getting Started
+## What it shows
 
-This project is a starting point for a Flutter application.
+- `SentryFlutter.init` + `SentryWidget` for Flutter-native SDK setup
+- `SentryGrpcInterceptor` attached to a `ClientChannel` targeting `grpcb.in:9001`
+- `captureFailedRequests: true` on the interceptor
 
-A few resources to get you started if this is your first Flutter project:
+## Buttons
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+| Button | Endpoint | Purpose |
+|--------|----------|---------|
+| Good Request | `rsa4096.badssl.com` (HTTPS) | Successful HTTP request |
+| Bad Request | `expired.badssl.com` (HTTPS) | SSL error — captured as exception |
+| gRPC Request | `GRPCBin/Empty` | Successful unary RPC; creates a span |
+| DummyUnary | `GRPCBin/DummyUnary` | Sends a string, echoes it back |
+| RandomError | `GRPCBin/RandomError` | Randomly fails; tests error span + capture |
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Run
+
+```sh
+cd packages/grpc/example/grpc4
+flutter run
+```
+
+Set your DSN in `lib/app_config.dart` before running.
