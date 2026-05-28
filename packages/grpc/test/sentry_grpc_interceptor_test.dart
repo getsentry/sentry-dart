@@ -101,6 +101,41 @@ void main() {
           );
         });
 
+        test('sets rpc.system.name and rpc.method on span', () async {
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await client.testMethod('hello');
+
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          final data = tracer.children.first.data;
+          expect(data[SemanticAttributesConstants.rpcSystemName], 'grpc');
+          expect(
+            data[SemanticAttributesConstants.rpcMethod],
+            'test.TestService/TestMethod',
+          );
+        });
+
+        test('sets rpc.response.status_code to OK on success', () async {
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await client.testMethod('hello');
+
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first
+                .data[SemanticAttributesConstants.rpcResponseStatusCode],
+            'OK',
+          );
+        });
+
         test('sets span status to OK', () async {
           final client = fixture.getSut();
           final tr =
@@ -207,6 +242,25 @@ void main() {
           fixture.service.errorToThrow = GrpcError.notFound('not found');
         });
 
+        test('sets rpc.response.status_code to NOT_FOUND on error', () async {
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first
+                .data[SemanticAttributesConstants.rpcResponseStatusCode],
+            'NOT_FOUND',
+          );
+        });
+
         test('sets span status to not_found for NOT_FOUND error', () async {
           final client = fixture.getSut();
           final tr =
@@ -293,7 +347,7 @@ void main() {
       });
 
       group('captureRequestHeaders', () {
-        test('attaches metadata to span as http.request.header.* data',
+        test('attaches metadata to span as rpc.request.metadata.* data',
             () async {
           final client = fixture.getSut();
           final tr =
@@ -308,7 +362,7 @@ void main() {
           final tracer = tr as SentryTracer;
           expect(
             tracer.children.first.data,
-            containsPair('http.request.header.x-custom', 'value'),
+            containsPair('rpc.request.metadata.x-custom', 'value'),
           );
         });
 
@@ -326,11 +380,11 @@ void main() {
           final tracer = tr as SentryTracer;
           expect(
             tracer.children.first.data,
-            containsPair('http.request.header.x-custom', 'value'),
+            containsPair('rpc.request.metadata.x-custom', 'value'),
           );
           expect(
             tracer.children.first.data,
-            isNot(contains('http.request.header.X-Custom')),
+            isNot(contains('rpc.request.metadata.X-Custom')),
           );
         });
 
@@ -349,7 +403,7 @@ void main() {
           final tracer = tr as SentryTracer;
           expect(
             tracer.children.first.data.keys,
-            isNot(anyElement(startsWith('http.request.header.'))),
+            isNot(anyElement(startsWith('rpc.request.metadata.'))),
           );
         });
 
@@ -378,12 +432,12 @@ void main() {
 
             final tracer = tr as SentryTracer;
             final data = tracer.children.first.data;
-            expect(data, isNot(contains('http.request.header.authorization')));
-            expect(data, isNot(contains('http.request.header.cookie')));
-            expect(data, isNot(contains('http.request.header.set-cookie')));
+            expect(data, isNot(contains('rpc.request.metadata.authorization')));
+            expect(data, isNot(contains('rpc.request.metadata.cookie')));
+            expect(data, isNot(contains('rpc.request.metadata.set-cookie')));
             expect(
               data,
-              isNot(contains('http.request.header.proxy-authorization')),
+              isNot(contains('rpc.request.metadata.proxy-authorization')),
             );
           });
 
@@ -407,7 +461,7 @@ void main() {
             final tracer = tr as SentryTracer;
             expect(
               tracer.children.first.data,
-              containsPair('http.request.header.x-custom', 'value'),
+              containsPair('rpc.request.metadata.x-custom', 'value'),
             );
           });
         });
@@ -433,7 +487,7 @@ void main() {
             expect(
               tracer.children.first.data,
               containsPair(
-                'http.request.header.authorization',
+                'rpc.request.metadata.authorization',
                 'Bearer secret',
               ),
             );

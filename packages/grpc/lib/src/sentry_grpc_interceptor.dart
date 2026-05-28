@@ -97,6 +97,7 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     span?.origin = SentryTraceOrigins.autoGrpcClientInterceptor;
 
     if (span != null) {
+      _attachRpcAttributes(span, method.path);
       _attachRequestData(span, method, request, options);
     }
 
@@ -108,6 +109,10 @@ class SentryGrpcInterceptor extends ClientInterceptor {
       response.then(
         (_) async {
           span?.status = const SpanStatus.ok();
+          span?.setData(
+            SemanticAttributesConstants.rpcResponseStatusCode,
+            'OK',
+          );
           await span?.finish();
           if (_recordBreadcrumbs) {
             stopwatch!.stop();
@@ -124,6 +129,10 @@ class SentryGrpcInterceptor extends ClientInterceptor {
           final grpcError = error is GrpcError ? error : null;
           span?.throwable = error;
           span?.status = _grpcStatusToSpanStatus(grpcError);
+          span?.setData(
+            SemanticAttributesConstants.rpcResponseStatusCode,
+            grpcError?.codeName ?? 'UNKNOWN',
+          );
           if (span != null && grpcError != null) {
             _attachErrorDetails(span, grpcError);
           }
@@ -167,6 +176,18 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     return invoker(method, requests, modifiedOptions);
   }
 
+  // Sets rpc.system.name and rpc.method per OTEL gRPC semconv.
+  // methodPath format is /package.Service/Method; rpc.method strips the leading slash.
+  void _attachRpcAttributes(InstrumentationSpan span, String methodPath) {
+    span.setData(SemanticAttributesConstants.rpcSystemName, 'grpc');
+    if (methodPath.startsWith('/')) {
+      span.setData(
+        SemanticAttributesConstants.rpcMethod,
+        methodPath.substring(1),
+      );
+    }
+  }
+
   void _attachRequestData<Q, R>(
     InstrumentationSpan span,
     ClientMethod<Q, R> method,
@@ -178,7 +199,10 @@ class SentryGrpcInterceptor extends ClientInterceptor {
       options.metadata.forEach((key, value) {
         final normalizedKey = key.toLowerCase();
         if (!sendPii && _sensitiveHeaders.contains(normalizedKey)) return;
-        span.setData('http.request.header.$normalizedKey', value);
+        span.setData(
+          '${SemanticAttributesConstants.rpcRequestMetadataPrefix}$normalizedKey',
+          value,
+        );
       });
     }
   }
