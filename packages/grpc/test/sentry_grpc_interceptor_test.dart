@@ -3,11 +3,20 @@
 @TestOn('vm')
 library;
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:_sentry_testing/_sentry_testing.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
+import 'package:grpc/src/generated/google/protobuf/any.pb.dart' as pb;
+import 'package:grpc/src/generated/google/protobuf/duration.pb.dart'
+    as pb_duration;
+import 'package:grpc/src/generated/google/rpc/error_details.pb.dart' as rpc;
+import 'package:grpc/src/generated/google/rpc/status.pb.dart' as rpc_status;
+import 'package:protobuf/protobuf.dart' show GeneratedMessage;
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/constants.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
 import 'package:sentry_grpc/src/sentry_grpc_interceptor.dart';
@@ -356,12 +365,14 @@ void main() {
 
             await client.testMethod(
               'hello',
-              options: CallOptions(metadata: {
-                'authorization': 'Bearer secret',
-                'cookie': 'session=abc',
-                'set-cookie': 'id=1',
-                'proxy-authorization': 'Basic xyz',
-              }),
+              options: CallOptions(
+                metadata: {
+                  'authorization': 'Bearer secret',
+                  'cookie': 'session=abc',
+                  'set-cookie': 'id=1',
+                  'proxy-authorization': 'Basic xyz',
+                },
+              ),
             );
             await tr.finish();
 
@@ -384,10 +395,12 @@ void main() {
 
             await client.testMethod(
               'hello',
-              options: CallOptions(metadata: {
-                'authorization': 'Bearer secret',
-                'x-custom': 'value',
-              }),
+              options: CallOptions(
+                metadata: {
+                  'authorization': 'Bearer secret',
+                  'x-custom': 'value',
+                },
+              ),
             );
             await tr.finish();
 
@@ -425,6 +438,250 @@ void main() {
               ),
             );
           });
+        });
+      });
+
+      group('tracePropagationTargets', () {
+        test('does not inject headers when method excluded by targets',
+            () async {
+          fixture.hub.options.tracePropagationTargets
+            ..clear()
+            ..add('/other.Service');
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await client.testMethod('hello');
+
+          await tr.finish();
+
+          expect(
+            fixture.service.lastReceivedMetadata?.containsKey('sentry-trace'),
+            isFalse,
+          );
+        });
+
+        test('injects headers when method matches target', () async {
+          fixture.hub.options.tracePropagationTargets
+            ..clear()
+            ..add('TestMethod');
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await client.testMethod('hello');
+
+          await tr.finish();
+
+          expect(
+            fixture.service.lastReceivedMetadata?.containsKey('sentry-trace'),
+            isTrue,
+          );
+        });
+      });
+
+      group('_attachErrorDetails', () {
+        test('attaches ErrorInfo reason and domain to span', () async {
+          final errorInfo = rpc.ErrorInfo(
+            reason: 'quota-exceeded',
+            domain: 'example.com',
+          );
+          fixture.service.errorToThrow = _grpcErrorWithDetails(
+            StatusCode.resourceExhausted,
+            [errorInfo],
+          );
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first
+                .data[SemanticAttributesConstants.grpcErrorInfoReason],
+            'quota-exceeded',
+          );
+          expect(
+            tracer.children.first
+                .data[SemanticAttributesConstants.grpcErrorInfoDomain],
+            'example.com',
+          );
+        });
+
+        test('omits ErrorInfo metadata when sendDefaultPii is false', () async {
+          fixture.hub.options.sendDefaultPii = false;
+          final errorInfo = rpc.ErrorInfo(
+            reason: 'auth-failed',
+            domain: 'auth.example.com',
+          )..metadata['user'] = 'alice';
+          fixture.service.errorToThrow = _grpcErrorWithDetails(
+            StatusCode.unauthenticated,
+            [errorInfo],
+          );
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first.data
+                .containsKey(SemanticAttributesConstants.grpcErrorInfoMetadata),
+            isFalse,
+          );
+        });
+
+        test('includes ErrorInfo metadata when sendDefaultPii is true',
+            () async {
+          fixture.hub.options.sendDefaultPii = true;
+          final errorInfo = rpc.ErrorInfo(
+            reason: 'auth-failed',
+            domain: 'auth.example.com',
+          )..metadata['user'] = 'alice';
+          fixture.service.errorToThrow = _grpcErrorWithDetails(
+            StatusCode.unauthenticated,
+            [errorInfo],
+          );
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first
+                .data[SemanticAttributesConstants.grpcErrorInfoMetadata],
+            isNotNull,
+          );
+        });
+
+        test('attaches BadRequest field violations to span', () async {
+          final badRequest = rpc.BadRequest(
+            fieldViolations: [
+              rpc.BadRequest_FieldViolation(
+                field_1: 'email',
+                description: 'invalid format',
+              ),
+            ],
+          );
+          fixture.service.errorToThrow = _grpcErrorWithDetails(
+            StatusCode.invalidArgument,
+            [badRequest],
+          );
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first.data[
+                SemanticAttributesConstants.grpcBadRequestFieldViolations],
+            contains('email'),
+          );
+        });
+
+        test('attaches RetryInfo delay to span', () async {
+          final retryInfo = rpc.RetryInfo(
+            retryDelay: pb_duration.Duration(seconds: Int64(5)),
+          );
+          fixture.service.errorToThrow = _grpcErrorWithDetails(
+            StatusCode.unavailable,
+            [retryInfo],
+          );
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first
+                .data[SemanticAttributesConstants.grpcRetryInfoRetryDelay],
+            '5s',
+          );
+        });
+
+        test('attaches DebugInfo detail to span', () async {
+          final debugInfo = rpc.DebugInfo(detail: 'stack trace here');
+          fixture.service.errorToThrow = _grpcErrorWithDetails(
+            StatusCode.internal,
+            [debugInfo],
+          );
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first
+                .data[SemanticAttributesConstants.grpcDebugInfoDetail],
+            'stack trace here',
+          );
+        });
+
+        test('attaches ResourceInfo to span', () async {
+          final resourceInfo = rpc.ResourceInfo(
+            resourceType: 'projects/123',
+            resourceName: 'my-project',
+            description: 'Project not found',
+          );
+          fixture.service.errorToThrow = _grpcErrorWithDetails(
+            StatusCode.notFound,
+            [resourceInfo],
+          );
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first
+                .data[SemanticAttributesConstants.grpcResourceInfoType],
+            'projects/123',
+          );
+          expect(
+            tracer.children.first
+                .data[SemanticAttributesConstants.grpcResourceInfoName],
+            'my-project',
+          );
         });
       });
 
@@ -500,6 +757,25 @@ void main() {
         expect(child.parentSpan, equals(transactionSpan));
       });
     });
+  });
+}
+
+// ----- Helpers -----
+
+/// Builds a [GrpcError] whose [details] survive the client/server wire transfer.
+///
+/// The grpc-dart server only serializes [GrpcError.trailers]; it does not
+/// encode [GrpcError.details] to wire. We work around this by pre-encoding a
+/// [Status] proto with [Any]-packed details into the `grpc-status-details-bin`
+/// trailer — exactly what a real server that supports rich error details sends.
+GrpcError _grpcErrorWithDetails(int code, List<GeneratedMessage> details) {
+  final anyDetails = details
+      .map((d) => pb.Any.pack(d, typeUrlPrefix: 'type.googleapis.com'))
+      .toList();
+  final status = rpc_status.Status(code: code, details: anyDetails);
+  final encoded = base64Url.encode(status.writeToBuffer());
+  return GrpcError.custom(code, 'test error', null, null, {
+    'grpc-status-details-bin': encoded,
   });
 }
 

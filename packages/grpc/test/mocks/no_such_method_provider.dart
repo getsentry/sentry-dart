@@ -1,7 +1,9 @@
 mixin NoSuchMethodProvider {
   @override
-  void noSuchMethod(Invocation invocation) {
-    'Method ${invocation.memberName} was called '
-        'with arguments ${invocation.positionalArguments}';
+  Never noSuchMethod(Invocation invocation) {
+    throw UnsupportedError(
+      'Method ${invocation.memberName} was called '
+      'with arguments ${invocation.positionalArguments}',
+    );
   }
 }

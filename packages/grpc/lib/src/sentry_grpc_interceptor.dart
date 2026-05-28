@@ -1,8 +1,11 @@
 // ignore_for_file: invalid_use_of_internal_member, implementation_imports
 
+import 'dart:async';
+
 import 'package:grpc/grpc.dart';
 import 'package:grpc/src/generated/google/rpc/error_details.pb.dart' as rpc;
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/constants.dart';
 import 'package:sentry/src/tracing/instrumentation/instrumentation.dart';
 import 'package:sentry/src/utils/tracing_utils.dart';
 
@@ -97,47 +100,54 @@ class SentryGrpcInterceptor extends ClientInterceptor {
       _attachRequestData(span, method, request, options);
     }
 
-    final modifiedOptions = _buildModifiedOptions(options, span);
+    final modifiedOptions = _buildModifiedOptions(options, span, method.path);
     final stopwatch = _recordBreadcrumbs ? (Stopwatch()..start()) : null;
     final response = invoker(method, request, modifiedOptions);
 
-    response.then(
-      (_) async {
-        span?.status = const SpanStatus.ok();
-        await span?.finish();
-        if (_recordBreadcrumbs) {
-          stopwatch!.stop();
-          await _addBreadcrumb(
-            method.path,
-            StatusCode.ok,
-            'OK',
-            stopwatch.elapsed,
-            SentryLevel.info,
-          );
-        }
-      },
-      onError: (Object error) async {
-        final grpcError = error is GrpcError ? error : null;
-        span?.throwable = error;
-        span?.status = _grpcStatusToSpanStatus(grpcError);
-        if (span != null && grpcError != null) {
-          _attachErrorDetails(span, grpcError);
-        }
-        await span?.finish();
-        if (_recordBreadcrumbs) {
-          stopwatch!.stop();
-          await _addBreadcrumb(
-            method.path,
-            grpcError?.code ?? StatusCode.unknown,
-            grpcError?.codeName ?? 'UNKNOWN',
-            stopwatch.elapsed,
-            SentryLevel.error,
-          );
-        }
-        if (_shouldCapture(grpcError)) {
-          await _captureGrpcException(error, method.path, grpcError);
-        }
-      },
+    unawaited(
+      response.then(
+        (_) async {
+          span?.status = const SpanStatus.ok();
+          await span?.finish();
+          if (_recordBreadcrumbs) {
+            stopwatch!.stop();
+            await _addBreadcrumb(
+              method.path,
+              StatusCode.ok,
+              'OK',
+              stopwatch.elapsed,
+              SentryLevel.info,
+            );
+          }
+        },
+        onError: (Object error, StackTrace stackTrace) async {
+          final grpcError = error is GrpcError ? error : null;
+          span?.throwable = error;
+          span?.status = _grpcStatusToSpanStatus(grpcError);
+          if (span != null && grpcError != null) {
+            _attachErrorDetails(span, grpcError);
+          }
+          await span?.finish();
+          if (_recordBreadcrumbs) {
+            stopwatch!.stop();
+            await _addBreadcrumb(
+              method.path,
+              grpcError?.code ?? StatusCode.unknown,
+              grpcError?.codeName ?? 'UNKNOWN',
+              stopwatch.elapsed,
+              SentryLevel.error,
+            );
+          }
+          if (_shouldCapture(grpcError)) {
+            await _captureGrpcException(
+              error,
+              method.path,
+              grpcError,
+              stackTrace,
+            );
+          }
+        },
+      ),
     );
 
     return response;
@@ -152,7 +162,8 @@ class SentryGrpcInterceptor extends ClientInterceptor {
   ) {
     // Inject trace headers; full span lifecycle for streaming will be added later.
     final parentSpan = _spanFactory.getSpan(_hub);
-    final modifiedOptions = _buildModifiedOptions(options, parentSpan);
+    final modifiedOptions =
+        _buildModifiedOptions(options, parentSpan, method.path);
     return invoker(method, requests, modifiedOptions);
   }
 
@@ -175,9 +186,15 @@ class SentryGrpcInterceptor extends ClientInterceptor {
   CallOptions _buildModifiedOptions(
     CallOptions options,
     InstrumentationSpan? span,
+    String methodPath,
   ) {
     final headers = <String, dynamic>{};
-    addTracingHeadersToHttpHeader(headers, _hub, span: span);
+    if (containsTargetOrMatchesRegExp(
+      _hub.options.tracePropagationTargets,
+      methodPath,
+    )) {
+      addTracingHeadersToHttpHeader(headers, _hub, span: span);
+    }
     return options.mergedWith(
       CallOptions(
         metadata: {
@@ -219,9 +236,11 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     Object error,
     String methodPath,
     GrpcError? grpcError,
+    StackTrace stackTrace,
   ) =>
       _hub.captureException(
         error,
+        stackTrace: stackTrace,
         withScope: (scope) {
           scope.setContexts('gRPC', {
             'method': methodPath,
@@ -240,39 +259,46 @@ class SentryGrpcInterceptor extends ClientInterceptor {
 
     for (final detail in details) {
       if (detail is rpc.ErrorInfo) {
-        span.setData('grpc.error_info.reason', detail.reason);
-        span.setData('grpc.error_info.domain', detail.domain);
-        if (detail.metadata.isNotEmpty) {
-          span.setData('grpc.error_info.metadata', detail.metadata.toString());
+        span.setData(
+            SemanticAttributesConstants.grpcErrorInfoReason, detail.reason);
+        span.setData(
+            SemanticAttributesConstants.grpcErrorInfoDomain, detail.domain);
+        if (detail.metadata.isNotEmpty && _hub.options.sendDefaultPii) {
+          span.setData(SemanticAttributesConstants.grpcErrorInfoMetadata,
+              detail.metadata.toString());
         }
       } else if (detail is rpc.BadRequest) {
         span.setData(
-          'grpc.bad_request.field_violations',
+          SemanticAttributesConstants.grpcBadRequestFieldViolations,
           detail.fieldViolations
               .map((v) => '${v.field_1}: ${v.description}')
               .join('; '),
         );
       } else if (detail is rpc.RetryInfo) {
         span.setData(
-          'grpc.retry_info.retry_delay',
+          SemanticAttributesConstants.grpcRetryInfoRetryDelay,
           '${detail.retryDelay.seconds}s',
         );
       } else if (detail is rpc.DebugInfo) {
-        span.setData('grpc.debug_info.detail', detail.detail);
+        span.setData(
+            SemanticAttributesConstants.grpcDebugInfoDetail, detail.detail);
       } else if (detail is rpc.PreconditionFailure) {
         span.setData(
-          'grpc.precondition_failure.violations',
+          SemanticAttributesConstants.grpcPreconditionFailureViolations,
           detail.violations
               .map((v) => '${v.type}: ${v.subject} - ${v.description}')
               .join('; '),
         );
       } else if (detail is rpc.ResourceInfo) {
-        span.setData('grpc.resource_info.type', detail.resourceType);
-        span.setData('grpc.resource_info.name', detail.resourceName);
-        span.setData('grpc.resource_info.description', detail.description);
+        span.setData(SemanticAttributesConstants.grpcResourceInfoType,
+            detail.resourceType);
+        span.setData(SemanticAttributesConstants.grpcResourceInfoName,
+            detail.resourceName);
+        span.setData(SemanticAttributesConstants.grpcResourceInfoDescription,
+            detail.description);
       } else if (detail is rpc.QuotaFailure) {
         span.setData(
-          'grpc.quota_failure.violations',
+          SemanticAttributesConstants.grpcQuotaFailureViolations,
           detail.violations
               .map((v) => '${v.subject}: ${v.description}')
               .join('; '),
