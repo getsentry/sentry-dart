@@ -87,6 +87,7 @@ void main() {
       test('options', () {
         options
           ..debug = true
+          ..sampleRate = 0.25
           ..environment = 'foo'
           ..release = 'foo@bar+1'
           ..enableAutoSessionTracking = true
@@ -101,6 +102,7 @@ void main() {
                   .cast<Utf8>()
                   .toDartString(),
               fakeDsn);
+          expect(SentryNative.native.options_get_sample_rate(cOptions), 0.25);
           expect(
               SentryNative.native
                   .options_get_environment(cOptions)
