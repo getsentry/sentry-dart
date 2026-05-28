@@ -260,12 +260,18 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     for (final detail in details) {
       if (detail is rpc.ErrorInfo) {
         span.setData(
-            SemanticAttributesConstants.grpcErrorInfoReason, detail.reason);
+          SemanticAttributesConstants.grpcErrorInfoReason,
+          detail.reason,
+        );
         span.setData(
-            SemanticAttributesConstants.grpcErrorInfoDomain, detail.domain);
+          SemanticAttributesConstants.grpcErrorInfoDomain,
+          detail.domain,
+        );
         if (detail.metadata.isNotEmpty && _hub.options.sendDefaultPii) {
-          span.setData(SemanticAttributesConstants.grpcErrorInfoMetadata,
-              detail.metadata.toString());
+          span.setData(
+            SemanticAttributesConstants.grpcErrorInfoMetadata,
+            detail.metadata.toString(),
+          );
         }
       } else if (detail is rpc.BadRequest) {
         span.setData(
@@ -281,7 +287,9 @@ class SentryGrpcInterceptor extends ClientInterceptor {
         );
       } else if (detail is rpc.DebugInfo) {
         span.setData(
-            SemanticAttributesConstants.grpcDebugInfoDetail, detail.detail);
+          SemanticAttributesConstants.grpcDebugInfoDetail,
+          detail.detail,
+        );
       } else if (detail is rpc.PreconditionFailure) {
         span.setData(
           SemanticAttributesConstants.grpcPreconditionFailureViolations,
@@ -290,12 +298,18 @@ class SentryGrpcInterceptor extends ClientInterceptor {
               .join('; '),
         );
       } else if (detail is rpc.ResourceInfo) {
-        span.setData(SemanticAttributesConstants.grpcResourceInfoType,
-            detail.resourceType);
-        span.setData(SemanticAttributesConstants.grpcResourceInfoName,
-            detail.resourceName);
-        span.setData(SemanticAttributesConstants.grpcResourceInfoDescription,
-            detail.description);
+        span.setData(
+          SemanticAttributesConstants.grpcResourceInfoType,
+          detail.resourceType,
+        );
+        span.setData(
+          SemanticAttributesConstants.grpcResourceInfoName,
+          detail.resourceName,
+        );
+        span.setData(
+          SemanticAttributesConstants.grpcResourceInfoDescription,
+          detail.description,
+        );
       } else if (detail is rpc.QuotaFailure) {
         span.setData(
           SemanticAttributesConstants.grpcQuotaFailureViolations,
