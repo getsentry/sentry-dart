@@ -27,6 +27,12 @@ void main() {
       return utf8.decode(expectedItem);
     }
 
+    Future<Map<String, dynamic>> decodedItemPayload(
+        SentryEnvelope envelope) async {
+      final data = await envelope.items.single.dataFactory();
+      return jsonDecode(utf8.decode(data)) as Map<String, dynamic>;
+    }
+
     test('serialize', () async {
       final eventId = SentryId.newId();
 
@@ -214,8 +220,11 @@ void main() {
       expect(sut.items.length, 1);
 
       final expectedEnvelopeItem = SentryEnvelopeItem.fromSpansData(
-        // The envelope should create the final payload with {"items": [...]} wrapper
-        utf8.encode('{"items":[') +
+        utf8.encode(
+              '{"version":2,'
+              '"ingest_settings":{"infer_ip":"auto","infer_user_agent":"auto"},'
+              '"items":[',
+            ) +
             span1 +
             utf8.encode(',') +
             span2 +
@@ -231,6 +240,26 @@ void main() {
       final actualItem = await sut.items[0].dataFactory();
       final expectedItem = await expectedEnvelopeItem.dataFactory();
       expect(actualItem, expectedItem);
+    });
+
+    test('fromSpansData includes span v2 payload metadata', () async {
+      final encodedSpans = [
+        utf8.encode('{"span_id":"span-id"}'),
+      ];
+      final sdkVersion =
+          SdkVersion(name: 'fixture-name', version: 'fixture-version');
+      final sut = SentryEnvelope.fromSpansData(encodedSpans, sdkVersion);
+
+      final payload = await decodedItemPayload(sut);
+
+      expect(payload['version'], 2);
+      expect(payload['ingest_settings'], {
+        'infer_ip': 'auto',
+        'infer_user_agent': 'auto',
+      });
+      expect(payload['items'], [
+        {'span_id': 'span-id'},
+      ]);
     });
 
     test('fromLogsData', () async {
@@ -269,6 +298,23 @@ void main() {
       expect(actualItem, expectedItem);
     });
 
+    test('fromLogsData keeps a plain items payload', () async {
+      final encodedLogs = [
+        utf8.encode('{"message":"log"}'),
+      ];
+      final sdkVersion =
+          SdkVersion(name: 'fixture-name', version: 'fixture-version');
+      final sut = SentryEnvelope.fromLogsData(encodedLogs, sdkVersion);
+
+      final payload = await decodedItemPayload(sut);
+
+      expect(payload, {
+        'items': [
+          {'message': 'log'},
+        ],
+      });
+    });
+
     test('fromMetricsData creates envelope with wrapped metrics payload',
         () async {
       final encodedMetrics = [
@@ -298,6 +344,23 @@ void main() {
           encodedMetrics[1] +
           utf8.encode(']}');
       expect(actualItem, expectedPayload);
+    });
+
+    test('fromMetricsData keeps a plain items payload', () async {
+      final encodedMetrics = [
+        utf8.encode('{"name":"metric","value":1}'),
+      ];
+      final sdkVersion =
+          SdkVersion(name: 'fixture-name', version: 'fixture-version');
+      final sut = SentryEnvelope.fromMetricsData(encodedMetrics, sdkVersion);
+
+      final payload = await decodedItemPayload(sut);
+
+      expect(payload, {
+        'items': [
+          {'name': 'metric', 'value': 1},
+        ],
+      });
     });
 
     test('max attachment size', () async {
