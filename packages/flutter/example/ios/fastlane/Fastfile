@@ -67,7 +67,11 @@ platform :ios do
         }
       },
       codesigning_identity: ENV["sigh_io.sentry.flutter.sample_appstore_certificate-name"],
-      output_name: "sentry_flutter_sample.ipa"
+      output_name: "sentry_flutter_sample.ipa",
+      # Swift Package Manager plugin targets (e.g. sqflite_darwin) inherit no
+      # development team from the Runner project, so archiving fails with
+      # "requires a development team". Apply the team to all targets here.
+      xcargs: "DEVELOPMENT_TEAM=97JCY7859U -allowProvisioningUpdates"
     )
 
     delete_keychain(
