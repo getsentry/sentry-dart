@@ -21499,6 +21499,266 @@ final class $SentryReplayOptions$BeforeErrorSamplingCallback$Type
   }
 }
 
+/// from: `io.sentry.SentryReplayOptions$ReplayFrameObserver`
+class SentryReplayOptions$ReplayFrameObserver extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<SentryReplayOptions$ReplayFrameObserver> $type;
+
+  @jni$_.internal
+  SentryReplayOptions$ReplayFrameObserver.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(
+      r'io/sentry/SentryReplayOptions$ReplayFrameObserver');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType =
+      $SentryReplayOptions$ReplayFrameObserver$NullableType();
+  static const type = $SentryReplayOptions$ReplayFrameObserver$Type();
+  static final _id_onMaskedFrameCaptured = _class.instanceMethodId(
+    r'onMaskedFrameCaptured',
+    r'(Lio/sentry/Hint;JLjava/lang/String;)V',
+  );
+
+  static final _onMaskedFrameCaptured = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<
+                      (
+                        jni$_.Pointer<jni$_.Void>,
+                        jni$_.Int64,
+                        jni$_.Pointer<jni$_.Void>
+                      )>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              int,
+              jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void onMaskedFrameCaptured(io.sentry.Hint hint, long j, java.lang.String string)`
+  void onMaskedFrameCaptured(
+    Hint hint,
+    int j,
+    jni$_.JString? string,
+  ) {
+    final _$hint = hint.reference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _onMaskedFrameCaptured(
+            reference.pointer,
+            _id_onMaskedFrameCaptured as jni$_.JMethodIDPtr,
+            _$hint.pointer,
+            j,
+            _$string.pointer)
+        .check();
+  }
+
+  /// Maps a specific port to the implemented interface.
+  static final core$_.Map<int, $SentryReplayOptions$ReplayFrameObserver>
+      _$impls = {};
+  static jni$_.JObjectPtr _$invoke(
+    int port,
+    jni$_.JObjectPtr descriptor,
+    jni$_.JObjectPtr args,
+  ) {
+    return _$invokeMethod(
+      port,
+      jni$_.MethodInvocation.fromAddresses(
+        0,
+        descriptor.address,
+        args.address,
+      ),
+    );
+  }
+
+  static final jni$_.Pointer<
+          jni$_.NativeFunction<
+              jni$_.JObjectPtr Function(
+                  jni$_.Int64, jni$_.JObjectPtr, jni$_.JObjectPtr)>>
+      _$invokePointer = jni$_.Pointer.fromFunction(_$invoke);
+
+  static jni$_.Pointer<jni$_.Void> _$invokeMethod(
+    int $p,
+    jni$_.MethodInvocation $i,
+  ) {
+    try {
+      final $d = $i.methodDescriptor.toDartString(releaseOriginal: true);
+      final $a = $i.args;
+      if ($d ==
+          r'onMaskedFrameCaptured(Lio/sentry/Hint;JLjava/lang/String;)V') {
+        _$impls[$p]!.onMaskedFrameCaptured(
+          $a![0]!.as(const $Hint$Type(), releaseOriginal: true),
+          $a![1]!
+              .as(const jni$_.JLongType(), releaseOriginal: true)
+              .longValue(releaseOriginal: true),
+          $a![2]?.as(const jni$_.JStringType(), releaseOriginal: true),
+        );
+        return jni$_.nullptr;
+      }
+    } catch (e) {
+      return jni$_.ProtectedJniExtensions.newDartException(e);
+    }
+    return jni$_.nullptr;
+  }
+
+  static void implementIn(
+    jni$_.JImplementer implementer,
+    $SentryReplayOptions$ReplayFrameObserver $impl,
+  ) {
+    late final jni$_.RawReceivePort $p;
+    $p = jni$_.RawReceivePort(($m) {
+      if ($m == null) {
+        _$impls.remove($p.sendPort.nativePort);
+        $p.close();
+        return;
+      }
+      final $i = jni$_.MethodInvocation.fromMessage($m);
+      final $r = _$invokeMethod($p.sendPort.nativePort, $i);
+      jni$_.ProtectedJniExtensions.returnResult($i.result, $r);
+    });
+    implementer.add(
+      r'io.sentry.SentryReplayOptions$ReplayFrameObserver',
+      $p,
+      _$invokePointer,
+      [
+        if ($impl.onMaskedFrameCaptured$async)
+          r'onMaskedFrameCaptured(Lio/sentry/Hint;JLjava/lang/String;)V',
+      ],
+    );
+    final $a = $p.sendPort.nativePort;
+    _$impls[$a] = $impl;
+  }
+
+  factory SentryReplayOptions$ReplayFrameObserver.implement(
+    $SentryReplayOptions$ReplayFrameObserver $impl,
+  ) {
+    final $i = jni$_.JImplementer();
+    implementIn($i, $impl);
+    return SentryReplayOptions$ReplayFrameObserver.fromReference(
+      $i.implementReference(),
+    );
+  }
+}
+
+abstract base mixin class $SentryReplayOptions$ReplayFrameObserver {
+  factory $SentryReplayOptions$ReplayFrameObserver({
+    required void Function(Hint hint, int j, jni$_.JString? string)
+        onMaskedFrameCaptured,
+    bool onMaskedFrameCaptured$async,
+  }) = _$SentryReplayOptions$ReplayFrameObserver;
+
+  void onMaskedFrameCaptured(Hint hint, int j, jni$_.JString? string);
+  bool get onMaskedFrameCaptured$async => false;
+}
+
+final class _$SentryReplayOptions$ReplayFrameObserver
+    with $SentryReplayOptions$ReplayFrameObserver {
+  _$SentryReplayOptions$ReplayFrameObserver({
+    required void Function(Hint hint, int j, jni$_.JString? string)
+        onMaskedFrameCaptured,
+    this.onMaskedFrameCaptured$async = false,
+  }) : _onMaskedFrameCaptured = onMaskedFrameCaptured;
+
+  final void Function(Hint hint, int j, jni$_.JString? string)
+      _onMaskedFrameCaptured;
+  final bool onMaskedFrameCaptured$async;
+
+  void onMaskedFrameCaptured(Hint hint, int j, jni$_.JString? string) {
+    return _onMaskedFrameCaptured(hint, j, string);
+  }
+}
+
+final class $SentryReplayOptions$ReplayFrameObserver$NullableType
+    extends jni$_.JObjType<SentryReplayOptions$ReplayFrameObserver?> {
+  @jni$_.internal
+  const $SentryReplayOptions$ReplayFrameObserver$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature =>
+      r'Lio/sentry/SentryReplayOptions$ReplayFrameObserver;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryReplayOptions$ReplayFrameObserver? fromReference(
+          jni$_.JReference reference) =>
+      reference.isNull
+          ? null
+          : SentryReplayOptions$ReplayFrameObserver.fromReference(
+              reference,
+            );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<SentryReplayOptions$ReplayFrameObserver?> get nullableType =>
+      this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode =>
+      ($SentryReplayOptions$ReplayFrameObserver$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType ==
+            ($SentryReplayOptions$ReplayFrameObserver$NullableType) &&
+        other is $SentryReplayOptions$ReplayFrameObserver$NullableType;
+  }
+}
+
+final class $SentryReplayOptions$ReplayFrameObserver$Type
+    extends jni$_.JObjType<SentryReplayOptions$ReplayFrameObserver> {
+  @jni$_.internal
+  const $SentryReplayOptions$ReplayFrameObserver$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature =>
+      r'Lio/sentry/SentryReplayOptions$ReplayFrameObserver;';
+
+  @jni$_.internal
+  @core$_.override
+  SentryReplayOptions$ReplayFrameObserver fromReference(
+          jni$_.JReference reference) =>
+      SentryReplayOptions$ReplayFrameObserver.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<SentryReplayOptions$ReplayFrameObserver?> get nullableType =>
+      const $SentryReplayOptions$ReplayFrameObserver$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($SentryReplayOptions$ReplayFrameObserver$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType ==
+            ($SentryReplayOptions$ReplayFrameObserver$Type) &&
+        other is $SentryReplayOptions$ReplayFrameObserver$Type;
+  }
+}
+
 /// from: `io.sentry.SentryReplayOptions$SentryReplayQuality`
 class SentryReplayOptions$SentryReplayQuality extends jni$_.JObject {
   @jni$_.internal
@@ -22833,6 +23093,61 @@ class SentryReplayOptions extends jni$_.JObject {
             reference.pointer,
             _id_setBeforeErrorSampling as jni$_.JMethodIDPtr,
             _$beforeErrorSamplingCallback.pointer)
+        .check();
+  }
+
+  static final _id_getFrameObserver = _class.instanceMethodId(
+    r'getFrameObserver',
+    r'()Lio/sentry/SentryReplayOptions$ReplayFrameObserver;',
+  );
+
+  static final _getFrameObserver = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.SentryReplayOptions$ReplayFrameObserver getFrameObserver()`
+  /// The returned object must be released after use, by calling the [release] method.
+  SentryReplayOptions$ReplayFrameObserver? getFrameObserver() {
+    return _getFrameObserver(
+            reference.pointer, _id_getFrameObserver as jni$_.JMethodIDPtr)
+        .object<SentryReplayOptions$ReplayFrameObserver?>(
+            const $SentryReplayOptions$ReplayFrameObserver$NullableType());
+  }
+
+  static final _id_setFrameObserver = _class.instanceMethodId(
+    r'setFrameObserver',
+    r'(Lio/sentry/SentryReplayOptions$ReplayFrameObserver;)V',
+  );
+
+  static final _setFrameObserver = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setFrameObserver(io.sentry.SentryReplayOptions$ReplayFrameObserver replayFrameObserver)`
+  void setFrameObserver(
+    SentryReplayOptions$ReplayFrameObserver? replayFrameObserver,
+  ) {
+    final _$replayFrameObserver =
+        replayFrameObserver?.reference ?? jni$_.jNullReference;
+    _setFrameObserver(
+            reference.pointer,
+            _id_setFrameObserver as jni$_.JMethodIDPtr,
+            _$replayFrameObserver.pointer)
         .check();
   }
 }
