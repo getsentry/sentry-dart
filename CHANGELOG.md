@@ -1,5 +1,43 @@
 # Changelog
 
+## 9.21.0
+
+### Features
+
+- Rename `SentryFeedbackWidget` to `SentryFeedbackForm` by @denrase in [#3702](https://github.com/getsentry/sentry-dart/pull/3702)
+  - `SentryFeedbackWidget` is deprecated and will be removed in the next major version. Use `SentryFeedbackForm` instead.
+
+### Fixes
+
+#### Dart
+
+- Make sentryOnError synchronous in runZonedGuarded by @theprantadutta in [#3697](https://github.com/getsentry/sentry-dart/pull/3697)
+- Route SDK diagnostic logs to browser console on web by @theprantadutta in [#3698](https://github.com/getsentry/sentry-dart/pull/3698)
+
+#### Flutter
+
+- Forward sample rate to native SDKs by @buenaflor in [#3722](https://github.com/getsentry/sentry-dart/pull/3722)
+- Release Android JNI refs by @buenaflor in [#3712](https://github.com/getsentry/sentry-dart/pull/3712)
+- Release replay JNI refs by @buenaflor in [#3699](https://github.com/getsentry/sentry-dart/pull/3699)
+
+### Enhancements
+
+#### Flutter
+
+- Move Android JNI work to core worker to avoid work on main isolate by @buenaflor in [#3713](https://github.com/getsentry/sentry-dart/pull/3713)
+- Optimize Android scope sync by @buenaflor in [#3708](https://github.com/getsentry/sentry-dart/pull/3708)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Cocoa SDK to v8.58.3 by @github-actions in [#3726](https://github.com/getsentry/sentry-dart/pull/3726)
+- chore(deps): update Android SDK to v8.43.0 by @github-actions in [#3727](https://github.com/getsentry/sentry-dart/pull/3727)
+
+### Internal Changes
+
+- (flutter) Align CI with stable SwiftPM defaults by @buenaflor in [#3710](https://github.com/getsentry/sentry-dart/pull/3710)
+
 ## 9.20.0
 
 ### Features
