@@ -2,8 +2,7 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
-    // uncomment this to upload debug symbols to Sentry, currently disabled since it fails in CI
-    // id "io.sentry.android.gradle"
+    id "io.sentry.android.gradle"
 }
 
 def localProperties = new Properties()
@@ -96,10 +95,12 @@ dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
 }
 
-// uncomment this to upload debug symbols to Sentry, currently disabled since it fails in CI
-// sentry {
-//     autoInstallation {
-//       enabled = false
-//     }
-//     uploadNativeSymbols = true
-// }
+sentry {
+    autoInstallation {
+      enabled = false
+    }
+    uploadNativeSymbols = true
+    org = "sentry-sdks"
+    projectName = "sentry-flutter"
+    authToken = System.getenv("SENTRY_AUTH_TOKEN")
+}
