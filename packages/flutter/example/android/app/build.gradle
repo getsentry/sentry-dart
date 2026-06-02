@@ -2,9 +2,7 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
-//    uncomment this to upload proguard mapping file and debug symbols to Sentry
-//    and also set the token (sentry.properties) file
-   id "io.sentry.android.gradle"
+    id "io.sentry.android.gradle"
 }
 
 def localProperties = new Properties()
@@ -97,11 +95,9 @@ dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
 }
 
-// uncomment this to upload debug symbols to Sentry
 sentry {
     autoInstallation {
       enabled = false
     }
     uploadNativeSymbols = true
-    includeNativeSources = true
 }
