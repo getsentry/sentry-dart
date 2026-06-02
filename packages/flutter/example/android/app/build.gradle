@@ -4,7 +4,7 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
     // Disabled by default because symbol upload fails on CI when SENTRY_AUTH_TOKEN
     // is unavailable (e.g. on fork PRs). Uncomment together with the sentry { } block
-    // below to upload debug symbols to Sentry locally.
+    // below to upload ProGuard mappings to Sentry.
     // id "io.sentry.android.gradle"
 }
 
@@ -100,12 +100,11 @@ dependencies {
 
 // Disabled by default because symbol upload fails on CI when SENTRY_AUTH_TOKEN
 // is unavailable (e.g. on fork PRs). Uncomment together with the
-// io.sentry.android.gradle plugin above to upload debug symbols to Sentry locally.
+// io.sentry.android.gradle plugin above to upload ProGuard mappings to Sentry.
 // sentry {
 //     autoInstallation {
 //       enabled = false
 //     }
-//     uploadNativeSymbols = true
 //     org = "sentry-sdks"
 //     projectName = "sentry-flutter"
 //     authToken = System.getenv("SENTRY_AUTH_TOKEN")
