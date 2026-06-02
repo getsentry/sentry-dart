@@ -2,10 +2,10 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
-
-//    uncomment this to upload proguard mapping file and debug symbols to Sentry
-//    and also set the token (sentry.properties) file
-//    id "io.sentry.android.gradle"
+    // Disabled by default because symbol upload fails on CI when SENTRY_AUTH_TOKEN
+    // is unavailable (e.g. on fork PRs). Uncomment together with the sentry { } block
+    // below to upload ProGuard mappings to Sentry.
+    // id "io.sentry.android.gradle"
 }
 
 def localProperties = new Properties()
@@ -98,8 +98,14 @@ dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
 }
 
-// uncomment this to upload debug symbols to Sentry
+// Disabled by default because symbol upload fails on CI when SENTRY_AUTH_TOKEN
+// is unavailable (e.g. on fork PRs). Uncomment together with the
+// io.sentry.android.gradle plugin above to upload ProGuard mappings to Sentry.
 // sentry {
-//     uploadNativeSymbols = true
-//     includeNativeSources = true
+//     autoInstallation {
+//       enabled = false
+//     }
+//     org = "sentry-sdks"
+//     projectName = "sentry-flutter"
+//     authToken = System.getenv("SENTRY_AUTH_TOKEN")
 // }
