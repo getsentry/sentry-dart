@@ -141,18 +141,26 @@ class _EventsScreenState extends State<EventsScreen> {
                         'Shows a custom feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
                     buttonTitle: 'Capture Feedback',
                   ),
-                  TextField(
-                    controller: _hangSecondsController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'App hang duration (seconds)',
-                    ),
-                  ),
-                  TooltipButton(
-                    onPressed: _hangMainIsolate,
-                    text:
-                        'Blocks the main isolate for the given duration to trigger an app-hang event.',
-                    buttonTitle: 'Trigger app hang',
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: 8,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _hangSecondsController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'ANR / App Hang duration (seconds)',
+                          ),
+                        ),
+                      ),
+                      TooltipButton(
+                        onPressed: _hangMainIsolate,
+                        text:
+                            'Blocks the main isolate for the given duration to trigger an app-hang event.',
+                        buttonTitle: 'Trigger ANR / App Hang',
+                      ),
+                    ],
                   ),
                 ],
               ),
