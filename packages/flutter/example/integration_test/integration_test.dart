@@ -174,12 +174,15 @@ void main() {
         'items': largeItems,
         'customObject': CustomObject(),
         'nullEntry': null,
+        'sparseList': ['a', null, 'c'],
       });
       await scope.setUser(SentryUser(
         id: 'large-user',
         data: {
           'items': largeItems,
           'customObject': CustomObject(),
+          'nullEntry': null,
+          'sparseList': ['a', null, 'c'],
         },
       ));
       await scope.addBreadcrumb(Breadcrumb(
@@ -188,6 +191,7 @@ void main() {
           'items': largeItems,
           'customObject': CustomObject(),
           'nullEntry': null,
+          'sparseList': ['a', null, 'c'],
         },
       ));
     });
@@ -203,10 +207,17 @@ void main() {
 
     expect((largeContext?['items'] as List?)?.length, 64);
     expect(largeContext?['customObject'], CustomObject().toString());
+    expect(largeContext?.containsKey('nullEntry'), isTrue);
+    expect(largeContext?['nullEntry'], isNull);
+    expect(largeContext?['sparseList'], ['a', null, 'c']);
     expect(nativeUser?['id'], 'large-user');
-    expect(((nativeUser?['data'] as Map?)?['items'] as List?)?.length, 64);
-    expect(
-        ((nativeBreadcrumb?['data'] as Map?)?['items'] as List?)?.length, 64);
+    final userData = nativeUser?['data'] as Map?;
+    expect((userData?['items'] as List?)?.length, 64);
+    expect(userData?['sparseList'], ['a', null, 'c']);
+
+    final breadcrumbData = nativeBreadcrumb?['data'] as Map?;
+    expect((breadcrumbData?['items'] as List?)?.length, 64);
+    expect(breadcrumbData?['sparseList'], ['a', null, 'c']);
   }, skip: !Platform.isAndroid);
 
   testWidgets('setup sentry and start transaction', (tester) async {
@@ -242,6 +253,7 @@ void main() {
       }, (options) {
         options.dsn = fakeDsn;
         options.debug = true;
+        options.sampleRate = 0.25;
         options.diagnosticLevel = SentryLevel.error;
         options.environment = 'init-test-env';
         options.release = '1.2.3+9';
@@ -286,6 +298,7 @@ void main() {
 
     expect(androidOptions, isNotNull);
     expect(androidOptions.getDsn()?.toDartString(), fakeDsn);
+    expect(androidOptions.getSampleRate()?.doubleValue(), 0.25);
     expect(androidOptions.isDebug(), isTrue);
     final diagnostic = androidOptions.getDiagnosticLevel();
     expect(
@@ -366,7 +379,7 @@ void main() {
     final appPackageInfo = await PackageInfo.fromPlatform();
     const expectedAppId = 'io.sentry.flutter.sample';
     final expectedSdkName =
-        Platform.isAndroid ? 'maven:sentry-android' : 'cocoapods:sentry-cocoa';
+        Platform.isAndroid ? 'maven:sentry-android' : 'spm:sentry-cocoa';
     final expectedVersion = appPackageInfo.version;
 
     // === BASIC VALIDATION ===
@@ -1001,13 +1014,13 @@ void main() {
       expect(values['key4'], {'value': 12}, reason: 'key4 mismatch');
       expect(values['key5'], {'value': 12.3}, reason: 'key5 mismatch');
     } else if (Platform.isAndroid) {
-      expect(values['key1'], 'randomValue', reason: 'key1 mismatch');
+      expect(values['key1'], {'value': 'randomValue'}, reason: 'key1 mismatch');
       expect(values['key2'],
           {'String': 'Value', 'Bool': true, 'Int': 123, 'Double': 12.3},
           reason: 'key2 mismatch');
-      expect(values['key3'], true, reason: 'key3 mismatch');
-      expect(values['key4'], 12, reason: 'key4 mismatch');
-      expect(values['key5'], 12.3, reason: 'key5 mismatch');
+      expect(values['key3'], {'value': true}, reason: 'key3 mismatch');
+      expect(values['key4'], {'value': 12}, reason: 'key4 mismatch');
+      expect(values['key5'], {'value': 12.3}, reason: 'key5 mismatch');
     }
 
     await Sentry.configureScope((scope) async {

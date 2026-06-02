@@ -24,7 +24,7 @@ void initSentryAndroid({
     final context = native.SentryFlutterPlugin.getApplicationContext()
       ?..releasedBy(arena);
     if (context == null) {
-      options.log(SentryLevel.error,
+      internalLogger.error(
           'Failed to initialize Sentry Android, application context is null.');
       return;
     }
@@ -61,31 +61,42 @@ native.SentryOptions$BeforeSendReplayCallback createBeforeSendReplayCallback(
   return native.SentryOptions$BeforeSendReplayCallback.implement(
     native.$SentryOptions$BeforeSendReplayCallback(
       execute: (sentryReplayEvent, hint) {
-        using((arena) {
-          final data = hint
-              .getReplayRecording()
-              ?.getPayload()
-              ?.use((payload) => payload.firstOrNull)
-            ?..releasedBy(arena);
-          if (data is native.$RRWebOptionsEvent$Type) {
-            final payload = data
-                ?.as(native.RRWebOptionsEvent.type)
-                .getOptionsPayload()
+        try {
+          using((arena) {
+            final replayRecording = hint.getReplayRecording()
               ?..releasedBy(arena);
-            payload?.removeWhere((key, value) {
-              final shouldRemove =
-                  key?.toDartString(releaseOriginal: true).contains('mask') ??
-                      false;
-              value?.release(); // release the materialized value handle
-              return shouldRemove;
-            });
+            final data = replayRecording?.getPayload()?.use(
+                  (payload) => payload.firstOrNull,
+                )?..releasedBy(arena);
+            if (data?.isA(native.RRWebOptionsEvent.type) ?? false) {
+              final optionsEvent = data!.as(native.RRWebOptionsEvent.type)
+                ..releasedBy(arena);
+              final payload = optionsEvent.getOptionsPayload()
+                ..releasedBy(arena);
 
-            final jMap = dartToJMap(options.privacy.toJson());
-            payload?.addAll(jMap);
-            jMap.release();
-          }
-        });
-        return sentryReplayEvent;
+              final keys = payload.keys..releasedBy(arena);
+              final iterator = keys.iterator..releasedBy(arena);
+              final keysToRemove = <JString>[];
+              while (iterator.moveNext()) {
+                final key = iterator.current?..releasedBy(arena);
+                if (key?.toDartString().contains('mask') ?? false) {
+                  keysToRemove.add(key!);
+                }
+              }
+
+              for (final key in keysToRemove) {
+                payload.remove(key)?.releasedBy(arena);
+              }
+
+              final jMap = dartToJMap(options.privacy.toJson())
+                ..releasedBy(arena);
+              payload.addAll(jMap);
+            }
+          });
+          return sentryReplayEvent;
+        } finally {
+          hint.release();
+        }
       },
     ),
   );
@@ -107,8 +118,9 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
             SentryId.fromId(replayIdString.toDartString(releaseOriginal: true));
 
         owner._replayId = replayId;
-        owner._nativeReplay =
-            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
+        owner._setNativeReplay(
+          native.SentryFlutterPlugin.privateSentryGetReplayIntegration(),
+        );
         owner._replayRecorder = AndroidReplayRecorder.factory(options);
         await owner._replayRecorder!.start();
         hub.configureScope((s) {
@@ -131,6 +143,7 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
         final future = owner._replayRecorder?.stop();
         owner._replayRecorder = null;
         await future;
+        owner._setNativeReplay(null);
       },
       replayReset: () {
         // ignored
@@ -157,6 +170,8 @@ void configureAndroidOptions({
 }) {
   using((arena) {
     androidOptions.setDsn(options.dsn?.toJString()?..releasedBy(arena));
+    androidOptions
+        .setSampleRate(options.sampleRate?.toJDouble()?..releasedBy(arena));
     androidOptions.setDebug(options.debug);
     androidOptions
         .setEnvironment(options.environment?.toJString()?..releasedBy(arena));
@@ -236,17 +251,18 @@ void configureAndroidOptions({
 
     native.SdkVersion? sdkVersion = androidOptions.getSdkVersion()
       ?..releasedBy(arena);
+    final versionName = native.BuildConfig.VERSION_NAME!..releasedBy(arena);
+    final versionNameString = versionName.toDartString();
     if (sdkVersion == null) {
       sdkVersion = native.SdkVersion(
         androidSdkName.toJString()..releasedBy(arena),
-        native.BuildConfig.VERSION_NAME!..releasedBy(arena),
+        versionName,
       )..releasedBy(arena);
     } else {
       sdkVersion.setName(androidSdkName.toJString()..releasedBy(arena));
     }
     androidOptions.setSentryClientName(
-        '$androidSdkName/${native.BuildConfig.VERSION_NAME}'.toJString()
-          ..releasedBy(arena));
+        '$androidSdkName/$versionNameString'.toJString()..releasedBy(arena));
     androidOptions
         .setNativeSdkName(nativeSdkName.toJString()..releasedBy(arena));
     for (final integration in options.sdk.integrations) {

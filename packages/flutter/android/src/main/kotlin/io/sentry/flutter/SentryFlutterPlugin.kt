@@ -15,6 +15,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.Breadcrumb
 import io.sentry.DateUtils
+import io.sentry.IScope
 import io.sentry.JsonObjectReader
 import io.sentry.ScopesAdapter
 import io.sentry.Sentry
@@ -34,7 +35,6 @@ import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
 import org.json.JSONArray
 import org.json.JSONObject
-import org.json.JSONTokener
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
 import java.lang.ref.WeakReference
@@ -117,6 +117,14 @@ class SentryFlutterPlugin :
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
+    private val breadcrumbDeserializer by lazy {
+      Breadcrumb.Deserializer()
+    }
+
+    private val userDeserializer by lazy {
+      User.Deserializer()
+    }
+
     /**
      * Tears down the current ReplayIntegration to avoid invoking callbacks from a stale
      * Flutter isolate after hot restart.
@@ -165,17 +173,6 @@ class SentryFlutterPlugin :
         }
     }
 
-    @Suppress("unused") // Used by native/jni bindings
-    @JvmStatic
-    fun setContext(
-      key: String,
-      value: Any?,
-    ) {
-      Sentry.configureScope { scope ->
-        scope.setContexts(key, value)
-      }
-    }
-
     @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
     fun addBreadcrumbFromJsonBytes(bytes: ByteArray) {
@@ -183,7 +180,7 @@ class SentryFlutterPlugin :
         val options = ScopesAdapter.getInstance().options
         val breadcrumb =
           jsonObjectReader(bytes).use { reader ->
-            Breadcrumb.Deserializer().deserialize(reader, options.logger)
+            breadcrumbDeserializer.deserialize(reader, options.logger)
           }
         Sentry.addBreadcrumb(breadcrumb)
       } catch (e: Exception) {
@@ -203,7 +200,7 @@ class SentryFlutterPlugin :
         val options = ScopesAdapter.getInstance().options
         val user =
           jsonObjectReader(bytes).use { reader ->
-            User.Deserializer().deserialize(reader, options.logger)
+            userDeserializer.deserialize(reader, options.logger)
           }
         Sentry.setUser(user)
       } catch (e: Exception) {
@@ -220,7 +217,7 @@ class SentryFlutterPlugin :
       try {
         val value = parseJsonBytes(bytes)
         Sentry.configureScope { scope ->
-          scope.setContexts(key, value)
+          setContextValue(scope, key, value)
         }
       } catch (e: Exception) {
         Log.e("Sentry", "Failed to set context from JSON bytes", e)
@@ -450,41 +447,36 @@ class SentryFlutterPlugin :
         "debug_file" to debugFile,
       )
 
-    private fun parseJsonBytes(bytes: ByteArray): Any? {
-      val json = String(bytes, Charsets.UTF_8)
-      return JSONTokener(json).nextValue().toKotlinJsonValue()
+    private fun setContextValue(
+      scope: IScope,
+      key: String,
+      value: Any?,
+    ) {
+      // Force sentry-java's typed overloads so primitive contexts are wrapped
+      // as {"value": ...} instead of being stored as invalid raw values.
+      when (value) {
+        null -> scope.setContexts(key, null as Any?)
+        is Boolean -> scope.setContexts(key, value)
+        is String -> scope.setContexts(key, value)
+        is Number -> scope.setContexts(key, value)
+        is Collection<*> -> scope.setContexts(key, value)
+        is Array<*> -> scope.setContexts(key, value)
+        is Char -> scope.setContexts(key, value)
+        else -> scope.setContexts(key, value)
+      }
     }
 
-    private fun jsonObjectReader(bytes: ByteArray): JsonObjectReader =
-      JsonObjectReader(InputStreamReader(ByteArrayInputStream(bytes), Charsets.UTF_8))
-
-    private fun Any?.toKotlinJsonValue(): Any? =
-      when (this) {
-        null, JSONObject.NULL -> null
-        is JSONObject -> {
-          val map = mutableMapOf<String, Any?>()
-          val keys = keys()
-          while (keys.hasNext()) {
-            val key = keys.next()
-            val value = opt(key).toKotlinJsonValue()
-            if (value != null) {
-              map[key] = value
-            }
-          }
-          map
-        }
-        is JSONArray -> {
-          val list = mutableListOf<Any?>()
-          for (i in 0 until length()) {
-            val value = opt(i).toKotlinJsonValue()
-            if (value != null) {
-              list.add(value)
-            }
-          }
-          list
-        }
-        else -> this
+    private fun parseJsonBytes(bytes: ByteArray): Any? =
+      jsonObjectReader(bytes).use { reader ->
+        // Despite the name, sentry-java's JsonObjectReader accepts
+        // primitives here as well as objects and arrays.
+        reader.nextObjectOrNull()
       }
+
+    private fun jsonObjectReader(bytes: ByteArray): JsonObjectReader =
+      JsonObjectReader(
+        InputStreamReader(ByteArrayInputStream(bytes), Charsets.UTF_8),
+      )
 
     private fun Double.adjustReplaySizeToBlockSize(): Double {
       val remainder = this % VIDEO_BLOCK_SIZE

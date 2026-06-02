@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:test/test.dart';
 import 'package:jni/jni.dart';
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
-import 'package:sentry_flutter/src/native/utils/utf8_json.dart';
+import 'package:sentry_flutter/src/native/utils/data_normalizer.dart';
 
 import 'utils.dart';
 
@@ -50,7 +50,8 @@ void main() {
   };
   final expectedNormalizedNestedMap = {
     'innerString': 'nested',
-    'innerList': [1, 2],
+    'innerList': [1, null, 2],
+    'innerNull': null,
   };
   final expectedList = [
     'value',
@@ -73,14 +74,16 @@ void main() {
   };
   final expectedNormalizedMap = {
     ...expectedMap,
+    'nullEntry': null,
     'list': [
       'value',
       1,
       1.1,
       true,
       customObject.toString(),
-      expectedNestedList,
+      ['nestedList', 2],
       expectedNormalizedNestedMap,
+      null,
     ],
     'nestedMap': expectedNormalizedNestedMap,
   };
@@ -131,8 +134,8 @@ void main() {
       });
     });
 
-    test('normalizeNativeJson normalizes values for JSON bytes', () {
-      final actual = normalizeNativeJson(inputMap);
+    test('normalize normalizes values for JSON bytes', () {
+      final actual = normalize(inputMap);
 
       expect(actual, expectedNormalizedMap);
     });
