@@ -2,7 +2,10 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
-    id "io.sentry.android.gradle"
+    // Disabled by default because symbol upload fails on CI when SENTRY_AUTH_TOKEN
+    // is unavailable (e.g. on fork PRs). Uncomment together with the sentry { } block
+    // below to upload debug symbols to Sentry locally.
+    // id "io.sentry.android.gradle"
 }
 
 def localProperties = new Properties()
@@ -95,12 +98,15 @@ dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
 }
 
-sentry {
-    autoInstallation {
-      enabled = false
-    }
-    uploadNativeSymbols = true
-    org = "sentry-sdks"
-    projectName = "sentry-flutter"
-    authToken = System.getenv("SENTRY_AUTH_TOKEN")
-}
+// Disabled by default because symbol upload fails on CI when SENTRY_AUTH_TOKEN
+// is unavailable (e.g. on fork PRs). Uncomment together with the
+// io.sentry.android.gradle plugin above to upload debug symbols to Sentry locally.
+// sentry {
+//     autoInstallation {
+//       enabled = false
+//     }
+//     uploadNativeSymbols = true
+//     org = "sentry-sdks"
+//     projectName = "sentry-flutter"
+//     authToken = System.getenv("SENTRY_AUTH_TOKEN")
+// }
