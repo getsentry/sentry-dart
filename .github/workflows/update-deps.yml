@@ -34,7 +34,7 @@ jobs:
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   cocoa:
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
       - uses: getsentry/github-workflows/updater@607fed74f812e69201531a5185b6c3c57caa4e89 # v3
         with:
