@@ -65,6 +65,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     try {
       final cOptions = native.options_new();
       native.options_set_dsn(cOptions, c.str(options.dsn));
+      if (options.sampleRate != null) {
+        native.options_set_sample_rate(cOptions, options.sampleRate!);
+      }
       native.options_set_debug(cOptions, options.debug ? 1 : 0);
       native.options_set_environment(cOptions, c.str(options.environment));
       native.options_set_release(cOptions, c.str(options.release));
