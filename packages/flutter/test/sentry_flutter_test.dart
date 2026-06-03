@@ -366,7 +366,7 @@ void main() {
 
       testScopeObserver(
         options: sentryFlutterOptions,
-        expectedHasNativeScopeObserver: false,
+        expectedHasNativeScopeObserver: true,
       );
 
       testConfiguration(

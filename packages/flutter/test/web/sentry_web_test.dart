@@ -10,6 +10,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/native/utils/data_normalizer.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
@@ -247,26 +248,17 @@ void main() {
         });
 
         test('methods execute without calling JS binding', () {
-          sut.addBreadcrumb(Breadcrumb());
           sut.captureEnvelope(Uint8List(0), false);
-          sut.clearBreadcrumbs();
           sut.collectProfile(SentryId.empty(), 0, 0);
           sut.discardProfiler(SentryId.empty());
           sut.displayRefreshRate();
           sut.fetchNativeAppStart();
           sut.loadContexts();
           sut.nativeCrash();
-          sut.removeContexts('key');
-          sut.removeExtra('key');
-          sut.removeTag('key');
           sut.resumeAppHangTracking();
           sut.pauseAppHangTracking();
-          sut.setContexts('key', 'value');
-          sut.setExtra('key', 'value');
           sut.setReplayConfig(ReplayConfig(
               windowWidth: 0, windowHeight: 0, width: 0, height: 0));
-          sut.setTag('key', 'value');
-          sut.setUser(null);
           sut.startProfiler(SentryId.empty());
 
           verifyZeroInteractions(mockBinding);
@@ -279,6 +271,118 @@ void main() {
           expect(sut.collectProfile(SentryId.empty(), 0, 0), isNull);
           expect(sut.startProfiler(SentryId.empty()), isNull);
         });
+      });
+
+      test('scope methods call JS binding with normalized payloads', () {
+        final userObject = Object();
+        final user = SentryUser(
+          id: 'fixture-id',
+          data: {'object': userObject},
+        );
+        sut.setUser(user);
+        final userVerification = verify(mockBinding.setUser(captureAny));
+        userVerification.called(1);
+        expect(
+          userVerification.captured.single,
+          normalizeMap(user.toJson()),
+        );
+
+        sut.setUser(null);
+        verify(mockBinding.setUser(null)).called(1);
+
+        final breadcrumbObject = Object();
+        final breadcrumb = Breadcrumb(
+          message: 'fixture-message',
+          data: {'object': breadcrumbObject},
+          timestamp: DateTime.utc(2026, 1, 1),
+        );
+        sut.addBreadcrumb(breadcrumb);
+
+        final userInteractionBreadcrumb = Breadcrumb.userInteraction(
+          subCategory: 'click',
+          timestamp: DateTime.utc(2026, 1, 2),
+        );
+        sut.addBreadcrumb(userInteractionBreadcrumb);
+
+        final breadcrumbVerification =
+            verify(mockBinding.addBreadcrumb(captureAny));
+        breadcrumbVerification.called(2);
+        expect(
+          breadcrumbVerification.captured[0],
+          {
+            'timestamp': breadcrumb.timestamp.millisecondsSinceEpoch / 1000,
+            'message': 'fixture-message',
+            'data': normalizeMap(breadcrumb.data),
+            if (breadcrumb.level != null) 'level': breadcrumb.level!.name,
+          },
+        );
+        expect(
+          breadcrumbVerification.captured[1],
+          {
+            'timestamp':
+                userInteractionBreadcrumb.timestamp.millisecondsSinceEpoch /
+                    1000,
+            'category': 'ui.click',
+            if (userInteractionBreadcrumb.level != null)
+              'level': userInteractionBreadcrumb.level!.name,
+            'type': 'user',
+          },
+        );
+
+        final replayBreadcrumbVerification =
+            verify(mockBinding.addReplayBreadcrumb(captureAny));
+        replayBreadcrumbVerification.called(2);
+        expect(
+          replayBreadcrumbVerification.captured[0],
+          {
+            'timestamp': breadcrumb.timestamp.millisecondsSinceEpoch / 1000,
+            'message': 'fixture-message',
+            'data': normalizeMap(breadcrumb.data),
+            if (breadcrumb.level != null) 'level': breadcrumb.level!.name,
+            'category': 'default',
+          },
+        );
+        expect(
+          replayBreadcrumbVerification.captured[1],
+          {
+            'timestamp':
+                userInteractionBreadcrumb.timestamp.millisecondsSinceEpoch /
+                    1000,
+            'category': 'flutter.ui.click',
+            if (userInteractionBreadcrumb.level != null)
+              'level': userInteractionBreadcrumb.level!.name,
+            'type': 'user',
+          },
+        );
+
+        sut.clearBreadcrumbs();
+        verify(mockBinding.clearBreadcrumbs()).called(1);
+
+        final contextValue = {'object': Object()};
+        sut.setContexts('fixture-context', contextValue);
+        final contextVerification =
+            verify(mockBinding.setContext('fixture-context', captureAny));
+        contextVerification.called(1);
+        expect(contextVerification.captured.single, normalize(contextValue));
+
+        sut.removeContexts('fixture-context');
+        verify(mockBinding.removeContext('fixture-context')).called(1);
+
+        final extraValue = {'object': Object()};
+        sut.setExtra('fixture-extra', extraValue);
+        final extraVerification =
+            verify(mockBinding.setExtra('fixture-extra', captureAny));
+        extraVerification.called(1);
+        expect(extraVerification.captured.single, normalize(extraValue));
+
+        sut.removeExtra('fixture-extra');
+        verify(mockBinding.removeExtra('fixture-extra')).called(1);
+
+        sut.setTag('fixture-tag', 'fixture-value');
+        verify(mockBinding.setTag('fixture-tag', 'fixture-value')).called(1);
+
+        sut.removeTag('fixture-tag');
+        verify(mockBinding.removeTag('fixture-tag')).called(1);
       });
 
       test('payload uint8list: captures correct length', () async {

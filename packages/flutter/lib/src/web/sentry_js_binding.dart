@@ -7,6 +7,16 @@ abstract class SentryJsBinding {
   void init(Map<String, dynamic> options);
   void close();
   void captureEnvelope(List<Object> envelope);
+  void setUser(Map<String, dynamic>? user);
+  void addBreadcrumb(Map<String, dynamic> breadcrumb);
+  void addReplayBreadcrumb(Map<String, dynamic> breadcrumb);
+  void clearBreadcrumbs();
+  void setContext(String key, Object? value);
+  void removeContext(String key);
+  void setExtra(String key, Object? value);
+  void removeExtra(String key);
+  void setTag(String key, String value);
+  void removeTag(String key);
   void startSession();
   Map<dynamic, dynamic>? getSession();
   void updateSession({int? errors, String? status});
