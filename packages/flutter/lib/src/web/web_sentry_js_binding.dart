@@ -96,6 +96,56 @@ class WebSentryJsBinding implements SentryJsBinding {
     }
   }
 
+  @override
+  void setUser(Map<String, dynamic>? user) {
+    _setUser(user.jsify());
+  }
+
+  @override
+  void addBreadcrumb(Map<String, dynamic> breadcrumb) {
+    _addBreadcrumb(breadcrumb.jsify());
+  }
+
+  @override
+  void addReplayBreadcrumb(Map<String, dynamic> breadcrumb) {
+    _client?.emit('beforeAddBreadcrumb'.toJS, breadcrumb.jsify());
+  }
+
+  @override
+  void clearBreadcrumbs() {
+    SentryJsIsolationScope().clearBreadcrumbs();
+  }
+
+  @override
+  void setContext(String key, Object? value) {
+    _setContext(key.toJS, value.jsify());
+  }
+
+  @override
+  void removeContext(String key) {
+    _setContext(key.toJS, null);
+  }
+
+  @override
+  void setExtra(String key, Object? value) {
+    _setExtra(key.toJS, value.jsify());
+  }
+
+  @override
+  void removeExtra(String key) {
+    _setExtra(key.toJS);
+  }
+
+  @override
+  void setTag(String key, String value) {
+    _setTag(key.toJS, value.toJS);
+  }
+
+  @override
+  void removeTag(String key) {
+    _setTag(key.toJS);
+  }
+
   @visibleForTesting
   @override
   getJsOptions() {
@@ -209,6 +259,21 @@ external void _init(JSAny? options);
 @JS('Sentry.close')
 external void _close();
 
+@JS('Sentry.setUser')
+external void _setUser(JSAny? user);
+
+@JS('Sentry.addBreadcrumb')
+external void _addBreadcrumb(JSAny? breadcrumb);
+
+@JS('Sentry.setContext')
+external void _setContext(JSString key, JSAny? value);
+
+@JS('Sentry.setExtra')
+external void _setExtra(JSString key, [JSAny? value]);
+
+@JS('Sentry.setTag')
+external void _setTag(JSString key, [JSAny? value]);
+
 @JS('Sentry.getIsolationScope')
 @staticInterop
 class SentryJsIsolationScope {
@@ -218,6 +283,7 @@ class SentryJsIsolationScope {
 extension _SentryJsIsolationScopeExtension on SentryJsIsolationScope {
   external JSObject? getSession();
   external void setSession(JSObject session);
+  external void clearBreadcrumbs();
 }
 
 @JS('Sentry.getClient')
@@ -229,6 +295,7 @@ class SentryJsClient {
 extension _SentryJsClientExtension on SentryJsClient {
   external void sendEnvelope(JSAny? envelope);
   external JSObject? getOptions();
+  external void emit(JSString event, JSAny? arg);
 }
 
 @JS('Sentry.startSession')

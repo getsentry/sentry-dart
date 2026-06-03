@@ -17,6 +17,36 @@ class NoOpSentryJsBinding implements SentryJsBinding {
   void captureEnvelope(List<Object> envelope) {}
 
   @override
+  void setUser(Map<String, dynamic>? user) {}
+
+  @override
+  void addBreadcrumb(Map<String, dynamic> breadcrumb) {}
+
+  @override
+  void addReplayBreadcrumb(Map<String, dynamic> breadcrumb) {}
+
+  @override
+  void clearBreadcrumbs() {}
+
+  @override
+  void setContext(String key, Object? value) {}
+
+  @override
+  void removeContext(String key) {}
+
+  @override
+  void setExtra(String key, Object? value) {}
+
+  @override
+  void removeExtra(String key) {}
+
+  @override
+  void setTag(String key, String value) {}
+
+  @override
+  void removeTag(String key) {}
+
+  @override
   getJsOptions() {}
 
   @override

@@ -3791,6 +3791,118 @@ class MockSentryJsBinding extends _i1.Mock implements _i23.SentryJsBinding {
       );
 
   @override
+  void setUser(Map<String, dynamic>? user) => super.noSuchMethod(
+        Invocation.method(
+          #setUser,
+          [user],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void addBreadcrumb(Map<String, dynamic>? breadcrumb) => super.noSuchMethod(
+        Invocation.method(
+          #addBreadcrumb,
+          [breadcrumb],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void addReplayBreadcrumb(Map<String, dynamic>? breadcrumb) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #addReplayBreadcrumb,
+          [breadcrumb],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void clearBreadcrumbs() => super.noSuchMethod(
+        Invocation.method(
+          #clearBreadcrumbs,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setContext(
+    String? key,
+    Object? value,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setContext,
+          [
+            key,
+            value,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removeContext(String? key) => super.noSuchMethod(
+        Invocation.method(
+          #removeContext,
+          [key],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setExtra(
+    String? key,
+    Object? value,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setExtra,
+          [
+            key,
+            value,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removeExtra(String? key) => super.noSuchMethod(
+        Invocation.method(
+          #removeExtra,
+          [key],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setTag(
+    String? key,
+    String? value,
+  ) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #setTag,
+          [
+            key,
+            value,
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removeTag(String? key) => super.noSuchMethod(
+        Invocation.method(
+          #removeTag,
+          [key],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   void startSession() => super.noSuchMethod(
         Invocation.method(
           #startSession,

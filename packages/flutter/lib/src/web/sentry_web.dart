@@ -13,6 +13,7 @@ import '../event_processor/web_replay_event_processor.dart';
 import '../native/native_app_start.dart';
 import '../native/sentry_native_binding.dart';
 import '../native/sentry_native_invoker.dart';
+import '../native/utils/data_normalizer.dart';
 import '../replay/replay_config.dart';
 import 'sentry_js_binding.dart';
 
@@ -74,7 +75,21 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
-    _logNotSupported('add breadcrumb');
+    final jsBreadcrumb = {
+      'timestamp': breadcrumb.timestamp.millisecondsSinceEpoch / 1000,
+      if (breadcrumb.message != null) 'message': breadcrumb.message,
+      if (breadcrumb.category != null) 'category': breadcrumb.category,
+      if (breadcrumb.data?.isNotEmpty ?? false)
+        'data': normalizeMap(breadcrumb.data),
+      if (breadcrumb.level != null) 'level': breadcrumb.level!.name,
+      if (breadcrumb.type != null) 'type': breadcrumb.type,
+    };
+    _binding.addBreadcrumb(jsBreadcrumb);
+
+    final replayBreadcrumb = _replayBreadcrumb(jsBreadcrumb);
+    if (replayBreadcrumb != null) {
+      _binding.addReplayBreadcrumb(replayBreadcrumb);
+    }
   }
 
   @override
@@ -153,7 +168,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> clearBreadcrumbs() {
-    _logNotSupported('clear breadcrumbs');
+    _binding.clearBreadcrumbs();
   }
 
   @override
@@ -227,17 +242,17 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> removeContexts(String key) {
-    _logNotSupported('remove contexts');
+    _binding.removeContext(key);
   }
 
   @override
   FutureOr<void> removeExtra(String key) {
-    _logNotSupported('remove extra');
+    _binding.removeExtra(key);
   }
 
   @override
   FutureOr<void> removeTag(String key) {
-    _logNotSupported('remove tag');
+    _binding.removeTag(key);
   }
 
   @override
@@ -252,12 +267,12 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setContexts(String key, value) {
-    _logNotSupported('set contexts');
+    _binding.setContext(key, normalize(value));
   }
 
   @override
   FutureOr<void> setExtra(String key, value) {
-    _logNotSupported('set extra');
+    _binding.setExtra(key, normalize(value));
   }
 
   @override
@@ -267,12 +282,12 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setTag(String key, String value) {
-    _logNotSupported('set tag');
+    _binding.setTag(key, value);
   }
 
   @override
   FutureOr<void> setUser(SentryUser? user) {
-    _logNotSupported('set user');
+    _binding.setUser(user == null ? null : normalizeMap(user.toJson()));
   }
 
   @override
@@ -306,4 +321,25 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   SentryFlutterOptions get options => _options;
+
+  Map<String, dynamic>? _replayBreadcrumb(Map<String, dynamic> breadcrumb) {
+    final category = breadcrumb['category'];
+    if (category is! String || category.isEmpty) {
+      return {
+        ...breadcrumb,
+        'category': 'default',
+      };
+    }
+
+    if (category == 'fetch' ||
+        category == 'xhr' ||
+        category.startsWith('ui.')) {
+      return {
+        ...breadcrumb,
+        'category': 'flutter.$category',
+      };
+    }
+
+    return null;
+  }
 }

@@ -137,9 +137,7 @@ mixin SentryFlutter {
           options.transport = FileSystemTransport(_native!, options);
         }
       }
-      if (!options.platform.isWeb) {
-        options.addScopeObserver(NativeScopeObserver(_native!, options));
-      }
+      options.addScopeObserver(NativeScopeObserver(_native!, options));
     }
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));
