@@ -1,6 +1,12 @@
+// ignore_for_file: invalid_use_of_internal_member, implementation_imports
+
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:grpc/grpc.dart';
+import 'package:grpc/src/generated/google/protobuf/any.pb.dart' as pb;
+import 'package:grpc/src/generated/google/rpc/error_details.pb.dart' as rpc;
+import 'package:grpc/src/generated/google/rpc/status.pb.dart' as rpc_status;
 import 'package:sentry/sentry.dart';
 import 'package:sentry_grpc/sentry_grpc.dart';
 
@@ -19,13 +25,28 @@ Future<void> main() async {
 }
 
 Future<void> _runApp() async {
+  // Local server demonstrates _attachErrorDetails by returning rich error
+  // details that grpcb.in does not provide.
+  final localServer = Server.create(services: [_ErrorDetailsService()]);
+  await localServer.serve(address: InternetAddress.loopbackIPv4, port: 0);
+
   final channel = ClientChannel(
     'grpcb.in',
     port: 9001,
     options: const ChannelOptions(credentials: ChannelCredentials.secure()),
   );
+  final localChannel = ClientChannel(
+    'localhost',
+    port: localServer.port!,
+    options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
+  );
+
   final client = _GrpcBinClient(
     channel,
+    interceptors: [SentryGrpcInterceptor(captureFailedRequests: true)],
+  );
+  final localClient = _ErrorDetailsClient(
+    localChannel,
     interceptors: [SentryGrpcInterceptor(captureFailedRequests: true)],
   );
 
@@ -34,8 +55,11 @@ Future<void> _runApp() async {
     await _dummyUnaryCall(client);
     await _randomErrorCall(client);
     await _withHeadersCall(client);
+    await _errorDetailsCall(localClient);
   } finally {
     await channel.shutdown();
+    await localChannel.shutdown();
+    await localServer.shutdown();
     await Sentry.close();
   }
 }
@@ -128,6 +152,89 @@ Future<void> _withHeadersCall(_GrpcBinClient client) async {
   } finally {
     await tr.finish();
   }
+}
+
+// Calls the local service which always fails with rich error details.
+// The interceptor's _attachErrorDetails reads ErrorInfo and BadRequest from the
+// span, so check the span data in Sentry for grpc.error_info.* and
+// grpc.bad_request.field_violations attributes.
+Future<void> _errorDetailsCall(_ErrorDetailsClient client) async {
+  print('--- Local/GetWithDetails (error_details demo) ---');
+  final tr = Sentry.startTransaction(
+    'local-error-details',
+    'grpc.client',
+    bindToScope: true,
+  );
+  try {
+    await client.getWithDetails();
+    tr.status = const SpanStatus.ok();
+    print('OK (unexpected)');
+  } catch (e, s) {
+    tr.throwable = e;
+    tr.status = const SpanStatus.internalError();
+    await Sentry.captureException(e, stackTrace: s);
+    print('FAILED (expected — error details attached to span): $e');
+  } finally {
+    await tr.finish();
+  }
+}
+
+// Encodes detail protos into the grpc-status-details-bin trailer so the grpc
+// client populates GrpcError.details — matching what a real server sends.
+GrpcError _buildRichGrpcError(int code) {
+  final details = [
+    rpc.ErrorInfo(reason: 'FIELD_INVALID', domain: 'example.sentry.io'),
+    rpc.BadRequest()
+      ..fieldViolations.add(
+        rpc.BadRequest_FieldViolation()
+          ..field_1 = 'email'
+          ..description = 'Must be a valid email address',
+      ),
+  ];
+  final anyDetails = details
+      .map((d) => pb.Any.pack(d, typeUrlPrefix: 'type.googleapis.com'))
+      .toList();
+  final status = rpc_status.Status(code: code, details: anyDetails);
+  final encoded = base64Url.encode(status.writeToBuffer());
+  return GrpcError.custom(code, 'validation error', null, null, {
+    'grpc-status-details-bin': encoded,
+  });
+}
+
+class _ErrorDetailsService extends Service {
+  @override
+  String get $name => 'sentry.example.ErrorDetails';
+
+  _ErrorDetailsService() {
+    $addMethod(ServiceMethod<List<int>, List<int>>(
+      'GetWithDetails',
+      _handle,
+      false,
+      false,
+      (bytes) => bytes,
+      (bytes) => bytes,
+    ));
+  }
+
+  Future<List<int>> _handle(
+    ServiceCall call,
+    Future<List<int>> request,
+  ) async {
+    throw _buildRichGrpcError(StatusCode.invalidArgument);
+  }
+}
+
+class _ErrorDetailsClient extends Client {
+  static final _getWithDetails = ClientMethod<List<int>, List<int>>(
+    '/sentry.example.ErrorDetails/GetWithDetails',
+    (data) => data,
+    (data) => data,
+  );
+
+  _ErrorDetailsClient(super.channel, {super.interceptors});
+
+  ResponseFuture<List<int>> getWithDetails() =>
+      $createUnaryCall(_getWithDetails, const <int>[]);
 }
 
 class DummyMessage {
