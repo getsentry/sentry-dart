@@ -12,6 +12,7 @@ functions:
     - sentry_close
     - sentry_options_new
     - sentry_options_set_dsn
+    - sentry_options_set_sample_rate
     - sentry_options_set_debug
     - sentry_options_set_environment
     - sentry_options_set_release
@@ -57,6 +58,7 @@ functions:
     - sentry_sdk_name
     - sentry_options_free
     - sentry_options_get_dsn
+    - sentry_options_get_sample_rate
     - sentry_options_get_debug
     - sentry_options_get_environment
     - sentry_options_get_release

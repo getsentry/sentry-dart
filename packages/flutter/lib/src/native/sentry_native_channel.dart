@@ -40,6 +40,7 @@ class SentryNativeChannel
     }
     return channel.invokeMethod('initNativeSdk', <String, dynamic>{
       'dsn': options.dsn,
+      'sampleRate': options.sampleRate,
       'debug': options.debug,
       'environment': options.environment,
       'release': options.release,

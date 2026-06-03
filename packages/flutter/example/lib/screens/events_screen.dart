@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:flutter/material.dart';
@@ -6,8 +7,38 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../widgets.dart';
 
-class EventsScreen extends StatelessWidget {
+class EventsScreen extends StatefulWidget {
   const EventsScreen({super.key});
+
+  @override
+  State<EventsScreen> createState() => _EventsScreenState();
+}
+
+class _EventsScreenState extends State<EventsScreen> {
+  static const _defaultHangSeconds = 5;
+
+  final _hangSecondsController =
+      TextEditingController(text: '$_defaultHangSeconds');
+
+  int get _hangSeconds {
+    final seconds = int.tryParse(_hangSecondsController.text);
+    return max(1, seconds ?? _defaultHangSeconds);
+  }
+
+  void _hangMainIsolate() {
+    final duration = Duration(seconds: _hangSeconds);
+    final stopwatch = Stopwatch()..start();
+
+    while (stopwatch.elapsed < duration) {
+      // Intentionally block the main isolate to test app-hang reporting.
+    }
+  }
+
+  @override
+  void dispose() {
+    _hangSecondsController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +132,7 @@ class EventsScreen extends StatelessWidget {
                     onPressed: () async {
                       final id = await Sentry.captureMessage('UserFeedback');
                       if (!context.mounted) return;
-                      SentryFeedbackWidget.show(
+                      SentryFeedbackForm.show(
                         context,
                         associatedEventId: id,
                       );
@@ -109,6 +140,27 @@ class EventsScreen extends StatelessWidget {
                     text:
                         'Shows a custom feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',
                     buttonTitle: 'Capture Feedback',
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: 8,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _hangSecondsController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'ANR / App Hang duration (seconds)',
+                          ),
+                        ),
+                      ),
+                      TooltipButton(
+                        onPressed: _hangMainIsolate,
+                        text:
+                            'Blocks the main isolate for the given duration to trigger an app-hang event.',
+                        buttonTitle: 'Trigger ANR / App Hang',
+                      ),
+                    ],
                   ),
                 ],
               ),
