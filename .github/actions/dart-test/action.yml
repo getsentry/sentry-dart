@@ -70,7 +70,7 @@ runs:
           flutter_junitreport:
             git:
               url: https://github.com/waffiqaziz/flutter-junitreport.git
-              ref: main
+              ref: b5faeab04fa19d63d96a433f480ef0ec866452cc
         YAML
         cd "$tool_dir"
         flutter pub get
