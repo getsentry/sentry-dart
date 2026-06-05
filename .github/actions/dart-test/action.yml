@@ -22,10 +22,10 @@ runs:
       shell: bash
       working-directory: ${{ inputs.directory }}
 
-    - name: Install flutter_junitreport
+    - name: Install junitreport
       if: ${{ !startsWith(matrix.sdk, '3.5') }}
       shell: bash
-      run: dart pub global activate --source git https://github.com/waffiqaziz/flutter-junitreport.git --git-ref main
+      run: dart pub global activate junitreport
 
     - name: Test VM
       working-directory: ${{ inputs.directory }}
@@ -43,7 +43,7 @@ runs:
       if: ${{ !cancelled() && !startsWith(matrix.sdk, '3.5') }}
       working-directory: ${{ inputs.directory }}
       shell: bash
-      run: dart pub global run flutter_junitreport:tojunit --input test-vm.jsonl --output TEST-vm-junit.xml
+      run: dart pub global run junitreport:tojunit --input test-vm.jsonl --output TEST-vm-junit.xml
 
     - name: Test dart2js
       if: ${{ inputs.web == 'true' }}

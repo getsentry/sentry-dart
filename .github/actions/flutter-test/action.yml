@@ -32,10 +32,10 @@ runs:
       shell: bash
       working-directory: ${{ inputs.directory }}
 
-    - name: Install flutter_junitreport
+    - name: Install junitreport
       if: matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos'
       shell: bash
-      run: dart pub global activate --source git https://github.com/waffiqaziz/flutter-junitreport.git --git-ref main
+      run: dart pub global activate junitreport
 
     - name: Test VM
       if: matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos'
@@ -68,7 +68,7 @@ runs:
       if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
       working-directory: ${{ inputs.directory }}
       shell: bash
-      run: dart pub global run flutter_junitreport:tojunit --input test-vm.jsonl --output TEST-vm-junit.xml
+      run: dart pub global run junitreport:tojunit --input test-vm.jsonl --output TEST-vm-junit.xml
 
     - name: Test web (${{ matrix.target }})
       if: matrix.target == 'js' || matrix.target == 'wasm'
