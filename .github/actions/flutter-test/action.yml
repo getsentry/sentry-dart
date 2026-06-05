@@ -32,10 +32,29 @@ runs:
       shell: bash
       working-directory: ${{ inputs.directory }}
 
-    - name: Install junitreport
+    - name: Install flutter_junitreport
       if: matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos'
       shell: bash
-      run: dart pub global activate junitreport
+      run: |
+        tool_dir="$RUNNER_TEMP/flutter_junitreport"
+        rm -rf "$tool_dir"
+        mkdir -p "$tool_dir"
+        cat > "$tool_dir/pubspec.yaml" <<'YAML'
+        name: sentry_flutter_junitreport
+        publish_to: none
+
+        environment:
+          sdk: "^3.12.0"
+          flutter: ">=3.44.0"
+
+        dependencies:
+          flutter_junitreport:
+            git:
+              url: https://github.com/waffiqaziz/flutter-junitreport.git
+              ref: main
+        YAML
+        cd "$tool_dir"
+        flutter pub get
 
     - name: Test VM
       if: matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos'
@@ -68,7 +87,11 @@ runs:
       if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
       working-directory: ${{ inputs.directory }}
       shell: bash
-      run: dart pub global run junitreport:tojunit --input test-vm.jsonl --output TEST-vm-junit.xml
+      run: |
+        input_file="$PWD/test-vm.jsonl"
+        output_file="$PWD/TEST-vm-junit.xml"
+        cd "$RUNNER_TEMP/flutter_junitreport"
+        flutter pub run flutter_junitreport:tojunit --input "$input_file" --output "$output_file"
 
     - name: Test web (${{ matrix.target }})
       if: matrix.target == 'js' || matrix.target == 'wasm'
