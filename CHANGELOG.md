@@ -31,7 +31,7 @@
 
 #### Deps
 
-- chore(deps): update Cocoa SDK to v8.58.3 by @github-actions in [#3726](https://github.com/getsentry/sentry-dart/pull/3726)
+- chore(deps): update Cocoa SDK to v9.9.0 by @github-actions in [#3726](https://github.com/getsentry/sentry-dart/pull/3726)
 - chore(deps): update Android SDK to v8.43.0 by @github-actions in [#3727](https://github.com/getsentry/sentry-dart/pull/3727)
 
 ### Internal Changes
