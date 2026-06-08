@@ -1,5 +1,17 @@
 # Changelog
 
+## 9.22.0
+
+### Changes
+
+- Migrate `sentry_flutter` (the Flutter subpackage of the sentry-dart monorepo) to use built-in Kotlin, per the official Flutter migration guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
+  - Remove the `org.jetbrains.kotlin:kotlin-gradle-plugin` classpath and the `ext.kotlin_version` property from `packages/flutter/android/build.gradle`
+  - Remove `apply plugin: 'kotlin-android'` from `packages/flutter/android/build.gradle`
+  - Remove the `kotlinOptions { jvmTarget = ... }` block from `packages/flutter/android/build.gradle`
+  - Add a top-level `kotlin { compilerOptions { jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17 } }` block to `packages/flutter/android/build.gradle`
+  - Hardcode the `kotlin-stdlib-jdk8` dependency version (the previous `$kotlin_version` ext property is no longer defined)
+- Bump minimum Dart SDK to `^3.12.0` and minimum Flutter version to `>=3.44.0`, as required by the new `kotlin.compilerOptions` DSL.
+
 ## 9.21.0
 
 ### Features
