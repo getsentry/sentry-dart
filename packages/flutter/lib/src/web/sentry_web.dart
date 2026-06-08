@@ -267,6 +267,11 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
+  FutureOr<void> registerTraceId(SentryId traceId) {
+    // No-op. Replay trace ID registration is currently Android-only.
+  }
+
+  @override
   int? startProfiler(SentryId traceId) {
     _logNotSupported('start profiler');
     return null;
