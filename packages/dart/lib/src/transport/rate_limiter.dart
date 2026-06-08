@@ -117,8 +117,15 @@ class RateLimiter {
 
     // check for specific dataCategory
     final dateCategory = _rateLimitedUntil[dataCategory];
-    if (dateCategory != null) {
-      return !currentDate.isAfter(dateCategory);
+    if (dateCategory != null && !currentDate.isAfter(dateCategory)) {
+      return true;
+    }
+
+    if (dataCategory == DataCategory.logItem) {
+      final dateLogByte = _rateLimitedUntil[DataCategory.logByte];
+      if (dateLogByte != null && !currentDate.isAfter(dateLogByte)) {
+        return true;
+      }
     }
 
     return false;

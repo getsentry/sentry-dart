@@ -83,5 +83,14 @@ class LogCapturePipeline {
 }
 
 int _approximateLogBytes(SentryLog log) {
-  return utf8JsonEncoder.convert(log.toJson()).length;
+  try {
+    return utf8JsonEncoder.convert(log.toJson()).length;
+  } catch (exception, stackTrace) {
+    internalLogger.warning(
+      'Failed to estimate dropped log size',
+      error: exception,
+      stackTrace: stackTrace,
+    );
+    return 0;
+  }
 }

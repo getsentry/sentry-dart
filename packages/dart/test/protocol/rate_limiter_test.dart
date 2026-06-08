@@ -326,6 +326,42 @@ void main() {
       expect(logByte, isNotNull);
       expect(logByte!.quantity, greaterThan(0));
     });
+
+    test('log byte', () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+
+      final logs = [
+        SentryLog(
+          timestamp: DateTime.now(),
+          traceId: SentryId.newId(),
+          level: SentryLogLevel.info,
+          body: 'test',
+          attributes: {
+            'test': SentryAttribute.string('test'),
+          },
+        ),
+      ];
+
+      final sdkVersion = SdkVersion(name: 'test', version: 'test');
+      final envelope = SentryEnvelope.fromLogs(logs, sdkVersion);
+
+      rateLimiter.updateRetryAfterLimits(
+          '1:log_byte:key, 5:log_byte:organization', null, 1);
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+
+      final logItem = fixture.mockRecorder.discardedEvents
+          .firstWhereOrNull((event) => event.category == DataCategory.logItem);
+      final logByte = fixture.mockRecorder.discardedEvents
+          .firstWhereOrNull((event) => event.category == DataCategory.logByte);
+
+      expect(logItem, isNotNull);
+      expect(logItem!.quantity, logs.length);
+      expect(logByte, isNotNull);
+      expect(logByte!.quantity, greaterThan(0));
+    });
   });
 
   group('$DataCategory', () {

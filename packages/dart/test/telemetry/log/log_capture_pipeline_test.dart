@@ -174,6 +174,29 @@ void main() {
         expect(logByte.quantity, greaterThan(0));
       });
 
+      test('returning null records lost event if size estimation fails',
+          () async {
+        fixture.options.beforeSendLog = (_) => null;
+
+        final log = givenLog()
+          ..attributes['unserializable'] =
+              SentryAttribute(_UnserializableObject(), 'object');
+
+        await fixture.pipeline.captureLog(log, scope: fixture.scope);
+
+        expect(fixture.recorder.discardedEvents.length, 2);
+
+        final logItem = fixture.recorder.discardedEvents
+            .firstWhere((event) => event.category == DataCategory.logItem);
+        final logByte = fixture.recorder.discardedEvents
+            .firstWhere((event) => event.category == DataCategory.logByte);
+
+        expect(logItem.reason, DiscardReason.beforeSend);
+        expect(logItem.quantity, 1);
+        expect(logByte.reason, DiscardReason.beforeSend);
+        expect(logByte.quantity, 0);
+      });
+
       test('can mutate the log', () async {
         fixture.options.beforeSendLog = (log) {
           log.body = 'modified-body';
@@ -243,5 +266,12 @@ class Fixture {
     options.recorder = recorder;
     scope = Scope(options);
     pipeline = LogCapturePipeline(options);
+  }
+}
+
+class _UnserializableObject {
+  @override
+  String toString() {
+    throw StateError('not serializable');
   }
 }
