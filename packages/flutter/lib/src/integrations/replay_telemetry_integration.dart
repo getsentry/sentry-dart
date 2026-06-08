@@ -63,12 +63,12 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
       }
     };
 
-    _onGenerateNewTrace = (OnGenerateNewTrace event) {
-      _native?.registerTraceId(event.traceId);
+    _onGenerateNewTrace = (OnGenerateNewTrace event) async {
+      await _native?.registerTraceId(event.traceId);
     };
 
-    // Register the initial trace id, subsequent changes are handled by the callback
-    _native?.registerTraceId(hub.scope.propagationContext.traceId);
+    // Register the initial trace id. Subsequent changes are handled by the callback.
+    await _native?.registerTraceId(hub.scope.propagationContext.traceId);
 
     options.lifecycleRegistry.registerCallback<OnProcessLog>(_onProcessLog!);
     options.lifecycleRegistry

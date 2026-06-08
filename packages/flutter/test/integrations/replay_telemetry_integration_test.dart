@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -61,6 +63,33 @@ void main() {
             .dispatchCallback(OnGenerateNewTrace(traceId, spanId));
 
         verify(fixture.nativeBinding.registerTraceId(traceId)).called(1);
+      });
+
+      test('waits for generated trace id registration with native replay',
+          () async {
+        fixture.options.replay.sessionSampleRate = 0.5;
+        final traceId = SentryId.newId();
+        final spanId = SpanId.newId();
+        final completer = Completer<void>();
+        var dispatchCompleted = false;
+
+        when(fixture.nativeBinding.registerTraceId(traceId))
+            .thenAnswer((_) => completer.future);
+
+        await fixture.getSut().call(fixture.hub, fixture.options);
+        final dispatch = fixture.options.lifecycleRegistry
+            .dispatchCallback(OnGenerateNewTrace(traceId, spanId));
+        unawaited(Future<void>.value(dispatch).then((_) {
+          dispatchCompleted = true;
+        }));
+        await Future<void>.delayed(Duration.zero);
+
+        expect(dispatchCompleted, false);
+
+        completer.complete();
+        await dispatch;
+
+        expect(dispatchCompleted, true);
       });
 
       test('does not register segment span trace id with native replay',
