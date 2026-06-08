@@ -277,6 +277,23 @@ class SentryNativeJava extends SentryNativeChannel {
       });
     });
   }
+
+  @override
+  void registerTraceId(SentryId traceId) {
+    if (traceId == SentryId.empty()) {
+      return;
+    }
+
+    tryCatchSync('registerTraceId', () {
+      using((arena) {
+        final jTraceId = traceId.toString().toJString()..releasedBy(arena);
+        final sentryId = native.SentryId.new$2(jTraceId)..releasedBy(arena);
+        _nativeReplay ??=
+            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
+        _nativeReplay?.registerTraceId(sentryId);
+      });
+    });
+  }
 }
 
 // Direct JNI conversion is fine for primitives. Use the Map/List conversion

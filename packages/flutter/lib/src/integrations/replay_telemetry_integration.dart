@@ -18,6 +18,7 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
   SdkLifecycleCallback<OnProcessLog>? _onProcessLog;
   SdkLifecycleCallback<OnProcessMetric>? _onProcessMetric;
   SdkLifecycleCallback<OnProcessSpan>? _onProcessSpan;
+  SdkLifecycleCallback<OnTransactionCaptured>? _onTransactionCaptured;
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
@@ -60,12 +61,22 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
       if (attributes != null) {
         event.span.setAttributes(attributes);
       }
+      final segmentSpan = event.span.segmentSpan;
+      if (identical(event.span, segmentSpan)) {
+        _native?.registerTraceId(segmentSpan.traceId);
+      }
+    };
+
+    _onTransactionCaptured = (OnTransactionCaptured event) {
+      _native?.registerTraceId(event.traceId);
     };
 
     options.lifecycleRegistry.registerCallback<OnProcessLog>(_onProcessLog!);
     options.lifecycleRegistry
         .registerCallback<OnProcessMetric>(_onProcessMetric!);
     options.lifecycleRegistry.registerCallback<OnProcessSpan>(_onProcessSpan!);
+    options.lifecycleRegistry
+        .registerCallback<OnTransactionCaptured>(_onTransactionCaptured!);
     options.sdk.addIntegration(integrationName);
   }
 
@@ -114,6 +125,7 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     final onProcessLog = _onProcessLog;
     final onProcessMetric = _onProcessMetric;
     final onProcessSpan = _onProcessSpan;
+    final onTransactionCaptured = _onTransactionCaptured;
 
     if (options != null) {
       if (onProcessLog != null) {
@@ -126,11 +138,16 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
       if (onProcessSpan != null) {
         options.lifecycleRegistry.removeCallback<OnProcessSpan>(onProcessSpan);
       }
+      if (onTransactionCaptured != null) {
+        options.lifecycleRegistry
+            .removeCallback<OnTransactionCaptured>(onTransactionCaptured);
+      }
     }
 
     _options = null;
     _onProcessLog = null;
     _onProcessMetric = null;
     _onProcessSpan = null;
+    _onTransactionCaptured = null;
   }
 }

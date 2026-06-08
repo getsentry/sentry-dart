@@ -469,6 +469,11 @@ class SentryClient {
       envelope.items.add(profileInfo.asEnvelopeItem());
     }
     final id = await captureEnvelope(envelope);
+    if (id != null && id != SentryId.empty()) {
+      await _options.lifecycleRegistry.dispatchCallback(
+        OnTransactionCaptured(preparedTransaction.tracer.context.traceId),
+      );
+    }
 
     return id ?? SentryId.empty();
   }

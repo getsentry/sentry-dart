@@ -141,3 +141,11 @@ class OnGenerateNewTrace extends SdkLifecycleEvent {
 
   OnGenerateNewTrace(this.traceId, this.spanId);
 }
+
+/// Dispatched when a transaction has been captured.
+@internal
+class OnTransactionCaptured extends SdkLifecycleEvent {
+  final SentryId traceId;
+
+  OnTransactionCaptured(this.traceId);
+}

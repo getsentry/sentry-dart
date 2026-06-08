@@ -39,6 +39,41 @@ void main() {
 
         expect(fixture.options.sdk.integrations, contains('ReplayTelemetry'));
       });
+
+      test('registers captured transaction trace id with native replay',
+          () async {
+        fixture.options.replay.sessionSampleRate = 0.5;
+        final traceId = SentryId.newId();
+
+        await fixture.getSut().call(fixture.hub, fixture.options);
+        await fixture.options.lifecycleRegistry
+            .dispatchCallback(OnTransactionCaptured(traceId));
+
+        verify(fixture.nativeBinding.registerTraceId(traceId)).called(1);
+      });
+
+      test('registers segment span trace id with native replay', () async {
+        fixture.options.replay.sessionSampleRate = 0.5;
+
+        await fixture.getSut().call(fixture.hub, fixture.options);
+        final span = fixture.createTestSpan();
+        await fixture.options.lifecycleRegistry
+            .dispatchCallback(OnProcessSpan(span));
+
+        verify(fixture.nativeBinding.registerTraceId(span.traceId)).called(1);
+      });
+
+      test('does not register child span trace id with native replay',
+          () async {
+        fixture.options.replay.sessionSampleRate = 0.5;
+
+        await fixture.getSut().call(fixture.hub, fixture.options);
+        final span = fixture.createChildTestSpan();
+        await fixture.options.lifecycleRegistry
+            .dispatchCallback(OnProcessSpan(span));
+
+        verifyNever(fixture.nativeBinding.registerTraceId(any));
+      });
     });
 
     group('in session mode', () {
@@ -251,6 +286,19 @@ void main() {
 
         expect(span.attributes.containsKey(_replayId), false);
       });
+
+      test('removes transaction captured callback', () async {
+        fixture.options.replay.sessionSampleRate = 0.5;
+
+        final sut = fixture.getSut();
+        await sut.call(fixture.hub, fixture.options);
+        await sut.close();
+
+        await fixture.options.lifecycleRegistry
+            .dispatchCallback(OnTransactionCaptured(SentryId.newId()));
+
+        verifyNever(fixture.nativeBinding.registerTraceId(any));
+      });
     });
   });
 }
@@ -274,6 +322,7 @@ class Fixture {
       await options.lifecycleRegistry.dispatchCallback(OnProcessLog(log));
     });
     when(nativeBinding.replayId).thenReturn(null);
+    when(nativeBinding.registerTraceId(any)).thenReturn(null);
   }
 
   SentryLog createTestLog() => SentryLog(
@@ -300,6 +349,15 @@ class Fixture {
         dscCreator: (span) =>
             SentryTraceContextHeader(span.traceId, 'publicKey'),
         samplingDecision: SentryTracesSamplingDecision(true),
+      );
+
+  RecordingSentrySpanV2 createChildTestSpan() => RecordingSentrySpanV2.child(
+        parent: createTestSpan(),
+        name: 'test-child-span',
+        onSpanEnd: (_) async {},
+        clock: options.clock,
+        dscCreator: (span) =>
+            SentryTraceContextHeader(span.traceId, 'publicKey'),
       );
 
   ReplayTelemetryIntegration getSut() =>

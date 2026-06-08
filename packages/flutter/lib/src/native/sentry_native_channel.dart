@@ -440,4 +440,9 @@ class SentryNativeChannel
       'spanId': spanId.toString(),
     });
   }
+
+  @override
+  FutureOr<void> registerTraceId(SentryId traceId) {
+    // No-op. Replay trace ID registration is currently Android-only.
+  }
 }

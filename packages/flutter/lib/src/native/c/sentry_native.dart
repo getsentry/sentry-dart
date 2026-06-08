@@ -324,6 +324,11 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> setTrace(SentryId traceId, SpanId spanId) {
     _logNotSupported('setting trace');
   }
+
+  @override
+  FutureOr<void> registerTraceId(SentryId traceId) {
+    // No-op. Replay trace ID registration is currently Android-only.
+  }
 }
 
 extension on binding.sentry_value_u {

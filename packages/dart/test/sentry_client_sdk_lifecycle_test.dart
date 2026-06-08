@@ -88,6 +88,42 @@ void main() {
         expect(capturedEvent.release, '999');
       });
     });
+
+    group('SentryTransaction', () {
+      test('captureTransaction triggers OnTransactionCaptured', () async {
+        final capturedTraceIds = <SentryId>[];
+        fixture.options.lifecycleRegistry
+            .registerCallback<OnTransactionCaptured>((event) {
+          capturedTraceIds.add(event.traceId);
+        });
+
+        final client = fixture.getSut();
+        final transaction = fixture.fakeTransaction();
+
+        await client.captureTransaction(transaction);
+
+        expect(capturedTraceIds, [transaction.tracer.context.traceId]);
+      });
+
+      test(
+          'captureTransaction does not trigger OnTransactionCaptured when dropped',
+          () async {
+        final capturedTraceIds = <SentryId>[];
+        fixture.options.lifecycleRegistry
+            .registerCallback<OnTransactionCaptured>((event) {
+          capturedTraceIds.add(event.traceId);
+        });
+
+        final client = fixture.getSut(
+          beforeSendTransaction: (transaction, hint) => null,
+        );
+        final transaction = fixture.fakeTransaction();
+
+        await client.captureTransaction(transaction);
+
+        expect(capturedTraceIds, isEmpty);
+      });
+    });
   });
 }
 
