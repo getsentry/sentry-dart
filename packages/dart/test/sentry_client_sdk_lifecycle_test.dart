@@ -1,5 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_client_report_recorder.dart';
@@ -98,6 +99,9 @@ class Fixture {
     ..platform = MockPlatform.iOS()
     ..groupExceptions = true;
 
+  late SentryTransactionContext _context;
+  late SentryTracer tracer;
+
   SentryLevel? loggedLevel;
   Object? loggedException;
 
@@ -130,7 +134,12 @@ class Fixture {
     }
 
     // Internally also creates a SentryClient instance
-    Hub(options);
+    final hub = Hub(options);
+    _context = SentryTransactionContext(
+      'name',
+      'op',
+    );
+    tracer = SentryTracer(_context, hub);
 
     // Reset transport
     options.transport = transport ?? this.transport;
@@ -146,6 +155,14 @@ class Fixture {
 
   Future<SentryEvent?> droppingBeforeSend(SentryEvent event, Hint hint) async {
     return null;
+  }
+
+  SentryTransaction fakeTransaction() {
+    return SentryTransaction(
+      tracer,
+      sdk: SdkVersion(name: 'sdk1', version: '1.0.0'),
+      breadcrumbs: [],
+    );
   }
 
   SentryEvent fakeFeedbackEvent() {
