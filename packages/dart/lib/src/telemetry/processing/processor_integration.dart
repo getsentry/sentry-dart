@@ -52,7 +52,14 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
               utf8JsonEncoder.convert(item.toJson()),
           onFlush: (items) {
             final futures = items.values.map((itemData) {
-              final dsc = itemData.$2.resolveDsc();
+              final span = itemData.$2;
+              final dsc = span.resolveDsc();
+              final replayId = span
+                  .attributes[SemanticAttributesConstants.sentryReplayId]
+                  ?.value;
+              if (replayId is String) {
+                dsc.replayId = SentryId.fromId(replayId);
+              }
               final envelope = SentryEnvelope.fromSpansData(
                   itemData.$1, options.sdk,
                   traceContext: dsc);

@@ -119,6 +119,46 @@ void main() {
 
         expect(fixture.transport.envelopes, hasLength(1));
       });
+
+      test('adds span replay_id attribute to envelope DSC', () async {
+        final options = fixture.options;
+        fixture.getSut().call(fixture.hub, options);
+
+        final processor =
+            options.telemetryProcessor as DefaultTelemetryProcessor;
+        final span = fixture.createSpan()
+          ..setAttribute(
+            SemanticAttributesConstants.sentryReplayId,
+            SentryAttribute.string('42'),
+          );
+        span.end();
+        processor.addSpan(span);
+        await processor.flush();
+
+        expect(fixture.transport.envelopes.first.header.traceContext?.replayId,
+            SentryId.fromId('42'));
+      });
+
+      test('adds span replay_id attribute to frozen envelope DSC', () async {
+        final options = fixture.options;
+        fixture.getSut().call(fixture.hub, options);
+
+        final processor =
+            options.telemetryProcessor as DefaultTelemetryProcessor;
+        final span = fixture.createSpan();
+        final dsc = span.resolveDsc();
+        span.setAttribute(
+          SemanticAttributesConstants.sentryReplayId,
+          SentryAttribute.string('42'),
+        );
+        span.end();
+        processor.addSpan(span);
+        await processor.flush();
+
+        expect(dsc.replayId, SentryId.fromId('42'));
+        expect(fixture.transport.envelopes.first.header.traceContext?.replayId,
+            SentryId.fromId('42'));
+      });
     });
   });
 }
