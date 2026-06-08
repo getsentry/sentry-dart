@@ -100,6 +100,6 @@ abstract class SentryNativeBinding {
   /// Sets the trace context on the native SDK scope.
   FutureOr<void> setTrace(SentryId traceId, SpanId spanId);
 
-  /// Registers a captured transaction trace ID with native replay.
+  /// Registers the active Dart trace ID with native replay.
   FutureOr<void> registerTraceId(SentryId traceId);
 }

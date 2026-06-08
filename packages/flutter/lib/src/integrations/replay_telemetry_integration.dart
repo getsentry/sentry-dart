@@ -18,7 +18,7 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
   SdkLifecycleCallback<OnProcessLog>? _onProcessLog;
   SdkLifecycleCallback<OnProcessMetric>? _onProcessMetric;
   SdkLifecycleCallback<OnProcessSpan>? _onProcessSpan;
-  SdkLifecycleCallback<OnTransactionCaptured>? _onTransactionCaptured;
+  SdkLifecycleCallback<OnGenerateNewTrace>? _onGenerateNewTrace;
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
@@ -61,22 +61,20 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
       if (attributes != null) {
         event.span.setAttributes(attributes);
       }
-      final segmentSpan = event.span.segmentSpan;
-      if (identical(event.span, segmentSpan)) {
-        _native?.registerTraceId(segmentSpan.traceId);
-      }
     };
 
-    _onTransactionCaptured = (OnTransactionCaptured event) {
+    _onGenerateNewTrace = (OnGenerateNewTrace event) {
       _native?.registerTraceId(event.traceId);
     };
+
+    _native?.registerTraceId(hub.scope.propagationContext.traceId);
 
     options.lifecycleRegistry.registerCallback<OnProcessLog>(_onProcessLog!);
     options.lifecycleRegistry
         .registerCallback<OnProcessMetric>(_onProcessMetric!);
     options.lifecycleRegistry.registerCallback<OnProcessSpan>(_onProcessSpan!);
     options.lifecycleRegistry
-        .registerCallback<OnTransactionCaptured>(_onTransactionCaptured!);
+        .registerCallback<OnGenerateNewTrace>(_onGenerateNewTrace!);
     options.sdk.addIntegration(integrationName);
   }
 
@@ -125,7 +123,7 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     final onProcessLog = _onProcessLog;
     final onProcessMetric = _onProcessMetric;
     final onProcessSpan = _onProcessSpan;
-    final onTransactionCaptured = _onTransactionCaptured;
+    final onGenerateNewTrace = _onGenerateNewTrace;
 
     if (options != null) {
       if (onProcessLog != null) {
@@ -138,9 +136,9 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
       if (onProcessSpan != null) {
         options.lifecycleRegistry.removeCallback<OnProcessSpan>(onProcessSpan);
       }
-      if (onTransactionCaptured != null) {
+      if (onGenerateNewTrace != null) {
         options.lifecycleRegistry
-            .removeCallback<OnTransactionCaptured>(onTransactionCaptured);
+            .removeCallback<OnGenerateNewTrace>(onGenerateNewTrace);
       }
     }
 
@@ -148,6 +146,6 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     _onProcessLog = null;
     _onProcessMetric = null;
     _onProcessSpan = null;
-    _onTransactionCaptured = null;
+    _onGenerateNewTrace = null;
   }
 }

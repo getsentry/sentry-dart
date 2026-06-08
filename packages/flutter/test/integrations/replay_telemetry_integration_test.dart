@@ -40,27 +40,40 @@ void main() {
         expect(fixture.options.sdk.integrations, contains('ReplayTelemetry'));
       });
 
-      test('registers captured transaction trace id with native replay',
-          () async {
+      test('registers initial trace id with native replay', () async {
         fixture.options.replay.sessionSampleRate = 0.5;
-        final traceId = SentryId.newId();
 
         await fixture.getSut().call(fixture.hub, fixture.options);
+
+        verify(fixture.nativeBinding.registerTraceId(
+          fixture.scope.propagationContext.traceId,
+        )).called(1);
+      });
+
+      test('registers generated trace id with native replay', () async {
+        fixture.options.replay.sessionSampleRate = 0.5;
+        final traceId = SentryId.newId();
+        final spanId = SpanId.newId();
+
+        await fixture.getSut().call(fixture.hub, fixture.options);
+        clearInteractions(fixture.nativeBinding);
         await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnTransactionCaptured(traceId));
+            .dispatchCallback(OnGenerateNewTrace(traceId, spanId));
 
         verify(fixture.nativeBinding.registerTraceId(traceId)).called(1);
       });
 
-      test('registers segment span trace id with native replay', () async {
+      test('does not register segment span trace id with native replay',
+          () async {
         fixture.options.replay.sessionSampleRate = 0.5;
 
         await fixture.getSut().call(fixture.hub, fixture.options);
+        clearInteractions(fixture.nativeBinding);
         final span = fixture.createTestSpan();
         await fixture.options.lifecycleRegistry
             .dispatchCallback(OnProcessSpan(span));
 
-        verify(fixture.nativeBinding.registerTraceId(span.traceId)).called(1);
+        verifyNever(fixture.nativeBinding.registerTraceId(any));
       });
 
       test('does not register child span trace id with native replay',
@@ -68,6 +81,7 @@ void main() {
         fixture.options.replay.sessionSampleRate = 0.5;
 
         await fixture.getSut().call(fixture.hub, fixture.options);
+        clearInteractions(fixture.nativeBinding);
         final span = fixture.createChildTestSpan();
         await fixture.options.lifecycleRegistry
             .dispatchCallback(OnProcessSpan(span));
@@ -79,7 +93,7 @@ void main() {
     group('in session mode', () {
       setUp(() {
         fixture.options.replay.sessionSampleRate = 0.5;
-        fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
+        fixture.scope.replayId = SentryId.fromId('test-replay-id');
       });
 
       test('adds replay_id to logs', () async {
@@ -183,7 +197,7 @@ void main() {
             () async {
           fixture.options.replay.sessionSampleRate = rate;
           fixture.options.replay.onErrorSampleRate = 0.5;
-          fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
+          fixture.scope.replayId = SentryId.fromId('test-replay-id');
 
           await fixture.getSut().call(fixture.hub, fixture.options);
 
@@ -197,7 +211,7 @@ void main() {
             () async {
           fixture.options.replay.sessionSampleRate = rate;
           fixture.options.replay.onErrorSampleRate = 0.5;
-          fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
+          fixture.scope.replayId = SentryId.fromId('test-replay-id');
 
           await fixture.getSut().call(fixture.hub, fixture.options);
 
@@ -245,7 +259,7 @@ void main() {
     group('when closed', () {
       test('removes log callback', () async {
         fixture.options.replay.sessionSampleRate = 0.5;
-        fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
+        fixture.scope.replayId = SentryId.fromId('test-replay-id');
 
         final sut = fixture.getSut();
         await sut.call(fixture.hub, fixture.options);
@@ -259,7 +273,7 @@ void main() {
 
       test('removes metric callback', () async {
         fixture.options.replay.sessionSampleRate = 0.5;
-        fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
+        fixture.scope.replayId = SentryId.fromId('test-replay-id');
 
         final sut = fixture.getSut();
         await sut.call(fixture.hub, fixture.options);
@@ -274,7 +288,7 @@ void main() {
 
       test('removes span callback', () async {
         fixture.options.replay.sessionSampleRate = 0.5;
-        fixture.hub.scope.replayId = SentryId.fromId('test-replay-id');
+        fixture.scope.replayId = SentryId.fromId('test-replay-id');
 
         final sut = fixture.getSut();
         await sut.call(fixture.hub, fixture.options);
@@ -287,15 +301,19 @@ void main() {
         expect(span.attributes.containsKey(_replayId), false);
       });
 
-      test('removes transaction captured callback', () async {
+      test('removes generate new trace callback', () async {
         fixture.options.replay.sessionSampleRate = 0.5;
 
         final sut = fixture.getSut();
         await sut.call(fixture.hub, fixture.options);
         await sut.close();
+        clearInteractions(fixture.nativeBinding);
 
         await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnTransactionCaptured(SentryId.newId()));
+            .dispatchCallback(OnGenerateNewTrace(
+          SentryId.newId(),
+          SpanId.newId(),
+        ));
 
         verifyNever(fixture.nativeBinding.registerTraceId(any));
       });
@@ -308,13 +326,13 @@ class Fixture {
       SentryFlutterOptions(dsn: 'https://abc@def.ingest.sentry.io/1234567');
   final hub = MockHub();
   final nativeBinding = MockSentryNativeBinding();
+  late final scope = Scope(options);
 
   Fixture() {
     options.enableLogs = true;
     options.environment = 'test';
     options.release = 'test-release';
 
-    final scope = Scope(options);
     when(hub.options).thenReturn(options);
     when(hub.scope).thenReturn(scope);
     when(hub.captureLog(any)).thenAnswer((invocation) async {
