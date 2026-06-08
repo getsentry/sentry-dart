@@ -193,7 +193,10 @@ class _JUnitConverter {
       }
       if (test.result == 'failure' || test.result == 'error') {
         test.errors.add(
-          _TestError('Test finished with result: ${test.result}'),
+          _TestError(
+            'Test finished with result: ${test.result}',
+            isFailure: test.result != 'error',
+          ),
         );
       }
     }
