@@ -1,6 +1,5 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
-import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_client_report_recorder.dart';
@@ -88,42 +87,6 @@ void main() {
         expect(capturedEvent.release, '999');
       });
     });
-
-    group('SentryTransaction', () {
-      test('captureTransaction triggers OnTransactionCaptured', () async {
-        final capturedTraceIds = <SentryId>[];
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnTransactionCaptured>((event) {
-          capturedTraceIds.add(event.traceId);
-        });
-
-        final client = fixture.getSut();
-        final transaction = fixture.fakeTransaction();
-
-        await client.captureTransaction(transaction);
-
-        expect(capturedTraceIds, [transaction.tracer.context.traceId]);
-      });
-
-      test(
-          'captureTransaction does not trigger OnTransactionCaptured when dropped',
-          () async {
-        final capturedTraceIds = <SentryId>[];
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnTransactionCaptured>((event) {
-          capturedTraceIds.add(event.traceId);
-        });
-
-        final client = fixture.getSut(
-          beforeSendTransaction: (transaction, hint) => null,
-        );
-        final transaction = fixture.fakeTransaction();
-
-        await client.captureTransaction(transaction);
-
-        expect(capturedTraceIds, isEmpty);
-      });
-    });
   });
 }
 
@@ -134,9 +97,6 @@ class Fixture {
   final options = defaultTestOptions()
     ..platform = MockPlatform.iOS()
     ..groupExceptions = true;
-
-  late SentryTransactionContext _context;
-  late SentryTracer tracer;
 
   SentryLevel? loggedLevel;
   Object? loggedException;
@@ -170,12 +130,7 @@ class Fixture {
     }
 
     // Internally also creates a SentryClient instance
-    final hub = Hub(options);
-    _context = SentryTransactionContext(
-      'name',
-      'op',
-    );
-    tracer = SentryTracer(_context, hub);
+    Hub(options);
 
     // Reset transport
     options.transport = transport ?? this.transport;
@@ -191,14 +146,6 @@ class Fixture {
 
   Future<SentryEvent?> droppingBeforeSend(SentryEvent event, Hint hint) async {
     return null;
-  }
-
-  SentryTransaction fakeTransaction() {
-    return SentryTransaction(
-      tracer,
-      sdk: SdkVersion(name: 'sdk1', version: '1.0.0'),
-      breadcrumbs: [],
-    );
   }
 
   SentryEvent fakeFeedbackEvent() {
