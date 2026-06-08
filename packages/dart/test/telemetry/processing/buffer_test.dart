@@ -59,6 +59,8 @@ void main() {
       await buffer.flush();
 
       expect(fixture.flushedItems, isEmpty);
+      expect(fixture.droppedItems, hasLength(1));
+      expect(fixture.droppedBytes.single, greaterThan(0));
     });
 
     test('items exceeding max item count are flushed immediately', () async {
@@ -262,6 +264,8 @@ class _ThrowingTestItem extends _TestItem {
 
 class _SimpleFixture {
   List<List<int>> flushedItems = [];
+  List<_TestItem> droppedItems = [];
+  List<int> droppedBytes = [];
   int flushCallCount = 0;
 
   InMemoryTelemetryBuffer<_TestItem> getSut({
@@ -273,12 +277,18 @@ class _SimpleFixture {
         flushCallCount++;
         flushedItems = items;
       },
+      onDrop: (item, encoded) {
+        droppedItems.add(item);
+        droppedBytes.add(encoded.length);
+      },
       config: config,
     );
   }
 
   void reset() {
     flushedItems = [];
+    droppedItems = [];
+    droppedBytes = [];
     flushCallCount = 0;
   }
 }

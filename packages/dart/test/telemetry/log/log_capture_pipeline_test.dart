@@ -161,11 +161,17 @@ void main() {
 
         await fixture.pipeline.captureLog(log, scope: fixture.scope);
 
-        expect(fixture.recorder.discardedEvents.length, 1);
-        expect(fixture.recorder.discardedEvents.first.reason,
-            DiscardReason.beforeSend);
-        expect(fixture.recorder.discardedEvents.first.category,
-            DataCategory.logItem);
+        expect(fixture.recorder.discardedEvents.length, 2);
+
+        final logItem = fixture.recorder.discardedEvents
+            .firstWhere((event) => event.category == DataCategory.logItem);
+        final logByte = fixture.recorder.discardedEvents
+            .firstWhere((event) => event.category == DataCategory.logByte);
+
+        expect(logItem.reason, DiscardReason.beforeSend);
+        expect(logItem.quantity, 1);
+        expect(logByte.reason, DiscardReason.beforeSend);
+        expect(logByte.quantity, greaterThan(0));
       });
 
       test('can mutate the log', () async {

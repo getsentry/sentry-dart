@@ -1,10 +1,14 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/telemetry/processing/in_memory_buffer.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
+import 'package:sentry/src/transport/data_category.dart';
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
 
 import '../../mocks/mock_hub.dart';
+import '../../mocks/mock_client_report_recorder.dart';
 import '../../mocks/mock_transport.dart';
 import '../../test_utils.dart';
 
@@ -106,6 +110,28 @@ void main() {
         expect(fixture.transport.envelopes, hasLength(1));
       });
 
+      test('oversized log records buffer overflow client report', () {
+        final options = fixture.options;
+        fixture.getSut().call(fixture.hub, options);
+
+        final processor =
+            options.telemetryProcessor as DefaultTelemetryProcessor;
+        processor.addLog(fixture.createLog('x' * (1024 * 1024)));
+
+        final logItem = fixture.recorder.discardedEvents.firstWhereOrNull(
+            (event) => event.category == DataCategory.logItem);
+        final logByte = fixture.recorder.discardedEvents.firstWhereOrNull(
+            (event) => event.category == DataCategory.logByte);
+
+        expect(fixture.transport.envelopes, isEmpty);
+        expect(logItem, isNotNull);
+        expect(logItem!.reason, DiscardReason.bufferOverflow);
+        expect(logItem.quantity, 1);
+        expect(logByte, isNotNull);
+        expect(logByte!.reason, DiscardReason.bufferOverflow);
+        expect(logByte.quantity, greaterThan(1024 * 1024));
+      });
+
       test('span reaches transport as envelope', () async {
         final options = fixture.options;
         fixture.getSut().call(fixture.hub, options);
@@ -126,21 +152,24 @@ void main() {
 class _Fixture {
   final hub = MockHub();
   final transport = MockTransport();
+  final recorder = MockClientReportRecorder();
   late SentryOptions options;
 
   _Fixture() {
-    options = defaultTestOptions()..transport = transport;
+    options = defaultTestOptions()
+      ..transport = transport
+      ..recorder = recorder;
   }
 
   InMemoryTelemetryProcessorIntegration getSut() =>
       InMemoryTelemetryProcessorIntegration();
 
-  SentryLog createLog() {
+  SentryLog createLog([String body = 'test log']) {
     return SentryLog(
       timestamp: DateTime.now().toUtc(),
       traceId: SentryId.newId(),
       level: SentryLogLevel.info,
-      body: 'test log',
+      body: body,
       attributes: {},
     );
   }

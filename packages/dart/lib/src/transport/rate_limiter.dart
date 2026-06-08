@@ -1,8 +1,9 @@
 import '../../sentry.dart';
+import '../client_reports/client_report_utils.dart';
+import '../client_reports/discard_reason.dart';
 import '../transport/rate_limit_parser.dart';
 import 'rate_limit.dart';
 import 'data_category.dart';
-import '../client_reports/discard_reason.dart';
 
 /// Controls retry limits on different category types sent to Sentry.
 class RateLimiter {
@@ -21,10 +22,15 @@ class RateLimiter {
         dropItems ??= [];
         dropItems.add(item);
 
-        _options.recorder.recordLostEvent(
-          DiscardReason.rateLimitBackoff,
-          DataCategory.fromItemType(item.header.type),
-        );
+        final category = DataCategory.fromItemType(item.header.type);
+        if (category == DataCategory.logItem) {
+          _recordRateLimitedLogItem(item);
+        } else {
+          _options.recorder.recordLostEvent(
+            DiscardReason.rateLimitBackoff,
+            category,
+          );
+        }
         _logDebugWarning(
           'Envelope item of type "${item.header.type}" was dropped due to rate limiting.',
         );
@@ -126,6 +132,25 @@ class RateLimiter {
     if (oldDate == null || date.isAfter(oldDate)) {
       _rateLimitedUntil[dataCategory] = date;
     }
+  }
+
+  void _recordRateLimitedLogItem(SentryEnvelopeItem item) {
+    var bytes = 0;
+    try {
+      final data = item.dataFactory();
+      if (data is List<int>) {
+        bytes = data.length;
+      }
+    } catch (_) {
+      // Size is best-effort; still report the dropped log count.
+    }
+
+    recordLostLog(
+      _options.recorder,
+      DiscardReason.rateLimitBackoff,
+      count: item.header.itemCount ?? 1,
+      bytes: bytes,
+    );
   }
 
   // Enable debug mode to log warning messages

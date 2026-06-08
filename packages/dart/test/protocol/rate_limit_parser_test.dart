@@ -122,6 +122,14 @@ void main() {
       expect(sut[0].category, DataCategory.metric);
       expect(sut[0].duration.inMilliseconds, 60000);
     });
+
+    test('parse log_byte category', () {
+      final sut = RateLimitParser('60:log_byte').parseRateLimitHeader();
+
+      expect(sut.length, 1);
+      expect(sut[0].category, DataCategory.logByte);
+      expect(sut[0].duration.inMilliseconds, 60000);
+    });
   });
 
   group('parseRetryAfterHeader', () {

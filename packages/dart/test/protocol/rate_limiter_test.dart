@@ -286,24 +286,45 @@ void main() {
       final rateLimiter = fixture.getSut();
       fixture.dateTimeToReturn = 0;
 
-      final log = SentryLog(
-        timestamp: DateTime.now(),
-        traceId: SentryId.newId(),
-        level: SentryLogLevel.info,
-        body: 'test',
-        attributes: {
-          'test': SentryAttribute.string('test'),
-        },
-      );
+      final logs = [
+        SentryLog(
+          timestamp: DateTime.now(),
+          traceId: SentryId.newId(),
+          level: SentryLogLevel.info,
+          body: 'test',
+          attributes: {
+            'test': SentryAttribute.string('test'),
+          },
+        ),
+        SentryLog(
+          timestamp: DateTime.now(),
+          traceId: SentryId.newId(),
+          level: SentryLogLevel.info,
+          body: 'test2',
+          attributes: {
+            'test2': SentryAttribute.string('test2'),
+          },
+        ),
+      ];
 
       final sdkVersion = SdkVersion(name: 'test', version: 'test');
-      final envelope = SentryEnvelope.fromLogs([log], sdkVersion);
+      final envelope = SentryEnvelope.fromLogs(logs, sdkVersion);
 
       rateLimiter.updateRetryAfterLimits(
           '1:log_item:key, 5:log_item:organization', null, 1);
 
       final result = rateLimiter.filter(envelope);
       expect(result, isNull);
+
+      final logItem = fixture.mockRecorder.discardedEvents
+          .firstWhereOrNull((event) => event.category == DataCategory.logItem);
+      final logByte = fixture.mockRecorder.discardedEvents
+          .firstWhereOrNull((event) => event.category == DataCategory.logByte);
+
+      expect(logItem, isNotNull);
+      expect(logItem!.quantity, logs.length);
+      expect(logByte, isNotNull);
+      expect(logByte!.quantity, greaterThan(0));
     });
   });
 

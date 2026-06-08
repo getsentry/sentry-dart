@@ -12,6 +12,9 @@ typedef OnFlushCallback<T> = FutureOr<void> Function(T data);
 /// Encodes an item of type [T] into bytes.
 typedef ItemEncoder<T> = List<int> Function(T item);
 
+/// Callback invoked when an encoded item is rejected by the buffer.
+typedef OnDropCallback<T> = void Function(T item, List<int> encoded);
+
 /// Base class for in-memory telemetry buffers.
 ///
 /// Buffers telemetry items in memory and flushes them when either the
@@ -21,6 +24,7 @@ abstract base class _BaseInMemoryTelemetryBuffer<T, S>
   final TelemetryBufferConfig _config;
   final ItemEncoder<T> _encoder;
   final OnFlushCallback<S> _onFlush;
+  final OnDropCallback<T>? _onDrop;
 
   S _storage;
   int _bufferSize = 0;
@@ -31,9 +35,11 @@ abstract base class _BaseInMemoryTelemetryBuffer<T, S>
     required ItemEncoder<T> encoder,
     required OnFlushCallback<S> onFlush,
     required S initialStorage,
+    OnDropCallback<T>? onDrop,
     TelemetryBufferConfig config = const TelemetryBufferConfig(),
   })  : _encoder = encoder,
         _onFlush = onFlush,
+        _onDrop = onDrop,
         _storage = initialStorage,
         _config = config;
 
@@ -63,6 +69,7 @@ abstract base class _BaseInMemoryTelemetryBuffer<T, S>
       internalLogger.warning(
         '$runtimeType: Item size ${encoded.length} exceeds buffer limit ${_config.maxBufferSizeBytes}, dropping',
       );
+      _onDrop?.call(item, encoded);
       return;
     }
 
@@ -131,6 +138,7 @@ final class InMemoryTelemetryBuffer<T>
   InMemoryTelemetryBuffer({
     required super.encoder,
     required super.onFlush,
+    super.onDrop,
     super.config,
   }) : super(initialStorage: []);
 
@@ -161,6 +169,7 @@ final class GroupedInMemoryTelemetryBuffer<T>
     required super.encoder,
     required super.onFlush,
     required GroupKeyExtractor<T> groupKeyExtractor,
+    super.onDrop,
     super.config,
   })  : _groupKey = groupKeyExtractor,
         super(initialStorage: {});

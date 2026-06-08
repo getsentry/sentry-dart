@@ -70,6 +70,24 @@ void main() {
       expect(second?.quantity, 1);
     });
 
+    test('record log item and byte outcomes separately', () {
+      final sut = fixture.getSut();
+
+      sut.recordLostEvent(DiscardReason.beforeSend, DataCategory.logItem);
+      sut.recordLostEvent(DiscardReason.beforeSend, DataCategory.logByte,
+          count: 42);
+
+      final clientReport = sut.flush();
+
+      final logItem = clientReport?.discardedEvents
+          .firstWhere((event) => event.category == DataCategory.logItem);
+      final logByte = clientReport?.discardedEvents
+          .firstWhere((event) => event.category == DataCategory.logByte);
+
+      expect(logItem?.quantity, 1);
+      expect(logByte?.quantity, 42);
+    });
+
     test('calling flush multiple times returns null', () {
       final sut = fixture.getSut();
 

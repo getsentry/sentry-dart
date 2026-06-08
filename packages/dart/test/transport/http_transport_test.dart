@@ -97,6 +97,36 @@ void main() {
           DataCategory.error);
     });
 
+    test('records lost log item and bytes when client throws exception',
+        () async {
+      final httpMock = MockClient((http.Request request) async {
+        throw http.ClientException(
+            'Connection closed before full header was received');
+      });
+
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final logs = [fixture.getLog('log-1'), fixture.getLog('log-2')];
+      final envelope = SentryEnvelope.fromLogs(logs, fixture.options.sdk);
+
+      await sut.send(envelope);
+
+      final logItem = fixture.clientReportRecorder.discardedEvents
+          .firstWhereOrNull((event) =>
+              event.category == DataCategory.logItem &&
+              event.reason == DiscardReason.networkError);
+      final logByte = fixture.clientReportRecorder.discardedEvents
+          .firstWhereOrNull((event) =>
+              event.category == DataCategory.logByte &&
+              event.reason == DiscardReason.networkError);
+
+      expect(logItem, isNotNull);
+      expect(logItem!.quantity, logs.length);
+      expect(logByte, isNotNull);
+      expect(logByte!.quantity, greaterThan(0));
+    });
+
     test('records lost transaction and spans when client throws exception',
         () async {
       final httpMock = MockClient((http.Request request) async {
@@ -362,5 +392,15 @@ class Fixture {
     );
     final tracer = SentryTracer(context, MockHub());
     return SentryTransaction(tracer);
+  }
+
+  SentryLog getLog(String body) {
+    return SentryLog(
+      timestamp: DateTime.utc(2019),
+      traceId: SentryId.newId(),
+      level: SentryLogLevel.info,
+      body: body,
+      attributes: {},
+    );
   }
 }

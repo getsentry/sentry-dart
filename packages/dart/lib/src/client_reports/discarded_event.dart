@@ -35,6 +35,8 @@ extension _OutcomeExtension on DiscardReason {
         return 'queue_overflow';
       case DiscardReason.cacheOverflow:
         return 'cache_overflow';
+      case DiscardReason.bufferOverflow:
+        return 'buffer_overflow';
       case DiscardReason.rateLimitBackoff:
         return 'ratelimit_backoff';
       case DiscardReason.ignored:
@@ -66,6 +68,8 @@ extension _DataCategoryExtension on DataCategory {
         return 'unknown';
       case DataCategory.logItem:
         return 'log_item';
+      case DataCategory.logByte:
+        return 'log_byte';
       case DataCategory.feedback:
         return 'feedback';
       case DataCategory.metricBucket:

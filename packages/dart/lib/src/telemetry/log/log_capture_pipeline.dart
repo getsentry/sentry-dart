@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
+import '../../client_reports/client_report_utils.dart';
 import '../../client_reports/discard_reason.dart';
-import '../../transport/data_category.dart';
 import '../../utils/internal_logger.dart';
 import '../default_attributes.dart';
 
@@ -60,8 +60,11 @@ class LogCapturePipeline {
       }
 
       if (processedLog == null) {
-        _options.recorder
-            .recordLostEvent(DiscardReason.beforeSend, DataCategory.logItem);
+        recordLostLog(
+          _options.recorder,
+          DiscardReason.beforeSend,
+          bytes: approximateLogBytes(log),
+        );
         internalLogger.debug(
             '$LogCapturePipeline: Log "${log.body}" dropped by beforeSendLog');
         return;
