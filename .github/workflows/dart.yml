@@ -44,19 +44,6 @@ jobs:
         with:
           directory: packages/dart
 
-      - name: Diagnose Dart SDK after test action
-        if: ${{ !cancelled() && !startsWith(matrix.sdk, '3.5') }}
-        shell: bash
-        run: |
-          echo "dart: $(command -v dart)"
-          dart --version
-          if command -v flutter >/dev/null 2>&1; then
-            echo "flutter: $(command -v flutter)"
-            flutter --version
-          else
-            echo "flutter: not found"
-          fi
-
       - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
