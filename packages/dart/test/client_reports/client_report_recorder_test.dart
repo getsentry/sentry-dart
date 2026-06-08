@@ -73,9 +73,7 @@ void main() {
     test('record log item and byte outcomes separately', () {
       final sut = fixture.getSut();
 
-      sut.recordLostEvent(DiscardReason.beforeSend, DataCategory.logItem);
-      sut.recordLostEvent(DiscardReason.beforeSend, DataCategory.logByte,
-          count: 42);
+      sut.recordLostLog(DiscardReason.beforeSend, bytes: 42);
 
       final clientReport = sut.flush();
 

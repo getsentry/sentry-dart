@@ -1,10 +1,12 @@
+import 'dart:math';
+
 import 'package:meta/meta.dart';
 
 import '../sentry_options.dart';
+import '../transport/data_category.dart';
 import 'client_report.dart';
 import 'discarded_event.dart';
 import 'discard_reason.dart';
-import '../transport/data_category.dart';
 
 @internal
 class ClientReportRecorder {
@@ -18,6 +20,12 @@ class ClientReportRecorder {
     final key = _QuantityKey(reason, category);
     var current = _quantities[key] ?? 0;
     _quantities[key] = current + count;
+  }
+
+  void recordLostLog(final DiscardReason reason,
+      {int count = 1, required int bytes}) {
+    recordLostEvent(reason, DataCategory.logItem, count: count);
+    recordLostEvent(reason, DataCategory.logByte, count: max(bytes, 0));
   }
 
   ClientReport? flush() {

@@ -1,5 +1,4 @@
 import '../../sentry.dart';
-import '../client_reports/client_report_utils.dart';
 import '../client_reports/discard_reason.dart';
 import '../transport/rate_limit_parser.dart';
 import 'rate_limit.dart';
@@ -145,8 +144,7 @@ class RateLimiter {
       // Size is best-effort; still report the dropped log count.
     }
 
-    recordLostLog(
-      _options.recorder,
+    _options.recorder.recordLostLog(
       DiscardReason.rateLimitBackoff,
       count: item.header.itemCount ?? 1,
       bytes: bytes,

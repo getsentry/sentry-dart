@@ -22,4 +22,11 @@ class MockClientReportRecorder implements ClientReportRecorder {
       {int count = 1}) {
     discardedEvents.add(DiscardedEvent(reason, category, count));
   }
+
+  @override
+  void recordLostLog(DiscardReason reason,
+      {int count = 1, required int bytes}) {
+    recordLostEvent(reason, DataCategory.logItem, count: count);
+    recordLostEvent(reason, DataCategory.logByte, count: bytes);
+  }
 }

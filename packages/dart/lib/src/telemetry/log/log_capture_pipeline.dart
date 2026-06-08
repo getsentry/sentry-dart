@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
-import '../../client_reports/client_report_utils.dart';
 import '../../client_reports/discard_reason.dart';
 import '../../utils/internal_logger.dart';
 import '../default_attributes.dart';
@@ -60,10 +59,9 @@ class LogCapturePipeline {
       }
 
       if (processedLog == null) {
-        recordLostLog(
-          _options.recorder,
+        _options.recorder.recordLostLog(
           DiscardReason.beforeSend,
-          bytes: approximateLogBytes(log),
+          bytes: _approximateLogBytes(log),
         );
         internalLogger.debug(
             '$LogCapturePipeline: Log "${log.body}" dropped by beforeSendLog');
@@ -82,4 +80,8 @@ class LogCapturePipeline {
       }
     }
   }
+}
+
+int _approximateLogBytes(SentryLog log) {
+  return utf8JsonEncoder.convert(log.toJson()).length;
 }

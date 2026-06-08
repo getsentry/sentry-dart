@@ -1,6 +1,5 @@
 import 'package:http/http.dart';
 
-import '../client_reports/client_report_utils.dart';
 import '../client_reports/discard_reason.dart';
 import '../protocol.dart';
 import '../sentry_envelope.dart';
@@ -63,8 +62,7 @@ class TransportUtils {
       );
     }
 
-    recordLostLog(
-      options.recorder,
+    options.recorder.recordLostLog(
       reason,
       count: item.header.itemCount ?? 1,
       bytes: bytes,

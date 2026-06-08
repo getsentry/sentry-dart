@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
-import '../../client_reports/client_report_utils.dart';
 import '../../client_reports/discard_reason.dart';
 import '../../utils/internal_logger.dart';
 import 'in_memory_buffer.dart';
@@ -42,8 +41,7 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
       InMemoryTelemetryBuffer(
           encoder: (SentryLog item) => utf8JsonEncoder.convert(item.toJson()),
           onDrop: (item, encoded) {
-            recordLostLog(
-              options.recorder,
+            options.recorder.recordLostLog(
               DiscardReason.bufferOverflow,
               bytes: encoded.length,
             );
