@@ -3525,6 +3525,32 @@ class ReplayIntegration extends jni$_.JObject {
         .boolean;
   }
 
+  static final _id_registerTraceId = _class.instanceMethodId(
+    r'registerTraceId',
+    r'(Lio/sentry/protocol/SentryId;)V',
+  );
+
+  static final _registerTraceId = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void registerTraceId(io.sentry.protocol.SentryId sentryId)`
+  void registerTraceId(
+    SentryId sentryId,
+  ) {
+    final _$sentryId = sentryId.reference;
+    _registerTraceId(reference.pointer,
+            _id_registerTraceId as jni$_.JMethodIDPtr, _$sentryId.pointer)
+        .check();
+  }
+
   static final _id_stop = _class.instanceMethodId(
     r'stop',
     r'()V',
