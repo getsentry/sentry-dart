@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:meta/meta.dart';
 
 import '../sentry_options.dart';
@@ -22,10 +20,18 @@ class ClientReportRecorder {
     _quantities[key] = current + count;
   }
 
-  void recordLostLog(final DiscardReason reason,
-      {int count = 1, required int bytes}) {
+  /// Records a dropped log as a [DataCategory.logItem] count and, when the
+  /// size is known, an additional [DataCategory.logByte] outcome as required
+  /// by the client reports spec for log byte outcomes.
+  ///
+  /// Pass a null [bytes] when the size cannot be determined (e.g. the log
+  /// could not be encoded); the [DataCategory.logByte] outcome is then omitted
+  /// rather than reported as zero.
+  void recordLostLog(final DiscardReason reason, {int count = 1, int? bytes}) {
     recordLostEvent(reason, DataCategory.logItem, count: count);
-    recordLostEvent(reason, DataCategory.logByte, count: max(bytes, 0));
+    if (bytes != null) {
+      recordLostEvent(reason, DataCategory.logByte, count: bytes);
+    }
   }
 
   ClientReport? flush() {

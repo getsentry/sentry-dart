@@ -60,6 +60,7 @@ void main() {
 
       expect(fixture.flushedItems, isEmpty);
       expect(fixture.droppedItems, hasLength(1));
+      expect(fixture.droppedCauses.single, BufferDropCause.tooLarge);
       expect(fixture.droppedBytes.single, greaterThan(0));
     });
 
@@ -148,6 +149,17 @@ void main() {
       // Only the valid item should be in the buffer
       expect(fixture.flushedItems, hasLength(1));
       expect(fixture.flushCallCount, 1);
+    });
+
+    test('encoding failure drops item with encodeFailed cause and no bytes',
+        () async {
+      final buffer = fixture.getSut();
+
+      buffer.add(_ThrowingTestItem());
+
+      expect(fixture.droppedItems, hasLength(1));
+      expect(fixture.droppedCauses.single, BufferDropCause.encodeFailed);
+      expect(fixture.droppedBytes.single, isNull);
     });
 
     test('onFlush receives List<List<int>> directly', () async {
@@ -265,7 +277,8 @@ class _ThrowingTestItem extends _TestItem {
 class _SimpleFixture {
   List<List<int>> flushedItems = [];
   List<_TestItem> droppedItems = [];
-  List<int> droppedBytes = [];
+  List<BufferDropCause> droppedCauses = [];
+  List<int?> droppedBytes = [];
   int flushCallCount = 0;
 
   InMemoryTelemetryBuffer<_TestItem> getSut({
@@ -277,9 +290,10 @@ class _SimpleFixture {
         flushCallCount++;
         flushedItems = items;
       },
-      onDrop: (item, encoded) {
+      onDrop: (item, {required cause, bytes}) {
         droppedItems.add(item);
-        droppedBytes.add(encoded.length);
+        droppedCauses.add(cause);
+        droppedBytes.add(bytes);
       },
       config: config,
     );
@@ -288,6 +302,7 @@ class _SimpleFixture {
   void reset() {
     flushedItems = [];
     droppedItems = [];
+    droppedCauses = [];
     droppedBytes = [];
     flushCallCount = 0;
   }

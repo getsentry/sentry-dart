@@ -39,6 +39,8 @@ extension _OutcomeExtension on DiscardReason {
         return 'buffer_overflow';
       case DiscardReason.rateLimitBackoff:
         return 'ratelimit_backoff';
+      case DiscardReason.internalSdkError:
+        return 'internal_sdk_error';
       case DiscardReason.ignored:
         return 'ignored';
     }

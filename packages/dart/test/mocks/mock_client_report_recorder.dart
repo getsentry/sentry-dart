@@ -24,9 +24,10 @@ class MockClientReportRecorder implements ClientReportRecorder {
   }
 
   @override
-  void recordLostLog(DiscardReason reason,
-      {int count = 1, required int bytes}) {
+  void recordLostLog(DiscardReason reason, {int count = 1, int? bytes}) {
     recordLostEvent(reason, DataCategory.logItem, count: count);
-    recordLostEvent(reason, DataCategory.logByte, count: bytes);
+    if (bytes != null) {
+      recordLostEvent(reason, DataCategory.logByte, count: bytes);
+    }
   }
 }

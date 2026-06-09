@@ -1,6 +1,7 @@
 import '../../sentry.dart';
 import '../client_reports/discard_reason.dart';
 import '../transport/rate_limit_parser.dart';
+import '../utils/transport_utils.dart';
 import 'rate_limit.dart';
 import 'data_category.dart';
 
@@ -23,7 +24,11 @@ class RateLimiter {
 
         final category = DataCategory.fromItemType(item.header.type);
         if (category == DataCategory.logItem) {
-          _recordRateLimitedLogItem(item);
+          TransportUtils.recordLostLogItem(
+            _options,
+            item,
+            DiscardReason.rateLimitBackoff,
+          );
         } else {
           _options.recorder.recordLostEvent(
             DiscardReason.rateLimitBackoff,
@@ -138,24 +143,6 @@ class RateLimiter {
     if (oldDate == null || date.isAfter(oldDate)) {
       _rateLimitedUntil[dataCategory] = date;
     }
-  }
-
-  void _recordRateLimitedLogItem(SentryEnvelopeItem item) {
-    var bytes = 0;
-    try {
-      final data = item.dataFactory();
-      if (data is List<int>) {
-        bytes = data.length;
-      }
-    } catch (_) {
-      // Size is best-effort; still report the dropped log count.
-    }
-
-    _options.recorder.recordLostLog(
-      DiscardReason.rateLimitBackoff,
-      count: item.header.itemCount ?? 1,
-      bytes: bytes,
-    );
   }
 
   // Enable debug mode to log warning messages

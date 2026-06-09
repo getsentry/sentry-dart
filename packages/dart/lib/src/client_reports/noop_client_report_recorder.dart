@@ -19,6 +19,5 @@ class NoOpClientReportRecorder implements ClientReportRecorder {
       {int count = 1}) {}
 
   @override
-  void recordLostLog(DiscardReason reason,
-      {int count = 1, required int bytes}) {}
+  void recordLostLog(DiscardReason reason, {int count = 1, int? bytes}) {}
 }

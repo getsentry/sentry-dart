@@ -27,7 +27,7 @@ class TransportUtils {
     for (final item in envelope.items) {
       final category = DataCategory.fromItemType(item.header.type);
       if (category == DataCategory.logItem) {
-        _recordLostLogItem(options, item, reason);
+        recordLostLogItem(options, item, reason);
       } else {
         options.recorder.recordLostEvent(reason, category);
       }
@@ -43,12 +43,14 @@ class TransportUtils {
     }
   }
 
-  static void _recordLostLogItem(
+  /// Records a dropped log envelope item, reporting the log item count and,
+  /// when it can be determined, a best-effort byte size.
+  static void recordLostLogItem(
     SentryOptions options,
     SentryEnvelopeItem item,
     DiscardReason reason,
   ) {
-    var bytes = 0;
+    int? bytes;
     try {
       final data = item.dataFactory();
       if (data is List<int>) {

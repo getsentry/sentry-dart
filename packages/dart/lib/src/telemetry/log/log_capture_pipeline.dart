@@ -70,6 +70,10 @@ class LogCapturePipeline {
 
       _options.telemetryProcessor.addLog(processedLog);
     } catch (exception, stackTrace) {
+      _options.recorder.recordLostLog(
+        DiscardReason.internalSdkError,
+        bytes: _approximateLogBytes(log),
+      );
       internalLogger.error(
         'Error capturing log "${log.body}"',
         error: exception,
@@ -82,7 +86,7 @@ class LogCapturePipeline {
   }
 }
 
-int _approximateLogBytes(SentryLog log) {
+int? _approximateLogBytes(SentryLog log) {
   try {
     return utf8JsonEncoder.convert(log.toJson()).length;
   } catch (exception, stackTrace) {
@@ -91,6 +95,6 @@ int _approximateLogBytes(SentryLog log) {
       error: exception,
       stackTrace: stackTrace,
     );
-    return 0;
+    return null;
   }
 }

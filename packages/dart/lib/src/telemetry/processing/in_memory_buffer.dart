@@ -12,8 +12,25 @@ typedef OnFlushCallback<T> = FutureOr<void> Function(T data);
 /// Encodes an item of type [T] into bytes.
 typedef ItemEncoder<T> = List<int> Function(T item);
 
-/// Callback invoked when an encoded item is rejected by the buffer.
-typedef OnDropCallback<T> = void Function(T item, List<int> encoded);
+/// Why the buffer rejected an item.
+enum BufferDropCause {
+  /// The item could not be encoded (the encoder threw).
+  encodeFailed,
+
+  /// The encoded item exceeds the buffer's maximum size.
+  tooLarge,
+}
+
+/// Callback invoked when the buffer drops an item before buffering it.
+///
+/// [bytes] is the encoded size of the item, or null when the size is unknown
+/// because the item was never encoded, i.e. when [cause] is
+/// [BufferDropCause.encodeFailed].
+typedef OnDropCallback<T> = void Function(
+  T item, {
+  required BufferDropCause cause,
+  int? bytes,
+});
 
 /// Base class for in-memory telemetry buffers.
 ///
@@ -62,6 +79,7 @@ abstract base class _BaseInMemoryTelemetryBuffer<T, S>
         error: exception,
         stackTrace: stackTrace,
       );
+      _onDrop?.call(item, cause: BufferDropCause.encodeFailed);
       return;
     }
 
@@ -69,7 +87,8 @@ abstract base class _BaseInMemoryTelemetryBuffer<T, S>
       internalLogger.warning(
         '$runtimeType: Item size ${encoded.length} exceeds buffer limit ${_config.maxBufferSizeBytes}, dropping',
       );
-      _onDrop?.call(item, encoded);
+      _onDrop?.call(item,
+          cause: BufferDropCause.tooLarge, bytes: encoded.length);
       return;
     }
 

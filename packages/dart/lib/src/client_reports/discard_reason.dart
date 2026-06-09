@@ -12,5 +12,6 @@ enum DiscardReason {
   cacheOverflow,
   bufferOverflow,
   rateLimitBackoff,
+  internalSdkError,
   ignored,
 }
