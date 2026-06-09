@@ -200,10 +200,12 @@ class SentryEnvelope {
   // Pre-encoded JSON tokens, shared across calls. Safe to reuse with
   // `BytesBuilder(copy: false)` because they are never mutated.
   static final _openBrace = utf8.encode('{');
+  static final _closeBrace = utf8.encode('}');
   static final _comma = utf8.encode(',');
   static final _colon = utf8.encode(':');
-  static final _itemsKey = utf8.encode('"items":[');
-  static final _closeItems = utf8.encode(']}');
+  static final _itemsKey = utf8.encode('"items":');
+  static final _arrayOpen = utf8.encode('[');
+  static final _arrayClose = utf8.encode(']');
 
   /// Builds a payload with optional top-level properties and an items array.
   ///
@@ -227,13 +229,15 @@ class SentryEnvelope {
     }
 
     builder.add(_itemsKey);
+    builder.add(_arrayOpen);
     for (int i = 0; i < encodedItems.length; i++) {
       if (i > 0) {
         builder.add(_comma);
       }
       builder.add(encodedItems[i]);
     }
-    builder.add(_closeItems);
+    builder.add(_arrayClose);
+    builder.add(_closeBrace);
     return builder.takeBytes();
   }
 
