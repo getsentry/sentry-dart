@@ -127,6 +127,9 @@ class RateLimiter {
       return true;
     }
 
+    // Relay rate limits logs under both `log_item` and `log_byte` (both are
+    // documented as "apply to logs"), but log envelope items only map to
+    // `logItem`. Honor a `log_byte` limit here so log items are dropped too.
     if (dataCategory == DataCategory.logItem) {
       final dateLogByte = _rateLimitedUntil[DataCategory.logByte];
       if (dateLogByte != null && !currentDate.isAfter(dateLogByte)) {
