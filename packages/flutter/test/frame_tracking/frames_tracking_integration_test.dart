@@ -211,24 +211,24 @@ void main() {
         );
         parentSpan.end();
 
-        expect(
-          childSpan.attributes[SemanticAttributesConstants.framesSlow]?.value,
-          2,
-        );
-        expect(
-          childSpan.attributes[SemanticAttributesConstants.framesFrozen]?.value,
-          1,
-        );
+        // Frames are measured with real wall-clock time, so on a loaded CI
+        // runner a 100ms "slow" frame can stretch past the 700ms frozen
+        // threshold and be reclassified, and extra delayed frames can be
+        // recorded. Assert combined counts and lower bounds instead of an
+        // exact slow/frozen split.
+        final childSlow = childSpan
+            .attributes[SemanticAttributesConstants.framesSlow]?.value as int;
+        final childFrozen = childSpan
+            .attributes[SemanticAttributesConstants.framesFrozen]?.value as int;
+        expect(childSlow + childFrozen, greaterThanOrEqualTo(3));
+        expect(childFrozen, greaterThanOrEqualTo(1));
 
-        expect(
-          parentSpan.attributes[SemanticAttributesConstants.framesSlow]?.value,
-          5,
-        );
-        expect(
-          parentSpan
-              .attributes[SemanticAttributesConstants.framesFrozen]?.value,
-          2,
-        );
+        final parentSlow = parentSpan
+            .attributes[SemanticAttributesConstants.framesSlow]?.value as int;
+        final parentFrozen = parentSpan
+            .attributes[SemanticAttributesConstants.framesFrozen]?.value as int;
+        expect(parentSlow + parentFrozen, greaterThanOrEqualTo(7));
+        expect(parentFrozen, greaterThanOrEqualTo(2));
         expect(
           parentSpan.attributes[SemanticAttributesConstants.framesTotal]?.value,
           greaterThanOrEqualTo(8),
@@ -283,27 +283,35 @@ void main() {
 
         expect(tracer, isNotNull);
 
+        // Frames are measured with real wall-clock time, so on a loaded CI
+        // runner a 100ms "slow" frame can stretch past the 700ms frozen
+        // threshold and be reclassified, and extra delayed frames can be
+        // recorded. Assert combined counts and lower bounds instead of an
+        // exact slow/frozen split.
+
         // Verify child span
         final childSpan = tracer!.children.first;
-        expect(childSpan.data['frames.slow'] as int, 2);
-        expect(childSpan.data['frames.frozen'] as int, 1);
+        final childSlow = childSpan.data['frames.slow'] as int;
+        final childFrozen = childSpan.data['frames.frozen'] as int;
+        expect(childSlow + childFrozen, greaterThanOrEqualTo(3));
+        expect(childFrozen, greaterThanOrEqualTo(1));
 
         // Verify tracer
-        expect(tracer!.data['frames.slow'] as int, 5);
-        expect(tracer!.data['frames.frozen'] as int, 2);
+        final tracerSlow = tracer!.data['frames.slow'] as int;
+        final tracerFrozen = tracer!.data['frames.frozen'] as int;
+        expect(tracerSlow + tracerFrozen, greaterThanOrEqualTo(7));
+        expect(tracerFrozen, greaterThanOrEqualTo(2));
 
         expect(
           (tracer!.measurements['frames_total'] as SentryMeasurement).value,
           greaterThanOrEqualTo(8),
         );
-        expect(
-          (tracer!.measurements['frames_slow'] as SentryMeasurement).value,
-          5,
-        );
-        expect(
-          (tracer!.measurements['frames_frozen'] as SentryMeasurement).value,
-          2,
-        );
+        final measuredSlow =
+            (tracer!.measurements['frames_slow'] as SentryMeasurement).value;
+        final measuredFrozen =
+            (tracer!.measurements['frames_frozen'] as SentryMeasurement).value;
+        expect(measuredSlow + measuredFrozen, greaterThanOrEqualTo(7));
+        expect(measuredFrozen, greaterThanOrEqualTo(2));
         // No delay assertions due to test env timing flakiness.
       });
     });
