@@ -20,8 +20,7 @@ class SentryEnvelope {
   /// Builds the top-level metadata shared by telemetry envelope item payloads.
   ///
   /// `ingest_settings` control whether Sentry may infer the user's IP and user
-  /// agent from the request. Both are PII, so inference is only enabled when the
-  /// user opts in via `sendDefaultPii` (passed as [inferUserData]).
+  /// agent from the request.
   static Map<String, Object> _itemsPayloadProperties(
       {required bool inferUserData}) {
     final inferSetting = inferUserData ? 'auto' : 'never';

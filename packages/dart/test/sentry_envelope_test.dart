@@ -27,12 +27,6 @@ void main() {
       return utf8.decode(expectedItem);
     }
 
-    Future<Map<String, dynamic>> decodedItemPayload(
-        SentryEnvelope envelope) async {
-      final data = await envelope.items.single.dataFactory();
-      return jsonDecode(utf8.decode(data)) as Map<String, dynamic>;
-    }
-
     test('serialize', () async {
       final eventId = SentryId.newId();
 
@@ -257,7 +251,7 @@ void main() {
         final sut = SentryEnvelope.fromSpansData(encodedSpans, sdkVersion,
             inferUserData: inferUserData);
 
-        final payload = await decodedItemPayload(sut);
+        final payload = await decodeEnvelopeItemPayload(sut);
 
         expect(payload['version'], 2);
         expect(payload['ingest_settings'], {
@@ -314,7 +308,7 @@ void main() {
           SdkVersion(name: 'fixture-name', version: 'fixture-version');
       final sut = SentryEnvelope.fromLogsData(encodedLogs, sdkVersion);
 
-      final payload = await decodedItemPayload(sut);
+      final payload = await decodeEnvelopeItemPayload(sut);
 
       expect(payload, {
         'items': [
@@ -362,7 +356,7 @@ void main() {
           SdkVersion(name: 'fixture-name', version: 'fixture-version');
       final sut = SentryEnvelope.fromMetricsData(encodedMetrics, sdkVersion);
 
-      final payload = await decodedItemPayload(sut);
+      final payload = await decodeEnvelopeItemPayload(sut);
 
       expect(payload, {
         'items': [

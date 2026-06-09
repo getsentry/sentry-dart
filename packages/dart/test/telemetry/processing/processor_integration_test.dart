@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/processing/in_memory_buffer.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
@@ -139,7 +137,8 @@ void main() {
           processor.addSpan(span);
           await processor.flush();
 
-          final payload = await fixture.decodeSpanPayload();
+          final payload = await decodeEnvelopeItemPayload(
+              fixture.transport.envelopes.first);
           expect(payload['ingest_settings'], {
             'infer_ip': expectedSetting,
             'infer_user_agent': expectedSetting,
@@ -201,11 +200,6 @@ class _Fixture {
 
   InMemoryTelemetryProcessorIntegration getSut() =>
       InMemoryTelemetryProcessorIntegration();
-
-  Future<Map<String, dynamic>> decodeSpanPayload() async {
-    final data = await transport.envelopes.first.items.single.dataFactory();
-    return jsonDecode(utf8.decode(data)) as Map<String, dynamic>;
-  }
 
   SentryLog createLog() {
     return SentryLog(
