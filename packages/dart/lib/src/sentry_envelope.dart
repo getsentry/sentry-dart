@@ -17,13 +17,22 @@ class SentryEnvelope {
   SentryEnvelope(this.header, this.items,
       {this.containsUnhandledException = false});
 
-  static const _spanV2PayloadProperties = <String, Object>{
-    'version': 2,
-    'ingest_settings': <String, String>{
-      'infer_ip': 'auto',
-      'infer_user_agent': 'auto',
-    },
-  };
+  /// Builds the top-level metadata shared by telemetry envelope item payloads.
+  ///
+  /// `ingest_settings` control whether Sentry may infer the user's IP and user
+  /// agent from the request. Both are PII, so inference is only enabled when the
+  /// user opts in via `sendDefaultPii` (passed as [inferUserData]).
+  static Map<String, Object> _itemsPayloadProperties(
+      {required bool inferUserData}) {
+    final inferSetting = inferUserData ? 'auto' : 'never';
+    return {
+      'version': 2,
+      'ingest_settings': {
+        'infer_ip': inferSetting,
+        'infer_user_agent': inferSetting,
+      },
+    };
+  }
 
   /// Header describing envelope content.
   final SentryEnvelopeHeader header;
@@ -129,6 +138,7 @@ class SentryEnvelope {
     SdkVersion sdkVersion, {
     String? dsn,
     SentryTraceContextHeader? traceContext,
+    required bool inferUserData,
   }) =>
       SentryEnvelope(
         SentryEnvelopeHeader(null, sdkVersion,
@@ -136,7 +146,8 @@ class SentryEnvelope {
         [
           SentryEnvelopeItem.fromSpansData(
               _buildItemsPayload(encodedSpans,
-                  additionalTopLevelProperties: _spanV2PayloadProperties),
+                  additionalTopLevelProperties:
+                      _itemsPayloadProperties(inferUserData: inferUserData)),
               encodedSpans.length)
         ],
       );
@@ -189,12 +200,11 @@ class SentryEnvelope {
 
   /// Builds a payload with optional top-level properties and an items array.
   ///
-  /// [additionalTopLevelProperties] are serialized before `items` and are used
-  /// for signal-specific envelope item metadata, such as the span v2 `version`
-  /// and `ingest_settings` fields.
+  /// [additionalTopLevelProperties] are serialized before `items` and carry the
+  /// shared envelope item metadata such as `version` and `ingest_settings`.
   static Uint8List _buildItemsPayload(
     List<List<int>> encodedItems, {
-    Map<String, Object?> additionalTopLevelProperties = const {},
+    Map<String, Object> additionalTopLevelProperties = const {},
   }) {
     final builder = BytesBuilder(copy: false);
     final comma = utf8.encode(',');

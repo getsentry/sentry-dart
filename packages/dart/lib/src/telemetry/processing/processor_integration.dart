@@ -62,7 +62,7 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
               }
               final envelope = SentryEnvelope.fromSpansData(
                   itemData.$1, options.sdk,
-                  traceContext: dsc);
+                  traceContext: dsc, inferUserData: options.sendDefaultPii);
               return options.transport.send(envelope);
             }).toList();
             if (futures.isEmpty) return null;

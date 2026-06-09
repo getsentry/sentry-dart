@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/processing/in_memory_buffer.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
@@ -120,6 +122,31 @@ void main() {
         expect(fixture.transport.envelopes, hasLength(1));
       });
 
+      for (final (sendDefaultPii, expectedSetting) in [
+        (true, 'auto'),
+        (false, 'never'),
+      ]) {
+        test(
+            'span envelope ingest_settings is $expectedSetting '
+            'when sendDefaultPii is $sendDefaultPii', () async {
+          final options = fixture.options..sendDefaultPii = sendDefaultPii;
+          fixture.getSut().call(fixture.hub, options);
+
+          final processor =
+              options.telemetryProcessor as DefaultTelemetryProcessor;
+          final span = fixture.createSpan();
+          span.end();
+          processor.addSpan(span);
+          await processor.flush();
+
+          final payload = await fixture.decodeSpanPayload();
+          expect(payload['ingest_settings'], {
+            'infer_ip': expectedSetting,
+            'infer_user_agent': expectedSetting,
+          });
+        });
+      }
+
       test('adds span replay_id attribute to envelope DSC', () async {
         final options = fixture.options;
         fixture.getSut().call(fixture.hub, options);
@@ -174,6 +201,11 @@ class _Fixture {
 
   InMemoryTelemetryProcessorIntegration getSut() =>
       InMemoryTelemetryProcessorIntegration();
+
+  Future<Map<String, dynamic>> decodeSpanPayload() async {
+    final data = await transport.envelopes.first.items.single.dataFactory();
+    return jsonDecode(utf8.decode(data)) as Map<String, dynamic>;
+  }
 
   SentryLog createLog() {
     return SentryLog(
