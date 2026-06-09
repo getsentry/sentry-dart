@@ -37,7 +37,7 @@ import 'version.dart';
 @experimental
 class SentryGrpcInterceptor extends ClientInterceptor {
   /// Integration name registered with the Sentry SDK.
-  static const String integrationName = 'GrpcClientTracing';
+  static const String integrationName = 'GrpcClient';
 
   // Headers that may contain credentials; omitted unless sendDefaultPii is on.
   static const _sensitiveHeaders = {
