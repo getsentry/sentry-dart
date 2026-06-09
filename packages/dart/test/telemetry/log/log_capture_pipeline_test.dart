@@ -1,7 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/telemetry/log/log_capture_pipeline.dart';
-import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import '../../mocks/mock_client_report_recorder.dart';
@@ -161,17 +160,10 @@ void main() {
 
         await fixture.pipeline.captureLog(log, scope: fixture.scope);
 
-        expect(fixture.recorder.discardedEvents.length, 2);
-
-        final logItem = fixture.recorder.discardedEvents
-            .firstWhere((event) => event.category == DataCategory.logItem);
-        final logByte = fixture.recorder.discardedEvents
-            .firstWhere((event) => event.category == DataCategory.logByte);
-
-        expect(logItem.reason, DiscardReason.beforeSend);
-        expect(logItem.quantity, 1);
-        expect(logByte.reason, DiscardReason.beforeSend);
-        expect(logByte.quantity, greaterThan(0));
+        final lostLog = fixture.recorder.lostLogs.single;
+        expect(lostLog.reason, DiscardReason.beforeSend);
+        expect(lostLog.count, 1);
+        expect(lostLog.bytes, greaterThan(0));
       });
 
       test(
@@ -185,18 +177,10 @@ void main() {
 
         await fixture.pipeline.captureLog(log, scope: fixture.scope);
 
-        expect(fixture.recorder.discardedEvents.length, 1);
-
-        final logItem = fixture.recorder.discardedEvents
-            .firstWhere((event) => event.category == DataCategory.logItem);
-
-        expect(logItem.reason, DiscardReason.beforeSend);
-        expect(logItem.quantity, 1);
-        expect(
-          fixture.recorder.discardedEvents
-              .any((event) => event.category == DataCategory.logByte),
-          isFalse,
-        );
+        final lostLog = fixture.recorder.lostLogs.single;
+        expect(lostLog.reason, DiscardReason.beforeSend);
+        expect(lostLog.count, 1);
+        expect(lostLog.bytes, isNull);
       });
 
       test('can mutate the log', () async {
@@ -256,11 +240,9 @@ void main() {
 
         await fixture.pipeline.captureLog(givenLog(), scope: fixture.scope);
 
-        final logItem = fixture.recorder.discardedEvents
-            .firstWhere((event) => event.category == DataCategory.logItem);
-
-        expect(logItem.reason, DiscardReason.internalSdkError);
-        expect(logItem.quantity, 1);
+        final lostLog = fixture.recorder.lostLogs.single;
+        expect(lostLog.reason, DiscardReason.internalSdkError);
+        expect(lostLog.count, 1);
       });
     });
   });

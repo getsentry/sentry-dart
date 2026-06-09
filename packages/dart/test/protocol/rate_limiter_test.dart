@@ -316,18 +316,13 @@ void main() {
       final result = rateLimiter.filter(envelope);
       expect(result, isNull);
 
-      final logItem = fixture.mockRecorder.discardedEvents
-          .firstWhereOrNull((event) => event.category == DataCategory.logItem);
-      final logByte = fixture.mockRecorder.discardedEvents
-          .firstWhereOrNull((event) => event.category == DataCategory.logByte);
-
-      expect(logItem, isNotNull);
-      expect(logItem!.quantity, logs.length);
-      expect(logByte, isNotNull);
-      expect(logByte!.quantity, greaterThan(0));
+      final lostLog = fixture.mockRecorder.lostLogs.single;
+      expect(lostLog.reason, DiscardReason.rateLimitBackoff);
+      expect(lostLog.count, logs.length);
+      expect(lostLog.bytes, greaterThan(0));
     });
 
-    test('log byte', () {
+    test('log_byte limit applies to log items', () {
       final rateLimiter = fixture.getSut();
       fixture.dateTimeToReturn = 0;
 
@@ -352,15 +347,10 @@ void main() {
       final result = rateLimiter.filter(envelope);
       expect(result, isNull);
 
-      final logItem = fixture.mockRecorder.discardedEvents
-          .firstWhereOrNull((event) => event.category == DataCategory.logItem);
-      final logByte = fixture.mockRecorder.discardedEvents
-          .firstWhereOrNull((event) => event.category == DataCategory.logByte);
-
-      expect(logItem, isNotNull);
-      expect(logItem!.quantity, logs.length);
-      expect(logByte, isNotNull);
-      expect(logByte!.quantity, greaterThan(0));
+      final lostLog = fixture.mockRecorder.lostLogs.single;
+      expect(lostLog.reason, DiscardReason.rateLimitBackoff);
+      expect(lostLog.count, logs.length);
+      expect(lostLog.bytes, greaterThan(0));
     });
   });
 

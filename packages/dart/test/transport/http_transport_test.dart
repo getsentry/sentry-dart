@@ -112,19 +112,10 @@ void main() {
 
       await sut.send(envelope);
 
-      final logItem = fixture.clientReportRecorder.discardedEvents
-          .firstWhereOrNull((event) =>
-              event.category == DataCategory.logItem &&
-              event.reason == DiscardReason.networkError);
-      final logByte = fixture.clientReportRecorder.discardedEvents
-          .firstWhereOrNull((event) =>
-              event.category == DataCategory.logByte &&
-              event.reason == DiscardReason.networkError);
-
-      expect(logItem, isNotNull);
-      expect(logItem!.quantity, logs.length);
-      expect(logByte, isNotNull);
-      expect(logByte!.quantity, greaterThan(0));
+      final lostLog = fixture.clientReportRecorder.lostLogs.single;
+      expect(lostLog.reason, DiscardReason.networkError);
+      expect(lostLog.count, logs.length);
+      expect(lostLog.bytes, greaterThan(0));
     });
 
     test('records lost transaction and spans when client throws exception',

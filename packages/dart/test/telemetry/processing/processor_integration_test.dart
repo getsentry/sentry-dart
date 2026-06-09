@@ -3,8 +3,6 @@ import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/telemetry/processing/in_memory_buffer.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
-import 'package:sentry/src/transport/data_category.dart';
-import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
 
 import '../../mocks/mock_hub.dart';
@@ -118,18 +116,12 @@ void main() {
             options.telemetryProcessor as DefaultTelemetryProcessor;
         processor.addLog(fixture.createLog('x' * (1024 * 1024)));
 
-        final logItem = fixture.recorder.discardedEvents.firstWhereOrNull(
-            (event) => event.category == DataCategory.logItem);
-        final logByte = fixture.recorder.discardedEvents.firstWhereOrNull(
-            (event) => event.category == DataCategory.logByte);
-
         expect(fixture.transport.envelopes, isEmpty);
-        expect(logItem, isNotNull);
-        expect(logItem!.reason, DiscardReason.bufferOverflow);
-        expect(logItem.quantity, 1);
-        expect(logByte, isNotNull);
-        expect(logByte!.reason, DiscardReason.bufferOverflow);
-        expect(logByte.quantity, greaterThan(1024 * 1024));
+
+        final lostLog = fixture.recorder.lostLogs.single;
+        expect(lostLog.reason, DiscardReason.bufferOverflow);
+        expect(lostLog.count, 1);
+        expect(lostLog.bytes, greaterThan(1024 * 1024));
       });
 
       test('span reaches transport as envelope', () async {

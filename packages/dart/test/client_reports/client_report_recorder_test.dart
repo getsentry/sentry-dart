@@ -70,7 +70,7 @@ void main() {
       expect(second?.quantity, 1);
     });
 
-    test('record log item and byte outcomes separately', () {
+    test('records log item and byte outcomes separately', () {
       final sut = fixture.getSut();
 
       sut.recordLostLog(DiscardReason.beforeSend, bytes: 42);
