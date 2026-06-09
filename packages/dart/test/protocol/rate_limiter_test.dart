@@ -378,24 +378,31 @@ void main() {
   });
 
   group('RateLimiter logging', () {
+    final logCalls = <_LogCall>[];
+
+    setUp(() {
+      logCalls.clear();
+      SentryInternalLogger.configure(
+        isEnabled: true,
+        minLevel: SentryLevel.warning,
+        logOutput: ({
+          required String name,
+          required SentryLevel level,
+          required String message,
+          Object? error,
+          StackTrace? stackTrace,
+        }) {
+          logCalls.add(_LogCall(level, message));
+        },
+      );
+    });
+
+    tearDown(() {
+      SentryInternalLogger.configure(isEnabled: false);
+    });
+
     test('logs warning for dropped item and full envelope', () {
       final options = defaultTestOptions();
-      options.debug = false;
-      options.diagnosticLevel = SentryLevel.warning;
-
-      final logCalls = <_LogCall>[];
-      void mockLogger(
-        SentryLevel level,
-        String message, {
-        String? logger,
-        Object? exception,
-        StackTrace? stackTrace,
-      }) {
-        logCalls.add(_LogCall(level, message));
-      }
-
-      options.log = mockLogger;
-
       final rateLimiter = RateLimiter(options);
 
       final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
@@ -429,29 +436,11 @@ void main() {
         fullDropLog.message,
         contains('Envelope was dropped due to rate limiting'),
       );
-
-      expect(options.debug, isFalse);
     });
 
     test('logs warning for each dropped item only when some items are sent',
         () {
       final options = defaultTestOptions();
-      options.debug = false;
-      options.diagnosticLevel = SentryLevel.warning;
-
-      final logCalls = <_LogCall>[];
-      void mockLogger(
-        SentryLevel level,
-        String message, {
-        String? logger,
-        Object? exception,
-        StackTrace? stackTrace,
-      }) {
-        logCalls.add(_LogCall(level, message));
-      }
-
-      options.log = mockLogger;
-
       final rateLimiter = RateLimiter(options);
 
       // One event (error) and one transaction
@@ -482,8 +471,6 @@ void main() {
         contains(
             'Envelope item of type "event" was dropped due to rate limiting'),
       );
-
-      expect(options.debug, isFalse);
     });
   });
 }
