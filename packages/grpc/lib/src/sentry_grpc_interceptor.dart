@@ -50,7 +50,7 @@ class SentryGrpcInterceptor extends ClientInterceptor {
   /// [captureFailedRequests] overrides [SentryOptions.captureFailedRequests].
   /// When `null`, the global option is used.
   ///
-  /// Set [recordBreadcrumbs] to `false` to disable breadcrumb recording.
+  /// Set [enableBreadcrumbs] to `false` to disable breadcrumb recording.
   ///
   /// Set [captureRequestHeaders] to `false` to suppress attaching outgoing
   /// gRPC metadata (request headers) to the span. Sensitive headers
@@ -59,16 +59,14 @@ class SentryGrpcInterceptor extends ClientInterceptor {
   SentryGrpcInterceptor({
     Hub? hub,
     bool? captureFailedRequests,
-    bool recordBreadcrumbs = true,
+    bool enableBreadcrumbs = true,
     bool captureRequestHeaders = true,
   })  : _hub = hub ?? HubAdapter(),
         _captureFailedRequests = captureFailedRequests,
-        _recordBreadcrumbs = recordBreadcrumbs,
+        _recordBreadcrumbs = enableBreadcrumbs,
         _captureRequestHeaders = captureRequestHeaders {
     _spanFactory = _hub.options.spanFactory;
-    if (_hub.options.isTracingEnabled()) {
-      _hub.options.sdk.addIntegration(integrationName);
-    }
+    _hub.options.sdk.addIntegration(integrationName);
     _hub.options.sdk.addPackage(packageName, sdkVersion);
   }
 
@@ -310,10 +308,12 @@ class SentryGrpcInterceptor extends ClientInterceptor {
           '${detail.retryDelay.seconds}s',
         );
       } else if (detail is rpc.DebugInfo) {
-        span.setData(
-          SemanticAttributesConstants.grpcDebugInfoDetail,
-          detail.detail,
-        );
+        if (_hub.options.sendDefaultPii) {
+          span.setData(
+            SemanticAttributesConstants.grpcDebugInfoDetail,
+            detail.detail,
+          );
+        }
       } else if (detail is rpc.PreconditionFailure) {
         span.setData(
           SemanticAttributesConstants.grpcPreconditionFailureViolations,

@@ -6,7 +6,7 @@ Dart CLI example demonstrating `SentryGrpcInterceptor` with grpc 5.x.
 
 - `Sentry.init` with `tracesSampleRate` and `captureFailedRequests`
 - `SentryGrpcInterceptor` attached to a `ClientChannel` targeting `grpcb.in:9001`
-- Request header capture in spans — the `WithHeaders` call passes `meat: vegetable` custom metadata, visible as `http.request.header.meat` in the span data
+- Request header capture in spans — the `WithHeaders` call passes `meat: vegetable` custom metadata, visible as `rpc.request.metadata.meat` in the span data
 - Typed proto serialization via a hand-written `DummyMessage` class
 
 ## Calls

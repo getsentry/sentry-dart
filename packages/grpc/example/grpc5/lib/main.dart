@@ -130,7 +130,7 @@ Future<void> _randomErrorCall(_GrpcBinClient client) async {
 }
 
 // Demonstrates request header capture: 'meat: vegetable' will appear
-// as http.request.header.meat in the span data.
+// as rpc.request.metadata.meat in the span data.
 Future<void> _withHeadersCall(_GrpcBinClient client) async {
   print('--- GRPCBin/DummyUnary with headers ---');
   final tr = Sentry.startTransaction(

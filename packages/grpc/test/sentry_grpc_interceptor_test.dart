@@ -49,13 +49,13 @@ void main() {
         );
       });
 
-      test('does not register integration name when tracing is disabled', () {
+      test('registers integration name even when tracing is disabled', () {
         fixture.hub.options.tracesSampleRate = null;
         fixture.getSut();
 
         expect(
           fixture.hub.options.sdk.integrations,
-          isNot(contains(SentryGrpcInterceptor.integrationName)),
+          contains(SentryGrpcInterceptor.integrationName),
         );
       });
 
@@ -181,11 +181,11 @@ void main() {
           expect(crumb.data?['status_code'], StatusCode.ok);
         });
 
-        test('does not add breadcrumbs when recordBreadcrumbs is false',
+        test('does not add breadcrumbs when enableBreadcrumbs is false',
             () async {
           final client = fixture.getSut(
             mockHub: fixture.mockHub,
-            recordBreadcrumbs: false,
+            enableBreadcrumbs: false,
           );
 
           await client.testMethod('hello');
@@ -681,7 +681,9 @@ void main() {
           );
         });
 
-        test('attaches DebugInfo detail to span', () async {
+        test('attaches DebugInfo detail to span when sendDefaultPii is true',
+            () async {
+          fixture.hub.options.sendDefaultPii = true;
           final debugInfo = rpc.DebugInfo(detail: 'stack trace here');
           fixture.service.errorToThrow = _grpcErrorWithDetails(
             StatusCode.internal,
@@ -702,6 +704,32 @@ void main() {
             tracer.children.first
                 .data[SemanticAttributesConstants.grpcDebugInfoDetail],
             'stack trace here',
+          );
+        });
+
+        test('omits DebugInfo detail from span when sendDefaultPii is false',
+            () async {
+          fixture.hub.options.sendDefaultPii = false;
+          final debugInfo = rpc.DebugInfo(detail: 'stack trace here');
+          fixture.service.errorToThrow = _grpcErrorWithDetails(
+            StatusCode.internal,
+            [debugInfo],
+          );
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first
+                .data[SemanticAttributesConstants.grpcDebugInfoDetail],
+            isNull,
           );
         });
 
@@ -969,14 +997,14 @@ class Fixture {
   _TestClient getSut({
     Hub? mockHub,
     bool? captureFailedRequests,
-    bool recordBreadcrumbs = true,
+    bool enableBreadcrumbs = true,
     bool spanFirst = false,
     bool captureRequestHeaders = true,
   }) {
     final interceptor = SentryGrpcInterceptor(
       hub: mockHub ?? (spanFirst ? spanFirstHub : hub),
       captureFailedRequests: captureFailedRequests,
-      recordBreadcrumbs: recordBreadcrumbs,
+      enableBreadcrumbs: enableBreadcrumbs,
       captureRequestHeaders: captureRequestHeaders,
     );
     return _TestClient(_channel, interceptors: [interceptor]);
