@@ -17,22 +17,6 @@ class SentryEnvelope {
   SentryEnvelope(this.header, this.items,
       {this.containsUnhandledException = false});
 
-  /// Builds the top-level metadata shared by telemetry envelope item payloads.
-  ///
-  /// `ingest_settings` control whether Sentry may infer the user's IP and user
-  /// agent from the request.
-  static Map<String, Object> _itemsPayloadProperties(
-      {required bool inferUserData}) {
-    final inferSetting = inferUserData ? 'auto' : 'never';
-    return {
-      'version': 2,
-      'ingest_settings': {
-        'infer_ip': inferSetting,
-        'infer_user_agent': inferSetting,
-      },
-    };
-  }
-
   /// Header describing envelope content.
   final SentryEnvelopeHeader header;
 
@@ -197,8 +181,25 @@ class SentryEnvelope {
     }
   }
 
-  // Pre-encoded JSON tokens, shared across calls. Safe to reuse with
-  // `BytesBuilder(copy: false)` because they are never mutated.
+  /// Builds the top-level metadata shared by telemetry envelope item payloads.
+  ///
+  /// `ingest_settings` controls whether Sentry may infer the user's IP and
+  /// user agent from the request.
+  static Map<String, Object> _itemsPayloadProperties(
+      {required bool inferUserData}) {
+    final inferSetting = inferUserData ? 'auto' : 'never';
+    return {
+      'version': 2,
+      'ingest_settings': {
+        'infer_ip': inferSetting,
+        'infer_user_agent': inferSetting,
+      },
+    };
+  }
+
+  // Pre-encoded JSON tokens, shared across calls — encoding them per call
+  // measurably slows payload building (~1.3-1.6x in local benchmarks). Safe
+  // to reuse with `BytesBuilder(copy: false)` because they are never mutated.
   static final _openBrace = utf8.encode('{');
   static final _closeBrace = utf8.encode('}');
   static final _comma = utf8.encode(',');
@@ -215,6 +216,7 @@ class SentryEnvelope {
     List<List<int>> encodedItems, {
     Map<String, Object> additionalTopLevelProperties = const {},
   }) {
+    assert(!additionalTopLevelProperties.containsKey('items'));
     final builder = BytesBuilder(copy: false);
 
     builder.add(_openBrace);
