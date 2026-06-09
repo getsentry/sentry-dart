@@ -198,6 +198,14 @@ class SentryEnvelope {
     }
   }
 
+  // Pre-encoded JSON tokens, shared across calls. Safe to reuse with
+  // `BytesBuilder(copy: false)` because they are never mutated.
+  static final _openBrace = utf8.encode('{');
+  static final _comma = utf8.encode(',');
+  static final _colon = utf8.encode(':');
+  static final _itemsKey = utf8.encode('"items":[');
+  static final _closeItems = utf8.encode(']}');
+
   /// Builds a payload with optional top-level properties and an items array.
   ///
   /// [additionalTopLevelProperties] are serialized before `items` and carry the
@@ -207,35 +215,26 @@ class SentryEnvelope {
     Map<String, Object> additionalTopLevelProperties = const {},
   }) {
     final builder = BytesBuilder(copy: false);
-    final comma = utf8.encode(',');
-    final colon = utf8.encode(':');
 
-    builder.add(utf8.encode('{'));
+    builder.add(_openBrace);
 
-    var needsComma = false;
-    void addCommaIfNeeded() {
-      if (needsComma) {
-        builder.add(comma);
-      }
-      needsComma = true;
-    }
-
+    // `items` is always the final key, so each preceding property is written
+    // with a trailing comma.
     for (final entry in additionalTopLevelProperties.entries) {
-      addCommaIfNeeded();
       builder.add(utf8JsonEncoder.convert(entry.key));
-      builder.add(colon);
+      builder.add(_colon);
       builder.add(utf8JsonEncoder.convert(entry.value));
+      builder.add(_comma);
     }
 
-    addCommaIfNeeded();
-    builder.add(utf8.encode('"items":['));
+    builder.add(_itemsKey);
     for (int i = 0; i < encodedItems.length; i++) {
       if (i > 0) {
-        builder.add(comma);
+        builder.add(_comma);
       }
       builder.add(encodedItems[i]);
     }
-    builder.add(utf8.encode(']}'));
+    builder.add(_closeItems);
     return builder.takeBytes();
   }
 
