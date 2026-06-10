@@ -73,9 +73,12 @@ runs:
             (map(select(.type == "testStart"))
               | map({(.test.id | tostring): .test.name}) | add // {}) as $names
             | map(select(.type == "error")
-              | "FAILED: \($names[.testID | tostring] // .testID)\n\(.error)\n\(.stackTrace // "")\n")
+              | ($names[.testID | tostring] // (.testID | tostring)) as $name
+              | "FAILED: \($name)\n\(.error)\n\(.stackTrace // "")\n",
+                ("::error title=Test failure::FAILED: \($name)\n\(.error)"
+                  | gsub("%"; "%25") | gsub("\r"; "%0D") | gsub("\n"; "%0A")))
             | .[]
-          ' test-vm.jsonl
+          ' test-vm.jsonl || true
         fi
 
     - name: Install better_test_reporter
