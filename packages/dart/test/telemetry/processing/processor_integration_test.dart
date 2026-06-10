@@ -1,10 +1,12 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/telemetry/processing/in_memory_buffer.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
 import 'package:test/test.dart';
 
 import '../../mocks/mock_hub.dart';
+import '../../mocks/mock_client_report_recorder.dart';
 import '../../mocks/mock_transport.dart';
 import '../../test_utils.dart';
 
@@ -106,6 +108,22 @@ void main() {
         expect(fixture.transport.envelopes, hasLength(1));
       });
 
+      test('oversized log records buffer overflow client report', () {
+        final options = fixture.options;
+        fixture.getSut().call(fixture.hub, options);
+
+        final processor =
+            options.telemetryProcessor as DefaultTelemetryProcessor;
+        processor.addLog(fixture.createLog('x' * (1024 * 1024)));
+
+        expect(fixture.transport.envelopes, isEmpty);
+
+        final lostLog = fixture.recorder.lostLogs.single;
+        expect(lostLog.reason, DiscardReason.bufferOverflow);
+        expect(lostLog.count, 1);
+        expect(lostLog.bytes, greaterThan(1024 * 1024));
+      });
+
       test('span reaches transport as envelope', () async {
         final options = fixture.options;
         fixture.getSut().call(fixture.hub, options);
@@ -192,21 +210,24 @@ void main() {
 class _Fixture {
   final hub = MockHub();
   final transport = MockTransport();
+  final recorder = MockClientReportRecorder();
   late SentryOptions options;
 
   _Fixture() {
-    options = defaultTestOptions()..transport = transport;
+    options = defaultTestOptions()
+      ..transport = transport
+      ..recorder = recorder;
   }
 
   InMemoryTelemetryProcessorIntegration getSut() =>
       InMemoryTelemetryProcessorIntegration();
 
-  SentryLog createLog() {
+  SentryLog createLog([String body = 'test log']) {
     return SentryLog(
       timestamp: DateTime.now().toUtc(),
       traceId: SentryId.newId(),
       level: SentryLogLevel.info,
-      body: 'test log',
+      body: body,
       attributes: {},
     );
   }

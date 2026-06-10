@@ -12,6 +12,26 @@ typedef OnFlushCallback<T> = FutureOr<void> Function(T data);
 /// Encodes an item of type [T] into bytes.
 typedef ItemEncoder<T> = List<int> Function(T item);
 
+/// Why the buffer rejected an item.
+enum BufferDropCause {
+  /// The item could not be encoded (the encoder threw).
+  encodeFailed,
+
+  /// The encoded item exceeds the buffer's maximum size.
+  tooLarge,
+}
+
+/// Callback invoked when the buffer drops an item before buffering it.
+///
+/// [bytes] is the encoded size of the item, or null when the size is unknown
+/// because the item was never encoded, i.e. when [cause] is
+/// [BufferDropCause.encodeFailed].
+typedef OnDropCallback<T> = void Function(
+  T item, {
+  required BufferDropCause cause,
+  int? bytes,
+});
+
 /// Base class for in-memory telemetry buffers.
 ///
 /// Buffers telemetry items in memory and flushes them when either the
@@ -21,6 +41,7 @@ abstract base class _BaseInMemoryTelemetryBuffer<T, S>
   final TelemetryBufferConfig _config;
   final ItemEncoder<T> _encoder;
   final OnFlushCallback<S> _onFlush;
+  final OnDropCallback<T>? _onDrop;
 
   S _storage;
   int _bufferSize = 0;
@@ -31,9 +52,11 @@ abstract base class _BaseInMemoryTelemetryBuffer<T, S>
     required ItemEncoder<T> encoder,
     required OnFlushCallback<S> onFlush,
     required S initialStorage,
+    OnDropCallback<T>? onDrop,
     TelemetryBufferConfig config = const TelemetryBufferConfig(),
   })  : _encoder = encoder,
         _onFlush = onFlush,
+        _onDrop = onDrop,
         _storage = initialStorage,
         _config = config;
 
@@ -56,6 +79,7 @@ abstract base class _BaseInMemoryTelemetryBuffer<T, S>
         error: exception,
         stackTrace: stackTrace,
       );
+      _onDrop?.call(item, cause: BufferDropCause.encodeFailed);
       return;
     }
 
@@ -63,6 +87,8 @@ abstract base class _BaseInMemoryTelemetryBuffer<T, S>
       internalLogger.warning(
         '$runtimeType: Item size ${encoded.length} exceeds buffer limit ${_config.maxBufferSizeBytes}, dropping',
       );
+      _onDrop?.call(item,
+          cause: BufferDropCause.tooLarge, bytes: encoded.length);
       return;
     }
 
@@ -131,6 +157,7 @@ final class InMemoryTelemetryBuffer<T>
   InMemoryTelemetryBuffer({
     required super.encoder,
     required super.onFlush,
+    super.onDrop,
     super.config,
   }) : super(initialStorage: []);
 
@@ -161,6 +188,7 @@ final class GroupedInMemoryTelemetryBuffer<T>
     required super.encoder,
     required super.onFlush,
     required GroupKeyExtractor<T> groupKeyExtractor,
+    super.onDrop,
     super.config,
   })  : _groupKey = groupKeyExtractor,
         super(initialStorage: {});
