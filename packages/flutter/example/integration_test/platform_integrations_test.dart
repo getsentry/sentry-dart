@@ -194,6 +194,7 @@ void main() {
         // out. Give the callback time to be delivered before tearDown runs
         // Sentry.close().
         // TODO: remove once sentry-android ships the fix and we bump to it.
+        // https://github.com/getsentry/sentry-java/issues/5518
         await Future<void>.delayed(const Duration(seconds: 2));
       });
 
