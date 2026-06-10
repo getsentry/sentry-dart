@@ -138,6 +138,32 @@ void main() {
         expect(fixture.transport.envelopes, hasLength(1));
       });
 
+      for (final (sendDefaultPii, expectedSetting) in [
+        (true, 'auto'),
+        (false, 'never'),
+      ]) {
+        test(
+            'span envelope ingest_settings is $expectedSetting '
+            'when sendDefaultPii is $sendDefaultPii', () async {
+          final options = fixture.options..sendDefaultPii = sendDefaultPii;
+          fixture.getSut().call(fixture.hub, options);
+
+          final processor =
+              options.telemetryProcessor as DefaultTelemetryProcessor;
+          final span = fixture.createSpan();
+          span.end();
+          processor.addSpan(span);
+          await processor.flush();
+
+          final payload = await decodeEnvelopeItemPayload(
+              fixture.transport.envelopes.first);
+          expect(payload['ingest_settings'], {
+            'infer_ip': expectedSetting,
+            'infer_user_agent': expectedSetting,
+          });
+        });
+      }
+
       test('adds span replay_id attribute to envelope DSC', () async {
         final options = fixture.options;
         fixture.getSut().call(fixture.hub, options);

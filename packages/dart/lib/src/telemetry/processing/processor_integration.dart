@@ -80,6 +80,7 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
               itemData.$1,
               options.sdk,
               traceContext: dsc,
+              inferUserData: options.sendDefaultPii,
             );
             return options.transport.send(envelope);
           }).toList();

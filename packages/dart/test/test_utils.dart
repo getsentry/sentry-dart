@@ -25,6 +25,13 @@ SentryOptions defaultTestOptions(
     ..automatedTestMode = true;
 }
 
+/// Decodes the JSON payload of the single envelope item in [envelope].
+Future<Map<String, dynamic>> decodeEnvelopeItemPayload(
+    SentryEnvelope envelope) async {
+  final data = await envelope.items.single.dataFactory();
+  return jsonDecode(utf8.decode(data)) as Map<String, dynamic>;
+}
+
 void testHeaders(
   Map<String, String>? headers,
   ClockProvider fakeClockProvider, {
