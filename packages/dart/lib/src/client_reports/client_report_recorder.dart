@@ -1,10 +1,10 @@
 import 'package:meta/meta.dart';
 
 import '../sentry_options.dart';
+import '../transport/data_category.dart';
 import 'client_report.dart';
 import 'discarded_event.dart';
 import 'discard_reason.dart';
-import '../transport/data_category.dart';
 
 @internal
 class ClientReportRecorder {
@@ -18,6 +18,20 @@ class ClientReportRecorder {
     final key = _QuantityKey(reason, category);
     var current = _quantities[key] ?? 0;
     _quantities[key] = current + count;
+  }
+
+  /// Records a dropped log as a [DataCategory.logItem] count and, when the
+  /// size is known, an additional [DataCategory.logByte] outcome as required
+  /// by the client reports spec for log byte outcomes.
+  ///
+  /// Pass a null [bytes] when the size cannot be determined (e.g. the log
+  /// could not be encoded); the [DataCategory.logByte] outcome is then omitted
+  /// rather than reported as zero.
+  void recordLostLog(final DiscardReason reason, {int count = 1, int? bytes}) {
+    recordLostEvent(reason, DataCategory.logItem, count: count);
+    if (bytes != null) {
+      recordLostEvent(reason, DataCategory.logByte, count: bytes);
+    }
   }
 
   ClientReport? flush() {
