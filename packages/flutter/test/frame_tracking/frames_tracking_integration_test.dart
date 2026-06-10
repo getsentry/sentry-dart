@@ -217,16 +217,24 @@ void main() {
         // recorded. Assert combined counts and lower bounds instead of an
         // exact slow/frozen split.
         final childSlow = childSpan
-            .attributes[SemanticAttributesConstants.framesSlow]?.value as int;
+                .attributes[SemanticAttributesConstants.framesSlow]
+                ?.value as int? ??
+            0;
         final childFrozen = childSpan
-            .attributes[SemanticAttributesConstants.framesFrozen]?.value as int;
+                .attributes[SemanticAttributesConstants.framesFrozen]
+                ?.value as int? ??
+            0;
         expect(childSlow + childFrozen, greaterThanOrEqualTo(3));
         expect(childFrozen, greaterThanOrEqualTo(1));
 
         final parentSlow = parentSpan
-            .attributes[SemanticAttributesConstants.framesSlow]?.value as int;
+                .attributes[SemanticAttributesConstants.framesSlow]
+                ?.value as int? ??
+            0;
         final parentFrozen = parentSpan
-            .attributes[SemanticAttributesConstants.framesFrozen]?.value as int;
+                .attributes[SemanticAttributesConstants.framesFrozen]
+                ?.value as int? ??
+            0;
         expect(parentSlow + parentFrozen, greaterThanOrEqualTo(7));
         expect(parentFrozen, greaterThanOrEqualTo(2));
         expect(
@@ -291,14 +299,14 @@ void main() {
 
         // Verify child span
         final childSpan = tracer!.children.first;
-        final childSlow = childSpan.data['frames.slow'] as int;
-        final childFrozen = childSpan.data['frames.frozen'] as int;
+        final childSlow = childSpan.data['frames.slow'] as int? ?? 0;
+        final childFrozen = childSpan.data['frames.frozen'] as int? ?? 0;
         expect(childSlow + childFrozen, greaterThanOrEqualTo(3));
         expect(childFrozen, greaterThanOrEqualTo(1));
 
         // Verify tracer
-        final tracerSlow = tracer!.data['frames.slow'] as int;
-        final tracerFrozen = tracer!.data['frames.frozen'] as int;
+        final tracerSlow = tracer!.data['frames.slow'] as int? ?? 0;
+        final tracerFrozen = tracer!.data['frames.frozen'] as int? ?? 0;
         expect(tracerSlow + tracerFrozen, greaterThanOrEqualTo(7));
         expect(tracerFrozen, greaterThanOrEqualTo(2));
 
