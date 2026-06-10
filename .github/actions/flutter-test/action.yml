@@ -59,6 +59,28 @@ runs:
           $testCmd --file-reporter json:test-vm.jsonl
         fi
 
+    # Tests that fail after they already completed (async errors) flip the
+    # exit code and failure count without the github reporter printing
+    # which test failed. The JSON report still contains the error events,
+    # so surface every test error here by name.
+    - name: Report test failures hidden from the console reporter
+      if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
+      working-directory: ${{ inputs.directory }}
+      shell: bash
+      run: |
+        if [[ -f test-vm.jsonl ]]; then
+          jq -rs '
+            (map(select(.type == "testStart"))
+              | map({(.test.id | tostring): .test.name}) | add // {}) as $names
+            | map(select(.type == "error")
+              | ($names[.testID | tostring] // (.testID | tostring)) as $name
+              | "FAILED: \($name)\n\(.error)\n\(.stackTrace // "")\n",
+                ("::error title=Test failure::FAILED: \($name)\n\(.error)"
+                  | gsub("%"; "%25") | gsub("\r"; "%0D") | gsub("\n"; "%0A")))
+            | .[]
+          ' test-vm.jsonl || true
+        fi
+
     - name: Install better_test_reporter
       if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
       shell: bash
