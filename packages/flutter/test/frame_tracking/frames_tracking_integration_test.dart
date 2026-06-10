@@ -311,13 +311,12 @@ void main() {
         expect(tracerFrozen, greaterThanOrEqualTo(2));
 
         expect(
-          (tracer!.measurements['frames_total'] as SentryMeasurement).value,
+          tracer!.measurements['frames_total']?.value ?? 0,
           greaterThanOrEqualTo(8),
         );
-        final measuredSlow =
-            (tracer!.measurements['frames_slow'] as SentryMeasurement).value;
+        final measuredSlow = tracer!.measurements['frames_slow']?.value ?? 0;
         final measuredFrozen =
-            (tracer!.measurements['frames_frozen'] as SentryMeasurement).value;
+            tracer!.measurements['frames_frozen']?.value ?? 0;
         expect(measuredSlow + measuredFrozen, greaterThanOrEqualTo(7));
         expect(measuredFrozen, greaterThanOrEqualTo(2));
         // No delay assertions due to test env timing flakiness.
