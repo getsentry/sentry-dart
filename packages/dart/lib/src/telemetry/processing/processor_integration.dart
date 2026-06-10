@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
+import '../../client_reports/discard_reason.dart';
 import '../../utils/internal_logger.dart';
 import 'in_memory_buffer.dart';
 import 'processor.dart';
@@ -38,46 +39,67 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
 
   InMemoryTelemetryBuffer<SentryLog> _createLogBuffer(SentryOptions options) =>
       InMemoryTelemetryBuffer(
-          encoder: (SentryLog item) => utf8JsonEncoder.convert(item.toJson()),
-          onFlush: (items) {
-            final envelope = SentryEnvelope.fromLogsData(
-                items.map((item) => item).toList(), options.sdk);
-            return options.transport.send(envelope).then((_) {});
-          });
+        encoder: (SentryLog item) => utf8JsonEncoder.convert(item.toJson()),
+        onDrop: (item, {required cause, bytes}) {
+          switch (cause) {
+            case BufferDropCause.encodeFailed:
+              // No encoded bytes available, so the log_byte size is unknown.
+              options.recorder.recordLostLog(DiscardReason.internalSdkError);
+            case BufferDropCause.tooLarge:
+              options.recorder.recordLostLog(
+                DiscardReason.bufferOverflow,
+                bytes: bytes,
+              );
+          }
+        },
+        onFlush: (items) {
+          final envelope = SentryEnvelope.fromLogsData(
+            items.map((item) => item).toList(),
+            options.sdk,
+          );
+          return options.transport.send(envelope).then((_) {});
+        },
+      );
 
   GroupedInMemoryTelemetryBuffer<RecordingSentrySpanV2> _createSpanBuffer(
-          SentryOptions options) =>
+    SentryOptions options,
+  ) =>
       GroupedInMemoryTelemetryBuffer(
-          encoder: (RecordingSentrySpanV2 item) =>
-              utf8JsonEncoder.convert(item.toJson()),
-          onFlush: (items) {
-            final futures = items.values.map((itemData) {
-              final span = itemData.$2;
-              final dsc = span.resolveDsc();
-              final replayId = span
-                  .attributes[SemanticAttributesConstants.sentryReplayId]
-                  ?.value;
-              if (replayId is String) {
-                dsc.replayId = SentryId.fromId(replayId);
-              }
-              final envelope = SentryEnvelope.fromSpansData(
-                  itemData.$1, options.sdk,
-                  traceContext: dsc);
-              return options.transport.send(envelope);
-            }).toList();
-            if (futures.isEmpty) return null;
-            return Future.wait(futures).then((_) {});
-          },
-          groupKeyExtractor: spanGroupKeyExtractor);
+        encoder: (RecordingSentrySpanV2 item) =>
+            utf8JsonEncoder.convert(item.toJson()),
+        onFlush: (items) {
+          final futures = items.values.map((itemData) {
+            final span = itemData.$2;
+            final dsc = span.resolveDsc();
+            final replayId = span
+                .attributes[SemanticAttributesConstants.sentryReplayId]?.value;
+            if (replayId is String) {
+              dsc.replayId = SentryId.fromId(replayId);
+            }
+            final envelope = SentryEnvelope.fromSpansData(
+              itemData.$1,
+              options.sdk,
+              traceContext: dsc,
+            );
+            return options.transport.send(envelope);
+          }).toList();
+          if (futures.isEmpty) return null;
+          return Future.wait(futures).then((_) {});
+        },
+        groupKeyExtractor: spanGroupKeyExtractor,
+      );
 
   InMemoryTelemetryBuffer<SentryMetric> _createMetricBuffer(
-          SentryOptions options) =>
+    SentryOptions options,
+  ) =>
       InMemoryTelemetryBuffer(
-          encoder: (SentryMetric item) =>
-              utf8JsonEncoder.convert(item.toJson()),
-          onFlush: (items) {
-            final envelope = SentryEnvelope.fromMetricsData(
-                items.map((item) => item).toList(), options.sdk);
-            return options.transport.send(envelope).then((_) {});
-          });
+        encoder: (SentryMetric item) => utf8JsonEncoder.convert(item.toJson()),
+        onFlush: (items) {
+          final envelope = SentryEnvelope.fromMetricsData(
+            items.map((item) => item).toList(),
+            options.sdk,
+          );
+          return options.transport.send(envelope).then((_) {});
+        },
+      );
 }

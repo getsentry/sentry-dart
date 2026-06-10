@@ -286,24 +286,71 @@ void main() {
       final rateLimiter = fixture.getSut();
       fixture.dateTimeToReturn = 0;
 
-      final log = SentryLog(
-        timestamp: DateTime.now(),
-        traceId: SentryId.newId(),
-        level: SentryLogLevel.info,
-        body: 'test',
-        attributes: {
-          'test': SentryAttribute.string('test'),
-        },
-      );
+      final logs = [
+        SentryLog(
+          timestamp: DateTime.now(),
+          traceId: SentryId.newId(),
+          level: SentryLogLevel.info,
+          body: 'test',
+          attributes: {
+            'test': SentryAttribute.string('test'),
+          },
+        ),
+        SentryLog(
+          timestamp: DateTime.now(),
+          traceId: SentryId.newId(),
+          level: SentryLogLevel.info,
+          body: 'test2',
+          attributes: {
+            'test2': SentryAttribute.string('test2'),
+          },
+        ),
+      ];
 
       final sdkVersion = SdkVersion(name: 'test', version: 'test');
-      final envelope = SentryEnvelope.fromLogs([log], sdkVersion);
+      final envelope = SentryEnvelope.fromLogs(logs, sdkVersion);
 
       rateLimiter.updateRetryAfterLimits(
           '1:log_item:key, 5:log_item:organization', null, 1);
 
       final result = rateLimiter.filter(envelope);
       expect(result, isNull);
+
+      final lostLog = fixture.mockRecorder.lostLogs.single;
+      expect(lostLog.reason, DiscardReason.rateLimitBackoff);
+      expect(lostLog.count, logs.length);
+      expect(lostLog.bytes, greaterThan(0));
+    });
+
+    test('log_byte limit applies to log items', () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+
+      final logs = [
+        SentryLog(
+          timestamp: DateTime.now(),
+          traceId: SentryId.newId(),
+          level: SentryLogLevel.info,
+          body: 'test',
+          attributes: {
+            'test': SentryAttribute.string('test'),
+          },
+        ),
+      ];
+
+      final sdkVersion = SdkVersion(name: 'test', version: 'test');
+      final envelope = SentryEnvelope.fromLogs(logs, sdkVersion);
+
+      rateLimiter.updateRetryAfterLimits(
+          '1:log_byte:key, 5:log_byte:organization', null, 1);
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+
+      final lostLog = fixture.mockRecorder.lostLogs.single;
+      expect(lostLog.reason, DiscardReason.rateLimitBackoff);
+      expect(lostLog.count, logs.length);
+      expect(lostLog.bytes, greaterThan(0));
     });
   });
 
@@ -321,24 +368,31 @@ void main() {
   });
 
   group('RateLimiter logging', () {
+    final logCalls = <_LogCall>[];
+
+    setUp(() {
+      logCalls.clear();
+      SentryInternalLogger.configure(
+        isEnabled: true,
+        minLevel: SentryLevel.warning,
+        logOutput: ({
+          required String name,
+          required SentryLevel level,
+          required String message,
+          Object? error,
+          StackTrace? stackTrace,
+        }) {
+          logCalls.add(_LogCall(level, message));
+        },
+      );
+    });
+
+    tearDown(() {
+      SentryInternalLogger.configure(isEnabled: false);
+    });
+
     test('logs warning for dropped item and full envelope', () {
       final options = defaultTestOptions();
-      options.debug = false;
-      options.diagnosticLevel = SentryLevel.warning;
-
-      final logCalls = <_LogCall>[];
-      void mockLogger(
-        SentryLevel level,
-        String message, {
-        String? logger,
-        Object? exception,
-        StackTrace? stackTrace,
-      }) {
-        logCalls.add(_LogCall(level, message));
-      }
-
-      options.log = mockLogger;
-
       final rateLimiter = RateLimiter(options);
 
       final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
@@ -372,29 +426,11 @@ void main() {
         fullDropLog.message,
         contains('Envelope was dropped due to rate limiting'),
       );
-
-      expect(options.debug, isFalse);
     });
 
     test('logs warning for each dropped item only when some items are sent',
         () {
       final options = defaultTestOptions();
-      options.debug = false;
-      options.diagnosticLevel = SentryLevel.warning;
-
-      final logCalls = <_LogCall>[];
-      void mockLogger(
-        SentryLevel level,
-        String message, {
-        String? logger,
-        Object? exception,
-        StackTrace? stackTrace,
-      }) {
-        logCalls.add(_LogCall(level, message));
-      }
-
-      options.log = mockLogger;
-
       final rateLimiter = RateLimiter(options);
 
       // One event (error) and one transaction
@@ -425,8 +461,6 @@ void main() {
         contains(
             'Envelope item of type "event" was dropped due to rate limiting'),
       );
-
-      expect(options.debug, isFalse);
     });
   });
 }
