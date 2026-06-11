@@ -23,7 +23,9 @@ class SentryNative {
       : _lookup = lookup;
 
   /// Decrements the reference count on the value.
-  void value_decref(
+  /// Returns 0 if the value was freed or is a primitive (no tracking needed),
+  /// or non-zero if it still has references.
+  int value_decref(
     sentry_value_u value,
   ) {
     return _value_decref(
@@ -32,10 +34,10 @@ class SentryNative {
   }
 
   late final _value_decrefPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(sentry_value_u)>>(
+      _lookup<ffi.NativeFunction<ffi.Int Function(sentry_value_u)>>(
           'sentry_value_decref');
   late final _value_decref =
-      _value_decrefPtr.asFunction<void Function(sentry_value_u)>();
+      _value_decrefPtr.asFunction<int Function(sentry_value_u)>();
 
   /// Creates a null value.
   sentry_value_u value_new_null() {
