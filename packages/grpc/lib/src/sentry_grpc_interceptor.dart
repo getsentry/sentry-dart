@@ -11,6 +11,7 @@ import 'package:sentry/src/constants.dart';
 import 'package:sentry/src/tracing/instrumentation/instrumentation.dart';
 import 'package:sentry/src/utils/tracing_utils.dart';
 
+import 'internal_logger.dart';
 import 'version.dart';
 
 /// A gRPC [ClientInterceptor] that adds Sentry instrumentation to outgoing RPC calls.
@@ -87,6 +88,11 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     ClientUnaryInvoker<Q, R> invoker,
   ) {
     final parentSpan = _spanFactory.getSpan(_hub);
+    if (parentSpan == null) {
+      internalLogger.debug(
+        'No active span found. Skipping tracing for gRPC call: ${method.path}',
+      );
+    }
     final span = parentSpan != null
         ? _spanFactory.createSpan(
             parentSpan: parentSpan,
@@ -149,6 +155,9 @@ class SentryGrpcInterceptor extends ClientInterceptor {
             );
           }
           if (_shouldCapture(grpcError)) {
+            internalLogger.debug(
+              'Capturing exception for failed gRPC call: ${method.path}',
+            );
             await _captureGrpcException(
               error,
               method.path,
@@ -217,6 +226,11 @@ class SentryGrpcInterceptor extends ClientInterceptor {
       methodPath,
     )) {
       addTracingHeadersToHttpHeader(headers, _hub, span: span);
+    } else {
+      internalLogger.debug(
+        'gRPC method $methodPath does not match tracePropagationTargets. '
+        'Skipping injection of Sentry trace headers.',
+      );
     }
     return options.mergedWith(
       CallOptions(
