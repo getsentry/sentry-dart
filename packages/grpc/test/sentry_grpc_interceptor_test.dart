@@ -534,7 +534,7 @@ void main() {
         });
       });
 
-      group('_attachErrorDetails', () {
+      group('on error with rich error details', () {
         test('attaches ErrorInfo reason and domain to span', () async {
           final errorInfo = rpc.ErrorInfo(
             reason: 'quota-exceeded',
@@ -763,6 +763,69 @@ void main() {
             tracer.children.first
                 .data[SemanticAttributesConstants.grpcResourceInfoName],
             'my-project',
+          );
+        });
+
+        test('attaches PreconditionFailure violations to span', () async {
+          final preconditionFailure = rpc.PreconditionFailure(
+            violations: [
+              rpc.PreconditionFailure_Violation(
+                type: 'TOS',
+                subject: 'user@example.com',
+                description: 'Terms of service not accepted',
+              ),
+            ],
+          );
+          fixture.service.errorToThrow = _grpcErrorWithDetails(
+            StatusCode.failedPrecondition,
+            [preconditionFailure],
+          );
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first.data[
+                SemanticAttributesConstants.grpcPreconditionFailureViolations],
+            contains('Terms of service not accepted'),
+          );
+        });
+
+        test('attaches QuotaFailure violations to span', () async {
+          final quotaFailure = rpc.QuotaFailure(
+            violations: [
+              rpc.QuotaFailure_Violation(
+                subject: 'user@example.com',
+                description: 'Quota exceeded',
+              ),
+            ],
+          );
+          fixture.service.errorToThrow = _grpcErrorWithDetails(
+            StatusCode.resourceExhausted,
+            [quotaFailure],
+          );
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first
+                .data[SemanticAttributesConstants.grpcQuotaFailureViolations],
+            contains('Quota exceeded'),
           );
         });
       });

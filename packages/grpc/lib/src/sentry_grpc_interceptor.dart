@@ -2,7 +2,8 @@
 
 import 'dart:async';
 
-import 'package:grpc/grpc.dart';
+import 'package:grpc/grpc_or_grpcweb.dart';
+import 'package:grpc/service_api.dart';
 import 'package:meta/meta.dart';
 import 'package:grpc/src/generated/google/rpc/error_details.pb.dart' as rpc;
 import 'package:sentry/sentry.dart';
@@ -98,7 +99,7 @@ class SentryGrpcInterceptor extends ClientInterceptor {
 
     if (span != null) {
       _attachRpcAttributes(span, method.path);
-      _attachRequestData(span, method, request, options);
+      _attachRequestData(span, options);
     }
 
     final modifiedOptions = _buildModifiedOptions(options, span, method.path);
@@ -188,10 +189,8 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     }
   }
 
-  void _attachRequestData<Q, R>(
+  void _attachRequestData(
     InstrumentationSpan span,
-    ClientMethod<Q, R> method,
-    Q request,
     CallOptions options,
   ) {
     if (_captureRequestHeaders) {
