@@ -1,7 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/telemetry/log/log_capture_pipeline.dart';
-import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import '../../mocks/mock_client_report_recorder.dart';
@@ -161,11 +160,27 @@ void main() {
 
         await fixture.pipeline.captureLog(log, scope: fixture.scope);
 
-        expect(fixture.recorder.discardedEvents.length, 1);
-        expect(fixture.recorder.discardedEvents.first.reason,
-            DiscardReason.beforeSend);
-        expect(fixture.recorder.discardedEvents.first.category,
-            DataCategory.logItem);
+        final lostLog = fixture.recorder.lostLogs.single;
+        expect(lostLog.reason, DiscardReason.beforeSend);
+        expect(lostLog.count, 1);
+        expect(lostLog.bytes, greaterThan(0));
+      });
+
+      test(
+          'returning null records log item but omits log byte if size estimation fails',
+          () async {
+        fixture.options.beforeSendLog = (_) => null;
+
+        final log = givenLog()
+          ..attributes['unserializable'] =
+              SentryAttribute(_UnserializableObject(), 'object');
+
+        await fixture.pipeline.captureLog(log, scope: fixture.scope);
+
+        final lostLog = fixture.recorder.lostLogs.single;
+        expect(lostLog.reason, DiscardReason.beforeSend);
+        expect(lostLog.count, 1);
+        expect(lostLog.bytes, isNull);
       });
 
       test('can mutate the log', () async {
@@ -217,6 +232,19 @@ void main() {
         expect(captured.body, 'test');
       });
     });
+
+    group('when capturing fails unexpectedly', () {
+      test('records lost log as internal SDK error', () async {
+        fixture.options.automatedTestMode = false;
+        fixture.processor.addLogError = Exception('boom');
+
+        await fixture.pipeline.captureLog(givenLog(), scope: fixture.scope);
+
+        final lostLog = fixture.recorder.lostLogs.single;
+        expect(lostLog.reason, DiscardReason.internalSdkError);
+        expect(lostLog.count, 1);
+      });
+    });
   });
 }
 
@@ -237,5 +265,12 @@ class Fixture {
     options.recorder = recorder;
     scope = Scope(options);
     pipeline = LogCapturePipeline(options);
+  }
+}
+
+class _UnserializableObject {
+  @override
+  String toString() {
+    throw StateError('not serializable');
   }
 }

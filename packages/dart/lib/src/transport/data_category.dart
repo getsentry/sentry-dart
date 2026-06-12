@@ -10,6 +10,7 @@ enum DataCategory {
   security,
   metricBucket,
   logItem,
+  logByte,
   feedback,
   metric,
   unknown;

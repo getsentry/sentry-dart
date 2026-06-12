@@ -89,6 +89,8 @@ extension _DataCategoryExtension on DataCategory {
         return DataCategory.metricBucket;
       case 'log_item':
         return DataCategory.logItem;
+      case 'log_byte':
+        return DataCategory.logByte;
       case 'trace_metric':
         return DataCategory.metric;
     }

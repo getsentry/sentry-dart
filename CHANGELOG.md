@@ -1,5 +1,27 @@
 # Changelog
 
+## 9.22.0
+
+### Features
+
+- (flutter) Add replay trace ID sync for Android by @buenaflor in [#3744](https://github.com/getsentry/sentry-dart/pull/3744)
+
+### Fixes
+
+- (dart) Add missing log byte outcomes by @buenaflor in [#3745](https://github.com/getsentry/sentry-dart/pull/3745)
+- (flutter) Add replay IDs to span telemetry by @buenaflor in [#3739](https://github.com/getsentry/sentry-dart/pull/3739)
+
+### Enhancements
+
+- (dart) Add span v2 envelope `ingest_settings` metadata by @buenaflor in [#3700](https://github.com/getsentry/sentry-dart/pull/3700)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Android SDK to v8.43.2 by @github-actions in [#3755](https://github.com/getsentry/sentry-dart/pull/3755)
+- chore(deps): update Native SDK to v0.14.2 by @github-actions in [#3683](https://github.com/getsentry/sentry-dart/pull/3683)
+
 ## 9.21.0
 
 ### Features
