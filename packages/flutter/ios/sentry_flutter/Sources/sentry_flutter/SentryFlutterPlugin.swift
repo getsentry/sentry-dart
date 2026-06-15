@@ -214,6 +214,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
                 infos["user"] = ["id": PrivateSentrySDKOnly.installationID]
             }
 
+            // swiftlint:disable:next todo
             // TODO(cocoa): sentry-cocoa 9 removed `SentryOptions.integrations` and
             // exposes no accessor for installed integration names, so we no longer
             // report `infos["integrations"]`. Restore this (filtering out
