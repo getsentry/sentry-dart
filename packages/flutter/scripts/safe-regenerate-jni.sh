@@ -38,7 +38,7 @@ normal_build=$?
 set -e
 
 if [ $normal_build -eq 0 ]; then
-    $DART run jnigen --config ffi-jni.yaml
+    $DART run tool/jnigen.dart
     $DART format "$binding_path"
     echo "=== Normal regeneration succeeded ==="
     exit 0

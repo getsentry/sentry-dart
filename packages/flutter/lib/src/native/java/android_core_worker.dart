@@ -511,7 +511,7 @@ void _captureEnvelope(
   JObject? id;
   JByteArray? byteArray;
   try {
-    byteArray = JByteArray.from(envelopeData);
+    byteArray = _toJByteArray(envelopeData);
     id = native.InternalSentrySdk.captureEnvelope(
       byteArray,
       containsUnhandledException,
@@ -561,7 +561,7 @@ List<Map<String, dynamic>>? _loadDebugImageMaps(
       instructionAddressJStrings.add(instructionAddress.toJString());
     }
 
-    instructionAddressSet = instructionAddressJStrings.toJSet(JString.type);
+    instructionAddressSet = instructionAddressJStrings.toJSet();
 
     imagesUtf8JsonBytes = native.SentryFlutterPlugin.loadDebugImagesAsBytes(
       instructionAddressSet,
@@ -672,10 +672,10 @@ void _setUser(Map<String, dynamic>? user, {bool automatedTestMode = false}) {
   JByteArray? jBytes;
   try {
     if (user == null) {
-      native.SentryFlutterPlugin.setUserFromJsonBytes(null);
+      native.SentryFlutterPlugin.userFromJsonBytes = null;
     } else {
       jBytes = _jsonToJByteArray(user);
-      native.SentryFlutterPlugin.setUserFromJsonBytes(jBytes);
+      native.SentryFlutterPlugin.userFromJsonBytes = jBytes;
     }
   } catch (exception, stackTrace) {
     internalLogger.error(
@@ -734,4 +734,9 @@ void _removeContexts(String key, {bool automatedTestMode = false}) {
 }
 
 JByteArray _jsonToJByteArray(Object? value) =>
-    JByteArray.from(encodeUtf8Json(normalize(value)));
+    _toJByteArray(encodeUtf8Json(normalize(value)));
+
+/// Builds a [JByteArray] from Dart [bytes]. JNIgen 1.0.0 dropped the
+/// `JByteArray.from` factory in favour of allocate-then-fill.
+JByteArray _toJByteArray(List<int> bytes) =>
+    JByteArray(bytes.length)..setRange(0, bytes.length, bytes);

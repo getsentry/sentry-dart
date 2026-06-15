@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Dependencies
+
+- Bump `jni` to `1.0.0` and `jnigen` to `0.16.0` for the Android JNI bindings
+
 ## 9.22.0
 
 ### Features
