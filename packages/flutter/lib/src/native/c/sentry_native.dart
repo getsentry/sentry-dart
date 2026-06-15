@@ -326,7 +326,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 }
 
-extension on binding.sentry_value_u {
+extension SentryValueExtension on binding.sentry_value_u {
   void setNativeValue(String key, binding.sentry_value_u? value) {
     final cKey = key.toNativeUtf8();
     if (value == null) {
@@ -358,6 +358,13 @@ extension on binding.sentry_value_u {
         return (SentryNative.native.value_is_true(this) == 1) as T;
       case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_INT32:
         return SentryNative.native.value_as_int32(this) as T;
+      case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_INT64:
+        return SentryNative.native.value_as_int64(this) as T;
+      case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_UINT64:
+        // Dart's int is a signed 64-bit value, so a uint64 above 2^63-1 will
+        // wrap around to a negative number. In practice native values that
+        // reach here (e.g. image_size) are well within the signed range.
+        return SentryNative.native.value_as_uint64(this) as T;
       case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_DOUBLE:
         return SentryNative.native.value_as_double(this) as T;
       case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_STRING:
@@ -405,12 +412,15 @@ extension on String {
   }
 }
 
+const _int32Min = -2147483648; // -(2^31)
+const _int32Max = 2147483647; // 2^31 - 1
+
 extension on int {
   binding.sentry_value_u toNativeValue() {
-    if (this >= -2147483648 && this <= 2147483647) {
+    if (this >= _int32Min && this <= _int32Max) {
       return SentryNative.native.value_new_int32(this);
     } else {
-      return toString().toNativeValue();
+      return SentryNative.native.value_new_int64(this);
     }
   }
 }
