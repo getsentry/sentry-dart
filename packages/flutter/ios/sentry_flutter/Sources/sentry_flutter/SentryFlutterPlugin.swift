@@ -214,6 +214,12 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
                 infos["user"] = ["id": PrivateSentrySDKOnly.installationID]
             }
 
+            // TODO(cocoa): sentry-cocoa 9 removed `SentryOptions.integrations` and
+            // exposes no accessor for installed integration names, so we no longer
+            // report `infos["integrations"]`. Restore this (filtering out
+            // SentrySessionReplayIntegration) once cocoa exposes the installed
+            // integration names again (the cocoa team is adding the accessor).
+
             #if SENTRY_FLUTTER_SPM
             infos["features"] = ["SwiftPackageManager"]
             #else

@@ -741,17 +741,12 @@ void main() {
 
       // Top-level iOS-specific sections
       // integrations
-      expect(contexts.containsKey('integrations'), isTrue,
-          reason: 'Integrations section missing');
-      final integrations = contexts['integrations'];
-      expect(integrations, isA<List>());
-      expect((integrations as List), isNotEmpty);
-      expect(integrations.first, isA<String>());
-      final List<dynamic> integrationsList = integrations;
-      expect(integrationsList.contains('SentryCrashIntegration'), isTrue,
-          reason: 'Critical integration SentryCrashIntegration missing');
-      expect(integrationsList.contains('SentryReplayIntegration'), isFalse,
-          reason: 'SentryReplayIntegration should not be present');
+      // TODO(cocoa): sentry-cocoa 9 removed the API to enumerate installed
+      // native integrations, so they are no longer reported via loadContexts.
+      // Restore reporting and this assertion once cocoa exposes the installed
+      // integration names again (the cocoa team is adding the accessor).
+      expect(contexts.containsKey('integrations'), isFalse,
+          reason: 'Native integrations are not reported on sentry-cocoa 9');
 
       // package info
       expect(contexts.containsKey('package'), isTrue,
