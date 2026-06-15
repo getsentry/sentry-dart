@@ -1,7 +1,6 @@
 @_spi(Private) import Sentry
 
 #if SWIFT_PACKAGE
-import Sentry._Hybrid
 import sentry_flutter_objc
 #endif
 
@@ -215,10 +214,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
                 infos["user"] = ["id": PrivateSentrySDKOnly.installationID]
             }
 
-            if let integrations = PrivateSentrySDKOnly.options.integrations {
-                infos["integrations"] = integrations.filter { $0 != "SentrySessionReplayIntegration" }
-            }
-
             #if SENTRY_FLUTTER_SPM
             infos["features"] = ["SwiftPackageManager"]
             #else
@@ -277,7 +272,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
                     let image = SentryDependencyContainer.sharedInstance().binaryImageCache
                         .imageByAddress(instructionAddress)
                     if let image = image {
-                        let imageAddress = sentry_formatHexAddressUInt64(image.address)!
+                        let imageAddress = String(format: "0x%016llx", image.address)
                         imagesAddresses.insert(imageAddress)
                     }
                 }
@@ -287,7 +282,8 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
               .getDebugImagesForImageAddressesFromCache(imageAddresses: imagesAddresses) as [DebugMeta]
         }
         if debugImages.isEmpty {
-            debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
+            debugImages = SentryDependencyContainer.sharedInstance().debugImageProvider
+                .getDebugImagesFromCache() as [DebugMeta]
         }
 
         result(debugImages.map { $0.serialize() })
