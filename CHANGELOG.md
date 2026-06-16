@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+- Raise the minimum supported Flutter to `3.35.6` (Dart `3.9.2`), required by `jni` `1.0.0`
+
 ### Dependencies
 
 - Bump `jni` to `1.0.0` and `jnigen` to `0.16.0` for the Android JNI bindings
