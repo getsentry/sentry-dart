@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- (dart) Add support for homogeneous scalar array attributes (`List<String>`, `List<int>`, `List<double>`, `List<bool>`) on spans, logs, and metrics
+
 ## 9.22.0
 
 ### Features
