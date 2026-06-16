@@ -39,4 +39,44 @@ void main() {
       'type': 'double',
     });
   });
+
+  test('$SentryAttribute string array to json', () {
+    final attribute = SentryAttribute.stringArray(['a', 'b']);
+    expect(attribute.toJson(), {
+      'value': ['a', 'b'],
+      'type': 'array',
+    });
+  });
+
+  test('$SentryAttribute int array to json', () {
+    final attribute = SentryAttribute.intArray([1, 2]);
+    expect(attribute.toJson(), {
+      'value': [1, 2],
+      'type': 'array',
+    });
+  });
+
+  test('$SentryAttribute double array to json', () {
+    final attribute = SentryAttribute.doubleArray([1.0, 2.0]);
+    expect(attribute.toJson(), {
+      'value': [1.0, 2.0],
+      'type': 'array',
+    });
+  });
+
+  test('$SentryAttribute bool array to json', () {
+    final attribute = SentryAttribute.boolArray([true, false]);
+    expect(attribute.toJson(), {
+      'value': [true, false],
+      'type': 'array',
+    });
+  });
+
+  test('$SentryAttribute empty array to json', () {
+    final attribute = SentryAttribute.stringArray([]);
+    expect(attribute.toJson(), {
+      'value': <String>[],
+      'type': 'array',
+    });
+  });
 }

@@ -45,6 +45,22 @@ class SentryAttribute {
     return SentryAttribute(value, 'double');
   }
 
+  factory SentryAttribute.stringArray(List<String> value) {
+    return SentryAttribute(value, 'array');
+  }
+
+  factory SentryAttribute.intArray(List<int> value) {
+    return SentryAttribute(value, 'array');
+  }
+
+  factory SentryAttribute.doubleArray(List<double> value) {
+    return SentryAttribute(value, 'array');
+  }
+
+  factory SentryAttribute.boolArray(List<bool> value) {
+    return SentryAttribute(value, 'array');
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'value': value,
