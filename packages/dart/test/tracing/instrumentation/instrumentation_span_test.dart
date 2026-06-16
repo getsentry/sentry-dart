@@ -16,32 +16,40 @@ void main() {
         final sut = fixture.getSut();
         sut.setData('tags', ['a', 'b']);
         final attr = fixture.recordingSpan.attributes['tags'];
-        expect(attr?.type, 'array');
-        expect(attr?.value, ['a', 'b']);
+        expect(attr?.toJson(), {
+          'value': ['a', 'b'],
+          'type': 'array'
+        });
       });
 
       test('with List<int> sets an array attribute', () {
         final sut = fixture.getSut();
         sut.setData('codes', [1, 2]);
         final attr = fixture.recordingSpan.attributes['codes'];
-        expect(attr?.type, 'array');
-        expect(attr?.value, [1, 2]);
+        expect(attr?.toJson(), {
+          'value': [1, 2],
+          'type': 'array'
+        });
       });
 
       test('with List<double> sets an array attribute', () {
         final sut = fixture.getSut();
         sut.setData('scores', [1.0, 2.0]);
         final attr = fixture.recordingSpan.attributes['scores'];
-        expect(attr?.type, 'array');
-        expect(attr?.value, [1.0, 2.0]);
+        expect(attr?.toJson(), {
+          'value': [1.0, 2.0],
+          'type': 'array'
+        });
       });
 
       test('with List<bool> sets an array attribute', () {
         final sut = fixture.getSut();
         sut.setData('flags', [true, false]);
         final attr = fixture.recordingSpan.attributes['flags'];
-        expect(attr?.type, 'array');
-        expect(attr?.value, [true, false]);
+        expect(attr?.toJson(), {
+          'value': [true, false],
+          'type': 'array'
+        });
       });
 
       test('with mixed List ignores the value', () {
@@ -61,21 +69,17 @@ void main() {
 }
 
 class Fixture {
-  final options = defaultTestOptions()
-    ..traceLifecycle = SentryTraceLifecycle.stream;
+  final RecordingSentrySpanV2 recordingSpan;
 
-  late final RecordingSentrySpanV2 recordingSpan;
-
-  Fixture() {
-    recordingSpan = RecordingSentrySpanV2.root(
-      name: 'test-span',
-      traceId: SentryId.newId(),
-      onSpanEnd: (_) async {},
-      clock: options.clock,
-      dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
-      samplingDecision: SentryTracesSamplingDecision(true),
-    );
-  }
+  Fixture()
+      : recordingSpan = RecordingSentrySpanV2.root(
+          name: 'test-span',
+          traceId: SentryId.newId(),
+          onSpanEnd: (_) async {},
+          clock: defaultTestOptions().clock,
+          dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
+          samplingDecision: SentryTracesSamplingDecision(true),
+        );
 
   StreamingInstrumentationSpan getSut() {
     return StreamingInstrumentationSpan(recordingSpan);
