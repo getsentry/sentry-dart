@@ -81,7 +81,7 @@ jar cf example/build/app/intermediates/flutter/release/libs.jar -C "$stub_dir" .
 rm -rf "$stub_dir"
 
 echo "Step 4: Running jnigen..."
-$DART run jnigen --config ffi-jni.yaml
+$DART run tool/jnigen.dart
 
 echo "Step 5: Formatting generated binding..."
 $DART format "$binding_path"

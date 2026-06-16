@@ -299,7 +299,8 @@ void main() {
 
     expect(androidOptions, isNotNull);
     expect(androidOptions.dsn?.toDartString(), fakeDsn);
-    expect(androidOptions.sampleRate?.doubleValue(), 0.25);
+    expect(
+        androidOptions.sampleRate?.toDartDouble(releaseOriginal: true), 0.25);
     expect(androidOptions.isDebug, isTrue);
     final diagnostic = androidOptions.diagnosticLevel;
     expect(
