@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:sentry/src/protocol/sentry_device.dart';
+import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 import 'package:sentry/src/utils.dart';
@@ -29,6 +30,18 @@ void main() {
 
     test('null Object returns null during serialization', () {
       expect(jsonSerializationFallback(null), null);
+    });
+  });
+
+  group('SentryAttributeFormatting', () {
+    test('formats an array attribute as a bracketed list', () {
+      final attribute = SentryAttribute.stringArray(['a', 'b']);
+      expect(attribute.toFormattedString(), '[a, b]');
+    });
+
+    test('formats an empty array attribute', () {
+      final attribute = SentryAttribute.intArray([]);
+      expect(attribute.toFormattedString(), '[]');
     });
   });
 }
