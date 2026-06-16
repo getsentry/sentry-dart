@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:sentry/src/protocol/sentry_attribute.dart';
 import 'package:sentry/src/protocol/sentry_device.dart';
-import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 import 'package:sentry/src/utils.dart';
