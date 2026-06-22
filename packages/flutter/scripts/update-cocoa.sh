@@ -6,7 +6,7 @@ cd $(dirname "$0")/../ios
 get_podspec_version() {
   local file='sentry_flutter.podspec'
   local content=$(cat $file)
-  regex="('Sentry/HybridSDK', *)'([0-9\.]+(\-[a-z0-9\.]+)?)'"
+  regex="('Sentry', *)'([0-9\.]+(\-[a-z0-9\.]+)?)'"
   if ! [[ $content =~ $regex ]]; then
     echo "Failed to find the plugin version in $file"
     exit 1
@@ -18,7 +18,7 @@ get_podspec_version() {
 set_podspec_version() {
   local file='sentry_flutter.podspec'
   local content=$(cat $file)
-  regex="('Sentry/HybridSDK', *)'([0-9\.]+(\-[a-z0-9\.]+)?)'"
+  regex="('Sentry', *)'([0-9\.]+(\-[a-z0-9\.]+)?)'"
   if ! [[ $content =~ $regex ]]; then
     echo "Failed to find the plugin version in $file"
     exit 1

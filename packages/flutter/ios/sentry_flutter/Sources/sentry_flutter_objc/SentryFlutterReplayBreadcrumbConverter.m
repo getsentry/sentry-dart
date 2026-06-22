@@ -2,10 +2,6 @@
 
 @import Sentry;
 
-#if SWIFT_PACKAGE
-@import Sentry._Hybrid;
-#endif
-
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
 @implementation SentryFlutterReplayBreadcrumbConverter {
@@ -14,8 +10,7 @@
 
 - (instancetype _Nonnull)init {
   if (self = [super init]) {
-    self->defaultConverter =
-        [SentrySessionReplayIntegration createDefaultBreadcrumbConverter];
+    self->defaultConverter = [[SentrySRDefaultBreadcrumbConverter alloc] init];
   }
   return self;
 }
@@ -64,12 +59,12 @@
                                       (SentryBreadcrumb *_Nonnull)breadcrumb
                                  withCategory:(NSString *)category
                                    andMessage:(NSString *)message {
-  return [SentrySessionReplayIntegration
-      createBreadcrumbwithTimestamp:breadcrumb.timestamp
-                           category:category ?: breadcrumb.category
-                            message:message ?: breadcrumb.message
-                              level:breadcrumb.level
-                               data:breadcrumb.data];
+  return [[SentryRRWebBreadcrumbEvent alloc]
+      initWithTimestamp:breadcrumb.timestamp
+               category:category ?: breadcrumb.category
+                message:message ?: breadcrumb.message
+                  level:breadcrumb.level
+                   data:breadcrumb.data];
 }
 
 - (id<SentryRRWebEvent> _Nullable)convertNetwork:
@@ -104,12 +99,12 @@
     data[@"responseBodySize"] = breadcrumb.data[@"response_body_size"];
   }
 
-  return [SentrySessionReplayIntegration
-      createNetworkBreadcrumbWithTimestamp:[self dateFrom:startTimestamp]
-                              endTimestamp:[self dateFrom:endTimestamp]
-                                 operation:@"resource.http"
-                               description:url
-                                      data:data];
+  return [[SentryRRWebSpanEvent alloc]
+      initWithTimestamp:[self dateFrom:startTimestamp]
+           endTimestamp:[self dateFrom:endTimestamp]
+              operation:@"resource.http"
+            description:url
+                   data:data];
 }
 
 - (NSDate *_Nonnull)dateFrom:(NSNumber *_Nonnull)timestamp {

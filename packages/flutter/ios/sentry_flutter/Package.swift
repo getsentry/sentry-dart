@@ -6,14 +6,14 @@ import PackageDescription
 let package = Package(
     name: "sentry_flutter",
     platforms: [
-        .iOS("12.0"),
-        .macOS("10.14")
+        .iOS("15.0"),
+        .macOS("12.0")
     ],
     products: [
         .library(name: "sentry-flutter", targets: ["sentry_flutter", "sentry_flutter_objc"])
     ],
     dependencies: [
-      .package(url: "https://github.com/getsentry/sentry-cocoa", exact: "8.58.3")
+      .package(url: "https://github.com/getsentry/sentry-cocoa", exact: "9.17.1")
     ],
     targets: [
         .target(
