@@ -58,9 +58,10 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
       return WidgetsBinding.instance;
     } catch (_) {
       Sentry.currentHub.options.log(
-          SentryLevel.info,
-          'WidgetsFlutterBinding has not been initialized yet. '
-          'Creating $SentryWidgetsFlutterBinding.');
+        SentryLevel.info,
+        'WidgetsFlutterBinding has not been initialized yet. '
+        'Creating $SentryWidgetsFlutterBinding.',
+      );
       // No binding exists yet, create our custom one
       SentryWidgetsFlutterBinding();
       return WidgetsBinding.instance;
@@ -69,8 +70,8 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
 }
 
 @internal
-typedef FrameTimingCallback = void Function(
-    DateTime startTimestamp, DateTime endTimestamp);
+typedef FrameTimingCallback =
+    void Function(DateTime startTimestamp, DateTime endTimestamp);
 
 mixin SentryWidgetsBindingMixin on WidgetsBinding {
   FrameTimingCallback? _onDelayedFrame;
@@ -83,8 +84,11 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   final Stopwatch _stopwatch = Stopwatch();
 
   @internal
-  void initializeFramesTracking(FrameTimingCallback onDelayedFrame,
-      SentryOptions options, Duration expectedFrameDuration) {
+  void initializeFramesTracking(
+    FrameTimingCallback onDelayedFrame,
+    SentryOptions options,
+    Duration expectedFrameDuration,
+  ) {
     _onDelayedFrame ??= onDelayedFrame;
     _options ??= options;
     _expectedFrameDuration ??= expectedFrameDuration;
@@ -139,8 +143,9 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
           _stopwatch.elapsedMilliseconds >
               expectedFrameDuration.inMilliseconds) {
         final endTimestamp = options.clock();
-        final startTimestamp = endTimestamp
-            .subtract(Duration(milliseconds: _stopwatch.elapsedMilliseconds));
+        final startTimestamp = endTimestamp.subtract(
+          Duration(milliseconds: _stopwatch.elapsedMilliseconds),
+        );
         _onDelayedFrame?.call(startTimestamp, endTimestamp);
       }
       _stopwatch.reset();

@@ -18,21 +18,23 @@ void main() {
   late Fixture fixture;
 
   PageRoute<dynamic> route(RouteSettings? settings) => PageRouteBuilder<void>(
-        pageBuilder: (_, __, ___) => Container(),
-        settings: settings,
-      );
+    pageBuilder: (_, __, ___) => Container(),
+    settings: settings,
+  );
 
   void _whenAnyStart(MockHub mockHub, ISentrySpan thenReturnSpan) {
-    when(mockHub.startTransactionWithContext(
-      any,
-      bindToScope: anyNamed('bindToScope'),
-      waitForChildren: anyNamed('waitForChildren'),
-      autoFinishAfter: anyNamed('autoFinishAfter'),
-      trimEnd: anyNamed('trimEnd'),
-      onFinish: anyNamed('onFinish'),
-      customSamplingContext: anyNamed('customSamplingContext'),
-      startTimestamp: anyNamed('startTimestamp'),
-    )).thenReturn(thenReturnSpan);
+    when(
+      mockHub.startTransactionWithContext(
+        any,
+        bindToScope: anyNamed('bindToScope'),
+        waitForChildren: anyNamed('waitForChildren'),
+        autoFinishAfter: anyNamed('autoFinishAfter'),
+        trimEnd: anyNamed('trimEnd'),
+        onFinish: anyNamed('onFinish'),
+        customSamplingContext: anyNamed('customSamplingContext'),
+        startTimestamp: anyNamed('startTimestamp'),
+      ),
+    ).thenReturn(thenReturnSpan);
     when(mockHub.getSpan()).thenReturn(thenReturnSpan);
   }
 
@@ -52,10 +54,13 @@ void main() {
       _whenAnyStart(hub, span);
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
-      when(span.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
+      when(
+        span.startChild(
+          'ui.load.initial_display',
+          description: anyNamed('description'),
+          startTimestamp: anyNamed('startTimestamp'),
+        ),
+      ).thenReturn(NoOpSentrySpan());
 
       final sut = fixture.getSut(
         hub: hub,
@@ -64,14 +69,16 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verifyNever(hub.startTransactionWithContext(
-        any,
-        startTimestamp: anyNamed('startTimestamp'),
-        waitForChildren: anyNamed('waitForChildren'),
-        autoFinishAfter: anyNamed('autoFinishAfter'),
-        trimEnd: anyNamed('trimEnd'),
-        onFinish: anyNamed('onFinish'),
-      ));
+      verifyNever(
+        hub.startTransactionWithContext(
+          any,
+          startTimestamp: anyNamed('startTimestamp'),
+          waitForChildren: anyNamed('waitForChildren'),
+          autoFinishAfter: anyNamed('autoFinishAfter'),
+          trimEnd: anyNamed('trimEnd'),
+          onFinish: anyNamed('onFinish'),
+        ),
+      );
     });
 
     test('didPush starts transaction', () async {
@@ -85,10 +92,13 @@ void main() {
       _whenAnyStart(hub, span);
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
-      when(span.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
+      when(
+        span.startChild(
+          'ui.load.initial_display',
+          description: anyNamed('description'),
+          startTimestamp: anyNamed('startTimestamp'),
+        ),
+      ).thenReturn(NoOpSentrySpan());
 
       final sut = fixture.getSut(
         hub: hub,
@@ -97,14 +107,18 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      final context = verify(hub.startTransactionWithContext(
-        captureAny,
-        startTimestamp: anyNamed('startTimestamp'),
-        waitForChildren: true,
-        autoFinishAfter: anyNamed('autoFinishAfter'),
-        trimEnd: true,
-        onFinish: anyNamed('onFinish'),
-      )).captured.single as SentryTransactionContext;
+      final context =
+          verify(
+                hub.startTransactionWithContext(
+                  captureAny,
+                  startTimestamp: anyNamed('startTimestamp'),
+                  waitForChildren: true,
+                  autoFinishAfter: anyNamed('autoFinishAfter'),
+                  trimEnd: true,
+                  onFinish: anyNamed('onFinish'),
+                ),
+              ).captured.single
+              as SentryTransactionContext;
 
       expect(context.name, name);
 
@@ -130,14 +144,16 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verify(hub.startTransactionWithContext(
-        any,
-        startTimestamp: anyNamed('startTimestamp'),
-        waitForChildren: true,
-        autoFinishAfter: Duration(seconds: 5),
-        trimEnd: true,
-        onFinish: anyNamed('onFinish'),
-      ));
+      verify(
+        hub.startTransactionWithContext(
+          any,
+          startTimestamp: anyNamed('startTimestamp'),
+          waitForChildren: true,
+          autoFinishAfter: Duration(seconds: 5),
+          trimEnd: true,
+          onFinish: anyNamed('onFinish'),
+        ),
+      );
 
       await hub.configureScope((scope) {
         expect(scope.span, null);
@@ -160,14 +176,16 @@ void main() {
       sut.didPush(currentRoute, null);
       await Future<void>.delayed(const Duration(milliseconds: 100));
 
-      verifyNever(hub.startTransactionWithContext(
-        any,
-        startTimestamp: anyNamed('startTimestamp'),
-        waitForChildren: true,
-        autoFinishAfter: anyNamed('autoFinishAfter'),
-        trimEnd: true,
-        onFinish: anyNamed('onFinish'),
-      ));
+      verifyNever(
+        hub.startTransactionWithContext(
+          any,
+          startTimestamp: anyNamed('startTimestamp'),
+          waitForChildren: true,
+          autoFinishAfter: anyNamed('autoFinishAfter'),
+          trimEnd: true,
+          onFinish: anyNamed('onFinish'),
+        ),
+      );
 
       await hub.configureScope((scope) {
         expect(scope.span, null);
@@ -188,14 +206,16 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verifyNever(hub.startTransactionWithContext(
-        any,
-        startTimestamp: anyNamed('startTimestamp'),
-        waitForChildren: true,
-        autoFinishAfter: anyNamed('autoFinishAfter'),
-        trimEnd: true,
-        onFinish: anyNamed('onFinish'),
-      ));
+      verifyNever(
+        hub.startTransactionWithContext(
+          any,
+          startTimestamp: anyNamed('startTimestamp'),
+          waitForChildren: true,
+          autoFinishAfter: anyNamed('autoFinishAfter'),
+          trimEnd: true,
+          onFinish: anyNamed('onFinish'),
+        ),
+      );
 
       await hub.configureScope((scope) {
         expect(scope.span, null);
@@ -212,24 +232,29 @@ void main() {
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
-      when(span.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
+      when(
+        span.startChild(
+          'ui.load.initial_display',
+          description: anyNamed('description'),
+          startTimestamp: anyNamed('startTimestamp'),
+        ),
+      ).thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
 
-      verify(hub.startTransactionWithContext(
-        any,
-        startTimestamp: anyNamed('startTimestamp'),
-        waitForChildren: true,
-        autoFinishAfter: anyNamed('autoFinishAfter'),
-        trimEnd: true,
-        onFinish: anyNamed('onFinish'),
-      ));
+      verify(
+        hub.startTransactionWithContext(
+          any,
+          startTimestamp: anyNamed('startTimestamp'),
+          waitForChildren: true,
+          autoFinishAfter: anyNamed('autoFinishAfter'),
+          trimEnd: true,
+          onFinish: anyNamed('onFinish'),
+        ),
+      );
 
       await hub.configureScope((scope) {
         expect(scope.span, NoOpSentrySpan());
@@ -245,10 +270,13 @@ void main() {
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       when(span.finished).thenReturn(false);
-      when(span.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
+      when(
+        span.startChild(
+          'ui.load.initial_display',
+          description: anyNamed('description'),
+          startTimestamp: anyNamed('startTimestamp'),
+        ),
+      ).thenReturn(NoOpSentrySpan());
       when(span.children).thenReturn([]);
       _whenAnyStart(hub, span);
 
@@ -262,10 +290,9 @@ void main() {
         expect(scope.span, null);
       });
 
-      verify(fixture.mockTimeToDisplayTracker.cancelUnfinishedSpans(
-        span,
-        any,
-      )).called(2);
+      verify(
+        fixture.mockTimeToDisplayTracker.cancelUnfinishedSpans(span, any),
+      ).called(2);
 
       verify(
         span.finish(endTimestamp: captureAnyNamed('endTimestamp')),
@@ -280,10 +307,13 @@ void main() {
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       when(span.finished).thenReturn(false);
-      when(span.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
+      when(
+        span.startChild(
+          'ui.load.initial_display',
+          description: anyNamed('description'),
+          startTimestamp: anyNamed('startTimestamp'),
+        ),
+      ).thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
       when(span.children).thenReturn([]);
 
@@ -296,10 +326,9 @@ void main() {
         expect(scope.span, null);
       });
 
-      verify(fixture.mockTimeToDisplayTracker.cancelUnfinishedSpans(
-        span,
-        any,
-      )).called(1);
+      verify(
+        fixture.mockTimeToDisplayTracker.cancelUnfinishedSpans(span, any),
+      ).called(1);
 
       verify(
         span.finish(endTimestamp: captureAnyNamed('endTimestamp')),
@@ -314,10 +343,13 @@ void main() {
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       when(span.children).thenReturn([]);
-      when(span.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
+      when(
+        span.startChild(
+          'ui.load.initial_display',
+          description: anyNamed('description'),
+          startTimestamp: anyNamed('startTimestamp'),
+        ),
+      ).thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
       final sut = fixture.getSut(hub: hub);
@@ -331,10 +363,9 @@ void main() {
         expect(scope.span, null);
       });
 
-      verify(fixture.mockTimeToDisplayTracker.cancelUnfinishedSpans(
-        span,
-        any,
-      )).called(1);
+      verify(
+        fixture.mockTimeToDisplayTracker.cancelUnfinishedSpans(span, any),
+      ).called(1);
 
       verify(
         span.finish(endTimestamp: captureAnyNamed('endTimestamp')),
@@ -343,20 +374,22 @@ void main() {
 
     test('route arguments are set on transaction', () async {
       final arguments = {'foo': 'bar'};
-      final currentRoute = route(RouteSettings(
-        name: 'Current Route',
-        arguments: arguments,
-      ));
+      final currentRoute = route(
+        RouteSettings(name: 'Current Route', arguments: arguments),
+      );
 
       final hub = _MockHub();
       final span = getMockSentryTracer();
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       when(span.finished).thenReturn(false);
-      when(span.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
+      when(
+        span.startChild(
+          'ui.load.initial_display',
+          description: anyNamed('description'),
+          startTimestamp: anyNamed('startTimestamp'),
+        ),
+      ).thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
       final sut = fixture.getSut(hub: hub);
@@ -373,16 +406,21 @@ void main() {
       const op = 'navigation';
       final hub = _MockHub();
 
-      final spanContext =
-          SentrySpanContext(operation: op, spanId: SpanId.newId());
+      final spanContext = SentrySpanContext(
+        operation: op,
+        spanId: SpanId.newId(),
+      );
       final span = getMockSentryTracer(name: name);
       when(span.context).thenReturn(spanContext);
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
-      when(span.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
+      when(
+        span.startChild(
+          'ui.load.initial_display',
+          description: anyNamed('description'),
+          startTimestamp: anyNamed('startTimestamp'),
+        ),
+      ).thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
       final sut = fixture.getSut(
@@ -404,16 +442,21 @@ void main() {
 
       const op = 'navigation';
       final hub = _MockHub();
-      final spanContext =
-          SentrySpanContext(operation: op, spanId: SpanId.newId());
+      final spanContext = SentrySpanContext(
+        operation: op,
+        spanId: SpanId.newId(),
+      );
       final span = getMockSentryTracer(name: oldRouteName);
       when(span.context).thenReturn(spanContext);
       when(span.finished).thenReturn(false);
       when(span.status).thenReturn(SpanStatus.ok());
-      when(span.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
+      when(
+        span.startChild(
+          'ui.load.initial_display',
+          description: anyNamed('description'),
+          startTimestamp: anyNamed('startTimestamp'),
+        ),
+      ).thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
       final sut = fixture.getSut(
@@ -440,10 +483,13 @@ void main() {
       when(span.context).thenReturn(SentrySpanContext(operation: op));
       when(span.status).thenReturn(null);
       when(span.finished).thenReturn(false);
-      when(span.startChild('ui.load.initial_display',
-              description: anyNamed('description'),
-              startTimestamp: anyNamed('startTimestamp')))
-          .thenReturn(NoOpSentrySpan());
+      when(
+        span.startChild(
+          'ui.load.initial_display',
+          description: anyNamed('description'),
+          startTimestamp: anyNamed('startTimestamp'),
+        ),
+      ).thenReturn(NoOpSentrySpan());
       _whenAnyStart(hub, span);
 
       final sut = fixture.getSut(
@@ -472,36 +518,40 @@ void main() {
         required String platformName,
         required MockPlatform platform,
       }) {
-        test('root route does not start transaction on $platformName',
-            () async {
-          final rootRoute = route(RouteSettings(name: '/'));
+        test(
+          'root route does not start transaction on $platformName',
+          () async {
+            final rootRoute = route(RouteSettings(name: '/'));
 
-          final hub = _MockHub();
-          hub.options.platform = platform;
-          final span = getMockSentryTracer();
-          when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
-          when(span.finished).thenReturn(false);
-          when(span.status).thenReturn(SpanStatus.ok());
-          _whenAnyStart(hub, span);
+            final hub = _MockHub();
+            hub.options.platform = platform;
+            final span = getMockSentryTracer();
+            when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
+            when(span.finished).thenReturn(false);
+            when(span.status).thenReturn(SpanStatus.ok());
+            _whenAnyStart(hub, span);
 
-          final sut = fixture.getSut(hub: hub);
+            final sut = fixture.getSut(hub: hub);
 
-          sut.didPush(rootRoute, null);
-          await Future<void>.delayed(const Duration(milliseconds: 100));
+            sut.didPush(rootRoute, null);
+            await Future<void>.delayed(const Duration(milliseconds: 100));
 
-          verifyNever(hub.startTransactionWithContext(
-            any,
-            startTimestamp: anyNamed('startTimestamp'),
-            waitForChildren: true,
-            autoFinishAfter: anyNamed('autoFinishAfter'),
-            trimEnd: true,
-            onFinish: anyNamed('onFinish'),
-          ));
+            verifyNever(
+              hub.startTransactionWithContext(
+                any,
+                startTimestamp: anyNamed('startTimestamp'),
+                waitForChildren: true,
+                autoFinishAfter: anyNamed('autoFinishAfter'),
+                trimEnd: true,
+                onFinish: anyNamed('onFinish'),
+              ),
+            );
 
-          await hub.configureScope((scope) {
-            expect(scope.span, null);
-          });
-        });
+            await hub.configureScope((scope) {
+              expect(scope.span, null);
+            });
+          },
+        );
       }
 
       for (final (platformName, platform) in platforms) {
@@ -551,10 +601,7 @@ void main() {
 
       const toRouteSettings = RouteSettings(
         name: 'to',
-        arguments: {
-          'foo': 123,
-          'bar': 'foobar',
-        },
+        arguments: {'foo': 123, 'bar': 'foobar'},
       );
 
       final breadcrumb = RouteObserverBreadcrumb(
@@ -569,10 +616,7 @@ void main() {
         'from': 'from',
         'from_arguments': 'PageTitle',
         'to': 'to',
-        'to_arguments': {
-          'foo': '123',
-          'bar': 'foobar',
-        },
+        'to_arguments': {'foo': '123', 'bar': 'foobar'},
       });
     });
 
@@ -585,20 +629,13 @@ void main() {
       );
 
       expect(breadcrumb.category, 'navigation');
-      expect(breadcrumb.data, <String, dynamic>{
-        'state': 'didPush',
-      });
+      expect(breadcrumb.data, <String, dynamic>{'state': 'didPush'});
     });
 
     test('route arguments are null', () {
-      const fromRouteSettings = RouteSettings(
-        name: 'from',
-      );
+      const fromRouteSettings = RouteSettings(name: 'from');
 
-      const toRouteSettings = RouteSettings(
-        name: 'to',
-        arguments: null,
-      );
+      const toRouteSettings = RouteSettings(name: 'to', arguments: null);
 
       // both routes are null
       final breadcrumb = RouteObserverBreadcrumb(
@@ -620,9 +657,7 @@ void main() {
 
       const toRouteSettings = RouteSettings(
         name: null,
-        arguments: {
-          'foo': 123,
-        },
+        arguments: {'foo': 123},
       );
 
       // both routes are null
@@ -636,9 +671,7 @@ void main() {
       expect(breadcrumb.data, <String, dynamic>{
         'state': 'didPush',
         'from_arguments': 'foo',
-        'to_arguments': {
-          'foo': '123',
-        },
+        'to_arguments': {'foo': '123'},
       });
     });
   });
@@ -705,16 +738,13 @@ void main() {
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
       expect(
         breadcrumb.data,
-        RouteObserverBreadcrumb(
-          navigationType: 'didReplace',
-        ).data,
+        RouteObserverBreadcrumb(navigationType: 'didReplace').data,
       );
     });
 
     test('No RouteSettings', () {
-      PageRoute<dynamic> route() => PageRouteBuilder<void>(
-            pageBuilder: (_, __, ___) => Container(),
-          );
+      PageRoute<dynamic> route() =>
+          PageRouteBuilder<void>(pageBuilder: (_, __, ___) => Container());
 
       final hub = _MockHub();
       final observer = fixture.getSut(hub: hub);
@@ -729,9 +759,7 @@ void main() {
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
       expect(
         breadcrumb.data,
-        RouteObserverBreadcrumb(
-          navigationType: 'didPop',
-        ).data,
+        RouteObserverBreadcrumb(navigationType: 'didPop').data,
       );
     });
 
@@ -776,8 +804,10 @@ void main() {
     test('disabled route as transaction', () {
       final hub = _MockHub();
       _whenAnyStart(hub, NoOpSentrySpan());
-      final observer =
-          fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+      final observer = fixture.getSut(
+        hub: hub,
+        setRouteNameAsTransaction: false,
+      );
 
       final to = routeSettings('to');
       final previous = routeSettings('previous');
@@ -796,13 +826,14 @@ void main() {
       final hub = _MockHub();
       _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(
-          hub: hub,
-          routeNameExtractor: (settings) {
-            if (settings != null && settings.name == 'to') {
-              return settings.copyWith(name: 'changed_to');
-            }
-            return settings;
-          });
+        hub: hub,
+        routeNameExtractor: (settings) {
+          if (settings != null && settings.name == 'to') {
+            return settings.copyWith(name: 'changed_to');
+          }
+          return settings;
+        },
+      );
 
       final to = routeSettings('to', 'foobar');
       final previous = routeSettings('previous', 'foobar');
@@ -825,10 +856,11 @@ void main() {
       final hub = _MockHub();
       _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(
-          hub: hub,
-          additionalInfoProvider: (from, to) {
-            return <String, dynamic>{'foo': 'bar'};
-          });
+        hub: hub,
+        additionalInfoProvider: (from, to) {
+          return <String, dynamic>{'foo': 'bar'};
+        },
+      );
 
       final to = routeSettings('to', 'foobar');
       final previous = routeSettings('previous', 'foobar');
@@ -852,10 +884,11 @@ void main() {
       final hub = _MockHub();
       _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(
-          hub: hub,
-          setRouteNameAsTransaction: true,
-          routeNameExtractor: (settings) =>
-              settings?.copyWith(name: '${settings.name}_test'));
+        hub: hub,
+        setRouteNameAsTransaction: true,
+        routeNameExtractor: (settings) =>
+            settings?.copyWith(name: '${settings.name}_test'),
+      );
 
       final to = routeSettings('to');
       final previous = routeSettings('previous');
@@ -870,67 +903,91 @@ void main() {
       expect(hub.scope.transaction, 'to_test');
     });
 
-    test('ignores Route and prevents recognition of this route for didPush',
-        () async {
-      final firstRoute = route(RouteSettings(name: 'default'));
-      final secondRoute = route(RouteSettings(name: 'testRoute'));
+    test(
+      'ignores Route and prevents recognition of this route for didPush',
+      () async {
+        final firstRoute = route(RouteSettings(name: 'default'));
+        final secondRoute = route(RouteSettings(name: 'testRoute'));
 
-      final hub = _MockHub();
-      _whenAnyStart(hub, NoOpSentrySpan());
+        final hub = _MockHub();
+        _whenAnyStart(hub, NoOpSentrySpan());
 
-      final sut = fixture.getSut(hub: hub, ignoreRoutes: ["testRoute"]);
+        final sut = fixture.getSut(hub: hub, ignoreRoutes: ["testRoute"]);
 
-      sut.didPush(firstRoute, null);
-      expect(
-          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
-      sut.didPush(secondRoute, firstRoute);
-      expect(
-          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
-      sut.didPush(firstRoute, secondRoute);
-      expect(
-          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
-    });
+        sut.didPush(firstRoute, null);
+        expect(
+          SentryNavigatorObserver.currentRouteName,
+          firstRoute.settings.name,
+        );
+        sut.didPush(secondRoute, firstRoute);
+        expect(
+          SentryNavigatorObserver.currentRouteName,
+          firstRoute.settings.name,
+        );
+        sut.didPush(firstRoute, secondRoute);
+        expect(
+          SentryNavigatorObserver.currentRouteName,
+          firstRoute.settings.name,
+        );
+      },
+    );
 
-    test('ignores Route and prevents recognition of this route for didPop',
-        () async {
-      final firstRoute = route(RouteSettings(name: 'default'));
-      final secondRoute = route(RouteSettings(name: 'testRoute'));
+    test(
+      'ignores Route and prevents recognition of this route for didPop',
+      () async {
+        final firstRoute = route(RouteSettings(name: 'default'));
+        final secondRoute = route(RouteSettings(name: 'testRoute'));
 
-      final hub = _MockHub();
-      _whenAnyStart(hub, NoOpSentrySpan());
+        final hub = _MockHub();
+        _whenAnyStart(hub, NoOpSentrySpan());
 
-      final sut = fixture.getSut(hub: hub, ignoreRoutes: ["testRoute"]);
+        final sut = fixture.getSut(hub: hub, ignoreRoutes: ["testRoute"]);
 
-      sut.didPush(firstRoute, null);
-      expect(
-          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
-      sut.didPush(secondRoute, firstRoute);
-      expect(
-          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
-      sut.didPop(firstRoute, secondRoute);
-      expect(
-          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
-    });
+        sut.didPush(firstRoute, null);
+        expect(
+          SentryNavigatorObserver.currentRouteName,
+          firstRoute.settings.name,
+        );
+        sut.didPush(secondRoute, firstRoute);
+        expect(
+          SentryNavigatorObserver.currentRouteName,
+          firstRoute.settings.name,
+        );
+        sut.didPop(firstRoute, secondRoute);
+        expect(
+          SentryNavigatorObserver.currentRouteName,
+          firstRoute.settings.name,
+        );
+      },
+    );
 
-    test('ignores Route and prevents recognition of this route for didReplace',
-        () async {
-      final firstRoute = route(RouteSettings(name: 'default'));
-      final secondRoute = route(RouteSettings(name: 'testRoute'));
+    test(
+      'ignores Route and prevents recognition of this route for didReplace',
+      () async {
+        final firstRoute = route(RouteSettings(name: 'default'));
+        final secondRoute = route(RouteSettings(name: 'testRoute'));
 
-      final hub = _MockHub();
+        final hub = _MockHub();
 
-      final sut = fixture.getSut(hub: hub, ignoreRoutes: ["testRoute"]);
+        final sut = fixture.getSut(hub: hub, ignoreRoutes: ["testRoute"]);
 
-      sut.didReplace(newRoute: firstRoute);
-      expect(
-          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
-      sut.didReplace(newRoute: secondRoute, oldRoute: firstRoute);
-      expect(
-          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
-      sut.didReplace(newRoute: firstRoute, oldRoute: secondRoute);
-      expect(
-          SentryNavigatorObserver.currentRouteName, firstRoute.settings.name);
-    });
+        sut.didReplace(newRoute: firstRoute);
+        expect(
+          SentryNavigatorObserver.currentRouteName,
+          firstRoute.settings.name,
+        );
+        sut.didReplace(newRoute: secondRoute, oldRoute: firstRoute);
+        expect(
+          SentryNavigatorObserver.currentRouteName,
+          firstRoute.settings.name,
+        );
+        sut.didReplace(newRoute: firstRoute, oldRoute: secondRoute);
+        expect(
+          SentryNavigatorObserver.currentRouteName,
+          firstRoute.settings.name,
+        );
+      },
+    );
   });
 
   group('web sessions', () {
@@ -968,15 +1025,16 @@ void main() {
       });
 
       test(
-          'webSessionHandler remains null if integration exists but not called before initialization',
-          () {
-        final integration = WebSessionIntegration(mockNative);
-        mockHub.options.addIntegration(integration);
-        // integration.call() is not executed
+        'webSessionHandler remains null if integration exists but not called before initialization',
+        () {
+          final integration = WebSessionIntegration(mockNative);
+          mockHub.options.addIntegration(integration);
+          // integration.call() is not executed
 
-        final sut = _getSut();
-        expect(sut.webSessionHandler, isNull);
-      });
+          final sut = _getSut();
+          expect(sut.webSessionHandler, isNull);
+        },
+      );
     });
 
     group('on platform web', () {
@@ -996,8 +1054,7 @@ void main() {
           _setupWebSessionIntegration();
         });
 
-        test('starts new session on didPush between different routes',
-            () async {
+        test('starts new session on didPush between different routes', () async {
           final fromRoute = route(RouteSettings(name: 'From Route'));
           final toRoute = route(RouteSettings(name: 'To Route'));
 
@@ -1025,20 +1082,22 @@ void main() {
           verify(mockNative.captureSession()).called(1);
         });
 
-        test('starts new session on didReplace between different routes',
-            () async {
-          final fromRoute = route(RouteSettings(name: 'From Route'));
-          final toRoute = route(RouteSettings(name: 'To Route'));
+        test(
+          'starts new session on didReplace between different routes',
+          () async {
+            final fromRoute = route(RouteSettings(name: 'From Route'));
+            final toRoute = route(RouteSettings(name: 'To Route'));
 
-          final sut = _getSut();
+            final sut = _getSut();
 
-          sut.didReplace(newRoute: toRoute, oldRoute: fromRoute);
-          // Delay a bit since we use await with the session api and we cannot await the navigation methods
-          await Future<void>.delayed(Duration(milliseconds: 100));
+            sut.didReplace(newRoute: toRoute, oldRoute: fromRoute);
+            // Delay a bit since we use await with the session api and we cannot await the navigation methods
+            await Future<void>.delayed(Duration(milliseconds: 100));
 
-          verify(mockNative.startSession(ignoreDuration: true)).called(1);
-          verify(mockNative.captureSession()).called(1);
-        });
+            verify(mockNative.startSession(ignoreDuration: true)).called(1);
+            verify(mockNative.captureSession()).called(1);
+          },
+        );
 
         test('starts new session on didPush in initial route', () async {
           _setupWebSessionIntegration();
@@ -1054,22 +1113,24 @@ void main() {
           verify(mockNative.captureSession()).called(1);
         });
 
-        test('does not start new session when navigating to the same route',
-            () async {
-          final fromRoute = route(RouteSettings(name: 'Same Route'));
-          final toRoute = route(RouteSettings(name: 'Same Route'));
+        test(
+          'does not start new session when navigating to the same route',
+          () async {
+            final fromRoute = route(RouteSettings(name: 'Same Route'));
+            final toRoute = route(RouteSettings(name: 'Same Route'));
 
-          final sut = _getSut();
+            final sut = _getSut();
 
-          sut.didPush(fromRoute, toRoute);
-          sut.didPop(fromRoute, toRoute);
-          sut.didReplace(newRoute: toRoute, oldRoute: fromRoute);
-          // Delay a bit since we use await with the session api and we cannot await the navigation methods
-          await Future<void>.delayed(Duration(milliseconds: 100));
+            sut.didPush(fromRoute, toRoute);
+            sut.didPop(fromRoute, toRoute);
+            sut.didReplace(newRoute: toRoute, oldRoute: fromRoute);
+            // Delay a bit since we use await with the session api and we cannot await the navigation methods
+            await Future<void>.delayed(Duration(milliseconds: 100));
 
-          verifyNever(mockNative.startSession(ignoreDuration: true));
-          verifyNever(mockNative.captureSession());
-        });
+            verifyNever(mockNative.startSession(ignoreDuration: true));
+            verifyNever(mockNative.captureSession());
+          },
+        );
       });
     });
   });
@@ -1133,9 +1194,7 @@ void main() {
       final tracer = getMockSentryTracer();
       _whenAnyStart(mockHub, tracer);
 
-      final sut = fixture.getSut(
-        hub: mockHub,
-      );
+      final sut = fixture.getSut(hub: mockHub);
 
       sut.didPush(route(RouteSettings(name: 'To Route')), null);
       // Delay a bit since we use await with the session api and we cannot await the navigation methods
@@ -1157,8 +1216,9 @@ void main() {
 
       sut.didPush(route(RouteSettings(name: '/dashboard')), null);
 
-      expect(
-          streamingFixture.fakeTracker.trackRouteChangeCalls, ['/dashboard']);
+      expect(streamingFixture.fakeTracker.trackRouteChangeCalls, [
+        '/dashboard',
+      ]);
     });
 
     test('didPush does not call tracker for root route', () {
@@ -1283,10 +1343,7 @@ extension RouteSettingsExtensions on RouteSettings {
   /// Creates a copy of this route settings object with the given fields
   /// replaced with the new values.
   /// Flutter 3.6 beta removed copyWith but we use it for testing
-  RouteSettings copyWith({
-    String? name,
-    Object? arguments,
-  }) {
+  RouteSettings copyWith({String? name, Object? arguments}) {
     return RouteSettings(
       name: name ?? this.name,
       arguments: arguments ?? this.arguments,

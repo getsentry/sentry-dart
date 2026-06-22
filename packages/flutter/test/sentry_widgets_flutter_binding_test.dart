@@ -10,11 +10,12 @@ import 'package:sentry_flutter/src/binding_wrapper.dart';
 void main() {
   group('$SentryWidgetsFlutterBinding', () {
     test(
-        'no existing binding: ensureInitialized() returns SentryWidgetsFlutterBinding binding',
-        () {
-      final binding = SentryWidgetsFlutterBinding.ensureInitialized();
+      'no existing binding: ensureInitialized() returns SentryWidgetsFlutterBinding binding',
+      () {
+        final binding = SentryWidgetsFlutterBinding.ensureInitialized();
 
-      expect(binding, equals(WidgetsBinding.instance));
-    });
+        expect(binding, equals(WidgetsBinding.instance));
+      },
+    );
   });
 }

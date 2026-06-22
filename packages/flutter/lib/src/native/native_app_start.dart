@@ -3,11 +3,12 @@ import 'package:sentry/sentry.dart';
 
 @internal
 class NativeAppStart {
-  NativeAppStart(
-      {required this.appStartTime,
-      required this.pluginRegistrationTime,
-      required this.isColdStart,
-      required this.nativeSpanTimes});
+  NativeAppStart({
+    required this.appStartTime,
+    required this.pluginRegistrationTime,
+    required this.isColdStart,
+    required this.nativeSpanTimes,
+  });
 
   int appStartTime;
   int pluginRegistrationTime;

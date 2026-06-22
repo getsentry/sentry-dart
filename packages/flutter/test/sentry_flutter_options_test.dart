@@ -4,8 +4,9 @@ import 'mocks.dart';
 
 void main() {
   group('SentryFlutterOptions', () {
-    testWidgets('auto breadcrumb tracking: has native integration',
-        (WidgetTester tester) async {
+    testWidgets('auto breadcrumb tracking: has native integration', (
+      WidgetTester tester,
+    ) async {
       final options = defaultTestOptions();
 
       expect(options.enableAppLifecycleBreadcrumbs, isFalse);
@@ -16,8 +17,9 @@ void main() {
       expect(options.enableAutoNativeBreadcrumbs, isTrue);
     });
 
-    testWidgets('auto breadcrumb tracking: without native integration',
-        (WidgetTester tester) async {
+    testWidgets('auto breadcrumb tracking: without native integration', (
+      WidgetTester tester,
+    ) async {
       final options = defaultTestOptions(platform: MockPlatform.fuchsia());
 
       expect(options.enableAppLifecycleBreadcrumbs, isTrue);
@@ -52,8 +54,9 @@ void main() {
       expect(options.enableAutoNativeBreadcrumbs, isFalse);
     });
 
-    testWidgets('enableTombstone defaults to false',
-        (WidgetTester tester) async {
+    testWidgets('enableTombstone defaults to false', (
+      WidgetTester tester,
+    ) async {
       final options = defaultTestOptions();
 
       expect(options.enableTombstone, isFalse);

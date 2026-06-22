@@ -39,8 +39,9 @@ void main() {
     }
 
     final mockNativeBinding = MockSentryNativeBinding();
-    when(mockNativeBinding.displayRefreshRate())
-        .thenAnswer((_) async => setInvalidRefreshRate == true ? 0 : 60);
+    when(
+      mockNativeBinding.displayRefreshRate(),
+    ).thenAnswer((_) async => setInvalidRefreshRate == true ? 0 : 60);
 
     if (setIncompatibleBinding == true) {
       final mockBindingWrapper = MockBindingWrapper();
@@ -82,8 +83,10 @@ void main() {
   test('adds integration to SDK list', () async {
     await fromWorkingState(options);
 
-    expect(options.sdk.integrations,
-        contains(FramesTrackingIntegration.integrationName));
+    expect(
+      options.sdk.integrations,
+      contains(FramesTrackingIntegration.integrationName),
+    );
   });
 
   test('properly cleans up resources on close - streaming', () async {
@@ -130,14 +133,8 @@ void main() {
     integration.close();
 
     expect(isFramesTrackingInitialized(widgetsBinding!), isFalse);
-    expect(
-      options.lifecycleRegistry.lifecycleCallbacks[OnSpanStart],
-      isEmpty,
-    );
-    expect(
-      options.lifecycleRegistry.lifecycleCallbacks[OnSpanFinish],
-      isEmpty,
-    );
+    expect(options.lifecycleRegistry.lifecycleCallbacks[OnSpanStart], isEmpty);
+    expect(options.lifecycleRegistry.lifecycleCallbacks[OnSpanFinish], isEmpty);
   });
 
   group('succeeds to initialize frames tracking', () {
@@ -177,13 +174,15 @@ void main() {
       );
     }
 
-    testWidgets('with stream lifecycle measures frames',
-        (WidgetTester tester) async {
+    testWidgets('with stream lifecycle measures frames', (
+      WidgetTester tester,
+    ) async {
       late SentrySpanV2 parentSpan;
       late SentrySpanV2 childSpan;
 
       await fromWorkingState(
-          options..traceLifecycle = SentryTraceLifecycle.stream);
+        options..traceLifecycle = SentryTraceLifecycle.stream,
+      );
 
       await tester.runAsync(() async {
         final testWidget = buildTestApp(
@@ -216,24 +215,28 @@ void main() {
         // threshold and be reclassified, and extra delayed frames can be
         // recorded. Assert combined counts and lower bounds instead of an
         // exact slow/frozen split.
-        final childSlow = childSpan
-                .attributes[SemanticAttributesConstants.framesSlow]
-                ?.value as int? ??
+        final childSlow =
+            childSpan.attributes[SemanticAttributesConstants.framesSlow]?.value
+                as int? ??
             0;
-        final childFrozen = childSpan
-                .attributes[SemanticAttributesConstants.framesFrozen]
-                ?.value as int? ??
+        final childFrozen =
+            childSpan
+                    .attributes[SemanticAttributesConstants.framesFrozen]
+                    ?.value
+                as int? ??
             0;
         expect(childSlow + childFrozen, greaterThanOrEqualTo(3));
         expect(childFrozen, greaterThanOrEqualTo(1));
 
-        final parentSlow = parentSpan
-                .attributes[SemanticAttributesConstants.framesSlow]
-                ?.value as int? ??
+        final parentSlow =
+            parentSpan.attributes[SemanticAttributesConstants.framesSlow]?.value
+                as int? ??
             0;
-        final parentFrozen = parentSpan
-                .attributes[SemanticAttributesConstants.framesFrozen]
-                ?.value as int? ??
+        final parentFrozen =
+            parentSpan
+                    .attributes[SemanticAttributesConstants.framesFrozen]
+                    ?.value
+                as int? ??
             0;
         expect(parentSlow + parentFrozen, greaterThanOrEqualTo(7));
         expect(parentFrozen, greaterThanOrEqualTo(2));
@@ -245,24 +248,28 @@ void main() {
       });
     });
 
-    testWidgets('with static lifecycle measures frames',
-        (WidgetTester tester) async {
+    testWidgets('with static lifecycle measures frames', (
+      WidgetTester tester,
+    ) async {
       SentryTracer? tracer;
       ISentrySpan? child;
 
       await fromWorkingState(
-          options..traceLifecycle = SentryTraceLifecycle.static);
+        options..traceLifecycle = SentryTraceLifecycle.static,
+      );
 
       await tester.runAsync(() async {
         final testWidget = buildTestApp(
           buttonText: 'Start Transaction',
           onPressed: () {
-            tracer = hub.startTransaction(
-              'test_transaction',
-              'test_operation',
-              bindToScope: true,
-              startTimestamp: options.clock(),
-            ) as SentryTracer;
+            tracer =
+                hub.startTransaction(
+                      'test_transaction',
+                      'test_operation',
+                      bindToScope: true,
+                      startTimestamp: options.clock(),
+                    )
+                    as SentryTracer;
 
             child = tracer?.startChild(
               'child_operation',
@@ -389,54 +396,60 @@ void main() {
       );
     });
 
-    test('cleans up when span with null endTimestamp is last active span',
-        () async {
-      await fromWorkingState(options);
+    test(
+      'cleans up when span with null endTimestamp is last active span',
+      () async {
+        await fromWorkingState(options);
 
-      final mockFrameTracker = MockSentryDelayedFramesTracker();
-      int pauseFrameTrackingCalledCount = 0;
+        final mockFrameTracker = MockSentryDelayedFramesTracker();
+        int pauseFrameTrackingCalledCount = 0;
 
-      // Create a new collector with our own counters
-      final testCollector = SpanFrameMetricsCollector(
-        mockFrameTracker,
-        resumeFrameTracking: () => widgetsBinding!.resumeTrackingFrames(),
-        pauseFrameTracking: () {
-          pauseFrameTrackingCalledCount++;
-          widgetsBinding!.pauseTrackingFrames();
-        },
-      );
+        // Create a new collector with our own counters
+        final testCollector = SpanFrameMetricsCollector(
+          mockFrameTracker,
+          resumeFrameTracking: () => widgetsBinding!.resumeTrackingFrames(),
+          pauseFrameTracking: () {
+            pauseFrameTrackingCalledCount++;
+            widgetsBinding!.pauseTrackingFrames();
+          },
+        );
 
-      // Simulate a span starting
-      final hub = Hub(options);
-      final tracer = hub.startTransaction(
-        'test_transaction',
-        'test_operation',
-        bindToScope: true,
-        startTimestamp: options.clock(),
-      ) as SentryTracer;
+        // Simulate a span starting
+        final hub = Hub(options);
+        final tracer =
+            hub.startTransaction(
+                  'test_transaction',
+                  'test_operation',
+                  bindToScope: true,
+                  startTimestamp: options.clock(),
+                )
+                as SentryTracer;
 
-      final span = tracer.startChild(
-        'child_operation',
-        description: 'Child span',
-        startTimestamp: options.clock(),
-      ) as SentrySpan;
+        final span =
+            tracer.startChild(
+                  'child_operation',
+                  description: 'Child span',
+                  startTimestamp: options.clock(),
+                )
+                as SentrySpan;
 
-      final wrapped = LegacyInstrumentationSpan(span);
-      await testCollector.startTracking(wrapped);
+        final wrapped = LegacyInstrumentationSpan(span);
+        await testCollector.startTracking(wrapped);
 
-      expect(testCollector.activeSpans, contains(wrapped));
+        expect(testCollector.activeSpans, contains(wrapped));
 
-      // Simulate what happens with null endTimestamp (integration code path)
-      testCollector.activeSpans.remove(wrapped);
-      if (testCollector.activeSpans.isEmpty) {
-        testCollector.clear();
-      }
+        // Simulate what happens with null endTimestamp (integration code path)
+        testCollector.activeSpans.remove(wrapped);
+        if (testCollector.activeSpans.isEmpty) {
+          testCollector.clear();
+        }
 
-      // Verify cleanup: pauseFrameTracking should be called when activeSpans becomes empty
-      expect(testCollector.activeSpans, isEmpty);
-      expect(pauseFrameTrackingCalledCount, 1);
-      verify(mockFrameTracker.clear()).called(1);
-    });
+        // Verify cleanup: pauseFrameTracking should be called when activeSpans becomes empty
+        expect(testCollector.activeSpans, isEmpty);
+        expect(pauseFrameTrackingCalledCount, 1);
+        verify(mockFrameTracker.clear()).called(1);
+      },
+    );
   });
 
   group('with streaming lifecycle', () {
@@ -444,42 +457,45 @@ void main() {
       options.traceLifecycle = SentryTraceLifecycle.stream;
     });
 
-    test('cleans up when span with null endTimestamp is last active span',
-        () async {
-      await fromWorkingState(options);
+    test(
+      'cleans up when span with null endTimestamp is last active span',
+      () async {
+        await fromWorkingState(options);
 
-      final mockFrameTracker = MockSentryDelayedFramesTracker();
-      int pauseFrameTrackingCalledCount = 0;
+        final mockFrameTracker = MockSentryDelayedFramesTracker();
+        int pauseFrameTrackingCalledCount = 0;
 
-      // Create a new collector with our own counters
-      final testCollector = SpanFrameMetricsCollector(
-        mockFrameTracker,
-        resumeFrameTracking: () => widgetsBinding!.resumeTrackingFrames(),
-        pauseFrameTracking: () {
-          pauseFrameTrackingCalledCount++;
-          widgetsBinding!.pauseTrackingFrames();
-        },
-      );
+        // Create a new collector with our own counters
+        final testCollector = SpanFrameMetricsCollector(
+          mockFrameTracker,
+          resumeFrameTracking: () => widgetsBinding!.resumeTrackingFrames(),
+          pauseFrameTracking: () {
+            pauseFrameTrackingCalledCount++;
+            widgetsBinding!.pauseTrackingFrames();
+          },
+        );
 
-      // Simulate a span starting
-      final hub = Hub(options);
-      final span = hub.startInactiveSpan('test_span') as RecordingSentrySpanV2;
+        // Simulate a span starting
+        final hub = Hub(options);
+        final span =
+            hub.startInactiveSpan('test_span') as RecordingSentrySpanV2;
 
-      final wrapped = StreamingInstrumentationSpan(span);
-      await testCollector.startTracking(wrapped);
+        final wrapped = StreamingInstrumentationSpan(span);
+        await testCollector.startTracking(wrapped);
 
-      expect(testCollector.activeSpans, contains(wrapped));
+        expect(testCollector.activeSpans, contains(wrapped));
 
-      // Simulate what happens with null endTimestamp (integration code path)
-      testCollector.activeSpans.remove(wrapped);
-      if (testCollector.activeSpans.isEmpty) {
-        testCollector.clear();
-      }
+        // Simulate what happens with null endTimestamp (integration code path)
+        testCollector.activeSpans.remove(wrapped);
+        if (testCollector.activeSpans.isEmpty) {
+          testCollector.clear();
+        }
 
-      // Verify cleanup: pauseFrameTracking should be called when activeSpans becomes empty
-      expect(testCollector.activeSpans, isEmpty);
-      expect(pauseFrameTrackingCalledCount, 1);
-      verify(mockFrameTracker.clear()).called(1);
-    });
+        // Verify cleanup: pauseFrameTracking should be called when activeSpans becomes empty
+        expect(testCollector.activeSpans, isEmpty);
+        expect(pauseFrameTrackingCalledCount, 1);
+        verify(mockFrameTracker.clear()).called(1);
+      },
+    );
   });
 }

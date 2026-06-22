@@ -25,7 +25,8 @@ void initSentryAndroid({
       ?..releasedBy(arena);
     if (context == null) {
       internalLogger.error(
-          'Failed to initialize Sentry Android, application context is null.');
+        'Failed to initialize Sentry Android, application context is null.',
+      );
       return;
     }
 
@@ -56,7 +57,8 @@ void initSentryAndroid({
 /// Builds the beforeSendReplay callback to override rrweb masking options
 /// using Dart-layer privacy configuration.
 native.SentryOptions$BeforeSendReplayCallback createBeforeSendReplayCallback(
-    SentryFlutterOptions options) {
+  SentryFlutterOptions options,
+) {
   return native.SentryOptions$BeforeSendReplayCallback.implement(
     native.$SentryOptions$BeforeSendReplayCallback(
       execute: (sentryReplayEvent, hint) {
@@ -66,8 +68,7 @@ native.SentryOptions$BeforeSendReplayCallback createBeforeSendReplayCallback(
             final data = replayRecording?.payload?.use((payload) {
               final events = payload.asDart();
               return events.isEmpty ? null : events.first;
-            })
-              ?..releasedBy(arena);
+            })?..releasedBy(arena);
             if (data?.isA(native.RRWebOptionsEvent.type) ?? false) {
               final optionsEvent = data!.as(native.RRWebOptionsEvent.type)
                 ..releasedBy(arena);
@@ -114,8 +115,9 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
   return native.ReplayRecorderCallbacks.implement(
     native.$ReplayRecorderCallbacks(
       replayStarted: (JString replayIdString, bool replayIsBuffering) async {
-        final replayId =
-            SentryId.fromId(replayIdString.toDartString(releaseOriginal: true));
+        final replayId = SentryId.fromId(
+          replayIdString.toDartString(releaseOriginal: true),
+        );
 
         owner._replayId = replayId;
         owner._setNativeReplay(
@@ -282,19 +284,19 @@ void configureAndroidOptions({
     final sessionReplay = androidOptions.sessionReplay..releasedBy(arena);
     switch (options.replay.quality) {
       case SentryReplayQuality.low:
-        sessionReplay.quality = native
-            .SentryReplayOptions$SentryReplayQuality.LOW
-          ..releasedBy(arena);
+        sessionReplay.quality =
+            native.SentryReplayOptions$SentryReplayQuality.LOW
+              ..releasedBy(arena);
         break;
       case SentryReplayQuality.high:
-        sessionReplay.quality = native
-            .SentryReplayOptions$SentryReplayQuality.HIGH
-          ..releasedBy(arena);
+        sessionReplay.quality =
+            native.SentryReplayOptions$SentryReplayQuality.HIGH
+              ..releasedBy(arena);
         break;
       default:
-        sessionReplay.quality = native
-            .SentryReplayOptions$SentryReplayQuality.MEDIUM
-          ..releasedBy(arena);
+        sessionReplay.quality =
+            native.SentryReplayOptions$SentryReplayQuality.MEDIUM
+              ..releasedBy(arena);
     }
     sessionReplay.sessionSampleRate =
         options.replay.sessionSampleRate?.toJDouble()?..releasedBy(arena);

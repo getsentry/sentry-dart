@@ -27,17 +27,14 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
     _integrationOnError = (FlutterErrorDetails errorDetails) {
       final exception = errorDetails.exception;
 
-      options.log(
-        SentryLevel.debug,
-        'Capture from onError $exception',
-      );
+      options.log(SentryLevel.debug, 'Capture from onError $exception');
 
       if (errorDetails.silent != true || options.reportSilentFlutterErrors) {
         final context = errorDetails.context?.toDescription();
 
         final collector = errorDetails.informationCollector?.call() ?? [];
-        final information =
-            (StringBuffer()..writeAll(collector, '\n')).toString();
+        final information = (StringBuffer()..writeAll(collector, '\n'))
+            .toString();
         // errorDetails.library defaults to 'Flutter framework' even though it
         // is nullable. We do null checks anyway, just to be sure.
         final library = errorDetails.library;

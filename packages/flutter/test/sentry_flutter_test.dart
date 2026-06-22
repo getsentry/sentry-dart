@@ -34,23 +34,14 @@ final platformAgnosticIntegrations = [
   SentryViewHierarchyIntegration,
 ];
 
-final webIntegrations = [
-  ConnectivityIntegration,
-  WebSessionIntegration,
-];
+final webIntegrations = [ConnectivityIntegration, WebSessionIntegration];
 
-final linuxWindowsAndWebIntegrations = [
-  GenericAppStartIntegration,
-];
+final linuxWindowsAndWebIntegrations = [GenericAppStartIntegration];
 
-final nonWebIntegrations = [
-  OnErrorIntegration,
-];
+final nonWebIntegrations = [OnErrorIntegration];
 
 // These should be added to iOS and macOS
-final iOsAndMacOsIntegrations = [
-  LoadContextsIntegration,
-];
+final iOsAndMacOsIntegrations = [LoadContextsIntegration];
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -91,7 +82,9 @@ void main() {
       expect(transport, isA<FileSystemTransport>());
 
       testScopeObserver(
-          options: sentryFlutterOptions, expectedHasNativeScopeObserver: true);
+        options: sentryFlutterOptions,
+        expectedHasNativeScopeObserver: true,
+      );
 
       testConfiguration(
         integrations: options.integrations,
@@ -101,24 +94,29 @@ void main() {
           ...nonWebIntegrations,
           ReplayIntegration,
         ],
-        shouldNotHaveIntegrations: [
-          ...nonWebIntegrations,
-        ],
+        shouldNotHaveIntegrations: [...nonWebIntegrations],
       );
 
       testBefore(
-          integrations: options.integrations,
-          beforeIntegration: WidgetsFlutterBindingIntegration,
-          afterIntegration: OnErrorIntegration);
+        integrations: options.integrations,
+        beforeIntegration: WidgetsFlutterBindingIntegration,
+        afterIntegration: OnErrorIntegration,
+      );
 
       expect(SentryFlutter.native, isNotNull);
-      expect(Sentry.currentHub.profilerFactory,
-          isInstanceOf<SentryNativeProfilerFactory>());
+      expect(
+        Sentry.currentHub.profilerFactory,
+        isInstanceOf<SentryNativeProfilerFactory>(),
+      );
 
       expect(
-          options.eventProcessors.indexOfTypeString('IoEnricherEventProcessor'),
-          greaterThan(options.eventProcessors
-              .indexOfTypeString('_LoadContextsIntegrationEventProcessor')));
+        options.eventProcessors.indexOfTypeString('IoEnricherEventProcessor'),
+        greaterThan(
+          options.eventProcessors.indexOfTypeString(
+            '_LoadContextsIntegrationEventProcessor',
+          ),
+        ),
+      );
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -145,24 +143,31 @@ void main() {
       expect(transport, isA<FileSystemTransport>());
 
       testScopeObserver(
-          options: sentryFlutterOptions, expectedHasNativeScopeObserver: true);
+        options: sentryFlutterOptions,
+        expectedHasNativeScopeObserver: true,
+      );
 
-      testConfiguration(integrations: integrations, shouldHaveIntegrations: [
-        ...iOsAndMacOsIntegrations,
-        ...platformAgnosticIntegrations,
-        ...nonWebIntegrations,
-      ], shouldNotHaveIntegrations: [
-        ...nonWebIntegrations,
-      ]);
+      testConfiguration(
+        integrations: integrations,
+        shouldHaveIntegrations: [
+          ...iOsAndMacOsIntegrations,
+          ...platformAgnosticIntegrations,
+          ...nonWebIntegrations,
+        ],
+        shouldNotHaveIntegrations: [...nonWebIntegrations],
+      );
 
       testBefore(
-          integrations: integrations,
-          beforeIntegration: WidgetsFlutterBindingIntegration,
-          afterIntegration: OnErrorIntegration);
+        integrations: integrations,
+        beforeIntegration: WidgetsFlutterBindingIntegration,
+        afterIntegration: OnErrorIntegration,
+      );
 
       expect(SentryFlutter.native, isNotNull);
-      expect(Sentry.currentHub.profilerFactory,
-          isInstanceOf<SentryNativeProfilerFactory>());
+      expect(
+        Sentry.currentHub.profilerFactory,
+        isInstanceOf<SentryNativeProfilerFactory>(),
+      );
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -170,11 +175,10 @@ void main() {
     test('Windows', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
-      final sentryFlutterOptions =
-          defaultTestOptions(checker: MockRuntimeChecker())
-            ..platform = MockPlatform.windows()
-            // We need to disable native init because sentry.dll is not available here.
-            ..autoInitializeNativeSdk = false;
+      final sentryFlutterOptions = defaultTestOptions(checker: MockRuntimeChecker())
+        ..platform = MockPlatform.windows()
+        // We need to disable native init because sentry.dll is not available here.
+        ..autoInitializeNativeSdk = false;
 
       await SentryFlutter.init(
         (options) async {
@@ -190,7 +194,9 @@ void main() {
       expect(transport, isNot(isA<FileSystemTransport>()));
 
       testScopeObserver(
-          options: sentryFlutterOptions, expectedHasNativeScopeObserver: true);
+        options: sentryFlutterOptions,
+        expectedHasNativeScopeObserver: true,
+      );
 
       testConfiguration(
         integrations: integrations,
@@ -206,9 +212,10 @@ void main() {
       );
 
       testBefore(
-          integrations: integrations,
-          beforeIntegration: WidgetsFlutterBindingIntegration,
-          afterIntegration: OnErrorIntegration);
+        integrations: integrations,
+        beforeIntegration: WidgetsFlutterBindingIntegration,
+        afterIntegration: OnErrorIntegration,
+      );
 
       expect(SentryFlutter.native, isNotNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
@@ -217,12 +224,11 @@ void main() {
     test('Linux', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
-      final sentryFlutterOptions =
-          defaultTestOptions(checker: MockRuntimeChecker())
-            ..platform = MockPlatform.linux()
-            ..methodChannel = native.channel
-            // We need to disable native init because libsentry.so is not available here.
-            ..autoInitializeNativeSdk = false;
+      final sentryFlutterOptions = defaultTestOptions(checker: MockRuntimeChecker())
+        ..platform = MockPlatform.linux()
+        ..methodChannel = native.channel
+        // We need to disable native init because libsentry.so is not available here.
+        ..autoInitializeNativeSdk = false;
 
       await SentryFlutter.init(
         (options) async {
@@ -238,7 +244,9 @@ void main() {
       expect(transport, isNot(isA<FileSystemTransport>()));
 
       testScopeObserver(
-          options: sentryFlutterOptions, expectedHasNativeScopeObserver: true);
+        options: sentryFlutterOptions,
+        expectedHasNativeScopeObserver: true,
+      );
 
       testConfiguration(
         integrations: integrations,
@@ -254,9 +262,10 @@ void main() {
       );
 
       testBefore(
-          integrations: integrations,
-          beforeIntegration: WidgetsFlutterBindingIntegration,
-          afterIntegration: OnErrorIntegration);
+        integrations: integrations,
+        beforeIntegration: WidgetsFlutterBindingIntegration,
+        afterIntegration: OnErrorIntegration,
+      );
 
       expect(SentryFlutter.native, isNotNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
@@ -303,9 +312,10 @@ void main() {
       );
 
       testBefore(
-          integrations: Sentry.currentHub.options.integrations,
-          beforeIntegration: RunZonedGuardedIntegration,
-          afterIntegration: WidgetsFlutterBindingIntegration);
+        integrations: Sentry.currentHub.options.integrations,
+        beforeIntegration: RunZonedGuardedIntegration,
+        afterIntegration: WidgetsFlutterBindingIntegration,
+      );
 
       expect(SentryFlutter.native, isNotNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
@@ -327,10 +337,11 @@ void main() {
         options: sentryFlutterOptions,
       );
 
-      final containsRunZonedGuardedIntegration =
-          Sentry.currentHub.options.integrations.any(
-        (integration) => integration is RunZonedGuardedIntegration,
-      );
+      final containsRunZonedGuardedIntegration = Sentry
+          .currentHub
+          .options
+          .integrations
+          .any((integration) => integration is RunZonedGuardedIntegration);
       expect(containsRunZonedGuardedIntegration, isFalse);
 
       expect(SentryFlutter.native, isNotNull);
@@ -373,9 +384,10 @@ void main() {
       );
 
       testBefore(
-          integrations: Sentry.currentHub.options.integrations,
-          beforeIntegration: RunZonedGuardedIntegration,
-          afterIntegration: WidgetsFlutterBindingIntegration);
+        integrations: Sentry.currentHub.options.integrations,
+        beforeIntegration: RunZonedGuardedIntegration,
+        afterIntegration: WidgetsFlutterBindingIntegration,
+      );
 
       expect(SentryFlutter.native, isNotNull);
 
@@ -417,9 +429,10 @@ void main() {
       );
 
       testBefore(
-          integrations: Sentry.currentHub.options.integrations,
-          beforeIntegration: RunZonedGuardedIntegration,
-          afterIntegration: WidgetsFlutterBindingIntegration);
+        integrations: Sentry.currentHub.options.integrations,
+        beforeIntegration: RunZonedGuardedIntegration,
+        afterIntegration: WidgetsFlutterBindingIntegration,
+      );
 
       expect(Sentry.currentHub.profilerFactory, isNull);
       expect(SentryFlutter.native, isNotNull);
@@ -453,10 +466,9 @@ void main() {
       );
 
       expect(
-          integrations
-              .map((e) => e.runtimeType)
-              .contains(ScreenshotIntegration),
-          true);
+        integrations.map((e) => e.runtimeType).contains(ScreenshotIntegration),
+        true,
+      );
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -480,10 +492,9 @@ void main() {
       );
 
       expect(
-          integrations
-              .map((e) => e.runtimeType)
-              .contains(ScreenshotIntegration),
-          true);
+        integrations.map((e) => e.runtimeType).contains(ScreenshotIntegration),
+        true,
+      );
 
       await Sentry.close();
     }, testOn: 'browser');
@@ -507,10 +518,9 @@ void main() {
       );
 
       expect(
-          integrations
-              .map((e) => e.runtimeType)
-              .contains(ScreenshotIntegration),
-          true);
+        integrations.map((e) => e.runtimeType).contains(ScreenshotIntegration),
+        true,
+      );
 
       await Sentry.close();
     }, testOn: 'browser');
@@ -534,10 +544,9 @@ void main() {
       );
 
       expect(
-          integrations
-              .map((e) => e.runtimeType)
-              .contains(ScreenshotIntegration),
-          false);
+        integrations.map((e) => e.runtimeType).contains(ScreenshotIntegration),
+        false,
+      );
 
       await Sentry.close();
     }, testOn: 'browser');
@@ -573,29 +582,31 @@ void main() {
     });
 
     test(
-        'enablePureDartSymbolication is set to false during SentryFlutter init',
-        () async {
-      final sentryFlutterOptions =
-          defaultTestOptions(checker: MockRuntimeChecker())
-            ..platform = MockPlatform.iOS()
-            ..methodChannel = native.channel;
+      'enablePureDartSymbolication is set to false during SentryFlutter init',
+      () async {
+        final sentryFlutterOptions =
+            defaultTestOptions(checker: MockRuntimeChecker())
+              ..platform = MockPlatform.iOS()
+              ..methodChannel = native.channel;
 
-      SentryFlutter.native = mockNativeBinding();
-      await SentryFlutter.init(
-        (options) {
-          expect(options.enableDartSymbolication, false);
-        },
-        appRunner: appRunner,
-        options: sentryFlutterOptions,
-      );
-      SentryFlutter.native = null;
-    });
+        SentryFlutter.native = mockNativeBinding();
+        await SentryFlutter.init(
+          (options) {
+            expect(options.enableDartSymbolication, false);
+          },
+          appRunner: appRunner,
+          options: sentryFlutterOptions,
+        );
+        SentryFlutter.native = null;
+      },
+    );
   });
 
   test('resumeAppHangTracking calls native method when available', () async {
     SentryFlutter.native = mockNativeBinding();
-    when(SentryFlutter.native?.resumeAppHangTracking())
-        .thenAnswer((_) => Future.value());
+    when(
+      SentryFlutter.native?.resumeAppHangTracking(),
+    ).thenAnswer((_) => Future.value());
 
     await SentryFlutter.resumeAppHangTracking();
 
@@ -613,8 +624,9 @@ void main() {
 
   test('pauseAppHangTracking calls native method when available', () async {
     SentryFlutter.native = mockNativeBinding();
-    when(SentryFlutter.native?.pauseAppHangTracking())
-        .thenAnswer((_) => Future.value());
+    when(
+      SentryFlutter.native?.pauseAppHangTracking(),
+    ).thenAnswer((_) => Future.value());
 
     await SentryFlutter.pauseAppHangTracking();
 
@@ -640,37 +652,38 @@ void main() {
     });
 
     test(
-        'should add DartExceptionTypeIdentifier and FlutterExceptionTypeIdentifier by default',
-        () async {
-      final actualOptions = defaultTestOptions(checker: MockRuntimeChecker())
-        ..platform = MockPlatform.iOS()
-        ..methodChannel = native.channel;
+      'should add DartExceptionTypeIdentifier and FlutterExceptionTypeIdentifier by default',
+      () async {
+        final actualOptions = defaultTestOptions(checker: MockRuntimeChecker())
+          ..platform = MockPlatform.iOS()
+          ..methodChannel = native.channel;
 
-      await SentryFlutter.init(
-        (options) {},
-        appRunner: appRunner,
-        options: actualOptions,
-      );
+        await SentryFlutter.init(
+          (options) {},
+          appRunner: appRunner,
+          options: actualOptions,
+        );
 
-      expect(actualOptions.exceptionTypeIdentifiers.length, 2);
-      // Flutter identifier should be first as it's more specific
-      expect(
-        actualOptions.exceptionTypeIdentifiers.first,
-        isA<CachingExceptionTypeIdentifier>().having(
-          (c) => c.identifier,
-          'wrapped identifier',
-          isA<FlutterExceptionTypeIdentifier>(),
-        ),
-      );
-      expect(
-        actualOptions.exceptionTypeIdentifiers[1],
-        isA<CachingExceptionTypeIdentifier>().having(
-          (c) => c.identifier,
-          'wrapped identifier',
-          isA<DartExceptionTypeIdentifier>(),
-        ),
-      );
-    });
+        expect(actualOptions.exceptionTypeIdentifiers.length, 2);
+        // Flutter identifier should be first as it's more specific
+        expect(
+          actualOptions.exceptionTypeIdentifiers.first,
+          isA<CachingExceptionTypeIdentifier>().having(
+            (c) => c.identifier,
+            'wrapped identifier',
+            isA<FlutterExceptionTypeIdentifier>(),
+          ),
+        );
+        expect(
+          actualOptions.exceptionTypeIdentifiers[1],
+          isA<CachingExceptionTypeIdentifier>().having(
+            (c) => c.identifier,
+            'wrapped identifier',
+            isA<DartExceptionTypeIdentifier>(),
+          ),
+        );
+      },
+    );
   });
 }
 

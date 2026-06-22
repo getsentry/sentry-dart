@@ -28,13 +28,10 @@ void main() {
         Duration(milliseconds: 16),
       );
 
-      expect(
-        () {
-          binding.handleBeginFrame(null);
-          binding.handleDrawFrame();
-        },
-        returnsNormally,
-      );
+      expect(() {
+        binding.handleBeginFrame(null);
+        binding.handleDrawFrame();
+      }, returnsNormally);
     });
 
     test('frame processing continues execution when callback throws', () {
@@ -47,13 +44,10 @@ void main() {
         Duration(milliseconds: 16),
       );
 
-      expect(
-        () {
-          binding.handleBeginFrame(null);
-          binding.handleDrawFrame();
-        },
-        returnsNormally,
-      );
+      expect(() {
+        binding.handleBeginFrame(null);
+        binding.handleDrawFrame();
+      }, returnsNormally);
     });
   });
 }

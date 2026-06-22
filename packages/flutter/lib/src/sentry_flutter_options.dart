@@ -455,8 +455,5 @@ class SentryFlutterOptions extends SentryOptions {
 /// [debounce] indicates if capturing is marked for being debounced.
 ///
 /// Returns `true` if capturing should be performed, otherwise `false`.
-typedef BeforeCaptureCallback = FutureOr<bool> Function(
-  SentryEvent event,
-  Hint hint,
-  bool debounce,
-);
+typedef BeforeCaptureCallback =
+    FutureOr<bool> Function(SentryEvent event, Hint hint, bool debounce);

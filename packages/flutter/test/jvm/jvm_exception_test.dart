@@ -27,17 +27,23 @@ void main() {
     expect(firstCause.causes, null);
     expect(firstCause.suppressed, null);
 
-    expect(secondCause.description,
-        'could not insert: [com.example.myproject.MyEntity]');
+    expect(
+      secondCause.description,
+      'could not insert: [com.example.myproject.MyEntity]',
+    );
     expect(secondCause.thread, null);
-    expect(secondCause.type,
-        'org.hibernate.exception.ConstraintViolationException');
+    expect(
+      secondCause.type,
+      'org.hibernate.exception.ConstraintViolationException',
+    );
     expect(secondCause.stackTrace.length, 26);
     expect(secondCause.causes, null);
     expect(secondCause.suppressed, null);
 
-    expect(thirdCause.description,
-        'Violation of unique constraint MY_ENTITY_UK_1: duplicate value(s) for column(s) MY_COLUMN in statement [...]');
+    expect(
+      thirdCause.description,
+      'Violation of unique constraint MY_ENTITY_UK_1: duplicate value(s) for column(s) MY_COLUMN in statement [...]',
+    );
     expect(thirdCause.thread, null);
     expect(thirdCause.type, 'java.sql.SQLException');
     expect(thirdCause.stackTrace.length, 5);
@@ -79,8 +85,10 @@ void main() {
     expect(exception.causes, null);
     expect(exception.suppressed, null);
 
-    expect(exception.stackTrace[0].className,
-        'io.flutter.plugin.common.StandardMessageCodec');
+    expect(
+      exception.stackTrace[0].className,
+      'io.flutter.plugin.common.StandardMessageCodec',
+    );
     expect(exception.stackTrace[0].method, 'writeValue');
     expect(exception.stackTrace[0].fileName, 'StandardMessageCodec.java');
     expect(exception.stackTrace[0].lineNumber, 292);
@@ -88,10 +96,7 @@ void main() {
 
   test('parse other Flutter Android PlatformException', () {
     final exception = JvmException.parse(otherFlutterAndroidPlatformException);
-    expect(
-      exception.description,
-      "Unable to find resource ID #0x7f14000d",
-    );
+    expect(exception.description, "Unable to find resource ID #0x7f14000d");
     expect(exception.thread, null);
     expect(exception.type, 'android.content.res.Resources\$NotFoundException');
     expect(exception.stackTrace.length, 19);
@@ -99,7 +104,9 @@ void main() {
     expect(exception.suppressed, null);
 
     expect(
-        exception.stackTrace[0].className, 'android.content.res.ResourcesImpl');
+      exception.stackTrace[0].className,
+      'android.content.res.ResourcesImpl',
+    );
     expect(exception.stackTrace[0].method, 'getResourceEntryName');
     expect(exception.stackTrace[0].fileName, 'ResourcesImpl.java');
     expect(exception.stackTrace[0].lineNumber, 493);
@@ -108,8 +115,10 @@ void main() {
   test('parse drops empty frames', () {
     final exception = JvmException.parse(platformExceptionWithEmptyStackFrames);
     expect(exception.stackTrace.length, 13);
-    expect(exception.stackTrace.last.className,
-        'com.android.internal.os.ZygoteInit');
+    expect(
+      exception.stackTrace.last.className,
+      'com.android.internal.os.ZygoteInit',
+    );
     expect(exception.stackTrace.last.fileName, 'ZygoteInit.java');
     expect(exception.stackTrace.last.method, 'main');
     expect(exception.stackTrace.last.lineNumber, 936);

@@ -22,7 +22,8 @@ class FlutterExceptionEventProcessor implements EventProcessor {
   ) {
     return event
       ..request = event.request ?? SentryRequest.fromUri(uri: exception.uri)
-      ..contexts.response = event.contexts.response ??
+      ..contexts.response =
+          event.contexts.response ??
           SentryResponse(statusCode: exception.statusCode);
   }
 }

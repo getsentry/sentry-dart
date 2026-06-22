@@ -39,8 +39,9 @@ class Screenshot {
 
   Future<ByteData> _encode(ImageByteFormat format) async {
     Timeline.startSync('Sentry::screenshotTo${format.name}', flow: flow);
-    final result =
-        await _image.toByteData(format: format).then((data) => data!);
+    final result = await _image
+        .toByteData(format: format)
+        .then((data) => data!);
     Timeline.finishSync();
     return result;
   }

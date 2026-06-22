@@ -18,7 +18,7 @@ class ThreadInfoIntegration implements Integration<SentryFlutterOptions> {
   Hub? _hub;
 
   ThreadInfoIntegration([IsolateHelper? isolateHelper])
-      : _isolateHelper = isolateHelper ?? IsolateHelper();
+    : _isolateHelper = isolateHelper ?? IsolateHelper();
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
@@ -32,20 +32,24 @@ class ThreadInfoIntegration implements Integration<SentryFlutterOptions> {
       return;
     }
 
-    options.lifecycleRegistry
-        .registerCallback<OnSpanStart>(_addThreadInfoToSpan);
-    options.lifecycleRegistry
-        .registerCallback<OnSpanFinish>(_processSyncSpanOnFinish);
+    options.lifecycleRegistry.registerCallback<OnSpanStart>(
+      _addThreadInfoToSpan,
+    );
+    options.lifecycleRegistry.registerCallback<OnSpanFinish>(
+      _processSyncSpanOnFinish,
+    );
 
     options.sdk.addIntegration(integrationName);
   }
 
   @override
   void close() {
-    _hub?.options.lifecycleRegistry
-        .removeCallback<OnSpanStart>(_addThreadInfoToSpan);
-    _hub?.options.lifecycleRegistry
-        .removeCallback<OnSpanFinish>(_processSyncSpanOnFinish);
+    _hub?.options.lifecycleRegistry.removeCallback<OnSpanStart>(
+      _addThreadInfoToSpan,
+    );
+    _hub?.options.lifecycleRegistry.removeCallback<OnSpanFinish>(
+      _processSyncSpanOnFinish,
+    );
   }
 
   Future<void> _addThreadInfoToSpan(OnSpanStart event) async {

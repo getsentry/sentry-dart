@@ -17,24 +17,27 @@ void main() {
 
     integration(fixture.hub, fixture.options);
 
-    final processors = fixture.options.eventProcessors
-        .where((e) => e.runtimeType == ScreenshotEventProcessor);
+    final processors = fixture.options.eventProcessors.where(
+      (e) => e.runtimeType == ScreenshotEventProcessor,
+    );
 
     expect(processors.isNotEmpty, true);
   });
 
   test(
-      'screenshotIntegration does not add screenshot processor if opt out in options',
-      () {
-    final integration = fixture.getSut(attachScreenshot: false);
+    'screenshotIntegration does not add screenshot processor if opt out in options',
+    () {
+      final integration = fixture.getSut(attachScreenshot: false);
 
-    integration(fixture.hub, fixture.options);
+      integration(fixture.hub, fixture.options);
 
-    final processors = fixture.options.eventProcessors
-        .where((e) => e.runtimeType == ScreenshotEventProcessor);
+      final processors = fixture.options.eventProcessors.where(
+        (e) => e.runtimeType == ScreenshotEventProcessor,
+      );
 
-    expect(processors.isEmpty, true);
-  });
+      expect(processors.isEmpty, true);
+    },
+  );
 
   test('screenshotIntegration adds integration to the sdk list', () {
     final integration = fixture.getSut();
@@ -59,17 +62,18 @@ void main() {
   });
 
   test(
-      'screenshotIntegration does not add integration to the sdk list for multiview app',
-      () {
-    final integration = fixture.getSut();
-    fixture.options.isMultiViewApp = true;
-    integration(fixture.hub, fixture.options);
+    'screenshotIntegration does not add integration to the sdk list for multiview app',
+    () {
+      final integration = fixture.getSut();
+      fixture.options.isMultiViewApp = true;
+      integration(fixture.hub, fixture.options);
 
-    expect(
-      fixture.options.sdk.integrations.contains('screenshotIntegration'),
-      false,
-    );
-  });
+      expect(
+        fixture.options.sdk.integrations.contains('screenshotIntegration'),
+        false,
+      );
+    },
+  );
 
   test('screenshotIntegration close resets processor', () {
     final integration = fixture.getSut();
@@ -77,8 +81,9 @@ void main() {
     integration(fixture.hub, fixture.options);
     integration.close();
 
-    final processors = fixture.options.eventProcessors
-        .where((e) => e.runtimeType == ScreenshotEventProcessor);
+    final processors = fixture.options.eventProcessors.where(
+      (e) => e.runtimeType == ScreenshotEventProcessor,
+    );
 
     expect(processors.isEmpty, true);
   });

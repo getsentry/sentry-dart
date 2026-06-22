@@ -11,10 +11,9 @@ import '../frame_callback_handler.dart';
 
 @internal
 class TimeToInitialDisplayTracker {
-  TimeToInitialDisplayTracker({
-    FrameCallbackHandler? frameCallbackHandler,
-  }) : _frameCallbackHandler =
-            frameCallbackHandler ?? DefaultFrameCallbackHandler();
+  TimeToInitialDisplayTracker({FrameCallbackHandler? frameCallbackHandler})
+    : _frameCallbackHandler =
+          frameCallbackHandler ?? DefaultFrameCallbackHandler();
 
   final FrameCallbackHandler _frameCallbackHandler;
 
@@ -52,10 +51,7 @@ class TimeToInitialDisplayTracker {
       );
     }
 
-    await ttidSpan.finish(
-      status: status,
-      endTimestamp: _endTimestamp,
-    );
+    await ttidSpan.finish(status: status, endTimestamp: _endTimestamp);
 
     return ttidSpan;
   }

@@ -21,10 +21,7 @@ class WidgetsBindingIntegration implements Integration<SentryFlutterOptions> {
       return;
     }
     _options = options;
-    final observer = SentryWidgetsBindingObserver(
-      hub: hub,
-      options: options,
-    );
+    final observer = SentryWidgetsBindingObserver(hub: hub, options: options);
     _observer = observer;
 
     // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`

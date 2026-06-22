@@ -80,18 +80,16 @@ class _Fixture {
   var _frames = 0;
 
   _Fixture([SchedulerCallback? callback]) {
-    sut = Scheduler(
-      const Duration(milliseconds: 1),
-      (timestamp) async {
-        calls++;
-        await callback?.call(timestamp);
-      },
-      _addPostFrameCallbackMock,
-    );
+    sut = Scheduler(const Duration(milliseconds: 1), (timestamp) async {
+      calls++;
+      await callback?.call(timestamp);
+    }, _addPostFrameCallbackMock);
   }
 
-  void _addPostFrameCallbackMock(FrameCallback callback,
-      {String debugLabel = 'callback'}) {
+  void _addPostFrameCallbackMock(
+    FrameCallback callback, {
+    String debugLabel = 'callback',
+  }) {
     if (!registeredCallback.isCompleted) {
       registeredCallback.complete(callback);
     }
@@ -108,8 +106,10 @@ class _Fixture {
     if (awaitCallback) {
       return future;
     } else {
-      return future.timeout(const Duration(milliseconds: 200),
-          onTimeout: () {});
+      return future.timeout(
+        const Duration(milliseconds: 200),
+        onTimeout: () {},
+      );
     }
   }
 }

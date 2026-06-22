@@ -30,8 +30,10 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) async {
     if (!options.isTracingEnabled()) {
-      options.log(SentryLevel.info,
-          'Skipping $integrationName integration because tracing is disabled.');
+      options.log(
+        SentryLevel.info,
+        'Skipping $integrationName integration because tracing is disabled.',
+      );
       return;
     }
 
@@ -61,8 +63,11 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       _allowProcessing = false;
 
       try {
-        final appStartEnd = DateTime.fromMicrosecondsSinceEpoch(timings.first
-            .timestampInMicroseconds(FramePhase.rasterFinishWallTime));
+        final appStartEnd = DateTime.fromMicrosecondsSinceEpoch(
+          timings.first.timestampInMicroseconds(
+            FramePhase.rasterFinishWallTime,
+          ),
+        );
 
         switch (options.traceLifecycle) {
           case SentryTraceLifecycle.stream:
@@ -73,8 +78,10 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             );
           case SentryTraceLifecycle.static:
             if (context == null) {
-              options.log(SentryLevel.warning,
-                  'Skipping native app start integration because context is null');
+              options.log(
+                SentryLevel.warning,
+                'Skipping native app start integration because context is null',
+              );
               return;
             }
             await _nativeAppStartHandler.call(

@@ -12,7 +12,7 @@ void main() {
         'b': 'text',
         'c': true,
         'd': {'nested': 'ok'},
-        'e': [1, 2, 3]
+        'e': [1, 2, 3],
       };
       final bytes = Uint8List.fromList(utf8.encode(json.encode(map)));
 
@@ -50,7 +50,7 @@ void main() {
         [1, 2, 3],
         null,
         {
-          'nested': {'ok': true}
+          'nested': {'ok': true},
         },
       ];
       final bytes = Uint8List.fromList(utf8.encode(json.encode(list)));
@@ -74,8 +74,10 @@ void main() {
     test('throws when bytes are not valid UTF-8 json', () {
       final bytes = Uint8List.fromList(<int>[0xC3, 0x28]);
 
-      expect(() => decodeUtf8JsonListOfMaps(bytes),
-          throwsA(isA<FormatException>()));
+      expect(
+        () => decodeUtf8JsonListOfMaps(bytes),
+        throwsA(isA<FormatException>()),
+      );
     });
   });
 }

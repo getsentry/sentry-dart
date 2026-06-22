@@ -72,10 +72,12 @@ AppStartInfo? parseNativeAppStart(
     return null;
   }
 
-  final appStartDateTime =
-      DateTime.fromMillisecondsSinceEpoch(nativeAppStart.appStartTime);
+  final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(
+    nativeAppStart.appStartTime,
+  );
   final pluginRegistrationDateTime = DateTime.fromMillisecondsSinceEpoch(
-      nativeAppStart.pluginRegistrationTime);
+    nativeAppStart.pluginRegistrationTime,
+  );
 
   final duration = appStartEnd.difference(appStartDateTime);
 
@@ -96,11 +98,13 @@ AppStartInfo? parseNativeAppStart(
     try {
       final startTimestampMs = entry.value['startTimestampMsSinceEpoch'] as int;
       final endTimestampMs = entry.value['stopTimestampMsSinceEpoch'] as int;
-      nativeSpanTimes.add(TimeSpan(
-        start: DateTime.fromMillisecondsSinceEpoch(startTimestampMs),
-        end: DateTime.fromMillisecondsSinceEpoch(endTimestampMs),
-        description: entry.key as String,
-      ));
+      nativeSpanTimes.add(
+        TimeSpan(
+          start: DateTime.fromMillisecondsSinceEpoch(startTimestampMs),
+          end: DateTime.fromMillisecondsSinceEpoch(endTimestampMs),
+          description: entry.key as String,
+        ),
+      );
     } catch (e) {
       internalLogger.warning('Failed to parse native span times: $e');
       continue;

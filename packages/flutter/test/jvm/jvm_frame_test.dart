@@ -32,8 +32,10 @@ void main() {
     expect(frame.className, 'sun.reflect.NativeMethodAccessorImpl');
     expect(frame.isNativeMethod, true);
     expect(frame.skippedFrames, null);
-    expect(frame.toString(),
-        'at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)');
+    expect(
+      frame.toString(),
+      'at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)',
+    );
   });
 
   test('parses native more frames frame', () {
@@ -59,8 +61,9 @@ void main() {
   });
 
   test('parses a lot of frames', () {
-    final lines =
-        frames.split('\n').where((element) => element.trim().isNotEmpty);
+    final lines = frames
+        .split('\n')
+        .where((element) => element.trim().isNotEmpty);
     for (final line in lines) {
       JvmFrame.parse(line);
     }

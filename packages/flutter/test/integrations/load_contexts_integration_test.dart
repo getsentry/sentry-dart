@@ -26,10 +26,7 @@ void main() {
         'brand': 'fixture-device-brand',
       },
       'app': {'app_name': 'test-app'},
-      'os': {
-        'name': 'fixture-os-name',
-        'version': 'fixture-os-version',
-      },
+      'os': {'name': 'fixture-os-name', 'version': 'fixture-os-version'},
       'gpu': {'name': 'gpu1'},
       'browser': {'name': 'browser1'},
       'runtime': {'name': 'RT1'},
@@ -52,8 +49,8 @@ void main() {
       <String, dynamic>{
         'timestamp': '1970-01-01T00:00:00.000Z',
         'message': 'native-crumb',
-      }
-    ]
+      },
+    ],
   };
 
   SentryLog givenLog() {
@@ -62,9 +59,7 @@ void main() {
       traceId: SentryId.newId(),
       level: SentryLogLevel.info,
       body: 'test',
-      attributes: {
-        'attribute': SentryAttribute.string('value'),
-      },
+      attributes: {'attribute': SentryAttribute.string('value')},
     );
   }
 
@@ -99,11 +94,7 @@ void main() {
       packages = [SentryPackage('event-package', '2.0')];
     }
     return SentryEvent(
-      sdk: sdk ??
-          getSdkVersion(
-            integrations: integrations,
-            packages: packages,
-          ),
+      sdk: sdk ?? getSdkVersion(integrations: integrations, packages: packages),
       tags: tags,
       // ignore: deprecated_member_use
       extra: extra,
@@ -127,8 +118,9 @@ void main() {
     });
 
     void mockLoadContexts([Map<String, dynamic>? contexts]) {
-      when(fixture.binding.loadContexts())
-          .thenAnswer((_) async => contexts ?? defaultContexts);
+      when(
+        fixture.binding.loadContexts(),
+      ).thenAnswer((_) async => contexts ?? defaultContexts);
     }
 
     test('adds integration to sdk.integrations', () async {
@@ -150,8 +142,10 @@ void main() {
       e.contexts.operatingSystem = SentryOperatingSystem(theme: 'theme1');
       e.contexts.app = SentryApp(inForeground: true);
 
-      final event =
-          await fixture.options.eventProcessors.first.apply(e, Hint());
+      final event = await fixture.options.eventProcessors.first.apply(
+        e,
+        Hint(),
+      );
 
       verify(fixture.binding.loadContexts()).called(1);
       expect(event?.contexts.device?.name, 'Device1');
@@ -161,8 +155,10 @@ void main() {
       expect(event?.contexts.operatingSystem?.theme, 'theme1');
       expect(event?.contexts.gpu?.name, 'gpu1');
       expect(event?.contexts.browser?.name, 'browser1');
-      expect(event?.contexts.runtimes.any((element) => element.name == 'RT1'),
-          true);
+      expect(
+        event?.contexts.runtimes.any((element) => element.name == 'RT1'),
+        true,
+      );
       expect(event?.contexts['theme'], 'material');
       expect(
         event?.sdk?.packages.any((element) => element.name == 'native-package'),
@@ -172,74 +168,91 @@ void main() {
       expect(event?.user?.id, '196E065A-AAF7-409A-9A6C-A81F40274CB9');
     });
 
-    test('does not override event contexts with loadContextsIntegration infos',
-        () async {
-      mockLoadContexts();
-      await fixture.registerIntegration();
+    test(
+      'does not override event contexts with loadContextsIntegration infos',
+      () async {
+        mockLoadContexts();
+        await fixture.registerIntegration();
 
-      final eventContexts = Contexts(
-        device: SentryDevice(name: 'eDevice'),
-        app: SentryApp(name: 'eApp', inForeground: true),
-        operatingSystem: SentryOperatingSystem(name: 'eOS'),
-        gpu: SentryGpu(name: 'eGpu'),
-        browser: SentryBrowser(name: 'eBrowser'),
-        runtimes: [SentryRuntime(name: 'eRT')],
-      )..['theme'] = 'cuppertino';
+        final eventContexts = Contexts(
+          device: SentryDevice(name: 'eDevice'),
+          app: SentryApp(name: 'eApp', inForeground: true),
+          operatingSystem: SentryOperatingSystem(name: 'eOS'),
+          gpu: SentryGpu(name: 'eGpu'),
+          browser: SentryBrowser(name: 'eBrowser'),
+          runtimes: [SentryRuntime(name: 'eRT')],
+        )..['theme'] = 'cuppertino';
 
-      final e = getEvent(
-        contexts: eventContexts,
-        user: SentryUser(id: 'myId'),
-      );
+        final e = getEvent(
+          contexts: eventContexts,
+          user: SentryUser(id: 'myId'),
+        );
 
-      final event =
-          await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
-      verify(fixture.binding.loadContexts()).called(1);
-      expect(event?.contexts.device?.name, 'eDevice');
-      expect(event?.contexts.app?.name, 'eApp');
-      expect(event?.contexts.app?.inForeground, true);
-      expect(event?.contexts.operatingSystem?.name, 'eOS');
-      expect(event?.contexts.gpu?.name, 'eGpu');
-      expect(event?.contexts.browser?.name, 'eBrowser');
-      expect(event?.contexts.runtimes.any((element) => element.name == 'RT1'),
-          true);
-      expect(event?.contexts.runtimes.any((element) => element.name == 'eRT'),
-          true);
-      expect(event?.contexts['theme'], 'cuppertino');
-      expect(event?.user?.id, 'myId');
-    });
+        verify(fixture.binding.loadContexts()).called(1);
+        expect(event?.contexts.device?.name, 'eDevice');
+        expect(event?.contexts.app?.name, 'eApp');
+        expect(event?.contexts.app?.inForeground, true);
+        expect(event?.contexts.operatingSystem?.name, 'eOS');
+        expect(event?.contexts.gpu?.name, 'eGpu');
+        expect(event?.contexts.browser?.name, 'eBrowser');
+        expect(
+          event?.contexts.runtimes.any((element) => element.name == 'RT1'),
+          true,
+        );
+        expect(
+          event?.contexts.runtimes.any((element) => element.name == 'eRT'),
+          true,
+        );
+        expect(event?.contexts['theme'], 'cuppertino');
+        expect(event?.user?.id, 'myId');
+      },
+    );
 
     test(
-        'merges event and loadContextsIntegration sdk packages and integration',
-        () async {
-      mockLoadContexts();
-      await fixture.registerIntegration();
+      'merges event and loadContextsIntegration sdk packages and integration',
+      () async {
+        mockLoadContexts();
+        await fixture.registerIntegration();
 
-      final e = getEvent();
-      final event =
-          await fixture.options.eventProcessors.first.apply(e, Hint());
+        final e = getEvent();
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
-      expect(
-        event?.sdk?.packages.any((element) => element.name == 'native-package'),
-        true,
-      );
-      expect(
-        event?.sdk?.packages.any((element) => element.name == 'event-package'),
-        true,
-      );
-      expect(event?.sdk?.integrations.contains('NativeIntegration'), true);
-      expect(event?.sdk?.integrations.contains('EventIntegration'), true);
-    });
+        expect(
+          event?.sdk?.packages.any(
+            (element) => element.name == 'native-package',
+          ),
+          true,
+        );
+        expect(
+          event?.sdk?.packages.any(
+            (element) => element.name == 'event-package',
+          ),
+          true,
+        );
+        expect(event?.sdk?.integrations.contains('NativeIntegration'), true);
+        expect(event?.sdk?.integrations.contains('EventIntegration'), true);
+      },
+    );
 
     test('does not duplicate integration if already there', () async {
       mockLoadContexts({
-        'integrations': ['EventIntegration']
+        'integrations': ['EventIntegration'],
       });
       await fixture.registerIntegration();
 
       final e = getEvent();
-      final event =
-          await fixture.options.eventProcessors.first.apply(e, Hint());
+      final event = await fixture.options.eventProcessors.first.apply(
+        e,
+        Hint(),
+      );
 
       expect(
         event?.sdk?.integrations
@@ -251,18 +264,22 @@ void main() {
 
     test('does not duplicate package if already there', () async {
       mockLoadContexts({
-        'package': {'sdk_name': 'event-package', 'version': '2.0'}
+        'package': {'sdk_name': 'event-package', 'version': '2.0'},
       });
       await fixture.registerIntegration();
 
       final e = getEvent();
-      final event =
-          await fixture.options.eventProcessors.first.apply(e, Hint());
+      final event = await fixture.options.eventProcessors.first.apply(
+        e,
+        Hint(),
+      );
 
       expect(
         event?.sdk?.packages
-            .where((element) =>
-                element.name == 'event-package' && element.version == '2.0')
+            .where(
+              (element) =>
+                  element.name == 'event-package' && element.version == '2.0',
+            )
             .length,
         1,
       );
@@ -270,25 +287,31 @@ void main() {
 
     test('adds package if different version', () async {
       mockLoadContexts({
-        'package': {'sdk_name': 'event-package', 'version': '3.0'}
+        'package': {'sdk_name': 'event-package', 'version': '3.0'},
       });
       await fixture.registerIntegration();
 
       final e = getEvent();
-      final event =
-          await fixture.options.eventProcessors.first.apply(e, Hint());
+      final event = await fixture.options.eventProcessors.first.apply(
+        e,
+        Hint(),
+      );
 
       expect(
         event?.sdk?.packages
-            .where((element) =>
-                element.name == 'event-package' && element.version == '2.0')
+            .where(
+              (element) =>
+                  element.name == 'event-package' && element.version == '2.0',
+            )
             .length,
         1,
       );
       expect(
         event?.sdk?.packages
-            .where((element) =>
-                element.name == 'event-package' && element.version == '3.0')
+            .where(
+              (element) =>
+                  element.name == 'event-package' && element.version == '3.0',
+            )
             .length,
         1,
       );
@@ -300,23 +323,27 @@ void main() {
         await fixture.registerIntegration();
 
         final e = getEvent();
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
         expect(event?.sdk?.features.contains('SwiftPackageManager'), true);
       });
 
       test('does not duplicate feature if already present', () async {
         mockLoadContexts({
-          'features': ['EventFeature']
+          'features': ['EventFeature'],
         });
         await fixture.registerIntegration();
 
         final sdk = getSdkVersion();
         sdk.addFeature('EventFeature');
         final e = getEvent(sdk: sdk);
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
         expect(
           event?.sdk?.features.where((f) => f == 'EventFeature').length,
@@ -333,12 +360,16 @@ void main() {
         final eventBreadcrumb = Breadcrumb(message: 'event');
         var event = SentryEvent(breadcrumbs: [eventBreadcrumb]);
 
-        when(fixture.binding.loadContexts()).thenAnswer((_) async => {
-              'breadcrumbs': [Breadcrumb(message: 'native').toJson()]
-            });
+        when(fixture.binding.loadContexts()).thenAnswer(
+          (_) async => {
+            'breadcrumbs': [Breadcrumb(message: 'native').toJson()],
+          },
+        );
 
-        event =
-            (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
+        event = (await fixture.options.eventProcessors.first.apply(
+          event,
+          Hint(),
+        ))!;
 
         expect(event.breadcrumbs!.length, 1);
         expect(event.breadcrumbs!.first.message, 'native');
@@ -351,12 +382,16 @@ void main() {
         final eventBreadcrumb = Breadcrumb(message: 'event');
         var event = SentryEvent(breadcrumbs: [eventBreadcrumb]);
 
-        when(fixture.binding.loadContexts()).thenAnswer((_) async => {
-              'breadcrumbs': [Breadcrumb(message: 'native').toJson()]
-            });
+        when(fixture.binding.loadContexts()).thenAnswer(
+          (_) async => {
+            'breadcrumbs': [Breadcrumb(message: 'native').toJson()],
+          },
+        );
 
-        event =
-            (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
+        event = (await fixture.options.eventProcessors.first.apply(
+          event,
+          Hint(),
+        ))!;
 
         expect(event.breadcrumbs!.length, 1);
         expect(event.breadcrumbs!.first.message, 'event');
@@ -377,15 +412,19 @@ void main() {
         final eventBreadcrumb = Breadcrumb(message: 'event');
         var event = SentryEvent(breadcrumbs: [eventBreadcrumb]);
 
-        when(fixture.binding.loadContexts()).thenAnswer((_) async => {
-              'breadcrumbs': [
-                Breadcrumb(message: 'native-mutated').toJson(),
-                Breadcrumb(message: 'native-deleted').toJson(),
-              ]
-            });
+        when(fixture.binding.loadContexts()).thenAnswer(
+          (_) async => {
+            'breadcrumbs': [
+              Breadcrumb(message: 'native-mutated').toJson(),
+              Breadcrumb(message: 'native-deleted').toJson(),
+            ],
+          },
+        );
 
-        event =
-            (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
+        event = (await fixture.options.eventProcessors.first.apply(
+          event,
+          Hint(),
+        ))!;
 
         expect(event.breadcrumbs!.length, 1);
         expect(event.breadcrumbs!.first.message, 'native-mutated-applied');
@@ -399,8 +438,10 @@ void main() {
 
         final eventSdk = getSdkVersion(name: 'sentry.dart.flutter');
         final e = getEvent(sdk: eventSdk);
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
         expect(event?.tags?['event.origin'], 'flutter');
         expect(event?.tags?['event.environment'], 'dart');
@@ -412,34 +453,42 @@ void main() {
 
         final eventSdk = getSdkVersion(name: 'sentry.dart.flutter');
         final e = getEvent(sdk: eventSdk, tags: {'a': 'b'});
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
         expect(event?.tags?['event.origin'], 'flutter');
         expect(event?.tags?['event.environment'], 'dart');
         expect(event?.tags?['a'], 'b');
       });
 
-      test('does not add origin and environment tags if not flutter sdk',
-          () async {
-        mockLoadContexts();
-        await fixture.registerIntegration();
+      test(
+        'does not add origin and environment tags if not flutter sdk',
+        () async {
+          mockLoadContexts();
+          await fixture.registerIntegration();
 
-        final e = getEvent(tags: {});
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+          final e = getEvent(tags: {});
+          final event = await fixture.options.eventProcessors.first.apply(
+            e,
+            Hint(),
+          );
 
-        expect(event?.tags?.containsKey('event.origin'), false);
-        expect(event?.tags?.containsKey('event.environment'), false);
-      });
+          expect(event?.tags?.containsKey('event.origin'), false);
+          expect(event?.tags?.containsKey('event.environment'), false);
+        },
+      );
 
       test('merges tags from native without overriding flutter keys', () async {
         mockLoadContexts();
         await fixture.registerIntegration();
 
         final e = getEvent(tags: {'key': 'flutter', 'key-a': 'flutter'});
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
         expect(event?.tags?['key'], 'flutter');
         expect(event?.tags?['key-a'], 'flutter');
@@ -448,22 +497,26 @@ void main() {
     });
 
     group('extra', () {
-      test('merges extra from native without overriding flutter keys',
-          () async {
-        mockLoadContexts();
-        await fixture.registerIntegration();
+      test(
+        'merges extra from native without overriding flutter keys',
+        () async {
+          mockLoadContexts();
+          await fixture.registerIntegration();
 
-        final e = getEvent(extra: {'key': 'flutter', 'key-a': 'flutter'});
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+          final e = getEvent(extra: {'key': 'flutter', 'key-a': 'flutter'});
+          final event = await fixture.options.eventProcessors.first.apply(
+            e,
+            Hint(),
+          );
 
-        // ignore: deprecated_member_use
-        expect(event?.extra?['key'], 'flutter');
-        // ignore: deprecated_member_use
-        expect(event?.extra?['key-a'], 'flutter');
-        // ignore: deprecated_member_use
-        expect(event?.extra?['key-b'], 'native');
-      });
+          // ignore: deprecated_member_use
+          expect(event?.extra?['key'], 'flutter');
+          // ignore: deprecated_member_use
+          expect(event?.extra?['key-a'], 'flutter');
+          // ignore: deprecated_member_use
+          expect(event?.extra?['key-b'], 'native');
+        },
+      );
     });
 
     group('user', () {
@@ -472,8 +525,10 @@ void main() {
         await fixture.registerIntegration();
 
         final e = getEvent();
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
         expect(event?.user?.id, '196E065A-AAF7-409A-9A6C-A81F40274CB9');
         expect(event?.user?.username, 'fixture-username');
@@ -487,135 +542,149 @@ void main() {
         await fixture.registerIntegration();
 
         final e = getEvent(user: SentryUser(id: 'abc'));
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
         expect(event?.user?.id, 'abc');
       });
 
       test(
-          'applies default IP to user during captureEvent if ip is null and sendDefaultPii is true',
-          () async {
-        await fixture.registerIntegration();
-        fixture.options.enableScopeSync = true;
-        fixture.options.sendDefaultPii = true;
+        'applies default IP to user during captureEvent if ip is null and sendDefaultPii is true',
+        () async {
+          await fixture.registerIntegration();
+          fixture.options.enableScopeSync = true;
+          fixture.options.sendDefaultPii = true;
 
-        const expectedIp = '{{auto}}';
-        String? actualIp;
-        const expectedId = '1';
-        String? actualId;
+          const expectedIp = '{{auto}}';
+          String? actualIp;
+          const expectedId = '1';
+          String? actualId;
 
-        fixture.options.beforeSend = (event, hint) {
-          actualIp = event.user?.ipAddress;
-          actualId = event.user?.id;
-          return event;
-        };
+          fixture.options.beforeSend = (event, hint) {
+            actualIp = event.user?.ipAddress;
+            actualId = event.user?.id;
+            return event;
+          };
 
-        final user = SentryUser(id: expectedId);
-        when(fixture.binding.loadContexts())
-            .thenAnswer((_) async => {'user': user.toJson()});
+          final user = SentryUser(id: expectedId);
+          when(
+            fixture.binding.loadContexts(),
+          ).thenAnswer((_) async => {'user': user.toJson()});
 
-        final client = SentryClient(fixture.options);
-        final event = SentryEvent();
+          final client = SentryClient(fixture.options);
+          final event = SentryEvent();
 
-        await client.captureEvent(event);
+          await client.captureEvent(event);
 
-        expect(actualIp, expectedIp);
-        expect(actualId, expectedId);
-      });
-
-      test(
-          'does not apply default IP to user during captureEvent if ip is null and sendDefaultPii is false',
-          () async {
-        await fixture.registerIntegration();
-        fixture.options.enableScopeSync = true;
-
-        String? actualIp;
-        const expectedId = '1';
-        String? actualId;
-
-        fixture.options.beforeSend = (event, hint) {
-          actualIp = event.user?.ipAddress;
-          actualId = event.user?.id;
-          return event;
-        };
-
-        final user = SentryUser(id: expectedId);
-        when(fixture.binding.loadContexts())
-            .thenAnswer((_) async => {'user': user.toJson()});
-
-        final client = SentryClient(fixture.options);
-        final event = SentryEvent();
-
-        await client.captureEvent(event);
-
-        expect(actualIp, isNull);
-        expect(actualId, expectedId);
-      });
+          expect(actualIp, expectedIp);
+          expect(actualId, expectedId);
+        },
+      );
 
       test(
-          'applies default IP to user during captureTransaction if ip is null and sendDefaultPii is true',
-          () async {
-        await fixture.registerIntegration();
-        fixture.options.enableScopeSync = true;
-        fixture.options.sendDefaultPii = true;
+        'does not apply default IP to user during captureEvent if ip is null and sendDefaultPii is false',
+        () async {
+          await fixture.registerIntegration();
+          fixture.options.enableScopeSync = true;
 
-        const expectedIp = '{{auto}}';
-        String? actualIp;
-        const expectedId = '1';
-        String? actualId;
+          String? actualIp;
+          const expectedId = '1';
+          String? actualId;
 
-        fixture.options.beforeSendTransaction = (transaction, hint) {
-          actualIp = transaction.user?.ipAddress;
-          actualId = transaction.user?.id;
-          return transaction;
-        };
+          fixture.options.beforeSend = (event, hint) {
+            actualIp = event.user?.ipAddress;
+            actualId = event.user?.id;
+            return event;
+          };
 
-        final user = SentryUser(id: expectedId);
-        when(fixture.binding.loadContexts())
-            .thenAnswer((_) async => {'user': user.toJson()});
+          final user = SentryUser(id: expectedId);
+          when(
+            fixture.binding.loadContexts(),
+          ).thenAnswer((_) async => {'user': user.toJson()});
 
-        final client = SentryClient(fixture.options);
-        final tracer =
-            SentryTracer(SentryTransactionContext('name', 'op'), fixture.hub);
-        final transaction = SentryTransaction(tracer);
+          final client = SentryClient(fixture.options);
+          final event = SentryEvent();
 
-        await client.captureTransaction(transaction);
+          await client.captureEvent(event);
 
-        expect(actualIp, expectedIp);
-        expect(actualId, expectedId);
-      });
+          expect(actualIp, isNull);
+          expect(actualId, expectedId);
+        },
+      );
 
       test(
-          'does not apply default IP to user during captureTransaction if ip is null and sendDefaultPii is false',
-          () async {
-        await fixture.registerIntegration();
-        fixture.options.enableScopeSync = true;
+        'applies default IP to user during captureTransaction if ip is null and sendDefaultPii is true',
+        () async {
+          await fixture.registerIntegration();
+          fixture.options.enableScopeSync = true;
+          fixture.options.sendDefaultPii = true;
 
-        String? actualIp;
-        const expectedId = '1';
-        String? actualId;
+          const expectedIp = '{{auto}}';
+          String? actualIp;
+          const expectedId = '1';
+          String? actualId;
 
-        fixture.options.beforeSendTransaction = (transaction, hint) {
-          actualIp = transaction.user?.ipAddress;
-          actualId = transaction.user?.id;
-          return transaction;
-        };
+          fixture.options.beforeSendTransaction = (transaction, hint) {
+            actualIp = transaction.user?.ipAddress;
+            actualId = transaction.user?.id;
+            return transaction;
+          };
 
-        final user = SentryUser(id: expectedId);
-        when(fixture.binding.loadContexts())
-            .thenAnswer((_) async => {'user': user.toJson()});
+          final user = SentryUser(id: expectedId);
+          when(
+            fixture.binding.loadContexts(),
+          ).thenAnswer((_) async => {'user': user.toJson()});
 
-        final client = SentryClient(fixture.options);
-        final tracer =
-            SentryTracer(SentryTransactionContext('name', 'op'), fixture.hub);
-        final transaction = SentryTransaction(tracer);
+          final client = SentryClient(fixture.options);
+          final tracer = SentryTracer(
+            SentryTransactionContext('name', 'op'),
+            fixture.hub,
+          );
+          final transaction = SentryTransaction(tracer);
 
-        await client.captureTransaction(transaction);
+          await client.captureTransaction(transaction);
 
-        expect(actualIp, isNull);
-        expect(actualId, expectedId);
-      });
+          expect(actualIp, expectedIp);
+          expect(actualId, expectedId);
+        },
+      );
+
+      test(
+        'does not apply default IP to user during captureTransaction if ip is null and sendDefaultPii is false',
+        () async {
+          await fixture.registerIntegration();
+          fixture.options.enableScopeSync = true;
+
+          String? actualIp;
+          const expectedId = '1';
+          String? actualId;
+
+          fixture.options.beforeSendTransaction = (transaction, hint) {
+            actualIp = transaction.user?.ipAddress;
+            actualId = transaction.user?.id;
+            return transaction;
+          };
+
+          final user = SentryUser(id: expectedId);
+          when(
+            fixture.binding.loadContexts(),
+          ).thenAnswer((_) async => {'user': user.toJson()});
+
+          final client = SentryClient(fixture.options);
+          final tracer = SentryTracer(
+            SentryTransactionContext('name', 'op'),
+            fixture.hub,
+          );
+          final transaction = SentryTransaction(tracer);
+
+          await client.captureTransaction(transaction);
+
+          expect(actualIp, isNull);
+          expect(actualId, expectedId);
+        },
+      );
     });
 
     group('dist', () {
@@ -624,8 +693,10 @@ void main() {
         await fixture.registerIntegration();
 
         final e = getEvent();
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
         expect(event?.dist, 'fixture-dist');
       });
@@ -635,8 +706,10 @@ void main() {
         await fixture.registerIntegration();
 
         final e = getEvent(dist: 'abc');
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
         expect(event?.dist, 'abc');
       });
@@ -648,8 +721,10 @@ void main() {
         await fixture.registerIntegration();
 
         final e = getEvent();
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
         expect(event?.environment, 'fixture-environment');
       });
@@ -659,25 +734,31 @@ void main() {
         await fixture.registerIntegration();
 
         final e = getEvent(environment: 'abc');
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
         expect(event?.environment, 'abc');
       });
     });
 
     group('fingerprint', () {
-      test('merges fingerprint from native without duplicating entries',
-          () async {
-        mockLoadContexts();
-        await fixture.registerIntegration();
+      test(
+        'merges fingerprint from native without duplicating entries',
+        () async {
+          mockLoadContexts();
+          await fixture.registerIntegration();
 
-        final e = getEvent(fingerprint: ['fingerprint-a', 'fingerprint-b']);
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+          final e = getEvent(fingerprint: ['fingerprint-a', 'fingerprint-b']);
+          final event = await fixture.options.eventProcessors.first.apply(
+            e,
+            Hint(),
+          );
 
-        expect(event?.fingerprint, ['fingerprint-a', 'fingerprint-b']);
-      });
+          expect(event?.fingerprint, ['fingerprint-a', 'fingerprint-b']);
+        },
+      );
     });
 
     group('level', () {
@@ -686,8 +767,10 @@ void main() {
         await fixture.registerIntegration();
 
         final e = getEvent();
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
         expect(event?.level, SentryLevel.error);
       });
@@ -697,8 +780,10 @@ void main() {
         await fixture.registerIntegration();
 
         final e = getEvent(level: SentryLevel.fatal);
-        final event =
-            await fixture.options.eventProcessors.first.apply(e, Hint());
+        final event = await fixture.options.eventProcessors.first.apply(
+          e,
+          Hint(),
+        );
 
         expect(event?.level, SentryLevel.fatal);
       });
@@ -709,8 +794,9 @@ void main() {
         fixture.options.enableLogs = true;
         await fixture.registerIntegration();
 
-        when(fixture.binding.loadContexts())
-            .thenAnswer((_) async => defaultContexts);
+        when(
+          fixture.binding.loadContexts(),
+        ).thenAnswer((_) async => defaultContexts);
 
         final log = givenLog();
         await fixture.hub.captureLog(log);
@@ -725,23 +811,25 @@ void main() {
       });
 
       test(
-          'does not add os and device attributes to log if enableLogs is false',
-          () async {
-        fixture.options.enableLogs = false;
-        await fixture.registerIntegration();
+        'does not add os and device attributes to log if enableLogs is false',
+        () async {
+          fixture.options.enableLogs = false;
+          await fixture.registerIntegration();
 
-        when(fixture.binding.loadContexts())
-            .thenAnswer((_) async => defaultContexts);
+          when(
+            fixture.binding.loadContexts(),
+          ).thenAnswer((_) async => defaultContexts);
 
-        final log = givenLog();
-        await fixture.hub.captureLog(log);
+          final log = givenLog();
+          await fixture.hub.captureLog(log);
 
-        expect(log.attributes['os.name'], isNull);
-        expect(log.attributes['os.version'], isNull);
-        expect(log.attributes['device.brand'], isNull);
-        expect(log.attributes['device.model'], isNull);
-        expect(log.attributes['device.family'], isNull);
-      });
+          expect(log.attributes['os.name'], isNull);
+          expect(log.attributes['os.version'], isNull);
+          expect(log.attributes['device.brand'], isNull);
+          expect(log.attributes['device.model'], isNull);
+          expect(log.attributes['device.family'], isNull);
+        },
+      );
 
       test('handles throw during loadContexts', () async {
         fixture.options.enableLogs = true;
@@ -793,17 +881,24 @@ void main() {
           traceId: SentryId.newId(),
         );
 
-        await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessMetric(metric));
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnProcessMetric(metric),
+        );
 
         verify(fixture.binding.loadContexts()).called(1);
         final attributes = metric.attributes;
-        expect(attributes[SemanticAttributesConstants.deviceBrand]?.value,
-            'fixture-device-brand');
-        expect(attributes[SemanticAttributesConstants.deviceModel]?.value,
-            'fixture-device-model');
-        expect(attributes[SemanticAttributesConstants.deviceFamily]?.value,
-            'fixture-device-family');
+        expect(
+          attributes[SemanticAttributesConstants.deviceBrand]?.value,
+          'fixture-device-brand',
+        );
+        expect(
+          attributes[SemanticAttributesConstants.deviceModel]?.value,
+          'fixture-device-model',
+        );
+        expect(
+          attributes[SemanticAttributesConstants.deviceFamily]?.value,
+          'fixture-device-family',
+        );
       });
 
       test('does not register callback when metrics disabled', () async {
@@ -826,34 +921,47 @@ void main() {
         );
       }
 
-      test('adds native attributes to span when traceLifecycle is streaming',
-          () async {
-        fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
-        mockLoadContexts();
-        await fixture.registerIntegration();
+      test(
+        'adds native attributes to span when traceLifecycle is streaming',
+        () async {
+          fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
+          mockLoadContexts();
+          await fixture.registerIntegration();
 
-        expect(
-          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessSpan],
-          isNotEmpty,
-        );
+          expect(
+            fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessSpan],
+            isNotEmpty,
+          );
 
-        final span = givenSpan();
-        await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessSpan(span));
+          final span = givenSpan();
+          await fixture.options.lifecycleRegistry.dispatchCallback(
+            OnProcessSpan(span),
+          );
 
-        verify(fixture.binding.loadContexts()).called(1);
-        final attributes = span.attributes;
-        expect(attributes[SemanticAttributesConstants.osName]?.value,
-            'fixture-os-name');
-        expect(attributes[SemanticAttributesConstants.osVersion]?.value,
-            'fixture-os-version');
-        expect(attributes[SemanticAttributesConstants.deviceBrand]?.value,
-            'fixture-device-brand');
-        expect(attributes[SemanticAttributesConstants.deviceModel]?.value,
-            'fixture-device-model');
-        expect(attributes[SemanticAttributesConstants.deviceFamily]?.value,
-            'fixture-device-family');
-      });
+          verify(fixture.binding.loadContexts()).called(1);
+          final attributes = span.attributes;
+          expect(
+            attributes[SemanticAttributesConstants.osName]?.value,
+            'fixture-os-name',
+          );
+          expect(
+            attributes[SemanticAttributesConstants.osVersion]?.value,
+            'fixture-os-version',
+          );
+          expect(
+            attributes[SemanticAttributesConstants.deviceBrand]?.value,
+            'fixture-device-brand',
+          );
+          expect(
+            attributes[SemanticAttributesConstants.deviceModel]?.value,
+            'fixture-device-model',
+          );
+          expect(
+            attributes[SemanticAttributesConstants.deviceFamily]?.value,
+            'fixture-device-family',
+          );
+        },
+      );
 
       test('does not override existing span attributes', () async {
         fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
@@ -861,30 +969,39 @@ void main() {
         await fixture.registerIntegration();
 
         final span = givenSpan();
-        span.setAttribute(SemanticAttributesConstants.osName,
-            SentryAttribute.string('existing-os-name'));
+        span.setAttribute(
+          SemanticAttributesConstants.osName,
+          SentryAttribute.string('existing-os-name'),
+        );
 
-        await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessSpan(span));
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnProcessSpan(span),
+        );
 
         final attributes = span.attributes;
-        expect(attributes[SemanticAttributesConstants.osName]?.value,
-            'existing-os-name');
-        // Other attributes should still be added
-        expect(attributes[SemanticAttributesConstants.osVersion]?.value,
-            'fixture-os-version');
-      });
-
-      test('does not register callback when traceLifecycle is not streaming',
-          () async {
-        fixture.options.traceLifecycle = SentryTraceLifecycle.static;
-        await fixture.registerIntegration();
-
         expect(
-          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessSpan],
-          isNull,
+          attributes[SemanticAttributesConstants.osName]?.value,
+          'existing-os-name',
+        );
+        // Other attributes should still be added
+        expect(
+          attributes[SemanticAttributesConstants.osVersion]?.value,
+          'fixture-os-version',
         );
       });
+
+      test(
+        'does not register callback when traceLifecycle is not streaming',
+        () async {
+          fixture.options.traceLifecycle = SentryTraceLifecycle.static;
+          await fixture.registerIntegration();
+
+          expect(
+            fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessSpan],
+            isNull,
+          );
+        },
+      );
 
       test('handles throw during loadContexts', () async {
         fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
@@ -893,16 +1010,23 @@ void main() {
         when(fixture.binding.loadContexts()).thenThrow(Exception('test'));
 
         final span = givenSpan();
-        await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessSpan(span));
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnProcessSpan(span),
+        );
 
         // Attributes should remain unchanged (empty or just what was set before)
         expect(
-            span.attributes[SemanticAttributesConstants.deviceBrand], isNull);
+          span.attributes[SemanticAttributesConstants.deviceBrand],
+          isNull,
+        );
         expect(
-            span.attributes[SemanticAttributesConstants.deviceModel], isNull);
+          span.attributes[SemanticAttributesConstants.deviceModel],
+          isNull,
+        );
         expect(
-            span.attributes[SemanticAttributesConstants.deviceFamily], isNull);
+          span.attributes[SemanticAttributesConstants.deviceFamily],
+          isNull,
+        );
       });
     });
 
@@ -996,8 +1120,9 @@ void main() {
           traceId: SentryId.newId(),
         );
 
-        await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessMetric(metric));
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnProcessMetric(metric),
+        );
 
         verifyNever(fixture.binding.loadContexts());
         expect(metric.attributes, isEmpty);
@@ -1019,8 +1144,9 @@ void main() {
           samplingDecision: SentryTracesSamplingDecision(true),
         );
 
-        await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessSpan(span));
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnProcessSpan(span),
+        );
 
         verifyNever(fixture.binding.loadContexts());
         expect(span.attributes, isEmpty);

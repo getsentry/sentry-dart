@@ -12,7 +12,8 @@ class ReplayEventProcessor implements EventProcessor {
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
-    final isErrorEvent = event.eventId != SentryId.empty() &&
+    final isErrorEvent =
+        event.eventId != SentryId.empty() &&
         event.exceptions?.isNotEmpty == true;
 
     final isFeedbackEvent =

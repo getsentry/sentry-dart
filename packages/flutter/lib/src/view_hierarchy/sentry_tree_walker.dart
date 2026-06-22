@@ -215,7 +215,8 @@ class _TreeWalker {
   final SentryFlutterOptions options;
 
   ValueChanged<Element> _visitor(
-      SentryViewHierarchyElement parentSentryElement) {
+    SentryViewHierarchyElement parentSentryElement,
+  ) {
     return (Element element) {
       final sentryElement = _toSentryViewHierarchyElement(element);
 
@@ -231,7 +232,8 @@ class _TreeWalker {
 
       // we don't want to add private children but we still want to walk the tree
       element.visitChildElements(
-          _visitor(privateElement ? parentSentryElement : sentryElement));
+        _visitor(privateElement ? parentSentryElement : sentryElement),
+      );
     };
   }
 
@@ -299,7 +301,9 @@ class _TreeWalker {
 }
 
 SentryViewHierarchy? walkWidgetTree(
-    WidgetsBinding instance, SentryFlutterOptions options) {
+  WidgetsBinding instance,
+  SentryFlutterOptions options,
+) {
   // to keep compatibility with older versions
   // ignore: deprecated_member_use
   final rootElement = instance.renderViewElement;

@@ -27,10 +27,11 @@ class ConnectivityIntegration extends Integration<SentryFlutterOptions> {
   void addBreadcrumb(String connectivity) {
     _hub?.addBreadcrumb(
       Breadcrumb(
-          category: 'device.connectivity',
-          level: SentryLevel.info,
-          type: 'connectivity',
-          data: {'connectivity': connectivity}),
+        category: 'device.connectivity',
+        level: SentryLevel.info,
+        type: 'connectivity',
+        data: {'connectivity': connectivity},
+      ),
     );
   }
 }

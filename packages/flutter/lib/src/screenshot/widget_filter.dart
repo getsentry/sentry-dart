@@ -98,10 +98,11 @@ class WidgetFilter {
         if (!_warnedWidgets.contains(widget.hashCode)) {
           _warnedWidgets.add(widget.hashCode);
           logger(
-              SentryLevel.warning,
-              'WidgetFilter cannot mask widget $widget: $e.'
-              'Obscuring the parent instead: ${parent?.widget}.',
-              stackTrace: stackTrace);
+            SentryLevel.warning,
+            'WidgetFilter cannot mask widget $widget: $e.'
+            'Obscuring the parent instead: ${parent?.widget}.',
+            stackTrace: stackTrace,
+          );
         }
         if (parent == null) {
           return WidgetFilterItem(_scheme.defaultMask, _bounds);
@@ -199,7 +200,9 @@ class WidgetFilter {
   @internal
   @pragma('vm:prefer-inline')
   static bool isBuiltInAssetImage(
-      AssetBundleImageProvider image, AssetBundle rootAssetBundle) {
+    AssetBundleImageProvider image,
+    AssetBundle rootAssetBundle,
+  ) {
     late final AssetBundle? bundle;
     if (image is AssetImage) {
       bundle = image.bundle;
@@ -256,8 +259,9 @@ class WidgetFilterColorScheme {
   final Color defaultTextMask;
   final Color background;
 
-  const WidgetFilterColorScheme(
-      {required this.defaultMask,
-      required this.defaultTextMask,
-      required this.background});
+  const WidgetFilterColorScheme({
+    required this.defaultMask,
+    required this.defaultTextMask,
+    required this.background,
+  });
 }

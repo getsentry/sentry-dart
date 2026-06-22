@@ -55,7 +55,9 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   FutureOr<void> captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
+    Uint8List envelopeData,
+    bool containsUnhandledException,
+  ) {
     _coreWorker?.captureEnvelope(envelopeData, containsUnhandledException);
   }
 
@@ -68,31 +70,41 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   int? displayRefreshRate() => tryCatchSync('displayRefreshRate', () {
-        return native.SentryFlutterPlugin.displayRefreshRate
-            ?.toDartInt(releaseOriginal: true);
-      });
+    return native.SentryFlutterPlugin.displayRefreshRate?.toDartInt(
+      releaseOriginal: true,
+    );
+  });
 
   @override
   NativeAppStart? fetchNativeAppStart() {
     JByteArray? appStartUtf8JsonBytes;
 
-    return tryCatchSync('fetchNativeAppStart', () {
-      if (!options.enableAutoPerformanceTracing) {
-        return null;
-      }
-      appStartUtf8JsonBytes =
-          native.SentryFlutterPlugin.fetchNativeAppStartAsBytes();
-      if (appStartUtf8JsonBytes == null) return null;
+    return tryCatchSync(
+      'fetchNativeAppStart',
+      () {
+        if (!options.enableAutoPerformanceTracing) {
+          return null;
+        }
+        appStartUtf8JsonBytes =
+            native.SentryFlutterPlugin.fetchNativeAppStartAsBytes();
+        if (appStartUtf8JsonBytes == null) return null;
 
-      final byteRange =
-          appStartUtf8JsonBytes!.getRange(0, appStartUtf8JsonBytes!.length);
-      final bytes = Uint8List.view(
-          byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
-      final appStartMap = decodeUtf8JsonMap(bytes);
-      return NativeAppStart.fromJson(appStartMap);
-    }, finallyFn: () {
-      appStartUtf8JsonBytes?.release();
-    });
+        final byteRange = appStartUtf8JsonBytes!.getRange(
+          0,
+          appStartUtf8JsonBytes!.length,
+        );
+        final bytes = Uint8List.view(
+          byteRange.buffer,
+          byteRange.offsetInBytes,
+          byteRange.length,
+        );
+        final appStartMap = decodeUtf8JsonMap(bytes);
+        return NativeAppStart.fromJson(appStartMap);
+      },
+      finallyFn: () {
+        appStartUtf8JsonBytes?.release();
+      },
+    );
   }
 
   @override
@@ -137,39 +149,38 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void setTag(String key, String value) => tryCatchSync('setTag', () {
-        using((arena) {
-          final jKey = key.toJString()..releasedBy(arena);
-          final jVal = value.toJString()..releasedBy(arena);
-          native.Sentry.setTag(jKey, jVal);
-        });
-      });
+    using((arena) {
+      final jKey = key.toJString()..releasedBy(arena);
+      final jVal = value.toJString()..releasedBy(arena);
+      native.Sentry.setTag(jKey, jVal);
+    });
+  });
 
   @override
   void removeTag(String key) => tryCatchSync('removeTag', () {
-        using((arena) {
-          final jKey = key.toJString()..releasedBy(arena);
-          native.Sentry.removeTag(jKey);
-        });
-      });
+    using((arena) {
+      final jKey = key.toJString()..releasedBy(arena);
+      native.Sentry.removeTag(jKey);
+    });
+  });
 
   @override
   void setExtra(String key, dynamic value) => tryCatchSync('setExtra', () {
-        using((arena) {
-          final jKey = key.toJString()..releasedBy(arena);
-          final jVal = normalize(value).toString().toJString()
-            ..releasedBy(arena);
+    using((arena) {
+      final jKey = key.toJString()..releasedBy(arena);
+      final jVal = normalize(value).toString().toJString()..releasedBy(arena);
 
-          native.Sentry.setExtra(jKey, jVal);
-        });
-      });
+      native.Sentry.setExtra(jKey, jVal);
+    });
+  });
 
   @override
   void removeExtra(String key) => tryCatchSync('removeExtra', () {
-        using((arena) {
-          final jKey = key.toJString()..releasedBy(arena);
-          native.Sentry.removeExtra(jKey);
-        });
-      });
+    using((arena) {
+      final jKey = key.toJString()..releasedBy(arena);
+      native.Sentry.removeExtra(jKey);
+    });
+  });
 
   @override
   SentryId captureReplay() {
@@ -202,59 +213,61 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  void setReplayConfig(ReplayConfig config) =>
-      tryCatchSync('setReplayConfig', () {
-        // Since codec block size is 16, so we have to adjust the width and height to it,
-        // otherwise the codec might fail to configure on some devices, see
-        // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
-        final invalidConfig = config.width == 0.0 ||
-            config.height == 0.0 ||
-            config.windowWidth == 0.0 ||
-            config.windowHeight == 0.0;
-        if (invalidConfig) {
-          internalLogger.error(
-            'Replay config is not valid: '
-            'width: ${config.width}, '
-            'height: ${config.height}, '
-            'windowWidth: ${config.windowWidth}, '
-            'windowHeight: ${config.windowHeight}',
-          );
-          return;
-        }
+  void setReplayConfig(
+    ReplayConfig config,
+  ) => tryCatchSync('setReplayConfig', () {
+    // Since codec block size is 16, so we have to adjust the width and height to it,
+    // otherwise the codec might fail to configure on some devices, see
+    // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
+    final invalidConfig =
+        config.width == 0.0 ||
+        config.height == 0.0 ||
+        config.windowWidth == 0.0 ||
+        config.windowHeight == 0.0;
+    if (invalidConfig) {
+      internalLogger.error(
+        'Replay config is not valid: '
+        'width: ${config.width}, '
+        'height: ${config.height}, '
+        'windowWidth: ${config.windowWidth}, '
+        'windowHeight: ${config.windowHeight}',
+      );
+      return;
+    }
 
-        var adjWidth = config.width;
-        var adjHeight = config.height;
+    var adjWidth = config.width;
+    var adjHeight = config.height;
 
-        // First update the smaller dimension, as changing that will affect the screen ratio more.
-        if (adjWidth < adjHeight) {
-          final newWidth = adjWidth.adjustReplaySizeToBlockSize();
-          final scale = newWidth / adjWidth;
-          final newHeight = (adjHeight * scale).adjustReplaySizeToBlockSize();
-          adjWidth = newWidth;
-          adjHeight = newHeight;
-        } else {
-          final newHeight = adjHeight.adjustReplaySizeToBlockSize();
-          final scale = newHeight / adjHeight;
-          final newWidth = (adjWidth * scale).adjustReplaySizeToBlockSize();
-          adjHeight = newHeight;
-          adjWidth = newWidth;
-        }
+    // First update the smaller dimension, as changing that will affect the screen ratio more.
+    if (adjWidth < adjHeight) {
+      final newWidth = adjWidth.adjustReplaySizeToBlockSize();
+      final scale = newWidth / adjWidth;
+      final newHeight = (adjHeight * scale).adjustReplaySizeToBlockSize();
+      adjWidth = newWidth;
+      adjHeight = newHeight;
+    } else {
+      final newHeight = adjHeight.adjustReplaySizeToBlockSize();
+      final scale = newHeight / adjHeight;
+      final newWidth = (adjWidth * scale).adjustReplaySizeToBlockSize();
+      adjHeight = newHeight;
+      adjWidth = newWidth;
+    }
 
-        final replayConfig = native.ScreenshotRecorderConfig(
-          adjWidth.round(),
-          adjHeight.round(),
-          adjWidth / config.windowWidth,
-          adjHeight / config.windowHeight,
-          config.frameRate,
-          0, // bitRate is currently not used
-        );
+    final replayConfig = native.ScreenshotRecorderConfig(
+      adjWidth.round(),
+      adjHeight.round(),
+      adjWidth / config.windowWidth,
+      adjHeight / config.windowHeight,
+      config.frameRate,
+      0, // bitRate is currently not used
+    );
 
-        _nativeReplay ??=
-            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
-        _nativeReplay?.onConfigurationChanged(replayConfig);
+    _nativeReplay ??=
+        native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
+    _nativeReplay?.onConfigurationChanged(replayConfig);
 
-        replayConfig.release();
-      });
+    replayConfig.release();
+  });
 
   @override
   bool get supportsTraceSync => true;
@@ -301,14 +314,14 @@ class SentryNativeJava extends SentryNativeChannel {
 // calls and local reference churn.
 @visibleForTesting
 JObject dartToJObject(Object? value) => switch (value) {
-      String s => s.toJString(),
-      bool b => b.toJBoolean(),
-      int i => i.toJLong(),
-      double d => d.toJDouble(),
-      List<dynamic> l => dartToJList(l),
-      Map<String, dynamic> m => dartToJMap(m),
-      _ => value.toString().toJString()
-    };
+  String s => s.toJString(),
+  bool b => b.toJBoolean(),
+  int i => i.toJLong(),
+  double d => d.toJDouble(),
+  List<dynamic> l => dartToJList(l),
+  Map<String, dynamic> m => dartToJMap(m),
+  _ => value.toString().toJString(),
+};
 
 @visibleForTesting
 JList<JObject?> dartToJList(List<dynamic> values) {

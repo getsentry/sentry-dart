@@ -27,10 +27,11 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     Hub? hub,
     required SentryFlutterOptions options,
     bool Function()? isNavigatorObserverCreated,
-  })  : _hub = hub ?? HubAdapter(),
-        _options = options,
-        _isNavigatorObserverCreated = isNavigatorObserverCreated ??
-            (() => SentryNavigatorObserver.isCreated) {
+  }) : _hub = hub ?? HubAdapter(),
+       _options = options,
+       _isNavigatorObserverCreated =
+           isNavigatorObserverCreated ??
+           (() => SentryNavigatorObserver.isCreated) {
     if (_options.enableWindowMetricBreadcrumbs) {
       _screenSizeStreamController.stream
           .map(
@@ -52,8 +53,9 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
 
   final Hub _hub;
   final SentryFlutterOptions _options;
-  final TimerDebouncer _didChangeMetricsDebouncer =
-      TimerDebouncer(milliseconds: 100);
+  final TimerDebouncer _didChangeMetricsDebouncer = TimerDebouncer(
+    milliseconds: 100,
+  );
   final bool Function() _isNavigatorObserverCreated;
 
   /// Measures how long the app stayed in the background
@@ -78,14 +80,14 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       // References:
       // https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
       // https://github.com/getsentry/sentry-java/blob/de00462e3499fa9a21a7992317503f1ccda7d226/sentry-android-core/src/main/java/io/sentry/android/core/LifecycleWatcher.java#L119-L128
-      _hub.addBreadcrumb(Breadcrumb(
-        category: 'app.lifecycle',
-        type: 'navigation',
-        data: <String, String>{
-          'state': state.name,
-        },
-        timestamp: _options.clock(),
-      ));
+      _hub.addBreadcrumb(
+        Breadcrumb(
+          category: 'app.lifecycle',
+          type: 'navigation',
+          data: <String, String>{'state': state.name},
+          timestamp: _options.clock(),
+        ),
+      );
     }
 
     // Enable app lifecycle trace generation if:
@@ -125,13 +127,15 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   }
 
   void _onScreenSizeChanged(Map<String, dynamic> data) {
-    _hub.addBreadcrumb(Breadcrumb(
-      message: 'Screen size changed',
-      category: 'device.screen',
-      type: 'navigation',
-      data: data,
-      timestamp: _options.clock(),
-    ));
+    _hub.addBreadcrumb(
+      Breadcrumb(
+        message: 'Screen size changed',
+        category: 'device.screen',
+        type: 'navigation',
+        data: data,
+        timestamp: _options.clock(),
+      ),
+    );
   }
 
   /// See also:
@@ -144,18 +148,22 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     final brightness =
         // ignore: deprecated_member_use
         _options.bindingUtils.instance?.window.platformBrightness;
-    final brightnessDescription =
-        brightness == Brightness.dark ? 'dark' : 'light';
+    final brightnessDescription = brightness == Brightness.dark
+        ? 'dark'
+        : 'light';
 
-    _hub.addBreadcrumb(Breadcrumb(
-      message: 'Platform brightness was changed to $brightnessDescription.',
-      type: 'system',
-      category: 'device.event',
-      data: <String, String>{
-        'action': 'BRIGHTNESS_CHANGED_TO_${brightnessDescription.toUpperCase()}'
-      },
-      timestamp: _options.clock(),
-    ));
+    _hub.addBreadcrumb(
+      Breadcrumb(
+        message: 'Platform brightness was changed to $brightnessDescription.',
+        type: 'system',
+        category: 'device.event',
+        data: <String, String>{
+          'action':
+              'BRIGHTNESS_CHANGED_TO_${brightnessDescription.toUpperCase()}',
+        },
+        timestamp: _options.clock(),
+      ),
+    );
   }
 
   /// See also:
@@ -169,15 +177,17 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
         // ignore: deprecated_member_use
         _options.bindingUtils.instance?.window.textScaleFactor;
 
-    _hub.addBreadcrumb(Breadcrumb(
-      message: 'Text scale factor changed to $newTextScaleFactor.',
-      type: 'system',
-      category: 'device.event',
-      data: <String, String>{
-        'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor'
-      },
-      timestamp: _options.clock(),
-    ));
+    _hub.addBreadcrumb(
+      Breadcrumb(
+        message: 'Text scale factor changed to $newTextScaleFactor.',
+        type: 'system',
+        category: 'device.event',
+        data: <String, String>{
+          'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor',
+        },
+        timestamp: _options.clock(),
+      ),
+    );
   }
 
   /// A call to this method indicates that the operating system would like
@@ -194,20 +204,20 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     const message =
         'App had memory pressure. This indicates that the operating system '
         'would like applications to release caches to free up more memory.';
-    _hub.addBreadcrumb(Breadcrumb(
-      message: message,
-      type: 'system',
-      category: 'device.event',
-      data: <String, String>{
-        'action': 'LOW_MEMORY',
-      },
-      // This is kinda bad. Therefore this gets added as a warning.
-      level: SentryLevel.warning,
-      timestamp: _options.clock(),
-    ));
+    _hub.addBreadcrumb(
+      Breadcrumb(
+        message: message,
+        type: 'system',
+        category: 'device.event',
+        data: <String, String>{'action': 'LOW_MEMORY'},
+        // This is kinda bad. Therefore this gets added as a warning.
+        level: SentryLevel.warning,
+        timestamp: _options.clock(),
+      ),
+    );
   }
 
-/*
+  /*
   These are also methods of `WidgetsBindingObserver` but are currently not
   implemented because I'm not sure what to do with them. See the reasoning
   for each method. If these methods are implemented the class definition should

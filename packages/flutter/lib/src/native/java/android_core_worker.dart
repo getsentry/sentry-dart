@@ -23,14 +23,14 @@ class AndroidCoreWorker {
   Worker? _worker;
 
   AndroidCoreWorker(SentryOptions options, {SpawnWorkerFn? spawn})
-      : _config = WorkerConfig(
-          debugName: 'SentryAndroidCoreWorker',
-          debug: options.debug,
-          diagnosticLevel: options.diagnosticLevel,
-          // ignore: invalid_use_of_internal_member
-          automatedTestMode: options.automatedTestMode,
-        ),
-        _spawn = spawn ?? spawnWorker;
+    : _config = WorkerConfig(
+        debugName: 'SentryAndroidCoreWorker',
+        debug: options.debug,
+        diagnosticLevel: options.diagnosticLevel,
+        // ignore: invalid_use_of_internal_member
+        automatedTestMode: options.automatedTestMode,
+      ),
+      _spawn = spawn ?? spawnWorker;
 
   @internal
   static AndroidCoreWorker Function(SentryFlutterOptions) factory =
@@ -359,80 +359,78 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
 
   @override
   FutureOr<void> onMessage(Object? msg) => _enqueue(() {
-        switch (msg) {
-          case _CaptureEnvelopeRequest request:
-            final data = request.envelopeData.materialize().asUint8List();
-            _captureEnvelope(
-              data,
-              request.containsUnhandledException,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          case _AddBreadcrumbRequest request:
-            _addBreadcrumb(
-              request.breadcrumb,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          case _ClearBreadcrumbsRequest _:
-            _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
-          case _SetUserRequest request:
-            _setUser(request.user,
-                automatedTestMode: _config.automatedTestMode);
-          case _SetContextsRequest request:
-            _setContexts(
-              request.key,
-              request.value,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          case _RemoveContextsRequest request:
-            _removeContexts(
-              request.key,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          default:
-            _unexpectedMessage(msg);
-        }
-      });
+    switch (msg) {
+      case _CaptureEnvelopeRequest request:
+        final data = request.envelopeData.materialize().asUint8List();
+        _captureEnvelope(
+          data,
+          request.containsUnhandledException,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      case _AddBreadcrumbRequest request:
+        _addBreadcrumb(
+          request.breadcrumb,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      case _ClearBreadcrumbsRequest _:
+        _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
+      case _SetUserRequest request:
+        _setUser(request.user, automatedTestMode: _config.automatedTestMode);
+      case _SetContextsRequest request:
+        _setContexts(
+          request.key,
+          request.value,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      case _RemoveContextsRequest request:
+        _removeContexts(
+          request.key,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      default:
+        _unexpectedMessage(msg);
+    }
+  });
 
   @override
   FutureOr<Object?> onRequest(Object? payload) => _enqueue<Object?>(() {
-        switch (payload) {
-          case _LoadDebugImagesRequest request:
-            return _loadDebugImageMaps(
-              request.instructionAddresses,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          case _LoadContextsRequest _:
-            return _loadContexts(automatedTestMode: _config.automatedTestMode);
-          case _AddBreadcrumbRequest request:
-            _addBreadcrumb(
-              request.breadcrumb,
-              automatedTestMode: _config.automatedTestMode,
-            );
-            return null;
-          case _ClearBreadcrumbsRequest _:
-            _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
-            return null;
-          case _SetUserRequest request:
-            _setUser(request.user,
-                automatedTestMode: _config.automatedTestMode);
-            return null;
-          case _SetContextsRequest request:
-            _setContexts(
-              request.key,
-              request.value,
-              automatedTestMode: _config.automatedTestMode,
-            );
-            return null;
-          case _RemoveContextsRequest request:
-            _removeContexts(
-              request.key,
-              automatedTestMode: _config.automatedTestMode,
-            );
-            return null;
-          default:
-            return _unexpectedPayload(payload);
-        }
-      });
+    switch (payload) {
+      case _LoadDebugImagesRequest request:
+        return _loadDebugImageMaps(
+          request.instructionAddresses,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      case _LoadContextsRequest _:
+        return _loadContexts(automatedTestMode: _config.automatedTestMode);
+      case _AddBreadcrumbRequest request:
+        _addBreadcrumb(
+          request.breadcrumb,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      case _ClearBreadcrumbsRequest _:
+        _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
+        return null;
+      case _SetUserRequest request:
+        _setUser(request.user, automatedTestMode: _config.automatedTestMode);
+        return null;
+      case _SetContextsRequest request:
+        _setContexts(
+          request.key,
+          request.value,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      case _RemoveContextsRequest request:
+        _removeContexts(
+          request.key,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      default:
+        return _unexpectedPayload(payload);
+    }
+  });
 
   /// Serializes worker actions so JNI calls run in request order.
   Future<T> _enqueue<T>(FutureOr<T> Function() action) {

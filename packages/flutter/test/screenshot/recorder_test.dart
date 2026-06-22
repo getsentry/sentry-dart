@@ -47,8 +47,11 @@ void main() async {
     await tester.runAsync(() async {
       await tester.binding.setSurfaceSize(Size(20, 40));
       final targetResolution = SentryScreenshotQuality.high.targetResolution();
-      final fixture = await _Fixture.create(tester,
-          width: targetResolution, height: targetResolution);
+      final fixture = await _Fixture.create(
+        tester,
+        width: targetResolution,
+        height: targetResolution,
+      );
 
       expect(await fixture.capture(), '960x1920');
     });
@@ -58,8 +61,11 @@ void main() async {
     await tester.runAsync(() async {
       await tester.binding.setSurfaceSize(Size(40, 20));
       final targetResolution = SentryScreenshotQuality.high.targetResolution();
-      final fixture = await _Fixture.create(tester,
-          width: targetResolution, height: targetResolution);
+      final fixture = await _Fixture.create(
+        tester,
+        width: targetResolution,
+        height: targetResolution,
+      );
 
       expect(await fixture.capture(), '1920x960');
     });
@@ -68,10 +74,13 @@ void main() async {
   testWidgets('captures medium resolution images', (tester) async {
     await tester.runAsync(() async {
       await tester.binding.setSurfaceSize(Size(20, 40));
-      final targetResolution =
-          SentryScreenshotQuality.medium.targetResolution();
-      final fixture = await _Fixture.create(tester,
-          width: targetResolution, height: targetResolution);
+      final targetResolution = SentryScreenshotQuality.medium
+          .targetResolution();
+      final fixture = await _Fixture.create(
+        tester,
+        width: targetResolution,
+        height: targetResolution,
+      );
 
       expect(await fixture.capture(), '640x1280');
     });
@@ -81,8 +90,11 @@ void main() async {
     await tester.runAsync(() async {
       await tester.binding.setSurfaceSize(Size(20, 40));
       final targetResolution = SentryScreenshotQuality.low.targetResolution();
-      final fixture = await _Fixture.create(tester,
-          width: targetResolution, height: targetResolution);
+      final fixture = await _Fixture.create(
+        tester,
+        width: targetResolution,
+        height: targetResolution,
+      );
 
       expect(await fixture.capture(), '427x854');
     });
@@ -97,9 +109,13 @@ void main() async {
       });
 
     expect(
-        fixture.capture,
-        throwsA(predicate(
-            (Exception e) => e.toString().contains('testing masking error'))));
+      fixture.capture,
+      throwsA(
+        predicate(
+          (Exception e) => e.toString().contains('testing masking error'),
+        ),
+      ),
+    );
   });
 
   testWidgets('does not propagate errors in real apps', (tester) async {
@@ -116,52 +132,58 @@ void main() async {
   group('$Screenshot', () {
     test('listEquals()', () {
       expect(
-          Screenshot.listEquals(
-            Uint8List(0).buffer.asByteData(),
-            Uint8List(0).buffer.asByteData(),
-          ),
-          isTrue);
+        Screenshot.listEquals(
+          Uint8List(0).buffer.asByteData(),
+          Uint8List(0).buffer.asByteData(),
+        ),
+        isTrue,
+      );
       expect(
-          Screenshot.listEquals(
-            Uint8List.fromList([1, 2, 3]).buffer.asByteData(),
-            Uint8List.fromList([1, 2, 3]).buffer.asByteData(),
-          ),
-          isTrue);
+        Screenshot.listEquals(
+          Uint8List.fromList([1, 2, 3]).buffer.asByteData(),
+          Uint8List.fromList([1, 2, 3]).buffer.asByteData(),
+        ),
+        isTrue,
+      );
       expect(
-          Screenshot.listEquals(
-            Uint8List.fromList([1, 0, 3]).buffer.asByteData(),
-            Uint8List.fromList([1, 2, 3]).buffer.asByteData(),
-          ),
-          isFalse);
+        Screenshot.listEquals(
+          Uint8List.fromList([1, 0, 3]).buffer.asByteData(),
+          Uint8List.fromList([1, 2, 3]).buffer.asByteData(),
+        ),
+        isFalse,
+      );
       expect(
-          Screenshot.listEquals(
-            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8]).buffer.asByteData(),
-            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8]).buffer.asByteData(),
-          ),
-          isTrue);
+        Screenshot.listEquals(
+          Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8]).buffer.asByteData(),
+          Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8]).buffer.asByteData(),
+        ),
+        isTrue,
+      );
       expect(
-          Screenshot.listEquals(
-            Uint8List.fromList([1, 2, 3, 4, 5, 6, 0, 8]).buffer.asByteData(),
-            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8]).buffer.asByteData(),
-          ),
-          isFalse);
+        Screenshot.listEquals(
+          Uint8List.fromList([1, 2, 3, 4, 5, 6, 0, 8]).buffer.asByteData(),
+          Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8]).buffer.asByteData(),
+        ),
+        isFalse,
+      );
       expect(
-          Screenshot.listEquals(
-            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 9]).buffer.asByteData(),
-            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 9]).buffer.asByteData(),
-          ),
-          isTrue);
+        Screenshot.listEquals(
+          Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 9]).buffer.asByteData(),
+          Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 9]).buffer.asByteData(),
+        ),
+        isTrue,
+      );
       expect(
-          Screenshot.listEquals(
-            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 9]).buffer.asByteData(),
-            Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 0]).buffer.asByteData(),
-          ),
-          isFalse);
+        Screenshot.listEquals(
+          Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 9]).buffer.asByteData(),
+          Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 0]).buffer.asByteData(),
+        ),
+        isFalse,
+      );
 
       final dataA = Uint8List.fromList(
-              List.generate(10 * 1000 * 1000, (index) => index % 256))
-          .buffer
-          .asByteData();
+        List.generate(10 * 1000 * 1000, (index) => index % 256),
+      ).buffer.asByteData();
       final dataB = ByteData(dataA.lengthInBytes)
         ..buffer.asUint8List().setAll(0, dataA.buffer.asUint8List());
       expect(Screenshot.listEquals(dataA, dataB), isTrue);
@@ -173,25 +195,32 @@ void main() async {
 }
 
 class _Fixture {
-  late final ScreenshotRecorder sut =
-      ScreenshotRecorder(options, config: recorderConfig);
+  late final ScreenshotRecorder sut = ScreenshotRecorder(
+    options,
+    config: recorderConfig,
+  );
   late final options = defaultTestOptions()
     ..bindingUtils = TestBindingWrapper();
-  late final recorderConfig =
-      ScreenshotRecorderConfig(width: width, height: height);
+  late final recorderConfig = ScreenshotRecorderConfig(
+    width: width,
+    height: height,
+  );
   final double? width;
   final double? height;
 
   _Fixture({this.width, this.height});
 
-  static Future<_Fixture> create(WidgetTester tester,
-      {double? width, double? height}) async {
+  static Future<_Fixture> create(
+    WidgetTester tester, {
+    double? width,
+    double? height,
+  }) async {
     final fixture = _Fixture(width: width, height: height);
     await pumpTestElement(tester);
     return fixture;
   }
 
   Future<String?> capture() => sut.capture<String?>((screenshot) {
-        return Future.value("${screenshot.width}x${screenshot.height}");
-      });
+    return Future.value("${screenshot.width}x${screenshot.height}");
+  });
 }

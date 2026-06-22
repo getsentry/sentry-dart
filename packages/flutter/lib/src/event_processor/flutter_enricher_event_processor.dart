@@ -34,10 +34,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
   Map<String, String> _packages = {};
 
   @override
-  Future<SentryEvent?> apply(
-    SentryEvent event,
-    Hint hint,
-  ) async {
+  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
     // TODO: while we have a native integration with JS SDK, it's currently opt in and we dont gather contexts yet
@@ -50,8 +47,9 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     contexts.device = device;
     contexts.runtimes = _getRuntimes(event.contexts.runtimes);
     contexts.culture = _getCulture(event.contexts.culture);
-    contexts.operatingSystem =
-        _getOperatingSystem(event.contexts.operatingSystem);
+    contexts.operatingSystem = _getOperatingSystem(
+      event.contexts.operatingSystem,
+    );
     contexts.app = _getApp(event.contexts.app);
 
     final app = contexts.app;
@@ -94,16 +92,10 @@ class FlutterEnricherEventProcessor implements EventProcessor {
       // We don't care about those license issues, we just want each package name once.
       // Therefore we add each name to a set to make sure we only add it once.
       await LicenseRegistry.licenses.forEach(
-        (entry) => packages.addAll(
-          entry.packages.toList(),
-        ),
+        (entry) => packages.addAll(entry.packages.toList()),
       );
 
-      _packages = Map.fromEntries(
-        packages.map(
-          (e) => MapEntry(e, 'unknown'),
-        ),
-      );
+      _packages = Map.fromEntries(packages.map((e) => MapEntry(e, 'unknown')));
     }
     return _packages;
   }
@@ -220,19 +212,13 @@ class FlutterEnricherEventProcessor implements EventProcessor {
       }
     }
 
-    final flutterRuntime = SentryRuntime(
-      name: 'Flutter',
-      compiler: compiler,
-    );
+    final flutterRuntime = SentryRuntime(name: 'Flutter', compiler: compiler);
 
     if (runtimes == null || runtimes.isEmpty) {
       return [flutterRuntime];
     }
 
-    return [
-      ...runtimes,
-      flutterRuntime,
-    ];
+    return [...runtimes, flutterRuntime];
   }
 
   SentryApp? _getApp(SentryApp? app) {

@@ -69,7 +69,9 @@ class NativeAppStartHandler {
   }
 
   Future<void> _attachAppStartSpans(
-      AppStartInfo appStartInfo, SentryTracer transaction) async {
+    AppStartInfo appStartInfo,
+    SentryTracer transaction,
+  ) async {
     final transactionTraceId = transaction.context.traceId;
     final appStartEnd = appStartInfo.end;
 
@@ -123,7 +125,7 @@ class NativeAppStartHandler {
       appStartSpan,
       pluginRegistrationSpan,
       sentrySetupSpan,
-      firstFrameRenderSpan
+      firstFrameRenderSpan,
     ]);
   }
 
@@ -132,8 +134,9 @@ class NativeAppStartHandler {
     SentryTracer transaction,
     SentrySpan parent,
   ) async {
-    await Future.forEach<TimeSpan>(appStartInfo.nativeSpanTimes,
-        (timeSpan) async {
+    await Future.forEach<TimeSpan>(appStartInfo.nativeSpanTimes, (
+      timeSpan,
+    ) async {
       try {
         final span = await _createAndFinishSpan(
           tracer: transaction,
@@ -148,8 +151,10 @@ class NativeAppStartHandler {
         span.data.putIfAbsent('native', () => true);
         transaction.children.add(span);
       } catch (e) {
-        _options.log(SentryLevel.warning,
-            'Failed to attach native span to app start transaction: $e');
+        _options.log(
+          SentryLevel.warning,
+          'Failed to attach native span to app start transaction: $e',
+        );
       }
     });
   }

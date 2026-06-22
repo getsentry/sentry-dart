@@ -23,18 +23,22 @@ void main() {
   });
 
   group('$WebSessionIntegration', () {
-    test('does not add integration when enableAutoSessionTracking is false',
-        () async {
-      fixture.options.enableAutoSessionTracking = false;
+    test(
+      'does not add integration when enableAutoSessionTracking is false',
+      () async {
+        fixture.options.enableAutoSessionTracking = false;
 
-      final sut = fixture.getSut(native);
-      sut.call(hub, fixture.options);
+        final sut = fixture.getSut(native);
+        sut.call(hub, fixture.options);
 
-      expect(
-          fixture.options.sdk.integrations
-              .contains(WebSessionIntegration.integrationName),
-          false);
-    });
+        expect(
+          fixture.options.sdk.integrations.contains(
+            WebSessionIntegration.integrationName,
+          ),
+          false,
+        );
+      },
+    );
 
     test('does not add integration when not on web platform', () async {
       fixture.options.platform = MockPlatform(isWeb: false);
@@ -43,9 +47,11 @@ void main() {
       sut.call(hub, fixture.options);
 
       expect(
-          fixture.options.sdk.integrations
-              .contains(WebSessionIntegration.integrationName),
-          false);
+        fixture.options.sdk.integrations.contains(
+          WebSessionIntegration.integrationName,
+        ),
+        false,
+      );
     });
 
     test('adds integration when enabled is called', () {
@@ -54,15 +60,18 @@ void main() {
       sut.enable();
 
       expect(
-          fixture.options.sdk.integrations
-              .contains(WebSessionIntegration.integrationName),
-          true);
+        fixture.options.sdk.integrations.contains(
+          WebSessionIntegration.integrationName,
+        ),
+        true,
+      );
     });
 
     test('handles enable being called multiple times', () {
       expect(
-          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
-          isEmpty);
+        fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+        isEmpty,
+      );
 
       final sut = fixture.getSut(native);
       sut.call(hub, fixture.options);
@@ -70,31 +79,42 @@ void main() {
       sut.enable(); // Call enable a second time
 
       expect(
-          fixture.options.sdk.integrations
-              .where((integration) =>
-                  integration == WebSessionIntegration.integrationName)
-              .length,
-          1);
+        fixture.options.sdk.integrations
+            .where(
+              (integration) =>
+                  integration == WebSessionIntegration.integrationName,
+            )
+            .length,
+        1,
+      );
 
       expect(
-          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened
-              .length,
-          1);
+        fixture
+            .options
+            .lifecycleRegistry
+            .lifecycleCallbacks
+            .values
+            .flattened
+            .length,
+        1,
+      );
     });
 
     test('adds onBeforeSendEventCallback when enabled', () {
       final sut = fixture.getSut(native);
 
       expect(
-          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
-          isEmpty);
+        fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+        isEmpty,
+      );
 
       sut.call(hub, fixture.options);
       sut.enable();
 
       expect(
-          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
-          isNotEmpty);
+        fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+        isNotEmpty,
+      );
     });
 
     test('removes onBeforeSendEventCallback on close', () {
@@ -102,14 +122,16 @@ void main() {
       sut.call(hub, fixture.options);
       sut.enable();
       expect(
-          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
-          isNotEmpty);
+        fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+        isNotEmpty,
+      );
 
       sut.close();
 
       expect(
-          fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
-          isEmpty);
+        fixture.options.lifecycleRegistry.lifecycleCallbacks.values.flattened,
+        isEmpty,
+      );
     });
 
     test('sets WebSessionHandler when enabled', () {

@@ -44,7 +44,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         // using defaultIntegrations ensures that we can control which integrations are added
         'defaultIntegrations': <String>{
           SentryJsIntegrationName.globalHandlers,
-          SentryJsIntegrationName.dedupe
+          SentryJsIntegrationName.dedupe,
         },
       };
       _binding.init(jsOptions);
@@ -65,7 +65,9 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
+    Uint8List envelopeData,
+    bool containsUnhandledException,
+  ) {
     _logNotSupported('capture raw envelope data');
   }
 
@@ -86,10 +88,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
               continue;
             }
 
-            envelopeItems.add([
-              await item.header.toJson(data.length),
-              data,
-            ]);
+            envelopeItems.add([await item.header.toJson(data.length), data]);
           } catch (_) {
             if (options.automatedTestMode) {
               rethrow;
@@ -134,7 +133,8 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<SentryId> captureReplay() {
     throw UnsupportedError(
-        "$SentryWeb.captureReplay() not supported on this platform");
+      "$SentryWeb.captureReplay() not supported on this platform",
+    );
   }
 
   @override
@@ -144,7 +144,10 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<Map<String, dynamic>?> collectProfile(
-      SentryId traceId, int startTimeNs, int endTimeNs) {
+    SentryId traceId,
+    int startTimeNs,
+    int endTimeNs,
+  ) {
     _logNotSupported('collect profile');
     return null;
   }
@@ -194,11 +197,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     final debugId = debugIdMap[codeFile];
     if (debugId != null) {
       return [
-        DebugImage(
-          debugId: debugId,
-          type: 'sourcemap',
-          codeFile: codeFile,
-        ),
+        DebugImage(debugId: debugId, type: 'sourcemap', codeFile: codeFile),
       ];
     }
 

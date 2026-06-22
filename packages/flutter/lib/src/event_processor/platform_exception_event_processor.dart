@@ -23,7 +23,9 @@ class PlatformExceptionEventProcessor implements EventProcessor {
   }
 
   SentryException _enrich(
-      SentryException sentryException, PlatformException platformException) {
+    SentryException sentryException,
+    PlatformException platformException,
+  ) {
     final data = Map<String, dynamic>.from(
       sentryException.mechanism?.data ?? {},
     );

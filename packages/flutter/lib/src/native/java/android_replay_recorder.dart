@@ -28,13 +28,13 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   void Function()? onScreenshotAddedForTest;
 
   AndroidReplayRecorder(super.options, {SpawnWorkerFn? spawn})
-      : _config = WorkerConfig(
-          debugName: 'SentryAndroidReplayRecorder',
-          debug: options.debug,
-          diagnosticLevel: options.diagnosticLevel,
-          automatedTestMode: options.automatedTestMode,
-        ),
-        _spawn = spawn ?? spawnWorker {
+    : _config = WorkerConfig(
+        debugName: 'SentryAndroidReplayRecorder',
+        debug: options.debug,
+        diagnosticLevel: options.diagnosticLevel,
+        automatedTestMode: options.automatedTestMode,
+      ),
+      _spawn = spawn ?? spawnWorker {
     super.callback = (screenshot, isNewlyCaptured) {
       onScreenshotAddedForTest?.call();
       return _addReplayScreenshot(screenshot, isNewlyCaptured);

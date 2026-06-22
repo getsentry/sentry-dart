@@ -28,9 +28,11 @@ void main() {
       sut.call(fixture.hub, fixture.options);
 
       expect(
-          fixture.options.sdk.integrations
-              .contains('FlutterFrameworkFeatureFlag'),
-          true);
+        fixture.options.sdk.integrations.contains(
+          'FlutterFrameworkFeatureFlag',
+        ),
+        true,
+      );
     });
 
     test('adds feature flags', () {
@@ -38,8 +40,9 @@ void main() {
       sut.call(fixture.hub, fixture.options);
 
       // ignore: invalid_use_of_internal_member
-      final featureFlags = fixture.hub.scope.contexts[SentryFeatureFlags.type]
-          as SentryFeatureFlags?;
+      final featureFlags =
+          fixture.hub.scope.contexts[SentryFeatureFlags.type]
+              as SentryFeatureFlags?;
 
       expect(featureFlags, isNotNull);
       expect(featureFlags?.values.length, 3);
@@ -56,8 +59,9 @@ void main() {
       sut.call(fixture.hub, fixture.options);
 
       // ignore: invalid_use_of_internal_member
-      final featureFlags = fixture.hub.scope.contexts[SentryFeatureFlags.type]
-          as SentryFeatureFlags?;
+      final featureFlags =
+          fixture.hub.scope.contexts[SentryFeatureFlags.type]
+              as SentryFeatureFlags?;
 
       expect(featureFlags, isNotNull);
       expect(featureFlags?.values.length, 2);
@@ -72,8 +76,9 @@ void main() {
       sut.call(fixture.hub, fixture.options);
 
       // ignore: invalid_use_of_internal_member
-      final featureFlags = fixture.hub.scope.contexts[SentryFeatureFlags.type]
-          as SentryFeatureFlags?;
+      final featureFlags =
+          fixture.hub.scope.contexts[SentryFeatureFlags.type]
+              as SentryFeatureFlags?;
 
       expect(featureFlags, isNull);
     });
@@ -83,8 +88,9 @@ void main() {
       sut.call(fixture.hub, fixture.options);
 
       // ignore: invalid_use_of_internal_member
-      final featureFlags = fixture.hub.scope.contexts[SentryFeatureFlags.type]
-          as SentryFeatureFlags?;
+      final featureFlags =
+          fixture.hub.scope.contexts[SentryFeatureFlags.type]
+              as SentryFeatureFlags?;
 
       expect(featureFlags, isNotNull);
       expect(featureFlags?.values.length, 2);

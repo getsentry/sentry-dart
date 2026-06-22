@@ -13,10 +13,12 @@ void main() async {
   test('pixel ratio calculation', () {
     expect(ScreenshotRecorderConfig().getPixelRatio(100, 100), null);
     expect(
-        ScreenshotRecorderConfig(width: 5, height: 10).getPixelRatio(100, 100),
-        0.05);
+      ScreenshotRecorderConfig(width: 5, height: 10).getPixelRatio(100, 100),
+      0.05,
+    );
     expect(
-        ScreenshotRecorderConfig(width: 20, height: 10).getPixelRatio(100, 100),
-        0.1);
+      ScreenshotRecorderConfig(width: 20, height: 10).getPixelRatio(100, 100),
+      0.1,
+    );
   });
 }

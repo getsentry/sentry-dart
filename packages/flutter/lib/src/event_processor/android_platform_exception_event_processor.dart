@@ -81,8 +81,9 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     if (potentialStackTrace == null) {
       return null;
     }
-    return _JvmExceptionFactory(packageName)
-        .fromJvmStackTrace(potentialStackTrace, source);
+    return _JvmExceptionFactory(
+      packageName,
+    ).fromJvmStackTrace(potentialStackTrace, source);
   }
 
   SentryEvent _processPlatformException(
@@ -131,9 +132,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
 
   /// If the crash originated on Android, the Dart side didn't crash.
   /// Mark it accordingly.
-  void _markDartThreadsAsNonCrashed(
-    List<SentryThread>? threads,
-  ) {
+  void _markDartThreadsAsNonCrashed(List<SentryThread>? threads) {
     for (final thread in threads ?? []) {
       thread.crashed = false;
       // Isolate is safe to use directly,
@@ -185,8 +184,9 @@ class _JvmExceptionFactory {
 
     int suppressedIndex = 0;
     for (final suppressed in jvmException.suppressed ?? <JvmException>[]) {
-      var suppressedSentryException =
-          suppressed.toSentryException(nativePackageName);
+      var suppressedSentryException = suppressed.toSentryException(
+        nativePackageName,
+      );
       final suppressedSentryThread = suppressed.toSentryThread();
       sentryThreads.add(suppressedSentryThread);
 
@@ -220,9 +220,13 @@ extension on JvmException {
         module = typeParts.join('.');
       }
     }
-    final stackFrames = stackTrace.asMap().entries.map((entry) {
-      return entry.value.toSentryStackFrame(entry.key, nativePackageName);
-    }).toList(growable: false);
+    final stackFrames = stackTrace
+        .asMap()
+        .entries
+        .map((entry) {
+          return entry.value.toSentryStackFrame(entry.key, nativePackageName);
+        })
+        .toList(growable: false);
 
     return SentryException(
       value: description,
@@ -259,8 +263,9 @@ extension on JvmException {
 extension on JvmFrame {
   SentryStackFrame toSentryStackFrame(int index, String nativePackageName) {
     final skippedFrames = this.skippedFrames;
-    final framesOmitted =
-        skippedFrames == null ? null : [index, index + skippedFrames];
+    final framesOmitted = skippedFrames == null
+        ? null
+        : [index, index + skippedFrames];
 
     return SentryStackFrame(
       lineNo: lineNumber,

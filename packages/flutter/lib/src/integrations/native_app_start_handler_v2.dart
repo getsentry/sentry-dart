@@ -35,10 +35,12 @@ class NativeAppStartHandlerV2 {
 
     final appStartType = SentryAttribute.string(appStartInfo.type.name);
     final attributes = {
-      SemanticAttributesConstants.sentryOp:
-          SentryAttribute.string(appStartInfo.appStartTypeOperation),
-      SemanticAttributesConstants.sentryOrigin:
-          SentryAttribute.string(SentryTraceOrigins.autoUiTimeToDisplay),
+      SemanticAttributesConstants.sentryOp: SentryAttribute.string(
+        appStartInfo.appStartTypeOperation,
+      ),
+      SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+        SentryTraceOrigins.autoUiTimeToDisplay,
+      ),
       SemanticAttributesConstants.appVitalsStartType: appStartType,
     };
 
@@ -85,8 +87,11 @@ class NativeAppStartHandlerV2 {
         );
         nativeSpan.end(endTimestamp: timeSpan.end);
       } catch (error, stackTrace) {
-        internalLogger.error('Failed to attach native span to app start',
-            error: error, stackTrace: stackTrace);
+        internalLogger.error(
+          'Failed to attach native span to app start',
+          error: error,
+          stackTrace: stackTrace,
+        );
       }
     }
 
@@ -95,7 +100,8 @@ class NativeAppStartHandlerV2 {
     firstFrameRenderSpan.end(endTimestamp: appStartEnd);
 
     final durationMs = SentryAttribute.double(
-        appStartEnd.difference(appStartInfo.start).inMilliseconds.toDouble());
+      appStartEnd.difference(appStartInfo.start).inMilliseconds.toDouble(),
+    );
     // Emit both the legacy cold/warm split and the unified value+type pair
     // during the deprecation window for the former.
     final legacyValueKey = switch (appStartInfo.type) {
@@ -104,7 +110,9 @@ class NativeAppStartHandlerV2 {
     };
     appStartSpan.setAttribute(legacyValueKey, durationMs);
     appStartSpan.setAttribute(
-        SemanticAttributesConstants.appVitalsStartValue, durationMs);
+      SemanticAttributesConstants.appVitalsStartValue,
+      durationMs,
+    );
 
     appStartSpan.end(endTimestamp: appStartEnd);
   }

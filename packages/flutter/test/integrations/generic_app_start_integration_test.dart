@@ -50,21 +50,22 @@ void main() {
       });
 
       test(
-          'creates transaction with correct context when frame callback executes',
-          () async {
-        final sut = fixture.getSut();
-        fixture.fakeFrameHandler.postFrameCallbackDelay = Duration.zero;
+        'creates transaction with correct context when frame callback executes',
+        () async {
+          final sut = fixture.getSut();
+          fixture.fakeFrameHandler.postFrameCallbackDelay = Duration.zero;
 
-        sut.call(fixture.hub, fixture.options);
+          sut.call(fixture.hub, fixture.options);
 
-        await Future<void>.delayed(Duration(milliseconds: 10));
+          await Future<void>.delayed(Duration(milliseconds: 10));
 
-        final tracer = fixture.hub.scope.span as SentryTracer?;
-        expect(tracer, isNotNull);
-        expect(tracer!.name, 'root /');
-        expect(tracer.context.operation, SentrySpanOperations.uiLoad);
-        expect(tracer.origin, SentryTraceOrigins.autoUiTimeToDisplay);
-      });
+          final tracer = fixture.hub.scope.span as SentryTracer?;
+          expect(tracer, isNotNull);
+          expect(tracer!.name, 'root /');
+          expect(tracer.context.operation, SentrySpanOperations.uiLoad);
+          expect(tracer.origin, SentryTraceOrigins.autoUiTimeToDisplay);
+        },
+      );
 
       test('tracks time to display when frame callback executes', () async {
         final sut = fixture.getSut();
@@ -75,9 +76,11 @@ void main() {
         await Future<void>.delayed(Duration(milliseconds: 100));
 
         final tracer = fixture.hub.scope.span as SentryTracer?;
-        final hasTtidSpan = tracer!.children.any((span) =>
-            span.context.operation ==
-            SentrySpanOperations.uiTimeToInitialDisplay);
+        final hasTtidSpan = tracer!.children.any(
+          (span) =>
+              span.context.operation ==
+              SentrySpanOperations.uiTimeToInitialDisplay,
+        );
         expect(hasTtidSpan, isTrue);
       });
 
@@ -92,16 +95,21 @@ void main() {
 
         final envelopes = fixture.fakeTransport.envelopes;
         expect(envelopes.length, 1);
-        final capturedTransaction =
-            await _transactionFromEnvelope(envelopes.first);
+        final capturedTransaction = await _transactionFromEnvelope(
+          envelopes.first,
+        );
         final spans = capturedTransaction['spans'] as List;
         final span = spans.first as Map<dynamic, dynamic>;
         expect(span['op'], SentrySpanOperations.uiTimeToInitialDisplay);
         expect(span['description'], 'root / initial display');
-        expect(capturedTransaction['contexts']['trace']['op'],
-            SentrySpanOperations.uiLoad);
-        expect(capturedTransaction['contexts']['trace']['origin'],
-            SentryTraceOrigins.autoUiTimeToDisplay);
+        expect(
+          capturedTransaction['contexts']['trace']['op'],
+          SentrySpanOperations.uiLoad,
+        );
+        expect(
+          capturedTransaction['contexts']['trace']['origin'],
+          SentryTraceOrigins.autoUiTimeToDisplay,
+        );
       });
 
       test('uses correct start timestamp from clock', () async {
@@ -137,46 +145,52 @@ void main() {
 
         final envelopes = fixture.fakeTransport.envelopes;
         expect(envelopes.length, 1);
-        final capturedTransaction =
-            await _transactionFromEnvelope(envelopes.first);
+        final capturedTransaction = await _transactionFromEnvelope(
+          envelopes.first,
+        );
         final spans = capturedTransaction['spans'] as List;
         final span = spans.first as Map<dynamic, dynamic>;
         expect(span['op'], SentrySpanOperations.uiTimeToInitialDisplay);
         expect(span['description'], 'root / initial display');
 
         // Compare TTID span times
-        final ttidStartTimestamp =
-            DateTime.parse(span['start_timestamp'].toString());
+        final ttidStartTimestamp = DateTime.parse(
+          span['start_timestamp'].toString(),
+        );
         final ttidEndTimestamp = DateTime.parse(span['timestamp'].toString());
         expect(ttidStartTimestamp, startTime);
         expect(ttidEndTimestamp, endTime);
 
         // Compare transaction times
-        final transactionStartTimestamp =
-            DateTime.parse(capturedTransaction['start_timestamp'].toString());
-        final transactionEndTimestamp =
-            DateTime.parse(capturedTransaction['timestamp'].toString());
+        final transactionStartTimestamp = DateTime.parse(
+          capturedTransaction['start_timestamp'].toString(),
+        );
+        final transactionEndTimestamp = DateTime.parse(
+          capturedTransaction['timestamp'].toString(),
+        );
         expect(transactionStartTimestamp, startTime);
         expect(transactionEndTimestamp, endTime);
       });
 
-      test('maintains transaction ID consistency between setup and tracking',
-          () async {
-        final sut = fixture.getSut();
-        fixture.fakeFrameHandler.postFrameCallbackDelay = Duration.zero;
+      test(
+        'maintains transaction ID consistency between setup and tracking',
+        () async {
+          final sut = fixture.getSut();
+          fixture.fakeFrameHandler.postFrameCallbackDelay = Duration.zero;
 
-        sut.call(fixture.hub, fixture.options);
+          sut.call(fixture.hub, fixture.options);
 
-        final transactionIdAfterSetup =
-            fixture.options.timeToDisplayTracker.transactionId;
-        expect(transactionIdAfterSetup, isNotNull);
+          final transactionIdAfterSetup =
+              fixture.options.timeToDisplayTracker.transactionId;
+          expect(transactionIdAfterSetup, isNotNull);
 
-        await Future<void>.delayed(Duration(milliseconds: 10));
+          await Future<void>.delayed(Duration(milliseconds: 10));
 
-        final tracer = fixture.hub.scope.span as SentryTracer?;
-        expect(tracer, isNotNull);
-        expect(tracer!.context.spanId, transactionIdAfterSetup);
-      });
+          final tracer = fixture.hub.scope.span as SentryTracer?;
+          expect(tracer, isNotNull);
+          expect(tracer!.context.spanId, transactionIdAfterSetup);
+        },
+      );
     });
 
     group('when tracing is disabled', () {
@@ -302,7 +316,8 @@ class _FakeTransport implements Transport {
 }
 
 Future<Map<String, dynamic>> _transactionFromEnvelope(
-    SentryEnvelope envelope) async {
+  SentryEnvelope envelope,
+) async {
   final data = await envelope.items.first.dataFactory();
   final utf8Data = utf8.decode(data);
   final envelopeItemJson = jsonDecode(utf8Data);

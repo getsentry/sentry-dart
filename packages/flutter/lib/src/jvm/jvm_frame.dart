@@ -14,10 +14,7 @@ class JvmFrame {
     try {
       return _parse(frame);
     } catch (_) {
-      return JvmFrame(
-        isNativeMethod: false,
-        originalFrame: frame,
-      );
+      return JvmFrame(isNativeMethod: false, originalFrame: frame);
     }
   }
 
@@ -105,8 +102,9 @@ class JvmFrame {
 
     final fileName = fileAndLineSplitted.first;
     final isNativeMethod = fileName == 'Native Method';
-    var lineNumber =
-        isNativeMethod ? null : int.tryParse(fileAndLineSplitted[1]);
+    var lineNumber = isNativeMethod
+        ? null
+        : int.tryParse(fileAndLineSplitted[1]);
 
     return JvmFrame(
       originalFrame: jvmFrame,

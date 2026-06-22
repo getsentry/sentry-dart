@@ -27,8 +27,10 @@ void main() {
     final sut = fixture.getSut();
     sut(fixture.hub, fixture.options);
 
-    expect(fixture.options.sdk.integrations.contains('connectivityIntegration'),
-        true);
+    expect(
+      fixture.options.sdk.integrations.contains('connectivityIntegration'),
+      true,
+    );
   });
 
   test('$ConnectivityIntegration: addsBreadcrumb', () {
@@ -37,9 +39,9 @@ void main() {
 
     integration.addBreadcrumb('wifi');
 
-    final crumb = verify(
-      fixture.hub.addBreadcrumb(captureAny),
-    ).captured.first as Breadcrumb;
+    final crumb =
+        verify(fixture.hub.addBreadcrumb(captureAny)).captured.first
+            as Breadcrumb;
 
     verifyBreadcrumb(crumb, 'wifi');
   });

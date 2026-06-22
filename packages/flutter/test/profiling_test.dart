@@ -43,10 +43,9 @@ void main() {
     test('creates a profiler', () async {
       // ignore: invalid_use_of_internal_member
       final sut = SentryNativeProfilerFactory(mock, getUtcDateTime);
-      final profiler = sut.startProfiler(SentryTransactionContext(
-        'name',
-        'op',
-      ));
+      final profiler = sut.startProfiler(
+        SentryTransactionContext('name', 'op'),
+      );
       verify(mock.startProfiler(any)).called(1);
       expect(profiler, isNotNull);
     });
@@ -58,10 +57,9 @@ void main() {
     setUp(() {
       // ignore: invalid_use_of_internal_member
       final factory = SentryNativeProfilerFactory(mock, getUtcDateTime);
-      final profiler = factory.startProfiler(SentryTransactionContext(
-        'name',
-        'op',
-      ));
+      final profiler = factory.startProfiler(
+        SentryTransactionContext('name', 'op'),
+      );
       verify(mock.startProfiler(any)).called(1);
       expect(profiler, isNotNull);
       sut = profiler!;

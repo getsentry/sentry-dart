@@ -22,7 +22,9 @@ void main() {
     test('adds integration', () async {
       await fixture.registerIntegration();
       expect(
-          fixture.options.sdk.integrations, contains('nativeSdkIntegration'));
+        fixture.options.sdk.integrations,
+        contains('nativeSdkIntegration'),
+      );
       verify(fixture.binding.init(any)).called(1);
     });
 
@@ -31,15 +33,19 @@ void main() {
 
       fixture.sut = NativeSdkIntegration(_ThrowingMockSentryNative());
       await fixture.registerIntegration();
-      expect(fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
-          false);
+      expect(
+        fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
+        false,
+      );
     });
 
     test('rethrows in tests', () async {
       fixture.sut = NativeSdkIntegration(_ThrowingMockSentryNative());
       expect(fixture.registerIntegration, throwsException);
-      expect(fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
-          false);
+      expect(
+        fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
+        false,
+      );
     });
 
     test('closes native SDK', () async {

@@ -8,7 +8,8 @@ import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 
 Integration<SentryFlutterOptions> createLoadDebugImagesIntegration(
-    SentryNativeBinding native) {
+  SentryNativeBinding native,
+) {
   return LoadNativeDebugImagesIntegration(native);
 }
 
@@ -40,8 +41,9 @@ class _LoadNativeDebugImagesIntegrationEventProcessor
   final SentryFlutterOptions _options;
   final SentryNativeBinding _native;
 
-  late final _dartProcessor =
-      LoadDartDebugImagesIntegrationEventProcessor(_options);
+  late final _dartProcessor = LoadDartDebugImagesIntegrationEventProcessor(
+    _options,
+  );
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {

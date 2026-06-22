@@ -36,8 +36,9 @@ void main() {
 
       await pumpTestElement(tester);
 
-      final status = verify(mock(captureAny, null)).captured[0]
-          as SentryScreenshotWidgetStatus?;
+      final status =
+          verify(mock(captureAny, null)).captured[0]
+              as SentryScreenshotWidgetStatus?;
       expect(status, isNotNull);
 
       await pumpTestElement(tester);
@@ -45,8 +46,9 @@ void main() {
       verify(mock(any, status));
     });
 
-    testWidgets('unregisters the the callback if it returns false',
-        (tester) async {
+    testWidgets('unregisters the the callback if it returns false', (
+      tester,
+    ) async {
       bool returnValue = true;
       final mock = MockCallbacks().onBuild;
       when(mock(any, any)).thenAnswer((_) => returnValue);
@@ -94,8 +96,9 @@ void main() {
       expect(find.text('Take Screenshot'), findsNothing);
     });
 
-    testWidgets('presents feedback form when screenshot is taken',
-        (tester) async {
+    testWidgets('presents feedback form when screenshot is taken', (
+      tester,
+    ) async {
       final navigatorKey = GlobalKey<NavigatorState>();
 
       var options = SentryFlutterOptions();
@@ -166,55 +169,58 @@ void main() {
       });
 
       test(
-          'returns false for instances with significantly different pixelRatio',
-          () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(100, 200),
-          pixelRatio: 2.1, // Significantly different
-          orientation: Orientation.portrait,
-        );
+        'returns false for instances with significantly different pixelRatio',
+        () {
+          final status1 = SentryScreenshotWidgetStatus(
+            size: const Size(100, 200),
+            pixelRatio: 2.0,
+            orientation: Orientation.portrait,
+          );
+          final status2 = SentryScreenshotWidgetStatus(
+            size: const Size(100, 200),
+            pixelRatio: 2.1, // Significantly different
+            orientation: Orientation.portrait,
+          );
 
-        expect(status1.matches(status2), isFalse);
-      });
-
-      test(
-          'returns false for instances with significantly different size dimensions',
-          () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100.0, 200.0),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(100.1, 200.0), // Significantly different width
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-
-        expect(status1.matches(status2), isFalse);
-      });
+          expect(status1.matches(status2), isFalse);
+        },
+      );
 
       test(
-          'returns true for instances with significantly different size dimensions',
-          () {
-        final status1 = SentryScreenshotWidgetStatus(
-          size: const Size(100.0, 200.0),
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
-        final status2 = SentryScreenshotWidgetStatus(
-          size: const Size(100.01, 200.0), // Significantly different width
-          pixelRatio: 2.0,
-          orientation: Orientation.portrait,
-        );
+        'returns false for instances with significantly different size dimensions',
+        () {
+          final status1 = SentryScreenshotWidgetStatus(
+            size: const Size(100.0, 200.0),
+            pixelRatio: 2.0,
+            orientation: Orientation.portrait,
+          );
+          final status2 = SentryScreenshotWidgetStatus(
+            size: const Size(100.1, 200.0), // Significantly different width
+            pixelRatio: 2.0,
+            orientation: Orientation.portrait,
+          );
 
-        expect(status1.matches(status2), isTrue);
-      });
+          expect(status1.matches(status2), isFalse);
+        },
+      );
+
+      test(
+        'returns true for instances with significantly different size dimensions',
+        () {
+          final status1 = SentryScreenshotWidgetStatus(
+            size: const Size(100.0, 200.0),
+            pixelRatio: 2.0,
+            orientation: Orientation.portrait,
+          );
+          final status2 = SentryScreenshotWidgetStatus(
+            size: const Size(100.01, 200.0), // Significantly different width
+            pixelRatio: 2.0,
+            orientation: Orientation.portrait,
+          );
+
+          expect(status1.matches(status2), isTrue);
+        },
+      );
 
       test('returns true if values are within tolerance', () {
         final status1 = SentryScreenshotWidgetStatus(

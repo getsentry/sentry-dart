@@ -59,7 +59,11 @@ class SentryNativeProfiler implements SentryProfiler {
   final ClockProvider _clock;
 
   SentryNativeProfiler(
-      this._native, this._starTimeNs, this._traceId, this._clock);
+    this._native,
+    this._starTimeNs,
+    this._traceId,
+    this._clock,
+  );
 
   @override
   void dispose() {
@@ -71,7 +75,8 @@ class SentryNativeProfiler implements SentryProfiler {
 
   @override
   Future<SentryNativeProfileInfo?> finishFor(
-      SentryTransaction transaction) async {
+    SentryTransaction transaction,
+  ) async {
     if (_finished) {
       return null;
     }
@@ -82,8 +87,11 @@ class SentryNativeProfiler implements SentryProfiler {
     final duration = transactionEndTime.difference(transaction.startTimestamp);
     final endTimeNs = _starTimeNs + (duration.inMicroseconds * 1000);
 
-    final payload =
-        await _native.collectProfile(_traceId, _starTimeNs, endTimeNs);
+    final payload = await _native.collectProfile(
+      _traceId,
+      _starTimeNs,
+      endTimeNs,
+    );
     if (payload == null) {
       return null;
     }

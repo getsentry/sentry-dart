@@ -20,12 +20,8 @@ const _excludedMethods = <String, Set<String>>{
     'setBeforeScreenshotCaptureCallback',
     'setBeforeViewHierarchyCaptureCallback',
   },
-  'io.sentry.SentryOptions': {
-    'setGestureTargetLocators',
-  },
-  'io.sentry.SentryEvent': {
-    'setTimestamp',
-  },
+  'io.sentry.SentryOptions': {'setGestureTargetLocators'},
+  'io.sentry.SentryEvent': {'setTimestamp'},
 };
 
 class _ExcludeMismatchedSetters extends j_ast.Visitor {

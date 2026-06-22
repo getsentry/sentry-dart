@@ -29,8 +29,10 @@ void main() {
       event = (sut.apply(event, Hint()))!;
 
       expect(event.exceptions?.first.mechanism?.data["code"], "fixture-code");
-      expect(event.exceptions?.first.mechanism?.data["message"],
-          "fixture-message");
+      expect(
+        event.exceptions?.first.mechanism?.data["message"],
+        "fixture-message",
+      );
     });
 
     test('creates fallback mechanism', () {

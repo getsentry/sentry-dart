@@ -6,9 +6,12 @@ import '../../../sentry_flutter.dart';
 import 'script_dom_api.dart';
 import 'sentry_script_loader.dart';
 
-Future<void> loadScript(String src, SentryOptions options,
-    {String? integrity,
-    String trustedTypePolicyName = defaultTrustedPolicyName}) {
+Future<void> loadScript(
+  String src,
+  SentryOptions options, {
+  String? integrity,
+  String trustedTypePolicyName = defaultTrustedPolicyName,
+}) {
   final completer = Completer<void>();
   final script = HTMLScriptElement()
     ..crossOrigin = 'anonymous'
@@ -19,10 +22,9 @@ Future<void> loadScript(String src, SentryOptions options,
   if (!window.trustedTypes.isUndefinedOrNull) {
     try {
       final TrustedTypePolicy policy = window.trustedTypes.createPolicy(
-          trustedTypePolicyName,
-          TrustedTypePolicyOptions(
-            createScriptURL: ((JSString url) => src).toJS,
-          ));
+        trustedTypePolicyName,
+        TrustedTypePolicyOptions(createScriptURL: ((JSString url) => src).toJS),
+      );
       trustedUrl = policy.createScriptURL(src, null);
     } catch (e) {
       // will be caught by loadWebSdk

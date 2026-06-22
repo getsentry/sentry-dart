@@ -9,12 +9,14 @@ class SentryMaskingConfig {
   final int length;
 
   SentryMaskingConfig(List<SentryMaskingRule> rules)
-      // Note: fixed-size list has performance benefits over growable list.
-      : rules = List.of(rules, growable: false),
-        length = rules.length;
+    // Note: fixed-size list has performance benefits over growable list.
+    : rules = List.of(rules, growable: false),
+      length = rules.length;
 
   SentryMaskingDecision shouldMask<T extends Widget>(
-      Element element, T widget) {
+    Element element,
+    T widget,
+  ) {
     for (int i = 0; i < length; i++) {
       if (rules[i].appliesTo(widget)) {
         // We use a switch here to get lints if more values are added.
@@ -42,7 +44,7 @@ enum SentryMaskingDecision {
   unmask,
 
   /// Don't make a decision - continue checking other rules and children.
-  continueProcessing
+  continueProcessing,
 }
 
 @internal
@@ -89,11 +91,14 @@ class SentryMaskingConstantRule<T extends Widget> extends SentryMaskingRule<T> {
 
   final SentryMaskingDecision _value;
 
-  const SentryMaskingConstantRule(
-      {required bool mask, required super.name, String? description})
-      : _value =
-            mask ? SentryMaskingDecision.mask : SentryMaskingDecision.unmask,
-        super(description: description ?? (mask ? 'mask' : 'unmask'));
+  const SentryMaskingConstantRule({
+    required bool mask,
+    required super.name,
+    String? description,
+  }) : _value = mask
+           ? SentryMaskingDecision.mask
+           : SentryMaskingDecision.unmask,
+       super(description: description ?? (mask ? 'mask' : 'unmask'));
 
   @override
   SentryMaskingDecision shouldMask(Element element, T widget) => _value;

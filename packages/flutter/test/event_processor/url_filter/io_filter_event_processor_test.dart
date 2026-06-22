@@ -15,21 +15,23 @@ void main() {
       fixture = Fixture();
     });
 
-    test('returns the event and ignore allowUrls and denyUrls for non Web',
-        () async {
-      SentryEvent? event = SentryEvent(
-        request: SentryRequest(
-          url: 'another.url/for/a/special/test/testing/this-feature',
-        ),
-      );
-      fixture.options.allowUrls = ["^this.is/.*\$"];
-      fixture.options.denyUrls = ["special"];
+    test(
+      'returns the event and ignore allowUrls and denyUrls for non Web',
+      () async {
+        SentryEvent? event = SentryEvent(
+          request: SentryRequest(
+            url: 'another.url/for/a/special/test/testing/this-feature',
+          ),
+        );
+        fixture.options.allowUrls = ["^this.is/.*\$"];
+        fixture.options.denyUrls = ["special"];
 
-      var eventProcessor = fixture.getSut();
-      event = await eventProcessor.apply(event, Hint());
+        var eventProcessor = fixture.getSut();
+        event = await eventProcessor.apply(event, Hint());
 
-      expect(event, isNotNull);
-    });
+        expect(event, isNotNull);
+      },
+    );
   });
 }
 

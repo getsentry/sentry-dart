@@ -16,44 +16,50 @@ void main() {
   });
 
   testWidgets(
-      '$SentryDisplayWidget reports display with current route spanId when child calls reportFullDisplay',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: SentryDisplayWidget(
-          hub: fixture.mockHub,
-          child: TestStatefulWidget(),
+    '$SentryDisplayWidget reports display with current route spanId when child calls reportFullDisplay',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: SentryDisplayWidget(
+            hub: fixture.mockHub,
+            child: TestStatefulWidget(),
+          ),
         ),
-      ),
-    );
+      );
 
-    // Wait for the frame to be rendered
-    await tester.pumpAndSettle();
+      // Wait for the frame to be rendered
+      await tester.pumpAndSettle();
 
-    verify(fixture.mockTimeToDisplayTracker.reportFullyDisplayed(
-      spanId: fixture.mockSentrySpanContext.spanId,
-    )).called(1);
-  });
+      verify(
+        fixture.mockTimeToDisplayTracker.reportFullyDisplayed(
+          spanId: fixture.mockSentrySpanContext.spanId,
+        ),
+      ).called(1);
+    },
+  );
 
   testWidgets(
-      '$SentryDisplayWidget reports calls ttfd immediately if child is a StatelessWidget',
-      (WidgetTester tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: SentryDisplayWidget(
-          hub: fixture.mockHub,
-          child: TestStatelessWidget(),
+    '$SentryDisplayWidget reports calls ttfd immediately if child is a StatelessWidget',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: SentryDisplayWidget(
+            hub: fixture.mockHub,
+            child: TestStatelessWidget(),
+          ),
         ),
-      ),
-    );
+      );
 
-    // Wait for the frame to be rendered
-    await tester.pumpAndSettle();
+      // Wait for the frame to be rendered
+      await tester.pumpAndSettle();
 
-    verify(fixture.mockTimeToDisplayTracker.reportFullyDisplayed(
-      spanId: fixture.mockSentrySpanContext.spanId,
-    )).called(1);
-  });
+      verify(
+        fixture.mockTimeToDisplayTracker.reportFullyDisplayed(
+          spanId: fixture.mockSentrySpanContext.spanId,
+        ),
+      ).called(1);
+    },
+  );
 }
 
 class Fixture {
@@ -73,9 +79,9 @@ class Fixture {
 
     options.timeToDisplayTracker = mockTimeToDisplayTracker;
 
-    when(mockTimeToDisplayTracker.transactionId).thenReturn(
-      mockSentrySpanContext.spanId,
-    );
+    when(
+      mockTimeToDisplayTracker.transactionId,
+    ).thenReturn(mockSentrySpanContext.spanId);
 
     mockSentryTracer = MockSentryTracer();
     when(mockSentryTracer.context).thenReturn(mockSentrySpanContext);

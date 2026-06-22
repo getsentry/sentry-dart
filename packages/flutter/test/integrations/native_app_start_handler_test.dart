@@ -21,14 +21,16 @@ import '../mocks.mocks.dart';
 
 void main() {
   void setupMocks(Fixture fixture) {
-    when(fixture.hub.startTransactionWithContext(
-      any,
-      startTimestamp: anyNamed('startTimestamp'),
-      bindToScope: anyNamed('bindToScope'),
-      waitForChildren: anyNamed('waitForChildren'),
-      autoFinishAfter: anyNamed('autoFinishAfter'),
-      trimEnd: anyNamed('trimEnd'),
-    )).thenAnswer((invocation) {
+    when(
+      fixture.hub.startTransactionWithContext(
+        any,
+        startTimestamp: anyNamed('startTimestamp'),
+        bindToScope: anyNamed('bindToScope'),
+        waitForChildren: anyNamed('waitForChildren'),
+        autoFinishAfter: anyNamed('autoFinishAfter'),
+        trimEnd: anyNamed('trimEnd'),
+      ),
+    ).thenAnswer((invocation) {
       // Create a new tracer for each call to capture the enriched state
       final context =
           invocation.positionalArguments[0] as SentryTransactionContext;
@@ -59,14 +61,16 @@ void main() {
       return null;
     });
 
-    when(fixture.hub.captureTransaction(
-      any,
-      traceContext: anyNamed('traceContext'),
-    )).thenAnswer((_) async => SentryId.empty());
+    when(
+      fixture.hub.captureTransaction(
+        any,
+        traceContext: anyNamed('traceContext'),
+      ),
+    ).thenAnswer((_) async => SentryId.empty());
 
-    when(fixture.nativeBinding.fetchNativeAppStart()).thenAnswer(
-      (_) async => fixture.nativeAppStart,
-    );
+    when(
+      fixture.nativeBinding.fetchNativeAppStart(),
+    ).thenAnswer((_) async => fixture.nativeAppStart);
   }
 
   group('$NativeAppStartIntegration', () {
@@ -78,9 +82,7 @@ void main() {
     });
 
     test('added transaction has app start measurement', () async {
-      await fixture.call(
-        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
-      );
+      await fixture.call(appStartEnd: DateTime.fromMillisecondsSinceEpoch(10));
 
       final transaction = fixture.capturedTransaction();
 
@@ -91,16 +93,21 @@ void main() {
       final spans = transaction.spans;
 
       final appStartSpan = spans.firstWhereOrNull(
-          (element) => element.context.description == 'Cold Start');
+        (element) => element.context.description == 'Cold Start',
+      );
 
-      final pluginRegistrationSpan = spans.firstWhereOrNull((element) =>
-          element.context.description == 'App start to plugin registration');
+      final pluginRegistrationSpan = spans.firstWhereOrNull(
+        (element) =>
+            element.context.description == 'App start to plugin registration',
+      );
 
-      final sentrySetupSpan = spans.firstWhereOrNull((element) =>
-          element.context.description == 'Before Sentry Init Setup');
+      final sentrySetupSpan = spans.firstWhereOrNull(
+        (element) => element.context.description == 'Before Sentry Init Setup',
+      );
 
       final firstFrameRenderSpan = spans.firstWhereOrNull(
-          (element) => element.context.description == 'First frame render');
+        (element) => element.context.description == 'First frame render',
+      );
 
       expect(appStartSpan, isNotNull);
       expect(pluginRegistrationSpan, isNotNull);
@@ -109,9 +116,7 @@ void main() {
     });
 
     test('added transaction has ttid measurement', () async {
-      await fixture.call(
-        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
-      );
+      await fixture.call(appStartEnd: DateTime.fromMillisecondsSinceEpoch(10));
 
       final transaction = fixture.capturedTransaction();
 
@@ -121,9 +126,7 @@ void main() {
     });
 
     test('added transaction has no ttfd measurement', () async {
-      await fixture.call(
-        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
-      );
+      await fixture.call(appStartEnd: DateTime.fromMillisecondsSinceEpoch(10));
 
       final transaction = fixture.capturedTransaction();
 
@@ -154,35 +157,37 @@ void main() {
       expect(measurement, isNotNull);
     });
 
-    test('added transaction has ttfd measurement if set before by root id',
-        () async {
-      fixture.options.enableTimeToFullDisplayTracing = true;
+    test(
+      'added transaction has ttfd measurement if set before by root id',
+      () async {
+        fixture.options.enableTimeToFullDisplayTracing = true;
 
-      // Start the app start handling
-      final future = fixture.call(
-        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
-      );
+        // Start the app start handling
+        final future = fixture.call(
+          appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
+        );
 
-      // Wait a bit for the transaction to be created and tracking to start
-      await Future.delayed(Duration(milliseconds: 50));
+        // Wait a bit for the transaction to be created and tracking to start
+        await Future.delayed(Duration(milliseconds: 50));
 
-      // Get the actual transaction span ID that was created
-      final actualTransaction = fixture._enrichedTransaction!;
-      fixture.options.timeToDisplayTracker.transactionId =
-          actualTransaction.context.spanId;
+        // Get the actual transaction span ID that was created
+        final actualTransaction = fixture._enrichedTransaction!;
+        fixture.options.timeToDisplayTracker.transactionId =
+            actualTransaction.context.spanId;
 
-      await fixture.options.timeToDisplayTracker.reportFullyDisplayed(
-        spanId: actualTransaction.context.spanId,
-      );
+        await fixture.options.timeToDisplayTracker.reportFullyDisplayed(
+          spanId: actualTransaction.context.spanId,
+        );
 
-      // Wait for the app start handling to complete
-      await future;
+        // Wait for the app start handling to complete
+        await future;
 
-      final transaction = fixture.capturedTransaction();
+        final transaction = fixture.capturedTransaction();
 
-      final measurement = transaction.measurements['time_to_full_display'];
-      expect(measurement, isNotNull);
-    });
+        final measurement = transaction.measurements['time_to_full_display'];
+        expect(measurement, isNotNull);
+      },
+    );
 
     test('ttfd end from ttid if reported end is before', () async {
       fixture.options.enableTimeToFullDisplayTracing = true;
@@ -210,12 +215,16 @@ void main() {
 
       final transaction = fixture.capturedTransaction();
 
-      final ttidSpan = transaction.spans.firstWhereOrNull((child) =>
-          child.context.operation ==
-          SentrySpanOperations.uiTimeToInitialDisplay);
+      final ttidSpan = transaction.spans.firstWhereOrNull(
+        (child) =>
+            child.context.operation ==
+            SentrySpanOperations.uiTimeToInitialDisplay,
+      );
 
-      final ttfdSpan = transaction.spans.firstWhereOrNull((child) =>
-          child.context.operation == SentrySpanOperations.uiTimeToFullDisplay);
+      final ttfdSpan = transaction.spans.firstWhereOrNull(
+        (child) =>
+            child.context.operation == SentrySpanOperations.uiTimeToFullDisplay,
+      );
 
       expect(ttidSpan, isNotNull);
       expect(ttfdSpan, isNotNull);
@@ -237,8 +246,9 @@ void main() {
 
       // Set sentrySetupStartTime to a value consistent with the mock timestamps
       // (pluginRegistrationTime is 10ms, so this should be after that)
-      SentryFlutter.sentrySetupStartTime =
-          DateTime.fromMillisecondsSinceEpoch(15);
+      SentryFlutter.sentrySetupStartTime = DateTime.fromMillisecondsSinceEpoch(
+        15,
+      );
 
       // Capture transaction state at the moment track() is called
       List<SentrySpan>? spansWhenTrackCalled;
@@ -260,8 +270,11 @@ void main() {
       await testFixture.options.timeToDisplayTracker.reportFullyDisplayed();
       await future;
 
-      expect(spansWhenTrackCalled, isNotNull,
-          reason: 'track() should have been called');
+      expect(
+        spansWhenTrackCalled,
+        isNotNull,
+        reason: 'track() should have been called',
+      );
       expect(
         spansWhenTrackCalled!.any((s) => s.context.description == 'Cold Start'),
         isTrue,
@@ -280,17 +293,13 @@ void main() {
     });
 
     test('added transaction is bound to scope', () async {
-      await fixture.call(
-        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
-      );
+      await fixture.call(appStartEnd: DateTime.fromMillisecondsSinceEpoch(10));
       expect(fixture.scope.span, isNotNull);
       expect(fixture.scope.span, isA<SentryTracer>());
     });
 
     test('added transaction has app_start_type data', () async {
-      await fixture.call(
-        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
-      );
+      await fixture.call(appStartEnd: DateTime.fromMillisecondsSinceEpoch(10));
       expect(fixture._enrichedTransaction?.data["app_start_type"], 'cold');
     });
 
@@ -299,14 +308,16 @@ void main() {
       fixture.scope.span = alreadySet;
 
       // Mock startTransactionWithContext to not override existing span
-      when(fixture.hub.startTransactionWithContext(
-        any,
-        startTimestamp: anyNamed('startTimestamp'),
-        bindToScope: anyNamed('bindToScope'),
-        waitForChildren: anyNamed('waitForChildren'),
-        autoFinishAfter: anyNamed('autoFinishAfter'),
-        trimEnd: anyNamed('trimEnd'),
-      )).thenAnswer((invocation) {
+      when(
+        fixture.hub.startTransactionWithContext(
+          any,
+          startTimestamp: anyNamed('startTimestamp'),
+          bindToScope: anyNamed('bindToScope'),
+          waitForChildren: anyNamed('waitForChildren'),
+          autoFinishAfter: anyNamed('autoFinishAfter'),
+          trimEnd: anyNamed('trimEnd'),
+        ),
+      ).thenAnswer((invocation) {
         // Create a new tracer for each call
         final context =
             invocation.positionalArguments[0] as SentryTransactionContext;
@@ -330,9 +341,7 @@ void main() {
         return tracer;
       });
 
-      await fixture.call(
-        appStartEnd: DateTime.fromMillisecondsSinceEpoch(10),
-      );
+      await fixture.call(appStartEnd: DateTime.fromMillisecondsSinceEpoch(10));
       expect(fixture.scope.span, alreadySet);
     });
   });
@@ -373,26 +382,26 @@ void main() {
     };
 
     final appStartInfoSrc = NativeAppStart(
-        appStartTime: 0,
-        pluginRegistrationTime: 10,
-        isColdStart: true,
-        nativeSpanTimes: {
-          ...validNativeSpanTimes,
-          ...invalidNativeSpanTimes,
-        });
+      appStartTime: 0,
+      pluginRegistrationTime: 10,
+      isColdStart: true,
+      nativeSpanTimes: {...validNativeSpanTimes, ...invalidNativeSpanTimes},
+    );
 
     setUp(() async {
       fixture = Fixture();
       tracer = fixture.tracer;
 
       // dartLoadingEnd needs to be set after engine end (see MockNativeChannel)
-      SentryFlutter.sentrySetupStartTime =
-          DateTime.fromMillisecondsSinceEpoch(15);
+      SentryFlutter.sentrySetupStartTime = DateTime.fromMillisecondsSinceEpoch(
+        15,
+      );
 
       setupMocks(fixture);
 
-      when(fixture.nativeBinding.fetchNativeAppStart())
-          .thenAnswer((_) async => appStartInfoSrc);
+      when(
+        fixture.nativeBinding.fetchNativeAppStart(),
+      ).thenAnswer((_) async => appStartInfoSrc);
 
       await fixture.call(appStartEnd: DateTime.fromMillisecondsSinceEpoch(50));
       enriched = fixture.capturedTransaction();
@@ -400,21 +409,27 @@ void main() {
       final spans = enriched.spans;
 
       coldStartSpan = spans.firstWhereOrNull(
-          (element) => element.context.description == 'Cold Start');
+        (element) => element.context.description == 'Cold Start',
+      );
 
-      pluginRegistrationSpan = spans.firstWhereOrNull((element) =>
-          element.context.description == 'App start to plugin registration');
+      pluginRegistrationSpan = spans.firstWhereOrNull(
+        (element) =>
+            element.context.description == 'App start to plugin registration',
+      );
 
-      sentrySetupSpan = spans.firstWhereOrNull((element) =>
-          element.context.description == 'Before Sentry Init Setup');
+      sentrySetupSpan = spans.firstWhereOrNull(
+        (element) => element.context.description == 'Before Sentry Init Setup',
+      );
 
       firstFrameRenderSpan = spans.firstWhereOrNull(
-          (element) => element.context.description == 'First frame render');
+        (element) => element.context.description == 'First frame render',
+      );
     });
 
     test('includes only valid native spans', () async {
-      final spans =
-          enriched.spans.where((element) => element.data['native'] == true);
+      final spans = enriched.spans.where(
+        (element) => element.data['native'] == true,
+      );
 
       expect(spans.length, validNativeSpanTimes.length);
 
@@ -422,21 +437,24 @@ void main() {
         final validSpan = validNativeSpanTimes[span.context.description];
         expect(validSpan, isNotNull);
         expect(
-            span.startTimestamp,
-            DateTime.fromMillisecondsSinceEpoch(
-                    validSpan!['startTimestampMsSinceEpoch']!)
-                .toUtc());
+          span.startTimestamp,
+          DateTime.fromMillisecondsSinceEpoch(
+            validSpan!['startTimestampMsSinceEpoch']!,
+          ).toUtc(),
+        );
         expect(
-            span.endTimestamp,
-            DateTime.fromMillisecondsSinceEpoch(
-                    validSpan['stopTimestampMsSinceEpoch']!)
-                .toUtc());
+          span.endTimestamp,
+          DateTime.fromMillisecondsSinceEpoch(
+            validSpan['stopTimestampMsSinceEpoch']!,
+          ).toUtc(),
+        );
       }
     });
 
     test('are correctly ordered', () async {
-      final spans =
-          enriched.spans.where((element) => element.data['native'] == true);
+      final spans = enriched.spans.where(
+        (element) => element.data['native'] == true,
+      );
 
       final orderedSpans = spans.toList()
         ..sort((a, b) => a.startTimestamp.compareTo(b.startTimestamp));
@@ -445,8 +463,9 @@ void main() {
     });
 
     test('ignores invalid spans', () async {
-      final spans =
-          enriched.spans.where((element) => element.data['native'] == true);
+      final spans = enriched.spans.where(
+        (element) => element.data['native'] == true,
+      );
 
       expect(spans, isNot(contains('failing span')));
     });
@@ -476,12 +495,18 @@ void main() {
 
     test('have correct parents', () async {
       expect(coldStartSpan?.context.parentSpanId, tracer.context.spanId);
-      expect(pluginRegistrationSpan?.context.parentSpanId,
-          coldStartSpan?.context.spanId);
       expect(
-          sentrySetupSpan?.context.parentSpanId, coldStartSpan?.context.spanId);
-      expect(firstFrameRenderSpan?.context.parentSpanId,
-          coldStartSpan?.context.spanId);
+        pluginRegistrationSpan?.context.parentSpanId,
+        coldStartSpan?.context.spanId,
+      );
+      expect(
+        sentrySetupSpan?.context.parentSpanId,
+        coldStartSpan?.context.spanId,
+      );
+      expect(
+        firstFrameRenderSpan?.context.parentSpanId,
+        coldStartSpan?.context.spanId,
+      );
     });
 
     test('have correct traceId', () async {
@@ -494,26 +519,32 @@ void main() {
 
     test('have correct startTimestamp', () async {
       final appStartTime = DateTime.fromMillisecondsSinceEpoch(
-              appStartInfoSrc.appStartTime.toInt())
-          .toUtc();
+        appStartInfoSrc.appStartTime.toInt(),
+      ).toUtc();
       expect(coldStartSpan?.startTimestamp, appStartTime);
       expect(pluginRegistrationSpan?.startTimestamp, appStartTime);
-      expect(sentrySetupSpan?.startTimestamp,
-          pluginRegistrationSpan?.endTimestamp);
       expect(
-          firstFrameRenderSpan?.startTimestamp, sentrySetupSpan?.endTimestamp);
+        sentrySetupSpan?.startTimestamp,
+        pluginRegistrationSpan?.endTimestamp,
+      );
+      expect(
+        firstFrameRenderSpan?.startTimestamp,
+        sentrySetupSpan?.endTimestamp,
+      );
     });
 
     test('have correct endTimestamp', () async {
       final appStartEnd = DateTime.fromMillisecondsSinceEpoch(50);
 
       final engineReadyEndtime = DateTime.fromMillisecondsSinceEpoch(
-              appStartInfoSrc.pluginRegistrationTime.toInt())
-          .toUtc();
+        appStartInfoSrc.pluginRegistrationTime.toInt(),
+      ).toUtc();
       expect(coldStartSpan?.endTimestamp, appStartEnd.toUtc());
       expect(pluginRegistrationSpan?.endTimestamp, engineReadyEndtime);
-      expect(sentrySetupSpan?.endTimestamp,
-          SentryFlutter.sentrySetupStartTime?.toUtc());
+      expect(
+        sentrySetupSpan?.endTimestamp,
+        SentryFlutter.sentrySetupStartTime?.toUtc(),
+      );
       expect(firstFrameRenderSpan?.endTimestamp, coldStartSpan?.endTimestamp);
     });
   });
@@ -590,7 +621,7 @@ class _FakeTimeToDisplayTracker extends TimeToDisplayTracker {
   final void Function(ISentrySpan transaction) onTrack;
 
   _FakeTimeToDisplayTracker(this._delegate, {required this.onTrack})
-      : super(options: _delegate.options);
+    : super(options: _delegate.options);
 
   @override
   SpanId? get transactionId => _delegate.transactionId;
@@ -599,8 +630,10 @@ class _FakeTimeToDisplayTracker extends TimeToDisplayTracker {
   set transactionId(SpanId? value) => _delegate.transactionId = value;
 
   @override
-  Future<void> track(ISentrySpan transaction,
-      {DateTime? ttidEndTimestamp}) async {
+  Future<void> track(
+    ISentrySpan transaction, {
+    DateTime? ttidEndTimestamp,
+  }) async {
     onTrack(transaction);
     return _delegate.track(transaction, ttidEndTimestamp: ttidEndTimestamp);
   }
@@ -608,5 +641,7 @@ class _FakeTimeToDisplayTracker extends TimeToDisplayTracker {
   @override
   Future<void> reportFullyDisplayed({SpanId? spanId, DateTime? endTimestamp}) =>
       _delegate.reportFullyDisplayed(
-          spanId: spanId, endTimestamp: endTimestamp);
+        spanId: spanId,
+        endTimestamp: endTimestamp,
+      );
 }

@@ -14,7 +14,7 @@ void main() {
         'maskAllText': false,
         'maskAllImages': false,
         'maskAssetImages': false,
-        'maskingRules': ['TestName: TestDesc']
+        'maskingRules': ['TestName: TestDesc'],
       });
     });
   });

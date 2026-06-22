@@ -37,9 +37,7 @@ class TestAssetBundle extends CachingAssetBundle {
   @override
   Future<ByteData> load(String key) async {
     if (key == 'foobar.txt') {
-      return ByteData.view(
-        Uint8List.fromList(utf8.encode('foo bar')).buffer,
-      );
+      return ByteData.view(Uint8List.fromList(utf8.encode('foo bar')).buffer);
     }
 
     return ByteData(0);

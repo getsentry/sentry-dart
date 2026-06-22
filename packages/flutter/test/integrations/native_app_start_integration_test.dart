@@ -25,12 +25,13 @@ void main() {
   });
 
   final _fakeFrameTiming = FrameTiming(
-      vsyncStart: 10,
-      buildStart: 10,
-      buildFinish: 10,
-      rasterStart: 10,
-      rasterFinish: 10,
-      rasterFinishWallTime: 10);
+    vsyncStart: 10,
+    buildStart: 10,
+    buildFinish: 10,
+    rasterStart: 10,
+    rasterFinish: 10,
+    rasterFinishWallTime: 10,
+  );
 
   group('$NativeAppStartIntegration', () {
     test('does not add integration if tracing is disabled', () {
@@ -39,15 +40,19 @@ void main() {
 
       fixture.callIntegration();
 
-      expect(fixture.options.sdk.integrations,
-          isNot(contains(NativeAppStartIntegration.integrationName)));
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains(NativeAppStartIntegration.integrationName)),
+      );
     });
 
     test('adds integration', () async {
       fixture.callIntegration();
 
-      expect(fixture.options.sdk.integrations,
-          contains(NativeAppStartIntegration.integrationName));
+      expect(
+        fixture.options.sdk.integrations,
+        contains(NativeAppStartIntegration.integrationName),
+      );
     });
 
     test('adds timingsCallback', () async {
@@ -75,8 +80,10 @@ void main() {
 
       expect(fixture.nativeAppStartHandler.calls, 1);
       expect(fixture.nativeAppStartHandler.appStartEnd, isNotNull);
-      expect(fixture.nativeAppStartHandler.appStartEnd,
-          DateTime.fromMicrosecondsSinceEpoch(10));
+      expect(
+        fixture.nativeAppStartHandler.appStartEnd,
+        DateTime.fromMicrosecondsSinceEpoch(10),
+      );
     });
 
     test('handles timingsCallback exactly once', () async {
@@ -97,10 +104,7 @@ void main() {
       fixture.callIntegration();
 
       final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-      expect(
-        () => timingsCallback([]),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => timingsCallback([]), throwsA(isA<StateError>()));
 
       await Future<void>.delayed(Duration(milliseconds: 10));
 
@@ -113,12 +117,13 @@ void main() {
       final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
       timingsCallback([
         FrameTiming(
-            vsyncStart: 10,
-            buildStart: 10,
-            buildFinish: 10,
-            rasterStart: 10,
-            rasterFinish: 10,
-            rasterFinishWallTime: 10)
+          vsyncStart: 10,
+          buildStart: 10,
+          buildFinish: 10,
+          rasterStart: 10,
+          rasterFinish: 10,
+          rasterFinishWallTime: 10,
+        ),
       ]);
 
       await Future<void>.delayed(Duration(milliseconds: 10));
@@ -178,9 +183,12 @@ class FakeNativeAppStartHandler implements NativeAppStartHandler {
   var calls = 0;
 
   @override
-  Future<void> call(Hub hub, SentryFlutterOptions options,
-      {required DateTime? appStartEnd,
-      required SentryTransactionContext context}) async {
+  Future<void> call(
+    Hub hub,
+    SentryFlutterOptions options, {
+    required DateTime? appStartEnd,
+    required SentryTransactionContext context,
+  }) async {
     this.appStartEnd = appStartEnd;
     this.context = context;
     calls += 1;
@@ -192,8 +200,11 @@ class FakeNativeAppStartHandlerV2 implements NativeAppStartHandlerV2 {
   var calls = 0;
 
   @override
-  Future<void> call(Hub hub, SentryFlutterOptions options,
-      {required DateTime appStartEnd}) async {
+  Future<void> call(
+    Hub hub,
+    SentryFlutterOptions options, {
+    required DateTime appStartEnd,
+  }) async {
     this.appStartEnd = appStartEnd;
     calls += 1;
   }

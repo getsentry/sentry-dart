@@ -42,8 +42,8 @@ import 'view_hierarchy/view_hierarchy_integration.dart';
 import 'web/javascript_transport.dart';
 
 /// Configuration options callback
-typedef FlutterOptionsConfiguration = FutureOr<void> Function(
-    SentryFlutterOptions);
+typedef FlutterOptionsConfiguration =
+    FutureOr<void> Function(SentryFlutterOptions);
 
 /// Sentry Flutter SDK main entry point
 mixin SentryFlutter {
@@ -90,8 +90,9 @@ mixin SentryFlutter {
     // If onError is not supported and no custom zone exists, use runZonedGuarded to capture errors.
     final bool useRunZonedGuarded = !isOnErrorSupported && isRootZone;
 
-    RunZonedGuardedOnError? runZonedGuardedOnError =
-        useRunZonedGuarded ? _createRunZonedGuardedOnError() : null;
+    RunZonedGuardedOnError? runZonedGuardedOnError = useRunZonedGuarded
+        ? _createRunZonedGuardedOnError()
+        : null;
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
@@ -369,8 +370,8 @@ mixin SentryFlutter {
       );
       return null;
     }
-    final processors =
-        options.eventProcessors.whereType<ScreenshotEventProcessor>();
+    final processors = options.eventProcessors
+        .whereType<ScreenshotEventProcessor>();
     if (processors.isEmpty) {
       options.log(
         SentryLevel.debug,

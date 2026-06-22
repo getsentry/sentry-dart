@@ -29,11 +29,7 @@ void main() {
   group(SentryAssetBundle, () {
     test('empty key does not throw', () async {
       final sut = fixture.getSut();
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
       await sut.load('');
 
@@ -53,11 +49,7 @@ void main() {
 
     test('load - creates a span if transaction is bound to scope', () async {
       final sut = fixture.getSut();
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
       await sut.load(_testFileName);
 
@@ -77,11 +69,7 @@ void main() {
 
     test('load: end span with error if exception is thrown', () async {
       final sut = fixture.getSut(throwException: true);
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
       try {
         await sut.load(_testFileName);
@@ -99,41 +87,41 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
-    test('loadString - creates a span if transaction is bound to scope',
-        () async {
-      final sut = fixture.getSut();
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+    test(
+      'loadString - creates a span if transaction is bound to scope',
+      () async {
+        final sut = fixture.getSut();
+        final tr = fixture._hub.startTransaction(
+          'name',
+          'op',
+          bindToScope: true,
+        );
 
-      await sut.loadString(_testFileName);
+        await sut.loadString(_testFileName);
 
-      await tr.finish();
+        await tr.finish();
 
-      final tracer = (tr as SentryTracer);
-      final span = tracer.children.first;
+        final tracer = (tr as SentryTracer);
+        final span = tracer.children.first;
 
-      expect(span.status, SpanStatus.ok());
-      expect(span.finished, true);
-      expect(span.context.operation, 'file.read');
-      expect(span.data['file.path'], 'resources/test.txt');
-      expect(span.data['from-cache'], true);
-      expect(span.context.description, 'AssetBundle.loadString: test.txt');
-      expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
-    });
+        expect(span.status, SpanStatus.ok());
+        expect(span.finished, true);
+        expect(span.context.operation, 'file.read');
+        expect(span.data['file.path'], 'resources/test.txt');
+        expect(span.data['from-cache'], true);
+        expect(span.context.description, 'AssetBundle.loadString: test.txt');
+        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
+      },
+    );
 
     test('loadString - end span with error if exception is thrown', () async {
       final sut = fixture.getSut(throwException: true);
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
       await expectLater(
-          sut.loadString(_testFileName), throwsA(isA<Exception>()));
+        sut.loadString(_testFileName),
+        throwsA(isA<Exception>()),
+      );
 
       await tr.finish();
 
@@ -147,38 +135,36 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
-    test('loadBuffer - creates a span if transaction is bound to scope',
-        () async {
-      final sut = fixture.getSut();
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+    test(
+      'loadBuffer - creates a span if transaction is bound to scope',
+      () async {
+        final sut = fixture.getSut();
+        final tr = fixture._hub.startTransaction(
+          'name',
+          'op',
+          bindToScope: true,
+        );
 
-      await sut.loadBuffer(_testFileName);
+        await sut.loadBuffer(_testFileName);
 
-      await tr.finish();
+        await tr.finish();
 
-      final tracer = (tr as SentryTracer);
-      final span = tracer.children.first;
+        final tracer = (tr as SentryTracer);
+        final span = tracer.children.first;
 
-      expect(span.status, SpanStatus.ok());
-      expect(span.finished, true);
-      expect(span.context.operation, 'file.read');
-      expect(span.data['file.path'], 'resources/test.txt');
-      expect(span.data['file.size'], 12);
-      expect(span.context.description, 'AssetBundle.loadBuffer: test.txt');
-      expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
-    });
+        expect(span.status, SpanStatus.ok());
+        expect(span.finished, true);
+        expect(span.context.operation, 'file.read');
+        expect(span.data['file.path'], 'resources/test.txt');
+        expect(span.data['file.size'], 12);
+        expect(span.context.description, 'AssetBundle.loadBuffer: test.txt');
+        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
+      },
+    );
 
     test('loadBuffer - end span with error if exception is thrown', () async {
       final sut = fixture.getSut(throwException: true);
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
       try {
         await sut.loadBuffer(_testFileName);
@@ -302,49 +288,42 @@ void main() {
       },
     );
 
-    test(
-      'loadStructuredData - finish with successfully',
-      () async {
-        final sut = fixture.getSut(throwException: false);
-        final tr = fixture._hub.startTransaction(
-          'name',
-          'op',
-          bindToScope: true,
-        );
+    test('loadStructuredData - finish with successfully', () async {
+      final sut = fixture.getSut(throwException: false);
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
-        await sut.loadStructuredData<String>(
-          _testFileName,
-          (value) async => value.toString(),
-        );
+      await sut.loadStructuredData<String>(
+        _testFileName,
+        (value) async => value.toString(),
+      );
 
-        await tr.finish();
+      await tr.finish();
 
-        final tracer = (tr as SentryTracer);
-        var span = tracer.children.first;
+      final tracer = (tr as SentryTracer);
+      var span = tracer.children.first;
 
-        expect(tracer.children.length, 2);
+      expect(tracer.children.length, 2);
 
-        expect(span.status, SpanStatus.ok());
-        expect(span.finished, true);
-        expect(span.context.operation, 'file.read');
-        expect(
-          span.context.description,
-          'AssetBundle.loadStructuredData<String>: test.txt',
-        );
-        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
+      expect(span.status, SpanStatus.ok());
+      expect(span.finished, true);
+      expect(span.context.operation, 'file.read');
+      expect(
+        span.context.description,
+        'AssetBundle.loadStructuredData<String>: test.txt',
+      );
+      expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
 
-        span = tracer.children[1];
+      span = tracer.children[1];
 
-        expect(span.status, SpanStatus.ok());
-        expect(span.finished, true);
-        expect(span.context.operation, 'serialize.file.read');
-        expect(
-          span.context.description,
-          'parsing "resources/test.txt" to "String"',
-        );
-        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
-      },
-    );
+      expect(span.status, SpanStatus.ok());
+      expect(span.finished, true);
+      expect(span.context.operation, 'serialize.file.read');
+      expect(
+        span.context.description,
+        'parsing "resources/test.txt" to "String"',
+      );
+      expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
+    });
 
     test(
       'loadStructuredBinaryData - does not create any spans and just forwords the call to the underlying assetbundle if disabled',
@@ -385,8 +364,10 @@ void main() {
           sut.loadStructuredBinaryData<String>(
             _testFileName,
             (value) async => utf8.decode(
-              value.buffer
-                  .asUint8List(value.offsetInBytes, value.lengthInBytes),
+              value.buffer.asUint8List(
+                value.offsetInBytes,
+                value.lengthInBytes,
+              ),
             ),
           ),
           throwsA(isA<Exception>()),
@@ -457,63 +438,53 @@ void main() {
       },
     );
 
-    test(
-      'loadStructuredBinaryData - finish with successfully',
-      () async {
-        final sut = fixture.getSut(throwException: false);
-        final tr = fixture._hub.startTransaction(
-          'name',
-          'op',
-          bindToScope: true,
-        );
+    test('loadStructuredBinaryData - finish with successfully', () async {
+      final sut = fixture.getSut(throwException: false);
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
-        await sut.loadStructuredBinaryData<String>(
-          _testFileName,
-          (value) async => utf8.decode(
-            value.buffer.asUint8List(value.offsetInBytes, value.lengthInBytes),
-          ),
-        );
+      await sut.loadStructuredBinaryData<String>(
+        _testFileName,
+        (value) async => utf8.decode(
+          value.buffer.asUint8List(value.offsetInBytes, value.lengthInBytes),
+        ),
+      );
 
-        await tr.finish();
+      await tr.finish();
 
-        final tracer = (tr as SentryTracer);
+      final tracer = (tr as SentryTracer);
 
-        expect(tracer.children.length, 2);
+      expect(tracer.children.length, 2);
 
-        var span = tracer.children[0];
+      var span = tracer.children[0];
 
-        expect(span.status, SpanStatus.ok());
-        expect(span.finished, true);
-        expect(span.context.operation, 'file.read');
-        expect(
-          span.context.description,
-          'AssetBundle.loadStructuredBinaryData<String>: test.txt',
-        );
-        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
+      expect(span.status, SpanStatus.ok());
+      expect(span.finished, true);
+      expect(span.context.operation, 'file.read');
+      expect(
+        span.context.description,
+        'AssetBundle.loadStructuredBinaryData<String>: test.txt',
+      );
+      expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
 
-        span = tracer.children[1];
+      span = tracer.children[1];
 
-        expect(span.status, SpanStatus.ok());
-        expect(span.finished, true);
-        expect(span.context.operation, 'serialize.file.read');
-        expect(
-          span.context.description,
-          'parsing "resources/test.txt" to "String"',
-        );
-        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
-      },
-    );
+      expect(span.status, SpanStatus.ok());
+      expect(span.finished, true);
+      expect(span.context.operation, 'serialize.file.read');
+      expect(
+        span.context.description,
+        'parsing "resources/test.txt" to "String"',
+      );
+      expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
+    });
 
-    test(
-      'evict call gets forwarded',
-      () {
-        final sut = fixture.getSut();
+    test('evict call gets forwarded', () {
+      final sut = fixture.getSut();
 
-        sut.evict(_testFileName);
+      sut.evict(_testFileName);
 
-        expect(fixture.assetBundle.evictKey, _testFileName);
-      },
-    );
+      expect(fixture.assetBundle.evictKey, _testFileName);
+    });
   });
 }
 
@@ -548,13 +519,16 @@ class TestAssetBundle extends CachingAssetBundle {
   @override
   // ignore: override_on_non_overriding_member
   Future<T> loadStructuredBinaryData<T>(
-      String key, FutureOr<T> Function(ByteData data) parser) async {
+    String key,
+    FutureOr<T> Function(ByteData data) parser,
+  ) async {
     if (throwException) {
       throw Exception('exception thrown for testing purposes');
     }
     if (key == _testFileName) {
-      return parser(ByteData.view(
-          Uint8List.fromList(utf8.encode('Hello World!')).buffer));
+      return parser(
+        ByteData.view(Uint8List.fromList(utf8.encode('Hello World!')).buffer),
+      );
     }
     return parser(ByteData(0));
   }
@@ -566,7 +540,8 @@ class TestAssetBundle extends CachingAssetBundle {
     }
     if (key == _testFileName) {
       return ByteData.view(
-          Uint8List.fromList(utf8.encode('Hello World!')).buffer);
+        Uint8List.fromList(utf8.encode('Hello World!')).buffer,
+      );
     }
     return ByteData(0);
   }
@@ -586,7 +561,8 @@ class TestAssetBundle extends CachingAssetBundle {
     }
     if (key == _testFileName) {
       return ImmutableBuffer.fromUint8List(
-          Uint8List.fromList(utf8.encode('Hello World!')));
+        Uint8List.fromList(utf8.encode('Hello World!')),
+      );
     }
     return ImmutableBuffer.fromUint8List(Uint8List.fromList([]));
   }

@@ -21,16 +21,20 @@ void main() {
     test('adds integration', () {
       fixture.registerIntegration();
 
-      expect(fixture.options.sdk.integrations,
-          contains(NativeTraceSyncIntegration.integrationName));
+      expect(
+        fixture.options.sdk.integrations,
+        contains(NativeTraceSyncIntegration.integrationName),
+      );
     });
 
     test('does not add integration if enableNativeTraceSync is false', () {
       fixture.options.enableNativeTraceSync = false;
       fixture.registerIntegration();
 
-      expect(fixture.options.sdk.integrations,
-          isNot(contains(NativeTraceSyncIntegration.integrationName)));
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains(NativeTraceSyncIntegration.integrationName)),
+      );
     });
 
     test('does not sync trace if enableNativeTraceSync is false', () {

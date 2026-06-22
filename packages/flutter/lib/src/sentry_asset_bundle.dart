@@ -38,9 +38,9 @@ class SentryAssetBundle implements AssetBundle {
     Hub? hub,
     AssetBundle? bundle,
     bool enableStructuredDataTracing = true,
-  })  : _hub = hub ?? HubAdapter(),
-        _bundle = bundle ?? rootBundle,
-        _enableStructuredDataTracing = enableStructuredDataTracing {
+  }) : _hub = hub ?? HubAdapter(),
+       _bundle = bundle ?? rootBundle,
+       _enableStructuredDataTracing = enableStructuredDataTracing {
     // ignore: invalid_use_of_internal_member
     _hub.options.sdk.addIntegration('AssetBundleTracing');
     if (_enableStructuredDataTracing) {
@@ -87,7 +87,9 @@ class SentryAssetBundle implements AssetBundle {
 
   @override
   Future<T> loadStructuredData<T>(
-      String key, Future<T> Function(String value) parser) {
+    String key,
+    Future<T> Function(String value) parser,
+  ) {
     if (!_enableStructuredDataTracing) {
       return _bundle.loadStructuredData(key, parser);
     }
@@ -98,11 +100,7 @@ class SentryAssetBundle implements AssetBundle {
       key,
       () => _bundle.loadStructuredData(
         key,
-        (value) => _wrapParser(
-          outerSpan,
-          key,
-          () => parser(value),
-        ),
+        (value) => _wrapParser(outerSpan, key, () => parser(value)),
       ),
     );
   }
@@ -110,7 +108,9 @@ class SentryAssetBundle implements AssetBundle {
   @override
   // ignore: override_on_non_overriding_member
   Future<T> loadStructuredBinaryData<T>(
-      String key, FutureOr<T> Function(ByteData data) parser) {
+    String key,
+    FutureOr<T> Function(ByteData data) parser,
+  ) {
     if (!_enableStructuredDataTracing) {
       return _bundle.loadStructuredBinaryData<T>(key, parser);
     }
@@ -121,11 +121,8 @@ class SentryAssetBundle implements AssetBundle {
       key,
       () => _bundle.loadStructuredBinaryData<T>(
         key,
-        (value) => _wrapParser(
-          outerSpan,
-          key,
-          () => Future.value(parser(value)),
-        ),
+        (value) =>
+            _wrapParser(outerSpan, key, () => Future.value(parser(value))),
       ),
     );
   }
@@ -153,10 +150,7 @@ class SentryAssetBundle implements AssetBundle {
       description = 'AssetBundle.$traceName: ${_fileName(key)}';
     }
 
-    final span = outerSpan?.startChild(
-      'file.read',
-      description: description,
-    );
+    final span = outerSpan?.startChild('file.read', description: description);
     span?.setData('file.path', key);
     // ignore: invalid_use_of_internal_member
     span?.origin = SentryTraceOrigins.autoFileAssetBundle;
@@ -216,19 +210,21 @@ class SentryAssetBundle implements AssetBundle {
     Completer<T>? completer;
     Future<T>? result;
 
-    action().then((data) {
-      onSuccess(data);
+    action()
+        .then((data) {
+          onSuccess(data);
 
-      if (completer != null) {
-        completer.complete(data);
-      } else {
-        result = SynchronousFuture<T>(data);
-      }
-    }).onError((Object error, StackTrace stackTrace) {
-      onError(error, stackTrace);
-      // SynchronousFuture does not have an error, only completer left.
-      completer?.completeError(error, stackTrace);
-    });
+          if (completer != null) {
+            completer.complete(data);
+          } else {
+            result = SynchronousFuture<T>(data);
+          }
+        })
+        .onError((Object error, StackTrace stackTrace) {
+          onError(error, stackTrace);
+          // SynchronousFuture does not have an error, only completer left.
+          completer?.completeError(error, stackTrace);
+        });
 
     if (result != null) {
       return result!;

@@ -26,8 +26,9 @@ class WebSentryJsBinding implements SentryJsBinding {
   @override
   void init(Map<String, dynamic> options) {
     if (options['defaultIntegrations'] != null) {
-      options['defaultIntegrations'] = options['defaultIntegrations']
-          .map((String integration) => _createIntegration(integration));
+      options['defaultIntegrations'] = options['defaultIntegrations'].map(
+        (String integration) => _createIntegration(integration),
+      );
     }
     final jsOptions = options.jsify() as JSObject;
     jsOptions['beforeSend'] = _beforeSend.toJS;
@@ -127,10 +128,7 @@ class WebSentryJsBinding implements SentryJsBinding {
     }
 
     if (debugIdMap.keys.length != _lastKeysCount) {
-      _buildFilenameToDebugIdMap(
-        debugIdMap,
-        options,
-      );
+      _buildFilenameToDebugIdMap(debugIdMap, options);
       _lastKeysCount = debugIdMap.keys.length;
     }
 
@@ -150,13 +148,14 @@ class WebSentryJsBinding implements SentryJsBinding {
       final String stackKeyStr = debugIdMapEntry.key.toString();
       final String debugIdStr = debugIdMapEntry.value.toString();
 
-      final debugIdHasCachedFilename =
-          _debugIdsWithFilenames.contains(debugIdStr);
+      final debugIdHasCachedFilename = _debugIdsWithFilenames.contains(
+        debugIdStr,
+      );
 
       if (!debugIdHasCachedFilename) {
-        final parsedStack = stackParser
-            .callAsFunction(options, stackKeyStr.toJS)
-            .dartify() as List<dynamic>?;
+        final parsedStack =
+            stackParser.callAsFunction(options, stackKeyStr.toJS).dartify()
+                as List<dynamic>?;
 
         if (parsedStack == null) continue;
 

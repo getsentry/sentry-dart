@@ -28,26 +28,43 @@ class ScreenshotRecorder {
   bool _warningLogged = false;
   late final SentryMaskingConfig? _maskingConfig;
 
-  ScreenshotRecorder(this.options,
-      {SentryPrivacyOptions? privacyOptions,
-      this.logName = 'ScreenshotRecorder',
-      this.config}) {
+  ScreenshotRecorder(
+    this.options, {
+    SentryPrivacyOptions? privacyOptions,
+    this.logName = 'ScreenshotRecorder',
+    this.config,
+  }) {
     privacyOptions ??= options.privacy;
 
-    final maskingConfig =
-        privacyOptions.buildMaskingConfig(_log, options.runtimeChecker);
+    final maskingConfig = privacyOptions.buildMaskingConfig(
+      _log,
+      options.runtimeChecker,
+    );
     _maskingConfig = maskingConfig.length > 0 ? maskingConfig : null;
   }
 
-  void _log(SentryLevel level, String message,
-      {String? logger, Object? exception, StackTrace? stackTrace}) {
-    options.log(level, '$logName: $message',
-        logger: logger, exception: exception, stackTrace: stackTrace);
+  void _log(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    options.log(
+      level,
+      '$logName: $message',
+      logger: logger,
+      exception: exception,
+      stackTrace: stackTrace,
+    );
   }
 
-  void _logError(Object? e, StackTrace stackTrace) =>
-      _log(SentryLevel.error, 'failed to capture screenshot.',
-          exception: e, stackTrace: stackTrace);
+  void _logError(Object? e, StackTrace stackTrace) => _log(
+    SentryLevel.error,
+    'failed to capture screenshot.',
+    exception: e,
+    stackTrace: stackTrace,
+  );
 
   /// We must capture a screenshot AND execute the widget filter on the main UI
   /// loop, with no async operations in between, otherwise masks coordinates
@@ -64,23 +81,29 @@ class ScreenshotRecorder {
           context?.findRenderObject() as RenderRepaintBoundary?;
       if (context == null || renderObject == null) {
         if (!_warningLogged) {
-          _log(SentryLevel.warning,
-              "SentryScreenshotWidget is not attached, skipping capture.");
+          _log(
+            SentryLevel.warning,
+            "SentryScreenshotWidget is not attached, skipping capture.",
+          );
           _warningLogged = true;
         }
         return Future.value(null);
       }
 
       if (config == null) {
-        _log(SentryLevel.warning,
-            "Capture config is not set, skipping capture.");
+        _log(
+          SentryLevel.warning,
+          "Capture config is not set, skipping capture.",
+        );
         return Future.value(null);
       }
 
       final capture = _Capture<R>.create(renderObject, config!, context);
 
-      Timeline.startSync('Sentry::captureScreenshot:RenderObjectToImage',
-          flow: flow);
+      Timeline.startSync(
+        'Sentry::captureScreenshot:RenderObjectToImage',
+        flow: flow,
+      );
       final futureImage = renderObject.toImage(pixelRatio: capture.pixelRatio);
       Timeline.finishSync(); // Sentry::captureScreenshot:RenderObjectToImage
 
@@ -89,8 +112,12 @@ class ScreenshotRecorder {
       Timeline.finishSync(); // Sentry::captureScreenshot:Masking
 
       // Then we draw the image and obscure masks later, asynchronously.
-      final task =
-          capture.createTask(futureImage, callback, obscureItems, flow);
+      final task = capture.createTask(
+        futureImage,
+        callback,
+        obscureItems,
+        flow,
+      );
       executeTask(task, flow).onError((e, stackTrace) {
         _logError(e, stackTrace);
         if (e != null && options.automatedTestMode) {
@@ -141,22 +168,27 @@ class _Capture<R> {
   final double pixelRatio;
   final _completer = Completer<R>();
 
-  _Capture._(
-      {required this.root,
-      required this.context,
-      required this.srcWidth,
-      required this.srcHeight,
-      required this.pixelRatio});
+  _Capture._({
+    required this.root,
+    required this.context,
+    required this.srcWidth,
+    required this.srcHeight,
+    required this.pixelRatio,
+  });
 
-  factory _Capture.create(RenderRepaintBoundary renderObject,
-      ScreenshotRecorderConfig config, widgets.BuildContext context) {
+  factory _Capture.create(
+    RenderRepaintBoundary renderObject,
+    ScreenshotRecorderConfig config,
+    widgets.BuildContext context,
+  ) {
     // On Android, the resolution (coming from the configuration)
     // is rounded to next multitude of 16. Therefore, we scale the image.
     // On iOS, the screenshot resolution is not adjusted.
     // For screenshots, the pixel ratio is adjusted based on quality config.
     final srcWidth = renderObject.size.width;
     final srcHeight = renderObject.size.height;
-    final pixelRatio = config.getPixelRatio(srcWidth, srcHeight) ??
+    final pixelRatio =
+        config.getPixelRatio(srcWidth, srcHeight) ??
         widgets.MediaQuery.of(context).devicePixelRatio;
 
     return _Capture._(
@@ -243,10 +275,11 @@ class _Capture<R> {
       paint.color = item.color;
       final source = item.bounds;
       final scaled = Rect.fromLTRB(
-          source.left * pixelRatio,
-          source.top * pixelRatio,
-          source.right * pixelRatio,
-          source.bottom * pixelRatio);
+        source.left * pixelRatio,
+        source.top * pixelRatio,
+        source.right * pixelRatio,
+        source.bottom * pixelRatio,
+      );
       canvas.drawRect(scaled, paint);
     }
   }
@@ -299,7 +332,8 @@ extension on widgets.BuildContext {
       );
     } else if (widget is cupertino.CupertinoApp) {
       final colorScheme = cupertino.CupertinoTheme.of(el);
-      final textColor = colorScheme.textTheme.textStyle.foreground?.color ??
+      final textColor =
+          colorScheme.textTheme.textStyle.foreground?.color ??
           colorScheme.textTheme.textStyle.color ??
           colorScheme.primaryColor;
       return WidgetFilterColorScheme(

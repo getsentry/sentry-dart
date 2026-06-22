@@ -38,16 +38,20 @@ void main() {
     verify(tracer.setData(SpanDataConvention.frozenFrames, 1)).called(1);
     verify(tracer.setData(SpanDataConvention.framesDelay, 0.03)).called(1);
 
-    verify(span.setMeasurement(SentryMeasurement.totalFramesName, 10))
-        .called(1);
+    verify(
+      span.setMeasurement(SentryMeasurement.totalFramesName, 10),
+    ).called(1);
     verify(span.setMeasurement(SentryMeasurement.slowFramesName, 2)).called(1);
-    verify(span.setMeasurement(SentryMeasurement.frozenFramesName, 1))
-        .called(1);
-    verify(span.setMeasurement(
-      SentryMeasurement.framesDelayName,
-      0.03,
-      unit: DurationSentryMeasurementUnit.second,
-    )).called(1);
+    verify(
+      span.setMeasurement(SentryMeasurement.frozenFramesName, 1),
+    ).called(1);
+    verify(
+      span.setMeasurement(
+        SentryMeasurement.framesDelayName,
+        0.03,
+        unit: DurationSentryMeasurementUnit.second,
+      ),
+    ).called(1);
   });
 }
 

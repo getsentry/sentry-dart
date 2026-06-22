@@ -30,19 +30,24 @@ void main() {
 
     final ttfdSpan = transaction.children.first;
     expect(transaction.children, hasLength(1));
-    expect(ttfdSpan.context.operation,
-        equals(SentrySpanOperations.uiTimeToFullDisplay));
+    expect(
+      ttfdSpan.context.operation,
+      equals(SentrySpanOperations.uiTimeToFullDisplay),
+    );
     expect(ttfdSpan.finished, isTrue);
     expect(ttfdSpan.context.description, equals('Current route full display'));
     expect(ttfdSpan.origin, equals(SentryTraceOrigins.manualUiTimeToDisplay));
     expect(ttfdSpan.startTimestamp, equals(fixture.startTimestamp));
 
     // Ensure endTimestamp is within an acceptable range
-    final expectedEndTimestamp =
-        fixture.startTimestamp.add(finishAfterDuration);
+    final expectedEndTimestamp = fixture.startTimestamp.add(
+      finishAfterDuration,
+    );
     final actualEndTimestamp = ttfdSpan.endTimestamp!;
-    final differenceInSeconds =
-        actualEndTimestamp.difference(expectedEndTimestamp).inSeconds.abs();
+    final differenceInSeconds = actualEndTimestamp
+        .difference(expectedEndTimestamp)
+        .inSeconds
+        .abs();
     expect(differenceInSeconds, lessThanOrEqualTo(1));
     expect(transaction.measurements, isNotEmpty);
   });
@@ -61,8 +66,10 @@ void main() {
     final ttfdSpan = transaction.children.first;
     expect(transaction.children, hasLength(1));
     expect(ttfdSpan.endTimestamp, equals(ttidEndTimestamp));
-    expect(ttfdSpan.context.operation,
-        equals(SentrySpanOperations.uiTimeToFullDisplay));
+    expect(
+      ttfdSpan.context.operation,
+      equals(SentrySpanOperations.uiTimeToFullDisplay),
+    );
     expect(ttfdSpan.finished, isTrue);
     expect(ttfdSpan.status, equals(SpanStatus.deadlineExceeded()));
     expect(ttfdSpan.context.description, equals('Current route full display'));
@@ -83,8 +90,10 @@ void main() {
 
     final ttfdSpan = transaction.children.first;
     expect(ttfdSpan.endTimestamp, equals(ttfdEndTimestamp));
-    expect(ttfdSpan.context.operation,
-        equals(SentrySpanOperations.uiTimeToFullDisplay));
+    expect(
+      ttfdSpan.context.operation,
+      equals(SentrySpanOperations.uiTimeToFullDisplay),
+    );
     expect(ttfdSpan.finished, isTrue);
 
     expect(ttfdSpan.status, equals(SpanStatus.ok()));
@@ -110,37 +119,31 @@ void main() {
     await sut.reportFullyDisplayed();
   });
 
-  test('reportFullyDisplayed with span id does not finish unrelated span',
-      () async {
-    final sut = fixture.getSut();
+  test(
+    'reportFullyDisplayed with span id does not finish unrelated span',
+    () async {
+      final sut = fixture.getSut();
 
-    final transactionA = fixture.getTransaction(name: "a");
-    unawaited(
-      sut.track(
-        transaction: transactionA,
-      ),
-    );
-    await transactionA.finish();
+      final transactionA = fixture.getTransaction(name: "a");
+      unawaited(sut.track(transaction: transactionA));
+      await transactionA.finish();
 
-    final transactionB = fixture.getTransaction(name: "b");
-    unawaited(
-      sut.track(
-        transaction: transactionB,
-      ),
-    );
+      final transactionB = fixture.getTransaction(name: "b");
+      unawaited(sut.track(transaction: transactionB));
 
-    // Don't await timeout to finish
-    await sut.reportFullyDisplayed(spanId: transactionA.context.spanId);
+      // Don't await timeout to finish
+      await sut.reportFullyDisplayed(spanId: transactionA.context.spanId);
 
-    final ttfdSpanB = transactionB.children.first;
-    expect(ttfdSpanB.finished, isFalse);
-    expect(ttfdSpanB.status, isNull);
+      final ttfdSpanB = transactionB.children.first;
+      expect(ttfdSpanB.finished, isFalse);
+      expect(ttfdSpanB.status, isNull);
 
-    await sut.reportFullyDisplayed(spanId: transactionB.context.spanId);
+      await sut.reportFullyDisplayed(spanId: transactionB.context.spanId);
 
-    expect(ttfdSpanB.finished, isTrue);
-    expect(ttfdSpanB.status, SpanStatus.ok());
-  });
+      expect(ttfdSpanB.finished, isTrue);
+      expect(ttfdSpanB.status, SpanStatus.ok());
+    },
+  );
 
   test('reportFullyDisplayed takes optional endTimestamp', () async {
     final sut = fixture.getSut();
@@ -167,18 +170,23 @@ class Fixture {
     hub = Hub(options);
     hub.bindClient(mockSentryClient);
 
-    when(mockSentryClient.captureTransaction(any,
-            scope: anyNamed('scope'), traceContext: anyNamed('traceContext')))
-        .thenAnswer((_) => Future.value(SentryId.newId()));
+    when(
+      mockSentryClient.captureTransaction(
+        any,
+        scope: anyNamed('scope'),
+        traceContext: anyNamed('traceContext'),
+      ),
+    ).thenAnswer((_) => Future.value(SentryId.newId()));
   }
 
   SentryTracer getTransaction({String? name}) {
     return hub.startTransaction(
-      name ?? "Current route",
-      SentrySpanOperations.uiLoad,
-      bindToScope: true,
-      startTimestamp: startTimestamp,
-    ) as SentryTracer;
+          name ?? "Current route",
+          SentrySpanOperations.uiLoad,
+          bindToScope: true,
+          startTimestamp: startTimestamp,
+        )
+        as SentryTracer;
   }
 
   DateTime fakeTTIDEndTimestamp() =>

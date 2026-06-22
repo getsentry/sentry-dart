@@ -16,50 +16,57 @@ void main() {
 
   group(SentryDisplay, () {
     group('when reporting fully displayed', () {
-      test('calls TimeToDisplayTracker with the span id in non-streaming mode',
-          () async {
-        final nonStreamingTracker = MockTimeToDisplayTracker();
-        when(nonStreamingTracker.reportFullyDisplayed(
-                spanId: anyNamed('spanId')))
-            .thenAnswer((_) => Future<void>.value());
-        fixture.options.timeToDisplayTracker = nonStreamingTracker;
+      test(
+        'calls TimeToDisplayTracker with the span id in non-streaming mode',
+        () async {
+          final nonStreamingTracker = MockTimeToDisplayTracker();
+          when(
+            nonStreamingTracker.reportFullyDisplayed(
+              spanId: anyNamed('spanId'),
+            ),
+          ).thenAnswer((_) => Future<void>.value());
+          fixture.options.timeToDisplayTracker = nonStreamingTracker;
 
-        final spanId = SpanId.newId();
-        final sentryDisplay = fixture.getSut(spanId);
+          final spanId = SpanId.newId();
+          final sentryDisplay = fixture.getSut(spanId);
 
-        await sentryDisplay.reportFullyDisplayed();
+          await sentryDisplay.reportFullyDisplayed();
 
-        verify(nonStreamingTracker.reportFullyDisplayed(spanId: spanId));
-      });
-
-      test('calls TimeToDisplayTrackerV2 with the span id in streaming mode',
-          () async {
-        final streamingTracker = _CapturingTimeToDisplayTrackerV2();
-        fixture.options
-          ..traceLifecycle = SentryTraceLifecycle.stream
-          ..timeToDisplayTrackerV2 = streamingTracker;
-
-        final spanId = SpanId.newId();
-        final sentryDisplay = fixture.getSut(spanId);
-
-        await sentryDisplay.reportFullyDisplayed();
-
-        expect(streamingTracker.callCount, 1);
-        expect(streamingTracker.reportedSpanId, spanId);
-      });
+          verify(nonStreamingTracker.reportFullyDisplayed(spanId: spanId));
+        },
+      );
 
       test(
-          'does not throw in streaming mode when tracker throws and automated test mode is false',
-          () async {
-        fixture.options
-          ..traceLifecycle = SentryTraceLifecycle.stream
-          ..timeToDisplayTrackerV2 = _ThrowingTimeToDisplayTrackerV2()
-          ..automatedTestMode = false;
+        'calls TimeToDisplayTrackerV2 with the span id in streaming mode',
+        () async {
+          final streamingTracker = _CapturingTimeToDisplayTrackerV2();
+          fixture.options
+            ..traceLifecycle = SentryTraceLifecycle.stream
+            ..timeToDisplayTrackerV2 = streamingTracker;
 
-        final sentryDisplay = fixture.getSut(SpanId.newId());
+          final spanId = SpanId.newId();
+          final sentryDisplay = fixture.getSut(spanId);
 
-        await sentryDisplay.reportFullyDisplayed();
-      });
+          await sentryDisplay.reportFullyDisplayed();
+
+          expect(streamingTracker.callCount, 1);
+          expect(streamingTracker.reportedSpanId, spanId);
+        },
+      );
+
+      test(
+        'does not throw in streaming mode when tracker throws and automated test mode is false',
+        () async {
+          fixture.options
+            ..traceLifecycle = SentryTraceLifecycle.stream
+            ..timeToDisplayTrackerV2 = _ThrowingTimeToDisplayTrackerV2()
+            ..automatedTestMode = false;
+
+          final sentryDisplay = fixture.getSut(SpanId.newId());
+
+          await sentryDisplay.reportFullyDisplayed();
+        },
+      );
     });
   });
 }

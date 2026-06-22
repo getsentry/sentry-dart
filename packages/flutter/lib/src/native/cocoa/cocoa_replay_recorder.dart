@@ -14,9 +14,7 @@ class CocoaReplayRecorder {
   final ScreenshotRecorder _recorder;
 
   CocoaReplayRecorder(this._options)
-      : _recorder = ReplayScreenshotRecorder(
-          _options,
-        ) {
+    : _recorder = ReplayScreenshotRecorder(_options) {
     _recorder.config = ScreenshotRecorderConfig(
       pixelRatio: _options.replay.quality.resolutionScalingFactor,
     );
@@ -26,10 +24,11 @@ class CocoaReplayRecorder {
     return _recorder.capture((screenshot) async {
       final data = await screenshot.rawRgbaData;
       _options.log(
-          SentryLevel.debug,
-          'Replay: captured screenshot ('
-          '${screenshot.width}x${screenshot.height} pixels, '
-          '${data.lengthInBytes} bytes)');
+        SentryLevel.debug,
+        'Replay: captured screenshot ('
+        '${screenshot.width}x${screenshot.height} pixels, '
+        '${data.lengthInBytes} bytes)',
+      );
 
       // Malloc memory and copy the data. Native must free it.
       final json = data.toNativeMemory().toJson();

@@ -17,13 +17,13 @@ class WebConnectivityProvider implements ConnectivityProvider {
     _onOnlineSub = web.EventStreamProviders.onlineEvent
         .forElement(web.document.body!)
         .listen((_) {
-      onChange('wifi');
-    });
+          onChange('wifi');
+        });
     _onOfflineSub = web.EventStreamProviders.offlineEvent
         .forElement(web.document.body!)
         .listen((_) {
-      onChange('none');
-    });
+          onChange('none');
+        });
   }
 
   @override
