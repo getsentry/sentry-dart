@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:test/test.dart';
 import 'package:jni/jni.dart';
+import 'package:sentry_flutter/src/native/java/jni_byte_array.dart';
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 import 'package:sentry_flutter/src/native/utils/data_normalizer.dart';
 
