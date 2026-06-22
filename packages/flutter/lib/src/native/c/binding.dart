@@ -63,6 +63,36 @@ class SentryNative {
   late final _value_new_int32 =
       _value_new_int32Ptr.asFunction<sentry_value_u Function(int)>();
 
+  /// Creates a new 64-bit signed integer value.
+  sentry_value_u value_new_int64(
+    int value,
+  ) {
+    return _value_new_int64(
+      value,
+    );
+  }
+
+  late final _value_new_int64Ptr =
+      _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Int64)>>(
+          'sentry_value_new_int64');
+  late final _value_new_int64 =
+      _value_new_int64Ptr.asFunction<sentry_value_u Function(int)>();
+
+  /// Creates a new 64-bit unsigned integer value.
+  sentry_value_u value_new_uint64(
+    int value,
+  ) {
+    return _value_new_uint64(
+      value,
+    );
+  }
+
+  late final _value_new_uint64Ptr =
+      _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Uint64)>>(
+          'sentry_value_new_uint64');
+  late final _value_new_uint64 =
+      _value_new_uint64Ptr.asFunction<sentry_value_u Function(int)>();
+
   /// Creates a new double value.
   sentry_value_u value_new_double(
     double value,
@@ -275,6 +305,36 @@ class SentryNative {
           'sentry_value_as_int32');
   late final _value_as_int32 =
       _value_as_int32Ptr.asFunction<int Function(sentry_value_u)>();
+
+  /// Converts a value into a 64bit signed integer.
+  int value_as_int64(
+    sentry_value_u value,
+  ) {
+    return _value_as_int64(
+      value,
+    );
+  }
+
+  late final _value_as_int64Ptr =
+      _lookup<ffi.NativeFunction<ffi.Int64 Function(sentry_value_u)>>(
+          'sentry_value_as_int64');
+  late final _value_as_int64 =
+      _value_as_int64Ptr.asFunction<int Function(sentry_value_u)>();
+
+  /// Converts a value into a 64bit unsigned integer.
+  int value_as_uint64(
+    sentry_value_u value,
+  ) {
+    return _value_as_uint64(
+      value,
+    );
+  }
+
+  late final _value_as_uint64Ptr =
+      _lookup<ffi.NativeFunction<ffi.Uint64 Function(sentry_value_u)>>(
+          'sentry_value_as_uint64');
+  late final _value_as_uint64 =
+      _value_as_uint64Ptr.asFunction<int Function(sentry_value_u)>();
 
   /// Converts a value into a double value.
   double value_as_double(
