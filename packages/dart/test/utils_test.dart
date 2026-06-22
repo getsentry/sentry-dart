@@ -33,7 +33,7 @@ void main() {
     });
   });
 
-  group('SentryAttributeFormatting', () {
+  group('$SentryAttribute', () {
     test('formats an array attribute as a bracketed list', () {
       final attribute = SentryAttribute.stringArray(['a', 'b']);
       expect(attribute.toFormattedString(), '[a, b]');
