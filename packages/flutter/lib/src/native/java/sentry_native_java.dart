@@ -311,10 +311,6 @@ JObject dartToJObject(Object? value) => switch (value) {
     };
 
 @visibleForTesting
-JByteArray jsonToJByteArray(Object? value) =>
-    _toJByteArray(encodeUtf8Json(normalize(value)));
-
-@visibleForTesting
 JList<JObject?> dartToJList(List<dynamic> values) {
   final jList = JArrayList<JObject>();
   for (final v in values.nonNulls) {
@@ -337,11 +333,6 @@ JMap<JString?, JObject?> dartToJMap(Map<String, dynamic> json) {
   }
   return jMap;
 }
-
-/// Builds a [JByteArray] from Dart [bytes]. JNIgen 1.0.0 dropped the
-/// `JByteArray.from` factory in favour of allocate-then-fill.
-JByteArray _toJByteArray(List<int> bytes) =>
-    JByteArray(bytes.length)..setRange(0, bytes.length, bytes);
 
 const _videoBlockSize = 16;
 

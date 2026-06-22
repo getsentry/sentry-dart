@@ -11,6 +11,7 @@ import '../utils/data_normalizer.dart';
 import '../utils/utf8_json.dart';
 import '../../utils/internal_logger.dart';
 import 'binding.dart' as native;
+import 'jni_byte_array.dart';
 
 /// Runs Android JNI work on a background isolate when available.
 class AndroidCoreWorker {
@@ -511,7 +512,7 @@ void _captureEnvelope(
   JObject? id;
   JByteArray? byteArray;
   try {
-    byteArray = _toJByteArray(envelopeData);
+    byteArray = toJByteArray(envelopeData);
     id = native.InternalSentrySdk.captureEnvelope(
       byteArray,
       containsUnhandledException,
@@ -637,7 +638,7 @@ void _addBreadcrumb(
 }) {
   JByteArray? jBytes;
   try {
-    jBytes = _jsonToJByteArray(breadcrumb);
+    jBytes = jsonToJByteArray(breadcrumb);
     native.SentryFlutterPlugin.addBreadcrumbFromJsonBytes(jBytes);
   } catch (exception, stackTrace) {
     internalLogger.error(
@@ -674,7 +675,7 @@ void _setUser(Map<String, dynamic>? user, {bool automatedTestMode = false}) {
     if (user == null) {
       native.SentryFlutterPlugin.userFromJsonBytes = null;
     } else {
-      jBytes = _jsonToJByteArray(user);
+      jBytes = jsonToJByteArray(user);
       native.SentryFlutterPlugin.userFromJsonBytes = jBytes;
     }
   } catch (exception, stackTrace) {
@@ -696,7 +697,7 @@ void _setContexts(String key, Object? value, {bool automatedTestMode = false}) {
   JByteArray? jBytes;
   try {
     jKey = key.toJString();
-    jBytes = _jsonToJByteArray(value);
+    jBytes = jsonToJByteArray(value);
 
     native.SentryFlutterPlugin.setContextFromJsonBytes(jKey, jBytes);
   } catch (exception, stackTrace) {
@@ -732,11 +733,3 @@ void _removeContexts(String key, {bool automatedTestMode = false}) {
     jKey?.release();
   }
 }
-
-JByteArray _jsonToJByteArray(Object? value) =>
-    _toJByteArray(encodeUtf8Json(normalize(value)));
-
-/// Builds a [JByteArray] from Dart [bytes]. JNIgen 1.0.0 dropped the
-/// `JByteArray.from` factory in favour of allocate-then-fill.
-JByteArray _toJByteArray(List<int> bytes) =>
-    JByteArray(bytes.length)..setRange(0, bytes.length, bytes);
