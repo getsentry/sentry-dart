@@ -346,51 +346,10 @@ void main() {
         });
       });
 
-      group('captureRequestHeaders', () {
-        test('attaches metadata to span as rpc.request.metadata.* data',
-            () async {
+      group('request metadata', () {
+        test('does not attach metadata when sendDefaultPii is false', () async {
+          fixture.hub.options.sendDefaultPii = false;
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
-
-          await client.testMethod(
-            'hello',
-            options: CallOptions(metadata: {'x-custom': 'value'}),
-          );
-          await tr.finish();
-
-          final tracer = tr as SentryTracer;
-          expect(
-            tracer.children.first.data,
-            containsPair('rpc.request.metadata.x-custom', 'value'),
-          );
-        });
-
-        test('normalizes header keys to lowercase', () async {
-          final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
-
-          await client.testMethod(
-            'hello',
-            options: CallOptions(metadata: {'X-Custom': 'value'}),
-          );
-          await tr.finish();
-
-          final tracer = tr as SentryTracer;
-          expect(
-            tracer.children.first.data,
-            containsPair('rpc.request.metadata.x-custom', 'value'),
-          );
-          expect(
-            tracer.children.first.data,
-            isNot(contains('rpc.request.metadata.X-Custom')),
-          );
-        });
-
-        test('does not attach metadata when captureRequestHeaders is false',
-            () async {
-          final client = fixture.getSut(captureRequestHeaders: false);
           final tr =
               fixture.hub.startTransaction('name', 'op', bindToScope: true);
 
@@ -407,12 +366,53 @@ void main() {
           );
         });
 
-        group('when sendDefaultPii is false', () {
+        group('when sendDefaultPii is true', () {
           setUp(() {
-            fixture.hub.options.sendDefaultPii = false;
+            fixture.hub.options.sendDefaultPii = true;
           });
 
-          test('omits sensitive headers', () async {
+          test('attaches metadata to span as rpc.request.metadata.* data',
+              () async {
+            final client = fixture.getSut();
+            final tr =
+                fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+            await client.testMethod(
+              'hello',
+              options: CallOptions(metadata: {'x-custom': 'value'}),
+            );
+            await tr.finish();
+
+            final tracer = tr as SentryTracer;
+            expect(
+              tracer.children.first.data,
+              containsPair('rpc.request.metadata.x-custom', 'value'),
+            );
+          });
+
+          test('normalizes header keys to lowercase', () async {
+            final client = fixture.getSut();
+            final tr =
+                fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+            await client.testMethod(
+              'hello',
+              options: CallOptions(metadata: {'X-Custom': 'value'}),
+            );
+            await tr.finish();
+
+            final tracer = tr as SentryTracer;
+            expect(
+              tracer.children.first.data,
+              containsPair('rpc.request.metadata.x-custom', 'value'),
+            );
+            expect(
+              tracer.children.first.data,
+              isNot(contains('rpc.request.metadata.X-Custom')),
+            );
+          });
+
+          test('includes all headers including sensitive ones', () async {
             final client = fixture.getSut();
             final tr =
                 fixture.hub.startTransaction('name', 'op', bindToScope: true);
@@ -423,63 +423,9 @@ void main() {
                 metadata: {
                   'authorization': 'Bearer secret',
                   'cookie': 'session=abc',
-                  'set-cookie': 'id=1',
-                  'proxy-authorization': 'Basic xyz',
-                },
-              ),
-            );
-            await tr.finish();
-
-            final tracer = tr as SentryTracer;
-            final data = tracer.children.first.data;
-            expect(data, isNot(contains('rpc.request.metadata.authorization')));
-            expect(data, isNot(contains('rpc.request.metadata.cookie')));
-            expect(data, isNot(contains('rpc.request.metadata.set-cookie')));
-            expect(
-              data,
-              isNot(contains('rpc.request.metadata.proxy-authorization')),
-            );
-          });
-
-          test('includes non-sensitive headers alongside sensitive ones',
-              () async {
-            final client = fixture.getSut();
-            final tr =
-                fixture.hub.startTransaction('name', 'op', bindToScope: true);
-
-            await client.testMethod(
-              'hello',
-              options: CallOptions(
-                metadata: {
-                  'authorization': 'Bearer secret',
                   'x-custom': 'value',
                 },
               ),
-            );
-            await tr.finish();
-
-            final tracer = tr as SentryTracer;
-            expect(
-              tracer.children.first.data,
-              containsPair('rpc.request.metadata.x-custom', 'value'),
-            );
-          });
-        });
-
-        group('when sendDefaultPii is true', () {
-          setUp(() {
-            fixture.hub.options.sendDefaultPii = true;
-          });
-
-          test('includes sensitive headers', () async {
-            final client = fixture.getSut();
-            final tr =
-                fixture.hub.startTransaction('name', 'op', bindToScope: true);
-
-            await client.testMethod(
-              'hello',
-              options:
-                  CallOptions(metadata: {'authorization': 'Bearer secret'}),
             );
             await tr.finish();
 
@@ -490,6 +436,14 @@ void main() {
                 'rpc.request.metadata.authorization',
                 'Bearer secret',
               ),
+            );
+            expect(
+              tracer.children.first.data,
+              containsPair('rpc.request.metadata.cookie', 'session=abc'),
+            );
+            expect(
+              tracer.children.first.data,
+              containsPair('rpc.request.metadata.x-custom', 'value'),
             );
           });
         });
@@ -1062,13 +1016,11 @@ class Fixture {
     bool? captureFailedRequests,
     bool enableBreadcrumbs = true,
     bool spanFirst = false,
-    bool captureRequestHeaders = true,
   }) {
     final interceptor = SentryGrpcInterceptor(
       hub: mockHub ?? (spanFirst ? spanFirstHub : hub),
       captureFailedRequests: captureFailedRequests,
       enableBreadcrumbs: enableBreadcrumbs,
-      captureRequestHeaders: captureRequestHeaders,
     );
     return _TestClient(_channel, interceptors: [interceptor]);
   }

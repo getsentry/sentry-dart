@@ -41,34 +41,19 @@ class SentryGrpcInterceptor extends ClientInterceptor {
   /// Integration name registered with the Sentry SDK.
   static const String integrationName = 'GrpcClient';
 
-  // Headers that may contain credentials; omitted unless sendDefaultPii is on.
-  static const _sensitiveHeaders = {
-    'authorization',
-    'cookie',
-    'set-cookie',
-    'proxy-authorization',
-  };
-
   /// Creates a [SentryGrpcInterceptor].
   ///
   /// [captureFailedRequests] overrides [SentryOptions.captureFailedRequests].
   /// When `null`, the global option is used.
   ///
   /// Set [enableBreadcrumbs] to `false` to disable breadcrumb recording.
-  ///
-  /// Set [captureRequestHeaders] to `false` to suppress attaching outgoing
-  /// gRPC metadata (request headers) to the span. Sensitive headers
-  /// (`authorization`, `cookie`, etc.) are redacted unless
-  /// [SentryOptions.sendDefaultPii] is enabled. Defaults to `true`.
   SentryGrpcInterceptor({
     Hub? hub,
     bool? captureFailedRequests,
     bool enableBreadcrumbs = true,
-    bool captureRequestHeaders = true,
   })  : _hub = hub ?? HubAdapter(),
         _captureFailedRequests = captureFailedRequests,
-        _recordBreadcrumbs = enableBreadcrumbs,
-        _captureRequestHeaders = captureRequestHeaders {
+        _recordBreadcrumbs = enableBreadcrumbs {
     _spanFactory = _hub.options.spanFactory;
     _hub.options.sdk.addIntegration(integrationName);
     _hub.options.sdk.addPackage(packageName, sdkVersion);
@@ -77,7 +62,6 @@ class SentryGrpcInterceptor extends ClientInterceptor {
   final Hub _hub;
   final bool? _captureFailedRequests;
   final bool _recordBreadcrumbs;
-  final bool _captureRequestHeaders;
   late final InstrumentationSpanFactory _spanFactory;
 
   @override
@@ -202,17 +186,14 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     InstrumentationSpan span,
     CallOptions options,
   ) {
-    if (_captureRequestHeaders) {
-      final sendPii = _hub.options.sendDefaultPii;
-      options.metadata.forEach((key, value) {
-        final normalizedKey = key.toLowerCase();
-        if (!sendPii && _sensitiveHeaders.contains(normalizedKey)) return;
-        span.setData(
-          '${SemanticAttributesConstants.rpcRequestMetadataPrefix}$normalizedKey',
-          value,
-        );
-      });
-    }
+    if (!_hub.options.sendDefaultPii) return;
+    options.metadata.forEach((key, value) {
+      final normalizedKey = key.toLowerCase();
+      span.setData(
+        '${SemanticAttributesConstants.rpcRequestMetadataPrefix}$normalizedKey',
+        value,
+      );
+    });
   }
 
   CallOptions _buildModifiedOptions(
