@@ -53,24 +53,38 @@ jobs:
       - run: dart doc --dry-run
 
   package-analysis:
-    # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
-    # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
-    # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
+    # We run `pana` directly instead of the `axel-op/dart-package-analyzer`
+    # action because that action's bundled Flutter SDK is frozen at 3.38.6 and
+    # cannot resolve packages that require a newer Flutter (e.g. sentry_flutter
+    # on 3.44+). Setting up the SDK ourselves lets pana use a current Flutter.
     if: ${{ !startsWith(github.ref, 'refs/heads/release/') && inputs.panaThreshold > 0 }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ${{ inputs.package }}
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # pin@v1.7.2
+        if: ${{ inputs.sdk == 'dart' }}
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
+        if: ${{ inputs.sdk == 'flutter' }}
+        with:
+          channel: stable
+      # pana runs its own dependency resolution in a temporary copy, which
+      # ignores `dependency_overrides`. Pin the in-repo `sentry` package via an
+      # absolute path so the not-yet-published version resolves.
       - name: Apply dependency override
         if: ${{ inputs.package != 'packages/dart' }}
-        working-directory: ${{ inputs.package }}
         run: |
-          sed -i.bak 's|sentry:.*|sentry:\n    path: /github/workspace/packages/dart|g' pubspec.yaml
-      - uses: axel-op/dart-package-analyzer@56afb7e6737bd2b7cee05382ae7f0e8111138080 # pin@v3
+          sed -i.bak 's|sentry:.*|sentry:\n    path: ${{ github.workspace }}/packages/dart|g' pubspec.yaml
+      - name: Run pana
         id: analysis
-        with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          relativePath: ${{ inputs.package }}
+        run: |
+          dart pub global activate pana
+          dart pub global run pana --no-warning --json > "$RUNNER_TEMP/pana.json"
+          echo "total=$(jq -r '.scores.grantedPoints // 0' "$RUNNER_TEMP/pana.json")" >> "$GITHUB_OUTPUT"
+          echo "total_max=$(jq -r '.scores.maxPoints // 0' "$RUNNER_TEMP/pana.json")" >> "$GITHUB_OUTPUT"
       - name: Check scores
         env:
           TOTAL: ${{ steps.analysis.outputs.total }}
