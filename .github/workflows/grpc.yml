@@ -37,7 +37,7 @@ jobs:
       - uses: ./.github/actions/dart-test
         with:
           directory: packages/grpc
-          web: false
+          web: true
 
       - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
