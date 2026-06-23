@@ -145,7 +145,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
       // Also always fails in tests.
       // See https://github.com/flutter/flutter/issues/83919
       // 'window_is_visible': _window.viewConfiguration.visible,
-      if (appFlavor != null) 'appFlavor': appFlavor!,
+      'appFlavor': ?appFlavor,
     };
   }
 

@@ -151,7 +151,7 @@ void main() {
 }
 
 PageRoute<dynamic> _route(RouteSettings? settings) => PageRouteBuilder<void>(
-  pageBuilder: (_, __, ___) => Container(),
+  pageBuilder: (_, _, _) => Container(),
   settings: settings,
 );
 

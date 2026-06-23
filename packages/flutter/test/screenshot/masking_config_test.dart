@@ -319,13 +319,13 @@ void main() async {
         expect(sut.unmask<SentryUnmask>, throwsA(isA<AssertionError>()));
         expect(
           () => sut.maskCallback<SentryMask>(
-            (_, __) => SentryMaskingDecision.mask,
+            (_, _) => SentryMaskingDecision.mask,
           ),
           throwsA(isA<AssertionError>()),
         );
         expect(
           () => sut.maskCallback<SentryUnmask>(
-            (_, __) => SentryMaskingDecision.mask,
+            (_, _) => SentryMaskingDecision.mask,
           ),
           throwsA(isA<AssertionError>()),
         );

@@ -1001,7 +1001,7 @@ void main() {
       testWidgets('dismisses the feedback form when onSubmitSuccess throws', (
         tester,
       ) async {
-        fixture.options.feedback.onSubmitSuccess = (_, __) {
+        fixture.options.feedback.onSubmitSuccess = (_, _) {
           throw StateError('boom');
         };
 

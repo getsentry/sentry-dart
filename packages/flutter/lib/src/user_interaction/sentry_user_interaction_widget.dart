@@ -360,10 +360,7 @@ class _SentryUserInteractionWidgetState
     }
 
     final label = _getLabelRecursively(info.element);
-    final data = {
-      'path': _getTouchPath(info.element),
-      if (label != null) 'label': label,
-    };
+    final data = {'path': _getTouchPath(info.element), 'label': ?label};
 
     final crumb = Breadcrumb.userInteraction(
       subCategory: 'click',

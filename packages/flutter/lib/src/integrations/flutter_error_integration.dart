@@ -45,7 +45,7 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
           // https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/context.html
           if (context != null) 'context': 'thrown $context',
           if (collector.isNotEmpty) 'information': information,
-          if (library != null) 'library': library,
+          'library': ?library,
         };
 
         options.log(

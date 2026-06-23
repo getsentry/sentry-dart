@@ -23,7 +23,7 @@ void main() {
     test('frame processing continues execution when clock throws', () {
       options.clock = () => throw Exception('Clock error');
       binding.initializeFramesTracking(
-        (_, __) {},
+        (_, _) {},
         options,
         Duration(milliseconds: 16),
       );
@@ -37,7 +37,7 @@ void main() {
     test('frame processing continues execution when callback throws', () {
       options.clock = () => DateTime.now();
       binding.initializeFramesTracking(
-        (_, __) {
+        (_, _) {
           throw Exception('Callback error');
         },
         options,

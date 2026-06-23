@@ -435,11 +435,11 @@ class RouteObserverBreadcrumb extends Breadcrumb {
          type: _navigationKey,
          data: <String, dynamic>{
            'state': navigationType,
-           if (from != null) 'from': from,
-           if (fromArgs != null) 'from_arguments': fromArgs,
-           if (to != null) 'to': to,
-           if (toArgs != null) 'to_arguments': toArgs,
-           if (data != null) 'data': data,
+           'from': ?from,
+           'from_arguments': ?fromArgs,
+           'to': ?to,
+           'to_arguments': ?toArgs,
+           'data': ?data,
          },
        );
 

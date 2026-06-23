@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/integrations/flutter_framework_feature_flag_integration.dart';
@@ -13,9 +15,7 @@ void main() {
         options.dsn = 'https://example.com/sentry-dsn';
       });
 
-      // ignore: invalid_use_of_internal_member
       fixture.hub = Sentry.currentHub;
-      // ignore: invalid_use_of_internal_member
       fixture.options = fixture.hub.options;
     });
 
@@ -39,7 +39,6 @@ void main() {
       final sut = fixture.getSut('foo,bar,baz');
       sut.call(fixture.hub, fixture.options);
 
-      // ignore: invalid_use_of_internal_member
       final featureFlags =
           fixture.hub.scope.contexts[SentryFeatureFlags.type]
               as SentryFeatureFlags?;
@@ -58,7 +57,6 @@ void main() {
       final sut = fixture.getSut('foo,,bar');
       sut.call(fixture.hub, fixture.options);
 
-      // ignore: invalid_use_of_internal_member
       final featureFlags =
           fixture.hub.scope.contexts[SentryFeatureFlags.type]
               as SentryFeatureFlags?;
@@ -75,7 +73,6 @@ void main() {
       final sut = fixture.getSut(',');
       sut.call(fixture.hub, fixture.options);
 
-      // ignore: invalid_use_of_internal_member
       final featureFlags =
           fixture.hub.scope.contexts[SentryFeatureFlags.type]
               as SentryFeatureFlags?;
@@ -87,7 +84,6 @@ void main() {
       final sut = fixture.getSut('foo, bar');
       sut.call(fixture.hub, fixture.options);
 
-      // ignore: invalid_use_of_internal_member
       final featureFlags =
           fixture.hub.scope.contexts[SentryFeatureFlags.type]
               as SentryFeatureFlags?;

@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:meta/meta.dart';
@@ -11,8 +13,7 @@ const String defaultTrustedPolicyName = 'sentry-dart';
 
 class SentryScriptLoader {
   SentryScriptLoader({SentryOptions? options})
-    : // ignore: invalid_use_of_internal_member
-      _options = options ?? Sentry.currentHub.options;
+    : _options = options ?? Sentry.currentHub.options;
 
   final SentryOptions _options;
   bool _scriptLoaded = false;
@@ -55,7 +56,6 @@ class SentryScriptLoader {
       );
     } catch (e) {
       _options.log(SentryLevel.error, 'Failed to load Sentry scripts: $e');
-      // ignore: invalid_use_of_internal_member
       if (_options.automatedTestMode) {
         rethrow;
       }

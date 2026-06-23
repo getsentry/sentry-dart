@@ -24,7 +24,7 @@ void main() {
   }) {
     fixture.platformDispatcherWrapper.onError =
         handler ??
-        (_, __) {
+        (_, _) {
           return fixture.onErrorReturnValue;
         };
 

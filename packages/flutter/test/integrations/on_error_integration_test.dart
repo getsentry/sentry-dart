@@ -26,7 +26,7 @@ void main() {
     }) {
       ErrorCallback? fallbackOnError;
       if (onErrorReturnValue != null) {
-        fallbackOnError = (_, __) {
+        fallbackOnError = (_, _) {
           return onErrorReturnValue;
         };
       }
@@ -169,7 +169,7 @@ void main() {
 
     test('calls default error', () async {
       var called = false;
-      final defaultError = (_, __) {
+      final defaultError = (_, _) {
         called = true;
         return true;
       };
@@ -191,7 +191,7 @@ void main() {
     });
 
     test('closes restored default onError', () async {
-      ErrorCallback defaultOnError = (_, __) {
+      ErrorCallback defaultOnError = (_, _) {
         return true;
       };
       fixture.platformDispatcherWrapper.onError = defaultOnError;
