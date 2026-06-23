@@ -311,32 +311,38 @@ class SentryGrpcInterceptor extends ClientInterceptor {
           );
         }
       } else if (detail is rpc.PreconditionFailure) {
-        span.setData(
-          SemanticAttributesConstants.grpcPreconditionFailureViolations,
-          detail.violations
-              .map((v) => '${v.type}: ${v.subject} - ${v.description}')
-              .join('; '),
-        );
+        if (_hub.options.sendDefaultPii) {
+          span.setData(
+            SemanticAttributesConstants.grpcPreconditionFailureViolations,
+            detail.violations
+                .map((v) => '${v.type}: ${v.subject} - ${v.description}')
+                .join('; '),
+          );
+        }
       } else if (detail is rpc.ResourceInfo) {
         span.setData(
           SemanticAttributesConstants.grpcResourceInfoType,
           detail.resourceType,
         );
-        span.setData(
-          SemanticAttributesConstants.grpcResourceInfoName,
-          detail.resourceName,
-        );
+        if (_hub.options.sendDefaultPii) {
+          span.setData(
+            SemanticAttributesConstants.grpcResourceInfoName,
+            detail.resourceName,
+          );
+        }
         span.setData(
           SemanticAttributesConstants.grpcResourceInfoDescription,
           detail.description,
         );
       } else if (detail is rpc.QuotaFailure) {
-        span.setData(
-          SemanticAttributesConstants.grpcQuotaFailureViolations,
-          detail.violations
-              .map((v) => '${v.subject}: ${v.description}')
-              .join('; '),
-        );
+        if (_hub.options.sendDefaultPii) {
+          span.setData(
+            SemanticAttributesConstants.grpcQuotaFailureViolations,
+            detail.violations
+                .map((v) => '${v.subject}: ${v.description}')
+                .join('; '),
+          );
+        }
       }
     }
   }

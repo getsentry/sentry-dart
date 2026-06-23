@@ -687,7 +687,10 @@ void main() {
           );
         });
 
-        test('attaches ResourceInfo to span', () async {
+        test(
+            'attaches ResourceInfo type and description but omits name when sendDefaultPii is false',
+            () async {
+          fixture.hub.options.sendDefaultPii = false;
           final resourceInfo = rpc.ResourceInfo(
             resourceType: 'projects/123',
             resourceName: 'my-project',
@@ -714,13 +717,86 @@ void main() {
             'projects/123',
           );
           expect(
+            tracer.children.first.data
+                .containsKey(SemanticAttributesConstants.grpcResourceInfoName),
+            isFalse,
+          );
+          expect(
+            tracer.children.first
+                .data[SemanticAttributesConstants.grpcResourceInfoDescription],
+            'Project not found',
+          );
+        });
+
+        test('attaches ResourceInfo name when sendDefaultPii is true',
+            () async {
+          fixture.hub.options.sendDefaultPii = true;
+          final resourceInfo = rpc.ResourceInfo(
+            resourceType: 'projects/123',
+            resourceName: 'my-project',
+            description: 'Project not found',
+          );
+          fixture.service.errorToThrow = _grpcErrorWithDetails(
+            StatusCode.notFound,
+            [resourceInfo],
+          );
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
             tracer.children.first
                 .data[SemanticAttributesConstants.grpcResourceInfoName],
             'my-project',
           );
         });
 
-        test('attaches PreconditionFailure violations to span', () async {
+        test(
+            'omits PreconditionFailure violations when sendDefaultPii is false',
+            () async {
+          fixture.hub.options.sendDefaultPii = false;
+          final preconditionFailure = rpc.PreconditionFailure(
+            violations: [
+              rpc.PreconditionFailure_Violation(
+                type: 'TOS',
+                subject: 'user@example.com',
+                description: 'Terms of service not accepted',
+              ),
+            ],
+          );
+          fixture.service.errorToThrow = _grpcErrorWithDetails(
+            StatusCode.failedPrecondition,
+            [preconditionFailure],
+          );
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first.data.containsKey(
+                SemanticAttributesConstants.grpcPreconditionFailureViolations),
+            isFalse,
+          );
+        });
+
+        test(
+            'attaches PreconditionFailure violations when sendDefaultPii is true',
+            () async {
+          fixture.hub.options.sendDefaultPii = true;
           final preconditionFailure = rpc.PreconditionFailure(
             violations: [
               rpc.PreconditionFailure_Violation(
@@ -752,7 +828,42 @@ void main() {
           );
         });
 
-        test('attaches QuotaFailure violations to span', () async {
+        test('omits QuotaFailure violations when sendDefaultPii is false',
+            () async {
+          fixture.hub.options.sendDefaultPii = false;
+          final quotaFailure = rpc.QuotaFailure(
+            violations: [
+              rpc.QuotaFailure_Violation(
+                subject: 'user@example.com',
+                description: 'Quota exceeded',
+              ),
+            ],
+          );
+          fixture.service.errorToThrow = _grpcErrorWithDetails(
+            StatusCode.resourceExhausted,
+            [quotaFailure],
+          );
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first.data.containsKey(
+                SemanticAttributesConstants.grpcQuotaFailureViolations),
+            isFalse,
+          );
+        });
+
+        test('attaches QuotaFailure violations when sendDefaultPii is true',
+            () async {
+          fixture.hub.options.sendDefaultPii = true;
           final quotaFailure = rpc.QuotaFailure(
             violations: [
               rpc.QuotaFailure_Violation(
