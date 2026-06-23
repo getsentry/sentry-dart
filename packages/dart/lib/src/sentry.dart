@@ -432,7 +432,6 @@ class Sentry {
   ///   return orderService.create(cart, payment);
   /// });
   /// ```
-  @experimental
   static Future<T> startSpan<T>(
     String name,
     Future<T> Function(SentrySpanV2 span) callback, {
@@ -466,7 +465,6 @@ class Sentry {
   /// By default, the span is created as a child of the currently active span.
   /// Pass a [SentrySpanV2] as [parentSpan] to override the parent, or pass
   /// `null` to create a root span.
-  @experimental
   static T startSpanSync<T>(
     String name,
     T Function(SentrySpanV2 span) callback, {
