@@ -64,9 +64,7 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
           );
         }
       };
-      options.lifecycleRegistry.registerCallback<OnProcessLog>(
-        _logCallback!,
-      );
+      options.lifecycleRegistry.registerCallback<OnProcessLog>(_logCallback!);
     }
 
     if (options.enableMetrics) {
@@ -103,9 +101,7 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
           );
         }
       };
-      options.lifecycleRegistry.registerCallback<OnProcessSpan>(
-        _spanCallback!,
-      );
+      options.lifecycleRegistry.registerCallback<OnProcessSpan>(_spanCallback!);
     }
 
     options.sdk.addIntegration('loadContextsIntegration');
@@ -121,8 +117,9 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
       _logCallback = null;
     }
     if (_metricCallback != null) {
-      options.lifecycleRegistry
-          .removeCallback<OnProcessMetric>(_metricCallback!);
+      options.lifecycleRegistry.removeCallback<OnProcessMetric>(
+        _metricCallback!,
+      );
       _metricCallback = null;
     }
     if (_spanCallback != null) {
@@ -240,8 +237,9 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
       if (breadcrumbsList != null &&
           breadcrumbsList.isNotEmpty &&
           _options.enableScopeSync) {
-        final breadcrumbsJson =
-            List<Map<dynamic, dynamic>>.from(breadcrumbsList);
+        final breadcrumbsJson = List<Map<dynamic, dynamic>>.from(
+          breadcrumbsList,
+        );
         final breadcrumbs = <Breadcrumb>[];
         final beforeBreadcrumb = _options.beforeBreadcrumb;
 
@@ -296,8 +294,9 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         final version = package['version'];
         if (name != null &&
             version != null &&
-            !sdk.packages.any((element) =>
-                element.name == name && element.version == version)) {
+            !sdk.packages.any(
+              (element) => element.name == name && element.version == version,
+            )) {
           sdk.addPackage(name, version);
         }
 
@@ -327,40 +326,40 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
 }
 
 void _mergeNativeWithLocalContexts(
-    Map<dynamic, dynamic>? contextsMap, Contexts contexts) {
+  Map<dynamic, dynamic>? contextsMap,
+  Contexts contexts,
+) {
   if (contextsMap != null && contextsMap.isNotEmpty) {
     final nativeContexts = Contexts.fromJson(
       Map<String, dynamic>.from(contextsMap),
     );
 
-    nativeContexts.forEach(
-      (key, dynamic value) {
-        if (value != null) {
-          final currentValue = contexts[key];
-          if (key == SentryRuntime.listType) {
-            nativeContexts.runtimes.forEach(contexts.addRuntime);
-          } else if (currentValue == null) {
-            contexts[key] = value;
-          } else {
-            // merge the values
-            if (key == SentryOperatingSystem.type &&
-                currentValue is SentryOperatingSystem &&
-                value is SentryOperatingSystem) {
-              // merge os context
-              final osMap = {...value.toJson(), ...currentValue.toJson()};
-              final os = SentryOperatingSystem.fromJson(osMap);
-              contexts[key] = os;
-            } else if (key == SentryApp.type &&
-                currentValue is SentryApp &&
-                value is SentryApp) {
-              // merge app context
-              final appMap = {...value.toJson(), ...currentValue.toJson()};
-              final app = SentryApp.fromJson(appMap);
-              contexts[key] = app;
-            }
+    nativeContexts.forEach((key, dynamic value) {
+      if (value != null) {
+        final currentValue = contexts[key];
+        if (key == SentryRuntime.listType) {
+          nativeContexts.runtimes.forEach(contexts.addRuntime);
+        } else if (currentValue == null) {
+          contexts[key] = value;
+        } else {
+          // merge the values
+          if (key == SentryOperatingSystem.type &&
+              currentValue is SentryOperatingSystem &&
+              value is SentryOperatingSystem) {
+            // merge os context
+            final osMap = {...value.toJson(), ...currentValue.toJson()};
+            final os = SentryOperatingSystem.fromJson(osMap);
+            contexts[key] = os;
+          } else if (key == SentryApp.type &&
+              currentValue is SentryApp &&
+              value is SentryApp) {
+            // merge app context
+            final appMap = {...value.toJson(), ...currentValue.toJson()};
+            final app = SentryApp.fromJson(appMap);
+            contexts[key] = app;
           }
         }
-      },
-    );
+      }
+    });
   }
 }

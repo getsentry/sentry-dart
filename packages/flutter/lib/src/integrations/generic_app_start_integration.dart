@@ -17,7 +17,7 @@ import '../frame_callback_handler.dart';
 @internal
 class GenericAppStartIntegration extends Integration<SentryFlutterOptions> {
   GenericAppStartIntegration([FrameCallbackHandler? frameHandler])
-      : _framesHandler = frameHandler ?? DefaultFrameCallbackHandler();
+    : _framesHandler = frameHandler ?? DefaultFrameCallbackHandler();
 
   final FrameCallbackHandler _framesHandler;
 

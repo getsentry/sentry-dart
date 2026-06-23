@@ -30,16 +30,19 @@ void main() {
 
       // Dispatch OnSpanStart event through the lifecycle registry
       // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanStart(span));
+      await fixture.options.lifecycleRegistry.dispatchCallback(
+        OnSpanStart(span),
+      );
 
       final setDataCalls = span.setDataCalls;
       expect(setDataCalls.length, equals(2));
 
-      final threadIdCall = setDataCalls
-          .firstWhere((call) => call.key == SpanDataConvention.threadId);
-      final threadNameCall = setDataCalls
-          .firstWhere((call) => call.key == SpanDataConvention.threadName);
+      final threadIdCall = setDataCalls.firstWhere(
+        (call) => call.key == SpanDataConvention.threadId,
+      );
+      final threadNameCall = setDataCalls.firstWhere(
+        (call) => call.key == SpanDataConvention.threadName,
+      );
 
       expect(threadIdCall.value, equals('main'.hashCode.toString()));
       expect(threadNameCall.value, equals('main'));
@@ -55,16 +58,19 @@ void main() {
 
       integration.call(hub, fixture.options);
       // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanStart(span));
+      await fixture.options.lifecycleRegistry.dispatchCallback(
+        OnSpanStart(span),
+      );
 
       final setDataCalls = span.setDataCalls;
       expect(setDataCalls.length, equals(2));
 
-      final threadIdCall = setDataCalls
-          .firstWhere((call) => call.key == SpanDataConvention.threadId);
-      final threadNameCall = setDataCalls
-          .firstWhere((call) => call.key == SpanDataConvention.threadName);
+      final threadIdCall = setDataCalls.firstWhere(
+        (call) => call.key == SpanDataConvention.threadId,
+      );
+      final threadNameCall = setDataCalls.firstWhere(
+        (call) => call.key == SpanDataConvention.threadName,
+      );
 
       expect(threadIdCall.value, equals('worker-thread'.hashCode.toString()));
       expect(threadNameCall.value, equals('worker-thread'));
@@ -80,42 +86,52 @@ void main() {
 
       integration.call(hub, fixture.options);
       // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanStart(span));
+      await fixture.options.lifecycleRegistry.dispatchCallback(
+        OnSpanStart(span),
+      );
       final firstCallCount = span.setDataCalls.length;
 
       final span2 = fixture.createMockSpan();
       // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanStart(span2));
+      await fixture.options.lifecycleRegistry.dispatchCallback(
+        OnSpanStart(span2),
+      );
 
       // Should have same number of calls for both spans (thread info collected fresh each time)
       expect(span2.setDataCalls.length, equals(firstCallCount));
     });
 
-    test('sets thread ID and name for non-root isolate with valid name',
-        () async {
-      fixture.mockHelper.setIsRootIsolate(false);
-      fixture.mockHelper.setIsolateName('custom-isolate');
+    test(
+      'sets thread ID and name for non-root isolate with valid name',
+      () async {
+        fixture.mockHelper.setIsRootIsolate(false);
+        fixture.mockHelper.setIsolateName('custom-isolate');
 
-      final hub = fixture.createHub();
-      final integration = fixture.getSut();
-      final span = fixture.createMockSpan();
+        final hub = fixture.createHub();
+        final integration = fixture.getSut();
+        final span = fixture.createMockSpan();
 
-      integration.call(hub, fixture.options);
-      // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanStart(span));
+        integration.call(hub, fixture.options);
+        // ignore: invalid_use_of_internal_member
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnSpanStart(span),
+        );
 
-      // Find thread data calls
-      final threadIdCall = span.setDataCalls
-          .firstWhere((call) => call.key == SpanDataConvention.threadId);
-      final threadNameCall = span.setDataCalls
-          .firstWhere((call) => call.key == SpanDataConvention.threadName);
+        // Find thread data calls
+        final threadIdCall = span.setDataCalls.firstWhere(
+          (call) => call.key == SpanDataConvention.threadId,
+        );
+        final threadNameCall = span.setDataCalls.firstWhere(
+          (call) => call.key == SpanDataConvention.threadName,
+        );
 
-      expect(threadIdCall.value, equals('custom-isolate'.hashCode.toString()));
-      expect(threadNameCall.value, equals('custom-isolate'));
-    });
+        expect(
+          threadIdCall.value,
+          equals('custom-isolate'.hashCode.toString()),
+        );
+        expect(threadNameCall.value, equals('custom-isolate'));
+      },
+    );
 
     test('does not set thread info when isolate name is null', () async {
       fixture.mockHelper.setIsRootIsolate(false);
@@ -127,8 +143,9 @@ void main() {
 
       integration.call(hub, fixture.options);
       // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanStart(span));
+      await fixture.options.lifecycleRegistry.dispatchCallback(
+        OnSpanStart(span),
+      );
 
       // When isolate name is null, no thread data should be set
       expect(span.setDataCalls, isEmpty);
@@ -144,8 +161,9 @@ void main() {
 
       integration.call(hub, fixture.options);
       // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanStart(span));
+      await fixture.options.lifecycleRegistry.dispatchCallback(
+        OnSpanStart(span),
+      );
 
       // When isolate name is empty, no thread data should be set
       expect(span.setDataCalls, isEmpty);
@@ -164,8 +182,9 @@ void main() {
 
       integration.call(hub, fixture.options);
       // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanStart(span));
+      await fixture.options.lifecycleRegistry.dispatchCallback(
+        OnSpanStart(span),
+      );
 
       // Should not add any thread data when tracing is disabled
       expect(span.setDataCalls, isEmpty);
@@ -173,58 +192,65 @@ void main() {
   });
 
   group('OnSpanFinish sync processing', () {
-    test('sets blocked_main_thread when sync span finishes on main isolate',
-        () async {
-      fixture.mockHelper.setIsRootIsolate(true);
+    test(
+      'sets blocked_main_thread when sync span finishes on main isolate',
+      () async {
+        fixture.mockHelper.setIsRootIsolate(true);
 
-      final hub = fixture.createHub();
-      final integration = fixture.getSut();
-      final span = fixture.createMockSpanWithData({
-        'sync': true,
-        SpanDataConvention.threadName: 'main',
-      });
+        final hub = fixture.createHub();
+        final integration = fixture.getSut();
+        final span = fixture.createMockSpanWithData({
+          'sync': true,
+          SpanDataConvention.threadName: 'main',
+        });
 
-      integration.call(hub, fixture.options);
-      // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanFinish(span));
+        integration.call(hub, fixture.options);
+        // ignore: invalid_use_of_internal_member
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnSpanFinish(span),
+        );
 
-      final setDataCalls = span.setDataCalls;
-      expect(setDataCalls.length, equals(1));
+        final setDataCalls = span.setDataCalls;
+        expect(setDataCalls.length, equals(1));
 
-      final blockedMainThreadCall = setDataCalls.firstWhere(
-          (call) => call.key == SpanDataConvention.blockedMainThread);
-      expect(blockedMainThreadCall.value, equals(true));
+        final blockedMainThreadCall = setDataCalls.firstWhere(
+          (call) => call.key == SpanDataConvention.blockedMainThread,
+        );
+        expect(blockedMainThreadCall.value, equals(true));
 
-      // Check that sync was removed
-      expect(span.removeDataCalls.length, equals(1));
-      expect(span.removeDataCalls.first.key, equals('sync'));
-    });
+        // Check that sync was removed
+        expect(span.removeDataCalls.length, equals(1));
+        expect(span.removeDataCalls.first.key, equals('sync'));
+      },
+    );
 
     test(
-        'does not set blocked_main_thread when sync span finishes on background isolate',
-        () async {
-      final hub = fixture.createHub();
-      final integration = fixture.getSut();
-      final span = fixture.createMockSpanWithData({
-        'sync': true,
-        SpanDataConvention.threadName: 'worker-thread',
-      });
+      'does not set blocked_main_thread when sync span finishes on background isolate',
+      () async {
+        final hub = fixture.createHub();
+        final integration = fixture.getSut();
+        final span = fixture.createMockSpanWithData({
+          'sync': true,
+          SpanDataConvention.threadName: 'worker-thread',
+        });
 
-      integration.call(hub, fixture.options);
-      // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanFinish(span));
+        integration.call(hub, fixture.options);
+        // ignore: invalid_use_of_internal_member
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnSpanFinish(span),
+        );
 
-      // Should not set blocked_main_thread
-      final blockedMainThreadCalls = span.setDataCalls
-          .where((call) => call.key == SpanDataConvention.blockedMainThread);
-      expect(blockedMainThreadCalls, isEmpty);
+        // Should not set blocked_main_thread
+        final blockedMainThreadCalls = span.setDataCalls.where(
+          (call) => call.key == SpanDataConvention.blockedMainThread,
+        );
+        expect(blockedMainThreadCalls, isEmpty);
 
-      // But should still remove sync
-      expect(span.removeDataCalls.length, equals(1));
-      expect(span.removeDataCalls.first.key, equals('sync'));
-    });
+        // But should still remove sync
+        expect(span.removeDataCalls.length, equals(1));
+        expect(span.removeDataCalls.first.key, equals('sync'));
+      },
+    );
 
     test('does not process spans without sync data', () async {
       final hub = fixture.createHub();
@@ -235,8 +261,9 @@ void main() {
 
       integration.call(hub, fixture.options);
       // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanFinish(span));
+      await fixture.options.lifecycleRegistry.dispatchCallback(
+        OnSpanFinish(span),
+      );
 
       // Should not add any data or remove anything
       expect(span.setDataCalls, isEmpty);
@@ -253,12 +280,14 @@ void main() {
 
       integration.call(hub, fixture.options);
       // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanFinish(span));
+      await fixture.options.lifecycleRegistry.dispatchCallback(
+        OnSpanFinish(span),
+      );
 
       // Should not set blocked_main_thread (sync is false)
-      final blockedMainThreadCalls = span.setDataCalls
-          .where((call) => call.key == SpanDataConvention.blockedMainThread);
+      final blockedMainThreadCalls = span.setDataCalls.where(
+        (call) => call.key == SpanDataConvention.blockedMainThread,
+      );
       expect(blockedMainThreadCalls, isEmpty);
 
       // But should still remove sync
@@ -266,26 +295,30 @@ void main() {
       expect(span.removeDataCalls.first.key, equals('sync'));
     });
 
-    test('does not set blocked_main_thread when sync span has no thread name',
-        () async {
-      final hub = fixture.createHub();
-      final integration = fixture.getSut();
-      final span = fixture.createMockSpanWithData({'sync': true});
+    test(
+      'does not set blocked_main_thread when sync span has no thread name',
+      () async {
+        final hub = fixture.createHub();
+        final integration = fixture.getSut();
+        final span = fixture.createMockSpanWithData({'sync': true});
 
-      integration.call(hub, fixture.options);
-      // ignore: invalid_use_of_internal_member
-      await fixture.options.lifecycleRegistry
-          .dispatchCallback(OnSpanFinish(span));
+        integration.call(hub, fixture.options);
+        // ignore: invalid_use_of_internal_member
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnSpanFinish(span),
+        );
 
-      // Should not set blocked_main_thread (no thread name)
-      final blockedMainThreadCalls = span.setDataCalls
-          .where((call) => call.key == SpanDataConvention.blockedMainThread);
-      expect(blockedMainThreadCalls, isEmpty);
+        // Should not set blocked_main_thread (no thread name)
+        final blockedMainThreadCalls = span.setDataCalls.where(
+          (call) => call.key == SpanDataConvention.blockedMainThread,
+        );
+        expect(blockedMainThreadCalls, isEmpty);
 
-      // But should still remove sync
-      expect(span.removeDataCalls.length, equals(1));
-      expect(span.removeDataCalls.first.key, equals('sync'));
-    });
+        // But should still remove sync
+        expect(span.removeDataCalls.length, equals(1));
+        expect(span.removeDataCalls.first.key, equals('sync'));
+      },
+    );
   });
 }
 

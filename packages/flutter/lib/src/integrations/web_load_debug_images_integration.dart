@@ -6,7 +6,8 @@ import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 
 Integration<SentryFlutterOptions> createLoadDebugImagesIntegration(
-    SentryNativeBinding native) {
+  SentryNativeBinding native,
+) {
   return LoadWebDebugImagesIntegration(native);
 }
 
@@ -20,9 +21,7 @@ class LoadWebDebugImagesIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
-    options.addEventProcessor(
-      _LoadDebugIdEventProcessor(_native),
-    );
+    options.addEventProcessor(_LoadDebugIdEventProcessor(_native));
     options.sdk.addIntegration(integrationName);
   }
 }

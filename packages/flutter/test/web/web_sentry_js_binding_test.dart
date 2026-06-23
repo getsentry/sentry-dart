@@ -23,20 +23,21 @@ void main() {
     });
 
     test(
-        'getFilenameToDebugIdMap returns the cached result on subsequent calls',
-        () async {
-      final sut = await fixture.getSut();
-      sut.init({});
-      _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
+      'getFilenameToDebugIdMap returns the cached result on subsequent calls',
+      () async {
+        final sut = await fixture.getSut();
+        sut.init({});
+        _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
 
-      final firstResult = sut.getFilenameToDebugIdMap();
-      final cachedResult = sut.filenameToDebugIds;
-      final secondResult = sut.getFilenameToDebugIdMap();
+        final firstResult = sut.getFilenameToDebugIdMap();
+        final cachedResult = sut.filenameToDebugIds;
+        final secondResult = sut.getFilenameToDebugIdMap();
 
-      expect(firstResult, isNotNull);
-      expect(firstResult, cachedResult);
-      expect(secondResult, cachedResult);
-    });
+        expect(firstResult, isNotNull);
+        expect(firstResult, cachedResult);
+        expect(secondResult, cachedResult);
+      },
+    );
 
     test('sets the JS SDK name for native JS errors', () async {
       final sut = await fixture.getSut();
@@ -65,7 +66,8 @@ void main() {
         }
         if (!event.isA<JSObject>()) {
           completeFailure(
-              'beforeSendEvent callback received a non-JSObject event.');
+            'beforeSendEvent callback received a non-JSObject event.',
+          );
           return;
         }
 
@@ -73,28 +75,32 @@ void main() {
         final exception = eventMap['exception'];
         if (exception is! Map) {
           completeFailure(
-              "beforeSendEvent event is missing an 'exception' map.");
+            "beforeSendEvent event is missing an 'exception' map.",
+          );
           return;
         }
 
         final values = exception['values'];
         if (values is! List || values.isEmpty) {
           completeFailure(
-              "beforeSendEvent event exception map is missing a non-empty 'values' list.");
+            "beforeSendEvent event exception map is missing a non-empty 'values' list.",
+          );
           return;
         }
 
         final firstValue = values.first;
         if (firstValue is! Map) {
           completeFailure(
-              "beforeSendEvent event exception values first item is not a map.");
+            "beforeSendEvent event exception values first item is not a map.",
+          );
           return;
         }
 
         final value = firstValue['value'];
         if (value == null) {
           completeFailure(
-              "beforeSendEvent event is missing exception 'value'.");
+            "beforeSendEvent event is missing exception 'value'.",
+          );
           return;
         }
 
@@ -110,12 +116,15 @@ void main() {
       client.on('beforeSendEvent'.toJS, beforeSendEventCallback);
 
       final sentry = _globalThis['Sentry'] as JSObject?;
-      final jsError =
-          _globalThis.callMethod('Error'.toJS, expectedMessage.toJS);
+      final jsError = _globalThis.callMethod(
+        'Error'.toJS,
+        expectedMessage.toJS,
+      );
       sentry!.callMethod('captureException'.toJS, jsError);
 
-      final processedEvent =
-          await interceptedEvent.future.timeout(const Duration(seconds: 5));
+      final processedEvent = await interceptedEvent.future.timeout(
+        const Duration(seconds: 5),
+      );
       final sdk = processedEvent['sdk'] as Map<dynamic, dynamic>?;
       final exception = processedEvent['exception'] as Map<dynamic, dynamic>?;
       final values = exception?['values'] as List<dynamic>?;

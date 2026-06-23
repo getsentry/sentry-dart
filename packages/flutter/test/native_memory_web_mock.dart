@@ -10,23 +10,24 @@ class NativeMemory {
   const NativeMemory._(this.pointer, this.length);
 
   factory NativeMemory.fromByteData(ByteData source) {
-    return NativeMemory._(Pointer<Uint8>._store(source.buffer.asUint8List()),
-        source.lengthInBytes);
+    return NativeMemory._(
+      Pointer<Uint8>._store(source.buffer.asUint8List()),
+      source.lengthInBytes,
+    );
   }
 
   factory NativeMemory.fromJson(Map<dynamic, dynamic> json) {
     return NativeMemory._(
-        Pointer<Uint8>._load(json['address'] as int), json['length'] as int);
+      Pointer<Uint8>._load(json['address'] as int),
+      json['length'] as int,
+    );
   }
 
   void free() {}
 
   Uint8List asTypedList() => _memory[pointer.address]!;
 
-  Map<String, int> toJson() => {
-        'address': pointer.address,
-        'length': length,
-      };
+  Map<String, int> toJson() => {'address': pointer.address, 'length': length};
 }
 
 class Pointer<T> {

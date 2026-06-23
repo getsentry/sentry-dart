@@ -22,7 +22,7 @@ void main() {
   for (var mockPlatform in [
     MockPlatform.android(),
     MockPlatform.iOS(),
-    MockPlatform.macOS()
+    MockPlatform.macOS(),
   ]) {
     group('$SentryNativeBinding', () {
       late SentryNativeBinding sut;
@@ -42,14 +42,15 @@ void main() {
           expect(() => sut.fetchNativeAppStart(), matcher);
           verifyZeroInteractions(channel);
         } else {
-          when(channel.invokeMethod('fetchNativeAppStart'))
-              .thenAnswer((_) async => {
-                    'pluginRegistrationTime': 1,
-                    'appStartTime': 1,
-                    'isColdStart': true,
-                    // ignore: inference_failure_on_collection_literal
-                    'nativeSpanTimes': {},
-                  });
+          when(channel.invokeMethod('fetchNativeAppStart')).thenAnswer(
+            (_) async => {
+              'pluginRegistrationTime': 1,
+              'appStartTime': 1,
+              'isColdStart': true,
+              // ignore: inference_failure_on_collection_literal
+              'nativeSpanTimes': {},
+            },
+          );
 
           final actual = await sut.fetchNativeAppStart();
 
@@ -64,14 +65,15 @@ void main() {
           expect(() => sut.fetchNativeAppStart(), matcher);
           verifyZeroInteractions(channel);
         } else {
-          when(channel.invokeMethod('fetchNativeAppStart'))
-              .thenAnswer((_) async => {
-                    'pluginRegistrationTime': 'invalid',
-                    'appStartTime': 'invalid',
-                    'isColdStart': 'invalid',
-                    // ignore: inference_failure_on_collection_literal
-                    'nativeSpanTimes': 'invalid',
-                  });
+          when(channel.invokeMethod('fetchNativeAppStart')).thenAnswer(
+            (_) async => {
+              'pluginRegistrationTime': 'invalid',
+              'appStartTime': 'invalid',
+              'isColdStart': 'invalid',
+              // ignore: inference_failure_on_collection_literal
+              'nativeSpanTimes': 'invalid',
+            },
+          );
 
           final actual = await sut.fetchNativeAppStart();
 
@@ -86,10 +88,7 @@ void main() {
           expect(() => sut.setUser(user), matcher);
           verifyZeroInteractions(channel);
         } else {
-          final user = SentryUser(
-            id: "fixture-id",
-            data: {'object': Object()},
-          );
+          final user = SentryUser(id: "fixture-id", data: {'object': Object()});
           final normalizedUser = SentryUser(
             id: user.id,
             username: user.username,
@@ -103,14 +102,15 @@ void main() {
             // ignore: invalid_use_of_internal_member
             unknown: user.unknown,
           );
-          when(channel
-                  .invokeMethod('setUser', {'user': normalizedUser.toJson()}))
-              .thenAnswer((_) => Future.value());
+          when(
+            channel.invokeMethod('setUser', {'user': normalizedUser.toJson()}),
+          ).thenAnswer((_) => Future.value());
 
           await sut.setUser(user);
 
-          verify(channel
-              .invokeMethod('setUser', {'user': normalizedUser.toJson()}));
+          verify(
+            channel.invokeMethod('setUser', {'user': normalizedUser.toJson()}),
+          );
         }
       });
 
@@ -121,9 +121,7 @@ void main() {
           expect(() => sut.addBreadcrumb(breadcrumb), matcher);
           verifyZeroInteractions(channel);
         } else {
-          final breadcrumb = Breadcrumb(
-            data: {'object': Object()},
-          );
+          final breadcrumb = Breadcrumb(data: {'object': Object()});
           final normalizedBreadcrumb = Breadcrumb(
             message: breadcrumb.message,
             category: breadcrumb.category,
@@ -134,14 +132,19 @@ void main() {
             // ignore: invalid_use_of_internal_member
             unknown: breadcrumb.unknown,
           );
-          when(channel.invokeMethod('addBreadcrumb', {
-            'breadcrumb': normalizedBreadcrumb.toJson()
-          })).thenAnswer((_) => Future.value());
+          when(
+            channel.invokeMethod('addBreadcrumb', {
+              'breadcrumb': normalizedBreadcrumb.toJson(),
+            }),
+          ).thenAnswer((_) => Future.value());
 
           await sut.addBreadcrumb(breadcrumb);
 
-          verify(channel.invokeMethod(
-              'addBreadcrumb', {'breadcrumb': normalizedBreadcrumb.toJson()}));
+          verify(
+            channel.invokeMethod('addBreadcrumb', {
+              'breadcrumb': normalizedBreadcrumb.toJson(),
+            }),
+          );
         }
       });
 
@@ -151,8 +154,9 @@ void main() {
           expect(() => sut.clearBreadcrumbs(), matcher);
           verifyZeroInteractions(channel);
         } else {
-          when(channel.invokeMethod('clearBreadcrumbs'))
-              .thenAnswer((_) => Future.value());
+          when(
+            channel.invokeMethod('clearBreadcrumbs'),
+          ).thenAnswer((_) => Future.value());
 
           await sut.clearBreadcrumbs();
 
@@ -163,21 +167,29 @@ void main() {
       test('setContexts', () async {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
-          expect(() => sut.setContexts('fixture-key', <String, dynamic>{}),
-              matcher);
+          expect(
+            () => sut.setContexts('fixture-key', <String, dynamic>{}),
+            matcher,
+          );
           verifyZeroInteractions(channel);
         } else {
           final value = {'object': Object()};
           final normalizedValue = normalize(value);
-          when(channel.invokeMethod('setContexts', {
-            'key': 'fixture-key',
-            'value': normalizedValue
-          })).thenAnswer((_) => Future.value());
+          when(
+            channel.invokeMethod('setContexts', {
+              'key': 'fixture-key',
+              'value': normalizedValue,
+            }),
+          ).thenAnswer((_) => Future.value());
 
           await sut.setContexts('fixture-key', value);
 
-          verify(channel.invokeMethod(
-              'setContexts', {'key': 'fixture-key', 'value': normalizedValue}));
+          verify(
+            channel.invokeMethod('setContexts', {
+              'key': 'fixture-key',
+              'value': normalizedValue,
+            }),
+          );
         }
       });
 
@@ -187,13 +199,15 @@ void main() {
           expect(() => sut.removeContexts('fixture-key'), matcher);
           verifyZeroInteractions(channel);
         } else {
-          when(channel.invokeMethod('removeContexts', {'key': 'fixture-key'}))
-              .thenAnswer((_) => Future.value());
+          when(
+            channel.invokeMethod('removeContexts', {'key': 'fixture-key'}),
+          ).thenAnswer((_) => Future.value());
 
           await sut.removeContexts('fixture-key');
 
           verify(
-              channel.invokeMethod('removeContexts', {'key': 'fixture-key'}));
+            channel.invokeMethod('removeContexts', {'key': 'fixture-key'}),
+          );
         }
       });
 
@@ -201,19 +215,28 @@ void main() {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
           expect(
-              () => sut.setExtra('fixture-key', <String, dynamic>{}), matcher);
+            () => sut.setExtra('fixture-key', <String, dynamic>{}),
+            matcher,
+          );
           verifyZeroInteractions(channel);
         } else {
           final value = {'object': Object()};
           final normalizedValue = normalize(value);
-          when(channel.invokeMethod(
-                  'setExtra', {'key': 'fixture-key', 'value': normalizedValue}))
-              .thenAnswer((_) => Future.value());
+          when(
+            channel.invokeMethod('setExtra', {
+              'key': 'fixture-key',
+              'value': normalizedValue,
+            }),
+          ).thenAnswer((_) => Future.value());
 
           await sut.setExtra('fixture-key', value);
 
-          verify(channel.invokeMethod(
-              'setExtra', {'key': 'fixture-key', 'value': normalizedValue}));
+          verify(
+            channel.invokeMethod('setExtra', {
+              'key': 'fixture-key',
+              'value': normalizedValue,
+            }),
+          );
         }
       });
 
@@ -223,8 +246,9 @@ void main() {
           expect(() => sut.removeExtra('fixture-key'), matcher);
           verifyZeroInteractions(channel);
         } else {
-          when(channel.invokeMethod('removeExtra', {'key': 'fixture-key'}))
-              .thenAnswer((_) => Future.value());
+          when(
+            channel.invokeMethod('removeExtra', {'key': 'fixture-key'}),
+          ).thenAnswer((_) => Future.value());
 
           await sut.removeExtra('fixture-key');
 
@@ -238,14 +262,21 @@ void main() {
           expect(() => sut.setTag('fixture-key', 'fixture-value'), matcher);
           verifyZeroInteractions(channel);
         } else {
-          when(channel.invokeMethod(
-                  'setTag', {'key': 'fixture-key', 'value': 'fixture-value'}))
-              .thenAnswer((_) => Future.value());
+          when(
+            channel.invokeMethod('setTag', {
+              'key': 'fixture-key',
+              'value': 'fixture-value',
+            }),
+          ).thenAnswer((_) => Future.value());
 
           await sut.setTag('fixture-key', 'fixture-value');
 
-          verify(channel.invokeMethod(
-              'setTag', {'key': 'fixture-key', 'value': 'fixture-value'}));
+          verify(
+            channel.invokeMethod('setTag', {
+              'key': 'fixture-key',
+              'value': 'fixture-value',
+            }),
+          );
         }
       });
 
@@ -255,8 +286,9 @@ void main() {
           expect(() => sut.removeTag('fixture-key'), matcher);
           verifyZeroInteractions(channel);
         } else {
-          when(channel.invokeMethod('removeTag', {'key': 'fixture-key'}))
-              .thenAnswer((_) => Future.value());
+          when(
+            channel.invokeMethod('removeTag', {'key': 'fixture-key'}),
+          ).thenAnswer((_) => Future.value());
 
           await sut.removeTag('fixture-key');
 
@@ -270,13 +302,21 @@ void main() {
           matcher = _nativeUnavailableMatcher(throwUnsupported: true);
         } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
           if (Platform().isMacOS) {
-            matcher = throwsA(predicate((e) =>
-                e is Exception &&
-                e.toString().contains('Failed to load Objective-C class')));
+            matcher = throwsA(
+              predicate(
+                (e) =>
+                    e is Exception &&
+                    e.toString().contains('Failed to load Objective-C class'),
+              ),
+            );
           } else {
-            matcher = throwsA(predicate((e) =>
-                e is ArgumentError &&
-                e.toString().contains('Failed to lookup symbol')));
+            matcher = throwsA(
+              predicate(
+                (e) =>
+                    e is ArgumentError &&
+                    e.toString().contains('Failed to lookup symbol'),
+              ),
+            );
           }
         }
         expect(() => sut.startProfiler(SentryId.newId()), matcher);
@@ -291,8 +331,9 @@ void main() {
           verifyZeroInteractions(channel);
         } else {
           final traceId = SentryId.newId();
-          when(channel.invokeMethod('discardProfiler', traceId.toString()))
-              .thenAnswer((_) async {});
+          when(
+            channel.invokeMethod('discardProfiler', traceId.toString()),
+          ).thenAnswer((_) async {});
 
           await sut.discardProfiler(traceId);
 
@@ -304,25 +345,31 @@ void main() {
         if (mockPlatform.isAndroid) {
           final traceId = SentryId.newId();
           expect(
-              () => sut.collectProfile(traceId, 42, 50), throwsAssertionError);
+            () => sut.collectProfile(traceId, 42, 50),
+            throwsAssertionError,
+          );
           verifyZeroInteractions(channel);
         } else {
           final traceId = SentryId.newId();
           const startTime = 42;
           const endTime = 50;
-          when(channel.invokeMethod('collectProfile', {
-            'traceId': traceId.toString(),
-            'startTime': startTime,
-            'endTime': endTime,
-          })).thenAnswer((_) async => {});
+          when(
+            channel.invokeMethod('collectProfile', {
+              'traceId': traceId.toString(),
+              'startTime': startTime,
+              'endTime': endTime,
+            }),
+          ).thenAnswer((_) async => {});
 
           await sut.collectProfile(traceId, startTime, endTime);
 
-          verify(channel.invokeMethod('collectProfile', {
-            'traceId': traceId.toString(),
-            'startTime': startTime,
-            'endTime': endTime,
-          }));
+          verify(
+            channel.invokeMethod('collectProfile', {
+              'traceId': traceId.toString(),
+              'startTime': startTime,
+              'endTime': endTime,
+            }),
+          );
         }
       });
 
@@ -340,9 +387,10 @@ void main() {
 
           late Uint8List captured;
           when(channel.invokeMethod('captureEnvelope', any)).thenAnswer(
-              (invocation) async => {
-                    captured = invocation.positionalArguments[1][0] as Uint8List
-                  });
+            (invocation) async => {
+              captured = invocation.positionalArguments[1][0] as Uint8List,
+            },
+          );
 
           await sut.captureEnvelope(data, false);
 
@@ -356,11 +404,12 @@ void main() {
           expect(() => sut.loadContexts(), matcher);
           verifyZeroInteractions(channel);
         } else {
-          when(channel.invokeMethod('loadContexts'))
-              .thenAnswer((invocation) async => {
-                    'foo': [1, 2, 3],
-                    'bar': {'a': 'b'},
-                  });
+          when(channel.invokeMethod('loadContexts')).thenAnswer(
+            (invocation) async => {
+              'foo': [1, 2, 3],
+              'bar': {'a': 'b'},
+            },
+          );
 
           final data = await sut.loadContexts();
 
@@ -375,7 +424,9 @@ void main() {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
           expect(
-              () => sut.loadDebugImages(SentryStackTrace(frames: [])), matcher);
+            () => sut.loadDebugImages(SentryStackTrace(frames: [])),
+            matcher,
+          );
           verifyZeroInteractions(channel);
         } else {
           final json = [
@@ -386,12 +437,13 @@ void main() {
               'image_size': 3092480,
               'type': 'elf',
               'debug_id': 'e77c5713-5311-28c2-ecf0-eb73fc39f450',
-              'debug_file': 'test'
-            }
+              'debug_file': 'test',
+            },
           ];
 
-          when(channel.invokeMethod('loadImageList', any))
-              .thenAnswer((invocation) async => json);
+          when(
+            channel.invokeMethod('loadImageList', any),
+          ).thenAnswer((invocation) async => json);
 
           final data = await sut.loadDebugImages(SentryStackTrace(frames: []));
 
@@ -405,8 +457,9 @@ void main() {
 
           verifyZeroInteractions(channel);
         } else {
-          when(channel.invokeMethod('pauseAppHangTracking'))
-              .thenAnswer((_) => Future.value());
+          when(
+            channel.invokeMethod('pauseAppHangTracking'),
+          ).thenAnswer((_) => Future.value());
 
           await sut.pauseAppHangTracking();
 
@@ -419,8 +472,9 @@ void main() {
           expect(() => sut.resumeAppHangTracking(), throwsAssertionError);
           verifyZeroInteractions(channel);
         } else {
-          when(channel.invokeMethod('resumeAppHangTracking'))
-              .thenAnswer((_) => Future.value());
+          when(
+            channel.invokeMethod('resumeAppHangTracking'),
+          ).thenAnswer((_) => Future.value());
 
           await sut.resumeAppHangTracking();
 
@@ -434,8 +488,9 @@ void main() {
           expect(() => sut.nativeCrash(), matcher);
           verifyZeroInteractions(channel);
         } else {
-          when(channel.invokeMethod('nativeCrash'))
-              .thenAnswer((_) => Future.value());
+          when(
+            channel.invokeMethod('nativeCrash'),
+          ).thenAnswer((_) => Future.value());
 
           await sut.nativeCrash();
 
@@ -445,19 +500,21 @@ void main() {
 
       test('setReplayConfig', () async {
         final config = ReplayConfig(
-            windowWidth: 110,
-            windowHeight: 220,
-            width: 1.1,
-            height: 2.2,
-            frameRate: 3);
+          windowWidth: 110,
+          windowHeight: 220,
+          width: 1.1,
+          height: 2.2,
+          frameRate: 3,
+        );
 
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
           expect(() => sut.setReplayConfig(config), matcher);
           verifyZeroInteractions(channel);
         } else {
-          when(channel.invokeMethod('setReplayConfig', any))
-              .thenAnswer((_) => Future.value());
+          when(
+            channel.invokeMethod('setReplayConfig', any),
+          ).thenAnswer((_) => Future.value());
 
           await sut.setReplayConfig(config);
 
@@ -473,8 +530,9 @@ void main() {
         } else {
           final sentryId = SentryId.newId();
 
-          when(channel.invokeMethod('captureReplay', any))
-              .thenAnswer((_) => Future.value(sentryId.toString()));
+          when(
+            channel.invokeMethod('captureReplay', any),
+          ).thenAnswer((_) => Future.value(sentryId.toString()));
 
           final returnedId = await sut.captureReplay();
 
@@ -508,14 +566,17 @@ void main() {
     late MockMethodChannel channel;
 
     Future<Map<String, dynamic>> callInitAndCaptureArgs(
-        SentryFlutterOptions options) async {
-      when(channel.invokeMethod('initNativeSdk', any))
-          .thenAnswer((_) => Future.value());
+      SentryFlutterOptions options,
+    ) async {
+      when(
+        channel.invokeMethod('initNativeSdk', any),
+      ).thenAnswer((_) => Future.value());
 
       await sut.init(MockHub());
 
-      final captured =
-          verify(channel.invokeMethod('initNativeSdk', captureAny)).captured;
+      final captured = verify(
+        channel.invokeMethod('initNativeSdk', captureAny),
+      ).captured;
       return captured.first as Map<String, dynamic>;
     }
 
@@ -536,63 +597,68 @@ void main() {
     });
 
     test(
-        'uses captureFailedRequests when captureNativeFailedRequests is null (backwards compatibility)',
-        () async {
-      final options = defaultTestOptions()
-        ..platform = MockPlatform.iOS()
-        ..methodChannel = channel
-        ..captureFailedRequests = false
-        ..captureNativeFailedRequests = null;
-      sut = createBinding(options);
+      'uses captureFailedRequests when captureNativeFailedRequests is null (backwards compatibility)',
+      () async {
+        final options = defaultTestOptions()
+          ..platform = MockPlatform.iOS()
+          ..methodChannel = channel
+          ..captureFailedRequests = false
+          ..captureNativeFailedRequests = null;
+        sut = createBinding(options);
 
-      final args = await callInitAndCaptureArgs(options);
+        final args = await callInitAndCaptureArgs(options);
 
-      expect(args['captureFailedRequests'], false);
-    });
-
-    test(
-        'uses captureNativeFailedRequests when explicitly set to true even if captureFailedRequests is false',
-        () async {
-      final options = defaultTestOptions()
-        ..platform = MockPlatform.iOS()
-        ..methodChannel = channel
-        ..captureFailedRequests = false
-        ..captureNativeFailedRequests = true;
-      sut = createBinding(options);
-
-      final args = await callInitAndCaptureArgs(options);
-
-      expect(args['captureFailedRequests'], true);
-    });
+        expect(args['captureFailedRequests'], false);
+      },
+    );
 
     test(
-        'uses captureNativeFailedRequests when explicitly set to false even if captureFailedRequests is true',
-        () async {
-      final options = defaultTestOptions()
-        ..platform = MockPlatform.iOS()
-        ..methodChannel = channel
-        ..captureFailedRequests = true
-        ..captureNativeFailedRequests = false;
-      sut = createBinding(options);
+      'uses captureNativeFailedRequests when explicitly set to true even if captureFailedRequests is false',
+      () async {
+        final options = defaultTestOptions()
+          ..platform = MockPlatform.iOS()
+          ..methodChannel = channel
+          ..captureFailedRequests = false
+          ..captureNativeFailedRequests = true;
+        sut = createBinding(options);
 
-      final args = await callInitAndCaptureArgs(options);
+        final args = await callInitAndCaptureArgs(options);
 
-      expect(args['captureFailedRequests'], false);
-    });
+        expect(args['captureFailedRequests'], true);
+      },
+    );
 
-    test('defaults to captureFailedRequests value when both use defaults',
-        () async {
-      final options = defaultTestOptions()
-        ..platform = MockPlatform.iOS()
-        ..methodChannel = channel;
-      // captureFailedRequests defaults to true
-      // captureNativeFailedRequests defaults to null
-      sut = createBinding(options);
+    test(
+      'uses captureNativeFailedRequests when explicitly set to false even if captureFailedRequests is true',
+      () async {
+        final options = defaultTestOptions()
+          ..platform = MockPlatform.iOS()
+          ..methodChannel = channel
+          ..captureFailedRequests = true
+          ..captureNativeFailedRequests = false;
+        sut = createBinding(options);
 
-      final args = await callInitAndCaptureArgs(options);
+        final args = await callInitAndCaptureArgs(options);
 
-      expect(args['captureFailedRequests'], true);
-    });
+        expect(args['captureFailedRequests'], false);
+      },
+    );
+
+    test(
+      'defaults to captureFailedRequests value when both use defaults',
+      () async {
+        final options = defaultTestOptions()
+          ..platform = MockPlatform.iOS()
+          ..methodChannel = channel;
+        // captureFailedRequests defaults to true
+        // captureNativeFailedRequests defaults to null
+        sut = createBinding(options);
+
+        final args = await callInitAndCaptureArgs(options);
+
+        expect(args['captureFailedRequests'], true);
+      },
+    );
   });
 }
 
@@ -604,7 +670,11 @@ Matcher _nativeUnavailableMatcher({bool throwUnsupported = false}) {
   if (throwUnsupported) {
     return throwsUnsupportedError;
   }
-  return throwsA(predicate((e) =>
-      e is Error &&
-      e.toString().contains('Unable to locate the helper library')));
+  return throwsA(
+    predicate(
+      (e) =>
+          e is Error &&
+          e.toString().contains('Unable to locate the helper library'),
+    ),
+  );
 }

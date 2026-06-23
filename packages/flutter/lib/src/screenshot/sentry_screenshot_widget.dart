@@ -4,8 +4,9 @@ import '../../sentry_flutter.dart';
 
 /// Key which is used to identify the [RepaintBoundary]
 @internal
-final sentryScreenshotWidgetGlobalKey =
-    GlobalKey(debugLabel: 'sentry_screenshot_widget');
+final sentryScreenshotWidgetGlobalKey = GlobalKey(
+  debugLabel: 'sentry_screenshot_widget',
+);
 
 /// You can add screenshots of [child] to crash reports by adding this widget.
 /// Ideally you are adding it around your app widget like in the following
@@ -26,23 +27,23 @@ class SentryScreenshotWidget extends StatefulWidget {
   final Widget child;
   final Hub _hub;
 
-  SentryScreenshotWidget({
-    required this.child,
-    @internal Hub? hub,
-  })  : _hub = hub ?? HubAdapter(),
-        super(key: sentryScreenshotWidgetGlobalKey);
+  SentryScreenshotWidget({required this.child, @internal Hub? hub})
+    : _hub = hub ?? HubAdapter(),
+      super(key: sentryScreenshotWidgetGlobalKey);
 
   @internal
   static void showTakeScreenshotButton() {
-    final state = sentryScreenshotWidgetGlobalKey.currentState
-        as _SentryScreenshotWidgetState?;
+    final state =
+        sentryScreenshotWidgetGlobalKey.currentState
+            as _SentryScreenshotWidgetState?;
     state?._toggleScreenshotButton(true);
   }
 
   @internal
   static void hideTakeScreenshotButton() {
-    final state = sentryScreenshotWidgetGlobalKey.currentState
-        as _SentryScreenshotWidgetState?;
+    final state =
+        sentryScreenshotWidgetGlobalKey.currentState
+            as _SentryScreenshotWidgetState?;
     state?._toggleScreenshotButton(false);
   }
 
@@ -81,9 +82,11 @@ class SentryScreenshotWidget extends StatefulWidget {
   }
 }
 
-typedef SentryScreenshotWidgetOnBuildCallback = bool Function(
-    SentryScreenshotWidgetStatus currentStatus,
-    SentryScreenshotWidgetStatus? previousStatus);
+typedef SentryScreenshotWidgetOnBuildCallback =
+    bool Function(
+      SentryScreenshotWidgetStatus currentStatus,
+      SentryScreenshotWidgetStatus? previousStatus,
+    );
 
 class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
   bool _isScreenshotButtonVisible = false;
@@ -97,9 +100,9 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
   SentryFlutterOptions? get _options =>
       // ignore: invalid_use_of_internal_member
       widget._hub.options is SentryFlutterOptions
-          // ignore: invalid_use_of_internal_member
-          ? widget._hub.options as SentryFlutterOptions?
-          : null;
+      // ignore: invalid_use_of_internal_member
+      ? widget._hub.options as SentryFlutterOptions?
+      : null;
 
   @override
   Widget build(BuildContext context) {
@@ -130,16 +133,15 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
         textDirection: textDirection,
         child: Stack(
           children: [
-            Container(
-              child: widget.child,
-            ),
+            Container(child: widget.child),
             if (_isScreenshotButtonVisible)
               PositionedDirectional(
                 end: 32,
                 bottom: 32,
                 child: ElevatedButton.icon(
                   key: const ValueKey(
-                      'sentry_screenshot_take_screenshot_button'),
+                    'sentry_screenshot_take_screenshot_button',
+                  ),
                   onPressed: () async {
                     SentryScreenshotWidget.hideTakeScreenshotButton();
                     final screenshot = await SentryFlutter.captureScreenshot();

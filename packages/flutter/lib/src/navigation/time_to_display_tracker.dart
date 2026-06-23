@@ -20,11 +20,9 @@ class TimeToDisplayTracker {
     TimeToInitialDisplayTracker? ttidTracker,
     TimeToFullDisplayTracker? ttfdTracker,
     required this.options,
-  })  : _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker(),
-        _ttfdTracker = ttfdTracker ??
-            TimeToFullDisplayTracker(
-              Duration(seconds: 30),
-            );
+  }) : _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker(),
+       _ttfdTracker =
+           ttfdTracker ?? TimeToFullDisplayTracker(Duration(seconds: 30));
 
   // The id of the currently tracked transaction
   SpanId? transactionId;
@@ -73,8 +71,10 @@ class TimeToDisplayTracker {
     }
   }
 
-  Future<void> reportFullyDisplayed(
-      {SpanId? spanId, DateTime? endTimestamp}) async {
+  Future<void> reportFullyDisplayed({
+    SpanId? spanId,
+    DateTime? endTimestamp,
+  }) async {
     if (options.enableTimeToFullDisplayTracing) {
       final reported = await _ttfdTracker.reportFullyDisplayed(
         spanId: spanId,
@@ -90,7 +90,9 @@ class TimeToDisplayTracker {
   // Cancel unfinished TTID/TTFD spans, e.g this might happen if the user navigates
   // away from the current route before TTFD or TTID is finished.
   Future<void> cancelUnfinishedSpans(
-      SentryTracer transaction, DateTime endTimestamp) async {
+    SentryTracer transaction,
+    DateTime endTimestamp,
+  ) async {
     final ttidSpan = transaction.children.firstWhereOrNull(
       (child) =>
           child.context.operation ==

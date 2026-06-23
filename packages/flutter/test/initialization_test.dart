@@ -13,17 +13,22 @@ void main() {
   void optionsInitializer(SentryFlutterOptions options) {
     // LoadReleaseIntegration throws because package_info channel is not available
     options.removeIntegration(
-        options.integrations.firstWhere((i) => i is LoadReleaseIntegration));
+      options.integrations.firstWhere((i) => i is LoadReleaseIntegration),
+    );
   }
 
   test('async re-initilization', () async {
-    await SentryFlutter.init(optionsInitializer,
-        options: defaultTestOptions()..autoInitializeNativeSdk = false);
+    await SentryFlutter.init(
+      optionsInitializer,
+      options: defaultTestOptions()..autoInitializeNativeSdk = false,
+    );
 
     await Sentry.close();
 
-    await SentryFlutter.init(optionsInitializer,
-        options: defaultTestOptions()..autoInitializeNativeSdk = false);
+    await SentryFlutter.init(
+      optionsInitializer,
+      options: defaultTestOptions()..autoInitializeNativeSdk = false,
+    );
 
     await Sentry.close();
   });

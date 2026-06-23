@@ -36,9 +36,7 @@ void main() {
       // values are changed outside of a test.
       debugBrightnessOverride = Brightness.dark;
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-      );
+      final enricher = fixture.getSut(binding: () => tester.binding);
 
       final event = await enricher.apply(SentryEvent(), Hint());
 
@@ -62,9 +60,7 @@ void main() {
       // values are changed outside of a test.
       debugBrightnessOverride = Brightness.dark;
       debugDefaultTargetPlatformOverride = TargetPlatform.android;
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-      );
+      final enricher = fixture.getSut(binding: () => tester.binding);
 
       final event = await enricher.apply(SentryEvent(), Hint());
 
@@ -77,9 +73,7 @@ void main() {
     });
 
     testWidgets('accessibility context', (WidgetTester tester) async {
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-      );
+      final enricher = fixture.getSut(binding: () => tester.binding);
 
       final event = await enricher.apply(SentryEvent(), Hint());
 
@@ -94,9 +88,7 @@ void main() {
     });
 
     testWidgets('culture context', (WidgetTester tester) async {
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-      );
+      final enricher = fixture.getSut(binding: () => tester.binding);
 
       final event = await enricher.apply(SentryEvent(), Hint());
 
@@ -107,41 +99,39 @@ void main() {
     });
 
     testWidgets(
-        'GIVEN MaterialApp WHEN setting locale and sentryNavigatorKey THEN enrich event culture with selected locale',
-        (WidgetTester tester) async {
-      GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+      'GIVEN MaterialApp WHEN setting locale and sentryNavigatorKey THEN enrich event culture with selected locale',
+      (WidgetTester tester) async {
+        GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-      await tester.pumpWidget(MaterialApp(
-        navigatorKey: navigatorKey,
-        home: Material(),
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('en', 'US'),
-          Locale('de', 'DE'),
-        ],
-        locale: const Locale('de', 'DE'),
-      ));
+        await tester.pumpWidget(
+          MaterialApp(
+            navigatorKey: navigatorKey,
+            home: Material(),
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('en', 'US'), Locale('de', 'DE')],
+            locale: const Locale('de', 'DE'),
+          ),
+        );
 
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-        optionsBuilder: (options) {
-          options.navigatorKey = navigatorKey;
-          return options;
-        },
-      );
+        final enricher = fixture.getSut(
+          binding: () => tester.binding,
+          optionsBuilder: (options) {
+            options.navigatorKey = navigatorKey;
+            return options;
+          },
+        );
 
-      final event = await enricher.apply(SentryEvent(), Hint());
+        final event = await enricher.apply(SentryEvent(), Hint());
 
-      expect(event?.contexts.culture?.locale, 'de-DE');
-    });
+        expect(event?.contexts.culture?.locale, 'de-DE');
+      },
+    );
 
     testWidgets('app context in foreground', (WidgetTester tester) async {
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-      );
+      final enricher = fixture.getSut(binding: () => tester.binding);
 
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       final event = await enricher.apply(SentryEvent(), Hint());
@@ -152,9 +142,7 @@ void main() {
     });
 
     testWidgets('app context not in foreground', (WidgetTester tester) async {
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-      );
+      final enricher = fixture.getSut(binding: () => tester.binding);
 
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
       final event = await enricher.apply(SentryEvent(), Hint());
@@ -165,9 +153,7 @@ void main() {
     });
 
     testWidgets('merge app context in foreground', (WidgetTester tester) async {
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-      );
+      final enricher = fixture.getSut(binding: () => tester.binding);
 
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
 
@@ -183,8 +169,9 @@ void main() {
       expect(app?.name, appName);
     });
 
-    testWidgets('no device when native integration is available',
-        (WidgetTester tester) async {
+    testWidgets('no device when native integration is available', (
+      WidgetTester tester,
+    ) async {
       final enricher = fixture.getSut(
         binding: () => tester.binding,
         hasNativeIntegration: true,
@@ -195,8 +182,9 @@ void main() {
       expect(event?.contexts.device, isNull);
     });
 
-    testWidgets('has device when native integration is not available',
-        (WidgetTester tester) async {
+    testWidgets('has device when native integration is not available', (
+      WidgetTester tester,
+    ) async {
       final enricher = fixture.getSut(
         binding: () => tester.binding,
         hasNativeIntegration: false,
@@ -208,14 +196,13 @@ void main() {
     });
 
     testWidgets('adds flutter runtime', (WidgetTester tester) async {
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-      );
+      final enricher = fixture.getSut(binding: () => tester.binding);
 
       final event = await enricher.apply(SentryEvent(), Hint());
 
-      final flutterRuntime = event?.contexts.runtimes
-          .firstWhere((element) => element.name == 'Flutter');
+      final flutterRuntime = event?.contexts.runtimes.firstWhere(
+        (element) => element.name == 'Flutter',
+      );
       expect(flutterRuntime?.name, 'Flutter');
       expect(flutterRuntime?.compiler, isNotNull);
     });
@@ -261,8 +248,9 @@ void main() {
         );
 
         final event = await enricher.apply(SentryEvent(), Hint());
-        final flutterRuntime = event?.contexts.runtimes
-            .firstWhere((element) => element.name == 'Flutter');
+        final flutterRuntime = event?.contexts.runtimes.firstWhere(
+          (element) => element.name == 'Flutter',
+        );
 
         expect(flutterRuntime?.name, 'Flutter');
         expect(flutterRuntime?.compiler, entry.compiler);
@@ -270,22 +258,15 @@ void main() {
     });
 
     testWidgets('adds packages', (WidgetTester tester) async {
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-      );
+      final enricher = fixture.getSut(binding: () => tester.binding);
 
       LicenseRegistry.addLicense(
-        () => Stream.fromIterable(
-          [
-            LicenseEntryWithLineBreaks(
-              [
-                'foo_package',
-                'bar_package',
-              ],
-              'Test License Text',
-            ),
-          ],
-        ),
+        () => Stream.fromIterable([
+          LicenseEntryWithLineBreaks([
+            'foo_package',
+            'bar_package',
+          ], 'Test License Text'),
+        ]),
       );
 
       final event = await enricher.apply(SentryEvent(), Hint());
@@ -303,17 +284,12 @@ void main() {
       );
 
       LicenseRegistry.addLicense(
-        () => Stream.fromIterable(
-          [
-            LicenseEntryWithLineBreaks(
-              [
-                'foo_package',
-                'bar_package',
-              ],
-              'Test License Text',
-            ),
-          ],
-        ),
+        () => Stream.fromIterable([
+          LicenseEntryWithLineBreaks([
+            'foo_package',
+            'bar_package',
+          ], 'Test License Text'),
+        ]),
       );
 
       final event = await enricher.apply(SentryEvent(), Hint());
@@ -322,22 +298,15 @@ void main() {
     });
 
     testWidgets('adds packages only once', (WidgetTester tester) async {
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-      );
+      final enricher = fixture.getSut(binding: () => tester.binding);
 
       LicenseRegistry.addLicense(
-        () => Stream.fromIterable(
-          [
-            LicenseEntryWithLineBreaks(
-              [
-                'foo_package',
-                'foo_package',
-              ],
-              'Test License Text',
-            ),
-          ],
-        ),
+        () => Stream.fromIterable([
+          LicenseEntryWithLineBreaks([
+            'foo_package',
+            'foo_package',
+          ], 'Test License Text'),
+        ]),
       );
 
       final event = await enricher.apply(SentryEvent(), Hint());
@@ -354,9 +323,7 @@ void main() {
             screenWidthPixels: 1920,
             screenDensity: 2,
           ),
-          operatingSystem: SentryOperatingSystem(
-            theme: 'dark',
-          ),
+          operatingSystem: SentryOperatingSystem(theme: 'dark'),
         ),
       );
 
@@ -390,16 +357,21 @@ void main() {
       );
     });
 
-    testWidgets('$FlutterEnricherEventProcessor gets added on init',
-        (tester) async {
+    testWidgets('$FlutterEnricherEventProcessor gets added on init', (
+      tester,
+    ) async {
       // use a mock platform so that we don't need to mock platform channels
       final sentryOptions = defaultTestOptions();
       sentryOptions.platform = MockPlatform.fuchsia(); // Without native
 
       loadTestPackage();
-      await SentryFlutter.init((options) {
-        options.dsn = fakeDsn;
-      }, appRunner: () {}, options: sentryOptions);
+      await SentryFlutter.init(
+        (options) {
+          options.dsn = fakeDsn;
+        },
+        appRunner: () {},
+        options: sentryOptions,
+      );
       await Sentry.close();
 
       final ioEnricherCount = sentryOptions.eventProcessors
@@ -408,19 +380,20 @@ void main() {
       expect(ioEnricherCount, 1);
     });
 
-    testWidgets('adds SentryNavigatorObserver.currentRouteName as app.screen',
-        (tester) async {
+    testWidgets('adds SentryNavigatorObserver.currentRouteName as app.screen', (
+      tester,
+    ) async {
       final observer = SentryNavigatorObserver();
-      final route =
-          fixture.route(RouteSettings(name: 'fixture-currentRouteName'));
+      final route = fixture.route(
+        RouteSettings(name: 'fixture-currentRouteName'),
+      );
       observer.didPush(route, null);
 
-      final eventWithContextsApp =
-          SentryEvent(contexts: Contexts(app: SentryApp()));
-
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
+      final eventWithContextsApp = SentryEvent(
+        contexts: Contexts(app: SentryApp()),
       );
+
+      final enricher = fixture.getSut(binding: () => tester.binding);
       final event = await enricher.apply(eventWithContextsApp, Hint());
 
       expect(event?.contexts.app?.viewNames, ['fixture-currentRouteName']);
@@ -453,10 +426,11 @@ class Fixture {
     }
 
     final options = defaultTestOptions(
-        platform:
-            hasNativeIntegration ? MockPlatform.iOS() : MockPlatform.fuchsia(),
-        checker: runtimeChecker)
-      ..reportPackages = reportPackages;
+      platform: hasNativeIntegration
+          ? MockPlatform.iOS()
+          : MockPlatform.fuchsia(),
+      checker: runtimeChecker,
+    )..reportPackages = reportPackages;
 
     if (platformTestData != null) {
       options.platform = platformTestData.platform;
@@ -467,9 +441,9 @@ class Fixture {
   }
 
   PageRoute<dynamic> route(RouteSettings? settings) => PageRouteBuilder<void>(
-        pageBuilder: (_, __, ___) => Container(),
-        settings: settings,
-      );
+    pageBuilder: (_, _, _) => Container(),
+    settings: settings,
+  );
 }
 
 void loadTestPackage() {

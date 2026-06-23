@@ -34,7 +34,9 @@ void main() {
 
       final scripts = fetchAllScripts();
       expect(
-          scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
+        scripts.first.src,
+        endsWith('$jsSdkVersion/bundle.tracing.min.js'),
+      );
     });
 
     test('Loads debug scripts correctly', () async {
@@ -59,44 +61,48 @@ void main() {
 
     test('Handles script loading failures', () async {
       final failingScripts = [
-        {
-          'url': 'https://invalid',
-        },
+        {'url': 'https://invalid'},
       ];
       final sut = fixture.getSut();
 
       // Modify script URL to cause failure
       expect(
-          () async => await sut.loadWebSdk(failingScripts), throwsA(anything));
+        () async => await sut.loadWebSdk(failingScripts),
+        throwsA(anything),
+      );
 
       // loading after the failure still works
       await sut.loadWebSdk(productionScripts);
 
       final scripts = fetchAllScripts();
       expect(
-          scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
+        scripts.first.src,
+        endsWith('$jsSdkVersion/bundle.tracing.min.js'),
+      );
     });
 
-    test('Handles script loading failures with automatedTestMode false',
-        () async {
-      fixture.options.automatedTestMode = false;
-      final failingScripts = [
-        {
-          'url': 'https://invalid',
-        },
-      ];
-      final sut = fixture.getSut();
+    test(
+      'Handles script loading failures with automatedTestMode false',
+      () async {
+        fixture.options.automatedTestMode = false;
+        final failingScripts = [
+          {'url': 'https://invalid'},
+        ];
+        final sut = fixture.getSut();
 
-      // Modify script URL to cause failure
-      await sut.loadWebSdk(failingScripts);
+        // Modify script URL to cause failure
+        await sut.loadWebSdk(failingScripts);
 
-      // loading after the failure still works
-      await sut.loadWebSdk(productionScripts);
+        // loading after the failure still works
+        await sut.loadWebSdk(productionScripts);
 
-      final scripts = fetchAllScripts();
-      expect(
-          scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
-    });
+        final scripts = fetchAllScripts();
+        expect(
+          scripts.first.src,
+          endsWith('$jsSdkVersion/bundle.tracing.min.js'),
+        );
+      },
+    );
 
     test('Loads sentry script as first element', () async {
       final sut = fixture.getSut();
@@ -106,8 +112,10 @@ void main() {
 
       await sut.loadWebSdk(productionScripts);
       final scriptElements = fetchAllScripts();
-      expect(scriptElements.first.src,
-          endsWith('$jsSdkVersion/bundle.tracing.min.js'));
+      expect(
+        scriptElements.first.src,
+        endsWith('$jsSdkVersion/bundle.tracing.min.js'),
+      );
     });
 
     test('Closes and cleans up resources', () async {
@@ -123,8 +131,10 @@ void main() {
       await sut.close();
 
       final afterCloseScripts = fetchAllScripts();
-      expect(afterCloseScripts.length,
-          beforeCloseScripts.length - debugScripts.length);
+      expect(
+        afterCloseScripts.length,
+        beforeCloseScripts.length - debugScripts.length,
+      );
     });
   });
 }

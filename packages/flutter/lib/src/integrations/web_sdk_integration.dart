@@ -9,7 +9,8 @@ import '../web/script_loader/sentry_script_loader.dart';
 import '../web/sentry_js_bundle.dart';
 
 Integration<SentryFlutterOptions> createSdkIntegration(
-    SentryNativeBinding native) {
+  SentryNativeBinding native,
+) {
   final scriptLoader = SentryScriptLoader();
   return WebSdkIntegration(native, scriptLoader);
 }
@@ -58,8 +59,12 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
       await _web.close();
       await _scriptLoader.close();
     } catch (error, stackTrace) {
-      _options?.log(SentryLevel.warning, '$name failed to be closed.',
-          exception: error, stackTrace: stackTrace);
+      _options?.log(
+        SentryLevel.warning,
+        '$name failed to be closed.',
+        exception: error,
+        stackTrace: stackTrace,
+      );
       if (_options?.automatedTestMode == true) {
         rethrow;
       }

@@ -10,7 +10,8 @@ class WebSessionHandler {
     // Only start new session if:
     // 1. We have a valid route change, or
     // 2. It's the initial navigation to root route
-    final shouldStartSession = (from != null && to != null && from != to) ||
+    final shouldStartSession =
+        (from != null && to != null && from != to) ||
         (from == null && to == '/');
 
     // Comment from Sentry Javascript SDK:
@@ -57,7 +58,9 @@ class WebSessionHandler {
     if (shouldUpdateAndSend) {
       final newStatus = crashed ? 'crashed' : status;
       await _native.updateSession(
-          status: newStatus, errors: errors == 0 ? 1 : errors);
+        status: newStatus,
+        errors: errors == 0 ? 1 : errors,
+      );
       await _native.captureSession();
     }
   }

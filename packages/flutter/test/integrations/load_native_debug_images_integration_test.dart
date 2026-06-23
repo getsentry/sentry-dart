@@ -19,8 +19,8 @@ void main() {
         'image_size': 3092480,
         'type': 'elf',
         'debug_id': 'e77c5713-5311-28c2-ecf0-eb73fc39f450',
-        'debug_file': 'test'
-      })
+        'debug_file': 'test',
+      }),
     ];
 
     late IntegrationTestFixture<LoadNativeDebugImagesIntegration> fixture;
@@ -28,15 +28,17 @@ void main() {
     setUp(() async {
       fixture = IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
       fixture.options.runtimeChecker = MockRuntimeChecker(isObfuscated: true);
-      when(fixture.binding.loadDebugImages(any))
-          .thenAnswer((_) async => imageList.toList());
+      when(
+        fixture.binding.loadDebugImages(any),
+      ).thenAnswer((_) async => imageList.toList());
       await fixture.registerIntegration();
     });
 
     test('adds itself to sdk.integrations', () async {
       expect(
-        fixture.options.sdk.integrations
-            .contains(LoadNativeDebugImagesIntegration.integrationName),
+        fixture.options.sdk.integrations.contains(
+          LoadNativeDebugImagesIntegration.integrationName,
+        ),
         true,
       );
     });
@@ -44,22 +46,29 @@ void main() {
     test('Native layer is not called as the event is symbolicated', () async {
       expect(fixture.options.eventProcessors.length, 1);
 
-      await fixture.hub.captureException(StateError('error'),
-          stackTrace: StackTrace.current);
+      await fixture.hub.captureException(
+        StateError('error'),
+        stackTrace: StackTrace.current,
+      );
 
       verifyNever(fixture.binding.loadDebugImages(any));
     });
 
-    test('Native layer is not called if the event has no stack traces',
-        () async {
-      await fixture.hub.captureException(StateError('error'));
+    test(
+      'Native layer is not called if the event has no stack traces',
+      () async {
+        await fixture.hub.captureException(StateError('error'));
 
-      verifyNever(fixture.binding.loadDebugImages(any));
-    });
+        verifyNever(fixture.binding.loadDebugImages(any));
+      },
+    );
 
-    test('Native layer is called because stack traces are not symbolicated',
-        () async {
-      await fixture.hub.captureException(StateError('error'), stackTrace: '''
+    test(
+      'Native layer is called because stack traces are not symbolicated',
+      () async {
+        await fixture.hub.captureException(
+          StateError('error'),
+          stackTrace: '''
       warning:  This VM has been configured to produce stack traces that violate the Dart standard.
       ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
       pid: 30930, tid: 30990, name 1.ui
@@ -68,15 +77,19 @@ void main() {
       isolate_instructions: 723d452000, vm_instructions: 723d449000
           #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
           #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
-      ''');
+      ''',
+        );
 
-      verify(fixture.binding.loadDebugImages(any)).called(1);
-    });
+        verify(fixture.binding.loadDebugImages(any)).called(1);
+      },
+    );
 
     test('Event processor adds image list to the event', () async {
       final ep = fixture.options.eventProcessors.first;
-      expect(ep.runtimeType.toString(),
-          "_LoadNativeDebugImagesIntegrationEventProcessor");
+      expect(
+        ep.runtimeType.toString(),
+        "_LoadNativeDebugImagesIntegrationEventProcessor",
+      );
       SentryEvent? event = _getEvent();
       event = await ep.apply(event, Hint());
 
@@ -107,71 +120,90 @@ void main() {
     });
   });
 
-  test('does add itself to sdk.integrations if app split debug info is true',
-      () async {
-    final fixture =
-        IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
-    fixture.options.runtimeChecker = MockRuntimeChecker(isSplitDebugInfo: true);
-    await fixture.registerIntegration();
-    expect(
-      fixture.options.sdk.integrations
-          .contains(LoadNativeDebugImagesIntegration.integrationName),
-      isTrue,
-    );
-  });
+  test(
+    'does add itself to sdk.integrations if app split debug info is true',
+    () async {
+      final fixture = IntegrationTestFixture(
+        LoadNativeDebugImagesIntegration.new,
+      );
+      fixture.options.runtimeChecker = MockRuntimeChecker(
+        isSplitDebugInfo: true,
+      );
+      await fixture.registerIntegration();
+      expect(
+        fixture.options.sdk.integrations.contains(
+          LoadNativeDebugImagesIntegration.integrationName,
+        ),
+        isTrue,
+      );
+    },
+  );
 
   test('does add itself to sdk.integrations if obfuscation is true', () async {
-    final fixture =
-        IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
+    final fixture = IntegrationTestFixture(
+      LoadNativeDebugImagesIntegration.new,
+    );
     fixture.options.runtimeChecker = MockRuntimeChecker(isObfuscated: true);
     await fixture.registerIntegration();
     expect(
-      fixture.options.sdk.integrations
-          .contains(LoadNativeDebugImagesIntegration.integrationName),
+      fixture.options.sdk.integrations.contains(
+        LoadNativeDebugImagesIntegration.integrationName,
+      ),
       isTrue,
     );
   });
 
   test(
-      'does not add itself to sdk.integrations if app obfuscation and split debug info is false',
-      () async {
-    final fixture =
-        IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
-    fixture.options.runtimeChecker = MockRuntimeChecker();
-    await fixture.registerIntegration();
-    expect(
-      fixture.options.sdk.integrations
-          .contains(LoadNativeDebugImagesIntegration.integrationName),
-      false,
-    );
-  });
+    'does not add itself to sdk.integrations if app obfuscation and split debug info is false',
+    () async {
+      final fixture = IntegrationTestFixture(
+        LoadNativeDebugImagesIntegration.new,
+      );
+      fixture.options.runtimeChecker = MockRuntimeChecker();
+      await fixture.registerIntegration();
+      expect(
+        fixture.options.sdk.integrations.contains(
+          LoadNativeDebugImagesIntegration.integrationName,
+        ),
+        false,
+      );
+    },
+  );
 
-  test('does add event processor to options if split debug info is true',
-      () async {
-    final fixture =
-        IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
-    fixture.options.runtimeChecker = MockRuntimeChecker(isSplitDebugInfo: true);
-    await fixture.registerIntegration();
-    expect(fixture.options.eventProcessors.length, 1);
-  });
+  test(
+    'does add event processor to options if split debug info is true',
+    () async {
+      final fixture = IntegrationTestFixture(
+        LoadNativeDebugImagesIntegration.new,
+      );
+      fixture.options.runtimeChecker = MockRuntimeChecker(
+        isSplitDebugInfo: true,
+      );
+      await fixture.registerIntegration();
+      expect(fixture.options.eventProcessors.length, 1);
+    },
+  );
 
   test('does add event processor to options if obfuscation is true', () async {
-    final fixture =
-        IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
+    final fixture = IntegrationTestFixture(
+      LoadNativeDebugImagesIntegration.new,
+    );
     fixture.options.runtimeChecker = MockRuntimeChecker(isObfuscated: true);
     await fixture.registerIntegration();
     expect(fixture.options.eventProcessors.length, 1);
   });
 
   test(
-      'does not add event processor to options if app obfuscation and split debug info is false',
-      () async {
-    final fixture =
-        IntegrationTestFixture(LoadNativeDebugImagesIntegration.new);
-    fixture.options.runtimeChecker = MockRuntimeChecker();
-    await fixture.registerIntegration();
-    expect(fixture.options.eventProcessors.length, 0);
-  });
+    'does not add event processor to options if app obfuscation and split debug info is false',
+    () async {
+      final fixture = IntegrationTestFixture(
+        LoadNativeDebugImagesIntegration.new,
+      );
+      fixture.options.runtimeChecker = MockRuntimeChecker();
+      await fixture.registerIntegration();
+      expect(fixture.options.eventProcessors.length, 0);
+    },
+  );
 }
 
 SentryEvent _getEvent() {

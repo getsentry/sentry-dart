@@ -49,11 +49,13 @@ class _Fixture {
       },
     );
 
-    _sut.onConfigurationChanged(ScheduledScreenshotRecorderConfig(
-      width: 1000,
-      height: 1000,
-      frameRate: 1000,
-    ));
+    _sut.onConfigurationChanged(
+      ScheduledScreenshotRecorderConfig(
+        width: 1000,
+        height: 1000,
+        frameRate: 1000,
+      ),
+    );
   }
 
   static Future<_Fixture> create(WidgetTester tester) async {
@@ -66,8 +68,10 @@ class _Fixture {
   Future<void> nextFrame(bool imageIsExpected) async {
     _completer = Completer();
     _tester.binding.scheduleFrame();
-    await _tester.pumpAndWaitUntil(_completer.future,
-        requiredToComplete: imageIsExpected);
+    await _tester.pumpAndWaitUntil(
+      _completer.future,
+      requiredToComplete: imageIsExpected,
+    );
     expect(_completer.isCompleted, imageIsExpected);
   }
 }

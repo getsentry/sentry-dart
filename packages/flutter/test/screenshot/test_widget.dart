@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-Future<Element> pumpTestElement(WidgetTester tester,
-    {List<Widget>? children}) async {
+Future<Element> pumpTestElement(
+  WidgetTester tester, {
+  List<Widget>? children,
+}) async {
   await tester.pumpWidget(
     MaterialApp(
       home: SentryWidget(
@@ -14,7 +16,8 @@ Future<Element> pumpTestElement(WidgetTester tester,
             child: Opacity(
               opacity: 0.5,
               child: Column(
-                children: children ??
+                children:
+                    children ??
                     <Widget>[
                       newImage(),
                       const Padding(
@@ -30,37 +33,45 @@ Future<Element> pumpTestElement(WidgetTester tester,
                       // Invisible widgets won't be obscured.
                       Visibility(visible: false, child: Text('Invisible text')),
                       Visibility(
-                          visible: false,
-                          child: newRichText(text: 'Invisible Rich Text')),
+                        visible: false,
+                        child: newRichText(text: 'Invisible Rich Text'),
+                      ),
                       Visibility(visible: false, child: newImage()),
                       Opacity(opacity: 0, child: Text('Invisible text')),
                       Opacity(
-                          opacity: 0,
-                          child: newRichText(text: 'Invisible Rich Text')),
+                        opacity: 0,
+                        child: newRichText(text: 'Invisible Rich Text'),
+                      ),
                       Opacity(opacity: 0, child: newImage()),
                       Offstage(offstage: true, child: Text('Offstage text')),
                       Offstage(
-                          offstage: true,
-                          child: newRichText(text: 'Offstage Rich Text')),
+                        offstage: true,
+                        child: newRichText(text: 'Offstage Rich Text'),
+                      ),
                       Offstage(offstage: true, child: newImage()),
                       Text(dummyText),
                       Material(child: TextFormField()),
                       Material(child: TextField()),
                       SizedBox(
-                          width: 100,
-                          height: 20,
-                          child: Stack(children: [
+                        width: 100,
+                        height: 20,
+                        child: Stack(
+                          children: [
                             Positioned(
-                                top: 0,
-                                left: 0,
-                                width: 50,
-                                child: Text(dummyText)),
+                              top: 0,
+                              left: 0,
+                              width: 50,
+                              child: Text(dummyText),
+                            ),
                             Positioned(
-                                top: 0,
-                                left: 0,
-                                width: 50,
-                                child: newImage(width: 500, height: 500)),
-                          ]))
+                              top: 0,
+                              left: 0,
+                              width: 50,
+                              child: newImage(width: 500, height: 500),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
               ),
             ),
@@ -83,29 +94,22 @@ final testImageData = Uint8List.fromList([
   // This comment prevents dartfmt reformatting this to single-item lines.
 ]);
 
-Image newImage({double width = 1, double height = 1}) => Image.memory(
-      testImageData,
-      width: width,
-      height: height,
-    );
+Image newImage({double width = 1, double height = 1}) =>
+    Image.memory(testImageData, width: width, height: height);
 
 CustomImageWidget newCustomImage({double width = 1, double height = 1}) =>
-    CustomImageWidget.memory(
-      testImageData,
-      width: width,
-      height: height,
-    );
+    CustomImageWidget.memory(testImageData, width: width, height: height);
 
 const dummyText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
 
 class CustomImageWidget extends Image {
   CustomImageWidget.memory(super.bytes, {super.key, super.width, super.height})
-      : super.memory();
+    : super.memory();
 }
 
 RichText newRichText({String text = 'Rich Text'}) => RichText(
-      text: TextSpan(
-        text: text,
-        style: const TextStyle(color: Colors.black, fontSize: 16),
-      ),
-    );
+  text: TextSpan(
+    text: text,
+    style: const TextStyle(color: Colors.black, fontSize: 16),
+  ),
+);

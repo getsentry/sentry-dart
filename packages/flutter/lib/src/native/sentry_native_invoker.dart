@@ -10,7 +10,9 @@ mixin SentryNativeSafeInvoker {
   SentryFlutterOptions get options;
 
   Future<T?> tryCatchAsync<T>(
-      String nativeMethodName, Future<T?> Function() fn) async {
+    String nativeMethodName,
+    Future<T?> Function() fn,
+  ) async {
     try {
       return await fn();
     } catch (error, stackTrace) {
@@ -22,8 +24,11 @@ mixin SentryNativeSafeInvoker {
     }
   }
 
-  T? tryCatchSync<T>(String nativeMethodName, T? Function() fn,
-      {void Function()? finallyFn}) {
+  T? tryCatchSync<T>(
+    String nativeMethodName,
+    T? Function() fn, {
+    void Function()? finallyFn,
+  }) {
     try {
       return fn();
     } catch (error, stackTrace) {

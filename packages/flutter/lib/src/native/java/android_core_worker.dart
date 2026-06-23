@@ -11,6 +11,7 @@ import '../utils/data_normalizer.dart';
 import '../utils/utf8_json.dart';
 import '../../utils/internal_logger.dart';
 import 'binding.dart' as native;
+import 'jni_byte_array.dart';
 
 /// Runs Android JNI work on a background isolate when available.
 class AndroidCoreWorker {
@@ -22,14 +23,14 @@ class AndroidCoreWorker {
   Worker? _worker;
 
   AndroidCoreWorker(SentryOptions options, {SpawnWorkerFn? spawn})
-      : _config = WorkerConfig(
-          debugName: 'SentryAndroidCoreWorker',
-          debug: options.debug,
-          diagnosticLevel: options.diagnosticLevel,
-          // ignore: invalid_use_of_internal_member
-          automatedTestMode: options.automatedTestMode,
-        ),
-        _spawn = spawn ?? spawnWorker;
+    : _config = WorkerConfig(
+        debugName: 'SentryAndroidCoreWorker',
+        debug: options.debug,
+        diagnosticLevel: options.diagnosticLevel,
+        // ignore: invalid_use_of_internal_member
+        automatedTestMode: options.automatedTestMode,
+      ),
+      _spawn = spawn ?? spawnWorker;
 
   @internal
   static AndroidCoreWorker Function(SentryFlutterOptions) factory =
@@ -358,80 +359,78 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
 
   @override
   FutureOr<void> onMessage(Object? msg) => _enqueue(() {
-        switch (msg) {
-          case _CaptureEnvelopeRequest request:
-            final data = request.envelopeData.materialize().asUint8List();
-            _captureEnvelope(
-              data,
-              request.containsUnhandledException,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          case _AddBreadcrumbRequest request:
-            _addBreadcrumb(
-              request.breadcrumb,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          case _ClearBreadcrumbsRequest _:
-            _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
-          case _SetUserRequest request:
-            _setUser(request.user,
-                automatedTestMode: _config.automatedTestMode);
-          case _SetContextsRequest request:
-            _setContexts(
-              request.key,
-              request.value,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          case _RemoveContextsRequest request:
-            _removeContexts(
-              request.key,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          default:
-            _unexpectedMessage(msg);
-        }
-      });
+    switch (msg) {
+      case _CaptureEnvelopeRequest request:
+        final data = request.envelopeData.materialize().asUint8List();
+        _captureEnvelope(
+          data,
+          request.containsUnhandledException,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      case _AddBreadcrumbRequest request:
+        _addBreadcrumb(
+          request.breadcrumb,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      case _ClearBreadcrumbsRequest _:
+        _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
+      case _SetUserRequest request:
+        _setUser(request.user, automatedTestMode: _config.automatedTestMode);
+      case _SetContextsRequest request:
+        _setContexts(
+          request.key,
+          request.value,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      case _RemoveContextsRequest request:
+        _removeContexts(
+          request.key,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      default:
+        _unexpectedMessage(msg);
+    }
+  });
 
   @override
   FutureOr<Object?> onRequest(Object? payload) => _enqueue<Object?>(() {
-        switch (payload) {
-          case _LoadDebugImagesRequest request:
-            return _loadDebugImageMaps(
-              request.instructionAddresses,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          case _LoadContextsRequest _:
-            return _loadContexts(automatedTestMode: _config.automatedTestMode);
-          case _AddBreadcrumbRequest request:
-            _addBreadcrumb(
-              request.breadcrumb,
-              automatedTestMode: _config.automatedTestMode,
-            );
-            return null;
-          case _ClearBreadcrumbsRequest _:
-            _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
-            return null;
-          case _SetUserRequest request:
-            _setUser(request.user,
-                automatedTestMode: _config.automatedTestMode);
-            return null;
-          case _SetContextsRequest request:
-            _setContexts(
-              request.key,
-              request.value,
-              automatedTestMode: _config.automatedTestMode,
-            );
-            return null;
-          case _RemoveContextsRequest request:
-            _removeContexts(
-              request.key,
-              automatedTestMode: _config.automatedTestMode,
-            );
-            return null;
-          default:
-            return _unexpectedPayload(payload);
-        }
-      });
+    switch (payload) {
+      case _LoadDebugImagesRequest request:
+        return _loadDebugImageMaps(
+          request.instructionAddresses,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      case _LoadContextsRequest _:
+        return _loadContexts(automatedTestMode: _config.automatedTestMode);
+      case _AddBreadcrumbRequest request:
+        _addBreadcrumb(
+          request.breadcrumb,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      case _ClearBreadcrumbsRequest _:
+        _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
+        return null;
+      case _SetUserRequest request:
+        _setUser(request.user, automatedTestMode: _config.automatedTestMode);
+        return null;
+      case _SetContextsRequest request:
+        _setContexts(
+          request.key,
+          request.value,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      case _RemoveContextsRequest request:
+        _removeContexts(
+          request.key,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      default:
+        return _unexpectedPayload(payload);
+    }
+  });
 
   /// Serializes worker actions so JNI calls run in request order.
   Future<T> _enqueue<T>(FutureOr<T> Function() action) {
@@ -511,7 +510,7 @@ void _captureEnvelope(
   JObject? id;
   JByteArray? byteArray;
   try {
-    byteArray = JByteArray.from(envelopeData);
+    byteArray = toJByteArray(envelopeData);
     id = native.InternalSentrySdk.captureEnvelope(
       byteArray,
       containsUnhandledException,
@@ -561,7 +560,7 @@ List<Map<String, dynamic>>? _loadDebugImageMaps(
       instructionAddressJStrings.add(instructionAddress.toJString());
     }
 
-    instructionAddressSet = instructionAddressJStrings.toJSet(JString.type);
+    instructionAddressSet = instructionAddressJStrings.toJSet();
 
     imagesUtf8JsonBytes = native.SentryFlutterPlugin.loadDebugImagesAsBytes(
       instructionAddressSet,
@@ -637,7 +636,7 @@ void _addBreadcrumb(
 }) {
   JByteArray? jBytes;
   try {
-    jBytes = _jsonToJByteArray(breadcrumb);
+    jBytes = jsonToJByteArray(breadcrumb);
     native.SentryFlutterPlugin.addBreadcrumbFromJsonBytes(jBytes);
   } catch (exception, stackTrace) {
     internalLogger.error(
@@ -672,10 +671,10 @@ void _setUser(Map<String, dynamic>? user, {bool automatedTestMode = false}) {
   JByteArray? jBytes;
   try {
     if (user == null) {
-      native.SentryFlutterPlugin.setUserFromJsonBytes(null);
+      native.SentryFlutterPlugin.userFromJsonBytes = null;
     } else {
-      jBytes = _jsonToJByteArray(user);
-      native.SentryFlutterPlugin.setUserFromJsonBytes(jBytes);
+      jBytes = jsonToJByteArray(user);
+      native.SentryFlutterPlugin.userFromJsonBytes = jBytes;
     }
   } catch (exception, stackTrace) {
     internalLogger.error(
@@ -696,7 +695,7 @@ void _setContexts(String key, Object? value, {bool automatedTestMode = false}) {
   JByteArray? jBytes;
   try {
     jKey = key.toJString();
-    jBytes = _jsonToJByteArray(value);
+    jBytes = jsonToJByteArray(value);
 
     native.SentryFlutterPlugin.setContextFromJsonBytes(jKey, jBytes);
   } catch (exception, stackTrace) {
@@ -732,6 +731,3 @@ void _removeContexts(String key, {bool automatedTestMode = false}) {
     jKey?.release();
   }
 }
-
-JByteArray _jsonToJByteArray(Object? value) =>
-    JByteArray.from(encodeUtf8Json(normalize(value)));

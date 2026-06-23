@@ -32,8 +32,9 @@ void main() {
         await sut.call(fixture.hub, fixture.options);
 
         expect(
-            fixture.options.sdk.integrations.contains(WebSdkIntegration.name),
-            true);
+          fixture.options.sdk.integrations.contains(WebSdkIntegration.name),
+          true,
+        );
       });
 
       test('loads scripts and initializes web', () async {
@@ -46,12 +47,9 @@ void main() {
 
     group('disabled scenarios', () {
       final disabledScenarios = [
-        _TestScenario(
-          'with autoInitializeNativeSdk=false',
-          () {
-            fixture.options.autoInitializeNativeSdk = false;
-          },
-        ),
+        _TestScenario('with autoInitializeNativeSdk=false', () {
+          fixture.options.autoInitializeNativeSdk = false;
+        }),
       ];
 
       for (final scenario in disabledScenarios) {
@@ -60,8 +58,10 @@ void main() {
 
           test('does not add integration', () async {
             await sut.call(fixture.hub, fixture.options);
-            expect(fixture.options.sdk.integrations,
-                isNot(contains(WebSdkIntegration.name)));
+            expect(
+              fixture.options.sdk.integrations,
+              isNot(contains(WebSdkIntegration.name)),
+            );
           });
 
           test('does not load scripts and initialize web', () async {
@@ -109,12 +109,16 @@ class FakeSentryScriptLoader extends SentryScriptLoader {
   int closeCalls = 0;
 
   @override
-  Future<void> loadWebSdk(List<Map<String, String>> scripts,
-      {String trustedTypePolicyName = defaultTrustedPolicyName}) {
+  Future<void> loadWebSdk(
+    List<Map<String, String>> scripts, {
+    String trustedTypePolicyName = defaultTrustedPolicyName,
+  }) {
     loadScriptsCalls += 1;
 
-    return super
-        .loadWebSdk(scripts, trustedTypePolicyName: trustedTypePolicyName);
+    return super.loadWebSdk(
+      scripts,
+      trustedTypePolicyName: trustedTypePolicyName,
+    );
   }
 
   @override

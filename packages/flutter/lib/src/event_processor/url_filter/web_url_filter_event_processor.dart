@@ -11,9 +11,7 @@ UrlFilterEventProcessor urlFilterEventProcessor(SentryFlutterOptions options) =>
     WebUrlFilterEventProcessor(options);
 
 class WebUrlFilterEventProcessor implements UrlFilterEventProcessor {
-  WebUrlFilterEventProcessor(
-    this._options,
-  );
+  WebUrlFilterEventProcessor(this._options);
 
   final web.Window _window = web.window;
   final SentryFlutterOptions _options;

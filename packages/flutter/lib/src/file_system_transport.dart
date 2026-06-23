@@ -17,7 +17,9 @@ class FileSystemTransport implements Transport {
 
     try {
       await _native.captureEnvelope(
-          envelopeData, envelope.containsUnhandledException);
+        envelopeData,
+        envelope.containsUnhandledException,
+      );
     } catch (exception, stackTrace) {
       _options.log(
         SentryLevel.error,

@@ -19,15 +19,17 @@ void main() {
       instance = TestWidgetsFlutterBinding.ensureInitialized();
     });
 
-    testWidgets('adds view hierarchy to hint only for event with exception',
-        (tester) async {
+    testWidgets('adds view hierarchy to hint only for event with exception', (
+      tester,
+    ) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(instance);
 
         await tester.pumpWidget(MyApp());
 
         final event = SentryEvent(
-            exceptions: [SentryException(type: 'type', value: 'value')]);
+          exceptions: [SentryException(type: 'type', value: 'value')],
+        );
         final hint = Hint();
 
         await sut.apply(event, hint);
@@ -36,8 +38,9 @@ void main() {
       });
     });
 
-    testWidgets('adds view hierarchy to hint only for event with throwable',
-        (tester) async {
+    testWidgets('adds view hierarchy to hint only for event with throwable', (
+      tester,
+    ) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(instance);
 
@@ -52,8 +55,9 @@ void main() {
       });
     });
 
-    testWidgets('does not add view hierarchy to hint if not an error',
-        (tester) async {
+    testWidgets('does not add view hierarchy to hint if not an error', (
+      tester,
+    ) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(instance);
 
@@ -68,8 +72,9 @@ void main() {
       });
     });
 
-    testWidgets('does not add view hierarchy if widget returns null',
-        (tester) async {
+    testWidgets('does not add view hierarchy if widget returns null', (
+      tester,
+    ) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(instance);
 
@@ -84,26 +89,31 @@ void main() {
       });
     });
 
-    testWidgets('does not add view hierarchy identifiers if opt out in options',
-        (tester) async {
-      await tester.runAsync(() async {
-        final sut =
-            fixture.getSut(instance, reportViewHierarchyIdentifiers: false);
+    testWidgets(
+      'does not add view hierarchy identifiers if opt out in options',
+      (tester) async {
+        await tester.runAsync(() async {
+          final sut = fixture.getSut(
+            instance,
+            reportViewHierarchyIdentifiers: false,
+          );
 
-        await tester.pumpWidget(MyApp());
+          await tester.pumpWidget(MyApp());
 
-        final event = SentryEvent(
-            exceptions: [SentryException(type: 'type', value: 'value')]);
-        final hint = Hint();
+          final event = SentryEvent(
+            exceptions: [SentryException(type: 'type', value: 'value')],
+          );
+          final hint = Hint();
 
-        await sut.apply(event, hint);
+          await sut.apply(event, hint);
 
-        expect(hint.viewHierarchy, isNotNull);
-        final bytes = await hint.viewHierarchy!.bytes;
-        final jsonString = utf8.decode(bytes);
-        expect(jsonString, isNot(contains('identifier')));
-      });
-    });
+          expect(hint.viewHierarchy, isNotNull);
+          final bytes = await hint.viewHierarchy!.bytes;
+          final jsonString = utf8.decode(bytes);
+          expect(jsonString, isNot(contains('identifier')));
+        });
+      },
+    );
 
     group('beforeCaptureViewHierarchy', () {
       late SentryEvent event;
@@ -128,76 +138,85 @@ void main() {
         });
       }
 
-      testWidgets('does add view hierarchy if beforeCapture returns true',
-          (tester) async {
+      testWidgets('does add view hierarchy if beforeCapture returns true', (
+        tester,
+      ) async {
         fixture.options.beforeCaptureViewHierarchy =
             (SentryEvent event, Hint hint, bool shouldDebounce) {
-          return true;
-        };
+              return true;
+            };
         await _addViewHierarchyAttachment(tester, added: true);
-      });
-
-      testWidgets('does add view hierarchy if async beforeCapture returns true',
-          (tester) async {
-        fixture.options.beforeCaptureViewHierarchy =
-            (SentryEvent event, Hint hint, bool shouldDebounce) async {
-          await Future<void>.delayed(Duration(milliseconds: 1));
-          return true;
-        };
-        await _addViewHierarchyAttachment(tester, added: true);
-      });
-
-      testWidgets('does not add view hierarchy if beforeCapture returns false',
-          (tester) async {
-        fixture.options.beforeCaptureViewHierarchy =
-            (SentryEvent event, Hint hint, bool shouldDebounce) {
-          return false;
-        };
-        await _addViewHierarchyAttachment(tester, added: false);
       });
 
       testWidgets(
-          'does not add view hierarchy if async beforeCapture returns false',
-          (tester) async {
-        fixture.options.beforeCaptureViewHierarchy =
-            (SentryEvent event, Hint hint, bool shouldDebounce) async {
-          await Future<void>.delayed(Duration(milliseconds: 1));
-          return false;
-        };
-        await _addViewHierarchyAttachment(tester, added: false);
-      });
+        'does add view hierarchy if async beforeCapture returns true',
+        (tester) async {
+          fixture.options.beforeCaptureViewHierarchy =
+              (SentryEvent event, Hint hint, bool shouldDebounce) async {
+                await Future<void>.delayed(Duration(milliseconds: 1));
+                return true;
+              };
+          await _addViewHierarchyAttachment(tester, added: true);
+        },
+      );
 
-      testWidgets('does add view hierarchy if beforeCapture throws',
-          (tester) async {
+      testWidgets(
+        'does not add view hierarchy if beforeCapture returns false',
+        (tester) async {
+          fixture.options.beforeCaptureViewHierarchy =
+              (SentryEvent event, Hint hint, bool shouldDebounce) {
+                return false;
+              };
+          await _addViewHierarchyAttachment(tester, added: false);
+        },
+      );
+
+      testWidgets(
+        'does not add view hierarchy if async beforeCapture returns false',
+        (tester) async {
+          fixture.options.beforeCaptureViewHierarchy =
+              (SentryEvent event, Hint hint, bool shouldDebounce) async {
+                await Future<void>.delayed(Duration(milliseconds: 1));
+                return false;
+              };
+          await _addViewHierarchyAttachment(tester, added: false);
+        },
+      );
+
+      testWidgets('does add view hierarchy if beforeCapture throws', (
+        tester,
+      ) async {
         fixture.options.automatedTestMode = false;
         fixture.options.beforeCaptureViewHierarchy =
             (SentryEvent event, Hint hint, bool shouldDebounce) {
-          throw Error();
-        };
+              throw Error();
+            };
         await _addViewHierarchyAttachment(tester, added: true);
       });
 
-      testWidgets('does add view hierarchy if async beforeCapture throws',
-          (tester) async {
+      testWidgets('does add view hierarchy if async beforeCapture throws', (
+        tester,
+      ) async {
         fixture.options.automatedTestMode = false;
         fixture.options.beforeCaptureViewHierarchy =
             (SentryEvent event, Hint hint, bool shouldDebounce) async {
-          await Future<void>.delayed(Duration(milliseconds: 1));
-          throw Error();
-        };
+              await Future<void>.delayed(Duration(milliseconds: 1));
+              throw Error();
+            };
         await _addViewHierarchyAttachment(tester, added: true);
       });
 
-      testWidgets('does add view hierarchy event if shouldDebounce true',
-          (tester) async {
+      testWidgets('does add view hierarchy event if shouldDebounce true', (
+        tester,
+      ) async {
         await tester.runAsync(() async {
           var shouldDebounceValues = <bool>[];
 
           fixture.options.beforeCaptureViewHierarchy =
               (SentryEvent event, Hint hint, bool shouldDebounce) {
-            shouldDebounceValues.add(shouldDebounce);
-            return true;
-          };
+                shouldDebounceValues.add(shouldDebounce);
+                return true;
+              };
 
           final sut = fixture.getSut(instance);
           await tester.pumpWidget(MyApp());
@@ -217,17 +236,18 @@ void main() {
         });
       });
 
-      testWidgets('passes event & hint to beforeCapture callback',
-          (tester) async {
+      testWidgets('passes event & hint to beforeCapture callback', (
+        tester,
+      ) async {
         SentryEvent? beforeScreenshotEvent;
         Hint? beforeScreenshotHint;
 
         fixture.options.beforeCaptureViewHierarchy =
             (SentryEvent event, Hint hint, bool shouldDebounce) {
-          beforeScreenshotEvent = event;
-          beforeScreenshotHint = hint;
-          return true;
-        };
+              beforeScreenshotEvent = event;
+              beforeScreenshotHint = hint;
+              return true;
+            };
 
         await _addViewHierarchyAttachment(tester, added: true);
 
@@ -237,8 +257,9 @@ void main() {
     });
 
     group("debounce", () {
-      testWidgets("limits added view hierarchy within debounce timeframe",
-          (tester) async {
+      testWidgets("limits added view hierarchy within debounce timeframe", (
+        tester,
+      ) async {
         // Run with real async https://stackoverflow.com/a/54021863
         await tester.runAsync(() async {
           var firstCall = true;
@@ -271,8 +292,9 @@ void main() {
         });
       });
 
-      testWidgets("adds view hierarchy after debounce timeframe",
-          (tester) async {
+      testWidgets("adds view hierarchy after debounce timeframe", (
+        tester,
+      ) async {
         // Run with real async https://stackoverflow.com/a/54021863
         await tester.runAsync(() async {
           var firstCall = true;
@@ -327,8 +349,10 @@ class TestBindingWrapper implements BindingWrapper {
 class Fixture {
   SentryFlutterOptions options = defaultTestOptions();
 
-  SentryViewHierarchyEventProcessor getSut(WidgetsBinding instance,
-      {bool reportViewHierarchyIdentifiers = true}) {
+  SentryViewHierarchyEventProcessor getSut(
+    WidgetsBinding instance, {
+    bool reportViewHierarchyIdentifiers = true,
+  }) {
     options
       ..bindingUtils = TestBindingWrapper(instance)
       ..reportViewHierarchyIdentifiers = reportViewHierarchyIdentifiers;
@@ -343,11 +367,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Welcome to Flutter',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Welcome to Flutter'),
-        ),
-      ),
+      home: Scaffold(appBar: AppBar(title: const Text('Welcome to Flutter'))),
     );
   }
 }

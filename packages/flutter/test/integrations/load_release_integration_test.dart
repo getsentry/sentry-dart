@@ -51,76 +51,81 @@ void main() {
       expect(fixture.options.dist, '789');
     });
 
-    test('release name does not contain invalid chars defined by Sentry',
-        () async {
-      final loader = () {
-        PackageInfo.setMockInitialValues(
-          appName: '\\/sentry\tflutter \r\nfoo\nbar\r',
-          packageName: '',
-          version: '1.2.3',
-          buildNumber: '789',
-          buildSignature: '',
-          installerStore: null,
-        );
-      };
-      await fixture
-          .getIntegration(loader: loader)
-          .call(MockHub(), fixture.options);
+    test(
+      'release name does not contain invalid chars defined by Sentry',
+      () async {
+        final loader = () {
+          PackageInfo.setMockInitialValues(
+            appName: '\\/sentry\tflutter \r\nfoo\nbar\r',
+            packageName: '',
+            version: '1.2.3',
+            buildNumber: '789',
+            buildSignature: '',
+            installerStore: null,
+          );
+        };
+        await fixture
+            .getIntegration(loader: loader)
+            .call(MockHub(), fixture.options);
 
-      expect(fixture.options.release, '__sentry_flutter _foo_bar_@1.2.3+789');
-      expect(fixture.options.dist, '789');
-    });
-
-    /// See the following issues:
-    /// - https://github.com/getsentry/sentry-dart/issues/410
-    /// - https://github.com/fluttercommunity/plus_plugins/issues/182
-    test('does not send Unicode NULL \\u0000 character in app name or version',
-        () async {
-      final loader = () {
-        PackageInfo.setMockInitialValues(
-          // As per
-          // https://api.dart.dev/stable/2.12.4/dart-core/String-class.html
-          // this is how \u0000 is added to a string in dart
-          appName: 'sentry_flutter_example\u{0000}',
-          packageName: '',
-          version: '1.0.0\u{0000}',
-          buildNumber: '',
-          buildSignature: '',
-          installerStore: null,
-        );
-      };
-      await fixture
-          .getIntegration(loader: loader)
-          .call(MockHub(), fixture.options);
-
-      expect(fixture.options.release, 'sentry_flutter_example@1.0.0');
-    });
+        expect(fixture.options.release, '__sentry_flutter _foo_bar_@1.2.3+789');
+        expect(fixture.options.dist, '789');
+      },
+    );
 
     /// See the following issues:
     /// - https://github.com/getsentry/sentry-dart/issues/410
     /// - https://github.com/fluttercommunity/plus_plugins/issues/182
     test(
-        'does not send Unicode NULL \\u0000 character in package name or build number',
-        () async {
-      final loader = () {
-        PackageInfo.setMockInitialValues(
-          // As per
-          // https://api.dart.dev/stable/2.12.4/dart-core/String-class.html
-          // this is how \u0000 is added to a string in dart
-          appName: '',
-          packageName: 'sentry_flutter_example\u{0000}',
-          version: '',
-          buildNumber: '123\u{0000}',
-          buildSignature: '',
-          installerStore: null,
-        );
-      };
-      await fixture
-          .getIntegration(loader: loader)
-          .call(MockHub(), fixture.options);
+      'does not send Unicode NULL \\u0000 character in app name or version',
+      () async {
+        final loader = () {
+          PackageInfo.setMockInitialValues(
+            // As per
+            // https://api.dart.dev/stable/2.12.4/dart-core/String-class.html
+            // this is how \u0000 is added to a string in dart
+            appName: 'sentry_flutter_example\u{0000}',
+            packageName: '',
+            version: '1.0.0\u{0000}',
+            buildNumber: '',
+            buildSignature: '',
+            installerStore: null,
+          );
+        };
+        await fixture
+            .getIntegration(loader: loader)
+            .call(MockHub(), fixture.options);
 
-      expect(fixture.options.release, 'sentry_flutter_example+123');
-    });
+        expect(fixture.options.release, 'sentry_flutter_example@1.0.0');
+      },
+    );
+
+    /// See the following issues:
+    /// - https://github.com/getsentry/sentry-dart/issues/410
+    /// - https://github.com/fluttercommunity/plus_plugins/issues/182
+    test(
+      'does not send Unicode NULL \\u0000 character in package name or build number',
+      () async {
+        final loader = () {
+          PackageInfo.setMockInitialValues(
+            // As per
+            // https://api.dart.dev/stable/2.12.4/dart-core/String-class.html
+            // this is how \u0000 is added to a string in dart
+            appName: '',
+            packageName: 'sentry_flutter_example\u{0000}',
+            version: '',
+            buildNumber: '123\u{0000}',
+            buildSignature: '',
+            installerStore: null,
+          );
+        };
+        await fixture
+            .getIntegration(loader: loader)
+            .call(MockHub(), fixture.options);
+
+        expect(fixture.options.release, 'sentry_flutter_example+123');
+      },
+    );
 
     test('dist is null if build number is an empty string', () async {
       final loader = () {

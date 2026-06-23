@@ -39,8 +39,9 @@ void main() {
               ? ['sentry.dll', 'crashpad_handler.exe', 'crashpad_wer.dll']
               : ['libsentry.so', 'crashpad_handler'];
         } else {
-          expectedDistFiles =
-              currentPlatform.isWindows ? ['sentry.dll'] : ['libsentry.so'];
+          expectedDistFiles = currentPlatform.isWindows
+              ? ['sentry.dll']
+              : ['libsentry.so'];
         }
 
         helper = NativeTestHelper(
@@ -70,10 +71,13 @@ void main() {
       });
 
       test('native CMake was configured with configured backend', () async {
-        final cmakeCacheTxt =
-            await File('${helper.cmakeBuildDir}/CMakeCache.txt').readAsLines();
-        expect(cmakeCacheTxt,
-            contains('SENTRY_BACKEND:STRING=${backend.actualValue.name}'));
+        final cmakeCacheTxt = await File(
+          '${helper.cmakeBuildDir}/CMakeCache.txt',
+        ).readAsLines();
+        expect(
+          cmakeCacheTxt,
+          contains('SENTRY_BACKEND:STRING=${backend.actualValue.name}'),
+        );
       });
 
       test('expected output files', () {
@@ -97,27 +101,31 @@ void main() {
         final cOptions = sut.createOptions(options);
         try {
           expect(
-              SentryNative.native
-                  .options_get_dsn(cOptions)
-                  .cast<Utf8>()
-                  .toDartString(),
-              fakeDsn);
+            SentryNative.native
+                .options_get_dsn(cOptions)
+                .cast<Utf8>()
+                .toDartString(),
+            fakeDsn,
+          );
           expect(SentryNative.native.options_get_sample_rate(cOptions), 0.25);
           expect(
-              SentryNative.native
-                  .options_get_environment(cOptions)
-                  .cast<Utf8>()
-                  .toDartString(),
-              'foo');
+            SentryNative.native
+                .options_get_environment(cOptions)
+                .cast<Utf8>()
+                .toDartString(),
+            'foo',
+          );
           expect(
-              SentryNative.native
-                  .options_get_release(cOptions)
-                  .cast<Utf8>()
-                  .toDartString(),
-              'foo@bar+1');
+            SentryNative.native
+                .options_get_release(cOptions)
+                .cast<Utf8>()
+                .toDartString(),
+            'foo@bar+1',
+          );
           expect(
-              SentryNative.native.options_get_auto_session_tracking(cOptions),
-              1);
+            SentryNative.native.options_get_auto_session_tracking(cOptions),
+            1,
+          );
           expect(SentryNative.native.options_get_max_breadcrumbs(cOptions), 42);
         } finally {
           SentryNative.native.options_free(cOptions);
@@ -125,15 +133,21 @@ void main() {
       });
 
       test('SDK version', () {
-        expect(helper.configuredSentryNativeVersion.length,
-            greaterThanOrEqualTo(5));
-        expect(SentryNative.native.sdk_version().cast<Utf8>().toDartString(),
-            helper.configuredSentryNativeVersion);
+        expect(
+          helper.configuredSentryNativeVersion.length,
+          greaterThanOrEqualTo(5),
+        );
+        expect(
+          SentryNative.native.sdk_version().cast<Utf8>().toDartString(),
+          helper.configuredSentryNativeVersion,
+        );
       });
 
       test('SDK name', () {
-        expect(SentryNative.native.sdk_name().cast<Utf8>().toDartString(),
-            'sentry.native.flutter');
+        expect(
+          SentryNative.native.sdk_name().cast<Utf8>().toDartString(),
+          'sentry.native.flutter',
+        );
       });
 
       test('init', () async {
@@ -141,27 +155,30 @@ void main() {
         await sut.init(MockHub());
       });
 
-      test('init creates native database path directory when configured',
-          () async {
-        final dbDir = Directory(
-            '${helper.nativeTestRoot}/db-${backend.actualValue.name}');
-        if (dbDir.existsSync()) {
-          dbDir.deleteSync(recursive: true);
-        }
-
-        options.nativeDatabasePath = dbDir.path;
-
-        addTearDown(() {
+      test(
+        'init creates native database path directory when configured',
+        () async {
+          final dbDir = Directory(
+            '${helper.nativeTestRoot}/db-${backend.actualValue.name}',
+          );
           if (dbDir.existsSync()) {
             dbDir.deleteSync(recursive: true);
           }
-        });
-        addTearDown(sut.close);
 
-        await sut.init(MockHub());
+          options.nativeDatabasePath = dbDir.path;
 
-        expect(dbDir.existsSync(), isTrue);
-      });
+          addTearDown(() {
+            if (dbDir.existsSync()) {
+              dbDir.deleteSync(recursive: true);
+            }
+          });
+          addTearDown(sut.close);
+
+          await sut.init(MockHub());
+
+          expect(dbDir.existsSync(), isTrue);
+        },
+      );
 
       test('app start', () {
         expect(sut.fetchNativeAppStart(), null);
@@ -186,7 +203,7 @@ void main() {
             'int64': 0x7FFFFFFF + 1,
             'boo': true,
             'inner-map': {'str': 'inner'},
-            'unsupported': Object()
+            'unsupported': Object(),
           },
         );
 
@@ -238,20 +255,26 @@ void main() {
 
       test('startProfiler', () {
         expect(
-            () => sut.startProfiler(SentryId.newId()), throwsUnsupportedError);
+          () => sut.startProfiler(SentryId.newId()),
+          throwsUnsupportedError,
+        );
       });
 
       test('discardProfiler', () async {
-        expect(() => sut.discardProfiler(SentryId.newId()),
-            throwsUnsupportedError);
+        expect(
+          () => sut.discardProfiler(SentryId.newId()),
+          throwsUnsupportedError,
+        );
       });
 
       test('collectProfile', () async {
         final traceId = SentryId.newId();
         const startTime = 42;
         const endTime = 50;
-        expect(() => sut.collectProfile(traceId, startTime, endTime),
-            throwsUnsupportedError);
+        expect(
+          () => sut.collectProfile(traceId, startTime, endTime),
+          throwsUnsupportedError,
+        );
       });
 
       test('captureEnvelope', () async {
@@ -269,16 +292,15 @@ void main() {
         expect(list![0].type, currentPlatform.isWindows ? 'pe' : 'elf');
         expect(list[0].debugId!.length, greaterThan(30));
         expect(
-            list[0].debugFile, currentPlatform.isWindows ? isNotEmpty : isNull);
+          list[0].debugFile,
+          currentPlatform.isWindows ? isNotEmpty : isNull,
+        );
         expect(list[0].imageSize, greaterThan(0));
         expect(list[0].imageAddr, startsWith('0x'));
         expect(list[0].imageAddr?.length, greaterThan(2));
         expect(list[0].codeId!.length, greaterThan(10));
         expect(list[0].codeFile, isNotEmpty);
-        expect(
-          File(list[0].codeFile!),
-          (File file) => file.existsSync(),
-        );
+        expect(File(list[0].codeFile!), (File file) => file.existsSync());
       });
     });
   }
@@ -293,8 +315,12 @@ class NativeTestHelper {
   late final cmakeConfDir = '$nativeTestRoot/conf';
   late final buildOutputDir = '$nativeTestRoot/dist/';
 
-  NativeTestHelper(this.repoRootDir, this.nativeBackend, this.expectedDistFiles,
-      this.nativeTestRoot);
+  NativeTestHelper(
+    this.repoRootDir,
+    this.nativeBackend,
+    this.expectedDistFiles,
+    this.nativeTestRoot,
+  );
 
   /// Runs [command] with command's stdout and stderr being forwrarded to
   /// test runner's respective streams. It buffers stdout and returns it.
@@ -308,8 +334,12 @@ class NativeTestHelper {
       env.remove('SENTRY_NATIVE_BACKEND');
     }
 
-    final process = await Process.start(executable, arguments,
-        environment: env, includeParentEnvironment: false);
+    final process = await Process.start(
+      executable,
+      arguments,
+      environment: env,
+      includeParentEnvironment: false,
+    );
 
     // forward standard streams
     unawaited(stderr.addStream(process.stderr));
@@ -318,7 +348,8 @@ class NativeTestHelper {
     int exitCode = await process.exitCode;
     if (exitCode != 0) {
       throw Exception(
-          "$executable ${arguments.join(' ')} failed with exit code $exitCode");
+        "$executable ${arguments.join(' ')} failed with exit code $exitCode",
+      );
     }
   }
 
@@ -346,14 +377,14 @@ install(FILES "\${PLUGIN_BUNDLED_LIBRARIES}" DESTINATION "${buildOutputDir.repla
 set(CMAKE_INSTALL_PREFIX "${buildOutputDir.replaceAll('\\', '/')}")
 ''');
       await _exec('cmake', ['-B', cmakeBuildDir, cmakeConfDir]);
-      await _exec('cmake',
-          ['--build', cmakeBuildDir, '--config', 'Release', '--parallel']);
       await _exec('cmake', [
-        '--install',
+        '--build',
         cmakeBuildDir,
         '--config',
         'Release',
+        '--parallel',
       ]);
+      await _exec('cmake', ['--install', cmakeBuildDir, '--config', 'Release']);
       if (currentPlatform.isLinux &&
           nativeBackend.actualValue == NativeBackend.crashpad) {
         await _exec('chmod', ['+x', '$buildOutputDir/crashpad_handler']);
@@ -364,17 +395,19 @@ set(CMAKE_INSTALL_PREFIX "${buildOutputDir.replaceAll('\\', '/')}")
 
   bool _builtVersionIsExpected() {
     final buildCmake = File(
-        '$cmakeBuildDir/_deps/sentry-native-build/sentry-config-version.cmake');
+      '$cmakeBuildDir/_deps/sentry-native-build/sentry-config-version.cmake',
+    );
     if (!buildCmake.existsSync()) return false;
 
-    if (!buildCmake
-        .readAsStringSync()
-        .contains('set(PACKAGE_VERSION "$configuredSentryNativeVersion")')) {
+    if (!buildCmake.readAsStringSync().contains(
+      'set(PACKAGE_VERSION "$configuredSentryNativeVersion")',
+    )) {
       return false;
     }
 
-    return !expectedDistFiles
-        .any((name) => !File('$buildOutputDir/$name').existsSync());
+    return !expectedDistFiles.any(
+      (name) => !File('$buildOutputDir/$name').existsSync(),
+    );
   }
 
   late final configuredSentryNativeVersion =

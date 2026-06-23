@@ -71,11 +71,13 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     await _native?.registerTraceId(hub.scope.propagationContext.traceId);
 
     options.lifecycleRegistry.registerCallback<OnProcessLog>(_onProcessLog!);
-    options.lifecycleRegistry
-        .registerCallback<OnProcessMetric>(_onProcessMetric!);
+    options.lifecycleRegistry.registerCallback<OnProcessMetric>(
+      _onProcessMetric!,
+    );
     options.lifecycleRegistry.registerCallback<OnProcessSpan>(_onProcessSpan!);
-    options.lifecycleRegistry
-        .registerCallback<OnGenerateNewTrace>(_onGenerateNewTrace!);
+    options.lifecycleRegistry.registerCallback<OnGenerateNewTrace>(
+      _onGenerateNewTrace!,
+    );
     options.sdk.addIntegration(integrationName);
   }
 
@@ -110,8 +112,9 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     }
 
     return {
-      SemanticAttributesConstants.sentryReplayId:
-          SentryAttribute.string(replayContext.replayId.toString()),
+      SemanticAttributesConstants.sentryReplayId: SentryAttribute.string(
+        replayContext.replayId.toString(),
+      ),
       if (replayContext.replayIsBuffering)
         SemanticAttributesConstants.sentryInternalReplayIsBuffering:
             SentryAttribute.bool(true),
@@ -131,15 +134,17 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
         options.lifecycleRegistry.removeCallback<OnProcessLog>(onProcessLog);
       }
       if (onProcessMetric != null) {
-        options.lifecycleRegistry
-            .removeCallback<OnProcessMetric>(onProcessMetric);
+        options.lifecycleRegistry.removeCallback<OnProcessMetric>(
+          onProcessMetric,
+        );
       }
       if (onProcessSpan != null) {
         options.lifecycleRegistry.removeCallback<OnProcessSpan>(onProcessSpan);
       }
       if (onGenerateNewTrace != null) {
-        options.lifecycleRegistry
-            .removeCallback<OnGenerateNewTrace>(onGenerateNewTrace);
+        options.lifecycleRegistry.removeCallback<OnGenerateNewTrace>(
+          onGenerateNewTrace,
+        );
       }
     }
 

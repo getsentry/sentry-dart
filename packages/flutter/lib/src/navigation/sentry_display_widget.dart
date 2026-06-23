@@ -67,7 +67,7 @@ import '../../sentry_flutter.dart';
 /// ```
 class SentryDisplayWidget extends StatefulWidget {
   const SentryDisplayWidget({super.key, required this.child, Hub? hub})
-      : _hub = hub;
+    : _hub = hub;
 
   final Widget child;
   final Hub? _hub;
@@ -96,10 +96,7 @@ class _SentryDisplayWidgetState extends State<SentryDisplayWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return _SentryDisplayInheritedWidget(
-      state: this,
-      child: widget.child,
-    );
+    return _SentryDisplayInheritedWidget(state: this, child: widget.child);
   }
 
   Future<void> reportFullyDisplayed() async {

@@ -86,10 +86,7 @@ class Worker {
 typedef WorkerEntry = void Function((SendPort, WorkerConfig));
 
 /// Spawn a worker isolate and handshake to obtain its SendPort.
-Future<Worker> spawnWorker(
-  WorkerConfig config,
-  WorkerEntry entry,
-) async {
+Future<Worker> spawnWorker(WorkerConfig config, WorkerEntry entry) async {
   final initPort = RawReceivePort();
   final connection = Completer<(ReceivePort, SendPort)>.sync();
   initPort.handler = (SendPort commandPort) {
@@ -100,11 +97,10 @@ Future<Worker> spawnWorker(
   };
 
   try {
-    await Isolate.spawn<(SendPort, WorkerConfig)>(
-      entry,
-      (initPort.sendPort, config),
-      debugName: config.debugName,
-    );
+    await Isolate.spawn<(SendPort, WorkerConfig)>(entry, (
+      initPort.sendPort,
+      config,
+    ), debugName: config.debugName);
   } on Object {
     initPort.close();
     rethrow;
@@ -136,14 +132,12 @@ abstract class WorkerHandler {
 /// Call this only from the worker isolate entry-point spawned via
 /// [spawnWorker]. It configures logging, handshakes with the host, and routes
 /// messages
-void runWorker(
-  WorkerConfig config,
-  SendPort host,
-  WorkerHandler handler,
-) {
+void runWorker(WorkerConfig config, SendPort host, WorkerHandler handler) {
   // ignore: invalid_use_of_internal_member
   SentryInternalLogger.configure(
-      isEnabled: config.debug, minLevel: config.diagnosticLevel);
+    isEnabled: config.debug,
+    minLevel: config.diagnosticLevel,
+  );
 
   final inbox = ReceivePort();
   host.send(inbox.sendPort);
@@ -171,9 +165,10 @@ void runWorker(
       await handler.onMessage(msg);
     } catch (exception, stackTrace) {
       internalLogger.error(
-          '${config.debugName}: isolate failed to handle message',
-          error: exception,
-          stackTrace: stackTrace);
+        '${config.debugName}: isolate failed to handle message',
+        error: exception,
+        stackTrace: stackTrace,
+      );
     }
   });
 }

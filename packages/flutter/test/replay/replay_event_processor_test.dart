@@ -60,11 +60,13 @@ class _Fixture {
   Scope scope = Scope(defaultTestOptions());
 
   _Fixture() {
-    when(binding.captureReplay())
-        .thenAnswer((_) async => SentryId.fromId('42'));
+    when(
+      binding.captureReplay(),
+    ).thenAnswer((_) async => SentryId.fromId('42'));
     when(hub.configureScope(any)).thenAnswer((invocation) async {
-      final callback = invocation.positionalArguments.first as FutureOr<void>
-          Function(Scope);
+      final callback =
+          invocation.positionalArguments.first
+              as FutureOr<void> Function(Scope);
       await callback(scope);
     });
     sut = ReplayEventProcessor(hub, binding);
@@ -75,9 +77,10 @@ class _Fixture {
       exceptions: hasException
           ? [
               SentryException(
-                  type: 'type',
-                  value: 'value',
-                  mechanism: Mechanism(type: 'foo'))
+                type: 'type',
+                value: 'value',
+                mechanism: Mechanism(type: 'foo'),
+              ),
             ]
           : [],
     );

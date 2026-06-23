@@ -56,9 +56,8 @@ class DebugPrintIntegration implements Integration<SentryFlutterOptions> {
       );
       return;
     }
-    _hub.addBreadcrumb(Breadcrumb.console(
-      message: message,
-      level: SentryLevel.debug,
-    ));
+    _hub.addBreadcrumb(
+      Breadcrumb.console(message: message, level: SentryLevel.debug),
+    );
   }
 }

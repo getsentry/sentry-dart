@@ -13,18 +13,15 @@ class SentryWidget extends StatefulWidget {
   final Widget child;
   final Hub _hub;
 
-  SentryWidget({
-    super.key,
-    required this.child,
-    @internal Hub? hub,
-  }) : _hub = hub ?? HubAdapter();
+  SentryWidget({super.key, required this.child, @internal Hub? hub})
+    : _hub = hub ?? HubAdapter();
 
   SentryFlutterOptions? get _options =>
       // ignore: invalid_use_of_internal_member
       _hub.options is SentryFlutterOptions
-          // ignore: invalid_use_of_internal_member
-          ? _hub.options as SentryFlutterOptions?
-          : null;
+      // ignore: invalid_use_of_internal_member
+      ? _hub.options as SentryFlutterOptions?
+      : null;
 
   @override
   _SentryWidgetState createState() => _SentryWidgetState();
@@ -44,10 +41,7 @@ class _SentryWidgetState extends State<SentryWidget> {
     } else {
       content = SentryScreenshotWidget(child: content);
       content = SentryUserInteractionWidget(child: content);
-      return Container(
-        key: sentryWidgetGlobalKey,
-        child: content,
-      );
+      return Container(key: sentryWidgetGlobalKey, child: content);
     }
   }
 }

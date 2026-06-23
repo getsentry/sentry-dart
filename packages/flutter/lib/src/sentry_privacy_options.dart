@@ -28,60 +28,73 @@ class SentryPrivacyOptions {
 
   @internal
   SentryMaskingConfig buildMaskingConfig(
-      SdkLogCallback logger, RuntimeChecker runtimeChecker) {
+    SdkLogCallback logger,
+    RuntimeChecker runtimeChecker,
+  ) {
     // First, we collect rules defined by the user (so they're applied first).
     final rules = _userMaskingRules.toList();
 
     // Then, we apply rules for [SentryMask] and [SentryUnmask].
-    rules.add(const SentryMaskingConstantRule<SentryMask>(
-      mask: true,
-      name: 'SentryMask',
-    ));
-    rules.add(const SentryMaskingConstantRule<SentryUnmask>(
-      mask: false,
-      name: 'SentryUnmask',
-    ));
+    rules.add(
+      const SentryMaskingConstantRule<SentryMask>(
+        mask: true,
+        name: 'SentryMask',
+      ),
+    );
+    rules.add(
+      const SentryMaskingConstantRule<SentryUnmask>(
+        mask: false,
+        name: 'SentryUnmask',
+      ),
+    );
 
     // Then, we apply apply rules based on the configuration.
     if (maskAllImages) {
       if (maskAssetImages) {
-        rules.add(const SentryMaskingConstantRule<Image>(
-          mask: true,
-          name: 'Image',
-        ));
+        rules.add(
+          const SentryMaskingConstantRule<Image>(mask: true, name: 'Image'),
+        );
       } else {
-        rules.add(const SentryMaskingCustomRule<Image>(
+        rules.add(
+          const SentryMaskingCustomRule<Image>(
             callback: _maskImagesExceptAssets,
             name: 'Image',
-            description: 'Mask all images except asset images.'));
+            description: 'Mask all images except asset images.',
+          ),
+        );
       }
     } else {
-      assert(!maskAssetImages,
-          "maskAssetImages can't be true if maskAllImages is false");
+      assert(
+        !maskAssetImages,
+        "maskAssetImages can't be true if maskAllImages is false",
+      );
     }
 
     if (maskAllText) {
-      rules.add(const SentryMaskingConstantRule<Text>(
-        mask: true,
-        name: 'Text',
-      ));
-      rules.add(const SentryMaskingConstantRule<EditableText>(
-        mask: true,
-        name: 'EditableText',
-      ));
-      rules.add(const SentryMaskingConstantRule<RichText>(
-        mask: true,
-        name: 'RichText',
-      ));
+      rules.add(
+        const SentryMaskingConstantRule<Text>(mask: true, name: 'Text'),
+      );
+      rules.add(
+        const SentryMaskingConstantRule<EditableText>(
+          mask: true,
+          name: 'EditableText',
+        ),
+      );
+      rules.add(
+        const SentryMaskingConstantRule<RichText>(mask: true, name: 'RichText'),
+      );
     }
 
     // In Debug mode, check if users explicitly mask (or unmask) widgets that
     // look like they should be masked, e.g. Videos, WebViews, etc.
     if (runtimeChecker.isDebugMode()) {
-      final regexp = RegExp('video|webview|password|pinput|camera|chart',
-          caseSensitive: false);
+      final regexp = RegExp(
+        'video|webview|password|pinput|camera|chart',
+        caseSensitive: false,
+      );
 
-      rules.add(SentryMaskingCustomRule<Widget>(
+      rules.add(
+        SentryMaskingCustomRule<Widget>(
           callback: (Element element, Widget widget) {
             if (widget is InheritedWidget) {
               return SentryMaskingDecision.continueProcessing;
@@ -89,22 +102,25 @@ class SentryPrivacyOptions {
             final type = widget.runtimeType.toString();
             if (regexp.hasMatch(type)) {
               logger(
-                  SentryLevel.warning,
-                  'Widget "$widget" name matches widgets that should usually be '
-                  'masked because they may contain sensitive data. Because this '
-                  'widget comes from a third-party plugin or your code, Sentry '
-                  "doesn't recognize it and can't reliably mask it in release "
-                  'builds (due to obfuscation). '
-                  'Please mask it explicitly using options.privacy.mask<$type>(). '
-                  'If you want to silence this warning and keep the widget '
-                  'visible in captures, you can use options.privacy.unmask<$type>(). '
-                  'Note: the RegExp matched is: $regexp (case insensitive).');
+                SentryLevel.warning,
+                'Widget "$widget" name matches widgets that should usually be '
+                'masked because they may contain sensitive data. Because this '
+                'widget comes from a third-party plugin or your code, Sentry '
+                "doesn't recognize it and can't reliably mask it in release "
+                'builds (due to obfuscation). '
+                'Please mask it explicitly using options.privacy.mask<$type>(). '
+                'If you want to silence this warning and keep the widget '
+                'visible in captures, you can use options.privacy.unmask<$type>(). '
+                'Note: the RegExp matched is: $regexp (case insensitive).',
+              );
             }
             return SentryMaskingDecision.continueProcessing;
           },
           name: 'Widget',
           description:
-              'Debug-mode-only warning for potentially sensitive widgets.'));
+              'Debug-mode-only warning for potentially sensitive widgets.',
+        ),
+      );
     }
 
     return SentryMaskingConfig(rules);
@@ -117,11 +133,13 @@ class SentryPrivacyOptions {
   void mask<T extends Widget>({String? name, String? description}) {
     assert(T != SentryMask);
     assert(T != SentryUnmask);
-    _userMaskingRules.add(SentryMaskingConstantRule<T>(
-      mask: true,
-      name: name ?? T.toString(),
-      description: description,
-    ));
+    _userMaskingRules.add(
+      SentryMaskingConstantRule<T>(
+        mask: true,
+        name: name ?? T.toString(),
+        description: description,
+      ),
+    );
   }
 
   /// Unmask given widget type [T] (or subclasses of [T]) in the replay. This is
@@ -135,11 +153,13 @@ class SentryPrivacyOptions {
   void unmask<T extends Widget>({String? name, String? description}) {
     assert(T != SentryMask);
     assert(T != SentryUnmask);
-    _userMaskingRules.add(SentryMaskingConstantRule<T>(
-      mask: false,
-      name: name ?? T.toString(),
-      description: description,
-    ));
+    _userMaskingRules.add(
+      SentryMaskingConstantRule<T>(
+        mask: false,
+        name: name ?? T.toString(),
+        description: description,
+      ),
+    );
   }
 
   /// Provide a custom callback to decide whether to mask the widget of class
@@ -148,28 +168,32 @@ class SentryPrivacyOptions {
   /// rule already makes a decision, this rule won't be called.
   @experimental
   void maskCallback<T extends Widget>(
-      SentryMaskingDecision Function(Element, T) shouldMask,
-      {String? name,
-      String? description}) {
+    SentryMaskingDecision Function(Element, T) shouldMask, {
+    String? name,
+    String? description,
+  }) {
     assert(T != SentryMask);
     assert(T != SentryUnmask);
-    _userMaskingRules.add(SentryMaskingCustomRule<T>(
-      callback: shouldMask,
-      name: name ?? T.toString(),
-      description:
-          description ?? 'Custom callback-based rule (description unspecified)',
-    ));
+    _userMaskingRules.add(
+      SentryMaskingCustomRule<T>(
+        callback: shouldMask,
+        name: name ?? T.toString(),
+        description:
+            description ??
+            'Custom callback-based rule (description unspecified)',
+      ),
+    );
   }
 
   Map<String, dynamic> toJson() => {
-        'maskAllText': maskAllText,
-        'maskAllImages': maskAllImages,
-        'maskAssetImages': maskAssetImages,
-        if (userMaskingRules.isNotEmpty)
-          'maskingRules': userMaskingRules
-              .map((rule) => '${rule.name}: ${rule.description}')
-              .toList(growable: false),
-      };
+    'maskAllText': maskAllText,
+    'maskAllImages': maskAllImages,
+    'maskAssetImages': maskAssetImages,
+    if (userMaskingRules.isNotEmpty)
+      'maskingRules': userMaskingRules
+          .map((rule) => '${rule.name}: ${rule.description}')
+          .toList(growable: false),
+  };
 }
 
 SentryMaskingDecision _maskImagesExceptAssets(Element element, Image widget) {

@@ -13,14 +13,16 @@ import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 void main() {
   // the ReplaySizeAdjustment tests assumes a constant video block size of 16
   group('ReplaySizeAdjustment', () {
-    test('rounds down when remainder is less than or equal to half block size',
-        () {
-      expect(0.0.adjustReplaySizeToBlockSize(), 0.0);
-      expect(8.0.adjustReplaySizeToBlockSize(), 0.0);
-      expect(16.0.adjustReplaySizeToBlockSize(), 16.0);
-      expect(24.0.adjustReplaySizeToBlockSize(), 16.0);
-      expect(100.0.adjustReplaySizeToBlockSize(), 96.0);
-    });
+    test(
+      'rounds down when remainder is less than or equal to half block size',
+      () {
+        expect(0.0.adjustReplaySizeToBlockSize(), 0.0);
+        expect(8.0.adjustReplaySizeToBlockSize(), 0.0);
+        expect(16.0.adjustReplaySizeToBlockSize(), 16.0);
+        expect(24.0.adjustReplaySizeToBlockSize(), 16.0);
+        expect(100.0.adjustReplaySizeToBlockSize(), 96.0);
+      },
+    );
 
     test('rounds up when remainder is greater than half block size', () {
       expect(9.0.adjustReplaySizeToBlockSize(), 16.0);
@@ -72,14 +74,21 @@ void main() {
         return _FakeCoreWorker(onStart: () => startCalled = true);
       };
 
-      final options =
-          SentryFlutterOptions(dsn: 'https://abc@def.ingest.sentry.io/1234567');
+      final options = SentryFlutterOptions(
+        dsn: 'https://abc@def.ingest.sentry.io/1234567',
+      );
       SentryNativeJava(options);
 
-      expect(factoryCalled, isTrue,
-          reason: 'Factory should be called during construction');
-      expect(startCalled, isTrue,
-          reason: 'start() should be called during construction');
+      expect(
+        factoryCalled,
+        isTrue,
+        reason: 'Factory should be called during construction',
+      );
+      expect(
+        startCalled,
+        isTrue,
+        reason: 'start() should be called during construction',
+      );
     });
   });
 }
@@ -102,7 +111,9 @@ class _FakeCoreWorker implements AndroidCoreWorker {
 
   @override
   void captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
+    Uint8List envelopeData,
+    bool containsUnhandledException,
+  ) {
     // No-op for testing
   }
 

@@ -32,15 +32,18 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     _options = options;
-    _options?.log(SentryLevel.info,
-        '$integrationName initialization started, waiting for SentryNavigatorObserver to be initialized.');
+    _options?.log(
+      SentryLevel.info,
+      '$integrationName initialization started, waiting for SentryNavigatorObserver to be initialized.',
+    );
   }
 
   @override
   void close() {
     if (_onBeforeSendEventCallback != null) {
-      _options?.lifecycleRegistry
-          .removeCallback<OnBeforeSendEvent>(_onBeforeSendEventCallback!);
+      _options?.lifecycleRegistry.removeCallback<OnBeforeSendEvent>(
+        _onBeforeSendEventCallback!,
+      );
     }
   }
 
@@ -69,8 +72,10 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
       return false;
     }
     if (!_options!.enableAutoSessionTracking) {
-      _options?.log(SentryLevel.info,
-          '$integrationName disabled: enableAutoSessionTracking is not enabled');
+      _options?.log(
+        SentryLevel.info,
+        '$integrationName disabled: enableAutoSessionTracking is not enabled',
+      );
       return false;
     }
     return true;

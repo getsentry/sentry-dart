@@ -27,41 +27,47 @@ void main() {
   });
 
   group(AndroidPlatformExceptionEventProcessor, () {
-    test('platform exception with details and stackTrace is correctly parsed',
-        () async {
-      final platformExceptionEvent = await fixture.processor
-          .apply(fixture.eventWithPlatformDetailsAndStackTrace, Hint());
+    test(
+      'platform exception with details and stackTrace is correctly parsed',
+      () async {
+        final platformExceptionEvent = await fixture.processor.apply(
+          fixture.eventWithPlatformDetailsAndStackTrace,
+          Hint(),
+        );
 
-      final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 1);
+        final exceptions = platformExceptionEvent!.exceptions!;
+        expect(exceptions.length, 1);
 
-      final exception = exceptions[0];
-      expect(exception.mechanism?.source, isNull);
+        final exception = exceptions[0];
+        expect(exception.mechanism?.source, isNull);
 
-      final platformException_1 = exception.exceptions![0];
+        final platformException_1 = exception.exceptions![0];
 
-      expect(platformException_1.type, 'IllegalArgumentException');
-      expect(
-        platformException_1.value,
-        "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
-      );
-      expect(platformException_1.stackTrace!.frames.length, 18);
-      expect(platformException_1.mechanism?.source, "stackTrace");
+        expect(platformException_1.type, 'IllegalArgumentException');
+        expect(
+          platformException_1.value,
+          "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
+        );
+        expect(platformException_1.stackTrace!.frames.length, 18);
+        expect(platformException_1.mechanism?.source, "stackTrace");
 
-      final platformException_2 = exception.exceptions![1];
+        final platformException_2 = exception.exceptions![1];
 
-      expect(platformException_2.type, 'IllegalArgumentException');
-      expect(
-        platformException_2.value,
-        "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
-      );
-      expect(platformException_2.stackTrace!.frames.length, 18);
-      expect(platformException_2.mechanism?.source, "details");
-    });
+        expect(platformException_2.type, 'IllegalArgumentException');
+        expect(
+          platformException_2.value,
+          "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
+        );
+        expect(platformException_2.stackTrace!.frames.length, 18);
+        expect(platformException_2.mechanism?.source, "details");
+      },
+    );
 
     test('platform exception with details correctly parsed', () async {
-      final platformExceptionEvent = await fixture.processor
-          .apply(fixture.eventWithPlatformDetails, Hint());
+      final platformExceptionEvent = await fixture.processor.apply(
+        fixture.eventWithPlatformDetails,
+        Hint(),
+      );
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 1);
@@ -82,8 +88,10 @@ void main() {
     });
 
     test('platform exception with stackTrace correctly parsed', () async {
-      final platformExceptionEvent = await fixture.processor
-          .apply(fixture.eventWithPlatformStackTrace, Hint());
+      final platformExceptionEvent = await fixture.processor.apply(
+        fixture.eventWithPlatformStackTrace,
+        Hint(),
+      );
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 1);
@@ -95,30 +103,32 @@ void main() {
 
       expect(platformException_1.type, 'IllegalArgumentException');
       expect(platformException_1.module, 'java.lang');
-      expect(
-        platformException_1.value,
-        "Not supported, use openfile",
-      );
+      expect(platformException_1.value, "Not supported, use openfile");
       expect(platformException_1.stackTrace!.frames.length, 22);
       expect(platformException_1.mechanism?.source, "stackTrace");
     });
 
     test(
-        'Dart thread is current and not crashed if Android exception is present',
-        () async {
-      final platformExceptionEvent = await fixture.processor
-          .apply(fixture.eventWithPlatformDetailsAndStackTrace, Hint());
+      'Dart thread is current and not crashed if Android exception is present',
+      () async {
+        final platformExceptionEvent = await fixture.processor.apply(
+          fixture.eventWithPlatformDetailsAndStackTrace,
+          Hint(),
+        );
 
-      final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 1);
+        final exceptions = platformExceptionEvent!.exceptions!;
+        expect(exceptions.length, 1);
 
-      expect(platformExceptionEvent.threads?.first.current, true);
-      expect(platformExceptionEvent.threads?.first.crashed, false);
-    });
+        expect(platformExceptionEvent.threads?.first.current, true);
+        expect(platformExceptionEvent.threads?.first.crashed, false);
+      },
+    );
 
     test('platformexception has Android thread attached', () async {
-      final platformExceptionEvent = await fixture.processor
-          .apply(fixture.eventWithPlatformDetailsAndStackTrace, Hint());
+      final platformExceptionEvent = await fixture.processor.apply(
+        fixture.eventWithPlatformDetailsAndStackTrace,
+        Hint(),
+      );
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 1);
@@ -133,39 +143,45 @@ void main() {
       expect(platformThread?.name, 'Android');
     });
 
-    test('platformexception has no Android thread attached if disabled',
-        () async {
-      fixture.options.attachThreads = false;
-      final threadCount =
-          fixture.eventWithPlatformDetailsAndStackTrace.threads?.length;
+    test(
+      'platformexception has no Android thread attached if disabled',
+      () async {
+        fixture.options.attachThreads = false;
+        final threadCount =
+            fixture.eventWithPlatformDetailsAndStackTrace.threads?.length;
 
-      final platformExceptionEvent = await fixture.processor
-          .apply(fixture.eventWithPlatformDetailsAndStackTrace, Hint());
+        final platformExceptionEvent = await fixture.processor.apply(
+          fixture.eventWithPlatformDetailsAndStackTrace,
+          Hint(),
+        );
 
-      final exceptions = platformExceptionEvent!.exceptions!;
-      expect(exceptions.length, 1);
+        final exceptions = platformExceptionEvent!.exceptions!;
+        expect(exceptions.length, 1);
 
-      expect(platformExceptionEvent.threads?.length, threadCount);
-    });
+        expect(platformExceptionEvent.threads?.length, threadCount);
+      },
+    );
 
     test('does nothing if no PlatformException is there', () async {
-      final exception = fixture.options.exceptionFactory
-          .getSentryException(detailsAndStackTracePlatformException);
-
-      final event = SentryEvent(
-        exceptions: [exception],
-        throwable: null,
+      final exception = fixture.options.exceptionFactory.getSentryException(
+        detailsAndStackTracePlatformException,
       );
 
-      final platformExceptionEvent =
-          await fixture.processor.apply(event, Hint());
+      final event = SentryEvent(exceptions: [exception], throwable: null);
+
+      final platformExceptionEvent = await fixture.processor.apply(
+        event,
+        Hint(),
+      );
 
       expect(event, platformExceptionEvent);
     });
 
     test('does nothing if PlatformException has no stackTrace', () async {
-      final platformExceptionEvent =
-          await fixture.processor.apply(fixture.eventWithPlatformEmpty, Hint());
+      final platformExceptionEvent = await fixture.processor.apply(
+        fixture.eventWithPlatformEmpty,
+        Hint(),
+      );
 
       expect(fixture.eventWithPlatformEmpty, platformExceptionEvent);
     });
@@ -186,8 +202,8 @@ class Fixture {
     threads: [dartThread],
   );
 
-  late SentryException withPlatformDetails =
-      options.exceptionFactory.getSentryException(detailsPlatformException);
+  late SentryException withPlatformDetails = options.exceptionFactory
+      .getSentryException(detailsPlatformException);
 
   late SentryEvent eventWithPlatformDetails = SentryEvent(
     exceptions: [withPlatformDetails],
@@ -195,8 +211,8 @@ class Fixture {
     threads: [dartThread],
   );
 
-  late SentryException withPlatformStackTrace =
-      options.exceptionFactory.getSentryException(stackTracePlatformException);
+  late SentryException withPlatformStackTrace = options.exceptionFactory
+      .getSentryException(stackTracePlatformException);
 
   late SentryEvent eventWithPlatformStackTrace = SentryEvent(
     exceptions: [withPlatformDetails],
@@ -204,8 +220,8 @@ class Fixture {
     threads: [dartThread],
   );
 
-  late SentryException withPlatformEmpty =
-      options.exceptionFactory.getSentryException(emptyPlatformException);
+  late SentryException withPlatformEmpty = options.exceptionFactory
+      .getSentryException(emptyPlatformException);
 
   late SentryEvent eventWithPlatformEmpty = SentryEvent(
     exceptions: [withPlatformEmpty],

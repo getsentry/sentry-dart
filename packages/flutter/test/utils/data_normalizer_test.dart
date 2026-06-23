@@ -14,10 +14,7 @@ void main() {
       };
 
       var actual = normalizeMap(expected);
-      expect(
-        DeepCollectionEquality().equals(actual, expected),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(actual, expected), true);
 
       expect(normalize(null), null);
       expect(normalize(1), 1);
@@ -32,32 +29,26 @@ void main() {
 
     test('object in list', () {
       var input = <String, dynamic>{
-        'object': [_CustomObject()]
+        'object': [_CustomObject()],
       };
       var expected = <String, dynamic>{
-        'object': ['CustomObject()']
+        'object': ['CustomObject()'],
       };
 
       var actual = normalize(input);
-      expect(
-        DeepCollectionEquality().equals(actual, expected),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(actual, expected), true);
     });
 
     test('object in map', () {
       var input = <String, dynamic>{
-        'object': <String, dynamic>{'object': _CustomObject()}
+        'object': <String, dynamic>{'object': _CustomObject()},
       };
       var expected = <String, dynamic>{
-        'object': <String, dynamic>{'object': 'CustomObject()'}
+        'object': <String, dynamic>{'object': 'CustomObject()'},
       };
 
       var actual = normalize(input);
-      expect(
-        DeepCollectionEquality().equals(actual, expected),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(actual, expected), true);
     });
   });
 
@@ -72,10 +63,7 @@ void main() {
       };
 
       var actual = normalizeMap(expected);
-      expect(
-        DeepCollectionEquality().equals(actual, expected),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(actual, expected), true);
     });
 
     test('list with primitives', () {
@@ -84,10 +72,7 @@ void main() {
       };
 
       var actual = normalizeMap(expected);
-      expect(
-        DeepCollectionEquality().equals(actual, expected),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(actual, expected), true);
     });
 
     test('map with primitives', () {
@@ -102,10 +87,7 @@ void main() {
       };
 
       var actual = normalizeMap(expected);
-      expect(
-        DeepCollectionEquality().equals(actual, expected),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(actual, expected), true);
     });
 
     test('object', () {
@@ -113,40 +95,31 @@ void main() {
       var expected = <String, dynamic>{'object': 'CustomObject()'};
 
       var actual = normalizeMap(input);
-      expect(
-        DeepCollectionEquality().equals(actual, expected),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(actual, expected), true);
     });
 
     test('object in list', () {
       var input = <String, dynamic>{
-        'object': [_CustomObject()]
+        'object': [_CustomObject()],
       };
       var expected = <String, dynamic>{
-        'object': ['CustomObject()']
+        'object': ['CustomObject()'],
       };
 
       var actual = normalizeMap(input);
-      expect(
-        DeepCollectionEquality().equals(actual, expected),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(actual, expected), true);
     });
 
     test('object in map', () {
       var input = <String, dynamic>{
-        'object': <String, dynamic>{'object': _CustomObject()}
+        'object': <String, dynamic>{'object': _CustomObject()},
       };
       var expected = <String, dynamic>{
-        'object': <String, dynamic>{'object': 'CustomObject()'}
+        'object': <String, dynamic>{'object': 'CustomObject()'},
       };
 
       var actual = normalizeMap(input);
-      expect(
-        DeepCollectionEquality().equals(actual, expected),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(actual, expected), true);
     });
   });
 }

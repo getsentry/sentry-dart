@@ -79,10 +79,14 @@ void main() {
         expect(jsOptions['maxBreadcrumbs'], expectedMaxBreadcrumbs);
         expect(jsOptions['debug'], expectedDebug);
         expect(jsOptions['defaultIntegrations'].length, 2);
-        expect(jsOptions['defaultIntegrations'][0].toString(),
-            contains('name: GlobalHandlers'));
-        expect(jsOptions['defaultIntegrations'][1].toString(),
-            contains('name: Dedupe'));
+        expect(
+          jsOptions['defaultIntegrations'][0].toString(),
+          contains('name: GlobalHandlers'),
+        );
+        expect(
+          jsOptions['defaultIntegrations'][1].toString(),
+          contains('name: Dedupe'),
+        );
       });
 
       test('options getter returns the original options', () {
@@ -101,71 +105,81 @@ void main() {
       test('can send envelope without throwing', () async {
         await sut.init(hub);
 
-        await sut.captureStructuredEnvelope(SentryEnvelope.fromEvent(
-            SentryEvent(), SdkVersion(name: 'test', version: '0')));
-      });
-
-      test('loadDebugImages returns null if no debug ids are available',
-          () async {
-        await sut.init(hub);
-        _globalThis['_sentryDebugIds'] = null;
-
-        final frames = [
-          SentryStackFrame(absPath: 'http://127.0.0.1:8080/main.dart.js')
-        ];
-        final stackTrace = SentryStackTrace(frames: frames);
-        final images = await sut.loadDebugImages(stackTrace);
-
-        expect(images, isNull);
-      });
-
-      test('loadDebugImages returns null if no matching absPath or filename',
-          () async {
-        await sut.init(hub);
-        _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
-
-        final frames = [SentryStackFrame(absPath: 'abc', fileName: 'def')];
-        final stackTrace = SentryStackTrace(frames: frames);
-        final images = await sut.loadDebugImages(stackTrace);
-
-        expect(images, isNull);
+        await sut.captureStructuredEnvelope(
+          SentryEnvelope.fromEvent(
+            SentryEvent(),
+            SdkVersion(name: 'test', version: '0'),
+          ),
+        );
       });
 
       test(
-          'loadDebugImages loads debug id to debug images with matching absPath',
-          () async {
-        await sut.init(hub);
-        _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
+        'loadDebugImages returns null if no debug ids are available',
+        () async {
+          await sut.init(hub);
+          _globalThis['_sentryDebugIds'] = null;
 
-        final frames = [
-          SentryStackFrame(absPath: 'http://127.0.0.1:8080/main.dart.js')
-        ];
-        final stackTrace = SentryStackTrace(frames: frames);
-        final images = await sut.loadDebugImages(stackTrace);
+          final frames = [
+            SentryStackFrame(absPath: 'http://127.0.0.1:8080/main.dart.js'),
+          ];
+          final stackTrace = SentryStackTrace(frames: frames);
+          final images = await sut.loadDebugImages(stackTrace);
 
-        expect(images, isNotNull);
-        expect(images!.length, 1);
-        expect(images.first.codeFile, frames.first.absPath);
-        expect(images.first.debugId, debugId);
-      });
+          expect(images, isNull);
+        },
+      );
 
       test(
-          'loadDebugImages loads debug id to debug images with matching filename',
-          () async {
-        await sut.init(hub);
-        _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
+        'loadDebugImages returns null if no matching absPath or filename',
+        () async {
+          await sut.init(hub);
+          _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
 
-        final frames = [
-          SentryStackFrame(fileName: 'http://127.0.0.1:8080/main.dart.js')
-        ];
-        final stackTrace = SentryStackTrace(frames: frames);
-        final images = await sut.loadDebugImages(stackTrace);
+          final frames = [SentryStackFrame(absPath: 'abc', fileName: 'def')];
+          final stackTrace = SentryStackTrace(frames: frames);
+          final images = await sut.loadDebugImages(stackTrace);
 
-        expect(images, isNotNull);
-        expect(images!.length, 1);
-        expect(images.first.codeFile, frames.first.fileName);
-        expect(images.first.debugId, debugId);
-      });
+          expect(images, isNull);
+        },
+      );
+
+      test(
+        'loadDebugImages loads debug id to debug images with matching absPath',
+        () async {
+          await sut.init(hub);
+          _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
+
+          final frames = [
+            SentryStackFrame(absPath: 'http://127.0.0.1:8080/main.dart.js'),
+          ];
+          final stackTrace = SentryStackTrace(frames: frames);
+          final images = await sut.loadDebugImages(stackTrace);
+
+          expect(images, isNotNull);
+          expect(images!.length, 1);
+          expect(images.first.codeFile, frames.first.absPath);
+          expect(images.first.debugId, debugId);
+        },
+      );
+
+      test(
+        'loadDebugImages loads debug id to debug images with matching filename',
+        () async {
+          await sut.init(hub);
+          _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
+
+          final frames = [
+            SentryStackFrame(fileName: 'http://127.0.0.1:8080/main.dart.js'),
+          ];
+          final stackTrace = SentryStackTrace(frames: frames);
+          final images = await sut.loadDebugImages(stackTrace);
+
+          expect(images, isNotNull);
+          expect(images!.length, 1);
+          expect(images.first.codeFile, frames.first.fileName);
+          expect(images.first.debugId, debugId);
+        },
+      );
     });
 
     group('with mock binding', () {
@@ -178,30 +192,33 @@ void main() {
       });
 
       test(
-          'captureStructuredEnvelope: exception thrown does not block sending the envelopes',
-          () async {
-        // disable so the test doesnt fail
-        options.automatedTestMode = false;
+        'captureStructuredEnvelope: exception thrown does not block sending the envelopes',
+        () async {
+          // disable so the test doesnt fail
+          options.automatedTestMode = false;
 
-        final attachmentHeader = SentryEnvelopeItemHeader('test');
-        final attachment = SentryEnvelopeItem(
-            attachmentHeader, () => throw Exception('throw'));
-        final event = SentryEnvelopeItem.fromEvent(SentryEvent());
+          final attachmentHeader = SentryEnvelopeItemHeader('test');
+          final attachment = SentryEnvelopeItem(
+            attachmentHeader,
+            () => throw Exception('throw'),
+          );
+          final event = SentryEnvelopeItem.fromEvent(SentryEvent());
 
-        final header = SentryEnvelopeHeader(null, null);
-        final envelope = SentryEnvelope(header, [attachment, event]);
+          final header = SentryEnvelopeHeader(null, null);
+          final envelope = SentryEnvelope(header, [attachment, event]);
 
-        await sut.captureStructuredEnvelope(envelope);
+          await sut.captureStructuredEnvelope(envelope);
 
-        final verification = verify(mockBinding.captureEnvelope(captureAny));
-        verification.called(1);
+          final verification = verify(mockBinding.captureEnvelope(captureAny));
+          verification.called(1);
 
-        final List<dynamic> capturedEnvelope =
-            verification.captured.single as List<dynamic>;
+          final List<dynamic> capturedEnvelope =
+              verification.captured.single as List<dynamic>;
 
-        final envelopeItems = capturedEnvelope[1];
-        expect(envelopeItems.length, 1);
-      });
+          final envelopeItems = capturedEnvelope[1];
+          expect(envelopeItems.length, 1);
+        },
+      );
 
       group('no-op or throwing methods', () {
         test('captureReplay throws unsupported error', () {
@@ -225,8 +242,9 @@ void main() {
           sut.pauseAppHangTracking();
           sut.setContexts('key', 'value');
           sut.setExtra('key', 'value');
-          sut.setReplayConfig(ReplayConfig(
-              windowWidth: 0, windowHeight: 0, width: 0, height: 0));
+          sut.setReplayConfig(
+            ReplayConfig(windowWidth: 0, windowHeight: 0, width: 0, height: 0),
+          );
           sut.setTag('key', 'value');
           sut.setUser(null);
           sut.startProfiler(SentryId.empty());
@@ -247,8 +265,11 @@ void main() {
         final sdkVersion = SdkVersion(name: 'test', version: '1000');
         final event = SentryEvent();
         final attachment = SentryAttachment.fromByteData(ByteData(100), 'test');
-        final envelope = SentryEnvelope.fromEvent(event, sdkVersion,
-            attachments: [attachment]);
+        final envelope = SentryEnvelope.fromEvent(
+          event,
+          sdkVersion,
+          attachments: [attachment],
+        );
 
         await sut.captureStructuredEnvelope(envelope);
 

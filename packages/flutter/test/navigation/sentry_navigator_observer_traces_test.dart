@@ -100,35 +100,10 @@ void main() {
       group('execution order', () {
         void _stubHub() {
           when(fixture.mockHub.generateNewTrace()).thenReturn(null);
-          when(fixture.mockHub.configureScope(any))
-              .thenAnswer((_) => Future.value());
-          when(fixture.mockHub.startTransactionWithContext(
-            any,
-            bindToScope: anyNamed('bindToScope'),
-            waitForChildren: anyNamed('waitForChildren'),
-            autoFinishAfter: anyNamed('autoFinishAfter'),
-            trimEnd: anyNamed('trimEnd'),
-            onFinish: anyNamed('onFinish'),
-            customSamplingContext: anyNamed('customSamplingContext'),
-            startTimestamp: anyNamed('startTimestamp'),
-          )).thenReturn(NoOpSentrySpan());
-        }
-
-        test(
-            'didPush should call generateNewTrace beforeTraceId starting the transaction',
-            () {
-          final from = _route(RouteSettings(name: 'From Route'));
-          final to = _route(RouteSettings(name: 'To Route'));
-
-          _stubHub();
-          final sut = fixture.getSut(
-            hub: fixture.mockHub,
-            enableNewTraceOnNavigation: true,
-          );
-          sut.didPush(to, from);
-
-          verifyInOrder([
-            fixture.mockHub.generateNewTrace(),
+          when(
+            fixture.mockHub.configureScope(any),
+          ).thenAnswer((_) => Future.value());
+          when(
             fixture.mockHub.startTransactionWithContext(
               any,
               bindToScope: anyNamed('bindToScope'),
@@ -139,17 +114,46 @@ void main() {
               customSamplingContext: anyNamed('customSamplingContext'),
               startTimestamp: anyNamed('startTimestamp'),
             ),
-          ]);
-        });
+          ).thenReturn(NoOpSentrySpan());
+        }
+
+        test(
+          'didPush should call generateNewTrace beforeTraceId starting the transaction',
+          () {
+            final from = _route(RouteSettings(name: 'From Route'));
+            final to = _route(RouteSettings(name: 'To Route'));
+
+            _stubHub();
+            final sut = fixture.getSut(
+              hub: fixture.mockHub,
+              enableNewTraceOnNavigation: true,
+            );
+            sut.didPush(to, from);
+
+            verifyInOrder([
+              fixture.mockHub.generateNewTrace(),
+              fixture.mockHub.startTransactionWithContext(
+                any,
+                bindToScope: anyNamed('bindToScope'),
+                waitForChildren: anyNamed('waitForChildren'),
+                autoFinishAfter: anyNamed('autoFinishAfter'),
+                trimEnd: anyNamed('trimEnd'),
+                onFinish: anyNamed('onFinish'),
+                customSamplingContext: anyNamed('customSamplingContext'),
+                startTimestamp: anyNamed('startTimestamp'),
+              ),
+            ]);
+          },
+        );
       });
     });
   });
 }
 
 PageRoute<dynamic> _route(RouteSettings? settings) => PageRouteBuilder<void>(
-      pageBuilder: (_, __, ___) => Container(),
-      settings: settings,
-    );
+  pageBuilder: (_, _, _) => Container(),
+  settings: settings,
+);
 
 class Fixture {
   final options = defaultTestOptions();

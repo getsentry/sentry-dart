@@ -22,14 +22,18 @@ void main() {
     required StackTrace stackTrace,
     ErrorCallback? handler,
   }) {
-    fixture.platformDispatcherWrapper.onError = handler ??
-        (_, __) {
+    fixture.platformDispatcherWrapper.onError =
+        handler ??
+        (_, _) {
           return fixture.onErrorReturnValue;
         };
 
-    when(fixture.hub.captureEvent(captureAny,
-            stackTrace: captureAnyNamed('stackTrace')))
-        .thenAnswer((_) => Future.value(SentryId.empty()));
+    when(
+      fixture.hub.captureEvent(
+        captureAny,
+        stackTrace: captureAnyNamed('stackTrace'),
+      ),
+    ).thenAnswer((_) => Future.value(SentryId.empty()));
 
     OnErrorIntegration(dispatchWrapper: fixture.platformDispatcherWrapper)(
       fixture.hub,
@@ -44,16 +48,21 @@ void main() {
 
     _reportError(exception: exception, stackTrace: StackTrace.current);
 
-    verifyNever(await fixture.hub
-        .captureEvent(captureAny, stackTrace: captureAnyNamed('stackTrace')));
+    verifyNever(
+      await fixture.hub.captureEvent(
+        captureAny,
+        stackTrace: captureAnyNamed('stackTrace'),
+      ),
+    );
   });
 }
 
 class Fixture {
   final hub = MockHub();
   final options = defaultTestOptions();
-  late final platformDispatcherWrapper =
-      PlatformDispatcherWrapper(MockPlatformDispatcher());
+  late final platformDispatcherWrapper = PlatformDispatcherWrapper(
+    MockPlatformDispatcher(),
+  );
 
   bool onErrorReturnValue = true;
 }

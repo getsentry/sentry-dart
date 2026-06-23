@@ -14,24 +14,22 @@ void main() {
       TestWidgetsFlutterBinding.ensureInitialized();
     });
 
-    testWidgets('SentryWidget wraps child with SentryUserInteractionWidget',
-        (WidgetTester tester) async {
+    testWidgets('SentryWidget wraps child with SentryUserInteractionWidget', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: SentryWidget(child: testChild),
-        ),
+        MaterialApp(home: SentryWidget(child: testChild)),
       );
 
       expect(find.byType(SentryUserInteractionWidget), findsOneWidget);
       expect(find.byWidget(testChild), findsOneWidget);
     });
 
-    testWidgets('SentryWidget wraps child with SentryScreenshotWidget',
-        (WidgetTester tester) async {
+    testWidgets('SentryWidget wraps child with SentryScreenshotWidget', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: SentryWidget(child: testChild),
-        ),
+        MaterialApp(home: SentryWidget(child: testChild)),
       );
 
       expect(find.byType(SentryScreenshotWidget), findsOneWidget);
@@ -39,25 +37,23 @@ void main() {
     });
 
     testWidgets(
-        'SentryWidget does not add SentryUserInteractionWidget or SentryScreenshotWidget when multiview-app',
-        (WidgetTester tester) async {
-      final options = defaultTestOptions();
-      options.isMultiViewApp = true;
-      final hub = MockHub();
-      when(hub.options).thenReturn(options);
+      'SentryWidget does not add SentryUserInteractionWidget or SentryScreenshotWidget when multiview-app',
+      (WidgetTester tester) async {
+        final options = defaultTestOptions();
+        options.isMultiViewApp = true;
+        final hub = MockHub();
+        when(hub.options).thenReturn(options);
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: SentryWidget(
-            hub: hub,
-            child: testChild,
+        await tester.pumpWidget(
+          MaterialApp(
+            home: SentryWidget(hub: hub, child: testChild),
           ),
-        ),
-      );
+        );
 
-      expect(find.byType(SentryUserInteractionWidget), findsNothing);
-      expect(find.byType(SentryScreenshotWidget), findsNothing);
-      expect(find.byWidget(testChild), findsOneWidget);
-    });
+        expect(find.byType(SentryUserInteractionWidget), findsNothing);
+        expect(find.byType(SentryScreenshotWidget), findsNothing);
+        expect(find.byWidget(testChild), findsOneWidget);
+      },
+    );
   });
 }

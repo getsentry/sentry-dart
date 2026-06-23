@@ -19,7 +19,9 @@ abstract class SentryNativeBinding {
   bool get supportsCaptureEnvelope;
 
   FutureOr<void> captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException);
+    Uint8List envelopeData,
+    bool containsUnhandledException,
+  );
 
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope);
 
@@ -52,7 +54,10 @@ abstract class SentryNativeBinding {
   FutureOr<int?> displayRefreshRate();
 
   FutureOr<Map<String, dynamic>?> collectProfile(
-      SentryId traceId, int startTimeNs, int endTimeNs);
+    SentryId traceId,
+    int startTimeNs,
+    int endTimeNs,
+  );
 
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace);
 

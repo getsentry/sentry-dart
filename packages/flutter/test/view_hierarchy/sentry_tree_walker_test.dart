@@ -13,143 +13,164 @@ void main() {
       instance = TestWidgetsFlutterBinding.ensureInitialized();
     });
 
-    testWidgets('returns a SentryViewHierarchy with flutter render',
-        (tester) async {
+    testWidgets('returns a SentryViewHierarchy with flutter render', (
+      tester,
+    ) async {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
-        final sentryViewHierarchy =
-            walkWidgetTree(instance, defaultTestOptions());
+        final sentryViewHierarchy = walkWidgetTree(
+          instance,
+          defaultTestOptions(),
+        );
 
         expect(sentryViewHierarchy!.renderingSystem, 'flutter');
       });
     });
 
-    testWidgets('returns a SentryViewHierarchyElement with a type',
-        (tester) async {
+    testWidgets('returns a SentryViewHierarchyElement with a type', (
+      tester,
+    ) async {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
         final first = _getFirstSentryViewHierarchy(instance);
 
         expect(
-            true,
-            _findWidget(first, (element) {
-              return element.type == 'MaterialApp';
-            }));
+          true,
+          _findWidget(first, (element) {
+            return element.type == 'MaterialApp';
+          }),
+        );
       });
     });
 
-    testWidgets('returns a SentryViewHierarchyElement with a depth',
-        (tester) async {
+    testWidgets('returns a SentryViewHierarchyElement with a depth', (
+      tester,
+    ) async {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
         final first = _getFirstSentryViewHierarchy(instance);
 
         expect(
-            true,
-            _findWidget(first, (element) {
-              return element.depth != null;
-            }));
+          true,
+          _findWidget(first, (element) {
+            return element.depth != null;
+          }),
+        );
       });
     });
 
-    testWidgets('returns a SentryViewHierarchyElement with a identifier',
-        (tester) async {
+    testWidgets('returns a SentryViewHierarchyElement with a identifier', (
+      tester,
+    ) async {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
         final first = _getFirstSentryViewHierarchy(instance);
 
         expect(
-            true,
-            _findWidget(first, (element) {
-              return element.identifier == 'btn_1';
-            }));
+          true,
+          _findWidget(first, (element) {
+            return element.identifier == 'btn_1';
+          }),
+        );
       });
     });
 
-    testWidgets('returns a SentryViewHierarchyElement with X and Y',
-        (tester) async {
+    testWidgets('returns a SentryViewHierarchyElement with X and Y', (
+      tester,
+    ) async {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
         final first = _getFirstSentryViewHierarchy(instance);
 
         expect(
-            true,
-            _findWidget(first, (element) {
-              return element.x != null && element.y != null;
-            }));
+          true,
+          _findWidget(first, (element) {
+            return element.x != null && element.y != null;
+          }),
+        );
       });
     });
 
-    testWidgets('returns a SentryViewHierarchyElement with visibility',
-        (tester) async {
+    testWidgets('returns a SentryViewHierarchyElement with visibility', (
+      tester,
+    ) async {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
         final first = _getFirstSentryViewHierarchy(instance);
 
         expect(
-            true,
-            _findWidget(first, (element) {
-              return element.visible == true;
-            }));
+          true,
+          _findWidget(first, (element) {
+            return element.visible == true;
+          }),
+        );
       });
     });
 
     testWidgets(
-        'does not return a SentryViewHierarchyElement without visibility',
-        (tester) async {
-      await tester.runAsync(() async {
-        await tester.pumpWidget(MyApp());
+      'does not return a SentryViewHierarchyElement without visibility',
+      (tester) async {
+        await tester.runAsync(() async {
+          await tester.pumpWidget(MyApp());
 
-        final first = _getFirstSentryViewHierarchy(instance);
+          final first = _getFirstSentryViewHierarchy(instance);
 
-        expect(
+          expect(
             false,
             _findWidget(first, (element) {
               return element.visible == false;
-            }));
-      });
-    });
+            }),
+          );
+        });
+      },
+    );
 
-    testWidgets('returns a SentryViewHierarchyElement with alpha',
-        (tester) async {
+    testWidgets('returns a SentryViewHierarchyElement with alpha', (
+      tester,
+    ) async {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
         final first = _getFirstSentryViewHierarchy(instance);
 
         expect(
-            true,
-            _findWidget(first, (element) {
-              return element.alpha == 0.5;
-            }));
+          true,
+          _findWidget(first, (element) {
+            return element.alpha == 0.5;
+          }),
+        );
       });
     });
 
-    testWidgets('does not return a SentryViewHierarchyElement with private key',
-        (tester) async {
-      await tester.runAsync(() async {
-        await tester.pumpWidget(MyApp());
+    testWidgets(
+      'does not return a SentryViewHierarchyElement with private key',
+      (tester) async {
+        await tester.runAsync(() async {
+          await tester.pumpWidget(MyApp());
 
-        final first = _getFirstSentryViewHierarchy(instance);
+          final first = _getFirstSentryViewHierarchy(instance);
 
-        expect(
+          expect(
             false,
             _findWidget(first, (element) {
               return element.identifier == '_btn_3';
-            }));
-      });
-    });
+            }),
+          );
+        });
+      },
+    );
   });
 }
 
 SentryViewHierarchyElement _getFirstSentryViewHierarchy(
-    WidgetsBinding instance) {
+  WidgetsBinding instance,
+) {
   final options = defaultTestOptions();
   final sentryViewHierarchy = walkWidgetTree(instance, options);
 
@@ -183,9 +204,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Welcome to Flutter',
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Welcome to Flutter'),
-        ),
+        appBar: AppBar(title: const Text('Welcome to Flutter')),
         body: Center(
           child: Column(
             children: [
@@ -195,17 +214,18 @@ class MyApp extends StatelessWidget {
                 child: const Text('Button 1'),
               ),
               MaterialButton(
-                  key: Key('btn_2'),
-                  onPressed: () {},
-                  child: Visibility(
-                    key: Key('btn_2_visibility'),
-                    visible: true,
-                    child: Opacity(
-                      key: Key('btn_2_opacity'),
-                      opacity: 0.5,
-                      child: const Text('Button 2'),
-                    ),
-                  )),
+                key: Key('btn_2'),
+                onPressed: () {},
+                child: Visibility(
+                  key: Key('btn_2_visibility'),
+                  visible: true,
+                  child: Opacity(
+                    key: Key('btn_2_opacity'),
+                    opacity: 0.5,
+                    child: const Text('Button 2'),
+                  ),
+                ),
+              ),
               MaterialButton(
                 key: Key('_btn_3'),
                 onPressed: () {},

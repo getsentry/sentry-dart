@@ -6,7 +6,8 @@ import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 
 Integration<SentryFlutterOptions> createSdkIntegration(
-    SentryNativeBinding native) {
+  SentryNativeBinding native,
+) {
   return NativeSdkIntegration(native);
 }
 

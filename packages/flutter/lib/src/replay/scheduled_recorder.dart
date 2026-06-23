@@ -10,8 +10,8 @@ import 'scheduled_recorder_config.dart';
 import 'scheduler.dart';
 
 @internal
-typedef ScheduledScreenshotRecorderCallback = Future<void> Function(
-    Screenshot screenshot, bool isNewlyCaptured);
+typedef ScheduledScreenshotRecorderCallback =
+    Future<void> Function(Screenshot screenshot, bool isNewlyCaptured);
 
 @internal
 class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
@@ -25,8 +25,10 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   ScheduledScreenshotRecorderConfig get config =>
       super.config as ScheduledScreenshotRecorderConfig;
 
-  ScheduledScreenshotRecorder(super.options,
-      [ScheduledScreenshotRecorderCallback? callback]) {
+  ScheduledScreenshotRecorder(
+    super.options, [
+    ScheduledScreenshotRecorderCallback? callback,
+  ]) {
     if (callback != null) {
       _callback = callback;
     }
@@ -56,10 +58,13 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   }
 
   Future<void> onConfigurationChanged(
-      ScheduledScreenshotRecorderConfig config) async {
+    ScheduledScreenshotRecorderConfig config,
+  ) async {
     super.config = config;
-    options.log(SentryLevel.debug,
-        "$logName: onConfigurationChanged (${config.width}x${config.height} @ ${config.frameRate} Hz).");
+    options.log(
+      SentryLevel.debug,
+      "$logName: onConfigurationChanged (${config.width}x${config.height} @ ${config.frameRate} Hz).",
+    );
 
     await _restartScheduler();
   }
@@ -126,19 +131,25 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
       // _idleFrameFiller.actualFrameReceived(screenshot);
     } else {
       // drop any screenshots from callbacks if the replay has already been stopped/paused.
-      options.log(SentryLevel.debug,
-          '$logName: screenshot dropped because status=${_status.name}.');
+      options.log(
+        SentryLevel.debug,
+        '$logName: screenshot dropped because status=${_status.name}.',
+      );
     }
   }
 
   Future<void> _onScreenshot(
-      Screenshot screenshot, bool isNewlyCaptured) async {
+    Screenshot screenshot,
+    bool isNewlyCaptured,
+  ) async {
     if (_status == _Status.running) {
       await _callback(screenshot, isNewlyCaptured);
     } else {
       // drop any screenshots from callbacks if the replay has already been stopped/paused.
-      options.log(SentryLevel.debug,
-          '$logName: screenshot dropped because status=${_status.name}.');
+      options.log(
+        SentryLevel.debug,
+        '$logName: screenshot dropped because status=${_status.name}.',
+      );
     }
   }
 }

@@ -28,88 +28,99 @@ void main() {
       expect(processedEvent, isNotNull);
     });
 
-    test('returns null if allowUrl is set and does not match with url',
-        () async {
-      final event = SentryEvent();
-      fixture.options.allowUrls = ["another.url"];
-      final eventProcessor = fixture.getSut();
+    test(
+      'returns null if allowUrl is set and does not match with url',
+      () async {
+        final event = SentryEvent();
+        fixture.options.allowUrls = ["another.url"];
+        final eventProcessor = fixture.getSut();
 
-      final processedEvent = await eventProcessor.apply(event, Hint());
+        final processedEvent = await eventProcessor.apply(event, Hint());
 
-      expect(processedEvent, isNull);
-    });
-
-    test('returns event if allowUrl is set and does partially match with url',
-        () async {
-      final event = SentryEvent();
-      fixture.options.allowUrls = ["event_processor_test"];
-      final eventProcessor = fixture.getSut();
-
-      final processedEvent = await eventProcessor.apply(event, Hint());
-
-      expect(processedEvent, isNotNull);
-    });
-
-    test('returns event if denyUrl is set and does not match with url',
-        () async {
-      final event = SentryEvent();
-      fixture.options.denyUrls = ["another.url"];
-      final eventProcessor = fixture.getSut();
-
-      final processedEvent = await eventProcessor.apply(event, Hint());
-
-      expect(processedEvent, isNotNull);
-    });
-
-    test('returns null if denyUrl is set and partially matches with url',
-        () async {
-      final event = SentryEvent();
-      fixture.options.denyUrls = ["event_processor_test"];
-      final eventProcessor = fixture.getSut();
-
-      final processedEvent = await eventProcessor.apply(event, Hint());
-
-      expect(processedEvent, isNull);
-    });
+        expect(processedEvent, isNull);
+      },
+    );
 
     test(
-        'returns null if it is part of the allowed domain, but blocked for subdomain',
-        () async {
-      final event = SentryEvent();
-      fixture.options.allowUrls = [".*localhost.*\$"];
-      fixture.options.denyUrls = ["event"];
-      final eventProcessor = fixture.getSut();
+      'returns event if allowUrl is set and does partially match with url',
+      () async {
+        final event = SentryEvent();
+        fixture.options.allowUrls = ["event_processor_test"];
+        final eventProcessor = fixture.getSut();
 
-      final processedEvent = await eventProcessor.apply(event, Hint());
+        final processedEvent = await eventProcessor.apply(event, Hint());
 
-      expect(processedEvent, isNull);
-    });
-
-    test(
-        'returns event if it is part of the allowed domain, and not of the blocked for subdomain',
-        () async {
-      final event = SentryEvent();
-      fixture.options.allowUrls = [".*localhost.*\$"];
-      fixture.options.denyUrls = ["special"];
-      final eventProcessor = fixture.getSut();
-
-      final processedEvent = await eventProcessor.apply(event, Hint());
-
-      expect(processedEvent, isNotNull);
-    });
+        expect(processedEvent, isNotNull);
+      },
+    );
 
     test(
-        'returns null if it is not part of the allowed domain, and not of the blocked for subdomain',
-        () async {
-      final event = SentryEvent();
-      fixture.options.allowUrls = ["^this.is/.*\$"];
-      fixture.options.denyUrls = ["special"];
-      final eventProcessor = fixture.getSut();
+      'returns event if denyUrl is set and does not match with url',
+      () async {
+        final event = SentryEvent();
+        fixture.options.denyUrls = ["another.url"];
+        final eventProcessor = fixture.getSut();
 
-      final processedEvent = await eventProcessor.apply(event, Hint());
+        final processedEvent = await eventProcessor.apply(event, Hint());
 
-      expect(processedEvent, isNull);
-    });
+        expect(processedEvent, isNotNull);
+      },
+    );
+
+    test(
+      'returns null if denyUrl is set and partially matches with url',
+      () async {
+        final event = SentryEvent();
+        fixture.options.denyUrls = ["event_processor_test"];
+        final eventProcessor = fixture.getSut();
+
+        final processedEvent = await eventProcessor.apply(event, Hint());
+
+        expect(processedEvent, isNull);
+      },
+    );
+
+    test(
+      'returns null if it is part of the allowed domain, but blocked for subdomain',
+      () async {
+        final event = SentryEvent();
+        fixture.options.allowUrls = [".*localhost.*\$"];
+        fixture.options.denyUrls = ["event"];
+        final eventProcessor = fixture.getSut();
+
+        final processedEvent = await eventProcessor.apply(event, Hint());
+
+        expect(processedEvent, isNull);
+      },
+    );
+
+    test(
+      'returns event if it is part of the allowed domain, and not of the blocked for subdomain',
+      () async {
+        final event = SentryEvent();
+        fixture.options.allowUrls = [".*localhost.*\$"];
+        fixture.options.denyUrls = ["special"];
+        final eventProcessor = fixture.getSut();
+
+        final processedEvent = await eventProcessor.apply(event, Hint());
+
+        expect(processedEvent, isNotNull);
+      },
+    );
+
+    test(
+      'returns null if it is not part of the allowed domain, and not of the blocked for subdomain',
+      () async {
+        final event = SentryEvent();
+        fixture.options.allowUrls = ["^this.is/.*\$"];
+        fixture.options.denyUrls = ["special"];
+        final eventProcessor = fixture.getSut();
+
+        final processedEvent = await eventProcessor.apply(event, Hint());
+
+        expect(processedEvent, isNull);
+      },
+    );
   });
 }
 

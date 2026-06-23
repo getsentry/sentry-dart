@@ -3,7 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/binding_wrapper.dart';
 
 class SentryAutomatedTestWidgetsFlutterBinding
-    extends AutomatedTestWidgetsFlutterBinding with SentryWidgetsBindingMixin {
+    extends AutomatedTestWidgetsFlutterBinding
+    with SentryWidgetsBindingMixin {
   @override
   void initInstances() {
     super.initInstances();

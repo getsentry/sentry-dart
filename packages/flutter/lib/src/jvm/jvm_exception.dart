@@ -299,8 +299,10 @@ class JvmException {
     final firstLineSplitted = firstLine.split(': ');
     final type = firstLineSplitted.first;
 
-    final desciption =
-        firstLine.replaceFirst('${firstLineSplitted.first}: ', '');
+    final desciption = firstLine.replaceFirst(
+      '${firstLineSplitted.first}: ',
+      '',
+    );
     list.add(type);
     if (firstLineSplitted.length == 1) {
       list.add(null);

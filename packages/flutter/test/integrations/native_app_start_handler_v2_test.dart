@@ -135,16 +135,24 @@ void main() {
       expect(nativeSpan1!.parentSpan?.spanId, appStartSpan!.spanId);
       expect(nativeSpan2!.parentSpan?.spanId, appStartSpan.spanId);
 
-      expect(nativeSpan1.startTimestamp,
-          DateTime.fromMillisecondsSinceEpoch(1).toUtc());
-      expect(nativeSpan1.endTimestamp,
-          DateTime.fromMillisecondsSinceEpoch(2).toUtc());
+      expect(
+        nativeSpan1.startTimestamp,
+        DateTime.fromMillisecondsSinceEpoch(1).toUtc(),
+      );
+      expect(
+        nativeSpan1.endTimestamp,
+        DateTime.fromMillisecondsSinceEpoch(2).toUtc(),
+      );
       expect(nativeSpan1.isEnded, isTrue);
 
-      expect(nativeSpan2.startTimestamp,
-          DateTime.fromMillisecondsSinceEpoch(3).toUtc());
-      expect(nativeSpan2.endTimestamp,
-          DateTime.fromMillisecondsSinceEpoch(4).toUtc());
+      expect(
+        nativeSpan2.startTimestamp,
+        DateTime.fromMillisecondsSinceEpoch(3).toUtc(),
+      );
+      expect(
+        nativeSpan2.endTimestamp,
+        DateTime.fromMillisecondsSinceEpoch(4).toUtc(),
+      );
       expect(nativeSpan2.isEnded, isTrue);
     });
 
@@ -174,8 +182,9 @@ void main() {
     });
 
     test('returns early when native app start is null', () async {
-      when(fixture.nativeBinding.fetchNativeAppStart())
-          .thenAnswer((_) async => null);
+      when(
+        fixture.nativeBinding.fetchNativeAppStart(),
+      ).thenAnswer((_) async => null);
 
       await fixture.call();
 
@@ -193,8 +202,9 @@ void main() {
     });
 
     test('warm start uses correct op and description', () async {
-      when(fixture.nativeBinding.fetchNativeAppStart())
-          .thenAnswer((_) async => fixture.warmNativeAppStart);
+      when(
+        fixture.nativeBinding.fetchNativeAppStart(),
+      ).thenAnswer((_) async => fixture.warmNativeAppStart);
 
       await fixture.call();
 
@@ -207,78 +217,83 @@ void main() {
     });
 
     group('when emitting app start vitals', () {
-      test('cold start emits legacy cold value and unified value and type',
-          () async {
-        await fixture.call();
+      test(
+        'cold start emits legacy cold value and unified value and type',
+        () async {
+          await fixture.call();
 
-        final appStartSpan = fixture.findSpanByName('Cold Start')!;
-        final expectedDurationMs = fixture.appStartEnd
-            .difference(fixture.appStartDateTime)
-            .inMilliseconds
-            .toDouble();
+          final appStartSpan = fixture.findSpanByName('Cold Start')!;
+          final expectedDurationMs = fixture.appStartEnd
+              .difference(fixture.appStartDateTime)
+              .inMilliseconds
+              .toDouble();
 
-        expect(
-          appStartSpan
-              .attributes[SemanticAttributesConstants.appVitalsStartColdValue]
-              ?.value,
-          expectedDurationMs,
-        );
-        expect(
-          appStartSpan
-              .attributes[SemanticAttributesConstants.appVitalsStartValue]
-              ?.value,
-          expectedDurationMs,
-        );
-        expect(
-          appStartSpan
-              .attributes[SemanticAttributesConstants.appVitalsStartType]
-              ?.value,
-          'cold',
-        );
-        expect(
-          appStartSpan
-              .attributes[SemanticAttributesConstants.appVitalsStartWarmValue],
-          isNull,
-        );
-      });
+          expect(
+            appStartSpan
+                .attributes[SemanticAttributesConstants.appVitalsStartColdValue]
+                ?.value,
+            expectedDurationMs,
+          );
+          expect(
+            appStartSpan
+                .attributes[SemanticAttributesConstants.appVitalsStartValue]
+                ?.value,
+            expectedDurationMs,
+          );
+          expect(
+            appStartSpan
+                .attributes[SemanticAttributesConstants.appVitalsStartType]
+                ?.value,
+            'cold',
+          );
+          expect(
+            appStartSpan.attributes[SemanticAttributesConstants
+                .appVitalsStartWarmValue],
+            isNull,
+          );
+        },
+      );
 
-      test('warm start emits legacy warm value and unified value and type',
-          () async {
-        when(fixture.nativeBinding.fetchNativeAppStart())
-            .thenAnswer((_) async => fixture.warmNativeAppStart);
+      test(
+        'warm start emits legacy warm value and unified value and type',
+        () async {
+          when(
+            fixture.nativeBinding.fetchNativeAppStart(),
+          ).thenAnswer((_) async => fixture.warmNativeAppStart);
 
-        await fixture.call();
+          await fixture.call();
 
-        final appStartSpan = fixture.findSpanByName('Warm Start')!;
-        final expectedDurationMs = fixture.appStartEnd
-            .difference(fixture.appStartDateTime)
-            .inMilliseconds
-            .toDouble();
+          final appStartSpan = fixture.findSpanByName('Warm Start')!;
+          final expectedDurationMs = fixture.appStartEnd
+              .difference(fixture.appStartDateTime)
+              .inMilliseconds
+              .toDouble();
 
-        expect(
-          appStartSpan
-              .attributes[SemanticAttributesConstants.appVitalsStartWarmValue]
-              ?.value,
-          expectedDurationMs,
-        );
-        expect(
-          appStartSpan
-              .attributes[SemanticAttributesConstants.appVitalsStartValue]
-              ?.value,
-          expectedDurationMs,
-        );
-        expect(
-          appStartSpan
-              .attributes[SemanticAttributesConstants.appVitalsStartType]
-              ?.value,
-          'warm',
-        );
-        expect(
-          appStartSpan
-              .attributes[SemanticAttributesConstants.appVitalsStartColdValue],
-          isNull,
-        );
-      });
+          expect(
+            appStartSpan
+                .attributes[SemanticAttributesConstants.appVitalsStartWarmValue]
+                ?.value,
+            expectedDurationMs,
+          );
+          expect(
+            appStartSpan
+                .attributes[SemanticAttributesConstants.appVitalsStartValue]
+                ?.value,
+            expectedDurationMs,
+          );
+          expect(
+            appStartSpan
+                .attributes[SemanticAttributesConstants.appVitalsStartType]
+                ?.value,
+            'warm',
+          );
+          expect(
+            appStartSpan.attributes[SemanticAttributesConstants
+                .appVitalsStartColdValue],
+            isNull,
+          );
+        },
+      );
     });
 
     test('all spans have correct origin', () async {
@@ -320,7 +335,8 @@ void main() {
         final span = fixture.findSpanByName(name);
         expect(span, isNotNull, reason: 'Expected span: $name');
         expect(
-          span!.attributes[SemanticAttributesConstants.appVitalsStartType]
+          span!
+              .attributes[SemanticAttributesConstants.appVitalsStartType]
               ?.value,
           'cold',
           reason: 'Wrong app start type for span: $name',
@@ -376,8 +392,9 @@ class Fixture {
   Fixture() {
     SentryFlutter.sentrySetupStartTime = sentrySetupStartDateTime;
 
-    when(nativeBinding.fetchNativeAppStart())
-        .thenAnswer((_) async => nativeAppStart);
+    when(
+      nativeBinding.fetchNativeAppStart(),
+    ).thenAnswer((_) async => nativeAppStart);
 
     options.timeToDisplayTrackerV2 = TimeToDisplayTrackerV2(
       hub: hub,
@@ -394,16 +411,10 @@ class Fixture {
   }
 
   Future<void> call({DateTime? appStartEnd}) async {
-    await sut.call(
-      hub,
-      options,
-      appStartEnd: appStartEnd ?? this.appStartEnd,
-    );
+    await sut.call(hub, options, appStartEnd: appStartEnd ?? this.appStartEnd);
   }
 
   RecordingSentrySpanV2? findSpanByName(String name) {
-    return capturedSpans.firstWhereOrNull(
-      (s) => s.name == name,
-    );
+    return capturedSpans.firstWhereOrNull((s) => s.name == name);
   }
 }

@@ -40,43 +40,48 @@ void main() {
 
   for (var supportsReplay in [true, false]) {
     test(
-        '$ReplayIntegration in options.sdk.integrations when supportsReplay=$supportsReplay',
-        () {
-      when(native.supportsReplay).thenReturn(supportsReplay);
-      options.replay.sessionSampleRate = 1.0;
-      sut.call(hub, options);
-      var matcher = contains(replayIntegrationName);
-      matcher = supportsReplay ? matcher : isNot(matcher);
-      expect(options.sdk.integrations, matcher);
-    });
+      '$ReplayIntegration in options.sdk.integrations when supportsReplay=$supportsReplay',
+      () {
+        when(native.supportsReplay).thenReturn(supportsReplay);
+        options.replay.sessionSampleRate = 1.0;
+        sut.call(hub, options);
+        var matcher = contains(replayIntegrationName);
+        matcher = supportsReplay ? matcher : isNot(matcher);
+        expect(options.sdk.integrations, matcher);
+      },
+    );
   }
 
   for (var sampleRate in [0.5, 0.0]) {
     test(
-        '$ReplayIntegration in options.sdk.integrations when sessionSampleRate=$sampleRate',
-        () {
-      options.replay.sessionSampleRate = sampleRate;
-      sut.call(hub, options);
-      var matcher = contains(replayIntegrationName);
-      matcher = sampleRate > 0 ? matcher : isNot(matcher);
-      expect(options.sdk.integrations, matcher);
-    });
+      '$ReplayIntegration in options.sdk.integrations when sessionSampleRate=$sampleRate',
+      () {
+        options.replay.sessionSampleRate = sampleRate;
+        sut.call(hub, options);
+        var matcher = contains(replayIntegrationName);
+        matcher = sampleRate > 0 ? matcher : isNot(matcher);
+        expect(options.sdk.integrations, matcher);
+      },
+    );
   }
 
   for (var sampleRate in [0.5, 0.0]) {
     test(
-        '$ReplayEventProcessor in options.EventProcessors when onErrorSampleRate=$sampleRate',
-        () async {
-      options.replay.onErrorSampleRate = sampleRate;
-      await sut.call(hub, options);
+      '$ReplayEventProcessor in options.EventProcessors when onErrorSampleRate=$sampleRate',
+      () async {
+        options.replay.onErrorSampleRate = sampleRate;
+        await sut.call(hub, options);
 
-      if (sampleRate > 0) {
-        expect(
-            options.eventProcessors, anyElement(isA<ReplayEventProcessor>()));
-      } else {
-        expect(options.eventProcessors, isEmpty);
-      }
-    });
+        if (sampleRate > 0) {
+          expect(
+            options.eventProcessors,
+            anyElement(isA<ReplayEventProcessor>()),
+          );
+        } else {
+          expect(options.eventProcessors, isEmpty);
+        }
+      },
+    );
   }
 
   testWidgets('Configures replay when displayed', (tester) async {
@@ -88,8 +93,9 @@ void main() {
     await pumpTestElement(tester);
     await tester.pumpAndSettle(Duration(seconds: 1));
 
-    final config = verify(native.setReplayConfig(captureAny)).captured.single
-        as ReplayConfig;
+    final config =
+        verify(native.setReplayConfig(captureAny)).captured.single
+            as ReplayConfig;
     expect(config.frameRate, 1);
     expect(config.width, 800);
     expect(config.height, 600);
@@ -105,34 +111,37 @@ void main() {
     await pumpTestElement(tester);
     await tester.pumpAndSettle(Duration(seconds: 1));
 
-    final config = verify(native.setReplayConfig(captureAny)).captured.single
-        as ReplayConfig;
+    final config =
+        verify(native.setReplayConfig(captureAny)).captured.single
+            as ReplayConfig;
     expect(config.width, 640);
     expect(config.height, 480);
   });
 
   testWidgets(
-      'Does not call setReplayConfig again when widget size remains unchanged',
-      (tester) async {
-    options.replay.sessionSampleRate = 1.0;
-    when(native.setReplayConfig(any)).thenReturn(null);
-    sut.call(hub, options);
+    'Does not call setReplayConfig again when widget size remains unchanged',
+    (tester) async {
+      options.replay.sessionSampleRate = 1.0;
+      when(native.setReplayConfig(any)).thenReturn(null);
+      sut.call(hub, options);
 
-    TestWidgetsFlutterBinding.ensureInitialized();
+      TestWidgetsFlutterBinding.ensureInitialized();
 
-    tester.view.physicalSize = Size(10, 20);
-    await pumpTestElement(tester);
-    await tester.pumpAndSettle(Duration(seconds: 1));
+      tester.view.physicalSize = Size(10, 20);
+      await pumpTestElement(tester);
+      await tester.pumpAndSettle(Duration(seconds: 1));
 
-    tester.view.physicalSize = Size(10, 20);
-    await pumpTestElement(tester);
-    await tester.pumpAndSettle(Duration(seconds: 1));
+      tester.view.physicalSize = Size(10, 20);
+      await pumpTestElement(tester);
+      await tester.pumpAndSettle(Duration(seconds: 1));
 
-    verify(native.setReplayConfig(any)).called(1);
-  });
+      verify(native.setReplayConfig(any)).called(1);
+    },
+  );
 
-  testWidgets('Does call setReplayConfig again when widget size changed',
-      (tester) async {
+  testWidgets('Does call setReplayConfig again when widget size changed', (
+    tester,
+  ) async {
     options.replay.sessionSampleRate = 1.0;
     when(native.setReplayConfig(any)).thenReturn(null);
     sut.call(hub, options);

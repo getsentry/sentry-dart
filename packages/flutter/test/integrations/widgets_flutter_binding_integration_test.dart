@@ -26,9 +26,11 @@ void main() {
     integration(fixture.hub, fixture.options);
 
     expect(
-        fixture.options.sdk.integrations
-            .contains('widgetsFlutterBindingIntegration'),
-        true);
+      fixture.options.sdk.integrations.contains(
+        'widgetsFlutterBindingIntegration',
+      ),
+      true,
+    );
   });
 
   test('WidgetsFlutterBindingIntegration calls ensureInitialized', () {

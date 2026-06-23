@@ -18,8 +18,10 @@ void main() {
 
     integration(fixture.hub, fixture.options);
 
-    expect(false,
-        fixture.options.sdk.integrations.contains('widgetsBindingIntegration'));
+    expect(
+      false,
+      fixture.options.sdk.integrations.contains('widgetsBindingIntegration'),
+    );
   });
 }
 

@@ -44,7 +44,8 @@ void main() {
         );
         expect(
           activeSpan
-              .attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+              .attributes[SemanticAttributesConstants.sentryOrigin]
+              ?.value,
           SentryTraceOrigins.autoNavigationRouteObserver,
         );
       });
@@ -101,20 +102,21 @@ void main() {
       });
 
       test(
-          'does not create TTFD span when enableTimeToFullDisplayTracing is false',
-          () {
-        fixture.options.enableTimeToFullDisplayTracing = false;
-        final sut = fixture.getSut();
-        final childSpans = fixture.captureChildSpans();
+        'does not create TTFD span when enableTimeToFullDisplayTracing is false',
+        () {
+          fixture.options.enableTimeToFullDisplayTracing = false;
+          final sut = fixture.getSut();
+          final childSpans = fixture.captureChildSpans();
 
-        sut.trackRoute('/test-route');
+          sut.trackRoute('/test-route');
 
-        final ttfdSpans = childSpans.where(
-          (s) => s.name == '/test-route full display',
-        );
-        expect(ttfdSpans, isEmpty);
-        expect(sut.ttfdSpanId, isNull);
-      });
+          final ttfdSpans = childSpans.where(
+            (s) => s.name == '/test-route full display',
+          );
+          expect(ttfdSpans, isEmpty);
+          expect(sut.ttfdSpanId, isNull);
+        },
+      );
 
       test('creates TTFD span with correct op and origin', () {
         final sut = fixture.getSut();
@@ -415,8 +417,9 @@ void main() {
       test('cancels an existing idle span not created by the tracker', () {
         final sut = fixture.getSut();
 
-        final externalIdleSpan =
-            fixture.hub.startIdleSpan('user interaction span');
+        final externalIdleSpan = fixture.hub.startIdleSpan(
+          'user interaction span',
+        );
         expect(externalIdleSpan.isEnded, isFalse);
 
         sut.cancelCurrentRoute();
