@@ -352,14 +352,20 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     return switch (error.code) {
       StatusCode.ok => const SpanStatus.ok(),
       StatusCode.cancelled => const SpanStatus.cancelled(),
+      StatusCode.unknown => const SpanStatus.unknown(),
       StatusCode.invalidArgument => const SpanStatus.invalidArgument(),
       StatusCode.notFound => const SpanStatus.notFound(),
+      StatusCode.alreadyExists => const SpanStatus.alreadyExists(),
       StatusCode.permissionDenied => const SpanStatus.permissionDenied(),
       StatusCode.unauthenticated => const SpanStatus.unauthenticated(),
       StatusCode.resourceExhausted => const SpanStatus.resourceExhausted(),
+      StatusCode.failedPrecondition => const SpanStatus.failedPrecondition(),
+      StatusCode.aborted => const SpanStatus.aborted(),
+      StatusCode.outOfRange => const SpanStatus.outOfRange(),
       StatusCode.unimplemented => const SpanStatus.unimplemented(),
       StatusCode.unavailable => const SpanStatus.unavailable(),
       StatusCode.deadlineExceeded => const SpanStatus.deadlineExceeded(),
+      StatusCode.dataLoss => const SpanStatus.dataLoss(),
       _ => const SpanStatus.internalError(),
     };
   }

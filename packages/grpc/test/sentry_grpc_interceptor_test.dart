@@ -929,6 +929,105 @@ void main() {
           final tracer = tr as SentryTracer;
           expect(tracer.children.first.status, SpanStatus.unauthenticated());
         });
+
+        test('sets unknown for UNKNOWN error', () async {
+          fixture.service.errorToThrow = GrpcError.unknown();
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(tracer.children.first.status, SpanStatus.unknown());
+        });
+
+        test('sets alreadyExists for ALREADY_EXISTS error', () async {
+          fixture.service.errorToThrow = GrpcError.alreadyExists();
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(tracer.children.first.status, SpanStatus.alreadyExists());
+        });
+
+        test('sets failedPrecondition for FAILED_PRECONDITION error', () async {
+          fixture.service.errorToThrow = GrpcError.failedPrecondition();
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(
+            tracer.children.first.status,
+            SpanStatus.failedPrecondition(),
+          );
+        });
+
+        test('sets aborted for ABORTED error', () async {
+          fixture.service.errorToThrow = GrpcError.aborted();
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(tracer.children.first.status, SpanStatus.aborted());
+        });
+
+        test('sets outOfRange for OUT_OF_RANGE error', () async {
+          fixture.service.errorToThrow = GrpcError.outOfRange();
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(tracer.children.first.status, SpanStatus.outOfRange());
+        });
+
+        test('sets dataLoss for DATA_LOSS error', () async {
+          fixture.service.errorToThrow = GrpcError.dataLoss();
+          final client = fixture.getSut();
+          final tr =
+              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await tr.finish();
+
+          final tracer = tr as SentryTracer;
+          expect(tracer.children.first.status, SpanStatus.dataLoss());
+        });
       });
     });
 
