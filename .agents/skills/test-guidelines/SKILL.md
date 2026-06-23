@@ -9,13 +9,13 @@ Apply these conventions to all new and modified tests across every package in th
 
 - One test file per source file. Mirror the source path: `lib/src/hub.dart` → `test/hub_test.dart`.
 - Every test file has a single `void main() { ... }` entry point.
-- Use a single top-level `group()` matching the class or unit name as a plain string.
+- Use a single top-level `group()` matching the class or unit name. When the subject is a class or enum, write it with `$` interpolation (`'$SentryClient'`) so the name tracks renames; for other units (top-level functions, extensions) use a plain string — see Style rules.
 
 ```dart
 // GOOD: Mirrors source path, single main, single top-level group
 // test/sentry_client_test.dart (for lib/src/sentry_client.dart)
 void main() {
-  group('SentryClient', () {
+  group('$SentryClient', () {
     // all tests here
   });
 }
@@ -44,15 +44,16 @@ Pattern: `[Subject] [Context] [Variant] [Behavior]`
 
 - Use plain verb phrases: `returns scope`, `throws ArgumentError`, `sends event to transport`.
 - Do not prefix test names with `should` — prefer direct phrasing.
-- Use string descriptions for group names. Do not pass Type literals (e.g. `group(Hub, ...)` is not allowed).
+- For a class or enum subject group, use `$` interpolation in the string (`group('$Hub', ...)`) so a rename updates the test name. Never pass a bare Type literal — `group(Hub, ...)` is not allowed.
+- Interpolation only works for classes and enums. Extensions and top-level functions cannot be interpolated (`'$MyExtension'` is a compile error; `'$myFunction'` yields a closure string) — use a plain descriptive string there.
 
 ```dart
-// GOOD: Plain verb phrase, string group name
-group('Hub', () {
+// GOOD: Interpolated class subject, plain verb phrase
+group('$Hub', () {
   test('returns the scope', () { });
 });
 
-// AVOID: "should" prefix, Type literal as group name
+// AVOID: "should" prefix, bare Type literal as group name
 group(Hub, () {
   test('should return the scope', () { });
 });
@@ -64,19 +65,19 @@ If it doesn't read like a sentence, rename the groups:
 
 ```dart
 // GOOD: "Hub returns the scope" reads as a sentence
-group('Hub', () {
+group('$Hub', () {
   test('returns the scope', () { });
 });
 
 // GOOD: "Hub when capturing sends event to transport"
-group('Hub', () {
+group('$Hub', () {
   group('when capturing', () {
     test('sends event to transport', () { });
   });
 });
 
 // AVOID: Doesn't read as a sentence ("Hub capture test event sent")
-group('Hub', () {
+group('$Hub', () {
   group('capture test', () {
     test('event sent', () { });
   });
@@ -87,10 +88,11 @@ group('Hub', () {
 
 - **Maximum depth: 3 groups.** More nesting is a code smell — suggest refactoring the implementation.
 - Fold simple variants into the test name instead of adding a group. Use a group only when multiple tests share the same variant setup.
+- Drop a group whose context applies to *every* sibling test — it adds depth without discriminating. Move the context into the parent group name or the test names instead.
 
 ```dart
 // GOOD: Simple variant in test name (2 groups + test)
-group('Hub', () {
+group('$Hub', () {
   group('when bound to client', () {
     test('with valid DSN initializes correctly', () { });
     test('with empty DSN throws ArgumentError', () { });
@@ -98,11 +100,27 @@ group('Hub', () {
 });
 
 // AVOID: Unnecessary nesting (3 groups + test)
-group('Hub', () {
+group('$Hub', () {
   group('when bound to client', () {
     group('with valid DSN', () {
       test('initializes correctly', () { });
     });
+  });
+});
+```
+
+```dart
+// GOOD: Behavior carries the context; no redundant wrapper
+group('$SentryAttribute', () {
+  test('string serializes value with string type', () { });
+  test('int serializes value with integer type', () { });
+});
+
+// AVOID: Wrapper context true of every test — pure noise
+group('$SentryAttribute', () {
+  group('when serializing to JSON', () {            // every test serializes
+    test('string serializes value with string type', () { });
+    test('int serializes value with integer type', () { });
   });
 });
 ```
@@ -120,7 +138,7 @@ Use clear verb phrases indicating absence or failure:
 
 ```dart
 // GOOD: Clear verb phrases indicating absence or failure
-group('Client', () {
+group('$Client', () {
   group('when disabled', () {
     test('does not send events', () { });
     test('returns null for captureEvent', () { });
@@ -129,7 +147,7 @@ group('Client', () {
 });
 
 // AVOID: Vague negations or "should not" phrasing
-group('Client', () {
+group('$Client', () {
   group('when disabled', () {
     test('should not work', () { });
     test('fails', () { });
@@ -206,7 +224,7 @@ final options = SentryOptions(dsn: fakeDsn);
 
 ```dart
 // GOOD: late + setUp in narrowest group, fixture reset per test
-group('Client', () {
+group('$Client', () {
   late Fixture fixture;
   setUp(() {
     fixture = Fixture();
@@ -221,7 +239,7 @@ group('Client', () {
 });
 
 // AVOID: setUp at top level when only one group needs it
-group('Client', () {
+group('$Client', () {
   late Fixture fixture;
   late SomeExpensiveResource resource;
 
