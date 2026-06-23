@@ -788,7 +788,8 @@ void main() {
           final tracer = tr as SentryTracer;
           expect(
             tracer.children.first.data.containsKey(
-                SemanticAttributesConstants.grpcPreconditionFailureViolations),
+              SemanticAttributesConstants.grpcPreconditionFailureViolations,
+            ),
             isFalse,
           );
         });
@@ -856,7 +857,8 @@ void main() {
           final tracer = tr as SentryTracer;
           expect(
             tracer.children.first.data.containsKey(
-                SemanticAttributesConstants.grpcQuotaFailureViolations),
+              SemanticAttributesConstants.grpcQuotaFailureViolations,
+            ),
             isFalse,
           );
         });
