@@ -74,5 +74,12 @@ void main() {
         'type': 'array',
       });
     });
+
+    test('array copies the source list so later mutations are ignored', () {
+      final source = ['a', 'b'];
+      final attribute = SentryAttribute.stringArray(source);
+      source.add('c');
+      expect(attribute.toJson()['value'], ['a', 'b']);
+    });
   });
 }

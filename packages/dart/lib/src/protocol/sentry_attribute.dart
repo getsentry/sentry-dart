@@ -46,19 +46,19 @@ class SentryAttribute {
   }
 
   factory SentryAttribute.stringArray(List<String> value) {
-    return SentryAttribute(value, 'array');
-  }
-
-  factory SentryAttribute.intArray(List<int> value) {
-    return SentryAttribute(value, 'array');
-  }
-
-  factory SentryAttribute.doubleArray(List<double> value) {
-    return SentryAttribute(value, 'array');
+    return SentryAttribute(List<String>.unmodifiable(value), 'array');
   }
 
   factory SentryAttribute.boolArray(List<bool> value) {
-    return SentryAttribute(value, 'array');
+    return SentryAttribute(List<bool>.unmodifiable(value), 'array');
+  }
+
+  factory SentryAttribute.intArray(List<int> value) {
+    return SentryAttribute(List<int>.unmodifiable(value), 'array');
+  }
+
+  factory SentryAttribute.doubleArray(List<double> value) {
+    return SentryAttribute(List<double>.unmodifiable(value), 'array');
   }
 
   Map<String, dynamic> toJson() {
