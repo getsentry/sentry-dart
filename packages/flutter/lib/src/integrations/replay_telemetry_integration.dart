@@ -5,7 +5,7 @@ import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
 import '../native/sentry_native_binding.dart';
 
-/// Integration that adds replay-related information to logs and metrics
+/// Integration that adds replay-related information to telemetry
 /// using lifecycle callbacks.
 @internal
 class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
@@ -17,6 +17,8 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
   SentryFlutterOptions? _options;
   SdkLifecycleCallback<OnProcessLog>? _onProcessLog;
   SdkLifecycleCallback<OnProcessMetric>? _onProcessMetric;
+  SdkLifecycleCallback<OnProcessSpan>? _onProcessSpan;
+  SdkLifecycleCallback<OnGenerateNewTrace>? _onGenerateNewTrace;
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
@@ -29,32 +31,56 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     _options = options;
 
     _onProcessLog = (OnProcessLog event) {
-      _addReplayAttributes(
+      final attributes = _replayAttributes(
         hub.scope.replayId,
-        event.log.attributes,
         sessionSampleRate: sessionSampleRate,
         onErrorSampleRate: onErrorSampleRate,
       );
+      if (attributes != null) {
+        event.log.attributes.addAll(attributes);
+      }
     };
 
     _onProcessMetric = (OnProcessMetric event) {
-      _addReplayAttributes(
+      final attributes = _replayAttributes(
         hub.scope.replayId,
-        event.metric.attributes,
         sessionSampleRate: sessionSampleRate,
         onErrorSampleRate: onErrorSampleRate,
       );
+      if (attributes != null) {
+        event.metric.attributes.addAll(attributes);
+      }
     };
+
+    _onProcessSpan = (OnProcessSpan event) {
+      final attributes = _replayAttributes(
+        hub.scope.replayId,
+        sessionSampleRate: sessionSampleRate,
+        onErrorSampleRate: onErrorSampleRate,
+      );
+      if (attributes != null) {
+        event.span.setAttributes(attributes);
+      }
+    };
+
+    _onGenerateNewTrace = (OnGenerateNewTrace event) async {
+      await _native?.registerTraceId(event.traceId);
+    };
+
+    // Register the initial trace id. Subsequent changes are handled by the callback.
+    await _native?.registerTraceId(hub.scope.propagationContext.traceId);
 
     options.lifecycleRegistry.registerCallback<OnProcessLog>(_onProcessLog!);
     options.lifecycleRegistry
         .registerCallback<OnProcessMetric>(_onProcessMetric!);
+    options.lifecycleRegistry.registerCallback<OnProcessSpan>(_onProcessSpan!);
+    options.lifecycleRegistry
+        .registerCallback<OnGenerateNewTrace>(_onGenerateNewTrace!);
     options.sdk.addIntegration(integrationName);
   }
 
-  void _addReplayAttributes(
-    SentryId? scopeReplayId,
-    Map<String, SentryAttribute> attributes, {
+  ({SentryId replayId, bool replayIsBuffering})? _replayContext(
+    SentryId? scopeReplayId, {
     required double sessionSampleRate,
     required double onErrorSampleRate,
   }) {
@@ -62,14 +88,34 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     final replayIsBuffering = replayId != null && scopeReplayId == null;
 
     if (sessionSampleRate > 0 && replayId != null && !replayIsBuffering) {
-      attributes[SemanticAttributesConstants.sentryReplayId] =
-          SentryAttribute.string(scopeReplayId.toString());
+      return (replayId: replayId, replayIsBuffering: replayIsBuffering);
     } else if (onErrorSampleRate > 0 && replayId != null && replayIsBuffering) {
-      attributes[SemanticAttributesConstants.sentryReplayId] =
-          SentryAttribute.string(replayId.toString());
-      attributes[SemanticAttributesConstants.sentryInternalReplayIsBuffering] =
-          SentryAttribute.bool(true);
+      return (replayId: replayId, replayIsBuffering: replayIsBuffering);
     }
+    return null;
+  }
+
+  Map<String, SentryAttribute>? _replayAttributes(
+    SentryId? scopeReplayId, {
+    required double sessionSampleRate,
+    required double onErrorSampleRate,
+  }) {
+    final replayContext = _replayContext(
+      scopeReplayId,
+      sessionSampleRate: sessionSampleRate,
+      onErrorSampleRate: onErrorSampleRate,
+    );
+    if (replayContext == null) {
+      return null;
+    }
+
+    return {
+      SemanticAttributesConstants.sentryReplayId:
+          SentryAttribute.string(replayContext.replayId.toString()),
+      if (replayContext.replayIsBuffering)
+        SemanticAttributesConstants.sentryInternalReplayIsBuffering:
+            SentryAttribute.bool(true),
+    };
   }
 
   @override
@@ -77,6 +123,8 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     final options = _options;
     final onProcessLog = _onProcessLog;
     final onProcessMetric = _onProcessMetric;
+    final onProcessSpan = _onProcessSpan;
+    final onGenerateNewTrace = _onGenerateNewTrace;
 
     if (options != null) {
       if (onProcessLog != null) {
@@ -86,10 +134,19 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
         options.lifecycleRegistry
             .removeCallback<OnProcessMetric>(onProcessMetric);
       }
+      if (onProcessSpan != null) {
+        options.lifecycleRegistry.removeCallback<OnProcessSpan>(onProcessSpan);
+      }
+      if (onGenerateNewTrace != null) {
+        options.lifecycleRegistry
+            .removeCallback<OnGenerateNewTrace>(onGenerateNewTrace);
+      }
     }
 
     _options = null;
     _onProcessLog = null;
     _onProcessMetric = null;
+    _onProcessSpan = null;
+    _onGenerateNewTrace = null;
   }
 }

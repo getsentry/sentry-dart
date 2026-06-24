@@ -17,4 +17,7 @@ class NoOpClientReportRecorder implements ClientReportRecorder {
   @override
   void recordLostEvent(DiscardReason reason, DataCategory category,
       {int count = 1}) {}
+
+  @override
+  void recordLostLog(DiscardReason reason, {int count = 1, int? bytes}) {}
 }

@@ -2096,6 +2096,13 @@ class MockSentryNativeBinding extends _i1.Mock
           spanId,
         ],
       )) as _i12.FutureOr<void>);
+
+  @override
+  _i12.FutureOr<void> registerTraceId(_i2.SentryId? traceId) =>
+      (super.noSuchMethod(Invocation.method(
+        #registerTraceId,
+        [traceId],
+      )) as _i12.FutureOr<void>);
 }
 
 /// A class which mocks [SentryDelayedFramesTracker].

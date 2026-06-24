@@ -2064,6 +2064,57 @@ class SentryAndroidOptions extends SentryOptions {
         .check();
   }
 
+  static final _id_isEnableStandaloneAppStartTracing = _class.instanceMethodId(
+    r'isEnableStandaloneAppStartTracing',
+    r'()Z',
+  );
+
+  static final _isEnableStandaloneAppStartTracing =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallBooleanMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public boolean isEnableStandaloneAppStartTracing()`
+  bool isEnableStandaloneAppStartTracing() {
+    return _isEnableStandaloneAppStartTracing(reference.pointer,
+            _id_isEnableStandaloneAppStartTracing as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_setEnableStandaloneAppStartTracing = _class.instanceMethodId(
+    r'setEnableStandaloneAppStartTracing',
+    r'(Z)V',
+  );
+
+  static final _setEnableStandaloneAppStartTracing =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int32,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setEnableStandaloneAppStartTracing(boolean z)`
+  void setEnableStandaloneAppStartTracing(
+    bool z,
+  ) {
+    _setEnableStandaloneAppStartTracing(
+            reference.pointer,
+            _id_setEnableStandaloneAppStartTracing as jni$_.JMethodIDPtr,
+            z ? 1 : 0)
+        .check();
+  }
+
   static final _id_getFrameMetricsCollector = _class.instanceMethodId(
     r'getFrameMetricsCollector',
     r'()Lio/sentry/android/core/internal/util/SentryFrameMetricsCollector;',
@@ -3523,6 +3574,32 @@ class ReplayIntegration extends jni$_.JObject {
     return _isDebugMaskingOverlayEnabled(reference.pointer,
             _id_isDebugMaskingOverlayEnabled as jni$_.JMethodIDPtr)
         .boolean;
+  }
+
+  static final _id_registerTraceId = _class.instanceMethodId(
+    r'registerTraceId',
+    r'(Lio/sentry/protocol/SentryId;)V',
+  );
+
+  static final _registerTraceId = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void registerTraceId(io.sentry.protocol.SentryId sentryId)`
+  void registerTraceId(
+    SentryId sentryId,
+  ) {
+    final _$sentryId = sentryId.reference;
+    _registerTraceId(reference.pointer,
+            _id_registerTraceId as jni$_.JMethodIDPtr, _$sentryId.pointer)
+        .check();
   }
 
   static final _id_stop = _class.instanceMethodId(

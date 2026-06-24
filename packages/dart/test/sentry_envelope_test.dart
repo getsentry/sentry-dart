@@ -27,12 +27,6 @@ void main() {
       return utf8.decode(expectedItem);
     }
 
-    Future<Map<String, dynamic>> decodedItemPayload(
-        SentryEnvelope envelope) async {
-      final data = await envelope.items.single.dataFactory();
-      return jsonDecode(utf8.decode(data)) as Map<String, dynamic>;
-    }
-
     test('serialize', () async {
       final eventId = SentryId.newId();
 
@@ -211,7 +205,7 @@ void main() {
       });
 
       final sut = SentryEnvelope.fromSpansData([span1, span2], sdkVersion,
-          dsn: fakeDsn, traceContext: traceContext);
+          dsn: fakeDsn, traceContext: traceContext, inferUserData: true);
 
       expect(sut.header.eventId, null);
       expect(sut.header.sdkVersion, sdkVersion);
@@ -242,25 +236,33 @@ void main() {
       expect(actualItem, expectedItem);
     });
 
-    test('fromSpansData includes span v2 payload metadata', () async {
-      final encodedSpans = [
-        utf8.encode('{"span_id":"span-id"}'),
-      ];
-      final sdkVersion =
-          SdkVersion(name: 'fixture-name', version: 'fixture-version');
-      final sut = SentryEnvelope.fromSpansData(encodedSpans, sdkVersion);
+    for (final (inferUserData, expectedSetting) in [
+      (true, 'auto'),
+      (false, 'never'),
+    ]) {
+      test(
+          'fromSpansData sets ingest_settings to $expectedSetting '
+          'when inferUserData is $inferUserData', () async {
+        final encodedSpans = [
+          utf8.encode('{"span_id":"span-id"}'),
+        ];
+        final sdkVersion =
+            SdkVersion(name: 'fixture-name', version: 'fixture-version');
+        final sut = SentryEnvelope.fromSpansData(encodedSpans, sdkVersion,
+            inferUserData: inferUserData);
 
-      final payload = await decodedItemPayload(sut);
+        final payload = await decodeEnvelopeItemPayload(sut);
 
-      expect(payload['version'], 2);
-      expect(payload['ingest_settings'], {
-        'infer_ip': 'auto',
-        'infer_user_agent': 'auto',
+        expect(payload['version'], 2);
+        expect(payload['ingest_settings'], {
+          'infer_ip': expectedSetting,
+          'infer_user_agent': expectedSetting,
+        });
+        expect(payload['items'], [
+          {'span_id': 'span-id'},
+        ]);
       });
-      expect(payload['items'], [
-        {'span_id': 'span-id'},
-      ]);
-    });
+    }
 
     test('fromLogsData', () async {
       final encodedLogs = [
@@ -306,7 +308,7 @@ void main() {
           SdkVersion(name: 'fixture-name', version: 'fixture-version');
       final sut = SentryEnvelope.fromLogsData(encodedLogs, sdkVersion);
 
-      final payload = await decodedItemPayload(sut);
+      final payload = await decodeEnvelopeItemPayload(sut);
 
       expect(payload, {
         'items': [
@@ -354,7 +356,7 @@ void main() {
           SdkVersion(name: 'fixture-name', version: 'fixture-version');
       final sut = SentryEnvelope.fromMetricsData(encodedMetrics, sdkVersion);
 
-      final payload = await decodedItemPayload(sut);
+      final payload = await decodeEnvelopeItemPayload(sut);
 
       expect(payload, {
         'items': [
