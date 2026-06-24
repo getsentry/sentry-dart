@@ -66,8 +66,7 @@ import '../../sentry_flutter.dart';
 /// }
 /// ```
 class SentryDisplayWidget extends StatefulWidget {
-  const SentryDisplayWidget({super.key, required this.child, Hub? hub})
-    : _hub = hub;
+  const SentryDisplayWidget({super.key, required this.child, this._hub});
 
   final Widget child;
   final Hub? _hub;

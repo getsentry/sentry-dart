@@ -1026,10 +1026,9 @@ class HitTestTracker extends SingleChildRenderObjectWidget {
 
 class RenderHitTestTracker extends RenderProxyBox {
   RenderHitTestTracker({
-    required List<Offset> hitTestPositions,
-    required ValueNotifier<Offset?> hitNotifier,
-  }) : _hitTestPositions = hitTestPositions,
-       _hitNotifier = hitNotifier;
+    required this._hitTestPositions,
+    required this._hitNotifier,
+  });
 
   List<Offset> _hitTestPositions;
   set hitTestPositions(List<Offset> value) => _hitTestPositions = value;
