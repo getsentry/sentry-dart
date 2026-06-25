@@ -429,7 +429,7 @@ binding.sentry_value_u? dynamicToNativeValue(dynamic value) {
     return SentryNative.native.value_new_null();
   } else {
     internalLogger.warning(
-      'SentryNative: unsupported data for for conversion: ${value.runtimeType} ($value)',
+      'SentryNative: unsupported data for conversion: ${value.runtimeType} ($value)',
     );
     return null;
   }
