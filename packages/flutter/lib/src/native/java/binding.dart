@@ -2144,6 +2144,65 @@ extension SentryAndroidOptions$$Methods on SentryAndroidOptions {
     ).check();
   }
 
+  static final _id_get$isEnableStandaloneAppStartTracing = SentryAndroidOptions
+      ._class
+      .instanceMethodId(r'isEnableStandaloneAppStartTracing', r'()Z');
+
+  static final _get$isEnableStandaloneAppStartTracing =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public boolean isEnableStandaloneAppStartTracing()`
+  core$_.bool get isEnableStandaloneAppStartTracing {
+    return _get$isEnableStandaloneAppStartTracing(
+      reference.pointer,
+      _id_get$isEnableStandaloneAppStartTracing.pointer,
+    ).boolean;
+  }
+
+  static final _id_set$enableStandaloneAppStartTracing = SentryAndroidOptions
+      ._class
+      .instanceMethodId(r'setEnableStandaloneAppStartTracing', r'(Z)V');
+
+  static final _set$enableStandaloneAppStartTracing =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Int32,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public void setEnableStandaloneAppStartTracing(boolean z)`
+  set enableStandaloneAppStartTracing(core$_.bool z) {
+    _set$enableStandaloneAppStartTracing(
+      reference.pointer,
+      _id_set$enableStandaloneAppStartTracing.pointer,
+      z ? 1 : 0,
+    ).check();
+  }
+
   static final _id_get$frameMetricsCollector = SentryAndroidOptions._class
       .instanceMethodId(
         r'getFrameMetricsCollector',
