@@ -37,10 +37,9 @@ class SentryAssetBundle implements AssetBundle {
   SentryAssetBundle({
     Hub? hub,
     AssetBundle? bundle,
-    bool enableStructuredDataTracing = true,
+    this._enableStructuredDataTracing = true,
   }) : _hub = hub ?? HubAdapter(),
-       _bundle = bundle ?? rootBundle,
-       _enableStructuredDataTracing = enableStructuredDataTracing {
+       _bundle = bundle ?? rootBundle {
     // ignore: invalid_use_of_internal_member
     _hub.options.sdk.addIntegration('AssetBundleTracing');
     if (_enableStructuredDataTracing) {

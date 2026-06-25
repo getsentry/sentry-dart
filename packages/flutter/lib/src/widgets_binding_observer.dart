@@ -25,10 +25,9 @@ import 'utils/timer_debouncer.dart';
 class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   SentryWidgetsBindingObserver({
     Hub? hub,
-    required SentryFlutterOptions options,
+    required this._options,
     bool Function()? isNavigatorObserverCreated,
   }) : _hub = hub ?? HubAdapter(),
-       _options = options,
        _isNavigatorObserverCreated =
            isNavigatorObserverCreated ??
            (() => SentryNavigatorObserver.isCreated) {

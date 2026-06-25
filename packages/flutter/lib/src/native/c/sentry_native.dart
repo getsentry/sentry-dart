@@ -92,7 +92,8 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       if (options.proxy != null) {
         // sentry-native expects a single string and it doesn't support different types or authentication
         internalLogger.warning(
-            'SentryNative: setting a proxy is currently not supported');
+          'SentryNative: setting a proxy is currently not supported',
+        );
       }
 
       if (crashpadPath != null) {
@@ -175,7 +176,8 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
         malloc.free(cKey);
       } else {
         internalLogger.warning(
-            'SentryNative: failed to set context $key - value couldn\'t be converted to native');
+          'SentryNative: failed to set context $key - value couldn\'t be converted to native',
+        );
       }
     });
   }
@@ -199,7 +201,8 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
         malloc.free(cKey);
       } else {
         internalLogger.warning(
-            'SentryNative: failed to set extra $key - value couldn\'t be converted to native');
+          'SentryNative: failed to set extra $key - value couldn\'t be converted to native',
+        );
       }
     });
   }
@@ -263,18 +266,20 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
           }
 
           final images = List<DebugImage>.generate(
-              native.value_get_length(cImages), (index) {
-            final cImage = native.value_get_by_index(cImages, index);
-            return DebugImage(
-              type: cImage.get('type').castPrimitive() ?? '',
-              imageAddr: cImage.get('image_addr').castPrimitive(),
-              imageSize: cImage.get('image_size').castPrimitive(),
-              codeFile: cImage.get('code_file').castPrimitive(),
-              debugId: cImage.get('debug_id').castPrimitive(),
-              debugFile: cImage.get('debug_file').castPrimitive(),
-              codeId: cImage.get('code_id').castPrimitive(),
-            );
-          });
+            native.value_get_length(cImages),
+            (index) {
+              final cImage = native.value_get_by_index(cImages, index);
+              return DebugImage(
+                type: cImage.get('type').castPrimitive() ?? '',
+                imageAddr: cImage.get('image_addr').castPrimitive(),
+                imageSize: cImage.get('image_size').castPrimitive(),
+                codeFile: cImage.get('code_file').castPrimitive(),
+                debugId: cImage.get('debug_id').castPrimitive(),
+                debugFile: cImage.get('debug_file').castPrimitive(),
+                codeId: cImage.get('code_id').castPrimitive(),
+              );
+            },
+          );
           return images;
         } finally {
           native.value_decref(cImages);
@@ -384,8 +389,9 @@ extension SentryValueExtension on binding.sentry_value_u {
         final value = SentryNative.native.value_as_uint64(this);
         if (value < 0) {
           internalLogger.warning(
-              'SentryNative: uint64 value exceeds signed int64 range and '
-              'cannot be represented as a Dart int');
+            'SentryNative: uint64 value exceeds signed int64 range and '
+            'cannot be represented as a Dart int',
+          );
           return null;
         }
         return value as T;
@@ -398,8 +404,9 @@ extension SentryValueExtension on binding.sentry_value_u {
                 .toDartString()
             as T;
       default:
-        internalLogger
-            .warning('SentryNative: cannot read native value type: $type');
+        internalLogger.warning(
+          'SentryNative: cannot read native value type: $type',
+        );
         return null;
     }
   }
@@ -422,7 +429,8 @@ binding.sentry_value_u? dynamicToNativeValue(dynamic value) {
     return SentryNative.native.value_new_null();
   } else {
     internalLogger.warning(
-        'SentryNative: unsupported data for for conversion: ${value.runtimeType} ($value)');
+      'SentryNative: unsupported data for conversion: ${value.runtimeType} ($value)',
+    );
     return null;
   }
 }

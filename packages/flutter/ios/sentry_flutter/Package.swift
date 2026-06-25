@@ -13,6 +13,7 @@ let package = Package(
         .library(name: "sentry-flutter", targets: ["sentry_flutter", "sentry_flutter_objc"])
     ],
     dependencies: [
+      .package(name: "FlutterFramework", path: "../FlutterFramework"),
       .package(url: "https://github.com/getsentry/sentry-cocoa", exact: "9.17.1")
     ],
     targets: [
@@ -20,6 +21,7 @@ let package = Package(
             name: "sentry_flutter",
             dependencies: [
                 "sentry_flutter_objc",
+                .product(name: "FlutterFramework", package: "FlutterFramework"),
                 .product(name: "Sentry", package: "sentry-cocoa")
             ],
             swiftSettings: [
@@ -30,6 +32,7 @@ let package = Package(
         .target(
             name: "sentry_flutter_objc",
             dependencies: [
+                .product(name: "FlutterFramework", package: "FlutterFramework"),
                 .product(name: "Sentry", package: "sentry-cocoa")
             ]
         )
