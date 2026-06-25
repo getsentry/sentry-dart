@@ -128,6 +128,18 @@ void main() {
             'release-from-lifecycle-callback');
       });
 
+      test('preserves array attributes on captured spans', () async {
+        final span = fixture.createRecordingSpan();
+        span.setAttribute('tags', SentryAttribute.stringArray(['a', 'b']));
+
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        final captured = fixture.processor.addedSpans.single;
+        final attr = captured.attributes['tags'];
+        expect(attr?.type, 'array');
+        expect(attr?.value, ['a', 'b']);
+      });
+
       test('does not add spans to processor for no-op spans', () async {
         await fixture.pipeline
             .captureSpan(const NoOpSentrySpanV2(), scope: fixture.scope);
