@@ -214,8 +214,10 @@ void main() {
       test('int64 value round-trips through native', () {
         const value = 0x7FFFFFFF + 1; // 2147483648, just outside int32 range
         final cValue = dynamicToNativeValue(value)!;
-        expect(SentryNative.native.value_get_type(cValue),
-            binding.sentry_value_type_t.SENTRY_VALUE_TYPE_INT64);
+        expect(
+          SentryNative.native.value_get_type(cValue),
+          binding.sentry_value_type_t.SENTRY_VALUE_TYPE_INT64,
+        );
         expect(cValue.castPrimitive<int>(), value);
       });
 

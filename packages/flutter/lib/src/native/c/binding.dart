@@ -10,34 +10,30 @@ import 'dart:ffi' as ffi;
 class SentryNative {
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-      _lookup;
+  _lookup;
 
   /// The symbols are looked up in [dynamicLibrary].
   SentryNative(ffi.DynamicLibrary dynamicLibrary)
-      : _lookup = dynamicLibrary.lookup;
+    : _lookup = dynamicLibrary.lookup;
 
   /// The symbols are looked up with [lookup].
   SentryNative.fromLookup(
-      ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-          lookup)
-      : _lookup = lookup;
+    ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) lookup,
+  ) : _lookup = lookup;
 
   /// Decrements the reference count on the value.
   /// Returns 0 if the value was freed or is a primitive (no tracking needed),
   /// or non-zero if it still has references.
-  int value_decref(
-    sentry_value_u value,
-  ) {
-    return _value_decref(
-      value,
-    );
+  int value_decref(sentry_value_u value) {
+    return _value_decref(value);
   }
 
   late final _value_decrefPtr =
       _lookup<ffi.NativeFunction<ffi.Int Function(sentry_value_u)>>(
-          'sentry_value_decref');
-  late final _value_decref =
-      _value_decrefPtr.asFunction<int Function(sentry_value_u)>();
+        'sentry_value_decref',
+      );
+  late final _value_decref = _value_decrefPtr
+      .asFunction<int Function(sentry_value_u)>();
 
   /// Creates a null value.
   sentry_value_u value_new_null() {
@@ -46,97 +42,80 @@ class SentryNative {
 
   late final _value_new_nullPtr =
       _lookup<ffi.NativeFunction<sentry_value_u Function()>>(
-          'sentry_value_new_null');
-  late final _value_new_null =
-      _value_new_nullPtr.asFunction<sentry_value_u Function()>();
+        'sentry_value_new_null',
+      );
+  late final _value_new_null = _value_new_nullPtr
+      .asFunction<sentry_value_u Function()>();
 
   /// Creates a new 32-bit signed integer value.
-  sentry_value_u value_new_int32(
-    int value,
-  ) {
-    return _value_new_int32(
-      value,
-    );
+  sentry_value_u value_new_int32(int value) {
+    return _value_new_int32(value);
   }
 
   late final _value_new_int32Ptr =
       _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Int32)>>(
-          'sentry_value_new_int32');
-  late final _value_new_int32 =
-      _value_new_int32Ptr.asFunction<sentry_value_u Function(int)>();
+        'sentry_value_new_int32',
+      );
+  late final _value_new_int32 = _value_new_int32Ptr
+      .asFunction<sentry_value_u Function(int)>();
 
   /// Creates a new 64-bit signed integer value.
-  sentry_value_u value_new_int64(
-    int value,
-  ) {
-    return _value_new_int64(
-      value,
-    );
+  sentry_value_u value_new_int64(int value) {
+    return _value_new_int64(value);
   }
 
   late final _value_new_int64Ptr =
       _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Int64)>>(
-          'sentry_value_new_int64');
-  late final _value_new_int64 =
-      _value_new_int64Ptr.asFunction<sentry_value_u Function(int)>();
+        'sentry_value_new_int64',
+      );
+  late final _value_new_int64 = _value_new_int64Ptr
+      .asFunction<sentry_value_u Function(int)>();
 
   /// Creates a new 64-bit unsigned integer value.
-  sentry_value_u value_new_uint64(
-    int value,
-  ) {
-    return _value_new_uint64(
-      value,
-    );
+  sentry_value_u value_new_uint64(int value) {
+    return _value_new_uint64(value);
   }
 
   late final _value_new_uint64Ptr =
       _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Uint64)>>(
-          'sentry_value_new_uint64');
-  late final _value_new_uint64 =
-      _value_new_uint64Ptr.asFunction<sentry_value_u Function(int)>();
+        'sentry_value_new_uint64',
+      );
+  late final _value_new_uint64 = _value_new_uint64Ptr
+      .asFunction<sentry_value_u Function(int)>();
 
   /// Creates a new double value.
-  sentry_value_u value_new_double(
-    double value,
-  ) {
-    return _value_new_double(
-      value,
-    );
+  sentry_value_u value_new_double(double value) {
+    return _value_new_double(value);
   }
 
   late final _value_new_doublePtr =
       _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Double)>>(
-          'sentry_value_new_double');
-  late final _value_new_double =
-      _value_new_doublePtr.asFunction<sentry_value_u Function(double)>();
+        'sentry_value_new_double',
+      );
+  late final _value_new_double = _value_new_doublePtr
+      .asFunction<sentry_value_u Function(double)>();
 
   /// Creates a new boolean value.
-  sentry_value_u value_new_bool(
-    int value,
-  ) {
-    return _value_new_bool(
-      value,
-    );
+  sentry_value_u value_new_bool(int value) {
+    return _value_new_bool(value);
   }
 
   late final _value_new_boolPtr =
       _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Int)>>(
-          'sentry_value_new_bool');
-  late final _value_new_bool =
-      _value_new_boolPtr.asFunction<sentry_value_u Function(int)>();
+        'sentry_value_new_bool',
+      );
+  late final _value_new_bool = _value_new_boolPtr
+      .asFunction<sentry_value_u Function(int)>();
 
   /// Creates a new null terminated string.
-  sentry_value_u value_new_string(
-    ffi.Pointer<ffi.Char> value,
-  ) {
-    return _value_new_string(
-      value,
-    );
+  sentry_value_u value_new_string(ffi.Pointer<ffi.Char> value) {
+    return _value_new_string(value);
   }
 
-  late final _value_new_stringPtr = _lookup<
-          ffi.NativeFunction<sentry_value_u Function(ffi.Pointer<ffi.Char>)>>(
-      'sentry_value_new_string');
+  late final _value_new_stringPtr =
+      _lookup<
+        ffi.NativeFunction<sentry_value_u Function(ffi.Pointer<ffi.Char>)>
+      >('sentry_value_new_string');
   late final _value_new_string = _value_new_stringPtr
       .asFunction<sentry_value_u Function(ffi.Pointer<ffi.Char>)>();
 
@@ -147,9 +126,10 @@ class SentryNative {
 
   late final _value_new_listPtr =
       _lookup<ffi.NativeFunction<sentry_value_u Function()>>(
-          'sentry_value_new_list');
-  late final _value_new_list =
-      _value_new_listPtr.asFunction<sentry_value_u Function()>();
+        'sentry_value_new_list',
+      );
+  late final _value_new_list = _value_new_listPtr
+      .asFunction<sentry_value_u Function()>();
 
   /// Creates a new object.
   sentry_value_u value_new_object() {
@@ -158,24 +138,22 @@ class SentryNative {
 
   late final _value_new_objectPtr =
       _lookup<ffi.NativeFunction<sentry_value_u Function()>>(
-          'sentry_value_new_object');
-  late final _value_new_object =
-      _value_new_objectPtr.asFunction<sentry_value_u Function()>();
+        'sentry_value_new_object',
+      );
+  late final _value_new_object = _value_new_objectPtr
+      .asFunction<sentry_value_u Function()>();
 
   /// Returns the type of the value passed.
-  int value_get_type(
-    sentry_value_u value,
-  ) {
-    return _value_get_type(
-      value,
-    );
+  int value_get_type(sentry_value_u value) {
+    return _value_get_type(value);
   }
 
   late final _value_get_typePtr =
       _lookup<ffi.NativeFunction<ffi.Int32 Function(sentry_value_u)>>(
-          'sentry_value_get_type');
-  late final _value_get_type =
-      _value_get_typePtr.asFunction<int Function(sentry_value_u)>();
+        'sentry_value_get_type',
+      );
+  late final _value_get_type = _value_get_typePtr
+      .asFunction<int Function(sentry_value_u)>();
 
   /// Sets a key to a value in the map.
   ///
@@ -186,35 +164,35 @@ class SentryNative {
     ffi.Pointer<ffi.Char> k,
     sentry_value_u v,
   ) {
-    return _value_set_by_key(
-      value,
-      k,
-      v,
-    );
+    return _value_set_by_key(value, k, v);
   }
 
-  late final _value_set_by_keyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int Function(sentry_value_u, ffi.Pointer<ffi.Char>,
-              sentry_value_u)>>('sentry_value_set_by_key');
-  late final _value_set_by_key = _value_set_by_keyPtr.asFunction<
-      int Function(sentry_value_u, ffi.Pointer<ffi.Char>, sentry_value_u)>();
+  late final _value_set_by_keyPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(
+            sentry_value_u,
+            ffi.Pointer<ffi.Char>,
+            sentry_value_u,
+          )
+        >
+      >('sentry_value_set_by_key');
+  late final _value_set_by_key = _value_set_by_keyPtr
+      .asFunction<
+        int Function(sentry_value_u, ffi.Pointer<ffi.Char>, sentry_value_u)
+      >();
 
   /// This removes a value from the map by key.
-  int value_remove_by_key(
-    sentry_value_u value,
-    ffi.Pointer<ffi.Char> k,
-  ) {
-    return _value_remove_by_key(
-      value,
-      k,
-    );
+  int value_remove_by_key(sentry_value_u value, ffi.Pointer<ffi.Char> k) {
+    return _value_remove_by_key(value, k);
   }
 
-  late final _value_remove_by_keyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int Function(sentry_value_u,
-              ffi.Pointer<ffi.Char>)>>('sentry_value_remove_by_key');
+  late final _value_remove_by_keyPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Int Function(sentry_value_u, ffi.Pointer<ffi.Char>)
+        >
+      >('sentry_value_remove_by_key');
   late final _value_remove_by_key = _value_remove_by_keyPtr
       .asFunction<int Function(sentry_value_u, ffi.Pointer<ffi.Char>)>();
 
@@ -222,19 +200,14 @@ class SentryNative {
   ///
   /// This moves the ownership of the value into the list.  The caller does not
   /// have to call `sentry_value_decref` on it.
-  int value_append(
-    sentry_value_u value,
-    sentry_value_u v,
-  ) {
-    return _value_append(
-      value,
-      v,
-    );
+  int value_append(sentry_value_u value, sentry_value_u v) {
+    return _value_append(value, v);
   }
 
-  late final _value_appendPtr = _lookup<
-          ffi.NativeFunction<ffi.Int Function(sentry_value_u, sentry_value_u)>>(
-      'sentry_value_append');
+  late final _value_appendPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Int Function(sentry_value_u, sentry_value_u)>
+      >('sentry_value_append');
   late final _value_append = _value_appendPtr
       .asFunction<int Function(sentry_value_u, sentry_value_u)>();
 
@@ -244,159 +217,130 @@ class SentryNative {
     sentry_value_u value,
     ffi.Pointer<ffi.Char> k,
   ) {
-    return _value_get_by_key(
-      value,
-      k,
-    );
+    return _value_get_by_key(value, k);
   }
 
-  late final _value_get_by_keyPtr = _lookup<
-      ffi.NativeFunction<
-          sentry_value_u Function(sentry_value_u,
-              ffi.Pointer<ffi.Char>)>>('sentry_value_get_by_key');
-  late final _value_get_by_key = _value_get_by_keyPtr.asFunction<
-      sentry_value_u Function(sentry_value_u, ffi.Pointer<ffi.Char>)>();
+  late final _value_get_by_keyPtr =
+      _lookup<
+        ffi.NativeFunction<
+          sentry_value_u Function(sentry_value_u, ffi.Pointer<ffi.Char>)
+        >
+      >('sentry_value_get_by_key');
+  late final _value_get_by_key = _value_get_by_keyPtr
+      .asFunction<
+        sentry_value_u Function(sentry_value_u, ffi.Pointer<ffi.Char>)
+      >();
 
   /// Looks up a value in a list by index. If missing, a null value is returned.
   /// The returned value is borrowed.
-  sentry_value_u value_get_by_index(
-    sentry_value_u value,
-    int index,
-  ) {
-    return _value_get_by_index(
-      value,
-      index,
-    );
+  sentry_value_u value_get_by_index(sentry_value_u value, int index) {
+    return _value_get_by_index(value, index);
   }
 
-  late final _value_get_by_indexPtr = _lookup<
-          ffi
-          .NativeFunction<sentry_value_u Function(sentry_value_u, ffi.Size)>>(
-      'sentry_value_get_by_index');
+  late final _value_get_by_indexPtr =
+      _lookup<
+        ffi.NativeFunction<sentry_value_u Function(sentry_value_u, ffi.Size)>
+      >('sentry_value_get_by_index');
   late final _value_get_by_index = _value_get_by_indexPtr
       .asFunction<sentry_value_u Function(sentry_value_u, int)>();
 
   /// Returns the length of the given map or list.
   ///
   /// If an item is not a list or map, the return value is 0.
-  int value_get_length(
-    sentry_value_u value,
-  ) {
-    return _value_get_length(
-      value,
-    );
+  int value_get_length(sentry_value_u value) {
+    return _value_get_length(value);
   }
 
   late final _value_get_lengthPtr =
       _lookup<ffi.NativeFunction<ffi.Size Function(sentry_value_u)>>(
-          'sentry_value_get_length');
-  late final _value_get_length =
-      _value_get_lengthPtr.asFunction<int Function(sentry_value_u)>();
+        'sentry_value_get_length',
+      );
+  late final _value_get_length = _value_get_lengthPtr
+      .asFunction<int Function(sentry_value_u)>();
 
   /// Converts a value into a 32bit signed integer.
-  int value_as_int32(
-    sentry_value_u value,
-  ) {
-    return _value_as_int32(
-      value,
-    );
+  int value_as_int32(sentry_value_u value) {
+    return _value_as_int32(value);
   }
 
   late final _value_as_int32Ptr =
       _lookup<ffi.NativeFunction<ffi.Int32 Function(sentry_value_u)>>(
-          'sentry_value_as_int32');
-  late final _value_as_int32 =
-      _value_as_int32Ptr.asFunction<int Function(sentry_value_u)>();
+        'sentry_value_as_int32',
+      );
+  late final _value_as_int32 = _value_as_int32Ptr
+      .asFunction<int Function(sentry_value_u)>();
 
   /// Converts a value into a 64-bit signed integer.
-  int value_as_int64(
-    sentry_value_u value,
-  ) {
-    return _value_as_int64(
-      value,
-    );
+  int value_as_int64(sentry_value_u value) {
+    return _value_as_int64(value);
   }
 
   late final _value_as_int64Ptr =
       _lookup<ffi.NativeFunction<ffi.Int64 Function(sentry_value_u)>>(
-          'sentry_value_as_int64');
-  late final _value_as_int64 =
-      _value_as_int64Ptr.asFunction<int Function(sentry_value_u)>();
+        'sentry_value_as_int64',
+      );
+  late final _value_as_int64 = _value_as_int64Ptr
+      .asFunction<int Function(sentry_value_u)>();
 
   /// Converts a value into a 64-bit unsigned integer.
-  int value_as_uint64(
-    sentry_value_u value,
-  ) {
-    return _value_as_uint64(
-      value,
-    );
+  int value_as_uint64(sentry_value_u value) {
+    return _value_as_uint64(value);
   }
 
   late final _value_as_uint64Ptr =
       _lookup<ffi.NativeFunction<ffi.Uint64 Function(sentry_value_u)>>(
-          'sentry_value_as_uint64');
-  late final _value_as_uint64 =
-      _value_as_uint64Ptr.asFunction<int Function(sentry_value_u)>();
+        'sentry_value_as_uint64',
+      );
+  late final _value_as_uint64 = _value_as_uint64Ptr
+      .asFunction<int Function(sentry_value_u)>();
 
   /// Converts a value into a double value.
-  double value_as_double(
-    sentry_value_u value,
-  ) {
-    return _value_as_double(
-      value,
-    );
+  double value_as_double(sentry_value_u value) {
+    return _value_as_double(value);
   }
 
   late final _value_as_doublePtr =
       _lookup<ffi.NativeFunction<ffi.Double Function(sentry_value_u)>>(
-          'sentry_value_as_double');
-  late final _value_as_double =
-      _value_as_doublePtr.asFunction<double Function(sentry_value_u)>();
+        'sentry_value_as_double',
+      );
+  late final _value_as_double = _value_as_doublePtr
+      .asFunction<double Function(sentry_value_u)>();
 
   /// Returns the value as c string.
-  ffi.Pointer<ffi.Char> value_as_string(
-    sentry_value_u value,
-  ) {
-    return _value_as_string(
-      value,
-    );
+  ffi.Pointer<ffi.Char> value_as_string(sentry_value_u value) {
+    return _value_as_string(value);
   }
 
-  late final _value_as_stringPtr = _lookup<
-          ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(sentry_value_u)>>(
-      'sentry_value_as_string');
+  late final _value_as_stringPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<ffi.Char> Function(sentry_value_u)>
+      >('sentry_value_as_string');
   late final _value_as_string = _value_as_stringPtr
       .asFunction<ffi.Pointer<ffi.Char> Function(sentry_value_u)>();
 
   /// Returns `true` if the value is boolean true.
-  int value_is_true(
-    sentry_value_u value,
-  ) {
-    return _value_is_true(
-      value,
-    );
+  int value_is_true(sentry_value_u value) {
+    return _value_is_true(value);
   }
 
   late final _value_is_truePtr =
       _lookup<ffi.NativeFunction<ffi.Int Function(sentry_value_u)>>(
-          'sentry_value_is_true');
-  late final _value_is_true =
-      _value_is_truePtr.asFunction<int Function(sentry_value_u)>();
+        'sentry_value_is_true',
+      );
+  late final _value_is_true = _value_is_truePtr
+      .asFunction<int Function(sentry_value_u)>();
 
   /// Returns `true` if the value is null.
-  int value_is_null(
-    sentry_value_u value,
-  ) {
-    return _value_is_null(
-      value,
-    );
+  int value_is_null(sentry_value_u value) {
+    return _value_is_null(value);
   }
 
   late final _value_is_nullPtr =
       _lookup<ffi.NativeFunction<ffi.Int Function(sentry_value_u)>>(
-          'sentry_value_is_null');
-  late final _value_is_null =
-      _value_is_nullPtr.asFunction<int Function(sentry_value_u)>();
+        'sentry_value_is_null',
+      );
+  late final _value_is_null = _value_is_nullPtr
+      .asFunction<int Function(sentry_value_u)>();
 
   /// Creates a new options struct.
   /// Can be freed with `sentry_options_free`.
@@ -406,22 +350,20 @@ class SentryNative {
 
   late final _options_newPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<sentry_options_s> Function()>>(
-          'sentry_options_new');
-  late final _options_new =
-      _options_newPtr.asFunction<ffi.Pointer<sentry_options_s> Function()>();
+        'sentry_options_new',
+      );
+  late final _options_new = _options_newPtr
+      .asFunction<ffi.Pointer<sentry_options_s> Function()>();
 
   /// Deallocates previously allocated sentry options.
-  void options_free(
-    ffi.Pointer<sentry_options_s> opts,
-  ) {
-    return _options_free(
-      opts,
-    );
+  void options_free(ffi.Pointer<sentry_options_s> opts) {
+    return _options_free(opts);
   }
 
-  late final _options_freePtr = _lookup<
-          ffi.NativeFunction<ffi.Void Function(ffi.Pointer<sentry_options_s>)>>(
-      'sentry_options_free');
+  late final _options_freePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Pointer<sentry_options_s>)>
+      >('sentry_options_free');
   late final _options_free = _options_freePtr
       .asFunction<void Function(ffi.Pointer<sentry_options_s>)>();
 
@@ -430,34 +372,38 @@ class SentryNative {
     ffi.Pointer<sentry_options_s> opts,
     ffi.Pointer<ffi.Char> dsn,
   ) {
-    return _options_set_dsn(
-      opts,
-      dsn,
-    );
+    return _options_set_dsn(opts, dsn);
   }
 
-  late final _options_set_dsnPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<sentry_options_s>,
-              ffi.Pointer<ffi.Char>)>>('sentry_options_set_dsn');
-  late final _options_set_dsn = _options_set_dsnPtr.asFunction<
-      void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+  late final _options_set_dsnPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Pointer<sentry_options_s>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('sentry_options_set_dsn');
+  late final _options_set_dsn = _options_set_dsnPtr
+      .asFunction<
+        void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)
+      >();
 
   /// Gets the DSN.
-  ffi.Pointer<ffi.Char> options_get_dsn(
-    ffi.Pointer<sentry_options_s> opts,
-  ) {
-    return _options_get_dsn(
-      opts,
-    );
+  ffi.Pointer<ffi.Char> options_get_dsn(ffi.Pointer<sentry_options_s> opts) {
+    return _options_get_dsn(opts);
   }
 
-  late final _options_get_dsnPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<sentry_options_s>)>>('sentry_options_get_dsn');
-  late final _options_get_dsn = _options_get_dsnPtr.asFunction<
-      ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
+  late final _options_get_dsnPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
+        >
+      >('sentry_options_get_dsn');
+  late final _options_get_dsn = _options_get_dsnPtr
+      .asFunction<
+        ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
+      >();
 
   /// Sets the sample rate, which should be a double between `0.0` and `1.0`.
   /// Sentry will randomly discard any event that is captured using
@@ -479,32 +425,27 @@ class SentryNative {
     ffi.Pointer<sentry_options_s> opts,
     double sample_rate,
   ) {
-    return _options_set_sample_rate(
-      opts,
-      sample_rate,
-    );
+    return _options_set_sample_rate(opts, sample_rate);
   }
 
-  late final _options_set_sample_ratePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<sentry_options_s>,
-              ffi.Double)>>('sentry_options_set_sample_rate');
+  late final _options_set_sample_ratePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>, ffi.Double)
+        >
+      >('sentry_options_set_sample_rate');
   late final _options_set_sample_rate = _options_set_sample_ratePtr
       .asFunction<void Function(ffi.Pointer<sentry_options_s>, double)>();
 
   /// Gets the sample rate.
-  double options_get_sample_rate(
-    ffi.Pointer<sentry_options_s> opts,
-  ) {
-    return _options_get_sample_rate(
-      opts,
-    );
+  double options_get_sample_rate(ffi.Pointer<sentry_options_s> opts) {
+    return _options_get_sample_rate(opts);
   }
 
-  late final _options_get_sample_ratePtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Double Function(ffi.Pointer<sentry_options_s>)>>(
-      'sentry_options_get_sample_rate');
+  late final _options_get_sample_ratePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Double Function(ffi.Pointer<sentry_options_s>)>
+      >('sentry_options_get_sample_rate');
   late final _options_get_sample_rate = _options_get_sample_ratePtr
       .asFunction<double Function(ffi.Pointer<sentry_options_s>)>();
 
@@ -513,134 +454,143 @@ class SentryNative {
     ffi.Pointer<sentry_options_s> opts,
     ffi.Pointer<ffi.Char> release,
   ) {
-    return _options_set_release(
-      opts,
-      release,
-    );
+    return _options_set_release(opts, release);
   }
 
-  late final _options_set_releasePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<sentry_options_s>,
-              ffi.Pointer<ffi.Char>)>>('sentry_options_set_release');
-  late final _options_set_release = _options_set_releasePtr.asFunction<
-      void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+  late final _options_set_releasePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Pointer<sentry_options_s>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('sentry_options_set_release');
+  late final _options_set_release = _options_set_releasePtr
+      .asFunction<
+        void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)
+      >();
 
   /// Gets the release.
   ffi.Pointer<ffi.Char> options_get_release(
     ffi.Pointer<sentry_options_s> opts,
   ) {
-    return _options_get_release(
-      opts,
-    );
+    return _options_get_release(opts);
   }
 
-  late final _options_get_releasePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<sentry_options_s>)>>('sentry_options_get_release');
-  late final _options_get_release = _options_get_releasePtr.asFunction<
-      ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
+  late final _options_get_releasePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
+        >
+      >('sentry_options_get_release');
+  late final _options_get_release = _options_get_releasePtr
+      .asFunction<
+        ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
+      >();
 
   /// Sets the environment.
   void options_set_environment(
     ffi.Pointer<sentry_options_s> opts,
     ffi.Pointer<ffi.Char> environment,
   ) {
-    return _options_set_environment(
-      opts,
-      environment,
-    );
+    return _options_set_environment(opts, environment);
   }
 
-  late final _options_set_environmentPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<sentry_options_s>,
-              ffi.Pointer<ffi.Char>)>>('sentry_options_set_environment');
-  late final _options_set_environment = _options_set_environmentPtr.asFunction<
-      void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+  late final _options_set_environmentPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Pointer<sentry_options_s>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('sentry_options_set_environment');
+  late final _options_set_environment = _options_set_environmentPtr
+      .asFunction<
+        void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)
+      >();
 
   /// Gets the environment.
   ffi.Pointer<ffi.Char> options_get_environment(
     ffi.Pointer<sentry_options_s> opts,
   ) {
-    return _options_get_environment(
-      opts,
-    );
+    return _options_get_environment(opts);
   }
 
-  late final _options_get_environmentPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>>(
-      'sentry_options_get_environment');
-  late final _options_get_environment = _options_get_environmentPtr.asFunction<
-      ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
+  late final _options_get_environmentPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
+        >
+      >('sentry_options_get_environment');
+  late final _options_get_environment = _options_get_environmentPtr
+      .asFunction<
+        ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
+      >();
 
   /// Sets the dist.
   void options_set_dist(
     ffi.Pointer<sentry_options_s> opts,
     ffi.Pointer<ffi.Char> dist,
   ) {
-    return _options_set_dist(
-      opts,
-      dist,
-    );
+    return _options_set_dist(opts, dist);
   }
 
-  late final _options_set_distPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<sentry_options_s>,
-              ffi.Pointer<ffi.Char>)>>('sentry_options_set_dist');
-  late final _options_set_dist = _options_set_distPtr.asFunction<
-      void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+  late final _options_set_distPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Pointer<sentry_options_s>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('sentry_options_set_dist');
+  late final _options_set_dist = _options_set_distPtr
+      .asFunction<
+        void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)
+      >();
 
   /// Gets the dist.
-  ffi.Pointer<ffi.Char> options_get_dist(
-    ffi.Pointer<sentry_options_s> opts,
-  ) {
-    return _options_get_dist(
-      opts,
-    );
+  ffi.Pointer<ffi.Char> options_get_dist(ffi.Pointer<sentry_options_s> opts) {
+    return _options_get_dist(opts);
   }
 
-  late final _options_get_distPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<sentry_options_s>)>>('sentry_options_get_dist');
-  late final _options_get_dist = _options_get_distPtr.asFunction<
-      ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
+  late final _options_get_distPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
+        >
+      >('sentry_options_get_dist');
+  late final _options_get_dist = _options_get_distPtr
+      .asFunction<
+        ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
+      >();
 
   /// Enables or disables debug printing mode. To change the log level from the
   /// default DEBUG level, use `sentry_options_set_logger_level`.
-  void options_set_debug(
-    ffi.Pointer<sentry_options_s> opts,
-    int debug,
-  ) {
-    return _options_set_debug(
-      opts,
-      debug,
-    );
+  void options_set_debug(ffi.Pointer<sentry_options_s> opts, int debug) {
+    return _options_set_debug(opts, debug);
   }
 
-  late final _options_set_debugPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<sentry_options_s>,
-              ffi.Int)>>('sentry_options_set_debug');
+  late final _options_set_debugPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>, ffi.Int)
+        >
+      >('sentry_options_set_debug');
   late final _options_set_debug = _options_set_debugPtr
       .asFunction<void Function(ffi.Pointer<sentry_options_s>, int)>();
 
   /// Returns the current value of the debug flag.
-  int options_get_debug(
-    ffi.Pointer<sentry_options_s> opts,
-  ) {
-    return _options_get_debug(
-      opts,
-    );
+  int options_get_debug(ffi.Pointer<sentry_options_s> opts) {
+    return _options_get_debug(opts);
   }
 
-  late final _options_get_debugPtr = _lookup<
-          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<sentry_options_s>)>>(
-      'sentry_options_get_debug');
+  late final _options_get_debugPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Int Function(ffi.Pointer<sentry_options_s>)>
+      >('sentry_options_get_debug');
   late final _options_get_debug = _options_get_debugPtr
       .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
 
@@ -651,31 +601,27 @@ class SentryNative {
     ffi.Pointer<sentry_options_s> opts,
     int max_breadcrumbs,
   ) {
-    return _options_set_max_breadcrumbs(
-      opts,
-      max_breadcrumbs,
-    );
+    return _options_set_max_breadcrumbs(opts, max_breadcrumbs);
   }
 
-  late final _options_set_max_breadcrumbsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<sentry_options_s>,
-              ffi.Size)>>('sentry_options_set_max_breadcrumbs');
+  late final _options_set_max_breadcrumbsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>, ffi.Size)
+        >
+      >('sentry_options_set_max_breadcrumbs');
   late final _options_set_max_breadcrumbs = _options_set_max_breadcrumbsPtr
       .asFunction<void Function(ffi.Pointer<sentry_options_s>, int)>();
 
   /// Gets the number of breadcrumbs being tracked and attached to events.
-  int options_get_max_breadcrumbs(
-    ffi.Pointer<sentry_options_s> opts,
-  ) {
-    return _options_get_max_breadcrumbs(
-      opts,
-    );
+  int options_get_max_breadcrumbs(ffi.Pointer<sentry_options_s> opts) {
+    return _options_get_max_breadcrumbs(opts);
   }
 
-  late final _options_get_max_breadcrumbsPtr = _lookup<
-          ffi.NativeFunction<ffi.Size Function(ffi.Pointer<sentry_options_s>)>>(
-      'sentry_options_get_max_breadcrumbs');
+  late final _options_get_max_breadcrumbsPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Size Function(ffi.Pointer<sentry_options_s>)>
+      >('sentry_options_get_max_breadcrumbs');
   late final _options_get_max_breadcrumbs = _options_get_max_breadcrumbsPtr
       .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
 
@@ -690,32 +636,28 @@ class SentryNative {
     ffi.Pointer<sentry_options_s> opts,
     int val,
   ) {
-    return _options_set_auto_session_tracking(
-      opts,
-      val,
-    );
+    return _options_set_auto_session_tracking(opts, val);
   }
 
-  late final _options_set_auto_session_trackingPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<sentry_options_s>,
-              ffi.Int)>>('sentry_options_set_auto_session_tracking');
+  late final _options_set_auto_session_trackingPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>, ffi.Int)
+        >
+      >('sentry_options_set_auto_session_tracking');
   late final _options_set_auto_session_tracking =
       _options_set_auto_session_trackingPtr
           .asFunction<void Function(ffi.Pointer<sentry_options_s>, int)>();
 
   /// Returns true if automatic session tracking is enabled.
-  int options_get_auto_session_tracking(
-    ffi.Pointer<sentry_options_s> opts,
-  ) {
-    return _options_get_auto_session_tracking(
-      opts,
-    );
+  int options_get_auto_session_tracking(ffi.Pointer<sentry_options_s> opts) {
+    return _options_get_auto_session_tracking(opts);
   }
 
-  late final _options_get_auto_session_trackingPtr = _lookup<
-          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<sentry_options_s>)>>(
-      'sentry_options_get_auto_session_tracking');
+  late final _options_get_auto_session_trackingPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Int Function(ffi.Pointer<sentry_options_s>)>
+      >('sentry_options_get_auto_session_tracking');
   late final _options_get_auto_session_tracking =
       _options_get_auto_session_trackingPtr
           .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
@@ -743,20 +685,22 @@ class SentryNative {
     ffi.Pointer<sentry_options_s> opts,
     ffi.Pointer<ffi.Char> path,
   ) {
-    return _options_set_handler_path(
-      opts,
-      path,
-    );
+    return _options_set_handler_path(opts, path);
   }
 
-  late final _options_set_handler_pathPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<sentry_options_s>,
-              ffi.Pointer<ffi.Char>)>>('sentry_options_set_handler_path');
-  late final _options_set_handler_path =
-      _options_set_handler_pathPtr.asFunction<
-          void Function(
-              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+  late final _options_set_handler_pathPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Pointer<sentry_options_s>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('sentry_options_set_handler_path');
+  late final _options_set_handler_path = _options_set_handler_pathPtr
+      .asFunction<
+        void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)
+      >();
 
   /// Sets the path to the Sentry Database Directory.
   ///
@@ -789,20 +733,22 @@ class SentryNative {
     ffi.Pointer<sentry_options_s> opts,
     ffi.Pointer<ffi.Char> path,
   ) {
-    return _options_set_database_path(
-      opts,
-      path,
-    );
+    return _options_set_database_path(opts, path);
   }
 
-  late final _options_set_database_pathPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<sentry_options_s>,
-              ffi.Pointer<ffi.Char>)>>('sentry_options_set_database_path');
-  late final _options_set_database_path =
-      _options_set_database_pathPtr.asFunction<
-          void Function(
-              ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)>();
+  late final _options_set_database_pathPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Pointer<sentry_options_s>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('sentry_options_set_database_path');
+  late final _options_set_database_path = _options_set_database_pathPtr
+      .asFunction<
+        void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)
+      >();
 
   /// Initializes the Sentry SDK with the specified options.
   ///
@@ -811,19 +757,16 @@ class SentryNative {
   /// Depending on the configured transport and backend, this function might not be
   /// fully thread-safe.
   /// Returns 0 on success.
-  int init(
-    ffi.Pointer<sentry_options_s> options,
-  ) {
-    return _init(
-      options,
-    );
+  int init(ffi.Pointer<sentry_options_s> options) {
+    return _init(options);
   }
 
-  late final _initPtr = _lookup<
-          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<sentry_options_s>)>>(
-      'sentry_init');
-  late final _init =
-      _initPtr.asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
+  late final _initPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Int Function(ffi.Pointer<sentry_options_s>)>
+      >('sentry_init');
+  late final _init = _initPtr
+      .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
 
   /// Shuts down the sentry client and forces transports to flush out.
   ///
@@ -843,8 +786,9 @@ class SentryNative {
     return _close();
   }
 
-  late final _closePtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function()>>('sentry_close');
+  late final _closePtr = _lookup<ffi.NativeFunction<ffi.Int Function()>>(
+    'sentry_close',
+  );
   late final _close = _closePtr.asFunction<int Function()>();
 
   /// This will lazily load and cache a list of all the loaded libraries.
@@ -857,147 +801,124 @@ class SentryNative {
 
   late final _get_modules_listPtr =
       _lookup<ffi.NativeFunction<sentry_value_u Function()>>(
-          'sentry_get_modules_list');
-  late final _get_modules_list =
-      _get_modules_listPtr.asFunction<sentry_value_u Function()>();
+        'sentry_get_modules_list',
+      );
+  late final _get_modules_list = _get_modules_listPtr
+      .asFunction<sentry_value_u Function()>();
 
   /// Adds the breadcrumb to be sent in case of an event.
-  void add_breadcrumb(
-    sentry_value_u breadcrumb,
-  ) {
-    return _add_breadcrumb(
-      breadcrumb,
-    );
+  void add_breadcrumb(sentry_value_u breadcrumb) {
+    return _add_breadcrumb(breadcrumb);
   }
 
   late final _add_breadcrumbPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(sentry_value_u)>>(
-          'sentry_add_breadcrumb');
-  late final _add_breadcrumb =
-      _add_breadcrumbPtr.asFunction<void Function(sentry_value_u)>();
+        'sentry_add_breadcrumb',
+      );
+  late final _add_breadcrumb = _add_breadcrumbPtr
+      .asFunction<void Function(sentry_value_u)>();
 
   /// Sets the specified user.
-  void set_user(
-    sentry_value_u user,
-  ) {
-    return _set_user(
-      user,
-    );
+  void set_user(sentry_value_u user) {
+    return _set_user(user);
   }
 
   late final _set_userPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(sentry_value_u)>>(
-          'sentry_set_user');
-  late final _set_user =
-      _set_userPtr.asFunction<void Function(sentry_value_u)>();
+        'sentry_set_user',
+      );
+  late final _set_user = _set_userPtr
+      .asFunction<void Function(sentry_value_u)>();
 
   /// Removes a user.
   void remove_user() {
     return _remove_user();
   }
 
-  late final _remove_userPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function()>>('sentry_remove_user');
+  late final _remove_userPtr = _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+    'sentry_remove_user',
+  );
   late final _remove_user = _remove_userPtr.asFunction<void Function()>();
 
   /// Sets a tag.
-  void set_tag(
-    ffi.Pointer<ffi.Char> key,
-    ffi.Pointer<ffi.Char> value,
-  ) {
-    return _set_tag(
-      key,
-      value,
-    );
+  void set_tag(ffi.Pointer<ffi.Char> key, ffi.Pointer<ffi.Char> value) {
+    return _set_tag(key, value);
   }
 
-  late final _set_tagPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>>('sentry_set_tag');
-  late final _set_tag = _set_tagPtr.asFunction<
-      void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+  late final _set_tagPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)
+        >
+      >('sentry_set_tag');
+  late final _set_tag = _set_tagPtr
+      .asFunction<
+        void Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)
+      >();
 
   /// Removes the tag with the specified key.
-  void remove_tag(
-    ffi.Pointer<ffi.Char> key,
-  ) {
-    return _remove_tag(
-      key,
-    );
+  void remove_tag(ffi.Pointer<ffi.Char> key) {
+    return _remove_tag(key);
   }
 
   late final _remove_tagPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
-          'sentry_remove_tag');
-  late final _remove_tag =
-      _remove_tagPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+        'sentry_remove_tag',
+      );
+  late final _remove_tag = _remove_tagPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
 
   /// Sets extra information.
-  void set_extra(
-    ffi.Pointer<ffi.Char> key,
-    sentry_value_u value,
-  ) {
-    return _set_extra(
-      key,
-      value,
-    );
+  void set_extra(ffi.Pointer<ffi.Char> key, sentry_value_u value) {
+    return _set_extra(key, value);
   }
 
-  late final _set_extraPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<ffi.Char>, sentry_value_u)>>('sentry_set_extra');
+  late final _set_extraPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Char>, sentry_value_u)
+        >
+      >('sentry_set_extra');
   late final _set_extra = _set_extraPtr
       .asFunction<void Function(ffi.Pointer<ffi.Char>, sentry_value_u)>();
 
   /// Removes the extra with the specified key.
-  void remove_extra(
-    ffi.Pointer<ffi.Char> key,
-  ) {
-    return _remove_extra(
-      key,
-    );
+  void remove_extra(ffi.Pointer<ffi.Char> key) {
+    return _remove_extra(key);
   }
 
   late final _remove_extraPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
-          'sentry_remove_extra');
-  late final _remove_extra =
-      _remove_extraPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+        'sentry_remove_extra',
+      );
+  late final _remove_extra = _remove_extraPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
 
   /// Sets a context object.
-  void set_context(
-    ffi.Pointer<ffi.Char> key,
-    sentry_value_u value,
-  ) {
-    return _set_context(
-      key,
-      value,
-    );
+  void set_context(ffi.Pointer<ffi.Char> key, sentry_value_u value) {
+    return _set_context(key, value);
   }
 
-  late final _set_contextPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<ffi.Char>, sentry_value_u)>>('sentry_set_context');
+  late final _set_contextPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Char>, sentry_value_u)
+        >
+      >('sentry_set_context');
   late final _set_context = _set_contextPtr
       .asFunction<void Function(ffi.Pointer<ffi.Char>, sentry_value_u)>();
 
   /// Removes the context object with the specified key.
-  void remove_context(
-    ffi.Pointer<ffi.Char> key,
-  ) {
-    return _remove_context(
-      key,
-    );
+  void remove_context(ffi.Pointer<ffi.Char> key) {
+    return _remove_context(key);
   }
 
   late final _remove_contextPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
-          'sentry_remove_context');
-  late final _remove_context =
-      _remove_contextPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+        'sentry_remove_context',
+      );
+  late final _remove_context = _remove_contextPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
 
   /// Sentry SDK version.
   ffi.Pointer<ffi.Char> sdk_version() {
@@ -1006,9 +927,10 @@ class SentryNative {
 
   late final _sdk_versionPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
-          'sentry_sdk_version');
-  late final _sdk_version =
-      _sdk_versionPtr.asFunction<ffi.Pointer<ffi.Char> Function()>();
+        'sentry_sdk_version',
+      );
+  late final _sdk_version = _sdk_versionPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   /// Sentry SDK name set during build time.
   ffi.Pointer<ffi.Char> sdk_name() {
@@ -1017,9 +939,10 @@ class SentryNative {
 
   late final _sdk_namePtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
-          'sentry_sdk_name');
-  late final _sdk_name =
-      _sdk_namePtr.asFunction<ffi.Pointer<ffi.Char> Function()>();
+        'sentry_sdk_name',
+      );
+  late final _sdk_name = _sdk_namePtr
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
 }
 
 /// Represents a sentry protocol value.
