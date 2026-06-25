@@ -37,7 +37,7 @@ jobs:
             host: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       # Let's stick to an explicit version and update manually because a version change may affect results.
       # If it would update implicitly it could confuse people to think the change is actually caused by the PR.
@@ -53,7 +53,7 @@ jobs:
         with:
           flutter-version: ${{ steps.conf.outputs.flutter }}
 
-      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+      - uses: actions/setup-java@ad2b38190b15e4d6bdf0c97fb4fca8412226d287 # v5
         if: ${{ matrix.platform == 'android' }}
         with:
           java-version: '17'
@@ -97,7 +97,7 @@ jobs:
     name: Console
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
 
       - name: create dart sample apps

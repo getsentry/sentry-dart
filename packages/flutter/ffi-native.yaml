@@ -42,6 +42,8 @@ functions:
     - sentry_value_is_true
     - sentry_value_new_null
     - sentry_value_new_int32
+    - sentry_value_new_int64
+    - sentry_value_new_uint64
     - sentry_value_new_double
     - sentry_value_new_string
     - sentry_value_new_list
@@ -49,6 +51,8 @@ functions:
     - sentry_value_new_bool
     - sentry_value_append
     - sentry_value_as_int32
+    - sentry_value_as_int64
+    - sentry_value_as_uint64
     - sentry_value_as_double
     - sentry_value_as_string
     - sentry_value_as_list

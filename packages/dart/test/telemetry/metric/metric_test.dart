@@ -68,5 +68,24 @@ void main() {
         'distribution',
       );
     });
+
+    test('serializes array attributes', () {
+      final metric = SentryCounterMetric(
+        timestamp: DateTime.utc(2024, 1, 15),
+        name: 'button_clicks',
+        value: 5,
+        traceId: SentryId.newId(),
+        attributes: {
+          'tags': SentryAttribute.intArray([1, 2]),
+        },
+      );
+
+      final json = metric.toJson();
+
+      expect(json['attributes']['tags'], {
+        'value': [1, 2],
+        'type': 'array',
+      });
+    });
   });
 }
