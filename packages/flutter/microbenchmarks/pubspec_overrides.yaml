@@ -1,6 +1,0 @@
-# melos_managed_dependency_overrides: sentry,sentry_flutter
-dependency_overrides:
-  sentry:
-    path: ../../dart
-  sentry_flutter:
-    path: ..
