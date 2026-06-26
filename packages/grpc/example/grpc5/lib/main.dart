@@ -1,4 +1,4 @@
-// ignore_for_file: invalid_use_of_internal_member, implementation_imports
+// ignore_for_file: invalid_use_of_internal_member, implementation_imports, experimental_member_use
 
 import 'dart:convert';
 import 'dart:io';
@@ -75,10 +75,9 @@ Future<void> _emptyCall(_GrpcBinClient client) async {
     await client.empty();
     tr.status = const SpanStatus.ok();
     print('OK');
-  } catch (e, s) {
+  } catch (e) {
     tr.throwable = e;
     tr.status = const SpanStatus.internalError();
-    await Sentry.captureException(e, stackTrace: s);
     print('FAILED: $e');
   } finally {
     await tr.finish();
@@ -98,10 +97,9 @@ Future<void> _dummyUnaryCall(_GrpcBinClient client) async {
     );
     tr.status = const SpanStatus.ok();
     print('echo: "${response.fString}"');
-  } catch (e, s) {
+  } catch (e) {
     tr.throwable = e;
     tr.status = const SpanStatus.internalError();
-    await Sentry.captureException(e, stackTrace: s);
     print('FAILED: $e');
   } finally {
     await tr.finish();
@@ -119,10 +117,9 @@ Future<void> _randomErrorCall(_GrpcBinClient client) async {
     await client.randomError();
     tr.status = const SpanStatus.ok();
     print('OK');
-  } catch (e, s) {
+  } catch (e) {
     tr.throwable = e;
     tr.status = const SpanStatus.internalError();
-    await Sentry.captureException(e, stackTrace: s);
     print('FAILED: $e');
   } finally {
     await tr.finish();
@@ -144,10 +141,9 @@ Future<void> _withHeadersCall(_GrpcBinClient client) async {
     );
     tr.status = const SpanStatus.ok();
     print('echo: "${response.fString}"');
-  } catch (e, s) {
+  } catch (e) {
     tr.throwable = e;
     tr.status = const SpanStatus.internalError();
-    await Sentry.captureException(e, stackTrace: s);
     print('FAILED: $e');
   } finally {
     await tr.finish();
@@ -169,10 +165,9 @@ Future<void> _errorDetailsCall(_ErrorDetailsClient client) async {
     await client.getWithDetails();
     tr.status = const SpanStatus.ok();
     print('OK (unexpected)');
-  } catch (e, s) {
+  } catch (e) {
     tr.throwable = e;
     tr.status = const SpanStatus.internalError();
-    await Sentry.captureException(e, stackTrace: s);
     print('FAILED (expected — error details attached to span): $e');
   } finally {
     await tr.finish();
