@@ -420,7 +420,12 @@ abstract class SemanticAttributesConstants {
   /// See https://opentelemetry.io/docs/specs/semconv/rpc/grpc/
   static const rpcSystem = 'rpc.system';
 
-  /// The fully-qualified logical name of the method (`ServiceName/MethodName`).
+  /// The logical name of the service being called (e.g., `package.Service`).
+  ///
+  /// See https://opentelemetry.io/docs/specs/semconv/rpc/grpc/
+  static const rpcService = 'rpc.service';
+
+  /// The logical name of the method being called (e.g., `Method`).
   ///
   /// See https://opentelemetry.io/docs/specs/semconv/rpc/grpc/
   static const rpcMethod = 'rpc.method';

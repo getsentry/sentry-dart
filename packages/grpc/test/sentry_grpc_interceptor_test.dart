@@ -93,7 +93,7 @@ void main() {
           );
         });
 
-        test('sets rpc.system and rpc.method on span', () async {
+        test('sets rpc.system, rpc.service and rpc.method on span', () async {
           final client = fixture.getSut();
           final tr =
               fixture.hub.startTransaction('name', 'op', bindToScope: true);
@@ -106,9 +106,8 @@ void main() {
           final data = tracer.children.first.data;
           expect(data[SemanticAttributesConstants.rpcSystem], 'grpc');
           expect(
-            data[SemanticAttributesConstants.rpcMethod],
-            'test.TestService/TestMethod',
-          );
+              data[SemanticAttributesConstants.rpcService], 'test.TestService');
+          expect(data[SemanticAttributesConstants.rpcMethod], 'TestMethod');
         });
 
         test('sets rpc.response.status_code to OK on success', () async {
