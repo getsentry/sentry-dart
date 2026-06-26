@@ -170,10 +170,10 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     return invoker(method, requests, modifiedOptions);
   }
 
-  // Sets rpc.system.name and rpc.method per OTEL gRPC semconv.
+  // Sets rpc.system and rpc.method per OTEL gRPC semconv.
   // methodPath format is /package.Service/Method; rpc.method strips the leading slash.
   void _attachRpcAttributes(InstrumentationSpan span, String methodPath) {
-    span.setData(SemanticAttributesConstants.rpcSystemName, 'grpc');
+    span.setData(SemanticAttributesConstants.rpcSystem, 'grpc');
     if (methodPath.startsWith('/')) {
       span.setData(
         SemanticAttributesConstants.rpcMethod,

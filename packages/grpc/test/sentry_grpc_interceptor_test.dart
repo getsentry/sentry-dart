@@ -101,7 +101,7 @@ void main() {
           );
         });
 
-        test('sets rpc.system.name and rpc.method on span', () async {
+        test('sets rpc.system and rpc.method on span', () async {
           final client = fixture.getSut();
           final tr =
               fixture.hub.startTransaction('name', 'op', bindToScope: true);
@@ -112,7 +112,7 @@ void main() {
 
           final tracer = tr as SentryTracer;
           final data = tracer.children.first.data;
-          expect(data[SemanticAttributesConstants.rpcSystemName], 'grpc');
+          expect(data[SemanticAttributesConstants.rpcSystem], 'grpc');
           expect(
             data[SemanticAttributesConstants.rpcMethod],
             'test.TestService/TestMethod',

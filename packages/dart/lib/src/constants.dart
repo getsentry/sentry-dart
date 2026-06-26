@@ -418,7 +418,7 @@ abstract class SemanticAttributesConstants {
   /// The RPC system identifier. For gRPC, always `'grpc'`.
   ///
   /// See https://opentelemetry.io/docs/specs/semconv/rpc/grpc/
-  static const rpcSystemName = 'rpc.system.name';
+  static const rpcSystem = 'rpc.system';
 
   /// The fully-qualified logical name of the method (`ServiceName/MethodName`).
   ///
