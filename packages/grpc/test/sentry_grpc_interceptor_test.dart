@@ -106,7 +106,9 @@ void main() {
           final data = tracer.children.first.data;
           expect(data[SemanticAttributesConstants.rpcSystem], 'grpc');
           expect(
-              data[SemanticAttributesConstants.rpcService], 'test.TestService');
+            data[SemanticAttributesConstants.rpcService],
+            'test.TestService',
+          );
           expect(data[SemanticAttributesConstants.rpcMethod], 'TestMethod');
         });
 

@@ -175,9 +175,13 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     final slash = path.lastIndexOf('/');
     if (slash != -1) {
       span.setData(
-          SemanticAttributesConstants.rpcService, path.substring(0, slash));
+        SemanticAttributesConstants.rpcService,
+        path.substring(0, slash),
+      );
       span.setData(
-          SemanticAttributesConstants.rpcMethod, path.substring(slash + 1));
+        SemanticAttributesConstants.rpcMethod,
+        path.substring(slash + 1),
+      );
     }
   }
 
