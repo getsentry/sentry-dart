@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:grpc/grpc_or_grpcweb.dart';
 import 'package:grpc/service_api.dart';
 import 'package:meta/meta.dart';
-import 'package:grpc/src/generated/google/rpc/error_details.pb.dart' as rpc;
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/constants.dart';
 import 'package:sentry/src/tracing/instrumentation/instrumentation.dart';
@@ -124,9 +123,6 @@ class SentryGrpcInterceptor extends ClientInterceptor {
             SemanticAttributesConstants.rpcResponseStatusCode,
             grpcError?.codeName ?? 'UNKNOWN',
           );
-          if (span != null && grpcError != null) {
-            _attachErrorDetails(span, grpcError);
-          }
           await span?.finish();
           if (_recordBreadcrumbs) {
             stopwatch!.stop();
@@ -270,82 +266,6 @@ class SentryGrpcInterceptor extends ClientInterceptor {
           });
         },
       );
-
-  void _attachErrorDetails(InstrumentationSpan span, GrpcError error) {
-    final details = error.details;
-    if (details == null || details.isEmpty) return;
-
-    for (final detail in details) {
-      if (detail is rpc.ErrorInfo) {
-        span.setData(
-          SemanticAttributesConstants.grpcErrorInfoReason,
-          detail.reason,
-        );
-        span.setData(
-          SemanticAttributesConstants.grpcErrorInfoDomain,
-          detail.domain,
-        );
-        if (detail.metadata.isNotEmpty && _hub.options.sendDefaultPii) {
-          span.setData(
-            SemanticAttributesConstants.grpcErrorInfoMetadata,
-            detail.metadata.toString(),
-          );
-        }
-      } else if (detail is rpc.BadRequest) {
-        span.setData(
-          SemanticAttributesConstants.grpcBadRequestFieldViolations,
-          detail.fieldViolations
-              .map((v) => '${v.field_1}: ${v.description}')
-              .join('; '),
-        );
-      } else if (detail is rpc.RetryInfo) {
-        span.setData(
-          SemanticAttributesConstants.grpcRetryInfoRetryDelay,
-          '${detail.retryDelay.seconds}s',
-        );
-      } else if (detail is rpc.DebugInfo) {
-        if (_hub.options.sendDefaultPii) {
-          span.setData(
-            SemanticAttributesConstants.grpcDebugInfoDetail,
-            detail.detail,
-          );
-        }
-      } else if (detail is rpc.PreconditionFailure) {
-        if (_hub.options.sendDefaultPii) {
-          span.setData(
-            SemanticAttributesConstants.grpcPreconditionFailureViolations,
-            detail.violations
-                .map((v) => '${v.type}: ${v.subject} - ${v.description}')
-                .join('; '),
-          );
-        }
-      } else if (detail is rpc.ResourceInfo) {
-        span.setData(
-          SemanticAttributesConstants.grpcResourceInfoType,
-          detail.resourceType,
-        );
-        if (_hub.options.sendDefaultPii) {
-          span.setData(
-            SemanticAttributesConstants.grpcResourceInfoName,
-            detail.resourceName,
-          );
-        }
-        span.setData(
-          SemanticAttributesConstants.grpcResourceInfoDescription,
-          detail.description,
-        );
-      } else if (detail is rpc.QuotaFailure) {
-        if (_hub.options.sendDefaultPii) {
-          span.setData(
-            SemanticAttributesConstants.grpcQuotaFailureViolations,
-            detail.violations
-                .map((v) => '${v.subject}: ${v.description}')
-                .join('; '),
-          );
-        }
-      }
-    }
-  }
 
   SpanStatus _grpcStatusToSpanStatus(GrpcError? error) {
     if (error == null) return const SpanStatus.internalError();

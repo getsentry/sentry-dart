@@ -434,41 +434,6 @@ abstract class SemanticAttributesConstants {
   ///
   /// See https://opentelemetry.io/docs/specs/semconv/rpc/grpc/
   static const rpcRequestMetadataPrefix = 'rpc.request.metadata.';
-
-  /// The reason string from a gRPC ErrorInfo error detail.
-  static const grpcErrorInfoReason = 'grpc.error_info.reason';
-
-  /// The domain string from a gRPC ErrorInfo error detail.
-  static const grpcErrorInfoDomain = 'grpc.error_info.domain';
-
-  /// The metadata map from a gRPC ErrorInfo error detail.
-  static const grpcErrorInfoMetadata = 'grpc.error_info.metadata';
-
-  /// The field violations from a gRPC BadRequest error detail.
-  static const grpcBadRequestFieldViolations =
-      'grpc.bad_request.field_violations';
-
-  /// The retry delay from a gRPC RetryInfo error detail.
-  static const grpcRetryInfoRetryDelay = 'grpc.retry_info.retry_delay';
-
-  /// The detail string from a gRPC DebugInfo error detail.
-  static const grpcDebugInfoDetail = 'grpc.debug_info.detail';
-
-  /// The violations from a gRPC PreconditionFailure error detail.
-  static const grpcPreconditionFailureViolations =
-      'grpc.precondition_failure.violations';
-
-  /// The resource type from a gRPC ResourceInfo error detail.
-  static const grpcResourceInfoType = 'grpc.resource_info.type';
-
-  /// The resource name from a gRPC ResourceInfo error detail.
-  static const grpcResourceInfoName = 'grpc.resource_info.name';
-
-  /// The description from a gRPC ResourceInfo error detail.
-  static const grpcResourceInfoDescription = 'grpc.resource_info.description';
-
-  /// The violations from a gRPC QuotaFailure error detail.
-  static const grpcQuotaFailureViolations = 'grpc.quota_failure.violations';
 }
 
 /// Attribute keys emitted by the SDK that are not (yet) codified in
