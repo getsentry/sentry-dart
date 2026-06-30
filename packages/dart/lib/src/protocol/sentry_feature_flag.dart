@@ -33,6 +33,16 @@ class SentryFeatureFlag {
     };
   }
 
+  // Uses copy rather than clone because clone is currently a deprecated public API.
+  @internal
+  SentryFeatureFlag copy() {
+    return SentryFeatureFlag(
+      flag: flag,
+      result: result,
+      unknown: unknown == null ? null : Map<String, dynamic>.from(unknown!),
+    );
+  }
+
   @Deprecated('Assign values directly to the instance.')
   SentryFeatureFlag copyWith({
     String? flag,
