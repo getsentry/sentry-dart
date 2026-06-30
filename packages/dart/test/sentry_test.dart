@@ -7,6 +7,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
 import 'package:sentry/src/feature_flags_integration.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/telemetry/metric/metrics_setup_integration.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
 import 'package:test/test.dart';
@@ -390,7 +391,7 @@ void main() {
       expect(featureFlagsContext, isNull);
     });
 
-    test('addFeatureFlag adds feature flag to active span', () async {
+    test('addFeatureFlag adds feature flag to active stream span', () async {
       final options = defaultTestOptions();
       await Sentry.init(
         options: options,
@@ -409,6 +410,27 @@ void main() {
           equals({'value': true, 'type': 'boolean'}),
         );
       });
+    });
+
+    test('addFeatureFlag adds feature flag to active static span', () async {
+      final options = defaultTestOptions();
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          options.tracesSampleRate = 1.0;
+        },
+      );
+
+      final transaction = Sentry.startTransaction(
+        'checkout',
+        'operation',
+        bindToScope: true,
+      ) as SentryTracer;
+      await Sentry.addFeatureFlag('foo', true);
+
+      expect(transaction.data['flag.evaluation.foo'], isTrue);
+      await transaction.finish();
     });
 
     test('addFeatureFlag ignores non-boolean values for active span', () async {

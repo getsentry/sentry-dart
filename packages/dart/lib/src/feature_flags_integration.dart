@@ -6,7 +6,11 @@ import 'integration.dart';
 import 'protocol/sentry_attribute.dart';
 import 'protocol/sentry_feature_flag.dart';
 import 'protocol/sentry_feature_flags.dart';
+import 'protocol/sentry_span.dart';
 import 'sentry_options.dart';
+import 'sentry_span_interface.dart';
+import 'sentry_tracer.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 
 const _maxActiveSpanFeatureFlags = 10;
 
@@ -51,24 +55,76 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
 
   void _addFeatureFlagToActiveSpan(Hub hub, String flag, bool result) {
     final activeSpan = hub.getActiveSpan();
-    if (activeSpan == null || activeSpan.isEnded) {
+    if (activeSpan != null) {
+      _addFeatureFlagToActiveSpanV2(activeSpan, flag, result);
+      return;
+    }
+
+    final activeLegacySpan = hub.getSpan();
+    if (activeLegacySpan != null) {
+      _addFeatureFlagToActiveLegacySpan(activeLegacySpan, flag, result);
+    }
+  }
+
+  void _addFeatureFlagToActiveSpanV2(
+    RecordingSentrySpanV2 span,
+    String flag,
+    bool result,
+  ) {
+    if (span.isEnded) {
       return;
     }
 
     final key = SemanticAttributesConstants.featureFlagEvaluation(flag);
-    final attributes = activeSpan.attributes;
-    if (!attributes.containsKey(key)) {
-      final featureFlagCount = attributes.keys
-          .where((key) => key.startsWith(
-                SemanticAttributesConstants.featureFlagEvaluationPrefix,
-              ))
-          .length;
-      if (featureFlagCount >= _maxActiveSpanFeatureFlags) {
-        return;
-      }
+    final attributes = span.attributes;
+    if (_hasReachedFeatureFlagLimit(attributes, key)) {
+      return;
     }
 
-    activeSpan.setAttribute(key, SentryAttribute.bool(result));
+    span.setAttribute(key, SentryAttribute.bool(result));
+  }
+
+  void _addFeatureFlagToActiveLegacySpan(
+    ISentrySpan span,
+    String flag,
+    bool result,
+  ) {
+    if (span.finished) {
+      return;
+    }
+
+    final key = SemanticAttributesConstants.featureFlagEvaluation(flag);
+    final data = _legacySpanData(span);
+    if (data != null && _hasReachedFeatureFlagLimit(data, key)) {
+      return;
+    }
+
+    span.setData(key, result);
+  }
+
+  bool _hasReachedFeatureFlagLimit(Map<String, dynamic> values, String key) {
+    if (values.containsKey(key)) {
+      return false;
+    }
+
+    final featureFlagCount = values.keys
+        .where(
+          (key) => key.startsWith(
+            SemanticAttributesConstants.featureFlagEvaluationPrefix,
+          ),
+        )
+        .length;
+    return featureFlagCount >= _maxActiveSpanFeatureFlags;
+  }
+
+  Map<String, dynamic>? _legacySpanData(ISentrySpan span) {
+    if (span is SentryTracer) {
+      return span.data;
+    }
+    if (span is SentrySpan) {
+      return span.data;
+    }
+    return null;
   }
 
   @override

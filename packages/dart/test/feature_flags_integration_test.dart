@@ -3,6 +3,7 @@ library;
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/feature_flags_integration.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 
 import 'test_utils.dart';
 import 'mocks/mock_hub.dart';
@@ -175,6 +176,26 @@ void main() {
       );
     });
 
+    test('does not add feature flag to static span when span v2 is active',
+        () async {
+      final sut = fixture.getSut();
+      final span = fixture.createSpan();
+      final staticSpan = fixture.createStaticSpan();
+      fixture.hub.activeSpan = span;
+      fixture.hub.legacySpan = staticSpan;
+
+      sut.call(fixture.hub, fixture.options);
+
+      await sut.addFeatureFlag('checkout', true);
+
+      expect(
+        span.attributes['flag.evaluation.checkout']?.toJson(),
+        equals({'value': true, 'type': 'boolean'}),
+      );
+      expect(staticSpan.data, isNot(contains('flag.evaluation.checkout')));
+      expect(fixture.hub.getSpanCalls, equals(0));
+    });
+
     test('updates active span feature flag in place', () async {
       final sut = fixture.getSut();
       final span = fixture.createSpan();
@@ -228,6 +249,81 @@ void main() {
       );
     });
 
+    test('adds feature flag to active static span', () async {
+      final sut = fixture.getSut();
+      final span = fixture.createStaticSpan();
+      fixture.hub.legacySpan = span;
+
+      sut.call(fixture.hub, fixture.options);
+
+      await sut.addFeatureFlag('checkout', true);
+
+      expect(span.data['flag.evaluation.checkout'], isTrue);
+    });
+
+    test('updates active static span feature flag in place', () async {
+      final sut = fixture.getSut();
+      final span = fixture.createStaticSpan();
+      fixture.hub.legacySpan = span;
+
+      sut.call(fixture.hub, fixture.options);
+
+      await sut.addFeatureFlag('checkout', true);
+      await sut.addFeatureFlag('checkout', false);
+
+      expect(
+        fixture.featureFlagData(span),
+        equals({'flag.evaluation.checkout': false}),
+      );
+    });
+
+    test('adds at most 10 unique feature flags to active static span',
+        () async {
+      final sut = fixture.getSut();
+      final span = fixture.createStaticSpan();
+      fixture.hub.legacySpan = span;
+
+      sut.call(fixture.hub, fixture.options);
+
+      for (var i = 0; i < 11; i++) {
+        await sut.addFeatureFlag('foo_$i', i.isEven);
+      }
+
+      expect(fixture.featureFlagData(span).keys, hasLength(10));
+      expect(span.data, isNot(contains('flag.evaluation.foo_10')));
+    });
+
+    test(
+        'updates existing active static span feature flag after limit is reached',
+        () async {
+      final sut = fixture.getSut();
+      final span = fixture.createStaticSpan();
+      fixture.hub.legacySpan = span;
+
+      sut.call(fixture.hub, fixture.options);
+
+      for (var i = 0; i < 10; i++) {
+        await sut.addFeatureFlag('foo_$i', i.isEven);
+      }
+      await sut.addFeatureFlag('foo_5', true);
+
+      expect(fixture.featureFlagData(span).keys, hasLength(10));
+      expect(span.data['flag.evaluation.foo_5'], isTrue);
+    });
+
+    test('does not add feature flag to ended active static span', () async {
+      final sut = fixture.getSut();
+      final span = fixture.createStaticSpan();
+      await span.finish();
+      fixture.hub.legacySpan = span;
+
+      sut.call(fixture.hub, fixture.options);
+
+      await sut.addFeatureFlag('foo', true);
+
+      expect(span.data, isNot(contains('flag.evaluation.foo')));
+    });
+
     test('adds feature flag only to scope when no active span exists',
         () async {
       final sut = fixture.getSut();
@@ -240,6 +336,7 @@ void main() {
           as SentryFeatureFlags;
       expect(flags.values.single.flag, equals('foo'));
       expect(fixture.hub.getActiveSpanCalls, equals(1));
+      expect(fixture.hub.getSpanCalls, equals(1));
     });
 
     test('does not add feature flag to ended active span', () async {
@@ -298,6 +395,13 @@ class Fixture {
     return FeatureFlagsIntegration();
   }
 
+  SentryTracer createStaticSpan() {
+    return SentryTracer(
+      SentryTransactionContext('root', 'operation'),
+      hub,
+    );
+  }
+
   RecordingSentrySpanV2 createSpan({RecordingSentrySpanV2? parentSpan}) {
     final dscCreator = (RecordingSentrySpanV2 span) =>
         SentryTraceContextHeader(SentryId.newId(), 'publicKey');
@@ -329,6 +433,14 @@ class Fixture {
       span.attributes.entries
           .where((entry) => entry.key.startsWith('flag.evaluation.'))
           .map((entry) => MapEntry(entry.key, entry.value.toJson())),
+    );
+  }
+
+  Map<String, dynamic> featureFlagData(SentryTracer span) {
+    return Map.fromEntries(
+      span.data.entries.where(
+        (entry) => entry.key.startsWith('flag.evaluation.'),
+      ),
     );
   }
 }

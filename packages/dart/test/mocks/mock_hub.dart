@@ -24,6 +24,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   int getSpanCalls = 0;
   int getActiveSpanCalls = 0;
   RecordingSentrySpanV2? activeSpan;
+  ISentrySpan? legacySpan;
 
   final _options = defaultTestOptions();
 
@@ -51,6 +52,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
     getSpanCalls = 0;
     getActiveSpanCalls = 0;
     activeSpan = null;
+    legacySpan = null;
     _scope = Scope(_options);
   }
 
@@ -148,7 +150,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   @override
   ISentrySpan? getSpan() {
     getSpanCalls++;
-    return null;
+    return legacySpan;
   }
 
   @override
