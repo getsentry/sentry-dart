@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'hub.dart';
 import 'integration.dart';
-import 'sentry_options.dart';
-import 'protocol/sentry_feature_flags.dart';
 import 'protocol/sentry_feature_flag.dart';
+import 'protocol/sentry_feature_flags.dart';
+import 'sentry_options.dart';
 
 /// Integration which handles adding feature flags to the scope.
 class FeatureFlagsIntegration extends Integration<SentryOptions> {
@@ -17,8 +17,16 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
   }
 
   FutureOr<void> addFeatureFlag(String flag, bool result) async {
+    final hub = _hub;
+    if (hub == null) {
+      return;
+    }
+
+    final activeSpan = hub.getActiveSpan();
+    activeSpan?.addFeatureFlag(flag, result);
+
     final flags =
-        _hub?.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
+        hub.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
             SentryFeatureFlags(values: []);
     final values = List<SentryFeatureFlag>.from(flags.values);
 
@@ -35,7 +43,7 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
 
     flags.values = values;
 
-    await _hub?.scope.setContexts(SentryFeatureFlags.type, flags);
+    await hub.scope.setContexts(SentryFeatureFlags.type, flags);
   }
 
   @override

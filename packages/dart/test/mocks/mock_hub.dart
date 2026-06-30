@@ -22,6 +22,8 @@ class MockHub with NoSuchMethodProvider implements Hub {
   bool _isEnabled = true;
   int spanContextCals = 0;
   int getSpanCalls = 0;
+  int getActiveSpanCalls = 0;
+  RecordingSentrySpanV2? activeSpan;
 
   final _options = defaultTestOptions();
 
@@ -47,6 +49,8 @@ class MockHub with NoSuchMethodProvider implements Hub {
     spanContextCals = 0;
     captureTransactionCalls = [];
     getSpanCalls = 0;
+    getActiveSpanCalls = 0;
+    activeSpan = null;
     _scope = Scope(_options);
   }
 
@@ -145,6 +149,12 @@ class MockHub with NoSuchMethodProvider implements Hub {
   ISentrySpan? getSpan() {
     getSpanCalls++;
     return null;
+  }
+
+  @override
+  RecordingSentrySpanV2? getActiveSpan() {
+    getActiveSpanCalls++;
+    return activeSpan;
   }
 
   @override

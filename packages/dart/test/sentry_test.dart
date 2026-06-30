@@ -390,6 +390,111 @@ void main() {
       expect(featureFlagsContext, isNull);
     });
 
+    test('addFeatureFlag adds feature flag to active span', () async {
+      final options = defaultTestOptions();
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          options.tracesSampleRate = 1.0;
+          options.traceLifecycle = SentryTraceLifecycle.stream;
+        },
+      );
+
+      await Sentry.startSpan('checkout', (span) async {
+        await Sentry.addFeatureFlag('foo', true);
+
+        expect(
+          span.attributes['flag.evaluation.foo']?.toJson(),
+          equals({'value': true, 'type': 'boolean'}),
+        );
+      });
+    });
+
+    test('addFeatureFlag ignores non-boolean values for active span', () async {
+      final options = defaultTestOptions();
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          options.tracesSampleRate = 1.0;
+          options.traceLifecycle = SentryTraceLifecycle.stream;
+        },
+      );
+
+      await Sentry.startSpan('checkout', (span) async {
+        await Sentry.addFeatureFlag('foo', 'some string');
+
+        expect(span.attributes, isNot(contains('flag.evaluation.foo')));
+      });
+      expect(Sentry.currentHub.scope.contexts[SentryFeatureFlags.type], isNull);
+    });
+
+    test('startSpan direct addFeatureFlag adds feature flag to span', () async {
+      final options = defaultTestOptions();
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          options.tracesSampleRate = 1.0;
+          options.traceLifecycle = SentryTraceLifecycle.stream;
+        },
+      );
+
+      await Sentry.startSpan('checkout', (span) async {
+        span.addFeatureFlag('foo', true);
+
+        expect(
+          span.attributes['flag.evaluation.foo']?.toJson(),
+          equals({'value': true, 'type': 'boolean'}),
+        );
+      });
+    });
+
+    test('startSpanSync direct addFeatureFlag adds feature flag to span',
+        () async {
+      final options = defaultTestOptions();
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          options.tracesSampleRate = 1.0;
+          options.traceLifecycle = SentryTraceLifecycle.stream;
+        },
+      );
+
+      Sentry.startSpanSync('checkout', (span) {
+        span.addFeatureFlag('foo', true);
+
+        expect(
+          span.attributes['flag.evaluation.foo']?.toJson(),
+          equals({'value': true, 'type': 'boolean'}),
+        );
+      });
+    });
+
+    test('startInactiveSpan direct addFeatureFlag adds feature flag to span',
+        () async {
+      final options = defaultTestOptions();
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          options.tracesSampleRate = 1.0;
+          options.traceLifecycle = SentryTraceLifecycle.stream;
+        },
+      );
+
+      final span = Sentry.startInactiveSpan('checkout');
+      span.addFeatureFlag('foo', true);
+
+      expect(
+        span.attributes['flag.evaluation.foo']?.toJson(),
+        equals({'value': true, 'type': 'boolean'}),
+      );
+      span.end();
+    });
+
     test('should close integrations', () async {
       final integration = MockIntegration();
 
