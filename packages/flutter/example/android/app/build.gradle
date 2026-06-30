@@ -39,6 +39,11 @@ android {
 
     compileSdkVersion 36
 
+    // Consume the sentry-native-ndk Prefab package instead of building our own copy.
+    buildFeatures {
+        prefab true
+    }
+
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -96,6 +101,9 @@ flutter {
 
 dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
+    // Declared directly (no version) so AGP exposes its Prefab package to CMake.
+    // The version is inherited from io.sentry:sentry-android via the SDK.
+    implementation "io.sentry:sentry-native-ndk"
 }
 
 // Disabled by default because symbol upload fails on CI when SENTRY_AUTH_TOKEN
