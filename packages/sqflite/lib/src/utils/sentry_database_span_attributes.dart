@@ -10,9 +10,11 @@ void setDatabaseAttributeData(
   String? dbName,
 ) {
   span?.setData(
-      SemanticAttributesConstants.dbSystemName, SentryDatabase.dbSystem);
+    SemanticAttributesConstants.dbSystemName,
+    SentryDatabase.dbSystem,
+  );
   if (dbName != null) {
-    span?.setData(SemanticAttributesConstants.dbName, dbName);
+    span?.setData(SemanticAttributesConstants.dbNamespace, dbName);
   }
 }
 
@@ -22,6 +24,6 @@ void setDatabaseAttributeOnBreadcrumb(Breadcrumb breadcrumb, String? dbName) {
   breadcrumb.data?[SemanticAttributesConstants.dbSystemName] =
       SentryDatabase.dbSystem;
   if (dbName != null) {
-    breadcrumb.data?[SemanticAttributesConstants.dbName] = dbName;
+    breadcrumb.data?[SemanticAttributesConstants.dbNamespace] = dbName;
   }
 }

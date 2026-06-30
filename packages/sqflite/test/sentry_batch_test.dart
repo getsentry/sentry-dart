@@ -504,7 +504,7 @@ SELECT * FROM Product''';
       final span = fixture.tracer.children.last;
       expect(span.data['db.system.name'], 'sqlite');
       expect(
-        span.data['db.name'],
+        span.data['db.namespace'],
         (db as SentryDatabase).dbName,
       );
 
@@ -514,7 +514,7 @@ SELECT * FROM Product''';
         'sqlite',
       );
       expect(
-        breadcrumb.data?['db.name'],
+        breadcrumb.data?['db.namespace'],
         db.dbName,
       );
 
@@ -536,7 +536,7 @@ SELECT * FROM Product''';
         'sqlite',
       );
       expect(
-        breadcrumb.data?['db.name'],
+        breadcrumb.data?['db.namespace'],
         (db as SentryDatabase).dbName,
       );
       expect(breadcrumb.type, 'query');
@@ -556,7 +556,7 @@ SELECT * FROM Product''';
       final span = fixture.tracer.children.last;
       expect(span.data['db.system.name'], 'sqlite');
       expect(
-        span.data['db.name'],
+        span.data['db.namespace'],
         (db as SentryDatabase).dbName,
       );
 
@@ -578,7 +578,7 @@ SELECT * FROM Product''';
         'sqlite',
       );
       expect(
-        breadcrumb.data?['db.name'],
+        breadcrumb.data?['db.namespace'],
         (db as SentryDatabase).dbName,
       );
       expect(breadcrumb.type, 'query');

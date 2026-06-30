@@ -348,11 +348,8 @@ abstract class SemanticAttributesConstants {
   /// The database system identifier (e.g. `postgresql`, `sqlite`).
   static const dbSystemName = 'db.system.name';
 
-  /// The database name.
-  ///
-  /// `db.namespace` is the eventual convention replacement, but it is not yet
-  /// actively deprecated in Sentry Conventions, so we keep emitting `db.name`.
-  static const dbName = 'db.name';
+  /// The name of the database being accessed.
+  static const dbNamespace = 'db.namespace';
 
   /// The name of the operation being executed (e.g. `select`, `insert`).
   static const dbOperationName = 'db.operation.name';

@@ -62,7 +62,7 @@ void main() {
         equals('isar'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbName]?.value,
+        span.attributes[SemanticAttributesConstants.dbNamespace]?.value,
         equals('test-db'),
       );
       expect(
@@ -112,7 +112,7 @@ void main() {
         equals('isar'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbName]?.value,
+        span.attributes[SemanticAttributesConstants.dbNamespace]?.value,
         equals('test-db'),
       );
       expect(span.parentSpan, equals(transactionSpan));

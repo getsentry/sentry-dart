@@ -24,7 +24,7 @@ void main() {
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbHiveBoxBase);
     expect(span?.data['db.system.name'], 'flutter_hive');
-    expect(span?.data['db.name'], Fixture.dbName);
+    expect(span?.data['db.namespace'], Fixture.dbName);
   }
 
   void verifyErrorSpan(
@@ -38,7 +38,7 @@ void main() {
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbHiveBoxBase);
     expect(span?.data['db.system.name'], 'flutter_hive');
-    expect(span?.data['db.name'], Fixture.dbName);
+    expect(span?.data['db.namespace'], Fixture.dbName);
 
     expect(span?.throwable, exception);
   }
@@ -55,7 +55,7 @@ void main() {
     );
     expect(crumb?.type, 'query');
     if (checkName) {
-      expect(crumb?.data?['db.name'], Fixture.dbName);
+      expect(crumb?.data?['db.namespace'], Fixture.dbName);
     }
     expect(crumb?.data?['status'], status);
   }

@@ -836,7 +836,7 @@ void _verifySpan(
     'sqlite',
   );
   expect(
-    span?.data[SemanticAttributesConstants.dbName],
+    span?.data[SemanticAttributesConstants.dbNamespace],
     Fixture.dbName,
   );
 }
@@ -860,7 +860,7 @@ void _verifyErrorSpan(
     'sqlite',
   );
   expect(
-    span?.data[SemanticAttributesConstants.dbName],
+    span?.data[SemanticAttributesConstants.dbNamespace],
     Fixture.dbName,
   );
 

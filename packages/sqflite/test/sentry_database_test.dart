@@ -98,7 +98,7 @@ void main() {
       expect(span.context.description, 'Transaction DB: $inMemoryDatabasePath');
       expect(span.status, SpanStatus.ok());
       expect(span.data['db.system.name'], 'sqlite');
-      expect(span.data['db.name'], inMemoryDatabasePath);
+      expect(span.data['db.namespace'], inMemoryDatabasePath);
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
@@ -119,7 +119,7 @@ void main() {
       expect(span.context.description, 'Transaction DB: $inMemoryDatabasePath');
       expect(span.status, SpanStatus.ok());
       expect(span.data['db.system.name'], 'sqlite');
-      expect(span.data['db.name'], inMemoryDatabasePath);
+      expect(span.data['db.namespace'], inMemoryDatabasePath);
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
@@ -144,7 +144,7 @@ void main() {
         breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -165,7 +165,7 @@ void main() {
         breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -191,7 +191,7 @@ void main() {
         insertSpan.data['db.system.name'],
         'sqlite',
       );
-      expect(insertSpan.data['db.name'], inMemoryDatabasePath);
+      expect(insertSpan.data['db.namespace'], inMemoryDatabasePath);
 
       expect(
         insertSpan.origin,
@@ -400,7 +400,7 @@ void main() {
       expect(span.context.description, 'DELETE FROM Product');
       expect(span.status, SpanStatus.ok());
       expect(span.data['db.system.name'], 'sqlite');
-      expect(span.data['db.name'], inMemoryDatabasePath);
+      expect(span.data['db.namespace'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -424,7 +424,7 @@ void main() {
         breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -440,7 +440,7 @@ void main() {
       expect(span.context.description, 'DELETE FROM Product');
       expect(span.status, SpanStatus.ok());
       expect(span.data['db.system.name'], 'sqlite');
-      expect(span.data['db.name'], inMemoryDatabasePath);
+      expect(span.data['db.namespace'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -464,7 +464,7 @@ void main() {
         breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -483,7 +483,7 @@ void main() {
       );
       expect(span.status, SpanStatus.ok());
       expect(span.data['db.system.name'], 'sqlite');
-      expect(span.data['db.name'], inMemoryDatabasePath);
+      expect(span.data['db.namespace'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -510,7 +510,7 @@ void main() {
         breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -526,7 +526,7 @@ void main() {
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
       expect(span.data['db.system.name'], 'sqlite');
-      expect(span.data['db.name'], inMemoryDatabasePath);
+      expect(span.data['db.namespace'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -551,7 +551,7 @@ void main() {
         breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -567,7 +567,7 @@ void main() {
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
       expect(span.data['db.system.name'], 'sqlite');
-      expect(span.data['db.name'], inMemoryDatabasePath);
+      expect(span.data['db.namespace'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -592,7 +592,7 @@ void main() {
         breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -608,7 +608,7 @@ void main() {
       expect(span.context.description, 'DELETE FROM Product');
       expect(span.status, SpanStatus.ok());
       expect(span.data['db.system.name'], 'sqlite');
-      expect(span.data['db.name'], inMemoryDatabasePath);
+      expect(span.data['db.namespace'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -632,7 +632,7 @@ void main() {
         breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -652,7 +652,7 @@ void main() {
       );
       expect(span.status, SpanStatus.ok());
       expect(span.data['db.system.name'], 'sqlite');
-      expect(span.data['db.name'], inMemoryDatabasePath);
+      expect(span.data['db.namespace'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -677,7 +677,7 @@ void main() {
         breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -693,7 +693,7 @@ void main() {
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
       expect(span.data['db.system.name'], 'sqlite');
-      expect(span.data['db.name'], inMemoryDatabasePath);
+      expect(span.data['db.namespace'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -718,7 +718,7 @@ void main() {
         breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -734,7 +734,7 @@ void main() {
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
       expect(span.data['db.system.name'], 'sqlite');
-      expect(span.data['db.name'], inMemoryDatabasePath);
+      expect(span.data['db.namespace'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -759,7 +759,7 @@ void main() {
         breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -775,7 +775,7 @@ void main() {
       expect(span.context.description, 'UPDATE Product SET title = ?');
       expect(span.status, SpanStatus.ok());
       expect(span.data['db.system.name'], 'sqlite');
-      expect(span.data['db.name'], inMemoryDatabasePath);
+      expect(span.data['db.namespace'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -799,7 +799,7 @@ void main() {
         breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -815,7 +815,7 @@ void main() {
       expect(span.context.description, 'UPDATE Product SET title = ?');
       expect(span.status, SpanStatus.ok());
       expect(span.data['db.system.name'], 'sqlite');
-      expect(span.data['db.name'], inMemoryDatabasePath);
+      expect(span.data['db.namespace'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -839,7 +839,7 @@ void main() {
         breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();

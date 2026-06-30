@@ -38,9 +38,11 @@ class SentrySpanHelper {
 
     span?.origin = _origin;
     span?.setData(
-        SemanticAttributesConstants.dbSystemName, SentryIsar.dbSystem);
+      SemanticAttributesConstants.dbSystemName,
+      SentryIsar.dbSystem,
+    );
     if (dbName != null) {
-      span?.setData(SemanticAttributesConstants.dbName, dbName);
+      span?.setData(SemanticAttributesConstants.dbNamespace, dbName);
     }
     if (collectionName != null) {
       span?.setData(SentryIsar.dbCollectionKey, collectionName);
@@ -50,7 +52,7 @@ class SentrySpanHelper {
       message: description,
       data: {
         SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystem,
-        if (dbName != null) SemanticAttributesConstants.dbName: dbName,
+        if (dbName != null) SemanticAttributesConstants.dbNamespace: dbName,
         if (collectionName != null) SentryIsar.dbCollectionKey: collectionName,
       },
       type: 'query',
@@ -93,9 +95,11 @@ class SentrySpanHelper {
     span?.origin = _origin;
     span?.setData('sync', true);
     span?.setData(
-        SemanticAttributesConstants.dbSystemName, SentryIsar.dbSystem);
+      SemanticAttributesConstants.dbSystemName,
+      SentryIsar.dbSystem,
+    );
     if (dbName != null) {
-      span?.setData(SemanticAttributesConstants.dbName, dbName);
+      span?.setData(SemanticAttributesConstants.dbNamespace, dbName);
     }
     if (collectionName != null) {
       span?.setData(SentryIsar.dbCollectionKey, collectionName);
@@ -105,7 +109,7 @@ class SentrySpanHelper {
       message: description,
       data: {
         SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystem,
-        if (dbName != null) SemanticAttributesConstants.dbName: dbName,
+        if (dbName != null) SemanticAttributesConstants.dbNamespace: dbName,
         if (collectionName != null) SentryIsar.dbCollectionKey: collectionName,
       },
       type: 'query',

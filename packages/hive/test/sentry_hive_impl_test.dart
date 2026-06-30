@@ -31,7 +31,7 @@ void main() {
     expect(span?.origin, SentryTraceOrigins.autoDbHive);
     // expect(span?.data['db.system.name'], 'flutter_hive');
     if (checkName) {
-      expect(span?.data['db.name'], Fixture.dbName);
+      expect(span?.data['db.namespace'], Fixture.dbName);
     }
   }
 
@@ -56,7 +56,7 @@ void main() {
     );
     expect(crumb?.type, 'query');
     if (checkName) {
-      expect(crumb?.data?['db.name'], Fixture.dbName);
+      expect(crumb?.data?['db.namespace'], Fixture.dbName);
     }
     expect(crumb?.data?['status'], status);
   }

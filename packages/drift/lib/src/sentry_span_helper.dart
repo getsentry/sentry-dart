@@ -67,7 +67,7 @@ class SentrySpanHelper {
     );
 
     if (dbName != null) {
-      span.setData(SemanticAttributesConstants.dbName, dbName);
+      span.setData(SemanticAttributesConstants.dbNamespace, dbName);
     }
 
     try {
@@ -115,7 +115,7 @@ class SentrySpanHelper {
     );
 
     if (dbName != null) {
-      newParent.setData(SemanticAttributesConstants.dbName, dbName);
+      newParent.setData(SemanticAttributesConstants.dbNamespace, dbName);
     }
 
     try {
