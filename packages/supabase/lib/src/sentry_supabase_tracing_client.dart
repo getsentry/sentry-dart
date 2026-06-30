@@ -98,7 +98,7 @@ class SentrySupabaseTracingClient extends BaseClient {
     }
     if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii) {
       span.setData(
-        SemanticAttributesConstants.dbQueryText,
+        ProposedSemanticAttributes.dbQuery,
         supabaseRequest.query,
       );
     }

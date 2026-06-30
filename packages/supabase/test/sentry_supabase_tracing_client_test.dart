@@ -98,7 +98,7 @@ void main() {
       verifyFinishSpan();
 
       final span = fixture.mockHub.currentSpan.childSpan;
-      expect(span.data['db.query.text'], [
+      expect(span.data['db.query'], [
         'select(*)',
         'lt(id, 42)',
         'gt(id, 20)',
@@ -151,7 +151,7 @@ void main() {
 
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 42});
-      expect(span.data['db.query.text'], ['select(id,name)']);
+      expect(span.data['db.query'], ['select(id,name)']);
       expect(span.data['db.operation.name'], 'upsert');
       expect(
         span.data['db.sql.query'],
@@ -180,7 +180,7 @@ void main() {
 
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 1337});
-      expect(span.data['db.query.text'], ['eq(id, 42)', 'or(id.eq.8)']);
+      expect(span.data['db.query'], ['eq(id, 42)', 'or(id.eq.8)']);
       expect(span.data['db.operation.name'], 'update');
       expect(
         span.data['db.sql.query'],
@@ -204,7 +204,7 @@ void main() {
       verifyFinishSpan();
 
       final span = fixture.mockHub.currentSpan.childSpan;
-      expect(span.data['db.query.text'], ['eq(id, 42)']);
+      expect(span.data['db.query'], ['eq(id, 42)']);
       expect(span.data['db.operation.name'], 'delete');
       expect(
         span.data['db.sql.query'],
@@ -266,7 +266,7 @@ void main() {
         // Ignore
       }
       final insertSpan = fixture.mockHub.currentSpan.childSpan;
-      expect(insertSpan.data['db.query.text'], isNull);
+      expect(insertSpan.data['db.query'], isNull);
       expect(insertSpan.data['db.body'], isNull);
 
       try {
@@ -276,7 +276,7 @@ void main() {
       }
       final upsertSpan = fixture.mockHub.currentSpan.childSpan;
       expect(upsertSpan.data['db.body'], isNull);
-      expect(upsertSpan.data['db.query.text'], isNull);
+      expect(upsertSpan.data['db.query'], isNull);
       try {
         await supabase.from('countries').update({'id': 1337}).eq('id', 42);
       } catch (e) {
@@ -284,7 +284,7 @@ void main() {
       }
       final updateSpan = fixture.mockHub.currentSpan.childSpan;
       expect(updateSpan.data['db.body'], isNull);
-      expect(updateSpan.data['db.query.text'], isNull);
+      expect(updateSpan.data['db.query'], isNull);
     });
   });
 }
