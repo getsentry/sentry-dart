@@ -14,25 +14,6 @@ class SentrySpanOperations {
 }
 
 @internal
-class SentrySpanData {
-  static const String dbSystemKey = 'db.system';
-  static const String dbNameKey = 'db.name';
-  static const String dbSchemaKey = 'db.schema';
-  static const String dbTableKey = 'db.table';
-  static const String dbUrlKey = 'db.url';
-  static const String dbSdkKey = 'db.sdk';
-  static const String dbQueryKey = 'db.query';
-  static const String dbBodyKey = 'db.body';
-  static const String dbOperationKey = 'db.operation';
-  static const String httpResponseStatusCodeKey = 'http.response.status_code';
-  static const String httpResponseContentLengthKey =
-      'http.response_content_length';
-
-  static const String dbSystemSqlite = 'db.sqlite';
-  static const String dbSystemPostgresql = 'postgresql';
-}
-
-@internal
 class SentrySpanDescriptions {
   static const String dbTransaction = 'Transaction';
   static String dbBatch({required List<String> statements}) =>
@@ -123,26 +104,6 @@ abstract class SemanticAttributesConstants {
   /// The human readable application version, as it appears on the platform.
   static const appVersion = 'app.version';
 
-  /// Internal build identifier, as it appears on the platform.
-  // TODO: deprecated, needs to be replaced later by app.build
-  static const appAppBuild = 'app.app_build';
-
-  /// Version-independent application identifier, often a dotted bundle ID.
-  // TODO: deprecated, needs to be replaced later by app.identifier
-  static const appAppIdentifier = 'app.app_identifier';
-
-  /// Human readable application name, as it appears on the platform.
-  // TODO: deprecated, needs to be replaced later by app.name
-  static const appAppName = 'app.app_name';
-
-  /// Formatted UTC timestamp when the user started the application.
-  // TODO: deprecated, needs to be replaced later by app.start_time
-  static const appAppStartTime = 'app.app_start_time';
-
-  /// Human readable application version, as it appears on the platform.
-  // TODO: deprecated, needs to be replaced later by app.version
-  static const appAppVersion = 'app.app_version';
-
   /// Whether the application is currently in the foreground.
   static const appInForeground = 'app.in_foreground';
 
@@ -164,17 +125,10 @@ abstract class SemanticAttributesConstants {
   static const appVitalsTtfdValue = 'app.vitals.ttfd.value';
 
   /// The value of the cold app start in milliseconds.
-  /// This will later be replaced by app.vitals.start.value
   static const appVitalsStartColdValue = 'app.vitals.start.cold.value';
 
   /// The value of the warm app start in milliseconds.
-  /// This will later be replaced by app.vitals.start.value
   static const appVitalsStartWarmValue = 'app.vitals.start.warm.value';
-
-  /// The value of the app start duration in milliseconds.
-  ///
-  /// The cold/warm distinction is carried by [appVitalsStartType].
-  static const appVitalsStartValue = 'app.vitals.start.value';
 
   /// The type of the app start. (cold or warm)
   static const appVitalsStartType = 'app.vitals.start.type';
@@ -219,10 +173,6 @@ abstract class SemanticAttributesConstants {
   static const osVersion = 'os.version';
 
   /// The build ID of the operating system.
-  // TODO: deprecated, needs to be replaced later by os.build_id
-  static const osBuild = 'os.build';
-
-  /// The build ID of the operating system.
   static const osBuildId = 'os.build_id';
 
   /// Independent kernel version string, typically from uname.
@@ -257,10 +207,6 @@ abstract class SemanticAttributesConstants {
 
   /// Device classification (e.g., low, medium, high), typically inferred by Relay.
   static const deviceClass = 'device.class';
-
-  /// Internet connection type currently used by the device.
-  // TODO: deprecated, needs to be replaced later by network.connection.type
-  static const deviceConnectionType = 'device.connection_type';
 
   /// Description of the device CPU.
   static const deviceCpuDescription = 'device.cpu_description';
@@ -341,14 +287,6 @@ abstract class SemanticAttributesConstants {
   /// Should be used later when relay supports array attributes instead of `device.arch` as it is deprecated.
   static const deviceArchs = 'device.archs';
 
-  /// The locale of the device.
-  // TODO: deprecated, needs to be replaced later by culture.locale
-  static const deviceLocale = 'device.locale';
-
-  /// The timezone of the device.
-  // TODO: deprecated, needs to be replaced later by culture.timezone
-  static const deviceTimezone = 'device.timezone';
-
   /// The calendar of the culture (e.g. `GregorianCalendar`).
   static const cultureCalendar = 'culture.calendar';
 
@@ -407,13 +345,23 @@ abstract class SemanticAttributesConstants {
   /// The HTTP response content length.
   static const httpResponseContentLength = 'http.response_content_length';
 
-  /// The database system identifier.
-  // TODO: deprecated, needs to be replaced later by db.system.name
-  static const dbSystem = 'db.system';
+  /// The database system identifier (e.g. `postgresql`, `sqlite`).
+  static const dbSystemName = 'db.system.name';
 
   /// The database name.
-  // TODO: deprecated, needs to be replaced later by db.namespace
+  ///
+  /// `db.namespace` is the eventual convention replacement, but it is not yet
+  /// actively deprecated in Sentry Conventions, so we keep emitting `db.name`.
   static const dbName = 'db.name';
+
+  /// The name of the operation being executed (e.g. `select`, `insert`).
+  static const dbOperationName = 'db.operation.name';
+
+  /// The database parameterized query being executed.
+  static const dbQueryText = 'db.query.text';
+
+  /// The name of a collection (table, container) within the database.
+  static const dbCollectionName = 'db.collection.name';
 }
 
 /// Attribute keys emitted by the SDK that are not (yet) codified in
@@ -437,4 +385,32 @@ abstract class ProposedSemanticAttributes {
   /// The Flutter release channel used to compile the app
   /// (e.g. `stable`, `beta`, `master`).
   static const flutterChannel = 'flutter.channel';
+
+  /// The value of the app start duration in milliseconds.
+  ///
+  /// The cold/warm distinction is carried by
+  /// [SemanticAttributesConstants.appVitalsStartType]. This unified value is not
+  /// (yet) part of Sentry Conventions; it is emitted alongside the legacy
+  /// `app.vitals.start.cold.value` / `app.vitals.start.warm.value` pair.
+  static const appVitalsStartValue = 'app.vitals.start.value';
+
+  /// The database schema (namespace) being accessed.
+  ///
+  /// Emitted by the Supabase integration; not part of Sentry Conventions.
+  static const dbSchema = 'db.schema';
+
+  /// The database endpoint URL being accessed.
+  ///
+  /// Emitted by the Supabase integration; not part of Sentry Conventions.
+  static const dbUrl = 'db.url';
+
+  /// The client SDK identifier reported by the database service.
+  ///
+  /// Emitted by the Supabase integration; not part of Sentry Conventions.
+  static const dbSdk = 'db.sdk';
+
+  /// The request body sent to the database service.
+  ///
+  /// Emitted by the Supabase integration; not part of Sentry Conventions.
+  static const dbBody = 'db.body';
 }

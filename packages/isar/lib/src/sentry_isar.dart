@@ -15,7 +15,7 @@ class SentryIsar implements Isar {
 
   @internal
   // ignore: public_member_api_docs
-  static const dbSystemKey = 'db.system';
+  static const dbSystemKey = 'db.system.name';
   @internal
   // ignore: public_member_api_docs
   static const dbSystem = 'isar';

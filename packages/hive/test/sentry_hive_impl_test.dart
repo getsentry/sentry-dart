@@ -29,7 +29,7 @@ void main() {
     expect(span?.status, SpanStatus.ok());
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbHive);
-    // expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
+    // expect(span?.data[SentryHiveImpl.dbSystemKey], 'flutter_hive');
     if (checkName) {
       expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
     }

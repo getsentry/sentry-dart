@@ -62,7 +62,7 @@ void main() {
         equals('db'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('flutter_hive'),
       );
       expect(
@@ -108,7 +108,7 @@ void main() {
         equals('db'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('flutter_hive'),
       );
       expect(

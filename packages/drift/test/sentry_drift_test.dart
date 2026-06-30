@@ -832,11 +832,11 @@ void _verifySpan(
   expect(span?.status, status);
   expect(span?.origin, SentryTraceOrigins.autoDbDriftQueryInterceptor);
   expect(
-    span?.data[SentrySpanData.dbSystemKey],
-    SentrySpanData.dbSystemSqlite,
+    span?.data[SemanticAttributesConstants.dbSystemName],
+    'sqlite',
   );
   expect(
-    span?.data[SentrySpanData.dbNameKey],
+    span?.data[SemanticAttributesConstants.dbName],
     Fixture.dbName,
   );
 }
@@ -856,11 +856,11 @@ void _verifyErrorSpan(
   expect(span?.status, status ?? SpanStatus.internalError());
   expect(span?.origin, SentryTraceOrigins.autoDbDriftQueryInterceptor);
   expect(
-    span?.data[SentrySpanData.dbSystemKey],
-    SentrySpanData.dbSystemSqlite,
+    span?.data[SemanticAttributesConstants.dbSystemName],
+    'sqlite',
   );
   expect(
-    span?.data[SentrySpanData.dbNameKey],
+    span?.data[SemanticAttributesConstants.dbName],
     Fixture.dbName,
   );
 

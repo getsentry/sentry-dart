@@ -58,7 +58,7 @@ void main() {
         equals('db'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('isar'),
       );
       expect(
@@ -108,7 +108,7 @@ void main() {
         equals('db'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('isar'),
       );
       expect(
@@ -154,7 +154,7 @@ void main() {
         equals('db'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('isar'),
       );
       expect(span.parentSpan, equals(transactionSpan));

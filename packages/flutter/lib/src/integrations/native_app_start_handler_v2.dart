@@ -110,7 +110,7 @@ class NativeAppStartHandlerV2 {
     };
     appStartSpan.setAttribute(legacyValueKey, durationMs);
     appStartSpan.setAttribute(
-      SemanticAttributesConstants.appVitalsStartValue,
+      ProposedSemanticAttributes.appVitalsStartValue,
       durationMs,
     );
 

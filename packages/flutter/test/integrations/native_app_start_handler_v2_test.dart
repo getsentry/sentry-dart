@@ -236,7 +236,7 @@ void main() {
           );
           expect(
             appStartSpan
-                .attributes[SemanticAttributesConstants.appVitalsStartValue]
+                .attributes[ProposedSemanticAttributes.appVitalsStartValue]
                 ?.value,
             expectedDurationMs,
           );
@@ -277,7 +277,7 @@ void main() {
           );
           expect(
             appStartSpan
-                .attributes[SemanticAttributesConstants.appVitalsStartValue]
+                .attributes[ProposedSemanticAttributes.appVitalsStartValue]
                 ?.value,
             expectedDurationMs,
           );

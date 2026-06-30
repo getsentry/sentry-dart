@@ -502,7 +502,7 @@ SELECT * FROM Product''';
       await batch.apply();
 
       final span = fixture.tracer.children.last;
-      expect(span.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
+      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
       expect(
         span.data[SentryDatabase.dbNameKey],
         (db as SentryDatabase).dbName,
@@ -511,7 +511,7 @@ SELECT * FROM Product''';
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.data?[SentryDatabase.dbSystemKey],
-        SentryDatabase.dbSystem,
+        'sqlite',
       );
       expect(
         breadcrumb.data?[SentryDatabase.dbNameKey],
@@ -533,7 +533,7 @@ SELECT * FROM Product''';
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.data?[SentryDatabase.dbSystemKey],
-        SentryDatabase.dbSystem,
+        'sqlite',
       );
       expect(
         breadcrumb.data?[SentryDatabase.dbNameKey],
@@ -554,7 +554,7 @@ SELECT * FROM Product''';
       await batch.commit();
 
       final span = fixture.tracer.children.last;
-      expect(span.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
+      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
       expect(
         span.data[SentryDatabase.dbNameKey],
         (db as SentryDatabase).dbName,
@@ -575,7 +575,7 @@ SELECT * FROM Product''';
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
         breadcrumb.data?[SentryDatabase.dbSystemKey],
-        SentryDatabase.dbSystem,
+        'sqlite',
       );
       expect(
         breadcrumb.data?[SentryDatabase.dbNameKey],
