@@ -1,9 +1,6 @@
 part of 'sentry_span_v2.dart';
 
-const _spanFeatureFlagPrefix = 'flag.evaluation.';
 const _maxSpanFeatureFlags = 10;
-
-String _spanFeatureFlagKey(String flag) => '$_spanFeatureFlagPrefix$flag';
 
 /// Factory for creating a [SentryTraceContextHeader] from a [RecordingSentrySpanV2].
 typedef DscCreatorCallback = SentryTraceContextHeader Function(
@@ -203,10 +200,12 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
       return;
     }
 
-    final key = _spanFeatureFlagKey(flag);
+    final key = SemanticAttributesConstants.featureFlagEvaluation(flag);
     if (!_attributes.containsKey(key)) {
+      final featureFlagPrefix =
+          SemanticAttributesConstants.featureFlagEvaluationPrefix;
       final featureFlagCount = _attributes.keys
-          .where((key) => key.startsWith(_spanFeatureFlagPrefix))
+          .where((key) => key.startsWith(featureFlagPrefix))
           .length;
       if (featureFlagCount >= _maxSpanFeatureFlags) {
         return;
@@ -222,7 +221,7 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
       return;
     }
 
-    removeAttribute(_spanFeatureFlagKey(flag));
+    removeAttribute(SemanticAttributesConstants.featureFlagEvaluation(flag));
   }
 
   Map<String, dynamic> toJson() {
