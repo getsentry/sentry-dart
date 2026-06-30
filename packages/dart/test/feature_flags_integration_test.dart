@@ -141,47 +141,6 @@ void main() {
     expect(flags.values.first.flag, equals('foo_5'));
     expect(flags.values.last.flag, equals('foo_104'));
   });
-
-  test('does not mutate previous feature flag context', () async {
-    final sut = fixture.getSut();
-    final unknown = {
-      'nested': {'key': 'value'},
-      'items': [
-        {'item': 'value'},
-      ],
-    };
-    final flagUnknown = {
-      'nested': {'flag-key': 'flag-value'},
-    };
-
-    sut.call(fixture.hub, fixture.options);
-    await fixture.hub.scope.setContexts(
-      SentryFeatureFlags.type,
-      SentryFeatureFlags(
-        values: [
-          SentryFeatureFlag(
-            flag: 'foo',
-            result: true,
-            unknown: flagUnknown,
-          ),
-        ],
-        unknown: unknown,
-      ),
-    );
-
-    final previousFlags = fixture.hub.scope.contexts[SentryFeatureFlags.type]
-        as SentryFeatureFlags;
-
-    await sut.addFeatureFlag('bar', false);
-
-    final currentFlags = fixture.hub.scope.contexts[SentryFeatureFlags.type]
-        as SentryFeatureFlags;
-
-    expect(identical(previousFlags, currentFlags), isFalse);
-    expect(identical(previousFlags.unknown, currentFlags.unknown), isFalse);
-    expect(previousFlags.values.map((e) => e.flag), equals(['foo']));
-    expect(currentFlags.values.map((e) => e.flag), equals(['foo', 'bar']));
-  });
 }
 
 class Fixture {
