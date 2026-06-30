@@ -33,6 +33,7 @@ class SentryFeatureFlag {
     };
   }
 
+  // Uses copy rather than clone because clone is currently a deprecated public API.
   @internal
   SentryFeatureFlag copy() {
     return SentryFeatureFlag(
