@@ -261,11 +261,47 @@ group('$Client', () {
 });
 ```
 
+## What to Test
+
+Test the behavior owned by your change.
+
+Prefer tests that would fail if your change's intended contract were broken: user-visible behavior, public API behavior, meaningful branching logic, data transformations, integration wiring, precedence rules, error handling, and regressions your change could realistically introduce.
+
+Avoid tests that merely re-prove guarantees owned somewhere else, such as a shared helper, base class, framework, serializer, collection type, generated model, or value object that already has focused coverage. A caller test should not exist just to show that its dependencies still work.
+
+Before adding a test, ask:
+
+- What behavior would fail if my change were wrong?
+- Is this contract owned by this code, or by something it delegates to?
+- Would this test catch a plausible regression in this change?
+- Is this asserting an outcome, or just mirroring implementation details?
+
+Do test delegated behavior when the delegation is load-bearing for your change's own contract. For example, preserving user input, choosing precedence between sources, wiring the correct helper, enforcing a public API promise, or covering a past regression can all deserve caller-level tests even if a helper implements part of the behavior.
+
+Good tests make the intended contract harder to break. Noisy tests make refactors harder without improving confidence.
+
+```dart
+// GOOD: asserts the new behavior this code path introduces
+test('adds sentry.trace_lifecycle stream attribute', () async {
+  final span = fixture.createRecordingSpan();
+  await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+  expect(span.attributes[SemanticAttributesConstants.sentryTraceLifecycle]?.value, 'stream');
+});
+
+// AVOID in this feature's tests: re-proves that SentryAttribute.string
+// stores its value, which is the value object's own contract
+test('SentryAttribute.string stores its value', () {
+  final attribute = SentryAttribute.string('value');
+  expect(attribute.value, 'value');
+});
+```
+
 ## Assertions
 
 - Use `expect()` with matchers from `package:test`.
 - Prefer specific matchers (`throwsArgumentError`, `isA<SentryException>()`) over generic ones (`throwsException`, `isA<Exception>()`).
 - One logical assertion per test. Multiple `expect()` calls are fine if they verify a single behavior.
+- Assert the literal expected value, not the same constant the production code uses to produce it. Sharing one constant across production and test makes the assertion tautological — it still passes if the constant holds the wrong value. Using the constant as the lookup *key* is fine; pin the expected *value* as a literal.
 
 ```dart
 // GOOD: Specific matchers, single logical assertion
@@ -281,6 +317,14 @@ test('captures exception', () {
   expect(event.exceptions!.first, isA<Object>()); // too generic
   expect(event.breadcrumbs, isEmpty); // unrelated assertion
 });
+```
+
+```dart
+// GOOD: pin the expected value as a literal
+expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
+
+// AVOID: asserting against the same constant the production code uses to set it
+expect(span.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
 ```
 
 ## Async
