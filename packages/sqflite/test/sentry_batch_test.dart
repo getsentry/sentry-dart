@@ -502,19 +502,19 @@ SELECT * FROM Product''';
       await batch.apply();
 
       final span = fixture.tracer.children.last;
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
+      expect(span.data['db.system.name'], 'sqlite');
       expect(
-        span.data[SentryDatabase.dbNameKey],
+        span.data['db.name'],
         (db as SentryDatabase).dbName,
       );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
       expect(
-        breadcrumb.data?[SentryDatabase.dbNameKey],
+        breadcrumb.data?['db.name'],
         db.dbName,
       );
 
@@ -532,11 +532,11 @@ SELECT * FROM Product''';
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
       expect(
-        breadcrumb.data?[SentryDatabase.dbNameKey],
+        breadcrumb.data?['db.name'],
         (db as SentryDatabase).dbName,
       );
       expect(breadcrumb.type, 'query');
@@ -554,9 +554,9 @@ SELECT * FROM Product''';
       await batch.commit();
 
       final span = fixture.tracer.children.last;
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
+      expect(span.data['db.system.name'], 'sqlite');
       expect(
-        span.data[SentryDatabase.dbNameKey],
+        span.data['db.name'],
         (db as SentryDatabase).dbName,
       );
 
@@ -574,11 +574,11 @@ SELECT * FROM Product''';
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
       expect(
-        breadcrumb.data?[SentryDatabase.dbNameKey],
+        breadcrumb.data?['db.name'],
         (db as SentryDatabase).dbName,
       );
       expect(breadcrumb.type, 'query');

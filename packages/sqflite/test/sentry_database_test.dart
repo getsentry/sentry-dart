@@ -97,8 +97,8 @@ void main() {
       expect(span.context.operation, 'db.sql.transaction');
       expect(span.context.description, 'Transaction DB: $inMemoryDatabasePath');
       expect(span.status, SpanStatus.ok());
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(span.data['db.system.name'], 'sqlite');
+      expect(span.data['db.name'], inMemoryDatabasePath);
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
@@ -118,8 +118,8 @@ void main() {
       expect(span.context.operation, 'db.sql.read_transaction');
       expect(span.context.description, 'Transaction DB: $inMemoryDatabasePath');
       expect(span.status, SpanStatus.ok());
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(span.data['db.system.name'], 'sqlite');
+      expect(span.data['db.name'], inMemoryDatabasePath);
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
@@ -141,10 +141,10 @@ void main() {
       expect(breadcrumb.category, 'db.sql.transaction');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -162,10 +162,10 @@ void main() {
       expect(breadcrumb.category, 'db.sql.read_transaction');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -188,10 +188,10 @@ void main() {
       expect(insertSpan.context.parentSpanId, trSpan.context.spanId);
       expect(insertSpan.status, SpanStatus.ok());
       expect(
-        insertSpan.data[SentryDatabase.dbSystemKey],
+        insertSpan.data['db.system.name'],
         'sqlite',
       );
-      expect(insertSpan.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(insertSpan.data['db.name'], inMemoryDatabasePath);
 
       expect(
         insertSpan.origin,
@@ -399,8 +399,8 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'DELETE FROM Product');
       expect(span.status, SpanStatus.ok());
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(span.data['db.system.name'], 'sqlite');
+      expect(span.data['db.name'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -421,10 +421,10 @@ void main() {
       expect(breadcrumb.message, 'DELETE FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -439,8 +439,8 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'DELETE FROM Product');
       expect(span.status, SpanStatus.ok());
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(span.data['db.system.name'], 'sqlite');
+      expect(span.data['db.name'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -461,10 +461,10 @@ void main() {
       expect(breadcrumb.message, 'DELETE FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -482,8 +482,8 @@ void main() {
         'INSERT INTO Product (title) VALUES (?)',
       );
       expect(span.status, SpanStatus.ok());
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(span.data['db.system.name'], 'sqlite');
+      expect(span.data['db.name'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -507,10 +507,10 @@ void main() {
       );
       expect(breadcrumb.data?['status'], 'ok');
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -525,8 +525,8 @@ void main() {
       expect(span.context.operation, 'db.sql.query');
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(span.data['db.system.name'], 'sqlite');
+      expect(span.data['db.name'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -548,10 +548,10 @@ void main() {
       expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -566,8 +566,8 @@ void main() {
       expect(span.context.operation, 'db.sql.query');
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(span.data['db.system.name'], 'sqlite');
+      expect(span.data['db.name'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -589,10 +589,10 @@ void main() {
       expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -607,8 +607,8 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'DELETE FROM Product');
       expect(span.status, SpanStatus.ok());
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(span.data['db.system.name'], 'sqlite');
+      expect(span.data['db.name'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -629,10 +629,10 @@ void main() {
       expect(breadcrumb.message, 'DELETE FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -651,8 +651,8 @@ void main() {
         'INSERT INTO Product (title) VALUES (?)',
       );
       expect(span.status, SpanStatus.ok());
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(span.data['db.system.name'], 'sqlite');
+      expect(span.data['db.name'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -674,10 +674,10 @@ void main() {
       expect(breadcrumb.message, 'INSERT INTO Product (title) VALUES (?)');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -692,8 +692,8 @@ void main() {
       expect(span.context.operation, 'db.sql.query');
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(span.data['db.system.name'], 'sqlite');
+      expect(span.data['db.name'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -715,10 +715,10 @@ void main() {
       expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -733,8 +733,8 @@ void main() {
       expect(span.context.operation, 'db.sql.query');
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(span.data['db.system.name'], 'sqlite');
+      expect(span.data['db.name'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -756,10 +756,10 @@ void main() {
       expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -774,8 +774,8 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'UPDATE Product SET title = ?');
       expect(span.status, SpanStatus.ok());
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(span.data['db.system.name'], 'sqlite');
+      expect(span.data['db.name'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -796,10 +796,10 @@ void main() {
       expect(breadcrumb.message, 'UPDATE Product SET title = ?');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -814,8 +814,8 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'UPDATE Product SET title = ?');
       expect(span.status, SpanStatus.ok());
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(span.data['db.system.name'], 'sqlite');
+      expect(span.data['db.name'], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -836,10 +836,10 @@ void main() {
       expect(breadcrumb.message, 'UPDATE Product SET title = ?');
       expect(breadcrumb.data?['status'], 'ok');
       expect(
-        breadcrumb.data?[SentryDatabase.dbSystemKey],
+        breadcrumb.data?['db.system.name'],
         'sqlite',
       );
-      expect(breadcrumb.data?[SentryDatabase.dbNameKey], inMemoryDatabasePath);
+      expect(breadcrumb.data?['db.name'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
       await db.close();

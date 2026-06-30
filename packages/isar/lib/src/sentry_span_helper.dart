@@ -37,9 +37,10 @@ class SentrySpanHelper {
         : null;
 
     span?.origin = _origin;
-    span?.setData(SentryIsar.dbSystemKey, SentryIsar.dbSystem);
+    span?.setData(
+        SemanticAttributesConstants.dbSystemName, SentryIsar.dbSystem);
     if (dbName != null) {
-      span?.setData(SentryIsar.dbNameKey, dbName);
+      span?.setData(SemanticAttributesConstants.dbName, dbName);
     }
     if (collectionName != null) {
       span?.setData(SentryIsar.dbCollectionKey, collectionName);
@@ -48,8 +49,8 @@ class SentrySpanHelper {
     final breadcrumb = Breadcrumb(
       message: description,
       data: {
-        SentryIsar.dbSystemKey: SentryIsar.dbSystem,
-        if (dbName != null) SentryIsar.dbNameKey: dbName,
+        SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystem,
+        if (dbName != null) SemanticAttributesConstants.dbName: dbName,
         if (collectionName != null) SentryIsar.dbCollectionKey: collectionName,
       },
       type: 'query',
@@ -91,9 +92,10 @@ class SentrySpanHelper {
 
     span?.origin = _origin;
     span?.setData('sync', true);
-    span?.setData(SentryIsar.dbSystemKey, SentryIsar.dbSystem);
+    span?.setData(
+        SemanticAttributesConstants.dbSystemName, SentryIsar.dbSystem);
     if (dbName != null) {
-      span?.setData(SentryIsar.dbNameKey, dbName);
+      span?.setData(SemanticAttributesConstants.dbName, dbName);
     }
     if (collectionName != null) {
       span?.setData(SentryIsar.dbCollectionKey, collectionName);
@@ -102,8 +104,8 @@ class SentrySpanHelper {
     final breadcrumb = Breadcrumb(
       message: description,
       data: {
-        SentryIsar.dbSystemKey: SentryIsar.dbSystem,
-        if (dbName != null) SentryIsar.dbNameKey: dbName,
+        SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystem,
+        if (dbName != null) SemanticAttributesConstants.dbName: dbName,
         if (collectionName != null) SentryIsar.dbCollectionKey: collectionName,
       },
       type: 'query',

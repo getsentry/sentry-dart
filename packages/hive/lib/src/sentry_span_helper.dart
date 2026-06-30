@@ -36,16 +36,17 @@ class SentrySpanHelper {
         : null;
 
     span?.origin = _origin;
-    span?.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
+    span?.setData(
+        SemanticAttributesConstants.dbSystemName, SentryHiveImpl.dbSystem);
     if (dbName != null) {
-      span?.setData(SentryHiveImpl.dbNameKey, dbName);
+      span?.setData(SemanticAttributesConstants.dbName, dbName);
     }
 
     final breadcrumb = Breadcrumb(
       message: description,
       data: {
-        SentryHiveImpl.dbSystemKey: SentryHiveImpl.dbSystem,
-        if (dbName != null) SentryHiveImpl.dbNameKey: dbName,
+        SemanticAttributesConstants.dbSystemName: SentryHiveImpl.dbSystem,
+        if (dbName != null) SemanticAttributesConstants.dbName: dbName,
       },
       type: 'query',
     );
@@ -85,16 +86,17 @@ class SentrySpanHelper {
 
     span?.origin = _origin;
     span?.setData('sync', true);
-    span?.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
+    span?.setData(
+        SemanticAttributesConstants.dbSystemName, SentryHiveImpl.dbSystem);
     if (dbName != null) {
-      span?.setData(SentryHiveImpl.dbNameKey, dbName);
+      span?.setData(SemanticAttributesConstants.dbName, dbName);
     }
 
     final breadcrumb = Breadcrumb(
       message: description,
       data: {
-        SentryHiveImpl.dbSystemKey: SentryHiveImpl.dbSystem,
-        if (dbName != null) SentryHiveImpl.dbNameKey: dbName,
+        SemanticAttributesConstants.dbSystemName: SentryHiveImpl.dbSystem,
+        if (dbName != null) SemanticAttributesConstants.dbName: dbName,
       },
       type: 'query',
     );
