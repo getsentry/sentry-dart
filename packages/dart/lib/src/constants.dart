@@ -415,4 +415,14 @@ abstract class ProposedSemanticAttributes {
   ///
   /// Emitted by the Supabase integration; not part of Sentry Conventions.
   static const dbBody = 'db.body';
+
+  /// The path of the file being accessed.
+  ///
+  /// Emitted by the file integrations; not part of Sentry Conventions.
+  static const filePath = 'file.path';
+
+  /// The size of the file being accessed, in bytes.
+  ///
+  /// Emitted by the file integrations; not part of Sentry Conventions.
+  static const fileSize = 'file.size';
 }
