@@ -24,10 +24,6 @@ name = "pr-writer"
 source = "getsentry/skills"
 
 [[skills]]
-name = "create-pr"
-source = "getsentry/skills"
-
-[[skills]]
 name = "create-branch"
 source = "getsentry/skills"
 
@@ -53,10 +49,6 @@ source = "getsentry/skills"
 
 [[skills]]
 name = "skill-writer"
-source = "getsentry/skills"
-
-[[skills]]
-name = "skill-creator"
 source = "getsentry/skills"
 
 [[skills]]
