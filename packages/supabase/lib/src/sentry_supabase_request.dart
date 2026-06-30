@@ -188,9 +188,7 @@ class SentrySupabaseRequest {
     final body = this.body;
     switch (operation) {
       case Operation.select:
-        final whereClause = _buildWhereClause();
-        return 'SELECT ${_buildSelectColumns()} FROM "$table"'
-            '${whereClause.isNotEmpty ? ' WHERE $whereClause' : ''}';
+        return 'SELECT * FROM "$table"';
       case Operation.insert:
       case Operation.upsert:
         if (body != null && body.isNotEmpty) {
@@ -212,21 +210,6 @@ class SentrySupabaseRequest {
       case Operation.unknown:
         return 'UNKNOWN OPERATION ON "$table"';
     }
-  }
-
-  /// Builds the column projection for a SELECT statement from the query.
-  ///
-  /// Returns `*` when the request has no explicit `select(...)` projection.
-  String _buildSelectColumns() {
-    for (final queryItem in query) {
-      if (queryItem.startsWith('select(') && queryItem.endsWith(')')) {
-        final columns = queryItem.substring(7, queryItem.length - 1);
-        if (columns.isNotEmpty) {
-          return columns;
-        }
-      }
-    }
-    return '*';
   }
 
   /// Builds WHERE clause from query parameters for SQL representation

@@ -412,7 +412,7 @@ void main() {
       });
 
       group('SELECT with WHERE clauses', () {
-        test('SELECT includes WHERE clauses in SQL generation', () {
+        test('SELECT ignores WHERE clauses in SQL generation', () {
           final request = Request(
             'GET',
             Uri.parse(
@@ -424,37 +424,7 @@ void main() {
 
           expect(
             supabaseRequest.generateSqlQuery(),
-            'SELECT * FROM "users" WHERE id = ? AND status = ?',
-          );
-        });
-
-        test('SELECT includes the column projection', () {
-          final request = Request(
-            'GET',
-            Uri.parse('https://example.com/rest/v1/users?select=id,name'),
-          );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
-
-          expect(
-            supabaseRequest.generateSqlQuery(),
-            'SELECT id,name FROM "users"',
-          );
-        });
-
-        test('SELECT combines projection and WHERE clause', () {
-          final request = Request(
-            'GET',
-            Uri.parse(
-              'https://example.com/rest/v1/users?select=id,name&id=eq.42',
-            ),
-          );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
-
-          expect(
-            supabaseRequest.generateSqlQuery(),
-            'SELECT id,name FROM "users" WHERE id = ?',
+            'SELECT * FROM "users"',
           );
         });
       });

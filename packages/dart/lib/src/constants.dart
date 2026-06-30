@@ -359,9 +359,6 @@ abstract class SemanticAttributesConstants {
   /// The database parameterized query being executed.
   static const dbQueryText = 'db.query.text';
 
-  /// A low-cardinality summary of the query, e.g. `select users`.
-  static const dbQuerySummary = 'db.query.summary';
-
   /// The name of a collection (table, container) within the database.
   static const dbCollectionName = 'db.collection.name';
 }

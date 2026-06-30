@@ -98,14 +98,16 @@ void main() {
       verifyFinishSpan();
 
       final span = fixture.mockHub.currentSpan.childSpan;
+      expect(span.data['db.query.text'], [
+        'select(*)',
+        'lt(id, 42)',
+        'gt(id, 20)',
+        'not(id, eq.32)',
+        'ilike(name, John)',
+        'in(status, ("active","pending"))',
+      ]);
       expect(span.data['db.operation.name'], 'select');
-      expect(span.data['db.query.summary'], 'select mock-table');
-      expect(
-        span.data['db.query.text'],
-        'SELECT * FROM "mock-table" '
-        'WHERE id < ? AND id > ? AND id = ? AND name ILIKE ? AND status IN ?',
-      );
-      expect(span.data['db.sql.query'], isNull);
+      expect(span.data['db.sql.query'], 'SELECT * FROM "mock-table"');
     });
 
     test('should create trace for insert', () async {
@@ -126,12 +128,10 @@ void main() {
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 42});
       expect(span.data['db.operation.name'], 'insert');
-      expect(span.data['db.query.summary'], 'insert mock-table');
       expect(
-        span.data['db.query.text'],
+        span.data['db.sql.query'],
         'INSERT INTO "mock-table" ("id") VALUES (?)',
       );
-      expect(span.data['db.sql.query'], isNull);
     });
 
     test('should create trace for upsert', () async {
@@ -151,13 +151,12 @@ void main() {
 
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 42});
+      expect(span.data['db.query.text'], ['select(id,name)']);
       expect(span.data['db.operation.name'], 'upsert');
-      expect(span.data['db.query.summary'], 'upsert mock-table');
       expect(
-        span.data['db.query.text'],
+        span.data['db.sql.query'],
         'INSERT INTO "mock-table" ("id") VALUES (?)',
       );
-      expect(span.data['db.sql.query'], isNull);
     });
 
     test('should create trace for update', () async {
@@ -181,13 +180,12 @@ void main() {
 
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 1337});
+      expect(span.data['db.query.text'], ['eq(id, 42)', 'or(id.eq.8)']);
       expect(span.data['db.operation.name'], 'update');
-      expect(span.data['db.query.summary'], 'update mock-table');
       expect(
-        span.data['db.query.text'],
+        span.data['db.sql.query'],
         'UPDATE "mock-table" SET "id" = ? WHERE id = ? OR id = ?',
       );
-      expect(span.data['db.sql.query'], isNull);
     });
 
     test('should create trace for delete', () async {
@@ -206,13 +204,12 @@ void main() {
       verifyFinishSpan();
 
       final span = fixture.mockHub.currentSpan.childSpan;
+      expect(span.data['db.query.text'], ['eq(id, 42)']);
       expect(span.data['db.operation.name'], 'delete');
-      expect(span.data['db.query.summary'], 'delete mock-table');
       expect(
-        span.data['db.query.text'],
+        span.data['db.sql.query'],
         'DELETE FROM "mock-table" WHERE id = ?',
       );
-      expect(span.data['db.sql.query'], isNull);
     });
 
     test('should finish with error status if request fails', () async {
@@ -269,13 +266,8 @@ void main() {
         // Ignore
       }
       final insertSpan = fixture.mockHub.currentSpan.childSpan;
+      expect(insertSpan.data['db.query.text'], isNull);
       expect(insertSpan.data['db.body'], isNull);
-      // With PII disabled the body is dropped, so the query text falls back to
-      // a value-free statement and is still emitted.
-      expect(
-        insertSpan.data['db.query.text'],
-        'INSERT INTO "countries" VALUES (?)',
-      );
 
       try {
         await supabase.from('countries').upsert({'id': 42}).select();
@@ -284,10 +276,7 @@ void main() {
       }
       final upsertSpan = fixture.mockHub.currentSpan.childSpan;
       expect(upsertSpan.data['db.body'], isNull);
-      expect(
-        upsertSpan.data['db.query.text'],
-        'INSERT INTO "countries" VALUES (?)',
-      );
+      expect(upsertSpan.data['db.query.text'], isNull);
       try {
         await supabase.from('countries').update({'id': 1337}).eq('id', 42);
       } catch (e) {
@@ -295,10 +284,7 @@ void main() {
       }
       final updateSpan = fixture.mockHub.currentSpan.childSpan;
       expect(updateSpan.data['db.body'], isNull);
-      expect(
-        updateSpan.data['db.query.text'],
-        'UPDATE "countries" SET ? WHERE id = ?',
-      );
+      expect(updateSpan.data['db.query.text'], isNull);
     });
   });
 }
