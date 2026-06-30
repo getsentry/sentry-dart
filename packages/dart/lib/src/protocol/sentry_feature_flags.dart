@@ -36,6 +36,15 @@ class SentryFeatureFlags {
     };
   }
 
+  @internal
+  SentryFeatureFlags copy() {
+    final unknown = this.unknown;
+    return SentryFeatureFlags(
+      values: values.map((flag) => flag.copy()).toList(growable: false),
+      unknown: unknown == null ? null : Map<String, dynamic>.from(unknown),
+    );
+  }
+
   @Deprecated('Assign values directly to the instance.')
   SentryFeatureFlags copyWith({
     List<SentryFeatureFlag>? values,

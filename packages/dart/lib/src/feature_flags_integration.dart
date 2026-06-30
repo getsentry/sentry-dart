@@ -17,10 +17,9 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
   }
 
   FutureOr<void> addFeatureFlag(String flag, bool result) async {
-    final flags =
-        _hub?.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
-            SentryFeatureFlags(values: []);
-    final values = List<SentryFeatureFlag>.from(flags.values);
+    final currentFlags =
+        _hub?.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags?;
+    final values = List<SentryFeatureFlag>.from(currentFlags?.values ?? []);
 
     final index = values.indexWhere((element) => element.flag == flag);
     if (index != -1) {
@@ -33,9 +32,16 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
       values.removeAt(0);
     }
 
-    flags.values = values;
+    final unknown = currentFlags?.unknown;
+    final updatedFlags = SentryFeatureFlags(
+      values: values,
+      unknown: unknown == null ? null : Map<String, dynamic>.from(unknown),
+    );
 
-    await _hub?.scope.setContexts(SentryFeatureFlags.type, flags);
+    await _hub?.scope.setContexts(
+      SentryFeatureFlags.type,
+      updatedFlags,
+    );
   }
 
   @override
