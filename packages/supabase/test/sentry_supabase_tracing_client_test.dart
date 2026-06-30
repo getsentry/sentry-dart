@@ -103,7 +103,8 @@ void main() {
       expect(
         span.data['db.query.text'],
         'SELECT * FROM "mock-table" '
-        'WHERE id < ? AND id > ? AND id = ? AND name ILIKE ? AND status IN ?',
+        'WHERE id < ? AND id > ? AND NOT (id = ?) AND name ILIKE ? '
+        'AND status IN ?',
       );
       expect(span.data['db.sql.query'], isNull);
     });

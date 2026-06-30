@@ -290,9 +290,16 @@ class SentrySupabaseRequest {
         if (match != null) {
           final operation = match.group(1);
           final column = match.group(2);
+          final value = match.group(3);
           if (operation != null && column != null) {
-            final operatorSql = _getOperatorSql(operation);
-            conditions.add('$column $operatorSql ?');
+            if (operation == 'not') {
+              // PostgREST `.not(column, op, value)` negates the inner operator,
+              // e.g. `not(id, eq.32)` -> NOT (id = ?).
+              final innerOp = (value ?? '').split('.').first;
+              conditions.add('NOT ($column ${_getOperatorSql(innerOp)} ?)');
+            } else {
+              conditions.add('$column ${_getOperatorSql(operation)} ?');
+            }
           }
         }
       }

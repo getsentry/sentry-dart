@@ -394,6 +394,20 @@ void main() {
           );
         });
 
+        test('NOT condition via not(column, op, value)', () {
+          final request = Request(
+            'DELETE',
+            Uri.parse('https://example.com/rest/v1/users?id=not.eq.32'),
+          );
+          final supabaseRequest =
+              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+
+          expect(
+            supabaseRequest.generateSqlQuery(),
+            'DELETE FROM "users" WHERE NOT (id = ?)',
+          );
+        });
+
         test('mixed AND, OR, and NOT conditions', () {
           final request = Request(
             'DELETE',
