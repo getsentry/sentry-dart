@@ -4,4 +4,4 @@ const String integrationNameBreadcrumbs = 'sentrySupabaseBreadcrumbs';
 const String loggerName = 'sentry_supabase';
 
 /// The `db.system.name` value for PostgreSQL databases.
-const String dbSystemPostgresql = 'postgresql';
+const String dbSystemNamePostgresql = 'postgresql';

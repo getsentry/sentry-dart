@@ -115,7 +115,7 @@ class SentrySupabaseTracingClient extends BaseClient {
     );
     span.setData(
       SemanticAttributesConstants.dbSystemName,
-      dbSystemPostgresql,
+      dbSystemNamePostgresql,
     );
     span.origin = SentryTraceOrigins.autoDbSupabase;
     return span;

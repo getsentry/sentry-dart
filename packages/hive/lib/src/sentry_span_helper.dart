@@ -38,7 +38,7 @@ class SentrySpanHelper {
     span?.origin = _origin;
     span?.setData(
       SemanticAttributesConstants.dbSystemName,
-      SentryHiveImpl.dbSystem,
+      SentryHiveImpl.dbSystemName,
     );
     if (dbName != null) {
       span?.setData(SemanticAttributesConstants.dbNamespace, dbName);
@@ -47,7 +47,7 @@ class SentrySpanHelper {
     final breadcrumb = Breadcrumb(
       message: description,
       data: {
-        SemanticAttributesConstants.dbSystemName: SentryHiveImpl.dbSystem,
+        SemanticAttributesConstants.dbSystemName: SentryHiveImpl.dbSystemName,
         if (dbName != null) SemanticAttributesConstants.dbNamespace: dbName,
       },
       type: 'query',
@@ -90,7 +90,7 @@ class SentrySpanHelper {
     span?.setData('sync', true);
     span?.setData(
       SemanticAttributesConstants.dbSystemName,
-      SentryHiveImpl.dbSystem,
+      SentryHiveImpl.dbSystemName,
     );
     if (dbName != null) {
       span?.setData(SemanticAttributesConstants.dbNamespace, dbName);
@@ -99,7 +99,7 @@ class SentrySpanHelper {
     final breadcrumb = Breadcrumb(
       message: description,
       data: {
-        SemanticAttributesConstants.dbSystemName: SentryHiveImpl.dbSystem,
+        SemanticAttributesConstants.dbSystemName: SentryHiveImpl.dbSystemName,
         if (dbName != null) SemanticAttributesConstants.dbNamespace: dbName,
       },
       type: 'query',

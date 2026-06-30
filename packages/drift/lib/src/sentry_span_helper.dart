@@ -63,7 +63,7 @@ class SentrySpanHelper {
 
     span.setData(
       SemanticAttributesConstants.dbSystemName,
-      dbSystemSqlite,
+      dbSystemNameSqlite,
     );
 
     if (dbName != null) {
@@ -111,7 +111,7 @@ class SentrySpanHelper {
 
     newParent.setData(
       SemanticAttributesConstants.dbSystemName,
-      dbSystemSqlite,
+      dbSystemNameSqlite,
     );
 
     if (dbName != null) {

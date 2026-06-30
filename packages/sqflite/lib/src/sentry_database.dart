@@ -45,7 +45,7 @@ class SentryDatabase extends SentryDatabaseExecutor
 
   @internal
   // ignore: public_member_api_docs
-  static const dbSystem = 'sqlite';
+  static const dbSystemName = 'sqlite';
   @internal
   // ignore: public_member_api_docs
   String dbName;

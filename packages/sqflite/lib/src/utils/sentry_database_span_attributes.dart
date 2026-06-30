@@ -11,7 +11,7 @@ void setDatabaseAttributeData(
 ) {
   span?.setData(
     SemanticAttributesConstants.dbSystemName,
-    SentryDatabase.dbSystem,
+    SentryDatabase.dbSystemName,
   );
   if (dbName != null) {
     span?.setData(SemanticAttributesConstants.dbNamespace, dbName);
@@ -22,7 +22,7 @@ void setDatabaseAttributeData(
 /// It contains the database system and the database name.
 void setDatabaseAttributeOnBreadcrumb(Breadcrumb breadcrumb, String? dbName) {
   breadcrumb.data?[SemanticAttributesConstants.dbSystemName] =
-      SentryDatabase.dbSystem;
+      SentryDatabase.dbSystemName;
   if (dbName != null) {
     breadcrumb.data?[SemanticAttributesConstants.dbNamespace] = dbName;
   }

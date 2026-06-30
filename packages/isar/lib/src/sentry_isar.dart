@@ -15,7 +15,7 @@ class SentryIsar implements Isar {
 
   @internal
   // ignore: public_member_api_docs
-  static const dbSystem = 'isar';
+  static const dbSystemName = 'isar';
 
   final Isar _isar;
   final Hub _hub;
