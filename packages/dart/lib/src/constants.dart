@@ -85,6 +85,9 @@ abstract class SemanticAttributesConstants {
   /// The operation name of a span.
   static const sentryOp = 'sentry.op';
 
+  /// The chosen trace lifecycle mode of the SDK ("stream" or "static").
+  static const sentryTraceLifecycle = 'sentry.trace_lifecycle';
+
   /// Whether the replay is buffering (onErrorSampleRate).
   static const sentryInternalReplayIsBuffering =
       'sentry._internal.replay_is_buffering';
