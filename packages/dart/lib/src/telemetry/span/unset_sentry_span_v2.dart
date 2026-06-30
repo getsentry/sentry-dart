@@ -54,8 +54,5 @@ final class UnsetSentrySpanV2 implements SentrySpanV2 {
   void addFeatureFlag(String flag, bool result) => _throw();
 
   @override
-  void removeFeatureFlag(String flag) => _throw();
-
-  @override
   bool get isEnded => _throw();
 }

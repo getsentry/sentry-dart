@@ -215,15 +215,6 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
     setAttribute(key, SentryAttribute.bool(result));
   }
 
-  @override
-  void removeFeatureFlag(String flag) {
-    if (isEnded) {
-      return;
-    }
-
-    removeAttribute(SemanticAttributesConstants.featureFlagEvaluation(flag));
-  }
-
   Map<String, dynamic> toJson() {
     double toUnixSeconds(DateTime timestamp) =>
         timestamp.microsecondsSinceEpoch / 1000000;

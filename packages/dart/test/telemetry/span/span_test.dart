@@ -205,40 +205,6 @@ void main() {
         );
       });
 
-      test('removes tracked flag', () {
-        final span = fixture.createSpan(name: 'test-span');
-
-        span.addFeatureFlag('checkout', true);
-        span.removeFeatureFlag('checkout');
-
-        expect(span.attributes, isNot(contains('flag.evaluation.checkout')));
-      });
-
-      test('removes prefixed attribute', () {
-        final span = fixture.createSpan(name: 'test-span');
-        span.setAttribute(
-          'flag.evaluation.manual',
-          SentryAttribute.string('value'),
-        );
-
-        span.removeFeatureFlag('manual');
-
-        expect(span.attributes, isNot(contains('flag.evaluation.manual')));
-      });
-
-      test('keeps existing flags when removing after end', () {
-        final span = fixture.createSpan(name: 'test-span');
-
-        span.addFeatureFlag('checkout', true);
-        span.end();
-        span.removeFeatureFlag('checkout');
-
-        expect(
-          span.attributes['flag.evaluation.checkout']?.toJson(),
-          equals({'value': true, 'type': 'boolean'}),
-        );
-      });
-
       test('does not add flag after end', () {
         final span = fixture.createSpan(name: 'test-span');
 
@@ -582,7 +548,6 @@ void main() {
       span.setAttributes({'key': SentryAttribute.string('value')});
       span.removeAttribute('key');
       span.addFeatureFlag('flag', true);
-      span.removeFeatureFlag('flag');
       span.name = 'name';
       span.status = SentrySpanStatusV2.ok;
       span.status = SentrySpanStatusV2.error;
@@ -623,8 +588,6 @@ void main() {
       expect(
           () => span.removeAttribute('k'), throwsA(isA<UnimplementedError>()));
       expect(() => span.addFeatureFlag('flag', true),
-          throwsA(isA<UnimplementedError>()));
-      expect(() => span.removeFeatureFlag('flag'),
           throwsA(isA<UnimplementedError>()));
       expect(() => span.end(), throwsA(isA<UnimplementedError>()));
     });

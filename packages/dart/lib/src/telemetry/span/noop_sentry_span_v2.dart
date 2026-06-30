@@ -54,9 +54,6 @@ final class NoOpSentrySpanV2 implements SentrySpanV2 {
   void addFeatureFlag(String flag, bool result) {}
 
   @override
-  void removeFeatureFlag(String flag) {}
-
-  @override
   void end({DateTime? endTimestamp}) {}
 
   @override
