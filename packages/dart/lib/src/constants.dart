@@ -356,6 +356,12 @@ abstract class SemanticAttributesConstants {
   /// The name of the operation being executed (e.g. `select`, `insert`).
   static const dbOperationName = 'db.operation.name';
 
+  /// The database parameterized query being executed.
+  static const dbQueryText = 'db.query.text';
+
+  /// A low-cardinality summary of the query, e.g. `select users`.
+  static const dbQuerySummary = 'db.query.summary';
+
   /// The name of a collection (table, container) within the database.
   static const dbCollectionName = 'db.collection.name';
 }
@@ -389,11 +395,6 @@ abstract class ProposedSemanticAttributes {
   /// (yet) part of Sentry Conventions; it is emitted alongside the legacy
   /// `app.vitals.start.cold.value` / `app.vitals.start.warm.value` pair.
   static const appVitalsStartValue = 'app.vitals.start.value';
-
-  /// The raw query filters being applied (PostgREST DSL).
-  ///
-  /// Emitted by the Supabase integration; not part of Sentry Conventions.
-  static const dbQuery = 'db.query';
 
   /// The database schema (namespace) being accessed.
   ///
