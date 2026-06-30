@@ -155,90 +155,6 @@ void main() {
       expect(span.status, equals(SentrySpanStatusV2.error));
     });
 
-    group('with feature flags', () {
-      test('adds boolean span attribute', () {
-        final span = fixture.createSpan(name: 'test-span');
-
-        span.addFeatureFlag('checkout', true);
-
-        expect(
-          span.attributes['flag.evaluation.checkout']?.toJson(),
-          equals({'value': true, 'type': 'boolean'}),
-        );
-      });
-
-      test('updates existing span attribute', () {
-        final span = fixture.createSpan(name: 'test-span');
-
-        span.addFeatureFlag('checkout', true);
-        span.addFeatureFlag('checkout', false);
-
-        expect(
-          span.attributes['flag.evaluation.checkout']?.toJson(),
-          equals({'value': false, 'type': 'boolean'}),
-        );
-      });
-
-      test('stores only first 10 unique flags', () {
-        final span = fixture.createSpan(name: 'test-span');
-
-        for (var i = 0; i < 11; i++) {
-          span.addFeatureFlag('flag_$i', i.isEven);
-        }
-
-        expect(fixture.featureFlagAttributes(span), hasLength(10));
-        expect(span.attributes, isNot(contains('flag.evaluation.flag_10')));
-      });
-
-      test('updates existing flag after limit is reached', () {
-        final span = fixture.createSpan(name: 'test-span');
-
-        for (var i = 0; i < 10; i++) {
-          span.addFeatureFlag('flag_$i', i.isEven);
-        }
-        span.addFeatureFlag('flag_5', true);
-
-        expect(fixture.featureFlagAttributes(span), hasLength(10));
-        expect(
-          span.attributes['flag.evaluation.flag_5']?.toJson(),
-          equals({'value': true, 'type': 'boolean'}),
-        );
-      });
-
-      test('does not add flag after end', () {
-        final span = fixture.createSpan(name: 'test-span');
-
-        span.end();
-        span.addFeatureFlag('checkout', true);
-
-        expect(span.attributes, isNot(contains('flag.evaluation.checkout')));
-      });
-
-      test('does not inherit parent flags', () {
-        final parent = fixture.createSpan(name: 'parent');
-        final child = fixture.createSpan(name: 'child', parentSpan: parent);
-
-        parent.addFeatureFlag('parent', true);
-
-        expect(child.attributes, isNot(contains('flag.evaluation.parent')));
-      });
-
-      test('counts prefixed attributes toward limit', () {
-        final span = fixture.createSpan(name: 'test-span');
-        span.setAttribute(
-          'flag.evaluation.manual',
-          SentryAttribute.string('value'),
-        );
-
-        for (var i = 0; i < 10; i++) {
-          span.addFeatureFlag('flag_$i', i.isEven);
-        }
-
-        expect(fixture.featureFlagAttributes(span), hasLength(10));
-        expect(span.attributes, isNot(contains('flag.evaluation.flag_9')));
-      });
-    });
-
     test('parentSpan returns the parent span', () {
       final parent = fixture.createSpan(name: 'parent');
       final child = fixture.createSpan(name: 'child', parentSpan: parent);
@@ -547,7 +463,6 @@ void main() {
       span.setAttribute('key', SentryAttribute.string('value'));
       span.setAttributes({'key': SentryAttribute.string('value')});
       span.removeAttribute('key');
-      span.addFeatureFlag('flag', true);
       span.name = 'name';
       span.status = SentrySpanStatusV2.ok;
       span.status = SentrySpanStatusV2.error;
@@ -587,8 +502,6 @@ void main() {
           throwsA(isA<UnimplementedError>()));
       expect(
           () => span.removeAttribute('k'), throwsA(isA<UnimplementedError>()));
-      expect(() => span.addFeatureFlag('flag', true),
-          throwsA(isA<UnimplementedError>()));
       expect(() => span.end(), throwsA(isA<UnimplementedError>()));
     });
   });
@@ -596,16 +509,6 @@ void main() {
 
 class Fixture {
   final options = defaultTestOptions();
-
-  Map<String, SentryAttribute> featureFlagAttributes(
-    RecordingSentrySpanV2 span,
-  ) {
-    return Map.fromEntries(
-      span.attributes.entries.where(
-        (entry) => entry.key.startsWith('flag.evaluation.'),
-      ),
-    );
-  }
 
   RecordingSentrySpanV2 createSpan({
     required String name,

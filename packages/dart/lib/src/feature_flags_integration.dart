@@ -1,12 +1,16 @@
 import 'dart:async';
 
+import 'constants.dart';
 import 'hub.dart';
 import 'integration.dart';
+import 'protocol/sentry_attribute.dart';
 import 'protocol/sentry_feature_flag.dart';
 import 'protocol/sentry_feature_flags.dart';
 import 'sentry_options.dart';
 
-/// Integration which handles adding feature flags to the scope.
+const _maxActiveSpanFeatureFlags = 10;
+
+/// Integration which handles adding feature flags to the scope and active span.
 class FeatureFlagsIntegration extends Integration<SentryOptions> {
   Hub? _hub;
 
@@ -22,8 +26,7 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
       return;
     }
 
-    final activeSpan = hub.getActiveSpan();
-    activeSpan?.addFeatureFlag(flag, result);
+    _addFeatureFlagToActiveSpan(hub, flag, result);
 
     final flags =
         hub.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
@@ -44,6 +47,28 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
     flags.values = values;
 
     await hub.scope.setContexts(SentryFeatureFlags.type, flags);
+  }
+
+  void _addFeatureFlagToActiveSpan(Hub hub, String flag, bool result) {
+    final activeSpan = hub.getActiveSpan();
+    if (activeSpan == null || activeSpan.isEnded) {
+      return;
+    }
+
+    final key = SemanticAttributesConstants.featureFlagEvaluation(flag);
+    final attributes = activeSpan.attributes;
+    if (!attributes.containsKey(key)) {
+      final featureFlagCount = attributes.keys
+          .where((key) => key.startsWith(
+                SemanticAttributesConstants.featureFlagEvaluationPrefix,
+              ))
+          .length;
+      if (featureFlagCount >= _maxActiveSpanFeatureFlags) {
+        return;
+      }
+    }
+
+    activeSpan.setAttribute(key, SentryAttribute.bool(result));
   }
 
   @override

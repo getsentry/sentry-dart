@@ -65,7 +65,4 @@ sealed class SentrySpanV2 {
 
   /// Removes an attribute on this span with a matching key.
   void removeAttribute(String key);
-
-  /// Adds or updates a feature flag evaluation on this span.
-  void addFeatureFlag(String flag, bool result);
 }
