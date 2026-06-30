@@ -266,6 +266,7 @@ group('$Client', () {
 - Use `expect()` with matchers from `package:test`.
 - Prefer specific matchers (`throwsArgumentError`, `isA<SentryException>()`) over generic ones (`throwsException`, `isA<Exception>()`).
 - One logical assertion per test. Multiple `expect()` calls are fine if they verify a single behavior.
+- Assert the literal expected value, not the same constant the production code uses to produce it. Sharing one constant across production and test makes the assertion tautological — it still passes if the constant holds the wrong value. Using the constant as the lookup *key* is fine; pin the expected *value* as a literal.
 
 ```dart
 // GOOD: Specific matchers, single logical assertion
@@ -281,6 +282,14 @@ test('captures exception', () {
   expect(event.exceptions!.first, isA<Object>()); // too generic
   expect(event.breadcrumbs, isEmpty); // unrelated assertion
 });
+```
+
+```dart
+// GOOD: pin the expected value as a literal
+expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
+
+// AVOID: asserting against the same constant the production code uses to set it
+expect(span.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
 ```
 
 ## Async
