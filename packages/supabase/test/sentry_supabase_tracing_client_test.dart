@@ -109,6 +109,29 @@ void main() {
       expect(span.data['db.sql.query'], isNull);
     });
 
+    test('should not include order and limit in select where clause', () async {
+      fixture.mockClient.jsonResponse = '{"id": 42}';
+
+      final supabase = fixture.getSupabaseClient();
+
+      try {
+        await supabase
+            .from('mock-table')
+            .select()
+            .eq('status', 'active')
+            .order('id')
+            .limit(10);
+      } catch (e) {
+        // Ignore
+      }
+
+      final span = fixture.mockHub.currentSpan.childSpan;
+      expect(
+        span.data['db.query.text'],
+        'SELECT * FROM "mock-table" WHERE status = ?',
+      );
+    });
+
     test('should create trace for insert', () async {
       fixture.mockClient.jsonResponse = '{"id": 42}';
 

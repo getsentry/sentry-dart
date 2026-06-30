@@ -292,6 +292,12 @@ class SentrySupabaseRequest {
           final column = match.group(2);
           final value = match.group(3);
           if (operation != null && column != null) {
+            // PostgREST pagination/sorting params (order, limit, offset) are
+            // not column filters, so they must not leak into the WHERE clause.
+            if (operation == 'filter' &&
+                const {'order', 'limit', 'offset'}.contains(column)) {
+              continue;
+            }
             if (operation == 'not') {
               // PostgREST `.not(column, op, value)` negates the inner operator,
               // e.g. `not(id, eq.32)` -> NOT (id = ?).
