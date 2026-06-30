@@ -40,7 +40,7 @@ void main() {
       expect(span.context.operation, 'serialize.http.client');
       expect(span.context.description, 'GET https://example.com');
       expect(span.data['http.request.method'], 'GET');
-      expect(span.data['url'], 'https://example.com');
+      expect(span.data['url.full'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.data['http.fragment'], 'baz');
@@ -68,7 +68,7 @@ void main() {
       expect(span.context.operation, 'serialize.http.client');
       expect(span.context.description, 'GET https://example.com');
       expect(span.data['http.request.method'], 'GET');
-      expect(span.data['url'], 'https://example.com');
+      expect(span.data['url.full'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.finished, true);
@@ -97,7 +97,7 @@ void main() {
       expect(span.context.operation, 'serialize.http.client');
       expect(span.context.description, 'GET https://example.com');
       expect(span.data['http.request.method'], 'GET');
-      expect(span.data['url'], 'https://example.com');
+      expect(span.data['url.full'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.origin, SentryTraceOrigins.autoHttpDioTransformer);
@@ -127,7 +127,7 @@ void main() {
       expect(span.context.operation, 'serialize.http.client');
       expect(span.context.description, 'GET https://example.com');
       expect(span.data['http.request.method'], 'GET');
-      expect(span.data['url'], 'https://example.com');
+      expect(span.data['url.full'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.finished, true);

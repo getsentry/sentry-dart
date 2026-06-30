@@ -26,7 +26,7 @@ void main() {
     expect(span?.status, SpanStatus.ok());
     expect(span?.origin, SentryTraceOrigins.autoDbIsarCollection);
     expect(span?.data['db.namespace'], Fixture.dbName);
-    expect(span?.data[SentryIsar.dbCollectionKey], 'Person');
+    expect(span?.data['db.collection.name'], 'Person');
   }
 
   void verifyErrorSpan(String description, SentrySpan? span, Exception error) {
@@ -245,7 +245,7 @@ void main() {
       expect(span?.status, SpanStatus.ok());
       expect(span?.origin, SentryTraceOrigins.autoDbIsarCollection);
       expect(span?.data['db.namespace'], Fixture.dbName);
-      expect(span?.data[SentryIsar.dbCollectionKey], Fixture.dbCollection);
+      expect(span?.data['db.collection.name'], Fixture.dbCollection);
       expect(span?.data['sync'], true);
     }
 

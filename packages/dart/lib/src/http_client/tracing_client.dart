@@ -1,5 +1,6 @@
 import 'package:http/http.dart';
 
+import '../constants.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
@@ -60,16 +61,19 @@ class TracingClient extends BaseClient {
     }
 
     instrumentationSpan?.origin = SentryTraceOrigins.autoHttpHttp;
-    instrumentationSpan?.setData('http.request.method', request.method);
+    instrumentationSpan?.setData(
+        SemanticAttributesConstants.httpRequestMethod, request.method);
     urlDetails?.applyToSpan(instrumentationSpan);
 
     StreamedResponse? response;
     try {
       response = await _client.send(request);
       instrumentationSpan?.setData(
-          'http.response.status_code', response.statusCode);
+          SemanticAttributesConstants.httpResponseStatusCode,
+          response.statusCode);
       instrumentationSpan?.setData(
-          'http.response_content_length', response.contentLength);
+          SemanticAttributesConstants.httpResponseBodySize,
+          response.contentLength);
       instrumentationSpan?.status =
           SpanStatus.fromHttpStatusCode(response.statusCode);
     } catch (exception) {

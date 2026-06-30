@@ -45,7 +45,10 @@ class SentrySpanHelper {
       span?.setData(SemanticAttributesConstants.dbNamespace, dbName);
     }
     if (collectionName != null) {
-      span?.setData(SentryIsar.dbCollectionKey, collectionName);
+      span?.setData(
+        SemanticAttributesConstants.dbCollectionName,
+        collectionName,
+      );
     }
 
     final breadcrumb = Breadcrumb(
@@ -53,7 +56,8 @@ class SentrySpanHelper {
       data: {
         SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystem,
         if (dbName != null) SemanticAttributesConstants.dbNamespace: dbName,
-        if (collectionName != null) SentryIsar.dbCollectionKey: collectionName,
+        if (collectionName != null)
+          SemanticAttributesConstants.dbCollectionName: collectionName,
       },
       type: 'query',
     );
@@ -102,7 +106,10 @@ class SentrySpanHelper {
       span?.setData(SemanticAttributesConstants.dbNamespace, dbName);
     }
     if (collectionName != null) {
-      span?.setData(SentryIsar.dbCollectionKey, collectionName);
+      span?.setData(
+        SemanticAttributesConstants.dbCollectionName,
+        collectionName,
+      );
     }
 
     final breadcrumb = Breadcrumb(
@@ -110,7 +117,8 @@ class SentrySpanHelper {
       data: {
         SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystem,
         if (dbName != null) SemanticAttributesConstants.dbNamespace: dbName,
-        if (collectionName != null) SentryIsar.dbCollectionKey: collectionName,
+        if (collectionName != null)
+          SemanticAttributesConstants.dbCollectionName: collectionName,
       },
       type: 'query',
     );

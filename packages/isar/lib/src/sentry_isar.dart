@@ -17,10 +17,6 @@ class SentryIsar implements Isar {
   // ignore: public_member_api_docs
   static const dbSystem = 'isar';
 
-  @internal
-  // ignore: public_member_api_docs
-  static const dbCollectionKey = 'db.collection';
-
   final Isar _isar;
   final Hub _hub;
   late final SentrySpanHelper _spanHelper;

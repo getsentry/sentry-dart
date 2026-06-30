@@ -326,24 +326,23 @@ abstract class SemanticAttributesConstants {
   /// For more information see [frames delay](https://develop.sentry.dev/sdk/performance/frames-delay/).
   static const framesDelay = 'frames.delay';
 
-  /// The HTTP request method (e.g., "GET", "POST").
+  /// The HTTP method used (e.g. `GET`, `POST`).
   static const httpRequestMethod = 'http.request.method';
 
-  /// The URL of an HTTP request.
-  // TODO: this needs to be updated to use the new url attributes e.g url.full, etc...
-  static const url = 'url';
+  /// The URL of the resource that was fetched.
+  static const urlFull = 'url.full';
 
-  /// The HTTP query string (e.g., "foo=bar").
+  /// The query string present in the URL (e.g. `foo=bar`).
   static const httpQuery = 'http.query';
 
-  /// The HTTP fragment (e.g., "section").
+  /// The fragment present in the URI (e.g. `section`).
   static const httpFragment = 'http.fragment';
 
-  /// The HTTP response status code.
+  /// The status code of the HTTP response.
   static const httpResponseStatusCode = 'http.response.status_code';
 
-  /// The HTTP response content length.
-  static const httpResponseContentLength = 'http.response_content_length';
+  /// The encoded body size of the response in bytes.
+  static const httpResponseBodySize = 'http.response.body.size';
 
   /// The database system identifier (e.g. `postgresql`, `sqlite`).
   static const dbSystemName = 'db.system.name';
@@ -356,6 +355,9 @@ abstract class SemanticAttributesConstants {
 
   /// The database parameterized query being executed.
   static const dbQueryText = 'db.query.text';
+
+  /// A low-cardinality summary of the query, e.g. `select users`.
+  static const dbQuerySummary = 'db.query.summary';
 
   /// The name of a collection (table, container) within the database.
   static const dbCollectionName = 'db.collection.name';

@@ -53,7 +53,10 @@ class NativeAppStartHandler {
     } else {
       return;
     }
-    sentryTracer.setData("app_start_type", appStartInfo.type.name);
+    sentryTracer.setData(
+      SemanticAttributesConstants.appVitalsStartType,
+      appStartInfo.type.name,
+    );
 
     // We need to add the measurements before we add the child spans
     // If the child span finish the transaction will finish and then we cannot add measurements
@@ -180,7 +183,7 @@ class NativeAppStartHandler {
       _hub,
       startTimestamp: startTimestamp,
     );
-    span.setData("app_start_type", appStartType);
+    span.setData(SemanticAttributesConstants.appVitalsStartType, appStartType);
     await span.finish(endTimestamp: endTimestamp);
     return span;
   }

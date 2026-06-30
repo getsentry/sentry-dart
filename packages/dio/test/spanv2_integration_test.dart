@@ -61,7 +61,7 @@ void main() {
         equals('GET'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.url]?.value,
+        span.attributes['url.full']?.value,
         equals('https://example.com/api/users'),
       );
       expect(
