@@ -17,8 +17,6 @@ Flutter SDK with native integrations across all platforms.
 | Linux | C++ | `linux/` |
 | Windows | C++ | `windows/` |
 
-- Release all native memory (JNI local refs, malloc allocations)
-- Handle native exceptions gracefully — never crash the host app
 - JNI bindings use `package:jni`; FFI bindings use `dart:ffi`
 - JNI should pass primitives directly. Small, controlled `Map`/`List` payloads may use direct conversion; arbitrary or large payloads should cross as UTF-8 JSON bytes and deserialize on Kotlin/Java.
 - JNI and FFI can currently only be tested through integration test since they cannot be injected / mocked or faked.
