@@ -94,13 +94,4 @@ class SentryResponse {
         statusCode: statusCode ?? this.statusCode,
         data: data ?? this.data,
       );
-
-  @Deprecated('Will be removed in a future version.')
-  SentryResponse clone() => SentryResponse(
-        bodySize: bodySize,
-        headers: headers,
-        cookies: cookies,
-        statusCode: statusCode,
-        data: data,
-      );
 }

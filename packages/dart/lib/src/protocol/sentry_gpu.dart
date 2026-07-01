@@ -111,26 +111,6 @@ class SentryGpu {
     );
   }
 
-  @Deprecated('Will be removed in a future version.')
-  SentryGpu clone() => SentryGpu(
-        name: name,
-        id: id,
-        vendorId: vendorId,
-        vendorName: vendorName,
-        memorySize: memorySize,
-        apiType: apiType,
-        multiThreadedRendering: multiThreadedRendering,
-        version: version,
-        npotSupport: npotSupport,
-        graphicsShaderLevel: graphicsShaderLevel,
-        maxTextureSize: maxTextureSize,
-        supportsComputeShaders: supportsComputeShaders,
-        supportsDrawCallInstancing: supportsDrawCallInstancing,
-        supportsGeometryShaders: supportsGeometryShaders,
-        supportsRayTracing: supportsRayTracing,
-        unknown: unknown,
-      );
-
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {

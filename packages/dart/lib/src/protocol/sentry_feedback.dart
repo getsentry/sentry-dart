@@ -76,7 +76,4 @@ class SentryFeedback {
         associatedEventId: associatedEventId ?? this.associatedEventId,
         unknown: unknown ?? this.unknown,
       );
-
-  @Deprecated('Will be removed in a future version.')
-  SentryFeedback clone() => copyWith();
 }

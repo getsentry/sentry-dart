@@ -126,30 +126,6 @@ void main() {
       );
     });
 
-    test('clone context', () {
-      // ignore: deprecated_member_use_from_same_package
-      final clone = contexts.clone();
-
-      expect(clone.app!.toJson(), contexts.app!.toJson());
-      expect(clone.browser!.toJson(), contexts.browser!.toJson());
-      expect(clone.device!.toJson(), contexts.device!.toJson());
-      expect(
-          clone.operatingSystem!.toJson(), contexts.operatingSystem!.toJson());
-      expect(clone.gpu!.toJson(), contexts.gpu!.toJson());
-      expect(clone.flags!.toJson(), contexts.flags!.toJson());
-      for (final element in contexts.runtimes) {
-        expect(
-          clone.runtimes.where(
-            (clone) => MapEquality().equals(element.toJson(), clone.toJson()),
-          ),
-          isNotEmpty,
-        );
-      }
-
-      expect(clone['theme'], {'value': 'material'});
-      expect(clone['version'], {'value': 9});
-    });
-
     test('set runtimes', () {
       final contexts = Contexts();
       contexts.runtimes = [

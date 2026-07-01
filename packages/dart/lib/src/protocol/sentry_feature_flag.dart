@@ -55,7 +55,4 @@ class SentryFeatureFlag {
       unknown: unknown ?? this.unknown,
     );
   }
-
-  @Deprecated('Will be removed in a future version.')
-  SentryFeatureFlag clone() => copyWith();
 }
