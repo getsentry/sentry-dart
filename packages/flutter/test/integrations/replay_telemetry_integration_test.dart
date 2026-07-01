@@ -112,7 +112,7 @@ void main() {
           clearInteractions(fixture.nativeBinding);
           final span = fixture.createTestSpan();
           await fixture.options.lifecycleRegistry.dispatchCallback(
-            OnProcessSpan(span),
+            OnProcessSpan(span, Hint()),
           );
 
           verifyNever(fixture.nativeBinding.registerTraceId(any));
@@ -128,7 +128,7 @@ void main() {
           clearInteractions(fixture.nativeBinding);
           final span = fixture.createChildTestSpan();
           await fixture.options.lifecycleRegistry.dispatchCallback(
-            OnProcessSpan(span),
+            OnProcessSpan(span, Hint()),
           );
 
           verifyNever(fixture.nativeBinding.registerTraceId(any));
@@ -156,7 +156,7 @@ void main() {
 
         final metric = fixture.createTestMetric();
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessMetric(metric),
+          OnProcessMetric(metric, Hint()),
         );
 
         expect(metric.attributes[_replayId]?.value, 'testreplayid');
@@ -167,7 +167,7 @@ void main() {
 
         final span = fixture.createTestSpan();
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessSpan(span),
+          OnProcessSpan(span, Hint()),
         );
 
         expect(span.attributes[_replayId]?.value, 'testreplayid');
@@ -205,7 +205,7 @@ void main() {
 
         final metric = fixture.createTestMetric();
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessMetric(metric),
+          OnProcessMetric(metric, Hint()),
         );
 
         expect(metric.attributes[_replayId]?.value, 'testreplayid');
@@ -216,7 +216,7 @@ void main() {
 
         final span = fixture.createTestSpan();
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessSpan(span),
+          OnProcessSpan(span, Hint()),
         );
 
         expect(span.attributes[_replayId]?.value, 'testreplayid');
@@ -236,7 +236,7 @@ void main() {
 
         final span = fixture.createTestSpan();
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessSpan(span),
+          OnProcessSpan(span, Hint()),
         );
 
         expect(span.attributes[_replayIsBuffering]?.value, true);
@@ -272,7 +272,7 @@ void main() {
 
             final span = fixture.createTestSpan();
             await fixture.options.lifecycleRegistry.dispatchCallback(
-              OnProcessSpan(span),
+              OnProcessSpan(span, Hint()),
             );
 
             expect(span.attributes.containsKey(_replayId), false);
@@ -310,7 +310,7 @@ void main() {
 
             final span = fixture.createTestSpan();
             await fixture.options.lifecycleRegistry.dispatchCallback(
-              OnProcessSpan(span),
+              OnProcessSpan(span, Hint()),
             );
 
             expect(span.attributes.containsKey(_replayId), false);
@@ -344,7 +344,7 @@ void main() {
 
         final metric = fixture.createTestMetric();
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessMetric(metric),
+          OnProcessMetric(metric, Hint()),
         );
 
         expect(metric.attributes.containsKey(_replayId), false);
@@ -360,7 +360,7 @@ void main() {
 
         final span = fixture.createTestSpan();
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessSpan(span),
+          OnProcessSpan(span, Hint()),
         );
 
         expect(span.attributes.containsKey(_replayId), false);
@@ -401,7 +401,9 @@ class Fixture {
     when(hub.scope).thenReturn(scope);
     when(hub.captureLog(any)).thenAnswer((invocation) async {
       final log = invocation.positionalArguments.first as SentryLog;
-      await options.lifecycleRegistry.dispatchCallback(OnProcessLog(log));
+      await options.lifecycleRegistry.dispatchCallback(
+        OnProcessLog(log, Hint()),
+      );
     });
     when(nativeBinding.replayId).thenReturn(null);
     when(nativeBinding.registerTraceId(any)).thenReturn(null);

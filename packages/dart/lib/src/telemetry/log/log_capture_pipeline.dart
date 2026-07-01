@@ -30,8 +30,10 @@ class LogCapturePipeline {
         log.attributes.addAllIfAbsent(scope.attributes);
       }
 
+      final hint = Hint();
+
       await _options.lifecycleRegistry
-          .dispatchCallback<OnProcessLog>(OnProcessLog(log));
+          .dispatchCallback<OnProcessLog>(OnProcessLog(log, hint));
 
       log.attributes.addAllIfAbsent(defaultAttributes(_options, scope: scope));
 
@@ -39,7 +41,7 @@ class LogCapturePipeline {
       SentryLog? processedLog = log;
       if (beforeSendLog != null) {
         try {
-          final callbackResult = beforeSendLog(log);
+          final callbackResult = beforeSendLog(log, hint);
 
           if (callbackResult is Future<SentryLog?>) {
             processedLog = await callbackResult;

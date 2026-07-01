@@ -780,15 +780,23 @@ typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
 
 /// This function is called right before a log is about to be sent.
 /// Can return a modified log or null to drop the log.
-typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
+typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(
+  SentryLog log,
+  Hint hint,
+);
 
 /// This function is called right before a metric is about to be emitted.
 /// Can return true to emit the metric, or false to drop it.
 typedef BeforeSendMetricCallback = FutureOr<SentryMetric?> Function(
-    SentryMetric metric);
+  SentryMetric metric,
+  Hint hint,
+);
 
 /// This function is called right before a span is about to be sent.
-typedef BeforeSendSpanCallback = FutureOr<void> Function(SentrySpanV2 span);
+typedef BeforeSendSpanCallback = FutureOr<void> Function(
+  SentrySpanV2 span,
+  Hint hint,
+);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
