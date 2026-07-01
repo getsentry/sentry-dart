@@ -204,7 +204,7 @@ class TimeToDisplayTrackerV2 {
         ..status = SentrySpanStatusV2.ok
         ..setAttribute(
           SemanticAttributesConstants.sentryIdleSpanFinishReason,
-          SentryAttribute.string('cancelled'),
+          SentryAttribute.string(SentryIdleSpanFinishReasons.cancelled),
         )
         ..end();
     }

@@ -151,7 +151,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
       status = SentrySpanStatusV2.error;
       setAttribute(
         SemanticAttributesConstants.sentryStatusMessage,
-        SentryAttribute.string('deadline_exceeded'),
+        SentryAttribute.string(SentrySpanStatusMessages.deadlineExceeded),
       );
     }
 
