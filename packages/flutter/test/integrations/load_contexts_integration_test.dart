@@ -869,6 +869,7 @@ void main() {
     group('metrics', () {
       test('adds device attributes to metric when metrics enabled', () async {
         fixture.options.enableMetrics = true;
+        fixture.options.enableLogs = false;
         mockLoadContexts();
         await fixture.registerIntegration();
 
@@ -903,6 +904,7 @@ void main() {
 
       test('does not register callback when metrics disabled', () async {
         fixture.options.enableMetrics = false;
+        fixture.options.enableLogs = false;
         await fixture.registerIntegration();
 
         expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 0);
@@ -1033,6 +1035,7 @@ void main() {
     group('close', () {
       test('removes metric callback from lifecycle registry', () async {
         fixture.options.enableMetrics = true;
+        fixture.options.enableLogs = false;
         mockLoadContexts();
         await fixture.registerIntegration();
 
