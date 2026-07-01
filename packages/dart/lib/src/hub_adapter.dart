@@ -84,6 +84,7 @@ class HubAdapter implements Hub {
         withScope: withScope,
       );
 
+  @internal
   @override
   Hub clone() => Sentry.clone();
 

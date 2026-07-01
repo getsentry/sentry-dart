@@ -62,6 +62,7 @@ class NoOpHub implements Hub {
   }) async =>
       SentryId.empty();
 
+  @internal
   @override
   Hub clone() => this;
 

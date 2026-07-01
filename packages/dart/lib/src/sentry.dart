@@ -332,6 +332,7 @@ class Sentry {
       _hub.configureScope(callback);
 
   /// Clones the current Hub
+  @internal
   static Hub clone() => _hub.clone();
 
   /// Binds a different client to the current hub

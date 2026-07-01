@@ -40,13 +40,6 @@ class SentryBrowser {
     };
   }
 
-  @Deprecated('Will be removed in a future version.')
-  SentryBrowser clone() => SentryBrowser(
-        name: name,
-        version: version,
-        unknown: unknown,
-      );
-
   @Deprecated('Assign values directly to the instance.')
   SentryBrowser copyWith({
     String? name,

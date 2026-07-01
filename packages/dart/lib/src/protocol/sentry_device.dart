@@ -427,47 +427,6 @@ class SentryDevice {
     return attributes;
   }
 
-  @Deprecated('Will be removed in a future version.')
-  SentryDevice clone() => SentryDevice(
-        name: name,
-        family: family,
-        model: model,
-        modelId: modelId,
-        arch: arch,
-        batteryLevel: batteryLevel,
-        orientation: orientation,
-        manufacturer: manufacturer,
-        brand: brand,
-        screenHeightPixels: screenHeightPixels,
-        screenWidthPixels: screenWidthPixels,
-        screenDensity: screenDensity,
-        screenDpi: screenDpi,
-        online: online,
-        charging: charging,
-        lowMemory: lowMemory,
-        simulator: simulator,
-        memorySize: memorySize,
-        freeMemory: freeMemory,
-        usableMemory: usableMemory,
-        storageSize: storageSize,
-        freeStorage: freeStorage,
-        externalStorageSize: externalStorageSize,
-        externalFreeStorage: externalFreeStorage,
-        bootTime: bootTime,
-        processorCount: processorCount,
-        cpuDescription: cpuDescription,
-        processorFrequency: processorFrequency,
-        deviceType: deviceType,
-        batteryStatus: batteryStatus,
-        deviceUniqueIdentifier: deviceUniqueIdentifier,
-        supportsVibration: supportsVibration,
-        supportsAccelerometer: supportsAccelerometer,
-        supportsGyroscope: supportsGyroscope,
-        supportsAudio: supportsAudio,
-        supportsLocationService: supportsLocationService,
-        unknown: unknown,
-      );
-
   @Deprecated('Assign values directly to the instance.')
   SentryDevice copyWith({
     String? name,

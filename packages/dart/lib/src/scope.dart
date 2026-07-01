@@ -466,6 +466,7 @@ class Scope {
   }
 
   /// Clones the current Scope
+  @internal
   Scope clone() {
     final clone = Scope(_options)
       ..level = level
