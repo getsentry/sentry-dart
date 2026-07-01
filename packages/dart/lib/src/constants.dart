@@ -364,6 +364,31 @@ abstract class SemanticAttributesConstants {
 
   /// The name of a collection (table, container) within the database.
   static const dbCollectionName = 'db.collection.name';
+
+  /// The RPC system identifier. For gRPC, always `'grpc'`.
+  ///
+  /// See https://opentelemetry.io/docs/specs/semconv/rpc/grpc/
+  static const rpcSystem = 'rpc.system';
+
+  /// The logical name of the service being called (e.g., `package.Service`).
+  ///
+  /// See https://opentelemetry.io/docs/specs/semconv/rpc/grpc/
+  static const rpcService = 'rpc.service';
+
+  /// The logical name of the method being called (e.g., `Method`).
+  ///
+  /// See https://opentelemetry.io/docs/specs/semconv/rpc/grpc/
+  static const rpcMethod = 'rpc.method';
+
+  /// The string representation of the gRPC status code (e.g., `'OK'`, `'NOT_FOUND'`).
+  ///
+  /// See https://opentelemetry.io/docs/specs/semconv/rpc/grpc/
+  static const rpcResponseStatusCode = 'rpc.response.status_code';
+
+  /// Prefix for RPC request metadata. Append the lowercase metadata key.
+  ///
+  /// See https://opentelemetry.io/docs/specs/semconv/rpc/grpc/
+  static const rpcRequestMetadataPrefix = 'rpc.request.metadata.';
 }
 
 /// Attribute keys emitted by the SDK that are not (yet) codified in

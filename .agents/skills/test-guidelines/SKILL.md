@@ -1,9 +1,19 @@
 ---
 name: test-guidelines
-description: Enforce Sentry Dart/Flutter SDK test conventions for naming, structure, and fixtures. Use when writing tests, adding tests, modifying tests, reviewing test code, fixing failing tests, adding test coverage, TDD, reproducing bugs with tests, regression tests, or test refactoring in any package in this Melos monorepo.
+description: Enforce Sentry Dart/Flutter SDK test conventions for naming, structure, and fixtures. Use when writing tests, adding tests, modifying tests, reviewing test code, fixing failing tests, adding test coverage, TDD, test-first / red-green, reproducing bugs with tests, regression tests, or test refactoring in any package in this Melos monorepo.
 ---
 
 Apply these conventions to all new and modified tests across every package in this monorepo. Existing tests may not follow these conventions — do not refactor them unless asked.
+
+Tests are easiest to write against code designed to accept its dependencies — when implementing the code under test, load **design-first** (where the seams go) and **code-guidelines** (the rules).
+
+## Test-First Loop
+
+Work in **vertical slices**, not horizontal ones. One failing test → the minimal code that makes it pass → repeat. Each test is a **tracer bullet**: it proves one thin path end-to-end, and what you learn from it shapes the next.
+
+Do **not** write all the tests first and then all the implementation. That **horizontal slicing** produces tests of *imagined* behavior — they assert the shape you guessed at, pass when the real behavior breaks, and commit you to a structure before you understand it. Write one test at a time, against behavior you can already reason about.
+
+Fixing a bug? Reproduce it with a failing test first — see **diagnosing-bugs** for the loop.
 
 ## File Structure
 
@@ -156,12 +166,11 @@ group('$Client', () {
 });
 ```
 
-## Fixture Pattern
+## Fixtures and Setup
 
-Define a `Fixture` class at the bottom of each test file to encapsulate setup:
+Encapsulate setup in a `Fixture` class at the bottom of each test file, exposing a `getSut()` that builds the System Under Test with configurable, injectable dependencies. Initialize it in `setUp()` within the narrowest group that needs it. Always build options via `defaultTestOptions()` from `test_utils.dart` — never construct `SentryOptions` directly.
 
 ```dart
-// GOOD: Fixture class with getSut() and configurable options
 class Fixture {
   final transport = MockTransport();
   final options = defaultTestOptions();
@@ -172,92 +181,42 @@ class Fixture {
     return SentryClient(options);
   }
 }
-
-// Usage in tests:
-late Fixture fixture;
-
-setUp(() {
-  fixture = Fixture();
-});
-
-test('captures event', () {
-  final sut = fixture.getSut();
-  // ...
-});
 ```
 
-```dart
-// AVOID: Inline setup without Fixture, duplicated across tests
-test('captures event', () {
-  final options = SentryOptions(dsn: fakeDsn);
-  final transport = MockTransport();
-  options.transport = transport;
-  final client = SentryClient(options);
-  // ...
-});
-```
+Full rules — `Fixture` placement, `setUp`/`tearDown` scoping, `setUpAll` caveats, and the `defaultTestOptions()` rule — in [references/fixtures.md](references/fixtures.md).
 
-Rules:
-- Place `Fixture` at the bottom of the test file.
-- Use `getSut()` to create the System Under Test with configurable options.
-- Initialize the fixture in `setUp()` for each test group.
-- When setup steps are shared, use the top-most shared group to set up the fixture.
+## What to Test
 
-## Test Options
+Test the behavior owned by your change.
 
-Always use `defaultTestOptions()` from `test_utils.dart` to create options — never construct `SentryOptions` directly in tests.
+Prefer tests that would fail if your change's intended contract were broken: user-visible behavior, public API behavior, meaningful branching logic, data transformations, integration wiring, precedence rules, error handling, and regressions your change could realistically introduce.
 
-```dart
-// GOOD: Use defaultTestOptions()
-final options = defaultTestOptions();
-options.dsn = fakeDsn;
+Avoid tests that merely re-prove guarantees owned somewhere else, such as a shared helper, base class, framework, serializer, collection type, generated model, or value object that already has focused coverage. A caller test should not exist just to show that its dependencies still work.
 
-// AVOID: Constructing SentryOptions directly
-final options = SentryOptions(dsn: fakeDsn);
-```
+Before adding a test, ask:
 
-## Setup and Teardown
+- What behavior would fail if my change were wrong?
+- Is this contract owned by this code, or by something it delegates to?
+- Would this test catch a plausible regression in this change?
+- Is this asserting an outcome, or just mirroring implementation details?
 
-- Place `setUp()` / `tearDown()` inside the narrowest group they apply to.
-- Prefer `late` variables initialized in `setUp()` over inline construction in each test.
-- Use `setUpAll()` / `tearDownAll()` only for genuinely expensive shared resources.
+Do test delegated behavior when the delegation is load-bearing for your change's own contract. For example, preserving user input, choosing precedence between sources, wiring the correct helper, enforcing a public API promise, or covering a past regression can all deserve caller-level tests even if a helper implements part of the behavior.
+
+Good tests make the intended contract harder to break. Noisy tests make refactors harder without improving confidence.
 
 ```dart
-// GOOD: late + setUp in narrowest group, fixture reset per test
-group('$Client', () {
-  late Fixture fixture;
-  setUp(() {
-    fixture = Fixture();
-  });
-
-  group('when capturing', () {
-    test('sends event to transport', () {
-      final sut = fixture.getSut();
-      // ...
-    });
-  });
+// GOOD: asserts the new behavior this code path introduces
+test('adds sentry.trace_lifecycle stream attribute', () async {
+  final span = fixture.createRecordingSpan();
+  await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+  expect(span.attributes[SemanticAttributesConstants.sentryTraceLifecycle]?.value, 'stream');
 });
 
-// AVOID: setUp at top level when only one group needs it
-group('$Client', () {
-  late Fixture fixture;
-  late SomeExpensiveResource resource;
-
-  // Wrong: setUpAll for cheap objects
-  setUpAll(() {
-    fixture = Fixture();
-    resource = SomeExpensiveResource();
-  });
-
-  // Wrong: setUp in a deeper group when all sibling groups share it
-  group('when capturing', () {
-    setUp(() { fixture = Fixture(); });
-    test('sends event', () { });
-  });
-  group('when closing', () {
-    setUp(() { fixture = Fixture(); }); // duplicated
-    test('flushes transport', () { });
-  });
+// AVOID in this feature's tests: re-proves that SentryAttribute.string
+// stores its value, which is the value object's own contract
+test('SentryAttribute.string stores its value', () {
+  final attribute = SentryAttribute.string('value');
+  expect(attribute.value, 'value');
 });
 ```
 
@@ -266,6 +225,7 @@ group('$Client', () {
 - Use `expect()` with matchers from `package:test`.
 - Prefer specific matchers (`throwsArgumentError`, `isA<SentryException>()`) over generic ones (`throwsException`, `isA<Exception>()`).
 - One logical assertion per test. Multiple `expect()` calls are fine if they verify a single behavior.
+- **Avoid the tautological test.** Assert the literal expected value, not the same constant the production code uses to produce it — a test whose expected value is computed the way the code computes it passes by construction and can never disagree with the code. Sharing one constant across production and test makes the assertion tautological: it still passes if the constant holds the wrong value. Using the constant as the lookup *key* is fine; pin the expected *value* as a literal.
 
 ```dart
 // GOOD: Specific matchers, single logical assertion
@@ -283,62 +243,23 @@ test('captures exception', () {
 });
 ```
 
-## Async
-
-- Return the `Future` or mark the test callback as `async`. Never fire-and-forget.
-- Use `expectLater` with stream matchers (`emitsInOrder`, `emitsError`) for stream assertions.
-- Use `fakeAsync` for timer and microtask-dependent code.
-
 ```dart
-// GOOD: async test, awaited future
-test('sends event asynchronously', () async {
-  await sut.captureEvent(event);
-  expect(fixture.transport.events, hasLength(1));
-});
+// GOOD: pin the expected value as a literal
+expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
 
-// GOOD: fakeAsync for timer-dependent code
-test('flushes after timeout', () {
-  fakeAsync((async) {
-    sut.startTimer();
-    async.elapse(Duration(seconds: 5));
-    expect(fixture.transport.flushed, isTrue);
-  });
-});
-
-// AVOID: Fire-and-forget future
-test('sends event', () {
-  sut.captureEvent(event); // missing await!
-  expect(fixture.transport.events, hasLength(1));
-});
+// AVOID (tautological): asserting against the same constant the production code uses to set it
+expect(span.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
 ```
 
 ## Mocking
 
-- **Prefer fakes over mocks.** Fakes are hand-written implementations that capture state, making tests resilient to refactoring and readable as documentation. Use them as the default for test doubles.
-- Only reach for mocks when faking is impractical, e.g. a large
-  third-party interface where writing a full fake isn't worth the effort.
-- Use test doubles already defined in the project.
-- When creating a new fake, implement the interface directly and keep it minimal — only the methods the tests actually exercise.
-- Existing mocks are typically found in `mocks.dart` files.
+**Prefer fakes over mocks** — hand-written implementations that capture state, resilient to refactoring and readable as documentation. Reach for a mock only when faking a large third-party interface isn't worth it. A test that's hard to fake usually signals the code under test should accept its dependencies rather than construct them (a **design-first** concern).
 
-```dart
-// GOOD: Hand-written fake that captures state
-class FakeTransport implements Transport {
-  final List<SentryEnvelope> envelopes = [];
+Full guidance, including **designing for mockability** (dependency injection, SDK-style interfaces, mocking only at real boundaries), in [references/mocking.md](references/mocking.md).
 
-  @override
-  Future<SentryId> send(SentryEnvelope envelope) async {
-    envelopes.add(envelope);
-    return envelope.header.eventId ?? SentryId.empty();
-  }
-}
+## Async
 
-// AVOID: Mock with verification-heavy assertions
-final transport = MockTransport();
-when(transport.send(any)).thenAnswer((_) async => SentryId.newId());
-// ... later
-verify(transport.send(any)).called(1);
-```
+Never fire-and-forget: return the `Future` or mark the callback `async`. Use `expectLater` with stream matchers for streams, and `fakeAsync` for timer/microtask-dependent code. Examples in [references/async.md](references/async.md).
 
 ## General
 
