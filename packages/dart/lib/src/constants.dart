@@ -104,6 +104,14 @@ abstract class SemanticAttributesConstants {
   /// The operation name of a span.
   static const sentryOp = 'sentry.op';
 
+  /// A human-readable message providing additional context about a span's
+  /// status, e.g. `'deadline_exceeded'` when an idle span hits its final timeout.
+  static const sentryStatusMessage = 'sentry.status.message';
+
+  /// The reason an idle span finished, e.g. `'cancelled'` when the span was
+  /// superseded by a new interaction before it could complete.
+  static const sentryIdleSpanFinishReason = 'sentry.idle_span_finish_reason';
+
   /// Whether the replay is buffering (onErrorSampleRate).
   static const sentryInternalReplayIsBuffering =
       'sentry._internal.replay_is_buffering';
