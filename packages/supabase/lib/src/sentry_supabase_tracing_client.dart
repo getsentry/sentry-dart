@@ -96,12 +96,6 @@ class SentrySupabaseTracingClient extends BaseClient {
     if (dbSdk != null) {
       span.setData(ProposedSemanticAttributes.dbSdk, dbSdk);
     }
-    if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii) {
-      span.setData(
-        ProposedSemanticAttributes.dbQuery,
-        supabaseRequest.query,
-      );
-    }
     if (supabaseRequest.body != null && _hub.options.sendDefaultPii) {
       span.setData(ProposedSemanticAttributes.dbBody, supabaseRequest.body);
     }
@@ -110,7 +104,13 @@ class SentrySupabaseTracingClient extends BaseClient {
       supabaseRequest.operation.value,
     );
     span.setData(
-      SentrySpanOperations.dbSqlQuery,
+      SemanticAttributesConstants.dbQuerySummary,
+      '${supabaseRequest.operation.value} ${supabaseRequest.table}',
+    );
+    // The generated SQL uses `?` placeholders for all values, so it carries no
+    // PII and can be emitted regardless of `sendDefaultPii`.
+    span.setData(
+      SemanticAttributesConstants.dbQueryText,
       supabaseRequest.generateSqlQuery(),
     );
     span.setData(
