@@ -1,48 +1,25 @@
 version: 2
 updates:
+  # Covers every package under packages/ (dart, flutter, dio, drift, file,
+  # firebase_remote_config, hive, isar, link, logging, sqflite, supabase, ...).
+  # Uses a glob so newly added packages are picked up automatically and the
+  # config does not silently break when packages are moved or renamed.
   - package-ecosystem: pub
-    directory: /dart
+    directories:
+      - /packages/*
     schedule:
       interval: weekly
-    open-pull-requests-limit: 2
-    versioning-strategy: increase-if-necessary
-
-  - package-ecosystem: pub
-    directory: /flutter
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 2
-    versioning-strategy: increase-if-necessary
-
-  - package-ecosystem: pub
-    directory: /dio
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 2
-    versioning-strategy: increase-if-necessary
-
-  - package-ecosystem: pub
-    directory: /file
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 2
-    versioning-strategy: increase-if-necessary
-
-  - package-ecosystem: pub
-    directory: /logging
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 2
-    versioning-strategy: increase-if-necessary
-
-  - package-ecosystem: pub
-    directory: /sqflite
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 5
     versioning-strategy: increase-if-necessary
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
-        interval: weekly
+      interval: weekly
+
+  - package-ecosystem: bundler
+    directories:
+      - /metrics
+      - /packages/flutter/example/ios
+    schedule:
+      interval: weekly
