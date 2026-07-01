@@ -81,12 +81,12 @@ internalLogger.debug(() => 'Envelope size: ${envelope.computeSize()}');
 
 ### File Organization
 
-`lib/src/` mixes two organizing axes: **by-kind layer dirs** (`protocol/`, `event_processor/`, `integrations/`, `native/`, `transport/`) and **by-feature concept dirs** (`replay/`, `frames_tracking/`, `navigation/`, `tracing/`, `telemetry/span/`). The repo facts:
+**Group by feature, not by type.** A processor or integration a feature owns lives in that feature's dir (a replay processor in `replay/`); a cross-cutting one earns its own top-level concept dir (`exception/`, `enricher/`). Cohesive subsystems already do this — `transport/`, `telemetry/span/`, and `native/` (the binding boundary to the platform SDKs; features *call* it rather than embed native code). Native interop is special for testing and memory, not for placement — see design-first and the **Native Code (JNI/FFI)** rules above.
 
-- **Group by concept, not by kind.** A feature-owned processor/integration goes with its feature (a replay processor in `replay/`). A cross-cutting one (enrichment, exceptions, dedup) is still a concept and earns its own concept dir too — core's `enricher/` and `exception/`. `event_processor/` / `integrations/` are by-kind names; they justify a directory only for the **shared machinery** (the runner `run_event_processors.dart`, the base contracts), not as a bucket where concepts land because they share a type. Whether the cross-cutting concept dirs sit top-level or nest under that machinery is a locality call (see design-first). Feature-specific processors sitting loose in the buckets (e.g. `replay_event_processor`, `screenshot_event_processor`) are scatter to steer away from, like the loose tier. (The `Integration` interface itself sits at the `src/` root, e.g. `integration.dart`.)
-- **`native/` is the standing seam exception** — native interop has its own rules (memory, can't be faked; see `packages/flutter/AGENTS.md`), so native adapters group by that seam even when they belong to a concept.
-- The top of `src/` mixes **core primitives** (`hub.dart`, `scope.dart`, `sentry_client.dart`, the `sentry.dart` barrel) with **legacy scatter** (e.g. the v1 span/tracer files). Don't add new feature code to that loose tier — put it in a concept or layer dir.
-- The example to match is `telemetry/span/` (v2 span: a cohesive subsystem in one dir), not the v1 span scattered across `protocol/`, `tracing/`, and loose root files.
+Two shapes are **scatter** — grow neither, and don't read the repo's current use of them as the target:
+
+- **Type-buckets** (`event_processor/`, `integrations/`) collect classes for sharing a base type. A bucket legitimately holds only its runner (`run_event_processors.dart`); the base contract belongs at `src/` root (`event_processor.dart`, beside `integration.dart`). The repo hasn't finished migrating — enrichment, exceptions, and dedup still sit under `event_processor/`, and flutter has loose `replay_event_processor`/`screenshot_event_processor`.
+- **The loose `src/` root.** Core primitives (`hub.dart`, `scope.dart`, `sentry_client.dart`, the `sentry.dart` barrel) belong there; feature code does not. The v1 span/tracer files strewn across the root, `protocol/`, and `tracing/` are the counter-example to `telemetry/span/`, which keeps the whole v2 subsystem in one dir.
 
 *Where* a given piece goes is a locality judgment — see **design-first** (Shape the modules).
 
