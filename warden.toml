@@ -4,17 +4,9 @@ version = 1
 failOn = "high"
 reportOn = "medium"
 
+# Local three-axis review (Standards + Spec + Correctness) — see .agents/skills/review/
 [[skills]]
-name = "code-review"
-remote = "getsentry/skills"
-
-[[skills.triggers]]
-type = "pull_request"
-actions = ["opened", "synchronize", "reopened"]
-
-[[skills]]
-name = "find-bugs"
-remote = "getsentry/skills"
+name = "review"
 
 [[skills.triggers]]
 type = "pull_request"

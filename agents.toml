@@ -24,10 +24,6 @@ name = "pr-writer"
 source = "getsentry/skills"
 
 [[skills]]
-name = "create-pr"
-source = "getsentry/skills"
-
-[[skills]]
 name = "create-branch"
 source = "getsentry/skills"
 
@@ -36,15 +32,7 @@ name = "iterate-pr"
 source = "getsentry/skills"
 
 [[skills]]
-name = "code-review"
-source = "getsentry/skills"
-
-[[skills]]
 name = "code-simplifier"
-source = "getsentry/skills"
-
-[[skills]]
-name = "find-bugs"
 source = "getsentry/skills"
 
 [[skills]]
@@ -53,10 +41,6 @@ source = "getsentry/skills"
 
 [[skills]]
 name = "skill-writer"
-source = "getsentry/skills"
-
-[[skills]]
-name = "skill-creator"
 source = "getsentry/skills"
 
 [[skills]]
@@ -103,3 +87,27 @@ source = "getsentry/sdk-skills"
 [[skills]]
 name = "contributing-md"
 source = "getsentry/sdk-skills"
+
+[[skills]]
+name = "code-guidelines"
+source = "path:.agents/skills/code-guidelines"
+
+[[skills]]
+name = "design-first"
+source = "path:.agents/skills/design-first"
+
+[[skills]]
+name = "diagnosing-bugs"
+source = "path:.agents/skills/diagnosing-bugs"
+
+[[skills]]
+name = "review"
+source = "path:.agents/skills/review"
+
+[[skills]]
+name = "test-guidelines"
+source = "path:.agents/skills/test-guidelines"
+
+[[skills]]
+name = "spec"
+source = "path:.agents/skills/spec"
