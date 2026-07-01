@@ -417,6 +417,18 @@ class Hub {
     }
   }
 
+  /// Adds a feature flag evaluation to the current Scope
+  Future<void> addFeatureFlag(String flag, bool result) async {
+    if (!_isEnabled) {
+      internalLogger.warning(
+        "Instance is disabled and this 'addFeatureFlag' call is a no-op.",
+      );
+    } else {
+      final item = _peek();
+      await item.scope.addFeatureFlag(flag, result);
+    }
+  }
+
   /// Binds a different client to the hub
   void bindClient(SentryClient client) {
     if (!_isEnabled) {

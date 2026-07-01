@@ -3,6 +3,7 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 
+import 'constants.dart';
 import 'event_processor.dart';
 import 'event_processor/run_event_processors.dart';
 import 'hint.dart';
@@ -173,6 +174,35 @@ class Scope {
     _setContextsSync(key, value);
     return _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setContexts(key, value));
+  }
+
+  /// Adds a feature flag evaluation to the scope's feature flags context.
+  ///
+  /// Flags are stored under [SentryFeatureFlags.type] and attached to events.
+  /// A flag already present is moved to the newest position, and the buffer is
+  /// capped at 100 entries — the oldest is dropped only when a new flag is added
+  /// beyond the limit.
+  FutureOr<void> addFeatureFlag(String flag, bool result) {
+    final flags = contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
+        SentryFeatureFlags(values: []);
+    final values = List<SentryFeatureFlag>.from(flags.values);
+
+    final index = values.indexWhere((element) => element.flag == flag);
+    if (index != -1) {
+      values.removeAt(index);
+    }
+
+    values.add(SentryFeatureFlag(flag: flag, result: result));
+
+    while (values.length > 100) {
+      values.removeAt(0);
+    }
+
+    flags.values = values;
+
+    _options.sdk.addFeature(SentryFeatures.featureFlags);
+
+    return setContexts(SentryFeatureFlags.type, flags);
   }
 
   /// Removes a value from the Scope's contexts

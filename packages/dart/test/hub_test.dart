@@ -667,6 +667,23 @@ void main() {
       });
     });
 
+    test('adds feature flag to current Scope', () async {
+      await hub.addFeatureFlag('foo', true);
+
+      final flags =
+          hub.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+      expect(flags.values.first.flag, 'foo');
+      expect(flags.values.first.result, true);
+    });
+
+    test('does not add feature flag when disabled', () async {
+      await hub.close();
+
+      await hub.addFeatureFlag('foo', true);
+
+      expect(hub.scope.contexts[SentryFeatureFlags.type], isNull);
+    });
+
     test('generateNewTrace creates new trace id in propagation context', () {
       final oldTraceId = hub.scope.propagationContext.traceId;
 
