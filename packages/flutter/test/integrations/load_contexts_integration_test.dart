@@ -882,7 +882,7 @@ void main() {
         );
 
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessMetric(metric),
+          OnProcessMetric(metric, Hint()),
         );
 
         verify(fixture.binding.loadContexts()).called(1);
@@ -935,7 +935,7 @@ void main() {
 
           final span = givenSpan();
           await fixture.options.lifecycleRegistry.dispatchCallback(
-            OnProcessSpan(span),
+            OnProcessSpan(span, Hint()),
           );
 
           verify(fixture.binding.loadContexts()).called(1);
@@ -975,7 +975,7 @@ void main() {
         );
 
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessSpan(span),
+          OnProcessSpan(span, Hint()),
         );
 
         final attributes = span.attributes;
@@ -1011,7 +1011,7 @@ void main() {
 
         final span = givenSpan();
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessSpan(span),
+          OnProcessSpan(span, Hint()),
         );
 
         // Attributes should remain unchanged (empty or just what was set before)
@@ -1121,7 +1121,7 @@ void main() {
         );
 
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessMetric(metric),
+          OnProcessMetric(metric, Hint()),
         );
 
         verifyNever(fixture.binding.loadContexts());
@@ -1145,7 +1145,7 @@ void main() {
         );
 
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessSpan(span),
+          OnProcessSpan(span, Hint()),
         );
 
         verifyNever(fixture.binding.loadContexts());

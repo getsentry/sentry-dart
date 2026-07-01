@@ -86,7 +86,7 @@ void main() {
               event.metric.attributes.containsKey('scope-attr');
         });
 
-        fixture.options.beforeSendMetric = (metric) {
+        fixture.options.beforeSendMetric = (metric, hint) {
           operations.add('beforeSendMetric');
           return metric;
         };
@@ -133,8 +133,29 @@ void main() {
     });
 
     group('when beforeSendMetric is configured', () {
+      test('receives the same hint instance dispatched to OnProcessMetric',
+          () async {
+        Hint? lifecycleHint;
+        Hint? callbackHint;
+
+        fixture.options.lifecycleRegistry
+            .registerCallback<OnProcessMetric>((event) {
+          lifecycleHint = event.hint;
+        });
+        fixture.options.beforeSendMetric = (metric, hint) {
+          callbackHint = hint;
+          return metric;
+        };
+
+        await fixture.pipeline
+            .captureMetric(fixture.createMetric(), scope: fixture.scope);
+
+        expect(callbackHint, isNotNull);
+        expect(callbackHint, same(lifecycleHint));
+      });
+
       test('returning null drops the metric', () async {
-        fixture.options.beforeSendMetric = (_) => null;
+        fixture.options.beforeSendMetric = (_, __) => null;
 
         final metric = fixture.createMetric();
 
@@ -144,7 +165,7 @@ void main() {
       });
 
       test('returning null records lost event in client report', () async {
-        fixture.options.beforeSendMetric = (_) => null;
+        fixture.options.beforeSendMetric = (_, __) => null;
 
         final metric = fixture.createMetric();
 
@@ -158,7 +179,7 @@ void main() {
       });
 
       test('can mutate the metric', () async {
-        fixture.options.beforeSendMetric = (metric) {
+        fixture.options.beforeSendMetric = (metric, hint) {
           metric.name = 'modified-name';
           metric.attributes['added-key'] = SentryAttribute.string('added');
           return metric;

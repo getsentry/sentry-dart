@@ -70,7 +70,7 @@ Future<void> setupSentry(
 
       options.enableLogs = true;
 
-      options.beforeSendMetric = (metric) {
+      options.beforeSendMetric = (metric, hint) {
         if (metric.name == 'drop-metric') {
           return null;
         }
@@ -85,7 +85,7 @@ Future<void> setupSentry(
       ];
 
       // Example: Scrub sensitive data from spans before sending
-      options.beforeSendSpan = (span) {
+      options.beforeSendSpan = (span, hint) {
         final sensitiveAttributes = span.attributes.entries
             .where((entry) =>
                 entry.value.value is String &&
