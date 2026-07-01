@@ -388,6 +388,15 @@ abstract class SemanticAttributesConstants {
   /// For more information see [frames delay](https://develop.sentry.dev/sdk/performance/frames-delay/).
   static const framesDelay = 'frames.delay';
 
+  /// The managed thread ID the span ran on.
+  static const threadId = 'thread.id';
+
+  /// The name of the thread the span ran on (e.g., "main").
+  static const threadName = 'thread.name';
+
+  /// Whether the main thread was blocked by the span.
+  static const blockedMainThread = 'blocked_main_thread';
+
   /// The HTTP request method (e.g., "GET", "POST").
   static const httpRequestMethod = 'http.request.method';
 
