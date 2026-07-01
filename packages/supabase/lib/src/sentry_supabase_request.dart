@@ -214,19 +214,10 @@ class SentrySupabaseRequest {
     }
   }
 
-  /// Builds the column projection for a SELECT statement from the query.
-  ///
-  /// Returns `*` when the request has no explicit `select(...)` projection.
+  /// Returns the `select` column projection, or `*` when none is set.
   String _buildSelectColumns() {
-    for (final queryItem in query) {
-      if (queryItem.startsWith('select(') && queryItem.endsWith(')')) {
-        final columns = queryItem.substring(7, queryItem.length - 1);
-        if (columns.isNotEmpty) {
-          return columns;
-        }
-      }
-    }
-    return '*';
+    final columns = request.url.queryParameters['select'];
+    return columns == null || columns.isEmpty ? '*' : columns;
   }
 
   /// Builds WHERE clause from query parameters for SQL representation

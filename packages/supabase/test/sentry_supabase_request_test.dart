@@ -485,6 +485,20 @@ void main() {
             'SELECT id,name FROM "users" WHERE id = ?',
           );
         });
+
+        test('SELECT falls back to * for an empty select projection', () {
+          final request = Request(
+            'GET',
+            Uri.parse('https://example.com/rest/v1/users?select='),
+          );
+          final supabaseRequest =
+              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+
+          expect(
+            supabaseRequest.generateSqlQuery(),
+            'SELECT * FROM "users"',
+          );
+        });
       });
 
       group('edge cases', () {
