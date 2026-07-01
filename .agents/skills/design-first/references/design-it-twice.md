@@ -15,9 +15,11 @@ For most cases, write the contrasting interfaces in the sketch itself:
    - **Common-case-first** — the default call is trivial; rarer needs cost more.
 3. **Compare on depth, locality, and seam placement**, then recommend one. Propose a hybrid if pieces combine well. Be opinionated.
 
-## Parallel sub-agents — for genuinely large surfaces
+## Parallel sub-agents — optional
 
-When the surface is large enough that exploring it inline would crowd the design pass, spawn the explorations concurrently:
+Reach for this **only when both hold**: the `Agent` tool is actually available to you, *and* the surface is large enough that exploring it inline would crowd the design pass. **Default to inline** — it produces the identical output and comparison, just using more of your working context. If the user has said they prefer not to use sub-agents, treat this section as off.
+
+When it applies, spawn the explorations concurrently:
 
 - Spawn 3+ agents with the `Agent` tool, each given one of the constraints above plus a technical brief (file paths, coupling, what sits behind the seam, the dependency it injects).
 - Each returns: the interface (types, methods, params, invariants, error modes), a caller usage example, what the implementation hides, the fake its tests inject, and trade-offs.
