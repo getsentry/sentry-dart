@@ -20,17 +20,17 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
     final flags =
         _hub?.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
             SentryFeatureFlags(values: []);
-    final values = flags.values;
-
-    if (values.length >= 100) {
-      values.removeAt(0);
-    }
+    final values = List<SentryFeatureFlag>.from(flags.values);
 
     final index = values.indexWhere((element) => element.flag == flag);
     if (index != -1) {
-      values[index] = SentryFeatureFlag(flag: flag, result: result);
-    } else {
-      values.add(SentryFeatureFlag(flag: flag, result: result));
+      values.removeAt(index);
+    }
+
+    values.add(SentryFeatureFlag(flag: flag, result: result));
+
+    while (values.length > 100) {
+      values.removeAt(0);
     }
 
     flags.values = values;

@@ -499,8 +499,14 @@ class Scope {
     }
 
     for (final entry in Map.from(contexts).entries) {
-      if (entry.value != null) {
-        clone._setContextsSync(entry.key, entry.value);
+      final value = entry.value;
+      if (value != null) {
+        clone._setContextsSync(
+          entry.key,
+          entry.key == SentryFeatureFlags.type && value is SentryFeatureFlags
+              ? value.copy()
+              : value,
+        );
       }
     }
 

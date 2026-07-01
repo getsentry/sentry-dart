@@ -21,6 +21,7 @@ targets:
       packages/link:
       packages/firebase_remote_config:
       packages/supabase:
+      packages/grpc:
   - name: github
   - name: registry
     sdks:
