@@ -3,6 +3,7 @@
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
 
+import 'constants.dart';
 import 'internal_logger.dart';
 import 'sentry_supabase_request.dart';
 
@@ -33,11 +34,11 @@ class SentrySupabaseTracingClient extends BaseClient {
       response = await _innerClient.send(request);
 
       span?.setData(
-        SentrySpanData.httpResponseStatusCodeKey,
+        SemanticAttributesConstants.httpResponseStatusCode,
         response.statusCode,
       );
       span?.setData(
-        SentrySpanData.httpResponseContentLengthKey,
+        SemanticAttributesConstants.httpResponseBodySize,
         response.contentLength,
       );
       span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
@@ -81,29 +82,41 @@ class SentrySupabaseTracingClient extends BaseClient {
     final dbSchema = supabaseRequest.request.headers['Accept-Profile'] ??
         supabaseRequest.request.headers['Content-Profile'];
     if (dbSchema != null) {
-      span.setData(SentrySpanData.dbSchemaKey, dbSchema);
-    }
-    span.setData(SentrySpanData.dbTableKey, supabaseRequest.table);
-    span.setData(SentrySpanData.dbUrlKey, supabaseRequest.request.url.origin);
-    final dbSdk = supabaseRequest.request.headers['X-Client-Info'];
-    if (dbSdk != null) {
-      span.setData(SentrySpanData.dbSdkKey, dbSdk);
-    }
-    if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii) {
-      span.setData(SentrySpanData.dbQueryKey, supabaseRequest.query);
-    }
-    if (supabaseRequest.body != null && _hub.options.sendDefaultPii) {
-      span.setData(SentrySpanData.dbBodyKey, supabaseRequest.body);
+      span.setData(ProposedSemanticAttributes.dbSchema, dbSchema);
     }
     span.setData(
-      SentrySpanData.dbOperationKey,
+      SemanticAttributesConstants.dbCollectionName,
+      supabaseRequest.table,
+    );
+    span.setData(
+      ProposedSemanticAttributes.dbUrl,
+      supabaseRequest.request.url.origin,
+    );
+    final dbSdk = supabaseRequest.request.headers['X-Client-Info'];
+    if (dbSdk != null) {
+      span.setData(ProposedSemanticAttributes.dbSdk, dbSdk);
+    }
+    if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii) {
+      span.setData(
+        ProposedSemanticAttributes.dbQuery,
+        supabaseRequest.query,
+      );
+    }
+    if (supabaseRequest.body != null && _hub.options.sendDefaultPii) {
+      span.setData(ProposedSemanticAttributes.dbBody, supabaseRequest.body);
+    }
+    span.setData(
+      SemanticAttributesConstants.dbOperationName,
       supabaseRequest.operation.value,
     );
     span.setData(
       SentrySpanOperations.dbSqlQuery,
       supabaseRequest.generateSqlQuery(),
     );
-    span.setData(SentrySpanData.dbSystemKey, SentrySpanData.dbSystemPostgresql);
+    span.setData(
+      SemanticAttributesConstants.dbSystemName,
+      dbSystemNamePostgresql,
+    );
     span.origin = SentryTraceOrigins.autoDbSupabase;
     return span;
   }

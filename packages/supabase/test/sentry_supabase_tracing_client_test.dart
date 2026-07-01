@@ -60,10 +60,10 @@ void main() {
     void verifyCommonSpanAttributes(String version) {
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.schema'], 'public');
-      expect(span.data['db.table'], 'mock-table');
+      expect(span.data['db.collection.name'], 'mock-table');
       expect(span.data['db.url'], 'https://example.com');
       expect(span.data['db.sdk'], version);
-      expect(span.data['db.system'], 'postgresql');
+      expect(span.data['db.system.name'], 'postgresql');
       // ignore: invalid_use_of_internal_member
       expect(span.origin, SentryTraceOrigins.autoDbSupabase);
     }
@@ -106,7 +106,7 @@ void main() {
         'ilike(name, John)',
         'in(status, ("active","pending"))',
       ]);
-      expect(span.data['db.operation'], 'select');
+      expect(span.data['db.operation.name'], 'select');
       expect(span.data['db.sql.query'], 'SELECT * FROM "mock-table"');
     });
 
@@ -127,7 +127,7 @@ void main() {
 
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 42});
-      expect(span.data['db.operation'], 'insert');
+      expect(span.data['db.operation.name'], 'insert');
       expect(
         span.data['db.sql.query'],
         'INSERT INTO "mock-table" ("id") VALUES (?)',
@@ -152,7 +152,7 @@ void main() {
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 42});
       expect(span.data['db.query'], ['select(id,name)']);
-      expect(span.data['db.operation'], 'upsert');
+      expect(span.data['db.operation.name'], 'upsert');
       expect(
         span.data['db.sql.query'],
         'INSERT INTO "mock-table" ("id") VALUES (?)',
@@ -181,7 +181,7 @@ void main() {
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.body'], {'id': 1337});
       expect(span.data['db.query'], ['eq(id, 42)', 'or(id.eq.8)']);
-      expect(span.data['db.operation'], 'update');
+      expect(span.data['db.operation.name'], 'update');
       expect(
         span.data['db.sql.query'],
         'UPDATE "mock-table" SET "id" = ? WHERE id = ? OR id = ?',
@@ -205,7 +205,7 @@ void main() {
 
       final span = fixture.mockHub.currentSpan.childSpan;
       expect(span.data['db.query'], ['eq(id, 42)']);
-      expect(span.data['db.operation'], 'delete');
+      expect(span.data['db.operation.name'], 'delete');
       expect(
         span.data['db.sql.query'],
         'DELETE FROM "mock-table" WHERE id = ?',
