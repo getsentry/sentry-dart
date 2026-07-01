@@ -265,7 +265,8 @@ class SentrySupabaseRequest {
         continue;
       }
 
-      // Handle NOT conditions via filter - e.g., filter(not, eq.deleted)
+      // Handle NOT conditions via filter - e.g., filter(not, status.eq.deleted).
+      // Rendered as `NOT (column = ?)` to match the not(column, op, value) path.
       if (queryItem.startsWith('filter(not,')) {
         // Find the NOT parameter in original query
         final notParam = originalParams.entries.firstWhere(
@@ -277,7 +278,7 @@ class SentrySupabaseRequest {
           final parts = notParam.value.split('.eq.');
           if (parts.isNotEmpty) {
             final column = parts[0];
-            conditions.add('$column != ?');
+            conditions.add('NOT ($column = ?)');
           }
         }
         continue;
@@ -335,6 +336,8 @@ class SentrySupabaseRequest {
         return 'LIKE';
       case 'ilike':
         return 'ILIKE';
+      case 'is':
+        return 'IS';
       case 'in':
         return 'IN';
       default:

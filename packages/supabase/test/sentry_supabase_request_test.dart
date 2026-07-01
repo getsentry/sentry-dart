@@ -205,6 +205,20 @@ void main() {
             'DELETE FROM "users" WHERE status != ?',
           );
         });
+
+        test('is (is null)', () {
+          final request = Request(
+            'DELETE',
+            Uri.parse('https://example.com/rest/v1/users?deleted=is.null'),
+          );
+          final supabaseRequest =
+              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+
+          expect(
+            supabaseRequest.generateSqlQuery(),
+            'DELETE FROM "users" WHERE deleted IS ?',
+          );
+        });
       });
 
       group('comparison operators', () {
@@ -390,7 +404,7 @@ void main() {
 
           expect(
             supabaseRequest.generateSqlQuery(),
-            'DELETE FROM "users" WHERE status != ?',
+            'DELETE FROM "users" WHERE NOT (status = ?)',
           );
         });
 
@@ -420,7 +434,7 @@ void main() {
 
           expect(
             supabaseRequest.generateSqlQuery(),
-            'DELETE FROM "users" WHERE id = ? AND age > ? OR status = ? AND type != ?',
+            'DELETE FROM "users" WHERE id = ? AND age > ? OR status = ? AND NOT (type = ?)',
           );
         });
       });
