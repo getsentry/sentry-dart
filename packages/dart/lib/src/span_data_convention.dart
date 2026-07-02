@@ -5,6 +5,4 @@ class SpanDataConvention {
   static const slowFrames = 'frames.slow';
   static const frozenFrames = 'frames.frozen';
   static const framesDelay = 'frames.delay';
-
-  // TODO: eventually add other data keys here as well
 }
