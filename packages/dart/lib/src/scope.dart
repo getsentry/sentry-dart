@@ -183,7 +183,7 @@ class Scope {
   /// capped at 100 entries — the oldest is dropped only when a new flag is added
   /// beyond the limit.
   FutureOr<void> addFeatureFlag(String flag, bool result) {
-    final flags = contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
+    final flags = _contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
         SentryFeatureFlags(values: []);
     final values = List<SentryFeatureFlag>.from(flags.values);
 
