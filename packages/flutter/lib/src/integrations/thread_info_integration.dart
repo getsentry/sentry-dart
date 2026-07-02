@@ -88,13 +88,16 @@ class ThreadInfoIntegration implements Integration<SentryFlutterOptions> {
 
   void _processSyncSpanOnFinish(OnSpanFinish event) {
     final span = event.span;
-    if (span is! SentrySpan || !span.isSynchronous) {
+    if (span is! SentrySpan || !span.hasSynchronousMarker) {
       return;
     }
 
-    if (span.data[SemanticAttributesConstants.threadName] == 'main') {
+    if (span.isSynchronous &&
+        span.data[SemanticAttributesConstants.threadName] == 'main') {
       span.setData(SemanticAttributesConstants.blockedMainThread, true);
     }
+    // Always strip the internal marker so it never leaks to Sentry, even when
+    // it holds a stray non-true value.
     span.clearSynchronous();
   }
 
@@ -120,15 +123,18 @@ class ThreadInfoIntegration implements Integration<SentryFlutterOptions> {
 
   void _processSyncSpanOnProcess(OnProcessSpan event) {
     final span = event.span;
-    if (!span.isSynchronous) {
+    if (!span.hasSynchronousMarker) {
       return;
     }
 
-    if (span.attributes[SemanticAttributesConstants.threadName]?.value ==
-        'main') {
+    if (span.isSynchronous &&
+        span.attributes[SemanticAttributesConstants.threadName]?.value ==
+            'main') {
       span.setAttribute(SemanticAttributesConstants.blockedMainThread,
           SentryAttribute.bool(true));
     }
+    // Always strip the internal marker so it never leaks to Sentry, even when
+    // it holds a stray non-true value.
     span.clearSynchronous();
   }
 }

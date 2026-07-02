@@ -246,10 +246,13 @@ void main() {
       await fixture.options.lifecycleRegistry
           .dispatchCallback(OnSpanFinish(span));
 
-      // sync == false is treated as not synchronous, so nothing is set.
+      // sync == false is not synchronous, so blocked_main_thread is not set.
       final blockedMainThreadCalls = span.setDataCalls.where(
           (call) => call.key == SemanticAttributesConstants.blockedMainThread);
       expect(blockedMainThreadCalls, isEmpty);
+
+      // But the internal marker is still stripped so it never leaks to Sentry.
+      expect(span.removeDataCalls.map((call) => call.key), contains('sync'));
     });
 
     test('does not set blocked_main_thread when sync span has no thread name',
@@ -434,11 +437,14 @@ void main() {
         await fixture.options.lifecycleRegistry
             .dispatchCallback(OnProcessSpan(span));
 
-        // sync == false is treated as not synchronous, so nothing is set.
+        // sync == false is not synchronous, so blocked_main_thread is not set.
         expect(
             span.attributes
                 .containsKey(SemanticAttributesConstants.blockedMainThread),
             isFalse);
+
+        // But the internal marker is still stripped so it never leaks to Sentry.
+        expect(span.attributes.containsKey('sync'), isFalse);
       });
 
       test('does not set blocked_main_thread when sync span has no thread name',
