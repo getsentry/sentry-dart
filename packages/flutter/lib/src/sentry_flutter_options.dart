@@ -179,6 +179,15 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enable auto performance tracking by default.
   bool enableAutoPerformanceTracing = true;
 
+  /// Sends app start as a standalone `app.start` transaction instead of
+  /// attaching app start spans and measurements to the first `ui.load`
+  /// transaction.
+  ///
+  /// The first `ui.load` transaction is still created and keeps its
+  /// timings; only the app start data moves to the standalone transaction.
+  @meta.experimental
+  bool enableStandaloneAppStartTracing = false;
+
   /// Automatically attaches a screenshot when capturing an error or exception.
   ///
   /// Requires adding the [SentryWidget] to the widget tree.

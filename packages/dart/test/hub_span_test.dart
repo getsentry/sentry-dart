@@ -1154,6 +1154,49 @@ void main() {
     });
 
     group('when using idle spans', () {
+      group('with bindToScope false', () {
+        test('creates recording idle span while a bound idle span is active',
+            () {
+          final hub = fixture.getSut();
+          final boundIdleSpan = hub.startIdleSpan('bound-root');
+          expect(boundIdleSpan, isA<IdleRecordingSentrySpanV2>());
+
+          final detachedIdleSpan = hub.startIdleSpan(
+            'detached-root',
+            bindToScope: false,
+          );
+
+          expect(detachedIdleSpan, isA<IdleRecordingSentrySpanV2>());
+        });
+
+        test('does not become the hub-level active span', () {
+          final hub = fixture.getSut();
+
+          hub.startIdleSpan('detached-root', bindToScope: false);
+
+          expect(hub.getActiveSpan(), isNull);
+        });
+
+        test('does not parent spans created without explicit parent', () {
+          final hub = fixture.getSut();
+          hub.startIdleSpan('detached-root', bindToScope: false);
+
+          final span = hub.startInactiveSpan('child') as RecordingSentrySpanV2;
+
+          expect(span.parentSpan, isNull);
+        });
+
+        test('does not block starting a bound idle span afterwards', () {
+          final hub = fixture.getSut();
+          hub.startIdleSpan('detached-root', bindToScope: false);
+
+          final boundIdleSpan = hub.startIdleSpan('bound-root');
+
+          expect(boundIdleSpan, isA<IdleRecordingSentrySpanV2>());
+          expect(hub.getActiveSpan(), same(boundIdleSpan));
+        });
+      });
+
       test('uses startTimestamp when provided', () {
         final hub = fixture.getSut();
         final past = DateTime(2024, 1, 1, 12, 0, 0);

@@ -2,6 +2,12 @@ import 'package:meta/meta.dart';
 
 @internal
 class SentrySpanOperations {
+  static const String appStart = 'app.start';
+  static const String appStartPluginRegistration =
+      'app.start.plugin_registration';
+  static const String appStartSentrySetup = 'app.start.sentry_setup';
+  static const String appStartFirstFrameRender = 'app.start.first_frame_render';
+  static const String appStartNative = 'app.start.native';
   static const String uiLoad = 'ui.load';
   static const String uiTimeToInitialDisplay = 'ui.load.initial_display';
   static const String uiTimeToFullDisplay = 'ui.load.full_display';

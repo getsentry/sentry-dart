@@ -900,16 +900,24 @@ class Hub {
 
   /// Starts an idle root span. Idle spans are always root spans and are never
   /// children of another span.
+  ///
+  /// With [bindToScope] `true` (the default) the span becomes the hub-level
+  /// active span: spans created without an explicit parent attach to it, and
+  /// only one bound idle span may run at a time. With [bindToScope] `false`
+  /// the span is detached — it never becomes the default parent, does not
+  /// block a bound idle span, and the caller owns ending it (the idle and
+  /// final timeouts remain as backstops).
   @internal
   SentrySpanV2 startIdleSpan(
     String name, {
     Duration idleTimeout = const Duration(seconds: 3),
     Duration finalTimeout = const Duration(seconds: 30),
     bool trimIdleSpanEndTimestamp = true,
+    bool bindToScope = true,
     Map<String, SentryAttribute>? attributes,
     DateTime? startTimestamp,
   }) {
-    if (_currentIdleSpan != null) {
+    if (bindToScope && _currentIdleSpan != null) {
       internalLogger.warning(
         () => 'Hub(internal): an idle span is already running. '
             'The current idle span should be ended before starting a new one.',
@@ -941,7 +949,9 @@ class Hub {
     }
 
     _options.lifecycleRegistry.dispatchCallback(OnSpanStartV2(span));
-    _idleSpan = span;
+    if (bindToScope) {
+      _idleSpan = span;
+    }
 
     return span;
   }

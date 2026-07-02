@@ -21,11 +21,10 @@ import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/flutter_framework_feature_flag_integration.dart';
 import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
-import 'integrations/native_app_start_handler.dart';
-import 'integrations/native_app_start_handler_v2.dart';
+import 'app_start/app_start_tracker.dart';
 import 'integrations/replay_telemetry_integration.dart';
 import 'integrations/screenshot_integration.dart';
-import 'integrations/generic_app_start_integration.dart';
+import 'app_start/generic_app_start_integration.dart';
 import 'integrations/native_trace_sync_integration.dart';
 import 'integrations/thread_info_integration.dart';
 import 'integrations/web_session_integration.dart';
@@ -205,8 +204,8 @@ mixin SentryFlutter {
           integrations.add(
             NativeAppStartIntegration(
               DefaultFrameCallbackHandler(),
-              NativeAppStartHandler(native),
-              NativeAppStartHandlerV2(native),
+              native,
+              AppStartTracker(),
             ),
           );
         }

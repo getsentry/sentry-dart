@@ -8,9 +8,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_handler.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_handler_v2.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/app_start_info.dart';
+import 'package:sentry_flutter/src/app_start/app_start_tracker.dart';
+import 'package:sentry_flutter/src/app_start/native_app_start_integration.dart';
+import 'package:sentry_flutter/src/native/native_app_start.dart';
 
 import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
@@ -56,27 +57,47 @@ void main() {
       expect(fixture.frameCallbackHandler.timingsCallback, isNotNull);
     });
 
-    test('timingsCallback calls nativeAppStartHandler', () async {
+    test('timingsCallback tracks parsed app start info', () async {
       fixture.callIntegration();
 
       final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
       timingsCallback([_fakeFrameTiming]);
+      await Future<void>.delayed(Duration(milliseconds: 10));
 
-      expect(fixture.nativeAppStartHandler.calls, 1);
-      expect(fixture.nativeAppStartHandler.appStartEnd, isNotNull);
-      expect(fixture.nativeAppStartHandler.context, isNotNull);
+      expect(fixture.appStartTracker.trackCalls, 1);
+      expect(fixture.appStartTracker.appStartInfo, isNotNull);
     });
 
-    test('sets correct app start from timing', () async {
+    test('sets correct app start end from timing', () async {
       fixture.callIntegration();
 
       final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
       timingsCallback([_fakeFrameTiming]);
+      await Future<void>.delayed(Duration(milliseconds: 10));
 
-      expect(fixture.nativeAppStartHandler.calls, 1);
-      expect(fixture.nativeAppStartHandler.appStartEnd, isNotNull);
-      expect(fixture.nativeAppStartHandler.appStartEnd,
-          DateTime.fromMicrosecondsSinceEpoch(10));
+      expect(
+        fixture.appStartTracker.appStartInfo?.end,
+        DateTime.fromMicrosecondsSinceEpoch(10),
+      );
+    });
+
+    test('cancels tracker when native app start is null', () async {
+      when(fixture.nativeBinding.fetchNativeAppStart())
+          .thenAnswer((_) async => null);
+      fixture.callIntegration();
+
+      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
+      timingsCallback([_fakeFrameTiming]);
+      await Future<void>.delayed(Duration(milliseconds: 10));
+
+      expect(fixture.appStartTracker.cancelCalls, 1);
+      expect(fixture.appStartTracker.trackCalls, 0);
+    });
+
+    test('prepares tracker when integration is called', () async {
+      fixture.callIntegration();
+
+      expect(fixture.appStartTracker.prepareCalls, 1);
     });
 
     test('handles timingsCallback exactly once', () async {
@@ -90,7 +111,7 @@ void main() {
       await Future<void>.delayed(Duration(milliseconds: 10));
 
       expect(fixture.frameCallbackHandler.timingsCallback, isNull);
-      expect(fixture.nativeAppStartHandler.calls, 1);
+      expect(fixture.appStartTracker.trackCalls, 1);
     });
 
     test('handles empty timings', () async {
@@ -125,27 +146,6 @@ void main() {
 
       expect(fixture.frameCallbackHandler.timingsCallback, isNull);
     });
-
-    test('sets root transaction context and ttd transaction ids', () async {
-      fixture.callIntegration();
-
-      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-      timingsCallback([_fakeFrameTiming]);
-
-      expect(fixture.nativeAppStartHandler.context, isNotNull);
-
-      expect(fixture.nativeAppStartHandler.context?.name, 'root /');
-      expect(
-        fixture.nativeAppStartHandler.context?.operation,
-        // ignore: invalid_use_of_internal_member
-        SentrySpanOperations.uiLoad,
-      );
-
-      expect(
-        fixture.options.timeToDisplayTracker.transactionId,
-        fixture.nativeAppStartHandler.context?.spanId,
-      );
-    });
   });
 }
 
@@ -154,17 +154,26 @@ class Fixture {
   final hub = MockHub();
 
   final frameCallbackHandler = FakeFrameCallbackHandler();
-  final nativeAppStartHandler = FakeNativeAppStartHandler();
-  final nativeAppStartHandlerV2 = FakeNativeAppStartHandlerV2();
+  final nativeBinding = MockSentryNativeBinding();
+  final appStartTracker = FakeAppStartTracker();
 
   late NativeAppStartIntegration sut = NativeAppStartIntegration(
     frameCallbackHandler,
-    nativeAppStartHandler,
-    nativeAppStartHandlerV2,
+    nativeBinding,
+    appStartTracker,
   );
 
   Fixture() {
     when(hub.options).thenReturn(options);
+    SentryFlutter.sentrySetupStartTime = DateTime.fromMicrosecondsSinceEpoch(5);
+    when(nativeBinding.fetchNativeAppStart()).thenAnswer(
+      (_) async => NativeAppStart(
+        appStartTime: 0,
+        pluginRegistrationTime: 0,
+        isColdStart: true,
+        nativeSpanTimes: {},
+      ),
+    );
   }
 
   void callIntegration() {
@@ -172,29 +181,29 @@ class Fixture {
   }
 }
 
-class FakeNativeAppStartHandler implements NativeAppStartHandler {
-  SentryTransactionContext? context;
-  DateTime? appStartEnd;
-  var calls = 0;
+class FakeAppStartTracker implements AppStartTracker {
+  var prepareCalls = 0;
+  var trackCalls = 0;
+  var cancelCalls = 0;
+  AppStartInfo? appStartInfo;
 
   @override
-  Future<void> call(Hub hub, SentryFlutterOptions options,
-      {required DateTime? appStartEnd,
-      required SentryTransactionContext context}) async {
-    this.appStartEnd = appStartEnd;
-    this.context = context;
-    calls += 1;
+  void prepare(Hub hub, SentryFlutterOptions options) {
+    prepareCalls += 1;
   }
-}
-
-class FakeNativeAppStartHandlerV2 implements NativeAppStartHandlerV2 {
-  DateTime? appStartEnd;
-  var calls = 0;
 
   @override
-  Future<void> call(Hub hub, SentryFlutterOptions options,
-      {required DateTime appStartEnd}) async {
-    this.appStartEnd = appStartEnd;
-    calls += 1;
+  Future<void> track(
+    Hub hub,
+    SentryFlutterOptions options,
+    AppStartInfo appStartInfo,
+  ) async {
+    this.appStartInfo = appStartInfo;
+    trackCalls += 1;
+  }
+
+  @override
+  void cancel(SentryFlutterOptions options) {
+    cancelCalls += 1;
   }
 }

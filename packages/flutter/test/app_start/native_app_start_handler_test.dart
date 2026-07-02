@@ -5,11 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_handler.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/native_app_start_handler.dart';
+import 'package:sentry_flutter/src/app_start/native_app_start_integration.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
+import 'package:sentry_flutter/src/app_start/native_app_start_parser.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 
@@ -544,7 +545,7 @@ class Fixture {
     nativeSpanTimes: {},
   );
 
-  late final sut = NativeAppStartHandler(nativeBinding);
+  late final sut = NativeAppStartHandler();
 
   // Track the enriched transaction
   SentryTracer? _enrichedTransaction;
@@ -555,7 +556,20 @@ class Fixture {
   }
 
   Future<void> call({required DateTime appStartEnd}) async {
-    await sut.call(hub, options, context: context, appStartEnd: appStartEnd);
+    final nativeAppStart = await nativeBinding.fetchNativeAppStart();
+    final appStartInfo = nativeAppStart == null
+        ? null
+        : parseNativeAppStart(nativeAppStart, appStartEnd);
+    if (appStartInfo == null) {
+      return;
+    }
+    await sut.call(
+      hub,
+      options,
+      context: context,
+      appStartInfo: appStartInfo,
+      standalone: false,
+    );
     // Allow time for async span attachment and other operations to complete
     await Future.delayed(Duration(milliseconds: 100));
   }

@@ -1,17 +1,16 @@
 // ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_handler_v2.dart';
+import 'package:sentry_flutter/src/app_start/native_app_start_handler_v2.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
+import 'package:sentry_flutter/src/app_start/native_app_start_parser.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 
 import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
-import '../mocks.mocks.dart';
 
 void main() {
   late Fixture fixture;
@@ -173,30 +172,8 @@ void main() {
       expect(ttfdSpan!.isEnded, isFalse);
     });
 
-    test('returns early when native app start is null', () async {
-      when(fixture.nativeBinding.fetchNativeAppStart())
-          .thenAnswer((_) async => null);
-
-      await fixture.call();
-
-      expect(fixture.hub.getActiveSpan(), isNull);
-      expect(fixture.capturedSpans, isEmpty);
-    });
-
-    test('returns early when app start duration exceeds 60s', () async {
-      await fixture.call(
-        appStartEnd: DateTime.fromMillisecondsSinceEpoch(60001),
-      );
-
-      expect(fixture.hub.getActiveSpan(), isNull);
-      expect(fixture.capturedSpans, isEmpty);
-    });
-
     test('warm start uses correct op and description', () async {
-      when(fixture.nativeBinding.fetchNativeAppStart())
-          .thenAnswer((_) async => fixture.warmNativeAppStart);
-
-      await fixture.call();
+      await fixture.call(nativeAppStart: fixture.warmNativeAppStart);
 
       final appStartSpan = fixture.findSpanByName('Warm Start');
       expect(appStartSpan, isNotNull);
@@ -244,10 +221,7 @@ void main() {
 
       test('warm start emits legacy warm value and unified value and type',
           () async {
-        when(fixture.nativeBinding.fetchNativeAppStart())
-            .thenAnswer((_) async => fixture.warmNativeAppStart);
-
-        await fixture.call();
+        await fixture.call(nativeAppStart: fixture.warmNativeAppStart);
 
         final appStartSpan = fixture.findSpanByName('Warm Start')!;
         final expectedDurationMs = fixture.appStartEnd
@@ -336,7 +310,6 @@ class Fixture {
   final sentrySetupStartDateTime = DateTime.fromMillisecondsSinceEpoch(15);
   final appStartEnd = DateTime.fromMillisecondsSinceEpoch(50);
 
-  final nativeBinding = MockSentryNativeBinding();
   final frameCallbackHandler = FakeFrameCallbackHandler();
 
   late final options = defaultTestOptions()
@@ -371,13 +344,10 @@ class Fixture {
     nativeSpanTimes: {},
   );
 
-  late final sut = NativeAppStartHandlerV2(nativeBinding);
+  late final sut = NativeAppStartHandlerV2();
 
   Fixture() {
     SentryFlutter.sentrySetupStartTime = sentrySetupStartDateTime;
-
-    when(nativeBinding.fetchNativeAppStart())
-        .thenAnswer((_) async => nativeAppStart);
 
     options.timeToDisplayTrackerV2 = TimeToDisplayTrackerV2(
       hub: hub,
@@ -393,11 +363,17 @@ class Fixture {
     });
   }
 
-  Future<void> call({DateTime? appStartEnd}) async {
+  Future<void> call(
+      {DateTime? appStartEnd, NativeAppStart? nativeAppStart}) async {
+    final appStartInfo = parseNativeAppStart(
+      nativeAppStart ?? this.nativeAppStart,
+      appStartEnd ?? this.appStartEnd,
+    )!;
     await sut.call(
       hub,
       options,
-      appStartEnd: appStartEnd ?? this.appStartEnd,
+      appStartInfo: appStartInfo,
+      standalone: false,
     );
   }
 
