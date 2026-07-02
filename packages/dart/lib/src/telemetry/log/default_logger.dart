@@ -4,7 +4,7 @@ import '../../../sentry.dart';
 import '../../sentry_template_string.dart';
 import '../../utils/internal_logger.dart';
 
-typedef CaptureLogCallback = FutureOr<void> Function(SentryLog log);
+typedef CaptureLogCallback = Future<void> Function(SentryLog log);
 typedef ScopeProvider = Scope Function();
 
 final class DefaultSentryLogger implements SentryLogger {
@@ -24,51 +24,51 @@ final class DefaultSentryLogger implements SentryLogger {
         _scopeProvider = scopeProvider;
 
   @override
-  FutureOr<void> trace(
+  void trace(
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    return _captureLog(SentryLogLevel.trace, body, attributes: attributes);
+    _captureLog(SentryLogLevel.trace, body, attributes: attributes);
   }
 
   @override
-  FutureOr<void> debug(
+  void debug(
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    return _captureLog(SentryLogLevel.debug, body, attributes: attributes);
+    _captureLog(SentryLogLevel.debug, body, attributes: attributes);
   }
 
   @override
-  FutureOr<void> info(
+  void info(
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    return _captureLog(SentryLogLevel.info, body, attributes: attributes);
+    _captureLog(SentryLogLevel.info, body, attributes: attributes);
   }
 
   @override
-  FutureOr<void> warn(
+  void warn(
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    return _captureLog(SentryLogLevel.warn, body, attributes: attributes);
+    _captureLog(SentryLogLevel.warn, body, attributes: attributes);
   }
 
   @override
-  FutureOr<void> error(
+  void error(
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    return _captureLog(SentryLogLevel.error, body, attributes: attributes);
+    _captureLog(SentryLogLevel.error, body, attributes: attributes);
   }
 
   @override
-  FutureOr<void> fatal(
+  void fatal(
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    return _captureLog(SentryLogLevel.fatal, body, attributes: attributes);
+    _captureLog(SentryLogLevel.fatal, body, attributes: attributes);
   }
 
   @override
@@ -76,7 +76,7 @@ final class DefaultSentryLogger implements SentryLogger {
 
   // Helpers
 
-  FutureOr<void> _captureLog(
+  void _captureLog(
     SentryLogLevel level,
     String body, {
     Map<String, SentryAttribute>? attributes,
@@ -93,7 +93,7 @@ final class DefaultSentryLogger implements SentryLogger {
       attributes: attributes ?? {},
     );
 
-    return _captureLogCallback(log);
+    unawaited(_captureLogCallback(log));
   }
 
   String _formatAttributes(Map<String, SentryAttribute>? attributes) {
@@ -108,108 +108,108 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
   final DefaultSentryLogger _logger;
 
   @override
-  FutureOr<void> trace(
+  void trace(
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    return _format(
+    _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.trace(formattedBody, attributes: allAttributes);
+        _logger.trace(formattedBody, attributes: allAttributes);
       },
     );
   }
 
   @override
-  FutureOr<void> debug(
+  void debug(
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    return _format(
+    _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.debug(formattedBody, attributes: allAttributes);
+        _logger.debug(formattedBody, attributes: allAttributes);
       },
     );
   }
 
   @override
-  FutureOr<void> info(
+  void info(
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    return _format(
+    _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.info(formattedBody, attributes: allAttributes);
+        _logger.info(formattedBody, attributes: allAttributes);
       },
     );
   }
 
   @override
-  FutureOr<void> warn(
+  void warn(
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    return _format(
+    _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.warn(formattedBody, attributes: allAttributes);
+        _logger.warn(formattedBody, attributes: allAttributes);
       },
     );
   }
 
   @override
-  FutureOr<void> error(
+  void error(
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    return _format(
+    _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.error(formattedBody, attributes: allAttributes);
+        _logger.error(formattedBody, attributes: allAttributes);
       },
     );
   }
 
   @override
-  FutureOr<void> fatal(
+  void fatal(
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    return _format(
+    _format(
       templateBody,
       arguments,
       attributes,
       (formattedBody, allAttributes) {
-        return _logger.fatal(formattedBody, attributes: allAttributes);
+        _logger.fatal(formattedBody, attributes: allAttributes);
       },
     );
   }
 
   // Helper
 
-  FutureOr<void> _format(
+  void _format(
     String templateBody,
     List<dynamic> arguments,
     Map<String, SentryAttribute>? attributes,
-    FutureOr<void> Function(String, Map<String, SentryAttribute>) callback,
+    void Function(String, Map<String, SentryAttribute>) callback,
   ) {
     String formattedBody;
     Map<String, SentryAttribute> templateAttributes;
@@ -228,7 +228,7 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     if (attributes != null) {
       templateAttributes.addAll(attributes);
     }
-    return callback(formattedBody, templateAttributes);
+    callback(formattedBody, templateAttributes);
   }
 
   Map<String, SentryAttribute> _getAllAttributes(
