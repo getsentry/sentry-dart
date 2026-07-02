@@ -6,7 +6,6 @@ import 'dart:isolate';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
-import 'package:sentry/src/feature_flags_integration.dart';
 import 'package:sentry/src/telemetry/metric/metrics_setup_integration.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
 import 'package:test/test.dart';
@@ -302,12 +301,6 @@ void main() {
       );
       expect(
         optionsReference.integrations
-            .whereType<FeatureFlagsIntegration>()
-            .length,
-        1,
-      );
-      expect(
-        optionsReference.integrations
             .whereType<IsolateErrorIntegration>()
             .length,
         1,
@@ -355,7 +348,7 @@ void main() {
       );
     }, onPlatform: {'vm': Skip()});
 
-    test('should add feature flag $FeatureFlagsIntegration', () async {
+    test('addFeatureFlag adds feature flag to scope', () async {
       await Sentry.init(
         options: defaultTestOptions(),
         (options) => options.dsn = fakeDsn,
