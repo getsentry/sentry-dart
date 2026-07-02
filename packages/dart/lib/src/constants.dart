@@ -104,6 +104,13 @@ abstract class SemanticAttributesConstants {
   /// The operation name of a span.
   static const sentryOp = 'sentry.op';
 
+  /// The prefix for feature flag evaluations recorded on spans.
+  static const featureFlagEvaluationPrefix = 'flag.evaluation.';
+
+  /// The feature flag evaluation attribute key for [flag].
+  static String featureFlagEvaluation(String flag) =>
+      '$featureFlagEvaluationPrefix$flag';
+
   /// Whether the replay is buffering (onErrorSampleRate).
   static const sentryInternalReplayIsBuffering =
       'sentry._internal.replay_is_buffering';
