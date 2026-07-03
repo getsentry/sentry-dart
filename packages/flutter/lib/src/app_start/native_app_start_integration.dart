@@ -78,5 +78,8 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
     _frameCallbackHandler.addTimingsCallback(timingsCallback);
     options.sdk.addIntegration(integrationName);
+    if (options.enableStandaloneAppStartTracing) {
+      options.sdk.addFeature(SentryFeatures.standaloneAppStartTracing);
+    }
   }
 }

@@ -1,6 +1,8 @@
 @TestOn('vm && !windows && !linux')
 library;
 
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:core';
 import 'dart:ui';
 
@@ -55,6 +57,24 @@ void main() {
       fixture.callIntegration();
 
       expect(fixture.frameCallbackHandler.timingsCallback, isNotNull);
+    });
+
+    test('adds standaloneAppStartTracing feature when enabled', () {
+      fixture.options.enableStandaloneAppStartTracing = true;
+
+      fixture.callIntegration();
+
+      expect(fixture.options.sdk.features,
+          contains(SentryFeatures.standaloneAppStartTracing));
+    });
+
+    test('does not add standaloneAppStartTracing feature when disabled', () {
+      fixture.options.enableStandaloneAppStartTracing = false;
+
+      fixture.callIntegration();
+
+      expect(fixture.options.sdk.features,
+          isNot(contains(SentryFeatures.standaloneAppStartTracing)));
     });
 
     test('timingsCallback tracks parsed app start info', () async {
