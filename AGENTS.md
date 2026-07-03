@@ -43,6 +43,8 @@ Run from within the package directory (e.g., `cd packages/dart/`):
 | Fix | `dart fix --apply` | `dart fix --apply` |
 | Web test | — | `flutter test -d chrome path/to/test.dart` |
 
+> **Format version footgun:** CI's `analyze` gate (`.github/workflows/analyze.yml`) runs `dart format --set-exit-if-changed ./` using the dart set up for that job's `sdk` input — `setup-dart` for **dart** packages, `flutter-action`'s **Flutter-bundled dart** (stable channel) for **flutter** packages — *not* the package's `environment:` constraint. `dart_style` differs between Dart minor versions, so formatting with a local dart of a different version can leave the gate red. This has bitten `packages/flutter` (Flutter-bundled Dart 3.12 joined a line that system Dart 3.10 didn't). Before pushing format changes to a flutter package, format with the Flutter SDK's bundled dart — its `bin/cache/dart-sdk/bin/dart` (reachable via `fvm flutter` if you use fvm) — and verify with `--output=none --set-exit-if-changed`.
+
 ## Conventions
 
 - Ask clarifying questions and/or propose a plan before implementation
@@ -86,15 +88,29 @@ Use the right AGENTS.md for the area you're working in:
 
 ## Skills
 
-- **test-guidelines** — Writing or modifying tests
-- **code-guidelines** — Implementing features, refactoring, or reviewing code
+These form a workflow pipeline — each is model-invoked (the agent reaches for it on its triggers) and hands off to the next:
+
+**spec** → **design-first** → **code-guidelines** + **test-guidelines** → **diagnosing-bugs** → **review**
+
+- **spec** — Turn an issue link or a fuzzy ask into a verified spec (acceptance criteria) before design — the *what*
+- **design-first** — Shape non-trivial work before writing it: modules, seams, public API surface — the *how*
+- **code-guidelines** — Implement / refactor / review against the SDK's rules and constraints
+- **test-guidelines** — Write or modify tests
+- **diagnosing-bugs** — Hard bugs, flaky tests, CI hangs, performance regressions
+- **review** — Three-axis branch review: Standards (our docs + public API surface), Spec (vs the spec above), Correctness (runtime bugs + SDK threat model)
+
+**With plan mode:** plan mode enforces read-only + the approval gate; these skills supply the content. Plan with `spec` (the *what*) and `design-first` (the *how*) — their acceptance criteria + design sketch *are* the plan, and `ExitPlanMode` is the single sign-off (don't run a separate approval). `code-guidelines` is the constraint set the design must satisfy, not the driver. After approval, implement under `code-guidelines` / `test-guidelines`.
 
 ## Maintaining Agent Docs
 
 When you hit a wall that an instruction would have prevented, a documented command/path is wrong, or a convention has changed — propose an update to the relevant file:
 
 - `AGENTS.md` — commands, environment, package structure, conventions
-- `.agents/skills/test-guidelines/SKILL.md` — Writing or modifying tests
+- `.agents/skills/spec/SKILL.md` — Turning an issue link or a fuzzy ask into a verified spec before design
+- `.agents/skills/design-first/SKILL.md` — Shaping non-trivial work before writing it
 - `.agents/skills/code-guidelines/SKILL.md` — Implementing features, refactoring, or reviewing code
+- `.agents/skills/test-guidelines/SKILL.md` — Writing or modifying tests
+- `.agents/skills/diagnosing-bugs/SKILL.md` — Hard bugs, flaky tests, CI hangs, performance regressions
+- `.agents/skills/review/SKILL.md` — Three-axis branch review (Standards + Spec + Correctness)
 
 Do NOT add task-specific fixes, things discoverable from code, or duplicates of what linters enforce. Always propose changes — do not silently edit these files.

@@ -19,7 +19,7 @@ jobs:
       - run: xcodes select 26.2
       - uses: ruby/setup-ruby@0dafeac902942906541bc140009cdbf32665b601 # pin@v1.315.0
         with:
-          ruby-version: '2.7.5'
+          ruby-version: '3.3'
           bundler-cache: true
 
       - name: flutter

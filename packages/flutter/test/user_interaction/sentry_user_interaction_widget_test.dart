@@ -668,7 +668,14 @@ void main() {
 
         // First span should be cancelled
         expect(firstSpan!.isEnded, isTrue);
-        expect(firstSpan.status, SentrySpanStatusV2.cancelled);
+        expect(firstSpan.status, SentrySpanStatusV2.ok);
+        expect(
+          firstSpan
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
+              ?.value,
+          'cancelled',
+        );
 
         // New idle span should be started for btn_2
         final newSpan = fixture.hub.getActiveSpan();
