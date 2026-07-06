@@ -667,6 +667,23 @@ void main() {
       });
     });
 
+    test('adds feature flag to current Scope', () async {
+      await hub.addFeatureFlag('foo', true);
+
+      final flags =
+          hub.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+      expect(flags.values.first.flag, 'foo');
+      expect(flags.values.first.result, true);
+    });
+
+    test('does not add feature flag when disabled', () async {
+      await hub.close();
+
+      await hub.addFeatureFlag('foo', true);
+
+      expect(hub.scope.contexts[SentryFeatureFlags.type], isNull);
+    });
+
     test('generateNewTrace creates new trace id in propagation context', () {
       final oldTraceId = hub.scope.propagationContext.traceId;
 
@@ -745,6 +762,235 @@ void main() {
 
       expect(hub.getSpan(), isNull);
       expect(receivedSpanId, isNotNull);
+    });
+  });
+
+  group('Hub addFeatureFlag active spans', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    Map<String, Map<String, dynamic>> featureFlagAttributes(
+      SentrySpanV2 span,
+    ) {
+      return Map.fromEntries(
+        span.attributes.entries
+            .where((entry) => entry.key.startsWith('flag.evaluation.'))
+            .map((entry) => MapEntry(entry.key, entry.value.toJson())),
+      );
+    }
+
+    Map<String, dynamic> featureFlagData(SentryTracer span) {
+      return Map.fromEntries(
+        span.data.entries.where(
+          (entry) => entry.key.startsWith('flag.evaluation.'),
+        ),
+      );
+    }
+
+    test('adds feature flag to active span', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+
+      await hub.startSpan('checkout', (span) async {
+        await hub.addFeatureFlag('checkout', true);
+
+        expect(
+          span.attributes['flag.evaluation.checkout']?.toJson(),
+          equals({'value': true, 'type': 'boolean'}),
+        );
+      });
+    });
+
+    test('does not add feature flag to static span when span v2 is active',
+        () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+      final staticSpan = SentryTracer(
+        SentryTransactionContext('root', 'operation'),
+        hub,
+      );
+      hub.scope.span = staticSpan;
+
+      await hub.startSpan('checkout', (span) async {
+        await hub.addFeatureFlag('checkout', true);
+
+        expect(
+          span.attributes['flag.evaluation.checkout']?.toJson(),
+          equals({'value': true, 'type': 'boolean'}),
+        );
+      });
+      expect(staticSpan.data, isNot(contains('flag.evaluation.checkout')));
+    });
+
+    test('updates active span feature flag in place', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+
+      await hub.startSpan('checkout', (span) async {
+        await hub.addFeatureFlag('checkout', true);
+        await hub.addFeatureFlag('checkout', false);
+
+        expect(
+          featureFlagAttributes(span),
+          equals({
+            'flag.evaluation.checkout': {'value': false, 'type': 'boolean'},
+          }),
+        );
+      });
+    });
+
+    test('adds at most 10 unique feature flags to active span', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+
+      await hub.startSpan('checkout', (span) async {
+        for (var i = 0; i < 11; i++) {
+          await hub.addFeatureFlag('foo_$i', i.isEven);
+        }
+
+        expect(featureFlagAttributes(span).keys, hasLength(10));
+        expect(span.attributes, isNot(contains('flag.evaluation.foo_10')));
+      });
+    });
+
+    test('updates existing active span feature flag after limit is reached',
+        () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+
+      await hub.startSpan('checkout', (span) async {
+        for (var i = 0; i < 10; i++) {
+          await hub.addFeatureFlag('foo_$i', i.isEven);
+        }
+        await hub.addFeatureFlag('foo_5', true);
+
+        expect(featureFlagAttributes(span).keys, hasLength(10));
+        expect(
+          span.attributes['flag.evaluation.foo_5']?.toJson(),
+          equals({'value': true, 'type': 'boolean'}),
+        );
+      });
+    });
+
+    test('does not add feature flag to ended active span', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+
+      await hub.startSpan('checkout', (span) async {
+        span.end();
+
+        await hub.addFeatureFlag('foo', true);
+
+        expect(span.attributes, isNot(contains('flag.evaluation.foo')));
+      });
+    });
+
+    test('does not backfill existing scope flags into active span', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+
+      await hub.addFeatureFlag('old', true);
+      await hub.startSpan('checkout', (span) async {
+        await hub.addFeatureFlag('new', true);
+
+        expect(span.attributes, isNot(contains('flag.evaluation.old')));
+        expect(
+          span.attributes['flag.evaluation.new']?.toJson(),
+          equals({'value': true, 'type': 'boolean'}),
+        );
+      });
+    });
+
+    test('does not propagate active span feature flags to children', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+
+      await hub.startSpan('parent', (parent) async {
+        await hub.addFeatureFlag('parent', true);
+
+        await hub.startSpan('child', (child) async {
+          await hub.addFeatureFlag('child', true);
+
+          expect(child.attributes, isNot(contains('flag.evaluation.parent')));
+        });
+
+        expect(parent.attributes, isNot(contains('flag.evaluation.child')));
+      });
+    });
+
+    test('adds feature flag to active static span', () async {
+      final hub = fixture.getSut();
+      final span = SentryTracer(
+        SentryTransactionContext('root', 'operation'),
+        hub,
+      );
+      hub.scope.span = span;
+
+      await hub.addFeatureFlag('checkout', true);
+
+      expect(span.data['flag.evaluation.checkout'], isTrue);
+    });
+
+    test('updates active static span feature flag in place', () async {
+      final hub = fixture.getSut();
+      final span = SentryTracer(
+        SentryTransactionContext('root', 'operation'),
+        hub,
+      );
+      hub.scope.span = span;
+
+      await hub.addFeatureFlag('checkout', true);
+      await hub.addFeatureFlag('checkout', false);
+
+      expect(
+        featureFlagData(span),
+        equals({'flag.evaluation.checkout': false}),
+      );
+    });
+
+    test('adds at most 10 unique feature flags to active static span',
+        () async {
+      final hub = fixture.getSut();
+      final span = SentryTracer(
+        SentryTransactionContext('root', 'operation'),
+        hub,
+      );
+      hub.scope.span = span;
+
+      for (var i = 0; i < 11; i++) {
+        await hub.addFeatureFlag('foo_$i', i.isEven);
+      }
+
+      expect(featureFlagData(span).keys, hasLength(10));
+      expect(span.data, isNot(contains('flag.evaluation.foo_10')));
+    });
+
+    test(
+        'updates existing active static span feature flag after limit is reached',
+        () async {
+      final hub = fixture.getSut();
+      final span = SentryTracer(
+        SentryTransactionContext('root', 'operation'),
+        hub,
+      );
+      hub.scope.span = span;
+
+      for (var i = 0; i < 10; i++) {
+        await hub.addFeatureFlag('foo_$i', i.isEven);
+      }
+      await hub.addFeatureFlag('foo_5', true);
+
+      expect(featureFlagData(span).keys, hasLength(10));
+      expect(span.data['flag.evaluation.foo_5'], isTrue);
+    });
+
+    test('does not add feature flag to ended active static span', () async {
+      final hub = fixture.getSut();
+      final span = SentryTracer(
+        SentryTransactionContext('root', 'operation'),
+        hub,
+      );
+      await span.finish();
+      hub.scope.span = span;
+
+      await hub.addFeatureFlag('foo', true);
+
+      expect(span.data, isNot(contains('flag.evaluation.foo')));
     });
   });
 

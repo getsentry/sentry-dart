@@ -81,6 +81,9 @@ class NoOpHub implements Hub {
   Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {}
 
   @override
+  Future<void> addFeatureFlag(String flag, bool result) async {}
+
+  @override
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
     SentryTraceContextHeader? traceContext,

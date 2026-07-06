@@ -19,6 +19,8 @@ typedef ScopeCallback = FutureOr<void> Function(Scope);
 /// Called when a transaction is finished.
 typedef OnTransactionFinish = FutureOr<void> Function(ISentrySpan transaction);
 
+const _maxActiveSpanFeatureFlags = 10;
+
 /// SDK API contract which combines a client and scope management
 class Hub {
   static SentryClient _getClient(SentryOptions options) {
@@ -415,6 +417,94 @@ class Hub {
       final item = _peek();
       await item.scope.addBreadcrumb(crumb, hint: hint);
     }
+  }
+
+  /// Adds a feature flag evaluation to the current Scope and active span
+  Future<void> addFeatureFlag(String flag, bool result) async {
+    if (!_isEnabled) {
+      internalLogger.warning(
+        "Instance is disabled and this 'addFeatureFlag' call is a no-op.",
+      );
+    } else {
+      _addFeatureFlagToActiveSpan(flag, result);
+
+      final item = _peek();
+      await item.scope.addFeatureFlag(flag, result);
+    }
+  }
+
+  void _addFeatureFlagToActiveSpan(String flag, bool result) {
+    final activeSpan = getActiveSpan();
+    if (activeSpan != null) {
+      _addFeatureFlagToActiveSpanV2(activeSpan, flag, result);
+      return;
+    }
+
+    final activeLegacySpan = getSpan();
+    if (activeLegacySpan != null) {
+      _addFeatureFlagToActiveLegacySpan(activeLegacySpan, flag, result);
+    }
+  }
+
+  void _addFeatureFlagToActiveSpanV2(
+    RecordingSentrySpanV2 span,
+    String flag,
+    bool result,
+  ) {
+    if (span.isEnded) {
+      return;
+    }
+
+    final key = SemanticAttributesConstants.featureFlagEvaluation(flag);
+    final attributes = span.attributes;
+    if (_hasReachedFeatureFlagLimit(attributes, key)) {
+      return;
+    }
+
+    span.setAttribute(key, SentryAttribute.bool(result));
+  }
+
+  void _addFeatureFlagToActiveLegacySpan(
+    ISentrySpan span,
+    String flag,
+    bool result,
+  ) {
+    if (span.finished) {
+      return;
+    }
+
+    final key = SemanticAttributesConstants.featureFlagEvaluation(flag);
+    final data = _legacySpanData(span);
+    if (data != null && _hasReachedFeatureFlagLimit(data, key)) {
+      return;
+    }
+
+    span.setData(key, result);
+  }
+
+  bool _hasReachedFeatureFlagLimit(Map<String, dynamic> values, String key) {
+    if (values.containsKey(key)) {
+      return false;
+    }
+
+    final featureFlagCount = values.keys
+        .where(
+          (key) => key.startsWith(
+            SemanticAttributesConstants.featureFlagEvaluationPrefix,
+          ),
+        )
+        .length;
+    return featureFlagCount >= _maxActiveSpanFeatureFlags;
+  }
+
+  Map<String, dynamic>? _legacySpanData(ISentrySpan span) {
+    if (span is SentryTracer) {
+      return span.data;
+    }
+    if (span is SentrySpan) {
+      return span.data;
+    }
+    return null;
   }
 
   /// Binds a different client to the hub
