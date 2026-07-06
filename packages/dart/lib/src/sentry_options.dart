@@ -786,7 +786,7 @@ typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(
 );
 
 /// This function is called right before a metric is about to be emitted.
-/// Can return true to emit the metric, or false to drop it.
+/// Can return a modified metric or null to drop the metric.
 typedef BeforeSendMetricCallback = FutureOr<SentryMetric?> Function(
   SentryMetric metric,
   Hint hint,
