@@ -425,7 +425,7 @@ void main() {
           );
 
           await fixture.options.lifecycleRegistry.dispatchCallback(
-            OnProcessSpan(span),
+            OnProcessSpan(span, Hint()),
           );
 
           expect(
@@ -454,7 +454,7 @@ void main() {
           );
 
           await fixture.options.lifecycleRegistry.dispatchCallback(
-            OnProcessSpan(span),
+            OnProcessSpan(span, Hint()),
           );
 
           expect(
@@ -481,7 +481,7 @@ void main() {
           );
 
           await fixture.options.lifecycleRegistry.dispatchCallback(
-            OnProcessSpan(span),
+            OnProcessSpan(span, Hint()),
           );
 
           expect(
@@ -506,7 +506,7 @@ void main() {
         );
 
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessSpan(span),
+          OnProcessSpan(span, Hint()),
         );
 
         // sync == false is not synchronous, so blocked_main_thread is not set.
@@ -532,7 +532,7 @@ void main() {
           span.setAttribute('sync', SentryAttribute.bool(true));
 
           await fixture.options.lifecycleRegistry.dispatchCallback(
-            OnProcessSpan(span),
+            OnProcessSpan(span, Hint()),
           );
 
           expect(
