@@ -44,7 +44,7 @@ void main() {
 
     group('format basic template', () {
       test('for trace', () async {
-        await fixture.logger.fmt.trace(
+        fixture.logger.fmt.trace(
           "Hello, %s!",
           ["World"],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -55,7 +55,7 @@ void main() {
       });
 
       test('for debug', () async {
-        await fixture.logger.fmt.debug(
+        fixture.logger.fmt.debug(
           "Hello, %s!",
           ["World"],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -66,7 +66,7 @@ void main() {
       });
 
       test('for info', () async {
-        await fixture.logger.fmt.info(
+        fixture.logger.fmt.info(
           "Hello, %s!",
           ["World"],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -77,7 +77,7 @@ void main() {
       });
 
       test('for warn', () async {
-        await fixture.logger.fmt.warn(
+        fixture.logger.fmt.warn(
           "Hello, %s!",
           ["World"],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -88,7 +88,7 @@ void main() {
       });
 
       test('for error', () async {
-        await fixture.logger.fmt.error(
+        fixture.logger.fmt.error(
           "Hello, %s!",
           ["World"],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -99,7 +99,7 @@ void main() {
       });
 
       test('for fatal', () async {
-        await fixture.logger.fmt.fatal(
+        fixture.logger.fmt.fatal(
           "Hello, %s!",
           ["World"],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -112,7 +112,7 @@ void main() {
 
     group('template with multiple arguments', () {
       test('for trace', () async {
-        await fixture.logger.fmt.trace(
+        fixture.logger.fmt.trace(
           "Name: %s, Age: %s, Active: %s, Score: %s",
           ['Alice', 30, true, 95.5],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -123,7 +123,7 @@ void main() {
       });
 
       test('for debug', () async {
-        await fixture.logger.fmt.debug(
+        fixture.logger.fmt.debug(
           "Name: %s, Age: %s, Active: %s, Score: %s",
           ['Alice', 30, true, 95.5],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -134,7 +134,7 @@ void main() {
       });
 
       test('for info', () async {
-        await fixture.logger.fmt.info(
+        fixture.logger.fmt.info(
           "Name: %s, Age: %s, Active: %s, Score: %s",
           ['Alice', 30, true, 95.5],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -145,7 +145,7 @@ void main() {
       });
 
       test('for warn', () async {
-        await fixture.logger.fmt.warn(
+        fixture.logger.fmt.warn(
           "Name: %s, Age: %s, Active: %s, Score: %s",
           ['Alice', 30, true, 95.5],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -156,7 +156,7 @@ void main() {
       });
 
       test('for error', () async {
-        await fixture.logger.fmt.error(
+        fixture.logger.fmt.error(
           "Name: %s, Age: %s, Active: %s, Score: %s",
           ['Alice', 30, true, 95.5],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -167,7 +167,7 @@ void main() {
       });
 
       test('for fatal', () async {
-        await fixture.logger.fmt.fatal(
+        fixture.logger.fmt.fatal(
           "Name: %s, Age: %s, Active: %s, Score: %s",
           ['Alice', 30, true, 95.5],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -180,7 +180,7 @@ void main() {
 
     group('template with no arguments', () {
       test('for trace', () async {
-        await fixture.logger.fmt.trace(
+        fixture.logger.fmt.trace(
           "Hello, World!",
           [],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -195,7 +195,7 @@ void main() {
       });
 
       test('for debug', () async {
-        await fixture.logger.fmt.debug(
+        fixture.logger.fmt.debug(
           "Hello, World!",
           [],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -210,7 +210,7 @@ void main() {
       });
 
       test('for info', () async {
-        await fixture.logger.fmt.info(
+        fixture.logger.fmt.info(
           "Hello, World!",
           [],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -225,7 +225,7 @@ void main() {
       });
 
       test('for warn', () async {
-        await fixture.logger.fmt.warn(
+        fixture.logger.fmt.warn(
           "Hello, World!",
           [],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -240,7 +240,7 @@ void main() {
       });
 
       test('for error', () async {
-        await fixture.logger.fmt.error(
+        fixture.logger.fmt.error(
           "Hello, World!",
           [],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -255,7 +255,7 @@ void main() {
       });
 
       test('for fatal', () async {
-        await fixture.logger.fmt.fatal(
+        fixture.logger.fmt.fatal(
           "Hello, World!",
           [],
           attributes: {'foo': SentryAttribute.string('bar')},
@@ -285,7 +285,7 @@ class Fixture {
   Fixture() {
     scope = Scope(options);
     logger = DefaultSentryLogger(
-      captureLogCallback: (log, {scope}) {
+      captureLogCallback: (log) async {
         capturedLogs.add(log);
       },
       clockProvider: () => DateTime.now(),

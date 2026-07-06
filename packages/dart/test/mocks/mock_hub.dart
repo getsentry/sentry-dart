@@ -22,6 +22,9 @@ class MockHub with NoSuchMethodProvider implements Hub {
   bool _isEnabled = true;
   int spanContextCals = 0;
   int getSpanCalls = 0;
+  int getActiveSpanCalls = 0;
+  RecordingSentrySpanV2? activeSpan;
+  ISentrySpan? legacySpan;
 
   final _options = defaultTestOptions();
 
@@ -47,6 +50,9 @@ class MockHub with NoSuchMethodProvider implements Hub {
     spanContextCals = 0;
     captureTransactionCalls = [];
     getSpanCalls = 0;
+    getActiveSpanCalls = 0;
+    activeSpan = null;
+    legacySpan = null;
     _scope = Scope(_options);
   }
 
@@ -112,7 +118,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {
+  Future<void> captureLog(SentryLog log, {Scope? scope}) async {
     captureLogCalls.add(CaptureLogCall(log, scope));
   }
 
@@ -144,7 +150,13 @@ class MockHub with NoSuchMethodProvider implements Hub {
   @override
   ISentrySpan? getSpan() {
     getSpanCalls++;
-    return null;
+    return legacySpan;
+  }
+
+  @override
+  RecordingSentrySpanV2? getActiveSpan() {
+    getActiveSpanCalls++;
+    return activeSpan;
   }
 
   @override

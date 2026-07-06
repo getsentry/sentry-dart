@@ -586,8 +586,11 @@ class SentryOptions {
 
   /// Enable to capture and send logs to Sentry.
   ///
-  /// Disabled by default.
-  bool enableLogs = false;
+  /// Enabled by default. Logs are only sent when they are emitted, either by
+  /// calling a [SentryLogger] method via `Sentry.logger`, or by explicitly
+  /// adding an integration that emits logs (e.g. `LoggingIntegration` from
+  /// the `sentry_logging` package).
+  bool enableLogs = true;
 
   /// Enable to capture and send metrics to Sentry.
   ///
@@ -703,16 +706,6 @@ class SentryOptions {
     return tracesSampleRate != null || tracesSampler != null;
   }
 
-  @Deprecated('Will be removed in the next major v10')
-  List<PerformanceCollector> get performanceCollectors =>
-      _performanceCollectors;
-  final List<PerformanceCollector> _performanceCollectors = [];
-
-  @Deprecated('Will be removed in the next major v10')
-  void addPerformanceCollector(PerformanceCollector collector) {
-    _performanceCollectors.add(collector);
-  }
-
   @internal
   late SentryExceptionFactory exceptionFactory = SentryExceptionFactory(this);
 
@@ -780,15 +773,23 @@ typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
 
 /// This function is called right before a log is about to be sent.
 /// Can return a modified log or null to drop the log.
-typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(SentryLog log);
+typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(
+  SentryLog log,
+  Hint hint,
+);
 
 /// This function is called right before a metric is about to be emitted.
-/// Can return true to emit the metric, or false to drop it.
+/// Can return a modified metric or null to drop the metric.
 typedef BeforeSendMetricCallback = FutureOr<SentryMetric?> Function(
-    SentryMetric metric);
+  SentryMetric metric,
+  Hint hint,
+);
 
 /// This function is called right before a span is about to be sent.
-typedef BeforeSendSpanCallback = FutureOr<void> Function(SentrySpanV2 span);
+typedef BeforeSendSpanCallback = FutureOr<void> Function(
+  SentrySpanV2 span,
+  Hint hint,
+);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();

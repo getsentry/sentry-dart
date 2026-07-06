@@ -27,7 +27,6 @@ void main() {
 
       expect(span.context.operation, 'file.copy');
       expect(span.data['file.size'], 7);
-      expect(span.data['file.async'], async);
       if (!async) {
         expect(span.data['sync'], true);
       }
@@ -39,13 +38,12 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
-    void _asserBreadcrumb(bool async) {
+    void _assertBreadcrumb() {
       final call = fixture.client.captureTransactionCalls.first;
       final breadcrumb = call.scope?.breadcrumbs.first;
 
       expect(breadcrumb?.category, 'file.copy');
       expect(breadcrumb?.data?['file.size'], 7);
-      expect(breadcrumb?.data?['file.async'], async);
       expect(breadcrumb?.message, 'testfile.txt');
       expect(
           (breadcrumb?.data?['file.path'] as String)
@@ -73,7 +71,7 @@ void main() {
       expect(sut.uri.toFilePath(), isNot(newFile.uri.toFilePath()));
 
       _assertSpan(true);
-      _asserBreadcrumb(true);
+      _assertBreadcrumb();
 
       await newFile.delete();
     });
@@ -98,7 +96,7 @@ void main() {
       expect(sut.uri.toFilePath(), isNot(newFile.uri.toFilePath()));
 
       _assertSpan(false);
-      _asserBreadcrumb(false);
+      _assertBreadcrumb();
 
       newFile.deleteSync();
     });
@@ -117,7 +115,6 @@ void main() {
 
       expect(span.context.operation, 'file.write');
       expect(span.data['file.size'], size);
-      expect(span.data['file.async'], async);
       if (!async) {
         expect(span.data['sync'], true);
       }
@@ -129,13 +126,12 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
-    void _assertBreadcrumb(bool async, {int? size = 0}) {
+    void _assertBreadcrumb({int? size = 0}) {
       final call = fixture.client.captureTransactionCalls.first;
       final breadcrumb = call.scope?.breadcrumbs.first;
 
       expect(breadcrumb?.category, 'file.write');
       expect(breadcrumb?.data?['file.size'], size);
-      expect(breadcrumb?.data?['file.async'], async);
       expect(breadcrumb?.message, 'testfile_create.txt');
       expect(
           (breadcrumb?.data?['file.path'] as String)
@@ -162,7 +158,7 @@ void main() {
       expect(await newFile.exists(), true);
 
       _assertSpan(true);
-      _assertBreadcrumb(true);
+      _assertBreadcrumb();
 
       await newFile.delete();
     });
@@ -186,7 +182,7 @@ void main() {
       expect(sut.existsSync(), true);
 
       _assertSpan(false);
-      _assertBreadcrumb(false);
+      _assertBreadcrumb();
 
       sut.deleteSync();
     });
@@ -205,7 +201,6 @@ void main() {
 
       expect(span.context.operation, 'file.delete');
       expect(span.data['file.size'], size);
-      expect(span.data['file.async'], async);
       if (!async) {
         expect(span.data['sync'], true);
       }
@@ -217,13 +212,12 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
-    void _assertBreadcrumb(bool async, {int? size = 0}) {
+    void _assertBreadcrumb({int? size = 0}) {
       final call = fixture.client.captureTransactionCalls.first;
       final breadcrumb = call.scope?.breadcrumbs.first;
 
       expect(breadcrumb?.category, 'file.delete');
       expect(breadcrumb?.data?['file.size'], size);
-      expect(breadcrumb?.data?['file.async'], async);
       expect(breadcrumb?.message, 'testfile_delete.txt');
       expect(
           (breadcrumb?.data?['file.path'] as String)
@@ -251,7 +245,7 @@ void main() {
       expect(await newFile.exists(), false);
 
       _assertSpan(true);
-      _assertBreadcrumb(true);
+      _assertBreadcrumb();
     });
 
     test('sync', () async {
@@ -274,7 +268,7 @@ void main() {
       expect(sut.existsSync(), false);
 
       _assertSpan(false);
-      _assertBreadcrumb(false);
+      _assertBreadcrumb();
     });
   });
 
@@ -291,7 +285,6 @@ void main() {
 
       expect(span.context.operation, 'file.open');
       expect(span.data['file.size'], 3535);
-      expect(span.data['file.async'], true);
       expect(span.context.description, 'sentry.png');
       expect(
           (span.data['file.path'] as String)
@@ -306,7 +299,6 @@ void main() {
 
       expect(breadcrumb?.category, 'file.open');
       expect(breadcrumb?.data?['file.size'], 3535);
-      expect(breadcrumb?.data?['file.async'], true);
       expect(breadcrumb?.message, 'sentry.png');
       expect(
           (breadcrumb?.data?['file.path'] as String)
@@ -349,7 +341,6 @@ void main() {
 
       expect(span.context.operation, 'file.read');
       expect(span.data['file.size'], size);
-      expect(span.data['file.async'], async);
       if (!async) {
         expect(span.data['sync'], true);
       }
@@ -361,13 +352,12 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
-    void _assertBreadcrumb(String fileName, bool async, {int? size = 0}) {
+    void _assertBreadcrumb(String fileName, {int? size = 0}) {
       final call = fixture.client.captureTransactionCalls.first;
       final breadcrumb = call.scope?.breadcrumbs.first;
 
       expect(breadcrumb?.category, 'file.read');
       expect(breadcrumb?.data?['file.size'], size);
-      expect(breadcrumb?.data?['file.async'], async);
       expect(breadcrumb?.message, fileName);
       expect(
           (breadcrumb?.data?['file.path'] as String)
@@ -391,7 +381,7 @@ void main() {
       await tr.finish();
 
       _assertSpan('sentry.png', true, size: 3535);
-      _assertBreadcrumb('sentry.png', true, size: 3535);
+      _assertBreadcrumb('sentry.png', size: 3535);
     });
 
     test('as bytes sync', () async {
@@ -410,7 +400,7 @@ void main() {
       await tr.finish();
 
       _assertSpan('sentry.png', false, size: 3535);
-      _assertBreadcrumb('sentry.png', false, size: 3535);
+      _assertBreadcrumb('sentry.png', size: 3535);
     });
 
     test('lines async', () async {
@@ -429,7 +419,7 @@ void main() {
       await tr.finish();
 
       _assertSpan('testfile.txt', true, size: 7);
-      _assertBreadcrumb('testfile.txt', true, size: 7);
+      _assertBreadcrumb('testfile.txt', size: 7);
     });
 
     test('lines sync', () async {
@@ -448,7 +438,7 @@ void main() {
       await tr.finish();
 
       _assertSpan('testfile.txt', false, size: 7);
-      _assertBreadcrumb('testfile.txt', false, size: 7);
+      _assertBreadcrumb('testfile.txt', size: 7);
     });
 
     test('string async', () async {
@@ -467,7 +457,7 @@ void main() {
       await tr.finish();
 
       _assertSpan('testfile.txt', true, size: 7);
-      _assertBreadcrumb('testfile.txt', true, size: 7);
+      _assertBreadcrumb('testfile.txt', size: 7);
     });
 
     test('string sync', () async {
@@ -486,7 +476,7 @@ void main() {
       await tr.finish();
 
       _assertSpan('testfile.txt', false, size: 7);
-      _assertBreadcrumb('testfile.txt', false, size: 7);
+      _assertBreadcrumb('testfile.txt', size: 7);
     });
   });
 
@@ -503,7 +493,6 @@ void main() {
 
       expect(span.context.operation, 'file.rename');
       expect(span.data['file.size'], 0);
-      expect(span.data['file.async'], async);
       if (!async) {
         expect(span.data['sync'], true);
       }
@@ -514,13 +503,12 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
-    void _assertBreadcrumb(bool async, String name) {
+    void _assertBreadcrumb(String name) {
       final call = fixture.client.captureTransactionCalls.first;
       final breadcrumb = call.scope?.breadcrumbs.first;
 
       expect(breadcrumb?.category, 'file.rename');
       expect(breadcrumb?.data?['file.size'], 0);
-      expect(breadcrumb?.data?['file.async'], async);
       expect(breadcrumb?.message, name);
       expect(
           (breadcrumb?.data?['file.path'] as String)
@@ -550,7 +538,7 @@ void main() {
       expect(sut.uri.toFilePath(), isNot(newFile.uri.toFilePath()));
 
       _assertSpan(true, 'old_name.txt');
-      _assertBreadcrumb(true, 'old_name.txt');
+      _assertBreadcrumb('old_name.txt');
 
       await newFile.delete();
     });
@@ -577,7 +565,7 @@ void main() {
       expect(sut.uri.toFilePath(), isNot(newFile.uri.toFilePath()));
 
       _assertSpan(false, 'old_name.txt');
-      _assertBreadcrumb(false, 'old_name.txt');
+      _assertBreadcrumb('old_name.txt');
 
       newFile.deleteSync();
     });
@@ -594,7 +582,6 @@ void main() {
       final call = fixture.client.captureTransactionCalls.first;
       final span = call.transaction.spans.first;
 
-      expect(span.data['file.async'], async);
       if (!async) {
         expect(span.data['sync'], true);
       }
@@ -602,11 +589,10 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
-    void _assertBreadcrumb(bool async) {
+    void _assertBreadcrumb() {
       final call = fixture.client.captureTransactionCalls.first;
       final breadcrumb = call.scope?.breadcrumbs.first;
 
-      expect(breadcrumb?.data?['file.async'], async);
       expect(breadcrumb?.data?['file.path'], null);
     }
 
@@ -626,7 +612,7 @@ void main() {
       await tr.finish();
 
       _assertSpan(true);
-      _assertBreadcrumb(true);
+      _assertBreadcrumb();
     });
 
     test('does not add file path if sendDefaultPii is disabled sync', () async {
@@ -644,7 +630,7 @@ void main() {
       await tr.finish();
 
       _assertSpan(false);
-      _assertBreadcrumb(false);
+      _assertBreadcrumb();
     });
 
     test('add SentryFileTracing integration', () async {

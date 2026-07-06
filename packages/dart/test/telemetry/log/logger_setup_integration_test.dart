@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/log/default_logger.dart';
 import 'package:sentry/src/telemetry/log/logger_setup_integration.dart';
@@ -84,37 +82,37 @@ class Fixture {
 
 class _CustomSentryLogger implements SentryLogger {
   @override
-  FutureOr<void> trace(
+  void trace(
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {}
 
   @override
-  FutureOr<void> debug(
+  void debug(
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {}
 
   @override
-  FutureOr<void> info(
+  void info(
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {}
 
   @override
-  FutureOr<void> warn(
+  void warn(
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {}
 
   @override
-  FutureOr<void> error(
+  void error(
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {}
 
   @override
-  FutureOr<void> fatal(
+  void fatal(
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {}
@@ -125,42 +123,42 @@ class _CustomSentryLogger implements SentryLogger {
 
 class _CustomSentryLoggerFormatter implements SentryLoggerFormatter {
   @override
-  FutureOr<void> trace(
+  void trace(
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {}
 
   @override
-  FutureOr<void> debug(
+  void debug(
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {}
 
   @override
-  FutureOr<void> info(
+  void info(
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {}
 
   @override
-  FutureOr<void> warn(
+  void warn(
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {}
 
   @override
-  FutureOr<void> error(
+  void error(
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {}
 
   @override
-  FutureOr<void> fatal(
+  void fatal(
     String templateBody,
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,

@@ -54,7 +54,6 @@ void main() {
 
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
           equals('file.read'));
-      expect(span.attributes['file.async']?.value, equals(true));
       expect(span.attributes['file.path']?.value, contains('testfile.txt'));
       expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
           equals('auto.file'));
@@ -98,7 +97,6 @@ void main() {
 
       expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
           equals('file.write'));
-      expect(span.attributes['file.async']?.value, equals(true));
       expect(span.attributes['file.path']?.value, contains('test_write.txt'));
       expect(span.parentSpan, equals(transactionSpan));
 
