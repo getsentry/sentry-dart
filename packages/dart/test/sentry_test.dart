@@ -7,6 +7,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
 import 'package:sentry/src/feature_flags_integration.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/telemetry/metric/metrics_setup_integration.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
 import 'package:test/test.dart';
@@ -388,6 +389,67 @@ void main() {
       final featureFlagsContext =
           Sentry.currentHub.scope.contexts[SentryFeatureFlags.type];
       expect(featureFlagsContext, isNull);
+    });
+
+    test('addFeatureFlag adds feature flag to active stream span', () async {
+      final options = defaultTestOptions();
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          options.tracesSampleRate = 1.0;
+          options.traceLifecycle = SentryTraceLifecycle.stream;
+        },
+      );
+
+      await Sentry.startSpan('checkout', (span) async {
+        await Sentry.addFeatureFlag('foo', true);
+
+        expect(
+          span.attributes['flag.evaluation.foo']?.toJson(),
+          equals({'value': true, 'type': 'boolean'}),
+        );
+      });
+    });
+
+    test('addFeatureFlag adds feature flag to active static span', () async {
+      final options = defaultTestOptions();
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          options.tracesSampleRate = 1.0;
+        },
+      );
+
+      final transaction = Sentry.startTransaction(
+        'checkout',
+        'operation',
+        bindToScope: true,
+      ) as SentryTracer;
+      await Sentry.addFeatureFlag('foo', true);
+
+      expect(transaction.data['flag.evaluation.foo'], isTrue);
+      await transaction.finish();
+    });
+
+    test('addFeatureFlag ignores non-boolean values for active span', () async {
+      final options = defaultTestOptions();
+      await Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+          options.tracesSampleRate = 1.0;
+          options.traceLifecycle = SentryTraceLifecycle.stream;
+        },
+      );
+
+      await Sentry.startSpan('checkout', (span) async {
+        await Sentry.addFeatureFlag('foo', 'some string');
+
+        expect(span.attributes, isNot(contains('flag.evaluation.foo')));
+      });
+      expect(Sentry.currentHub.scope.contexts[SentryFeatureFlags.type], isNull);
     });
 
     test('should close integrations', () async {

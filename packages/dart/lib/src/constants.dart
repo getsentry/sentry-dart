@@ -120,6 +120,13 @@ abstract class SemanticAttributesConstants {
   /// The operation name of a span.
   static const sentryOp = 'sentry.op';
 
+  /// The prefix for feature flag evaluations recorded on spans.
+  static const featureFlagEvaluationPrefix = 'flag.evaluation.';
+
+  /// The feature flag evaluation attribute key for [flag].
+  static String featureFlagEvaluation(String flag) =>
+      '$featureFlagEvaluationPrefix$flag';
+
   /// A human-readable message providing additional context about a span's
   /// status, e.g. [SentrySpanStatusMessages.deadlineExceeded] when an idle span
   /// hits its final timeout.
