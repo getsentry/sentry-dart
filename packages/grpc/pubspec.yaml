@@ -1,6 +1,6 @@
 name: sentry_grpc
 description: An integration which adds support for performance tracing and error monitoring for gRPC calls.
-version: 9.22.0
+version: 9.23.0
 homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart/tree/main/packages/grpc
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
@@ -20,7 +20,7 @@ platforms:
 dependencies:
   grpc: '>=4.0.4 <6.0.0'
   meta: ^1.9.0
-  sentry: 9.22.0
+  sentry: 9.23.0
 
 dev_dependencies:
   _sentry_testing:

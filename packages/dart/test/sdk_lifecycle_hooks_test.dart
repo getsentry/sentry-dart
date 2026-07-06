@@ -84,6 +84,26 @@ void main() {
       expect(executed, isFalse);
     });
 
+    test('dispatch tolerates callback removal during dispatch', () async {
+      final registry = fixture.getSut();
+      late Future<void> Function(OnBeforeSendEvent) cb;
+      cb = (OnBeforeSendEvent _) async {
+        registry.removeCallback<OnBeforeSendEvent>(cb);
+        await Future<void>.delayed(Duration.zero);
+      };
+
+      registry.registerCallback<OnBeforeSendEvent>(cb);
+
+      await expectLater(
+        registry.dispatchCallback<OnBeforeSendEvent>(
+          OnBeforeSendEvent(SentryEvent(), Hint()),
+        ),
+        completes,
+      );
+
+      expect(registry.lifecycleCallbacks[OnBeforeSendEvent], isEmpty);
+    });
+
     test('dispatch handles exceptions thrown in the callback', () async {
       fixture.options.automatedTestMode = false;
       final registry = fixture.getSut();
