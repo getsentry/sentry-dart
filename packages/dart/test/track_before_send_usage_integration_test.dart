@@ -49,7 +49,7 @@ void main() {
     });
 
     test('adds beforeSendLog feature when configured', () {
-      fixture.options.beforeSendLog = (log) => log;
+      fixture.options.beforeSendLog = (log, hint) => log;
 
       fixture.getSut().call(fixture.hub, fixture.options);
 
@@ -58,7 +58,7 @@ void main() {
     });
 
     test('adds beforeSendMetric feature when configured', () {
-      fixture.options.beforeSendMetric = (metric) => metric;
+      fixture.options.beforeSendMetric = (metric, hint) => metric;
 
       fixture.getSut().call(fixture.hub, fixture.options);
 

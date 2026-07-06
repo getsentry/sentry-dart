@@ -548,6 +548,98 @@ void main() {
     expect(clone.propagationContext.traceId, sut.propagationContext.traceId);
   });
 
+  group('addFeatureFlag', () {
+    test('adds feature flag to contexts', () async {
+      final sut = fixture.getSut();
+
+      await sut.addFeatureFlag('foo', true);
+
+      final flags = sut.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+      expect(flags.values.first.flag, equals('foo'));
+      expect(flags.values.first.result, equals(true));
+    });
+
+    test('replaces existing feature flag as newest', () async {
+      final sut = fixture.getSut();
+
+      await sut.addFeatureFlag('foo', true);
+      await sut.addFeatureFlag('bar', true);
+      await sut.addFeatureFlag('foo', false);
+
+      final flags = sut.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+      expect(flags.values.map((e) => e.flag), equals(['bar', 'foo']));
+      expect(flags.values.last.result, equals(false));
+    });
+
+    test('updates existing feature flag without dropping oldest in full buffer',
+        () async {
+      final sut = fixture.getSut();
+
+      for (var i = 0; i < 100; i++) {
+        await sut.addFeatureFlag('foo_$i', i.isEven);
+      }
+
+      await sut.addFeatureFlag('foo_50', true);
+
+      final flags = sut.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+      expect(flags.values.length, equals(100));
+      expect(flags.values.first.flag, equals('foo_0'));
+      expect(flags.values.last.flag, equals('foo_50'));
+      expect(flags.values.last.result, equals(true));
+    });
+
+    test('removes oldest feature flag only when adding over the limit',
+        () async {
+      final sut = fixture.getSut();
+
+      for (var i = 0; i < 100; i++) {
+        await sut.addFeatureFlag('foo_$i', i.isEven);
+      }
+
+      final flags = sut.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+      expect(flags.values.length, equals(100));
+      expect(flags.values.first.flag, equals('foo_0'));
+
+      await sut.addFeatureFlag('foo_100', true);
+
+      final updated =
+          sut.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+      expect(updated.values.length, equals(100));
+      expect(updated.values.first.flag, equals('foo_1'));
+      expect(updated.values.last.flag, equals('foo_100'));
+      expect(updated.values.last.result, equals(true));
+    });
+
+    test('keeps only the 100 most recent unique feature flags', () async {
+      final sut = fixture.getSut();
+
+      for (var i = 0; i < 105; i++) {
+        await sut.addFeatureFlag('foo_$i', i.isEven);
+      }
+
+      final flags = sut.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+      expect(flags.values.length, equals(100));
+      expect(flags.values.first.flag, equals('foo_5'));
+      expect(flags.values.last.flag, equals('foo_104'));
+    });
+
+    test('notifies scope observers', () async {
+      final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+
+      await sut.addFeatureFlag('foo', true);
+
+      expect(fixture.mockScopeObserver.numberOfSetContextsCalls, equals(1));
+    });
+
+    test('records feature flags usage', () async {
+      final sut = fixture.getSut();
+
+      await sut.addFeatureFlag('foo', true);
+
+      expect(fixture.options.sdk.features, contains('featureFlags'));
+    });
+  });
+
   group('Scope apply', () {
     final scopeUser = SentryUser(
       id: '800',

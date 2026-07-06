@@ -33,8 +33,6 @@ import 'tracing.dart';
 import 'tracing/instrumentation/span_factory_integration.dart';
 import 'transport/data_category.dart';
 import 'transport/task_queue.dart';
-import 'utils/iterable_utils.dart';
-import 'feature_flags_integration.dart';
 import 'telemetry/log/logger.dart';
 import 'telemetry/log/logger_setup_integration.dart';
 import 'track_before_send_usage_integration.dart';
@@ -121,7 +119,6 @@ class Sentry {
     options.addIntegration(MetricsSetupIntegration());
     options.addIntegration(LoggerSetupIntegration());
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
-    options.addIntegration(FeatureFlagsIntegration());
     options.addIntegration(InMemoryTelemetryProcessorIntegration());
     options.addIntegration(TrackBeforeSendUsageIntegration());
 
@@ -519,20 +516,7 @@ class Sentry {
     if (result is! bool) {
       return;
     }
-
-    final featureFlagsIntegration = currentHub.options.integrations
-        .whereType<FeatureFlagsIntegration>()
-        .firstOrNull;
-
-    if (featureFlagsIntegration == null) {
-      currentHub.options.log(
-        SentryLevel.warning,
-        '$FeatureFlagsIntegration not found. Make sure Sentry is initialized before accessing the addFeatureFlag API.',
-      );
-      return;
-    }
-
-    await featureFlagsIntegration.addFeatureFlag(flag, result);
+    await _hub.addFeatureFlag(flag, result);
   }
 
   @internal

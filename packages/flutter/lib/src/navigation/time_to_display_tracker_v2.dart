@@ -218,7 +218,11 @@ class TimeToDisplayTrackerV2 {
     final activeSpan = _hub.getActiveSpan();
     if (activeSpan is IdleRecordingSentrySpanV2) {
       activeSpan
-        ..status = SentrySpanStatusV2.cancelled
+        ..status = SentrySpanStatusV2.ok
+        ..setAttribute(
+          SemanticAttributesConstants.sentryIdleSpanFinishReason,
+          SentryAttribute.string(SentryIdleSpanFinishReasons.cancelled),
+        )
         ..end();
     }
   }

@@ -34,6 +34,10 @@ class HubAdapter implements Hub {
       await Sentry.addBreadcrumb(crumb, hint: hint);
 
   @override
+  Future<void> addFeatureFlag(String flag, bool result) async =>
+      await Sentry.addFeatureFlag(flag, result);
+
+  @override
   void bindClient(SentryClient client) => Sentry.bindClient(client);
 
   @override
@@ -214,7 +218,7 @@ class HubAdapter implements Hub {
       );
 
   @override
-  FutureOr<void> captureLog(SentryLog log) => Sentry.currentHub.captureLog(log);
+  Future<void> captureLog(SentryLog log) => Sentry.currentHub.captureLog(log);
 
   @override
   Future<void> captureMetric(SentryMetric metric) =>

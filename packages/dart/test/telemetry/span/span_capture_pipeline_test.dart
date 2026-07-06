@@ -167,7 +167,7 @@ void main() {
 
       test('calls beforeSendSpan callback with span', () async {
         SentrySpanV2? receivedSpan;
-        fixture.options.beforeSendSpan = (span) {
+        fixture.options.beforeSendSpan = (span, hint) {
           receivedSpan = span;
         };
 
@@ -178,8 +178,28 @@ void main() {
         expect(fixture.processor.addedSpans.length, 1);
       });
 
+      test('receives the same hint instance dispatched to OnProcessSpan',
+          () async {
+        Hint? lifecycleHint;
+        Hint? callbackHint;
+
+        fixture.options.lifecycleRegistry
+            .registerCallback<OnProcessSpan>((event) {
+          lifecycleHint = event.hint;
+        });
+        fixture.options.beforeSendSpan = (span, hint) {
+          callbackHint = hint;
+        };
+
+        await fixture.pipeline
+            .captureSpan(fixture.createRecordingSpan(), scope: fixture.scope);
+
+        expect(callbackHint, isNotNull);
+        expect(callbackHint, same(lifecycleHint));
+      });
+
       test('beforeSendSpan callback can modify span attributes', () async {
-        fixture.options.beforeSendSpan = (span) {
+        fixture.options.beforeSendSpan = (span, hint) {
           span.setAttribute('modified-by-callback', SentryAttribute.bool(true));
           span.name = 'modified-span-name';
         };
@@ -192,7 +212,7 @@ void main() {
       });
 
       test('beforeSendSpan callback can remove sensitive attributes', () async {
-        fixture.options.beforeSendSpan = (span) {
+        fixture.options.beforeSendSpan = (span, hint) {
           span.removeAttribute('sensitive-data');
         };
 
@@ -208,7 +228,7 @@ void main() {
 
       test('beforeSendSpan callback supports async operations', () async {
         var asyncCompleted = false;
-        fixture.options.beforeSendSpan = (span) async {
+        fixture.options.beforeSendSpan = (span, hint) async {
           await Future.delayed(Duration.zero);
           asyncCompleted = true;
           span.setAttribute(
@@ -230,7 +250,7 @@ void main() {
           callOrder.add('lifecycle');
         });
 
-        fixture.options.beforeSendSpan = (span) {
+        fixture.options.beforeSendSpan = (span, hint) {
           callOrder.add('beforeSendSpan');
         };
 
@@ -243,7 +263,7 @@ void main() {
       test('beforeSendSpan is called after default attributes are added',
           () async {
         String? envValue;
-        fixture.options.beforeSendSpan = (span) {
+        fixture.options.beforeSendSpan = (span, hint) {
           envValue = span
               .attributes[SemanticAttributesConstants.sentryEnvironment]
               ?.value as String?;
@@ -258,7 +278,7 @@ void main() {
       test('span is still captured when beforeSendSpan throws exception',
           () async {
         fixture.options.automatedTestMode = false;
-        fixture.options.beforeSendSpan = (span) async {
+        fixture.options.beforeSendSpan = (span, hint) async {
           await Future.delayed(Duration.zero);
           throw Exception('async beforeSendSpan callback error');
         };

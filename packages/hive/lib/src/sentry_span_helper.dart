@@ -87,7 +87,7 @@ class SentrySpanHelper {
         : null;
 
     span?.origin = _origin;
-    span?.setData('sync', true);
+    span?.markSynchronous();
     span?.setData(
       SemanticAttributesConstants.dbSystemName,
       SentryHiveImpl.dbSystemName,

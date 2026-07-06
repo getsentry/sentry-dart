@@ -189,4 +189,10 @@ void main() {
 
     expect(options.enableMetrics, true);
   });
+
+  test('enableLogs is true by default', () {
+    final options = defaultTestOptions();
+
+    expect(options.enableLogs, true);
+  });
 }

@@ -31,8 +31,10 @@ class SpanCapturePipeline {
             span.addAttributesIfAbsent(scope.attributes);
           }
 
+          final hint = Hint();
+
           await _options.lifecycleRegistry.dispatchCallback<OnProcessSpan>(
-            OnProcessSpan(span),
+            OnProcessSpan(span, hint),
           );
 
           span.addAttributesIfAbsent(defaultAttributes(_options, scope: scope));
@@ -51,7 +53,7 @@ class SpanCapturePipeline {
           final beforeSendSpan = _options.beforeSendSpan;
           if (beforeSendSpan != null) {
             try {
-              await beforeSendSpan(span);
+              await beforeSendSpan(span, hint);
             } catch (exception, stackTrace) {
               internalLogger.error(
                 'The beforeSendSpan callback threw an exception',

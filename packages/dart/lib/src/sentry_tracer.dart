@@ -85,11 +85,6 @@ class SentryTracer extends ISentrySpan {
     _trimEnd = trimEnd;
     _onFinish = onFinish;
 
-    for (final collector in _hub.options.performanceCollectors) {
-      if (collector is PerformanceContinuousCollector) {
-        collector.onSpanStarted(_rootSpan);
-      }
-    }
     _dispatchOnSpanStart(_rootSpan);
   }
 
@@ -286,11 +281,6 @@ class SentryTracer extends ISentrySpan {
 
     _children.add(child);
 
-    for (final collector in _hub.options.performanceCollectors) {
-      if (collector is PerformanceContinuousCollector) {
-        collector.onSpanStarted(child);
-      }
-    }
     _dispatchOnSpanStart(child);
 
     return child;
