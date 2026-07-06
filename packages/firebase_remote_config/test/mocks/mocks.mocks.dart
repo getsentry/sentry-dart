@@ -322,11 +322,14 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i5.Future<_i2.SentryId>);
 
   @override
-  _i5.Future<void> captureLog(_i2.SentryLog? log) =>
-      (super.noSuchMethod(Invocation.method(
-        #captureLog,
-        [log],
-      )) as _i5.Future<void>);
+  _i5.Future<void> captureLog(_i2.SentryLog? log) => (super.noSuchMethod(
+        Invocation.method(
+          #captureLog,
+          [log],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
   _i5.Future<void> addBreadcrumb(
