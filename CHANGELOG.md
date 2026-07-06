@@ -1,6 +1,7 @@
 # Changelog
 
 ## 10.0.0-alpha.1
+## 9.23.0
 
 ### Features
 
@@ -12,6 +13,14 @@
 #### Other
 
 - (flutter) Support SwiftPM on Flutter 3.44+ by @buenaflor in [#3784](https://github.com/getsentry/sentry-dart/pull/3784)
+- (grpc) Add integration support for GRPC by @lucas-zimerman in [#3721](https://github.com/getsentry/sentry-dart/pull/3721)
+- (tracing) Simplify span v2 status to ok/error by @buenaflor in [#3840](https://github.com/getsentry/sentry-dart/pull/3840)
+- Report blocked_main_thread on streaming spans by @buenaflor in [#3821](https://github.com/getsentry/sentry-dart/pull/3821)
+
+### Fixes
+
+- (rate-limiting) Honor span and feedback rate limits by @buenaflor in [#3809](https://github.com/getsentry/sentry-dart/pull/3809)
+- Correct feature flag scope buffer updates by @denrase in [#3797](https://github.com/getsentry/sentry-dart/pull/3797)
 
 ### Enhancements
 
@@ -28,10 +37,17 @@
 
 - Bump jni to 1.0.0 and jnigen to 0.16.0 in v10 by @buenaflor in [#3765](https://github.com/getsentry/sentry-dart/pull/3765)
 - Bump sentry-cocoa to 9.17.1 in v10 by @buenaflor in [#3764](https://github.com/getsentry/sentry-dart/pull/3764)
+- chore(deps): update Android SDK to v8.47.0 by @github-actions in [#3849](https://github.com/getsentry/sentry-dart/pull/3849)
+- chore(deps): update Native SDK to v0.15.2 by @github-actions in [#3785](https://github.com/getsentry/sentry-dart/pull/3785)
 
 ### Internal Changes
 
 - (flutter) Remove flaky frames measurement tests by @buenaflor in [#3783](https://github.com/getsentry/sentry-dart/pull/3783)
+- (skills) Expand test-guidelines and drop stale deps by @buenaflor in [#3807](https://github.com/getsentry/sentry-dart/pull/3807)
+- Add PR template checkbox for cross sdk review on public API changes by @antonis in [#3822](https://github.com/getsentry/sentry-dart/pull/3822)
+- Block manual CHANGELOG.md edits by @buenaflor in [#3810](https://github.com/getsentry/sentry-dart/pull/3810)
+- Fix Dependabot pub paths and pin GitHub Action by @buenaflor in [#3804](https://github.com/getsentry/sentry-dart/pull/3804)
+- Add AI Use section to CONTRIBUTING.md by @christophaigner in [#3803](https://github.com/getsentry/sentry-dart/pull/3803)
 
 ## 9.22.0
 

@@ -869,6 +869,7 @@ void main() {
     group('metrics', () {
       test('adds device attributes to metric when metrics enabled', () async {
         fixture.options.enableMetrics = true;
+        fixture.options.enableLogs = false;
         mockLoadContexts();
         await fixture.registerIntegration();
 
@@ -882,7 +883,7 @@ void main() {
         );
 
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessMetric(metric),
+          OnProcessMetric(metric, Hint()),
         );
 
         verify(fixture.binding.loadContexts()).called(1);
@@ -903,6 +904,7 @@ void main() {
 
       test('does not register callback when metrics disabled', () async {
         fixture.options.enableMetrics = false;
+        fixture.options.enableLogs = false;
         await fixture.registerIntegration();
 
         expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 0);
@@ -935,7 +937,7 @@ void main() {
 
           final span = givenSpan();
           await fixture.options.lifecycleRegistry.dispatchCallback(
-            OnProcessSpan(span),
+            OnProcessSpan(span, Hint()),
           );
 
           verify(fixture.binding.loadContexts()).called(1);
@@ -975,7 +977,7 @@ void main() {
         );
 
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessSpan(span),
+          OnProcessSpan(span, Hint()),
         );
 
         final attributes = span.attributes;
@@ -1011,7 +1013,7 @@ void main() {
 
         final span = givenSpan();
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessSpan(span),
+          OnProcessSpan(span, Hint()),
         );
 
         // Attributes should remain unchanged (empty or just what was set before)
@@ -1033,6 +1035,7 @@ void main() {
     group('close', () {
       test('removes metric callback from lifecycle registry', () async {
         fixture.options.enableMetrics = true;
+        fixture.options.enableLogs = false;
         mockLoadContexts();
         await fixture.registerIntegration();
 
@@ -1121,7 +1124,7 @@ void main() {
         );
 
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessMetric(metric),
+          OnProcessMetric(metric, Hint()),
         );
 
         verifyNever(fixture.binding.loadContexts());
@@ -1145,7 +1148,7 @@ void main() {
         );
 
         await fixture.options.lifecycleRegistry.dispatchCallback(
-          OnProcessSpan(span),
+          OnProcessSpan(span, Hint()),
         );
 
         verifyNever(fixture.binding.loadContexts());

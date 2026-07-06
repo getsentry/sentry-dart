@@ -24,8 +24,10 @@ class MetricCapturePipeline {
         metric.attributes.addAllIfAbsent(scope.attributes);
       }
 
+      final hint = Hint();
+
       await _options.lifecycleRegistry
-          .dispatchCallback<OnProcessMetric>(OnProcessMetric(metric));
+          .dispatchCallback<OnProcessMetric>(OnProcessMetric(metric, hint));
 
       metric.attributes
           .addAllIfAbsent(defaultAttributes(_options, scope: scope));
@@ -34,12 +36,11 @@ class MetricCapturePipeline {
       SentryMetric? processedMetric = metric;
       if (beforeSendMetric != null) {
         try {
-          processedMetric = await beforeSendMetric(metric);
+          processedMetric = await beforeSendMetric(metric, hint);
         } catch (exception, stackTrace) {
-          _options.log(
-            SentryLevel.error,
+          internalLogger.error(
             'The beforeSendMetric callback threw an exception',
-            exception: exception,
+            error: exception,
             stackTrace: stackTrace,
           );
           if (_options.automatedTestMode) {

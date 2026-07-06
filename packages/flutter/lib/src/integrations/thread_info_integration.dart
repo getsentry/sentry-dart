@@ -32,67 +32,131 @@ class ThreadInfoIntegration implements Integration<SentryFlutterOptions> {
       return;
     }
 
-    options.lifecycleRegistry.registerCallback<OnSpanStart>(
-      _addThreadInfoToSpan,
-    );
-    options.lifecycleRegistry.registerCallback<OnSpanFinish>(
-      _processSyncSpanOnFinish,
-    );
+    switch (options.traceLifecycle) {
+      case SentryTraceLifecycle.static:
+        options.lifecycleRegistry.registerCallback<OnSpanStart>(
+          _addThreadInfoToSpan,
+        );
+        options.lifecycleRegistry.registerCallback<OnSpanFinish>(
+          _processSyncSpanOnFinish,
+        );
+      case SentryTraceLifecycle.stream:
+        options.lifecycleRegistry.registerCallback<OnSpanStartV2>(
+          _addThreadInfoToSpanV2,
+        );
+        options.lifecycleRegistry.registerCallback<OnProcessSpan>(
+          _processSyncSpanOnProcess,
+        );
+    }
 
     options.sdk.addIntegration(integrationName);
   }
 
   @override
   void close() {
-    _hub?.options.lifecycleRegistry.removeCallback<OnSpanStart>(
-      _addThreadInfoToSpan,
-    );
-    _hub?.options.lifecycleRegistry.removeCallback<OnSpanFinish>(
-      _processSyncSpanOnFinish,
-    );
+    final options = _hub?.options;
+    if (options == null) {
+      return;
+    }
+    switch (options.traceLifecycle) {
+      case SentryTraceLifecycle.static:
+        options.lifecycleRegistry.removeCallback<OnSpanStart>(
+          _addThreadInfoToSpan,
+        );
+        options.lifecycleRegistry.removeCallback<OnSpanFinish>(
+          _processSyncSpanOnFinish,
+        );
+      case SentryTraceLifecycle.stream:
+        options.lifecycleRegistry.removeCallback<OnSpanStartV2>(
+          _addThreadInfoToSpanV2,
+        );
+        options.lifecycleRegistry.removeCallback<OnProcessSpan>(
+          _processSyncSpanOnProcess,
+        );
+    }
   }
 
   Future<void> _addThreadInfoToSpan(OnSpanStart event) async {
     final span = event.span;
-    // Check if we're in the root isolate first
     if (_isolateHelper.isRootIsolate()) {
-      // For root isolate, always set thread name as "main"
-      span.setData(SpanDataConvention.threadId, 'main'.hashCode.toString());
-      span.setData(SpanDataConvention.threadName, 'main');
+      span.setData(
+        SemanticAttributesConstants.threadId,
+        'main'.hashCode.toString(),
+      );
+      span.setData(SemanticAttributesConstants.threadName, 'main');
       return;
     }
 
-    // For non-root isolates, get thread info dynamically for each span to handle multi-isolate scenarios
+    // Resolve per span so multiple isolates are handled correctly.
     final isolateName = _isolateHelper.getIsolateName();
-
-    // Only set thread info if we have a valid isolate name
     if (isolateName != null && isolateName.isNotEmpty) {
-      final threadName = isolateName;
-      final threadId = isolateName.hashCode.toString();
-
-      span.setData(SpanDataConvention.threadId, threadId);
-      span.setData(SpanDataConvention.threadName, threadName);
+      span.setData(
+        SemanticAttributesConstants.threadId,
+        isolateName.hashCode.toString(),
+      );
+      span.setData(SemanticAttributesConstants.threadName, isolateName);
     }
   }
 
   void _processSyncSpanOnFinish(OnSpanFinish event) {
     final span = event.span;
-    if (span is! SentrySpan) {
+    if (span is! SentrySpan || !span.hasSynchronousMarker) {
       return;
     }
 
-    final data = span.data;
-
-    // Check if this is a sync operation
-    if (data.containsKey('sync')) {
-      // Check if we're on the main isolate by looking at thread name
-      if (data['sync'] == true &&
-          data[SpanDataConvention.threadName] == 'main') {
-        span.setData(SpanDataConvention.blockedMainThread, true);
-      }
-
-      // Always remove the sync flag
-      span.removeData('sync');
+    if (span.isSynchronous &&
+        span.data[SemanticAttributesConstants.threadName] == 'main') {
+      span.setData(SemanticAttributesConstants.blockedMainThread, true);
     }
+    // Always strip the internal marker so it never leaks to Sentry, even when
+    // it holds a stray non-true value.
+    span.clearSynchronous();
+  }
+
+  Future<void> _addThreadInfoToSpanV2(OnSpanStartV2 event) async {
+    final span = event.span;
+    if (_isolateHelper.isRootIsolate()) {
+      span.setAttribute(
+        SemanticAttributesConstants.threadId,
+        SentryAttribute.string('main'.hashCode.toString()),
+      );
+      span.setAttribute(
+        SemanticAttributesConstants.threadName,
+        SentryAttribute.string('main'),
+      );
+      return;
+    }
+
+    // Resolve per span so multiple isolates are handled correctly.
+    final isolateName = _isolateHelper.getIsolateName();
+    if (isolateName != null && isolateName.isNotEmpty) {
+      span.setAttribute(
+        SemanticAttributesConstants.threadId,
+        SentryAttribute.string(isolateName.hashCode.toString()),
+      );
+      span.setAttribute(
+        SemanticAttributesConstants.threadName,
+        SentryAttribute.string(isolateName),
+      );
+    }
+  }
+
+  void _processSyncSpanOnProcess(OnProcessSpan event) {
+    final span = event.span;
+    if (!span.hasSynchronousMarker) {
+      return;
+    }
+
+    if (span.isSynchronous &&
+        span.attributes[SemanticAttributesConstants.threadName]?.value ==
+            'main') {
+      span.setAttribute(
+        SemanticAttributesConstants.blockedMainThread,
+        SentryAttribute.bool(true),
+      );
+    }
+    // Always strip the internal marker so it never leaks to Sentry, even when
+    // it holds a stray non-true value.
+    span.clearSynchronous();
   }
 }
