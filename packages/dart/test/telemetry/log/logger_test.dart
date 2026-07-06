@@ -22,60 +22,59 @@ void main() {
       expect(capturedLog.attributes['string']?.value, 'string');
     }
 
-    test('info', () async {
+    test('info', () {
       final logger = fixture.getSut();
 
-      await logger.info('test', attributes: fixture.attributes);
+      logger.info('test', attributes: fixture.attributes);
 
       verifyCaptureLog(SentryLogLevel.info);
     });
 
-    test('trace', () async {
+    test('trace', () {
       final logger = fixture.getSut();
 
-      await logger.trace('test', attributes: fixture.attributes);
+      logger.trace('test', attributes: fixture.attributes);
 
       verifyCaptureLog(SentryLogLevel.trace);
     });
 
-    test('debug', () async {
+    test('debug', () {
       final logger = fixture.getSut();
 
-      await logger.debug('test', attributes: fixture.attributes);
+      logger.debug('test', attributes: fixture.attributes);
 
       verifyCaptureLog(SentryLogLevel.debug);
     });
 
-    test('warn', () async {
+    test('warn', () {
       final logger = fixture.getSut();
 
-      await logger.warn('test', attributes: fixture.attributes);
+      logger.warn('test', attributes: fixture.attributes);
 
       verifyCaptureLog(SentryLogLevel.warn);
     });
 
-    test('error', () async {
+    test('error', () {
       final logger = fixture.getSut();
 
-      await logger.error('test', attributes: fixture.attributes);
+      logger.error('test', attributes: fixture.attributes);
 
       verifyCaptureLog(SentryLogLevel.error);
     });
 
-    test('fatal', () async {
+    test('fatal', () {
       final logger = fixture.getSut();
 
-      await logger.fatal('test', attributes: fixture.attributes);
+      logger.fatal('test', attributes: fixture.attributes);
 
       verifyCaptureLog(SentryLogLevel.fatal);
     });
 
     // This is mostly an edge case but let's cover it just in case
-    test('per-log attributes override fmt template attributes on same key',
-        () async {
+    test('per-log attributes override fmt template attributes on same key', () {
       final logger = fixture.getSut();
 
-      await logger.fmt.info(
+      logger.fmt.info(
         'Hello, %s!',
         ['World'],
         attributes: {
@@ -89,44 +88,43 @@ void main() {
       expect(attrs['sentry.message.parameter.0']?.value, 'Earth');
     });
 
-    test('sets trace id from default scope propagation context', () async {
+    test('sets trace id from default scope propagation context', () {
       final logger = fixture.getSut();
 
-      await logger.info('test');
+      logger.info('test');
 
       expect(fixture.capturedLogs.length, 1);
       final capturedLog = fixture.capturedLogs[0];
       expect(capturedLog.traceId, fixture.scope.propagationContext.traceId);
     });
 
-    test('sets span id when span is active on default scope', () async {
+    test('sets span id when span is active on default scope', () {
       final span = _MockSpan();
       fixture.scope.span = span;
 
       final logger = fixture.getSut();
 
-      await logger.info('test');
+      logger.info('test');
 
       expect(fixture.capturedLogs.length, 1);
       final capturedLog = fixture.capturedLogs[0];
       expect(capturedLog.spanId, span.context.spanId);
     });
 
-    test('sets timestamp from clock provider', () async {
+    test('sets timestamp from clock provider', () {
       final logger = fixture.getSut();
 
-      await logger.info('test');
+      logger.info('test');
 
       expect(fixture.capturedLogs.length, 1);
       final capturedLog = fixture.capturedLogs[0];
       expect(capturedLog.timestamp, fixture.timestamp);
     });
 
-    test('includes attributes when provided', () async {
+    test('includes attributes when provided', () {
       final logger = fixture.getSut();
 
-      await logger
-          .info('test', attributes: {'key': SentryAttribute.string('value')});
+      logger.info('test', attributes: {'key': SentryAttribute.string('value')});
 
       expect(fixture.capturedLogs.length, 1);
       final capturedLog = fixture.capturedLogs[0];
@@ -158,7 +156,7 @@ class Fixture {
 
   SentryLogger getSut() {
     return DefaultSentryLogger(
-      captureLogCallback: (log, {scope}) {
+      captureLogCallback: (log) async {
         capturedLogs.add(log);
       },
       clockProvider: () => timestamp,

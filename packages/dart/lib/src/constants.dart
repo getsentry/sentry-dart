@@ -41,6 +41,22 @@ class SentrySpanDescriptions {
   static String dbClose({required String dbName}) => 'Close database $dbName';
 }
 
+/// Values for the [SemanticAttributesConstants.sentryStatusMessage] attribute.
+///
+/// These mirror the corresponding `SpanStatus` protocol strings
+/// (e.g. `SpanStatus.deadlineExceeded()`); keep them in sync.
+@internal
+class SentrySpanStatusMessages {
+  static const String deadlineExceeded = 'deadline_exceeded';
+}
+
+/// Values for the [SemanticAttributesConstants.sentryIdleSpanFinishReason]
+/// attribute.
+@internal
+class SentryIdleSpanFinishReasons {
+  static const String cancelled = 'cancelled';
+}
+
 /// Features are SDK metadata to help us query SDK usage and analytics internally.
 @internal
 class SentryFeatures {
@@ -104,6 +120,23 @@ abstract class SemanticAttributesConstants {
 
   /// The operation name of a span.
   static const sentryOp = 'sentry.op';
+
+  /// The prefix for feature flag evaluations recorded on spans.
+  static const featureFlagEvaluationPrefix = 'flag.evaluation.';
+
+  /// The feature flag evaluation attribute key for [flag].
+  static String featureFlagEvaluation(String flag) =>
+      '$featureFlagEvaluationPrefix$flag';
+
+  /// A human-readable message providing additional context about a span's
+  /// status, e.g. [SentrySpanStatusMessages.deadlineExceeded] when an idle span
+  /// hits its final timeout.
+  static const sentryStatusMessage = 'sentry.status.message';
+
+  /// The reason an idle span finished, e.g.
+  /// [SentryIdleSpanFinishReasons.cancelled] when the span was superseded by a
+  /// new interaction before it could complete.
+  static const sentryIdleSpanFinishReason = 'sentry.idle_span_finish_reason';
 
   /// Whether the replay is buffering (onErrorSampleRate).
   static const sentryInternalReplayIsBuffering =
@@ -388,6 +421,15 @@ abstract class SemanticAttributesConstants {
   /// The sum of all delayed frame durations in seconds during the lifetime of the span.
   /// For more information see [frames delay](https://develop.sentry.dev/sdk/performance/frames-delay/).
   static const framesDelay = 'frames.delay';
+
+  /// The managed thread ID the span ran on.
+  static const threadId = 'thread.id';
+
+  /// The name of the thread the span ran on (e.g., "main").
+  static const threadName = 'thread.name';
+
+  /// Whether the main thread was blocked by the span.
+  static const blockedMainThread = 'blocked_main_thread';
 
   /// The HTTP request method (e.g., "GET", "POST").
   static const httpRequestMethod = 'http.request.method';

@@ -45,7 +45,7 @@ class SdkLifecycleRegistry {
 
   Future<void> _dispatchCallbackAsync<T extends SdkLifecycleEvent>(
       T event, List<Function> callbacks) async {
-    for (final cb in callbacks) {
+    for (final cb in List<Function>.of(callbacks)) {
       try {
         final result = (cb as SdkLifecycleCallback<T>)(event);
         if (result is Future) {
@@ -68,9 +68,10 @@ class SdkLifecycleRegistry {
 
 @internal
 class OnProcessLog extends SdkLifecycleEvent {
-  OnProcessLog(this.log);
+  OnProcessLog(this.log, this.hint);
 
   final SentryLog log;
+  final Hint hint;
 }
 
 @internal
@@ -120,8 +121,9 @@ class OnSpanEndV2 extends SdkLifecycleEvent {
 @internal
 class OnProcessSpan extends SdkLifecycleEvent {
   final RecordingSentrySpanV2 span;
+  final Hint hint;
 
-  OnProcessSpan(this.span);
+  OnProcessSpan(this.span, this.hint);
 }
 
 /// Dispatched when a metric has been captured and is ready for processing (before default enrichment)
@@ -129,8 +131,9 @@ class OnProcessSpan extends SdkLifecycleEvent {
 @internal
 class OnProcessMetric extends SdkLifecycleEvent {
   final SentryMetric metric;
+  final Hint hint;
 
-  OnProcessMetric(this.metric);
+  OnProcessMetric(this.metric, this.hint);
 }
 
 /// Dispatched when a new trace is generated via [Hub.generateNewTrace].

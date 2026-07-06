@@ -514,7 +514,7 @@ class SentryClient {
       _spanCapturePipeline.captureSpan(span, scope: scope);
 
   @internal
-  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) =>
+  Future<void> captureLog(SentryLog log, {Scope? scope}) =>
       _logCapturePipeline.captureLog(log, scope: scope);
 
   Future<void> captureMetric(SentryMetric metric, {Scope? scope}) =>

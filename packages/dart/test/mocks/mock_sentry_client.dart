@@ -88,7 +88,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   }
 
   @override
-  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {
+  Future<void> captureLog(SentryLog log, {Scope? scope}) async {
     captureLogCalls.add(CaptureLogCall(log, scope));
   }
 

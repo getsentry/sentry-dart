@@ -21,8 +21,6 @@ export 'src/integration.dart';
 export 'src/noop_isolate_error_integration.dart'
     if (dart.library.io) 'src/isolate_error_integration.dart';
 // ignore: invalid_export_of_internal_element
-export 'src/performance_collector.dart';
-// ignore: invalid_export_of_internal_element
 export 'src/protocol.dart';
 export 'src/protocol/sentry_feature_flag.dart';
 export 'src/protocol/sentry_feature_flags.dart';

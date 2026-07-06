@@ -1298,11 +1298,13 @@ class MockSentryClient extends _i1.Mock implements _i2.SentryClient {
           as _i12.Future<void>);
 
   @override
-  _i12.FutureOr<void> captureLog(_i2.SentryLog? log, {_i2.Scope? scope}) =>
+  _i12.Future<void> captureLog(_i2.SentryLog? log, {_i2.Scope? scope}) =>
       (super.noSuchMethod(
             Invocation.method(#captureLog, [log], {#scope: scope}),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
           )
-          as _i12.FutureOr<void>);
+          as _i12.Future<void>);
 
   @override
   _i12.Future<void> captureMetric(
@@ -3351,9 +3353,13 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           as _i12.Future<_i2.SentryId>);
 
   @override
-  _i12.FutureOr<void> captureLog(_i2.SentryLog? log) =>
-      (super.noSuchMethod(Invocation.method(#captureLog, [log]))
-          as _i12.FutureOr<void>);
+  _i12.Future<void> captureLog(_i2.SentryLog? log) =>
+      (super.noSuchMethod(
+            Invocation.method(#captureLog, [log]),
+            returnValue: _i12.Future<void>.value(),
+            returnValueForMissingStub: _i12.Future<void>.value(),
+          )
+          as _i12.Future<void>);
 
   @override
   _i12.Future<void> captureMetric(_i2.SentryMetric? metric) =>
