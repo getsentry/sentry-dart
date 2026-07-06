@@ -36,12 +36,11 @@ class SentryFeatureFlags {
     };
   }
 
-  // Uses copy rather than clone because clone is currently a deprecated public API.
   @internal
-  SentryFeatureFlags copy() {
+  SentryFeatureFlags clone() {
     final unknown = this.unknown;
     return SentryFeatureFlags(
-      values: values.map((flag) => flag.copy()).toList(growable: false),
+      values: values.map((flag) => flag.clone()).toList(growable: false),
       unknown: unknown == null ? null : Map<String, dynamic>.from(unknown),
     );
   }

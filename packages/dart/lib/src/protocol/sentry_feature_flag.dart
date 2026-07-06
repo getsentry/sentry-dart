@@ -33,9 +33,8 @@ class SentryFeatureFlag {
     };
   }
 
-  // Uses copy rather than clone because clone is currently a deprecated public API.
   @internal
-  SentryFeatureFlag copy() {
+  SentryFeatureFlag clone() {
     return SentryFeatureFlag(
       flag: flag,
       result: result,

@@ -505,7 +505,7 @@ class Scope {
         clone._setContextsSync(
           entry.key,
           entry.key == SentryFeatureFlags.type && value is SentryFeatureFlags
-              ? value.copy()
+              ? value.clone()
               : value,
         );
       }
