@@ -38,7 +38,7 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
-    void _asserBreadcrumb() {
+    void _assertBreadcrumb() {
       final call = fixture.client.captureTransactionCalls.first;
       final breadcrumb = call.scope?.breadcrumbs.first;
 
@@ -71,7 +71,7 @@ void main() {
       expect(sut.uri.toFilePath(), isNot(newFile.uri.toFilePath()));
 
       _assertSpan(true);
-      _asserBreadcrumb();
+      _assertBreadcrumb();
 
       await newFile.delete();
     });
@@ -96,7 +96,7 @@ void main() {
       expect(sut.uri.toFilePath(), isNot(newFile.uri.toFilePath()));
 
       _assertSpan(false);
-      _asserBreadcrumb();
+      _assertBreadcrumb();
 
       newFile.deleteSync();
     });
