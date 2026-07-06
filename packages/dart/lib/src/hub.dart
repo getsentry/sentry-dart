@@ -522,6 +522,7 @@ class Hub {
   }
 
   /// Clones the Hub
+  @internal
   Hub clone() {
     if (!_isEnabled) {
       _options.log(SentryLevel.warning, 'Disabled Hub cloned.');

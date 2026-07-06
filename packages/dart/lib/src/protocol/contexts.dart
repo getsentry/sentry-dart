@@ -322,27 +322,6 @@ class Contexts extends MapView<String, dynamic> {
     return json;
   }
 
-  @Deprecated('Will be removed in a future version.')
-  Contexts clone() {
-    final copy = Contexts(
-      device: device?.clone(),
-      operatingSystem: operatingSystem?.clone(),
-      app: app?.clone(),
-      browser: browser?.clone(),
-      culture: culture?.clone(),
-      gpu: gpu?.clone(),
-      trace: trace?.clone(),
-      response: response?.clone(),
-      runtimes: runtimes.map((runtime) => runtime.clone()).toList(),
-      feedback: feedback?.clone(),
-      flags: flags?.clone(),
-    )..addEntries(
-        entries.where((element) => !defaultFields.contains(element.key)),
-      );
-
-    return copy;
-  }
-
   @Deprecated(
       'Will be removed in a future version. Assign values directly to the instance.')
   Contexts copyWith({

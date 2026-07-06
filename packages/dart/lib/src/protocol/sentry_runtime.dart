@@ -102,17 +102,6 @@ class SentryRuntime {
     };
   }
 
-  @Deprecated('Will be removed in a future version.')
-  SentryRuntime clone() => SentryRuntime(
-        key: key,
-        name: name,
-        version: version,
-        compiler: compiler,
-        rawDescription: rawDescription,
-        build: build,
-        unknown: unknown,
-      );
-
   SentryRuntime copyWith({
     String? key,
     String? name,

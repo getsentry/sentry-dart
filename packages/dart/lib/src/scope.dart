@@ -496,6 +496,7 @@ class Scope {
   }
 
   /// Clones the current Scope
+  @internal
   Scope clone() {
     final clone = Scope(_options)
       ..level = level
@@ -534,7 +535,7 @@ class Scope {
         clone._setContextsSync(
           entry.key,
           entry.key == SentryFeatureFlags.type && value is SentryFeatureFlags
-              ? value.copy()
+              ? value.clone()
               : value,
         );
       }
