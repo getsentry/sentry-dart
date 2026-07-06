@@ -1230,7 +1230,7 @@ void main() {
       final environment =
           tags.firstWhere((element) => element['key'] == 'environment');
       expect('integration', environment['value']);
-    });
+    }, skip: authToken.isEmpty);
   });
 }
 
