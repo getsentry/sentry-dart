@@ -433,10 +433,8 @@ class SentryFile implements File {
         : null;
 
     span?.origin = SentryTraceOrigins.autoFile;
-    span?.setData('file.async', true);
 
     final Map<String, dynamic> breadcrumbData = {};
-    breadcrumbData['file.async'] = true;
 
     if (_hub.options.sendDefaultPii) {
       span?.setData('file.path', absolute.path);
@@ -502,11 +500,9 @@ class SentryFile implements File {
         : null;
 
     span?.origin = SentryTraceOrigins.autoFile;
-    span?.setData('file.async', false);
     span?.markSynchronous();
 
     final Map<String, dynamic> breadcrumbData = {};
-    breadcrumbData['file.async'] = false;
 
     if (_hub.options.sendDefaultPii) {
       span?.setData('file.path', absolute.path);
