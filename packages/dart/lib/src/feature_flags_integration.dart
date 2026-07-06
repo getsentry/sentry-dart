@@ -1,12 +1,20 @@
 import 'dart:async';
 
+import 'constants.dart';
 import 'hub.dart';
 import 'integration.dart';
-import 'sentry_options.dart';
-import 'protocol/sentry_feature_flags.dart';
+import 'protocol/sentry_attribute.dart';
 import 'protocol/sentry_feature_flag.dart';
+import 'protocol/sentry_feature_flags.dart';
+import 'protocol/sentry_span.dart';
+import 'sentry_options.dart';
+import 'sentry_span_interface.dart';
+import 'sentry_tracer.dart';
+import 'telemetry/span/sentry_span_v2.dart';
 
-/// Integration which handles adding feature flags to the scope.
+const _maxActiveSpanFeatureFlags = 10;
+
+/// Integration which handles adding feature flags to the scope and active span.
 class FeatureFlagsIntegration extends Integration<SentryOptions> {
   Hub? _hub;
 
@@ -17,8 +25,15 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
   }
 
   FutureOr<void> addFeatureFlag(String flag, bool result) async {
+    final hub = _hub;
+    if (hub == null) {
+      return;
+    }
+
+    _addFeatureFlagToActiveSpan(hub, flag, result);
+
     final flags =
-        _hub?.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
+        hub.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
             SentryFeatureFlags(values: []);
     final values = List<SentryFeatureFlag>.from(flags.values);
 
@@ -35,7 +50,81 @@ class FeatureFlagsIntegration extends Integration<SentryOptions> {
 
     flags.values = values;
 
-    await _hub?.scope.setContexts(SentryFeatureFlags.type, flags);
+    await hub.scope.setContexts(SentryFeatureFlags.type, flags);
+  }
+
+  void _addFeatureFlagToActiveSpan(Hub hub, String flag, bool result) {
+    final activeSpan = hub.getActiveSpan();
+    if (activeSpan != null) {
+      _addFeatureFlagToActiveSpanV2(activeSpan, flag, result);
+      return;
+    }
+
+    final activeLegacySpan = hub.getSpan();
+    if (activeLegacySpan != null) {
+      _addFeatureFlagToActiveLegacySpan(activeLegacySpan, flag, result);
+    }
+  }
+
+  void _addFeatureFlagToActiveSpanV2(
+    RecordingSentrySpanV2 span,
+    String flag,
+    bool result,
+  ) {
+    if (span.isEnded) {
+      return;
+    }
+
+    final key = SemanticAttributesConstants.featureFlagEvaluation(flag);
+    final attributes = span.attributes;
+    if (_hasReachedFeatureFlagLimit(attributes, key)) {
+      return;
+    }
+
+    span.setAttribute(key, SentryAttribute.bool(result));
+  }
+
+  void _addFeatureFlagToActiveLegacySpan(
+    ISentrySpan span,
+    String flag,
+    bool result,
+  ) {
+    if (span.finished) {
+      return;
+    }
+
+    final key = SemanticAttributesConstants.featureFlagEvaluation(flag);
+    final data = _legacySpanData(span);
+    if (data != null && _hasReachedFeatureFlagLimit(data, key)) {
+      return;
+    }
+
+    span.setData(key, result);
+  }
+
+  bool _hasReachedFeatureFlagLimit(Map<String, dynamic> values, String key) {
+    if (values.containsKey(key)) {
+      return false;
+    }
+
+    final featureFlagCount = values.keys
+        .where(
+          (key) => key.startsWith(
+            SemanticAttributesConstants.featureFlagEvaluationPrefix,
+          ),
+        )
+        .length;
+    return featureFlagCount >= _maxActiveSpanFeatureFlags;
+  }
+
+  Map<String, dynamic>? _legacySpanData(ISentrySpan span) {
+    if (span is SentryTracer) {
+      return span.data;
+    }
+    if (span is SentrySpan) {
+      return span.data;
+    }
+    return null;
   }
 
   @override

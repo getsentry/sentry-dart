@@ -81,8 +81,12 @@ extension _DataCategoryExtension on DataCategory {
         return DataCategory.session;
       case 'transaction':
         return DataCategory.transaction;
+      case 'span':
+        return DataCategory.span;
       case 'attachment':
         return DataCategory.attachment;
+      case 'feedback':
+        return DataCategory.feedback;
       case 'security':
         return DataCategory.security;
       case 'metric_bucket':
