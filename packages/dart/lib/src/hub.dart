@@ -292,7 +292,7 @@ class Hub {
     return sentryId;
   }
 
-  FutureOr<void> captureLog(SentryLog log) async {
+  Future<void> captureLog(SentryLog log) async {
     if (!_isEnabled) {
       _options.log(
         SentryLevel.warning,
