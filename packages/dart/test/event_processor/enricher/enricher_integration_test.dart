@@ -45,7 +45,7 @@ void main() {
         final log = fixture.givenLog();
 
         await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessLog(log));
+            .dispatchCallback(OnProcessLog(log, Hint()));
 
         expect(log.attributes['device.brand']?.value, 'enricher-brand');
         expect(log.attributes['device.model']?.value, 'enricher-model');
@@ -58,7 +58,7 @@ void main() {
         final log = fixture.givenLog();
 
         await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessLog(log));
+            .dispatchCallback(OnProcessLog(log, Hint()));
 
         expect(log.attributes.containsKey('app.version'), isFalse);
       });
@@ -69,7 +69,7 @@ void main() {
         log.attributes['device.brand'] = SentryAttribute.string('existing');
 
         await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessLog(log));
+            .dispatchCallback(OnProcessLog(log, Hint()));
 
         expect(log.attributes['device.brand']?.value, 'existing');
       });
@@ -100,7 +100,7 @@ void main() {
         final metric = fixture.givenMetric();
 
         await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessMetric(metric));
+            .dispatchCallback(OnProcessMetric(metric, Hint()));
 
         expect(metric.attributes['device.brand']?.value, 'enricher-brand');
         expect(metric.attributes['device.model']?.value, 'enricher-model');
@@ -135,7 +135,7 @@ void main() {
         final childSpan = fixture.createRecordingSpan(parent: segmentSpan);
 
         await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessSpan(childSpan));
+            .dispatchCallback(OnProcessSpan(childSpan, Hint()));
 
         final attributes = childSpan.attributes;
         expect(attributes['device.brand']?.value, 'enricher-brand');
@@ -150,7 +150,7 @@ void main() {
         final segmentSpan = fixture.createRecordingSpan();
 
         await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessSpan(segmentSpan));
+            .dispatchCallback(OnProcessSpan(segmentSpan, Hint()));
 
         final attributes = segmentSpan.attributes;
         expect(attributes['device.brand']?.value, 'enricher-brand');
@@ -165,7 +165,7 @@ void main() {
             'device.brand', SentryAttribute.string('existing'));
 
         await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessSpan(segmentSpan));
+            .dispatchCallback(OnProcessSpan(segmentSpan, Hint()));
 
         expect(segmentSpan.attributes['device.brand']?.value, 'existing');
       });
