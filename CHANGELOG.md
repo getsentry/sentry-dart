@@ -1,5 +1,25 @@
 # Changelog
 
+## 10.0.0-alpha.2
+
+### Features
+
+- (flutter) Support SwiftPM on Flutter 3.44+ by @buenaflor in [#3784](https://github.com/getsentry/sentry-dart/pull/3784)
+- (telemetry) Align span attributes with Sentry Conventions by @buenaflor in [#3805](https://github.com/getsentry/sentry-dart/pull/3805)
+- Add feature flags to hub span by @denrase in [#3806](https://github.com/getsentry/sentry-dart/pull/3806)
+
+### Dependencies
+
+#### Flutter
+
+- Bump jni to 1.0.0 and jnigen to 0.16.0 in v10 by @buenaflor in [#3765](https://github.com/getsentry/sentry-dart/pull/3765)
+- Bump sentry-cocoa to 9.17.1 in v10 by @buenaflor in [#3764](https://github.com/getsentry/sentry-dart/pull/3764)
+
+### Internal Changes
+
+- (logs) Make traceId required on SentryLog by @buenaflor in [#3842](https://github.com/getsentry/sentry-dart/pull/3842)
+- Make clone() internal and remove deprecated protocol clones by @buenaflor in [#3845](https://github.com/getsentry/sentry-dart/pull/3845)
+
 ## 10.0.0-alpha.1
 ## 9.23.0
 
