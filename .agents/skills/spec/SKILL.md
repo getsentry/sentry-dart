@@ -33,6 +33,18 @@ The ask — especially from a tracked issue — may be stale, partial, or simply
 
 Surface any contradiction to the user before going further — a spec built on a false premise wastes the whole pipeline.
 
+For telemetry or instrumentation work, build a signal map before design:
+
+- each emitted transaction, span, measurement, context field, and SDK feature
+- which signals are requested behavior, compatibility behavior, or out of scope
+- which signals must remain independent even when they share source timing or setup
+
+For work that collects or propagates data, state the data collection shape before design:
+
+- data collected or propagated
+- whether it can contain PII
+- the option or condition that gates it, such as `sendDefaultPii`, or `none`
+
 ## 4. Grill the gaps
 
 Interview relentlessly until the intent is unambiguous. **One question at a time**, waiting for the answer before the next — batching questions is bewildering. Give your **recommended answer** with each question. If a question can be answered by reading the code, read it instead of asking. Drive out scope, edge cases, and the in-vs-out boundary.
@@ -43,7 +55,7 @@ Produce, in the conversation:
 
 - **Problem** — what's wrong or missing, and why it matters.
 - **Outcome** — the desired end state, in the domain's words.
-- **Acceptance criteria** — verifiable, observable conditions (e.g. "capturing an event with X attaches Y"; "the N+1 is gone — one query"). This is the bar `review`'s Spec axis will check against.
+- **Acceptance criteria** — verifiable, observable conditions (e.g. "capturing an event with X attaches Y"; "the N+1 is gone — one query"). Include signal-independence criteria and data-gating criteria when those apply. This is the bar `review`'s Spec axis will check against.
 - **Non-goals** — what's explicitly out of scope.
 - **Open questions** — anything still unresolved.
 

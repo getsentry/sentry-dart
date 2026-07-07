@@ -41,6 +41,13 @@ State the behavior the change introduces, in the domain's own words. Name the pa
 
 **Find the nearest well-shaped precedent and align to it.** The codebase has almost certainly solved something adjacent; locate its *best* current example and match it — or improve on it deliberately, noting why. The repo's own best-organized case is a stronger guide than any rule (e.g. follow `telemetry/span/` v2, not the v1 span scatter). This auto-updates as the codebase evolves.
 
+**Decide file placement while the design is still cheap to change.** Group by feature, not by type. A processor or integration a feature owns lives in that feature's dir; a cross-cutting concern earns its own top-level concept dir. Cohesive subsystems already do this: `transport/`, `telemetry/span/`, and `native/` (the binding boundary to the platform SDKs; features call it rather than embed native code). Native interop is special for testing and memory, not for placement.
+
+Treat these shapes as scatter, not precedent to grow:
+
+- **Type-buckets** (`event_processor/`, `integrations/`) collect classes for sharing a base type. A bucket legitimately holds only its runner (`run_event_processors.dart`); the base contract belongs at `src/` root (`event_processor.dart`, beside `integration.dart`). The repo has not finished migrating older code, so do not read current loose placement as the target.
+- **The loose `src/` root.** Core primitives (`hub.dart`, `scope.dart`, `sentry_client.dart`, the `sentry.dart` barrel) belong there; feature code does not. The v1 span/tracer files strewn across the root, `protocol/`, and `tracing/` are the counter-example to `telemetry/span/`.
+
 ### 2. Shape the modules
 
 Decide the modules and where their seams go. Prefer fewer, deeper modules over many shallow ones. For each module, name its interface — not just the signature, but the invariants and error modes a caller must know. Run the deletion test on anything you suspect is a pass-through.
@@ -51,7 +58,12 @@ Decide where the code lives as part of shaping it — a **locality** call: co-lo
 - Peel a piece into a **shared** module only when it has its own lifecycle *and* more than one consumer — the deletion test decides it (would extracting it concentrate complexity, or just move it?).
 - **If you can't name the concern a piece serves, that's a smell** — it's doing two things, or belongs to a concept you haven't named yet. A cross-cutting concern (enrichment, exceptions) is still a concept with a home; a truly nameless one means the design is off.
 
-For the repo's concrete layout — which dirs are layer vs concept, the `native/` seam exception, the legacy loose tier — see code-guidelines' **File Organization**.
+Run a dependency ownership check for every new or renamed module:
+
+- List each constructor dependency.
+- Name the domain concern that dependency serves.
+- If the module name cannot explain the dependency without "also", "legacy", "current code", or "for convenience", split the module or move orchestration up.
+- If independent telemetry signals share source data, put that source data in an orchestrator or value object, not inside either signal emitter.
 
 ### 3. Design for testability
 
@@ -68,6 +80,9 @@ Native interop is special: **JNI/FFI cannot be faked or mocked** (see `packages/
 Resolve these before sketching — each has a canonical home; consult it rather than guessing:
 
 - **Public API surface.** Does this add or change exports in a barrel file? Keep new types in `src/` unless they're meant for SDK users. See `packages/dart/AGENTS.md`.
+- **Public type extension.** For every new public type, decide whether it is `final`, `base`, `interface`, or `sealed`; code-guidelines has the mechanics.
+- **Data collection and privacy.** State the data collected or propagated, whether it can contain PII, and which option or condition gates it. If there is no new data, say `none`.
+- **Breaking changes.** State whether the change is breaking; if so, decide the migration path before implementation.
 - **Integration shape.** If the feature is an `Integration`, it implements `call()`/`close()`, gates on its prerequisites early, and stays order-independent. See code-guidelines.
 - **Package boundary.** Core behavior belongs in `packages/dart/`; integration-specific behavior in its own package. A new dependency in core cascades everywhere.
 
@@ -78,8 +93,12 @@ Write a short sketch — prose or bullets, not code — and present it. **Do not
 The sketch is complete when it states, for the change:
 
 - [ ] Each module, its interface, and whether it's new or modified
+- [ ] File placement for each new or moved module, including the precedent it follows
+- [ ] Dependency ownership: every dependency belongs to the module's named concern
+- [ ] Signal independence: adjacent telemetry signals sharing source data are orchestrated above their emitters
 - [ ] The seam each module's tests cross, and the fake that injects there (or "integration test" where native)
 - [ ] The public-API-surface impact (barrel-file exports added/changed, or "none")
+- [ ] Public type modifiers, data/PII gating, and breaking-change status when relevant
 - [ ] One alternative shape you considered and why you rejected it
 
 If the solution space is wide and the best interface isn't obvious, design it twice before sketching — see [references/design-it-twice.md](references/design-it-twice.md).

@@ -21,6 +21,17 @@ Encapsulate SDK features as `Integration` classes that implement `call()` and `c
 - See `packages/flutter/lib/src/integrations/` for examples
 - Integrations should be order-independent; if yours requires running before/after another, reconsider the design
 
+### Telemetry Signal Ownership
+
+Keep emitters and adapters scoped to one telemetry signal family. A module named after one signal, such as app start, navigation, replay, profiling, logs, or time-to-display, owns that signal's lifecycle only.
+
+When one source event feeds multiple independent signals, use the `Integration` as the orchestrator:
+
+- normalize shared source data once
+- invoke each signal emitter independently
+- keep compatibility behavior in a clearly named compatibility or display emitter
+- do not make one signal emitter depend on another signal's tracker
+
 ### Usage Tracking
 
 Record which integrations and features an app actually uses, so usage can be tracked internally. This metadata lives on `options.sdk` and is serialized onto events as `sdk.integrations` / `sdk.features`.
@@ -81,14 +92,7 @@ internalLogger.debug(() => 'Envelope size: ${envelope.computeSize()}');
 
 ### File Organization
 
-**Group by feature, not by type.** A processor or integration a feature owns lives in that feature's dir (a replay processor in `replay/`); a cross-cutting one earns its own top-level concept dir (`exception/`, `enricher/`). Cohesive subsystems already do this — `transport/`, `telemetry/span/`, and `native/` (the binding boundary to the platform SDKs; features *call* it rather than embed native code). Native interop is special for testing and memory, not for placement — see design-first and the **Native Code (JNI/FFI)** rules above.
-
-Two shapes are **scatter** — grow neither, and don't read the repo's current use of them as the target:
-
-- **Type-buckets** (`event_processor/`, `integrations/`) collect classes for sharing a base type. A bucket legitimately holds only its runner (`run_event_processors.dart`); the base contract belongs at `src/` root (`event_processor.dart`, beside `integration.dart`). The repo hasn't finished migrating — enrichment, exceptions, and dedup still sit under `event_processor/`, and flutter has loose `replay_event_processor`/`screenshot_event_processor`.
-- **The loose `src/` root.** Core primitives (`hub.dart`, `scope.dart`, `sentry_client.dart`, the `sentry.dart` barrel) belong there; feature code does not. The v1 span/tracer files strewn across the root, `protocol/`, and `tracing/` are the counter-example to `telemetry/span/`, which keeps the whole v2 subsystem in one dir.
-
-*Where* a given piece goes is a locality judgment — see **design-first** (Shape the modules).
+File placement is decided in **design-first**. During implementation, follow the approved design sketch. If the code no longer fits the chosen home, stop and revise the design instead of adding a new loose location.
 
 ## Modern Dart
 
