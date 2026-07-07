@@ -10,30 +10,28 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
-import 'package:sentry_flutter/src/app_start/app_start_info.dart';
-import 'package:sentry_flutter/src/app_start/app_start_tracker.dart';
 import 'package:sentry_flutter/src/app_start/native_app_start_integration.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 
 import '../fake_frame_callback_handler.dart';
 import '../mocks.dart';
 import '../mocks.mocks.dart';
+
+final _fakeFrameTiming = FrameTiming(
+    vsyncStart: 10,
+    buildStart: 10,
+    buildFinish: 10,
+    rasterStart: 10,
+    rasterFinish: 10,
+    rasterFinishWallTime: 10);
 
 void main() {
   late Fixture fixture;
 
   setUp(() {
     fixture = Fixture();
-    fixture.options.tracesSampleRate = 1.0;
   });
-
-  final _fakeFrameTiming = FrameTiming(
-      vsyncStart: 10,
-      buildStart: 10,
-      buildFinish: 10,
-      rasterStart: 10,
-      rasterFinish: 10,
-      rasterFinishWallTime: 10);
 
   group('$NativeAppStartIntegration', () {
     test('does not add integration if tracing is disabled', () {
@@ -77,50 +75,62 @@ void main() {
           isNot(contains(SentryFeatures.standaloneAppStartTracing)));
     });
 
-    test('timingsCallback tracks parsed app start info', () async {
+    test('tracks native app start from the first frame timing', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
+      fixture.options.enableStandaloneAppStartTracing = true;
       fixture.callIntegration();
 
-      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-      timingsCallback([_fakeFrameTiming]);
-      await Future<void>.delayed(Duration(milliseconds: 10));
+      await fixture.dispatchFirstFrameTiming();
 
-      expect(fixture.appStartTracker.trackCalls, 1);
-      expect(fixture.appStartTracker.appStartInfo, isNotNull);
+      expect(fixture.findSpanByName('App Start'), isNotNull);
     });
 
     test('sets correct app start end from timing', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
+      fixture.options.enableStandaloneAppStartTracing = true;
       fixture.callIntegration();
 
-      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-      timingsCallback([_fakeFrameTiming]);
-      await Future<void>.delayed(Duration(milliseconds: 10));
+      await fixture.dispatchFirstFrameTiming();
 
       expect(
-        fixture.appStartTracker.appStartInfo?.end,
-        DateTime.fromMicrosecondsSinceEpoch(10),
+        fixture.findSpanByName('App Start')?.endTimestamp,
+        DateTime.fromMicrosecondsSinceEpoch(10).toUtc(),
       );
     });
 
-    test('cancels tracker when native app start is null', () async {
+    test('cancels prepared stream route when fetching native app start throws',
+        () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
+      fixture.options.automatedTestMode = false;
+      when(fixture.nativeBinding.fetchNativeAppStart())
+          .thenThrow(Exception('native error'));
+      fixture.callIntegration();
+      fixture.timeToDisplayTrackerV2.cancelledRoutes = 0;
+
+      await fixture.dispatchFirstFrameTiming();
+
+      expect(fixture.timeToDisplayTrackerV2.cancelledRoutes, 1);
+      expect(fixture.findSpanByName('Cold Start'), isNull);
+    });
+
+    test(
+        'cancels prepared stream route when native app start data is unavailable',
+        () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
       when(fixture.nativeBinding.fetchNativeAppStart())
           .thenAnswer((_) async => null);
       fixture.callIntegration();
+      fixture.timeToDisplayTrackerV2.cancelledRoutes = 0;
 
-      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-      timingsCallback([_fakeFrameTiming]);
-      await Future<void>.delayed(Duration(milliseconds: 10));
+      await fixture.dispatchFirstFrameTiming();
 
-      expect(fixture.appStartTracker.cancelCalls, 1);
-      expect(fixture.appStartTracker.trackCalls, 0);
-    });
-
-    test('prepares tracker when integration is called', () async {
-      fixture.callIntegration();
-
-      expect(fixture.appStartTracker.prepareCalls, 1);
+      expect(fixture.timeToDisplayTrackerV2.cancelledRoutes, 1);
+      expect(fixture.findSpanByName('Cold Start'), isNull);
     });
 
     test('handles timingsCallback exactly once', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
+      fixture.options.enableStandaloneAppStartTracing = true;
       fixture.callIntegration();
 
       final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
@@ -128,22 +138,22 @@ void main() {
       timingsCallback([_fakeFrameTiming]);
       timingsCallback([_fakeFrameTiming]);
 
-      await Future<void>.delayed(Duration(milliseconds: 10));
+      await pumpEventQueue(times: 20);
 
       expect(fixture.frameCallbackHandler.timingsCallback, isNull);
-      expect(fixture.appStartTracker.trackCalls, 1);
+      expect(
+        fixture.capturedSpans.where((span) => span.name == 'App Start'),
+        hasLength(1),
+      );
     });
 
     test('handles empty timings', () async {
+      fixture.options.automatedTestMode = false;
       fixture.callIntegration();
 
       final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-      expect(
-        () => timingsCallback([]),
-        throwsA(isA<StateError>()),
-      );
-
-      await Future<void>.delayed(Duration(milliseconds: 10));
+      timingsCallback([]);
+      await pumpEventQueue(times: 20);
 
       expect(fixture.frameCallbackHandler.timingsCallback, isNull);
     });
@@ -151,40 +161,61 @@ void main() {
     test('removes timingsCallback after it was triggered', () async {
       fixture.callIntegration();
 
-      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
-      timingsCallback([
-        FrameTiming(
-            vsyncStart: 10,
-            buildStart: 10,
-            buildFinish: 10,
-            rasterStart: 10,
-            rasterFinish: 10,
-            rasterFinishWallTime: 10)
-      ]);
-
-      await Future<void>.delayed(Duration(milliseconds: 10));
+      await fixture.dispatchFirstFrameTiming();
 
       expect(fixture.frameCallbackHandler.timingsCallback, isNull);
+    });
+
+    test('close removes timingsCallback', () {
+      fixture.callIntegration();
+      expect(fixture.frameCallbackHandler.timingsCallback, isNotNull);
+
+      fixture.sut.close();
+
+      expect(fixture.frameCallbackHandler.timingsCallback, isNull);
+    });
+
+    test('does not track when timingsCallback fires after close', () async {
+      fixture.callIntegration();
+      final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
+
+      fixture.sut.close();
+      timingsCallback([_fakeFrameTiming]);
+      await pumpEventQueue(times: 20);
+
+      expect(fixture.hub.scope.span, isNull);
     });
   });
 }
 
 class Fixture {
-  final options = defaultTestOptions();
-  final hub = MockHub();
-
   final frameCallbackHandler = FakeFrameCallbackHandler();
   final nativeBinding = MockSentryNativeBinding();
-  final appStartTracker = FakeAppStartTracker();
+  final fakeTransport = _FakeTransport();
+  final capturedSpans = <RecordingSentrySpanV2>[];
 
+  late final SentryFlutterOptions options;
+  late final Hub hub;
+  late final _RecordingTimeToDisplayTrackerV2 timeToDisplayTrackerV2;
   late NativeAppStartIntegration sut = NativeAppStartIntegration(
     frameCallbackHandler,
     nativeBinding,
-    appStartTracker,
   );
 
   Fixture() {
-    when(hub.options).thenReturn(options);
+    options = defaultTestOptions()..tracesSampleRate = 1.0;
+    options.transport = fakeTransport;
+    hub = Hub(options);
+    timeToDisplayTrackerV2 = _RecordingTimeToDisplayTrackerV2(
+      hub: hub,
+      frameCallbackHandler: frameCallbackHandler,
+    );
+    options.timeToDisplayTrackerV2 = timeToDisplayTrackerV2;
+    options.lifecycleRegistry.registerCallback<OnSpanStartV2>((event) {
+      if (event.span case final RecordingSentrySpanV2 span) {
+        capturedSpans.add(span);
+      }
+    });
     SentryFlutter.sentrySetupStartTime = DateTime.fromMicrosecondsSinceEpoch(5);
     when(nativeBinding.fetchNativeAppStart()).thenAnswer(
       (_) async => NativeAppStart(
@@ -199,31 +230,43 @@ class Fixture {
   void callIntegration() {
     sut.call(hub, options);
   }
+
+  Future<void> dispatchFirstFrameTiming() async {
+    frameCallbackHandler.timingsCallback!([_fakeFrameTiming]);
+    await pumpEventQueue(times: 20);
+  }
+
+  RecordingSentrySpanV2? findSpanByName(String name) {
+    for (final span in capturedSpans) {
+      if (span.name == name) {
+        return span;
+      }
+    }
+    return null;
+  }
 }
 
-class FakeAppStartTracker implements AppStartTracker {
-  var prepareCalls = 0;
-  var trackCalls = 0;
-  var cancelCalls = 0;
-  AppStartInfo? appStartInfo;
+class _RecordingTimeToDisplayTrackerV2 extends TimeToDisplayTrackerV2 {
+  _RecordingTimeToDisplayTrackerV2({
+    required Hub hub,
+    required FakeFrameCallbackHandler frameCallbackHandler,
+  }) : super(hub: hub, frameCallbackHandler: frameCallbackHandler);
+
+  var cancelledRoutes = 0;
 
   @override
-  void prepare(Hub hub, SentryFlutterOptions options) {
-    prepareCalls += 1;
+  void cancelCurrentRoute() {
+    cancelledRoutes += 1;
+    super.cancelCurrentRoute();
   }
+}
+
+class _FakeTransport implements Transport {
+  final envelopes = <SentryEnvelope>[];
 
   @override
-  Future<void> track(
-    Hub hub,
-    SentryFlutterOptions options,
-    AppStartInfo appStartInfo,
-  ) async {
-    this.appStartInfo = appStartInfo;
-    trackCalls += 1;
-  }
-
-  @override
-  void cancel(SentryFlutterOptions options) {
-    cancelCalls += 1;
+  Future<SentryId?> send(SentryEnvelope envelope) {
+    envelopes.add(envelope);
+    return Future.value(SentryId.empty());
   }
 }

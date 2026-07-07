@@ -51,8 +51,12 @@ AppStartInfo? parseNativeAppStart(
         end: DateTime.fromMillisecondsSinceEpoch(endTimestampMs),
         description: entry.key as String,
       ));
-    } catch (e) {
-      internalLogger.warning('Failed to parse native span times: $e');
+    } catch (e, stackTrace) {
+      internalLogger.warning(
+        'Failed to parse native span times',
+        error: e,
+        stackTrace: stackTrace,
+      );
       continue;
     }
   }

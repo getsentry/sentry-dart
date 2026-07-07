@@ -1,12 +1,13 @@
 @TestOn('vm')
 library;
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/integrations/integrations.dart';
-import 'package:sentry_flutter/src/app_start/native_app_start_handler.dart';
-import 'package:sentry_flutter/src/app_start/native_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/app_start_info.dart';
+import 'package:sentry_flutter/src/app_start/static_app_start_emitter.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
@@ -24,23 +25,36 @@ void main() {
   void setupMocks(Fixture fixture) {
     when(fixture.hub.startTransactionWithContext(
       any,
+      customSamplingContext: anyNamed('customSamplingContext'),
       startTimestamp: anyNamed('startTimestamp'),
       bindToScope: anyNamed('bindToScope'),
       waitForChildren: anyNamed('waitForChildren'),
       autoFinishAfter: anyNamed('autoFinishAfter'),
       trimEnd: anyNamed('trimEnd'),
+      onFinish: anyNamed('onFinish'),
     )).thenAnswer((invocation) {
       // Create a new tracer for each call to capture the enriched state
       final context =
           invocation.positionalArguments[0] as SentryTransactionContext;
       final startTimestamp =
           invocation.namedArguments[#startTimestamp] as DateTime?;
+      final waitForChildren =
+          invocation.namedArguments[#waitForChildren] as bool? ?? false;
+      final autoFinishAfter =
+          invocation.namedArguments[#autoFinishAfter] as Duration?;
+      final trimEnd = invocation.namedArguments[#trimEnd] as bool? ?? false;
+      final onFinish =
+          invocation.namedArguments[#onFinish] as OnTransactionFinish?;
 
       final tracer = SentryTracer(
         context,
         fixture.hub,
         startTimestamp:
             startTimestamp ?? DateTime.fromMillisecondsSinceEpoch(0),
+        waitForChildren: waitForChildren,
+        autoFinishAfter: autoFinishAfter,
+        trimEnd: trimEnd,
+        onFinish: onFinish,
       );
 
       // Store the tracer so we can access it after it's enriched
@@ -63,19 +77,209 @@ void main() {
     when(fixture.hub.captureTransaction(
       any,
       traceContext: anyNamed('traceContext'),
-    )).thenAnswer((_) async => SentryId.empty());
+    )).thenAnswer((invocation) async {
+      fixture.capturedTransactions
+          .add(invocation.positionalArguments[0] as SentryTransaction);
+      return SentryId.empty();
+    });
 
     when(fixture.nativeBinding.fetchNativeAppStart()).thenAnswer(
       (_) async => fixture.nativeAppStart,
     );
   }
 
-  group('$NativeAppStartIntegration', () {
+  group('$StaticAppStartEmitter', () {
     late Fixture fixture;
 
     setUp(() {
       fixture = Fixture();
       setupMocks(fixture);
+    });
+
+    test('emits standalone transaction', () async {
+      final sut = fixture.getSut(standalone: true);
+
+      await sut.emit(fixture.appStartInfo());
+
+      verify(fixture.hub.captureTransaction(
+        any,
+        traceContext: anyNamed('traceContext'),
+      )).called(1);
+    });
+
+    test('captures standalone App Start transaction', () async {
+      final sut = fixture.getSut(standalone: true);
+
+      await sut.emit(fixture.appStartInfo(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(50),
+      ));
+
+      final transaction = fixture.capturedTransactionByName('App Start');
+      expect(transaction, isNotNull);
+      expect(transaction!.contexts.trace?.operation, 'app.start');
+      expect(transaction.contexts.trace?.origin, 'auto.app.start');
+      expect(
+        transaction.startTimestamp,
+        DateTime.fromMillisecondsSinceEpoch(0).toUtc(),
+      );
+      expect(
+        transaction.timestamp,
+        DateTime.fromMillisecondsSinceEpoch(50).toUtc(),
+      );
+    });
+
+    test('writes standalone measurement and data in finish path', () async {
+      final sut = fixture.getSut(standalone: true);
+
+      await sut.emit(fixture.appStartInfo(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(50),
+      ));
+
+      final transaction = fixture.capturedTransactionByName('App Start')!;
+      final measurement = transaction.measurements['app_start_cold']!;
+      expect(measurement.value, 50);
+      expect(transaction.tracer.data['app_start_type'], 'cold');
+      expect(transaction.tracer.data['app.vitals.start.value'], 50.0);
+      expect(transaction.tracer.data['app.vitals.start.type'], 'cold');
+    });
+
+    test('attaches standalone breakdown spans to App Start transaction',
+        () async {
+      final sut = fixture.getSut(standalone: true);
+
+      await sut.emit(fixture.appStartInfo(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(50),
+      ));
+
+      final transaction = fixture.capturedTransactionByName('App Start')!;
+      final spanDescriptions = transaction.spans.map((s) {
+        return s.context.description;
+      });
+      expect(spanDescriptions, isNot(contains('Cold Start')));
+      expect(spanDescriptions, contains('First frame render'));
+      final rootSpanId = transaction.contexts.trace?.spanId;
+      for (final span in transaction.spans) {
+        expect(span.context.parentSpanId, rootSpanId);
+      }
+    });
+
+    test('assigns dedicated standalone operations per breakdown span',
+        () async {
+      final sut = fixture.getSut(standalone: true);
+
+      await sut.emit(fixture.appStartInfo(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(50),
+      ));
+
+      final transaction = fixture.capturedTransactionByName('App Start')!;
+      String? operationFor(String description) {
+        return transaction.spans
+            .firstWhereOrNull((s) => s.context.description == description)
+            ?.context
+            .operation;
+      }
+
+      expect(
+        operationFor('App start to plugin registration'),
+        'app.start.plugin_registration',
+      );
+      expect(
+        operationFor('Before Sentry Init Setup'),
+        'app.start.sentry_setup',
+      );
+      expect(
+        operationFor('First frame render'),
+        'app.start.first_frame_render',
+      );
+    });
+
+    test('keeps ui.load transaction backdated without app start payload',
+        () async {
+      final sut = fixture.getSut(standalone: true);
+
+      await sut.emit(fixture.appStartInfo(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(50),
+      ));
+
+      final uiLoadTracer = fixture.scopeBoundTracer();
+      expect(uiLoadTracer, isNotNull);
+      expect(
+        uiLoadTracer!.startTimestamp,
+        DateTime.fromMillisecondsSinceEpoch(0).toUtc(),
+      );
+      expect(uiLoadTracer.measurements['app_start_cold'], isNull);
+      expect(
+        uiLoadTracer.children
+            .map((s) => s.context.description)
+            .where((description) => description == 'Cold Start'),
+        isEmpty,
+      );
+    });
+
+    test('sets auto.app.start origin on standalone breakdown spans', () async {
+      final sut = fixture.getSut(standalone: true);
+
+      await sut.emit(fixture.appStartInfo(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(50),
+      ));
+
+      final transaction = fixture.capturedTransactionByName('App Start')!;
+      expect(transaction.spans, isNotEmpty);
+      for (final span in transaction.spans) {
+        expect(span.origin, 'auto.app.start');
+      }
+    });
+
+    test(
+        'keeps standalone transaction end when native span exceeds app start end',
+        () async {
+      final sut = fixture.getSut(standalone: true);
+      final appStartInfo = AppStartInfo(
+        AppStartType.cold,
+        start: DateTime.fromMillisecondsSinceEpoch(0),
+        end: DateTime.fromMillisecondsSinceEpoch(50),
+        pluginRegistration: DateTime.fromMillisecondsSinceEpoch(10),
+        sentrySetupStart: DateTime.fromMillisecondsSinceEpoch(15),
+        nativeSpanTimes: [
+          TimeSpan(
+            start: DateTime.fromMillisecondsSinceEpoch(1),
+            end: DateTime.fromMillisecondsSinceEpoch(100),
+            description: 'out-of-range native span',
+          ),
+        ],
+      );
+
+      await sut.emit(appStartInfo);
+
+      final transaction = fixture.capturedTransactionByName('App Start')!;
+      expect(
+        transaction.timestamp,
+        DateTime.fromMillisecondsSinceEpoch(50).toUtc(),
+      );
+    });
+
+    test('starts display tracking before awaiting standalone capture',
+        () async {
+      final sut = fixture.getSut(standalone: true);
+      final gate = Completer<SentryId>();
+      when(fixture.hub.captureTransaction(
+        any,
+        traceContext: anyNamed('traceContext'),
+      )).thenAnswer((_) => gate.future);
+
+      final tracking = sut.emit(fixture.appStartInfo(
+        appStartEnd: DateTime.fromMillisecondsSinceEpoch(50),
+      ));
+      await Future<void>.delayed(Duration.zero);
+
+      final uiLoadTracer = fixture.scopeBoundTracer()!;
+      expect(
+        uiLoadTracer.children.map((s) => s.context.operation),
+        contains(SentrySpanOperations.uiTimeToInitialDisplay),
+      );
+
+      gate.complete(SentryId.newId());
+      await tracking;
     });
 
     test('added transaction has app start measurement', () async {
@@ -302,23 +506,36 @@ void main() {
       // Mock startTransactionWithContext to not override existing span
       when(fixture.hub.startTransactionWithContext(
         any,
+        customSamplingContext: anyNamed('customSamplingContext'),
         startTimestamp: anyNamed('startTimestamp'),
         bindToScope: anyNamed('bindToScope'),
         waitForChildren: anyNamed('waitForChildren'),
         autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: anyNamed('trimEnd'),
+        onFinish: anyNamed('onFinish'),
       )).thenAnswer((invocation) {
         // Create a new tracer for each call
         final context =
             invocation.positionalArguments[0] as SentryTransactionContext;
         final startTimestamp =
             invocation.namedArguments[#startTimestamp] as DateTime?;
+        final waitForChildren =
+            invocation.namedArguments[#waitForChildren] as bool? ?? false;
+        final autoFinishAfter =
+            invocation.namedArguments[#autoFinishAfter] as Duration?;
+        final trimEnd = invocation.namedArguments[#trimEnd] as bool? ?? false;
+        final onFinish =
+            invocation.namedArguments[#onFinish] as OnTransactionFinish?;
 
         final tracer = SentryTracer(
           context,
           fixture.hub,
           startTimestamp:
               startTimestamp ?? DateTime.fromMillisecondsSinceEpoch(0),
+          waitForChildren: waitForChildren,
+          autoFinishAfter: autoFinishAfter,
+          trimEnd: trimEnd,
+          onFinish: onFinish,
         );
 
         fixture._enrichedTransaction = tracer;
@@ -521,14 +738,15 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryFlutterOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
   final nativeBinding = MockSentryNativeBinding();
   final hub = MockHub();
   final scope = MockScope();
 
   late final context = SentryTransactionContext(
-    'name',
-    'op',
+    'root /',
+    SentrySpanOperations.uiLoad,
+    origin: SentryTraceOrigins.autoUiTimeToDisplay,
     samplingDecision: SentryTracesSamplingDecision(true),
   );
 
@@ -545,7 +763,7 @@ class Fixture {
     nativeSpanTimes: {},
   );
 
-  late final sut = NativeAppStartHandler();
+  final capturedTransactions = <SentryTransaction>[];
 
   // Track the enriched transaction
   SentryTracer? _enrichedTransaction;
@@ -553,6 +771,22 @@ class Fixture {
   Fixture() {
     when(hub.options).thenReturn(options);
     SentryFlutter.sentrySetupStartTime = DateTime.now().toUtc();
+  }
+
+  StaticAppStartEmitter getSut({bool standalone = false}) {
+    return StaticAppStartEmitter(
+      hub: hub,
+      context: context,
+      timeToDisplayTracker: options.timeToDisplayTracker,
+      standalone: standalone,
+    );
+  }
+
+  AppStartInfo appStartInfo({DateTime? appStartEnd}) {
+    return parseNativeAppStart(
+      nativeAppStart,
+      appStartEnd ?? DateTime.fromMillisecondsSinceEpoch(10),
+    )!;
   }
 
   Future<void> call({required DateTime appStartEnd}) async {
@@ -563,15 +797,7 @@ class Fixture {
     if (appStartInfo == null) {
       return;
     }
-    await sut.call(
-      hub,
-      options,
-      context: context,
-      appStartInfo: appStartInfo,
-      standalone: false,
-    );
-    // Allow time for async span attachment and other operations to complete
-    await Future.delayed(Duration(milliseconds: 100));
+    await getSut().emit(appStartInfo);
   }
 
   SentryTransaction capturedTransaction() {
@@ -584,6 +810,14 @@ class Fixture {
       transaction,
       measurements: transaction.measurements,
     );
+  }
+
+  SentryTransaction? capturedTransactionByName(String name) {
+    return capturedTransactions.firstWhereOrNull((t) => t.transaction == name);
+  }
+
+  SentryTracer? scopeBoundTracer() {
+    return scope.span as SentryTracer?;
   }
 }
 

@@ -179,12 +179,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enable auto performance tracking by default.
   bool enableAutoPerformanceTracing = true;
 
-  /// Sends app start as a standalone `app.start` transaction instead of
-  /// attaching app start spans and measurements to the first `ui.load`
-  /// transaction.
+  /// Whether native app start is sent as a standalone transaction.
   ///
-  /// The first `ui.load` transaction is still created and keeps its
-  /// timings; only the app start data moves to the standalone transaction.
+  /// When enabled on iOS, Android, and macOS, native app start timing is
+  /// emitted as a separate `App Start` transaction instead of only being
+  /// attached to the first `ui.load` transaction.
   @meta.experimental
   bool enableStandaloneAppStartTracing = false;
 

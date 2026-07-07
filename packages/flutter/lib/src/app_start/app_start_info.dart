@@ -43,9 +43,11 @@ class AppStartInfo {
 
   String get appStartTypeDescription =>
       type == AppStartType.cold ? 'Cold Start' : 'Warm Start';
-  final pluginRegistrationDescription = 'App start to plugin registration';
-  final sentrySetupDescription = 'Before Sentry Init Setup';
-  final firstFrameRenderDescription = 'First frame render';
+
+  static const pluginRegistrationDescription =
+      'App start to plugin registration';
+  static const sentrySetupDescription = 'Before Sentry Init Setup';
+  static const firstFrameRenderDescription = 'First frame render';
 }
 
 @internal

@@ -4,7 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
-import 'package:sentry_flutter/src/app_start/native_app_start_handler_v2.dart';
+import 'package:sentry_flutter/src/app_start/app_start_info.dart';
+import 'package:sentry_flutter/src/app_start/stream_app_start_emitter.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/app_start/native_app_start_parser.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
@@ -19,7 +20,116 @@ void main() {
     fixture = Fixture();
   });
 
-  group(NativeAppStartHandlerV2, () {
+  group('$StreamAppStartEmitter', () {
+    test('emits standalone span', () async {
+      final sut = fixture.getSut(standalone: true);
+
+      await sut.emit(fixture.appStartInfo());
+
+      expect(
+        fixture.capturedSpans,
+        contains(predicate<RecordingSentrySpanV2>(
+          (span) => span.name == 'App Start',
+        )),
+      );
+    });
+
+    test('creates detached App Start root with app.start op', () async {
+      final sut = fixture.getSut(standalone: true);
+
+      await sut.emit(fixture.appStartInfo());
+
+      final root = fixture.findSpanByName('App Start');
+      expect(root, isNotNull);
+      expect(root!.parentSpan, isNull);
+      expect(
+        root.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        'app.start',
+      );
+      expect(
+        root.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+        'auto.app.start',
+      );
+      expect(root.startTimestamp, fixture.appStartDateTime.toUtc());
+      expect(root.isEnded, isTrue);
+      expect(root.endTimestamp, fixture.appStartEnd.toUtc());
+    });
+
+    test('attaches standalone breakdown spans directly under App Start root',
+        () async {
+      final sut = fixture.getSut(standalone: true);
+
+      await sut.emit(fixture.appStartInfo());
+
+      expect(fixture.findSpanByName('Cold Start'), isNull);
+      final root = fixture.findSpanByName('App Start');
+      expect(
+        fixture.findSpanByName('First frame render')?.parentSpan,
+        same(root),
+      );
+      expect(
+        fixture.findSpanByName('native span 1')?.parentSpan,
+        same(root),
+      );
+      expect(
+        fixture.findSpanByName('App start to plugin registration')?.parentSpan,
+        same(root),
+      );
+    });
+
+    test('assigns dedicated standalone operation per breakdown span', () async {
+      final sut = fixture.getSut(standalone: true);
+
+      await sut.emit(fixture.appStartInfo());
+
+      expect(
+        fixture.spanOperation('App start to plugin registration'),
+        'app.start.plugin_registration',
+      );
+      expect(
+        fixture.spanOperation('Before Sentry Init Setup'),
+        'app.start.sentry_setup',
+      );
+      expect(
+        fixture.spanOperation('First frame render'),
+        'app.start.first_frame_render',
+      );
+      expect(
+        fixture.spanOperation('native span 1'),
+        'app.start.native',
+      );
+    });
+
+    test('writes standalone value and type attributes on App Start root',
+        () async {
+      final sut = fixture.getSut(standalone: true);
+
+      await sut.emit(fixture.appStartInfo());
+
+      final root = fixture.findSpanByName('App Start')!;
+      expect(root.attributes['app.vitals.start.value']?.value, 50.0);
+      expect(root.attributes['app.vitals.start.cold.value']?.value, 50.0);
+      expect(root.attributes['app.vitals.start.type']?.value, 'cold');
+    });
+
+    test('keeps ui.load root backdated without app start payload', () async {
+      final sut = fixture.getSut(standalone: true);
+
+      await sut.emit(fixture.appStartInfo());
+
+      final uiLoadRoot = fixture.findSpanByName('root /');
+      expect(uiLoadRoot, isNotNull);
+      expect(uiLoadRoot!.startTimestamp, fixture.appStartDateTime.toUtc());
+      final uiLoadChildren = fixture.capturedSpans
+          .where((s) => s.parentSpan == uiLoadRoot)
+          .map((s) => s.name);
+      expect(uiLoadChildren, isNot(contains('Cold Start')));
+      expect(
+        uiLoadRoot.attributes['app.vitals.start.value'],
+        isNull,
+      );
+    });
+
     test('creates root idle span via tracker with backdated start', () async {
       await fixture.call();
 
@@ -344,8 +454,6 @@ class Fixture {
     nativeSpanTimes: {},
   );
 
-  late final sut = NativeAppStartHandlerV2();
-
   Fixture() {
     SentryFlutter.sentrySetupStartTime = sentrySetupStartDateTime;
 
@@ -354,32 +462,48 @@ class Fixture {
       frameCallbackHandler: frameCallbackHandler,
     );
 
-    // Capture all child spans via lifecycle registry
     options.lifecycleRegistry.registerCallback<OnSpanStartV2>((event) {
-      if (event.span case final RecordingSentrySpanV2 span
-          when span.parentSpan != null) {
+      if (event.span case final RecordingSentrySpanV2 span) {
         capturedSpans.add(span);
       }
     });
   }
 
-  Future<void> call(
-      {DateTime? appStartEnd, NativeAppStart? nativeAppStart}) async {
-    final appStartInfo = parseNativeAppStart(
+  StreamAppStartEmitter getSut({bool standalone = false}) {
+    return StreamAppStartEmitter(
+      hub: hub,
+      timeToDisplayTracker: options.timeToDisplayTrackerV2,
+      standalone: standalone,
+    );
+  }
+
+  AppStartInfo appStartInfo({
+    DateTime? appStartEnd,
+    NativeAppStart? nativeAppStart,
+  }) {
+    return parseNativeAppStart(
       nativeAppStart ?? this.nativeAppStart,
       appStartEnd ?? this.appStartEnd,
     )!;
-    await sut.call(
-      hub,
-      options,
-      appStartInfo: appStartInfo,
-      standalone: false,
-    );
+  }
+
+  Future<void> call(
+      {DateTime? appStartEnd, NativeAppStart? nativeAppStart}) async {
+    await getSut().emit(appStartInfo(
+      appStartEnd: appStartEnd,
+      nativeAppStart: nativeAppStart,
+    ));
   }
 
   RecordingSentrySpanV2? findSpanByName(String name) {
     return capturedSpans.firstWhereOrNull(
       (s) => s.name == name,
     );
+  }
+
+  Object? spanOperation(String name) {
+    return findSpanByName(name)
+        ?.attributes[SemanticAttributesConstants.sentryOp]
+        ?.value;
   }
 }

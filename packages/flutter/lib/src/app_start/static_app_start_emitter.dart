@@ -2,66 +2,79 @@
 
 import 'package:meta/meta.dart';
 
-import '../../sentry_flutter.dart';
-import '../utils/internal_logger.dart';
-import 'app_start_info.dart';
-
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
-import 'dart:async';
 
-/// Static-lifecycle adapter that maps [AppStartInfo] onto v1 transactions.
-///
-/// Owned by the app start tracker; not a seam on its own.
+import '../../sentry_flutter.dart';
+import '../navigation/time_to_display_tracker.dart';
+import '../utils/internal_logger.dart';
+import 'app_start_emitter.dart';
+import 'app_start_info.dart';
+
+const _appStartTypeKey = 'app_start_type';
+
 @internal
-class NativeAppStartHandler {
-  late Hub _hub;
-
-  Future<void> call(
-    Hub hub,
-    SentryFlutterOptions options, {
+final class StaticAppStartEmitter implements AppStartEmitter {
+  StaticAppStartEmitter({
+    required Hub hub,
     required SentryTransactionContext context,
-    required AppStartInfo appStartInfo,
+    required TimeToDisplayTracker timeToDisplayTracker,
     required bool standalone,
-  }) async {
-    _hub = hub;
+  })  : _hub = hub,
+        _context = context,
+        _timeToDisplayTracker = timeToDisplayTracker,
+        _standalone = standalone;
 
+  final Hub _hub;
+  final SentryTransactionContext _context;
+  final TimeToDisplayTracker _timeToDisplayTracker;
+  final bool _standalone;
+
+  @override
+  Future<void> emit(AppStartInfo appStartInfo) async {
     final rootScreenTransaction = _hub.startTransactionWithContext(
-      context,
+      _context,
       startTimestamp: appStartInfo.start,
       waitForChildren: true,
-      autoFinishAfter: Duration(seconds: 3),
+      autoFinishAfter: const Duration(seconds: 3),
       bindToScope: true,
       trimEnd: true,
     );
-
-    SentryTracer sentryTracer;
-    if (rootScreenTransaction is SentryTracer) {
-      sentryTracer = rootScreenTransaction;
-    } else {
+    if (rootScreenTransaction is! SentryTracer) {
       return;
     }
 
-    if (standalone) {
-      await _trackStandalone(appStartInfo);
-    } else {
-      sentryTracer.setData("app_start_type", appStartInfo.type.name);
-
-      // We need to add the measurements before we add the child spans
-      // If the child span finish the transaction will finish and then we cannot add measurements
-      SentryMeasurement? measurement = appStartInfo.toMeasurement();
-      sentryTracer.measurements[measurement.name] = measurement;
-
-      await _attachAppStartSpans(appStartInfo, sentryTracer, standalone: false);
+    if (_standalone) {
+      // Start TTID/TTFD tracking before awaiting the standalone capture: the
+      // ui.load root's autoFinishAfter timer is already running and the
+      // capture can block on transport. Tracking first attaches the TTID
+      // child, so the root cannot auto-finish childless (and be dropped)
+      // while the standalone transaction is being sent.
+      final displayTracking = _timeToDisplayTracker.track(
+        rootScreenTransaction,
+        ttidEndTimestamp: appStartInfo.end,
+      );
+      await _emitStandalone(appStartInfo);
+      await displayTracking;
+      return;
     }
 
-    await options.timeToDisplayTracker.track(
+    _writeAttachedEncoding(rootScreenTransaction, appStartInfo);
+    await _attachAppStartSpans(appStartInfo, rootScreenTransaction,
+        standalone: false);
+
+    await _timeToDisplayTracker.track(
       rootScreenTransaction,
       ttidEndTimestamp: appStartInfo.end,
     );
   }
 
-  Future<void> _trackStandalone(AppStartInfo appStartInfo) async {
+  @override
+  void cancel() {
+    // Static app start only reserves an ID at setup; emit creates the transaction.
+  }
+
+  Future<void> _emitStandalone(AppStartInfo appStartInfo) async {
     final transaction = _hub.startTransactionWithContext(
       SentryTransactionContext(
         'App Start',
@@ -70,8 +83,11 @@ class NativeAppStartHandler {
       ),
       startTimestamp: appStartInfo.start,
       waitForChildren: true,
-      autoFinishAfter: Duration(seconds: 30),
-      trimEnd: true,
+      autoFinishAfter: const Duration(seconds: 30),
+      // No trimEnd: the explicit finish timestamp below is authoritative;
+      // trimming would let an out-of-range native span time stretch the
+      // transaction past the measured app start end, making its duration
+      // disagree with the app start measurement.
       onFinish: (transaction) =>
           _writeStandaloneEncoding(transaction, appStartInfo),
     );
@@ -80,6 +96,18 @@ class NativeAppStartHandler {
     }
     await _attachAppStartSpans(appStartInfo, transaction, standalone: true);
     await transaction.finish(endTimestamp: appStartInfo.end);
+  }
+
+  void _writeAttachedEncoding(
+    SentryTracer transaction,
+    AppStartInfo appStartInfo,
+  ) {
+    transaction.setData(_appStartTypeKey, appStartInfo.type.name);
+
+    // We need to add the measurements before we add the child spans. If a
+    // child span finishes the transaction, measurements can no longer be added.
+    final measurement = appStartInfo.toMeasurement();
+    transaction.measurements[measurement.name] = measurement;
   }
 
   /// Writes the app start measurement in the transaction's finish path, so a
@@ -92,7 +120,7 @@ class NativeAppStartHandler {
     if (transaction is! SentryTracer) {
       return;
     }
-    transaction.setData("app_start_type", appStartInfo.type.name);
+    transaction.setData(_appStartTypeKey, appStartInfo.type.name);
     transaction.setData(
       SemanticAttributesConstants.appVitalsStartValue,
       appStartInfo.duration.inMilliseconds.toDouble(),
@@ -112,6 +140,9 @@ class NativeAppStartHandler {
   }) async {
     final transactionTraceId = transaction.context.traceId;
     final appStartEnd = appStartInfo.end;
+    // The attached shape predates span origins and keeps them unset; the
+    // standalone shape is new, so its breakdown spans carry the auto origin.
+    final origin = standalone ? SentryTraceOrigins.autoAppStart : null;
 
     // The standalone root already represents the app start, so the breakdown
     // spans attach directly to it with dedicated operations; the attached
@@ -122,6 +153,7 @@ class NativeAppStartHandler {
         tracer: transaction,
         operation: appStartInfo.appStartTypeOperation,
         description: appStartInfo.appStartTypeDescription,
+        origin: origin,
         parentSpanId: transaction.context.spanId,
         traceId: transactionTraceId,
         startTimestamp: appStartInfo.start,
@@ -139,12 +171,14 @@ class NativeAppStartHandler {
       transaction,
       parentSpanId,
       operation: operationFor(SentrySpanOperations.appStartNative),
+      origin: origin,
     );
 
     final pluginRegistrationSpan = await _createAndFinishSpan(
       tracer: transaction,
       operation: operationFor(SentrySpanOperations.appStartPluginRegistration),
-      description: appStartInfo.pluginRegistrationDescription,
+      description: AppStartInfo.pluginRegistrationDescription,
+      origin: origin,
       parentSpanId: parentSpanId,
       traceId: transactionTraceId,
       startTimestamp: appStartInfo.start,
@@ -155,7 +189,8 @@ class NativeAppStartHandler {
     final sentrySetupSpan = await _createAndFinishSpan(
       tracer: transaction,
       operation: operationFor(SentrySpanOperations.appStartSentrySetup),
-      description: appStartInfo.sentrySetupDescription,
+      description: AppStartInfo.sentrySetupDescription,
+      origin: origin,
       parentSpanId: parentSpanId,
       traceId: transactionTraceId,
       startTimestamp: appStartInfo.pluginRegistration,
@@ -166,7 +201,8 @@ class NativeAppStartHandler {
     final firstFrameRenderSpan = await _createAndFinishSpan(
       tracer: transaction,
       operation: operationFor(SentrySpanOperations.appStartFirstFrameRender),
-      description: appStartInfo.firstFrameRenderDescription,
+      description: AppStartInfo.firstFrameRenderDescription,
+      origin: origin,
       parentSpanId: parentSpanId,
       traceId: transactionTraceId,
       startTimestamp: appStartInfo.sentrySetupStart,
@@ -187,14 +223,15 @@ class NativeAppStartHandler {
     SentryTracer transaction,
     SpanId parentSpanId, {
     required String operation,
+    required String? origin,
   }) async {
-    await Future.forEach<TimeSpan>(appStartInfo.nativeSpanTimes,
-        (timeSpan) async {
+    for (final timeSpan in appStartInfo.nativeSpanTimes) {
       try {
         final span = await _createAndFinishSpan(
           tracer: transaction,
           operation: operation,
           description: timeSpan.description,
+          origin: origin,
           parentSpanId: parentSpanId,
           traceId: transaction.context.traceId,
           startTimestamp: timeSpan.start,
@@ -210,13 +247,14 @@ class NativeAppStartHandler {
           stackTrace: stackTrace,
         );
       }
-    });
+    }
   }
 
   Future<SentrySpan> _createAndFinishSpan({
     required SentryTracer tracer,
     required String operation,
     required String description,
+    required String? origin,
     required SpanId parentSpanId,
     required SentryId traceId,
     required DateTime startTimestamp,
@@ -228,13 +266,14 @@ class NativeAppStartHandler {
       SentrySpanContext(
         operation: operation,
         description: description,
+        origin: origin,
         parentSpanId: parentSpanId,
         traceId: traceId,
       ),
       _hub,
       startTimestamp: startTimestamp,
     );
-    span.setData("app_start_type", appStartType);
+    span.setData(_appStartTypeKey, appStartType);
     await span.finish(endTimestamp: endTimestamp);
     return span;
   }

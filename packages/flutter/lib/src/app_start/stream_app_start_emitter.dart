@@ -3,37 +3,50 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../navigation/time_to_display_tracker_v2.dart';
 import '../utils/internal_logger.dart';
+import 'app_start_emitter.dart';
 import 'app_start_info.dart';
 
-/// Stream-lifecycle adapter that maps [AppStartInfo] onto v2 spans.
-///
-/// Owned by the app start tracker; not a seam on its own.
 @internal
-class NativeAppStartHandlerV2 {
-  Future<void> call(
-    Hub hub,
-    SentryFlutterOptions options, {
-    required AppStartInfo appStartInfo,
+final class StreamAppStartEmitter implements AppStartEmitter {
+  StreamAppStartEmitter({
+    required Hub hub,
+    required TimeToDisplayTrackerV2 timeToDisplayTracker,
     required bool standalone,
-  }) async {
-    final rootSpan = options.timeToDisplayTrackerV2.trackAppStart(
+  })  : _hub = hub,
+        _timeToDisplayTracker = timeToDisplayTracker,
+        _standalone = standalone;
+
+  final Hub _hub;
+  final TimeToDisplayTrackerV2 _timeToDisplayTracker;
+  final bool _standalone;
+
+  @override
+  Future<void> emit(AppStartInfo appStartInfo) async {
+    final rootSpan = _timeToDisplayTracker.trackAppStart(
       startTimestamp: appStartInfo.start,
       ttidEndTimestamp: appStartInfo.end,
     );
 
-    if (standalone) {
-      _trackStandalone(hub, appStartInfo);
-    } else {
-      _trackAttached(hub, appStartInfo, rootSpan);
+    if (_standalone) {
+      _emitStandalone(appStartInfo);
+      return;
     }
+
+    _emitAttached(appStartInfo, rootSpan);
+  }
+
+  @override
+  void cancel() {
+    _timeToDisplayTracker.cancelCurrentRoute();
   }
 
   /// Detached root representing the app start itself, with the breakdown
   /// spans directly beneath it — no per-type wrapper span.
-  void _trackStandalone(Hub hub, AppStartInfo appStartInfo) {
+  void _emitStandalone(AppStartInfo appStartInfo) {
     final appStartType = SentryAttribute.string(appStartInfo.type.name);
-    final root = hub.startIdleSpan(
+    final root = _hub.startIdleSpan(
       'App Start',
       bindToScope: false,
       startTimestamp: appStartInfo.start,
@@ -49,7 +62,6 @@ class NativeAppStartHandlerV2 {
     );
 
     _startBreakdownSpans(
-      hub,
       appStartInfo,
       parent: root,
       attributesFor: (operation) => {
@@ -63,14 +75,12 @@ class NativeAppStartHandlerV2 {
       },
     );
 
-    _writeMeasurement(root, appStartInfo);
-    root.end(endTimestamp: appStartInfo.end);
+    _finalize(root, appStartInfo);
   }
 
   /// Legacy shape under the ui.load root: a per-type app start span carrying
   /// the measurement, with the breakdown spans nested beneath it.
-  void _trackAttached(
-    Hub hub,
+  void _emitAttached(
     AppStartInfo appStartInfo,
     SentrySpanV2 rootSpan,
   ) {
@@ -86,7 +96,7 @@ class NativeAppStartHandlerV2 {
       ),
     };
 
-    final appStartSpan = hub.startInactiveSpan(
+    final appStartSpan = _hub.startInactiveSpan(
       appStartInfo.appStartTypeDescription,
       parentSpan: rootSpan,
       startTimestamp: appStartInfo.start,
@@ -94,25 +104,32 @@ class NativeAppStartHandlerV2 {
     );
 
     _startBreakdownSpans(
-      hub,
       appStartInfo,
       parent: appStartSpan,
       attributesFor: (_) => attributes,
     );
 
-    _writeMeasurement(appStartSpan, appStartInfo);
-    appStartSpan.end(endTimestamp: appStartInfo.end);
+    _finalize(appStartSpan, appStartInfo);
+  }
+
+  /// The finish path for the app start span: measurement values are written
+  /// immediately before the span ends, mirroring the static lifecycle's
+  /// `onFinish` hook. V2 spans expose no end callback, so a deferred
+  /// finalization (e.g. an extended app start, #3767) must re-enter through
+  /// this method to stamp the final values at the actual end.
+  void _finalize(SentrySpanV2 span, AppStartInfo appStartInfo) {
+    _writeMeasurement(span, appStartInfo);
+    span.end(endTimestamp: appStartInfo.end);
   }
 
   void _startBreakdownSpans(
-    Hub hub,
     AppStartInfo appStartInfo, {
     required SentrySpanV2 parent,
     required Map<String, SentryAttribute> Function(String operation)
         attributesFor,
   }) {
-    final pluginRegistrationSpan = hub.startInactiveSpan(
-      appStartInfo.pluginRegistrationDescription,
+    final pluginRegistrationSpan = _hub.startInactiveSpan(
+      AppStartInfo.pluginRegistrationDescription,
       parentSpan: parent,
       startTimestamp: appStartInfo.start,
       attributes: attributesFor(
@@ -120,15 +137,15 @@ class NativeAppStartHandlerV2 {
       ),
     );
 
-    final sentrySetupSpan = hub.startInactiveSpan(
-      appStartInfo.sentrySetupDescription,
+    final sentrySetupSpan = _hub.startInactiveSpan(
+      AppStartInfo.sentrySetupDescription,
       parentSpan: parent,
       startTimestamp: appStartInfo.pluginRegistration,
       attributes: attributesFor(SentrySpanOperations.appStartSentrySetup),
     );
 
-    final firstFrameRenderSpan = hub.startInactiveSpan(
-      appStartInfo.firstFrameRenderDescription,
+    final firstFrameRenderSpan = _hub.startInactiveSpan(
+      AppStartInfo.firstFrameRenderDescription,
       parentSpan: parent,
       startTimestamp: appStartInfo.sentrySetupStart,
       attributes: attributesFor(SentrySpanOperations.appStartFirstFrameRender),
@@ -136,7 +153,7 @@ class NativeAppStartHandlerV2 {
 
     for (final timeSpan in appStartInfo.nativeSpanTimes) {
       try {
-        final nativeSpan = hub.startInactiveSpan(
+        final nativeSpan = _hub.startInactiveSpan(
           timeSpan.description,
           parentSpan: parent,
           startTimestamp: timeSpan.start,
