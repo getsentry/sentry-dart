@@ -6,114 +6,49 @@ import 'package:meta/meta.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import '../../sentry_flutter.dart';
-import '../navigation/time_to_display_tracker.dart';
 import '../utils/internal_logger.dart';
-import 'app_start_emitter.dart';
 import 'app_start_info.dart';
 
 const _appStartTypeKey = 'app_start_type';
 
 @internal
-final class StaticAppStartEmitter implements AppStartEmitter {
-  StaticAppStartEmitter({
-    required Hub hub,
-    required SentryTransactionContext context,
-    required TimeToDisplayTracker timeToDisplayTracker,
-    required bool standalone,
-  })  : _hub = hub,
-        _context = context,
-        _timeToDisplayTracker = timeToDisplayTracker,
-        _standalone = standalone;
+final class StaticAppStartSpanWriter {
+  StaticAppStartSpanWriter({required Hub hub}) : _hub = hub;
 
   final Hub _hub;
-  final SentryTransactionContext _context;
-  final TimeToDisplayTracker _timeToDisplayTracker;
-  final bool _standalone;
 
-  @override
-  Future<void> emit(AppStartInfo appStartInfo) async {
-    final rootScreenTransaction = _hub.startTransactionWithContext(
-      _context,
-      startTimestamp: appStartInfo.start,
-      waitForChildren: true,
-      autoFinishAfter: const Duration(seconds: 3),
-      bindToScope: true,
-      trimEnd: true,
-    );
-    if (rootScreenTransaction is! SentryTracer) {
-      return;
-    }
-
-    if (_standalone) {
-      // Start TTID/TTFD tracking before awaiting the standalone capture: the
-      // ui.load root's autoFinishAfter timer is already running and the
-      // capture can block on transport. Tracking first attaches the TTID
-      // child, so the root cannot auto-finish childless (and be dropped)
-      // while the standalone transaction is being sent.
-      final displayTracking = _timeToDisplayTracker.track(
-        rootScreenTransaction,
-        ttidEndTimestamp: appStartInfo.end,
-      );
-      await _emitStandalone(appStartInfo);
-      await displayTracking;
-      return;
-    }
-
-    _writeAttachedEncoding(rootScreenTransaction, appStartInfo);
-    await _attachAppStartSpans(appStartInfo, rootScreenTransaction,
-        standalone: false);
-
-    await _timeToDisplayTracker.track(
-      rootScreenTransaction,
-      ttidEndTimestamp: appStartInfo.end,
-    );
-  }
-
-  @override
-  void cancel() {
-    // Static app start only reserves an ID at setup; emit creates the transaction.
-  }
-
-  Future<void> _emitStandalone(AppStartInfo appStartInfo) async {
-    final transaction = _hub.startTransactionWithContext(
-      SentryTransactionContext(
-        'App Start',
-        SentrySpanOperations.appStart,
-        origin: SentryTraceOrigins.autoAppStart,
-      ),
-      startTimestamp: appStartInfo.start,
-      waitForChildren: true,
-      autoFinishAfter: const Duration(seconds: 30),
-      // No trimEnd: the explicit finish timestamp below is authoritative;
-      // trimming would let an out-of-range native span time stretch the
-      // transaction past the measured app start end, making its duration
-      // disagree with the app start measurement.
-      onFinish: (transaction) =>
-          _writeStandaloneEncoding(transaction, appStartInfo),
-    );
-    if (transaction is! SentryTracer) {
-      return;
-    }
-    await _attachAppStartSpans(appStartInfo, transaction, standalone: true);
-    await transaction.finish(endTimestamp: appStartInfo.end);
-  }
-
-  void _writeAttachedEncoding(
+  Future<void> writeAttached(
     SentryTracer transaction,
     AppStartInfo appStartInfo,
-  ) {
+  ) async {
     transaction.setData(_appStartTypeKey, appStartInfo.type.name);
 
-    // We need to add the measurements before we add the child spans. If a
-    // child span finishes the transaction, measurements can no longer be added.
+    // Measurements must be added before child spans. If a child span finishes
+    // the transaction, measurements can no longer be added.
     final measurement = appStartInfo.toMeasurement();
     transaction.measurements[measurement.name] = measurement;
+
+    await _attachAppStartSpans(
+      appStartInfo,
+      transaction,
+      standalone: false,
+    );
   }
 
-  /// Writes the app start measurement in the transaction's finish path, so a
-  /// deferred finalization (e.g. an extended app start) picks up the final
-  /// values.
-  void _writeStandaloneEncoding(
+  Future<void> writeStandalone(
+    SentryTracer transaction,
+    AppStartInfo appStartInfo,
+  ) async {
+    await _attachAppStartSpans(
+      appStartInfo,
+      transaction,
+      standalone: true,
+    );
+  }
+
+  /// Writes standalone app-start values in the transaction finish path, so a
+  /// deferred finalization can stamp the final values at the actual end.
+  void writeStandaloneEncoding(
     ISentrySpan transaction,
     AppStartInfo appStartInfo,
   ) {
@@ -144,9 +79,9 @@ final class StaticAppStartEmitter implements AppStartEmitter {
     // standalone shape is new, so its breakdown spans carry the auto origin.
     final origin = standalone ? SentryTraceOrigins.autoAppStart : null;
 
-    // The standalone root already represents the app start, so the breakdown
-    // spans attach directly to it with dedicated operations; the attached
-    // shape keeps nesting them under a per-type wrapper span.
+    // The standalone root already represents the app start, so breakdown spans
+    // attach directly to it. The attached shape keeps them nested under the
+    // per-type wrapper span.
     SentrySpan? appStartSpan;
     if (!standalone) {
       appStartSpan = await _createAndFinishSpan(

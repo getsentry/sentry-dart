@@ -1,95 +1,24 @@
-// ignore_for_file: invalid_use_of_internal_member
+// ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../navigation/time_to_display_tracker_v2.dart';
 import '../utils/internal_logger.dart';
-import 'app_start_emitter.dart';
 import 'app_start_info.dart';
 
 @internal
-final class StreamAppStartEmitter implements AppStartEmitter {
-  StreamAppStartEmitter({
-    required Hub hub,
-    required TimeToDisplayTrackerV2 timeToDisplayTracker,
-    required bool standalone,
-  })  : _hub = hub,
-        _timeToDisplayTracker = timeToDisplayTracker,
-        _standalone = standalone;
+final class StreamAppStartSpanWriter {
+  StreamAppStartSpanWriter({required Hub hub}) : _hub = hub;
 
   final Hub _hub;
-  final TimeToDisplayTrackerV2 _timeToDisplayTracker;
-  final bool _standalone;
 
-  @override
-  Future<void> emit(AppStartInfo appStartInfo) async {
-    final rootSpan = _timeToDisplayTracker.trackAppStart(
-      startTimestamp: appStartInfo.start,
-      ttidEndTimestamp: appStartInfo.end,
-    );
-
-    if (_standalone) {
-      _emitStandalone(appStartInfo);
-      return;
-    }
-
-    _emitAttached(appStartInfo, rootSpan);
-  }
-
-  @override
-  void cancel() {
-    _timeToDisplayTracker.cancelCurrentRoute();
-  }
-
-  /// Detached root representing the app start itself, with the breakdown
-  /// spans directly beneath it — no per-type wrapper span.
-  void _emitStandalone(AppStartInfo appStartInfo) {
-    final appStartType = SentryAttribute.string(appStartInfo.type.name);
-    final root = _hub.startIdleSpan(
-      'App Start',
-      bindToScope: false,
-      startTimestamp: appStartInfo.start,
-      attributes: {
-        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
-          SentrySpanOperations.appStart,
-        ),
-        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-          SentryTraceOrigins.autoAppStart,
-        ),
-        SemanticAttributesConstants.appVitalsStartType: appStartType,
-      },
-    );
-
-    _startBreakdownSpans(
-      appStartInfo,
-      parent: root,
-      attributesFor: (operation) => {
-        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
-          operation,
-        ),
-        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-          SentryTraceOrigins.autoAppStart,
-        ),
-        SemanticAttributesConstants.appVitalsStartType: appStartType,
-      },
-    );
-
-    _finalize(root, appStartInfo);
-  }
-
-  /// Legacy shape under the ui.load root: a per-type app start span carrying
-  /// the measurement, with the breakdown spans nested beneath it.
-  void _emitAttached(
-    AppStartInfo appStartInfo,
+  void writeAttached(
     SentrySpanV2 rootSpan,
+    AppStartInfo appStartInfo,
   ) {
     final attributes = {
       SemanticAttributesConstants.sentryOp: SentryAttribute.string(
         appStartInfo.appStartTypeOperation,
-      ),
-      SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-        SentryTraceOrigins.autoUiTimeToDisplay,
       ),
       SemanticAttributesConstants.appVitalsStartType: SentryAttribute.string(
         appStartInfo.type.name,
@@ -109,7 +38,27 @@ final class StreamAppStartEmitter implements AppStartEmitter {
       attributesFor: (_) => attributes,
     );
 
-    _finalize(appStartSpan, appStartInfo);
+    finish(appStartSpan, appStartInfo);
+  }
+
+  void writeStandalone(
+    SentrySpanV2 rootSpan,
+    AppStartInfo appStartInfo,
+  ) {
+    final appStartType = SentryAttribute.string(appStartInfo.type.name);
+    _startBreakdownSpans(
+      appStartInfo,
+      parent: rootSpan,
+      attributesFor: (operation) => {
+        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
+          operation,
+        ),
+        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+          SentryTraceOrigins.autoAppStart,
+        ),
+        SemanticAttributesConstants.appVitalsStartType: appStartType,
+      },
+    );
   }
 
   /// The finish path for the app start span: measurement values are written
@@ -117,7 +66,7 @@ final class StreamAppStartEmitter implements AppStartEmitter {
   /// `onFinish` hook. V2 spans expose no end callback, so a deferred
   /// finalization (e.g. an extended app start, #3767) must re-enter through
   /// this method to stamp the final values at the actual end.
-  void _finalize(SentrySpanV2 span, AppStartInfo appStartInfo) {
+  void finish(SentrySpanV2 span, AppStartInfo appStartInfo) {
     _writeMeasurement(span, appStartInfo);
     span.end(endTimestamp: appStartInfo.end);
   }
@@ -188,6 +137,10 @@ final class StreamAppStartEmitter implements AppStartEmitter {
     span.setAttribute(
       SemanticAttributesConstants.appVitalsStartValue,
       durationMs,
+    );
+    span.setAttribute(
+      SemanticAttributesConstants.appVitalsStartType,
+      SentryAttribute.string(appStartInfo.type.name),
     );
   }
 }

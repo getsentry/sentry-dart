@@ -104,6 +104,113 @@ void main() {
     });
   });
 
+  group('app start tracking', () {
+    test('prepareAppStart reserves transactionId for pending TTFD', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+      final sut = fixture.getSut();
+
+      sut.prepareAppStart();
+      final spanId = sut.transactionId;
+
+      expect(spanId, isNotNull);
+      when(fixture.ttfdTracker.reportFullyDisplayed(
+        spanId: spanId,
+        endTimestamp: anyNamed('endTimestamp'),
+      )).thenAnswer((_) async => false);
+
+      final endTimestamp = DateTime.utc(2024, 1, 1, 12, 0, 1);
+      await sut.reportFullyDisplayed(
+        spanId: spanId,
+        endTimestamp: endTimestamp,
+      );
+
+      expect(sut.pendingTTFDEndTimestamp, endTimestamp);
+    });
+
+    test('trackAppStart creates ui.load transaction and tracks TTID', () async {
+      final sut = fixture.getSut();
+      final appStart = DateTime.utc(2024, 1, 1, 12);
+      final appStartEnd = appStart.add(const Duration(milliseconds: 50));
+      late SentryTracer transaction;
+      when(fixture.ttidTracker.track(
+        transaction: anyNamed('transaction'),
+        endTimestamp: anyNamed('endTimestamp'),
+      )).thenAnswer((invocation) async {
+        transaction = invocation.namedArguments[#transaction] as SentryTracer;
+        return fixture.getTTIDTransaction(transaction);
+      });
+
+      await sut.trackAppStart(
+        startTimestamp: appStart,
+        ttidEndTimestamp: appStartEnd,
+      );
+
+      expect(transaction.name, 'root /');
+      expect(transaction.context.operation, SentrySpanOperations.uiLoad);
+      expect(
+          transaction.context.origin, SentryTraceOrigins.autoUiTimeToDisplay);
+      expect(transaction.startTimestamp, appStart);
+      expect(transaction.autoFinishAfterTimer, isNotNull);
+      expect(fixture.hub.scope.span, same(transaction));
+      verify(fixture.ttidTracker.track(
+        transaction: transaction,
+        endTimestamp: appStartEnd,
+      )).called(1);
+    });
+
+    test('trackAppStart awaits attach callback before TTID tracking', () async {
+      final sut = fixture.getSut();
+      final order = <String>[];
+      late SentryTracer transaction;
+      when(fixture.ttidTracker.track(
+        transaction: anyNamed('transaction'),
+        endTimestamp: anyNamed('endTimestamp'),
+      )).thenAnswer((invocation) async {
+        order.add('ttid');
+        transaction = invocation.namedArguments[#transaction] as SentryTracer;
+        return fixture.getTTIDTransaction(transaction);
+      });
+
+      await sut.trackAppStart(
+        startTimestamp: DateTime.utc(2024, 1, 1, 12),
+        ttidEndTimestamp: DateTime.utc(2024, 1, 1, 12, 0, 1),
+        attachAppStart: (transaction) async {
+          order.add('attach');
+          transaction.measurements['app_start_cold'] = SentryMeasurement(
+            'app_start_cold',
+            100,
+          );
+        },
+      );
+
+      expect(order, ['attach', 'ttid']);
+      expect(transaction.measurements['app_start_cold']?.value, 100);
+    });
+
+    test('trackAppStart without attach callback tracks only display', () async {
+      final sut = fixture.getSut();
+      late SentryTracer transaction;
+      when(fixture.ttidTracker.track(
+        transaction: anyNamed('transaction'),
+        endTimestamp: anyNamed('endTimestamp'),
+      )).thenAnswer((invocation) async {
+        transaction = invocation.namedArguments[#transaction] as SentryTracer;
+        return fixture.getTTIDTransaction(transaction);
+      });
+
+      await sut.trackAppStart(
+        startTimestamp: DateTime.utc(2024, 1, 1, 12),
+        ttidEndTimestamp: DateTime.utc(2024, 1, 1, 12, 0, 1),
+      );
+
+      expect(transaction.measurements['app_start_cold'], isNull);
+      verify(fixture.ttidTracker.track(
+        transaction: transaction,
+        endTimestamp: DateTime.utc(2024, 1, 1, 12, 0, 1),
+      )).called(1);
+    });
+  });
+
   group('clear', () {
     test('calls ttfd/ttid clear', () async {
       fixture.options.enableTimeToFullDisplayTracing = true;
@@ -405,6 +512,7 @@ class Fixture {
 
   TimeToDisplayTracker getSut() {
     return TimeToDisplayTracker(
+      hub: hub,
       ttidTracker: ttidTracker,
       ttfdTracker: ttfdTracker,
       options: options,

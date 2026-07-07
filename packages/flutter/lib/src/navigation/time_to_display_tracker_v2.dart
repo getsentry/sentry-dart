@@ -55,6 +55,7 @@ class TimeToDisplayTrackerV2 {
   SentrySpanV2 trackAppStart({
     DateTime? startTimestamp,
     DateTime? ttidEndTimestamp,
+    void Function(SentrySpanV2 rootSpan)? attachAppStart,
   }) {
     final SentrySpanV2 routeSpan;
     switch (_preparedRootNavigationSpan) {
@@ -74,6 +75,7 @@ class TimeToDisplayTrackerV2 {
             _createRouteSpan(_rootRouteName, startTimestamp: startTimestamp);
     }
 
+    attachAppStart?.call(routeSpan);
     _trackDisplaySpans(
       routeSpan,
       _rootRouteName,

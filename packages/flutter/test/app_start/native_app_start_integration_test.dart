@@ -4,14 +4,21 @@ library;
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:core';
+import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/app_start/native_app_start_integration.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 
 import '../fake_frame_callback_handler.dart';
@@ -85,6 +92,107 @@ void main() {
       expect(fixture.findSpanByName('App Start'), isNotNull);
     });
 
+    test('static attached mode writes app start under ui.load', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
+      fixture.options.enableStandaloneAppStartTracing = false;
+      fixture.callIntegration();
+
+      await fixture.dispatchFirstFrameTiming();
+
+      final uiLoad = fixture.scopeBoundTracer()!;
+      expect(uiLoad.name, 'root /');
+      expect(uiLoad.measurements['app_start_cold']?.value, 0);
+      expect(uiLoad.findChild('Cold Start'), isNotNull);
+      expect(
+        uiLoad.findChildByOperation(
+          SentrySpanOperations.uiTimeToInitialDisplay,
+        ),
+        isNotNull,
+      );
+    });
+
+    test('static standalone mode keeps app start off ui.load', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
+      fixture.options.enableStandaloneAppStartTracing = true;
+      fixture.callIntegration();
+
+      await fixture.dispatchFirstFrameTiming();
+
+      final uiLoad = fixture.scopeBoundTracer()!;
+      expect(uiLoad.measurements['app_start_cold'], isNull);
+      expect(uiLoad.findChild('Cold Start'), isNull);
+      expect(
+        uiLoad.findChildByOperation(
+          SentrySpanOperations.uiTimeToInitialDisplay,
+        ),
+        isNotNull,
+      );
+
+      final appStart = await fixture.capturedTransactionPayload('App Start');
+      expect(appStart['transaction'], 'App Start');
+      expect(
+          appStart['contexts']['trace']['op'], SentrySpanOperations.appStart);
+    });
+
+    test('static invalid data is a no-op', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
+      when(fixture.nativeBinding.fetchNativeAppStart())
+          .thenAnswer((_) async => null);
+      fixture.callIntegration();
+
+      await fixture.dispatchFirstFrameTiming();
+
+      expect(fixture.scopeBoundTracer(), isNull);
+      expect(fixture.fakeTransport.envelopes, isEmpty);
+    });
+
+    test('static thrown error is a no-op when automatedTestMode is false',
+        () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
+      fixture.options.automatedTestMode = false;
+      when(fixture.nativeBinding.fetchNativeAppStart())
+          .thenThrow(Exception('native error'));
+      fixture.callIntegration();
+
+      await fixture.dispatchFirstFrameTiming();
+
+      expect(fixture.scopeBoundTracer(), isNull);
+      expect(fixture.fakeTransport.envelopes, isEmpty);
+    });
+
+    test('stream attached mode writes app start under ui.load', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
+      fixture.options.enableStandaloneAppStartTracing = false;
+      fixture.callIntegration();
+
+      await fixture.dispatchFirstFrameTiming();
+
+      final uiLoad = fixture.findSpanByName('root /')!;
+      expect(fixture.findSpanByName('App Start'), isNull);
+      expect(fixture.findSpanByName('Cold Start')?.parentSpan, same(uiLoad));
+      expect(
+        fixture.findSpanByName('root / initial display')?.parentSpan,
+        same(uiLoad),
+      );
+    });
+
+    test('stream standalone mode keeps app start off ui.load', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
+      fixture.options.enableStandaloneAppStartTracing = true;
+      fixture.callIntegration();
+
+      await fixture.dispatchFirstFrameTiming();
+
+      final uiLoad = fixture.findSpanByName('root /')!;
+      final appStart = fixture.findSpanByName('App Start')!;
+      expect(appStart.parentSpan, isNull);
+      expect(fixture.findSpanByName('Cold Start'), isNull);
+      expect(
+        fixture.findSpanByName('root / initial display')?.parentSpan,
+        same(uiLoad),
+      );
+    });
+
     test('sets correct app start end from timing', () async {
       fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
       fixture.options.enableStandaloneAppStartTracing = true;
@@ -126,6 +234,29 @@ void main() {
 
       expect(fixture.timeToDisplayTrackerV2.cancelledRoutes, 1);
       expect(fixture.findSpanByName('Cold Start'), isNull);
+    });
+
+    test('does not drop static ui.load while standalone capture is blocked',
+        () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
+      fixture.options.enableStandaloneAppStartTracing = true;
+      final gate = Completer<SentryId?>();
+      fixture.fakeTransport.gate = gate;
+      fixture.callIntegration();
+
+      fixture.frameCallbackHandler.timingsCallback!([_fakeFrameTiming]);
+      await pumpEventQueue();
+
+      final uiLoad = fixture.scopeBoundTracer()!;
+      expect(
+        uiLoad.findChildByOperation(
+          SentrySpanOperations.uiTimeToInitialDisplay,
+        ),
+        isNotNull,
+      );
+
+      gate.complete(SentryId.empty());
+      await pumpEventQueue(times: 20);
     });
 
     test('handles timingsCallback exactly once', () async {
@@ -206,6 +337,10 @@ class Fixture {
     options = defaultTestOptions()..tracesSampleRate = 1.0;
     options.transport = fakeTransport;
     hub = Hub(options);
+    options.timeToDisplayTracker = TimeToDisplayTracker(
+      hub: hub,
+      options: options,
+    );
     timeToDisplayTrackerV2 = _RecordingTimeToDisplayTrackerV2(
       hub: hub,
       frameCallbackHandler: frameCallbackHandler,
@@ -244,6 +379,23 @@ class Fixture {
     }
     return null;
   }
+
+  SentryTracer? scopeBoundTracer() {
+    return hub.scope.span as SentryTracer?;
+  }
+
+  Future<Map<String, dynamic>> capturedTransactionPayload(String name) async {
+    for (final envelope in fakeTransport.envelopes) {
+      for (final item in envelope.items) {
+        final data = await item.dataFactory();
+        final decoded = jsonDecode(utf8.decode(data));
+        if (decoded is Map<String, dynamic> && decoded['transaction'] == name) {
+          return decoded;
+        }
+      }
+    }
+    throw StateError('No captured transaction named $name');
+  }
 }
 
 class _RecordingTimeToDisplayTrackerV2 extends TimeToDisplayTrackerV2 {
@@ -263,10 +415,29 @@ class _RecordingTimeToDisplayTrackerV2 extends TimeToDisplayTrackerV2 {
 
 class _FakeTransport implements Transport {
   final envelopes = <SentryEnvelope>[];
+  Completer<SentryId?>? gate;
 
   @override
-  Future<SentryId?> send(SentryEnvelope envelope) {
+  Future<SentryId?> send(SentryEnvelope envelope) async {
     envelopes.add(envelope);
-    return Future.value(SentryId.empty());
+    final gate = this.gate;
+    if (gate != null) {
+      return gate.future;
+    }
+    return SentryId.empty();
+  }
+}
+
+extension on SentryTracer {
+  SentrySpan? findChild(String description) {
+    return children.firstWhereOrNull(
+      (span) => span.context.description == description,
+    );
+  }
+
+  SentrySpan? findChildByOperation(String operation) {
+    return children.firstWhereOrNull(
+      (span) => span.context.operation == operation,
+    );
   }
 }

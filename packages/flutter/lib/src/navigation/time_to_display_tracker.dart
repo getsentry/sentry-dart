@@ -12,15 +12,18 @@ import 'package:sentry/src/utils/iterable_utils.dart';
 
 @internal
 class TimeToDisplayTracker {
+  final Hub _hub;
   final TimeToInitialDisplayTracker _ttidTracker;
   final TimeToFullDisplayTracker _ttfdTracker;
   final SentryFlutterOptions options;
 
   TimeToDisplayTracker({
+    Hub? hub,
     TimeToInitialDisplayTracker? ttidTracker,
     TimeToFullDisplayTracker? ttfdTracker,
     required this.options,
-  })  : _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker(),
+  })  : _hub = hub ?? HubAdapter(),
+        _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker(),
         _ttfdTracker = ttfdTracker ??
             TimeToFullDisplayTracker(
               Duration(seconds: 30),
@@ -30,9 +33,54 @@ class TimeToDisplayTracker {
   SpanId? transactionId;
 
   DateTime? _pendingTTFDEndTimestamp;
+  SentryTransactionContext? _appStartContext;
 
   // The timestamp where report TTFD was called before the transaction was started.
   DateTime? get pendingTTFDEndTimestamp => _pendingTTFDEndTimestamp;
+
+  void prepareAppStart() {
+    _appStartContext = _createAppStartContext();
+    transactionId = _appStartContext!.spanId;
+  }
+
+  /// Tracks the initial native app-start display transaction.
+  ///
+  /// If provided, [attachAppStart] is awaited after the `ui.load` transaction
+  /// exists and before TTID/TTFD tracking starts. Attached app-start
+  /// measurements must be written in that window because a child span can
+  /// finish the wait-for-children transaction, after which measurements can no
+  /// longer be added.
+  Future<void> trackAppStart({
+    required DateTime startTimestamp,
+    required DateTime ttidEndTimestamp,
+    Future<void> Function(SentryTracer transaction)? attachAppStart,
+  }) async {
+    final context = _appStartContext ?? _createAppStartContext();
+    _appStartContext = null;
+
+    final transaction = _hub.startTransactionWithContext(
+      context,
+      startTimestamp: startTimestamp,
+      waitForChildren: true,
+      autoFinishAfter: const Duration(seconds: 3),
+      bindToScope: true,
+      trimEnd: true,
+    );
+    if (transaction is! SentryTracer) {
+      return;
+    }
+
+    await attachAppStart?.call(transaction);
+    await track(transaction, ttidEndTimestamp: ttidEndTimestamp);
+  }
+
+  SentryTransactionContext _createAppStartContext() {
+    return SentryTransactionContext(
+      'root /',
+      SentrySpanOperations.uiLoad,
+      origin: SentryTraceOrigins.autoUiTimeToDisplay,
+    );
+  }
 
   Future<void> track(
     ISentrySpan transaction, {
@@ -119,6 +167,7 @@ class TimeToDisplayTracker {
   void clear() {
     transactionId = null;
     _pendingTTFDEndTimestamp = null;
+    _appStartContext = null;
 
     _ttidTracker.clear();
     if (options.enableTimeToFullDisplayTracing) {

@@ -164,6 +164,48 @@ void main() {
         expect(fixture.hub.getActiveSpan()?.spanId, routeSpan.spanId);
       });
 
+      test('no-arg call keeps generic app start behavior', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+
+        sut.trackAppStart();
+
+        final ttidSpan = childSpans.firstWhere(
+          (s) => s.name == 'root / initial display',
+        );
+        expect(ttidSpan.isEnded, isFalse);
+        expect(fixture.frameCallbackHandler.postFrameCallback, isNotNull);
+
+        fixture.frameCallbackHandler.postFrameCallback?.call(Duration.zero);
+
+        expect(ttidSpan.isEnded, isTrue);
+      });
+
+      test('runs attach callback before TTID and TTFD spans are created', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+
+        sut.trackAppStart(
+          attachAppStart: (rootSpan) {
+            fixture.hub
+                .startInactiveSpan(
+                  'Attached App Start',
+                  parentSpan: rootSpan,
+                )
+                .end();
+          },
+        );
+
+        expect(
+          childSpans.map((span) => span.name).take(3),
+          [
+            'Attached App Start',
+            'root / full display',
+            'root / initial display',
+          ],
+        );
+      });
+
       group('with startTimestamp', () {
         test('backdates idle root span start time', () {
           final sut = fixture.getSut();
