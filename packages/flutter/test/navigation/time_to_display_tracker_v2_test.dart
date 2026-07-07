@@ -27,7 +27,14 @@ void main() {
         sut.trackRoute('/new-route');
 
         expect(activeSpan.isEnded, isTrue);
-        expect(activeSpan.status, SentrySpanStatusV2.cancelled);
+        expect(activeSpan.status, SentrySpanStatusV2.ok);
+        expect(
+          activeSpan
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
+              ?.value,
+          'cancelled',
+        );
       });
 
       test('starts idle root span with ui.load op and correct origin', () {
@@ -266,7 +273,14 @@ void main() {
         sut.prepareAppStart();
 
         expect(existingSpan.isEnded, isTrue);
-        expect(existingSpan.status, SentrySpanStatusV2.cancelled);
+        expect(existingSpan.status, SentrySpanStatusV2.ok);
+        expect(
+          existingSpan
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
+              ?.value,
+          'cancelled',
+        );
       });
     });
 
@@ -397,7 +411,7 @@ void main() {
         expect(sut.ttfdSpanId, isNull);
       });
 
-      test('ends active idle route span with cancelled status', () {
+      test('ends active idle route span with cancelled finish reason', () {
         final sut = fixture.getSut();
 
         sut.trackRoute('/test-route');
@@ -409,7 +423,14 @@ void main() {
         sut.cancelCurrentRoute();
 
         expect(activeSpan.isEnded, isTrue);
-        expect(activeSpan.status, SentrySpanStatusV2.cancelled);
+        expect(activeSpan.status, SentrySpanStatusV2.ok);
+        expect(
+          activeSpan
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
+              ?.value,
+          'cancelled',
+        );
       });
 
       test('cancels an existing idle span not created by the tracker', () {
@@ -422,7 +443,14 @@ void main() {
         sut.cancelCurrentRoute();
 
         expect(externalIdleSpan.isEnded, isTrue);
-        expect(externalIdleSpan.status, SentrySpanStatusV2.cancelled);
+        expect(externalIdleSpan.status, SentrySpanStatusV2.ok);
+        expect(
+          externalIdleSpan
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
+              ?.value,
+          'cancelled',
+        );
       });
 
       test('clears prepared app start span', () {
@@ -435,7 +463,14 @@ void main() {
         sut.cancelCurrentRoute();
 
         expect(preparedSpan.isEnded, isTrue);
-        expect(preparedSpan.status, SentrySpanStatusV2.cancelled);
+        expect(preparedSpan.status, SentrySpanStatusV2.ok);
+        expect(
+          preparedSpan
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
+              ?.value,
+          'cancelled',
+        );
       });
     });
   });
