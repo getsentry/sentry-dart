@@ -1,5 +1,25 @@
 # Changelog
 
+## 10.0.0-alpha.2
+
+### Features
+
+- (telemetry) Align span attributes with Sentry Conventions by @buenaflor in [#3805](https://github.com/getsentry/sentry-dart/pull/3805)
+- Add feature flags to hub span by @denrase in [#3806](https://github.com/getsentry/sentry-dart/pull/3806)
+- (logs) Add Hint to beforeSend for logs, metrics, and spans by @buenaflor in [#3847](https://github.com/getsentry/sentry-dart/pull/3847)
+- (logs) Enable logs by default by @buenaflor in [#3846](https://github.com/getsentry/sentry-dart/pull/3846)
+
+### Internal Changes
+
+- (logs) Make traceId required on SentryLog by @buenaflor in [#3842](https://github.com/getsentry/sentry-dart/pull/3842)
+- Make clone() internal and remove deprecated protocol clones by @buenaflor in [#3845](https://github.com/getsentry/sentry-dart/pull/3845)
+- (dart) Make feature flags hub/scope-based by @buenaflor in [#3848](https://github.com/getsentry/sentry-dart/pull/3848)
+- (file) Remove file.async attributes from instrumentation by @buenaflor in [#3841](https://github.com/getsentry/sentry-dart/pull/3841)
+- (logs) Make logger methods return void by @buenaflor in [#3852](https://github.com/getsentry/sentry-dart/pull/3852)
+- (logs) Remove deprecated SentryLogAttribute by @buenaflor in [#3843](https://github.com/getsentry/sentry-dart/pull/3843)
+- Remove deprecated performance collectors by @buenaflor in [#3850](https://github.com/getsentry/sentry-dart/pull/3850)
+- (feedback) Remove deprecated SentryFeedbackWidget by @buenaflor in [#3844](https://github.com/getsentry/sentry-dart/pull/3844)
+
 ## 10.0.0-alpha.1
 ## 9.23.0
 
