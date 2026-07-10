@@ -484,6 +484,9 @@ class SentryOptions {
   /// requests made with [SentryHttpClient], to be shown alongside network
   /// spans in Session Replay.
   ///
+  /// Currently only forwarded to Session Replay on Android; on other
+  /// platforms the data is captured but not yet surfaced in the replay.
+  ///
   /// This is off by default, and only takes effect for URLs matching
   /// [networkDetailAllowUrls]. Request/response bodies may contain PII —
   /// review [networkDetailAllowUrls] carefully before enabling this.
