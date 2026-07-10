@@ -88,10 +88,9 @@ class NetworkDetailsCapture {
       return (response, data);
     }
 
+    List<int> bytes;
     try {
-      final bytes = await response.stream.toBytes();
-      data['body'] = _truncate(utf8.decode(bytes, allowMalformed: true));
-      return (_copyWithBytes(response, bytes), data);
+      bytes = await response.stream.toBytes();
     } catch (exception) {
       internalLogger.warning(
         () => 'Failed to capture response body for replay: $exception',
@@ -100,6 +99,18 @@ class NetworkDetailsCapture {
       // safe way to forward it to the original caller anymore.
       return (response, data);
     }
+
+    // The body is already fully read at this point, so decoding failures
+    // (e.g. malformed encoding info) shouldn't prevent forwarding it as-is.
+    final forwarded = _copyWithBytes(response, bytes);
+    try {
+      data['body'] = _truncate(utf8.decode(bytes, allowMalformed: true));
+    } catch (exception) {
+      internalLogger.warning(
+        () => 'Failed to capture response body for replay: $exception',
+      );
+    }
+    return (forwarded, data);
   }
 
   StreamedResponse _copyWithBytes(StreamedResponse response, List<int> bytes) {
