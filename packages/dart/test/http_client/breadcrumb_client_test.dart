@@ -5,9 +5,11 @@ import 'package:http/testing.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/breadcrumb_client.dart';
+import 'package:sentry/src/http_client/network_details_capture.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_hub.dart';
+import '../test_utils.dart';
 
 final requestUri = Uri.parse('https://example.com/path?foo=bar#baz');
 
@@ -249,6 +251,55 @@ void main() {
       expect(breadcrumb.data?['duration'], isNotNull);
     });
 
+    test('does not attach network details when capture is not configured',
+        () async {
+      final sut =
+          fixture.getSut(fixture.getClient(statusCode: 200, reason: 'OK'));
+
+      await sut.get(requestUri);
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      expect(breadcrumb.data?.containsKey('request'), false);
+      expect(breadcrumb.data?.containsKey('response'), false);
+    });
+
+    test('attaches network details when capture matches the request', () async {
+      final options = defaultTestOptions()
+        ..enableReplayNetworkDetailsCapturing = true
+        ..networkDetailAllowUrls.add('.*');
+      final capture = NetworkDetailsCapture(options);
+
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 200, reason: 'OK'),
+        capture,
+      );
+
+      await sut.get(requestUri);
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      expect(breadcrumb.data?['request'], isA<Map>());
+      expect(breadcrumb.data?['response'], isA<Map>());
+    });
+
+    test('does not attach network details when capture does not match',
+        () async {
+      final options = defaultTestOptions()
+        ..enableReplayNetworkDetailsCapturing = true
+        ..networkDetailAllowUrls.add('other.com');
+      final capture = NetworkDetailsCapture(options);
+
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 200, reason: 'OK'),
+        capture,
+      );
+
+      await sut.get(requestUri);
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      expect(breadcrumb.data?.containsKey('request'), false);
+      expect(breadcrumb.data?.containsKey('response'), false);
+    });
+
     test('close does get called for user defined client', () async {
       final mockHub = MockHub();
 
@@ -285,9 +336,14 @@ void main() {
 class CloseableMockClient extends Mock implements BaseClient {}
 
 class Fixture {
-  BreadcrumbClient getSut([MockClient? client]) {
+  BreadcrumbClient getSut(
+      [MockClient? client, NetworkDetailsCapture? networkDetailsCapture]) {
     final mc = client ?? getClient();
-    return BreadcrumbClient(client: mc, hub: hub);
+    return BreadcrumbClient(
+      client: mc,
+      hub: hub,
+      networkDetailsCapture: networkDetailsCapture,
+    );
   }
 
   late MockHub hub = MockHub();

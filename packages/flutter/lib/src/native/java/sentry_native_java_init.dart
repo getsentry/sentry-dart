@@ -299,6 +299,18 @@ void configureAndroidOptions({
     sessionReplay.setOnErrorSampleRate(
         options.replay.onErrorSampleRate?.toJDouble()?..releasedBy(arena));
 
+    if (options.enableReplayNetworkDetailsCapturing) {
+      sessionReplay.setNetworkDetailAllowUrls(
+          dartToJStringList(options.networkDetailAllowUrls)..releasedBy(arena));
+      sessionReplay.setNetworkDetailDenyUrls(
+          dartToJStringList(options.networkDetailDenyUrls)..releasedBy(arena));
+      sessionReplay.setNetworkRequestHeaders(
+          dartToJStringList(options.networkRequestHeaders)..releasedBy(arena));
+      sessionReplay.setNetworkResponseHeaders(
+          dartToJStringList(options.networkResponseHeaders)..releasedBy(arena));
+      sessionReplay.setNetworkCaptureBodies(options.networkCaptureBodies);
+    }
+
     sessionReplay.setTrackConfiguration(false);
     beforeSendReplay.use((cb) {
       androidOptions.setBeforeSendReplay(cb);

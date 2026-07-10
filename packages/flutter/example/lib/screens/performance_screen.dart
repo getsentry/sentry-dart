@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart' show ApplyInterceptor;
 import 'package:flutter/material.dart';
@@ -82,6 +84,15 @@ class PerformanceScreen extends StatelessWidget {
                     text:
                         'Attaches web request related spans to the transaction and send it to Sentry.',
                     buttonTitle: 'Dio: Web request',
+                  ),
+                  TooltipButton(
+                    onPressed: () => makeWebRequestWithNetworkDetails(context),
+                    key: const Key('web_request_network_details'),
+                    text:
+                        'Enables enableReplayNetworkDetailsCapturing for this request and shows the captured '
+                        'request/response headers and body that get attached to the http breadcrumb for '
+                        'Session Replay.',
+                    buttonTitle: 'Dart: Web request with network details',
                   ),
                   TooltipButton(
                     onPressed: () => showDialogWithTextAndImage(context),
@@ -409,6 +420,56 @@ Future<void> _showDioResponseDialog(
         title: Text('Response ${response?.statusCode}'),
         content: SingleChildScrollView(
             child: Text(response?.data ?? 'failed request')),
+        actions: [
+          MaterialButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> makeWebRequestWithNetworkDetails(BuildContext context) async {
+  // enableReplayNetworkDetailsCapturing, networkDetailAllowUrls and
+  // networkRequestHeaders are configured in main.dart at SentryFlutter.init()
+  // time - the native replay integration only reads them once, at startup.
+  final client = SentryHttpClient();
+  await client.post(
+    Uri.parse(exampleUrl),
+    headers: {
+      'foo': 'bar',
+      'content-type': 'application/json',
+    },
+    body: jsonEncode({
+      'credit_card': 'true',
+      'id': '0000-0000-0000-0000',
+    }),
+  );
+
+  Breadcrumb? httpBreadcrumb;
+  await Sentry.configureScope((scope) {
+    httpBreadcrumb = scope.breadcrumbs
+        .where((breadcrumb) => breadcrumb.category == 'http')
+        .lastOrNull;
+  });
+
+  if (!context.mounted) return;
+  await _showNetworkDetailsDialog(context, httpBreadcrumb);
+}
+
+Future<void> _showNetworkDetailsDialog(
+    BuildContext context, Breadcrumb? breadcrumb) async {
+  const encoder = JsonEncoder.withIndent('  ');
+  await showDialog<void>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Captured http breadcrumb'),
+        content: SingleChildScrollView(
+          child: Text(encoder.convert(breadcrumb?.data ?? {})),
+        ),
         actions: [
           MaterialButton(
             onPressed: () => Navigator.pop(context),

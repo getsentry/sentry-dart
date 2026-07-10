@@ -103,6 +103,12 @@
   if ([breadcrumb.data[@"response_body_size"] isKindOfClass:[NSNumber class]]) {
     data[@"responseBodySize"] = breadcrumb.data[@"response_body_size"];
   }
+  if ([breadcrumb.data[@"request"] isKindOfClass:[NSDictionary class]]) {
+    data[@"request"] = breadcrumb.data[@"request"];
+  }
+  if ([breadcrumb.data[@"response"] isKindOfClass:[NSDictionary class]]) {
+    data[@"response"] = breadcrumb.data[@"response"];
+  }
 
   return [SentrySessionReplayIntegration
       createNetworkBreadcrumbWithTimestamp:[self dateFrom:startTimestamp]

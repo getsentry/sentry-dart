@@ -480,6 +480,50 @@ class SentryOptions {
   /// array, and only attach tracing headers if a match was found.
   final List<String> tracePropagationTargets = ['.*'];
 
+  /// Whether to capture HTTP request/response headers and bodies for
+  /// requests made with [SentryHttpClient], to be shown alongside network
+  /// spans in Session Replay.
+  ///
+  /// This is off by default, and only takes effect for URLs matching
+  /// [networkDetailAllowUrls]. Request/response bodies may contain PII —
+  /// review [networkDetailAllowUrls] carefully before enabling this.
+  ///
+  /// This data is attached to HTTP breadcrumbs, so [recordHttpBreadcrumbs]
+  /// must also be enabled (the default) for this option to have any effect.
+  bool enableReplayNetworkDetailsCapturing = false;
+
+  /// List of strings/regex controlling for which outgoing requests
+  /// [enableReplayNetworkDetailsCapturing] captures headers/bodies.
+  ///
+  /// Empty by default, meaning no request is captured even when
+  /// [enableReplayNetworkDetailsCapturing] is enabled.
+  final List<String> networkDetailAllowUrls = [];
+
+  /// List of strings/regex excluded from [networkDetailAllowUrls].
+  ///
+  /// A URL matching both [networkDetailAllowUrls] and this list is
+  /// excluded.
+  final List<String> networkDetailDenyUrls = [];
+
+  /// Whether request/response bodies are captured when
+  /// [enableReplayNetworkDetailsCapturing] is active for a request.
+  ///
+  /// Only text, JSON, and form-urlencoded bodies are captured; binary
+  /// bodies are skipped and bodies are truncated at 150KB.
+  bool networkCaptureBodies = true;
+
+  /// Additional request header names to capture when
+  /// [enableReplayNetworkDetailsCapturing] is active for a request.
+  ///
+  /// `Content-Type`, `Content-Length`, and `Accept` are always captured.
+  final List<String> networkRequestHeaders = [];
+
+  /// Additional response header names to capture when
+  /// [enableReplayNetworkDetailsCapturing] is active for a request.
+  ///
+  /// `Content-Type`, `Content-Length`, and `Accept` are always captured.
+  final List<String> networkResponseHeaders = [];
+
   /// This option is used to enable the propagation of the
   /// W3C Trace Context HTTP header traceparent on outgoing HTTP requests.
   /// This is useful when the receiving services only support OTel/W3C propagation

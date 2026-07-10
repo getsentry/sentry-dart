@@ -54,6 +54,7 @@ Future<void> setupSentry(
       options.reportSilentFlutterErrors = true;
       options.attachScreenshot = true;
       options.attachViewHierarchy = true;
+
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
@@ -67,7 +68,9 @@ Future<void> setupSentry(
 
       options.replay.sessionSampleRate = 1.0;
       options.replay.onErrorSampleRate = 1.0;
-
+      options.enableReplayNetworkDetailsCapturing = true;
+      options.networkDetailAllowUrls.add(config.exampleUrl);
+      options.networkRequestHeaders.add('foo');
       options.enableLogs = true;
 
       options.beforeSendMetric = (metric) {
