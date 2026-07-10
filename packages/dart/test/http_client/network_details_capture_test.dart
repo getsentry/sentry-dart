@@ -91,8 +91,11 @@ void main() {
         });
       });
 
-      test('captures additional configured request headers', () {
+      test(
+          'captures additional configured request headers when sendDefaultPii is enabled',
+          () {
         final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
         fixture.options.networkRequestHeaders.add('X-Custom');
         final sut = fixture.getSut();
 
@@ -102,6 +105,24 @@ void main() {
         final data = sut.captureRequest(request);
 
         expect(data['headers'], {'X-Custom': 'value'});
+      });
+
+      test(
+          'does not capture additional configured request headers when sendDefaultPii is disabled',
+          () {
+        final fixture = Fixture();
+        fixture.options.networkRequestHeaders.add('X-Custom');
+        final sut = fixture.getSut();
+
+        final request = Request('GET', Uri.parse('https://example.com'))
+          ..headers.addAll({
+            'X-Custom': 'value',
+            'Content-Type': 'application/json',
+          });
+
+        final data = sut.captureRequest(request);
+
+        expect(data['headers'], {'Content-Type': 'application/json'});
       });
 
       test('captures body for capturable content type', () {

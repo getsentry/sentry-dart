@@ -304,11 +304,17 @@ void configureAndroidOptions({
           dartToJStringList(options.networkDetailAllowUrls)..releasedBy(arena));
       sessionReplay.setNetworkDetailDenyUrls(
           dartToJStringList(options.networkDetailDenyUrls)..releasedBy(arena));
-      sessionReplay.setNetworkRequestHeaders(
-          dartToJStringList(options.networkRequestHeaders)..releasedBy(arena));
-      sessionReplay.setNetworkResponseHeaders(
-          dartToJStringList(options.networkResponseHeaders)..releasedBy(arena));
-      sessionReplay.setNetworkCaptureBodies(options.networkCaptureBodies);
+      // Custom header names and bodies may contain PII, so they mirror the
+      // sendDefaultPii gate used on the Dart side.
+      final extraHeaders = options.sendDefaultPii;
+      sessionReplay.setNetworkRequestHeaders(dartToJStringList(
+          extraHeaders ? options.networkRequestHeaders : const [])
+        ..releasedBy(arena));
+      sessionReplay.setNetworkResponseHeaders(dartToJStringList(
+          extraHeaders ? options.networkResponseHeaders : const [])
+        ..releasedBy(arena));
+      sessionReplay.setNetworkCaptureBodies(
+          options.networkCaptureBodies && options.sendDefaultPii);
     }
 
     sessionReplay.setTrackConfiguration(false);

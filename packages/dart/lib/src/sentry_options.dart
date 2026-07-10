@@ -522,12 +522,17 @@ class SentryOptions {
   /// [enableReplayNetworkDetailsCapturing] is active for a request.
   ///
   /// `Content-Type`, `Content-Length`, and `Accept` are always captured.
+  /// Any other header only takes effect when [sendDefaultPii] is also
+  /// enabled, since headers such as `Authorization` or `Cookie` may contain
+  /// PII.
   final List<String> networkRequestHeaders = [];
 
   /// Additional response header names to capture when
   /// [enableReplayNetworkDetailsCapturing] is active for a request.
   ///
   /// `Content-Type`, `Content-Length`, and `Accept` are always captured.
+  /// Any other header only takes effect when [sendDefaultPii] is also
+  /// enabled, since headers such as `Set-Cookie` may contain PII.
   final List<String> networkResponseHeaders = [];
 
   /// This option is used to enable the propagation of the

@@ -134,9 +134,13 @@ class NetworkDetailsCapture {
 
   Map<String, String> _filterHeaders(
       Map<String, String> headers, List<String> extra) {
+    // Only the default headers are content-type-like metadata; anything
+    // beyond that (e.g. Authorization, Cookie) is opted into by name via
+    // [extra] and may contain PII, so it also requires sendDefaultPii.
     final allowed = {
       ..._defaultHeaders,
-      ...extra.map((header) => header.toLowerCase()),
+      if (_options.sendDefaultPii)
+        ...extra.map((header) => header.toLowerCase()),
     };
     final result = <String, String>{};
     headers.forEach((key, value) {
