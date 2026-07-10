@@ -511,6 +511,9 @@ class SentryOptions {
   /// Whether request/response bodies are captured when
   /// [enableReplayNetworkDetailsCapturing] is active for a request.
   ///
+  /// Only takes effect when [sendDefaultPii] is also enabled, since bodies
+  /// commonly contain PII.
+  ///
   /// Only text, JSON, and form-urlencoded bodies are captured; binary
   /// bodies are skipped and bodies are truncated at 150KB.
   bool networkCaptureBodies = true;

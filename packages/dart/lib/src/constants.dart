@@ -65,6 +65,8 @@ class SentryFeatures {
   static const String beforeSendFeedback = 'beforeSendFeedback';
   static const String beforeSendLog = 'beforeSendLog';
   static const String beforeSendMetric = 'beforeSendMetric';
+  static const String replayNetworkDetailsCapturing =
+      'replayNetworkDetailsCapturing';
 }
 
 /// Semantic attributes for telemetry.

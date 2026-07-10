@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 
+import '../constants.dart';
 import '../sentry_options.dart';
 import '../utils/internal_logger.dart';
 import '../utils/tracing_utils.dart';
@@ -13,7 +14,11 @@ import '../utils/tracing_utils.dart';
 /// network spans in Session Replay.
 @internal
 class NetworkDetailsCapture {
-  NetworkDetailsCapture(this._options);
+  NetworkDetailsCapture(this._options) {
+    if (_options.enableReplayNetworkDetailsCapturing) {
+      _options.sdk.addFeature(SentryFeatures.replayNetworkDetailsCapturing);
+    }
+  }
 
   final SentryOptions _options;
 
@@ -50,7 +55,7 @@ class NetworkDetailsCapture {
   }
 
   String? _captureRequestBody(BaseRequest request) {
-    if (!_options.networkCaptureBodies) {
+    if (!_options.sendDefaultPii || !_options.networkCaptureBodies) {
       return null;
     }
     // Only `Request` exposes its body synchronously without finalizing the
@@ -83,7 +88,8 @@ class NetworkDetailsCapture {
           _filterHeaders(response.headers, _options.networkResponseHeaders),
     };
 
-    if (!_options.networkCaptureBodies ||
+    if (!_options.sendDefaultPii ||
+        !_options.networkCaptureBodies ||
         !_isCapturableContentType(response.headers['content-type'])) {
       return (response, data);
     }

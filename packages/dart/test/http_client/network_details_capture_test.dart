@@ -1,4 +1,5 @@
 import 'package:http/http.dart';
+import 'package:sentry/src/constants.dart';
 import 'package:sentry/src/http_client/network_details_capture.dart';
 import 'package:test/test.dart';
 
@@ -6,6 +7,25 @@ import '../test_utils.dart';
 
 void main() {
   group('$NetworkDetailsCapture', () {
+    test('adds feature flag when enabled', () {
+      final fixture = Fixture();
+      fixture.options.enableReplayNetworkDetailsCapturing = true;
+
+      fixture.getSut();
+
+      expect(fixture.options.sdk.features,
+          contains(SentryFeatures.replayNetworkDetailsCapturing));
+    });
+
+    test('does not add feature flag when disabled', () {
+      final fixture = Fixture();
+
+      fixture.getSut();
+
+      expect(fixture.options.sdk.features,
+          isNot(contains(SentryFeatures.replayNetworkDetailsCapturing)));
+    });
+
     group('shouldCapture', () {
       test('returns false when disabled by default', () {
         final fixture = Fixture();
@@ -86,6 +106,7 @@ void main() {
 
       test('captures body for capturable content type', () {
         final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
         final sut = fixture.getSut();
 
         final request = Request('POST', Uri.parse('https://example.com'))
@@ -99,6 +120,7 @@ void main() {
 
       test('does not capture body for non-capturable content type', () {
         final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
         final sut = fixture.getSut();
 
         final request = Request('POST', Uri.parse('https://example.com'))
@@ -112,7 +134,22 @@ void main() {
 
       test('does not capture body when networkCaptureBodies is false', () {
         final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
         fixture.options.networkCaptureBodies = false;
+        final sut = fixture.getSut();
+
+        final request = Request('POST', Uri.parse('https://example.com'))
+          ..headers['content-type'] = 'application/json'
+          ..body = '{"foo":"bar"}';
+
+        final data = sut.captureRequest(request);
+
+        expect(data.containsKey('body'), false);
+      });
+
+      test('does not capture body when sendDefaultPii is false', () {
+        final fixture = Fixture();
+        fixture.options.sendDefaultPii = false;
         final sut = fixture.getSut();
 
         final request = Request('POST', Uri.parse('https://example.com'))
@@ -126,16 +163,16 @@ void main() {
 
       test('truncates request body at max size', () {
         final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
         final sut = fixture.getSut();
 
         final request = Request('POST', Uri.parse('https://example.com'))
           ..headers['content-type'] = 'text/plain'
-          ..body = 'a' * (NetworkDetailsCapture.maxBodySize + 100);
+          ..body = 'a' * (150 * 1024 + 100);
 
         final data = sut.captureRequest(request);
 
-        expect(
-            (data['body'] as String).length, NetworkDetailsCapture.maxBodySize);
+        expect((data['body'] as String).length, 150 * 1024);
       });
     });
 
@@ -143,6 +180,7 @@ void main() {
       test('captures headers and body, and forwards full body downstream',
           () async {
         final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
         final sut = fixture.getSut();
 
         final response = StreamedResponse(
@@ -166,6 +204,7 @@ void main() {
 
       test('does not capture body for non-capturable content type', () async {
         final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
         final sut = fixture.getSut();
 
         final response = StreamedResponse(
@@ -178,6 +217,23 @@ void main() {
 
         expect(data.containsKey('body'), false);
         expect(await forwardedResponse.stream.bytesToString(), 'binary');
+      });
+
+      test('does not capture body when sendDefaultPii is false', () async {
+        final fixture = Fixture();
+        fixture.options.sendDefaultPii = false;
+        final sut = fixture.getSut();
+
+        final response = StreamedResponse(
+          Stream.value('{"foo":"bar"}'.codeUnits),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+
+        final (forwardedResponse, data) = await sut.captureResponse(response);
+
+        expect(data.containsKey('body'), false);
+        expect(await forwardedResponse.stream.bytesToString(), '{"foo":"bar"}');
       });
     });
   });
