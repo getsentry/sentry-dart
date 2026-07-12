@@ -109,11 +109,7 @@ class SentryDelayedFramesTracker {
       _delayedFrames.removeWhere(
         (frame) => frame.startTimestamp.isBefore(spanStartTimestamp),
       );
-      try {
-        _oldestFrameEndTimestamp = _delayedFrames.firstOrNull?.endTimestamp;
-      } catch (e) {
-        _oldestFrameEndTimestamp = null;
-      }
+      _oldestFrameEndTimestamp = _delayedFrames.firstOrNull?.endTimestamp;
     }
   }
 
