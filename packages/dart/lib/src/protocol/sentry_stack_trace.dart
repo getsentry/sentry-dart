@@ -85,21 +85,4 @@ class SentryStackTrace {
       if (snapshot != null) 'snapshot': snapshot,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryStackTrace copyWith({
-    List<SentryStackFrame>? frames,
-    Map<String, String>? registers,
-    String? lang,
-    bool? snapshot,
-  }) =>
-      SentryStackTrace(
-        frames: frames ?? this.frames,
-        registers: registers ?? this.registers,
-        lang: lang ?? this.lang,
-        snapshot: snapshot ?? this.snapshot,
-        unknown: unknown,
-        baseAddr: baseAddr,
-        buildId: buildId,
-      );
 }

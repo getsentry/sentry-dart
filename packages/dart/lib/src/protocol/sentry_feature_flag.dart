@@ -41,17 +41,4 @@ class SentryFeatureFlag {
       unknown: unknown == null ? null : Map<String, dynamic>.from(unknown!),
     );
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryFeatureFlag copyWith({
-    String? flag,
-    bool? result,
-    Map<String, dynamic>? unknown,
-  }) {
-    return SentryFeatureFlag(
-      flag: flag ?? this.flag,
-      result: result ?? this.result,
-      unknown: unknown ?? this.unknown,
-    );
-  }
 }

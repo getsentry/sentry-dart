@@ -143,33 +143,4 @@ class SentryApp {
     }
     return attributes;
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryApp copyWith({
-    String? name,
-    String? version,
-    String? identifier,
-    String? build,
-    String? buildType,
-    DateTime? startTime,
-    String? deviceAppHash,
-    int? appMemory,
-    bool? inForeground,
-    List<String>? viewNames,
-    double? textScale,
-  }) =>
-      SentryApp(
-        name: name ?? this.name,
-        version: version ?? this.version,
-        identifier: identifier ?? this.identifier,
-        build: build ?? this.build,
-        buildType: buildType ?? this.buildType,
-        startTime: startTime ?? this.startTime,
-        deviceAppHash: deviceAppHash ?? this.deviceAppHash,
-        appMemory: appMemory ?? this.appMemory,
-        inForeground: inForeground ?? this.inForeground,
-        viewNames: viewNames ?? this.viewNames,
-        textScale: textScale ?? this.textScale,
-        unknown: unknown,
-      );
 }

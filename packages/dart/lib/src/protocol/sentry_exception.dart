@@ -74,27 +74,6 @@ class SentryException {
     };
   }
 
-  @Deprecated('Assign values directly to the instance.')
-  SentryException copyWith({
-    String? type,
-    String? value,
-    String? module,
-    SentryStackTrace? stackTrace,
-    Mechanism? mechanism,
-    int? threadId,
-    dynamic throwable,
-  }) =>
-      SentryException(
-        type: type ?? this.type,
-        value: value ?? this.value,
-        module: module ?? this.module,
-        stackTrace: stackTrace ?? this.stackTrace?.copyWith(),
-        mechanism: mechanism ?? this.mechanism?.copyWith(),
-        threadId: threadId ?? this.threadId,
-        throwable: throwable ?? this.throwable,
-        unknown: unknown,
-      );
-
   @internal
   List<SentryException>? get exceptions =>
       _exceptions != null ? List.unmodifiable(_exceptions!) : null;

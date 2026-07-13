@@ -197,30 +197,4 @@ class SentryUser {
       if (geoJson != null && geoJson.isNotEmpty) 'geo': geoJson,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryUser copyWith({
-    String? id,
-    String? username,
-    String? email,
-    String? ipAddress,
-    @Deprecated('Will be removed in v8. Use [data] instead')
-    Map<String, dynamic>? extras,
-    String? name,
-    SentryGeo? geo,
-    Map<String, dynamic>? data,
-  }) {
-    return SentryUser(
-      id: id ?? this.id,
-      username: username ?? this.username,
-      email: email ?? this.email,
-      ipAddress: ipAddress ?? this.ipAddress,
-      data: data ?? this.data,
-      // ignore: deprecated_member_use_from_same_package
-      extras: extras ?? this.extras,
-      geo: geo ?? this.geo,
-      name: name ?? this.name,
-      unknown: unknown,
-    );
-  }
 }
