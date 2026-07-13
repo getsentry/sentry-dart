@@ -15,6 +15,7 @@ import CoreVideo
 
 // swiftlint:disable file_length function_body_length
 
+@objc(SentryFlutterPlugin)
 // swiftlint:disable:next type_body_length
 public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     private let channel: FlutterMethodChannel
@@ -154,8 +155,8 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
         case "captureReplay":
 #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-            PrivateSentrySDKOnly.captureReplay()
-            result(PrivateSentrySDKOnly.getReplayId())
+            SentrySDK.internal.replay.capture()
+            result(SentrySDK.internal.replay.replayId)
 #else
             result(nil)
 #endif
@@ -211,7 +212,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             if let user = serializedScope["user"] as? [String: Any] {
                 infos["user"] = user
             } else {
-                infos["user"] = ["id": PrivateSentrySDKOnly.installationID]
+                infos["user"] = ["id": SentrySDK.internal.sdk.installationID]
             }
 
             // swiftlint:disable:next todo
@@ -221,47 +222,37 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             // SentrySessionReplayIntegration) once cocoa exposes the installed
             // integration names again (the cocoa team is adding the accessor).
 
-            #if SENTRY_FLUTTER_SPM
             infos["features"] = ["SwiftPackageManager"]
-            #else
-            infos["features"] = ["CocoaPods"]
-            #endif
 
             let deviceStr = "device"
             let appStr = "app"
-            if let extraContext = PrivateSentrySDKOnly.getExtraContext() as? [String: Any] {
-                // merge device
-                if let extraDevice = extraContext[deviceStr] as? [String: Any] {
-                    if var currentDevice = context[deviceStr] as? [String: Any] {
-                        currentDevice.merge(extraDevice) { (current, _) in current }
-                        context[deviceStr] = currentDevice
-                    } else {
-                        context[deviceStr] = extraDevice
-                    }
+            let extraContext = SentrySDK.internal.sdk.extraContext
+            // merge device
+            if let extraDevice = extraContext[deviceStr] as? [String: Any] {
+                if var currentDevice = context[deviceStr] as? [String: Any] {
+                    currentDevice.merge(extraDevice) { (current, _) in current }
+                    context[deviceStr] = currentDevice
+                } else {
+                    context[deviceStr] = extraDevice
                 }
+            }
 
-                // merge app
-                if let extraApp = extraContext[appStr] as? [String: Any] {
-                    if var currentApp = context[appStr] as? [String: Any] {
-                        currentApp.merge(extraApp) { (current, _) in current }
-                        context[appStr] = currentApp
-                    } else {
-                        context[appStr] = extraApp
-                    }
+            // merge app
+            if let extraApp = extraContext[appStr] as? [String: Any] {
+                if var currentApp = context[appStr] as? [String: Any] {
+                    currentApp.merge(extraApp) { (current, _) in current }
+                    context[appStr] = currentApp
+                } else {
+                    context[appStr] = extraApp
                 }
             }
 
             infos["contexts"] = context
 
-            // Not reading the name from PrivateSentrySDKOnly.getSdkName because
+            // Not reading the name from SentrySDK.internal.sdk.name because
             // this is added as a package and packages should follow the sentry-release-registry format
-            #if SENTRY_FLUTTER_SPM
-            infos["package"] = ["version": PrivateSentrySDKOnly.getSdkVersionString(),
+            infos["package"] = ["version": SentrySDK.internal.sdk.versionString,
                 "sdk_name": "spm:sentry-cocoa"]
-            #else
-            infos["package"] = ["version": PrivateSentrySDKOnly.getSdkVersionString(),
-                "sdk_name": "cocoapods:sentry-cocoa"]
-            #endif
 
             result(infos)
         }
@@ -271,26 +262,18 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         var debugImages: [DebugMeta] = []
 
         if let arguments = call.arguments as? [String], !arguments.isEmpty {
-            var imagesAddresses: Set<String> = []
+            var imageAddresses: Set<UInt64> = []
 
             for argument in arguments {
                 let hexDigits = argument.replacingOccurrences(of: "0x", with: "")
                 if let instructionAddress = UInt64(hexDigits, radix: 16) {
-                    let image = SentryDependencyContainer.sharedInstance().binaryImageCache
-                        .imageByAddress(instructionAddress)
-                    if let image = image {
-                        let imageAddress = String(format: "0x%016llx", image.address)
-                        imagesAddresses.insert(imageAddress)
-                    }
+                    imageAddresses.insert(instructionAddress)
                 }
             }
-            debugImages =
-              SentryDependencyContainer.sharedInstance().debugImageProvider
-              .getDebugImagesForImageAddressesFromCache(imageAddresses: imagesAddresses) as [DebugMeta]
+            debugImages = SentrySDK.internal.debug.images(forAddresses: Array(imageAddresses))
         }
         if debugImages.isEmpty {
-            debugImages = SentryDependencyContainer.sharedInstance().debugImageProvider
-                .getDebugImagesFromCache() as [DebugMeta]
+            debugImages = SentrySDK.internal.debug.images
         }
 
         result(debugImages.map { $0.serialize() })
@@ -308,14 +291,14 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             self.sentryFlutter.update(options: options, with: arguments)
 
             if arguments["enableAutoPerformanceTracing"] as? Bool ?? false {
-                PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+                SentrySDK.internal.appStart.hybridSDKMode = true
                 #if os(iOS) || targetEnvironment(macCatalyst)
-                PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
+                SentrySDK.internal.performance.framesTrackingHybridSDKMode = true
                 #endif
             }
 
-            let version = PrivateSentrySDKOnly.getSdkVersionString()
-            PrivateSentrySDKOnly.setSdkName(SentryFlutterPlugin.nativeClientName, andVersionString: version)
+            let version = SentrySDK.internal.sdk.versionString
+            SentrySDK.internal.sdk.setName(SentryFlutterPlugin.nativeClientName, version: version)
 
             let flutterSdk = arguments["sdk"] as? [String: Any]
 
@@ -375,22 +358,28 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
   private func configureReplay(_ arguments: [String: Any]) {
 #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
        let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
-       let screenshotProvider = SentryFlutterReplayScreenshotProvider(channel: self.channel)
-       PrivateSentrySDKOnly.configureSessionReplay(with: breadcrumbConverter, screenshotProvider: screenshotProvider)
+       let screenshotProvider = SentryFlutterReplayScreenshotProvider(
+        channel: self.channel,
+        replayIdProvider: { SentrySDK.internal.replay.replayId }
+       )
+       SentrySDK.internal.replay.configure(
+        breadcrumbConverter: breadcrumbConverter,
+        screenshotProvider: screenshotProvider
+       )
        if let replayOptions = arguments["replay"] as? [String: Any] {
          if let tags = replayOptions["tags"] as? [String: Any] {
-           let sessionReplayOptions = PrivateSentrySDKOnly.options.sessionReplay
+           let sessionReplayOptions = SentrySDK.internal.options.sessionReplay
            var newTags: [String: Any] = [
             "sessionSampleRate": sessionReplayOptions.sessionSampleRate,
             "errorSampleRate": sessionReplayOptions.onErrorSampleRate,
             "quality": String(describing: sessionReplayOptions.quality),
-            "nativeSdkName": PrivateSentrySDKOnly.getSdkName(),
-            "nativeSdkVersion": PrivateSentrySDKOnly.getSdkVersionString()
+            "nativeSdkName": SentrySDK.internal.sdk.name,
+            "nativeSdkVersion": SentrySDK.internal.sdk.versionString
            ]
            for (key, value) in tags {
                newTags[key] = value
            }
-           PrivateSentrySDKOnly.setReplayTags(newTags)
+           SentrySDK.internal.replay.setTags(newTags)
          }
        }
 #endif
@@ -448,12 +437,12 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil))
             return
         }
-        guard let envelope = PrivateSentrySDKOnly.envelope(with: data) else {
+        guard let envelope = SentrySDK.internal.envelope.deserialize(from: data) else {
             print("Cannot parse the envelope data")
             result(FlutterError(code: "3", message: "Cannot parse the envelope data", details: nil))
             return
         }
-        PrivateSentrySDKOnly.capture(envelope)
+        SentrySDK.internal.envelope.capture(envelope)
         result("")
         return
     }
@@ -473,7 +462,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
     private func fetchNativeAppStart(result: @escaping FlutterResult) {
         #if os(iOS) || os(tvOS)
-        guard let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement else {
+        guard let appStartMeasurement = SentrySDK.internal.appStart.measurement else {
             print("warning: appStartMeasurement is null")
             result(nil)
             return
@@ -570,7 +559,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
     private func setUser(user: [String: Any]?, result: @escaping FlutterResult) {
       if let user = user {
-        let userInstance = PrivateSentrySDKOnly.user(with: user)
+        let userInstance = SentrySDK.internal.user.fromDictionary(user)
         SentrySDK.setUser(userInstance)
       } else {
         SentrySDK.setUser(nil)
@@ -580,7 +569,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
     private func addBreadcrumb(breadcrumb: [String: Any]?, result: @escaping FlutterResult) {
       if let breadcrumb = breadcrumb {
-        let breadcrumbInstance = PrivateSentrySDKOnly.breadcrumb(with: breadcrumb)
+        let breadcrumbInstance = SentrySDK.internal.breadcrumbs.fromDictionary(breadcrumb)
         SentrySDK.addBreadcrumb(breadcrumbInstance)
       }
       result("")
@@ -662,8 +651,11 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             return
         }
 
-        let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: endTime,
-                                                                       forTrace: SentryId(uuidString: traceId))
+        let payload = SentrySDK.internal.profiling.collect(
+          between: startTime,
+          and: endTime,
+          for: SentryId(uuidString: traceId)
+        )
         result(payload)
     }
 
@@ -674,7 +666,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             return
         }
 
-        PrivateSentrySDKOnly.discardProfiler(forTrace: SentryId(uuidString: traceId))
+        SentrySDK.internal.profiling.discard(for: SentryId(uuidString: traceId))
         result(nil)
     }
 
@@ -732,8 +724,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         }
         let sentryTraceId = SentryId(uuidString: traceId)
         let sentrySpanId = SpanId(value: spanId)
-        PrivateSentrySDKOnly.setTrace(sentryTraceId, spanId: sentrySpanId)
+        SentrySDK.internal.setTrace(sentryTraceId, spanId: sentrySpanId)
         result("")
+    }
+
+    @objc(startProfilerForTrace:)
+    static func startProfiler(forTrace traceId: String) -> UInt64 {
+        SentrySDK.internal.profiling.start(for: SentryId(uuidString: traceId))
     }
 
     private func crash() {

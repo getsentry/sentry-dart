@@ -74,11 +74,9 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
   @override
   int? startProfiler(SentryId traceId) => tryCatchSync('startProfiler', () {
-    final cSentryId = cocoa.SentryId.alloc(_lib)
-      ..initWithUUIDString_(cocoa.NSString(_lib, traceId.toString()));
-    final startTime = cocoa.PrivateSentrySDKOnly.startProfilerForTrace_(
+    final startTime = cocoa.SentryFlutterPlugin.startProfilerForTrace_(
       _lib,
-      cSentryId,
+      cocoa.NSString(_lib, traceId.toString()),
     );
     return startTime;
   });

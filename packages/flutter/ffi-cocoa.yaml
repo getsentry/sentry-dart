@@ -1,19 +1,11 @@
 name: SentryCocoa
-description: Sentry Cocoa SDK FFI binding.
+description: Sentry Flutter Cocoa FFI binding.
 language: objc
 output: lib/src/native/cocoa/binding.dart
 headers:
   entry-points:
-    - ./temp/Sentry.framework/Headers/PrivateSentrySDKOnly.h
-    - ./temp/Sentry.framework/Headers/Sentry-Swift.h
-    - ./temp/Sentry.framework/Headers/SentryId.h
-compiler-opts:
-  - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
-  - -DCOCOAPODS=1
-  - '-I./temp/Sentry.framework/Headers/'
-  - '-I./temp/Sentry.framework/PrivateHeaders/'
+    - ffi-cocoa.h
 exclude-all-by-default: true
 objc-interfaces:
   include:
-    - PrivateSentrySDKOnly
-    - SentryId
+    - SentryFlutterPlugin

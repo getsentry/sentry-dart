@@ -104,7 +104,7 @@ The Flutter SDK embeds platform-specific native SDKs:
 
 * **Android**: [sentry-java](https://github.com/getsentry/sentry-java) (via
   Gradle) + [sentry-native](https://github.com/getsentry/sentry-native) for NDK
-* **iOS/macOS**: [sentry-cocoa](https://github.com/getsentry/sentry-cocoa) (via CocoaPods/SPM)
+* **iOS/macOS**: [sentry-cocoa](https://github.com/getsentry/sentry-cocoa) (via SwiftPM)
 * **Linux/Windows**: [sentry-native](https://github.com/getsentry/sentry-native) (bundled in
   `packages/flutter/sentry-native/`)
 * **Web**: [sentry-javascript](https://github.com/getsentry/sentry-javascript) (loaded via CDN)
