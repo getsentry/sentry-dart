@@ -8687,6 +8687,79 @@ class Sentry extends jni$_.JObject {
         .check();
   }
 
+  static final _id_extendAppStart = _class.staticMethodId(
+    r'extendAppStart',
+    r'()V',
+  );
+
+  static final _extendAppStart = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public void extendAppStart()`
+  static void extendAppStart() {
+    _extendAppStart(
+            _class.reference.pointer, _id_extendAppStart as jni$_.JMethodIDPtr)
+        .check();
+  }
+
+  static final _id_finishExtendedAppStart = _class.staticMethodId(
+    r'finishExtendedAppStart',
+    r'()V',
+  );
+
+  static final _finishExtendedAppStart = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public void finishExtendedAppStart()`
+  static void finishExtendedAppStart() {
+    _finishExtendedAppStart(_class.reference.pointer,
+            _id_finishExtendedAppStart as jni$_.JMethodIDPtr)
+        .check();
+  }
+
+  static final _id_getExtendedAppStartSpan = _class.staticMethodId(
+    r'getExtendedAppStartSpan',
+    r'()Lio/sentry/ISpan;',
+  );
+
+  static final _getExtendedAppStartSpan = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallStaticObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `static public io.sentry.ISpan getExtendedAppStartSpan()`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JObject? getExtendedAppStartSpan() {
+    return _getExtendedAppStartSpan(_class.reference.pointer,
+            _id_getExtendedAppStartSpan as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject?>(const jni$_.JObjectNullableType());
+  }
+
   static final _id_continueTrace = _class.staticMethodId(
     r'continueTrace',
     r'(Ljava/lang/String;Ljava/util/List;)Lio/sentry/TransactionContext;',
@@ -18988,6 +19061,60 @@ class SentryOptions extends jni$_.JObject {
             reference.pointer,
             _id_setFullyDisplayedReporter as jni$_.JMethodIDPtr,
             _$fullyDisplayedReporter.pointer)
+        .check();
+  }
+
+  static final _id_getAppStartExtender = _class.instanceMethodId(
+    r'getAppStartExtender',
+    r'()Lio/sentry/IAppStartExtender;',
+  );
+
+  static final _getAppStartExtender = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.IAppStartExtender getAppStartExtender()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject getAppStartExtender() {
+    return _getAppStartExtender(
+            reference.pointer, _id_getAppStartExtender as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_setAppStartExtender = _class.instanceMethodId(
+    r'setAppStartExtender',
+    r'(Lio/sentry/IAppStartExtender;)V',
+  );
+
+  static final _setAppStartExtender = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setAppStartExtender(io.sentry.IAppStartExtender iAppStartExtender)`
+  void setAppStartExtender(
+    jni$_.JObject? iAppStartExtender,
+  ) {
+    final _$iAppStartExtender =
+        iAppStartExtender?.reference ?? jni$_.jNullReference;
+    _setAppStartExtender(
+            reference.pointer,
+            _id_setAppStartExtender as jni$_.JMethodIDPtr,
+            _$iAppStartExtender.pointer)
         .check();
   }
 
