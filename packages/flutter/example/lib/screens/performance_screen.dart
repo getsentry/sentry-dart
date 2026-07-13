@@ -89,7 +89,7 @@ class PerformanceScreen extends StatelessWidget {
                     onPressed: () => makeWebRequestWithNetworkDetails(context),
                     key: const Key('web_request_network_details'),
                     text:
-                        'Enables enableReplayNetworkDetailsCapturing for this request and shows the captured '
+                        'Matches this request against networkDetailAllowUrls and shows the captured '
                         'request/response headers and body that get attached to the http breadcrumb for '
                         'Session Replay.',
                     buttonTitle: 'Dart: Web request with network details',
@@ -432,9 +432,9 @@ Future<void> _showDioResponseDialog(
 }
 
 Future<void> makeWebRequestWithNetworkDetails(BuildContext context) async {
-  // enableReplayNetworkDetailsCapturing, networkDetailAllowUrls and
-  // networkRequestHeaders are configured in main.dart at SentryFlutter.init()
-  // time - the native replay integration only reads them once, at startup.
+  // networkDetailAllowUrls and networkRequestHeaders are configured in
+  // main.dart at SentryFlutter.init() time - the native replay integration
+  // only reads them once, at startup.
   final client = SentryHttpClient();
   await client.post(
     Uri.parse(exampleUrl),

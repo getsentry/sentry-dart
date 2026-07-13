@@ -68,7 +68,6 @@ Future<void> setupSentry(
 
       options.replay.sessionSampleRate = 1.0;
       options.replay.onErrorSampleRate = 1.0;
-      options.enableReplayNetworkDetailsCapturing = true;
       options.networkDetailAllowUrls.add(config.exampleUrl);
       options.networkRequestHeaders.add('foo');
       options.enableLogs = true;

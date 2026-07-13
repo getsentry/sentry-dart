@@ -480,26 +480,19 @@ class SentryOptions {
   /// array, and only attach tracing headers if a match was found.
   final List<String> tracePropagationTargets = ['.*'];
 
-  /// Whether to capture HTTP request/response headers and bodies for
-  /// requests made with [SentryHttpClient], to be shown alongside network
-  /// spans in Session Replay.
+  /// List of strings/regex controlling for which outgoing requests made
+  /// with [SentryHttpClient] headers/bodies are captured, to be shown
+  /// alongside network spans in Session Replay.
   ///
   /// Currently only forwarded to Session Replay on Android; on other
   /// platforms the data is captured but not yet surfaced in the replay.
   ///
-  /// This is off by default, and only takes effect for URLs matching
-  /// [networkDetailAllowUrls]. Request/response bodies may contain PII —
-  /// review [networkDetailAllowUrls] carefully before enabling this.
+  /// Empty by default, meaning no request is captured. Request/response
+  /// bodies may contain PII — review this list carefully before adding
+  /// entries.
   ///
   /// This data is attached to HTTP breadcrumbs, so [recordHttpBreadcrumbs]
   /// must also be enabled (the default) for this option to have any effect.
-  bool enableReplayNetworkDetailsCapturing = false;
-
-  /// List of strings/regex controlling for which outgoing requests
-  /// [enableReplayNetworkDetailsCapturing] captures headers/bodies.
-  ///
-  /// Empty by default, meaning no request is captured even when
-  /// [enableReplayNetworkDetailsCapturing] is enabled.
   final List<String> networkDetailAllowUrls = [];
 
   /// List of strings/regex excluded from [networkDetailAllowUrls].
@@ -508,8 +501,8 @@ class SentryOptions {
   /// excluded.
   final List<String> networkDetailDenyUrls = [];
 
-  /// Whether request/response bodies are captured when
-  /// [enableReplayNetworkDetailsCapturing] is active for a request.
+  /// Whether request/response bodies are captured for URLs matching
+  /// [networkDetailAllowUrls].
   ///
   /// Only takes effect when [sendDefaultPii] is also enabled, since bodies
   /// commonly contain PII.
@@ -518,8 +511,8 @@ class SentryOptions {
   /// bodies are skipped and bodies are truncated at 150KB.
   bool networkCaptureBodies = true;
 
-  /// Additional request header names to capture when
-  /// [enableReplayNetworkDetailsCapturing] is active for a request.
+  /// Additional request header names to capture for URLs matching
+  /// [networkDetailAllowUrls].
   ///
   /// `Content-Type`, `Content-Length`, and `Accept` are always captured.
   /// Any other header only takes effect when [sendDefaultPii] is also
@@ -527,8 +520,8 @@ class SentryOptions {
   /// PII.
   final List<String> networkRequestHeaders = [];
 
-  /// Additional response header names to capture when
-  /// [enableReplayNetworkDetailsCapturing] is active for a request.
+  /// Additional response header names to capture for URLs matching
+  /// [networkDetailAllowUrls].
   ///
   /// `Content-Type`, `Content-Length`, and `Accept` are always captured.
   /// Any other header only takes effect when [sendDefaultPii] is also

@@ -93,8 +93,8 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
         .toMutableMap()
 
     // Populated by NetworkDetailsCapture on the Dart side when
-    // enableReplayNetworkDetailsCapturing is on; forwarded as-is since it's
-    // already shaped for the replay player (headers/body per request/response).
+    // networkDetailAllowUrls matches; forwarded as-is since it's already
+    // shaped for the replay player (headers/body per request/response).
     (breadcrumb.data["request"] as? Map<*, *>)?.let { eventData["request"] = it }
     (breadcrumb.data["response"] as? Map<*, *>)?.let { eventData["response"] = it }
 

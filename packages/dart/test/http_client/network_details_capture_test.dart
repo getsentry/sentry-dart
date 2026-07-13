@@ -7,9 +7,9 @@ import '../test_utils.dart';
 
 void main() {
   group('$NetworkDetailsCapture', () {
-    test('adds feature flag when enabled', () {
+    test('adds feature flag when allow list is non-empty', () {
       final fixture = Fixture();
-      fixture.options.enableReplayNetworkDetailsCapturing = true;
+      fixture.options.networkDetailAllowUrls.add('example.com');
 
       fixture.getSut();
 
@@ -17,7 +17,7 @@ void main() {
           contains(SentryFeatures.replayNetworkDetailsCapturing));
     });
 
-    test('does not add feature flag when disabled', () {
+    test('does not add feature flag when allow list is empty', () {
       final fixture = Fixture();
 
       fixture.getSut();
@@ -27,24 +27,15 @@ void main() {
     });
 
     group('shouldCapture', () {
-      test('returns false when disabled by default', () {
+      test('returns false when allow list is empty by default', () {
         final fixture = Fixture();
         final sut = fixture.getSut();
 
         expect(sut.shouldCapture(Uri.parse('https://example.com')), false);
       });
 
-      test('returns false when enabled but allow list is empty', () {
+      test('returns true when url matches allow list', () {
         final fixture = Fixture();
-        fixture.options.enableReplayNetworkDetailsCapturing = true;
-        final sut = fixture.getSut();
-
-        expect(sut.shouldCapture(Uri.parse('https://example.com')), false);
-      });
-
-      test('returns true when enabled and url matches allow list', () {
-        final fixture = Fixture();
-        fixture.options.enableReplayNetworkDetailsCapturing = true;
         fixture.options.networkDetailAllowUrls.add('example.com');
         final sut = fixture.getSut();
 
@@ -53,7 +44,6 @@ void main() {
 
       test('returns false when url does not match allow list', () {
         final fixture = Fixture();
-        fixture.options.enableReplayNetworkDetailsCapturing = true;
         fixture.options.networkDetailAllowUrls.add('example.com');
         final sut = fixture.getSut();
 
@@ -62,7 +52,6 @@ void main() {
 
       test('deny list overrides allow list', () {
         final fixture = Fixture();
-        fixture.options.enableReplayNetworkDetailsCapturing = true;
         fixture.options.networkDetailAllowUrls.add('.*');
         fixture.options.networkDetailDenyUrls.add('example.com');
         final sut = fixture.getSut();

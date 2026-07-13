@@ -299,7 +299,7 @@ void configureAndroidOptions({
     sessionReplay.setOnErrorSampleRate(
         options.replay.onErrorSampleRate?.toJDouble()?..releasedBy(arena));
 
-    if (options.enableReplayNetworkDetailsCapturing) {
+    if (options.networkDetailAllowUrls.isNotEmpty) {
       sessionReplay.setNetworkDetailAllowUrls(
           dartToJStringList(options.networkDetailAllowUrls)..releasedBy(arena));
       sessionReplay.setNetworkDetailDenyUrls(

@@ -264,9 +264,7 @@ void main() {
     });
 
     test('attaches network details when capture matches the request', () async {
-      final options = defaultTestOptions()
-        ..enableReplayNetworkDetailsCapturing = true
-        ..networkDetailAllowUrls.add('.*');
+      final options = defaultTestOptions()..networkDetailAllowUrls.add('.*');
       final capture = NetworkDetailsCapture(options);
 
       final sut = fixture.getSut(
@@ -284,7 +282,6 @@ void main() {
     test('does not attach network details when capture does not match',
         () async {
       final options = defaultTestOptions()
-        ..enableReplayNetworkDetailsCapturing = true
         ..networkDetailAllowUrls.add('other.com');
       final capture = NetworkDetailsCapture(options);
 

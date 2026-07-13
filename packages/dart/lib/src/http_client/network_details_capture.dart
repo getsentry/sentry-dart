@@ -9,9 +9,9 @@ import '../utils/internal_logger.dart';
 import '../utils/tracing_utils.dart';
 
 /// Captures HTTP request/response headers and bodies for [SentryHttpClient]
-/// requests, gated by [SentryOptions.enableReplayNetworkDetailsCapturing] and
-/// [SentryOptions.networkDetailAllowUrls], so they can be shown alongside
-/// network spans in Session Replay.
+/// requests, gated by [SentryOptions.networkDetailAllowUrls] being
+/// non-empty, so they can be shown alongside network spans in Session
+/// Replay.
 @internal
 class NetworkDetailsCapture {
   final SentryOptions _options;
@@ -22,15 +22,12 @@ class NetworkDetailsCapture {
   static const maxBodySize = 150 * 1024;
 
   NetworkDetailsCapture(this._options) {
-    if (_options.enableReplayNetworkDetailsCapturing) {
+    if (_options.networkDetailAllowUrls.isNotEmpty) {
       _options.sdk.addFeature(SentryFeatures.replayNetworkDetailsCapturing);
     }
   }
 
   bool shouldCapture(Uri url) {
-    if (!_options.enableReplayNetworkDetailsCapturing) {
-      return false;
-    }
     if (_options.networkDetailAllowUrls.isEmpty) {
       return false;
     }
