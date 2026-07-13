@@ -21,6 +21,38 @@
 - (feedback) Remove deprecated SentryFeedbackWidget by @buenaflor in [#3844](https://github.com/getsentry/sentry-dart/pull/3844)
 
 ## 10.0.0-alpha.1
+
+### Features
+
+#### Dart
+
+- Add array attributes to telemetry by @buenaflor in [#3778](https://github.com/getsentry/sentry-dart/pull/3778)
+- Mark span streaming API as non-experimental by @buenaflor in [#3756](https://github.com/getsentry/sentry-dart/pull/3756)
+
+#### Other
+
+- (flutter) Support SwiftPM on Flutter 3.44+ by @buenaflor in [#3784](https://github.com/getsentry/sentry-dart/pull/3784)
+
+### Enhancements
+
+- (flutter) Support int64 values from sentry-native by @buenaflor in [#3760](https://github.com/getsentry/sentry-dart/pull/3760)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Android SDK to v8.45.0 by @github-actions in [#3790](https://github.com/getsentry/sentry-dart/pull/3790)
+- chore(deps): update Native SDK to v0.15.1 by @github-actions in [#3757](https://github.com/getsentry/sentry-dart/pull/3757)
+
+#### Flutter
+
+- Bump jni to 1.0.0 and jnigen to 0.16.0 in v10 by @buenaflor in [#3765](https://github.com/getsentry/sentry-dart/pull/3765)
+- Bump sentry-cocoa to 9.17.1 in v10 by @buenaflor in [#3764](https://github.com/getsentry/sentry-dart/pull/3764)
+
+### Internal Changes
+
+- (flutter) Remove flaky frames measurement tests by @buenaflor in [#3783](https://github.com/getsentry/sentry-dart/pull/3783)
+
 ## 9.23.0
 
 ### Features
