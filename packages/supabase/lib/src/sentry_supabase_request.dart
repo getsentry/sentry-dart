@@ -188,7 +188,9 @@ class SentrySupabaseRequest {
     final body = this.body;
     switch (operation) {
       case Operation.select:
-        return 'SELECT * FROM "$table"';
+        final whereClause = _buildWhereClause();
+        return 'SELECT ${_buildSelectColumns()} FROM "$table"'
+            '${whereClause.isNotEmpty ? ' WHERE $whereClause' : ''}';
       case Operation.insert:
       case Operation.upsert:
         if (body != null && body.isNotEmpty) {
@@ -210,6 +212,12 @@ class SentrySupabaseRequest {
       case Operation.unknown:
         return 'UNKNOWN OPERATION ON "$table"';
     }
+  }
+
+  /// Returns the `select` column projection, or `*` when none is set.
+  String _buildSelectColumns() {
+    final columns = request.url.queryParameters['select'];
+    return columns == null || columns.isEmpty ? '*' : columns;
   }
 
   /// Builds WHERE clause from query parameters for SQL representation
@@ -248,7 +256,8 @@ class SentrySupabaseRequest {
         continue;
       }
 
-      // Handle NOT conditions via filter - e.g., filter(not, eq.deleted)
+      // Handle NOT conditions via filter - e.g., filter(not, status.eq.deleted).
+      // Rendered as `NOT (column = ?)` to match the not(column, op, value) path.
       if (queryItem.startsWith('filter(not,')) {
         // Find the NOT parameter in original query
         final notParam = originalParams.entries.firstWhere(
@@ -260,7 +269,7 @@ class SentrySupabaseRequest {
           final parts = notParam.value.split('.eq.');
           if (parts.isNotEmpty) {
             final column = parts[0];
-            conditions.add('$column != ?');
+            conditions.add('NOT ($column = ?)');
           }
         }
         continue;
@@ -273,9 +282,22 @@ class SentrySupabaseRequest {
         if (match != null) {
           final operation = match.group(1);
           final column = match.group(2);
+          final value = match.group(3);
           if (operation != null && column != null) {
-            final operatorSql = _getOperatorSql(operation);
-            conditions.add('$column $operatorSql ?');
+            // PostgREST pagination/sorting params (order, limit, offset) are
+            // not column filters, so they must not leak into the WHERE clause.
+            if (operation == 'filter' &&
+                const {'order', 'limit', 'offset'}.contains(column)) {
+              continue;
+            }
+            if (operation == 'not') {
+              // PostgREST `.not(column, op, value)` negates the inner operator,
+              // e.g. `not(id, eq.32)` -> NOT (id = ?).
+              final innerOp = (value ?? '').split('.').first;
+              conditions.add('NOT ($column ${_getOperatorSql(innerOp)} ?)');
+            } else {
+              conditions.add('$column ${_getOperatorSql(operation)} ?');
+            }
           }
         }
       }
@@ -305,6 +327,8 @@ class SentrySupabaseRequest {
         return 'LIKE';
       case 'ilike':
         return 'ILIKE';
+      case 'is':
+        return 'IS';
       case 'in':
         return 'IN';
       default:

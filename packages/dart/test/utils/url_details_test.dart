@@ -15,7 +15,7 @@ void main() {
     final span = MockInstrumentationSpan();
     urlDetails.applyToSpan(span);
 
-    verify(span.setData("url", "https://sentry.io/api"));
+    verify(span.setData("url.full", "https://sentry.io/api"));
     verify(span.setData("http.query", "q=1"));
     verify(span.setData("http.fragment", "top"));
   });
@@ -25,7 +25,7 @@ void main() {
     final span = MockInstrumentationSpan();
     urlDetails.applyToSpan(span);
 
-    verify(span.setData("url", "https://sentry.io/api"));
+    verify(span.setData("url.full", "https://sentry.io/api"));
     verifyNoMoreInteractions(span);
   });
 

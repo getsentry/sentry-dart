@@ -66,8 +66,8 @@ void main() {
         equals('db.sql.query'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-        equals('db.sqlite'),
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
+        equals('sqlite'),
       );
       expect(
         span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
@@ -118,8 +118,8 @@ void main() {
         equals('db.sql.query'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-        equals('db.sqlite'),
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
+        equals('sqlite'),
       );
       expect(span.parentSpan, equals(transactionSpan));
     });
@@ -168,8 +168,8 @@ void main() {
         equals('db.sql.query'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-        equals('db.sqlite'),
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
+        equals('sqlite'),
       );
       expect(span.parentSpan, equals(transactionSpan));
     });

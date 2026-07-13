@@ -55,7 +55,7 @@ void main() {
         equals('db.select'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('postgresql'),
       );
       expect(
@@ -102,7 +102,7 @@ void main() {
         equals('db.insert'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('postgresql'),
       );
       expect(span.parentSpan, equals(transactionSpan));
@@ -140,7 +140,7 @@ void main() {
         equals('db.update'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('postgresql'),
       );
       expect(span.parentSpan, equals(transactionSpan));
@@ -178,7 +178,7 @@ void main() {
         equals('db.delete'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('postgresql'),
       );
       expect(span.parentSpan, equals(transactionSpan));

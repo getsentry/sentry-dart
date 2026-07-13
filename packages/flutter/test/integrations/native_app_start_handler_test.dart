@@ -298,9 +298,12 @@ void main() {
       expect(fixture.scope.span, isA<SentryTracer>());
     });
 
-    test('added transaction has app_start_type data', () async {
+    test('added transaction has app.vitals.start.type data', () async {
       await fixture.call(appStartEnd: DateTime.fromMillisecondsSinceEpoch(10));
-      expect(fixture._enrichedTransaction?.data["app_start_type"], 'cold');
+      expect(
+        fixture._enrichedTransaction?.data["app.vitals.start.type"],
+        'cold',
+      );
     });
 
     test('added transaction is not bound to scope if already set', () async {
@@ -477,12 +480,12 @@ void main() {
       expect(firstFrameRenderSpan, isNotNull);
     });
 
-    test('have app_start_type data set', () async {
-      // Verify that app start spans have the app_start_type data set
-      expect(coldStartSpan?.data["app_start_type"], "cold");
-      expect(pluginRegistrationSpan?.data["app_start_type"], "cold");
-      expect(sentrySetupSpan?.data["app_start_type"], "cold");
-      expect(firstFrameRenderSpan?.data["app_start_type"], "cold");
+    test('have app.vitals.start.type data set', () async {
+      // Verify that app start spans have the app.vitals.start.type data set
+      expect(coldStartSpan?.data["app.vitals.start.type"], "cold");
+      expect(pluginRegistrationSpan?.data["app.vitals.start.type"], "cold");
+      expect(sentrySetupSpan?.data["app.vitals.start.type"], "cold");
+      expect(firstFrameRenderSpan?.data["app.vitals.start.type"], "cold");
     });
 
     test('have correct op', () async {

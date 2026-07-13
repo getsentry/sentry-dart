@@ -39,6 +39,8 @@ class SpanCapturePipeline {
 
           span.addAttributesIfAbsent(defaultAttributes(_options, scope: scope));
           span.addAttributesIfAbsent({
+            SemanticAttributesConstants.sentryTraceLifecycle:
+                SentryAttribute.string(SentryTraceLifecycle.stream.name),
             SemanticAttributesConstants.sentrySegmentName:
                 SentryAttribute.string(span.segmentSpan.name),
             SemanticAttributesConstants.sentryTransaction:

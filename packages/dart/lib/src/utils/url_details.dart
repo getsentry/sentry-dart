@@ -20,13 +20,13 @@ class UrlDetails {
       return;
     }
     if (url != null) {
-      span.setData('url', url);
+      span.setData(SemanticAttributesConstants.urlFull, url);
     }
     if (query != null) {
-      span.setData("http.query", query);
+      span.setData(SemanticAttributesConstants.httpQuery, query);
     }
     if (fragment != null) {
-      span.setData("http.fragment", fragment);
+      span.setData(SemanticAttributesConstants.httpFragment, fragment);
     }
   }
 }

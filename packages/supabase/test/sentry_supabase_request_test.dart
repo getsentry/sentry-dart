@@ -205,6 +205,20 @@ void main() {
             'DELETE FROM "users" WHERE status != ?',
           );
         });
+
+        test('is (is null)', () {
+          final request = Request(
+            'DELETE',
+            Uri.parse('https://example.com/rest/v1/users?deleted=is.null'),
+          );
+          final supabaseRequest =
+              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+
+          expect(
+            supabaseRequest.generateSqlQuery(),
+            'DELETE FROM "users" WHERE deleted IS ?',
+          );
+        });
       });
 
       group('comparison operators', () {
@@ -390,7 +404,21 @@ void main() {
 
           expect(
             supabaseRequest.generateSqlQuery(),
-            'DELETE FROM "users" WHERE status != ?',
+            'DELETE FROM "users" WHERE NOT (status = ?)',
+          );
+        });
+
+        test('NOT condition via not(column, op, value)', () {
+          final request = Request(
+            'DELETE',
+            Uri.parse('https://example.com/rest/v1/users?id=not.eq.32'),
+          );
+          final supabaseRequest =
+              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+
+          expect(
+            supabaseRequest.generateSqlQuery(),
+            'DELETE FROM "users" WHERE NOT (id = ?)',
           );
         });
 
@@ -406,18 +434,62 @@ void main() {
 
           expect(
             supabaseRequest.generateSqlQuery(),
-            'DELETE FROM "users" WHERE id = ? AND age > ? OR status = ? AND type != ?',
+            'DELETE FROM "users" WHERE id = ? AND age > ? OR status = ? AND NOT (type = ?)',
           );
         });
       });
 
       group('SELECT with WHERE clauses', () {
-        test('SELECT ignores WHERE clauses in SQL generation', () {
+        test('SELECT includes WHERE clauses in SQL generation', () {
           final request = Request(
             'GET',
             Uri.parse(
               'https://example.com/rest/v1/users?id=eq.42&status=eq.active',
             ),
+          );
+          final supabaseRequest =
+              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+
+          expect(
+            supabaseRequest.generateSqlQuery(),
+            'SELECT * FROM "users" WHERE id = ? AND status = ?',
+          );
+        });
+
+        test('SELECT includes the column projection', () {
+          final request = Request(
+            'GET',
+            Uri.parse('https://example.com/rest/v1/users?select=id,name'),
+          );
+          final supabaseRequest =
+              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+
+          expect(
+            supabaseRequest.generateSqlQuery(),
+            'SELECT id,name FROM "users"',
+          );
+        });
+
+        test('SELECT combines projection and WHERE clause', () {
+          final request = Request(
+            'GET',
+            Uri.parse(
+              'https://example.com/rest/v1/users?select=id,name&id=eq.42',
+            ),
+          );
+          final supabaseRequest =
+              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+
+          expect(
+            supabaseRequest.generateSqlQuery(),
+            'SELECT id,name FROM "users" WHERE id = ?',
+          );
+        });
+
+        test('SELECT falls back to * for an empty select projection', () {
+          final request = Request(
+            'GET',
+            Uri.parse('https://example.com/rest/v1/users?select='),
           );
           final supabaseRequest =
               SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
