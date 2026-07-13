@@ -84,21 +84,6 @@ class SentryTraceContext {
     };
   }
 
-  @Deprecated('Will be removed in a future version.')
-  SentryTraceContext clone() => SentryTraceContext(
-        operation: operation,
-        traceId: traceId,
-        spanId: spanId,
-        description: description,
-        status: status,
-        parentSpanId: parentSpanId,
-        sampled: sampled,
-        origin: origin,
-        unknown: unknown,
-        replayId: replayId,
-        data: data,
-      );
-
   SentryTraceContext({
     SentryId? traceId,
     SpanId? spanId,

@@ -98,16 +98,6 @@ class SentryCulture {
     };
   }
 
-  @Deprecated('Will be removed in a future version.')
-  SentryCulture clone() => SentryCulture(
-        calendar: calendar,
-        displayName: displayName,
-        locale: locale,
-        is24HourFormat: is24HourFormat,
-        timezone: timezone,
-        unknown: unknown,
-      );
-
   @Deprecated('Assign values directly to the instance.')
   SentryCulture copyWith({
     String? calendar,

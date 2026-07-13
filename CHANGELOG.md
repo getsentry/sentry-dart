@@ -1,6 +1,58 @@
 # Changelog
 
+## 10.0.0-alpha.2
+
+### Features
+
+- (telemetry) Align span attributes with Sentry Conventions by @buenaflor in [#3805](https://github.com/getsentry/sentry-dart/pull/3805)
+- Add feature flags to hub span by @denrase in [#3806](https://github.com/getsentry/sentry-dart/pull/3806)
+- (logs) Add Hint to beforeSend for logs, metrics, and spans by @buenaflor in [#3847](https://github.com/getsentry/sentry-dart/pull/3847)
+- (logs) Enable logs by default by @buenaflor in [#3846](https://github.com/getsentry/sentry-dart/pull/3846)
+
+### Internal Changes
+
+- (logs) Make traceId required on SentryLog by @buenaflor in [#3842](https://github.com/getsentry/sentry-dart/pull/3842)
+- Make clone() internal and remove deprecated protocol clones by @buenaflor in [#3845](https://github.com/getsentry/sentry-dart/pull/3845)
+- (dart) Make feature flags hub/scope-based by @buenaflor in [#3848](https://github.com/getsentry/sentry-dart/pull/3848)
+- (file) Remove file.async attributes from instrumentation by @buenaflor in [#3841](https://github.com/getsentry/sentry-dart/pull/3841)
+- (logs) Make logger methods return void by @buenaflor in [#3852](https://github.com/getsentry/sentry-dart/pull/3852)
+- (logs) Remove deprecated SentryLogAttribute by @buenaflor in [#3843](https://github.com/getsentry/sentry-dart/pull/3843)
+- Remove deprecated performance collectors by @buenaflor in [#3850](https://github.com/getsentry/sentry-dart/pull/3850)
+- (feedback) Remove deprecated SentryFeedbackWidget by @buenaflor in [#3844](https://github.com/getsentry/sentry-dart/pull/3844)
+
 ## 10.0.0-alpha.1
+
+### Features
+
+#### Dart
+
+- Add array attributes to telemetry by @buenaflor in [#3778](https://github.com/getsentry/sentry-dart/pull/3778)
+- Mark span streaming API as non-experimental by @buenaflor in [#3756](https://github.com/getsentry/sentry-dart/pull/3756)
+
+#### Other
+
+- (flutter) Support SwiftPM on Flutter 3.44+ by @buenaflor in [#3784](https://github.com/getsentry/sentry-dart/pull/3784)
+
+### Enhancements
+
+- (flutter) Support int64 values from sentry-native by @buenaflor in [#3760](https://github.com/getsentry/sentry-dart/pull/3760)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Android SDK to v8.45.0 by @github-actions in [#3790](https://github.com/getsentry/sentry-dart/pull/3790)
+- chore(deps): update Native SDK to v0.15.1 by @github-actions in [#3757](https://github.com/getsentry/sentry-dart/pull/3757)
+
+#### Flutter
+
+- Bump jni to 1.0.0 and jnigen to 0.16.0 in v10 by @buenaflor in [#3765](https://github.com/getsentry/sentry-dart/pull/3765)
+- Bump sentry-cocoa to 9.17.1 in v10 by @buenaflor in [#3764](https://github.com/getsentry/sentry-dart/pull/3764)
+
+### Internal Changes
+
+- (flutter) Remove flaky frames measurement tests by @buenaflor in [#3783](https://github.com/getsentry/sentry-dart/pull/3783)
+
 ## 9.23.0
 
 ### Features

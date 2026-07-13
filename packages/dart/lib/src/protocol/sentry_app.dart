@@ -144,22 +144,6 @@ class SentryApp {
     return attributes;
   }
 
-  @Deprecated('Will be removed in a future version.')
-  SentryApp clone() => SentryApp(
-        name: name,
-        version: version,
-        identifier: identifier,
-        build: build,
-        buildType: buildType,
-        startTime: startTime,
-        deviceAppHash: deviceAppHash,
-        appMemory: appMemory,
-        inForeground: inForeground,
-        viewNames: viewNames,
-        textScale: textScale,
-        unknown: unknown,
-      );
-
   @Deprecated('Assign values directly to the instance.')
   SentryApp copyWith({
     String? name,

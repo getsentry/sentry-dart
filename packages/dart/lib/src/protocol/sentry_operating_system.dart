@@ -127,18 +127,6 @@ class SentryOperatingSystem {
     return attributes;
   }
 
-  @Deprecated('Will be removed in a future version.')
-  SentryOperatingSystem clone() => SentryOperatingSystem(
-        name: name,
-        version: version,
-        build: build,
-        kernelVersion: kernelVersion,
-        rooted: rooted,
-        rawDescription: rawDescription,
-        theme: theme,
-        unknown: unknown,
-      );
-
   @Deprecated('Assign values directly to the instance.')
   SentryOperatingSystem copyWith({
     String? name,
