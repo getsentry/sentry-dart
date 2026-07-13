@@ -14,18 +14,18 @@ import '../utils/tracing_utils.dart';
 /// network spans in Session Replay.
 @internal
 class NetworkDetailsCapture {
-  NetworkDetailsCapture(this._options) {
-    if (_options.enableReplayNetworkDetailsCapturing) {
-      _options.sdk.addFeature(SentryFeatures.replayNetworkDetailsCapturing);
-    }
-  }
-
   final SentryOptions _options;
 
   static const _defaultHeaders = ['content-type', 'content-length', 'accept'];
 
   /// Matches native's `SentryReplayOptions.MAX_NETWORK_BODY_SIZE`.
   static const maxBodySize = 150 * 1024;
+
+  NetworkDetailsCapture(this._options) {
+    if (_options.enableReplayNetworkDetailsCapturing) {
+      _options.sdk.addFeature(SentryFeatures.replayNetworkDetailsCapturing);
+    }
+  }
 
   bool shouldCapture(Uri url) {
     if (!_options.enableReplayNetworkDetailsCapturing) {
@@ -52,29 +52,6 @@ class NetworkDetailsCapture {
       data['body'] = body;
     }
     return data;
-  }
-
-  String? _captureRequestBody(BaseRequest request) {
-    if (!_options.sendDefaultPii || !_options.networkCaptureBodies) {
-      return null;
-    }
-    // Only `Request` exposes its body synchronously without finalizing the
-    // request stream, which `BaseClient` implementations are only allowed to
-    // do once.
-    if (request is! Request) {
-      return null;
-    }
-    if (!_isCapturableContentType(request.headers['content-type'])) {
-      return null;
-    }
-    try {
-      return _truncate(request.body);
-    } catch (exception) {
-      internalLogger.warning(
-        () => 'Failed to capture request body for replay: $exception',
-      );
-      return null;
-    }
   }
 
   /// Returns the response to forward to the original caller (its body
@@ -117,6 +94,29 @@ class NetworkDetailsCapture {
       );
     }
     return (forwarded, data);
+  }
+
+  String? _captureRequestBody(BaseRequest request) {
+    if (!_options.sendDefaultPii || !_options.networkCaptureBodies) {
+      return null;
+    }
+    // Only `Request` exposes its body synchronously without finalizing the
+    // request stream, which `BaseClient` implementations are only allowed to
+    // do once.
+    if (request is! Request) {
+      return null;
+    }
+    if (!_isCapturableContentType(request.headers['content-type'])) {
+      return null;
+    }
+    try {
+      return _truncate(request.body);
+    } catch (exception) {
+      internalLogger.warning(
+        () => 'Failed to capture request body for replay: $exception',
+      );
+      return null;
+    }
   }
 
   StreamedResponse _copyWithBytes(StreamedResponse response, List<int> bytes) {
