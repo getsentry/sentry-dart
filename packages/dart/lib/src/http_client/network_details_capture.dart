@@ -63,9 +63,11 @@ class NetworkDetailsCapture {
           _filterHeaders(response.headers, _options.networkResponseHeaders),
     };
 
+    final contentLength = response.contentLength;
     if (!_options.sendDefaultPii ||
         !_options.networkCaptureBodies ||
-        !_isCapturableContentType(response.headers['content-type'])) {
+        !_isCapturableContentType(response.headers['content-type']) ||
+        (contentLength != null && contentLength > maxBodySize)) {
       return (response, data);
     }
 

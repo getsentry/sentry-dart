@@ -245,6 +245,25 @@ void main() {
         expect(data.containsKey('body'), false);
         expect(await forwardedResponse.stream.bytesToString(), '{"foo":"bar"}');
       });
+
+      test('does not capture body when contentLength exceeds max size',
+          () async {
+        final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
+        final sut = fixture.getSut();
+
+        final response = StreamedResponse(
+          Stream.value('{"foo":"bar"}'.codeUnits),
+          200,
+          contentLength: NetworkDetailsCapture.maxBodySize + 1,
+          headers: {'content-type': 'application/json'},
+        );
+
+        final (forwardedResponse, data) = await sut.captureResponse(response);
+
+        expect(data.containsKey('body'), false);
+        expect(await forwardedResponse.stream.bytesToString(), '{"foo":"bar"}');
+      });
     });
   });
 }
