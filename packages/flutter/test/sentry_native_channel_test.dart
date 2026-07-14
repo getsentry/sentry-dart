@@ -597,13 +597,12 @@ void main() {
     });
 
     test(
-      'uses captureFailedRequests when captureNativeFailedRequests is null (backwards compatibility)',
+      'defaults native failed request capture to false when Dart capture is disabled',
       () async {
         final options = defaultTestOptions()
           ..platform = MockPlatform.iOS()
           ..methodChannel = channel
-          ..captureFailedRequests = false
-          ..captureNativeFailedRequests = null;
+          ..captureFailedRequests = false;
         sut = createBinding(options);
 
         final args = await callInitAndCaptureArgs(options);
@@ -645,18 +644,16 @@ void main() {
     );
 
     test(
-      'defaults to captureFailedRequests value when both use defaults',
+      'defaults native failed request capture to false when Dart capture is enabled',
       () async {
         final options = defaultTestOptions()
           ..platform = MockPlatform.iOS()
           ..methodChannel = channel;
-        // captureFailedRequests defaults to true
-        // captureNativeFailedRequests defaults to null
         sut = createBinding(options);
 
         final args = await callInitAndCaptureArgs(options);
 
-        expect(args['captureFailedRequests'], true);
+        expect(args['captureFailedRequests'], false);
       },
     );
   });

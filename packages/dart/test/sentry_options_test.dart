@@ -20,6 +20,14 @@ void main() {
     expect(client, options.httpClient);
   });
 
+  group('$SentryOptions', () {
+    test('disables native failed request capture by default', () {
+      final options = defaultTestOptions();
+
+      expect(options.captureNativeFailedRequests, false);
+    });
+  });
+
   test('maxBreadcrumbs is 100 by default', () {
     final options = defaultTestOptions();
 
