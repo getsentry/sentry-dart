@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
-import 'profiling.dart';
 import 'sentry_tracer_finish_status.dart';
 import 'utils/sample_rate_format.dart';
 
@@ -36,13 +35,6 @@ class SentryTracer extends ISentrySpan {
 
   SentryTraceContextHeader? _sentryTraceContextHeader;
 
-  // Profiler attached to this tracer.
-  late final SentryProfiler? profiler;
-
-  // Resulting profile, after it has been collected.  This is later used by
-  // SentryClient to attach as an envelope item when sending the transaction.
-  SentryProfileInfo? profileInfo;
-
   /// If [waitForChildren] is true, this transaction will not finish until all
   /// its children are finished.
   ///
@@ -64,7 +56,6 @@ class SentryTracer extends ISentrySpan {
     Duration? autoFinishAfter,
     bool trimEnd = false,
     OnTransactionFinish? onFinish,
-    this.profiler,
   }) {
     _rootSpan = SentrySpan(
       this,
@@ -100,79 +91,71 @@ class SentryTracer extends ISentrySpan {
     if (_waitForChildren && !_haveAllChildrenFinished()) {
       return;
     }
-    try {
-      _rootSpan.status ??= status;
+    _rootSpan.status ??= status;
 
-      // remove span where its endTimestamp is before startTimestamp
-      _children.removeWhere(
-          (span) => !_hasSpanSuitableTimestamps(span, commonEndTimestamp));
+    // remove span where its endTimestamp is before startTimestamp
+    _children.removeWhere(
+        (span) => !_hasSpanSuitableTimestamps(span, commonEndTimestamp));
 
-      var _rootEndTimestamp = commonEndTimestamp;
+    var _rootEndTimestamp = commonEndTimestamp;
 
-      // Trim the end timestamp of the transaction to the very last timestamp of child spans
-      if (_trimEnd && children.isNotEmpty) {
-        DateTime? latestEndTime;
+    // Trim the end timestamp of the transaction to the very last timestamp of child spans
+    if (_trimEnd && children.isNotEmpty) {
+      DateTime? latestEndTime;
 
-        for (final child in children) {
-          final childEndTimestamp = child.endTimestamp;
-          if (childEndTimestamp != null) {
-            if (latestEndTime == null ||
-                childEndTimestamp.isAfter(latestEndTime)) {
-              latestEndTime = child.endTimestamp;
-            }
+      for (final child in children) {
+        final childEndTimestamp = child.endTimestamp;
+        if (childEndTimestamp != null) {
+          if (latestEndTime == null ||
+              childEndTimestamp.isAfter(latestEndTime)) {
+            latestEndTime = child.endTimestamp;
           }
         }
-
-        if (latestEndTime != null) {
-          _rootEndTimestamp = latestEndTime;
-        }
       }
 
-      // the callback should run before because if the span is finished,
-      // we cannot attach data, its immutable after being finished.
-      final finish = _onFinish?.call(this);
-      if (finish is Future) {
-        await finish;
+      if (latestEndTime != null) {
+        _rootEndTimestamp = latestEndTime;
       }
-      await _rootSpan.finish(endTimestamp: _rootEndTimestamp, hint: hint);
-
-      // remove from scope
-      await _hub.configureScope((scope) {
-        if (scope.span == this) {
-          scope.span = null;
-        }
-      });
-
-      // if it's an idle transaction which has no children, we drop it to save user's quota
-      if (children.isEmpty && _autoFinishAfter != null) {
-        return;
-      }
-
-      final transaction = SentryTransaction(this);
-      transaction.measurements.addAll(_measurements);
-
-      final trace = transaction.contexts.trace;
-      if (trace != null &&
-          _hub.options.traceLifecycle == SentryTraceLifecycle.static) {
-        trace.data = {
-          ...?trace.data,
-          SemanticAttributesConstants.sentryTraceLifecycle:
-              SentryTraceLifecycle.static.name,
-        };
-      }
-
-      profileInfo = (status == null || status == SpanStatus.ok())
-          ? await profiler?.finishFor(transaction)
-          : null;
-
-      await _hub.captureTransaction(
-        transaction,
-        traceContext: traceContext(),
-        hint: hint,
-      );
-    } finally {
-      profiler?.dispose();
     }
+
+    // the callback should run before because if the span is finished,
+    // we cannot attach data, its immutable after being finished.
+    final finish = _onFinish?.call(this);
+    if (finish is Future) {
+      await finish;
+    }
+    await _rootSpan.finish(endTimestamp: _rootEndTimestamp, hint: hint);
+
+    // remove from scope
+    await _hub.configureScope((scope) {
+      if (scope.span == this) {
+        scope.span = null;
+      }
+    });
+
+    // if it's an idle transaction which has no children, we drop it to save user's quota
+    if (children.isEmpty && _autoFinishAfter != null) {
+      return;
+    }
+
+    final transaction = SentryTransaction(this);
+    transaction.measurements.addAll(_measurements);
+
+    final trace = transaction.contexts.trace;
+    if (trace != null &&
+        _hub.options.traceLifecycle == SentryTraceLifecycle.static) {
+      trace.data = {
+        ...?trace.data,
+        SemanticAttributesConstants.sentryTraceLifecycle:
+            SentryTraceLifecycle.static.name,
+      };
+    }
+
+    await _hub.captureTransaction(
+      transaction,
+      traceContext: traceContext(),
+      hint: hint,
+    );
   }
 
   @override

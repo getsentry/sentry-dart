@@ -464,10 +464,6 @@ class SentryClient {
       attachments: attachments,
     );
 
-    final profileInfo = preparedTransaction.tracer.profileInfo;
-    if (profileInfo != null) {
-      envelope.items.add(profileInfo.asEnvelopeItem());
-    }
     final id = await captureEnvelope(envelope);
 
     return id ?? SentryId.empty();

@@ -70,14 +70,6 @@ class SentryTracesSampler {
     return SentryTracesSamplingDecision(false);
   }
 
-  bool sampleProfiling(SentryTracesSamplingDecision tracesSamplingDecision) {
-    double? optionsRate = _options.profilesSampleRate;
-    if (optionsRate == null || !tracesSamplingDecision.sampled) {
-      return false;
-    }
-    return _isSampled(optionsRate);
-  }
-
   SentryTracesSamplingDecision _makeSampleDecision(
     double sampleRate,
     double sampleRand,

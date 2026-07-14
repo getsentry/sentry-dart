@@ -4,7 +4,6 @@ import 'package:meta/meta.dart';
 
 import 'hint.dart';
 import 'hub.dart';
-import 'profiling.dart';
 import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
@@ -142,14 +141,6 @@ class NoOpHub implements Hub {
 
   @override
   void setSpanContext(throwable, ISentrySpan span, String transaction) {}
-
-  @internal
-  @override
-  set profilerFactory(SentryProfilerFactory? value) {}
-
-  @internal
-  @override
-  SentryProfilerFactory? get profilerFactory => null;
 
   @override
   Scope get scope => Scope(_options);

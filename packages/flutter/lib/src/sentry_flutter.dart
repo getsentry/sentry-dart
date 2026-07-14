@@ -32,7 +32,6 @@ import 'integrations/web_session_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
-import 'profiling.dart';
 import 'replay/integration.dart';
 import 'screenshot/screenshot_support.dart';
 import 'utils/internal_logger.dart';
@@ -116,10 +115,6 @@ mixin SentryFlutter {
       callAppRunnerInRunZonedGuarded: useRunZonedGuarded,
       runZonedGuardedOnError: runZonedGuardedOnError,
     );
-
-    if (_native != null) {
-      SentryNativeProfilerFactory.attachTo(Sentry.currentHub, _native!);
-    }
 
     // Insert it at the start of the list, before the Dart Exceptions that are set in Sentry.init
     // so we can identify Flutter exceptions first.

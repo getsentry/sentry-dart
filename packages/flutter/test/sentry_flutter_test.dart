@@ -13,7 +13,6 @@ import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/integrations/generic_app_start_integration.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
-import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/replay/integration.dart';
 import 'package:sentry_flutter/src/version.dart';
@@ -71,7 +70,6 @@ void main() {
       await SentryFlutter.init(
         (o) async {
           o.dsn = fakeDsn;
-          o.profilesSampleRate = 1.0;
           options = o;
           transport = o.transport;
         },
@@ -105,11 +103,6 @@ void main() {
 
       expect(SentryFlutter.native, isNotNull);
       expect(
-        Sentry.currentHub.profilerFactory,
-        isInstanceOf<SentryNativeProfilerFactory>(),
-      );
-
-      expect(
         options.eventProcessors.indexOfTypeString('IoEnricherEventProcessor'),
         greaterThan(
           options.eventProcessors.indexOfTypeString(
@@ -132,7 +125,6 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -164,11 +156,6 @@ void main() {
       );
 
       expect(SentryFlutter.native, isNotNull);
-      expect(
-        Sentry.currentHub.profilerFactory,
-        isInstanceOf<SentryNativeProfilerFactory>(),
-      );
-
       await Sentry.close();
     }, testOn: 'vm');
 
@@ -183,7 +170,6 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -218,7 +204,6 @@ void main() {
       );
 
       expect(SentryFlutter.native, isNotNull);
-      expect(Sentry.currentHub.profilerFactory, isNull);
     }, testOn: 'vm');
 
     test('Linux', () async {
@@ -233,7 +218,6 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -268,8 +252,6 @@ void main() {
       );
 
       expect(SentryFlutter.native, isNotNull);
-      expect(Sentry.currentHub.profilerFactory, isNull);
-
       await Sentry.close();
     }, testOn: 'vm');
 
@@ -283,7 +265,6 @@ void main() {
 
       await SentryFlutter.init(
         (options) async {
-          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -318,8 +299,6 @@ void main() {
       );
 
       expect(SentryFlutter.native, isNotNull);
-      expect(Sentry.currentHub.profilerFactory, isNull);
-
       await Sentry.close();
     }, testOn: 'browser');
 
@@ -330,9 +309,7 @@ void main() {
         ..methodChannel = native.channel;
 
       await SentryFlutter.init(
-        (options) async {
-          options.profilesSampleRate = 1.0;
-        },
+        (options) async {},
         appRunner: appRunner,
         options: sentryFlutterOptions,
       );
@@ -434,7 +411,6 @@ void main() {
         afterIntegration: WidgetsFlutterBindingIntegration,
       );
 
-      expect(Sentry.currentHub.profilerFactory, isNull);
       expect(SentryFlutter.native, isNotNull);
 
       await Sentry.close();

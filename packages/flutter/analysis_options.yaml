@@ -4,7 +4,6 @@ analyzer:
   exclude:
     - test/*.mocks.dart
     - microbenchmarks/**
-    - lib/src/native/cocoa/binding.dart
     - lib/src/native/java/binding.dart
   language:
     strict-casts: true

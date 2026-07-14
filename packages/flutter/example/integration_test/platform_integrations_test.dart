@@ -320,32 +320,6 @@ void main() {
       });
     });
 
-    group('Profiling', () {
-      testWidgets('selects profiler factory per platform', (tester) async {
-        await restoreFlutterOnErrorAfter(() async {
-          await SentryFlutter.init((o) {
-            o.dsn = fakeDsn;
-            o.debug = true;
-            o.profilesSampleRate = 1.0;
-          }, appRunner: () async {});
-        });
-
-        if (kIsWeb) {
-          expect(Sentry.currentHub.profilerFactory, isNull);
-        } else {
-          final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
-          final isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
-          if (isIOS || isMacOS) {
-            final factoryType =
-                Sentry.currentHub.profilerFactory?.runtimeType.toString();
-            expect(factoryType, 'SentryNativeProfilerFactory');
-          } else {
-            expect(Sentry.currentHub.profilerFactory, isNull);
-          }
-        }
-      });
-    });
-
     group('Thread info', () {
       testWidgets('adds ThreadInfoIntegration on non-web only', (tester) async {
         await restoreFlutterOnErrorAfter(() async {

@@ -47,17 +47,7 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> removeTag(String key);
 
-  int? startProfiler(SentryId traceId);
-
-  FutureOr<void> discardProfiler(SentryId traceId);
-
   FutureOr<int?> displayRefreshRate();
-
-  FutureOr<Map<String, dynamic>?> collectProfile(
-    SentryId traceId,
-    int startTimeNs,
-    int endTimeNs,
-  );
 
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace);
 

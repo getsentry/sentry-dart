@@ -4,6 +4,15 @@ import 'mocks.dart';
 
 void main() {
   group('SentryFlutterOptions', () {
+    test('does not expose profilesSampleRate', () {
+      final dynamic options = defaultTestOptions();
+
+      expect(
+        () => options.profilesSampleRate,
+        throwsA(isA<NoSuchMethodError>()),
+      );
+    });
+
     testWidgets('auto breadcrumb tracking: has native integration', (
       WidgetTester tester,
     ) async {
