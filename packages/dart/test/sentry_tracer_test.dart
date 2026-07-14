@@ -478,6 +478,67 @@ void main() {
 
       expect(fixture.hub.captureTransactionCalls.first.hint, hint);
     });
+
+    test('final timeout is first-call-wins', () {
+      final sut = fixture.getSut();
+      final firstDeadline = fixture.options.clock().add(
+            Duration(seconds: 1),
+          );
+
+      expect(sut.tryScheduleFinalTimeout(firstDeadline), isTrue);
+      expect(
+        sut.tryScheduleFinalTimeout(firstDeadline.add(Duration(seconds: 1))),
+        isFalse,
+      );
+
+      sut.abandon();
+    });
+
+    test('final timeout marks unfinished children deadline exceeded', () async {
+      final sut = fixture.getSut(waitForChildren: true);
+      final child = sut.startChild('child');
+
+      expect(
+        sut.tryScheduleFinalTimeout(
+          fixture.options.clock().add(Duration(milliseconds: 20)),
+        ),
+        isTrue,
+      );
+      await Future<void>.delayed(Duration(milliseconds: 40));
+
+      expect(sut.status, SpanStatus.deadlineExceeded());
+      expect(child.status, SpanStatus.deadlineExceeded());
+      expect(sut.finished, isTrue);
+      expect(fixture.hub.captureTransactionCalls, hasLength(1));
+    });
+
+    test('abandon suppresses later capture', () async {
+      final sut = fixture.getSut();
+
+      sut.abandon();
+      await sut.finish();
+
+      expect(sut.finished, isTrue);
+      expect(fixture.hub.captureTransactionCalls, isEmpty);
+    });
+
+    test('abandon balances terminal observers without capture', () async {
+      final finishedSpans = <ISentrySpan>[];
+      final collector = _FakeContinuousCollector();
+      fixture.hub.options.lifecycleRegistry.registerCallback<OnSpanFinish>(
+        (event) => finishedSpans.add(event.span),
+      );
+      // ignore: deprecated_member_use_from_same_package
+      fixture.hub.options.addPerformanceCollector(collector);
+      final sut = fixture.getSut();
+
+      sut.abandon();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(finishedSpans, hasLength(1));
+      expect(collector.finished, hasLength(1));
+      expect(fixture.hub.captureTransactionCalls, isEmpty);
+    });
   });
 
   group('$SentryBaggageHeader', () {
@@ -765,4 +826,19 @@ class Fixture {
       trimEnd: trimEnd,
     );
   }
+}
+
+class _FakeContinuousCollector implements PerformanceContinuousCollector {
+  final finished = <ISentrySpan>[];
+
+  @override
+  void clear() {}
+
+  @override
+  Future<void> onSpanFinished(ISentrySpan span, DateTime endTimestamp) async {
+    finished.add(span);
+  }
+
+  @override
+  Future<void> onSpanStarted(ISentrySpan span) async {}
 }

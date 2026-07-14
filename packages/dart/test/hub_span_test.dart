@@ -250,7 +250,7 @@ void main() {
           },
         );
 
-        test('allows finished span to be used as parent', () {
+        test('rejects a child of a finished segment root', () {
           final hub = fixture.getSut();
           final finishedParent = hub.startInactiveSpan('finished-parent');
           finishedParent.end();
@@ -260,7 +260,7 @@ void main() {
             parentSpan: finishedParent,
           );
 
-          expect(childSpan.parentSpan, equals(finishedParent));
+          expect(childSpan, isA<NoOpSentrySpanV2>());
         });
 
         test('creates root span when parentSpan is explicitly set to null', () {
@@ -632,9 +632,7 @@ void main() {
           late SentrySpanV2 explicitParent;
           late SentrySpanV2 child;
 
-          hub.startSpanSync('explicit-parent', (span) {
-            explicitParent = span;
-          });
+          explicitParent = hub.startInactiveSpan('explicit-parent');
 
           hub.startSpanSync('outer', (outerSpan) {
             hub.startSpanSync('child', (span) {
@@ -925,9 +923,7 @@ void main() {
           late SentrySpanV2 explicitParent;
           late SentrySpanV2 child;
 
-          await hub.startSpan('explicit-parent', (span) async {
-            explicitParent = span;
-          });
+          explicitParent = hub.startInactiveSpan('explicit-parent');
 
           await hub.startSpan('outer', (outerSpan) async {
             await hub.startSpan('child', (span) async {
@@ -1154,6 +1150,49 @@ void main() {
     });
 
     group('when using idle spans', () {
+      group('with setAsActive false', () {
+        test('creates recording idle span while a bound idle span is active',
+            () {
+          final hub = fixture.getSut();
+          final boundIdleSpan = hub.startIdleSpan('bound-root');
+          expect(boundIdleSpan, isA<IdleRecordingSentrySpanV2>());
+
+          final detachedIdleSpan = hub.startIdleSpan(
+            'detached-root',
+            setAsActive: false,
+          );
+
+          expect(detachedIdleSpan, isA<IdleRecordingSentrySpanV2>());
+        });
+
+        test('does not become the hub-level active span', () {
+          final hub = fixture.getSut();
+
+          hub.startIdleSpan('detached-root', setAsActive: false);
+
+          expect(hub.getActiveSpan(), isNull);
+        });
+
+        test('does not parent spans created without explicit parent', () {
+          final hub = fixture.getSut();
+          hub.startIdleSpan('detached-root', setAsActive: false);
+
+          final span = hub.startInactiveSpan('child') as RecordingSentrySpanV2;
+
+          expect(span.parentSpan, isNull);
+        });
+
+        test('does not block starting a bound idle span afterwards', () {
+          final hub = fixture.getSut();
+          hub.startIdleSpan('detached-root', setAsActive: false);
+
+          final boundIdleSpan = hub.startIdleSpan('bound-root');
+
+          expect(boundIdleSpan, isA<IdleRecordingSentrySpanV2>());
+          expect(hub.getActiveSpan(), same(boundIdleSpan));
+        });
+      });
+
       test('uses startTimestamp when provided', () {
         final hub = fixture.getSut();
         final past = DateTime(2024, 1, 1, 12, 0, 0);
@@ -1206,6 +1245,27 @@ void main() {
         expect(hub.getActiveSpan(), isNull);
       });
 
+      test('discard balances terminal callbacks without capture', () async {
+        final ended = <SentrySpanV2>[];
+        final processed = <SentrySpanV2>[];
+        fixture.options.lifecycleRegistry.registerCallback<OnSpanEndV2>(
+          (event) => ended.add(event.span),
+        );
+        fixture.options.lifecycleRegistry.registerCallback<OnProcessSpan>(
+          (event) => processed.add(event.span),
+        );
+        final hub = fixture.getSut();
+        final root =
+            hub.startIdleSpan('idle-root') as IdleRecordingSentrySpanV2;
+        hub.startInactiveSpan('child', parentSpan: root);
+
+        await root.cancel();
+
+        expect(ended, hasLength(2));
+        expect(processed, hasLength(2));
+        expect(fixture.client.captureSpanCalls, isEmpty);
+      });
+
       test('does not extend idle timeout when unrelated spans end', () async {
         final hub = fixture.getSut();
         final idleSpan = hub.startIdleSpan(
@@ -1245,7 +1305,12 @@ void main() {
           'deadline_exceeded',
         );
         expect(childSpan.isEnded, isTrue);
-        expect(childSpan.status, equals(SentrySpanStatusV2.ok));
+        expect(childSpan.status, equals(SentrySpanStatusV2.error));
+        expect(
+          childSpan.attributes[SemanticAttributesConstants.sentryStatusMessage]
+              ?.value,
+          'deadline_exceeded',
+        );
         expect(childSpan.endTimestamp, isNotNull);
         expect(idleSpan.endTimestamp, isNotNull);
         final endTimestampDelta =

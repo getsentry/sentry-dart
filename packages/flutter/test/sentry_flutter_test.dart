@@ -8,10 +8,11 @@ import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
+import 'package:sentry_flutter/src/app_start/standalone_app_start_integration.dart';
 import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
-import 'package:sentry_flutter/src/integrations/generic_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/generic_app_start_integration.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
 import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
@@ -112,6 +113,12 @@ void main() {
           afterIntegration: OnErrorIntegration);
 
       expect(SentryFlutter.native, isNotNull);
+      expect(options.integrations.whereType<NativeAppStartIntegration>(),
+          hasLength(1));
+      expect(
+        options.integrations.whereType<StandaloneAppStartIntegration>(),
+        isEmpty,
+      );
       expect(Sentry.currentHub.profilerFactory,
           isInstanceOf<SentryNativeProfilerFactory>());
 
@@ -119,6 +126,35 @@ void main() {
           options.eventProcessors.indexOfTypeString('IoEnricherEventProcessor'),
           greaterThan(options.eventProcessors
               .indexOfTypeString('_LoadContextsIntegrationEventProcessor')));
+
+      await Sentry.close();
+    }, testOn: 'vm');
+
+    test('iOS selects standalone app start integration when enabled', () async {
+      late final SentryFlutterOptions options;
+      final sentryFlutterOptions =
+          defaultTestOptions(checker: MockRuntimeChecker())
+            ..platform = MockPlatform.iOS()
+            ..methodChannel = native.channel
+            ..enableStandaloneAppStartTracing = true;
+
+      await SentryFlutter.init(
+        (configured) async {
+          configured.dsn = fakeDsn;
+          options = configured;
+        },
+        appRunner: appRunner,
+        options: sentryFlutterOptions,
+      );
+
+      expect(
+        options.integrations.whereType<StandaloneAppStartIntegration>(),
+        hasLength(1),
+      );
+      expect(
+        options.integrations.whereType<NativeAppStartIntegration>(),
+        isEmpty,
+      );
 
       await Sentry.close();
     }, testOn: 'vm');

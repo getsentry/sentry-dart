@@ -164,6 +164,23 @@ void main() {
         expect(fixture.hub.getActiveSpan()?.spanId, routeSpan.spanId);
       });
 
+      test('no-arg call keeps generic app start behavior', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+
+        sut.trackAppStart();
+
+        final ttidSpan = childSpans.firstWhere(
+          (s) => s.name == 'root / initial display',
+        );
+        expect(ttidSpan.isEnded, isFalse);
+        expect(fixture.frameCallbackHandler.postFrameCallback, isNotNull);
+
+        fixture.frameCallbackHandler.postFrameCallback?.call(Duration.zero);
+
+        expect(ttidSpan.isEnded, isTrue);
+      });
+
       group('with startTimestamp', () {
         test('backdates idle root span start time', () {
           final sut = fixture.getSut();

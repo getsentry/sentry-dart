@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'profiling.dart';
-import 'sentry_tracer_finish_status.dart';
 import 'utils/sample_rate_format.dart';
 
 @internal
@@ -23,13 +22,19 @@ class SentryTracer extends ISentrySpan {
   Map<String, SentryMeasurement> get measurements => _measurements;
 
   Timer? _autoFinishAfterTimer;
+  Timer? _finalTimeoutTimer;
+  DateTime? _finalDeadlineTimestamp;
   Duration? _autoFinishAfter;
 
   @visibleForTesting
   Timer? get autoFinishAfterTimer => _autoFinishAfterTimer;
 
   OnTransactionFinish? _onFinish;
-  var _finishStatus = SentryTracerFinishStatus.notFinishing();
+  _SentryTracerPhase _phase = _SentryTracerPhase.open;
+  Future<void>? _finalizationFuture;
+  SpanStatus? _requestedStatus;
+  bool _deadlineFinalization = false;
+  bool _profilerDisposed = false;
   late final bool _trimEnd;
 
   late SentryTransactionNameSource transactionNameSource;
@@ -94,25 +99,69 @@ class SentryTracer extends ISentrySpan {
   }
 
   @override
-  Future<void> finish(
-      {SpanStatus? status, DateTime? endTimestamp, Hint? hint}) async {
-    final commonEndTimestamp = endTimestamp ?? _hub.options.clock();
+  Future<void> finish({
+    SpanStatus? status,
+    DateTime? endTimestamp,
+    Hint? hint,
+  }) {
+    if (_phase == _SentryTracerPhase.abandoned ||
+        _phase == _SentryTracerPhase.finished) {
+      return Future.value();
+    }
+    if (_phase == _SentryTracerPhase.finalizing) {
+      return _finalizationFuture ?? Future.value();
+    }
+
     _autoFinishAfterTimer?.cancel();
-    _finishStatus = SentryTracerFinishStatus.finishing(status);
+    _requestedStatus = status;
     if (_rootSpan.finished) {
-      return;
+      _phase = _SentryTracerPhase.finished;
+      return Future.value();
     }
     if (_waitForChildren && !_haveAllChildrenFinished()) {
-      return;
+      _phase = _SentryTracerPhase.finishRequested;
+      return Future.value();
     }
+
+    return _beginFinalization(
+      endTimestamp: endTimestamp ?? _hub.options.clock(),
+      hint: hint,
+    );
+  }
+
+  Future<void> _beginFinalization({
+    required DateTime endTimestamp,
+    Hint? hint,
+  }) {
+    if (_phase == _SentryTracerPhase.finalizing) {
+      return _finalizationFuture ?? Future.value();
+    }
+    _phase = _SentryTracerPhase.finalizing;
+    final future = _finalize(endTimestamp: endTimestamp, hint: hint);
+    _finalizationFuture = future;
+    return future;
+  }
+
+  Future<void> _finalize({
+    required DateTime endTimestamp,
+    Hint? hint,
+  }) async {
     try {
-      _rootSpan.status ??= status;
+      if (_deadlineFinalization) {
+        await _applyDeadlineState();
+      } else {
+        _rootSpan.status ??= _requestedStatus;
+      }
+
+      if (_phase == _SentryTracerPhase.abandoned) return;
 
       // remove span where its endTimestamp is before startTimestamp
       _children.removeWhere(
-          (span) => !_hasSpanSuitableTimestamps(span, commonEndTimestamp));
+          (span) => !_hasSpanSuitableTimestamps(span, endTimestamp));
 
-      var _rootEndTimestamp = commonEndTimestamp;
+      var rootEndTimestamp = _deadlineFinalization
+          ? _finalDeadlineTimestamp ?? endTimestamp
+          : endTimestamp;
 
       // Trim the end timestamp of the transaction to the very last timestamp of child spans
       if (_trimEnd && children.isNotEmpty) {
@@ -129,7 +178,7 @@ class SentryTracer extends ISentrySpan {
         }
 
         if (latestEndTime != null) {
-          _rootEndTimestamp = latestEndTime;
+          rootEndTimestamp = latestEndTime;
         }
       }
 
@@ -139,7 +188,14 @@ class SentryTracer extends ISentrySpan {
       if (finish is Future) {
         await finish;
       }
-      await _rootSpan.finish(endTimestamp: _rootEndTimestamp, hint: hint);
+      if (_phase == _SentryTracerPhase.abandoned) return;
+
+      if (_deadlineFinalization) {
+        await _applyDeadlineState();
+        rootEndTimestamp = _finalDeadlineTimestamp ?? rootEndTimestamp;
+      }
+      await _rootSpan.finish(endTimestamp: rootEndTimestamp, hint: hint);
+      if (_phase == _SentryTracerPhase.abandoned) return;
 
       // remove from scope
       await _hub.configureScope((scope) {
@@ -156,18 +212,117 @@ class SentryTracer extends ISentrySpan {
       final transaction = SentryTransaction(this);
       transaction.measurements.addAll(_measurements);
 
-      profileInfo = (status == null || status == SpanStatus.ok())
-          ? await profiler?.finishFor(transaction)
-          : null;
+      profileInfo =
+          (_rootSpan.status == null || _rootSpan.status == SpanStatus.ok())
+              ? await profiler?.finishFor(transaction)
+              : null;
+
+      if (_phase == _SentryTracerPhase.abandoned) return;
 
       await _hub.captureTransaction(
         transaction,
         traceContext: traceContext(),
         hint: hint,
       );
+      _phase = _SentryTracerPhase.finished;
+      _finalTimeoutTimer?.cancel();
     } finally {
-      profiler?.dispose();
+      _disposeProfiler();
     }
+  }
+
+  Future<void> _applyDeadlineState() async {
+    final deadline = _finalDeadlineTimestamp;
+    if (deadline == null) return;
+
+    final deadlineStatus = SpanStatus.deadlineExceeded();
+    _rootSpan.status = deadlineStatus;
+    final children = List<SentrySpan>.of(_children);
+    for (final child in children) {
+      if (child.finished) continue;
+      child.status = deadlineStatus;
+      if (child.startTimestamp.isAfter(deadline)) {
+        _children.remove(child);
+        await child.finish(status: deadlineStatus);
+      } else {
+        await child.finish(
+          status: deadlineStatus,
+          endTimestamp: deadline,
+        );
+      }
+    }
+  }
+
+  @internal
+  bool tryScheduleFinalTimeout(DateTime deadlineTimestamp) {
+    if (_finalDeadlineTimestamp != null ||
+        _phase == _SentryTracerPhase.finalizing ||
+        _phase == _SentryTracerPhase.abandoned ||
+        _phase == _SentryTracerPhase.finished ||
+        finished) {
+      return false;
+    }
+
+    _finalDeadlineTimestamp = deadlineTimestamp.toUtc();
+    final remaining = _finalDeadlineTimestamp!.difference(_hub.options.clock());
+    if (remaining <= Duration.zero) {
+      unawaited(_finishAtDeadline());
+    } else {
+      _finalTimeoutTimer = Timer(remaining, () {
+        unawaited(_finishAtDeadline());
+      });
+    }
+    return true;
+  }
+
+  Future<void> _finishAtDeadline() {
+    if (_phase == _SentryTracerPhase.abandoned ||
+        _phase == _SentryTracerPhase.finished) {
+      return Future.value();
+    }
+
+    _deadlineFinalization = true;
+    _requestedStatus = SpanStatus.deadlineExceeded();
+    if (_phase == _SentryTracerPhase.finalizing) {
+      return _finalizationFuture ?? Future.value();
+    }
+    return _beginFinalization(
+      endTimestamp: _finalDeadlineTimestamp ?? _hub.options.clock(),
+    );
+  }
+
+  @internal
+  void abandon() {
+    if (_phase == _SentryTracerPhase.abandoned ||
+        _phase == _SentryTracerPhase.finished) {
+      return;
+    }
+    _phase = _SentryTracerPhase.abandoned;
+    _autoFinishAfterTimer?.cancel();
+    _finalTimeoutTimer?.cancel();
+    unawaited(_discardWithoutCapture());
+  }
+
+  Future<void> _discardWithoutCapture() async {
+    final endTimestamp = _hub.options.clock();
+    try {
+      for (final child in List<SentrySpan>.of(_children)) {
+        if (!child.finished) {
+          await child.finish(endTimestamp: endTimestamp);
+        }
+      }
+      if (!_rootSpan.finished) {
+        await _rootSpan.finish(endTimestamp: endTimestamp);
+      }
+    } finally {
+      _disposeProfiler();
+    }
+  }
+
+  void _disposeProfiler() {
+    if (_profilerDisposed) return;
+    _profilerDisposed = true;
+    profiler?.dispose();
   }
 
   @override
@@ -212,7 +367,7 @@ class SentryTracer extends ISentrySpan {
     String? description,
     DateTime? startTimestamp,
   }) {
-    if (finished) {
+    if (!_acceptsChildren) {
       return NoOpSentrySpan();
     }
 
@@ -237,7 +392,7 @@ class SentryTracer extends ISentrySpan {
     String? description,
     DateTime? startTimestamp,
   }) {
-    if (finished) {
+    if (!_acceptsChildren) {
       return NoOpSentrySpan();
     }
 
@@ -283,10 +438,9 @@ class SentryTracer extends ISentrySpan {
     DateTime? endTimestamp,
     Hint? hint,
   }) async {
-    final finishStatus = _finishStatus;
-    if (finishStatus.finishing) {
+    if (_phase == _SentryTracerPhase.finishRequested) {
       await finish(
-        status: finishStatus.status,
+        status: _requestedStatus,
         endTimestamp: endTimestamp,
         hint: hint,
       );
@@ -314,7 +468,14 @@ class SentryTracer extends ISentrySpan {
   Map<String, dynamic> get data => Map.unmodifiable(_extra);
 
   @override
-  bool get finished => _rootSpan.finished;
+  bool get finished =>
+      _rootSpan.finished ||
+      _phase == _SentryTracerPhase.abandoned ||
+      _phase == _SentryTracerPhase.finished;
+
+  bool get _acceptsChildren =>
+      _phase == _SentryTracerPhase.open ||
+      _phase == _SentryTracerPhase.finishRequested;
 
   List<SentrySpan> get children => _children;
 
@@ -444,4 +605,12 @@ class SentryTracer extends ISentrySpan {
   void _dispatchOnSpanStart(ISentrySpan span) {
     _hub.options.lifecycleRegistry.dispatchCallback(OnSpanStart(span));
   }
+}
+
+enum _SentryTracerPhase {
+  open,
+  finishRequested,
+  finalizing,
+  abandoned,
+  finished,
 }

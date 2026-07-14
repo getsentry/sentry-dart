@@ -518,7 +518,6 @@ void main() {
     });
   });
 }
-
 class Fixture {
   final options = SentryFlutterOptions(dsn: fakeDsn);
   final nativeBinding = MockSentryNativeBinding();

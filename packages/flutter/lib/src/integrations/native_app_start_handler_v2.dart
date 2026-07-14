@@ -3,9 +3,11 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../app_start/app_start_constants.dart';
+import '../app_start/app_start_data.dart';
+import '../app_start/native_app_start_parser.dart';
 import '../native/sentry_native_binding.dart';
 import '../utils/internal_logger.dart';
-import 'native_app_start_data.dart';
 
 /// V2 handler for native app start spans using the streaming span API.
 @internal
@@ -33,72 +35,75 @@ class NativeAppStartHandlerV2 {
       return;
     }
 
-    final appStartType = SentryAttribute.string(appStartInfo.type.name);
+    final snapshot = appStartInfo.snapshot;
+    final appStartType = SentryAttribute.string(snapshot.type.name);
     final attributes = {
       SemanticAttributesConstants.sentryOp:
-          SentryAttribute.string(appStartInfo.appStartTypeOperation),
+          SentryAttribute.string(appStartInfo.typeOperation),
       SemanticAttributesConstants.sentryOrigin:
           SentryAttribute.string(SentryTraceOrigins.autoUiTimeToDisplay),
       SemanticAttributesConstants.appVitalsStartType: appStartType,
     };
 
     final rootSpan = tracker.trackAppStart(
-      startTimestamp: appStartInfo.start,
-      ttidEndTimestamp: appStartInfo.end,
+      startTimestamp: snapshot.processStartTimestamp,
+      ttidEndTimestamp: appStartInfo.endTimestamp,
     );
 
     final appStartSpan = hub.startInactiveSpan(
-      appStartInfo.appStartTypeDescription,
+      appStartInfo.typeDescription,
       parentSpan: rootSpan,
-      startTimestamp: appStartInfo.start,
+      startTimestamp: snapshot.processStartTimestamp,
       attributes: attributes,
     );
 
     final pluginRegistrationSpan = hub.startInactiveSpan(
-      appStartInfo.pluginRegistrationDescription,
+      appStartPluginRegistrationDescription,
       parentSpan: appStartSpan,
-      startTimestamp: appStartInfo.start,
+      startTimestamp: snapshot.processStartTimestamp,
       attributes: attributes,
     );
 
     final sentrySetupSpan = hub.startInactiveSpan(
-      appStartInfo.sentrySetupDescription,
+      appStartSentrySetupDescription,
       parentSpan: appStartSpan,
-      startTimestamp: appStartInfo.pluginRegistration,
+      startTimestamp: snapshot.pluginRegistrationTimestamp,
       attributes: attributes,
     );
 
     final firstFrameRenderSpan = hub.startInactiveSpan(
-      appStartInfo.firstFrameRenderDescription,
+      appStartFirstFrameRenderDescription,
       parentSpan: appStartSpan,
-      startTimestamp: appStartInfo.sentrySetupStart,
+      startTimestamp: snapshot.sentrySetupTimestamp,
       attributes: attributes,
     );
 
-    for (final timeSpan in appStartInfo.nativeSpanTimes) {
+    for (final timeSpan in snapshot.nativePhaseIntervals) {
       try {
         final nativeSpan = hub.startInactiveSpan(
           timeSpan.description,
           parentSpan: appStartSpan,
-          startTimestamp: timeSpan.start,
+          startTimestamp: timeSpan.startTimestamp,
           attributes: attributes,
         );
-        nativeSpan.end(endTimestamp: timeSpan.end);
+        nativeSpan.end(endTimestamp: timeSpan.endTimestamp);
       } catch (error, stackTrace) {
         internalLogger.error('Failed to attach native span to app start',
             error: error, stackTrace: stackTrace);
       }
     }
 
-    pluginRegistrationSpan.end(endTimestamp: appStartInfo.pluginRegistration);
-    sentrySetupSpan.end(endTimestamp: appStartInfo.sentrySetupStart);
+    pluginRegistrationSpan.end(
+      endTimestamp: snapshot.pluginRegistrationTimestamp,
+    );
+    sentrySetupSpan.end(endTimestamp: snapshot.sentrySetupTimestamp);
     firstFrameRenderSpan.end(endTimestamp: appStartEnd);
 
-    final durationMs = SentryAttribute.double(
-        appStartEnd.difference(appStartInfo.start).inMilliseconds.toDouble());
+    final durationMs =
+        SentryAttribute.double(appStartInfo.duration.inMilliseconds.toDouble());
     // Emit both the legacy cold/warm split and the unified value+type pair
     // during the deprecation window for the former.
-    final legacyValueKey = switch (appStartInfo.type) {
+    final legacyValueKey = switch (snapshot.type) {
       AppStartType.cold => SemanticAttributesConstants.appVitalsStartColdValue,
       AppStartType.warm => SemanticAttributesConstants.appVitalsStartWarmValue,
     };

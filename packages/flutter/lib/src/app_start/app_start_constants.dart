@@ -1,0 +1,27 @@
+import 'package:meta/meta.dart';
+
+@internal
+const appStartRootName = 'App Start';
+
+@internal
+const appStartIdleTimeout = Duration(seconds: 3);
+
+@internal
+const appStartFinalTimeout = Duration(seconds: 30);
+
+@internal
+const appStartPluginRegistrationDescription =
+    'App start to plugin registration';
+
+@internal
+const appStartSentrySetupDescription = 'Before Sentry Init Setup';
+
+@internal
+const appStartFirstFrameRenderDescription = 'First frame render';
+
+@internal
+Duration appStartDuration(
+  DateTime processStart,
+  DateTime naturalEnd,
+) =>
+    naturalEnd.difference(processStart);

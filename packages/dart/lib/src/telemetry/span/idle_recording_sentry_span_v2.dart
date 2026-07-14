@@ -29,12 +29,14 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   bool _isEnding = false;
   Timer? _idleTimer;
   Timer? _finalTimer;
+  late final DateTime _finalDeadlineTimestamp;
   DateTime? _latestChildEndTimestamp;
 
   IdleRecordingSentrySpanV2({
     required super.traceId,
     required super.name,
     required super.onSpanEnd,
+    required super.onSpanDiscard,
     required super.clock,
     required super.dscCreator,
     required super.samplingDecision,
@@ -45,6 +47,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     super.startTimestamp,
   })  : _lifecycleRegistry = lifecycleRegistry,
         super._(parentSpan: null) {
+    _finalDeadlineTimestamp = _clock().toUtc().add(finalTimeout);
     _lifecycleRegistry.registerCallback<OnSpanStartV2>(_onSpanStartEvent);
     _lifecycleRegistry.registerCallback<OnSpanEndV2>(_onSpanEndEvent);
     _startIdleTimer();
@@ -63,6 +66,23 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
       _IdleSpanFinishReason.manualFinish,
       requestedEndTimestamp: endTimestamp,
     );
+  }
+
+  /// Stops this idle segment and all active descendants without capture.
+  @internal
+  Future<void> cancel() async {
+    if (_isEnding) return;
+
+    _isEnding = true;
+    _cancelTimers();
+    _removeLifecycleCallbacks();
+
+    final cancellationTimestamp = _clock().toUtc();
+    for (final child in _activeDescendants.values.toList()) {
+      await child.cancelWithoutCapture(endTimestamp: cancellationTimestamp);
+    }
+    _activeDescendants.clear();
+    await cancelWithoutCapture(endTimestamp: cancellationTimestamp);
   }
 
   void _onSpanStartEvent(OnSpanStartV2 event) {
@@ -142,10 +162,11 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     _isEnding = true;
 
     _cancelTimers();
-    _lifecycleRegistry.removeCallback<OnSpanStartV2>(_onSpanStartEvent);
-    _lifecycleRegistry.removeCallback<OnSpanEndV2>(_onSpanEndEvent);
+    _removeLifecycleCallbacks();
 
-    final idleEndTimestamp = _resolveIdleEndTimestamp(requestedEndTimestamp);
+    final idleEndTimestamp = reason == _IdleSpanFinishReason.finalTimeout
+        ? _finalDeadlineTimestamp
+        : _resolveIdleEndTimestamp(requestedEndTimestamp);
 
     if (reason == _IdleSpanFinishReason.finalTimeout) {
       status = SentrySpanStatusV2.error;
@@ -155,7 +176,10 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
       );
     }
 
-    _finishActiveDescendants(idleEndTimestamp);
+    _finishActiveDescendants(
+      idleEndTimestamp,
+      deadlineExceeded: reason == _IdleSpanFinishReason.finalTimeout,
+    );
     _activeDescendants.clear();
 
     final finalEndTimestamp = _computeFinalEndTimestamp(idleEndTimestamp);
@@ -171,12 +195,27 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   DateTime _resolveIdleEndTimestamp(DateTime? requestedEndTimestamp) =>
       (requestedEndTimestamp ?? _clock()).toUtc();
 
-  void _finishActiveDescendants(DateTime idleEndTimestamp) {
+  void _finishActiveDescendants(
+    DateTime idleEndTimestamp, {
+    required bool deadlineExceeded,
+  }) {
     for (final child in _activeDescendants.values.toList()) {
       if (child.isEnded) continue;
-      if (child.startTimestamp.isAfter(idleEndTimestamp)) continue;
+      if (child.startTimestamp.isAfter(idleEndTimestamp)) {
+        unawaited(
+          child.cancelWithoutCapture(endTimestamp: idleEndTimestamp),
+        );
+        continue;
+      }
 
-      child.status = SentrySpanStatusV2.ok;
+      child.status =
+          deadlineExceeded ? SentrySpanStatusV2.error : SentrySpanStatusV2.ok;
+      if (deadlineExceeded) {
+        child.setAttribute(
+          SemanticAttributesConstants.sentryStatusMessage,
+          SentryAttribute.string(SentrySpanStatusMessages.deadlineExceeded),
+        );
+      }
       child.end(endTimestamp: idleEndTimestamp);
       // Track explicitly because lifecycle callbacks are already unregistered
       // at this point, so _onSpanEndEvent won't fire for these force-ended children.
@@ -187,6 +226,11 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
             '"${child.name}"',
       );
     }
+  }
+
+  void _removeLifecycleCallbacks() {
+    _lifecycleRegistry.removeCallback<OnSpanStartV2>(_onSpanStartEvent);
+    _lifecycleRegistry.removeCallback<OnSpanEndV2>(_onSpanEndEvent);
   }
 
   void _trackLatestChildEnd(DateTime childEndTimestamp) {

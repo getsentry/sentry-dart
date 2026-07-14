@@ -35,15 +35,22 @@ class TimeToDisplayTrackerV2 {
   /// Also creates the TTFD span so [ttfdSpanId] is available for
   /// [SentryFlutter.currentDisplay] before [trackAppStart] fires.
   /// Timestamps are backdated later in [trackAppStart].
-  void prepareAppStart() {
+  void prepareAppStart({DateTime? startTimestamp}) {
     assert(_preparedRootNavigationSpan == null,
         'prepareRootNavigation called while a prepared span is still pending');
 
     cancelCurrentRoute();
 
-    final routeSpan = _createRouteSpan(_rootRouteName);
+    final routeSpan = _createRouteSpan(
+      _rootRouteName,
+      startTimestamp: startTimestamp,
+    );
     _preparedRootNavigationSpan = routeSpan;
-    _ensureTtfdSpan(routeSpan, _rootRouteName);
+    _ensureTtfdSpan(
+      routeSpan,
+      _rootRouteName,
+      startTimestamp: startTimestamp,
+    );
   }
 
   /// Tracks the app start (native or generic).

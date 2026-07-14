@@ -265,6 +265,7 @@ class HubAdapter implements Hub {
     Duration idleTimeout = const Duration(seconds: 3),
     Duration finalTimeout = const Duration(seconds: 30),
     bool trimIdleSpanEndTimestamp = true,
+    bool setAsActive = true,
     Map<String, SentryAttribute>? attributes,
     DateTime? startTimestamp,
   }) =>
@@ -273,6 +274,7 @@ class HubAdapter implements Hub {
         idleTimeout: idleTimeout,
         finalTimeout: finalTimeout,
         trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
+        setAsActive: setAsActive,
         attributes: attributes,
         startTimestamp: startTimestamp,
       );

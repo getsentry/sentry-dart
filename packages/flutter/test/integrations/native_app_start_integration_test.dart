@@ -148,7 +148,6 @@ void main() {
     });
   });
 }
-
 class Fixture {
   final options = defaultTestOptions();
   final hub = MockHub();

@@ -179,6 +179,13 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enable auto performance tracking by default.
   bool enableAutoPerformanceTracing = true;
 
+  /// Whether standalone app-start tracing is enabled.
+  ///
+  /// Requires tracing to be enabled and is supported on Android and iOS.
+  /// Defaults to `false`.
+  @meta.experimental
+  bool enableStandaloneAppStartTracing = false;
+
   /// Automatically attaches a screenshot when capturing an error or exception.
   ///
   /// Requires adding the [SentryWidget] to the widget tree.

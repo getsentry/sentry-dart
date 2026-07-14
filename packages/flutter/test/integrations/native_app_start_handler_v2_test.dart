@@ -329,7 +329,6 @@ void main() {
     });
   });
 }
-
 class Fixture {
   final appStartDateTime = DateTime.fromMillisecondsSinceEpoch(0);
   final pluginRegistrationDateTime = DateTime.fromMillisecondsSinceEpoch(10);
