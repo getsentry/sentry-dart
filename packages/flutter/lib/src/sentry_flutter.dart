@@ -303,6 +303,41 @@ mixin SentryFlutter {
     }
   }
 
+  /// Extends an active standalone app start with an explicit child span.
+  ///
+  /// The first successful call wins. Unsupported, duplicate, and late calls
+  /// are no-ops.
+  static void extendAppStart() {
+    final options = _flutterOptions;
+    options?.appStartTrace?.tryCreateExtension(options.clock());
+  }
+
+  /// Returns the active static-lifecycle `Extended App Start` child.
+  ///
+  /// Returns `null` for the streaming lifecycle and after the child finishes.
+  static ISentrySpan? getExtendedAppStartSpan() =>
+      _flutterOptions?.appStartTrace?.activeStaticExtension;
+
+  /// Returns the active streaming-lifecycle `Extended App Start` child.
+  ///
+  /// Returns `null` for the static lifecycle and after the child ends.
+  static SentrySpanV2? getExtendedAppStartSpanV2() =>
+      _flutterOptions?.appStartTrace?.activeStreamingExtension;
+
+  /// Requests completion of the active app-start extension child.
+  ///
+  /// Root finalization and capture continue asynchronously. Finish nested
+  /// initialization spans first when their work belongs to the extension
+  /// measurement window.
+  static void finishExtendedAppStart() {
+    _flutterOptions?.appStartTrace?.finishExtension();
+  }
+
+  static SentryFlutterOptions? get _flutterOptions {
+    final options = Sentry.currentHub.options;
+    return options is SentryFlutterOptions ? options : null;
+  }
+
   /// Returns the current display.
   ///
   /// Use it to report fully displayed for a widget when using the [SentryNavigatorObserver].

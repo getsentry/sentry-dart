@@ -32,6 +32,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   final void Function() _onCompleted;
   final String Function() _initialScreenName;
 
+  ISentrySpan? _extension;
   DateTime? _naturalEnd;
   bool _completed = false;
   bool _closed = false;
@@ -135,6 +136,40 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 
   @override
+  bool tryCreateExtension(DateTime startTimestamp) {
+    if (_closed || _completed || _naturalEnd != null || _extension != null) {
+      return false;
+    }
+    final extension = _root.startChild(
+      SentrySpanOperations.appStartExtended,
+      description: appStartExtensionName,
+      startTimestamp: startTimestamp,
+    )..origin = SentryTraceOrigins.autoAppStart;
+    if (extension.samplingDecision?.sampled != true) return false;
+    _extension = extension;
+    return true;
+  }
+
+  @override
+  ISentrySpan? get activeStaticExtension {
+    final extension = _extension;
+    return extension == null ||
+            extension.finished ||
+            extension.endTimestamp != null
+        ? null
+        : extension;
+  }
+
+  @override
+  SentrySpanV2? get activeStreamingExtension => null;
+
+  @override
+  void finishExtension() {
+    final extension = activeStaticExtension;
+    if (extension != null) _finish(extension);
+  }
+
+  @override
   void recordNaturalEnd(DateTime endTimestamp) {
     if (_closed || _completed || _naturalEnd != null) return;
     _naturalEnd = endTimestamp.toUtc();
@@ -158,6 +193,7 @@ final class StaticAppStartTrace implements AppStartTrace {
         final duration = appStartDuration(
           _data.processStartTimestamp,
           naturalEnd,
+          _extension?.endTimestamp,
         );
         final measurement = _data.type == AppStartType.cold
             ? SentryMeasurement.coldAppStart(duration)

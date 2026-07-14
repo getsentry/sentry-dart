@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/app_start/app_start_trace.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
 import 'package:sentry_flutter/src/app_start/standalone_app_start_integration.dart';
@@ -628,6 +629,49 @@ void main() {
     });
   });
 
+  group('extended app start', () {
+    late SentryFlutterOptions options;
+    late FakeAppStartTrace trace;
+
+    setUp(() async {
+      options = defaultTestOptions(checker: MockRuntimeChecker())
+        ..clock = () => DateTime.utc(2024, 1, 1, 12);
+      trace = FakeAppStartTrace();
+      await Sentry.init(
+        (_) {},
+        options: options,
+      );
+      options.appStartTrace = trace;
+    });
+
+    tearDown(() async {
+      await Sentry.close();
+    });
+
+    test('extendAppStart forwards the configured clock timestamp', () {
+      SentryFlutter.extendAppStart();
+
+      expect(trace.extensionTimestamps, [DateTime.utc(2024, 1, 1, 12)]);
+    });
+
+    test('getExtendedAppStartSpan returns the static extension', () {
+      expect(SentryFlutter.getExtendedAppStartSpan(), same(trace.staticSpan));
+    });
+
+    test('getExtendedAppStartSpanV2 returns the streaming extension', () {
+      expect(
+        SentryFlutter.getExtendedAppStartSpanV2(),
+        same(trace.streamingSpan),
+      );
+    });
+
+    test('finishExtendedAppStart finishes the trace extension', () {
+      SentryFlutter.finishExtendedAppStart();
+
+      expect(trace.finishCalls, 1);
+    });
+  });
+
   test('resumeAppHangTracking calls native method when available', () async {
     SentryFlutter.native = mockNativeBinding();
     when(SentryFlutter.native?.resumeAppHangTracking())
@@ -732,4 +776,34 @@ void loadTestPackage() {
     buildSignature: '',
     installerStore: null,
   );
+}
+
+final class FakeAppStartTrace implements AppStartTrace {
+  final staticSpan = NoOpSentrySpan();
+  final streamingSpan = const NoOpSentrySpanV2();
+  final extensionTimestamps = <DateTime>[];
+  var finishCalls = 0;
+
+  @override
+  ISentrySpan get activeStaticExtension => staticSpan;
+
+  @override
+  SentrySpanV2 get activeStreamingExtension => streamingSpan;
+
+  @override
+  void close() {}
+
+  @override
+  void finishExtension() {
+    finishCalls++;
+  }
+
+  @override
+  void recordNaturalEnd(DateTime endTimestamp) {}
+
+  @override
+  bool tryCreateExtension(DateTime startTimestamp) {
+    extensionTimestamps.add(startTimestamp);
+    return true;
+  }
 }

@@ -34,6 +34,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   final String Function() _initialScreenName;
 
   late final SdkLifecycleCallback<OnProcessSpan> _processCallback;
+  RecordingSentrySpanV2? _extension;
   DateTime? _naturalEnd;
   bool _completed = false;
   bool _closed = false;
@@ -148,6 +149,39 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }
 
   @override
+  bool tryCreateExtension(DateTime startTimestamp) {
+    if (_closed || _completed || _naturalEnd != null || _extension != null) {
+      return false;
+    }
+    final extension = _hub.startInactiveSpan(
+      appStartExtensionName,
+      parentSpan: _root,
+      startTimestamp: startTimestamp,
+      attributes: _childAttributes(
+        _data,
+        SentrySpanOperations.appStartExtended,
+      ),
+    );
+    if (extension is! RecordingSentrySpanV2) return false;
+    _extension = extension;
+    return true;
+  }
+
+  @override
+  ISentrySpan? get activeStaticExtension => null;
+
+  @override
+  SentrySpanV2? get activeStreamingExtension {
+    final extension = _extension;
+    return extension == null || extension.isEnded ? null : extension;
+  }
+
+  @override
+  void finishExtension() {
+    activeStreamingExtension?.end();
+  }
+
+  @override
   void recordNaturalEnd(DateTime endTimestamp) {
     if (_closed || _completed || _naturalEnd != null) return;
     _naturalEnd = endTimestamp.toUtc();
@@ -179,6 +213,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
         final duration = appStartDuration(
           _data.processStartTimestamp,
           naturalEnd,
+          _extension?.endTimestamp,
         ).inMilliseconds.toDouble();
         final value = SentryAttribute.double(duration);
         _root.setAttribute(

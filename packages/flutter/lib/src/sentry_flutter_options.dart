@@ -6,6 +6,7 @@ import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
 
 import 'binding_wrapper.dart';
+import 'app_start/app_start_trace.dart';
 import 'event_processor/screenshot_event_processor.dart';
 import 'navigation/time_to_display_tracker.dart';
 import 'navigation/time_to_display_tracker_v2.dart';
@@ -185,6 +186,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// Defaults to `false`.
   @meta.experimental
   bool enableStandaloneAppStartTracing = false;
+
+  @meta.internal
+  AppStartTrace? appStartTrace;
 
   /// Automatically attaches a screenshot when capturing an error or exception.
   ///

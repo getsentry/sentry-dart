@@ -62,6 +62,34 @@ void main() {
       expect(root.data['app.vitals.start.screen'], 'root /');
     });
 
+    test('uses extension end instead of a later descendant', () async {
+      final sut = fixture.getSut()!;
+      expect(sut.tryCreateExtension(fixture.extensionStart), isTrue);
+      final extension = sut.activeStaticExtension! as SentrySpan;
+      final descendant = extension.startChild(
+        'initialization',
+        startTimestamp: fixture.extensionStart,
+      );
+
+      await extension.finish(endTimestamp: fixture.extensionEnd);
+      await descendant.finish(endTimestamp: fixture.descendantEnd);
+      sut.recordNaturalEnd(fixture.naturalEnd);
+      await pumpEventQueue(times: 10);
+      await extension.tracer.finish(endTimestamp: fixture.rootFinish);
+
+      expect(extension.tracer.measurements['app_start_cold']?.value, 400);
+      expect(extension.tracer.endTimestamp, fixture.descendantEnd);
+      expect(sut.activeStaticExtension, isNull);
+    });
+
+    test('does not extend after natural end', () {
+      final sut = fixture.getSut()!;
+
+      sut.recordNaturalEnd(fixture.naturalEnd);
+
+      expect(sut.tryCreateExtension(fixture.extensionStart), isFalse);
+    });
+
     test('abandons an unsampled root', () async {
       fixture.options.tracesSampleRate = 0;
 
@@ -92,6 +120,9 @@ void main() {
 class Fixture {
   final processStart = DateTime.utc(2024, 1, 1, 12);
   late final naturalEnd = processStart.add(Duration(milliseconds: 350));
+  late final extensionStart = processStart.add(Duration(milliseconds: 300));
+  late final extensionEnd = processStart.add(Duration(milliseconds: 400));
+  late final descendantEnd = processStart.add(Duration(milliseconds: 450));
   late final rootFinish = processStart.add(Duration(milliseconds: 500));
   var completions = 0;
   SentrySpan? root;

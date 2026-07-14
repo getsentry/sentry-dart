@@ -84,6 +84,9 @@ final class StandaloneAppStartIntegration
         if (identical(_trace, trace)) {
           _trace = null;
         }
+        if (identical(options.appStartTrace, trace)) {
+          options.appStartTrace = null;
+        }
       }
 
       try {
@@ -103,6 +106,7 @@ final class StandaloneAppStartIntegration
         };
         if (trace != null && !completedBeforePublication && !_closed) {
           _trace = trace;
+          options.appStartTrace = trace;
         } else {
           await trace?.close();
         }
@@ -246,12 +250,18 @@ final class StandaloneAppStartIntegration
     try {
       await trace?.close();
     } finally {
-      if (_displayPrepared && options != null) {
-        switch (options.traceLifecycle) {
-          case SentryTraceLifecycle.static:
-            options.timeToDisplayTracker.clear();
-          case SentryTraceLifecycle.stream:
-            options.timeToDisplayTrackerV2.cancelCurrentRoute();
+      try {
+        if (_displayPrepared && options != null) {
+          switch (options.traceLifecycle) {
+            case SentryTraceLifecycle.static:
+              options.timeToDisplayTracker.clear();
+            case SentryTraceLifecycle.stream:
+              options.timeToDisplayTrackerV2.cancelCurrentRoute();
+          }
+        }
+      } finally {
+        if (identical(options?.appStartTrace, trace)) {
+          options?.appStartTrace = null;
         }
       }
     }

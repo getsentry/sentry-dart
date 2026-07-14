@@ -68,12 +68,45 @@ void main() {
       expect(root.attributes['app.vitals.start.type']?.value, 'cold');
       expect(root.attributes['app.vitals.start.screen']?.value, 'root /');
     });
+
+    test('uses extension end instead of a later descendant', () async {
+      final sut = fixture.getSut()!;
+      expect(sut.tryCreateExtension(fixture.extensionStart), isTrue);
+      final extension = sut.activeStreamingExtension! as RecordingSentrySpanV2;
+      final descendant = fixture.hub.startInactiveSpan(
+        'initialization',
+        parentSpan: extension,
+        startTimestamp: fixture.extensionStart,
+      );
+
+      extension.end(endTimestamp: fixture.extensionEnd);
+      descendant.end(endTimestamp: fixture.descendantEnd);
+      sut.recordNaturalEnd(fixture.naturalEnd);
+      final root = fixture.root!;
+      root.end(endTimestamp: fixture.rootFinish);
+      await pumpEventQueue(times: 10);
+
+      expect(root.attributes['app.vitals.start.value']?.value, 400.0);
+      expect(root.endTimestamp, fixture.descendantEnd);
+      expect(sut.activeStreamingExtension, isNull);
+    });
+
+    test('does not extend after natural end', () {
+      final sut = fixture.getSut()!;
+
+      sut.recordNaturalEnd(fixture.naturalEnd);
+
+      expect(sut.tryCreateExtension(fixture.extensionStart), isFalse);
+    });
   });
 }
 
 class Fixture {
   final processStart = DateTime.utc(2024, 1, 1, 12);
   late final naturalEnd = processStart.add(Duration(milliseconds: 350));
+  late final extensionStart = processStart.add(Duration(milliseconds: 300));
+  late final extensionEnd = processStart.add(Duration(milliseconds: 400));
+  late final descendantEnd = processStart.add(Duration(milliseconds: 450));
   late final rootFinish = processStart.add(Duration(milliseconds: 500));
   var completions = 0;
   IdleRecordingSentrySpanV2? root;
