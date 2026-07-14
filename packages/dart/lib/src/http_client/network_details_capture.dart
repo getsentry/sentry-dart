@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
@@ -68,7 +69,7 @@ class NetworkDetailsCapture {
       return (response, data);
     }
 
-    List<int> bytes;
+    Uint8List bytes;
     try {
       bytes = await response.stream.toBytes();
     } catch (exception) {
@@ -84,7 +85,7 @@ class NetworkDetailsCapture {
     // (e.g. malformed encoding info) shouldn't prevent forwarding it as-is.
     final forwarded = _copyWithBytes(response, bytes);
     try {
-      data['body'] = _truncate(utf8.decode(bytes, allowMalformed: true));
+      data['body'] = _truncateBytes(bytes);
     } catch (exception) {
       internalLogger.warning(
         () => 'Failed to capture response body for replay: $exception',
@@ -107,7 +108,7 @@ class NetworkDetailsCapture {
       return null;
     }
     try {
-      return _truncate(request.body);
+      return _truncateBytes(request.bodyBytes);
     } catch (exception) {
       internalLogger.warning(
         () => 'Failed to capture request body for replay: $exception',
@@ -158,11 +159,10 @@ class NetworkDetailsCapture {
         normalized.contains('x-www-form-urlencoded');
   }
 
-  String _truncate(String body) {
-    final bytes = utf8.encode(body);
-    if (bytes.length <= maxBodySize) {
-      return body;
-    }
-    return utf8.decode(bytes.sublist(0, maxBodySize), allowMalformed: true);
+  String _truncateBytes(Uint8List bytes) {
+    final view = bytes.length <= maxBodySize
+        ? bytes
+        : Uint8List.sublistView(bytes, 0, maxBodySize);
+    return utf8.decode(view, allowMalformed: true);
   }
 }
