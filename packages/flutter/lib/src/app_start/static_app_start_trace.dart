@@ -72,7 +72,7 @@ final class StaticAppStartTrace implements AppStartTrace {
         SentrySpanOperations.appStartFirstFrameRender,
         description: appStartFirstFrameRenderDescription,
         startTimestamp: data.sentrySetupTimestamp,
-      );
+      )..origin = SentryTraceOrigins.autoAppStart;
       if (firstFrameBarrier.samplingDecision?.sampled != true) {
         root.abandon();
         return null;
