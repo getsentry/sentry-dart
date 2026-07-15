@@ -91,7 +91,10 @@ final class DefaultStandaloneAppStartLifecycle
   AppStartTrace? _createAppStartTrace(AppStartData data) {
     String _resolvedStartScreenName() {
       final name = _startScreenName;
-      return name == null || name.isEmpty ? _defaultStartScreenName : name;
+      if (name == null || name.isEmpty || name == '/') {
+        return _defaultStartScreenName;
+      }
+      return name;
     }
 
     return switch (_options.traceLifecycle) {

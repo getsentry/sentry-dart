@@ -105,6 +105,18 @@ void main() {
 
       expect(root.data['app.vitals.start.screen'], 'launch');
     });
+
+    test('maps the navigator root route to root /', () async {
+      fixture.setCurrentRouteName('/');
+      await fixture.startLifecycle();
+      final root = fixture.appStartRoots.single.tracer;
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+      await root.finish(endTimestamp: fixture.snapshot);
+
+      expect(root.data['app.vitals.start.screen'], 'root /');
+    });
   });
 }
 
