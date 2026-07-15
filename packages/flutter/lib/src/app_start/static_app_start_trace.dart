@@ -19,18 +19,18 @@ final class StaticAppStartTrace implements AppStartTrace {
     required SentryTracer root,
     required ISentrySpan firstFrameBarrier,
     required void Function() onCompleted,
-    required String Function() initialScreenName,
+    required String Function() appStartScreenNameProvider,
   })  : _data = data,
         _root = root,
         _firstFrameBarrier = firstFrameBarrier,
         _onCompleted = onCompleted,
-        _initialScreenName = initialScreenName;
+        _appStartScreenNameProvider = appStartScreenNameProvider;
 
   final AppStartData _data;
   final SentryTracer _root;
   final ISentrySpan _firstFrameBarrier;
   final void Function() _onCompleted;
-  final String Function() _initialScreenName;
+  final String Function() _appStartScreenNameProvider;
 
   DateTime? _naturalEnd;
   bool _completed = false;
@@ -40,7 +40,7 @@ final class StaticAppStartTrace implements AppStartTrace {
     required Hub hub,
     required AppStartData data,
     required void Function() onCompleted,
-    required String Function() initialScreenName,
+    required String Function() appStartScreenNameProvider,
   }) {
     StaticAppStartTrace? trace;
     SentryTracer? root;
@@ -83,7 +83,7 @@ final class StaticAppStartTrace implements AppStartTrace {
         root: root,
         firstFrameBarrier: firstFrameBarrier,
         onCompleted: onCompleted,
-        initialScreenName: initialScreenName,
+        appStartScreenNameProvider: appStartScreenNameProvider,
       );
       trace._createCompletedBreakdownSpans();
 
@@ -105,7 +105,7 @@ final class StaticAppStartTrace implements AppStartTrace {
         error: error,
         stackTrace: stackTrace,
       );
-      rethrow;
+      return null;
     }
   }
 
@@ -150,7 +150,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       _root.setData(SemanticAttributesConstants.appVitalsStartType, type);
       _root.setData(
         SemanticAttributesConstants.appVitalsStartScreen,
-        _initialScreenName(),
+        _appStartScreenNameProvider(),
       );
 
       final naturalEnd = _naturalEnd;

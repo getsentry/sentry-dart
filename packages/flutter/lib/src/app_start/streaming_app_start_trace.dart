@@ -18,20 +18,20 @@ final class StreamingAppStartTrace implements AppStartTrace {
     required IdleRecordingSentrySpanV2 root,
     required RecordingSentrySpanV2 firstFrameBarrier,
     required void Function() onCompleted,
-    required String Function() initialScreenName,
+    required String Function() appStartScreenNameProvider,
   })  : _hub = hub,
         _data = data,
         _root = root,
         _firstFrameBarrier = firstFrameBarrier,
         _onCompleted = onCompleted,
-        _initialScreenName = initialScreenName;
+        _appStartScreenNameProvider = appStartScreenNameProvider;
 
   final Hub _hub;
   final AppStartData _data;
   final IdleRecordingSentrySpanV2 _root;
   final RecordingSentrySpanV2 _firstFrameBarrier;
   final void Function() _onCompleted;
-  final String Function() _initialScreenName;
+  final String Function() _appStartScreenNameProvider;
 
   late final SdkLifecycleCallback<OnProcessSpan> _processCallback;
   DateTime? _naturalEnd;
@@ -42,7 +42,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
     required Hub hub,
     required AppStartData data,
     required void Function() onCompleted,
-    required String Function() initialScreenName,
+    required String Function() appStartScreenNameProvider,
   }) {
     IdleRecordingSentrySpanV2? root;
     StreamingAppStartTrace? trace;
@@ -86,7 +86,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
         root: root,
         firstFrameBarrier: barrier,
         onCompleted: onCompleted,
-        initialScreenName: initialScreenName,
+        appStartScreenNameProvider: appStartScreenNameProvider,
       );
       trace._processCallback = trace._processSpan;
       trace._createCompletedBreakdownSpans();
@@ -104,7 +104,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
         error: error,
         stackTrace: stackTrace,
       );
-      rethrow;
+      return null;
     }
   }
 
@@ -163,7 +163,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
       );
       _root.setAttribute(
         SemanticAttributesConstants.appVitalsStartScreen,
-        SentryAttribute.string(_initialScreenName()),
+        SentryAttribute.string(_appStartScreenNameProvider()),
       );
       _root.setAttribute(
         SemanticAttributesConstants.sentrySegmentName,

@@ -18,6 +18,7 @@ import 'file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
 import 'app_start/standalone_app_start_integration.dart';
+import 'app_start/standalone_app_start_lifecycle.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/flutter_framework_feature_flag_integration.dart';
 import 'integrations/frames_tracking_integration.dart';
@@ -213,8 +214,10 @@ mixin SentryFlutter {
           );
           integrations.add(
             StandaloneAppStartIntegration(
-              frameCallbackHandler,
-              native,
+              DefaultStandaloneAppStartLifecycle(
+                frameCallbackHandler,
+                native,
+              ),
             ),
           );
         }

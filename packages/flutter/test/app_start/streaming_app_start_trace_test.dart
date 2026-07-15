@@ -80,6 +80,14 @@ void main() {
       expect(root.attributes['app.vitals.start.type']?.value, 'cold');
       expect(root.attributes['app.vitals.start.screen']?.value, 'root /');
     });
+
+    test('returns null when trace creation fails', () {
+      fixture.options
+        ..tracesSampleRate = null
+        ..tracesSampler = (_) => throw StateError('sampling failed');
+
+      expect(fixture.getSut(), isNull);
+    });
   });
 }
 
@@ -117,7 +125,7 @@ class Fixture {
       hub: hub,
       data: data,
       onCompleted: () => completions++,
-      initialScreenName: () => 'root /',
+      appStartScreenNameProvider: () => 'root /',
     );
   }
 }

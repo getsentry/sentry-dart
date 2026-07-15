@@ -151,8 +151,8 @@ void main() {
       );
 
       expect(
-        options.sdk.features,
-        contains('standaloneAppStartTracing'),
+        options.sdk.integrations,
+        contains('StandaloneAppStart'),
       );
 
       await Sentry.close();

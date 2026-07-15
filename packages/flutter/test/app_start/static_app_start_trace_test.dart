@@ -81,6 +81,14 @@ void main() {
       expect(fixture.root!.tracer.finished, isTrue);
     });
 
+    test('returns null when trace creation fails', () {
+      fixture.options
+        ..tracesSampleRate = null
+        ..tracesSampler = (_) => throw StateError('sampling failed');
+
+      expect(fixture.getSut(), isNull);
+    });
+
     testWidgets('waits for idle timeout after natural end', (tester) async {
       final sut = fixture.getSut()!;
 
@@ -127,7 +135,7 @@ class Fixture {
       hub: hub,
       data: data,
       onCompleted: () => completions++,
-      initialScreenName: () => 'root /',
+      appStartScreenNameProvider: () => 'root /',
     );
   }
 }
