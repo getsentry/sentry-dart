@@ -3,7 +3,7 @@ import 'package:sentry_flutter/src/app_start/app_start_data.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 
 void main() {
-  group('$AppStartData', () {
+  group('$AppStartData.tryParse', () {
     late Fixture fixture;
 
     setUp(() {
@@ -16,22 +16,22 @@ void main() {
       expect(data, isNotNull);
       expect(data!.type, AppStartType.cold);
       expect(
-        data.nativePhaseIntervals.map((phase) => phase.description),
+        data.nativePhases.map((phase) => phase.description),
         ['early', 'late'],
       );
     });
 
     test('returns null for a future process start', () {
       final data = fixture.parse(
-        appStartTime: fixture.snapshot.add(Duration(seconds: 1)),
+        appStartTime: fixture.validUntil.add(Duration(seconds: 1)),
       );
 
       expect(data, isNull);
     });
 
-    test('returns null for a snapshot older than sixty seconds', () {
+    test('returns null when older than sixty seconds', () {
       final data = fixture.parse(
-        appStartTime: fixture.snapshot.subtract(Duration(seconds: 61)),
+        appStartTime: fixture.validUntil.subtract(Duration(seconds: 61)),
       );
 
       expect(data, isNull);
@@ -47,9 +47,17 @@ void main() {
       expect(data, isNull);
     });
 
+    test('returns null when setup is after validUntil', () {
+      final data = fixture.parse(
+        sentrySetup: fixture.validUntil.add(Duration(milliseconds: 1)),
+      );
+
+      expect(data, isNull);
+    });
+
     test('discards one malformed optional phase', () {
       fixture.nativeSpanTimes['invalid'] = {
-        'startTimestampMsSinceEpoch': fixture.snapshot.millisecondsSinceEpoch,
+        'startTimestampMsSinceEpoch': fixture.validUntil.millisecondsSinceEpoch,
         'stopTimestampMsSinceEpoch':
             fixture.processStart.millisecondsSinceEpoch,
       };
@@ -57,12 +65,12 @@ void main() {
       final data = fixture.parse();
 
       expect(
-        data!.nativePhaseIntervals.map((phase) => phase.description),
+        data!.nativePhases.map((phase) => phase.description),
         ['early', 'late'],
       );
     });
 
-    test('discards optional phases outside the timing snapshot', () {
+    test('discards optional phases outside the timing window', () {
       fixture.nativeSpanTimes.addAll({
         'before-process-start': {
           'startTimestampMsSinceEpoch': fixture.processStart
@@ -72,11 +80,11 @@ void main() {
               .subtract(Duration(milliseconds: 1))
               .millisecondsSinceEpoch,
         },
-        'after-snapshot': {
-          'startTimestampMsSinceEpoch': fixture.snapshot
+        'after-valid-until': {
+          'startTimestampMsSinceEpoch': fixture.validUntil
               .add(Duration(milliseconds: 1))
               .millisecondsSinceEpoch,
-          'stopTimestampMsSinceEpoch': fixture.snapshot
+          'stopTimestampMsSinceEpoch': fixture.validUntil
               .add(Duration(milliseconds: 2))
               .millisecondsSinceEpoch,
         },
@@ -85,7 +93,7 @@ void main() {
       final data = fixture.parse();
 
       expect(
-        data!.nativePhaseIntervals.map((phase) => phase.description),
+        data!.nativePhases.map((phase) => phase.description),
         ['early', 'late'],
       );
     });
@@ -96,7 +104,7 @@ class Fixture {
   final processStart = DateTime.utc(2024, 1, 1, 12);
   late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
   late final sentrySetup = processStart.add(Duration(milliseconds: 200));
-  late final snapshot = processStart.add(Duration(milliseconds: 300));
+  late final validUntil = processStart.add(Duration(milliseconds: 300));
   late final nativeSpanTimes = <dynamic, dynamic>{
     'late': {
       'startTimestampMsSinceEpoch':
@@ -115,8 +123,9 @@ class Fixture {
   AppStartData? parse({
     DateTime? appStartTime,
     DateTime? pluginRegistration,
+    DateTime? sentrySetup,
   }) =>
-      parseStandaloneAppStart(
+      AppStartData.tryParse(
         NativeAppStart(
           appStartTime: (appStartTime ?? processStart).millisecondsSinceEpoch,
           pluginRegistrationTime:
@@ -125,7 +134,7 @@ class Fixture {
           isColdStart: true,
           nativeSpanTimes: nativeSpanTimes,
         ),
-        sentrySetupTimestamp: sentrySetup,
-        snapshotTimestamp: snapshot,
+        sentrySetupTimestamp: sentrySetup ?? this.sentrySetup,
+        validUntil: validUntil,
       );
 }

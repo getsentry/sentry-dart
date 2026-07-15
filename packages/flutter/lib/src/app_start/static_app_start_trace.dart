@@ -18,19 +18,16 @@ final class StaticAppStartTrace implements AppStartTrace {
     required AppStartData data,
     required SentryTracer root,
     required ISentrySpan firstFrameBarrier,
-    required void Function() onCompleted,
-    required String Function() appStartScreenNameProvider,
-  })  : _data = data,
-        _root = root,
-        _firstFrameBarrier = firstFrameBarrier,
-        _onCompleted = onCompleted,
-        _appStartScreenNameProvider = appStartScreenNameProvider;
+    required String Function() startScreenName,
+  }) : _data = data,
+       _root = root,
+       _firstFrameBarrier = firstFrameBarrier,
+       _startScreenName = startScreenName;
 
   final AppStartData _data;
   final SentryTracer _root;
   final ISentrySpan _firstFrameBarrier;
-  final void Function() _onCompleted;
-  final String Function() _appStartScreenNameProvider;
+  final String Function() _startScreenName;
 
   DateTime? _naturalEnd;
   bool _completed = false;
@@ -39,8 +36,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   static StaticAppStartTrace? tryCreate({
     required Hub hub,
     required AppStartData data,
-    required void Function() onCompleted,
-    required String Function() appStartScreenNameProvider,
+    required String Function() startScreenName,
   }) {
     StaticAppStartTrace? trace;
     SentryTracer? root;
@@ -82,14 +78,11 @@ final class StaticAppStartTrace implements AppStartTrace {
         data: data,
         root: root,
         firstFrameBarrier: firstFrameBarrier,
-        onCompleted: onCompleted,
-        appStartScreenNameProvider: appStartScreenNameProvider,
+        startScreenName: startScreenName,
       );
       trace._createCompletedBreakdownSpans();
 
-      if (!root.tryScheduleFinalTimeout(
-        createdAt.add(appStartFinalTimeout),
-      )) {
+      if (!root.tryScheduleFinalTimeout(createdAt.add(appStartFinalTimeout))) {
         trace.close();
         return null;
       }
@@ -110,7 +103,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 
   void _createCompletedBreakdownSpans() {
-    for (final phase in _data.completedBreakdownPhases) {
+    for (final phase in _data.phases) {
       _finishChild(
         operation: phase.operation,
         description: phase.description,
@@ -150,7 +143,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       _root.setData(SemanticAttributesConstants.appVitalsStartType, type);
       _root.setData(
         SemanticAttributesConstants.appVitalsStartScreen,
-        _appStartScreenNameProvider(),
+        _startScreenName(),
       );
 
       final naturalEnd = _naturalEnd;
@@ -176,29 +169,21 @@ final class StaticAppStartTrace implements AppStartTrace {
       );
     } finally {
       _completed = true;
-      try {
-        _onCompleted();
-      } catch (error, stackTrace) {
-        internalLogger.error(
-          'Failed to complete static standalone app start',
-          error: error,
-          stackTrace: stackTrace,
-        );
-      }
     }
   }
 
   void _finish(ISentrySpan span, {DateTime? endTimestamp}) {
     unawaited(
-      span.finish(endTimestamp: endTimestamp).catchError(
-        (Object error, StackTrace stackTrace) {
-          internalLogger.error(
-            'Failed to finish static app-start span',
-            error: error,
-            stackTrace: stackTrace,
-          );
-        },
-      ),
+      span.finish(endTimestamp: endTimestamp).catchError((
+        Object error,
+        StackTrace stackTrace,
+      ) {
+        internalLogger.error(
+          'Failed to finish static app-start span',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }),
     );
   }
 

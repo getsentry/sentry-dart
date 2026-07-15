@@ -59,7 +59,7 @@ final class FakeStandaloneAppStartLifecycle
   int closeCalls = 0;
 
   @override
-  Future<void> start(Hub hub, SentryFlutterOptions options) async {
+  Future<void> start() async {
     startCalls++;
   }
 

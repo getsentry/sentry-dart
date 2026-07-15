@@ -16,7 +16,7 @@ import 'streaming_app_start_trace.dart';
 /// Controls standalone app-start tracing from SDK start through shutdown.
 @internal
 abstract interface class StandaloneAppStartLifecycle {
-  Future<void> start(Hub hub, SentryFlutterOptions options);
+  Future<void> start();
 
   Future<void> close();
 }
@@ -25,32 +25,39 @@ abstract interface class StandaloneAppStartLifecycle {
 @internal
 final class DefaultStandaloneAppStartLifecycle
     implements StandaloneAppStartLifecycle {
+  final Hub _hub;
   final FrameCallbackHandler _frameCallbackHandler;
   final SentryNativeBinding _native;
 
-  TimingsCallback? _firstFrameCallback;
-  SentryFlutterOptions? _options;
-  AppStartTrace? _trace;
-  String? _capturedAppStartScreenName;
-  bool _closed = false;
-  bool _displayPrepared = false;
+  static const _defaultStartScreenName = 'root /';
 
-  DefaultStandaloneAppStartLifecycle(this._frameCallbackHandler, this._native);
+  AppStartTrace? _trace;
+  String? _startScreenName;
+
+  DefaultStandaloneAppStartLifecycle({
+    Hub? hub,
+    FrameCallbackHandler? frameCallbackHandler,
+    required SentryNativeBinding native,
+  }) : _hub = hub ?? HubAdapter(),
+       _frameCallbackHandler =
+           frameCallbackHandler ?? DefaultFrameCallbackHandler(),
+       _native = native;
+
+  SentryFlutterOptions get _options => _hub.options as SentryFlutterOptions;
 
   @override
-  Future<void> start(Hub hub, SentryFlutterOptions options) async {
-    if (_closed) return;
-    _options = options;
-
+  Future<void> start() async {
     AppStartData? data;
     try {
       final nativeAppStart = await _native.fetchNativeAppStart();
       final setupTimestamp = SentryFlutter.sentrySetupStartTime;
       if (nativeAppStart != null && setupTimestamp != null) {
-        data = parseStandaloneAppStart(
+        data = AppStartData.tryParse(
           nativeAppStart,
           sentrySetupTimestamp: setupTimestamp,
-          snapshotTimestamp: options.clock(),
+          // Eager parse: only trust timestamps through setup. First frame
+          // is the measurement end later, not part of this ceiling.
+          validUntil: setupTimestamp,
         );
       }
     } catch (error, stackTrace) {
@@ -61,58 +68,58 @@ final class DefaultStandaloneAppStartLifecycle
       );
     }
 
-    if (_closed) return;
-
-    final fallbackStart = SentryFlutter.sentrySetupStartTime ?? options.clock();
-    _prepareInitialDisplay(
-      options,
-      data?.processStartTimestamp ?? fallbackStart,
-    );
-    _displayPrepared = true;
-
-    if (data != null) {
-      _trace = switch (options.traceLifecycle) {
-        SentryTraceLifecycle.static => StaticAppStartTrace.tryCreate(
-            hub: hub,
-            data: data,
-            onCompleted: () => _trace = null,
-            appStartScreenNameProvider: _provideAppStartScreenName,
-          ),
-        SentryTraceLifecycle.stream => StreamingAppStartTrace.tryCreate(
-            hub: hub,
-            data: data,
-            onCompleted: () => _trace = null,
-            appStartScreenNameProvider: _provideAppStartScreenName,
-          ),
-      };
+    if (data == null) {
+      internalLogger.info(
+        'Skipping standalone app start: native timing unavailable or invalid',
+      );
+      return;
     }
 
-    _installFirstFrameCallback(options);
+    final trace = _createAppStartTrace(data);
+    if (trace == null) {
+      internalLogger.info(
+        'Skipping standalone app start: trace was not created',
+      );
+      return;
+    }
+
+    _trace = trace;
+    _prepareTimeToDisplay(data.processStartTimestamp);
+    _finishOnFirstFrame();
   }
 
-  String _resolveAppStartScreenName() {
-    final routeName = SentryNavigatorObserver.currentRouteName;
-    return routeName == null || routeName.isEmpty ? 'root /' : routeName;
+  AppStartTrace? _createAppStartTrace(AppStartData data) {
+    String _resolvedStartScreenName() {
+      final name = _startScreenName;
+      return name == null || name.isEmpty ? _defaultStartScreenName : name;
+    }
+
+    return switch (_options.traceLifecycle) {
+      SentryTraceLifecycle.static => StaticAppStartTrace.tryCreate(
+        hub: _hub,
+        data: data,
+        startScreenName: _resolvedStartScreenName,
+      ),
+      SentryTraceLifecycle.stream => StreamingAppStartTrace.tryCreate(
+        hub: _hub,
+        data: data,
+        startScreenName: _resolvedStartScreenName,
+      ),
+    };
   }
 
-  String _provideAppStartScreenName() =>
-      _capturedAppStartScreenName ?? _resolveAppStartScreenName();
-
-  void _prepareInitialDisplay(
-    SentryFlutterOptions options,
-    DateTime startTimestamp,
-  ) {
-    switch (options.traceLifecycle) {
+  void _prepareTimeToDisplay(DateTime startTimestamp) {
+    switch (_options.traceLifecycle) {
       case SentryTraceLifecycle.static:
-        options.timeToDisplayTracker.prepareInitialDisplay(startTimestamp);
+        _options.timeToDisplayTracker.prepareInitialDisplay(startTimestamp);
       case SentryTraceLifecycle.stream:
-        options.timeToDisplayTrackerV2.prepareAppStart(
+        _options.timeToDisplayTrackerV2.prepareAppStart(
           startTimestamp: startTimestamp,
         );
     }
   }
 
-  void _installFirstFrameCallback(SentryFlutterOptions options) {
+  void _finishOnFirstFrame() {
     void callback(List<FrameTiming> timings) async {
       if (timings.isEmpty) return;
 
@@ -120,21 +127,24 @@ final class DefaultStandaloneAppStartLifecycle
         timings.first.timestampInMicroseconds(FramePhase.rasterFinishWallTime),
       );
 
-      _firstFrameCallback = null;
+      // Remove the callback directly after to avoid being called again.
       _frameCallbackHandler.removeTimingsCallback(callback);
 
-      try {
-        if (_trace != null) {
-          _capturedAppStartScreenName ??= _resolveAppStartScreenName();
-        }
+      // Closed or never installed.
+      if (_trace == null) return;
 
-        switch (options.traceLifecycle) {
+      try {
+        // Freeze the launch screen during first frame before enrichment;
+        // the user may navigate away before the app-start span finishes.
+        _startScreenName ??= SentryNavigatorObserver.currentRouteName;
+
+        switch (_options.traceLifecycle) {
           case SentryTraceLifecycle.static:
-            await options.timeToDisplayTracker.recordInitialDisplay(
+            await _options.timeToDisplayTracker.recordInitialDisplay(
               endTimestamp,
             );
           case SentryTraceLifecycle.stream:
-            options.timeToDisplayTrackerV2.trackAppStart(
+            _options.timeToDisplayTrackerV2.trackAppStart(
               ttidEndTimestamp: endTimestamp,
             );
         }
@@ -146,44 +156,25 @@ final class DefaultStandaloneAppStartLifecycle
           error: error,
           stackTrace: stackTrace,
         );
-        if (options.automatedTestMode) {
+        if (_options.automatedTestMode) {
           rethrow;
         }
-      } finally {
-        _displayPrepared = false;
       }
     }
 
-    _firstFrameCallback = callback;
     _frameCallbackHandler.addTimingsCallback(callback);
   }
 
   @override
   Future<void> close() async {
-    if (_closed) return;
-    _closed = true;
-
-    if (_firstFrameCallback != null) {
-      _frameCallbackHandler.removeTimingsCallback(_firstFrameCallback!);
-      _firstFrameCallback = null;
+    await _trace?.close();
+    switch (_options.traceLifecycle) {
+      case SentryTraceLifecycle.static:
+        _options.timeToDisplayTracker.clear();
+      case SentryTraceLifecycle.stream:
+        _options.timeToDisplayTrackerV2.cancelCurrentRoute();
     }
-
-    try {
-      await _trace?.close();
-    } finally {
-      final options = _options;
-      _trace = null;
-      _options = null;
-      _capturedAppStartScreenName = null;
-
-      if (_displayPrepared && options != null) {
-        switch (options.traceLifecycle) {
-          case SentryTraceLifecycle.static:
-            options.timeToDisplayTracker.clear();
-          case SentryTraceLifecycle.stream:
-            options.timeToDisplayTrackerV2.cancelCurrentRoute();
-        }
-      }
-    }
+    _trace = null;
+    _startScreenName = null;
   }
 }

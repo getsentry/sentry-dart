@@ -550,7 +550,9 @@ class Fixture {
 
   Fixture() {
     when(hub.options).thenReturn(options);
-    SentryFlutter.sentrySetupStartTime = DateTime.now().toUtc();
+    // Must sit between pluginRegistrationTime (10ms) and typical appStartEnd.
+    SentryFlutter.sentrySetupStartTime =
+        DateTime.fromMillisecondsSinceEpoch(10).toUtc();
   }
 
   Future<void> call({required DateTime appStartEnd}) async {

@@ -215,8 +215,8 @@ mixin SentryFlutter {
           integrations.add(
             StandaloneAppStartIntegration(
               DefaultStandaloneAppStartLifecycle(
-                frameCallbackHandler,
-                native,
+                frameCallbackHandler: frameCallbackHandler,
+                native: native,
               ),
             ),
           );

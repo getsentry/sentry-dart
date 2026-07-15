@@ -24,20 +24,13 @@ void main() {
       await pumpEventQueue(times: 10);
 
       expect(root.name, 'App Start');
-      expect(
-        root.attributes['sentry.op']?.value,
-        'app.start',
-      );
-      expect(
-        root.attributes['sentry.origin']?.value,
-        'auto.app.start',
-      );
+      expect(root.attributes['sentry.op']?.value, 'app.start');
+      expect(root.attributes['sentry.origin']?.value, 'auto.app.start');
       expect(root.attributes['app.vitals.start.value']?.value, 350.0);
       expect(root.attributes['app.vitals.start.cold.value']?.value, 350.0);
       expect(root.attributes['app.vitals.start.type']?.value, 'cold');
       expect(root.attributes['app.vitals.start.screen']?.value, 'root /');
       expect(root.attributes['sentry.segment.name']?.value, 'App Start');
-      expect(fixture.completions, 1);
     });
 
     test('creates direct standalone breakdown children', () {
@@ -71,9 +64,7 @@ void main() {
         'sentry.status.message',
         SentryAttribute.string('deadline_exceeded'),
       );
-      root.end(
-        endTimestamp: fixture.processStart.add(Duration(seconds: 30)),
-      );
+      root.end(endTimestamp: fixture.processStart.add(Duration(seconds: 30)));
       await pumpEventQueue(times: 10);
 
       expect(root.attributes['app.vitals.start.value'], isNull);
@@ -95,7 +86,6 @@ class Fixture {
   final processStart = DateTime.utc(2024, 1, 1, 12);
   late final naturalEnd = processStart.add(Duration(milliseconds: 350));
   late final rootFinish = processStart.add(Duration(milliseconds: 500));
-  var completions = 0;
   IdleRecordingSentrySpanV2? root;
   final children = <SentrySpanV2>[];
 
@@ -104,12 +94,27 @@ class Fixture {
     ..traceLifecycle = SentryTraceLifecycle.stream
     ..clock = () => processStart.add(Duration(milliseconds: 300));
   late final hub = Hub(options);
+  late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
+  late final sentrySetup = processStart.add(Duration(milliseconds: 200));
   late final data = AppStartData(
     type: AppStartType.cold,
     processStartTimestamp: processStart,
-    pluginRegistrationTimestamp: processStart.add(Duration(milliseconds: 100)),
-    sentrySetupTimestamp: processStart.add(Duration(milliseconds: 200)),
-    nativePhaseIntervals: [],
+    pluginRegistrationTimestamp: pluginRegistration,
+    sentrySetupTimestamp: sentrySetup,
+    phases: [
+      AppStartPhase(
+        operation: SentrySpanOperations.appStartPluginRegistration,
+        description: 'App start to plugin registration',
+        startTimestamp: processStart,
+        endTimestamp: pluginRegistration,
+      ),
+      AppStartPhase(
+        operation: SentrySpanOperations.appStartSentrySetup,
+        description: 'Before Sentry Init Setup',
+        startTimestamp: pluginRegistration,
+        endTimestamp: sentrySetup,
+      ),
+    ],
   );
 
   StreamingAppStartTrace? getSut() {
@@ -124,8 +129,7 @@ class Fixture {
     return StreamingAppStartTrace.tryCreate(
       hub: hub,
       data: data,
-      onCompleted: () => completions++,
-      appStartScreenNameProvider: () => 'root /',
+      startScreenName: () => 'root /',
     );
   }
 }

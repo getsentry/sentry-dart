@@ -72,7 +72,7 @@ void main() {
       expect(fixture.frameHandler.timingsCallback, isNull);
     });
 
-    test('keeps initial display when native timing is invalid', () async {
+    test('skips when native timing is invalid', () async {
       when(fixture.native.fetchNativeAppStart()).thenAnswer(
         (_) async => fixture.nativeAppStart(appStartMilliseconds: 1000),
       );
@@ -80,7 +80,7 @@ void main() {
       await fixture.startLifecycle();
 
       expect(fixture.appStartRoots, isEmpty);
-      expect(fixture.frameHandler.timingsCallback, isNotNull);
+      expect(fixture.frameHandler.timingsCallback, isNull);
     });
 
     test('close abandons the standalone trace', () async {
@@ -91,7 +91,6 @@ void main() {
       await fixture.sut.close();
 
       expect(root.tracer.finished, isTrue);
-      expect(fixture.frameHandler.timingsCallback, isNull);
     });
 
     test('captures the app-start screen at the first valid frame', () async {
@@ -137,7 +136,11 @@ class Fixture {
     hub: hub,
     enableAutoTransactions: false,
   );
-  late final sut = DefaultStandaloneAppStartLifecycle(frameHandler, native);
+  late final sut = DefaultStandaloneAppStartLifecycle(
+    hub: hub,
+    frameCallbackHandler: frameHandler,
+    native: native,
+  );
 
   Fixture() {
     SentryFlutter.sentrySetupStartTime = setup;
@@ -167,7 +170,7 @@ class Fixture {
         nativeSpanTimes: {},
       );
 
-  Future<void> startLifecycle() => sut.start(hub, options);
+  Future<void> startLifecycle() => sut.start();
 
   void setCurrentRouteName(String? name) {
     navigatorObserver.didPush(

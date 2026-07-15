@@ -29,7 +29,6 @@ void main() {
       expect(root.measurements['app_start_cold']?.value, 350);
       expect(root.data['app_start_type'], 'cold');
       expect(root.data['app.vitals.start.screen'], 'root /');
-      expect(fixture.completions, 1);
     });
 
     test('creates direct standalone breakdown children', () {
@@ -100,17 +99,18 @@ void main() {
 
     testWidgets('waits for idle timeout after natural end', (tester) async {
       final sut = fixture.getSut()!;
+      final root = fixture.root!.tracer;
 
       await tester.pump(Duration(seconds: 2));
       sut.recordNaturalEnd(fixture.naturalEnd);
       await tester.pump(Duration(seconds: 1));
 
-      expect(fixture.completions, 0);
+      expect(root.finished, isFalse);
 
       await tester.pump(Duration(seconds: 2));
       await tester.pump();
 
-      expect(fixture.completions, 1);
+      expect(root.finished, isTrue);
     });
   });
 }
@@ -119,7 +119,6 @@ class Fixture {
   final processStart = DateTime.utc(2024, 1, 1, 12);
   late final naturalEnd = processStart.add(Duration(milliseconds: 350));
   late final rootFinish = processStart.add(Duration(milliseconds: 500));
-  var completions = 0;
   SentrySpan? root;
 
   late final options = defaultTestOptions()
@@ -127,12 +126,27 @@ class Fixture {
     ..traceLifecycle = SentryTraceLifecycle.static
     ..clock = () => processStart.add(Duration(milliseconds: 300));
   late final hub = Hub(options);
+  late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
+  late final sentrySetup = processStart.add(Duration(milliseconds: 200));
   late final data = AppStartData(
     type: AppStartType.cold,
     processStartTimestamp: processStart,
-    pluginRegistrationTimestamp: processStart.add(Duration(milliseconds: 100)),
-    sentrySetupTimestamp: processStart.add(Duration(milliseconds: 200)),
-    nativePhaseIntervals: [],
+    pluginRegistrationTimestamp: pluginRegistration,
+    sentrySetupTimestamp: sentrySetup,
+    phases: [
+      AppStartPhase(
+        operation: SentrySpanOperations.appStartPluginRegistration,
+        description: 'App start to plugin registration',
+        startTimestamp: processStart,
+        endTimestamp: pluginRegistration,
+      ),
+      AppStartPhase(
+        operation: SentrySpanOperations.appStartSentrySetup,
+        description: 'Before Sentry Init Setup',
+        startTimestamp: pluginRegistration,
+        endTimestamp: sentrySetup,
+      ),
+    ],
   );
 
   StaticAppStartTrace? getSut() {
@@ -143,8 +157,7 @@ class Fixture {
     return StaticAppStartTrace.tryCreate(
       hub: hub,
       data: data,
-      onCompleted: () => completions++,
-      appStartScreenNameProvider: () => 'root /',
+      startScreenName: () => 'root /',
     );
   }
 }

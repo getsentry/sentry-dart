@@ -17,21 +17,18 @@ final class StreamingAppStartTrace implements AppStartTrace {
     required AppStartData data,
     required IdleRecordingSentrySpanV2 root,
     required RecordingSentrySpanV2 firstFrameBarrier,
-    required void Function() onCompleted,
-    required String Function() appStartScreenNameProvider,
-  })  : _hub = hub,
-        _data = data,
-        _root = root,
-        _firstFrameBarrier = firstFrameBarrier,
-        _onCompleted = onCompleted,
-        _appStartScreenNameProvider = appStartScreenNameProvider;
+    required String Function() startScreenName,
+  }) : _hub = hub,
+       _data = data,
+       _root = root,
+       _firstFrameBarrier = firstFrameBarrier,
+       _startScreenName = startScreenName;
 
   final Hub _hub;
   final AppStartData _data;
   final IdleRecordingSentrySpanV2 _root;
   final RecordingSentrySpanV2 _firstFrameBarrier;
-  final void Function() _onCompleted;
-  final String Function() _appStartScreenNameProvider;
+  final String Function() _startScreenName;
 
   late final SdkLifecycleCallback<OnProcessSpan> _processCallback;
   DateTime? _naturalEnd;
@@ -41,8 +38,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   static StreamingAppStartTrace? tryCreate({
     required Hub hub,
     required AppStartData data,
-    required void Function() onCompleted,
-    required String Function() appStartScreenNameProvider,
+    required String Function() startScreenName,
   }) {
     IdleRecordingSentrySpanV2? root;
     StreamingAppStartTrace? trace;
@@ -55,10 +51,12 @@ final class StreamingAppStartTrace implements AppStartTrace {
         trimIdleSpanEndTimestamp: true,
         startTimestamp: data.processStartTimestamp,
         attributes: {
-          SemanticAttributesConstants.sentryOp:
-              SentryAttribute.string(SentrySpanOperations.appStart),
-          SemanticAttributesConstants.sentryOrigin:
-              SentryAttribute.string(SentryTraceOrigins.autoAppStart),
+          SemanticAttributesConstants.sentryOp: SentryAttribute.string(
+            SentrySpanOperations.appStart,
+          ),
+          SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+            SentryTraceOrigins.autoAppStart,
+          ),
           SemanticAttributesConstants.appVitalsStartType:
               SentryAttribute.string(data.type.name),
         },
@@ -85,13 +83,13 @@ final class StreamingAppStartTrace implements AppStartTrace {
         data: data,
         root: root,
         firstFrameBarrier: barrier,
-        onCompleted: onCompleted,
-        appStartScreenNameProvider: appStartScreenNameProvider,
+        startScreenName: startScreenName,
       );
       trace._processCallback = trace._processSpan;
       trace._createCompletedBreakdownSpans();
-      hub.options.lifecycleRegistry
-          .registerCallback<OnProcessSpan>(trace._processCallback);
+      hub.options.lifecycleRegistry.registerCallback<OnProcessSpan>(
+        trace._processCallback,
+      );
       return trace;
     } catch (error, stackTrace) {
       if (trace != null) {
@@ -111,17 +109,18 @@ final class StreamingAppStartTrace implements AppStartTrace {
   static Map<String, SentryAttribute> _childAttributes(
     AppStartData data,
     String operation,
-  ) =>
-      {
-        SemanticAttributesConstants.sentryOp: SentryAttribute.string(operation),
-        SemanticAttributesConstants.sentryOrigin:
-            SentryAttribute.string(SentryTraceOrigins.autoAppStart),
-        SemanticAttributesConstants.appVitalsStartType:
-            SentryAttribute.string(data.type.name),
-      };
+  ) => {
+    SemanticAttributesConstants.sentryOp: SentryAttribute.string(operation),
+    SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+      SentryTraceOrigins.autoAppStart,
+    ),
+    SemanticAttributesConstants.appVitalsStartType: SentryAttribute.string(
+      data.type.name,
+    ),
+  };
 
   void _createCompletedBreakdownSpans() {
-    for (final phase in _data.completedBreakdownPhases) {
+    for (final phase in _data.phases) {
       _finishChild(
         operation: phase.operation,
         description: phase.description,
@@ -163,7 +162,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
       );
       _root.setAttribute(
         SemanticAttributesConstants.appVitalsStartScreen,
-        SentryAttribute.string(_appStartScreenNameProvider()),
+        SentryAttribute.string(_startScreenName()),
       );
       _root.setAttribute(
         SemanticAttributesConstants.sentrySegmentName,
@@ -171,8 +170,10 @@ final class StreamingAppStartTrace implements AppStartTrace {
       );
 
       final naturalEnd = _naturalEnd;
-      final deadlineExceeded = _root.status == SentrySpanStatusV2.error &&
-          _root.attributes[SemanticAttributesConstants.sentryStatusMessage]
+      final deadlineExceeded =
+          _root.status == SentrySpanStatusV2.error &&
+          _root
+                  .attributes[SemanticAttributesConstants.sentryStatusMessage]
                   ?.value ==
               SentrySpanStatusMessages.deadlineExceeded;
       if (naturalEnd != null && !deadlineExceeded) {
@@ -200,20 +201,9 @@ final class StreamingAppStartTrace implements AppStartTrace {
       );
     } finally {
       _completed = true;
-      try {
-        _hub.options.lifecycleRegistry
-            .removeCallback<OnProcessSpan>(_processCallback);
-      } finally {
-        try {
-          _onCompleted();
-        } catch (error, stackTrace) {
-          internalLogger.error(
-            'Failed to complete streaming standalone app start',
-            error: error,
-            stackTrace: stackTrace,
-          );
-        }
-      }
+      _hub.options.lifecycleRegistry.removeCallback<OnProcessSpan>(
+        _processCallback,
+      );
     }
   }
 
@@ -221,8 +211,9 @@ final class StreamingAppStartTrace implements AppStartTrace {
   Future<void> close() async {
     if (_closed || _completed) return;
     _closed = true;
-    _hub.options.lifecycleRegistry
-        .removeCallback<OnProcessSpan>(_processCallback);
+    _hub.options.lifecycleRegistry.removeCallback<OnProcessSpan>(
+      _processCallback,
+    );
     await _root.cancel();
   }
 }
