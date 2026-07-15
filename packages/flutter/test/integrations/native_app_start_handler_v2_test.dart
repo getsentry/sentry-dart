@@ -213,6 +213,7 @@ void main() {
         final appStartSpan = fixture.findSpanByName('Cold Start')!;
         final phaseSpan =
             fixture.findSpanByName('App start to plugin registration')!;
+        final nativeSpan = fixture.findSpanByName('native span 1')!;
 
         expect(
           appStartSpan.attributes['app.vitals.start.screen']?.value,
@@ -220,6 +221,10 @@ void main() {
         );
         expect(
           phaseSpan.attributes['app.vitals.start.screen'],
+          isNull,
+        );
+        expect(
+          nativeSpan.attributes['app.vitals.start.screen'],
           isNull,
         );
       });
