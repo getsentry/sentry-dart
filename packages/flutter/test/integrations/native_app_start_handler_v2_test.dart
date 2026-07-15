@@ -207,6 +207,36 @@ void main() {
     });
 
     group('when emitting app start vitals', () {
+      test('adds initial screen only to the cold app start span', () async {
+        await fixture.call();
+
+        final appStartSpan = fixture.findSpanByName('Cold Start')!;
+        final phaseSpan =
+            fixture.findSpanByName('App start to plugin registration')!;
+
+        expect(
+          appStartSpan.attributes['app.vitals.start.screen']?.value,
+          'root /',
+        );
+        expect(
+          phaseSpan.attributes['app.vitals.start.screen'],
+          isNull,
+        );
+      });
+
+      test('adds initial screen to the warm app start span', () async {
+        when(fixture.nativeBinding.fetchNativeAppStart())
+            .thenAnswer((_) async => fixture.warmNativeAppStart);
+
+        await fixture.call();
+
+        final appStartSpan = fixture.findSpanByName('Warm Start')!;
+        expect(
+          appStartSpan.attributes['app.vitals.start.screen']?.value,
+          'root /',
+        );
+      });
+
       test('cold start emits legacy cold value and unified value and type',
           () async {
         await fixture.call();
