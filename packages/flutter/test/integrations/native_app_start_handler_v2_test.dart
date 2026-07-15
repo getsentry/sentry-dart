@@ -207,7 +207,7 @@ void main() {
     });
 
     group('when emitting app start vitals', () {
-      test('adds initial screen only to the cold app start span', () async {
+      test('does not add initial screen to breakdown app start spans', () async {
         await fixture.call();
 
         final appStartSpan = fixture.findSpanByName('Cold Start')!;
@@ -231,6 +231,16 @@ void main() {
         await fixture.call();
 
         final appStartSpan = fixture.findSpanByName('Warm Start')!;
+        expect(
+          appStartSpan.attributes['app.vitals.start.screen']?.value,
+          'root /',
+        );
+      });
+
+      test('adds initial screen to the cold app start span', () async {
+        await fixture.call();
+
+        final appStartSpan = fixture.findSpanByName('Cold Start')!;
         expect(
           appStartSpan.attributes['app.vitals.start.screen']?.value,
           'root /',
