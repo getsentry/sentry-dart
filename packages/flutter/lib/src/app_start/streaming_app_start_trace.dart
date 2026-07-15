@@ -72,7 +72,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
         startTimestamp: data.sentrySetupTimestamp,
         attributes: _childAttributes(
           data,
-          SentrySpanOperations.appStart,
+          SentrySpanOperations.appStartFirstFrameRender,
         ),
       );
       if (barrier is! RecordingSentrySpanV2) {

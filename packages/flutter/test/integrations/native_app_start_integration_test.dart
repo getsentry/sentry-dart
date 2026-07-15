@@ -43,6 +43,18 @@ void main() {
           isNot(contains(NativeAppStartIntegration.integrationName)));
     });
 
+    test('does not install when standalone app start tracing is enabled', () {
+      fixture.options.enableStandaloneAppStartTracing = true;
+
+      fixture.callIntegration();
+
+      expect(fixture.frameCallbackHandler.timingsCallback, isNull);
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains(NativeAppStartIntegration.integrationName)),
+      );
+    });
+
     test('adds integration', () async {
       fixture.callIntegration();
 
@@ -148,6 +160,7 @@ void main() {
     });
   });
 }
+
 class Fixture {
   final options = defaultTestOptions();
   final hub = MockHub();

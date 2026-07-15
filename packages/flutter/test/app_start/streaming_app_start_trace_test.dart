@@ -50,6 +50,18 @@ void main() {
       );
     });
 
+    test('uses the first frame render operation for its barrier', () {
+      fixture.getSut();
+      final firstFrame = fixture.children.firstWhere(
+        (span) => span.name == 'First frame render',
+      );
+
+      expect(
+        firstFrame.attributes['sentry.op']?.value,
+        'app.start.first_frame_render',
+      );
+    });
+
     test('omits duration and retains metadata at deadline', () async {
       fixture.getSut();
       final root = fixture.root!;

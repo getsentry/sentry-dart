@@ -64,9 +64,11 @@ class TimeToDisplayTrackerV2 {
     DateTime? ttidEndTimestamp,
   }) {
     final SentrySpanV2 routeSpan;
+    DateTime? displayStartTimestamp = startTimestamp;
     switch (_preparedRootNavigationSpan) {
       case final prepared?:
         _preparedRootNavigationSpan = null;
+        displayStartTimestamp ??= prepared.startTimestamp;
         if (startTimestamp != null) {
           if (prepared case final RecordingSentrySpanV2 span) {
             span.startTimestamp = startTimestamp;
@@ -84,7 +86,7 @@ class TimeToDisplayTrackerV2 {
     _trackDisplaySpans(
       routeSpan,
       _rootRouteName,
-      startTimestamp: startTimestamp,
+      startTimestamp: displayStartTimestamp,
       ttidEndTimestamp: ttidEndTimestamp,
     );
     return routeSpan;

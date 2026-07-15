@@ -43,6 +43,15 @@ void main() {
       );
     });
 
+    test('uses the first frame render operation for its barrier', () {
+      fixture.getSut();
+      final firstFrame = fixture.root!.tracer.children.firstWhere(
+        (span) => span.context.description == 'First frame render',
+      );
+
+      expect(firstFrame.context.operation, 'app.start.first_frame_render');
+    });
+
     test('omits duration and retains metadata at deadline', () async {
       fixture.getSut();
       final root = fixture.root!.tracer;

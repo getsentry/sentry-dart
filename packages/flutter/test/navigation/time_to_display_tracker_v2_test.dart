@@ -383,6 +383,22 @@ void main() {
         expect(ttidSpan.isEnded, isTrue);
         expect(ttidSpan.endTimestamp, equals(ttidEnd));
       });
+
+      test('uses prepared route start for TTID when only end is provided', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+        final routeStart = DateTime.utc(2024, 1, 1, 12);
+        final ttidEnd = routeStart.add(const Duration(seconds: 1));
+
+        sut.prepareAppStart(startTimestamp: routeStart);
+        sut.trackAppStart(ttidEndTimestamp: ttidEnd);
+
+        final ttidSpan = childSpans.firstWhere(
+          (span) => span.name == 'root / initial display',
+        );
+        expect(ttidSpan.startTimestamp, routeStart);
+        expect(ttidSpan.endTimestamp, ttidEnd);
+      });
     });
 
     group('when reporting fully displayed', () {

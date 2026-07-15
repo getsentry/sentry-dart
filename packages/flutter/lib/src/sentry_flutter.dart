@@ -205,16 +205,17 @@ mixin SentryFlutter {
         if (platform.isIOS || platform.isAndroid || platform.isMacOS) {
           final frameCallbackHandler = DefaultFrameCallbackHandler();
           integrations.add(
-            options.enableStandaloneAppStartTracing
-                ? StandaloneAppStartIntegration(
-                    frameCallbackHandler,
-                    native,
-                  )
-                : NativeAppStartIntegration(
-                    frameCallbackHandler,
-                    NativeAppStartHandler(native),
-                    NativeAppStartHandlerV2(native),
-                  ),
+            NativeAppStartIntegration(
+              frameCallbackHandler,
+              NativeAppStartHandler(native),
+              NativeAppStartHandlerV2(native),
+            ),
+          );
+          integrations.add(
+            StandaloneAppStartIntegration(
+              frameCallbackHandler,
+              native,
+            ),
           );
         }
         integrations.add(ReplayIntegration(native));

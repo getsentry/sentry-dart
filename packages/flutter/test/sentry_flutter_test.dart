@@ -117,7 +117,7 @@ void main() {
           hasLength(1));
       expect(
         options.integrations.whereType<StandaloneAppStartIntegration>(),
-        isEmpty,
+        hasLength(1),
       );
       expect(Sentry.currentHub.profilerFactory,
           isInstanceOf<SentryNativeProfilerFactory>());
@@ -130,17 +130,20 @@ void main() {
       await Sentry.close();
     }, testOn: 'vm');
 
-    test('iOS selects standalone app start integration when enabled', () async {
+    test('iOS activates standalone app start when enabled in callback',
+        () async {
       late final SentryFlutterOptions options;
       final sentryFlutterOptions =
           defaultTestOptions(checker: MockRuntimeChecker())
             ..platform = MockPlatform.iOS()
-            ..methodChannel = native.channel
-            ..enableStandaloneAppStartTracing = true;
+            ..methodChannel = native.channel;
 
       await SentryFlutter.init(
         (configured) async {
-          configured.dsn = fakeDsn;
+          configured
+            ..dsn = fakeDsn
+            ..tracesSampleRate = 1.0
+            ..enableStandaloneAppStartTracing = true;
           options = configured;
         },
         appRunner: appRunner,
@@ -148,12 +151,8 @@ void main() {
       );
 
       expect(
-        options.integrations.whereType<StandaloneAppStartIntegration>(),
-        hasLength(1),
-      );
-      expect(
-        options.integrations.whereType<NativeAppStartIntegration>(),
-        isEmpty,
+        options.sdk.features,
+        contains('standaloneAppStartTracing'),
       );
 
       await Sentry.close();

@@ -69,7 +69,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       root = createdRoot;
 
       final firstFrameBarrier = root.startChild(
-        SentrySpanOperations.appStart,
+        SentrySpanOperations.appStartFirstFrameRender,
         description: appStartFirstFrameRenderDescription,
         startTimestamp: data.sentrySetupTimestamp,
       );
