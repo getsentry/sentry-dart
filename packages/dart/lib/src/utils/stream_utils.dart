@@ -37,14 +37,22 @@ Future<(Uint8List prefix, Stream<List<int>> forwarded)> bufferStreamPrefix(
   final buffered = builder.takeBytes();
 
   Stream<List<int>> replay() async* {
-    if (buffered.isNotEmpty) {
-      yield buffered;
-    }
-    if (overflow != null) {
-      yield overflow;
-    }
-    while (await iterator.moveNext()) {
-      yield iterator.current;
+    // A try/finally around the yields, rather than cleanup after the loop,
+    // ensures the source subscription is cancelled even if the caller stops
+    // listening (e.g. an early-aborted response body) before the stream
+    // drains naturally.
+    try {
+      if (buffered.isNotEmpty) {
+        yield buffered;
+      }
+      if (overflow != null) {
+        yield overflow;
+      }
+      while (await iterator.moveNext()) {
+        yield iterator.current;
+      }
+    } finally {
+      await iterator.cancel();
     }
   }
 

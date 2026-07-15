@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:sentry/src/utils/stream_utils.dart';
@@ -63,6 +64,30 @@ void main() {
         [4, 5],
         [6, 7, 8],
       ]);
+    });
+
+    test(
+        'cancels the source subscription when the forwarded stream is '
+        'cancelled before draining', () async {
+      var sourceCancelled = false;
+      final controller = StreamController<List<int>>(
+        onCancel: () => sourceCancelled = true,
+      );
+      controller.add([1, 2, 3]);
+      controller.add([4, 5, 6]);
+      // Intentionally left open: closing would let the iterator reach the
+      // end of the stream on its own, which already cancels it and wouldn't
+      // exercise the early-cancellation path this test targets.
+
+      final (_, forwarded) = await bufferStreamPrefix(
+        controller.stream,
+        maxBytes: 3,
+      );
+
+      final subscription = forwarded.listen((_) {});
+      await subscription.cancel();
+
+      expect(sourceCancelled, true);
     });
   });
 }
