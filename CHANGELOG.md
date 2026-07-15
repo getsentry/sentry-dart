@@ -52,6 +52,15 @@
 ### Internal Changes
 
 - (flutter) Remove flaky frames measurement tests by @buenaflor in [#3783](https://github.com/getsentry/sentry-dart/pull/3783)
+## 9.24.0
+
+### Features
+
+- Add feature flags to hub span by @denrase in [#3806](https://github.com/getsentry/sentry-dart/pull/3806)
+
+### Fixes
+
+- (replay) Accept Double timestamps in Android network breadcrumb conversion by @aqrc in [#3859](https://github.com/getsentry/sentry-dart/pull/3859)
 
 ## 9.23.0
 
