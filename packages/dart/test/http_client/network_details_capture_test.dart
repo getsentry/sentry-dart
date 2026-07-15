@@ -264,6 +264,39 @@ void main() {
         expect(data.containsKey('body'), false);
         expect(await forwardedResponse.stream.bytesToString(), '{"foo":"bar"}');
       });
+
+      test(
+          'truncates and forwards body exceeding max size when contentLength is unknown',
+          () async {
+        final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
+        final sut = fixture.getSut();
+
+        final oversizedBody = 'a' * (NetworkDetailsCapture.maxBodySize + 100);
+        // Split into chunks so the body is read incrementally rather than
+        // available as a single value, matching a real chunked response.
+        final chunks = [
+          for (var i = 0; i < oversizedBody.length; i += 1024)
+            oversizedBody
+                .substring(
+                    i,
+                    i + 1024 > oversizedBody.length
+                        ? oversizedBody.length
+                        : i + 1024)
+                .codeUnits,
+        ];
+        final response = StreamedResponse(
+          Stream.fromIterable(chunks),
+          200,
+          headers: {'content-type': 'text/plain'},
+        );
+
+        final (forwardedResponse, data) = await sut.captureResponse(response);
+
+        expect(
+            (data['body'] as String).length, NetworkDetailsCapture.maxBodySize);
+        expect(await forwardedResponse.stream.bytesToString(), oversizedBody);
+      });
     });
   });
 }
