@@ -112,6 +112,11 @@ class NetworkDetailsCapture {
     if (!_isCapturableContentType(request.headers['content-type'])) {
       return null;
     }
+    // Consistent with the response path: a body already known to exceed the
+    // cap is skipped entirely rather than attaching a truncated fragment.
+    if (request.bodyBytes.length > maxBodySize) {
+      return null;
+    }
     try {
       return _truncateBytes(request.bodyBytes);
     } catch (exception) {

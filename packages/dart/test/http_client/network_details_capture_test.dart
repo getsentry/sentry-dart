@@ -171,18 +171,33 @@ void main() {
         expect(data.containsKey('body'), false);
       });
 
-      test('truncates request body at max size', () {
+      test('captures request body up to and including max size', () {
         final fixture = Fixture();
         fixture.options.sendDefaultPii = true;
         final sut = fixture.getSut();
 
         final request = Request('POST', Uri.parse('https://example.com'))
           ..headers['content-type'] = 'text/plain'
-          ..body = 'a' * (150 * 1024 + 100);
+          ..body = 'a' * NetworkDetailsCapture.maxBodySize;
 
         final data = sut.captureRequest(request);
 
-        expect((data['body'] as String).length, 150 * 1024);
+        expect(
+            (data['body'] as String).length, NetworkDetailsCapture.maxBodySize);
+      });
+
+      test('does not capture request body exceeding max size', () {
+        final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
+        final sut = fixture.getSut();
+
+        final request = Request('POST', Uri.parse('https://example.com'))
+          ..headers['content-type'] = 'text/plain'
+          ..body = 'a' * (NetworkDetailsCapture.maxBodySize + 100);
+
+        final data = sut.captureRequest(request);
+
+        expect(data.containsKey('body'), false);
       });
     });
 
