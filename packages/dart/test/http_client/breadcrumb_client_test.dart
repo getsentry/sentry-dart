@@ -279,6 +279,38 @@ void main() {
       expect(breadcrumb.data?['response'], isA<Map>());
     });
 
+    test(
+        'captures request headers as mutated by a wrapped client during '
+        'send (e.g. tracing headers added after dispatch)', () async {
+      final options = defaultTestOptions()
+        ..networkDetailAllowUrls.add('.*')
+        ..sendDefaultPii = true
+        ..networkRequestHeaders.add('sentry-trace');
+      final capture = NetworkDetailsCapture(options);
+
+      final sut = fixture.getSut(
+        // MockClient's default (non-streaming) handler finalizes a copy of
+        // the request before invoking the callback, so mutations wouldn't
+        // reach the original object; `.streaming` passes the same
+        // `BaseRequest` instance through, matching what TracingClient does.
+        MockClient.streaming((request, bodyStream) async {
+          // Simulates a client further down the chain (e.g. TracingClient)
+          // adding headers to the same request object after BreadcrumbClient
+          // has dispatched it.
+          request.headers['sentry-trace'] = 'abc-123';
+          return StreamedResponse(Stream.value([]), 200, reasonPhrase: 'OK');
+        }),
+        capture,
+      );
+
+      await sut.get(requestUri);
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      final requestHeaders =
+          (breadcrumb.data?['request'] as Map)['headers'] as Map;
+      expect(requestHeaders['sentry-trace'], 'abc-123');
+    });
+
     test('does not attach network details when capture does not match',
         () async {
       final options = defaultTestOptions()

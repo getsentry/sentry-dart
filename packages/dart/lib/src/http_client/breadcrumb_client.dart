@@ -77,9 +77,6 @@ class BreadcrumbClient extends BaseClient {
     final capture = _networkDetailsCapture;
     final captureNetworkDetails =
         capture != null && capture.shouldCapture(request.url);
-    if (captureNetworkDetails) {
-      requestDetail = capture.captureRequest(request);
-    }
 
     try {
       var response = await _client.send(request);
@@ -100,6 +97,14 @@ class BreadcrumbClient extends BaseClient {
       rethrow;
     } finally {
       stopwatch.stop();
+
+      // Captured after `_client.send` returns (or throws) rather than
+      // before, so that headers set by clients further down the chain
+      // (e.g. TracingClient's sentry-trace/baggage) are reflected instead
+      // of a pre-dispatch snapshot.
+      if (captureNetworkDetails) {
+        requestDetail = capture.captureRequest(request);
+      }
 
       final urlDetails =
           HttpSanitizer.sanitizeUrl(request.url.toString()) ?? UrlDetails();
