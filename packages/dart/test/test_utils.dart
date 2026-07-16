@@ -172,7 +172,8 @@ Future testCaptureException(
         anyOf([
           'Object.wrapException',
           'testCaptureException',
-          'module0.testCaptureException'
+          'module0.testCaptureException',
+          'M.testCaptureException'
         ]));
 
     expect(data['event_id'], sentryId.toString());
