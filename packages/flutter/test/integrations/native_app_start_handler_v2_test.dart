@@ -207,7 +207,8 @@ void main() {
     });
 
     group('when emitting app start vitals', () {
-      test('does not add initial screen to breakdown app start spans', () async {
+      test('does not add initial screen to breakdown app start spans',
+          () async {
         await fixture.call();
 
         final appStartSpan = fixture.findSpanByName('Cold Start')!;
