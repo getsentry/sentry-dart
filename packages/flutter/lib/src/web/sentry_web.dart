@@ -272,6 +272,11 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
+  FutureOr<void> registerSegmentName(String segmentName) {
+    // No-op. Replay segment name registration is currently Android-only.
+  }
+
+  @override
   int? startProfiler(SentryId traceId) {
     _logNotSupported('start profiler');
     return null;
