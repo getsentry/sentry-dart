@@ -142,18 +142,6 @@ void main() {
 
         verifyNever(fixture.nativeBinding.registerSegmentName(any));
       });
-
-      test('does not register empty segment name', () async {
-        fixture.options.replay.sessionSampleRate = 0.5;
-
-        await fixture.getSut().call(fixture.hub, fixture.options);
-        clearInteractions(fixture.nativeBinding);
-        final span = fixture.createTestSpan(name: '');
-        await fixture.options.lifecycleRegistry
-            .dispatchCallback(OnProcessSpan(span));
-
-        verifyNever(fixture.nativeBinding.registerSegmentName(any));
-      });
     });
 
     group('in session mode', () {

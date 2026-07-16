@@ -63,7 +63,7 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
       }
 
       final span = event.span;
-      if (identical(span, span.segmentSpan) && span.name.isNotEmpty) {
+      if (identical(span, span.segmentSpan)) {
         return _native?.registerSegmentName(span.name);
       }
     };
