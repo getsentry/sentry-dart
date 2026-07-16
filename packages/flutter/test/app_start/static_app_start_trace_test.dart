@@ -94,14 +94,10 @@ void main() {
       expect(root.data['app.vitals.start.screen'], 'root /');
     });
 
-    test('abandons an unsampled root', () async {
+    test('returns null when root is unsampled', () {
       fixture.options.tracesSampleRate = 0;
 
       expect(fixture.getSut(), isNull);
-      await pumpEventQueue();
-
-      expect(fixture.root, isNotNull);
-      expect(fixture.root!.tracer.finished, isTrue);
     });
 
     test('returns null when trace creation fails', () {

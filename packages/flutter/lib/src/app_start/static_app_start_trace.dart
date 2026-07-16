@@ -39,7 +39,6 @@ final class StaticAppStartTrace implements AppStartTrace {
     required String Function() startScreenName,
   }) {
     StaticAppStartTrace? trace;
-    SentryTracer? root;
     try {
       final createdAt = hub.options.clock();
       final createdRoot = hub.startTransactionWithContext(
@@ -56,30 +55,23 @@ final class StaticAppStartTrace implements AppStartTrace {
         onFinish: (_) => trace?._enrichAndComplete(),
       );
       if (createdRoot is! SentryTracer) return null;
-      if (createdRoot.samplingDecision?.sampled != true) {
-        createdRoot.abandon();
-        return null;
-      }
-      root = createdRoot;
+      if (createdRoot.samplingDecision?.sampled != true) return null;
 
-      final firstFrameBarrier = root.startChild(
+      final firstFrameBarrier = createdRoot.startChild(
         SentrySpanOperations.appStartFirstFrameRender,
         description: appStartFirstFrameRenderDescription,
         startTimestamp: data.sentrySetupTimestamp,
       )..origin = SentryTraceOrigins.autoAppStart;
-      if (firstFrameBarrier.samplingDecision?.sampled != true) {
-        root.abandon();
-        return null;
-      }
+      if (firstFrameBarrier.samplingDecision?.sampled != true) return null;
 
       trace = StaticAppStartTrace._(
         data: data,
-        root: root,
+        root: createdRoot,
         firstFrameBarrier: firstFrameBarrier,
         startScreenName: startScreenName,
       );
       for (final phase in data.phases) {
-        final child = root.startChild(
+        final child = createdRoot.startChild(
           phase.operation,
           description: phase.description,
           startTimestamp: phase.startTimestamp,
@@ -87,17 +79,14 @@ final class StaticAppStartTrace implements AppStartTrace {
         trace._finish(child, endTimestamp: phase.endTimestamp);
       }
 
-      if (!root.tryScheduleFinalTimeout(createdAt.add(appStartFinalTimeout))) {
-        trace.close();
+      if (!createdRoot.tryScheduleFinalTimeout(
+        createdAt.add(appStartFinalTimeout),
+      )) {
+        unawaited(trace.close());
         return null;
       }
       return trace;
     } catch (error, stackTrace) {
-      if (trace != null) {
-        trace.close();
-      } else if (root != null) {
-        root.abandon();
-      }
       internalLogger.error(
         'Failed to create static standalone app start',
         error: error,
