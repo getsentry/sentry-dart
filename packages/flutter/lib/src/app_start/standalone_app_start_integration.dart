@@ -7,11 +7,11 @@ import 'standalone_app_start_lifecycle.dart';
 /// Wires the SDK integration lifecycle to standalone app-start tracing.
 final class StandaloneAppStartIntegration
     extends Integration<SentryFlutterOptions> {
-  StandaloneAppStartIntegration(this._lifecycle);
-
   static const _integrationName = 'StandaloneAppStart';
 
   final StandaloneAppStartLifecycle _lifecycle;
+
+  StandaloneAppStartIntegration(this._lifecycle);
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
