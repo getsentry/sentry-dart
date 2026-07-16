@@ -19,17 +19,17 @@ final class StaticAppStartTrace implements AppStartTrace {
     required SentryTracer root,
     required ISentrySpan firstFrameBarrier,
     required String Function() startScreenName,
-  }) : _data = data,
-       _root = root,
-       _firstFrameBarrier = firstFrameBarrier,
-       _startScreenName = startScreenName;
+  })  : _data = data,
+        _root = root,
+        _firstFrameBarrier = firstFrameBarrier,
+        _startScreenName = startScreenName;
 
   final AppStartData _data;
   final SentryTracer _root;
   final ISentrySpan _firstFrameBarrier;
   final String Function() _startScreenName;
 
-  DateTime? _naturalEnd;
+  DateTime? _endTimestamp;
   bool _completed = false;
   bool _closed = false;
 
@@ -128,10 +128,15 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 
   @override
-  void recordNaturalEnd(DateTime endTimestamp) {
-    if (_closed || _completed || _naturalEnd != null) return;
-    _naturalEnd = endTimestamp.toUtc();
-    _finish(_firstFrameBarrier, endTimestamp: _naturalEnd);
+  void recordFirstFrame(DateTime endTimestamp) {
+    if (_closed || _completed) return;
+    _finish(_firstFrameBarrier, endTimestamp: endTimestamp.toUtc());
+  }
+
+  @override
+  void finish(DateTime endTimestamp) {
+    if (_closed || _completed || _endTimestamp != null) return;
+    _endTimestamp = endTimestamp.toUtc();
     _root.scheduleFinish();
   }
 
@@ -146,11 +151,12 @@ final class StaticAppStartTrace implements AppStartTrace {
         _startScreenName(),
       );
 
-      final naturalEnd = _naturalEnd;
-      if (naturalEnd != null && _root.status != SpanStatus.deadlineExceeded()) {
+      final endTimestamp = _endTimestamp;
+      if (endTimestamp != null &&
+          _root.status != SpanStatus.deadlineExceeded()) {
         final duration = appStartDuration(
           _data.processStartTimestamp,
-          naturalEnd,
+          endTimestamp,
         );
         final measurement = _data.type == AppStartType.cold
             ? SentryMeasurement.coldAppStart(duration)

@@ -18,11 +18,11 @@ final class StreamingAppStartTrace implements AppStartTrace {
     required IdleRecordingSentrySpanV2 root,
     required RecordingSentrySpanV2 firstFrameBarrier,
     required String Function() startScreenName,
-  }) : _hub = hub,
-       _data = data,
-       _root = root,
-       _firstFrameBarrier = firstFrameBarrier,
-       _startScreenName = startScreenName;
+  })  : _hub = hub,
+        _data = data,
+        _root = root,
+        _firstFrameBarrier = firstFrameBarrier,
+        _startScreenName = startScreenName;
 
   final Hub _hub;
   final AppStartData _data;
@@ -31,7 +31,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   final String Function() _startScreenName;
 
   late final SdkLifecycleCallback<OnProcessSpan> _processCallback;
-  DateTime? _naturalEnd;
+  DateTime? _endTimestamp;
   bool _completed = false;
   bool _closed = false;
 
@@ -109,15 +109,16 @@ final class StreamingAppStartTrace implements AppStartTrace {
   static Map<String, SentryAttribute> _childAttributes(
     AppStartData data,
     String operation,
-  ) => {
-    SemanticAttributesConstants.sentryOp: SentryAttribute.string(operation),
-    SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-      SentryTraceOrigins.autoAppStart,
-    ),
-    SemanticAttributesConstants.appVitalsStartType: SentryAttribute.string(
-      data.type.name,
-    ),
-  };
+  ) =>
+      {
+        SemanticAttributesConstants.sentryOp: SentryAttribute.string(operation),
+        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+          SentryTraceOrigins.autoAppStart,
+        ),
+        SemanticAttributesConstants.appVitalsStartType: SentryAttribute.string(
+          data.type.name,
+        ),
+      };
 
   void _createCompletedBreakdownSpans() {
     for (final phase in _data.phases) {
@@ -147,10 +148,15 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }
 
   @override
-  void recordNaturalEnd(DateTime endTimestamp) {
-    if (_closed || _completed || _naturalEnd != null) return;
-    _naturalEnd = endTimestamp.toUtc();
-    _firstFrameBarrier.end(endTimestamp: _naturalEnd);
+  void recordFirstFrame(DateTime endTimestamp) {
+    if (_closed || _completed) return;
+    _firstFrameBarrier.end(endTimestamp: endTimestamp.toUtc());
+  }
+
+  @override
+  void finish(DateTime endTimestamp) {
+    if (_closed || _completed || _endTimestamp != null) return;
+    _endTimestamp = endTimestamp.toUtc();
   }
 
   void _processSpan(OnProcessSpan event) {
@@ -169,17 +175,15 @@ final class StreamingAppStartTrace implements AppStartTrace {
         SentryAttribute.string(appStartRootName),
       );
 
-      final naturalEnd = _naturalEnd;
-      final deadlineExceeded =
-          _root.status == SentrySpanStatusV2.error &&
-          _root
-                  .attributes[SemanticAttributesConstants.sentryStatusMessage]
+      final endTimestamp = _endTimestamp;
+      final deadlineExceeded = _root.status == SentrySpanStatusV2.error &&
+          _root.attributes[SemanticAttributesConstants.sentryStatusMessage]
                   ?.value ==
               SentrySpanStatusMessages.deadlineExceeded;
-      if (naturalEnd != null && !deadlineExceeded) {
+      if (endTimestamp != null && !deadlineExceeded) {
         final duration = appStartDuration(
           _data.processStartTimestamp,
-          naturalEnd,
+          endTimestamp,
         ).inMilliseconds.toDouble();
         final value = SentryAttribute.double(duration);
         _root.setAttribute(

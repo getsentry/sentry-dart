@@ -19,7 +19,8 @@ void main() {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;
 
-      sut.recordNaturalEnd(fixture.naturalEnd);
+      sut.recordFirstFrame(fixture.naturalEnd);
+      sut.finish(fixture.naturalEnd);
       await pumpEventQueue(times: 10);
       await root.finish(endTimestamp: fixture.rootFinish);
 
@@ -58,6 +59,20 @@ void main() {
       );
 
       expect(firstFrame.origin, 'auto.app.start');
+    });
+
+    test('keeps the root open after recording the first frame', () async {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!.tracer;
+      final firstFrame = root.children.firstWhere(
+        (span) => span.context.description == 'First frame render',
+      );
+
+      sut.recordFirstFrame(fixture.naturalEnd);
+      await pumpEventQueue(times: 10);
+
+      expect(firstFrame.finished, isTrue);
+      expect(root.finished, isFalse);
     });
 
     test('omits duration and retains metadata at deadline', () async {
@@ -102,7 +117,8 @@ void main() {
       final root = fixture.root!.tracer;
 
       await tester.pump(Duration(seconds: 2));
-      sut.recordNaturalEnd(fixture.naturalEnd);
+      sut.recordFirstFrame(fixture.naturalEnd);
+      sut.finish(fixture.naturalEnd);
       await tester.pump(Duration(seconds: 1));
 
       expect(root.finished, isFalse);

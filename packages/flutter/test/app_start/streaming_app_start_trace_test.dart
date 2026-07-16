@@ -19,7 +19,8 @@ void main() {
       final sut = fixture.getSut()!;
       final root = fixture.root!;
 
-      sut.recordNaturalEnd(fixture.naturalEnd);
+      sut.recordFirstFrame(fixture.naturalEnd);
+      sut.finish(fixture.naturalEnd);
       root.end(endTimestamp: fixture.rootFinish);
       await pumpEventQueue(times: 10);
 
@@ -53,6 +54,19 @@ void main() {
         firstFrame.attributes['sentry.op']?.value,
         'app.start.first_frame_render',
       );
+    });
+
+    test('keeps the root open after recording the first frame', () {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!;
+      final firstFrame = fixture.children.firstWhere(
+        (span) => span.name == 'First frame render',
+      );
+
+      sut.recordFirstFrame(fixture.naturalEnd);
+
+      expect(firstFrame.isEnded, isTrue);
+      expect(root.isEnded, isFalse);
     });
 
     test('omits duration and retains metadata at deadline', () async {

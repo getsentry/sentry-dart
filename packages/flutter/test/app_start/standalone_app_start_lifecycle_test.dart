@@ -17,7 +17,7 @@ import '../mocks.dart';
 import '../mocks.mocks.dart';
 
 void main() {
-  group('$DefaultStandaloneAppStartLifecycle', () {
+  group('$StandaloneAppStartLifecycle', () {
     late Fixture fixture;
 
     setUp(() {
@@ -148,7 +148,7 @@ class Fixture {
     hub: hub,
     enableAutoTransactions: false,
   );
-  late final sut = DefaultStandaloneAppStartLifecycle(
+  late final sut = StandaloneAppStartLifecycle(
     hub: hub,
     frameCallbackHandler: frameHandler,
     native: native,

@@ -13,18 +13,9 @@ import 'app_start_trace.dart';
 import 'static_app_start_trace.dart';
 import 'streaming_app_start_trace.dart';
 
-/// Controls standalone app-start tracing from SDK start through shutdown.
-@internal
-abstract interface class StandaloneAppStartLifecycle {
-  Future<void> start();
-
-  Future<void> close();
-}
-
 /// Owns standalone app-start tracing from native timing through first display.
 @internal
-final class DefaultStandaloneAppStartLifecycle
-    implements StandaloneAppStartLifecycle {
+class StandaloneAppStartLifecycle {
   final Hub _hub;
   final FrameCallbackHandler _frameCallbackHandler;
   final SentryNativeBinding _native;
@@ -34,18 +25,17 @@ final class DefaultStandaloneAppStartLifecycle
   AppStartTrace? _trace;
   String? _startScreenName;
 
-  DefaultStandaloneAppStartLifecycle({
+  StandaloneAppStartLifecycle({
     Hub? hub,
     FrameCallbackHandler? frameCallbackHandler,
     required SentryNativeBinding native,
-  }) : _hub = hub ?? HubAdapter(),
-       _frameCallbackHandler =
-           frameCallbackHandler ?? DefaultFrameCallbackHandler(),
-       _native = native;
+  })  : _hub = hub ?? HubAdapter(),
+        _frameCallbackHandler =
+            frameCallbackHandler ?? DefaultFrameCallbackHandler(),
+        _native = native;
 
   SentryFlutterOptions get _options => _hub.options as SentryFlutterOptions;
 
-  @override
   Future<void> start() async {
     AppStartData? data;
     try {
@@ -85,7 +75,7 @@ final class DefaultStandaloneAppStartLifecycle
 
     _trace = trace;
     _prepareTimeToDisplay(data.processStartTimestamp);
-    _finishOnFirstFrame();
+    _recordFirstFrame();
   }
 
   AppStartTrace? _createAppStartTrace(AppStartData data) {
@@ -99,15 +89,15 @@ final class DefaultStandaloneAppStartLifecycle
 
     return switch (_options.traceLifecycle) {
       SentryTraceLifecycle.static => StaticAppStartTrace.tryCreate(
-        hub: _hub,
-        data: data,
-        startScreenName: _resolvedStartScreenName,
-      ),
+          hub: _hub,
+          data: data,
+          startScreenName: _resolvedStartScreenName,
+        ),
       SentryTraceLifecycle.stream => StreamingAppStartTrace.tryCreate(
-        hub: _hub,
-        data: data,
-        startScreenName: _resolvedStartScreenName,
-      ),
+          hub: _hub,
+          data: data,
+          startScreenName: _resolvedStartScreenName,
+        ),
     };
   }
 
@@ -122,7 +112,7 @@ final class DefaultStandaloneAppStartLifecycle
     }
   }
 
-  void _finishOnFirstFrame() {
+  void _recordFirstFrame() {
     void callback(List<FrameTiming> timings) async {
       if (timings.isEmpty) return;
 
@@ -132,9 +122,6 @@ final class DefaultStandaloneAppStartLifecycle
 
       // Remove the callback directly after to avoid being called again.
       _frameCallbackHandler.removeTimingsCallback(callback);
-
-      // Closed or never installed.
-      if (_trace == null) return;
 
       try {
         // Freeze the launch screen during first frame before enrichment;
@@ -152,7 +139,8 @@ final class DefaultStandaloneAppStartLifecycle
             );
         }
 
-        _trace?.recordNaturalEnd(endTimestamp);
+        _trace?.recordFirstFrame(endTimestamp);
+        _trace?.finish(endTimestamp);
       } catch (error, stackTrace) {
         internalLogger.error(
           'Failed to record standalone app-start first frame',
@@ -168,7 +156,6 @@ final class DefaultStandaloneAppStartLifecycle
     _frameCallbackHandler.addTimingsCallback(callback);
   }
 
-  @override
   Future<void> close() async {
     await _trace?.close();
     switch (_options.traceLifecycle) {
