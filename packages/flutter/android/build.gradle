@@ -62,8 +62,8 @@ android {
 }
 
 dependencies {
-    api 'io.sentry:sentry-android:8.48.0'
-    debugImplementation 'io.sentry:sentry-spotlight:8.48.0'
+    api 'io.sentry:sentry-android:8.49.0'
+    debugImplementation 'io.sentry:sentry-spotlight:8.49.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Required -- JUnit 4 framework
