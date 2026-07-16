@@ -30,8 +30,19 @@ class SentryTracer extends ISentrySpan {
   Timer? get autoFinishAfterTimer => _autoFinishAfterTimer;
 
   OnTransactionFinish? _onFinish;
-  _SentryTracerPhase _phase = _SentryTracerPhase.open;
-  Future<void>? _finalizationFuture;
+
+  /// [finish] was called but [waitForChildren] is still blocking capture.
+  bool _finishRequested = false;
+
+  /// In-flight capture path; concurrent callers join this future.
+  Future<void>? _finalizeFuture;
+
+  /// Dropped without capture ([abandon]).
+  bool _discarded = false;
+
+  /// Successfully captured (or root already finished before finalize).
+  bool _captured = false;
+
   SpanStatus? _requestedStatus;
   bool _deadlineFinalization = false;
   bool _profilerDisposed = false;
@@ -98,28 +109,26 @@ class SentryTracer extends ISentrySpan {
     _dispatchOnSpanStart(_rootSpan);
   }
 
+  bool get _isTerminal => _discarded || _captured;
+
   @override
   Future<void> finish({
     SpanStatus? status,
     DateTime? endTimestamp,
     Hint? hint,
   }) {
-    if (_phase == _SentryTracerPhase.abandoned ||
-        _phase == _SentryTracerPhase.finished) {
-      return Future.value();
-    }
-    if (_phase == _SentryTracerPhase.finalizing) {
-      return _finalizationFuture ?? Future.value();
-    }
+    if (_isTerminal) return Future.value();
+    final inFlight = _finalizeFuture;
+    if (inFlight != null) return inFlight;
 
     _autoFinishAfterTimer?.cancel();
     _requestedStatus = status;
     if (_rootSpan.finished) {
-      _phase = _SentryTracerPhase.finished;
+      _captured = true;
       return Future.value();
     }
     if (_waitForChildren && !_haveAllChildrenFinished()) {
-      _phase = _SentryTracerPhase.finishRequested;
+      _finishRequested = true;
       return Future.value();
     }
 
@@ -133,12 +142,13 @@ class SentryTracer extends ISentrySpan {
     required DateTime endTimestamp,
     Hint? hint,
   }) {
-    if (_phase == _SentryTracerPhase.finalizing) {
-      return _finalizationFuture ?? Future.value();
-    }
-    _phase = _SentryTracerPhase.finalizing;
+    if (_isTerminal) return Future.value();
+    final inFlight = _finalizeFuture;
+    if (inFlight != null) return inFlight;
+
+    _finishRequested = false;
     final future = _finalize(endTimestamp: endTimestamp, hint: hint);
-    _finalizationFuture = future;
+    _finalizeFuture = future;
     return future;
   }
 
@@ -153,7 +163,7 @@ class SentryTracer extends ISentrySpan {
         _rootSpan.status ??= _requestedStatus;
       }
 
-      if (_phase == _SentryTracerPhase.abandoned) return;
+      if (_discarded) return;
 
       // remove span where its endTimestamp is before startTimestamp
       _children.removeWhere(
@@ -188,14 +198,16 @@ class SentryTracer extends ISentrySpan {
       if (finish is Future) {
         await finish;
       }
-      if (_phase == _SentryTracerPhase.abandoned) return;
+      if (_discarded) return;
 
+      // Deadline may have been requested while onFinish was awaiting; re-apply
+      // and pin the root end to the deadline (overrides trimEnd).
       if (_deadlineFinalization) {
         await _applyDeadlineState();
         rootEndTimestamp = _finalDeadlineTimestamp ?? rootEndTimestamp;
       }
       await _rootSpan.finish(endTimestamp: rootEndTimestamp, hint: hint);
-      if (_phase == _SentryTracerPhase.abandoned) return;
+      if (_discarded) return;
 
       // remove from scope
       await _hub.configureScope((scope) {
@@ -217,14 +229,14 @@ class SentryTracer extends ISentrySpan {
               ? await profiler?.finishFor(transaction)
               : null;
 
-      if (_phase == _SentryTracerPhase.abandoned) return;
+      if (_discarded) return;
 
       await _hub.captureTransaction(
         transaction,
         traceContext: traceContext(),
         hint: hint,
       );
-      _phase = _SentryTracerPhase.finished;
+      _captured = true;
       _finalTimeoutTimer?.cancel();
     } finally {
       _disposeProfiler();
@@ -256,9 +268,8 @@ class SentryTracer extends ISentrySpan {
   @internal
   bool tryScheduleFinalTimeout(DateTime deadlineTimestamp) {
     if (_finalDeadlineTimestamp != null ||
-        _phase == _SentryTracerPhase.finalizing ||
-        _phase == _SentryTracerPhase.abandoned ||
-        _phase == _SentryTracerPhase.finished ||
+        _finalizeFuture != null ||
+        _isTerminal ||
         finished) {
       return false;
     }
@@ -276,16 +287,13 @@ class SentryTracer extends ISentrySpan {
   }
 
   Future<void> _finishAtDeadline() {
-    if (_phase == _SentryTracerPhase.abandoned ||
-        _phase == _SentryTracerPhase.finished) {
-      return Future.value();
-    }
+    if (_isTerminal) return Future.value();
 
     _deadlineFinalization = true;
     _requestedStatus = SpanStatus.deadlineExceeded();
-    if (_phase == _SentryTracerPhase.finalizing) {
-      return _finalizationFuture ?? Future.value();
-    }
+    final inFlight = _finalizeFuture;
+    if (inFlight != null) return inFlight;
+
     return _beginFinalization(
       endTimestamp: _finalDeadlineTimestamp ?? _hub.options.clock(),
     );
@@ -293,11 +301,9 @@ class SentryTracer extends ISentrySpan {
 
   @internal
   void abandon() {
-    if (_phase == _SentryTracerPhase.abandoned ||
-        _phase == _SentryTracerPhase.finished) {
-      return;
-    }
-    _phase = _SentryTracerPhase.abandoned;
+    if (_isTerminal) return;
+
+    _discarded = true;
     _autoFinishAfterTimer?.cancel();
     _finalTimeoutTimer?.cancel();
     unawaited(_discardWithoutCapture());
@@ -438,7 +444,7 @@ class SentryTracer extends ISentrySpan {
     DateTime? endTimestamp,
     Hint? hint,
   }) async {
-    if (_phase == _SentryTracerPhase.finishRequested) {
+    if (_finishRequested) {
       await finish(
         status: _requestedStatus,
         endTimestamp: endTimestamp,
@@ -468,14 +474,9 @@ class SentryTracer extends ISentrySpan {
   Map<String, dynamic> get data => Map.unmodifiable(_extra);
 
   @override
-  bool get finished =>
-      _rootSpan.finished ||
-      _phase == _SentryTracerPhase.abandoned ||
-      _phase == _SentryTracerPhase.finished;
+  bool get finished => _rootSpan.finished || _isTerminal;
 
-  bool get _acceptsChildren =>
-      _phase == _SentryTracerPhase.open ||
-      _phase == _SentryTracerPhase.finishRequested;
+  bool get _acceptsChildren => !_isTerminal && _finalizeFuture == null;
 
   List<SentrySpan> get children => _children;
 
@@ -605,12 +606,4 @@ class SentryTracer extends ISentrySpan {
   void _dispatchOnSpanStart(ISentrySpan span) {
     _hub.options.lifecycleRegistry.dispatchCallback(OnSpanStart(span));
   }
-}
-
-enum _SentryTracerPhase {
-  open,
-  finishRequested,
-  finalizing,
-  abandoned,
-  finished,
 }
