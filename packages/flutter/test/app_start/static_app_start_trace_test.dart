@@ -112,7 +112,7 @@ void main() {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;
 
-      sut.close();
+      await sut.close();
       await pumpEventQueue(times: 10);
 
       expect(root.finished, isTrue);
