@@ -83,12 +83,13 @@ void main() {
       expect(fixture.frameHandler.timingsCallback, isNull);
     });
 
-    test('close abandons the standalone trace', () async {
+    test('close flushes the standalone trace', () async {
       await fixture.startLifecycle();
       await pumpEventQueue();
       final root = fixture.appStartRoots.single;
 
       await fixture.sut.close();
+      await pumpEventQueue(times: 10);
 
       expect(root.tracer.finished, isTrue);
     });

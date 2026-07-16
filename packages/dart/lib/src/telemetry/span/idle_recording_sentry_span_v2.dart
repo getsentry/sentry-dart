@@ -36,7 +36,6 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     required super.traceId,
     required super.name,
     required super.onSpanEnd,
-    required super.onSpanDiscard,
     required super.clock,
     required super.dscCreator,
     required super.samplingDecision,
@@ -66,23 +65,6 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
       _IdleSpanFinishReason.manualFinish,
       requestedEndTimestamp: endTimestamp,
     );
-  }
-
-  /// Stops this idle segment and all active descendants without capture.
-  @internal
-  Future<void> cancel() async {
-    if (_isEnding) return;
-
-    _isEnding = true;
-    _cancelTimers();
-    _removeLifecycleCallbacks();
-
-    final cancellationTimestamp = _clock().toUtc();
-    for (final child in _activeDescendants.values.toList()) {
-      await child.cancelWithoutCapture(endTimestamp: cancellationTimestamp);
-    }
-    _activeDescendants.clear();
-    await cancelWithoutCapture(endTimestamp: cancellationTimestamp);
   }
 
   void _onSpanStartEvent(OnSpanStartV2 event) {
@@ -201,12 +183,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   }) {
     for (final child in _activeDescendants.values.toList()) {
       if (child.isEnded) continue;
-      if (child.startTimestamp.isAfter(idleEndTimestamp)) {
-        unawaited(
-          child.cancelWithoutCapture(endTimestamp: idleEndTimestamp),
-        );
-        continue;
-      }
+      if (child.startTimestamp.isAfter(idleEndTimestamp)) continue;
 
       child.status =
           deadlineExceeded ? SentrySpanStatusV2.error : SentrySpanStatusV2.ok;

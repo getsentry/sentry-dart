@@ -1245,27 +1245,6 @@ void main() {
         expect(hub.getActiveSpan(), isNull);
       });
 
-      test('discard balances terminal callbacks without capture', () async {
-        final ended = <SentrySpanV2>[];
-        final processed = <SentrySpanV2>[];
-        fixture.options.lifecycleRegistry.registerCallback<OnSpanEndV2>(
-          (event) => ended.add(event.span),
-        );
-        fixture.options.lifecycleRegistry.registerCallback<OnProcessSpan>(
-          (event) => processed.add(event.span),
-        );
-        final hub = fixture.getSut();
-        final root =
-            hub.startIdleSpan('idle-root') as IdleRecordingSentrySpanV2;
-        hub.startInactiveSpan('child', parentSpan: root);
-
-        await root.cancel();
-
-        expect(ended, hasLength(2));
-        expect(processed, hasLength(2));
-        expect(fixture.client.captureSpanCalls, isEmpty);
-      });
-
       test('does not extend idle timeout when unrelated spans end', () async {
         final hub = fixture.getSut();
         final idleSpan = hub.startIdleSpan(

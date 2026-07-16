@@ -1,7 +1,5 @@
 // ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
-import 'dart:async';
-
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
@@ -40,8 +38,6 @@ final class StreamingAppStartTrace implements AppStartTrace {
     required AppStartData data,
     required String Function() startScreenName,
   }) {
-    IdleRecordingSentrySpanV2? root;
-    StreamingAppStartTrace? trace;
     try {
       final createdRoot = hub.startIdleSpan(
         appStartRootName,
@@ -62,26 +58,22 @@ final class StreamingAppStartTrace implements AppStartTrace {
         },
       );
       if (createdRoot is! IdleRecordingSentrySpanV2) return null;
-      root = createdRoot;
 
       final firstFrameBarrier = hub.startInactiveSpan(
         appStartFirstFrameRenderDescription,
-        parentSpan: root,
+        parentSpan: createdRoot,
         startTimestamp: data.sentrySetupTimestamp,
         attributes: _childAttributes(
           data,
           SentrySpanOperations.appStartFirstFrameRender,
         ),
       );
-      if (firstFrameBarrier is! RecordingSentrySpanV2) {
-        unawaited(root.cancel());
-        return null;
-      }
+      if (firstFrameBarrier is! RecordingSentrySpanV2) return null;
 
-      trace = StreamingAppStartTrace._(
+      final trace = StreamingAppStartTrace._(
         hub: hub,
         data: data,
-        root: root,
+        root: createdRoot,
         firstFrameBarrier: firstFrameBarrier,
         startScreenName: startScreenName,
       );
@@ -90,7 +82,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
         hub
             .startInactiveSpan(
               phase.description,
-              parentSpan: root,
+              parentSpan: createdRoot,
               startTimestamp: phase.startTimestamp,
               attributes: _childAttributes(data, phase.operation),
             )
@@ -101,11 +93,6 @@ final class StreamingAppStartTrace implements AppStartTrace {
       );
       return trace;
     } catch (error, stackTrace) {
-      if (trace != null) {
-        unawaited(trace.close());
-      } else if (root != null) {
-        unawaited(root.cancel());
-      }
       internalLogger.error(
         'Failed to create streaming standalone app start',
         error: error,
@@ -192,12 +179,9 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }
 
   @override
-  Future<void> close() async {
+  void close() {
     if (_closed || _completed) return;
     _closed = true;
-    _hub.options.lifecycleRegistry.removeCallback<OnProcessSpan>(
-      _processCallback,
-    );
-    await _root.cancel();
+    _root.end();
   }
 }

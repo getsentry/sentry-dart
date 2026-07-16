@@ -168,9 +168,20 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 
   @override
-  void close() {
+  Future<void> close() async {
     if (_closed || _completed) return;
     _closed = true;
-    _root.abandon();
+    try {
+      if (!_firstFrameBarrier.finished) {
+        await _firstFrameBarrier.finish();
+      }
+      await _root.finish();
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'Failed to flush static standalone app start',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
   }
 }

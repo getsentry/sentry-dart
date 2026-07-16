@@ -93,6 +93,18 @@ void main() {
 
       expect(fixture.getSut(), isNull);
     });
+
+    test('close flushes the open root', () async {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!;
+
+      sut.close();
+      await pumpEventQueue(times: 10);
+
+      expect(root.isEnded, isTrue);
+      expect(root.attributes['app.vitals.start.type']?.value, 'cold');
+      expect(root.attributes['app.vitals.start.screen']?.value, 'root /');
+    });
   });
 }
 

@@ -112,6 +112,18 @@ void main() {
       expect(fixture.getSut(), isNull);
     });
 
+    test('close flushes the open root', () async {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!.tracer;
+
+      sut.close();
+      await pumpEventQueue(times: 10);
+
+      expect(root.finished, isTrue);
+      expect(root.data['app_start_type'], 'cold');
+      expect(root.data['app.vitals.start.screen'], 'root /');
+    });
+
     testWidgets('waits for idle timeout after natural end', (tester) async {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;

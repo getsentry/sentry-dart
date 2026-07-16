@@ -865,7 +865,7 @@ class Hub {
     }
 
     final RecordingSentrySpanV2 span;
-    if (resolvedParentSpan?.segmentSpan.isTerminal ?? false) {
+    if (resolvedParentSpan?.segmentSpan.isEnded ?? false) {
       return NoOpSentrySpanV2.instance;
     }
     if (resolvedParentSpan == null) {
@@ -876,7 +876,6 @@ class Hub {
         traceId: scope.propagationContext.traceId,
         name: name,
         onSpanEnd: captureSpan,
-        onSpanDiscard: _discardSpan,
         clock: options.clock,
         dscCreator: _dscCreator,
         samplingDecision: samplingDecision,
@@ -887,7 +886,6 @@ class Hub {
         parent: resolvedParentSpan,
         name: name,
         onSpanEnd: captureSpan,
-        onSpanDiscard: _discardSpan,
         clock: options.clock,
         dscCreator: _dscCreator,
         startTimestamp: startTimestamp,
@@ -939,7 +937,6 @@ class Hub {
       traceId: scope.propagationContext.traceId,
       name: name,
       onSpanEnd: captureSpan,
-      onSpanDiscard: _discardSpan,
       clock: options.clock,
       dscCreator: _dscCreator,
       samplingDecision: samplingDecision,
@@ -985,11 +982,6 @@ class Hub {
         final item = _peek();
         return item.client.captureSpan(span, scope: item.scope);
     }
-  }
-
-  Future<void> _discardSpan(RecordingSentrySpanV2 span) async {
-    await _options.lifecycleRegistry.dispatchCallback(OnSpanEndV2(span));
-    await _options.lifecycleRegistry.dispatchCallback(OnProcessSpan(span));
   }
 
   @internal

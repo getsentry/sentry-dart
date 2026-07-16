@@ -7,10 +7,6 @@ typedef DscCreatorCallback = SentryTraceContextHeader Function(
 /// Called when a span ends, allowing the span to be processed or buffered.
 typedef OnSpanEndCallback = Future<void> Function(RecordingSentrySpanV2 span);
 
-/// Called when a span is discarded without capture.
-typedef OnSpanDiscardCallback = Future<void> Function(
-    RecordingSentrySpanV2 span);
-
 /// A span that records timing and attribute data for performance monitoring.
 ///
 /// This span captures start/end timestamps, attributes, and status. When
@@ -24,7 +20,6 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
   final RecordingSentrySpanV2? _parentSpan;
   final ClockProvider _clock;
   final OnSpanEndCallback _onSpanEnd;
-  final OnSpanDiscardCallback? _onSpanDiscard;
   final SentryId _traceId;
   final RecordingSentrySpanV2? _segmentSpan;
   final DscCreatorCallback _dscCreator;
@@ -35,7 +30,6 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
   DateTime _startTimestamp;
   SentrySpanStatusV2 _status = SentrySpanStatusV2.ok;
   DateTime? _endTimestamp;
-  bool _isCancelled = false;
   String _name;
   SentryTraceContextHeader? _frozenDsc;
 
@@ -44,7 +38,6 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
     required SentryId traceId,
     required String name,
     required OnSpanEndCallback onSpanEnd,
-    OnSpanDiscardCallback? onSpanDiscard,
     required ClockProvider clock,
     required RecordingSentrySpanV2? parentSpan,
     required DscCreatorCallback dscCreator,
@@ -55,7 +48,6 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
         _parentSpan = parentSpan,
         _clock = clock,
         _onSpanEnd = onSpanEnd,
-        _onSpanDiscard = onSpanDiscard ?? parentSpan?._onSpanDiscard,
         _startTimestamp = (startTimestamp ?? clock()).toUtc(),
         _segmentSpan = parentSpan?.segmentSpan,
         _dscCreator = dscCreator,
@@ -68,7 +60,6 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
     required SentryId traceId,
     required String name,
     required OnSpanEndCallback onSpanEnd,
-    OnSpanDiscardCallback? onSpanDiscard,
     required ClockProvider clock,
     required DscCreatorCallback dscCreator,
     required SentryTracesSamplingDecision samplingDecision,
@@ -78,7 +69,6 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
       traceId: traceId,
       name: name,
       onSpanEnd: onSpanEnd,
-      onSpanDiscard: onSpanDiscard,
       clock: clock,
       parentSpan: null,
       dscCreator: dscCreator,
@@ -95,7 +85,6 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
     required RecordingSentrySpanV2 parent,
     required String name,
     required OnSpanEndCallback onSpanEnd,
-    OnSpanDiscardCallback? onSpanDiscard,
     required ClockProvider clock,
     required DscCreatorCallback dscCreator,
     DateTime? startTimestamp,
@@ -104,7 +93,6 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
       traceId: parent.traceId,
       name: name,
       onSpanEnd: onSpanEnd,
-      onSpanDiscard: onSpanDiscard,
       clock: clock,
       parentSpan: parent,
       dscCreator: dscCreator,
@@ -145,7 +133,7 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
 
   @override
   void end({DateTime? endTimestamp}) {
-    if (isTerminal) return;
+    if (isEnded) return;
 
     _endTimestamp = (endTimestamp ?? _clock()).toUtc();
 
@@ -179,19 +167,6 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
 
   @override
   bool get isEnded => _endTimestamp != null;
-
-  /// Whether this span's segment can no longer accept or capture spans.
-  @internal
-  bool get isTerminal => isEnded || segmentSpan._isCancelled;
-
-  /// Makes the span terminal without dispatching its capture callback.
-  @internal
-  Future<void> cancelWithoutCapture({DateTime? endTimestamp}) async {
-    if (isTerminal) return;
-    _isCancelled = true;
-    _endTimestamp = (endTimestamp ?? _clock()).toUtc();
-    await _onSpanDiscard?.call(this);
-  }
 
   @override
   Map<String, SentryAttribute> get attributes => Map.unmodifiable(_attributes);
