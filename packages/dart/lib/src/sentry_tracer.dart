@@ -37,9 +37,6 @@ class SentryTracer extends ISentrySpan {
   /// In-flight capture path; concurrent callers join this future.
   Future<void>? _finalizeFuture;
 
-  /// Dropped without capture ([abandon]).
-  bool _discarded = false;
-
   /// Successfully captured (or root already finished before finalize).
   bool _captured = false;
 
@@ -109,7 +106,7 @@ class SentryTracer extends ISentrySpan {
     _dispatchOnSpanStart(_rootSpan);
   }
 
-  bool get _isTerminal => _discarded || _captured;
+  bool get _isTerminal => _captured;
 
   @override
   Future<void> finish({
@@ -163,8 +160,6 @@ class SentryTracer extends ISentrySpan {
         _rootSpan.status ??= _requestedStatus;
       }
 
-      if (_discarded) return;
-
       // remove span where its endTimestamp is before startTimestamp
       _children.removeWhere(
           (span) => !_hasSpanSuitableTimestamps(span, endTimestamp));
@@ -198,7 +193,6 @@ class SentryTracer extends ISentrySpan {
       if (finish is Future) {
         await finish;
       }
-      if (_discarded) return;
 
       // Deadline may have been requested while onFinish was awaiting; re-apply
       // and pin the root end to the deadline (overrides trimEnd).
@@ -207,7 +201,6 @@ class SentryTracer extends ISentrySpan {
         rootEndTimestamp = _finalDeadlineTimestamp ?? rootEndTimestamp;
       }
       await _rootSpan.finish(endTimestamp: rootEndTimestamp, hint: hint);
-      if (_discarded) return;
 
       // remove from scope
       await _hub.configureScope((scope) {
@@ -228,8 +221,6 @@ class SentryTracer extends ISentrySpan {
           (_rootSpan.status == null || _rootSpan.status == SpanStatus.ok())
               ? await profiler?.finishFor(transaction)
               : null;
-
-      if (_discarded) return;
 
       await _hub.captureTransaction(
         transaction,
@@ -297,32 +288,6 @@ class SentryTracer extends ISentrySpan {
     return _beginFinalization(
       endTimestamp: _finalDeadlineTimestamp ?? _hub.options.clock(),
     );
-  }
-
-  @internal
-  void abandon() {
-    if (_isTerminal) return;
-
-    _discarded = true;
-    _autoFinishAfterTimer?.cancel();
-    _finalTimeoutTimer?.cancel();
-    unawaited(_discardWithoutCapture());
-  }
-
-  Future<void> _discardWithoutCapture() async {
-    final endTimestamp = _hub.options.clock();
-    try {
-      for (final child in List<SentrySpan>.of(_children)) {
-        if (!child.finished) {
-          await child.finish(endTimestamp: endTimestamp);
-        }
-      }
-      if (!_rootSpan.finished) {
-        await _rootSpan.finish(endTimestamp: endTimestamp);
-      }
-    } finally {
-      _disposeProfiler();
-    }
   }
 
   void _disposeProfiler() {

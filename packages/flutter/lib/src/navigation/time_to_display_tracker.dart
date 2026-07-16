@@ -153,11 +153,9 @@ class TimeToDisplayTracker {
   }
 
   void clear() {
-    final preparedInitialDisplay = _preparedInitialDisplay;
+    // Drop the prepared root reference only. Idle auto-finish (and the
+    // childless-idle drop in SentryTracer) owns teardown without capture.
     _preparedInitialDisplay = null;
-    if (preparedInitialDisplay != null) {
-      preparedInitialDisplay.abandon();
-    }
     transactionId = null;
     _pendingTTFDEndTimestamp = null;
     _ttidTracker.clear();

@@ -72,6 +72,21 @@ void main() {
       expect(fixture.frameHandler.timingsCallback, isNull);
     });
 
+    test('close tolerates non-flutter hub options', () async {
+      await fixture.startLifecycle();
+      await pumpEventQueue();
+
+      final closedHub =
+          Hub(SentryOptions(dsn: fakeDsn)..tracesSampleRate = 1.0);
+      final lifecycle = StandaloneAppStartLifecycle(
+        hub: closedHub,
+        frameCallbackHandler: fixture.frameHandler,
+        native: fixture.native,
+      );
+
+      await expectLater(lifecycle.close(), completes);
+    });
+
     test('skips when native timing is invalid', () async {
       when(fixture.native.fetchNativeAppStart()).thenAnswer(
         (_) async => fixture.nativeAppStart(appStartMilliseconds: 1000),

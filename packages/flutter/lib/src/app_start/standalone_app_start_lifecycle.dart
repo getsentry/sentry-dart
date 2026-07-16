@@ -158,11 +158,16 @@ class StandaloneAppStartLifecycle {
 
   Future<void> close() async {
     await _trace?.close();
-    switch (_options.traceLifecycle) {
-      case SentryTraceLifecycle.static:
-        _options.timeToDisplayTracker.clear();
-      case SentryTraceLifecycle.stream:
-        _options.timeToDisplayTrackerV2.cancelCurrentRoute();
+    // HubAdapter may already point at a closed/NoOp hub with plain
+    // SentryOptions during Sentry.close(); skip tracker cleanup then.
+    final options = _hub.options;
+    if (options is SentryFlutterOptions) {
+      switch (options.traceLifecycle) {
+        case SentryTraceLifecycle.static:
+          options.timeToDisplayTracker.clear();
+        case SentryTraceLifecycle.stream:
+          options.timeToDisplayTrackerV2.cancelCurrentRoute();
+      }
     }
     _trace = null;
     _startScreenName = null;

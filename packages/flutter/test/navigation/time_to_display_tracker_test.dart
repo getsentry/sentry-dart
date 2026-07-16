@@ -148,6 +148,28 @@ void main() {
       verify(fixture.ttidTracker.clear()).called(1);
       verify(fixture.ttfdTracker.clear()).called(1);
     });
+
+    test('releases prepared display without eager cancel', () async {
+      final sut = fixture.getSut();
+      final startTimestamp = DateTime.utc(2024, 1, 1, 12);
+      sut.prepareInitialDisplay(startTimestamp);
+      final transaction = fixture.hub.scope.span as SentryTracer;
+
+      sut.clear();
+      await pumpEventQueue();
+
+      // Idle auto-finish owns teardown; clear must not finish/cancel eagerly.
+      expect(transaction.finished, isFalse);
+      expect(sut.transactionId, isNull);
+
+      await sut.recordInitialDisplay(
+        startTimestamp.add(const Duration(seconds: 1)),
+      );
+      verifyNever(fixture.ttidTracker.track(
+        transaction: anyNamed('transaction'),
+        endTimestamp: anyNamed('endTimestamp'),
+      ));
+    });
   });
 
   group('cancelUnfinishedSpans', () {
