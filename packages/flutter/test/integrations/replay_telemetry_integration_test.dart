@@ -372,7 +372,7 @@ void main() {
         verifyNever(fixture.nativeBinding.registerTraceId(any));
       });
 
-      test('removes segment name registration on close', () async {
+      test('does not register segment name with native replay', () async {
         fixture.options.replay.sessionSampleRate = 0.5;
 
         final sut = fixture.getSut();
