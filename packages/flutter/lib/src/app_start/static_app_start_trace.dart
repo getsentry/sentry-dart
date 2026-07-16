@@ -14,6 +14,15 @@ import 'app_start_trace.dart';
 
 @internal
 final class StaticAppStartTrace implements AppStartTrace {
+  final AppStartData _data;
+  final SentryTracer _root;
+  final ISentrySpan _firstFrameBarrier;
+  final String Function() _startScreenName;
+
+  DateTime? _endTimestamp;
+  bool _completed = false;
+  bool _closed = false;
+
   StaticAppStartTrace._({
     required AppStartData data,
     required SentryTracer root,
@@ -23,15 +32,6 @@ final class StaticAppStartTrace implements AppStartTrace {
         _root = root,
         _firstFrameBarrier = firstFrameBarrier,
         _startScreenName = startScreenName;
-
-  final AppStartData _data;
-  final SentryTracer _root;
-  final ISentrySpan _firstFrameBarrier;
-  final String Function() _startScreenName;
-
-  DateTime? _endTimestamp;
-  bool _completed = false;
-  bool _closed = false;
 
   static StaticAppStartTrace? tryCreate({
     required Hub hub,
@@ -55,11 +55,9 @@ final class StaticAppStartTrace implements AppStartTrace {
         trimEnd: true,
         onFinish: (_) => trace?._enrichAndComplete(),
       );
-      if (createdRoot is! SentryTracer ||
-          createdRoot.samplingDecision?.sampled != true) {
-        if (createdRoot is SentryTracer) {
-          createdRoot.abandon();
-        }
+      if (createdRoot is! SentryTracer) return null;
+      if (createdRoot.samplingDecision?.sampled != true) {
+        createdRoot.abandon();
         return null;
       }
       root = createdRoot;
@@ -80,7 +78,14 @@ final class StaticAppStartTrace implements AppStartTrace {
         firstFrameBarrier: firstFrameBarrier,
         startScreenName: startScreenName,
       );
-      trace._createCompletedBreakdownSpans();
+      for (final phase in data.phases) {
+        final child = root.startChild(
+          phase.operation,
+          description: phase.description,
+          startTimestamp: phase.startTimestamp,
+        )..origin = SentryTraceOrigins.autoAppStart;
+        trace._finish(child, endTimestamp: phase.endTimestamp);
+      }
 
       if (!root.tryScheduleFinalTimeout(createdAt.add(appStartFinalTimeout))) {
         trace.close();
@@ -100,31 +105,6 @@ final class StaticAppStartTrace implements AppStartTrace {
       );
       return null;
     }
-  }
-
-  void _createCompletedBreakdownSpans() {
-    for (final phase in _data.phases) {
-      _finishChild(
-        operation: phase.operation,
-        description: phase.description,
-        startTimestamp: phase.startTimestamp,
-        endTimestamp: phase.endTimestamp,
-      );
-    }
-  }
-
-  void _finishChild({
-    required String operation,
-    required String description,
-    required DateTime startTimestamp,
-    required DateTime endTimestamp,
-  }) {
-    final child = _root.startChild(
-      operation,
-      description: description,
-      startTimestamp: startTimestamp,
-    )..origin = SentryTraceOrigins.autoAppStart;
-    _finish(child, endTimestamp: endTimestamp);
   }
 
   @override
@@ -154,13 +134,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       final endTimestamp = _endTimestamp;
       if (endTimestamp != null &&
           _root.status != SpanStatus.deadlineExceeded()) {
-        final duration = appStartDuration(
-          _data.processStartTimestamp,
-          endTimestamp,
-        );
-        final measurement = _data.type == AppStartType.cold
-            ? SentryMeasurement.coldAppStart(duration)
-            : SentryMeasurement.warmAppStart(duration);
+        final measurement = _data.measurementUntil(endTimestamp);
         _root.setMeasurement(
           measurement.name,
           measurement.value,

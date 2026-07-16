@@ -12,6 +12,17 @@ import 'app_start_trace.dart';
 
 @internal
 final class StreamingAppStartTrace implements AppStartTrace {
+  final Hub _hub;
+  final AppStartData _data;
+  final IdleRecordingSentrySpanV2 _root;
+  final RecordingSentrySpanV2 _firstFrameBarrier;
+  final String Function() _startScreenName;
+
+  late final SdkLifecycleCallback<OnProcessSpan> _processCallback;
+  DateTime? _endTimestamp;
+  bool _completed = false;
+  bool _closed = false;
+
   StreamingAppStartTrace._({
     required Hub hub,
     required AppStartData data,
@@ -23,17 +34,6 @@ final class StreamingAppStartTrace implements AppStartTrace {
         _root = root,
         _firstFrameBarrier = firstFrameBarrier,
         _startScreenName = startScreenName;
-
-  final Hub _hub;
-  final AppStartData _data;
-  final IdleRecordingSentrySpanV2 _root;
-  final RecordingSentrySpanV2 _firstFrameBarrier;
-  final String Function() _startScreenName;
-
-  late final SdkLifecycleCallback<OnProcessSpan> _processCallback;
-  DateTime? _endTimestamp;
-  bool _completed = false;
-  bool _closed = false;
 
   static StreamingAppStartTrace? tryCreate({
     required Hub hub,
@@ -64,7 +64,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
       if (createdRoot is! IdleRecordingSentrySpanV2) return null;
       root = createdRoot;
 
-      final barrier = hub.startInactiveSpan(
+      final firstFrameBarrier = hub.startInactiveSpan(
         appStartFirstFrameRenderDescription,
         parentSpan: root,
         startTimestamp: data.sentrySetupTimestamp,
@@ -73,7 +73,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
           SentrySpanOperations.appStartFirstFrameRender,
         ),
       );
-      if (barrier is! RecordingSentrySpanV2) {
+      if (firstFrameBarrier is! RecordingSentrySpanV2) {
         unawaited(root.cancel());
         return null;
       }
@@ -82,11 +82,20 @@ final class StreamingAppStartTrace implements AppStartTrace {
         hub: hub,
         data: data,
         root: root,
-        firstFrameBarrier: barrier,
+        firstFrameBarrier: firstFrameBarrier,
         startScreenName: startScreenName,
       );
       trace._processCallback = trace._processSpan;
-      trace._createCompletedBreakdownSpans();
+      for (final phase in data.phases) {
+        hub
+            .startInactiveSpan(
+              phase.description,
+              parentSpan: root,
+              startTimestamp: phase.startTimestamp,
+              attributes: _childAttributes(data, phase.operation),
+            )
+            .end(endTimestamp: phase.endTimestamp);
+      }
       hub.options.lifecycleRegistry.registerCallback<OnProcessSpan>(
         trace._processCallback,
       );
@@ -119,33 +128,6 @@ final class StreamingAppStartTrace implements AppStartTrace {
           data.type.name,
         ),
       };
-
-  void _createCompletedBreakdownSpans() {
-    for (final phase in _data.phases) {
-      _finishChild(
-        operation: phase.operation,
-        description: phase.description,
-        startTimestamp: phase.startTimestamp,
-        endTimestamp: phase.endTimestamp,
-      );
-    }
-  }
-
-  void _finishChild({
-    required String operation,
-    required String description,
-    required DateTime startTimestamp,
-    required DateTime endTimestamp,
-  }) {
-    _hub
-        .startInactiveSpan(
-          description,
-          parentSpan: _root,
-          startTimestamp: startTimestamp,
-          attributes: _childAttributes(_data, operation),
-        )
-        .end(endTimestamp: endTimestamp);
-  }
 
   @override
   void recordFirstFrame(DateTime endTimestamp) {
@@ -181,10 +163,8 @@ final class StreamingAppStartTrace implements AppStartTrace {
                   ?.value ==
               SentrySpanStatusMessages.deadlineExceeded;
       if (endTimestamp != null && !deadlineExceeded) {
-        final duration = appStartDuration(
-          _data.processStartTimestamp,
-          endTimestamp,
-        ).inMilliseconds.toDouble();
+        final duration =
+            _data.durationUntil(endTimestamp).inMilliseconds.toDouble();
         final value = SentryAttribute.double(duration);
         _root.setAttribute(
           SemanticAttributesConstants.appVitalsStartValue,

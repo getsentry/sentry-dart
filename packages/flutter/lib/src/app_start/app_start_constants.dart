@@ -18,10 +18,3 @@ const appStartSentrySetupDescription = 'Before Sentry Init Setup';
 
 @internal
 const appStartFirstFrameRenderDescription = 'First frame render';
-
-@internal
-Duration appStartDuration(
-  DateTime processStart,
-  DateTime naturalEnd,
-) =>
-    naturalEnd.difference(processStart);
