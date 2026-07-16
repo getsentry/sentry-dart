@@ -19,13 +19,8 @@ const _traceLifecycleName = String.fromEnvironment(
   'SENTRY_TRACE_LIFECYCLE',
   defaultValue: 'stream',
 );
-const _standaloneAppStartEnabled = bool.fromEnvironment(
-  'SENTRY_STANDALONE_APP_START',
-  defaultValue: true,
-);
 const _transactionItemType = 'transaction';
 const _spanItemType = 'span';
-const _appStartLogPrefix = 'APP_START_SENT';
 
 Future<void> main() async {
   await setupSentry(
@@ -85,15 +80,14 @@ Future<void> setupSentry(
             'Expected static or stream',
           ),
       };
-      options.enableStandaloneAppStartTracing = _standaloneAppStartEnabled;
+      options.enableStandaloneAppStartTracing = true;
 
       options.replay.sessionSampleRate = 0.0;
       options.replay.onErrorSampleRate = 0.0;
 
-      options.transport = _AppStartDebugTransport(
+      options.transport = _StandaloneAppStartDebugTransport(
         options.transport,
         _traceLifecycleName,
-        standalone: _standaloneAppStartEnabled,
       );
 
       options.enableLogs = true;
@@ -144,16 +138,11 @@ Future<void> setupSentry(
   });
 }
 
-final class _AppStartDebugTransport implements Transport {
-  _AppStartDebugTransport(
-    this._delegate,
-    this._traceLifecycle, {
-    required bool standalone,
-  }) : _mode = standalone ? 'standalone' : 'ui_load';
+final class _StandaloneAppStartDebugTransport implements Transport {
+  _StandaloneAppStartDebugTransport(this._delegate, this._traceLifecycle);
 
   final Transport _delegate;
   final String _traceLifecycle;
-  final String _mode;
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
@@ -179,7 +168,7 @@ final class _AppStartDebugTransport implements Transport {
         }
       }
     } catch (error, stackTrace) {
-      debugPrint('Failed to inspect app-start envelope: $error');
+      debugPrint('Failed to inspect standalone app-start envelope: $error');
       debugPrintStack(stackTrace: stackTrace);
     }
 
@@ -190,23 +179,11 @@ final class _AppStartDebugTransport implements Transport {
     Map<String, dynamic> itemHeader,
     Map<String, dynamic> payload,
   ) {
-    final transaction = payload['transaction'] as String?;
-    final spans = (payload['spans'] as List<dynamic>? ?? const [])
-        .whereType<Map<String, dynamic>>()
-        .toList();
-    final hasUiLoadAppStart = spans.any(
-      (span) =>
-          span['description'] == 'Cold Start' ||
-          span['description'] == 'Warm Start' ||
-          (span['op'] as String?)?.startsWith('app.start.') == true,
-    );
-    final isStandalone = transaction == 'App Start';
-    final isUiLoad = transaction == 'root /' && hasUiLoadAppStart;
-    if (!isStandalone && !isUiLoad) return null;
+    if (payload['transaction'] != 'App Start') return null;
 
     final contexts = payload['contexts'] as Map<String, dynamic>?;
+    final spans = payload['spans'] as List<dynamic>? ?? const [];
     return {
-      'mode': _mode,
       'trace_lifecycle': _traceLifecycle,
       'envelope_item': itemHeader,
       'payload': {
@@ -219,7 +196,10 @@ final class _AppStartDebugTransport implements Transport {
           'transaction_info',
         ]),
         'trace_context': contexts?['trace'],
-        'spans': spans.map(_staticSpanSummary).toList(),
+        'spans': spans
+            .whereType<Map<String, dynamic>>()
+            .map(_staticSpanSummary)
+            .toList(),
       },
     };
   }
@@ -231,15 +211,9 @@ final class _AppStartDebugTransport implements Transport {
     final spans = (payload['items'] as List<dynamic>? ?? const [])
         .whereType<Map<String, dynamic>>()
         .toList();
-    final names = spans.map((span) => span['name']).toSet();
-    final hasStandalone = names.contains('App Start');
-    final hasUiLoadAppStart = names.contains('Cold Start') ||
-        names.contains('Warm Start') ||
-        names.contains('root /');
-    if (!hasStandalone && !hasUiLoadAppStart) return null;
+    if (!spans.any((span) => span['name'] == 'App Start')) return null;
 
     return {
-      'mode': _mode,
       'trace_lifecycle': _traceLifecycle,
       'envelope_item': itemHeader,
       'payload': {
@@ -260,7 +234,6 @@ final class _AppStartDebugTransport implements Transport {
         'start_timestamp',
         'timestamp',
         'status',
-        'data',
       ]);
 
   Map<String, dynamic> _streamSpanSummary(Map<String, dynamic> span) {
@@ -307,7 +280,7 @@ final class _AppStartDebugTransport implements Transport {
       final start = index * chunkSize;
       final end = (start + chunkSize).clamp(0, message.length);
       debugPrintSynchronously(
-        '$_appStartLogPrefix[$_mode/$_traceLifecycle] '
+        'STANDALONE_APP_START_SENT[$_traceLifecycle] '
         '${index + 1}/$chunkCount ${message.substring(start, end)}',
         wrapWidth: null,
       );
