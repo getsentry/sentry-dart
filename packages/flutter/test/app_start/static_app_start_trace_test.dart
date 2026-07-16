@@ -145,7 +145,10 @@ class Fixture {
   late final rootFinish = processStart.add(Duration(milliseconds: 500));
   SentrySpan? root;
 
+  final transport = _FakeTransport();
+
   late final options = defaultTestOptions()
+    ..transport = transport
     ..tracesSampleRate = 1.0
     ..traceLifecycle = SentryTraceLifecycle.static
     ..clock = () => processStart.add(Duration(milliseconds: 300));
@@ -184,4 +187,9 @@ class Fixture {
       startScreenName: () => 'root /',
     );
   }
+}
+
+class _FakeTransport implements Transport {
+  @override
+  Future<SentryId?> send(SentryEnvelope envelope) async => SentryId.empty();
 }

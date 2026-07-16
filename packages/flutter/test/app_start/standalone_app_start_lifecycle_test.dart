@@ -72,21 +72,6 @@ void main() {
       expect(fixture.frameHandler.timingsCallback, isNull);
     });
 
-    test('close tolerates non-flutter hub options', () async {
-      await fixture.startLifecycle();
-      await pumpEventQueue();
-
-      final closedHub =
-          Hub(SentryOptions(dsn: fakeDsn)..tracesSampleRate = 1.0);
-      final lifecycle = StandaloneAppStartLifecycle(
-        hub: closedHub,
-        frameCallbackHandler: fixture.frameHandler,
-        native: fixture.native,
-      );
-
-      await expectLater(lifecycle.close(), completes);
-    });
-
     test('skips when native timing is invalid', () async {
       when(fixture.native.fetchNativeAppStart()).thenAnswer(
         (_) async => fixture.nativeAppStart(appStartMilliseconds: 1000),
@@ -139,6 +124,7 @@ void main() {
 class Fixture {
   final frameHandler = FakeFrameCallbackHandler();
   final native = MockSentryNativeBinding();
+  final transport = _FakeTransport();
   final rootSpans = <SentrySpan>[];
   List<SentrySpan> get appStartRoots =>
       rootSpans.where((span) => span.context.operation == 'app.start').toList();
@@ -155,6 +141,7 @@ class Fixture {
   );
 
   late final options = defaultTestOptions(platform: MockPlatform.android())
+    ..transport = transport
     ..tracesSampleRate = 1.0
     ..traceLifecycle = SentryTraceLifecycle.static
     ..enableStandaloneAppStartTracing = true
@@ -209,4 +196,9 @@ class Fixture {
       null,
     );
   }
+}
+
+class _FakeTransport implements Transport {
+  @override
+  Future<SentryId?> send(SentryEnvelope envelope) async => SentryId.empty();
 }

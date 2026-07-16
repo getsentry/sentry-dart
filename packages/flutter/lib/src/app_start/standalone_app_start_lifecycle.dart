@@ -34,7 +34,12 @@ class StandaloneAppStartLifecycle {
             frameCallbackHandler ?? DefaultFrameCallbackHandler(),
         _native = native;
 
-  SentryFlutterOptions get _options => _hub.options as SentryFlutterOptions;
+  /// HubAdapter may already point at a closed/NoOp hub with plain
+  /// [SentryOptions] during [Sentry.close]; treat that as unavailable.
+  SentryFlutterOptions? get _flutterOptions {
+    final options = _hub.options;
+    return options is SentryFlutterOptions ? options : null;
+  }
 
   Future<void> start() async {
     AppStartData? data;
@@ -79,6 +84,9 @@ class StandaloneAppStartLifecycle {
   }
 
   AppStartTrace? _createAppStartTrace(AppStartData data) {
+    final options = _flutterOptions;
+    if (options == null) return null;
+
     String _resolvedStartScreenName() {
       final name = _startScreenName;
       if (name == null || name.isEmpty || name == '/') {
@@ -87,7 +95,7 @@ class StandaloneAppStartLifecycle {
       return name;
     }
 
-    return switch (_options.traceLifecycle) {
+    return switch (options.traceLifecycle) {
       SentryTraceLifecycle.static => StaticAppStartTrace.tryCreate(
           hub: _hub,
           data: data,
@@ -102,11 +110,14 @@ class StandaloneAppStartLifecycle {
   }
 
   void _prepareTimeToDisplay(DateTime startTimestamp) {
-    switch (_options.traceLifecycle) {
+    final options = _flutterOptions;
+    if (options == null) return;
+
+    switch (options.traceLifecycle) {
       case SentryTraceLifecycle.static:
-        _options.timeToDisplayTracker.prepareInitialDisplay(startTimestamp);
+        options.timeToDisplayTracker.prepareInitialDisplay(startTimestamp);
       case SentryTraceLifecycle.stream:
-        _options.timeToDisplayTrackerV2.prepareAppStart(
+        options.timeToDisplayTrackerV2.prepareAppStart(
           startTimestamp: startTimestamp,
         );
     }
@@ -128,15 +139,18 @@ class StandaloneAppStartLifecycle {
         // the user may navigate away before the app-start span finishes.
         _startScreenName ??= SentryNavigatorObserver.currentRouteName;
 
-        switch (_options.traceLifecycle) {
-          case SentryTraceLifecycle.static:
-            await _options.timeToDisplayTracker.recordInitialDisplay(
-              endTimestamp,
-            );
-          case SentryTraceLifecycle.stream:
-            _options.timeToDisplayTrackerV2.trackAppStart(
-              ttidEndTimestamp: endTimestamp,
-            );
+        final options = _flutterOptions;
+        if (options != null) {
+          switch (options.traceLifecycle) {
+            case SentryTraceLifecycle.static:
+              await options.timeToDisplayTracker.recordInitialDisplay(
+                endTimestamp,
+              );
+            case SentryTraceLifecycle.stream:
+              options.timeToDisplayTrackerV2.trackAppStart(
+                ttidEndTimestamp: endTimestamp,
+              );
+          }
         }
 
         _trace?.recordFirstFrame(endTimestamp);
@@ -147,7 +161,7 @@ class StandaloneAppStartLifecycle {
           error: error,
           stackTrace: stackTrace,
         );
-        if (_options.automatedTestMode) {
+        if (_flutterOptions?.automatedTestMode ?? false) {
           rethrow;
         }
       }
@@ -158,10 +172,9 @@ class StandaloneAppStartLifecycle {
 
   Future<void> close() async {
     await _trace?.close();
-    // HubAdapter may already point at a closed/NoOp hub with plain
-    // SentryOptions during Sentry.close(); skip tracker cleanup then.
-    final options = _hub.options;
-    if (options is SentryFlutterOptions) {
+    // Skip tracker cleanup when the hub already exposes plain SentryOptions.
+    final options = _flutterOptions;
+    if (options != null) {
       switch (options.traceLifecycle) {
         case SentryTraceLifecycle.static:
           options.timeToDisplayTracker.clear();
