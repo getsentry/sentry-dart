@@ -10,7 +10,7 @@ import 'package:sentry_flutter/src/event_processor/flutter_enricher_event_proces
 import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/debug_print_integration.dart';
 import 'package:sentry_flutter/src/integrations/flutter_error_integration.dart';
-import 'package:sentry_flutter/src/app_start/generic_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/generic_app_start_integration.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
 import 'package:sentry_flutter/src/integrations/native_load_debug_images_integration.dart';
 import 'package:sentry_flutter/src/integrations/native_sdk_integration.dart';

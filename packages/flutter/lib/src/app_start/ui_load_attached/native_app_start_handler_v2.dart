@@ -2,11 +2,10 @@
 
 import 'package:meta/meta.dart';
 
-import '../../sentry_flutter.dart';
-import '../app_start/app_start_constants.dart';
-import '../app_start/app_start_data.dart';
-import '../native/sentry_native_binding.dart';
-import '../utils/internal_logger.dart';
+import '../../../sentry_flutter.dart';
+import '../app_start_data.dart';
+import '../../native/sentry_native_binding.dart';
+import '../../utils/internal_logger.dart';
 
 /// V2 handler for native app start spans using the streaming span API.
 @internal

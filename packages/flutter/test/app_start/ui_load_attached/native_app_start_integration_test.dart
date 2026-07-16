@@ -8,13 +8,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_handler.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_handler_v2.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/native_app_start_handler.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/native_app_start_handler_v2.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/native_app_start_integration.dart';
 
-import '../fake_frame_callback_handler.dart';
-import '../mocks.dart';
-import '../mocks.mocks.dart';
+import '../../fake_frame_callback_handler.dart';
+import '../../mocks.dart';
+import '../../mocks.mocks.dart';
 
 void main() {
   late Fixture fixture;

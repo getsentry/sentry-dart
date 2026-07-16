@@ -1,7 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
-import '../../sentry_flutter.dart';
-import '../utils/internal_logger.dart';
+import '../../../sentry_flutter.dart';
+import '../../utils/internal_logger.dart';
 import 'standalone_app_start_lifecycle.dart';
 
 /// Wires the SDK integration lifecycle to standalone app-start tracing.

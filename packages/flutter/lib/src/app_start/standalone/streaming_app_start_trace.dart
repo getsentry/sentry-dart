@@ -2,10 +2,9 @@
 
 import 'package:meta/meta.dart';
 
-import '../../sentry_flutter.dart';
-import '../utils/internal_logger.dart';
-import 'app_start_constants.dart';
-import 'app_start_data.dart';
+import '../../../sentry_flutter.dart';
+import '../../utils/internal_logger.dart';
+import '../app_start_data.dart';
 import 'app_start_trace.dart';
 
 @internal
@@ -40,10 +39,10 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }) {
     try {
       final createdRoot = hub.startIdleSpan(
-        appStartRootName,
+        standaloneAppStartRootName,
         setAsActive: false,
-        idleTimeout: appStartIdleTimeout,
-        finalTimeout: appStartFinalTimeout,
+        idleTimeout: standaloneAppStartIdleTimeout,
+        finalTimeout: standaloneAppStartFinalTimeout,
         trimIdleSpanEndTimestamp: true,
         startTimestamp: data.processStartTimestamp,
         attributes: {
@@ -141,7 +140,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
       );
       _root.setAttribute(
         SemanticAttributesConstants.sentrySegmentName,
-        SentryAttribute.string(appStartRootName),
+        SentryAttribute.string(standaloneAppStartRootName),
       );
 
       final endTimestamp = _endTimestamp;

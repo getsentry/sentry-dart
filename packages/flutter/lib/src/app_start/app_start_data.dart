@@ -5,11 +5,21 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../native/native_app_start.dart';
 import '../utils/internal_logger.dart';
-import 'app_start_constants.dart';
 
 /// Rejects app starts older / longer than 60s (late init, backgrounded
 /// process, OS forking, or unreproducible outliers).
 const _maxAppStartAge = Duration(seconds: 60);
+
+@internal
+const appStartPluginRegistrationDescription =
+    'App start to plugin registration';
+
+@internal
+const appStartSentrySetupDescription = 'Before Sentry Init Setup';
+
+/// Description for the first-frame phase (end timestamp arrives after parse).
+@internal
+const appStartFirstFrameRenderDescription = 'First frame render';
 
 @internal
 enum AppStartType { cold, warm }

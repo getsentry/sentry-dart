@@ -6,10 +6,9 @@ import 'package:meta/meta.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
 
-import '../../sentry_flutter.dart';
-import '../utils/internal_logger.dart';
-import 'app_start_constants.dart';
-import 'app_start_data.dart';
+import '../../../sentry_flutter.dart';
+import '../../utils/internal_logger.dart';
+import '../app_start_data.dart';
 import 'app_start_trace.dart';
 
 @internal
@@ -43,13 +42,13 @@ final class StaticAppStartTrace implements AppStartTrace {
       final createdAt = hub.options.clock();
       final createdRoot = hub.startTransactionWithContext(
         SentryTransactionContext(
-          appStartRootName,
+          standaloneAppStartRootName,
           SentrySpanOperations.appStart,
           origin: SentryTraceOrigins.autoAppStart,
         ),
         startTimestamp: data.processStartTimestamp,
         waitForChildren: true,
-        autoFinishAfter: appStartIdleTimeout,
+        autoFinishAfter: standaloneAppStartIdleTimeout,
         bindToScope: false,
         trimEnd: true,
         onFinish: (_) => trace?._enrichAndComplete(),
@@ -80,7 +79,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       }
 
       if (!createdRoot.tryScheduleFinalTimeout(
-        createdAt.add(appStartFinalTimeout),
+        createdAt.add(standaloneAppStartFinalTimeout),
       )) {
         unawaited(trace.close());
         return null;

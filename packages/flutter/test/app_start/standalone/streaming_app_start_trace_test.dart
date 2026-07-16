@@ -3,9 +3,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/app_start/app_start_data.dart';
-import 'package:sentry_flutter/src/app_start/streaming_app_start_trace.dart';
+import 'package:sentry_flutter/src/app_start/standalone/streaming_app_start_trace.dart';
 
-import '../mocks.dart';
+import '../../mocks.dart';
 
 void main() {
   group('$StreamingAppStartTrace', () {

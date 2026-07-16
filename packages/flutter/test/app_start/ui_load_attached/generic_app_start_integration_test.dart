@@ -4,13 +4,13 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/app_start/generic_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/generic_app_start_integration.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 // Internal import is fine in tests.
 import 'package:sentry/src/sentry_tracer.dart';
 
-import '../fake_frame_callback_handler.dart';
-import '../mocks.dart';
+import '../../fake_frame_callback_handler.dart';
+import '../../mocks.dart';
 
 void main() {
   group('GenericAppStartIntegration (real impl)', () {

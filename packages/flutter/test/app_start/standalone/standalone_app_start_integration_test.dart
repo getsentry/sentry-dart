@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/app_start/standalone_app_start_integration.dart';
-import 'package:sentry_flutter/src/app_start/standalone_app_start_lifecycle.dart';
+import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_lifecycle.dart';
 
-import '../mocks.dart';
+import '../../mocks.dart';
 
 void main() {
   group('$StandaloneAppStartIntegration', () {

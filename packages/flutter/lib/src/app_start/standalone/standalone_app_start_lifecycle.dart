@@ -4,11 +4,11 @@ import 'dart:ui';
 
 import 'package:meta/meta.dart';
 
-import '../../sentry_flutter.dart';
-import '../frame_callback_handler.dart';
-import '../native/sentry_native_binding.dart';
-import '../utils/internal_logger.dart';
-import 'app_start_data.dart';
+import '../../../sentry_flutter.dart';
+import '../../frame_callback_handler.dart';
+import '../../native/sentry_native_binding.dart';
+import '../../utils/internal_logger.dart';
+import '../app_start_data.dart';
 import 'app_start_trace.dart';
 import 'static_app_start_trace.dart';
 import 'streaming_app_start_trace.dart';

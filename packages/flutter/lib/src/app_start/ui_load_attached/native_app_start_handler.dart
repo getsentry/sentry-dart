@@ -1,9 +1,8 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-import '../../sentry_flutter.dart';
-import '../app_start/app_start_constants.dart';
-import '../app_start/app_start_data.dart';
-import '../native/sentry_native_binding.dart';
+import '../../../sentry_flutter.dart';
+import '../app_start_data.dart';
+import '../../native/sentry_native_binding.dart';
 
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';

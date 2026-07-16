@@ -7,14 +7,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/app_start/standalone_app_start_lifecycle.dart';
+import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_lifecycle.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 
-import '../fake_frame_callback_handler.dart';
-import '../mocks.dart';
-import '../mocks.mocks.dart';
+import '../../fake_frame_callback_handler.dart';
+import '../../mocks.dart';
+import '../../mocks.mocks.dart';
 
 void main() {
   group('$StandaloneAppStartLifecycle', () {

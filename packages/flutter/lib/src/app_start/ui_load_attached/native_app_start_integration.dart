@@ -4,8 +4,8 @@ import 'dart:ui';
 
 import 'package:meta/meta.dart';
 
-import '../../sentry_flutter.dart';
-import '../frame_callback_handler.dart';
+import '../../../sentry_flutter.dart';
+import '../../frame_callback_handler.dart';
 import 'native_app_start_handler.dart';
 import 'native_app_start_handler_v2.dart';
 
