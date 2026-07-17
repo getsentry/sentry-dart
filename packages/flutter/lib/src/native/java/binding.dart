@@ -699,6 +699,104 @@ class SentryAndroidOptions extends SentryOptions {
         .check();
   }
 
+  static final _id_isEnableNdkAppHangTracking = _class.instanceMethodId(
+    r'isEnableNdkAppHangTracking',
+    r'()Z',
+  );
+
+  static final _isEnableNdkAppHangTracking =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallBooleanMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public boolean isEnableNdkAppHangTracking()`
+  bool isEnableNdkAppHangTracking() {
+    return _isEnableNdkAppHangTracking(reference.pointer,
+            _id_isEnableNdkAppHangTracking as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_setEnableNdkAppHangTracking = _class.instanceMethodId(
+    r'setEnableNdkAppHangTracking',
+    r'(Z)V',
+  );
+
+  static final _setEnableNdkAppHangTracking =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int32,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setEnableNdkAppHangTracking(boolean z)`
+  void setEnableNdkAppHangTracking(
+    bool z,
+  ) {
+    _setEnableNdkAppHangTracking(reference.pointer,
+            _id_setEnableNdkAppHangTracking as jni$_.JMethodIDPtr, z ? 1 : 0)
+        .check();
+  }
+
+  static final _id_getNdkAppHangTimeoutIntervalMillis = _class.instanceMethodId(
+    r'getNdkAppHangTimeoutIntervalMillis',
+    r'()J',
+  );
+
+  static final _getNdkAppHangTimeoutIntervalMillis =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JniResult Function(
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.JMethodIDPtr,
+                  )>>('globalEnv_CallLongMethod')
+          .asFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>();
+
+  /// from: `public long getNdkAppHangTimeoutIntervalMillis()`
+  int getNdkAppHangTimeoutIntervalMillis() {
+    return _getNdkAppHangTimeoutIntervalMillis(reference.pointer,
+            _id_getNdkAppHangTimeoutIntervalMillis as jni$_.JMethodIDPtr)
+        .long;
+  }
+
+  static final _id_setNdkAppHangTimeoutIntervalMillis = _class.instanceMethodId(
+    r'setNdkAppHangTimeoutIntervalMillis',
+    r'(J)V',
+  );
+
+  static final _setNdkAppHangTimeoutIntervalMillis =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int64,)>)>>(
+              'globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setNdkAppHangTimeoutIntervalMillis(long j)`
+  void setNdkAppHangTimeoutIntervalMillis(
+    int j,
+  ) {
+    _setNdkAppHangTimeoutIntervalMillis(reference.pointer,
+            _id_setNdkAppHangTimeoutIntervalMillis as jni$_.JMethodIDPtr, j)
+        .check();
+  }
+
   static final _id_setTombstoneEnabled = _class.instanceMethodId(
     r'setTombstoneEnabled',
     r'(Z)V',
@@ -3599,6 +3697,32 @@ class ReplayIntegration extends jni$_.JObject {
     final _$sentryId = sentryId.reference;
     _registerTraceId(reference.pointer,
             _id_registerTraceId as jni$_.JMethodIDPtr, _$sentryId.pointer)
+        .check();
+  }
+
+  static final _id_registerSegmentName = _class.instanceMethodId(
+    r'registerSegmentName',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _registerSegmentName = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void registerSegmentName(java.lang.String string)`
+  void registerSegmentName(
+    jni$_.JString string,
+  ) {
+    final _$string = string.reference;
+    _registerSegmentName(reference.pointer,
+            _id_registerSegmentName as jni$_.JMethodIDPtr, _$string.pointer)
         .check();
   }
 
@@ -16214,6 +16338,59 @@ class SentryOptions extends jni$_.JObject {
         .check();
   }
 
+  static final _id_getTimerExecutorService = _class.instanceMethodId(
+    r'getTimerExecutorService',
+    r'()Lio/sentry/ISentryExecutorService;',
+  );
+
+  static final _getTimerExecutorService = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.ISentryExecutorService getTimerExecutorService()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject getTimerExecutorService() {
+    return _getTimerExecutorService(reference.pointer,
+            _id_getTimerExecutorService as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_setTimerExecutorService = _class.instanceMethodId(
+    r'setTimerExecutorService',
+    r'(Lio/sentry/ISentryExecutorService;)V',
+  );
+
+  static final _setTimerExecutorService = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setTimerExecutorService(io.sentry.ISentryExecutorService iSentryExecutorService)`
+  void setTimerExecutorService(
+    jni$_.JObject iSentryExecutorService,
+  ) {
+    final _$iSentryExecutorService = iSentryExecutorService.reference;
+    _setTimerExecutorService(
+            reference.pointer,
+            _id_setTimerExecutorService as jni$_.JMethodIDPtr,
+            _$iSentryExecutorService.pointer)
+        .check();
+  }
+
   static final _id_getConnectionTimeoutMillis = _class.instanceMethodId(
     r'getConnectionTimeoutMillis',
     r'()I',
@@ -23700,6 +23877,16 @@ class SentryReplayEvent$JsonKeys extends jni$_.JObject {
   static jni$_.JString? get TRACE_IDS =>
       _id_TRACE_IDS.get(_class, const jni$_.JStringNullableType());
 
+  static final _id_SEGMENT_NAMES = _class.staticFieldId(
+    r'SEGMENT_NAMES',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String SEGMENT_NAMES`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get SEGMENT_NAMES =>
+      _id_SEGMENT_NAMES.get(_class, const jni$_.JStringNullableType());
+
   static final _id_new$ = _class.constructorId(
     r'()V',
   );
@@ -24685,6 +24872,59 @@ class SentryReplayEvent extends SentryBaseEvent {
     final _$list = list?.reference ?? jni$_.jNullReference;
     _setTraceIds(reference.pointer, _id_setTraceIds as jni$_.JMethodIDPtr,
             _$list.pointer)
+        .check();
+  }
+
+  static final _id_getSegmentNames = _class.instanceMethodId(
+    r'getSegmentNames',
+    r'()Ljava/util/List;',
+  );
+
+  static final _getSegmentNames = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public java.util.List<java.lang.String> getSegmentNames()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JList<jni$_.JString?>? getSegmentNames() {
+    return _getSegmentNames(
+            reference.pointer, _id_getSegmentNames as jni$_.JMethodIDPtr)
+        .object<jni$_.JList<jni$_.JString?>?>(
+            const jni$_.JListNullableType<jni$_.JString?>(
+                jni$_.JStringNullableType()));
+  }
+
+  static final _id_setSegmentNames = _class.instanceMethodId(
+    r'setSegmentNames',
+    r'(Ljava/util/List;)V',
+  );
+
+  static final _setSegmentNames = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public void setSegmentNames(java.util.List<java.lang.String> list)`
+  void setSegmentNames(
+    jni$_.JList<jni$_.JString?>? list,
+  ) {
+    final _$list = list?.reference ?? jni$_.jNullReference;
+    _setSegmentNames(reference.pointer,
+            _id_setSegmentNames as jni$_.JMethodIDPtr, _$list.pointer)
         .check();
   }
 
