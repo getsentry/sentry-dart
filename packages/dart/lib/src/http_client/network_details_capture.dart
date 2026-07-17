@@ -7,7 +7,6 @@ import 'package:meta/meta.dart';
 import '../constants.dart';
 import '../sentry_options.dart';
 import '../utils/internal_logger.dart';
-import '../utils/stream_utils.dart';
 import '../utils/tracing_utils.dart';
 
 /// Captures HTTP request/response headers and bodies for [SentryHttpClient]
@@ -72,11 +71,9 @@ class NetworkDetailsCapture {
       return (response, data);
     }
 
-    Uint8List prefix;
-    Stream<List<int>> forwardedStream;
+    Uint8List bytes;
     try {
-      (prefix, forwardedStream) =
-          await bufferStreamPrefix(response.stream, maxBytes: maxBodySize);
+      bytes = await response.stream.toBytes();
     } catch (exception) {
       internalLogger.warning(
         () => 'Failed to capture response body for replay: $exception',
@@ -86,11 +83,11 @@ class NetworkDetailsCapture {
       return (response, data);
     }
 
-    final forwarded = _copyWithStream(response, forwardedStream);
-    // The prefix is already buffered at this point, so decoding failures
+    // The body is already fully read at this point, so decoding failures
     // (e.g. malformed encoding info) shouldn't prevent forwarding it as-is.
+    final forwarded = _copyWithBytes(response, bytes);
     try {
-      data['body'] = _truncateBytes(prefix);
+      data['body'] = _truncateBytes(bytes);
     } catch (exception) {
       internalLogger.warning(
         () => 'Failed to capture response body for replay: $exception',
@@ -127,10 +124,9 @@ class NetworkDetailsCapture {
     }
   }
 
-  StreamedResponse _copyWithStream(
-      StreamedResponse response, Stream<List<int>> stream) {
+  StreamedResponse _copyWithBytes(StreamedResponse response, List<int> bytes) {
     return StreamedResponse(
-      stream,
+      Stream.value(bytes),
       response.statusCode,
       contentLength: response.contentLength,
       request: response.request,
