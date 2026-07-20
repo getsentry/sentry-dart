@@ -362,7 +362,7 @@ class _SentryUserInteractionWidgetState
     final label = _getLabelRecursively(info.element);
     final data = {
       'path': _getTouchPath(info.element),
-      if (label != null) 'label': label
+      if (label != null) 'label': label,
     };
 
     final crumb = Breadcrumb.userInteraction(
@@ -428,7 +428,8 @@ class _SentryUserInteractionWidgetState
 
       if (activeSpan is IdleRecordingSentrySpanV2) {
         final lastElement = _lastTappedWidget?.element;
-        final isSameWidget = _isElementMounted(lastElement) &&
+        final isSameWidget =
+            _isElementMounted(lastElement) &&
             _isElementMounted(info.element) &&
             lastElement?.widget == info.element.widget;
 
@@ -456,10 +457,14 @@ class _SentryUserInteractionWidgetState
       idleTimeout: const Duration(seconds: 1),
       widgetKey,
       attributes: {
-        SemanticAttributesConstants.sentryOp:
-            SentryAttribute.string(SentrySpanOperations.uiActionClick),
-        SemanticAttributesConstants.sentryOrigin:
-            SentryAttribute.string(SentryTraceOrigins.autoUiInteraction),
+        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
+          SentrySpanOperations.uiActionClick,
+        ),
+        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+          SentryTraceOrigins.autoUiInteraction,
+        ),
+        SemanticAttributesConstants.sentrySegmentNameSource:
+            SentryAttribute.string(SentryTransactionNameSource.component.name),
       },
     );
   }
@@ -564,7 +569,8 @@ class _SentryUserInteractionWidgetState
 
     if (_options?.sendDefaultPii ?? false) {
       final widget = element.widget;
-      final allowText = widget is ButtonStyleButton ||
+      final allowText =
+          widget is ButtonStyleButton ||
           widget is MaterialButton ||
           widget is CupertinoButton;
 
@@ -607,8 +613,10 @@ class _SentryUserInteractionWidgetState
       }
 
       final transform = renderObject.getTransformTo(rootElement.renderObject);
-      final paintBounds =
-          MatrixUtils.transformRect(transform, renderObject.paintBounds);
+      final paintBounds = MatrixUtils.transformRect(
+        transform,
+        renderObject.paintBounds,
+      );
 
       if (!paintBounds.contains(position)) {
         return;
@@ -616,10 +624,7 @@ class _SentryUserInteractionWidgetState
 
       final type = _getElementType(element);
       if (type != null) {
-        tappedWidget = UserInteractionInfo(
-          element: element,
-          type: type,
-        );
+        tappedWidget = UserInteractionInfo(element: element, type: type);
       }
 
       if (tappedWidget == null) {
