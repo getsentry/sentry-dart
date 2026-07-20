@@ -362,18 +362,17 @@ class SentryOptions {
   ///   because the connection was interrupted.
   /// Use with [SentryHttpClient] or `sentry_dio` integration for this to work
   ///
-  /// If you wish to disable capturing native failed requests on iOS/macOS, use [captureNativeFailedRequests] instead.
-  // TODO(major-v10): do not sync this with native options, instead use captureNativeFailedRequests instead to sync.
+  /// Native failed request capture on iOS/macOS is controlled independently by
+  /// [captureNativeFailedRequests].
   bool captureFailedRequests = true;
 
   /// Whether failed HTTP requests are captured by the native iOS/macOS SDK.
   ///
-  /// This allows controlling native-side HTTP error capturing independently
-  /// from [captureFailedRequests], which controls Dart-side capturing.
+  /// Disabled by default. Set to `true` to opt in.
   ///
-  /// When `null` (the default), falls back to [captureFailedRequests].
-  // TODO(major-v10): it's currently nullable for backwards compatibility, make non-nullable by default.
-  bool? captureNativeFailedRequests;
+  /// This setting is independent from [captureFailedRequests], which controls
+  /// Dart-side capturing.
+  bool captureNativeFailedRequests = false;
 
   /// Whether to records requests as breadcrumbs. This is on by default.
   /// It only has an effect when the SentryHttpClient or dio integration is in

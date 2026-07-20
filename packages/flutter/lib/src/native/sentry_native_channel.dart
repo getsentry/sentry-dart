@@ -71,8 +71,7 @@ class SentryNativeChannel
       'proguardUuid': options.proguardUuid,
       'maxAttachmentSize': options.maxAttachmentSize,
       'recordHttpBreadcrumbs': options.recordHttpBreadcrumbs,
-      'captureFailedRequests':
-          options.captureNativeFailedRequests ?? options.captureFailedRequests,
+      'captureFailedRequests': options.captureNativeFailedRequests,
       'enableAppHangTracking': options.enableAppHangTracking,
       'connectionTimeoutMillis': options.connectionTimeout.inMilliseconds,
       'readTimeoutMillis': options.readTimeout.inMilliseconds,
