@@ -18,7 +18,7 @@ import '../mocks.mocks.dart';
 // The Scaffold widget tree uses AnimatedBuilder on stable but Builder on beta.
 // Use anyOf to accept either name since this is a framework-internal detail.
 final _animatedBuilderElement = {
-  'element': anyOf('AnimatedBuilder', 'Builder'),
+  'element': anyOf('AnimatedBuilder', 'Builder')
 };
 
 void main() {
@@ -33,7 +33,9 @@ void main() {
     (tester) async {
       await tester.runAsync(() async {
         await tester.pumpWidget(
-          SentryUserInteractionWidget(child: MaterialApp()),
+          SentryUserInteractionWidget(
+            child: MaterialApp(),
+          ),
         );
       });
     },
@@ -116,24 +118,23 @@ void main() {
         await tapMe(tester, sut, 'btn_1');
 
         expect(
-          fixture.getBreadcrumb().data?.replaceHashCodes(),
-          equals({
-            'path': [
-              {'name': 'btn_1', 'element': 'MaterialButton'},
-              {'element': 'Column'},
-              {'element': 'Center'},
-              {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
-              {'element': 'MediaQuery'},
-              {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
-              {'element': 'CustomMultiChildLayout'},
-              {'element': 'Actions'},
-              _animatedBuilderElement,
-              {'element': 'DefaultTextStyle'},
-            ],
-            'view.id': 'btn_1',
-            'view.class': 'MaterialButton',
-          }),
-        );
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'btn_1', 'element': 'MaterialButton'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
+                {'element': 'CustomMultiChildLayout'},
+                {'element': 'Actions'},
+                _animatedBuilderElement,
+                {'element': 'DefaultTextStyle'}
+              ],
+              'view.id': 'btn_1',
+              'view.class': 'MaterialButton',
+            }));
       });
     });
 
@@ -144,25 +145,24 @@ void main() {
         await tapMe(tester, sut, 'btn_1');
 
         expect(
-          fixture.getBreadcrumb().data?.replaceHashCodes(),
-          equals({
-            'path': [
-              {'name': 'btn_1', 'element': 'MaterialButton'},
-              {'element': 'Column'},
-              {'element': 'Center'},
-              {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
-              {'element': 'MediaQuery'},
-              {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
-              {'element': 'CustomMultiChildLayout'},
-              {'element': 'Actions'},
-              _animatedBuilderElement,
-              {'element': 'DefaultTextStyle'},
-            ],
-            'label': 'Button 1',
-            'view.id': 'btn_1',
-            'view.class': 'MaterialButton',
-          }),
-        );
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'btn_1', 'element': 'MaterialButton'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
+                {'element': 'CustomMultiChildLayout'},
+                {'element': 'Actions'},
+                _animatedBuilderElement,
+                {'element': 'DefaultTextStyle'}
+              ],
+              'label': 'Button 1',
+              'view.id': 'btn_1',
+              'view.class': 'MaterialButton'
+            }));
       });
     });
 
@@ -173,25 +173,24 @@ void main() {
         await tapMe(tester, sut, 'btn_3');
 
         expect(
-          fixture.getBreadcrumb().data?.replaceHashCodes(),
-          equals({
-            'path': [
-              {'name': 'btn_3', 'element': 'IconButton'},
-              {'element': 'Column'},
-              {'element': 'Center'},
-              {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
-              {'element': 'MediaQuery'},
-              {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
-              {'element': 'CustomMultiChildLayout'},
-              {'element': 'Actions'},
-              _animatedBuilderElement,
-              {'element': 'DefaultTextStyle'},
-            ],
-            'label': 'My Icon',
-            'view.id': 'btn_3',
-            'view.class': 'IconButton',
-          }),
-        );
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'btn_3', 'element': 'IconButton'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
+                {'element': 'CustomMultiChildLayout'},
+                {'element': 'Actions'},
+                _animatedBuilderElement,
+                {'element': 'DefaultTextStyle'}
+              ],
+              'label': 'My Icon',
+              'view.id': 'btn_3',
+              'view.class': 'IconButton'
+            }));
       });
     });
 
@@ -202,25 +201,24 @@ void main() {
         await tapMe(tester, sut, 'btn_2');
 
         expect(
-          fixture.getBreadcrumb().data?.replaceHashCodes(),
-          equals({
-            'path': [
-              {'name': 'btn_2', 'element': 'CupertinoButton'},
-              {'element': 'Column'},
-              {'element': 'Center'},
-              {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
-              {'element': 'MediaQuery'},
-              {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
-              {'element': 'CustomMultiChildLayout'},
-              {'element': 'Actions'},
-              _animatedBuilderElement,
-              {'element': 'DefaultTextStyle'},
-            ],
-            'label': 'Button 2',
-            'view.id': 'btn_2',
-            'view.class': 'CupertinoButton',
-          }),
-        );
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'btn_2', 'element': 'CupertinoButton'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
+                {'element': 'CustomMultiChildLayout'},
+                {'element': 'Actions'},
+                _animatedBuilderElement,
+                {'element': 'DefaultTextStyle'}
+              ],
+              'label': 'Button 2',
+              'view.id': 'btn_2',
+              'view.class': 'CupertinoButton'
+            }));
       });
     });
 
@@ -239,14 +237,14 @@ void main() {
     });
 
     testWidgets(
-      'Add crumb for ElevatedButton within a GestureDetector with label',
-      (tester) async {
-        await tester.runAsync(() async {
-          final sut = fixture.getSut(sendDefaultPii: true);
+        'Add crumb for ElevatedButton within a GestureDetector with label',
+        (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(sendDefaultPii: true);
 
-          await tapMe(tester, sut, 'btn_5');
+        await tapMe(tester, sut, 'btn_5');
 
-          expect(
+        expect(
             fixture.getBreadcrumb().data?.replaceHashCodes(),
             equals({
               'path': [
@@ -259,16 +257,14 @@ void main() {
                 {'element': 'DefaultTextStyle'},
                 {'element': 'AnimatedDefaultTextStyle'},
                 {'element': 'NotificationListener<LayoutChangedNotification>'},
-                {'element': 'CustomPaint'},
+                {'element': 'CustomPaint'}
               ],
               'label': 'Button 5',
               'view.id': 'btn_5',
-              'view.class': 'ButtonStyleButton',
-            }),
-          );
-        });
-      },
-    );
+              'view.class': 'ButtonStyleButton'
+            }));
+      });
+    });
 
     testWidgets('Add crumb for PopupMenuButton', (tester) async {
       await tester.runAsync(() async {
@@ -277,24 +273,23 @@ void main() {
         await tapMe(tester, sut, 'popup_menu_button');
 
         expect(
-          fixture.getBreadcrumb().data?.replaceHashCodes(),
-          equals({
-            'path': [
-              {'name': 'popup_menu_button', 'element': 'PopupMenuButton'},
-              {'element': 'Column'},
-              {'element': 'Center'},
-              {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
-              {'element': 'MediaQuery'},
-              {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
-              {'element': 'CustomMultiChildLayout'},
-              {'element': 'Actions'},
-              _animatedBuilderElement,
-              {'element': 'DefaultTextStyle'},
-            ],
-            'view.id': 'popup_menu_button',
-            'view.class': 'PopupMenuButton',
-          }),
-        );
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'popup_menu_button', 'element': 'PopupMenuButton'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
+                {'element': 'CustomMultiChildLayout'},
+                {'element': 'Actions'},
+                _animatedBuilderElement,
+                {'element': 'DefaultTextStyle'}
+              ],
+              'view.id': 'popup_menu_button',
+              'view.class': 'PopupMenuButton'
+            }));
       });
     });
 
@@ -309,27 +304,26 @@ void main() {
         await tapMe(tester, sut, 'popup_menu_item_1');
 
         expect(
-          fixture.getBreadcrumb().data?.replaceHashCodes(),
-          equals({
-            'path': [
-              {'name': 'popup_menu_item_1', 'element': 'PopupMenuItem'},
-              {'name': '[GlobalKey#00000]', 'element': 'FadeTransition'},
-              {'element': 'ListBody'},
-              {'element': 'Padding'},
-              {'name': '[GlobalKey#00000]', 'element': 'IgnorePointer'},
-              {'element': 'Semantics'},
-              {'element': 'Listener'},
-              {
-                'name': '[LabeledGlobalKey<RawGestureDetectorState>#00000]',
-                'element': 'RawGestureDetector',
-              },
-              {'element': 'Listener'},
-              {'element': 'NotificationListener<ScrollMetricsNotification>'},
-            ],
-            'view.id': 'popup_menu_item_1',
-            'view.class': 'PopupMenuItem',
-          }),
-        );
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'name': 'popup_menu_item_1', 'element': 'PopupMenuItem'},
+                {'name': '[GlobalKey#00000]', 'element': 'FadeTransition'},
+                {'element': 'ListBody'},
+                {'element': 'Padding'},
+                {'name': '[GlobalKey#00000]', 'element': 'IgnorePointer'},
+                {'element': 'Semantics'},
+                {'element': 'Listener'},
+                {
+                  'name': '[LabeledGlobalKey<RawGestureDetectorState>#00000]',
+                  'element': 'RawGestureDetector'
+                },
+                {'element': 'Listener'},
+                {'element': 'NotificationListener<ScrollMetricsNotification>'}
+              ],
+              'view.id': 'popup_menu_item_1',
+              'view.class': 'PopupMenuItem'
+            }));
       });
     });
 
@@ -346,88 +340,74 @@ void main() {
         expect(data?['label'], equals('Button text'));
         expect(data?['view.id'], equals('tooltip_button'));
         expect(data?['view.class'], equals('ButtonStyleButton'));
+        expect(path?.first,
+            equals({'name': 'tooltip_button', 'element': 'ButtonStyleButton'}));
         expect(
-          path?.first,
-          equals({'name': 'tooltip_button', 'element': 'ButtonStyleButton'}),
-        );
-        expect(
-          path?.any(
-            (element) =>
+            path?.any((element) =>
                 element['element'] == 'Tooltip' &&
-                element['label'] == 'Tooltip message.',
-          ),
-          isTrue,
-        );
+                element['label'] == 'Tooltip message.'),
+            isTrue);
       });
     });
 
     // Regression test for https://github.com/getsentry/sentry-dart/issues/1208
     testWidgets(
-      'Add crumb for button on Page2 not Page1 when pages are stacked',
-      (tester) async {
-        await tester.runAsync(() async {
-          final sut = fixture.getSut();
+        'Add crumb for button on Page2 not Page1 when pages are stacked',
+        (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut();
 
-          await tester.pumpWidget(sut);
+        await tester.pumpWidget(sut);
 
-          // Navigate to Page2 (Page1 stays behind in the nav stack).
-          await tester.tap(find.byKey(Key('btn_go_to_page2')));
-          await tester.pumpAndSettle();
+        // Navigate to Page2 (Page1 stays behind in the nav stack).
+        await tester.tap(find.byKey(Key('btn_go_to_page2')));
+        await tester.pumpAndSettle();
 
-          // Page2's btn_page_2 fills the entire screen (SizedBox.expand).
-          // Tap at btn_1's center, which is inside both buttons' bounds.
-          final btn1Center = tester.getCenter(
-            find.byKey(Key('btn_1'), skipOffstage: false),
-          );
-          await tester.tapAt(btn1Center);
+        // Page2's btn_page_2 fills the entire screen (SizedBox.expand).
+        // Tap at btn_1's center, which is inside both buttons' bounds.
+        final btn1Center =
+            tester.getCenter(find.byKey(Key('btn_1'), skipOffstage: false));
+        await tester.tapAt(btn1Center);
 
-          final data = fixture.getBreadcrumb().data;
-          expect(
-            data?['view.id'],
-            equals('btn_page_2'),
-            reason:
-                'Should identify the Page2 button, not the Page1 button '
-                'behind it in the navigation stack',
-          );
-          expect(data?['view.class'], equals('MaterialButton'));
-        });
-      },
-    );
+        final data = fixture.getBreadcrumb().data;
+        expect(data?['view.id'], equals('btn_page_2'),
+            reason: 'Should identify the Page2 button, not the Page1 button '
+                'behind it in the navigation stack');
+        expect(data?['view.class'], equals('MaterialButton'));
+      });
+    });
 
     testWidgets('Add crumb for button without key', (tester) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(sendDefaultPii: true);
 
         await tester.pumpWidget(sut);
-        await tester.tap(
-          find.byElementPredicate((element) {
-            final widget = element.widget;
-            if (widget is MaterialButton) {
-              return (widget.child as Text).data == 'Button 5';
-            }
-            return false;
-          }),
-        );
+        await tester.tap(find.byElementPredicate((element) {
+          final widget = element.widget;
+          if (widget is MaterialButton) {
+            return (widget.child as Text).data == 'Button 5';
+          }
+          return false;
+        }));
 
         expect(
-          fixture.getBreadcrumb().data?.replaceHashCodes(),
-          equals({
-            'path': [
-              {'element': 'MaterialButton'},
-              {'element': 'Column'},
-              {'element': 'Center'},
-              {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
-              {'element': 'MediaQuery'},
-              {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
-              {'element': 'CustomMultiChildLayout'},
-              {'element': 'Actions'},
-              _animatedBuilderElement,
-              {'element': 'DefaultTextStyle'},
-            ],
-            'label': 'Button 5',
-            'view.class': 'MaterialButton',
-          }),
-        );
+            fixture.getBreadcrumb().data?.replaceHashCodes(),
+            equals({
+              'path': [
+                {'element': 'MaterialButton'},
+                {'element': 'Column'},
+                {'element': 'Center'},
+                {'name': '[GlobalKey#00000]', 'element': 'KeyedSubtree'},
+                {'element': 'MediaQuery'},
+                {'name': '_ScaffoldSlot.body', 'element': 'LayoutId'},
+                {'element': 'CustomMultiChildLayout'},
+                {'element': 'Actions'},
+                _animatedBuilderElement,
+                {'element': 'DefaultTextStyle'}
+              ],
+              'label': 'Button 5',
+              'view.class': 'MaterialButton'
+            }));
       });
     });
   });
@@ -442,16 +422,15 @@ void main() {
     testWidgets('Adds integration if enabled', (tester) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(
-          enableUserInteractionTracing: true,
-          enableUserInteractionBreadcrumbs: false,
-        );
+            enableUserInteractionTracing: true,
+            enableUserInteractionBreadcrumbs: false);
 
         await tester.pumpWidget(sut);
 
         expect(
-          fixture._options.sdk.integrations.contains('UserInteractionTracing'),
-          true,
-        );
+            fixture._options.sdk.integrations
+                .contains('UserInteractionTracing'),
+            true);
       });
     });
 
@@ -462,18 +441,17 @@ void main() {
         await tester.pumpWidget(sut);
 
         expect(
-          fixture._options.sdk.integrations.contains('UserInteractionTracing'),
-          false,
-        );
+            fixture._options.sdk.integrations
+                .contains('UserInteractionTracing'),
+            false);
       });
     });
 
     testWidgets('Start transaction and set in the scope', (tester) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(
-          enableUserInteractionTracing: true,
-          enableUserInteractionBreadcrumbs: false,
-        );
+            enableUserInteractionTracing: true,
+            enableUserInteractionBreadcrumbs: false);
 
         await tapMe(tester, sut, 'btn_1');
 
@@ -483,22 +461,18 @@ void main() {
         });
         expect(tracer?.name, 'btn_1');
         expect(tracer?.context.operation, 'ui.action.click');
-        expect(
-          tracer?.transactionNameSource,
-          SentryTransactionNameSource.component,
-        );
+        expect(tracer?.transactionNameSource,
+            SentryTransactionNameSource.component);
         expect(tracer?.autoFinishAfterTimer, isNotNull);
       });
     });
 
-    testWidgets('Start transaction and do not set in the scope if any', (
-      tester,
-    ) async {
+    testWidgets('Start transaction and do not set in the scope if any',
+        (tester) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(
-          enableUserInteractionTracing: true,
-          enableUserInteractionBreadcrumbs: false,
-        );
+            enableUserInteractionTracing: true,
+            enableUserInteractionBreadcrumbs: false);
 
         fixture.hub.configureScope((scope) {
           scope.span = NoOpSentrySpan();
@@ -515,73 +489,67 @@ void main() {
     });
 
     testWidgets(
-      'Cancel transaction if already started for same widget and start new one',
-      (tester) async {
-        await tester.runAsync(() async {
-          final sut = fixture.getSut(
-            enableUserInteractionTracing: true,
-            enableUserInteractionBreadcrumbs: false,
-          );
-
-          await tapMe(tester, sut, 'btn_1');
-          SentryTracer? initialTracer;
-
-          fixture.hub.configureScope((scope) {
-            initialTracer = (scope.span as SentryTracer);
-          });
-
-          await tapMe(tester, sut, 'btn_1');
-
-          SentryTracer? tracer;
-          fixture.hub.configureScope((scope) {
-            tracer = (scope.span as SentryTracer);
-          });
-          expect(initialTracer?.finished, isTrue);
-          expect(initialTracer?.status, equals(SpanStatus.cancelled()));
-
-          expect(initialTracer, isNot(equals(tracer)));
-        });
-      },
-    );
-
-    testWidgets(
-      'Finish transaction if already started with children for same widget and start new one',
-      (tester) async {
-        await tester.runAsync(() async {
-          final sut = fixture.getSut(
-            enableUserInteractionTracing: true,
-            enableUserInteractionBreadcrumbs: false,
-          );
-
-          await tapMe(tester, sut, 'btn_1');
-          SentryTracer? initialTracer;
-
-          await fixture.hub.configureScope((scope) async {
-            initialTracer = (scope.span as SentryTracer);
-            final child = initialTracer?.startChild("btn_1_child");
-            await child?.finish();
-          });
-
-          await tapMe(tester, sut, 'btn_1');
-
-          SentryTracer? tracer;
-          fixture.hub.configureScope((scope) {
-            tracer = (scope.span as SentryTracer);
-          });
-          expect(initialTracer?.finished, isTrue);
-          expect(initialTracer, isNot(equals(tracer)));
-        });
-      },
-    );
-
-    testWidgets('Finish transaction and start new one if new tap', (
-      tester,
-    ) async {
+        'Cancel transaction if already started for same widget and start new one',
+        (tester) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(
-          enableUserInteractionTracing: true,
-          enableUserInteractionBreadcrumbs: false,
-        );
+            enableUserInteractionTracing: true,
+            enableUserInteractionBreadcrumbs: false);
+
+        await tapMe(tester, sut, 'btn_1');
+        SentryTracer? initialTracer;
+
+        fixture.hub.configureScope((scope) {
+          initialTracer = (scope.span as SentryTracer);
+        });
+
+        await tapMe(tester, sut, 'btn_1');
+
+        SentryTracer? tracer;
+        fixture.hub.configureScope((scope) {
+          tracer = (scope.span as SentryTracer);
+        });
+        expect(initialTracer?.finished, isTrue);
+        expect(initialTracer?.status, equals(SpanStatus.cancelled()));
+
+        expect(initialTracer, isNot(equals(tracer)));
+      });
+    });
+
+    testWidgets(
+        'Finish transaction if already started with children for same widget and start new one',
+        (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(
+            enableUserInteractionTracing: true,
+            enableUserInteractionBreadcrumbs: false);
+
+        await tapMe(tester, sut, 'btn_1');
+        SentryTracer? initialTracer;
+
+        await fixture.hub.configureScope((scope) async {
+          initialTracer = (scope.span as SentryTracer);
+          final child = initialTracer?.startChild("btn_1_child");
+          await child?.finish();
+        });
+
+        await tapMe(tester, sut, 'btn_1');
+
+        SentryTracer? tracer;
+        fixture.hub.configureScope((scope) {
+          tracer = (scope.span as SentryTracer);
+        });
+        expect(initialTracer?.finished, isTrue);
+        expect(initialTracer, isNot(equals(tracer)));
+      });
+    });
+
+    testWidgets('Finish transaction and start new one if new tap',
+        (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(
+            enableUserInteractionTracing: true,
+            enableUserInteractionBreadcrumbs: false);
 
         await tapMe(tester, sut, 'btn_1');
         SentryTracer? currentTracer;
@@ -634,9 +602,8 @@ void main() {
       });
     });
 
-    testWidgets('does not start idle span when ui.load span is active', (
-      tester,
-    ) async {
+    testWidgets('does not start idle span when ui.load span is active',
+        (tester) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(
           enableUserInteractionTracing: true,
@@ -648,9 +615,8 @@ void main() {
         fixture.hub.startIdleSpan(
           'ui.load',
           attributes: {
-            SemanticAttributesConstants.sentryOp: SentryAttribute.string(
-              SentrySpanOperations.uiLoad,
-            ),
+            SemanticAttributesConstants.sentryOp:
+                SentryAttribute.string(SentrySpanOperations.uiLoad),
           },
         );
         final loadSpan = fixture.hub.getActiveSpan();
@@ -663,9 +629,8 @@ void main() {
       });
     });
 
-    testWidgets('resets idle timer when same widget is tapped again', (
-      tester,
-    ) async {
+    testWidgets('resets idle timer when same widget is tapped again',
+        (tester) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(
           enableUserInteractionTracing: true,
@@ -687,44 +652,43 @@ void main() {
     });
 
     testWidgets(
-      'cancels previous idle span when tapping different widget after activity',
-      (tester) async {
-        await tester.runAsync(() async {
-          final sut = fixture.getSut(
-            enableUserInteractionTracing: true,
-            enableUserInteractionBreadcrumbs: false,
-            traceLifecycle: SentryTraceLifecycle.stream,
-          );
+        'cancels previous idle span when tapping different widget after activity',
+        (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(
+          enableUserInteractionTracing: true,
+          enableUserInteractionBreadcrumbs: false,
+          traceLifecycle: SentryTraceLifecycle.stream,
+        );
 
-          await tapMe(tester, sut, 'btn_1');
-          final firstSpan = fixture.hub.getActiveSpan();
-          expect(firstSpan, isA<IdleRecordingSentrySpanV2>());
+        await tapMe(tester, sut, 'btn_1');
+        final firstSpan = fixture.hub.getActiveSpan();
+        expect(firstSpan, isA<IdleRecordingSentrySpanV2>());
 
-          // Simulate descendant activity by starting a child span
-          fixture.hub.startSpanSync('child-work', (_) {});
+        // Simulate descendant activity by starting a child span
+        fixture.hub.startSpanSync('child-work', (_) {});
 
-          await Future<void>.delayed(Duration.zero);
-          // Tap a different widget
-          await tapMe(tester, sut, 'btn_2', pumpWidget: false);
+        await Future<void>.delayed(Duration.zero);
+        // Tap a different widget
+        await tapMe(tester, sut, 'btn_2', pumpWidget: false);
 
-          // First span should be cancelled
-          expect(firstSpan!.isEnded, isTrue);
-          expect(firstSpan.status, SentrySpanStatusV2.ok);
-          expect(
-            firstSpan
-                .attributes[SemanticAttributesConstants
-                    .sentryIdleSpanFinishReason]
-                ?.value,
-            'cancelled',
-          );
+        // First span should be cancelled
+        expect(firstSpan!.isEnded, isTrue);
+        expect(firstSpan.status, SentrySpanStatusV2.ok);
+        expect(
+          firstSpan
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
+              ?.value,
+          'cancelled',
+        );
 
-          // New idle span should be started for btn_2
-          final newSpan = fixture.hub.getActiveSpan();
-          expect(newSpan, isA<IdleRecordingSentrySpanV2>());
-          expect(newSpan?.name, 'btn_2');
-        });
-      },
-    );
+        // New idle span should be started for btn_2
+        final newSpan = fixture.hub.getActiveSpan();
+        expect(newSpan, isA<IdleRecordingSentrySpanV2>());
+        expect(newSpan?.name, 'btn_2');
+      });
+    });
   });
 
   // Regression tests for https://github.com/getsentry/sentry-dart/issues/3503
@@ -735,22 +699,20 @@ void main() {
         final hitTestPositions = <Offset>[];
         final hitNotifier = ValueNotifier<Offset?>(null);
 
-        await tester.pumpWidget(
-          fixture.getSut(
-            child: MaterialApp(
-              home: Scaffold(
-                body: GestureDetector(
-                  onTap: () {},
-                  child: HitTestTracker(
-                    hitTestPositions: hitTestPositions,
-                    hitNotifier: hitNotifier,
-                    child: const SizedBox.expand(),
-                  ),
+        await tester.pumpWidget(fixture.getSut(
+          child: MaterialApp(
+            home: Scaffold(
+              body: GestureDetector(
+                onTap: () {},
+                child: HitTestTracker(
+                  hitTestPositions: hitTestPositions,
+                  hitNotifier: hitNotifier,
+                  child: const SizedBox.expand(),
                 ),
               ),
             ),
           ),
-        );
+        ));
 
         hitTestPositions.clear();
 
@@ -763,13 +725,9 @@ void main() {
         await gesture.up();
         await tester.pumpAndSettle();
 
-        expect(
-          hitTestPositions.length,
-          equals(hitTestCountAfterDown),
-          reason:
-              'SentryUserInteractionWidget should not re-trigger '
-              'hitTest on pointerUp',
-        );
+        expect(hitTestPositions.length, equals(hitTestCountAfterDown),
+            reason: 'SentryUserInteractionWidget should not re-trigger '
+                'hitTest on pointerUp');
       },
     );
 
@@ -779,22 +737,20 @@ void main() {
         final hitTestPositions = <Offset>[];
         final hitNotifier = ValueNotifier<Offset?>(null);
 
-        await tester.pumpWidget(
-          fixture.getSut(
-            child: MaterialApp(
-              home: Scaffold(
-                body: GestureDetector(
-                  onTap: () {},
-                  child: HitTestTracker(
-                    hitTestPositions: hitTestPositions,
-                    hitNotifier: hitNotifier,
-                    child: const SizedBox.expand(),
-                  ),
+        await tester.pumpWidget(fixture.getSut(
+          child: MaterialApp(
+            home: Scaffold(
+              body: GestureDetector(
+                onTap: () {},
+                child: HitTestTracker(
+                  hitTestPositions: hitTestPositions,
+                  hitNotifier: hitNotifier,
+                  child: const SizedBox.expand(),
                 ),
               ),
             ),
           ),
-        );
+        ));
 
         final center = tester.getCenter(find.byType(SizedBox).last);
         final gesture = await tester.startGesture(center);
@@ -807,13 +763,9 @@ void main() {
         await gesture.up();
         await tester.pumpAndSettle();
 
-        expect(
-          hitNotifier.value,
-          isNull,
-          reason:
-              'SentryUserInteractionWidget should not overwrite '
-              'hitNotifier during pointerUp',
-        );
+        expect(hitNotifier.value, isNull,
+            reason: 'SentryUserInteractionWidget should not overwrite '
+                'hitNotifier during pointerUp');
       },
     );
   });
@@ -859,7 +811,10 @@ class Fixture {
 
     hub = Hub(_options);
 
-    return SentryUserInteractionWidget(hub: hub, child: child ?? MyApp());
+    return SentryUserInteractionWidget(
+      hub: hub,
+      child: child ?? MyApp(),
+    );
   }
 
   Breadcrumb getBreadcrumb() {
@@ -906,7 +861,10 @@ class Page1 extends StatelessWidget {
             IconButton(
               key: Key('btn_3'),
               onPressed: () {},
-              icon: Icon(Icons.dark_mode, semanticLabel: 'My Icon'),
+              icon: Icon(
+                Icons.dark_mode,
+                semanticLabel: 'My Icon',
+              ),
             ),
             Card(
               child: GestureDetector(
@@ -948,7 +906,10 @@ class Page1 extends StatelessWidget {
                 child: Text('Button text'),
               ),
             ),
-            MaterialButton(onPressed: () {}, child: const Text('Button 5')),
+            MaterialButton(
+              onPressed: () {},
+              child: const Text('Button 5'),
+            ),
           ],
         ),
       ),
@@ -979,29 +940,29 @@ extension on String {
 
 extension on Map<dynamic, dynamic> {
   Map<dynamic, dynamic> replaceHashCodes() => map((key, value) {
-    if (value is String) {
-      value = value.replaceHashCodes();
-    } else if (value is Map) {
-      value = value.replaceHashCodes();
-    } else if (value is List) {
-      value = value.replaceHashCodes();
-    }
-    return MapEntry(key, value);
-  });
+        if (value is String) {
+          value = value.replaceHashCodes();
+        } else if (value is Map) {
+          value = value.replaceHashCodes();
+        } else if (value is List) {
+          value = value.replaceHashCodes();
+        }
+        return MapEntry(key, value);
+      });
 }
 
 extension on List<dynamic> {
   Iterable<dynamic> replaceHashCodes() => map((value) {
-    if (value is String) {
-      return value.replaceHashCodes();
-    } else if (value is Map) {
-      return value.replaceHashCodes();
-    } else if (value is List) {
-      return value.replaceHashCodes();
-    } else {
-      return value;
-    }
-  });
+        if (value is String) {
+          return value.replaceHashCodes();
+        } else if (value is Map) {
+          return value.replaceHashCodes();
+        } else if (value is List) {
+          return value.replaceHashCodes();
+        } else {
+          return value;
+        }
+      });
 }
 
 /// A widget whose [RenderBox] records every [hitTest] call and updates a
@@ -1028,9 +989,7 @@ class HitTestTracker extends SingleChildRenderObjectWidget {
 
   @override
   void updateRenderObject(
-    BuildContext context,
-    RenderHitTestTracker renderObject,
-  ) {
+      BuildContext context, RenderHitTestTracker renderObject) {
     renderObject
       ..hitTestPositions = hitTestPositions
       ..hitNotifier = hitNotifier;
@@ -1041,8 +1000,8 @@ class RenderHitTestTracker extends RenderProxyBox {
   RenderHitTestTracker({
     required List<Offset> hitTestPositions,
     required ValueNotifier<Offset?> hitNotifier,
-  }) : _hitTestPositions = hitTestPositions,
-       _hitNotifier = hitNotifier;
+  })  : _hitTestPositions = hitTestPositions,
+        _hitNotifier = hitNotifier;
 
   List<Offset> _hitTestPositions;
   set hitTestPositions(List<Offset> value) => _hitTestPositions = value;

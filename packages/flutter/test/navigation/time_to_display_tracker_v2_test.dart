@@ -30,8 +30,8 @@ void main() {
         expect(activeSpan.status, SentrySpanStatusV2.ok);
         expect(
           activeSpan
-              .attributes[SemanticAttributesConstants
-                  .sentryIdleSpanFinishReason]
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
               ?.value,
           'cancelled',
         );
@@ -51,8 +51,7 @@ void main() {
         );
         expect(
           activeSpan
-              .attributes[SemanticAttributesConstants.sentryOrigin]
-              ?.value,
+              .attributes[SemanticAttributesConstants.sentryOrigin]?.value,
           SentryTraceOrigins.autoNavigationRouteObserver,
         );
         expect(
@@ -115,21 +114,20 @@ void main() {
       });
 
       test(
-        'does not create TTFD span when enableTimeToFullDisplayTracing is false',
-        () {
-          fixture.options.enableTimeToFullDisplayTracing = false;
-          final sut = fixture.getSut();
-          final childSpans = fixture.captureChildSpans();
+          'does not create TTFD span when enableTimeToFullDisplayTracing is false',
+          () {
+        fixture.options.enableTimeToFullDisplayTracing = false;
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
 
-          sut.trackRoute('/test-route');
+        sut.trackRoute('/test-route');
 
-          final ttfdSpans = childSpans.where(
-            (s) => s.name == '/test-route full display',
-          );
-          expect(ttfdSpans, isEmpty);
-          expect(sut.ttfdSpanId, isNull);
-        },
-      );
+        final ttfdSpans = childSpans.where(
+          (s) => s.name == '/test-route full display',
+        );
+        expect(ttfdSpans, isEmpty);
+        expect(sut.ttfdSpanId, isNull);
+      });
 
       test('creates TTFD span with correct op and origin', () {
         final sut = fixture.getSut();
@@ -162,6 +160,18 @@ void main() {
     });
 
     group('when tracking app start', () {
+      test('adds component segment name source', () {
+        final sut = fixture.getSut();
+
+        final span = sut.trackAppStart();
+
+        expect(
+          span.attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'component',
+        );
+      });
+
       test('returns idle span named root /', () {
         final sut = fixture.getSut();
 
@@ -242,6 +252,20 @@ void main() {
     });
 
     group('when preparing app start', () {
+      test('adds component segment name source', () {
+        final sut = fixture.getSut();
+
+        sut.prepareAppStart();
+
+        expect(
+          fixture.hub
+              .getActiveSpan()
+              ?.attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'component',
+        );
+      });
+
       test('creates idle span eagerly', () {
         final sut = fixture.getSut();
 
@@ -284,8 +308,8 @@ void main() {
         expect(existingSpan.status, SentrySpanStatusV2.ok);
         expect(
           existingSpan
-              .attributes[SemanticAttributesConstants
-                  .sentryIdleSpanFinishReason]
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
               ?.value,
           'cancelled',
         );
@@ -434,8 +458,8 @@ void main() {
         expect(activeSpan.status, SentrySpanStatusV2.ok);
         expect(
           activeSpan
-              .attributes[SemanticAttributesConstants
-                  .sentryIdleSpanFinishReason]
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
               ?.value,
           'cancelled',
         );
@@ -444,9 +468,8 @@ void main() {
       test('cancels an existing idle span not created by the tracker', () {
         final sut = fixture.getSut();
 
-        final externalIdleSpan = fixture.hub.startIdleSpan(
-          'user interaction span',
-        );
+        final externalIdleSpan =
+            fixture.hub.startIdleSpan('user interaction span');
         expect(externalIdleSpan.isEnded, isFalse);
 
         sut.cancelCurrentRoute();
@@ -455,8 +478,8 @@ void main() {
         expect(externalIdleSpan.status, SentrySpanStatusV2.ok);
         expect(
           externalIdleSpan
-              .attributes[SemanticAttributesConstants
-                  .sentryIdleSpanFinishReason]
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
               ?.value,
           'cancelled',
         );
@@ -475,8 +498,8 @@ void main() {
         expect(preparedSpan.status, SentrySpanStatusV2.ok);
         expect(
           preparedSpan
-              .attributes[SemanticAttributesConstants
-                  .sentryIdleSpanFinishReason]
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
               ?.value,
           'cancelled',
         );
