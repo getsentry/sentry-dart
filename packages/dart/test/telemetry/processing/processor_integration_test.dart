@@ -137,10 +137,19 @@ void main() {
 
         expect(fixture.transport.envelopes, isEmpty);
 
-        final discardedEvent = fixture.recorder.discardedEvents.single;
-        expect(discardedEvent.reason, DiscardReason.bufferOverflow);
-        expect(discardedEvent.category, DataCategory.metric);
-        expect(discardedEvent.quantity, 1);
+        expect(fixture.recorder.discardedEvents, hasLength(2));
+
+        final metricCount = fixture.recorder.discardedEvents.firstWhere(
+          (event) => event.category == DataCategory.metric,
+        );
+        expect(metricCount.reason, DiscardReason.bufferOverflow);
+        expect(metricCount.quantity, 1);
+
+        final metricBytes = fixture.recorder.discardedEvents.firstWhere(
+          (event) => event.toJson()['category'] == 'trace_metric_byte',
+        );
+        expect(metricBytes.reason, DiscardReason.bufferOverflow);
+        expect(metricBytes.quantity, greaterThan(1024 * 1024));
       });
 
       test('unencodable metric records internal SDK error client report', () {

@@ -99,6 +99,8 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
         onDrop: (item, {required cause, bytes}) {
           switch (cause) {
             case BufferDropCause.encodeFailed:
+              // No encoded bytes available, so the trace_metric_byte size is
+              // unknown.
               options.recorder.recordLostEvent(
                 DiscardReason.internalSdkError,
                 DataCategory.metric,
@@ -108,6 +110,13 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
                 DiscardReason.bufferOverflow,
                 DataCategory.metric,
               );
+              if (bytes != null) {
+                options.recorder.recordLostEvent(
+                  DiscardReason.bufferOverflow,
+                  DataCategory.metricByte,
+                  count: bytes,
+                );
+              }
           }
         },
         onFlush: (items) {
