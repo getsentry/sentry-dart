@@ -253,6 +253,19 @@ void main() {
         );
       });
 
+      test('adds a custom initial route to the app start span', () async {
+        fixture.options.timeToDisplayTrackerV2.prepareAppStart();
+        fixture.options.timeToDisplayTrackerV2.setAppStartRouteName('/login');
+
+        await fixture.call();
+
+        final appStartSpan = fixture.findSpanByName('Cold Start')!;
+        expect(
+          appStartSpan.attributes['app.vitals.start.screen']?.value,
+          '/login',
+        );
+      });
+
       test('cold start emits legacy cold value and unified value and type',
           () async {
         await fixture.call();
