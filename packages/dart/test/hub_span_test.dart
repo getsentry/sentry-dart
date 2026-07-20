@@ -250,7 +250,7 @@ void main() {
           },
         );
 
-        test('rejects a child of a finished segment root', () {
+        test('allows a finished span to be used as parent', () {
           final hub = fixture.getSut();
           final finishedParent = hub.startInactiveSpan('finished-parent');
           finishedParent.end();
@@ -260,7 +260,8 @@ void main() {
             parentSpan: finishedParent,
           );
 
-          expect(childSpan, isA<NoOpSentrySpanV2>());
+          expect(childSpan, isA<RecordingSentrySpanV2>());
+          expect(childSpan.parentSpan, same(finishedParent));
         });
 
         test('creates root span when parentSpan is explicitly set to null', () {

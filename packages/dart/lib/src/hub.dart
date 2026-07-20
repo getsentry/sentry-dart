@@ -865,9 +865,6 @@ class Hub {
     }
 
     final RecordingSentrySpanV2 span;
-    if (resolvedParentSpan?.segmentSpan.isEnded ?? false) {
-      return NoOpSentrySpanV2.instance;
-    }
     if (resolvedParentSpan == null) {
       final samplingDecision = _sampleForRootSpan(name, attributes);
       if (samplingDecision == null) return NoOpSentrySpanV2.instance;
