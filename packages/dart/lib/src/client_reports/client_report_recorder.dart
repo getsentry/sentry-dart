@@ -34,6 +34,19 @@ class ClientReportRecorder {
     }
   }
 
+  /// Records dropped metrics as a [DataCategory.metric] count and, when the
+  /// size is known, an additional [DataCategory.metricByte] outcome.
+  ///
+  /// Pass a null [bytes] when the size cannot be determined. The byte outcome
+  /// is then omitted rather than reported as zero.
+  void recordLostMetric(final DiscardReason reason,
+      {int count = 1, int? bytes}) {
+    recordLostEvent(reason, DataCategory.metric, count: count);
+    if (bytes != null) {
+      recordLostEvent(reason, DataCategory.metricByte, count: bytes);
+    }
+  }
+
   ClientReport? flush() {
     if (_quantities.isEmpty) {
       return null;

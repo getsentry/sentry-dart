@@ -3,7 +3,6 @@ import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/telemetry/processing/in_memory_buffer.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
-import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import '../../mocks/mock_hub.dart';
@@ -137,19 +136,10 @@ void main() {
 
         expect(fixture.transport.envelopes, isEmpty);
 
-        expect(fixture.recorder.discardedEvents, hasLength(2));
-
-        final metricCount = fixture.recorder.discardedEvents.firstWhere(
-          (event) => event.category == DataCategory.metric,
-        );
-        expect(metricCount.reason, DiscardReason.bufferOverflow);
-        expect(metricCount.quantity, 1);
-
-        final metricBytes = fixture.recorder.discardedEvents.firstWhere(
-          (event) => event.toJson()['category'] == 'trace_metric_byte',
-        );
-        expect(metricBytes.reason, DiscardReason.bufferOverflow);
-        expect(metricBytes.quantity, greaterThan(1024 * 1024));
+        final lostMetric = fixture.recorder.lostMetrics.single;
+        expect(lostMetric.reason, DiscardReason.bufferOverflow);
+        expect(lostMetric.count, 1);
+        expect(lostMetric.bytes, greaterThan(1024 * 1024));
       });
 
       test('unencodable metric records internal SDK error client report', () {
@@ -162,10 +152,10 @@ void main() {
 
         expect(fixture.transport.envelopes, isEmpty);
 
-        final discardedEvent = fixture.recorder.discardedEvents.single;
-        expect(discardedEvent.reason, DiscardReason.internalSdkError);
-        expect(discardedEvent.category, DataCategory.metric);
-        expect(discardedEvent.quantity, 1);
+        final lostMetric = fixture.recorder.lostMetrics.single;
+        expect(lostMetric.reason, DiscardReason.internalSdkError);
+        expect(lostMetric.count, 1);
+        expect(lostMetric.bytes, isNull);
       });
 
       test('span reaches transport as envelope', () async {

@@ -2,7 +2,6 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import '../../client_reports/discard_reason.dart';
-import '../../transport/data_category.dart';
 import '../../utils/internal_logger.dart';
 import 'in_memory_buffer.dart';
 import 'processor.dart';
@@ -101,22 +100,14 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
             case BufferDropCause.encodeFailed:
               // No encoded bytes available, so the trace_metric_byte size is
               // unknown.
-              options.recorder.recordLostEvent(
+              options.recorder.recordLostMetric(
                 DiscardReason.internalSdkError,
-                DataCategory.metric,
               );
             case BufferDropCause.tooLarge:
-              options.recorder.recordLostEvent(
+              options.recorder.recordLostMetric(
                 DiscardReason.bufferOverflow,
-                DataCategory.metric,
+                bytes: bytes,
               );
-              if (bytes != null) {
-                options.recorder.recordLostEvent(
-                  DiscardReason.bufferOverflow,
-                  DataCategory.metricByte,
-                  count: bytes,
-                );
-              }
           }
         },
         onFlush: (items) {
