@@ -445,4 +445,9 @@ class SentryNativeChannel
   FutureOr<void> registerTraceId(SentryId traceId) {
     // No-op. Replay trace ID registration is currently Android-only.
   }
+
+  @override
+  FutureOr<void> registerSegmentName(String segmentName) {
+    // No-op. Replay segment name registration is currently Android-only.
+  }
 }

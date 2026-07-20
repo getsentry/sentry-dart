@@ -399,6 +399,54 @@ void main() {
         expect(ttidSpan.startTimestamp, routeStart);
         expect(ttidSpan.endTimestamp, ttidEnd);
       });
+
+      test('keeps the first initial route name', () {
+        final sut = fixture.getSut();
+
+        sut.prepareAppStart();
+        final firstRouteWasSet = sut.setAppStartRouteName('/login');
+        final secondRouteWasSet = sut.setAppStartRouteName('/dashboard');
+        final routeSpan = sut.trackAppStart();
+
+        expect(firstRouteWasSet, isTrue);
+        expect(secondRouteWasSet, isFalse);
+        expect(routeSpan.name, '/login');
+      });
+
+      test('uses a custom initial route for prepared app start spans', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+
+        sut.prepareAppStart();
+        sut.setAppStartRouteName('/login');
+        final routeSpan = sut.trackAppStart();
+
+        expect(routeSpan.name, '/login');
+        expect(
+          childSpans.map((span) => span.name),
+          containsAll([
+            '/login initial display',
+            '/login full display',
+          ]),
+        );
+      });
+
+      test('uses root name for an unknown or slash initial route', () {
+        for (final routeName in <String?>[null, '/']) {
+          final localFixture = Fixture();
+          final sut = localFixture.getSut();
+
+          sut.prepareAppStart();
+          sut.setAppStartRouteName(routeName);
+          final routeSpan = sut.trackAppStart();
+
+          expect(
+            routeSpan.name,
+            'root /',
+            reason: 'Unexpected app start name for route $routeName',
+          );
+        }
+      });
     });
 
     group('when reporting fully displayed', () {
