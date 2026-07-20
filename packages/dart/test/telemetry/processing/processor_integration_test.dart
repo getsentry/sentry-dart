@@ -3,6 +3,7 @@ import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/telemetry/processing/in_memory_buffer.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import '../../mocks/mock_hub.dart';
@@ -124,6 +125,40 @@ void main() {
         expect(lostLog.bytes, greaterThan(1024 * 1024));
       });
 
+      test('oversized metric records buffer overflow client report', () {
+        final options = fixture.options;
+        fixture.getSut().call(fixture.hub, options);
+
+        final processor =
+            options.telemetryProcessor as DefaultTelemetryProcessor;
+        processor.addMetric(
+          fixture.createMetric(name: 'x' * (1024 * 1024)),
+        );
+
+        expect(fixture.transport.envelopes, isEmpty);
+
+        final discardedEvent = fixture.recorder.discardedEvents.single;
+        expect(discardedEvent.reason, DiscardReason.bufferOverflow);
+        expect(discardedEvent.category, DataCategory.metric);
+        expect(discardedEvent.quantity, 1);
+      });
+
+      test('unencodable metric records internal SDK error client report', () {
+        final options = fixture.options;
+        fixture.getSut().call(fixture.hub, options);
+
+        final processor =
+            options.telemetryProcessor as DefaultTelemetryProcessor;
+        processor.addMetric(fixture.createUnencodableMetric());
+
+        expect(fixture.transport.envelopes, isEmpty);
+
+        final discardedEvent = fixture.recorder.discardedEvents.single;
+        expect(discardedEvent.reason, DiscardReason.internalSdkError);
+        expect(discardedEvent.category, DataCategory.metric);
+        expect(discardedEvent.quantity, 1);
+      });
+
       test('span reaches transport as envelope', () async {
         final options = fixture.options;
         fixture.getSut().call(fixture.hub, options);
@@ -232,6 +267,22 @@ class _Fixture {
     );
   }
 
+  SentryMetric createMetric({String name = 'test metric', num value = 1}) {
+    return SentryCounterMetric(
+      timestamp: DateTime.now().toUtc(),
+      traceId: SentryId.newId(),
+      name: name,
+      value: value,
+    );
+  }
+
+  SentryMetric createUnencodableMetric() {
+    return _UnencodableMetric(
+      timestamp: DateTime.now().toUtc(),
+      traceId: SentryId.newId(),
+    );
+  }
+
   RecordingSentrySpanV2 createSpan() {
     return RecordingSentrySpanV2.root(
       name: 'test-span',
@@ -243,4 +294,12 @@ class _Fixture {
       samplingDecision: SentryTracesSamplingDecision(true),
     );
   }
+}
+
+final class _UnencodableMetric extends SentryMetric {
+  _UnencodableMetric({required super.timestamp, required super.traceId})
+      : super(type: 'counter', name: 'test metric', value: 1);
+
+  @override
+  Map<String, dynamic> toJson() => throw StateError('Encoding failed');
 }

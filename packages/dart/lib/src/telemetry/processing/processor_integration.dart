@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import '../../client_reports/discard_reason.dart';
+import '../../transport/data_category.dart';
 import '../../utils/internal_logger.dart';
 import 'in_memory_buffer.dart';
 import 'processor.dart';
@@ -95,6 +96,20 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
   ) =>
       InMemoryTelemetryBuffer(
         encoder: (SentryMetric item) => utf8JsonEncoder.convert(item.toJson()),
+        onDrop: (item, {required cause, bytes}) {
+          switch (cause) {
+            case BufferDropCause.encodeFailed:
+              options.recorder.recordLostEvent(
+                DiscardReason.internalSdkError,
+                DataCategory.metric,
+              );
+            case BufferDropCause.tooLarge:
+              options.recorder.recordLostEvent(
+                DiscardReason.bufferOverflow,
+                DataCategory.metric,
+              );
+          }
+        },
         onFlush: (items) {
           final envelope = SentryEnvelope.fromMetricsData(
             items.map((item) => item).toList(),
