@@ -16,7 +16,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   final AppStartData _data;
   final SentryTracer _root;
   final ISentrySpan _firstFrameBarrier;
-  final String Function() _startScreenName;
+  final String Function() _startScreenNameProvider;
 
   DateTime? _endTimestamp;
   bool _completed = false;
@@ -26,16 +26,16 @@ final class StaticAppStartTrace implements AppStartTrace {
     required AppStartData data,
     required SentryTracer root,
     required ISentrySpan firstFrameBarrier,
-    required String Function() startScreenName,
+    required String Function() startScreenNameProvider,
   })  : _data = data,
         _root = root,
         _firstFrameBarrier = firstFrameBarrier,
-        _startScreenName = startScreenName;
+        _startScreenNameProvider = startScreenNameProvider;
 
   static StaticAppStartTrace? tryCreate({
     required Hub hub,
     required AppStartData data,
-    required String Function() startScreenName,
+    required String Function() startScreenNameProvider,
   }) {
     StaticAppStartTrace? trace;
     try {
@@ -67,7 +67,7 @@ final class StaticAppStartTrace implements AppStartTrace {
         data: data,
         root: createdRoot,
         firstFrameBarrier: firstFrameBarrier,
-        startScreenName: startScreenName,
+        startScreenNameProvider: startScreenNameProvider,
       );
       for (final phase in data.phases) {
         final child = createdRoot.startChild(
@@ -116,7 +116,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       _root.setData(SemanticAttributesConstants.appVitalsStartType, type);
       _root.setData(
         SemanticAttributesConstants.appVitalsStartScreen,
-        _startScreenName(),
+        _startScreenNameProvider(),
       );
 
       final endTimestamp = _endTimestamp;

@@ -106,15 +106,13 @@ class SentryTracer extends ISentrySpan {
     _dispatchOnSpanStart(_rootSpan);
   }
 
-  bool get _isTerminal => _captured;
-
   @override
   Future<void> finish({
     SpanStatus? status,
     DateTime? endTimestamp,
     Hint? hint,
   }) {
-    if (_isTerminal) return Future.value();
+    if (_captured) return Future.value();
     final inFlight = _finalizeFuture;
     if (inFlight != null) return inFlight;
 
@@ -139,7 +137,7 @@ class SentryTracer extends ISentrySpan {
     required DateTime endTimestamp,
     Hint? hint,
   }) {
-    if (_isTerminal) return Future.value();
+    if (_captured) return Future.value();
     final inFlight = _finalizeFuture;
     if (inFlight != null) return inFlight;
 
@@ -260,7 +258,6 @@ class SentryTracer extends ISentrySpan {
   bool tryScheduleFinalTimeout(DateTime deadlineTimestamp) {
     if (_finalDeadlineTimestamp != null ||
         _finalizeFuture != null ||
-        _isTerminal ||
         finished) {
       return false;
     }
@@ -278,7 +275,7 @@ class SentryTracer extends ISentrySpan {
   }
 
   Future<void> _finishAtDeadline() {
-    if (_isTerminal) return Future.value();
+    if (_captured) return Future.value();
 
     _deadlineFinalization = true;
     _requestedStatus = SpanStatus.deadlineExceeded();
@@ -439,9 +436,9 @@ class SentryTracer extends ISentrySpan {
   Map<String, dynamic> get data => Map.unmodifiable(_extra);
 
   @override
-  bool get finished => _rootSpan.finished || _isTerminal;
+  bool get finished => _rootSpan.finished || _captured;
 
-  bool get _acceptsChildren => !_isTerminal && _finalizeFuture == null;
+  bool get _acceptsChildren => !_captured && _finalizeFuture == null;
 
   List<SentrySpan> get children => _children;
 

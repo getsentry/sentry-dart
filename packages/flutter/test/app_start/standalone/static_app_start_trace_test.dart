@@ -184,7 +184,7 @@ class Fixture {
     return StaticAppStartTrace.tryCreate(
       hub: hub,
       data: data,
-      startScreenName: () => 'root /',
+      startScreenNameProvider: () => 'root /',
     );
   }
 }

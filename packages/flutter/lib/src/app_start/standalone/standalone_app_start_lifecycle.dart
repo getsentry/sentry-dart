@@ -25,21 +25,19 @@ class StandaloneAppStartLifecycle {
   AppStartTrace? _trace;
   String? _startScreenName;
 
-  StandaloneAppStartLifecycle({
-    Hub? hub,
-    FrameCallbackHandler? frameCallbackHandler,
-    required SentryNativeBinding native,
-  })  : _hub = hub ?? HubAdapter(),
-        _frameCallbackHandler =
-            frameCallbackHandler ?? DefaultFrameCallbackHandler(),
-        _native = native;
-
-  /// HubAdapter may already point at a closed/NoOp hub with plain
-  /// [SentryOptions] during [Sentry.close]; treat that as unavailable.
   SentryFlutterOptions? get _flutterOptions {
     final options = _hub.options;
     return options is SentryFlutterOptions ? options : null;
   }
+
+  StandaloneAppStartLifecycle({
+    Hub? hub,
+    FrameCallbackHandler? frameCallbackHandler,
+    required SentryNativeBinding native,
+  }) : _hub = hub ?? HubAdapter(),
+       _frameCallbackHandler =
+           frameCallbackHandler ?? DefaultFrameCallbackHandler(),
+       _native = native;
 
   Future<void> start() async {
     AppStartData? data;
@@ -87,26 +85,28 @@ class StandaloneAppStartLifecycle {
     final options = _flutterOptions;
     if (options == null) return null;
 
-    String _resolvedStartScreenName() {
-      final name = _startScreenName;
-      if (name == null || name.isEmpty || name == '/') {
-        return _defaultStartScreenName;
-      }
-      return name;
-    }
-
+    // Resolve the app-start screen name during trace enrichment, not trace
+    // creation. Its route is captured only at the first valid frame.
     return switch (options.traceLifecycle) {
       SentryTraceLifecycle.static => StaticAppStartTrace.tryCreate(
-          hub: _hub,
-          data: data,
-          startScreenName: _resolvedStartScreenName,
-        ),
+        hub: _hub,
+        data: data,
+        startScreenNameProvider: _resolveStartScreenName,
+      ),
       SentryTraceLifecycle.stream => StreamingAppStartTrace.tryCreate(
-          hub: _hub,
-          data: data,
-          startScreenName: _resolvedStartScreenName,
-        ),
+        hub: _hub,
+        data: data,
+        startScreenNameProvider: _resolveStartScreenName,
+      ),
     };
+  }
+
+  String _resolveStartScreenName() {
+    final name = _startScreenName;
+    if (name == null || name.isEmpty || name == '/') {
+      return _defaultStartScreenName;
+    }
+    return name;
   }
 
   void _prepareTimeToDisplay(DateTime startTimestamp) {
@@ -131,7 +131,6 @@ class StandaloneAppStartLifecycle {
         timings.first.timestampInMicroseconds(FramePhase.rasterFinishWallTime),
       );
 
-      // Remove the callback directly after to avoid being called again.
       _frameCallbackHandler.removeTimingsCallback(callback);
 
       try {
@@ -172,7 +171,6 @@ class StandaloneAppStartLifecycle {
 
   Future<void> close() async {
     await _trace?.close();
-    // Skip tracker cleanup when the hub already exposes plain SentryOptions.
     final options = _flutterOptions;
     if (options != null) {
       switch (options.traceLifecycle) {

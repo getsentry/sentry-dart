@@ -13,7 +13,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   final AppStartData _data;
   final IdleRecordingSentrySpanV2 _root;
   final RecordingSentrySpanV2 _firstFrameBarrier;
-  final String Function() _startScreenName;
+  final String Function() _startScreenNameProvider;
 
   late final SdkLifecycleCallback<OnProcessSpan> _processCallback;
   DateTime? _endTimestamp;
@@ -25,17 +25,17 @@ final class StreamingAppStartTrace implements AppStartTrace {
     required AppStartData data,
     required IdleRecordingSentrySpanV2 root,
     required RecordingSentrySpanV2 firstFrameBarrier,
-    required String Function() startScreenName,
+    required String Function() startScreenNameProvider,
   })  : _hub = hub,
         _data = data,
         _root = root,
         _firstFrameBarrier = firstFrameBarrier,
-        _startScreenName = startScreenName;
+        _startScreenNameProvider = startScreenNameProvider;
 
   static StreamingAppStartTrace? tryCreate({
     required Hub hub,
     required AppStartData data,
-    required String Function() startScreenName,
+    required String Function() startScreenNameProvider,
   }) {
     try {
       final createdRoot = hub.startIdleSpan(
@@ -74,7 +74,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
         data: data,
         root: createdRoot,
         firstFrameBarrier: firstFrameBarrier,
-        startScreenName: startScreenName,
+        startScreenNameProvider: startScreenNameProvider,
       );
       trace._processCallback = trace._processSpan;
       for (final phase in data.phases) {
@@ -136,7 +136,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
       );
       _root.setAttribute(
         SemanticAttributesConstants.appVitalsStartScreen,
-        SentryAttribute.string(_startScreenName()),
+        SentryAttribute.string(_startScreenNameProvider()),
       );
       _root.setAttribute(
         SemanticAttributesConstants.sentrySegmentName,

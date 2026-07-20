@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
-/// Standalone root transaction / segment name.
 @internal
 const standaloneAppStartRootName = 'App Start';
 

@@ -155,7 +155,7 @@ class Fixture {
     return StreamingAppStartTrace.tryCreate(
       hub: hub,
       data: data,
-      startScreenName: () => 'root /',
+      startScreenNameProvider: () => 'root /',
     );
   }
 }

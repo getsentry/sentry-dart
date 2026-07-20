@@ -146,11 +146,12 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     _cancelTimers();
     _removeLifecycleCallbacks();
 
-    final idleEndTimestamp = reason == _IdleSpanFinishReason.finalTimeout
+    final deadlineExceeded = reason == _IdleSpanFinishReason.finalTimeout;
+    final idleEndTimestamp = deadlineExceeded
         ? _finalDeadlineTimestamp
         : _resolveIdleEndTimestamp(requestedEndTimestamp);
 
-    if (reason == _IdleSpanFinishReason.finalTimeout) {
+    if (deadlineExceeded) {
       status = SentrySpanStatusV2.error;
       setAttribute(
         SemanticAttributesConstants.sentryStatusMessage,
@@ -160,7 +161,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
 
     _finishActiveDescendants(
       idleEndTimestamp,
-      deadlineExceeded: reason == _IdleSpanFinishReason.finalTimeout,
+      deadlineExceeded: deadlineExceeded,
     );
     _activeDescendants.clear();
 
