@@ -437,8 +437,8 @@ class SentryFile implements File {
     final Map<String, dynamic> breadcrumbData = {};
 
     if (_hub.options.sendDefaultPii) {
-      span?.setData('file.path', absolute.path);
-      breadcrumbData['file.path'] = absolute.path;
+      span?.setData(ProposedSemanticAttributes.filePath, absolute.path);
+      breadcrumbData[ProposedSemanticAttributes.filePath] = absolute.path;
     }
     T data;
     try {
@@ -464,8 +464,8 @@ class SentryFile implements File {
       }
 
       if (length != null) {
-        span?.setData('file.size', length);
-        breadcrumbData['file.size'] = length;
+        span?.setData(ProposedSemanticAttributes.fileSize, length);
+        breadcrumbData[ProposedSemanticAttributes.fileSize] = length;
       }
 
       span?.status = SpanStatus.ok();
@@ -505,8 +505,8 @@ class SentryFile implements File {
     final Map<String, dynamic> breadcrumbData = {};
 
     if (_hub.options.sendDefaultPii) {
-      span?.setData('file.path', absolute.path);
-      breadcrumbData['file.path'] = absolute.path;
+      span?.setData(ProposedSemanticAttributes.filePath, absolute.path);
+      breadcrumbData[ProposedSemanticAttributes.filePath] = absolute.path;
     }
 
     T data;
@@ -533,8 +533,8 @@ class SentryFile implements File {
       }
 
       if (length != null) {
-        span?.setData('file.size', length);
-        breadcrumbData['file.size'] = length;
+        span?.setData(ProposedSemanticAttributes.fileSize, length);
+        breadcrumbData[ProposedSemanticAttributes.fileSize] = length;
       }
 
       span?.status = SpanStatus.ok();

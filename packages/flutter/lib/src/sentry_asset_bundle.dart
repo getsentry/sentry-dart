@@ -80,7 +80,9 @@ class SentryAssetBundle implements AssetBundle {
       'loadBuffer',
       key,
       () => _bundle.loadBuffer(key),
-      updateInnerSpan: (innerSpan) => innerSpan?.setData('file.path', key),
+      updateInnerSpan: (innerSpan) =>
+          // ignore: invalid_use_of_internal_member
+          innerSpan?.setData(ProposedSemanticAttributes.filePath, key),
     );
   }
 
@@ -150,7 +152,8 @@ class SentryAssetBundle implements AssetBundle {
     }
 
     final span = outerSpan?.startChild('file.read', description: description);
-    span?.setData('file.path', key);
+    // ignore: invalid_use_of_internal_member
+    span?.setData(ProposedSemanticAttributes.filePath, key);
     // ignore: invalid_use_of_internal_member
     span?.origin = SentryTraceOrigins.autoFileAssetBundle;
 
@@ -242,7 +245,8 @@ class SentryAssetBundle implements AssetBundle {
       byteLength = data.length;
     }
     if (byteLength != null) {
-      span?.setData('file.size', byteLength);
+      // ignore: invalid_use_of_internal_member
+      span?.setData(ProposedSemanticAttributes.fileSize, byteLength);
     }
   }
 

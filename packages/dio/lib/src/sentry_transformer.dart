@@ -35,7 +35,10 @@ class SentryTransformer implements Transformer {
           )
         : null;
 
-    span?.setData('http.request.method', options.method);
+    span?.setData(
+      SemanticAttributesConstants.httpRequestMethod,
+      options.method,
+    );
     span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
 
     urlDetails?.applyToSpan(span);
@@ -75,7 +78,10 @@ class SentryTransformer implements Transformer {
           )
         : null;
 
-    span?.setData('http.request.method', options.method);
+    span?.setData(
+      SemanticAttributesConstants.httpRequestMethod,
+      options.method,
+    );
     span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
 
     urlDetails?.applyToSpan(span);

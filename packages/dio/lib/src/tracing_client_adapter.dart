@@ -66,7 +66,10 @@ class TracingClientAdapter implements HttpClientAdapter {
 
     instrumentationSpan?.origin =
         SentryTraceOrigins.autoHttpDioHttpClientAdapter;
-    instrumentationSpan?.setData('http.request.method', options.method);
+    instrumentationSpan?.setData(
+      SemanticAttributesConstants.httpRequestMethod,
+      options.method,
+    );
     urlDetails?.applyToSpan(instrumentationSpan);
 
     ResponseBody? response;
@@ -75,14 +78,14 @@ class TracingClientAdapter implements HttpClientAdapter {
       instrumentationSpan?.status =
           SpanStatus.fromHttpStatusCode(response.statusCode);
       instrumentationSpan?.setData(
-        'http.response.status_code',
+        SemanticAttributesConstants.httpResponseStatusCode,
         response.statusCode,
       );
       final contentLengthHeader =
           HttpHeaderUtils.getContentLength(response.headers);
       if (contentLengthHeader != null) {
         instrumentationSpan?.setData(
-          'http.response_content_length',
+          SemanticAttributesConstants.httpResponseBodySize,
           contentLengthHeader,
         );
       }

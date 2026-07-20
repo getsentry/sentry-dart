@@ -140,6 +140,17 @@ void main() {
         expect(attr?.value, ['a', 'b']);
       });
 
+      test('adds sentry.trace_lifecycle stream attribute', () async {
+        final span = fixture.createRecordingSpan();
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        expect(
+          span.attributes[SemanticAttributesConstants.sentryTraceLifecycle]
+              ?.value,
+          'stream',
+        );
+      });
+
       test('does not add spans to processor for no-op spans', () async {
         await fixture.pipeline
             .captureSpan(const NoOpSentrySpanV2(), scope: fixture.scope);

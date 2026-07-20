@@ -62,11 +62,11 @@ void main() {
         equals('db'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('flutter_hive'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbName]?.value,
+        span.attributes[SemanticAttributesConstants.dbNamespace]?.value,
         equals('test-box'),
       );
       expect(span.attributes['sync']?.value, equals(true));
@@ -108,11 +108,11 @@ void main() {
         equals('db'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('flutter_hive'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbName]?.value,
+        span.attributes[SemanticAttributesConstants.dbNamespace]?.value,
         equals('test-box'),
       );
       expect(span.parentSpan, equals(transactionSpan));

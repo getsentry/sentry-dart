@@ -121,6 +121,34 @@ void main() {
       expect(tr.transaction.extra?['test'], {'key': 'value'});
     });
 
+    test('sets sentry.trace_lifecycle to static on trace context', () async {
+      final sut = fixture.getSut();
+
+      await sut.finish();
+
+      final tr = fixture.hub.captureTransactionCalls.first;
+      expect(
+        tr.transaction.contexts.trace
+            ?.data?[SemanticAttributesConstants.sentryTraceLifecycle],
+        'static',
+      );
+    });
+
+    test('sets sentry.trace_lifecycle to static on child spans', () async {
+      final sut = fixture.getSut();
+      final child = sut.startChild('operation');
+      await child.finish();
+
+      await sut.finish();
+
+      final tr = fixture.hub.captureTransactionCalls.first;
+      expect(
+        tr.transaction.spans.first
+            .data[SemanticAttributesConstants.sentryTraceLifecycle],
+        'static',
+      );
+    });
+
     test('tracer starts child', () async {
       final sut = fixture.getSut();
 

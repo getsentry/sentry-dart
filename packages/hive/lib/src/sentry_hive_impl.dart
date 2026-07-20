@@ -21,14 +21,7 @@ class SentryHiveImpl implements SentryHiveInterface {
 
   @internal
   // ignore: public_member_api_docs
-  static const dbSystemKey = 'db.system';
-  @internal
-  // ignore: public_member_api_docs
-  static const dbSystem = 'flutter_hive';
-
-  @internal
-  // ignore: public_member_api_docs
-  static const dbNameKey = 'db.name';
+  static const dbSystemName = 'flutter_hive';
 
   final HiveInterface _hive;
   Hub _hub = HubAdapter();

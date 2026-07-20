@@ -65,7 +65,7 @@ void main() {
         equals('db.sql.query'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('sqlite'),
       );
       expect(
@@ -116,7 +116,7 @@ void main() {
         equals('db.sql.execute'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('sqlite'),
       );
       expect(span.parentSpan, equals(transactionSpan));
@@ -163,7 +163,7 @@ void main() {
         equals('db.sql.transaction'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('sqlite'),
       );
       expect(span.parentSpan, equals(transactionSpan));

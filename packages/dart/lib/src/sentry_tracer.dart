@@ -151,6 +151,16 @@ class SentryTracer extends ISentrySpan {
       final transaction = SentryTransaction(this);
       transaction.measurements.addAll(_measurements);
 
+      final trace = transaction.contexts.trace;
+      if (trace != null &&
+          _hub.options.traceLifecycle == SentryTraceLifecycle.static) {
+        trace.data = {
+          ...?trace.data,
+          SemanticAttributesConstants.sentryTraceLifecycle:
+              SentryTraceLifecycle.static.name,
+        };
+      }
+
       profileInfo = (status == null || status == SpanStatus.ok())
           ? await profiler?.finishFor(transaction)
           : null;
@@ -261,6 +271,13 @@ class SentryTracer extends ISentrySpan {
       startTimestamp: startTimestamp,
       finishedCallback: _finishedCallback,
     );
+
+    if (_hub.options.traceLifecycle == SentryTraceLifecycle.static) {
+      child.setData(
+        SemanticAttributesConstants.sentryTraceLifecycle,
+        SentryTraceLifecycle.static.name,
+      );
+    }
 
     _children.add(child);
 

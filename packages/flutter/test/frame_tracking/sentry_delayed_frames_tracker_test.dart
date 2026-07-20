@@ -233,6 +233,21 @@ void main() {
       );
       expect(sut.delayedFrames.length, 1);
     });
+
+    test(
+        'removeIrrelevantFrames safely sets oldestFrameEndTimestamp to null when all frames are removed',
+        () {
+      sut.addDelayedFrame(DateTime.fromMillisecondsSinceEpoch(20),
+          DateTime.fromMillisecondsSinceEpoch(50));
+
+      expect(sut.delayedFrames.length, 1);
+
+      // Remove all frames by providing a spanStartTimestamp that is after all frames
+      sut.removeIrrelevantFrames(DateTime.fromMillisecondsSinceEpoch(60));
+
+      expect(sut.delayedFrames, isEmpty);
+      expect(sut.oldestFrameEndTimestamp, isNull);
+    });
   });
 
   group('when enableFramesTracking is false', () {

@@ -23,8 +23,8 @@ void main() {
     expect(span?.status, SpanStatus.ok());
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbHiveLazyBox);
-    expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
-    expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
+    expect(span?.data['db.system.name'], 'flutter_hive');
+    expect(span?.data['db.namespace'], Fixture.dbName);
   }
 
   void verifyErrorSpan(
@@ -37,8 +37,8 @@ void main() {
     expect(span?.status, SpanStatus.internalError());
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbHiveLazyBox);
-    expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
-    expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
+    expect(span?.data['db.system.name'], 'flutter_hive');
+    expect(span?.data['db.namespace'], Fixture.dbName);
 
     expect(span?.throwable, exception);
   }
@@ -55,7 +55,7 @@ void main() {
     );
     expect(crumb?.type, 'query');
     if (checkName) {
-      expect(crumb?.data?[SentryHiveImpl.dbNameKey], Fixture.dbName);
+      expect(crumb?.data?['db.namespace'], Fixture.dbName);
     }
     expect(crumb?.data?['status'], status);
   }

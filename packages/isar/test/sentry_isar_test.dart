@@ -24,7 +24,7 @@ void main() {
     expect(span?.status, SpanStatus.ok());
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbIsar);
-    expect(span?.data[SentryIsar.dbNameKey], Fixture.dbName);
+    expect(span?.data['db.namespace'], Fixture.dbName);
   }
 
   void verifyErrorSpan(String description, SentrySpan? span, Exception error) {
@@ -46,7 +46,7 @@ void main() {
       message,
     );
     expect(crumb?.type, 'query');
-    expect(crumb?.data?[SentryIsar.dbNameKey], Fixture.dbName);
+    expect(crumb?.data?['db.namespace'], Fixture.dbName);
     expect(crumb?.data?['status'], status);
     if (status != 'ok') {
       expect(crumb?.level, SentryLevel.warning);
@@ -151,7 +151,7 @@ void main() {
       expect(span?.status, SpanStatus.ok());
       // ignore: invalid_use_of_internal_member
       expect(span?.origin, SentryTraceOrigins.autoDbIsar);
-      expect(span?.data[SentryIsar.dbNameKey], Fixture.dbName);
+      expect(span?.data['db.namespace'], Fixture.dbName);
       expect(span?.data['sync'], true);
     }
 

@@ -20,6 +20,12 @@ void main() {
     expect(client, options.httpClient);
   });
 
+  test('captureNativeFailedRequests is false by default', () {
+    final options = defaultTestOptions();
+
+    expect(options.captureNativeFailedRequests, false);
+  });
+
   test('maxBreadcrumbs is 100 by default', () {
     final options = defaultTestOptions();
 
