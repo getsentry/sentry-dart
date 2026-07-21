@@ -19,7 +19,6 @@ import 'package:hive/src/box_collection/box_collection_stub.dart' as stub;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i6;
 import 'package:sentry/sentry.dart' as _i2;
-import 'package:sentry/src/profiling.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -110,12 +109,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
         Invocation.getter(#scope),
         returnValue: _FakeScope_2(this, Invocation.getter(#scope)),
       ) as _i2.Scope);
-
-  @override
-  set profilerFactory(_i4.SentryProfilerFactory? value) => super.noSuchMethod(
-        Invocation.setter(#profilerFactory, value),
-        returnValueForMissingStub: null,
-      );
 
   @override
   _i5.Future<_i2.SentryId> captureEvent(

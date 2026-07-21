@@ -7,7 +7,7 @@ import '../utils/iterable_utils.dart';
 import 'access_aware_map.dart';
 
 /// An event to be reported to Sentry.io.
-class SentryEvent with SentryEventLike<SentryEvent> {
+class SentryEvent {
   /// Creates an event.
   SentryEvent({
     SentryId? eventId,
@@ -192,72 +192,6 @@ class SentryEvent with SentryEventLike<SentryEvent> {
 
   @internal
   final Map<String, dynamic>? unknown;
-
-  @Deprecated('Assign values directly to the instance.')
-  @override
-  SentryEvent copyWith({
-    SentryId? eventId,
-    DateTime? timestamp,
-    String? platform,
-    String? logger,
-    String? serverName,
-    String? release,
-    String? dist,
-    String? environment,
-    Map<String, String>? modules,
-    SentryMessage? message,
-    String? transaction,
-    dynamic throwable,
-    SentryLevel? level,
-    String? culprit,
-    Map<String, String>? tags,
-    @Deprecated(
-        'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
-    Map<String, dynamic>? extra,
-    List<String>? fingerprint,
-    SentryUser? user,
-    Contexts? contexts,
-    List<Breadcrumb>? breadcrumbs,
-    SdkVersion? sdk,
-    SentryRequest? request,
-    DebugMeta? debugMeta,
-    List<SentryException>? exceptions,
-    List<SentryThread>? threads,
-    String? type,
-  }) =>
-      SentryEvent(
-        eventId: eventId ?? this.eventId,
-        timestamp: timestamp ?? this.timestamp,
-        platform: platform ?? this.platform,
-        logger: logger ?? this.logger,
-        serverName: serverName ?? this.serverName,
-        release: release ?? this.release,
-        dist: dist ?? this.dist,
-        environment: environment ?? this.environment,
-        modules: (modules != null ? Map.from(modules) : null) ?? this.modules,
-        message: message ?? this.message,
-        transaction: transaction ?? this.transaction,
-        throwable: throwable ?? _throwable,
-        level: level ?? this.level,
-        culprit: culprit ?? this.culprit,
-        tags: (tags != null ? Map.from(tags) : null) ?? this.tags,
-        // ignore: deprecated_member_use_from_same_package
-        extra: (extra != null ? Map.from(extra) : null) ?? this.extra,
-        fingerprint: (fingerprint != null ? List.from(fingerprint) : null) ??
-            this.fingerprint,
-        user: user ?? this.user,
-        contexts: contexts ?? this.contexts,
-        breadcrumbs: (breadcrumbs != null ? List.from(breadcrumbs) : null) ??
-            this.breadcrumbs,
-        sdk: sdk ?? this.sdk,
-        request: request ?? this.request,
-        debugMeta: debugMeta ?? this.debugMeta,
-        exceptions: (exceptions != null ? List.from(exceptions) : null) ??
-            this.exceptions,
-        threads: (threads != null ? List.from(threads) : null) ?? this.threads,
-        type: type ?? this.type,
-        unknown: unknown,
-      );
 
   /// Deserializes a [SentryEvent] from JSON [Map].
   factory SentryEvent.fromJson(Map<String, dynamic> data) {

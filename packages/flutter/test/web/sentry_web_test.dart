@@ -229,8 +229,6 @@ void main() {
           sut.addBreadcrumb(Breadcrumb());
           sut.captureEnvelope(Uint8List(0), false);
           sut.clearBreadcrumbs();
-          sut.collectProfile(SentryId.empty(), 0, 0);
-          sut.discardProfiler(SentryId.empty());
           sut.displayRefreshRate();
           sut.fetchNativeAppStart();
           sut.loadContexts();
@@ -247,7 +245,6 @@ void main() {
           );
           sut.setTag('key', 'value');
           sut.setUser(null);
-          sut.startProfiler(SentryId.empty());
 
           verifyZeroInteractions(mockBinding);
         });
@@ -256,8 +253,6 @@ void main() {
           expect(sut.displayRefreshRate(), isNull);
           expect(sut.fetchNativeAppStart(), isNull);
           expect(sut.loadContexts(), isNull);
-          expect(sut.collectProfile(SentryId.empty(), 0, 0), isNull);
-          expect(sut.startProfiler(SentryId.empty()), isNull);
         });
       });
 

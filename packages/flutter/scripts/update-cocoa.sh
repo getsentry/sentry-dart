@@ -37,7 +37,6 @@ get-repo)
     ;;
 set-version)
     set_spm_version "$2"
-    ../scripts/generate-cocoa-bindings.sh
     ;;
 *)
     echo "Unknown argument $1"

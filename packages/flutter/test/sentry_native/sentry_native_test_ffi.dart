@@ -264,30 +264,6 @@ void main() {
         await sut.removeTag('fixture-key');
       });
 
-      test('startProfiler', () {
-        expect(
-          () => sut.startProfiler(SentryId.newId()),
-          throwsUnsupportedError,
-        );
-      });
-
-      test('discardProfiler', () async {
-        expect(
-          () => sut.discardProfiler(SentryId.newId()),
-          throwsUnsupportedError,
-        );
-      });
-
-      test('collectProfile', () async {
-        final traceId = SentryId.newId();
-        const startTime = 42;
-        const endTime = 50;
-        expect(
-          () => sut.collectProfile(traceId, startTime, endTime),
-          throwsUnsupportedError,
-        );
-      });
-
       test('captureEnvelope', () async {
         final data = Uint8List.fromList([1, 2, 3]);
         expect(() => sut.captureEnvelope(data, false), throwsUnsupportedError);

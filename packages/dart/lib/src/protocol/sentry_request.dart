@@ -150,30 +150,4 @@ class SentryRequest {
       if (apiTarget != null) 'api_target': apiTarget,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryRequest copyWith({
-    String? url,
-    String? method,
-    String? queryString,
-    String? cookies,
-    String? fragment,
-    dynamic data,
-    Map<String, String>? headers,
-    Map<String, String>? env,
-    bool removeCookies = false,
-    String? apiTarget,
-  }) =>
-      SentryRequest(
-        url: url ?? this.url,
-        method: method ?? this.method,
-        queryString: queryString ?? this.queryString,
-        cookies: removeCookies ? null : cookies ?? this.cookies,
-        data: data ?? _data,
-        headers: headers ?? _headers,
-        env: env ?? _env,
-        fragment: fragment ?? this.fragment,
-        apiTarget: apiTarget ?? this.apiTarget,
-        unknown: unknown,
-      );
 }

@@ -200,23 +200,4 @@ class Breadcrumb {
       if (type != null) 'type': type,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  Breadcrumb copyWith({
-    String? message,
-    String? category,
-    Map<String, dynamic>? data,
-    SentryLevel? level,
-    String? type,
-    DateTime? timestamp,
-  }) =>
-      Breadcrumb(
-        message: message ?? this.message,
-        category: category ?? this.category,
-        data: data ?? this.data,
-        level: level ?? this.level,
-        type: type ?? this.type,
-        timestamp: timestamp ?? this.timestamp,
-        unknown: unknown,
-      );
 }

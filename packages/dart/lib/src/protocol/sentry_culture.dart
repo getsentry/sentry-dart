@@ -97,21 +97,4 @@ class SentryCulture {
       if (timezone != null) 'timezone': timezone!,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryCulture copyWith({
-    String? calendar,
-    String? displayName,
-    String? locale,
-    bool? is24HourFormat,
-    String? timezone,
-  }) =>
-      SentryCulture(
-        calendar: calendar ?? this.calendar,
-        displayName: displayName ?? this.displayName,
-        locale: locale ?? this.locale,
-        is24HourFormat: is24HourFormat ?? this.is24HourFormat,
-        timezone: timezone ?? this.timezone,
-        unknown: unknown,
-      );
 }

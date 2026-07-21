@@ -322,38 +322,6 @@ class Contexts extends MapView<String, dynamic> {
     return json;
   }
 
-  @Deprecated(
-      'Will be removed in a future version. Assign values directly to the instance.')
-  Contexts copyWith({
-    SentryDevice? device,
-    SentryOperatingSystem? operatingSystem,
-    List<SentryRuntime>? runtimes,
-    SentryApp? app,
-    SentryBrowser? browser,
-    SentryCulture? culture,
-    SentryGpu? gpu,
-    SentryTraceContext? trace,
-    SentryResponse? response,
-    SentryFeedback? feedback,
-    SentryFeatureFlags? flags,
-  }) =>
-      Contexts(
-        device: device ?? this.device,
-        operatingSystem: operatingSystem ?? this.operatingSystem,
-        runtimes: runtimes ??
-            List<SentryRuntime>.from(this[SentryRuntime.listType] ?? []),
-        app: app ?? this.app,
-        browser: browser ?? this.browser,
-        gpu: gpu ?? this.gpu,
-        culture: culture ?? this.culture,
-        trace: trace ?? this.trace,
-        response: response ?? this.response,
-        feedback: feedback ?? this.feedback,
-        flags: flags ?? this.flags,
-      )..addEntries(
-          entries.where((element) => !defaultFields.contains(element.key)),
-        );
-
   @internal
   static const defaultFields = [
     SentryApp.type,

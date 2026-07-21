@@ -100,35 +100,6 @@ class Mechanism {
   })  : _meta = meta != null ? Map.from(meta) : null,
         _data = data != null ? Map.from(data) : null;
 
-  @Deprecated('Assign values directly to the instance.')
-  Mechanism copyWith({
-    String? type,
-    String? description,
-    String? helpLink,
-    bool? handled,
-    Map<String, dynamic>? meta,
-    Map<String, dynamic>? data,
-    bool? synthetic,
-    bool? isExceptionGroup,
-    String? source,
-    int? exceptionId,
-    int? parentId,
-  }) =>
-      Mechanism(
-        type: type ?? this.type,
-        description: description ?? this.description,
-        helpLink: helpLink ?? this.helpLink,
-        handled: handled ?? this.handled,
-        meta: meta ?? this.meta,
-        data: data ?? this.data,
-        synthetic: synthetic ?? this.synthetic,
-        isExceptionGroup: isExceptionGroup ?? this.isExceptionGroup,
-        source: source ?? this.source,
-        exceptionId: exceptionId ?? this.exceptionId,
-        parentId: parentId ?? this.parentId,
-        unknown: unknown,
-      );
-
   /// Deserializes a [Mechanism] from JSON [Map].
   factory Mechanism.fromJson(Map<String, dynamic> jsonData) {
     final json = AccessAwareMap(jsonData);

@@ -132,21 +132,4 @@ class SdkVersion {
     }
     _features.add(feature);
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SdkVersion copyWith({
-    String? name,
-    String? version,
-    List<String>? integrations,
-    List<String>? features,
-    List<SentryPackage>? packages,
-  }) =>
-      SdkVersion(
-        name: name ?? this.name,
-        version: version ?? this.version,
-        integrations: integrations ?? _integrations,
-        features: features ?? _features,
-        packages: packages ?? _packages,
-        unknown: unknown,
-      );
 }

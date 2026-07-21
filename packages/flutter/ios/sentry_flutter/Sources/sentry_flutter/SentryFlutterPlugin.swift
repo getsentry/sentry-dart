@@ -15,7 +15,6 @@ import CoreVideo
 
 // swiftlint:disable file_length function_body_length
 
-@objc(SentryFlutterPlugin)
 // swiftlint:disable:next type_body_length
 public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     private let channel: FlutterMethodChannel
@@ -132,14 +131,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             let arguments = call.arguments as? [String: Any?]
             let key = arguments?["key"] as? String
             removeTag(key: key, result: result)
-
-        #if !os(tvOS) && !os(watchOS)
-        case "discardProfiler":
-            discardProfiler(call, result)
-
-        case "collectProfile":
-            collectProfile(call, result)
-        #endif
 
         case "displayRefreshRate":
             displayRefreshRate(result)
@@ -631,45 +622,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
       }
     }
 
-    private func collectProfile(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        guard let arguments = call.arguments as? [String: Any],
-              let traceId = arguments["traceId"] as? String else {
-            print("Cannot collect profile: trace ID missing")
-            result(FlutterError(code: "6", message: "Cannot collect profile: trace ID missing", details: nil))
-            return
-        }
-
-        guard let startTime = arguments["startTime"] as? UInt64 else {
-            print("Cannot collect profile: start time missing")
-            result(FlutterError(code: "7", message: "Cannot collect profile: start time missing", details: nil))
-            return
-        }
-
-        guard let endTime = arguments["endTime"] as? UInt64 else {
-            print("Cannot collect profile: end time missing")
-            result(FlutterError(code: "8", message: "Cannot collect profile: end time missing", details: nil))
-            return
-        }
-
-        let payload = SentrySDK.internal.profiling.collect(
-          between: startTime,
-          and: endTime,
-          for: SentryId(uuidString: traceId)
-        )
-        result(payload)
-    }
-
-    private func discardProfiler(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        guard let traceId = call.arguments as? String else {
-            print("Cannot discard a profiler: trace ID missing")
-            result(FlutterError(code: "9", message: "Cannot discard a profiler: trace ID missing", details: nil))
-            return
-        }
-
-        SentrySDK.internal.profiling.discard(for: SentryId(uuidString: traceId))
-        result(nil)
-    }
-
     #if os(iOS)
     // Taken from the Flutter engine:
     // https://github.com/flutter/engine/blob/main/shell/platform/darwin/ios/framework/Source/vsync_waiter_ios.mm#L150
@@ -726,11 +678,6 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         let sentrySpanId = SpanId(value: spanId)
         SentrySDK.internal.setTrace(sentryTraceId, spanId: sentrySpanId)
         result("")
-    }
-
-    @objc(startProfilerForTrace:)
-    static func startProfiler(forTrace traceId: String) -> UInt64 {
-        SentrySDK.internal.profiling.start(for: SentryId(uuidString: traceId))
     }
 
     private func crash() {

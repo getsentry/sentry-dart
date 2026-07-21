@@ -302,42 +302,6 @@ class SentryNativeChannel
   }
 
   @override
-  int? startProfiler(SentryId traceId) =>
-      throw UnsupportedError("Not supported on this platform");
-
-  @override
-  FutureOr<void> discardProfiler(SentryId traceId) {
-    if (options.platform.isAndroid) {
-      assert(
-        false,
-        'discardProfiler should not be used through method channels on Android.',
-      );
-      return null;
-    }
-    return channel.invokeMethod('discardProfiler', traceId.toString());
-  }
-
-  @override
-  FutureOr<Map<String, dynamic>?> collectProfile(
-    SentryId traceId,
-    int startTimeNs,
-    int endTimeNs,
-  ) {
-    if (options.platform.isAndroid) {
-      assert(
-        false,
-        'collectProfile should not be used through method channels on Android.',
-      );
-      return null;
-    }
-    return channel.invokeMapMethod<String, dynamic>('collectProfile', {
-      'traceId': traceId.toString(),
-      'startTime': startTimeNs,
-      'endTime': endTimeNs,
-    });
-  }
-
-  @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
     if (options.platform.isAndroid) {
       assert(

@@ -54,17 +54,4 @@ class SentryMessage {
       if (params?.isNotEmpty ?? false) 'params': params,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryMessage copyWith({
-    String? formatted,
-    String? template,
-    List<dynamic>? params,
-  }) =>
-      SentryMessage(
-        formatted ?? this.formatted,
-        template: template ?? this.template,
-        params: params ?? this.params,
-        unknown: unknown,
-      );
 }
