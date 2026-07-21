@@ -41,6 +41,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
       context = SentryTransactionContext(
         'root /',
         SentrySpanOperations.uiLoad,
+        transactionNameSource: SentryTransactionNameSource.component,
         origin: SentryTraceOrigins.autoUiTimeToDisplay,
       );
       options.timeToDisplayTracker.transactionId = context.spanId;

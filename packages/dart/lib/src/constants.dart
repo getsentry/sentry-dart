@@ -77,10 +77,10 @@ class SentryFeatures {
 abstract class SemanticAttributesConstants {
   SemanticAttributesConstants._();
 
-  /// The source of a span, also referred to as transaction source.
+  /// The source of the segment span name.
   ///
   /// Known values are:  `'custom'`, `'url'`, `'route'`, `'component'`, `'view'`, `'task'`.
-  static const sentrySpanSource = 'sentry.span.source';
+  static const sentrySegmentNameSource = 'sentry.segment.name.source';
 
   /// Attributes that holds the sample rate that was locally applied to a span.
   /// If this attribute is not defined, it means that the span inherited a sampling decision.
@@ -211,6 +211,9 @@ abstract class SemanticAttributesConstants {
 
   /// The type of the app start. (cold or warm)
   static const appVitalsStartType = 'app.vitals.start.type';
+
+  /// The screen displayed by the app start.
+  static const appVitalsStartScreen = 'app.vitals.start.screen';
 
   /// The user ID.
   /// Users are always manually set and never automatically inferred,
