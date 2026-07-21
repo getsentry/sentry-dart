@@ -1,7 +1,0 @@
-include: package:flutter_lints/flutter.yaml
-
-analyzer:
-  errors:
-    avoid_print: ignore
-    implementation_imports: ignore
-    invalid_use_of_internal_member: ignore
