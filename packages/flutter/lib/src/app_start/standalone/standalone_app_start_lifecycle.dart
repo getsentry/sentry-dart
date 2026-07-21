@@ -24,6 +24,10 @@ class StandaloneAppStartLifecycle {
 
   AppStartTrace? _trace;
   String? _startScreenName;
+  TimingsCallback? _timingsCallback;
+  _PreparedDisplayState _preparedDisplayState = _PreparedDisplayState.none;
+  bool _started = false;
+  bool _closed = false;
 
   SentryFlutterOptions? get _flutterOptions {
     final options = _hub.options;
@@ -34,15 +38,24 @@ class StandaloneAppStartLifecycle {
     Hub? hub,
     FrameCallbackHandler? frameCallbackHandler,
     required SentryNativeBinding native,
-  }) : _hub = hub ?? HubAdapter(),
-       _frameCallbackHandler =
-           frameCallbackHandler ?? DefaultFrameCallbackHandler(),
-       _native = native;
+  })  : _hub = hub ?? HubAdapter(),
+        _frameCallbackHandler =
+            frameCallbackHandler ?? DefaultFrameCallbackHandler(),
+        _native = native;
 
   Future<void> start() async {
+    if (_closed || _started) {
+      return;
+    }
+    _started = true;
+
     AppStartData? data;
     try {
       final nativeAppStart = await _native.fetchNativeAppStart();
+      if (_closed) {
+        return;
+      }
+
       final setupTimestamp = SentryFlutter.sentrySetupStartTime;
       if (nativeAppStart != null && setupTimestamp != null) {
         data = AppStartData.tryParse(
@@ -61,23 +74,28 @@ class StandaloneAppStartLifecycle {
       );
     }
 
+    if (_closed) {
+      return;
+    }
+
     if (data == null) {
       internalLogger.info(
         'Skipping standalone app start: native timing unavailable or invalid',
       );
-      return;
+    } else {
+      final trace = _createAppStartTrace(data);
+      if (trace == null) {
+        internalLogger.info(
+          'Skipping standalone app start: trace was not created',
+        );
+      } else {
+        _trace = trace;
+      }
     }
 
-    final trace = _createAppStartTrace(data);
-    if (trace == null) {
-      internalLogger.info(
-        'Skipping standalone app start: trace was not created',
-      );
-      return;
-    }
-
-    _trace = trace;
-    _prepareTimeToDisplay(data.processStartTimestamp);
+    _prepareTimeToDisplay(
+      data?.processStartTimestamp ?? SentryFlutter.sentrySetupStartTime,
+    );
     _recordFirstFrame();
   }
 
@@ -89,15 +107,15 @@ class StandaloneAppStartLifecycle {
     // creation. Its route is captured only at the first valid frame.
     return switch (options.traceLifecycle) {
       SentryTraceLifecycle.static => StaticAppStartTrace.tryCreate(
-        hub: _hub,
-        data: data,
-        startScreenNameProvider: _resolveStartScreenName,
-      ),
+          hub: _hub,
+          data: data,
+          startScreenNameProvider: _resolveStartScreenName,
+        ),
       SentryTraceLifecycle.stream => StreamingAppStartTrace.tryCreate(
-        hub: _hub,
-        data: data,
-        startScreenNameProvider: _resolveStartScreenName,
-      ),
+          hub: _hub,
+          data: data,
+          startScreenNameProvider: _resolveStartScreenName,
+        ),
     };
   }
 
@@ -109,31 +127,42 @@ class StandaloneAppStartLifecycle {
     return name;
   }
 
-  void _prepareTimeToDisplay(DateTime startTimestamp) {
+  void _prepareTimeToDisplay(DateTime? startTimestamp) {
     final options = _flutterOptions;
-    if (options == null) return;
+    final resolvedStartTimestamp = startTimestamp ??
+        SentryFlutter.sentrySetupStartTime ??
+        options?.clock();
+    if (options == null || resolvedStartTimestamp == null) return;
 
     switch (options.traceLifecycle) {
       case SentryTraceLifecycle.static:
-        options.timeToDisplayTracker.prepareInitialDisplay(startTimestamp);
+        _preparedDisplayState = _PreparedDisplayState.static;
+        options.timeToDisplayTracker.prepareInitialDisplay(
+          resolvedStartTimestamp,
+        );
       case SentryTraceLifecycle.stream:
+        _preparedDisplayState = _PreparedDisplayState.stream;
         options.timeToDisplayTrackerV2.prepareAppStart(
-          startTimestamp: startTimestamp,
+          startTimestamp: resolvedStartTimestamp,
         );
     }
   }
 
   void _recordFirstFrame() {
     void callback(List<FrameTiming> timings) async {
-      if (timings.isEmpty) return;
+      if (_closed || timings.isEmpty) return;
 
       final endTimestamp = DateTime.fromMicrosecondsSinceEpoch(
         timings.first.timestampInMicroseconds(FramePhase.rasterFinishWallTime),
       );
 
-      _frameCallbackHandler.removeTimingsCallback(callback);
+      _removeTimingsCallback();
 
       try {
+        if (_closed) {
+          return;
+        }
+
         // Freeze the launch screen during first frame before enrichment;
         // the user may navigate away before the app-start span finishes.
         _startScreenName ??= SentryNavigatorObserver.currentRouteName;
@@ -152,6 +181,10 @@ class StandaloneAppStartLifecycle {
           }
         }
 
+        if (_closed) {
+          return;
+        }
+
         _trace?.recordFirstFrame(endTimestamp);
         _trace?.finish(endTimestamp);
       } catch (error, stackTrace) {
@@ -166,21 +199,43 @@ class StandaloneAppStartLifecycle {
       }
     }
 
+    _timingsCallback = callback;
     _frameCallbackHandler.addTimingsCallback(callback);
   }
 
   Future<void> close() async {
+    _closed = true;
+    _removeTimingsCallback();
     await _trace?.close();
     final options = _flutterOptions;
     if (options != null) {
-      switch (options.traceLifecycle) {
-        case SentryTraceLifecycle.static:
+      switch (_preparedDisplayState) {
+        case _PreparedDisplayState.static:
           options.timeToDisplayTracker.clear();
-        case SentryTraceLifecycle.stream:
+        case _PreparedDisplayState.stream:
           options.timeToDisplayTrackerV2.cancelCurrentRoute();
+        case _PreparedDisplayState.none:
+          break;
       }
     }
+    _preparedDisplayState = _PreparedDisplayState.none;
     _trace = null;
     _startScreenName = null;
   }
+
+  void _removeTimingsCallback() {
+    final timingsCallback = _timingsCallback;
+    if (timingsCallback == null) {
+      return;
+    }
+
+    _frameCallbackHandler.removeTimingsCallback(timingsCallback);
+    _timingsCallback = null;
+  }
+}
+
+enum _PreparedDisplayState {
+  none,
+  static,
+  stream,
 }

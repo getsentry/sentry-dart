@@ -1,5 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
@@ -57,6 +58,78 @@ void main() {
       );
     });
 
+    test('concurrent start calls initialize the lifecycle once', () async {
+      final nativeAppStartCompleter = Completer<NativeAppStart?>();
+      when(
+        fixture.native.fetchNativeAppStart(),
+      ).thenAnswer((_) => nativeAppStartCompleter.future);
+
+      final firstStart = fixture.startLifecycle();
+      final secondStart = fixture.startLifecycle();
+      nativeAppStartCompleter.complete(fixture.nativeAppStart());
+
+      await Future.wait([firstStart, secondStart]);
+      await pumpEventQueue();
+
+      final uiLoadRoots = fixture.rootSpans.where(
+        (span) => span.context.operation == SentrySpanOperations.uiLoad,
+      );
+      verify(fixture.native.fetchNativeAppStart()).called(1);
+      expect(fixture.appStartRoots, hasLength(1));
+      expect(uiLoadRoots, hasLength(1));
+      expect(fixture.frameHandler.registeredTimingsCallbacks, hasLength(1));
+    });
+
+    test('when app.start is unsampled still prepares sampled ui.load',
+        () async {
+      fixture.options
+        ..tracesSampleRate = null
+        ..tracesSampler = (samplingContext) {
+          return samplingContext.transactionContext.operation ==
+                  SentrySpanOperations.uiLoad
+              ? 1.0
+              : 0.0;
+        };
+
+      await fixture.startLifecycle();
+      await pumpEventQueue();
+
+      final uiLoadRoots = fixture.rootSpans
+          .where(
+              (span) => span.context.operation == SentrySpanOperations.uiLoad)
+          .toList();
+
+      expect(uiLoadRoots, hasLength(1));
+      expect(fixture.frameHandler.timingsCallback, isNotNull);
+    });
+
+    test(
+        'when app.start is unsampled in stream lifecycle still prepares ui.load',
+        () async {
+      fixture.useStreamingLifecycle();
+      fixture.options
+        ..enableTimeToFullDisplayTracing = true
+        ..tracesSampleRate = null
+        ..tracesSampler = (samplingContext) {
+          return samplingContext
+                      .spanContext
+                      .attributes[SemanticAttributesConstants.sentryOp]
+                      ?.value ==
+                  SentrySpanOperations.uiLoad
+              ? 1.0
+              : 0.0;
+        };
+
+      await fixture.startLifecycle();
+
+      final activeSpan = fixture.hub.getActiveSpan();
+
+      expect(activeSpan, isNotNull);
+      expect(activeSpan!.name, 'root /');
+      expect(fixture.options.timeToDisplayTrackerV2.ttfdSpanId, isNotNull);
+      expect(fixture.frameHandler.timingsCallback, isNotNull);
+    });
+
     test('keeps the first-frame callback after empty timings', () async {
       await fixture.startLifecycle();
       final callback = fixture.frameHandler.timingsCallback!;
@@ -72,15 +145,60 @@ void main() {
       expect(fixture.frameHandler.timingsCallback, isNull);
     });
 
-    test('skips when native timing is invalid', () async {
+    test('when native timing is invalid prepares ui.load and callback',
+        () async {
       when(fixture.native.fetchNativeAppStart()).thenAnswer(
         (_) async => fixture.nativeAppStart(appStartMilliseconds: 1000),
       );
 
       await fixture.startLifecycle();
 
+      final uiLoadRoot = fixture.rootSpans.single;
+
+      expect(uiLoadRoot.context.operation, SentrySpanOperations.uiLoad);
+      expect(uiLoadRoot.startTimestamp, fixture.setup);
       expect(fixture.appStartRoots, isEmpty);
-      expect(fixture.frameHandler.timingsCallback, isNull);
+      expect(fixture.frameHandler.timingsCallback, isNotNull);
+    });
+
+    test(
+        'when native timing is unavailable in stream lifecycle prepares ui.load and ttfd',
+        () async {
+      fixture.useStreamingLifecycle();
+      fixture.options.enableTimeToFullDisplayTracing = true;
+      when(fixture.native.fetchNativeAppStart()).thenAnswer((_) async => null);
+
+      await fixture.startLifecycle();
+
+      final activeSpan = fixture.hub.getActiveSpan();
+
+      expect(activeSpan, isNotNull);
+      expect(activeSpan!.name, 'root /');
+      expect(activeSpan.startTimestamp, fixture.setup);
+      expect(fixture.options.timeToDisplayTrackerV2.ttfdSpanId, isNotNull);
+      expect(fixture.frameHandler.timingsCallback, isNotNull);
+    });
+
+    test('close without start does not clear legacy static display tracking',
+        () async {
+      final transactionId = fixture.seedLegacyStaticDisplayTracking();
+
+      await fixture.sut.close();
+
+      expect(fixture.options.timeToDisplayTracker.transactionId, transactionId);
+    });
+
+    test('close without start does not clear legacy stream display tracking',
+        () async {
+      fixture.useStreamingLifecycle();
+      fixture.options.enableTimeToFullDisplayTracing = true;
+      final ttfdSpanId = fixture.seedLegacyStreamDisplayTracking();
+
+      expect(ttfdSpanId, isNotNull);
+
+      await fixture.sut.close();
+
+      expect(fixture.options.timeToDisplayTrackerV2.ttfdSpanId, ttfdSpanId);
     });
 
     test('close flushes the standalone trace', () async {
@@ -92,6 +210,33 @@ void main() {
       await pumpEventQueue(times: 10);
 
       expect(root.tracer.finished, isTrue);
+    });
+
+    test('close removes the first-frame callback', () async {
+      await fixture.startLifecycle();
+
+      expect(fixture.frameHandler.timingsCallback, isNotNull);
+
+      await fixture.sut.close();
+
+      expect(fixture.frameHandler.timingsCallback, isNull);
+    });
+
+    test('close while native fetch is pending prevents later work', () async {
+      final nativeAppStartCompleter = Completer<NativeAppStart?>();
+      when(
+        fixture.native.fetchNativeAppStart(),
+      ).thenAnswer((_) => nativeAppStartCompleter.future);
+
+      final startFuture = fixture.startLifecycle();
+      await fixture.sut.close();
+
+      nativeAppStartCompleter.complete(fixture.nativeAppStart());
+      await startFuture;
+      await pumpEventQueue(times: 10);
+
+      expect(fixture.rootSpans, isEmpty);
+      expect(fixture.frameHandler.timingsCallback, isNull);
     });
 
     test('captures the app-start screen at the first valid frame', () async {
@@ -122,7 +267,7 @@ void main() {
 }
 
 class Fixture {
-  final frameHandler = FakeFrameCallbackHandler();
+  final frameHandler = _RecordingFrameCallbackHandler();
   final native = MockSentryNativeBinding();
   final transport = _FakeTransport();
   final rootSpans = <SentrySpan>[];
@@ -187,6 +332,25 @@ class Fixture {
 
   Future<void> startLifecycle() => sut.start();
 
+  SpanId seedLegacyStaticDisplayTracking() {
+    final transactionId = SentryTransactionContext(
+      'root /',
+      SentrySpanOperations.uiLoad,
+      origin: SentryTraceOrigins.autoUiTimeToDisplay,
+    ).spanId;
+    options.timeToDisplayTracker.transactionId = transactionId;
+    return transactionId;
+  }
+
+  SpanId? seedLegacyStreamDisplayTracking() {
+    options.timeToDisplayTrackerV2.prepareAppStart(startTimestamp: setup);
+    return options.timeToDisplayTrackerV2.ttfdSpanId;
+  }
+
+  void useStreamingLifecycle() {
+    options.traceLifecycle = SentryTraceLifecycle.stream;
+  }
+
   void setCurrentRouteName(String? name) {
     navigatorObserver.didPush(
       PageRouteBuilder<void>(
@@ -201,4 +365,20 @@ class Fixture {
 class _FakeTransport implements Transport {
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async => SentryId.empty();
+}
+
+class _RecordingFrameCallbackHandler extends FakeFrameCallbackHandler {
+  final registeredTimingsCallbacks = <TimingsCallback>{};
+
+  @override
+  void addTimingsCallback(TimingsCallback callback) {
+    registeredTimingsCallbacks.add(callback);
+    super.addTimingsCallback(callback);
+  }
+
+  @override
+  void removeTimingsCallback(TimingsCallback callback) {
+    registeredTimingsCallbacks.remove(callback);
+    super.removeTimingsCallback(callback);
+  }
 }
