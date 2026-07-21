@@ -25,7 +25,7 @@
            onComplete:(void (^_Nonnull)(UIImage *_Nonnull))onComplete {
   // Replay ID may be null if session replay is disabled.
   // Replay is still captured for on-error replays.
-  NSString *replayId = self->replayIdProvider();
+  NSString *_Nullable replayId = self->replayIdProvider();
   // On iOS, we only have access to scope's replay ID, so we cannot detect buffer mode
   // If replay ID exists, it's always in active session mode (not buffering)
   BOOL replayIsBuffering = NO;

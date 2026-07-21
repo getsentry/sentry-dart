@@ -741,10 +741,9 @@ void main() {
 
       // Top-level iOS-specific sections
       // integrations
-      // TODO(cocoa): sentry-cocoa 9 removed the API to enumerate installed
-      // native integrations, so they are no longer reported via loadContexts.
-      // Restore reporting and this assertion once cocoa exposes the installed
-      // integration names again (the cocoa team is adding the accessor).
+      // TODO(https://github.com/getsentry/sentry-dart/issues/3881): Restore
+      // reporting and this assertion once sentry-cocoa exposes the installed
+      // integration names.
       expect(contexts.containsKey('integrations'), isFalse,
           reason: 'Native integrations are not reported on sentry-cocoa 9');
 

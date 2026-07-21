@@ -207,11 +207,11 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             }
 
             // swiftlint:disable:next todo
-            // TODO(cocoa): sentry-cocoa 9 removed `SentryOptions.integrations` and
-            // exposes no accessor for installed integration names, so we no longer
-            // report `infos["integrations"]`. Restore this (filtering out
-            // SentrySessionReplayIntegration) once cocoa exposes the installed
-            // integration names again (the cocoa team is adding the accessor).
+            // TODO(https://github.com/getsentry/sentry-dart/issues/3881):
+            // sentry-cocoa 9 removed `SentryOptions.integrations`, and the
+            // documented `SentrySDK.internal.sdk.trimmedInstalledIntegrationNames`
+            // accessor is not yet available in 9.21. Restore integration reporting
+            // when sentry-cocoa ships it.
 
             infos["features"] = ["SwiftPackageManager"]
 
@@ -253,15 +253,15 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         var debugImages: [DebugMeta] = []
 
         if let arguments = call.arguments as? [String], !arguments.isEmpty {
-            var imageAddresses: Set<UInt64> = []
+            var instructionAddresses: Set<UInt64> = []
 
             for argument in arguments {
                 let hexDigits = argument.replacingOccurrences(of: "0x", with: "")
                 if let instructionAddress = UInt64(hexDigits, radix: 16) {
-                    imageAddresses.insert(instructionAddress)
+                    instructionAddresses.insert(instructionAddress)
                 }
             }
-            debugImages = SentrySDK.internal.debug.images(forAddresses: Array(imageAddresses))
+            debugImages = SentrySDK.internal.debug.images(forAddresses: Array(instructionAddresses))
         }
         if debugImages.isEmpty {
             debugImages = SentrySDK.internal.debug.images
