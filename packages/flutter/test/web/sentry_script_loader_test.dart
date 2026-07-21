@@ -110,6 +110,28 @@ void main() {
           endsWith('$jsSdkVersion/bundle.tracing.min.js'));
     });
 
+    test('ignores terminal events after the script has loaded', () async {
+      final loadFuture = loadScript('https://invalid', fixture.options);
+
+      dispatchScriptEvent('load');
+
+      expect(() => dispatchScriptEvent('error'), returnsNormally);
+      await loadFuture;
+    });
+
+    test('ignores terminal events after the script has failed', () async {
+      final loadFuture = loadScript('https://invalid', fixture.options);
+      final errorExpectation = expectLater(
+        loadFuture,
+        throwsA('Failed to load https://invalid'),
+      );
+
+      dispatchScriptEvent('error');
+
+      expect(() => dispatchScriptEvent('load'), returnsNormally);
+      await errorExpectation;
+    });
+
     test('Closes and cleans up resources', () async {
       final sut = fixture.getSut();
 
