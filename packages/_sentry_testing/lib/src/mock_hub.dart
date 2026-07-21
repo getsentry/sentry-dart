@@ -1,38 +1,86 @@
+import 'dart:async';
+
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import 'no_such_method_provider.dart';
 
-const _fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
+const _testDsn = 'https://public:secret@sentry.example.com/1';
 
-/// A minimal fake [Hub] for integration package tests that only need to
-/// assert on breadcrumb/exception capture and lifecycle calls.
+/// A fake [Hub] for SDK tests, tracking calls to each capture/lifecycle
+/// method so tests can assert on them.
 class MockHub with NoSuchMethodProvider implements Hub {
+  List<CaptureEventCall> captureEventCalls = [];
   List<CaptureExceptionCall> captureExceptionCalls = [];
+  List<CaptureMessageCall> captureMessageCalls = [];
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
+  List<CaptureLogCall> captureLogCalls = [];
+  List<SentryClient?> bindClientCalls = [];
+  List<CaptureSpanCall> captureSpanCalls = [];
+  List<CaptureTransactionCall> captureTransactionCalls = [];
   int closeCalls = 0;
   bool _isEnabled = true;
+  int spanContextCals = 0;
+  int getSpanCalls = 0;
+  int getActiveSpanCalls = 0;
+  RecordingSentrySpanV2? activeSpan;
+  ISentrySpan? legacySpan;
 
-  @override
-  Scope get scope => Scope(_options);
-
-  final _options = SentryOptions(dsn: _fakeDsn)
+  final _options = SentryOptions(dsn: _testDsn)
     // ignore: invalid_use_of_internal_member
     ..automatedTestMode = true;
 
+  late Scope _scope;
+
   @override
-  // ignore: invalid_use_of_internal_member
+  @internal
   SentryOptions get options => _options;
 
+  MockHub() {
+    _scope = Scope(_options);
+  }
+
+  /// Useful for tests.
   void reset() {
+    captureEventCalls = [];
     captureExceptionCalls = [];
+    captureMessageCalls = [];
     addBreadcrumbCalls = [];
+    bindClientCalls = [];
     closeCalls = 0;
     _isEnabled = true;
+    spanContextCals = 0;
+    captureTransactionCalls = [];
+    getSpanCalls = 0;
+    getActiveSpanCalls = 0;
+    activeSpan = null;
+    legacySpan = null;
+    _scope = Scope(_options);
   }
 
   @override
   Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
     addBreadcrumbCalls.add(AddBreadcrumbCall(crumb, hint));
+  }
+
+  @override
+  void bindClient(SentryClient client) {
+    bindClientCalls.add(client);
+  }
+
+  @override
+  Future<SentryId> captureEvent(
+    SentryEvent event, {
+    dynamic stackTrace,
+    Hint? hint,
+    ScopeCallback? withScope,
+  }) async {
+    captureEventCalls.add(CaptureEventCall(
+      event,
+      stackTrace,
+      hint,
+    ));
+    return event.eventId;
   }
 
   @override
@@ -43,14 +91,47 @@ class MockHub with NoSuchMethodProvider implements Hub {
     SentryMessage? message,
     ScopeCallback? withScope,
   }) async {
-    captureExceptionCalls
-        .add(CaptureExceptionCall(throwable, stackTrace, hint));
+    captureExceptionCalls.add(CaptureExceptionCall(
+      throwable,
+      stackTrace,
+      hint,
+      message,
+    ));
     return SentryId.newId();
   }
 
   @override
+  Future<SentryId> captureMessage(
+    String? message, {
+    SentryLevel? level = SentryLevel.info,
+    String? template,
+    List? params,
+    Hint? hint,
+    ScopeCallback? withScope,
+  }) async {
+    captureMessageCalls.add(CaptureMessageCall(
+      message,
+      level,
+      template,
+      params,
+      hint,
+    ));
+    return SentryId.newId();
+  }
+
+  @override
+  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {
+    captureLogCalls.add(CaptureLogCall(log, scope));
+  }
+
+  @override
+  Future<void> captureSpan(SentrySpanV2 span) async {
+    captureSpanCalls.add(CaptureSpanCall(span));
+  }
+
+  @override
   Future<void> close() async {
-    closeCalls++;
+    closeCalls = closeCalls + 1;
     _isEnabled = false;
   }
 
@@ -58,15 +139,73 @@ class MockHub with NoSuchMethodProvider implements Hub {
   bool get isEnabled => _isEnabled;
 
   @override
-  ISentrySpan? getSpan() => null;
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    SentryTraceContextHeader? traceContext,
+    Hint? hint,
+  }) async {
+    captureTransactionCalls
+        .add(CaptureTransactionCall(transaction, traceContext, hint));
+    return transaction.eventId;
+  }
+
+  @override
+  ISentrySpan? getSpan() {
+    getSpanCalls++;
+    return legacySpan;
+  }
+
+  @override
+  RecordingSentrySpanV2? getActiveSpan() {
+    getActiveSpanCalls++;
+    return activeSpan;
+  }
+
+  @override
+  void setSpanContext(throwable, ISentrySpan span, String transaction) {
+    spanContextCals++;
+  }
+
+  @override
+  Scope get scope => _scope;
+}
+
+class CaptureEventCall {
+  final SentryEvent event;
+  final dynamic stackTrace;
+  final Hint? hint;
+
+  CaptureEventCall(this.event, this.stackTrace, this.hint);
 }
 
 class CaptureExceptionCall {
   final dynamic throwable;
   final dynamic stackTrace;
   final Hint? hint;
+  final SentryMessage? message;
 
-  CaptureExceptionCall(this.throwable, this.stackTrace, this.hint);
+  CaptureExceptionCall(
+    this.throwable,
+    this.stackTrace,
+    this.hint,
+    this.message,
+  );
+}
+
+class CaptureMessageCall {
+  final String? message;
+  final SentryLevel? level;
+  final String? template;
+  final List? params;
+  final Hint? hint;
+
+  CaptureMessageCall(
+    this.message,
+    this.level,
+    this.template,
+    this.params,
+    this.hint,
+  );
 }
 
 class AddBreadcrumbCall {
@@ -74,4 +213,25 @@ class AddBreadcrumbCall {
   final Hint? hint;
 
   AddBreadcrumbCall(this.crumb, this.hint);
+}
+
+class CaptureSpanCall {
+  final SentrySpanV2 span;
+
+  CaptureSpanCall(this.span);
+}
+
+class CaptureTransactionCall {
+  final SentryTransaction transaction;
+  final SentryTraceContextHeader? traceContext;
+  final Hint? hint;
+
+  CaptureTransactionCall(this.transaction, this.traceContext, this.hint);
+}
+
+class CaptureLogCall {
+  final SentryLog log;
+  final Scope? scope;
+
+  CaptureLogCall(this.log, this.scope);
 }

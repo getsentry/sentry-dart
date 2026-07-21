@@ -1,12 +1,12 @@
 library;
 
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/feature_flags_integration.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import 'test_utils.dart';
-import 'mocks/mock_hub.dart';
 
 void main() {
   group('$FeatureFlagsIntegration', () {

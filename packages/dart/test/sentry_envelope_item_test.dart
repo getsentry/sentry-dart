@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
@@ -8,8 +9,6 @@ import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
-
-import 'mocks/mock_hub.dart';
 
 void main() {
   group('SentryEnvelopeItem', () {

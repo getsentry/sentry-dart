@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
@@ -22,7 +23,6 @@ import 'package:http/http.dart' as http;
 
 import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
-import 'mocks/mock_hub.dart';
 import 'mocks/mock_log_capture_pipeline.dart';
 import 'mocks/mock_metric_capture_pipeline.dart';
 import 'mocks/mock_span_capture_pipeline.dart';

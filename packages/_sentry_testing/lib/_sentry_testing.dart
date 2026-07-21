@@ -5,4 +5,4 @@
 library _sentry_testing;
 
 export 'src/fake_telemetry_processor.dart';
-export 'src/mock_hub.dart';
+export 'src/mock_hub.dart' show MockHub;
