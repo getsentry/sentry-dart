@@ -113,9 +113,9 @@ void main() {
     test('ignores terminal events after the script has loaded', () async {
       final loadFuture = loadScript('https://invalid', fixture.options);
 
-      dispatchFirstScriptEvent('load');
+      dispatchScriptEvent('load');
 
-      expect(() => dispatchFirstScriptEvent('error'), returnsNormally);
+      expect(() => dispatchScriptEvent('error'), returnsNormally);
       await loadFuture;
     });
 
@@ -126,9 +126,9 @@ void main() {
         throwsA('Failed to load https://invalid'),
       );
 
-      dispatchFirstScriptEvent('error');
+      dispatchScriptEvent('error');
 
-      expect(() => dispatchFirstScriptEvent('load'), returnsNormally);
+      expect(() => dispatchScriptEvent('load'), returnsNormally);
       await errorExpectation;
     });
 

@@ -28,7 +28,7 @@ List<SentryScriptElement> fetchAllScripts() {
   return fetchScripts('script');
 }
 
-void dispatchFirstScriptEvent(String type) {
+void dispatchScriptEvent(String type) {
   final script = document.querySelector('script') as HTMLScriptElement;
   script.dispatchEvent(Event(type));
 }
