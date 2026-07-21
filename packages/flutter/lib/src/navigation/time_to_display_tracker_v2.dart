@@ -13,6 +13,8 @@ class TimeToDisplayTrackerV2 {
   final Hub _hub;
   final FrameCallbackHandler _frameCallbackHandler;
   SentrySpanV2? _ttfdSpan;
+  String _appStartRouteName = _rootRouteName;
+  bool _isAppStartRouteNamePending = false;
 
   /// Prepared root idle span, consumed by [trackAppStart].
   ///
@@ -40,10 +42,32 @@ class TimeToDisplayTrackerV2 {
         'prepareRootNavigation called while a prepared span is still pending');
 
     cancelCurrentRoute();
+    _appStartRouteName = _rootRouteName;
+    _isAppStartRouteNamePending = true;
 
     final routeSpan = _createRouteSpan(_rootRouteName);
     _preparedRootNavigationSpan = routeSpan;
     _ensureTtfdSpan(routeSpan, _rootRouteName);
+  }
+
+  /// Updates the prepared app-start spans with the first rendered route.
+  ///
+  /// Returns whether a pending app start consumed the route name.
+  bool setAppStartRouteName(String? routeName) {
+    if (!_isAppStartRouteNamePending) return false;
+
+    _isAppStartRouteNamePending = false;
+    final resolvedRouteName =
+        routeName == null || routeName == '/' ? _rootRouteName : routeName;
+    _appStartRouteName = resolvedRouteName;
+
+    if (_preparedRootNavigationSpan case final prepared?) {
+      prepared.name = resolvedRouteName;
+    }
+    if (_ttfdSpan case final ttfd?) {
+      ttfd.name = '$resolvedRouteName full display';
+    }
+    return true;
   }
 
   /// Tracks the app start (native or generic).
@@ -56,6 +80,8 @@ class TimeToDisplayTrackerV2 {
     DateTime? startTimestamp,
     DateTime? ttidEndTimestamp,
   }) {
+    final routeName = _appStartRouteName;
+    _isAppStartRouteNamePending = false;
     final SentrySpanV2 routeSpan;
     switch (_preparedRootNavigationSpan) {
       case final prepared?:
@@ -70,13 +96,12 @@ class TimeToDisplayTrackerV2 {
         }
         routeSpan = prepared;
       case null:
-        routeSpan =
-            _createRouteSpan(_rootRouteName, startTimestamp: startTimestamp);
+        routeSpan = _createRouteSpan(routeName, startTimestamp: startTimestamp);
     }
 
     _trackDisplaySpans(
       routeSpan,
-      _rootRouteName,
+      routeName,
       startTimestamp: startTimestamp,
       ttidEndTimestamp: ttidEndTimestamp,
     );
@@ -200,6 +225,7 @@ class TimeToDisplayTrackerV2 {
   void cancelCurrentRoute() {
     _ttfdSpan = null;
     _preparedRootNavigationSpan = null;
+    _isAppStartRouteNamePending = false;
 
     final activeSpan = _hub.getActiveSpan();
     if (activeSpan is IdleRecordingSentrySpanV2) {
