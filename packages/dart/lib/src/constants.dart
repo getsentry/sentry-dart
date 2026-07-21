@@ -77,10 +77,10 @@ class SentryFeatures {
 abstract class SemanticAttributesConstants {
   SemanticAttributesConstants._();
 
-  /// The source of a span, also referred to as transaction source.
+  /// The source of the segment span name.
   ///
   /// Known values are:  `'custom'`, `'url'`, `'route'`, `'component'`, `'view'`, `'task'`.
-  static const sentrySpanSource = 'sentry.span.source';
+  static const sentrySegmentNameSource = 'sentry.segment.name.source';
 
   /// Attributes that holds the sample rate that was locally applied to a span.
   /// If this attribute is not defined, it means that the span inherited a sampling decision.
