@@ -214,6 +214,9 @@ abstract class SemanticAttributesConstants {
   /// The type of the app start. (cold or warm)
   static const appVitalsStartType = 'app.vitals.start.type';
 
+  /// The screen displayed by the app start.
+  static const appVitalsStartScreen = 'app.vitals.start.screen';
+
   /// The user ID.
   /// Users are always manually set and never automatically inferred,
   /// therefore this is not gated by `sendDefaultPii`.
