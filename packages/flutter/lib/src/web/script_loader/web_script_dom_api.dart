@@ -10,18 +10,28 @@ Future<void> loadScript(String src, SentryOptions options,
     {String? integrity,
     String trustedTypePolicyName = defaultTrustedPolicyName}) {
   final completer = Completer<void>();
-  final script = HTMLScriptElement()
-    ..crossOrigin = 'anonymous'
-    ..onLoad.listen((_) {
-      if (!completer.isCompleted) {
-        completer.complete();
-      }
-    })
-    ..onError.listen((event) {
-      if (!completer.isCompleted) {
-        completer.completeError('Failed to load $src');
-      }
-    });
+  final script = HTMLScriptElement()..crossOrigin = 'anonymous';
+
+  late final StreamSubscription<Event> loadSubscription;
+  late final StreamSubscription<Event> errorSubscription;
+
+  void cancelSubscriptions() {
+    unawaited(loadSubscription.cancel());
+    unawaited(errorSubscription.cancel());
+  }
+
+  loadSubscription = script.onLoad.listen((_) {
+    if (!completer.isCompleted) {
+      completer.complete();
+      cancelSubscriptions();
+    }
+  });
+  errorSubscription = script.onError.listen((_) {
+    if (!completer.isCompleted) {
+      completer.completeError('Failed to load $src');
+      cancelSubscriptions();
+    }
+  });
 
   TrustedScriptURL? trustedUrl;
   if (!window.trustedTypes.isUndefinedOrNull) {
