@@ -1,8 +1,11 @@
 import 'package:sentry/sentry.dart';
 
-import '../mocks.dart';
 import 'no_such_method_provider.dart';
 
+const _fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
+
+/// A minimal fake [Hub] for integration package tests that only need to
+/// assert on breadcrumb/exception capture and lifecycle calls.
 class MockHub with NoSuchMethodProvider implements Hub {
   List<CaptureExceptionCall> captureExceptionCalls = [];
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
@@ -12,7 +15,9 @@ class MockHub with NoSuchMethodProvider implements Hub {
   @override
   Scope get scope => Scope(_options);
 
-  final _options = defaultTestOptions();
+  final _options = SentryOptions(dsn: _fakeDsn)
+    // ignore: invalid_use_of_internal_member
+    ..automatedTestMode = true;
 
   @override
   // ignore: invalid_use_of_internal_member
