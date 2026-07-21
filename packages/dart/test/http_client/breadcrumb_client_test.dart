@@ -264,7 +264,8 @@ void main() {
     });
 
     test('attaches network details when capture matches the request', () async {
-      final options = defaultTestOptions()..networkDetailAllowUrls.add('.*');
+      final options = defaultTestOptions()
+        ..replay.networkDetailAllowUrls.add('.*');
       final capture = NetworkDetailsCapture(options);
 
       final sut = fixture.getSut(
@@ -283,9 +284,9 @@ void main() {
         'captures request headers as mutated by a wrapped client during '
         'send (e.g. tracing headers added after dispatch)', () async {
       final options = defaultTestOptions()
-        ..networkDetailAllowUrls.add('.*')
+        ..replay.networkDetailAllowUrls.add('.*')
         ..sendDefaultPii = true
-        ..networkRequestHeaders.add('sentry-trace');
+        ..replay.networkRequestHeaders.add('sentry-trace');
       final capture = NetworkDetailsCapture(options);
 
       final sut = fixture.getSut(
@@ -314,7 +315,7 @@ void main() {
     test('does not attach network details when capture does not match',
         () async {
       final options = defaultTestOptions()
-        ..networkDetailAllowUrls.add('other.com');
+        ..replay.networkDetailAllowUrls.add('other.com');
       final capture = NetworkDetailsCapture(options);
 
       final sut = fixture.getSut(

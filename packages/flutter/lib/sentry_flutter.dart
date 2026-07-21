@@ -2,7 +2,7 @@
 library;
 
 // ignore: invalid_export_of_internal_element
-export 'package:sentry/sentry.dart';
+export 'package:sentry/sentry.dart' hide SentryReplayOptions;
 
 export 'src/binding_wrapper.dart'
     show BindingWrapper, SentryWidgetsFlutterBinding;

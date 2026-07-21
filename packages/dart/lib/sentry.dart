@@ -28,6 +28,7 @@ export 'src/protocol/sentry_feature_flag.dart';
 export 'src/protocol/sentry_feature_flags.dart';
 export 'src/protocol/sentry_feedback.dart';
 export 'src/protocol/sentry_proxy.dart';
+export 'src/replay/sentry_replay_options.dart';
 export 'src/run_zoned_guarded_integration.dart';
 export 'src/runtime_checker.dart';
 export 'src/scope.dart';

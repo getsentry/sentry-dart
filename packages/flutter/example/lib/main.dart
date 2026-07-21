@@ -68,8 +68,8 @@ Future<void> setupSentry(
 
       options.replay.sessionSampleRate = 1.0;
       options.replay.onErrorSampleRate = 1.0;
-      options.networkDetailAllowUrls.add(config.exampleUrl);
-      options.networkRequestHeaders.add('foo');
+      options.replay.networkDetailAllowUrls.add(config.exampleUrl);
+      options.replay.networkRequestHeaders.add('foo');
       options.enableLogs = true;
 
       options.beforeSendMetric = (metric) {

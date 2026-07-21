@@ -1,9 +1,11 @@
 import 'package:meta/meta.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/replay/sentry_replay_options.dart' as core;
 
 import 'replay/replay_quality.dart';
 
 /// Configuration of the replay feature.
-class SentryReplayOptions {
+class SentryReplayOptions extends core.SentryReplayOptions {
   double? _sessionSampleRate;
 
   /// A percentage of sessions in which a replay will be created.

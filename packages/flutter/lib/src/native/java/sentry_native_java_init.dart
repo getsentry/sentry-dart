@@ -299,22 +299,24 @@ void configureAndroidOptions({
     sessionReplay.setOnErrorSampleRate(
         options.replay.onErrorSampleRate?.toJDouble()?..releasedBy(arena));
 
-    if (options.networkDetailAllowUrls.isNotEmpty) {
+    if (options.replay.networkDetailAllowUrls.isNotEmpty) {
       sessionReplay.setNetworkDetailAllowUrls(
-          dartToJStringList(options.networkDetailAllowUrls)..releasedBy(arena));
+          dartToJStringList(options.replay.networkDetailAllowUrls)
+            ..releasedBy(arena));
       sessionReplay.setNetworkDetailDenyUrls(
-          dartToJStringList(options.networkDetailDenyUrls)..releasedBy(arena));
+          dartToJStringList(options.replay.networkDetailDenyUrls)
+            ..releasedBy(arena));
       // Custom header names and bodies may contain PII, so they mirror the
       // sendDefaultPii gate used on the Dart side.
       final extraHeaders = options.sendDefaultPii;
       sessionReplay.setNetworkRequestHeaders(dartToJStringList(
-          extraHeaders ? options.networkRequestHeaders : const [])
+          extraHeaders ? options.replay.networkRequestHeaders : const [])
         ..releasedBy(arena));
       sessionReplay.setNetworkResponseHeaders(dartToJStringList(
-          extraHeaders ? options.networkResponseHeaders : const [])
+          extraHeaders ? options.replay.networkResponseHeaders : const [])
         ..releasedBy(arena));
       sessionReplay.setNetworkCaptureBodies(
-          options.networkCaptureBodies && options.sendDefaultPii);
+          options.replay.networkCaptureBodies && options.sendDefaultPii);
     }
 
     sessionReplay.setTrackConfiguration(false);

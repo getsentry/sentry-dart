@@ -9,7 +9,7 @@ void main() {
   group('$NetworkDetailsCapture', () {
     test('adds feature flag when allow list is non-empty', () {
       final fixture = Fixture();
-      fixture.options.networkDetailAllowUrls.add('example.com');
+      fixture.options.replay.networkDetailAllowUrls.add('example.com');
 
       fixture.getSut();
 
@@ -36,7 +36,7 @@ void main() {
 
       test('returns true when url matches allow list', () {
         final fixture = Fixture();
-        fixture.options.networkDetailAllowUrls.add('example.com');
+        fixture.options.replay.networkDetailAllowUrls.add('example.com');
         final sut = fixture.getSut();
 
         expect(sut.shouldCapture(Uri.parse('https://example.com/path')), true);
@@ -44,7 +44,7 @@ void main() {
 
       test('returns false when url does not match allow list', () {
         final fixture = Fixture();
-        fixture.options.networkDetailAllowUrls.add('example.com');
+        fixture.options.replay.networkDetailAllowUrls.add('example.com');
         final sut = fixture.getSut();
 
         expect(sut.shouldCapture(Uri.parse('https://other.com')), false);
@@ -52,8 +52,8 @@ void main() {
 
       test('deny list overrides allow list', () {
         final fixture = Fixture();
-        fixture.options.networkDetailAllowUrls.add('.*');
-        fixture.options.networkDetailDenyUrls.add('example.com');
+        fixture.options.replay.networkDetailAllowUrls.add('.*');
+        fixture.options.replay.networkDetailDenyUrls.add('example.com');
         final sut = fixture.getSut();
 
         expect(sut.shouldCapture(Uri.parse('https://example.com')), false);
@@ -85,7 +85,7 @@ void main() {
           () {
         final fixture = Fixture();
         fixture.options.sendDefaultPii = true;
-        fixture.options.networkRequestHeaders.add('X-Custom');
+        fixture.options.replay.networkRequestHeaders.add('X-Custom');
         final sut = fixture.getSut();
 
         final request = Request('GET', Uri.parse('https://example.com'))
@@ -100,7 +100,7 @@ void main() {
           'does not capture additional configured request headers when sendDefaultPii is disabled',
           () {
         final fixture = Fixture();
-        fixture.options.networkRequestHeaders.add('X-Custom');
+        fixture.options.replay.networkRequestHeaders.add('X-Custom');
         final sut = fixture.getSut();
 
         final request = Request('GET', Uri.parse('https://example.com'))
@@ -145,7 +145,7 @@ void main() {
       test('does not capture body when networkCaptureBodies is false', () {
         final fixture = Fixture();
         fixture.options.sendDefaultPii = true;
-        fixture.options.networkCaptureBodies = false;
+        fixture.options.replay.networkCaptureBodies = false;
         final sut = fixture.getSut();
 
         final request = Request('POST', Uri.parse('https://example.com'))

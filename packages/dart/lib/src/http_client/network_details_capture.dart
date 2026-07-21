@@ -10,7 +10,7 @@ import '../utils/internal_logger.dart';
 import '../utils/tracing_utils.dart';
 
 /// Captures HTTP request/response headers and bodies for [SentryHttpClient]
-/// requests, gated by [SentryOptions.networkDetailAllowUrls] being
+/// requests, gated by [SentryReplayOptions.networkDetailAllowUrls] being
 /// non-empty, so they can be shown alongside network spans in Session
 /// Replay.
 @internal
@@ -23,27 +23,28 @@ class NetworkDetailsCapture {
   static const maxBodySize = 150 * 1024;
 
   NetworkDetailsCapture(this._options) {
-    if (_options.networkDetailAllowUrls.isNotEmpty) {
+    if (_options.replay.networkDetailAllowUrls.isNotEmpty) {
       _options.sdk.addFeature(SentryFeatures.replayNetworkDetailsCapturing);
     }
   }
 
   bool shouldCapture(Uri url) {
-    if (_options.networkDetailAllowUrls.isEmpty) {
+    if (_options.replay.networkDetailAllowUrls.isEmpty) {
       return false;
     }
     final target = url.toString();
-    if (containsTargetOrMatchesRegExp(_options.networkDetailDenyUrls, target)) {
+    if (containsTargetOrMatchesRegExp(
+        _options.replay.networkDetailDenyUrls, target)) {
       return false;
     }
     return containsTargetOrMatchesRegExp(
-        _options.networkDetailAllowUrls, target);
+        _options.replay.networkDetailAllowUrls, target);
   }
 
   Map<String, dynamic> captureRequest(BaseRequest request) {
     final data = <String, dynamic>{
-      'headers':
-          _filterHeaders(request.headers, _options.networkRequestHeaders),
+      'headers': _filterHeaders(
+          request.headers, _options.replay.networkRequestHeaders),
     };
     final body = _captureRequestBody(request);
     if (body != null) {
@@ -59,13 +60,13 @@ class NetworkDetailsCapture {
     StreamedResponse response,
   ) async {
     final data = <String, dynamic>{
-      'headers':
-          _filterHeaders(response.headers, _options.networkResponseHeaders),
+      'headers': _filterHeaders(
+          response.headers, _options.replay.networkResponseHeaders),
     };
 
     final contentLength = response.contentLength;
     if (!_options.sendDefaultPii ||
-        !_options.networkCaptureBodies ||
+        !_options.replay.networkCaptureBodies ||
         !_isCapturableContentType(response.headers['content-type']) ||
         (contentLength != null && contentLength > maxBodySize)) {
       return (response, data);
@@ -97,7 +98,7 @@ class NetworkDetailsCapture {
   }
 
   String? _captureRequestBody(BaseRequest request) {
-    if (!_options.sendDefaultPii || !_options.networkCaptureBodies) {
+    if (!_options.sendDefaultPii || !_options.replay.networkCaptureBodies) {
       return null;
     }
     // Only `Request` exposes its body synchronously without finalizing the

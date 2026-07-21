@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart' as meta;
-import 'package:sentry/sentry.dart';
+import 'package:sentry/sentry.dart' hide SentryReplayOptions;
 
 import 'binding_wrapper.dart';
 import 'event_processor/screenshot_event_processor.dart';
@@ -301,8 +301,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// Supported on Android and iOS/macOS.
   bool enableNativeTraceSync = true;
 
+  final SentryReplayOptions _replay = SentryReplayOptions();
+
   /// Replay recording configuration.
-  final replay = SentryReplayOptions();
+  @override
+  SentryReplayOptions get replay => _replay;
 
   /// Privacy configuration for masking sensitive data in screenshots and Session Replay.
   /// Screen content masking is enabled by default.
