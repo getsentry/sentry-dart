@@ -7,7 +7,7 @@ import '../utils/iterable_utils.dart';
 import 'access_aware_map.dart';
 
 /// An event to be reported to Sentry.io.
-class SentryEvent with SentryEventLike<SentryEvent> {
+class SentryEvent {
   /// Creates an event.
   SentryEvent({
     SentryId? eventId,
