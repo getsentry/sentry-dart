@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/flutter.yml'
-      - '.github/workflows/package-analysis.yml'
+      - '.github/workflows/pana.yml'
       - '.github/actions/flutter-test/**'
       - '.github/actions/coverage/**'
       - '.github/actions/test-results/**'
@@ -166,8 +166,8 @@ jobs:
         working-directory: packages/flutter/example
         run: flutter build macos --debug
 
-  package-analysis:
-    uses: ./.github/workflows/package-analysis.yml
+  pana:
+    uses: ./.github/workflows/pana.yml
     with:
       package: packages/flutter
 
