@@ -167,16 +167,27 @@ final class StaticAppStartTrace implements AppStartTrace {
     try {
       for (final child in children) {
         if (!child.finished) {
-          await child.finish();
+          try {
+            await child.finish();
+          } catch (error, stackTrace) {
+            internalLogger.error(
+              'Failed to finish static app-start span',
+              error: error,
+              stackTrace: stackTrace,
+            );
+          }
         }
       }
-      await root.finish();
-    } catch (error, stackTrace) {
-      internalLogger.error(
-        'Failed to flush static standalone app start',
-        error: error,
-        stackTrace: stackTrace,
-      );
+    } finally {
+      try {
+        await root.finish();
+      } catch (error, stackTrace) {
+        internalLogger.error(
+          'Failed to flush static standalone app start',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
     }
   }
 

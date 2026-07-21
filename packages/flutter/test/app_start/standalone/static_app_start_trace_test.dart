@@ -189,6 +189,41 @@ void main() {
       verify(mockFixture.sentrySetupChild.finish()).called(1);
       verify(mockFixture.root.finish()).called(1);
     });
+
+    test(
+        'returns null and still finishes later spans when one provisional '
+        'child flush throws', () async {
+      final mockFixture = MockChildFlushFailureFixture();
+
+      final trace = StaticAppStartTrace.tryCreate(
+        hub: mockFixture.hub,
+        data: mockFixture.data,
+        startScreenNameProvider: () => 'root /',
+      );
+      await pumpEventQueue(times: 10);
+
+      expect(trace, isNull);
+      verify(mockFixture.pluginRegistrationChild.finish()).called(1);
+      verify(mockFixture.sentrySetupChild.finish()).called(1);
+      verify(mockFixture.root.finish()).called(1);
+    });
+
+    test('returns null and flushes created spans when phase creation throws',
+        () async {
+      final mockFixture = MockPhaseCreationFailureFixture();
+
+      final trace = StaticAppStartTrace.tryCreate(
+        hub: mockFixture.hub,
+        data: mockFixture.data,
+        startScreenNameProvider: () => 'root /',
+      );
+      await pumpEventQueue(times: 10);
+
+      expect(trace, isNull);
+      verify(mockFixture.firstFrameBarrier.finish()).called(1);
+      verify(mockFixture.pluginRegistrationChild.finish()).called(1);
+      verify(mockFixture.root.finish()).called(1);
+    });
   });
 }
 
@@ -349,6 +384,45 @@ class MockCreationFixture {
         SentrySpanOperations.appStartPluginRegistration =>
           pluginRegistrationChild,
         SentrySpanOperations.appStartSentrySetup => sentrySetupChild,
+        _ => throw StateError('Unexpected child operation: $operation'),
+      };
+    });
+  }
+}
+
+class MockChildFlushFailureFixture extends MockCreationFixture {
+  MockChildFlushFailureFixture() : super() {
+    when(pluginRegistrationChild.finish(
+      status: anyNamed('status'),
+      endTimestamp: anyNamed('endTimestamp'),
+      hint: anyNamed('hint'),
+    )).thenAnswer((invocation) {
+      final endTimestamp =
+          invocation.namedArguments[#endTimestamp] as DateTime?;
+      if (endTimestamp == null) {
+        return Future<void>.error(StateError('cleanup failed'));
+      }
+      return Future<void>.value();
+    });
+  }
+}
+
+class MockPhaseCreationFailureFixture extends MockCreationFixture {
+  MockPhaseCreationFailureFixture() : super() {
+    when(
+      root.startChild(
+        any,
+        description: anyNamed('description'),
+        startTimestamp: anyNamed('startTimestamp'),
+      ),
+    ).thenAnswer((invocation) {
+      final operation = invocation.positionalArguments.first as String;
+      return switch (operation) {
+        SentrySpanOperations.appStartFirstFrameRender => firstFrameBarrier,
+        SentrySpanOperations.appStartPluginRegistration =>
+          pluginRegistrationChild,
+        SentrySpanOperations.appStartSentrySetup =>
+          throw StateError('failed to start $operation'),
         _ => throw StateError('Unexpected child operation: $operation'),
       };
     });

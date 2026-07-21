@@ -107,6 +107,19 @@ void main() {
       expect(fixture.processor.addedSpans, isEmpty);
     });
 
+    test('returns null and ends created spans when phase creation throws',
+        () async {
+      final throwingFixture = ThrowingPhaseCreationFixture();
+
+      final trace = throwingFixture.getSut();
+      await pumpEventQueue(times: 10);
+
+      expect(trace, isNull);
+      expect(throwingFixture.hub.root?.isEnded, isTrue);
+      expect(throwingFixture.hub.firstFrameBarrier?.isEnded, isTrue);
+      expect(throwingFixture.hub.firstPhaseChild?.isEnded, isTrue);
+    });
+
     test('close flushes the open root', () async {
       final sut = fixture.getSut()!;
       final root = fixture.root!;
@@ -175,5 +188,112 @@ class Fixture {
       data: data,
       startScreenNameProvider: () => 'root /',
     );
+  }
+}
+
+class ThrowingPhaseCreationFixture {
+  final processStart = DateTime.utc(2024, 1, 1, 12);
+  final processor = MockTelemetryProcessor();
+
+  late final options = defaultTestOptions()
+    ..tracesSampleRate = 1.0
+    ..traceLifecycle = SentryTraceLifecycle.stream
+    ..telemetryProcessor = processor
+    ..clock = () => processStart.add(Duration(milliseconds: 300));
+  late final baseHub = Hub(options);
+  late final hub = _ThrowingOnPhaseStartHub(baseHub);
+  late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
+  late final sentrySetup = processStart.add(Duration(milliseconds: 200));
+  late final data = AppStartData(
+    type: AppStartType.cold,
+    processStartTimestamp: processStart,
+    pluginRegistrationTimestamp: pluginRegistration,
+    sentrySetupTimestamp: sentrySetup,
+    phases: [
+      AppStartPhase(
+        operation: SentrySpanOperations.appStartPluginRegistration,
+        description: 'App start to plugin registration',
+        startTimestamp: processStart,
+        endTimestamp: pluginRegistration,
+      ),
+      AppStartPhase(
+        operation: SentrySpanOperations.appStartSentrySetup,
+        description: 'Before Sentry Init Setup',
+        startTimestamp: pluginRegistration,
+        endTimestamp: sentrySetup,
+      ),
+    ],
+  );
+
+  StreamingAppStartTrace? getSut() {
+    return StreamingAppStartTrace.tryCreate(
+      hub: hub,
+      data: data,
+      startScreenNameProvider: () => 'root /',
+    );
+  }
+}
+
+class _ThrowingOnPhaseStartHub extends NoOpHub {
+  _ThrowingOnPhaseStartHub(this._delegate);
+
+  final Hub _delegate;
+  IdleRecordingSentrySpanV2? root;
+  RecordingSentrySpanV2? firstFrameBarrier;
+  RecordingSentrySpanV2? firstPhaseChild;
+
+  @override
+  SentryOptions get options => _delegate.options;
+
+  @override
+  SentrySpanV2 startIdleSpan(
+    String name, {
+    Duration idleTimeout = const Duration(seconds: 3),
+    Duration finalTimeout = const Duration(seconds: 30),
+    bool trimIdleSpanEndTimestamp = true,
+    bool setAsActive = true,
+    Map<String, SentryAttribute>? attributes,
+    DateTime? startTimestamp,
+  }) {
+    final span = _delegate.startIdleSpan(
+      name,
+      idleTimeout: idleTimeout,
+      finalTimeout: finalTimeout,
+      trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
+      setAsActive: setAsActive,
+      attributes: attributes,
+      startTimestamp: startTimestamp,
+    );
+    if (span is IdleRecordingSentrySpanV2) {
+      root = span;
+    }
+    return span;
+  }
+
+  @override
+  SentrySpanV2 startInactiveSpan(
+    String name, {
+    Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
+  }) {
+    if (name == 'Before Sentry Init Setup') {
+      throw StateError('failed to start $name');
+    }
+
+    final span = _delegate.startInactiveSpan(
+      name,
+      attributes: attributes,
+      parentSpan: parentSpan,
+      startTimestamp: startTimestamp,
+    );
+    if (span is RecordingSentrySpanV2) {
+      if (name == 'First frame render') {
+        firstFrameBarrier = span;
+      } else if (name == 'App start to plugin registration') {
+        firstPhaseChild = span;
+      }
+    }
+    return span;
   }
 }
