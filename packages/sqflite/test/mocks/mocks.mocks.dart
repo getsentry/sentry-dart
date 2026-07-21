@@ -8,7 +8,6 @@ import 'dart:async' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i6;
 import 'package:sentry/sentry.dart' as _i2;
-import 'package:sentry/src/profiling.dart' as _i7;
 import 'package:sentry/src/sentry_tracer.dart' as _i5;
 import 'package:sqflite_common/sql.dart' as _i8;
 import 'package:sqflite_common/sqlite_api.dart' as _i3;
@@ -240,24 +239,6 @@ class MockSentryTracer extends _i1.Mock implements _i5.SentryTracer {
         Invocation.setter(
           #transactionNameSource,
           _transactionNameSource,
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  set profiler(_i7.SentryProfiler? _profiler) => super.noSuchMethod(
-        Invocation.setter(
-          #profiler,
-          _profiler,
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  set profileInfo(_i7.SentryProfileInfo? _profileInfo) => super.noSuchMethod(
-        Invocation.setter(
-          #profileInfo,
-          _profileInfo,
         ),
         returnValueForMissingStub: null,
       );
@@ -1498,15 +1479,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           Invocation.getter(#scope),
         ),
       ) as _i2.Scope);
-
-  @override
-  set profilerFactory(_i7.SentryProfilerFactory? value) => super.noSuchMethod(
-        Invocation.setter(
-          #profilerFactory,
-          value,
-        ),
-        returnValueForMissingStub: null,
-      );
 
   @override
   _i4.Future<_i2.SentryId> captureEvent(

@@ -8,7 +8,6 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
-import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
@@ -293,83 +292,6 @@ void main() {
           await sut.removeTag('fixture-key');
 
           verify(channel.invokeMethod('removeTag', {'key': 'fixture-key'}));
-        }
-      });
-
-      test('startProfiler', () {
-        late Matcher matcher;
-        if (mockPlatform.isAndroid) {
-          matcher = _nativeUnavailableMatcher(throwUnsupported: true);
-        } else if (mockPlatform.isIOS || mockPlatform.isMacOS) {
-          if (Platform().isMacOS) {
-            matcher = throwsA(
-              predicate(
-                (e) =>
-                    e is Exception &&
-                    e.toString().contains('Failed to load Objective-C class'),
-              ),
-            );
-          } else {
-            matcher = throwsA(
-              predicate(
-                (e) =>
-                    e is ArgumentError &&
-                    e.toString().contains('Failed to lookup symbol'),
-              ),
-            );
-          }
-        }
-        expect(() => sut.startProfiler(SentryId.newId()), matcher);
-
-        verifyZeroInteractions(channel);
-      });
-
-      test('discardProfiler', () async {
-        if (mockPlatform.isAndroid) {
-          final traceId = SentryId.newId();
-          expect(() => sut.discardProfiler(traceId), throwsAssertionError);
-          verifyZeroInteractions(channel);
-        } else {
-          final traceId = SentryId.newId();
-          when(
-            channel.invokeMethod('discardProfiler', traceId.toString()),
-          ).thenAnswer((_) async {});
-
-          await sut.discardProfiler(traceId);
-
-          verify(channel.invokeMethod('discardProfiler', traceId.toString()));
-        }
-      });
-
-      test('collectProfile', () async {
-        if (mockPlatform.isAndroid) {
-          final traceId = SentryId.newId();
-          expect(
-            () => sut.collectProfile(traceId, 42, 50),
-            throwsAssertionError,
-          );
-          verifyZeroInteractions(channel);
-        } else {
-          final traceId = SentryId.newId();
-          const startTime = 42;
-          const endTime = 50;
-          when(
-            channel.invokeMethod('collectProfile', {
-              'traceId': traceId.toString(),
-              'startTime': startTime,
-              'endTime': endTime,
-            }),
-          ).thenAnswer((_) async => {});
-
-          await sut.collectProfile(traceId, startTime, endTime);
-
-          verify(
-            channel.invokeMethod('collectProfile', {
-              'traceId': traceId.toString(),
-              'startTime': startTime,
-              'endTime': endTime,
-            }),
-          );
         }
       });
 

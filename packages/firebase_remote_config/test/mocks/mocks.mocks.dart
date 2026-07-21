@@ -12,7 +12,6 @@ import 'package:firebase_remote_config_platform_interface/firebase_remote_config
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i8;
 import 'package:sentry/sentry.dart' as _i2;
-import 'package:sentry/src/profiling.dart' as _i6;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -181,15 +180,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           Invocation.getter(#scope),
         ),
       ) as _i2.Scope);
-
-  @override
-  set profilerFactory(_i6.SentryProfilerFactory? value) => super.noSuchMethod(
-        Invocation.setter(
-          #profilerFactory,
-          value,
-        ),
-        returnValueForMissingStub: null,
-      );
 
   @override
   _i5.Future<_i2.SentryId> captureEvent(

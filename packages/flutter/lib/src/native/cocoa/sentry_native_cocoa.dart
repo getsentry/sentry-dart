@@ -1,17 +1,14 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../sentry_native_channel.dart';
-import 'binding.dart' as cocoa;
 import 'cocoa_replay_recorder.dart';
 
 @internal
 class SentryNativeCocoa extends SentryNativeChannel {
-  late final _lib = cocoa.SentryCocoa(DynamicLibrary.process());
   CocoaReplayRecorder? _replayRecorder;
   SentryId? _replayId;
 
@@ -71,15 +68,4 @@ class SentryNativeCocoa extends SentryNativeChannel {
   FutureOr<void> setReplayConfig(ReplayConfig config) {
     // Note: unused on iOS.
   }
-
-  @override
-  int? startProfiler(SentryId traceId) => tryCatchSync('startProfiler', () {
-    final cSentryId = cocoa.SentryId.alloc(_lib)
-      ..initWithUUIDString_(cocoa.NSString(_lib, traceId.toString()));
-    final startTime = cocoa.PrivateSentrySDKOnly.startProfilerForTrace_(
-      _lib,
-      cSentryId,
-    );
-    return startTime;
-  });
 }

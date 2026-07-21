@@ -43,7 +43,6 @@ Future<void> setupSentry(
     (options) {
       options.dsn = config.exampleDsn;
       options.tracesSampleRate = 1.0;
-      options.profilesSampleRate = 1.0;
       options.reportPackages = false;
       options.addInAppInclude('sentry_flutter_example');
       options.considerInAppFramesByDefault = false;

@@ -143,21 +143,6 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<Map<String, dynamic>?> collectProfile(
-    SentryId traceId,
-    int startTimeNs,
-    int endTimeNs,
-  ) {
-    _logNotSupported('collect profile');
-    return null;
-  }
-
-  @override
-  FutureOr<void> discardProfiler(SentryId traceId) {
-    _logNotSupported('discard profiler');
-  }
-
-  @override
   FutureOr<int?> displayRefreshRate() {
     _logNotSupported('fetching display refresh rate');
     return null;
@@ -268,12 +253,6 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> registerTraceId(SentryId traceId) {
     // No-op. Replay trace ID registration is currently Android-only.
-  }
-
-  @override
-  int? startProfiler(SentryId traceId) {
-    _logNotSupported('start profiler');
-    return null;
   }
 
   @override

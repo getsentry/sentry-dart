@@ -1,6 +1,5 @@
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/profiling.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
@@ -186,9 +185,6 @@ final Map<String, dynamic> testUnknown = {
 };
 
 @GenerateMocks([
-  SentryProfilerFactory,
-  SentryProfiler,
-  SentryProfileInfo,
   ExceptionTypeIdentifier,
 ])
 void main() {}

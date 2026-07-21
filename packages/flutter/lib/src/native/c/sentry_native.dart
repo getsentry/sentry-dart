@@ -235,21 +235,6 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  int? startProfiler(SentryId traceId) =>
-      throw UnsupportedError("Not supported on this platform");
-
-  @override
-  FutureOr<void> discardProfiler(SentryId traceId) =>
-      throw UnsupportedError("Not supported on this platform");
-
-  @override
-  FutureOr<Map<String, dynamic>?> collectProfile(
-    SentryId traceId,
-    int startTimeNs,
-    int endTimeNs,
-  ) => throw UnsupportedError("Not supported on this platform");
-
-  @override
   FutureOr<int?> displayRefreshRate() {
     _logNotSupported('collecting display refresh rate');
     return null;

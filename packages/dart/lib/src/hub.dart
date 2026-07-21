@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'client_reports/discard_reason.dart';
-import 'profiling.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 import 'telemetry/span/sentry_span_sampling_context.dart';
@@ -690,12 +689,6 @@ class Hub {
       // Subsequent transactions do not affect the sampled flag.
       propagationContext.applySamplingDecision(samplingDecision.sampled);
 
-      SentryProfiler? profiler;
-      if (_profilerFactory != null &&
-          _tracesSampler.sampleProfiling(samplingDecision)) {
-        profiler = _profilerFactory?.startProfiler(transactionContext);
-      }
-
       final tracer = SentryTracer(
         transactionContext,
         this,
@@ -704,7 +697,6 @@ class Hub {
         autoFinishAfter: autoFinishAfter,
         trimEnd: trimEnd ?? false,
         onFinish: onFinish,
-        profiler: profiler,
       );
       if (bindToScope ?? false) {
         item.scope.span = tracer;
@@ -1162,14 +1154,6 @@ class Hub {
     String transaction,
   ) =>
       _throwableToSpan.add(throwable, span, transaction);
-
-  @internal
-  SentryProfilerFactory? get profilerFactory => _profilerFactory;
-
-  @internal
-  set profilerFactory(SentryProfilerFactory? value) => _profilerFactory = value;
-
-  SentryProfilerFactory? _profilerFactory;
 
   SentryEvent _assignTraceContext(SentryEvent event) {
     // assign trace context
