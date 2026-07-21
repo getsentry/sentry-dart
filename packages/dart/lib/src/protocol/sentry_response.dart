@@ -78,20 +78,4 @@ class SentryResponse {
       if (data != null) 'data': data,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryResponse copyWith({
-    int? statusCode,
-    int? bodySize,
-    Map<String, String>? headers,
-    String? cookies,
-    Object? data,
-  }) =>
-      SentryResponse(
-        headers: headers ?? _headers,
-        cookies: cookies ?? this.cookies,
-        bodySize: bodySize ?? this.bodySize,
-        statusCode: statusCode ?? this.statusCode,
-        data: data ?? this.data,
-      );
 }

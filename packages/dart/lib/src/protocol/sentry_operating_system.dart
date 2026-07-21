@@ -127,27 +127,6 @@ class SentryOperatingSystem {
     return attributes;
   }
 
-  @Deprecated('Assign values directly to the instance.')
-  SentryOperatingSystem copyWith({
-    String? name,
-    String? version,
-    String? build,
-    String? kernelVersion,
-    bool? rooted,
-    String? rawDescription,
-    String? theme,
-  }) =>
-      SentryOperatingSystem(
-        name: name ?? this.name,
-        version: version ?? this.version,
-        build: build ?? this.build,
-        kernelVersion: kernelVersion ?? this.kernelVersion,
-        rooted: rooted ?? this.rooted,
-        rawDescription: rawDescription ?? this.rawDescription,
-        theme: theme ?? this.theme,
-        unknown: unknown,
-      );
-
   SentryOperatingSystem mergeWith(SentryOperatingSystem other) =>
       SentryOperatingSystem(
         name: other.name ?? name,

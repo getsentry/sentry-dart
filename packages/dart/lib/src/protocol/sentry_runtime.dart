@@ -101,22 +101,4 @@ class SentryRuntime {
       if (build != null) 'build': build,
     };
   }
-
-  SentryRuntime copyWith({
-    String? key,
-    String? name,
-    String? version,
-    String? compiler,
-    String? rawDescription,
-    String? build,
-  }) =>
-      SentryRuntime(
-        key: key ?? this.key,
-        name: name ?? this.name,
-        version: version ?? this.version,
-        compiler: compiler ?? this.compiler,
-        rawDescription: rawDescription ?? this.rawDescription,
-        build: build ?? this.build,
-        unknown: unknown,
-      );
 }

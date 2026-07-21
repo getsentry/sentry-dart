@@ -61,22 +61,4 @@ class SentryThread {
       if (stacktrace != null) 'stacktrace': stacktrace.toJson(),
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryThread copyWith({
-    int? id,
-    String? name,
-    bool? crashed,
-    bool? current,
-    SentryStackTrace? stacktrace,
-  }) {
-    return SentryThread(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      crashed: crashed ?? this.crashed,
-      current: current ?? this.current,
-      stacktrace: stacktrace ?? this.stacktrace,
-      unknown: unknown,
-    );
-  }
 }

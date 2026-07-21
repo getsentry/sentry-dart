@@ -17,16 +17,6 @@ class SentryTransactionInfo {
     };
   }
 
-  @Deprecated('Assign values directly to the instance.')
-  SentryTransactionInfo copyWith({
-    String? source,
-  }) {
-    return SentryTransactionInfo(
-      source ?? this.source,
-      unknown: unknown,
-    );
-  }
-
   factory SentryTransactionInfo.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryTransactionInfo(

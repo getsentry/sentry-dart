@@ -131,34 +131,27 @@ void main() {
   group('flatten', () {
     late Fixture fixture;
 
-    final sentryException = SentryException(
-      type: 'type',
-      value: 'value',
-      module: 'module',
-      stackTrace: SentryStackTrace(frames: [SentryStackFrame(absPath: 'abs')]),
-      mechanism: Mechanism(type: 'type'),
-      threadId: 1,
-    );
+    SentryException buildException(String value, {String? source}) =>
+        SentryException(
+          type: 'type',
+          value: value,
+          module: 'module',
+          stackTrace:
+              SentryStackTrace(frames: [SentryStackFrame(absPath: 'abs')]),
+          mechanism: Mechanism(type: 'type', source: source),
+          threadId: 1,
+        );
 
     setUp(() {
       fixture = Fixture();
     });
 
     test('will flatten exception with nested chained exceptions', () {
-      // ignore: deprecated_member_use_from_same_package
-      final origin = sentryException.copyWith(
-        value: 'origin',
-      );
-      // ignore: deprecated_member_use_from_same_package
-      final originChild = sentryException.copyWith(
-        value: 'originChild',
-      );
+      final origin = buildException('origin');
+      final originChild = buildException('originChild');
       origin.addException(originChild);
 
-      // ignore: deprecated_member_use_from_same_package
-      final originChildChild = sentryException.copyWith(
-        value: 'originChildChild',
-      );
+      final originChildChild = buildException('originChildChild');
       originChild.addException(originChildChild);
 
       final sut = fixture.getSut(groupExceptions: true);
@@ -188,19 +181,10 @@ void main() {
     });
 
     test('will flatten exception with nested parallel exceptions', () {
-      // ignore: deprecated_member_use_from_same_package
-      final origin = sentryException.copyWith(
-        value: 'origin',
-      );
-      // ignore: deprecated_member_use_from_same_package
-      final originChild = sentryException.copyWith(
-        value: 'originChild',
-      );
+      final origin = buildException('origin');
+      final originChild = buildException('originChild');
       origin.addException(originChild);
-      // ignore: deprecated_member_use_from_same_package
-      final originChild2 = sentryException.copyWith(
-        value: 'originChild2',
-      );
+      final originChild2 = buildException('originChild2');
       origin.addException(originChild2);
 
       final sut = fixture.getSut(groupExceptions: true);
@@ -247,55 +231,25 @@ void main() {
       // https://github.com/getsentry/rfcs/blob/main/text/0079-exception-groups.md#example-event
       // In the example, the runtime error is inserted as the first exception in the outer exception group.
 
-      // ignore: deprecated_member_use_from_same_package
-      final exceptionGroupNested = sentryException.copyWith(
-        value: 'ExceptionGroup',
-      );
-      // ignore: deprecated_member_use_from_same_package
-      final runtimeError = sentryException.copyWith(
-        value: 'RuntimeError',
-        // ignore: deprecated_member_use_from_same_package
-        mechanism: sentryException.mechanism?.copyWith(source: '__source__'),
-      );
+      final exceptionGroupNested = buildException('ExceptionGroup');
+      final runtimeError = buildException('RuntimeError', source: '__source__');
       exceptionGroupNested.addException(runtimeError);
-      // ignore: deprecated_member_use_from_same_package
-      final valueError = sentryException.copyWith(
-        value: 'ValueError',
-        // ignore: deprecated_member_use_from_same_package
-        mechanism: sentryException.mechanism?.copyWith(source: 'exceptions[0]'),
-      );
+      final valueError = buildException('ValueError', source: 'exceptions[0]');
       exceptionGroupNested.addException(valueError);
 
-      // ignore: deprecated_member_use_from_same_package
-      final exceptionGroupImports = sentryException.copyWith(
-        value: 'ExceptionGroup',
-        // ignore: deprecated_member_use_from_same_package
-        mechanism: sentryException.mechanism?.copyWith(source: 'exceptions[1]'),
-      );
+      final exceptionGroupImports =
+          buildException('ExceptionGroup', source: 'exceptions[1]');
       exceptionGroupNested.addException(exceptionGroupImports);
 
-      // ignore: deprecated_member_use_from_same_package
-      final importError = sentryException.copyWith(
-        value: 'ImportError',
-        // ignore: deprecated_member_use_from_same_package
-        mechanism: sentryException.mechanism?.copyWith(source: 'exceptions[0]'),
-      );
+      final importError =
+          buildException('ImportError', source: 'exceptions[0]');
       exceptionGroupImports.addException(importError);
 
-      // ignore: deprecated_member_use_from_same_package
-      final moduleNotFoundError = sentryException.copyWith(
-        value: 'ModuleNotFoundError',
-        // ignore: deprecated_member_use_from_same_package
-        mechanism: sentryException.mechanism?.copyWith(source: 'exceptions[1]'),
-      );
+      final moduleNotFoundError =
+          buildException('ModuleNotFoundError', source: 'exceptions[1]');
       exceptionGroupImports.addException(moduleNotFoundError);
 
-      // ignore: deprecated_member_use_from_same_package
-      final typeError = sentryException.copyWith(
-        value: 'TypeError',
-        // ignore: deprecated_member_use_from_same_package
-        mechanism: sentryException.mechanism?.copyWith(source: 'exceptions[2]'),
-      );
+      final typeError = buildException('TypeError', source: 'exceptions[2]');
       exceptionGroupNested.addException(typeError);
 
       final sut = fixture.getSut(groupExceptions: true);

@@ -39,15 +39,4 @@ class SentryBrowser {
       if (version != null) 'version': version,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryBrowser copyWith({
-    String? name,
-    String? version,
-  }) =>
-      SentryBrowser(
-        name: name ?? this.name,
-        version: version ?? this.version,
-        unknown: unknown,
-      );
 }

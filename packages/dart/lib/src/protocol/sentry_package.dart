@@ -34,15 +34,4 @@ class SentryPackage {
       'version': version,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryPackage copyWith({
-    String? name,
-    String? version,
-  }) =>
-      SentryPackage(
-        name ?? this.name,
-        version ?? this.version,
-        unknown: unknown,
-      );
 }

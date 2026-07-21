@@ -38,22 +38,6 @@ class SentryProxy {
       if (pass != null) 'pass': pass,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryProxy copyWith({
-    String? host,
-    int? port,
-    SentryProxyType? type,
-    String? user,
-    String? pass,
-  }) =>
-      SentryProxy(
-        host: host ?? this.host,
-        port: port ?? this.port,
-        type: type ?? this.type,
-        user: user ?? this.user,
-        pass: pass ?? this.pass,
-      );
 }
 
 enum SentryProxyType {
