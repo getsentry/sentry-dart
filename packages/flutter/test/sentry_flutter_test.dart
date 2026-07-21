@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
+import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
@@ -158,6 +159,43 @@ void main() {
       await Sentry.close();
     }, testOn: 'vm');
 
+    test('Android', () async {
+      late final SentryFlutterOptions options;
+
+      final nativeBinding = mockNativeBinding();
+      when(nativeBinding.supportsTraceSync).thenReturn(false);
+      SentryFlutter.native = nativeBinding;
+      addTearDown(() async {
+        try {
+          await Sentry.close();
+        } finally {
+          SentryFlutter.native = null;
+        }
+      });
+
+      final sentryFlutterOptions =
+          defaultTestOptions(checker: MockRuntimeChecker())
+            ..platform = MockPlatform(
+              operatingSystem: OperatingSystem.android,
+              supportsNativeIntegration: false,
+            );
+
+      await SentryFlutter.init(
+        (o) async {
+          options = o;
+        },
+        appRunner: appRunner,
+        options: sentryFlutterOptions,
+      );
+
+      expect(options.integrations.whereType<NativeAppStartIntegration>(),
+          hasLength(1));
+      expect(
+        options.integrations.whereType<StandaloneAppStartIntegration>(),
+        hasLength(1),
+      );
+    }, testOn: 'vm');
+
     test('macOS', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
@@ -196,6 +234,11 @@ void main() {
           afterIntegration: OnErrorIntegration);
 
       expect(SentryFlutter.native, isNotNull);
+      expect(integrations.whereType<NativeAppStartIntegration>(), hasLength(1));
+      expect(
+        integrations.whereType<StandaloneAppStartIntegration>(),
+        isEmpty,
+      );
       expect(Sentry.currentHub.profilerFactory,
           isInstanceOf<SentryNativeProfilerFactory>());
 

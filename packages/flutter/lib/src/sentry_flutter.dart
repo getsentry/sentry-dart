@@ -212,14 +212,16 @@ mixin SentryFlutter {
               NativeAppStartHandlerV2(native),
             ),
           );
-          integrations.add(
-            StandaloneAppStartIntegration(
-              StandaloneAppStartLifecycle(
-                frameCallbackHandler: frameCallbackHandler,
-                native: native,
+          if (platform.isIOS || platform.isAndroid) {
+            integrations.add(
+              StandaloneAppStartIntegration(
+                StandaloneAppStartLifecycle(
+                  frameCallbackHandler: frameCallbackHandler,
+                  native: native,
+                ),
               ),
-            ),
-          );
+            );
+          }
         }
         integrations.add(ReplayIntegration(native));
       } else {
