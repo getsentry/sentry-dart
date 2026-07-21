@@ -6,12 +6,17 @@
 
 @implementation SentryFlutterReplayScreenshotProvider {
   FlutterMethodChannel *channel;
+  NSString *_Nullable (^replayIdProvider)(void);
 }
 
 - (instancetype _Nonnull)initWithChannel:
-    (FlutterMethodChannel *_Nonnull)channel {
+                             (FlutterMethodChannel *_Nonnull)channel
+                          replayIdProvider:
+                              (NSString *_Nullable (^_Nonnull)(void))
+                                  replayIdProvider {
   if (self = [super init]) {
     self->channel = channel;
+    self->replayIdProvider = [replayIdProvider copy];
   }
   return self;
 }
@@ -20,7 +25,7 @@
            onComplete:(void (^_Nonnull)(UIImage *_Nonnull))onComplete {
   // Replay ID may be null if session replay is disabled.
   // Replay is still captured for on-error replays.
-  NSString *replayId = [PrivateSentrySDKOnly getReplayId];
+  NSString *_Nullable replayId = self->replayIdProvider();
   // On iOS, we only have access to scope's replay ID, so we cannot detect buffer mode
   // If replay ID exists, it's always in active session mode (not buffering)
   BOOL replayIsBuffering = NO;

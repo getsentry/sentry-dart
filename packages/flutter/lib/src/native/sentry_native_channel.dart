@@ -411,8 +411,10 @@ class SentryNativeChannel
       return SentryId.empty();
     }
     return channel
-        .invokeMethod('captureReplay')
-        .then((value) => SentryId.fromId(value as String));
+        .invokeMethod<String>('captureReplay')
+        .then(
+          (value) => value == null ? SentryId.empty() : SentryId.fromId(value),
+        );
   }
 
   @override

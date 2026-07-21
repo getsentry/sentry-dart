@@ -21,7 +21,7 @@ Melos monorepo. Each package lives in `packages/<name>/` with its own `pubspec.y
 
 ## Environment
 
-- Flutter `3.35.6` | Dart `3.9.2`
+- Flutter `3.44.0` | Dart `3.12.0`
 - Use `fvm dart` / `fvm flutter` if available (check with `which fvm`), else `dart` / `flutter`
 
 ## Package Types
