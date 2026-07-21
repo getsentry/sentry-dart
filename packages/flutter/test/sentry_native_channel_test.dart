@@ -453,15 +453,32 @@ void main() {
           final sentryId = SentryId.newId();
 
           when(
-            channel.invokeMethod('captureReplay', any),
+            channel.invokeMethod<String>('captureReplay', any),
           ).thenAnswer((_) => Future.value(sentryId.toString()));
 
           final returnedId = await sut.captureReplay();
 
-          verify(channel.invokeMethod('captureReplay'));
+          verify(channel.invokeMethod<String>('captureReplay'));
           expect(returnedId, sentryId);
         }
       });
+
+      test(
+        'captureReplay returns empty ID when native result is null',
+        () async {
+          if (mockPlatform.isAndroid) {
+            return;
+          }
+
+          when(
+            channel.invokeMethod<String>('captureReplay', any),
+          ).thenAnswer((_) => Future.value());
+
+          final returnedId = await sut.captureReplay();
+
+          expect(returnedId, SentryId.empty());
+        },
+      );
 
       test('getSession is no-op', () async {
         await sut.getSession();
