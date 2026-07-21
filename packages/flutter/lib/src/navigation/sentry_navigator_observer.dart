@@ -175,6 +175,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _addWebSessions(from: previousRoute, to: route);
 
     final routeName = _getRouteName(route) ?? _currentRouteName;
+    final isInitialAppStartRoute = previousRoute == null &&
+        _hub.options.traceLifecycle == SentryTraceLifecycle.stream &&
+        (_timeToDisplayTrackerV2?.setAppStartRouteName(routeName) ?? false);
+    if (isInitialAppStartRoute) {
+      return;
+    }
+
     if (routeName != null && routeName != '/') {
       // Don't generate a new trace on initial app start / root
       // During SentryFlutter.init a traceId is already created
