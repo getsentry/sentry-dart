@@ -94,6 +94,19 @@ void main() {
       expect(fixture.getSut(), isNull);
     });
 
+    test('returns null and ends the root when first frame barrier is ignored',
+        () {
+      fixture.options.ignoreSpans = [
+        IgnoreSpanRule.nameEquals('First frame render'),
+      ];
+
+      final trace = fixture.getSut();
+
+      expect(trace, isNull);
+      expect(fixture.root?.isEnded, isTrue);
+      expect(fixture.processor.addedSpans, isEmpty);
+    });
+
     test('close flushes the open root', () async {
       final sut = fixture.getSut()!;
       final root = fixture.root!;
@@ -114,10 +127,12 @@ class Fixture {
   late final rootFinish = processStart.add(Duration(milliseconds: 500));
   IdleRecordingSentrySpanV2? root;
   final children = <SentrySpanV2>[];
+  final processor = MockTelemetryProcessor();
 
   late final options = defaultTestOptions()
     ..tracesSampleRate = 1.0
     ..traceLifecycle = SentryTraceLifecycle.stream
+    ..telemetryProcessor = processor
     ..clock = () => processStart.add(Duration(milliseconds: 300));
   late final hub = Hub(options);
   late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
@@ -143,7 +158,7 @@ class Fixture {
     ],
   );
 
-  StreamingAppStartTrace? getSut() {
+  Fixture() {
     options.lifecycleRegistry.registerCallback<OnSpanStartV2>((event) {
       final span = event.span;
       if (span is IdleRecordingSentrySpanV2) {
@@ -152,6 +167,9 @@ class Fixture {
         children.add(span);
       }
     });
+  }
+
+  StreamingAppStartTrace? getSut() {
     return StreamingAppStartTrace.tryCreate(
       hub: hub,
       data: data,

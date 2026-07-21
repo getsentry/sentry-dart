@@ -37,8 +37,10 @@ final class StreamingAppStartTrace implements AppStartTrace {
     required AppStartData data,
     required String Function() startScreenNameProvider,
   }) {
+    IdleRecordingSentrySpanV2? createdRoot;
+    final createdChildren = <RecordingSentrySpanV2>[];
     try {
-      final createdRoot = hub.startIdleSpan(
+      final root = hub.startIdleSpan(
         standaloneAppStartRootName,
         setAsActive: false,
         idleTimeout: standaloneAppStartIdleTimeout,
@@ -56,42 +58,53 @@ final class StreamingAppStartTrace implements AppStartTrace {
               SentryAttribute.string(data.type.name),
         },
       );
-      if (createdRoot is! IdleRecordingSentrySpanV2) return null;
+      if (root is! IdleRecordingSentrySpanV2) return null;
+      createdRoot = root;
 
       final firstFrameBarrier = hub.startInactiveSpan(
         appStartFirstFrameRenderDescription,
-        parentSpan: createdRoot,
+        parentSpan: root,
         startTimestamp: data.sentrySetupTimestamp,
         attributes: _childAttributes(
           data,
           SentrySpanOperations.appStartFirstFrameRender,
         ),
       );
-      if (firstFrameBarrier is! RecordingSentrySpanV2) return null;
+      if (firstFrameBarrier is! RecordingSentrySpanV2) {
+        _finishProvisionalSpans(root: createdRoot);
+        return null;
+      }
+      createdChildren.add(firstFrameBarrier);
 
       final trace = StreamingAppStartTrace._(
         hub: hub,
         data: data,
-        root: createdRoot,
+        root: root,
         firstFrameBarrier: firstFrameBarrier,
         startScreenNameProvider: startScreenNameProvider,
       );
       trace._processCallback = trace._processSpan;
       for (final phase in data.phases) {
-        hub
-            .startInactiveSpan(
-              phase.description,
-              parentSpan: createdRoot,
-              startTimestamp: phase.startTimestamp,
-              attributes: _childAttributes(data, phase.operation),
-            )
-            .end(endTimestamp: phase.endTimestamp);
+        final child = hub.startInactiveSpan(
+          phase.description,
+          parentSpan: root,
+          startTimestamp: phase.startTimestamp,
+          attributes: _childAttributes(data, phase.operation),
+        );
+        if (child is RecordingSentrySpanV2) {
+          createdChildren.add(child);
+        }
+        child.end(endTimestamp: phase.endTimestamp);
       }
       hub.options.lifecycleRegistry.registerCallback<OnProcessSpan>(
         trace._processCallback,
       );
       return trace;
     } catch (error, stackTrace) {
+      _finishProvisionalSpans(
+        root: createdRoot,
+        children: createdChildren,
+      );
       internalLogger.error(
         'Failed to create streaming standalone app start',
         error: error,
@@ -114,6 +127,18 @@ final class StreamingAppStartTrace implements AppStartTrace {
           data.type.name,
         ),
       };
+
+  static void _finishProvisionalSpans({
+    IdleRecordingSentrySpanV2? root,
+    Iterable<RecordingSentrySpanV2> children = const [],
+  }) {
+    for (final child in children) {
+      if (!child.isEnded) {
+        child.end();
+      }
+    }
+    root?.end();
+  }
 
   @override
   void recordFirstFrame(DateTime endTimestamp) {

@@ -1,11 +1,13 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/app_start/app_start_data.dart';
 import 'package:sentry_flutter/src/app_start/standalone/static_app_start_trace.dart';
 
 import '../../mocks.dart';
+import '../../mocks.mocks.dart';
 
 void main() {
   group('$StaticAppStartTrace', () {
@@ -100,6 +102,28 @@ void main() {
       expect(fixture.getSut(), isNull);
     });
 
+    test('returns null and finishes the unsampled root immediately', () async {
+      fixture.options.tracesSampleRate = 0;
+
+      final trace = fixture.getSut();
+      await pumpEventQueue(times: 10);
+
+      expect(trace, isNull);
+      expect(fixture.root?.tracer.finished, isTrue);
+    });
+
+    test(
+        'returns null and finishes the root when first frame barrier creation fails',
+        () async {
+      final trace = fixture.getSut(
+        data: fixture.withFirstFrameBeforeProcessStart(),
+      );
+      await pumpEventQueue(times: 10);
+
+      expect(trace, isNull);
+      expect(fixture.root?.tracer.finished, isTrue);
+    });
+
     test('returns null when trace creation fails', () {
       fixture.options
         ..tracesSampleRate = null
@@ -135,6 +159,35 @@ void main() {
       await tester.pump();
 
       expect(root.finished, isTrue);
+    });
+
+    test(
+        'returns null and flushes provisional children when final timeout '
+        'scheduling fails', () async {
+      final mockFixture = MockCreationFixture();
+
+      final trace = StaticAppStartTrace.tryCreate(
+        hub: mockFixture.hub,
+        data: mockFixture.data,
+        startScreenNameProvider: () => 'root /',
+      );
+      await pumpEventQueue(times: 10);
+
+      expect(trace, isNull);
+      verify(mockFixture.firstFrameBarrier.finish()).called(1);
+      verify(
+        mockFixture.pluginRegistrationChild.finish(
+          endTimestamp: mockFixture.pluginRegistration,
+        ),
+      ).called(1);
+      verify(mockFixture.pluginRegistrationChild.finish()).called(1);
+      verify(
+        mockFixture.sentrySetupChild.finish(
+          endTimestamp: mockFixture.sentrySetup,
+        ),
+      ).called(1);
+      verify(mockFixture.sentrySetupChild.finish()).called(1);
+      verify(mockFixture.root.finish()).called(1);
     });
   });
 }
@@ -176,14 +229,24 @@ class Fixture {
     ],
   );
 
-  StaticAppStartTrace? getSut() {
+  AppStartData withFirstFrameBeforeProcessStart() {
+    return AppStartData(
+      type: data.type,
+      processStartTimestamp: processStart,
+      pluginRegistrationTimestamp: pluginRegistration,
+      sentrySetupTimestamp: processStart.subtract(Duration(milliseconds: 1)),
+      phases: data.phases,
+    );
+  }
+
+  StaticAppStartTrace? getSut({AppStartData? data}) {
     options.lifecycleRegistry.registerCallback<OnSpanStart>((event) {
       final span = event.span;
       if (span is SentrySpan && span.isRootSpan) root ??= span;
     });
     return StaticAppStartTrace.tryCreate(
       hub: hub,
-      data: data,
+      data: data ?? this.data,
       startScreenNameProvider: () => 'root /',
     );
   }
@@ -192,4 +255,102 @@ class Fixture {
 class _FakeTransport implements Transport {
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async => SentryId.empty();
+}
+
+class _FinalTimeoutFailingTracer extends MockSentryTracer {
+  @override
+  bool tryScheduleFinalTimeout(DateTime deadlineTimestamp) => false;
+}
+
+class MockCreationFixture {
+  final processStart = DateTime.utc(2024, 1, 1, 12);
+  late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
+  late final sentrySetup = processStart.add(Duration(milliseconds: 200));
+  late final createdAt = processStart.add(Duration(milliseconds: 300));
+
+  late final options = defaultTestOptions()..clock = () => createdAt;
+
+  late final hub = MockHub();
+  late final root = _FinalTimeoutFailingTracer();
+  late final firstFrameBarrier = MockSentrySpan();
+  late final pluginRegistrationChild = MockSentrySpan();
+  late final sentrySetupChild = MockSentrySpan();
+
+  late final data = AppStartData(
+    type: AppStartType.cold,
+    processStartTimestamp: processStart,
+    pluginRegistrationTimestamp: pluginRegistration,
+    sentrySetupTimestamp: sentrySetup,
+    phases: [
+      AppStartPhase(
+        operation: SentrySpanOperations.appStartPluginRegistration,
+        description: 'App start to plugin registration',
+        startTimestamp: processStart,
+        endTimestamp: pluginRegistration,
+      ),
+      AppStartPhase(
+        operation: SentrySpanOperations.appStartSentrySetup,
+        description: 'Before Sentry Init Setup',
+        startTimestamp: pluginRegistration,
+        endTimestamp: sentrySetup,
+      ),
+    ],
+  );
+
+  MockCreationFixture() {
+    when(hub.options).thenReturn(options);
+    when(
+      hub.startTransactionWithContext(
+        any,
+        startTimestamp: anyNamed('startTimestamp'),
+        waitForChildren: anyNamed('waitForChildren'),
+        autoFinishAfter: anyNamed('autoFinishAfter'),
+        bindToScope: anyNamed('bindToScope'),
+        trimEnd: anyNamed('trimEnd'),
+        onFinish: anyNamed('onFinish'),
+      ),
+    ).thenReturn(root);
+
+    when(root.samplingDecision).thenReturn(SentryTracesSamplingDecision(true));
+    when(root.finish(
+      status: anyNamed('status'),
+      endTimestamp: anyNamed('endTimestamp'),
+      hint: anyNamed('hint'),
+    )).thenAnswer((_) async {});
+
+    when(firstFrameBarrier.samplingDecision)
+        .thenReturn(SentryTracesSamplingDecision(true));
+    when(firstFrameBarrier.finished).thenReturn(false);
+    when(firstFrameBarrier.finish(
+      status: anyNamed('status'),
+      endTimestamp: anyNamed('endTimestamp'),
+      hint: anyNamed('hint'),
+    )).thenAnswer((_) async {});
+
+    for (final child in [pluginRegistrationChild, sentrySetupChild]) {
+      when(child.finished).thenReturn(false);
+      when(child.finish(
+        status: anyNamed('status'),
+        endTimestamp: anyNamed('endTimestamp'),
+        hint: anyNamed('hint'),
+      )).thenAnswer((_) async {});
+    }
+
+    when(
+      root.startChild(
+        any,
+        description: anyNamed('description'),
+        startTimestamp: anyNamed('startTimestamp'),
+      ),
+    ).thenAnswer((invocation) {
+      final operation = invocation.positionalArguments.first as String;
+      return switch (operation) {
+        SentrySpanOperations.appStartFirstFrameRender => firstFrameBarrier,
+        SentrySpanOperations.appStartPluginRegistration =>
+          pluginRegistrationChild,
+        SentrySpanOperations.appStartSentrySetup => sentrySetupChild,
+        _ => throw StateError('Unexpected child operation: $operation'),
+      };
+    });
+  }
 }
