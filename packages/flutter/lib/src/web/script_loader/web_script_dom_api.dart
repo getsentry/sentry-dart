@@ -12,8 +12,16 @@ Future<void> loadScript(String src, SentryOptions options,
   final completer = Completer<void>();
   final script = HTMLScriptElement()
     ..crossOrigin = 'anonymous'
-    ..onLoad.listen((_) => completer.complete())
-    ..onError.listen((event) => completer.completeError('Failed to load $src'));
+    ..onLoad.listen((_) {
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
+    })
+    ..onError.listen((event) {
+      if (!completer.isCompleted) {
+        completer.completeError('Failed to load $src');
+      }
+    });
 
   TrustedScriptURL? trustedUrl;
   if (!window.trustedTypes.isUndefinedOrNull) {

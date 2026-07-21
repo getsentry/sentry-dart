@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/web/script_loader/script_dom_api.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
+import 'package:web/web.dart';
 
 import '../mocks.dart';
 import 'utils.dart';
@@ -108,6 +109,30 @@ void main() {
       final scriptElements = fetchAllScripts();
       expect(scriptElements.first.src,
           endsWith('$jsSdkVersion/bundle.tracing.min.js'));
+    });
+
+    test('ignores terminal events after the script has loaded', () async {
+      final loadFuture = loadScript('https://invalid', fixture.options);
+      final script = document.querySelector('script') as HTMLScriptElement;
+
+      script.dispatchEvent(Event('load'));
+
+      expect(() => script.dispatchEvent(Event('error')), returnsNormally);
+      await loadFuture;
+    });
+
+    test('ignores terminal events after the script has failed', () async {
+      final loadFuture = loadScript('https://invalid', fixture.options);
+      final script = document.querySelector('script') as HTMLScriptElement;
+      final errorExpectation = expectLater(
+        loadFuture,
+        throwsA('Failed to load https://invalid'),
+      );
+
+      script.dispatchEvent(Event('error'));
+
+      expect(() => script.dispatchEvent(Event('load')), returnsNormally);
+      await errorExpectation;
     });
 
     test('Closes and cleans up resources', () async {
