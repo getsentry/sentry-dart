@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_integration.dart';
@@ -25,6 +27,15 @@ void main() {
       expect(fixture.options.sdk.integrations, contains('StandaloneAppStart'));
     });
 
+    test('adds standalone app-start tracing feature to sdk metadata', () async {
+      await fixture.getSut().call(fixture.hub, fixture.options);
+
+      expect(
+        fixture.options.sdk.features,
+        contains(SentryFeatures.standaloneAppStartTracing),
+      );
+    });
+
     test('does not start lifecycle when standalone tracing is disabled',
         () async {
       fixture.options.enableStandaloneAppStartTracing = false;
@@ -32,6 +43,33 @@ void main() {
       await fixture.getSut().call(fixture.hub, fixture.options);
 
       expect(fixture.lifecycle.startCalls, 0);
+    });
+
+    test(
+        'does not add standalone app-start tracing feature when standalone tracing is disabled',
+        () async {
+      fixture.options.enableStandaloneAppStartTracing = false;
+
+      await fixture.getSut().call(fixture.hub, fixture.options);
+
+      expect(
+        fixture.options.sdk.features,
+        isNot(contains(SentryFeatures.standaloneAppStartTracing)),
+      );
+    });
+
+    test(
+        'does not add standalone app-start tracing feature when tracing is disabled',
+        () async {
+      fixture.options.tracesSampleRate = null;
+      fixture.options.tracesSampler = null;
+
+      await fixture.getSut().call(fixture.hub, fixture.options);
+
+      expect(
+        fixture.options.sdk.features,
+        isNot(contains(SentryFeatures.standaloneAppStartTracing)),
+      );
     });
 
     test('closes the standalone app-start lifecycle', () async {

@@ -30,6 +30,7 @@ final class StandaloneAppStartIntegration
     }
 
     options.sdk.addIntegration(_integrationName);
+    options.sdk.addFeature(SentryFeatures.standaloneAppStartTracing);
     await _lifecycle.start();
   }
 
