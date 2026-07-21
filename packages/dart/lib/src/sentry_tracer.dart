@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'profiling.dart';
+import 'utils/internal_logger.dart';
 import 'utils/sample_rate_format.dart';
 
 @internal
@@ -28,6 +29,9 @@ class SentryTracer extends ISentrySpan {
 
   @visibleForTesting
   Timer? get autoFinishAfterTimer => _autoFinishAfterTimer;
+
+  @visibleForTesting
+  Timer? get finalTimeoutTimer => _finalTimeoutTimer;
 
   OnTransactionFinish? _onFinish;
 
@@ -209,6 +213,7 @@ class SentryTracer extends ISentrySpan {
 
       // if it's an idle transaction which has no children, we drop it to save user's quota
       if (children.isEmpty && _autoFinishAfter != null) {
+        _clearFinalTimeoutTimer();
         return;
       }
 
@@ -226,7 +231,7 @@ class SentryTracer extends ISentrySpan {
         hint: hint,
       );
       _captured = true;
-      _finalTimeoutTimer?.cancel();
+      _clearFinalTimeoutTimer();
     } finally {
       _disposeProfiler();
     }
@@ -265,13 +270,29 @@ class SentryTracer extends ISentrySpan {
     _finalDeadlineTimestamp = deadlineTimestamp.toUtc();
     final remaining = _finalDeadlineTimestamp!.difference(_hub.options.clock());
     if (remaining <= Duration.zero) {
-      unawaited(_finishAtDeadline());
+      _finishAtDeadlineSafely();
     } else {
       _finalTimeoutTimer = Timer(remaining, () {
-        unawaited(_finishAtDeadline());
+        _finishAtDeadlineSafely();
       });
     }
     return true;
+  }
+
+  void _finishAtDeadlineSafely() {
+    unawaited(
+        _finishAtDeadline().catchError((Object error, StackTrace stackTrace) {
+      internalLogger.error(
+        'Failed to finish tracer at final deadline.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }));
+  }
+
+  void _clearFinalTimeoutTimer() {
+    _finalTimeoutTimer?.cancel();
+    _finalTimeoutTimer = null;
   }
 
   Future<void> _finishAtDeadline() {
