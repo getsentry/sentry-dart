@@ -32,7 +32,7 @@ jobs:
         sdk: [stable, beta]
     steps:
       - name: checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Enable KVM group perms
         run: |
@@ -93,7 +93,7 @@ jobs:
         sdk: [stable]
     steps:
       - name: checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5
@@ -170,7 +170,7 @@ jobs:
 #        sdk: ['stable']
 #    steps:
 #      - name: checkout
-#        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+#        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 #
 #      - name: Install Chrome Browser
 #        uses: browser-actions/setup-chrome@b94431e051d1c52dcbe9a7092a4f10f827795416 # pin@v2.1.0
