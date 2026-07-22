@@ -10,6 +10,11 @@ concurrency:
 jobs:
   packages:
     name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ${{ matrix.package }}
     strategy:
       fail-fast: false
       matrix:
@@ -56,10 +61,35 @@ jobs:
           - name: supabase
             package: packages/supabase
             sdk: flutter
-    uses: ./.github/workflows/analyze-package.yml
-    with:
-      package: ${{ matrix.package }}
-      sdk: ${{ matrix.sdk }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: dart-lang/setup-dart@65eb853c7ba17dde3be364c3d2858773e7144260 # pin@v1.7.2
+        if: ${{ matrix.sdk == 'dart' }}
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
+        if: ${{ matrix.sdk == 'flutter' }}
+
+      - run: dart pub get
+        if: ${{ matrix.sdk == 'dart' }}
+
+      - run: flutter pub get
+        if: ${{ matrix.sdk == 'flutter' }}
+
+      - run: flutter pub get
+        if: ${{ matrix.package == 'flutter' }}
+        working-directory: packages/flutter/microbenchmarks
+
+      - run: dart format --set-exit-if-changed ./
+
+      - name: dart analyze
+        uses: invertase/github-action-dart-analyzer@e981b01a458d0bab71ee5da182e5b26687b7101b # pin@v3.0.0
+        with:
+          annotate: true
+          fatal-infos: true
+          fatal-warnings: true
+          annotate-only: false
+          working-directory: ${{ matrix.package }}
+
+      - run: dart doc --dry-run
 
   required:
     # Preserve the existing ruleset context while analysis moves into this workflow.

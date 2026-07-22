@@ -9,7 +9,7 @@ on:
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - '.github/workflows/dart.yml'
-      - '.github/workflows/package-analysis.yml'
+      - '.github/workflows/pana.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
       - '.github/actions/test-results/**'
@@ -64,7 +64,7 @@ jobs:
           dart pub get
           dart compile aot-snapshot bin/example.dart
 
-  package-analysis:
-    uses: ./.github/workflows/package-analysis.yml
+  pana:
+    uses: ./.github/workflows/pana.yml
     with:
       package: packages/dart
