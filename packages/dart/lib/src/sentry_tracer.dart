@@ -572,6 +572,7 @@ class SentryTracer extends ISentrySpan {
       return;
     }
     if (_autoFinishAfterTimer != null) {
+      _finishRequested = false;
       _scheduleTimer();
     }
   }

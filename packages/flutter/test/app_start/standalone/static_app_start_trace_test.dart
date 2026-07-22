@@ -161,6 +161,25 @@ void main() {
       expect(root.finished, isTrue);
     });
 
+    testWidgets('restarts idle timeout after a late first frame',
+        (tester) async {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!.tracer;
+
+      await tester.pump(Duration(seconds: 4));
+      sut.recordFirstFrame(fixture.naturalEnd);
+      sut.finish(fixture.naturalEnd);
+      await tester.pump();
+
+      expect(root.finished, isFalse);
+
+      await tester.pump(Duration(seconds: 3));
+      await tester.pump();
+
+      expect(root.finished, isTrue);
+      expect(root.measurements['app_start_cold']?.value, 350);
+    });
+
     test(
         'returns null and flushes provisional children when final timeout '
         'scheduling fails', () async {

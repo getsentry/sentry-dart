@@ -114,6 +114,10 @@ void main() {
       final transaction = fixture.hub.scope.span as SentryTracer;
       expect(transaction.name, 'root /');
       expect(transaction.context.operation, SentrySpanOperations.uiLoad);
+      expect(
+        transaction.transactionNameSource,
+        SentryTransactionNameSource.component,
+      );
       expect(transaction.startTimestamp, startTimestamp);
       expect(sut.transactionId, transaction.context.spanId);
     });

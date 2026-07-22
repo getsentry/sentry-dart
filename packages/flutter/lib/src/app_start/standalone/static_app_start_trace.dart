@@ -118,6 +118,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   @override
   void recordFirstFrame(DateTime endTimestamp) {
     if (_closed || _completed) return;
+    _root.scheduleFinish();
     _finish(_firstFrameBarrier, endTimestamp: endTimestamp.toUtc());
   }
 

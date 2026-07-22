@@ -66,6 +66,7 @@ class TimeToDisplayTracker {
     return SentryTransactionContext(
       'root /',
       SentrySpanOperations.uiLoad,
+      transactionNameSource: SentryTransactionNameSource.component,
       origin: SentryTraceOrigins.autoUiTimeToDisplay,
     );
   }
