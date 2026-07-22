@@ -19,4 +19,6 @@ dependency_overrides:
   sentry_sqflite:
     path: ../../sqflite
   isar_flutter_libs:
-    git: https://github.com/Deepjyoti120/isar_flutter_libs.git
+    git:
+      url: https://github.com/Deepjyoti120/isar_flutter_libs.git
+      ref: e61ce33af7118153d31689189077facbcfef8490
