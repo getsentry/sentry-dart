@@ -42,7 +42,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
     try {
       final root = hub.startIdleSpan(
         standaloneAppStartRootName,
-        setAsActive: false,
+        bindToHub: false,
         idleTimeout: standaloneAppStartIdleTimeout,
         finalTimeout: standaloneAppStartFinalTimeout,
         trimIdleSpanEndTimestamp: true,
