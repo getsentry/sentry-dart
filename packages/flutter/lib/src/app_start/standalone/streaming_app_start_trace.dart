@@ -301,8 +301,8 @@ final class StreamingAppStartTrace implements AppStartTrace {
       }
     } finally {
       _extendedDescendants.clear();
+      _root.end();
     }
-    _root.end();
   }
 
   void _onSpanStart(OnSpanStartV2 event) {

@@ -485,6 +485,23 @@ void main() {
       expect(root.attributes['app.vitals.start.screen']?.value, 'root /');
     });
 
+    test('close ends the root when extension finalization throws', () async {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!;
+      expect(
+        sut.tryExtend(
+          fixture.processStart.add(const Duration(milliseconds: 400)),
+        ),
+        isTrue,
+      );
+      fixture.options.clock = () => throw StateError('clock failed');
+
+      await expectLater(sut.close(), throwsStateError);
+      await pumpEventQueue(times: 10);
+
+      expect(root.isEnded, isTrue);
+    });
+
     test('close cancels an open extension subtree before ending the root',
         () async {
       final sut = fixture.getSut()!;
