@@ -38,6 +38,30 @@ void main() {
       expect(fixture.frameHandler.timingsCallback, isNotNull);
     });
 
+    test('retains native phases completed after SDK setup starts', () async {
+      when(fixture.native.fetchNativeAppStart()).thenAnswer(
+        (_) async => NativeAppStart(
+          appStartTime: fixture.processStart.millisecondsSinceEpoch,
+          pluginRegistrationTime: 100,
+          isColdStart: true,
+          nativeSpanTimes: {
+            'Activity.onCreate': {
+              'startTimestampMsSinceEpoch': 150,
+              'stopTimestampMsSinceEpoch': 250,
+            },
+          },
+        ),
+      );
+
+      await fixture.startLifecycle();
+
+      expect(
+        fixture.appStartRoots.single.tracer.children
+            .map((span) => span.context.description),
+        contains('Activity.onCreate'),
+      );
+    });
+
     test('samples sibling roots independently with one trace ID', () async {
       var samplerCalls = 0;
       fixture.options

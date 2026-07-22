@@ -88,10 +88,10 @@ final class AppStartData {
   /// Callers choose it based on how much of the timeline they can trust
   /// at parse time:
   ///
-  /// - **Eager standalone** (root opened at SDK init): pass setup time.
-  ///   Completed breakdown phases only run through setup; first frame is
-  ///   recorded later via the open first-frame barrier, so [validUntil]
-  ///   is **not** the app-start measurement end.
+  /// - **Eager standalone** (root opened at SDK init): pass the native
+  ///   snapshot time so every breakdown phase returned by that snapshot can
+  ///   be retained. The first frame is recorded later via the open first-frame
+  ///   barrier, so [validUntil] is **not** the app-start measurement end.
   /// - **Retrospective ui.load** (parse after first frame): pass first-frame
   ///   end. That is both the validation ceiling and the natural measurement
   ///   end (extend, if any, can still push the vital later).

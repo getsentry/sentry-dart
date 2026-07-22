@@ -57,13 +57,14 @@ class StandaloneAppStartLifecycle {
       }
 
       final setupTimestamp = SentryFlutter.sentrySetupStartTime;
-      if (nativeAppStart != null && setupTimestamp != null) {
+      final snapshotTimestamp = _flutterOptions?.clock();
+      if (nativeAppStart != null &&
+          setupTimestamp != null &&
+          snapshotTimestamp != null) {
         data = AppStartData.tryParse(
           nativeAppStart,
           sentrySetupTimestamp: setupTimestamp,
-          // Eager parse: only trust timestamps through setup. First frame
-          // is the measurement end later, not part of this ceiling.
-          validUntil: setupTimestamp,
+          validUntil: snapshotTimestamp,
         );
       }
     } catch (error, stackTrace) {
