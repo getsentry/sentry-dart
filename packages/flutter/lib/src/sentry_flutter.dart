@@ -351,6 +351,69 @@ mixin SentryFlutter {
     return SentryDisplay(spanId, hub: hub);
   }
 
+  /// Extends the active standalone App Start trace, if one exists.
+  ///
+  /// Pair this with [finishExtendedAppStart] in a `try` / `finally` block so
+  /// the extension always completes:
+  ///
+  /// ```dart
+  /// SentryFlutter.extendAppStart();
+  ///
+  /// try {
+  ///   await fetchRemoteConfig();
+  /// } finally {
+  ///   await SentryFlutter.finishExtendedAppStart();
+  /// }
+  /// ```
+  static void extendAppStart() {
+    final options = Sentry.currentHub.options;
+    if (options is SentryFlutterOptions) {
+      options.standaloneAppStartTrace?.tryExtend(options.clock());
+    }
+  }
+
+  /// Returns the active static-lifecycle extended App Start span.
+  ///
+  /// Use this getter when [SentryFlutterOptions.traceLifecycle] is
+  /// [SentryTraceLifecycle.static]. It returns [NoOpSentrySpan] when standalone
+  /// App Start is inactive, already finished, unavailable, or using the
+  /// streaming lifecycle instead.
+  static ISentrySpan getExtendedAppStartSpan() {
+    final options = Sentry.currentHub.options;
+    return options is SentryFlutterOptions
+        ? options.standaloneAppStartTrace?.extendedSpan ?? NoOpSentrySpan()
+        : NoOpSentrySpan();
+  }
+
+  /// Returns the active streaming-lifecycle extended App Start span.
+  ///
+  /// Use this getter when [SentryFlutterOptions.traceLifecycle] is
+  /// [SentryTraceLifecycle.stream]. It returns [NoOpSentrySpanV2] when
+  /// standalone App Start is inactive, already finished, unavailable, or using
+  /// the static lifecycle instead.
+  static SentrySpanV2 getExtendedAppStartSpanV2() {
+    final options = Sentry.currentHub.options;
+    return options is SentryFlutterOptions
+        ? options.standaloneAppStartTrace?.extendedSpanV2 ??
+            const NoOpSentrySpanV2()
+        : const NoOpSentrySpanV2();
+  }
+
+  /// Finishes the active standalone App Start extension, if one exists.
+  ///
+  /// Open descendants of the extension are cancelled at the finish timestamp,
+  /// while the standalone App Start root keeps its existing first-frame, idle,
+  /// and deadline lifecycle.
+  static Future<void> finishExtendedAppStart() async {
+    final options = Sentry.currentHub.options;
+    if (options is SentryFlutterOptions) {
+      final trace = options.standaloneAppStartTrace;
+      if (trace != null) {
+        await trace.finishExtended(options.clock());
+      }
+    }
+  }
+
   /// Pauses the app hang tracking.
   /// Only for iOS and macOS.
   static Future<void> pauseAppHangTracking() async {

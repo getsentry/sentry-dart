@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/app_start/app_start_data.dart';
+import 'package:sentry_flutter/src/app_start/standalone/app_start_trace.dart';
 import 'package:sentry_flutter/src/app_start/standalone/static_app_start_trace.dart';
 
 import '../../mocks.dart';
@@ -43,6 +44,247 @@ void main() {
         root.children.map((span) => span.context.parentSpanId),
         everyElement(root.context.spanId),
       );
+    });
+
+    test('creates one extended app-start span before first frame', () {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 400),
+      );
+
+      expect(sut.tryExtend(extensionStart), isTrue);
+
+      final extension = sut.extendedSpan;
+      expect(extension, isA<SentrySpan>());
+      expect(
+          extension.context.operation, SentrySpanOperations.appStartExtended);
+      expect(extension.context.description, standaloneExtendedAppStartName);
+      expect(extension.origin, SentryTraceOrigins.autoAppStart);
+      expect(extension.status, SpanStatus.ok());
+      expect(extension.startTimestamp, extensionStart);
+      expect(sut.extendedSpanV2, isA<NoOpSentrySpanV2>());
+      expect(sut.tryExtend(extensionStart), isFalse);
+    });
+
+    test('rejects extension after the first frame', () {
+      final sut = fixture.getSut()!;
+      sut.recordFirstFrame(fixture.naturalEnd);
+
+      expect(
+        sut.tryExtend(fixture.processStart.add(const Duration(seconds: 1))),
+        isFalse,
+      );
+      expect(sut.extendedSpan, isA<NoOpSentrySpan>());
+    });
+
+    test('finishes open extension descendants leaf first', () async {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 400),
+      );
+      expect(sut.tryExtend(extensionStart), isTrue);
+
+      final extension = sut.extendedSpan as SentrySpan;
+      final child = extension.startChild(
+        'extended child',
+        startTimestamp: extensionStart.add(const Duration(milliseconds: 1)),
+      ) as SentrySpan;
+      final grandchild = child.startChild(
+        'extended grandchild',
+        startTimestamp: extensionStart.add(const Duration(milliseconds: 2)),
+      ) as SentrySpan;
+      final finishOrder = <SpanId>[];
+      fixture.options.lifecycleRegistry.registerCallback<OnSpanFinish>((event) {
+        if (event.span is SentrySpan) {
+          finishOrder.add(event.span.context.spanId);
+        }
+      });
+      final extensionEnd = extensionStart.add(const Duration(seconds: 1));
+
+      await sut.finishExtended(extensionEnd);
+
+      expect(finishOrder, [
+        grandchild.context.spanId,
+        child.context.spanId,
+        extension.context.spanId,
+      ]);
+      expect(grandchild.status, SpanStatus.cancelled());
+      expect(child.status, SpanStatus.cancelled());
+      expect(extension.status, SpanStatus.ok());
+      expect(grandchild.endTimestamp, extensionEnd);
+      expect(child.endTimestamp, extensionEnd);
+      expect(extension.endTimestamp, extensionEnd);
+    });
+
+    test('direct extension finish cancels open descendants', () async {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 400),
+      );
+      expect(sut.tryExtend(extensionStart), isTrue);
+
+      final extension = sut.extendedSpan as SentrySpan;
+      final child = extension.startChild(
+        'extended child',
+        startTimestamp: extensionStart.add(const Duration(milliseconds: 1)),
+      ) as SentrySpan;
+      final extensionEnd = extensionStart.add(const Duration(seconds: 1));
+
+      await extension.finish(endTimestamp: extensionEnd);
+
+      expect(child.status, SpanStatus.cancelled());
+      expect(child.endTimestamp, extensionEnd);
+      expect(extension.status, SpanStatus.ok());
+      expect(extension.endTimestamp, extensionEnd);
+    });
+
+    test('returns a no-op extended span after the extension finishes',
+        () async {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 400),
+      );
+      expect(sut.tryExtend(extensionStart), isTrue);
+
+      final extensionEnd = extensionStart.add(const Duration(seconds: 1));
+
+      await sut.finishExtended(extensionEnd);
+
+      expect(sut.extendedSpan, isA<NoOpSentrySpan>());
+    });
+
+    test('preserves finished extension descendants', () async {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 400),
+      );
+      expect(sut.tryExtend(extensionStart), isTrue);
+
+      final extension = sut.extendedSpan as SentrySpan;
+      final child = extension.startChild(
+        'extended child',
+        startTimestamp: extensionStart.add(const Duration(milliseconds: 1)),
+      ) as SentrySpan;
+      final childEnd = extensionStart.add(const Duration(milliseconds: 500));
+      await child.finish(
+        status: SpanStatus.internalError(),
+        endTimestamp: childEnd,
+      );
+      final extensionEnd = extensionStart.add(const Duration(seconds: 1));
+
+      await sut.finishExtended(extensionEnd);
+
+      expect(child.status, SpanStatus.internalError());
+      expect(child.endTimestamp, childEnd);
+    });
+
+    test('does not finish the root when the extension finishes', () async {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 400),
+      );
+      expect(sut.tryExtend(extensionStart), isTrue);
+
+      await sut.finishExtended(extensionStart.add(const Duration(seconds: 1)));
+
+      expect(fixture.root!.tracer.finished, isFalse);
+    });
+
+    test('reuses the first asynchronous extension completion', () async {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 400),
+      );
+      expect(sut.tryExtend(extensionStart), isTrue);
+      final extension = sut.extendedSpan as SentrySpan;
+
+      final first = sut.finishExtended(
+        extensionStart.add(const Duration(seconds: 1)),
+      );
+      final second = sut.finishExtended(
+        extensionStart.add(const Duration(seconds: 2)),
+      );
+
+      expect(second, same(first));
+      await first;
+      expect(
+        extension.endTimestamp,
+        extensionStart.add(const Duration(seconds: 1)),
+      );
+    });
+
+    test('measures the extension endpoint after the first frame', () async {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 400),
+      );
+      final extensionEnd = fixture.processStart.add(
+        const Duration(milliseconds: 600),
+      );
+      expect(sut.tryExtend(extensionStart), isTrue);
+
+      sut.recordFirstFrame(fixture.naturalEnd);
+      sut.finish(fixture.naturalEnd);
+      await sut.finishExtended(extensionEnd);
+      await fixture.root!.tracer.finish(
+        endTimestamp: fixture.rootFinish,
+      );
+      await pumpEventQueue(times: 10);
+
+      expect(fixture.root!.tracer.measurements['app_start_cold']?.value, 600);
+    });
+
+    test('keeps the natural endpoint when the extension ends first', () async {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 200),
+      );
+      final extensionEnd = fixture.processStart.add(
+        const Duration(milliseconds: 250),
+      );
+      expect(sut.tryExtend(extensionStart), isTrue);
+
+      await sut.finishExtended(extensionEnd);
+      sut.recordFirstFrame(fixture.naturalEnd);
+      sut.finish(fixture.naturalEnd);
+      await fixture.root!.tracer.finish(endTimestamp: fixture.rootFinish);
+      await pumpEventQueue(times: 10);
+
+      expect(fixture.root!.tracer.measurements['app_start_cold']?.value, 350);
+    });
+
+    test('ignores later unrelated root children for measurement', () async {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 400),
+      );
+      final extensionEnd = fixture.processStart.add(
+        const Duration(milliseconds: 600),
+      );
+      expect(sut.tryExtend(extensionStart), isTrue);
+
+      sut.recordFirstFrame(fixture.naturalEnd);
+      sut.finish(fixture.naturalEnd);
+      await sut.finishExtended(extensionEnd);
+      final unrelated = fixture.root!.tracer.startChild(
+        'unrelated child',
+        startTimestamp: fixture.processStart.add(
+          const Duration(milliseconds: 700),
+        ),
+      );
+      await unrelated.finish(
+        endTimestamp: fixture.processStart.add(
+          const Duration(milliseconds: 900),
+        ),
+      );
+      await fixture.root!.tracer.finish(
+        endTimestamp: fixture.processStart.add(
+          const Duration(milliseconds: 1000),
+        ),
+      );
+      await pumpEventQueue(times: 10);
+
+      expect(fixture.root!.tracer.measurements['app_start_cold']?.value, 600);
     });
 
     test('uses the first frame render operation for its barrier', () {
@@ -144,6 +386,23 @@ void main() {
       expect(root.data['app.vitals.start.screen'], 'root /');
     });
 
+    test('close finishes an open extension before the root', () async {
+      final sut = fixture.getSut()!;
+      expect(
+        sut.tryExtend(
+          fixture.processStart.add(const Duration(milliseconds: 400)),
+        ),
+        isTrue,
+      );
+      final extension = sut.extendedSpan as SentrySpan;
+      final root = fixture.root!.tracer;
+
+      await sut.close();
+
+      expect(extension.finished, isTrue);
+      expect(root.finished, isTrue);
+    });
+
     testWidgets('waits for idle timeout after natural end', (tester) async {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;
@@ -217,6 +476,27 @@ void main() {
         status: SpanStatus.deadlineExceeded(),
         endTimestamp: deadline,
       )).called(1);
+    });
+
+    testWidgets('suppresses measurement for an unfinished extension deadline',
+        (tester) async {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!.tracer;
+      expect(
+        sut.tryExtend(
+          fixture.processStart.add(const Duration(milliseconds: 400)),
+        ),
+        isTrue,
+      );
+
+      await tester.pump(Duration(seconds: 30));
+      await tester.pump();
+
+      expect(root.finished, isTrue);
+      expect(root.status, SpanStatus.deadlineExceeded());
+      expect(root.measurements['app_start_cold'], isNull);
+      expect(root.data['app_start_type'], 'cold');
+      expect(root.data['app.vitals.start.screen'], 'root /');
     });
 
     testWidgets('close cancels the final deadline', (tester) async {

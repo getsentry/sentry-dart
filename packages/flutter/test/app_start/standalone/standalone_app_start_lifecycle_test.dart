@@ -8,11 +8,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/app_start/standalone/app_start_trace.dart';
 import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_lifecycle.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 
+import '../../app_start_trace_test_support.dart';
 import '../../fake_frame_callback_handler.dart';
 import '../../mocks.dart';
 import '../../mocks.mocks.dart';
@@ -28,6 +30,24 @@ void main() {
     tearDown(() async {
       await fixture.getSut().close();
       fixture.setCurrentRouteName(null);
+    });
+
+    test(
+        'allows app-start traces to expose both extension span types and explicit finish timestamps',
+        () async {
+      final fake = TestAppStartTrace();
+      final AppStartTrace trace = fake;
+      final extensionStart = DateTime.utc(2026, 7, 22, 16);
+      final extensionEnd = DateTime.utc(2026, 7, 22, 16, 0, 1);
+
+      expect(trace.tryExtend(extensionStart), isTrue);
+      expect(trace.extendedSpan, isA<NoOpSentrySpan>());
+      expect(trace.extendedSpanV2, isA<SentrySpanV2>());
+
+      await trace.finishExtended(extensionEnd);
+
+      expect(fake.extensionStart, extensionStart);
+      expect(fake.extensionEnd, extensionEnd);
     });
 
     test('installs standalone trace before the first frame', () async {
@@ -80,6 +100,46 @@ void main() {
         fixture.rootSpans.map((span) => span.context.traceId).toSet(),
         hasLength(1),
       );
+    });
+
+    test(
+        'produces equivalent static and streaming outputs for nested extension completion',
+        () async {
+      final staticFixture = Fixture();
+      final streamingFixture = Fixture()..useStreamingLifecycle();
+      addTearDown(() async {
+        await staticFixture.getSut().close();
+        await streamingFixture.getSut().close();
+      });
+
+      final staticSnapshot = await staticFixture.runExtendedScenario();
+      final streamingSnapshot = await streamingFixture.runExtendedScenario();
+
+      expect(staticSnapshot.rootCount, 1);
+      expect(streamingSnapshot.rootCount, 1);
+      expect(staticSnapshot.extensionChildCount, 1);
+      expect(streamingSnapshot.extensionChildCount, 1);
+      expect(staticSnapshot.extensionStart, streamingSnapshot.extensionStart);
+      expect(staticSnapshot.extensionEnd, streamingSnapshot.extensionEnd);
+      expect(staticSnapshot.cancelledChildEnd,
+          streamingSnapshot.cancelledChildEnd);
+      expect(
+        staticSnapshot.cancelledGrandchildEnd,
+        streamingSnapshot.cancelledGrandchildEnd,
+      );
+      expect(staticSnapshot.extensionSuccessful, isTrue);
+      expect(streamingSnapshot.extensionSuccessful, isTrue);
+      expect(staticSnapshot.childCancelled, isTrue);
+      expect(staticSnapshot.grandchildCancelled, isTrue);
+      expect(streamingSnapshot.childCancelled, isTrue);
+      expect(streamingSnapshot.grandchildCancelled, isTrue);
+      expect(staticSnapshot.measurementMilliseconds, 600.0);
+      expect(
+        streamingSnapshot.measurementMilliseconds,
+        staticSnapshot.measurementMilliseconds,
+      );
+      expect(streamingSnapshot.childCancelledStatusMessage, 'cancelled');
+      expect(streamingSnapshot.grandchildCancelledStatusMessage, 'cancelled');
     });
 
     test('concurrent start calls initialize the lifecycle once', () async {
@@ -236,6 +296,40 @@ void main() {
       expect(root.tracer.finished, isTrue);
     });
 
+    test('publishes the active standalone trace after start', () async {
+      await fixture.startLifecycle();
+
+      expect(fixture.options.standaloneAppStartTrace, isNotNull);
+    });
+
+    test('close clears the published standalone trace', () async {
+      await fixture.startLifecycle();
+      final publishedTrace = fixture.options.standaloneAppStartTrace;
+
+      expect(publishedTrace, isNotNull);
+
+      await fixture.getSut().close();
+
+      expect(fixture.options.standaloneAppStartTrace, isNull);
+    });
+
+    test('close preserves a replacement standalone trace', () async {
+      await fixture.startLifecycle();
+      final publishedTrace = fixture.options.standaloneAppStartTrace;
+      final replacementTrace = TestAppStartTrace();
+
+      expect(publishedTrace, isNotNull);
+
+      fixture.options.standaloneAppStartTrace = replacementTrace;
+
+      await fixture.getSut().close();
+
+      expect(
+        fixture.options.standaloneAppStartTrace,
+        same(replacementTrace),
+      );
+    });
+
     test('close removes the first-frame callback', () async {
       await fixture.startLifecycle();
 
@@ -318,8 +412,17 @@ class Fixture {
   final native = MockSentryNativeBinding();
   final transport = _FakeTransport();
   final rootSpans = <SentrySpan>[];
+  final streamRootSpans = <IdleRecordingSentrySpanV2>[];
+  final streamChildSpans = <RecordingSentrySpanV2>[];
   List<SentrySpan> get appStartRoots =>
       rootSpans.where((span) => span.context.operation == 'app.start').toList();
+  List<IdleRecordingSentrySpanV2> get streamAppStartRoots => streamRootSpans
+      .where(
+        (span) =>
+            span.attributes[SemanticAttributesConstants.sentryOp]?.value ==
+            SentrySpanOperations.appStart,
+      )
+      .toList();
   final processStart = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
   final setup = DateTime.fromMillisecondsSinceEpoch(200, isUtc: true);
   final snapshot = DateTime.fromMillisecondsSinceEpoch(300, isUtc: true);
@@ -356,6 +459,14 @@ class Fixture {
         rootSpans.add(event.span as SentrySpan);
       }
     });
+    options.lifecycleRegistry.registerCallback<OnSpanStartV2>((event) {
+      final span = event.span;
+      if (span is IdleRecordingSentrySpanV2) {
+        streamRootSpans.add(span);
+      } else if (span is RecordingSentrySpanV2 && span.parentSpan != null) {
+        streamChildSpans.add(span);
+      }
+    });
     options.timeToDisplayTracker = TimeToDisplayTracker(
       hub: hub,
       options: options,
@@ -380,6 +491,111 @@ class Fixture {
       );
 
   Future<void> startLifecycle() => getSut().start();
+
+  Future<_ExtendedScenarioSnapshot> runExtendedScenario() async {
+    final extensionStart = processStart.add(const Duration(milliseconds: 250));
+    final childStart = extensionStart.add(const Duration(milliseconds: 25));
+    final grandchildStart =
+        extensionStart.add(const Duration(milliseconds: 50));
+    final extensionEnd = processStart.add(const Duration(milliseconds: 600));
+    final rootEnd = processStart.add(const Duration(milliseconds: 900));
+
+    await startLifecycle();
+    await pumpEventQueue(times: 10);
+
+    final trace = options.standaloneAppStartTrace!;
+    expect(trace.tryExtend(extensionStart), isTrue);
+
+    switch (options.traceLifecycle) {
+      case SentryTraceLifecycle.static:
+        final extension = trace.extendedSpan as SentrySpan;
+        final child = extension.startChild(
+          'extended child',
+          startTimestamp: childStart,
+        ) as SentrySpan;
+        final grandchild = child.startChild(
+          'extended grandchild',
+          startTimestamp: grandchildStart,
+        ) as SentrySpan;
+
+        frameHandler.timingsCallback!([frameTiming]);
+        await pumpEventQueue(times: 10);
+        await trace.finishExtended(extensionEnd);
+        await pumpEventQueue(times: 10);
+        await appStartRoots.single.tracer.finish(endTimestamp: rootEnd);
+        await pumpEventQueue(times: 10);
+
+        return _ExtendedScenarioSnapshot(
+          rootCount: appStartRoots.length,
+          extensionChildCount: appStartRoots.single.tracer.children
+              .where(
+                (span) =>
+                    span.context.operation ==
+                    SentrySpanOperations.appStartExtended,
+              )
+              .length,
+          extensionStart: extension.startTimestamp,
+          extensionEnd: extension.endTimestamp!,
+          cancelledChildEnd: child.endTimestamp!,
+          cancelledGrandchildEnd: grandchild.endTimestamp!,
+          extensionSuccessful: extension.status == SpanStatus.ok(),
+          childCancelled: child.status == SpanStatus.cancelled(),
+          grandchildCancelled: grandchild.status == SpanStatus.cancelled(),
+          measurementMilliseconds: appStartRoots
+              .single.tracer.measurements['app_start_cold']!.value
+              .toDouble(),
+        );
+      case SentryTraceLifecycle.stream:
+        final extension = trace.extendedSpanV2 as RecordingSentrySpanV2;
+        final child = hub.startInactiveSpan(
+          'extended child',
+          parentSpan: extension,
+          startTimestamp: childStart,
+        ) as RecordingSentrySpanV2;
+        final grandchild = hub.startInactiveSpan(
+          'extended grandchild',
+          parentSpan: child,
+          startTimestamp: grandchildStart,
+        ) as RecordingSentrySpanV2;
+
+        frameHandler.timingsCallback!([frameTiming]);
+        await pumpEventQueue(times: 10);
+        await trace.finishExtended(extensionEnd);
+        await pumpEventQueue(times: 10);
+        streamAppStartRoots.single.end(endTimestamp: rootEnd);
+        await pumpEventQueue(times: 10);
+
+        return _ExtendedScenarioSnapshot(
+          rootCount: streamAppStartRoots.length,
+          extensionChildCount: streamChildSpans
+              .where(
+                (span) =>
+                    identical(span.parentSpan, streamAppStartRoots.single) &&
+                    span.attributes[SemanticAttributesConstants.sentryOp]
+                            ?.value ==
+                        SentrySpanOperations.appStartExtended,
+              )
+              .length,
+          extensionStart: extension.startTimestamp,
+          extensionEnd: extension.endTimestamp!,
+          cancelledChildEnd: child.endTimestamp!,
+          cancelledGrandchildEnd: grandchild.endTimestamp!,
+          extensionSuccessful: extension.status == SentrySpanStatusV2.ok,
+          childCancelled: child.status == SentrySpanStatusV2.ok,
+          grandchildCancelled: grandchild.status == SentrySpanStatusV2.ok,
+          measurementMilliseconds: streamAppStartRoots
+              .single
+              .attributes[SemanticAttributesConstants.appVitalsStartValue]!
+              .value as double,
+          childCancelledStatusMessage: child
+              .attributes[SemanticAttributesConstants.sentryStatusMessage]
+              ?.value as String?,
+          grandchildCancelledStatusMessage: grandchild
+              .attributes[SemanticAttributesConstants.sentryStatusMessage]
+              ?.value as String?,
+        );
+    }
+  }
 
   SpanId seedLegacyStaticDisplayTracking() {
     final transactionId = SentryTransactionContext(
@@ -409,6 +625,36 @@ class Fixture {
       null,
     );
   }
+}
+
+final class _ExtendedScenarioSnapshot {
+  final int rootCount;
+  final int extensionChildCount;
+  final DateTime extensionStart;
+  final DateTime extensionEnd;
+  final DateTime cancelledChildEnd;
+  final DateTime cancelledGrandchildEnd;
+  final bool extensionSuccessful;
+  final bool childCancelled;
+  final bool grandchildCancelled;
+  final double measurementMilliseconds;
+  final String? childCancelledStatusMessage;
+  final String? grandchildCancelledStatusMessage;
+
+  const _ExtendedScenarioSnapshot({
+    required this.rootCount,
+    required this.extensionChildCount,
+    required this.extensionStart,
+    required this.extensionEnd,
+    required this.cancelledChildEnd,
+    required this.cancelledGrandchildEnd,
+    required this.extensionSuccessful,
+    required this.childCancelled,
+    required this.grandchildCancelled,
+    required this.measurementMilliseconds,
+    this.childCancelledStatusMessage,
+    this.grandchildCancelledStatusMessage,
+  });
 }
 
 class _FakeTransport implements Transport {

@@ -134,9 +134,40 @@ class _MyAppState extends State<MyApp> {
   void doWork() async {
     final rootDisplay = SentryFlutter.currentDisplay();
 
-    await Sentry.startSpan('Custom span that runs during app start', (_) async {
-      await Future.delayed(const Duration(seconds: 1));
-    });
+    SentryFlutter.extendAppStart();
+    try {
+      final staticParent = SentryFlutter.getExtendedAppStartSpan();
+      if (staticParent is! NoOpSentrySpan) {
+        final child = staticParent.startChild(
+          'app.init',
+          description: 'Load startup configuration',
+        );
+        try {
+          await Future.delayed(const Duration(seconds: 1));
+        } finally {
+          await child.finish();
+        }
+      } else {
+        final streamParent = SentryFlutter.getExtendedAppStartSpanV2();
+        if (streamParent is! NoOpSentrySpanV2) {
+          final child = Sentry.startInactiveSpan(
+            'Load startup configuration',
+            parentSpan: streamParent,
+            attributes: {
+              SemanticAttributesConstants.sentryOp:
+                  SentryAttribute.string('app.init'),
+            },
+          );
+          try {
+            await Future.delayed(const Duration(seconds: 1));
+          } finally {
+            child.end();
+          }
+        }
+      }
+    } finally {
+      await SentryFlutter.finishExtendedAppStart();
+    }
 
     rootDisplay?.reportFullyDisplayed();
   }

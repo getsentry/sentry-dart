@@ -16,6 +16,14 @@ final class StreamingAppStartTrace implements AppStartTrace {
   final String Function() _startScreenNameProvider;
 
   late final SdkLifecycleCallback<OnProcessSpan> _processCallback;
+  late final SdkLifecycleCallback<OnSpanStartV2> _onSpanStartCallback;
+  late final SdkLifecycleCallback<OnSpanEndV2> _onSpanEndCallback;
+  RecordingSentrySpanV2? _extendedSpan;
+  final _extendedDescendants = <SpanId, RecordingSentrySpanV2>{};
+  bool _extensionRequested = false;
+  Future<void>? _extensionCompletion;
+  DateTime? _extensionEndTimestamp;
+  bool _extensionFinalizing = false;
   DateTime? _endTimestamp;
   bool _completed = false;
   bool _closed = false;
@@ -30,7 +38,10 @@ final class StreamingAppStartTrace implements AppStartTrace {
         _data = data,
         _root = root,
         _firstFrameBarrier = firstFrameBarrier,
-        _startScreenNameProvider = startScreenNameProvider;
+        _startScreenNameProvider = startScreenNameProvider {
+    _onSpanStartCallback = _onSpanStart;
+    _onSpanEndCallback = _onSpanEnd;
+  }
 
   static StreamingAppStartTrace? tryCreate({
     required Hub hub,
@@ -141,6 +152,68 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }
 
   @override
+  bool tryExtend(DateTime startTimestamp) {
+    if (_closed ||
+        _completed ||
+        _firstFrameBarrier.isEnded ||
+        _extensionRequested) {
+      return false;
+    }
+
+    final extension = _hub.startInactiveSpan(
+      standaloneExtendedAppStartName,
+      parentSpan: _root,
+      startTimestamp: startTimestamp.toUtc(),
+      attributes: {
+        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
+          SentrySpanOperations.appStartExtended,
+        ),
+        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+          SentryTraceOrigins.autoAppStart,
+        ),
+      },
+    );
+    if (extension is! RecordingSentrySpanV2) {
+      return false;
+    }
+
+    _extendedSpan = extension;
+    _extensionRequested = true;
+    _hub.options.lifecycleRegistry
+      ..registerCallback<OnSpanStartV2>(_onSpanStartCallback)
+      ..registerCallback<OnSpanEndV2>(_onSpanEndCallback);
+    return true;
+  }
+
+  @override
+  ISentrySpan get extendedSpan => NoOpSentrySpan();
+
+  @override
+  SentrySpanV2 get extendedSpanV2 {
+    final extension = _extendedSpan;
+    return extension == null || extension.isEnded
+        ? const NoOpSentrySpanV2()
+        : extension;
+  }
+
+  @override
+  Future<void> finishExtended(DateTime endTimestamp) {
+    final extension = _extendedSpan;
+    if (_closed || _completed || extension == null) {
+      return Future<void>.value();
+    }
+
+    final completion = _extensionCompletion;
+    if (completion != null) {
+      return completion;
+    }
+
+    final future = _finishExtension(endTimestamp.toUtc());
+    _extensionCompletion = future;
+    return future;
+  }
+
+  @override
   void recordFirstFrame(DateTime endTimestamp) {
     if (_closed || _completed) return;
     _firstFrameBarrier.end(endTimestamp: endTimestamp.toUtc());
@@ -169,13 +242,20 @@ final class StreamingAppStartTrace implements AppStartTrace {
       );
 
       final endTimestamp = _endTimestamp;
+      final extensionCompleted =
+          !_extensionRequested || _extensionEndTimestamp != null;
       final deadlineExceeded = _root.status == SentrySpanStatusV2.error &&
           _root.attributes[SemanticAttributesConstants.sentryStatusMessage]
                   ?.value ==
               SentrySpanStatusMessages.deadlineExceeded;
-      if (endTimestamp != null && !deadlineExceeded) {
+      if (endTimestamp != null && extensionCompleted && !deadlineExceeded) {
+        final extensionEndTimestamp = _extensionEndTimestamp;
+        final measurementEnd = extensionEndTimestamp != null &&
+                extensionEndTimestamp.isAfter(endTimestamp)
+            ? extensionEndTimestamp
+            : endTimestamp;
         final duration =
-            _data.durationUntil(endTimestamp).inMilliseconds.toDouble();
+            _data.durationUntil(measurementEnd).inMilliseconds.toDouble();
         final value = SentryAttribute.double(duration);
         _root.setAttribute(
           SemanticAttributesConstants.appVitalsStartValue,
@@ -203,9 +283,116 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }
 
   @override
-  void close() {
+  Future<void> close() async {
     if (_closed || _completed) return;
     _closed = true;
+    try {
+      final completion = _extensionCompletion;
+      if (completion != null) {
+        await completion;
+      } else {
+        final extension = _extendedSpan;
+        if (extension != null && _extensionEndTimestamp == null) {
+          await _finishExtension(
+              extension.endTimestamp ?? _hub.options.clock());
+        }
+      }
+    } finally {
+      _extendedDescendants.clear();
+    }
     _root.end();
+  }
+
+  void _onSpanStart(OnSpanStartV2 event) {
+    final extension = _extendedSpan;
+    final span = event.span;
+    if (extension == null ||
+        span is! RecordingSentrySpanV2 ||
+        identical(span, extension)) {
+      return;
+    }
+
+    if (_isExtensionDescendant(span, extension)) {
+      _extendedDescendants[span.spanId] = span;
+    }
+  }
+
+  Future<void> _onSpanEnd(OnSpanEndV2 event) async {
+    final extension = _extendedSpan;
+    if (extension == null ||
+        !identical(event.span, extension) ||
+        _extensionFinalizing) {
+      return;
+    }
+
+    final endTimestamp = extension.endTimestamp;
+    if (endTimestamp == null) return;
+
+    final future = _finishExtension(endTimestamp);
+    _extensionCompletion = future;
+    await future;
+  }
+
+  Future<void> _finishExtension(DateTime endTimestamp) async {
+    if (_extensionFinalizing) return;
+    _extensionFinalizing = true;
+    final timestamp = endTimestamp.toUtc();
+    _extensionEndTimestamp ??= timestamp;
+    try {
+      final extension = _extendedSpan;
+      if (extension == null) return;
+
+      final openDescendants =
+          _extendedDescendants.values.where((span) => !span.isEnded).toList()
+            ..sort(
+              (left, right) =>
+                  _extensionDepth(right).compareTo(_extensionDepth(left)),
+            );
+      for (final descendant in openDescendants) {
+        descendant.status = SentrySpanStatusV2.ok;
+        descendant.setAttribute(
+          SemanticAttributesConstants.sentryStatusMessage,
+          SentryAttribute.string(SentrySpanStatusMessages.cancelled),
+        );
+        descendant.end(endTimestamp: timestamp);
+      }
+
+      if (!extension.isEnded) {
+        extension.status = SentrySpanStatusV2.ok;
+        extension.end(endTimestamp: timestamp);
+      }
+    } finally {
+      _extendedDescendants.clear();
+      _removeExtensionCallbacks();
+    }
+  }
+
+  bool _isExtensionDescendant(
+    RecordingSentrySpanV2 span,
+    RecordingSentrySpanV2 extension,
+  ) {
+    RecordingSentrySpanV2? current = span.parentSpan;
+    while (current != null) {
+      if (identical(current, extension)) return true;
+      current = current.parentSpan;
+    }
+    return false;
+  }
+
+  int _extensionDepth(RecordingSentrySpanV2 span) {
+    var depth = 0;
+    RecordingSentrySpanV2? current = span.parentSpan;
+    final extension = _extendedSpan;
+    while (current != null && !identical(current, extension)) {
+      depth++;
+      current = current.parentSpan;
+    }
+    return depth;
+  }
+
+  void _removeExtensionCallbacks() {
+    _hub.options.lifecycleRegistry
+      ..removeCallback<OnSpanStartV2>(_onSpanStartCallback)
+      ..removeCallback<OnSpanEndV2>(_onSpanEndCallback);
   }
 }

@@ -22,6 +22,7 @@ import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'package:sentry_flutter/src/web/javascript_transport.dart';
 
+import 'app_start_trace_test_support.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
 import 'sentry_flutter_util.dart';
@@ -708,6 +709,119 @@ void main() {
     await expectLater(SentryFlutter.pauseAppHangTracking(), completes);
   });
 
+  group('extended app start', () {
+    late _ExtendedAppStartFixture fixture;
+
+    setUp(() async {
+      loadTestPackage();
+      await Sentry.close();
+
+      fixture = _ExtendedAppStartFixture();
+      await fixture.init();
+    });
+
+    tearDown(() async {
+      await Sentry.close();
+    });
+
+    test('extendAppStart forwards one SDK clock timestamp', () {
+      SentryFlutter.extendAppStart();
+
+      expect(fixture.trace.extensionStart, fixture.now);
+    });
+
+    test('getters return their lifecycle-specific spans', () {
+      expect(
+        SentryFlutter.getExtendedAppStartSpan(),
+        same(fixture.trace.extendedSpan),
+      );
+      expect(
+        SentryFlutter.getExtendedAppStartSpanV2(),
+        same(fixture.trace.extendedSpanV2),
+      );
+    });
+
+    test('wrong-lifecycle getters return typed no-op spans', () async {
+      final staticTrace = TestAppStartTrace(
+        extendedSpan: MockSentrySpan(),
+        extendedSpanV2: const NoOpSentrySpanV2(),
+      );
+      fixture.options.standaloneAppStartTrace = staticTrace;
+
+      expect(
+        SentryFlutter.getExtendedAppStartSpan(),
+        same(staticTrace.extendedSpan),
+      );
+      expect(
+        SentryFlutter.getExtendedAppStartSpanV2(),
+        isA<NoOpSentrySpanV2>(),
+      );
+
+      await Sentry.close();
+
+      final streamOptions = defaultTestOptions(checker: MockRuntimeChecker());
+      final streamHub = Hub(streamOptions);
+      final streamTrace = TestAppStartTrace(
+        extendedSpan: NoOpSentrySpan(),
+        extendedSpanV2: streamHub.startInactiveSpan('Extended App Start'),
+      );
+      streamOptions.standaloneAppStartTrace = streamTrace;
+      await Sentry.init((_) {}, options: streamOptions);
+
+      expect(SentryFlutter.getExtendedAppStartSpan(), isA<NoOpSentrySpan>());
+      expect(
+        SentryFlutter.getExtendedAppStartSpanV2(),
+        same(streamTrace.extendedSpanV2),
+      );
+    });
+
+    test('finishExtendedAppStart forwards one SDK clock timestamp', () async {
+      await SentryFlutter.finishExtendedAppStart();
+
+      expect(fixture.trace.extensionEnd, fixture.now);
+    });
+
+    test(
+        'APIs stay no-op after close and when standalone app start is disabled',
+        () async {
+      await Sentry.close();
+
+      SentryFlutter.extendAppStart();
+      expect(SentryFlutter.getExtendedAppStartSpan(), isA<NoOpSentrySpan>());
+      expect(
+        SentryFlutter.getExtendedAppStartSpanV2(),
+        isA<NoOpSentrySpanV2>(),
+      );
+      await SentryFlutter.finishExtendedAppStart();
+
+      final disabledOptions = defaultTestOptions(checker: MockRuntimeChecker())
+        ..enableStandaloneAppStartTracing = false;
+      await Sentry.init((_) {}, options: disabledOptions);
+
+      SentryFlutter.extendAppStart();
+      expect(SentryFlutter.getExtendedAppStartSpan(), isA<NoOpSentrySpan>());
+      expect(
+        SentryFlutter.getExtendedAppStartSpanV2(),
+        isA<NoOpSentrySpanV2>(),
+      );
+      await SentryFlutter.finishExtendedAppStart();
+    });
+
+    test('APIs are safe without an active trace', () async {
+      fixture.options.standaloneAppStartTrace = null;
+
+      SentryFlutter.extendAppStart();
+
+      expect(SentryFlutter.getExtendedAppStartSpan(), isA<NoOpSentrySpan>());
+      expect(
+        SentryFlutter.getExtendedAppStartSpanV2(),
+        isA<NoOpSentrySpanV2>(),
+      );
+
+      await SentryFlutter.finishExtendedAppStart();
+    });
+  });
+
   group('exception identifiers', () {
     setUp(() async {
       loadTestPackage();
@@ -764,6 +878,19 @@ MockSentryNativeBinding mockNativeBinding() {
 }
 
 void appRunner() {}
+
+final class _ExtendedAppStartFixture {
+  final now = DateTime.utc(2024, 1, 1, 12);
+  final trace = TestAppStartTrace();
+  late final SentryFlutterOptions options = defaultTestOptions(
+    checker: MockRuntimeChecker(),
+  )..clock = () => now;
+
+  Future<void> init() async {
+    options.standaloneAppStartTrace = trace;
+    await Sentry.init((_) {}, options: options);
+  }
+}
 
 void loadTestPackage() {
   PackageInfo.setMockInitialValues(
