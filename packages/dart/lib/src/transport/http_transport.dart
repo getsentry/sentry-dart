@@ -90,7 +90,7 @@ class HttpTransport implements Transport {
 
   void _updateRetryAfterLimits(Response response) {
     // seconds
-    final retryAfterHeader = response.headers['Retry-After'];
+    final retryAfterHeader = response.headers['retry-after'];
 
     // X-Sentry-Rate-Limits looks like: seconds:categories:scope
     // it could have more than one scope so it looks like:
@@ -98,7 +98,7 @@ class HttpTransport implements Transport {
 
     // a real example: 50:transaction:key, 2700:default;error;security:organization
     // 50::key is also a valid case, it means no categories and it should apply to all of them
-    final sentryRateLimitHeader = response.headers['X-Sentry-Rate-Limits'];
+    final sentryRateLimitHeader = response.headers['x-sentry-rate-limits'];
     _rateLimiter.updateRetryAfterLimits(
         sentryRateLimitHeader, retryAfterHeader, response.statusCode);
   }
