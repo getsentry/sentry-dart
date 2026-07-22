@@ -165,7 +165,9 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     );
     _activeDescendants.clear();
 
-    final finalEndTimestamp = _computeFinalEndTimestamp(idleEndTimestamp);
+    final finalEndTimestamp = deadlineExceeded
+        ? idleEndTimestamp
+        : _computeFinalEndTimestamp(idleEndTimestamp);
 
     super.end(endTimestamp: finalEndTimestamp);
 
@@ -184,7 +186,6 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   }) {
     for (final child in _activeDescendants.values.toList()) {
       if (child.isEnded) continue;
-      if (child.startTimestamp.isAfter(idleEndTimestamp)) continue;
 
       child.status =
           deadlineExceeded ? SentrySpanStatusV2.error : SentrySpanStatusV2.ok;
@@ -194,10 +195,13 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
           SentryAttribute.string(SentrySpanStatusMessages.deadlineExceeded),
         );
       }
-      child.end(endTimestamp: idleEndTimestamp);
+      final childEndTimestamp = child.startTimestamp.isAfter(idleEndTimestamp)
+          ? _clock().toUtc()
+          : idleEndTimestamp;
+      child.end(endTimestamp: childEndTimestamp);
       // Track explicitly because lifecycle callbacks are already unregistered
       // at this point, so _onSpanEndEvent won't fire for these force-ended children.
-      _trackLatestChildEnd(idleEndTimestamp);
+      _trackLatestChildEnd(childEndTimestamp);
 
       internalLogger.debug(
         () => 'IdleRecordingSentrySpanV2: finished still-active child span '

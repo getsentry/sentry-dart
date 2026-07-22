@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fake_async/fake_async.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/discarded_event.dart';
@@ -1296,6 +1297,59 @@ void main() {
         final endTimestampDelta =
             idleSpan.endTimestamp!.difference(childSpan.endTimestamp!).abs();
         expect(endTimestampDelta, lessThan(Duration(milliseconds: 10)));
+      });
+
+      test('finishes children started after the final deadline', () {
+        fakeAsync((async) {
+          var now = DateTime.utc(2026, 7, 22, 12);
+          fixture.options.clock = () => now;
+          final hub = fixture.getSut();
+          hub.startIdleSpan(
+            'idle-root',
+            idleTimeout: Duration(seconds: 1),
+            finalTimeout: Duration(milliseconds: 20),
+          );
+
+          now = now.add(Duration(milliseconds: 30));
+          final child =
+              hub.startInactiveSpan('late-child') as RecordingSentrySpanV2;
+
+          async.elapse(Duration(milliseconds: 20));
+
+          expect(child.isEnded, isTrue);
+          expect(child.status, SentrySpanStatusV2.error);
+          expect(
+            child.attributes[SemanticAttributesConstants.sentryStatusMessage]
+                ?.value,
+            'deadline_exceeded',
+          );
+        });
+      });
+
+      test('does not trim a final-timeout end before the deadline', () {
+        fakeAsync((async) {
+          final startedAt = DateTime.utc(2026, 7, 22, 12);
+          var now = startedAt;
+          fixture.options.clock = () => now;
+          final hub = fixture.getSut();
+          final idleSpan = hub.startIdleSpan(
+            'idle-root',
+            idleTimeout: Duration(seconds: 1),
+            finalTimeout: Duration(milliseconds: 20),
+            trimIdleSpanEndTimestamp: true,
+          ) as RecordingSentrySpanV2;
+          final child = hub.startInactiveSpan('child') as RecordingSentrySpanV2;
+
+          now = now.add(Duration(milliseconds: 5));
+          child.end();
+          now = startedAt.add(Duration(milliseconds: 20));
+          async.elapse(Duration(milliseconds: 20));
+
+          expect(
+            idleSpan.endTimestamp,
+            startedAt.add(Duration(milliseconds: 20)),
+          );
+        });
       });
 
       test('finishes with ok status when idle timeout is reached', () async {
