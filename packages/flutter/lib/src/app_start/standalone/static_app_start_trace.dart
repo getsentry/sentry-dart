@@ -114,9 +114,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       return trace;
     } catch (error, stackTrace) {
       if (createdRoot != null) {
-        unawaited(
-          _flushTrace(root: createdRoot, children: children),
-        );
+        unawaited(_flushTrace(root: createdRoot, children: children));
       }
       internalLogger.error(
         'Failed to create static standalone app start',
@@ -181,24 +179,24 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 
   void _scheduleFinalTimeout(DateTime now) {
+    void finishAtDeadline() {
+      unawaited(
+        _finishAtDeadline().catchError((Object error, StackTrace stackTrace) {
+          internalLogger.error(
+            'Failed to finish static app start at final deadline',
+            error: error,
+            stackTrace: stackTrace,
+          );
+        }),
+      );
+    }
+
     final remaining = _finalDeadlineTimestamp.difference(now.toUtc());
     if (remaining <= Duration.zero) {
-      _finishAtDeadlineSafely();
+      finishAtDeadline();
     } else {
-      _finalTimeoutTimer = Timer(remaining, _finishAtDeadlineSafely);
+      _finalTimeoutTimer = Timer(remaining, finishAtDeadline);
     }
-  }
-
-  void _finishAtDeadlineSafely() {
-    unawaited(
-      _finishAtDeadline().catchError((Object error, StackTrace stackTrace) {
-        internalLogger.error(
-          'Failed to finish static app start at final deadline',
-          error: error,
-          stackTrace: stackTrace,
-        );
-      }),
-    );
   }
 
   Future<void> _finishAtDeadline() async {
@@ -218,10 +216,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       }
     }
 
-    await _root.finish(
-      status: status,
-      endTimestamp: _finalDeadlineTimestamp,
-    );
+    await _root.finish(status: status, endTimestamp: _finalDeadlineTimestamp);
   }
 
   void _clearFinalTimeout() {
