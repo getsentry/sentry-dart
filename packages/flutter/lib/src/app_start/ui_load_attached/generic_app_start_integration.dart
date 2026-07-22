@@ -36,6 +36,7 @@ class GenericAppStartIntegration extends Integration<SentryFlutterOptions> {
     final transactionContext = SentryTransactionContext(
       'root /',
       SentrySpanOperations.uiLoad,
+      transactionNameSource: SentryTransactionNameSource.component,
       origin: SentryTraceOrigins.autoUiTimeToDisplay,
     );
 

@@ -460,6 +460,8 @@ class _SentryUserInteractionWidgetState
             SentryAttribute.string(SentrySpanOperations.uiActionClick),
         SemanticAttributesConstants.sentryOrigin:
             SentryAttribute.string(SentryTraceOrigins.autoUiInteraction),
+        SemanticAttributesConstants.sentrySegmentNameSource:
+            SentryAttribute.string(SentryTransactionNameSource.component.name),
       },
     );
   }

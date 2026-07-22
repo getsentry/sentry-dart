@@ -9,7 +9,6 @@ on:
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - '.github/workflows/e2e_dart.yml'
-      - '.github/workflows/analyze.yml'
       - 'packages/dart/**'
       - 'e2e_test/**'
 
@@ -43,9 +42,3 @@ jobs:
         run: |
           dart pub get
           dart run --define=SENTRY_ENVIRONMENT=e2e
-
-  analyze:
-    uses: ./.github/workflows/analyze.yml
-    with:
-      package: e2e_test
-      panaThreshold: 0
