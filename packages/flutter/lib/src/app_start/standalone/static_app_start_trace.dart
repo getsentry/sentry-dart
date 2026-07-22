@@ -101,7 +101,13 @@ final class StaticAppStartTrace implements AppStartTrace {
         if (child is! NoOpSentrySpan) {
           children.add(child);
         }
-        trace._finishInBackground(child, endTimestamp: phase.endTimestamp);
+        unawaited(
+          _finishSpanSafely(
+            child,
+            endTimestamp: phase.endTimestamp,
+            failureMessage: 'Failed to finish static app-start span',
+          ),
+        );
       }
 
       trace._scheduleFinalTimeout(hub.options.clock());
@@ -125,9 +131,12 @@ final class StaticAppStartTrace implements AppStartTrace {
   void recordFirstFrame(DateTime endTimestamp) {
     if (_closed || _completed) return;
     _root.scheduleFinish();
-    _finishInBackground(
-      _firstFrameBarrier,
-      endTimestamp: endTimestamp.toUtc(),
+    unawaited(
+      _finishSpanSafely(
+        _firstFrameBarrier,
+        endTimestamp: endTimestamp.toUtc(),
+        failureMessage: 'Failed to finish static app-start span',
+      ),
     );
   }
 
@@ -235,16 +244,6 @@ final class StaticAppStartTrace implements AppStartTrace {
     await _finishSpanSafely(
       root,
       failureMessage: 'Failed to flush static standalone app start',
-    );
-  }
-
-  void _finishInBackground(ISentrySpan span, {DateTime? endTimestamp}) {
-    unawaited(
-      _finishSpanSafely(
-        span,
-        endTimestamp: endTimestamp,
-        failureMessage: 'Failed to finish static app-start span',
-      ),
     );
   }
 
