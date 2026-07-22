@@ -47,7 +47,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   }) {
     StaticAppStartTrace? trace;
     SentryTracer? createdRoot;
-    final provisionalChildren = <ISentrySpan>[];
+    final children = <ISentrySpan>[];
     try {
       final createdAt = hub.options.clock();
       final root = hub.startTransactionWithContext(
@@ -76,10 +76,10 @@ final class StaticAppStartTrace implements AppStartTrace {
         startTimestamp: data.sentrySetupTimestamp,
       )..origin = SentryTraceOrigins.autoAppStart;
       if (firstFrameBarrier is! NoOpSentrySpan) {
-        provisionalChildren.add(firstFrameBarrier);
+        children.add(firstFrameBarrier);
       }
       if (firstFrameBarrier.samplingDecision?.sampled != true) {
-        unawaited(_flushTrace(root: root, children: provisionalChildren));
+        unawaited(_flushTrace(root: root, children: children));
         return null;
       }
 
@@ -87,7 +87,7 @@ final class StaticAppStartTrace implements AppStartTrace {
         data: data,
         root: root,
         firstFrameBarrier: firstFrameBarrier,
-        children: provisionalChildren,
+        children: children,
         finalDeadlineTimestamp:
             createdAt.add(standaloneAppStartFinalTimeout).toUtc(),
         startScreenNameProvider: startScreenNameProvider,
@@ -99,9 +99,9 @@ final class StaticAppStartTrace implements AppStartTrace {
           startTimestamp: phase.startTimestamp,
         )..origin = SentryTraceOrigins.autoAppStart;
         if (child is! NoOpSentrySpan) {
-          provisionalChildren.add(child);
+          children.add(child);
         }
-        trace._finish(child, endTimestamp: phase.endTimestamp);
+        trace._finishInBackground(child, endTimestamp: phase.endTimestamp);
       }
 
       trace._scheduleFinalTimeout(hub.options.clock());
@@ -109,7 +109,7 @@ final class StaticAppStartTrace implements AppStartTrace {
     } catch (error, stackTrace) {
       if (createdRoot != null) {
         unawaited(
-          _flushTrace(root: createdRoot, children: provisionalChildren),
+          _flushTrace(root: createdRoot, children: children),
         );
       }
       internalLogger.error(
@@ -125,7 +125,10 @@ final class StaticAppStartTrace implements AppStartTrace {
   void recordFirstFrame(DateTime endTimestamp) {
     if (_closed || _completed) return;
     _root.scheduleFinish();
-    _finish(_firstFrameBarrier, endTimestamp: endTimestamp.toUtc());
+    _finishInBackground(
+      _firstFrameBarrier,
+      endTimestamp: endTimestamp.toUtc(),
+    );
   }
 
   @override
@@ -196,12 +199,8 @@ final class StaticAppStartTrace implements AppStartTrace {
 
     final status = SpanStatus.deadlineExceeded();
     _root.status = status;
-    await _root.finish(
-      status: status,
-      endTimestamp: _finalDeadlineTimestamp,
-    );
 
-    for (final child in List<ISentrySpan>.of(_children)) {
+    for (final child in _children) {
       if (!child.finished) {
         await child.finish(
           status: status,
@@ -225,46 +224,44 @@ final class StaticAppStartTrace implements AppStartTrace {
     required SentryTracer root,
     Iterable<ISentrySpan> children = const [],
   }) async {
-    try {
-      for (final child in children) {
-        if (!child.finished) {
-          try {
-            await child.finish();
-          } catch (error, stackTrace) {
-            internalLogger.error(
-              'Failed to finish static app-start span',
-              error: error,
-              stackTrace: stackTrace,
-            );
-          }
-        }
-      }
-    } finally {
-      try {
-        await root.finish();
-      } catch (error, stackTrace) {
-        internalLogger.error(
-          'Failed to flush static standalone app start',
-          error: error,
-          stackTrace: stackTrace,
+    for (final child in children) {
+      if (!child.finished) {
+        await _finishSpanSafely(
+          child,
+          failureMessage: 'Failed to finish static app-start span',
         );
       }
     }
+    await _finishSpanSafely(
+      root,
+      failureMessage: 'Failed to flush static standalone app start',
+    );
   }
 
-  void _finish(ISentrySpan span, {DateTime? endTimestamp}) {
+  void _finishInBackground(ISentrySpan span, {DateTime? endTimestamp}) {
     unawaited(
-      span.finish(endTimestamp: endTimestamp).catchError((
-        Object error,
-        StackTrace stackTrace,
-      ) {
-        internalLogger.error(
-          'Failed to finish static app-start span',
-          error: error,
-          stackTrace: stackTrace,
-        );
-      }),
+      _finishSpanSafely(
+        span,
+        endTimestamp: endTimestamp,
+        failureMessage: 'Failed to finish static app-start span',
+      ),
     );
+  }
+
+  static Future<void> _finishSpanSafely(
+    ISentrySpan span, {
+    DateTime? endTimestamp,
+    required String failureMessage,
+  }) async {
+    try {
+      await span.finish(endTimestamp: endTimestamp);
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        failureMessage,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
   }
 
   @override
@@ -272,6 +269,6 @@ final class StaticAppStartTrace implements AppStartTrace {
     if (_closed || _completed) return;
     _closed = true;
     _clearFinalTimeout();
-    await _flushTrace(root: _root, children: [_firstFrameBarrier]);
+    await _flushTrace(root: _root, children: _children);
   }
 }

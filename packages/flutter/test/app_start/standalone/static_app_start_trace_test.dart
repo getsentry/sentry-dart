@@ -201,6 +201,24 @@ void main() {
       expect(root.measurements['app_start_cold'], isNull);
     });
 
+    testWidgets('finishes the root once at the final deadline', (tester) async {
+      final mockFixture = MockCreationFixture();
+      final deadline = mockFixture.createdAt.add(Duration(seconds: 30));
+
+      StaticAppStartTrace.tryCreate(
+        hub: mockFixture.hub,
+        data: mockFixture.data,
+        startScreenNameProvider: () => 'root /',
+      );
+      await tester.pump(Duration(seconds: 30));
+      await tester.pump();
+
+      verify(mockFixture.root.finish(
+        status: SpanStatus.deadlineExceeded(),
+        endTimestamp: deadline,
+      )).called(1);
+    });
+
     testWidgets('close cancels the final deadline', (tester) async {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;
@@ -211,6 +229,30 @@ void main() {
 
       expect(root.finished, isTrue);
       expect(root.status, isNull);
+    });
+
+    test('close flushes every tracked child', () async {
+      final mockFixture = MockCreationFixture();
+      final trace = StaticAppStartTrace.tryCreate(
+        hub: mockFixture.hub,
+        data: mockFixture.data,
+        startScreenNameProvider: () => 'root /',
+      )!;
+
+      await trace.close();
+
+      verify(mockFixture.firstFrameBarrier.finish()).called(1);
+      verify(mockFixture.pluginRegistrationChild.finish(
+        status: anyNamed('status'),
+        endTimestamp: anyNamed('endTimestamp'),
+        hint: anyNamed('hint'),
+      )).called(2);
+      verify(mockFixture.sentrySetupChild.finish(
+        status: anyNamed('status'),
+        endTimestamp: anyNamed('endTimestamp'),
+        hint: anyNamed('hint'),
+      )).called(2);
+      verify(mockFixture.root.finish()).called(1);
     });
 
     test('creates trace without tracer deadline coordination', () {
