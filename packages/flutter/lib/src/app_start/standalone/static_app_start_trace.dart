@@ -17,7 +17,6 @@ final class StaticAppStartTrace implements AppStartTrace {
   final AppStartData _data;
   final SentryTracer _root;
   final ISentrySpan _firstFrameBarrier;
-  final List<ISentrySpan> _children;
   final DateTime _finalDeadlineTimestamp;
   final String Function() _startScreenNameProvider;
 
@@ -25,7 +24,6 @@ final class StaticAppStartTrace implements AppStartTrace {
   late final SdkLifecycleCallback<OnSpanFinish> _onSpanFinishCallback;
   SentrySpan? _extendedSpan;
   final _extendedDescendants = <SpanId, SentrySpan>{};
-  bool _extensionRequested = false;
   bool _firstFrameRecorded = false;
   Future<void>? _extensionCompletion;
   DateTime? _extensionEndTimestamp;
@@ -41,14 +39,12 @@ final class StaticAppStartTrace implements AppStartTrace {
     required AppStartData data,
     required SentryTracer root,
     required ISentrySpan firstFrameBarrier,
-    required List<ISentrySpan> children,
     required DateTime finalDeadlineTimestamp,
     required String Function() startScreenNameProvider,
   })  : _hub = hub,
         _data = data,
         _root = root,
         _firstFrameBarrier = firstFrameBarrier,
-        _children = children,
         _finalDeadlineTimestamp = finalDeadlineTimestamp,
         _startScreenNameProvider = startScreenNameProvider {
     _onSpanStartCallback = _onSpanStart;
@@ -103,7 +99,6 @@ final class StaticAppStartTrace implements AppStartTrace {
         data: data,
         root: root,
         firstFrameBarrier: firstFrameBarrier,
-        children: children,
         finalDeadlineTimestamp:
             createdAt.add(standaloneAppStartFinalTimeout).toUtc(),
         startScreenNameProvider: startScreenNameProvider,
@@ -143,7 +138,7 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   @override
   bool tryExtend(DateTime startTimestamp) {
-    if (_closed || _completed || _firstFrameRecorded || _extensionRequested) {
+    if (_closed || _completed || _firstFrameRecorded || _extendedSpan != null) {
       return false;
     }
 
@@ -160,11 +155,15 @@ final class StaticAppStartTrace implements AppStartTrace {
       ..origin = SentryTraceOrigins.autoAppStart
       ..status = SpanStatus.ok();
     _extendedSpan = extension;
-    _children.add(extension);
-    _extensionRequested = true;
     _hub.options.lifecycleRegistry
-      ..registerCallback<OnSpanStart>(_onSpanStartCallback)
-      ..registerCallback<OnSpanFinish>(_onSpanFinishCallback);
+      ..registerCallback<OnSpanStart>(
+        _onSpanStartCallback,
+        prepend: true,
+      )
+      ..registerCallback<OnSpanFinish>(
+        _onSpanFinishCallback,
+        prepend: true,
+      );
     return true;
   }
 
@@ -231,8 +230,8 @@ final class StaticAppStartTrace implements AppStartTrace {
 
       final endTimestamp = _endTimestamp;
       final extension = _extendedSpan;
-      final extensionCompleted = !_extensionRequested ||
-          (extension?.finished == true && _extensionEndTimestamp != null);
+      final extensionCompleted = extension == null ||
+          (extension.finished && _extensionEndTimestamp != null);
       if (endTimestamp != null &&
           extensionCompleted &&
           _root.status != SpanStatus.deadlineExceeded()) {
@@ -288,7 +287,13 @@ final class StaticAppStartTrace implements AppStartTrace {
     final status = SpanStatus.deadlineExceeded();
     _root.status = status;
 
-    for (final child in _children) {
+    final extensionCompletion = _extensionCompletion;
+    if (extensionCompletion != null) {
+      await _finishExtensionSafely(extensionCompletion);
+    }
+    if (_closed || _completed) return;
+
+    for (final child in _root.children.reversed.toList()) {
       if (!child.finished) {
         await child.finish(
           status: status,
@@ -339,12 +344,37 @@ final class StaticAppStartTrace implements AppStartTrace {
     }
   }
 
+  static Future<void> _finishExtensionSafely(Future<void> completion) async {
+    try {
+      await completion;
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'Failed to finish static extended app start',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
   @override
   Future<void> close() async {
     if (_closed || _completed) return;
     _closed = true;
     _clearFinalTimeout();
-    await _flushTrace(root: _root, children: _children);
+    final completion = _extensionCompletion;
+    if (completion != null) {
+      await _finishExtensionSafely(completion);
+    } else {
+      final extension = _extendedSpan;
+      if (extension != null && _extensionEndTimestamp == null) {
+        await _finishExtensionSafely(
+          _finishExtension(
+            extension.endTimestamp ?? _hub.options.clock(),
+          ),
+        );
+      }
+    }
+    await _flushTrace(root: _root, children: _root.children.toList());
   }
 
   void _onSpanStart(OnSpanStart event) {
@@ -372,6 +402,13 @@ final class StaticAppStartTrace implements AppStartTrace {
     final endTimestamp = extension.endTimestamp;
     if (endTimestamp == null) return;
 
+    if (_root.status == SpanStatus.deadlineExceeded()) {
+      _extensionFinalizing = true;
+      _extendedDescendants.clear();
+      _removeExtensionCallbacks();
+      return;
+    }
+
     final future = _finishExtension(endTimestamp);
     _extensionCompletion = future;
     await future;
@@ -386,24 +423,26 @@ final class StaticAppStartTrace implements AppStartTrace {
       final extension = _extendedSpan;
       if (extension == null) return;
 
-      final openDescendants =
-          _extendedDescendants.values.where((span) => !span.finished).toList()
-            ..sort(
-              (left, right) =>
-                  _extensionDepth(right).compareTo(_extensionDepth(left)),
-            );
-      for (final descendant in openDescendants) {
-        await descendant.finish(
-          status: SpanStatus.cancelled(),
-          endTimestamp: timestamp,
-        );
+      while (true) {
+        final openDescendants =
+            _extendedDescendants.values.where((span) => !span.finished).toList()
+              ..sort(
+                (left, right) =>
+                    _extensionDepth(right).compareTo(_extensionDepth(left)),
+              );
+        if (openDescendants.isEmpty) break;
+
+        for (final descendant in openDescendants) {
+          await descendant.finish(
+            status: SpanStatus.cancelled(),
+            endTimestamp: timestamp,
+          );
+        }
       }
 
+      extension.status = SpanStatus.ok();
       if (!extension.finished) {
-        await extension.finish(
-          status: SpanStatus.ok(),
-          endTimestamp: timestamp,
-        );
+        await extension.finish(endTimestamp: timestamp);
       }
     } finally {
       _extendedDescendants.clear();

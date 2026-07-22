@@ -67,6 +67,27 @@ void main() {
       expect(executed, isTrue);
     });
 
+    test('dispatch executes prepended callback first', () async {
+      final registry = fixture.getSut();
+      final executionOrder = <String>[];
+      registry.registerCallback<OnBeforeSendEvent>(
+        (_) async {
+          await Future<void>.delayed(Duration.zero);
+          executionOrder.add('registered');
+        },
+      );
+      registry.registerCallback<OnBeforeSendEvent>(
+        (_) => executionOrder.add('prepended'),
+        prepend: true,
+      );
+
+      await registry.dispatchCallback<OnBeforeSendEvent>(
+        OnBeforeSendEvent(SentryEvent(), Hint()),
+      );
+
+      expect(executionOrder, ['prepended', 'registered']);
+    });
+
     test('dispatch does not execute callback after removal', () async {
       final registry = fixture.getSut();
       var executed = false;

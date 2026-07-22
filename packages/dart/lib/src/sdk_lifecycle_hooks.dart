@@ -23,9 +23,15 @@ class SdkLifecycleRegistry {
   Map<Type, List<Function>> get lifecycleCallbacks => _lifecycleCallbacks;
 
   void registerCallback<T extends SdkLifecycleEvent>(
-      SdkLifecycleCallback<T> callback) {
+    SdkLifecycleCallback<T> callback, {
+    bool prepend = false,
+  }) {
     _lifecycleCallbacks[T] ??= [];
-    _lifecycleCallbacks[T]?.add(callback);
+    if (prepend) {
+      _lifecycleCallbacks[T]?.insert(0, callback);
+    } else {
+      _lifecycleCallbacks[T]?.add(callback);
+    }
   }
 
   void removeCallback<T extends SdkLifecycleEvent>(
