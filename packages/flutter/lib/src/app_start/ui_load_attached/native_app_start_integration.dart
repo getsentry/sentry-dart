@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../frame_callback_handler.dart';
+import '../../utils/internal_logger.dart';
 import 'native_app_start_handler.dart';
 import 'native_app_start_handler_v2.dart';
 
@@ -32,8 +33,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
     if (options.enableStandaloneAppStartTracing) return;
 
     if (!options.isTracingEnabled()) {
-      options.log(SentryLevel.info,
-          'Skipping $integrationName integration because tracing is disabled.');
+      internalLogger.info(
+        'Skipping $integrationName integration because tracing is disabled.',
+      );
       return;
     }
 
@@ -76,8 +78,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             );
           case SentryTraceLifecycle.static:
             if (context == null) {
-              options.log(SentryLevel.warning,
-                  'Skipping native app start integration because context is null');
+              internalLogger.warning(
+                'Skipping native app start integration because context is null',
+              );
               return;
             }
             await _nativeAppStartHandler.call(
@@ -88,10 +91,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             );
         }
       } catch (exception, stackTrace) {
-        options.log(
-          SentryLevel.error,
+        internalLogger.error(
           'Error while capturing native app start',
-          exception: exception,
+          error: exception,
           stackTrace: stackTrace,
         );
         if (options.automatedTestMode) {

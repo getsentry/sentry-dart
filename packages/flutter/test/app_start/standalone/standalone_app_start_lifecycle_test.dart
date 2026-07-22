@@ -26,7 +26,7 @@ void main() {
     });
 
     tearDown(() async {
-      await fixture.sut.close();
+      await fixture.getSut().close();
       fixture.setCurrentRouteName(null);
     });
 
@@ -207,7 +207,7 @@ void main() {
         () async {
       final transactionId = fixture.seedLegacyStaticDisplayTracking();
 
-      await fixture.sut.close();
+      await fixture.getSut().close();
 
       expect(fixture.options.timeToDisplayTracker.transactionId, transactionId);
     });
@@ -220,7 +220,7 @@ void main() {
 
       expect(ttfdSpanId, isNotNull);
 
-      await fixture.sut.close();
+      await fixture.getSut().close();
 
       expect(fixture.options.timeToDisplayTrackerV2.ttfdSpanId, ttfdSpanId);
     });
@@ -230,7 +230,7 @@ void main() {
       await pumpEventQueue();
       final root = fixture.appStartRoots.single;
 
-      await fixture.sut.close();
+      await fixture.getSut().close();
       await pumpEventQueue(times: 10);
 
       expect(root.tracer.finished, isTrue);
@@ -241,7 +241,7 @@ void main() {
 
       expect(fixture.frameHandler.timingsCallback, isNotNull);
 
-      await fixture.sut.close();
+      await fixture.getSut().close();
 
       expect(fixture.frameHandler.timingsCallback, isNull);
     });
@@ -276,7 +276,7 @@ void main() {
       ).thenAnswer((_) => nativeAppStartCompleter.future);
 
       final startFuture = fixture.startLifecycle();
-      await fixture.sut.close();
+      await fixture.getSut().close();
 
       nativeAppStartCompleter.complete(fixture.nativeAppStart());
       await startFuture;
@@ -343,7 +343,7 @@ class Fixture {
     hub: hub,
     enableAutoTransactions: false,
   );
-  late final sut = StandaloneAppStartLifecycle(
+  late final _sut = StandaloneAppStartLifecycle(
     hub: hub,
     frameCallbackHandler: frameHandler,
     native: native,
@@ -369,6 +369,8 @@ class Fixture {
     ).thenAnswer((_) async => nativeAppStart());
   }
 
+  StandaloneAppStartLifecycle getSut() => _sut;
+
   NativeAppStart nativeAppStart({int appStartMilliseconds = 0}) =>
       NativeAppStart(
         appStartTime: appStartMilliseconds,
@@ -377,7 +379,7 @@ class Fixture {
         nativeSpanTimes: {},
       );
 
-  Future<void> startLifecycle() => sut.start();
+  Future<void> startLifecycle() => getSut().start();
 
   SpanId seedLegacyStaticDisplayTracking() {
     final transactionId = SentryTransactionContext(
