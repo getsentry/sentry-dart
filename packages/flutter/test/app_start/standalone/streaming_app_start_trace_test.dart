@@ -485,7 +485,7 @@ void main() {
       expect(root.attributes['app.vitals.start.screen']?.value, 'root /');
     });
 
-    test('close ends the root when extension finalization throws', () async {
+    test('close completes when extension finalization fails', () async {
       final sut = fixture.getSut()!;
       final root = fixture.root!;
       expect(
@@ -496,7 +496,7 @@ void main() {
       );
       fixture.options.clock = () => throw StateError('clock failed');
 
-      await expectLater(sut.close(), throwsStateError);
+      await sut.close();
       await pumpEventQueue(times: 10);
 
       expect(root.isEnded, isTrue);

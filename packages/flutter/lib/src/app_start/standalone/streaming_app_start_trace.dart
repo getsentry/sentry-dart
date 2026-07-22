@@ -299,6 +299,12 @@ final class StreamingAppStartTrace implements AppStartTrace {
               extension.endTimestamp ?? _hub.options.clock());
         }
       }
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'Failed to finish streaming extended app start',
+        error: error,
+        stackTrace: stackTrace,
+      );
     } finally {
       _extendedDescendants.clear();
       _root.end();
