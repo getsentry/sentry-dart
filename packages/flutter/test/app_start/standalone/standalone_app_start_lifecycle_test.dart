@@ -246,6 +246,29 @@ void main() {
       expect(fixture.frameHandler.timingsCallback, isNull);
     });
 
+    test('finishes app start without waiting for full display', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+      await fixture.startLifecycle();
+      final root = fixture.appStartRoots.single.tracer;
+      final firstFrameSpan = root.children.singleWhere(
+        (span) =>
+            span.context.operation ==
+            SentrySpanOperations.appStartFirstFrameRender,
+      );
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+
+      try {
+        expect(firstFrameSpan.finished, isTrue);
+      } finally {
+        await fixture.options.timeToDisplayTracker.reportFullyDisplayed(
+          spanId: fixture.options.timeToDisplayTracker.transactionId,
+        );
+        await pumpEventQueue(times: 10);
+      }
+    });
+
     test('close while native fetch is pending prevents later work', () async {
       final nativeAppStartCompleter = Completer<NativeAppStart?>();
       when(

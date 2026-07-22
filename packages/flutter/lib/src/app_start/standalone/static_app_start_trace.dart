@@ -16,9 +16,13 @@ final class StaticAppStartTrace implements AppStartTrace {
   final AppStartData _data;
   final SentryTracer _root;
   final ISentrySpan _firstFrameBarrier;
+  final List<ISentrySpan> _children;
+  final DateTime _finalDeadlineTimestamp;
   final String Function() _startScreenNameProvider;
 
+  Timer? _finalTimeoutTimer;
   DateTime? _endTimestamp;
+  bool _finalizing = false;
   bool _completed = false;
   bool _closed = false;
 
@@ -26,10 +30,14 @@ final class StaticAppStartTrace implements AppStartTrace {
     required AppStartData data,
     required SentryTracer root,
     required ISentrySpan firstFrameBarrier,
+    required List<ISentrySpan> children,
+    required DateTime finalDeadlineTimestamp,
     required String Function() startScreenNameProvider,
   })  : _data = data,
         _root = root,
         _firstFrameBarrier = firstFrameBarrier,
+        _children = children,
+        _finalDeadlineTimestamp = finalDeadlineTimestamp,
         _startScreenNameProvider = startScreenNameProvider;
 
   static StaticAppStartTrace? tryCreate({
@@ -79,6 +87,9 @@ final class StaticAppStartTrace implements AppStartTrace {
         data: data,
         root: root,
         firstFrameBarrier: firstFrameBarrier,
+        children: provisionalChildren,
+        finalDeadlineTimestamp:
+            createdAt.add(standaloneAppStartFinalTimeout).toUtc(),
         startScreenNameProvider: startScreenNameProvider,
       );
       for (final phase in data.phases) {
@@ -93,12 +104,7 @@ final class StaticAppStartTrace implements AppStartTrace {
         trace._finish(child, endTimestamp: phase.endTimestamp);
       }
 
-      if (!root.tryScheduleFinalTimeout(
-        createdAt.add(standaloneAppStartFinalTimeout),
-      )) {
-        unawaited(_flushTrace(root: root, children: provisionalChildren));
-        return null;
-      }
+      trace._scheduleFinalTimeout(hub.options.clock());
       return trace;
     } catch (error, stackTrace) {
       if (createdRoot != null) {
@@ -131,6 +137,7 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   void _enrichAndComplete() {
     if (_completed) return;
+    _clearFinalTimeout();
     try {
       final type = _data.type.name;
       _root.setData('app_start_type', type);
@@ -159,6 +166,59 @@ final class StaticAppStartTrace implements AppStartTrace {
     } finally {
       _completed = true;
     }
+  }
+
+  void _scheduleFinalTimeout(DateTime now) {
+    final remaining = _finalDeadlineTimestamp.difference(now.toUtc());
+    if (remaining <= Duration.zero) {
+      _finishAtDeadlineSafely();
+    } else {
+      _finalTimeoutTimer = Timer(remaining, _finishAtDeadlineSafely);
+    }
+  }
+
+  void _finishAtDeadlineSafely() {
+    unawaited(
+      _finishAtDeadline().catchError((Object error, StackTrace stackTrace) {
+        internalLogger.error(
+          'Failed to finish static app start at final deadline',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }),
+    );
+  }
+
+  Future<void> _finishAtDeadline() async {
+    if (_closed || _completed || _finalizing) return;
+    _finalizing = true;
+    _clearFinalTimeout();
+
+    final status = SpanStatus.deadlineExceeded();
+    _root.status = status;
+    await _root.finish(
+      status: status,
+      endTimestamp: _finalDeadlineTimestamp,
+    );
+
+    for (final child in List<ISentrySpan>.of(_children)) {
+      if (!child.finished) {
+        await child.finish(
+          status: status,
+          endTimestamp: _finalDeadlineTimestamp,
+        );
+      }
+    }
+
+    await _root.finish(
+      status: status,
+      endTimestamp: _finalDeadlineTimestamp,
+    );
+  }
+
+  void _clearFinalTimeout() {
+    _finalTimeoutTimer?.cancel();
+    _finalTimeoutTimer = null;
   }
 
   static Future<void> _flushTrace({
@@ -211,6 +271,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   Future<void> close() async {
     if (_closed || _completed) return;
     _closed = true;
+    _clearFinalTimeout();
     await _flushTrace(root: _root, children: [_firstFrameBarrier]);
   }
 }

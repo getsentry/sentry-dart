@@ -168,6 +168,10 @@ class StandaloneAppStartLifecycle {
         // the user may navigate away before the app-start span finishes.
         _startScreenName ??= SentryNavigatorObserver.currentRouteName;
 
+        _trace?.recordFirstFrame(endTimestamp);
+        _trace?.finish(endTimestamp);
+
+        // Keep display tracking last because TTFD may wait for its timeout.
         final options = _flutterOptions;
         if (options != null) {
           switch (options.traceLifecycle) {
@@ -181,13 +185,6 @@ class StandaloneAppStartLifecycle {
               );
           }
         }
-
-        if (_closed) {
-          return;
-        }
-
-        _trace?.recordFirstFrame(endTimestamp);
-        _trace?.finish(endTimestamp);
       } catch (error, stackTrace) {
         internalLogger.error(
           'Failed to record standalone app-start first frame',

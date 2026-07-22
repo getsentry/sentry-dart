@@ -180,9 +180,40 @@ void main() {
       expect(root.measurements['app_start_cold']?.value, 350);
     });
 
-    test(
-        'returns null and flushes provisional children when final timeout '
-        'scheduling fails', () async {
+    testWidgets('finishes unfinished spans at the final deadline',
+        (tester) async {
+      fixture.getSut();
+      final root = fixture.root!.tracer;
+      final firstFrame = root.children.firstWhere(
+        (span) => span.context.description == 'First frame render',
+      );
+      final deadline = fixture.createdAt.add(Duration(seconds: 30));
+
+      await tester.pump(Duration(seconds: 30));
+      await tester.pump();
+
+      expect(root.finished, isTrue);
+      expect(root.status, SpanStatus.deadlineExceeded());
+      expect(root.endTimestamp, deadline);
+      expect(firstFrame.finished, isTrue);
+      expect(firstFrame.status, SpanStatus.deadlineExceeded());
+      expect(firstFrame.endTimestamp, deadline);
+      expect(root.measurements['app_start_cold'], isNull);
+    });
+
+    testWidgets('close cancels the final deadline', (tester) async {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!.tracer;
+
+      await sut.close();
+      await tester.pump(Duration(seconds: 30));
+      await tester.pump();
+
+      expect(root.finished, isTrue);
+      expect(root.status, isNull);
+    });
+
+    test('creates trace without tracer deadline coordination', () {
       final mockFixture = MockCreationFixture();
 
       final trace = StaticAppStartTrace.tryCreate(
@@ -190,41 +221,27 @@ void main() {
         data: mockFixture.data,
         startScreenNameProvider: () => 'root /',
       );
-      await pumpEventQueue(times: 10);
 
-      expect(trace, isNull);
-      verify(mockFixture.firstFrameBarrier.finish()).called(1);
-      verify(
-        mockFixture.pluginRegistrationChild.finish(
-          endTimestamp: mockFixture.pluginRegistration,
-        ),
-      ).called(1);
-      verify(mockFixture.pluginRegistrationChild.finish()).called(1);
-      verify(
-        mockFixture.sentrySetupChild.finish(
-          endTimestamp: mockFixture.sentrySetup,
-        ),
-      ).called(1);
-      verify(mockFixture.sentrySetupChild.finish()).called(1);
-      verify(mockFixture.root.finish()).called(1);
+      expect(trace, isNotNull);
     });
 
-    test(
-        'returns null and still finishes later spans when one provisional '
-        'child flush throws', () async {
-      final mockFixture = MockChildFlushFailureFixture();
+    testWidgets('swallows final deadline failures', (tester) async {
+      final mockFixture = MockDeadlineFailureFixture();
+      final deadline = mockFixture.createdAt.add(Duration(seconds: 30));
 
       final trace = StaticAppStartTrace.tryCreate(
         hub: mockFixture.hub,
         data: mockFixture.data,
         startScreenNameProvider: () => 'root /',
       );
-      await pumpEventQueue(times: 10);
+      await tester.pump(Duration(seconds: 30));
+      await tester.pump();
 
-      expect(trace, isNull);
-      verify(mockFixture.pluginRegistrationChild.finish()).called(1);
-      verify(mockFixture.sentrySetupChild.finish()).called(1);
-      verify(mockFixture.root.finish()).called(1);
+      expect(trace, isNotNull);
+      verify(mockFixture.root.finish(
+        status: SpanStatus.deadlineExceeded(),
+        endTimestamp: deadline,
+      )).called(1);
     });
 
     test('returns null and flushes created spans when phase creation throws',
@@ -250,6 +267,7 @@ class Fixture {
   final processStart = DateTime.utc(2024, 1, 1, 12);
   late final naturalEnd = processStart.add(Duration(milliseconds: 350));
   late final rootFinish = processStart.add(Duration(milliseconds: 500));
+  late final createdAt = processStart.add(Duration(milliseconds: 300));
   SentrySpan? root;
 
   final transport = _FakeTransport();
@@ -258,7 +276,7 @@ class Fixture {
     ..transport = transport
     ..tracesSampleRate = 1.0
     ..traceLifecycle = SentryTraceLifecycle.static
-    ..clock = () => processStart.add(Duration(milliseconds: 300));
+    ..clock = () => createdAt;
   late final hub = Hub(options);
   late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
   late final sentrySetup = processStart.add(Duration(milliseconds: 200));
@@ -311,11 +329,6 @@ class _FakeTransport implements Transport {
   Future<SentryId?> send(SentryEnvelope envelope) async => SentryId.empty();
 }
 
-class _FinalTimeoutFailingTracer extends MockSentryTracer {
-  @override
-  bool tryScheduleFinalTimeout(DateTime deadlineTimestamp) => false;
-}
-
 class MockCreationFixture {
   final processStart = DateTime.utc(2024, 1, 1, 12);
   late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
@@ -325,7 +338,7 @@ class MockCreationFixture {
   late final options = defaultTestOptions()..clock = () => createdAt;
 
   late final hub = MockHub();
-  late final root = _FinalTimeoutFailingTracer();
+  late final root = MockSentryTracer();
   late final firstFrameBarrier = MockSentrySpan();
   late final pluginRegistrationChild = MockSentrySpan();
   late final sentrySetupChild = MockSentrySpan();
@@ -409,20 +422,12 @@ class MockCreationFixture {
   }
 }
 
-class MockChildFlushFailureFixture extends MockCreationFixture {
-  MockChildFlushFailureFixture() : super() {
-    when(pluginRegistrationChild.finish(
-      status: anyNamed('status'),
-      endTimestamp: anyNamed('endTimestamp'),
-      hint: anyNamed('hint'),
-    )).thenAnswer((invocation) {
-      final endTimestamp =
-          invocation.namedArguments[#endTimestamp] as DateTime?;
-      if (endTimestamp == null) {
-        return Future<void>.error(StateError('cleanup failed'));
-      }
-      return Future<void>.value();
-    });
+class MockDeadlineFailureFixture extends MockCreationFixture {
+  MockDeadlineFailureFixture() : super() {
+    when(root.finish(
+      status: SpanStatus.deadlineExceeded(),
+      endTimestamp: createdAt.add(Duration(seconds: 30)),
+    )).thenAnswer((_) => Future<void>.error(StateError('deadline failed')));
   }
 }
 

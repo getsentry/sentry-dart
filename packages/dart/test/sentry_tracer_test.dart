@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:fake_async/fake_async.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
@@ -15,10 +12,6 @@ void main() {
 
     setUp(() async {
       fixture = Fixture();
-    });
-
-    tearDown(() {
-      SentryInternalLogger.configure(isEnabled: false);
     });
 
     test('tracer sets name', () {
@@ -429,6 +422,22 @@ void main() {
       expect(fixture.hub.captureTransactionCalls.isEmpty, true);
     });
 
+    test('scheduleFinish clears a finish request blocked by children',
+        () async {
+      final sut = fixture.getSut(
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 1),
+      );
+      final child = sut.startChild('child');
+      await sut.finish();
+
+      sut.scheduleFinish();
+      await child.finish();
+
+      expect(sut.finished, isFalse);
+      await sut.finish();
+    });
+
     test('tracer sets measurement', () async {
       final sut = fixture.getSut();
 
@@ -484,176 +493,6 @@ void main() {
       await sut.finish(hint: hint);
 
       expect(fixture.hub.captureTransactionCalls.first.hint, hint);
-    });
-
-    test('final timeout is first-call-wins', () async {
-      final sut = fixture.getSut();
-      final firstDeadline = fixture.options.clock().add(
-            Duration(seconds: 1),
-          );
-
-      expect(sut.tryScheduleFinalTimeout(firstDeadline), isTrue);
-      expect(
-        sut.tryScheduleFinalTimeout(firstDeadline.add(Duration(seconds: 1))),
-        isFalse,
-      );
-
-      await sut.finish();
-    });
-
-    test(
-        'when the final deadline is already expired logs and swallows onFinish failures',
-        () {
-      final uncaughtErrors = <Object>[];
-      final uncaughtStackTraces = <StackTrace>[];
-      final expectedError = StateError('boom');
-      final expectedStackTrace = StackTrace.fromString('expected stack trace');
-
-      runZonedGuarded(
-        () {
-          fakeAsync((async) {
-            final now = DateTime.utc(2026, 7, 21, 12);
-            fixture.hub.options.clock = async.getClock(now).now;
-            fixture.configureInternalLogger();
-
-            final sut = fixture.getSut(
-              onFinish: (_) =>
-                  Future<void>.error(expectedError, expectedStackTrace),
-            );
-
-            expect(
-              sut.tryScheduleFinalTimeout(
-                now.subtract(Duration(milliseconds: 1)),
-              ),
-              isTrue,
-            );
-
-            async.flushMicrotasks();
-          });
-        },
-        (error, stackTrace) {
-          uncaughtErrors.add(error);
-          uncaughtStackTraces.add(stackTrace);
-        },
-      );
-
-      expect(uncaughtErrors, isEmpty);
-      expect(uncaughtStackTraces, isEmpty);
-      expect(fixture.logs, hasLength(1));
-      expect(fixture.logs.single.level, SentryLevel.error);
-      expect(
-        fixture.logs.single.message,
-        'Failed to finish tracer at final deadline.',
-      );
-      expect(fixture.logs.single.error, same(expectedError));
-      expect(fixture.logs.single.stackTrace, same(expectedStackTrace));
-    });
-
-    test(
-        'when the final deadline timer fires logs and swallows onFinish failures',
-        () {
-      final uncaughtErrors = <Object>[];
-      final uncaughtStackTraces = <StackTrace>[];
-      final expectedError = StateError('boom');
-      final expectedStackTrace = StackTrace.fromString('expected stack trace');
-
-      runZonedGuarded(
-        () {
-          fakeAsync((async) {
-            final now = DateTime.utc(2026, 7, 21, 12);
-            fixture.hub.options.clock = async.getClock(now).now;
-            fixture.configureInternalLogger();
-
-            final sut = fixture.getSut(
-              onFinish: (_) =>
-                  Future<void>.error(expectedError, expectedStackTrace),
-            );
-
-            expect(
-              sut.tryScheduleFinalTimeout(
-                now.add(Duration(milliseconds: 20)),
-              ),
-              isTrue,
-            );
-
-            async.elapse(Duration(milliseconds: 20));
-            async.flushMicrotasks();
-          });
-        },
-        (error, stackTrace) {
-          uncaughtErrors.add(error);
-          uncaughtStackTraces.add(stackTrace);
-        },
-      );
-
-      expect(uncaughtErrors, isEmpty);
-      expect(uncaughtStackTraces, isEmpty);
-      expect(fixture.logs, hasLength(1));
-      expect(fixture.logs.single.level, SentryLevel.error);
-      expect(
-        fixture.logs.single.message,
-        'Failed to finish tracer at final deadline.',
-      );
-      expect(fixture.logs.single.error, same(expectedError));
-      expect(fixture.logs.single.stackTrace, same(expectedStackTrace));
-    });
-
-    test('final timeout marks unfinished children deadline exceeded', () {
-      fakeAsync((async) {
-        final now = DateTime.utc(2026, 7, 21, 12);
-        fixture.hub.options.clock = async.getClock(now).now;
-
-        final sut = fixture.getSut(waitForChildren: true);
-        final child = sut.startChild('child');
-
-        expect(
-          sut.tryScheduleFinalTimeout(
-            now.add(Duration(milliseconds: 20)),
-          ),
-          isTrue,
-        );
-
-        async.elapse(Duration(milliseconds: 20));
-        async.flushMicrotasks();
-
-        expect(sut.status, SpanStatus.deadlineExceeded());
-        expect(child.status, SpanStatus.deadlineExceeded());
-        expect(sut.finished, isTrue);
-        expect(fixture.hub.captureTransactionCalls, hasLength(1));
-      });
-    });
-
-    test(
-        'idle childless transaction clears final timeout and is not finalized again later',
-        () {
-      fakeAsync((async) {
-        final now = DateTime.utc(2026, 7, 21, 12);
-        fixture.hub.options.clock = async.getClock(now).now;
-
-        final sut = fixture.getSut(
-          autoFinishAfter: Duration(milliseconds: 20),
-        );
-
-        expect(
-          sut.tryScheduleFinalTimeout(
-            now.add(Duration(milliseconds: 40)),
-          ),
-          isTrue,
-        );
-
-        unawaited(sut.finish());
-        async.flushMicrotasks();
-
-        expect(sut.finalTimeoutTimer, isNull);
-        expect(sut.status, isNull);
-        expect(fixture.hub.captureTransactionCalls, isEmpty);
-
-        async.elapse(Duration(milliseconds: 40));
-        async.flushMicrotasks();
-
-        expect(sut.status, isNull);
-        expect(fixture.hub.captureTransactionCalls, isEmpty);
-      });
     });
   });
 
@@ -914,7 +753,6 @@ class Fixture {
     ..release = 'release'
     ..environment = 'environment';
 
-  final logs = <_CapturedLog>[];
   final client = MockSentryClient();
 
   final user = SentryUser(
@@ -923,34 +761,11 @@ class Fixture {
 
   final hub = MockHub();
 
-  void configureInternalLogger() {
-    SentryInternalLogger.configure(
-      isEnabled: true,
-      minLevel: SentryLevel.debug,
-      logOutput: ({
-        required String name,
-        required SentryLevel level,
-        required String message,
-        Object? error,
-        StackTrace? stackTrace,
-      }) {
-        logs.add(_CapturedLog(
-          name: name,
-          level: level,
-          message: message,
-          error: error,
-          stackTrace: stackTrace,
-        ));
-      },
-    );
-  }
-
   SentryTracer getSut({
     bool? sampled = true,
     bool waitForChildren = false,
     bool trimEnd = false,
     Duration? autoFinishAfter,
-    OnTransactionFinish? onFinish,
   }) {
     final context = SentryTransactionContext(
       'name',
@@ -963,24 +778,7 @@ class Fixture {
       hub,
       waitForChildren: waitForChildren,
       autoFinishAfter: autoFinishAfter,
-      onFinish: onFinish,
       trimEnd: trimEnd,
     );
   }
-}
-
-class _CapturedLog {
-  final String name;
-  final SentryLevel level;
-  final String message;
-  final Object? error;
-  final StackTrace? stackTrace;
-
-  _CapturedLog({
-    required this.name,
-    required this.level,
-    required this.message,
-    this.error,
-    this.stackTrace,
-  });
 }
