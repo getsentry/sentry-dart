@@ -428,7 +428,7 @@ void main() {
       expect(fixture.getSut(), isNull);
     });
 
-    test('close flushes the open root', () async {
+    test('when closing flushes the open root', () async {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;
 
@@ -440,7 +440,7 @@ void main() {
       expect(root.data['app.vitals.start.screen'], 'root /');
     });
 
-    test('close finishes an open extension before the root', () async {
+    test('when closing finishes an open extension before the root', () async {
       final sut = fixture.getSut()!;
       expect(
         sut.tryExtend(
@@ -562,7 +562,8 @@ void main() {
       expect(fixture.root!.tracer.finished, isTrue);
     });
 
-    testWidgets('close preserves extension deadline status', (tester) async {
+    testWidgets('when closing preserves extension deadline status',
+        (tester) async {
       final sut = fixture.getSut()!;
       expect(sut.tryExtend(fixture.createdAt), isTrue);
       final extension = sut.extendedSpan as SentrySpan;
@@ -657,7 +658,7 @@ void main() {
       ]);
     });
 
-    testWidgets('close cancels the final deadline', (tester) async {
+    testWidgets('when closing cancels the final deadline', (tester) async {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;
 
@@ -669,7 +670,7 @@ void main() {
       expect(root.status, isNull);
     });
 
-    test('close flushes every tracked child', () async {
+    test('when closing flushes every tracked child', () async {
       final mockFixture = MockCreationFixture();
       final trace = StaticAppStartTrace.tryCreate(
         hub: mockFixture.hub,
