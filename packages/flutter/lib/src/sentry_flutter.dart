@@ -376,6 +376,7 @@ mixin SentryFlutter {
   ///   },
   /// );
   /// ```
+  @experimental
   static void extendAppStart() {
     final options = Sentry.currentHub.options;
     if (options is SentryFlutterOptions) {
@@ -389,6 +390,7 @@ mixin SentryFlutter {
   /// [SentryTraceLifecycle.static]. It returns [NoOpSentrySpan] when standalone
   /// App Start is inactive, already finished, unavailable, or using the
   /// streaming lifecycle instead.
+  @experimental
   static ISentrySpan getExtendedAppStartSpan() {
     final options = Sentry.currentHub.options;
     return options is SentryFlutterOptions
@@ -402,6 +404,7 @@ mixin SentryFlutter {
   /// [SentryTraceLifecycle.stream]. It returns [NoOpSentrySpanV2] when
   /// standalone App Start is inactive, already finished, unavailable, or using
   /// the static lifecycle instead.
+  @experimental
   static SentrySpanV2 getExtendedAppStartSpanV2() {
     final options = Sentry.currentHub.options;
     return options is SentryFlutterOptions
@@ -414,6 +417,7 @@ mixin SentryFlutter {
   ///
   /// Open descendants remain active while the standalone App Start root keeps
   /// its existing first-frame, idle, and deadline lifecycle.
+  @experimental
   static Future<void> finishExtendedAppStart() async {
     final options = Sentry.currentHub.options;
     if (options is SentryFlutterOptions) {
