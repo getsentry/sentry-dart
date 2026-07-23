@@ -20,14 +20,11 @@ final class StaticAppStartTrace implements AppStartTrace {
   final DateTime _finalDeadlineTimestamp;
   final String Function() _startScreenNameProvider;
 
-  late final SdkLifecycleCallback<OnSpanStart> _onSpanStartCallback;
   late final SdkLifecycleCallback<OnSpanFinish> _onSpanFinishCallback;
   SentrySpan? _extendedSpan;
-  final _extendedDescendants = <SpanId, SentrySpan>{};
   bool _firstFrameRecorded = false;
   Future<void>? _extensionCompletion;
   DateTime? _extensionEndTimestamp;
-  bool _extensionFinalizing = false;
   Timer? _finalTimeoutTimer;
   DateTime? _endTimestamp;
   bool _finalizing = false;
@@ -47,7 +44,6 @@ final class StaticAppStartTrace implements AppStartTrace {
         _firstFrameBarrier = firstFrameBarrier,
         _finalDeadlineTimestamp = finalDeadlineTimestamp,
         _startScreenNameProvider = startScreenNameProvider {
-    _onSpanStartCallback = _onSpanStart;
     _onSpanFinishCallback = _onSpanFinish;
   }
 
@@ -155,15 +151,9 @@ final class StaticAppStartTrace implements AppStartTrace {
       ..origin = SentryTraceOrigins.autoAppStart
       ..status = SpanStatus.ok();
     _extendedSpan = extension;
-    _hub.options.lifecycleRegistry
-      ..registerCallback<OnSpanStart>(
-        _onSpanStartCallback,
-        prepend: true,
-      )
-      ..registerCallback<OnSpanFinish>(
-        _onSpanFinishCallback,
-        prepend: true,
-      );
+    _hub.options.lifecycleRegistry.registerCallback<OnSpanFinish>(
+      _onSpanFinishCallback,
+    );
     return true;
   }
 
@@ -377,25 +367,11 @@ final class StaticAppStartTrace implements AppStartTrace {
     await _flushTrace(root: _root, children: _root.children.toList());
   }
 
-  void _onSpanStart(OnSpanStart event) {
-    final extension = _extendedSpan;
-    final span = event.span;
-    if (extension == null || span is! SentrySpan || span == extension) {
-      return;
-    }
-
-    final parentSpanId = span.context.parentSpanId;
-    if (parentSpanId == extension.context.spanId ||
-        _extendedDescendants.containsKey(parentSpanId)) {
-      _extendedDescendants[span.context.spanId] = span;
-    }
-  }
-
-  Future<void> _onSpanFinish(OnSpanFinish event) async {
+  void _onSpanFinish(OnSpanFinish event) {
     final extension = _extendedSpan;
     if (extension == null ||
         !identical(event.span, extension) ||
-        _extensionFinalizing) {
+        _extensionEndTimestamp != null) {
       return;
     }
 
@@ -403,69 +379,35 @@ final class StaticAppStartTrace implements AppStartTrace {
     if (endTimestamp == null) return;
 
     if (_root.status == SpanStatus.deadlineExceeded()) {
-      _extensionFinalizing = true;
-      _extendedDescendants.clear();
       _removeExtensionCallbacks();
       return;
     }
 
-    final future = _finishExtension(endTimestamp);
-    _extensionCompletion = future;
-    await future;
+    _extensionEndTimestamp = endTimestamp;
+    extension.status = SpanStatus.ok();
+    _removeExtensionCallbacks();
   }
 
   Future<void> _finishExtension(DateTime endTimestamp) async {
-    if (_extensionFinalizing) return;
-    _extensionFinalizing = true;
     final timestamp = endTimestamp.toUtc();
-    _extensionEndTimestamp ??= timestamp;
+    if (_extensionEndTimestamp != null) return;
+    _extensionEndTimestamp = timestamp;
     try {
       final extension = _extendedSpan;
       if (extension == null) return;
-
-      while (true) {
-        final openDescendants =
-            _extendedDescendants.values.where((span) => !span.finished).toList()
-              ..sort(
-                (left, right) =>
-                    _extensionDepth(right).compareTo(_extensionDepth(left)),
-              );
-        if (openDescendants.isEmpty) break;
-
-        for (final descendant in openDescendants) {
-          await descendant.finish(
-            status: SpanStatus.cancelled(),
-            endTimestamp: timestamp,
-          );
-        }
-      }
 
       extension.status = SpanStatus.ok();
       if (!extension.finished) {
         await extension.finish(endTimestamp: timestamp);
       }
     } finally {
-      _extendedDescendants.clear();
       _removeExtensionCallbacks();
     }
   }
 
-  int _extensionDepth(SentrySpan span) {
-    var depth = 0;
-    var parentSpanId = span.context.parentSpanId;
-    final extensionSpanId = _extendedSpan?.context.spanId;
-    while (parentSpanId != null && parentSpanId != extensionSpanId) {
-      final parent = _extendedDescendants[parentSpanId];
-      if (parent == null) break;
-      depth++;
-      parentSpanId = parent.context.parentSpanId;
-    }
-    return depth;
-  }
-
   void _removeExtensionCallbacks() {
-    _hub.options.lifecycleRegistry
-      ..removeCallback<OnSpanStart>(_onSpanStartCallback)
-      ..removeCallback<OnSpanFinish>(_onSpanFinishCallback);
+    _hub.options.lifecycleRegistry.removeCallback<OnSpanFinish>(
+      _onSpanFinishCallback,
+    );
   }
 }
