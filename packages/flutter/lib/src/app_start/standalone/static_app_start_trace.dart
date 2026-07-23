@@ -394,11 +394,11 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 
   Future<void> _finishExtension(DateTime endTimestamp) async {
-    final timestamp = endTimestamp.toUtc();
     if (_extensionEndTimestamp != null) return;
+    final extension = _extendedSpan;
+    final timestamp = (extension?.endTimestamp ?? endTimestamp).toUtc();
     _extensionEndTimestamp = timestamp;
     try {
-      final extension = _extendedSpan;
       if (extension == null) return;
 
       extension.status = SpanStatus.ok();

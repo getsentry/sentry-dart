@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -305,6 +307,42 @@ void main() {
       await pumpEventQueue(times: 10);
 
       expect(fixture.root!.tracer.measurements['app_start_cold']?.value, 350);
+    });
+
+    test('measures the direct extension endpoint when finish is also requested',
+        () async {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 400),
+      );
+      SentrySpan? extension;
+      final onSpanFinishBlocker = Completer<void>();
+      fixture.options.lifecycleRegistry.registerCallback<OnSpanFinish>(
+        (event) async {
+          if (identical(event.span, extension)) {
+            await onSpanFinishBlocker.future;
+          }
+        },
+      );
+      expect(sut.tryExtend(extensionStart), isTrue);
+
+      extension = sut.extendedSpan as SentrySpan;
+      final directEnd = extensionStart.add(const Duration(seconds: 1));
+      final laterEnd = extensionStart.add(const Duration(seconds: 2));
+      final directFinish = extension.finish(endTimestamp: directEnd);
+
+      await sut.finishExtended(laterEnd);
+      onSpanFinishBlocker.complete();
+      await directFinish;
+      sut.recordFirstFrame(fixture.naturalEnd);
+      sut.finish(fixture.naturalEnd);
+      await fixture.root!.tracer.finish(endTimestamp: fixture.rootFinish);
+      await pumpEventQueue(times: 10);
+
+      expect(
+        fixture.root!.tracer.measurements['app_start_cold']?.value,
+        1400.0,
+      );
     });
 
     test('ignores later unrelated root children for measurement', () async {
