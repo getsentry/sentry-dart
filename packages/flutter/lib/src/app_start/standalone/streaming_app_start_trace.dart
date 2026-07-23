@@ -278,16 +278,9 @@ final class StreamingAppStartTrace implements AppStartTrace {
       } else {
         final extension = _extendedSpan;
         if (extension != null && _extensionEndTimestamp == null) {
-          await _finishExtension(
-              extension.endTimestamp ?? _hub.options.clock());
+          await _finishExtension(extension.endTimestamp);
         }
       }
-    } catch (error, stackTrace) {
-      internalLogger.error(
-        'Failed to finish streaming extended app start',
-        error: error,
-        stackTrace: stackTrace,
-      );
     } finally {
       _root.end();
     }
@@ -320,18 +313,26 @@ final class StreamingAppStartTrace implements AppStartTrace {
     _removeExtensionCallbacks();
   }
 
-  Future<void> _finishExtension(DateTime endTimestamp) async {
+  Future<void> _finishExtension(DateTime? endTimestamp) async {
     if (_extensionEndTimestamp != null) return;
     final extension = _extendedSpan;
-    final timestamp = (extension?.endTimestamp ?? endTimestamp).toUtc();
-    _extensionEndTimestamp = timestamp;
     try {
+      final timestamp =
+          (extension?.endTimestamp ?? endTimestamp ?? _hub.options.clock())
+              .toUtc();
+      _extensionEndTimestamp = timestamp;
       if (extension == null) return;
 
       extension.status = SentrySpanStatusV2.ok;
       if (!extension.isEnded) {
         extension.end(endTimestamp: timestamp);
       }
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'Failed to finish streaming extended app start',
+        error: error,
+        stackTrace: stackTrace,
+      );
     } finally {
       _removeExtensionCallbacks();
     }

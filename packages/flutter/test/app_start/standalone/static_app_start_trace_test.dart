@@ -171,6 +171,27 @@ void main() {
       expect(extension.status, SpanStatus.ok());
     });
 
+    test('swallows extension finish callback failures', () async {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 400),
+      );
+      expect(sut.tryExtend(extensionStart), isTrue);
+      final extension = sut.extendedSpan as SentrySpan;
+      fixture.options.lifecycleRegistry.registerCallback<OnSpanFinish>((event) {
+        if (identical(event.span, extension)) {
+          throw StateError('extension finish failed');
+        }
+      });
+
+      await expectLater(
+        sut.finishExtended(extensionStart.add(const Duration(seconds: 1))),
+        completes,
+      );
+
+      expect(extension.finished, isTrue);
+    });
+
     test('returns a no-op extended span after the extension finishes',
         () async {
       final sut = fixture.getSut()!;

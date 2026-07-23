@@ -272,10 +272,12 @@ final class StaticAppStartTrace implements AppStartTrace {
 
     final extensionFinishFuture = _extensionFinishFuture;
     if (extensionFinishFuture != null) {
-      await _finishExtensionSafely(extensionFinishFuture);
+      await extensionFinishFuture;
     }
     if (_closed || _completed) return;
 
+    // The tracer stores parents before descendants. Reverse the list so finish
+    // callbacks observe a drained subtree before its parent ends.
     for (final child in _root.children.reversed.toList()) {
       if (!child.finished) {
         await child.finish(
@@ -327,18 +329,6 @@ final class StaticAppStartTrace implements AppStartTrace {
     }
   }
 
-  static Future<void> _finishExtensionSafely(Future<void> completion) async {
-    try {
-      await completion;
-    } catch (error, stackTrace) {
-      internalLogger.error(
-        'Failed to finish static extended app start',
-        error: error,
-        stackTrace: stackTrace,
-      );
-    }
-  }
-
   @override
   Future<void> close() async {
     if (_closed || _completed) return;
@@ -346,15 +336,11 @@ final class StaticAppStartTrace implements AppStartTrace {
     _clearFinalTimeout();
     final extensionFinishFuture = _extensionFinishFuture;
     if (extensionFinishFuture != null) {
-      await _finishExtensionSafely(extensionFinishFuture);
+      await extensionFinishFuture;
     } else {
       final extension = _extendedSpan;
       if (extension != null && _extensionEndTimestamp == null) {
-        await _finishExtensionSafely(
-          _finishExtension(
-            extension.endTimestamp ?? _hub.options.clock(),
-          ),
-        );
+        await _finishExtension(extension.endTimestamp);
       }
     }
     await _flushTrace(root: _root, children: _root.children.toList());
@@ -382,18 +368,26 @@ final class StaticAppStartTrace implements AppStartTrace {
     _removeExtensionCallbacks();
   }
 
-  Future<void> _finishExtension(DateTime endTimestamp) async {
+  Future<void> _finishExtension(DateTime? endTimestamp) async {
     if (_extensionEndTimestamp != null) return;
     final extension = _extendedSpan;
-    final timestamp = (extension?.endTimestamp ?? endTimestamp).toUtc();
-    _extensionEndTimestamp = timestamp;
     try {
+      final timestamp =
+          (extension?.endTimestamp ?? endTimestamp ?? _hub.options.clock())
+              .toUtc();
+      _extensionEndTimestamp = timestamp;
       if (extension == null) return;
 
       extension.status = SpanStatus.ok();
       if (!extension.finished) {
         await extension.finish(endTimestamp: timestamp);
       }
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'Failed to finish static extended app start',
+        error: error,
+        stackTrace: stackTrace,
+      );
     } finally {
       _removeExtensionCallbacks();
     }
