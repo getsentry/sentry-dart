@@ -54,42 +54,6 @@ lifecycle's native payload representation.
 Both lifecycles produce the same observable duration, type, screen, hierarchy,
 status, and deduplication behavior in Sentry.
 
-### Extended App Start APIs
-
-Standalone App Start can be extended around asynchronous startup work:
-
-```dart
-SentryFlutter.extendAppStart();
-final span = SentryFlutter.getExtendedAppStartSpan();
-
-final child = span.startChild(
-  'app.init',
-  description: 'Fetch remote config',
-);
-
-try {
-  await fetchRemoteConfig();
-  await child.finish();
-} finally {
-  await SentryFlutter.finishExtendedAppStart();
-}
-```
-
-When using the streaming trace lifecycle, call
-`SentryFlutter.getExtendedAppStartSpanV2()` instead of
-`getExtendedAppStartSpan()`.
-
-The extension remains standalone-App-Start-only:
-
-- it is available only for the standalone `App Start` root, not the legacy
-  `ui.load`-attached app-start flow;
-- its finish timestamp cannot move the measurement earlier than the first
-  frame;
-- finishing it leaves any open extension descendants running until they finish
-  or the root's final deadline force-finishes them;
-- the root keeps the existing 30-second hard deadline and captures without an
-  App Start duration when the extension never completes.
-
 ### Deadline behavior
 
 On the hard deadline:
@@ -105,6 +69,7 @@ captured without a duration vital. This is not headless app-start support.
 
 ## Non-goals
 
+- Extended app-start APIs or measurement windows.
 - Headless or background app-start measurement.
 - Support for macOS, web, Linux, Windows, tvOS, or other platforms.
 - A dedicated app-start sampling option.
