@@ -359,13 +359,13 @@ final class StaticAppStartTrace implements AppStartTrace {
 
     if (_root.status == SpanStatus.deadlineExceeded()) {
       _extensionEndTimestamp = endTimestamp;
-      _removeExtensionCallbacks();
+      _removeSpanFinishCallback();
       return;
     }
 
     _extensionEndTimestamp = endTimestamp;
     extension.status = SpanStatus.ok();
-    _removeExtensionCallbacks();
+    _removeSpanFinishCallback();
   }
 
   Future<void> _finishExtension(DateTime? endTimestamp) async {
@@ -389,11 +389,11 @@ final class StaticAppStartTrace implements AppStartTrace {
         stackTrace: stackTrace,
       );
     } finally {
-      _removeExtensionCallbacks();
+      _removeSpanFinishCallback();
     }
   }
 
-  void _removeExtensionCallbacks() {
+  void _removeSpanFinishCallback() {
     _hub.options.lifecycleRegistry.removeCallback<OnSpanFinish>(
       _onSpanFinishCallback,
     );

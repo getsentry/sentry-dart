@@ -304,13 +304,13 @@ final class StreamingAppStartTrace implements AppStartTrace {
         SentryAttribute.string(SentrySpanStatusMessages.deadlineExceeded),
       );
       _extensionEndTimestamp = endTimestamp;
-      _removeExtensionCallbacks();
+      _removeSpanEndCallback();
       return;
     }
 
     extension.status = SentrySpanStatusV2.ok;
     _extensionEndTimestamp = endTimestamp;
-    _removeExtensionCallbacks();
+    _removeSpanEndCallback();
   }
 
   Future<void> _finishExtension(DateTime? endTimestamp) async {
@@ -334,7 +334,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
         stackTrace: stackTrace,
       );
     } finally {
-      _removeExtensionCallbacks();
+      _removeSpanEndCallback();
     }
   }
 
@@ -344,7 +344,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
               ?.value ==
           SentrySpanStatusMessages.deadlineExceeded;
 
-  void _removeExtensionCallbacks() {
+  void _removeSpanEndCallback() {
     _hub.options.lifecycleRegistry.removeCallback<OnSpanEndV2>(
       _onSpanEndCallback,
     );
