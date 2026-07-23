@@ -8,7 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/app_start/standalone/app_start_trace.dart';
 import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_lifecycle.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
@@ -30,24 +29,6 @@ void main() {
     tearDown(() async {
       await fixture.getSut().close();
       fixture.setCurrentRouteName(null);
-    });
-
-    test(
-        'allows app-start traces to expose both extension span types and explicit finish timestamps',
-        () async {
-      final fake = TestAppStartTrace();
-      final AppStartTrace trace = fake;
-      final extensionStart = DateTime.utc(2026, 7, 22, 16);
-      final extensionEnd = DateTime.utc(2026, 7, 22, 16, 0, 1);
-
-      expect(trace.tryExtend(extensionStart), isTrue);
-      expect(trace.extendedSpan, isA<NoOpSentrySpan>());
-      expect(trace.extendedSpanV2, isA<SentrySpanV2>());
-
-      await trace.finishExtended(extensionEnd);
-
-      expect(fake.extensionStart, extensionStart);
-      expect(fake.extensionEnd, extensionEnd);
     });
 
     test('installs standalone trace before the first frame', () async {
@@ -141,8 +122,6 @@ void main() {
         streamingSnapshot.measurementMilliseconds,
         staticSnapshot.measurementMilliseconds,
       );
-      expect(streamingSnapshot.childStatusMessage, isNull);
-      expect(streamingSnapshot.grandchildStatusMessage, isNull);
     });
 
     test('concurrent start calls initialize the lifecycle once', () async {
@@ -607,12 +586,6 @@ class Fixture {
               .single
               .attributes[SemanticAttributesConstants.appVitalsStartValue]!
               .value as double,
-          childStatusMessage: child
-              .attributes[SemanticAttributesConstants.sentryStatusMessage]
-              ?.value as String?,
-          grandchildStatusMessage: grandchild
-              .attributes[SemanticAttributesConstants.sentryStatusMessage]
-              ?.value as String?,
         );
     }
   }
@@ -660,8 +633,6 @@ final class _ExtendedScenarioSnapshot {
   final bool childSuccessful;
   final bool grandchildSuccessful;
   final double measurementMilliseconds;
-  final String? childStatusMessage;
-  final String? grandchildStatusMessage;
 
   const _ExtendedScenarioSnapshot({
     required this.rootCount,
@@ -676,8 +647,6 @@ final class _ExtendedScenarioSnapshot {
     required this.childSuccessful,
     required this.grandchildSuccessful,
     required this.measurementMilliseconds,
-    this.childStatusMessage,
-    this.grandchildStatusMessage,
   });
 }
 

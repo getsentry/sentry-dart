@@ -54,7 +54,6 @@ class SentrySpanDescriptions {
 /// (e.g. `SpanStatus.deadlineExceeded()`); keep them in sync.
 @internal
 class SentrySpanStatusMessages {
-  static const String cancelled = 'cancelled';
   static const String deadlineExceeded = 'deadline_exceeded';
 }
 
