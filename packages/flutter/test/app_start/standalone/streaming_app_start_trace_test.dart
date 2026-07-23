@@ -128,6 +128,29 @@ void main() {
       );
     });
 
+    testWidgets('close preserves extension deadline status', (tester) async {
+      final sut = fixture.getSut()!;
+      expect(sut.tryExtend(fixture.processStart), isTrue);
+      final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
+      Future<void>? closeFuture;
+      fixture.options.lifecycleRegistry.registerCallback<OnSpanEndV2>((event) {
+        if (identical(event.span, extension)) {
+          closeFuture = sut.close();
+        }
+      });
+
+      await tester.pump(const Duration(seconds: 30));
+      await tester.pump();
+      await closeFuture;
+
+      expect(extension.status, SentrySpanStatusV2.error);
+      expect(
+        extension
+            .attributes[SemanticAttributesConstants.sentryStatusMessage]?.value,
+        'deadline_exceeded',
+      );
+    });
+
     test('creates direct standalone breakdown children', () {
       fixture.getSut();
 

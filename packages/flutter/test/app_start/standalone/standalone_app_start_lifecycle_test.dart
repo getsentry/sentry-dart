@@ -121,25 +121,28 @@ void main() {
       expect(streamingSnapshot.extensionChildCount, 1);
       expect(staticSnapshot.extensionStart, streamingSnapshot.extensionStart);
       expect(staticSnapshot.extensionEnd, streamingSnapshot.extensionEnd);
-      expect(staticSnapshot.cancelledChildEnd,
-          streamingSnapshot.cancelledChildEnd);
+      expect(staticSnapshot.childEnd, streamingSnapshot.childEnd);
       expect(
-        staticSnapshot.cancelledGrandchildEnd,
-        streamingSnapshot.cancelledGrandchildEnd,
+        staticSnapshot.grandchildEnd,
+        streamingSnapshot.grandchildEnd,
       );
       expect(staticSnapshot.extensionSuccessful, isTrue);
       expect(streamingSnapshot.extensionSuccessful, isTrue);
-      expect(staticSnapshot.childCancelled, isTrue);
-      expect(staticSnapshot.grandchildCancelled, isTrue);
-      expect(streamingSnapshot.childCancelled, isTrue);
-      expect(streamingSnapshot.grandchildCancelled, isTrue);
+      expect(staticSnapshot.childOpenAfterExtension, isTrue);
+      expect(staticSnapshot.grandchildOpenAfterExtension, isTrue);
+      expect(streamingSnapshot.childOpenAfterExtension, isTrue);
+      expect(streamingSnapshot.grandchildOpenAfterExtension, isTrue);
+      expect(staticSnapshot.childSuccessful, isTrue);
+      expect(staticSnapshot.grandchildSuccessful, isTrue);
+      expect(streamingSnapshot.childSuccessful, isTrue);
+      expect(streamingSnapshot.grandchildSuccessful, isTrue);
       expect(staticSnapshot.measurementMilliseconds, 600.0);
       expect(
         streamingSnapshot.measurementMilliseconds,
         staticSnapshot.measurementMilliseconds,
       );
-      expect(streamingSnapshot.childCancelledStatusMessage, 'cancelled');
-      expect(streamingSnapshot.grandchildCancelledStatusMessage, 'cancelled');
+      expect(streamingSnapshot.childStatusMessage, isNull);
+      expect(streamingSnapshot.grandchildStatusMessage, isNull);
     });
 
     test('concurrent start calls initialize the lifecycle once', () async {
@@ -498,6 +501,8 @@ class Fixture {
     final grandchildStart =
         extensionStart.add(const Duration(milliseconds: 50));
     final extensionEnd = processStart.add(const Duration(milliseconds: 600));
+    final grandchildEnd = processStart.add(const Duration(milliseconds: 700));
+    final childEnd = processStart.add(const Duration(milliseconds: 800));
     final rootEnd = processStart.add(const Duration(milliseconds: 900));
 
     await startLifecycle();
@@ -521,6 +526,13 @@ class Fixture {
         frameHandler.timingsCallback!([frameTiming]);
         await pumpEventQueue(times: 10);
         await trace.finishExtended(extensionEnd);
+        final childOpenAfterExtension = !child.finished;
+        final grandchildOpenAfterExtension = !grandchild.finished;
+        await grandchild.finish(
+          status: SpanStatus.ok(),
+          endTimestamp: grandchildEnd,
+        );
+        await child.finish(status: SpanStatus.ok(), endTimestamp: childEnd);
         await pumpEventQueue(times: 10);
         await appStartRoots.single.tracer.finish(endTimestamp: rootEnd);
         await pumpEventQueue(times: 10);
@@ -536,11 +548,13 @@ class Fixture {
               .length,
           extensionStart: extension.startTimestamp,
           extensionEnd: extension.endTimestamp!,
-          cancelledChildEnd: child.endTimestamp!,
-          cancelledGrandchildEnd: grandchild.endTimestamp!,
+          childEnd: child.endTimestamp!,
+          grandchildEnd: grandchild.endTimestamp!,
           extensionSuccessful: extension.status == SpanStatus.ok(),
-          childCancelled: child.status == SpanStatus.cancelled(),
-          grandchildCancelled: grandchild.status == SpanStatus.cancelled(),
+          childOpenAfterExtension: childOpenAfterExtension,
+          grandchildOpenAfterExtension: grandchildOpenAfterExtension,
+          childSuccessful: child.status == SpanStatus.ok(),
+          grandchildSuccessful: grandchild.status == SpanStatus.ok(),
           measurementMilliseconds: appStartRoots
               .single.tracer.measurements['app_start_cold']!.value
               .toDouble(),
@@ -561,6 +575,10 @@ class Fixture {
         frameHandler.timingsCallback!([frameTiming]);
         await pumpEventQueue(times: 10);
         await trace.finishExtended(extensionEnd);
+        final childOpenAfterExtension = !child.isEnded;
+        final grandchildOpenAfterExtension = !grandchild.isEnded;
+        grandchild.end(endTimestamp: grandchildEnd);
+        child.end(endTimestamp: childEnd);
         await pumpEventQueue(times: 10);
         streamAppStartRoots.single.end(endTimestamp: rootEnd);
         await pumpEventQueue(times: 10);
@@ -578,19 +596,21 @@ class Fixture {
               .length,
           extensionStart: extension.startTimestamp,
           extensionEnd: extension.endTimestamp!,
-          cancelledChildEnd: child.endTimestamp!,
-          cancelledGrandchildEnd: grandchild.endTimestamp!,
+          childEnd: child.endTimestamp!,
+          grandchildEnd: grandchild.endTimestamp!,
           extensionSuccessful: extension.status == SentrySpanStatusV2.ok,
-          childCancelled: child.status == SentrySpanStatusV2.ok,
-          grandchildCancelled: grandchild.status == SentrySpanStatusV2.ok,
+          childOpenAfterExtension: childOpenAfterExtension,
+          grandchildOpenAfterExtension: grandchildOpenAfterExtension,
+          childSuccessful: child.status == SentrySpanStatusV2.ok,
+          grandchildSuccessful: grandchild.status == SentrySpanStatusV2.ok,
           measurementMilliseconds: streamAppStartRoots
               .single
               .attributes[SemanticAttributesConstants.appVitalsStartValue]!
               .value as double,
-          childCancelledStatusMessage: child
+          childStatusMessage: child
               .attributes[SemanticAttributesConstants.sentryStatusMessage]
               ?.value as String?,
-          grandchildCancelledStatusMessage: grandchild
+          grandchildStatusMessage: grandchild
               .attributes[SemanticAttributesConstants.sentryStatusMessage]
               ?.value as String?,
         );
@@ -632,28 +652,32 @@ final class _ExtendedScenarioSnapshot {
   final int extensionChildCount;
   final DateTime extensionStart;
   final DateTime extensionEnd;
-  final DateTime cancelledChildEnd;
-  final DateTime cancelledGrandchildEnd;
+  final DateTime childEnd;
+  final DateTime grandchildEnd;
   final bool extensionSuccessful;
-  final bool childCancelled;
-  final bool grandchildCancelled;
+  final bool childOpenAfterExtension;
+  final bool grandchildOpenAfterExtension;
+  final bool childSuccessful;
+  final bool grandchildSuccessful;
   final double measurementMilliseconds;
-  final String? childCancelledStatusMessage;
-  final String? grandchildCancelledStatusMessage;
+  final String? childStatusMessage;
+  final String? grandchildStatusMessage;
 
   const _ExtendedScenarioSnapshot({
     required this.rootCount,
     required this.extensionChildCount,
     required this.extensionStart,
     required this.extensionEnd,
-    required this.cancelledChildEnd,
-    required this.cancelledGrandchildEnd,
+    required this.childEnd,
+    required this.grandchildEnd,
     required this.extensionSuccessful,
-    required this.childCancelled,
-    required this.grandchildCancelled,
+    required this.childOpenAfterExtension,
+    required this.grandchildOpenAfterExtension,
+    required this.childSuccessful,
+    required this.grandchildSuccessful,
     required this.measurementMilliseconds,
-    this.childCancelledStatusMessage,
-    this.grandchildCancelledStatusMessage,
+    this.childStatusMessage,
+    this.grandchildStatusMessage,
   });
 }
 

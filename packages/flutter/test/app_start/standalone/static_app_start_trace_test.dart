@@ -544,6 +544,42 @@ void main() {
       expect(root.status, SpanStatus.deadlineExceeded());
     });
 
+    testWidgets('rejects extension during deadline finalization',
+        (tester) async {
+      final sut = fixture.getSut()!;
+      var extensionAccepted = false;
+      fixture.options.lifecycleRegistry.registerCallback<OnSpanFinish>((event) {
+        if (event.span.context.operation ==
+            SentrySpanOperations.appStartFirstFrameRender) {
+          extensionAccepted = sut.tryExtend(fixture.createdAt);
+        }
+      });
+
+      await tester.pump(const Duration(seconds: 30));
+      await tester.pump();
+
+      expect(extensionAccepted, isFalse);
+      expect(fixture.root!.tracer.finished, isTrue);
+    });
+
+    testWidgets('close preserves extension deadline status', (tester) async {
+      final sut = fixture.getSut()!;
+      expect(sut.tryExtend(fixture.createdAt), isTrue);
+      final extension = sut.extendedSpan as SentrySpan;
+      Future<void>? closeFuture;
+      fixture.options.lifecycleRegistry.registerCallback<OnSpanFinish>((event) {
+        if (identical(event.span, extension)) {
+          closeFuture = sut.close();
+        }
+      });
+
+      await tester.pump(const Duration(seconds: 30));
+      await tester.pump();
+      await closeFuture;
+
+      expect(extension.status, SpanStatus.deadlineExceeded());
+    });
+
     testWidgets('finishes the root once at the final deadline', (tester) async {
       final mockFixture = MockCreationFixture();
       final deadline = mockFixture.createdAt.add(Duration(seconds: 30));

@@ -401,9 +401,8 @@ mixin SentryFlutter {
 
   /// Finishes the active standalone App Start extension, if one exists.
   ///
-  /// Open descendants of the extension are cancelled at the finish timestamp,
-  /// while the standalone App Start root keeps its existing first-frame, idle,
-  /// and deadline lifecycle.
+  /// Open descendants remain active while the standalone App Start root keeps
+  /// its existing first-frame, idle, and deadline lifecycle.
   static Future<void> finishExtendedAppStart() async {
     final options = Sentry.currentHub.options;
     if (options is SentryFlutterOptions) {

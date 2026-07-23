@@ -134,7 +134,11 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   @override
   bool tryExtend(DateTime startTimestamp) {
-    if (_closed || _completed || _firstFrameRecorded || _extendedSpan != null) {
+    if (_closed ||
+        _completed ||
+        _finalizing ||
+        _firstFrameRecorded ||
+        _extendedSpan != null) {
       return false;
     }
 
@@ -379,6 +383,7 @@ final class StaticAppStartTrace implements AppStartTrace {
     if (endTimestamp == null) return;
 
     if (_root.status == SpanStatus.deadlineExceeded()) {
+      _extensionEndTimestamp = endTimestamp;
       _removeExtensionCallbacks();
       return;
     }

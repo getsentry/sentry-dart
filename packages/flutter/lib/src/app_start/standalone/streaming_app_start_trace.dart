@@ -317,6 +317,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
         SemanticAttributesConstants.sentryStatusMessage,
         SentryAttribute.string(SentrySpanStatusMessages.deadlineExceeded),
       );
+      _extensionEndTimestamp = endTimestamp;
       _removeExtensionCallbacks();
       return;
     }
