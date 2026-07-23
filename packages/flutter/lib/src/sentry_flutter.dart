@@ -353,17 +353,28 @@ mixin SentryFlutter {
 
   /// Extends the active standalone App Start trace, if one exists.
   ///
-  /// Pair this with [finishExtendedAppStart] in a `try` / `finally` block so
-  /// the extension always completes:
+  /// Call this in [init]'s `appRunner` before `runApp`, then pair it with
+  /// [finishExtendedAppStart] in a `try` / `finally` block:
   ///
   /// ```dart
-  /// SentryFlutter.extendAppStart();
+  /// await SentryFlutter.init(
+  ///   (options) {
+  ///     options
+  ///       ..dsn = 'YOUR_DSN'
+  ///       ..tracesSampleRate = 1.0
+  ///       ..enableStandaloneAppStartTracing = true;
+  ///   },
+  ///   appRunner: () async {
+  ///     SentryFlutter.extendAppStart();
+  ///     runApp(const MyApp());
   ///
-  /// try {
-  ///   await fetchRemoteConfig();
-  /// } finally {
-  ///   await SentryFlutter.finishExtendedAppStart();
-  /// }
+  ///     try {
+  ///       await completeStartupWork();
+  ///     } finally {
+  ///       await SentryFlutter.finishExtendedAppStart();
+  ///     }
+  ///   },
+  /// );
   /// ```
   static void extendAppStart() {
     final options = Sentry.currentHub.options;
