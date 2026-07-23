@@ -1,13 +1,12 @@
 import 'dart:io';
 
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/breadcrumb_client.dart';
 import 'package:test/test.dart';
-
-import '../mocks/mock_hub.dart';
 
 final requestUri = Uri.parse('https://example.com/path?foo=bar#baz');
 

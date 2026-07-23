@@ -1,3 +1,4 @@
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/telemetry/processing/in_memory_buffer.dart';
@@ -5,7 +6,6 @@ import 'package:sentry/src/telemetry/processing/processor.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
 import 'package:test/test.dart';
 
-import '../../mocks/mock_hub.dart';
 import '../../mocks/mock_client_report_recorder.dart';
 import '../../mocks/mock_transport.dart';
 import '../../test_utils.dart';

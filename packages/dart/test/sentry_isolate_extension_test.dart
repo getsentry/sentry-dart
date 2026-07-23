@@ -3,10 +3,10 @@ library;
 
 import 'dart:isolate';
 
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:sentry/src/sentry_isolate_extension.dart';
 import 'package:test/test.dart';
 
-import 'mocks/mock_hub.dart';
 import 'test_utils.dart';
 
 void main() {
