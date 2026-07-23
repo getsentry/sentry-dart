@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/app_start/app_start_data.dart';
@@ -365,6 +367,41 @@ void main() {
 
       expect(child.isEnded, isFalse);
       expect(extension.endTimestamp, directEnd);
+    });
+
+    test('measures the direct extension endpoint when finish is also requested',
+        () async {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 400),
+      );
+      RecordingSentrySpanV2? extension;
+      final onSpanEndBlocker = Completer<void>();
+      fixture.options.lifecycleRegistry.registerCallback<OnSpanEndV2>(
+        (event) async {
+          if (identical(event.span, extension)) {
+            await onSpanEndBlocker.future;
+          }
+        },
+      );
+      expect(sut.tryExtend(extensionStart), isTrue);
+
+      extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
+      final directEnd = extensionStart.add(const Duration(seconds: 1));
+      final laterEnd = extensionStart.add(const Duration(seconds: 2));
+      extension.end(endTimestamp: directEnd);
+
+      await sut.finishExtended(laterEnd);
+      onSpanEndBlocker.complete();
+      sut.recordFirstFrame(fixture.naturalEnd);
+      sut.finish(fixture.naturalEnd);
+      fixture.root!.end(endTimestamp: fixture.rootFinish);
+      await pumpEventQueue(times: 10);
+
+      expect(
+        fixture.root!.attributes['app.vitals.start.value']?.value,
+        1400.0,
+      );
     });
 
     test('preserves ended extension descendants and leaves root open',

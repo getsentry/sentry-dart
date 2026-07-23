@@ -175,7 +175,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   @override
   Future<void> finishExtended(DateTime endTimestamp) {
     final extension = _extendedSpan;
-    if (_closed || _completed || extension == null) {
+    if (_closed || _completed || _finalizing || extension == null) {
       return Future<void>.value();
     }
 

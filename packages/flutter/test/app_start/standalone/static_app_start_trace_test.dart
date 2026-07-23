@@ -562,6 +562,31 @@ void main() {
       expect(fixture.root!.tracer.finished, isTrue);
     });
 
+    testWidgets('ignores extension finish during deadline finalization',
+        (tester) async {
+      final sut = fixture.getSut()!;
+      final extensionStart = fixture.processStart.add(
+        const Duration(milliseconds: 400),
+      );
+      fixture.options.lifecycleRegistry.registerCallback<OnSpanFinish>(
+        (event) async {
+          if (event.span.context.operation ==
+              SentrySpanOperations.appStartExtended) {
+            await sut.finishExtended(
+              extensionStart.add(const Duration(seconds: 1)),
+            );
+          }
+        },
+      );
+      expect(sut.tryExtend(extensionStart), isTrue);
+      final extension = sut.extendedSpan as SentrySpan;
+
+      await tester.pump(const Duration(seconds: 30));
+      await tester.pump();
+
+      expect(extension.status, SpanStatus.deadlineExceeded());
+    });
+
     testWidgets('when closing preserves extension deadline status',
         (tester) async {
       final sut = fixture.getSut()!;
