@@ -45,7 +45,7 @@ void main() {
       );
     });
 
-    test('uses the first frame render operation for its barrier', () {
+    test('uses the first frame render operation for its span', () {
       fixture.getSut();
       final firstFrame = fixture.root!.tracer.children.firstWhere(
         (span) => span.context.description == 'First frame render',
@@ -54,7 +54,7 @@ void main() {
       expect(firstFrame.context.operation, 'app.start.first_frame_render');
     });
 
-    test('sets app-start origin on its first-frame barrier', () {
+    test('sets app-start origin on its first-frame render span', () {
       fixture.getSut();
       final firstFrame = fixture.root!.tracer.children.firstWhere(
         (span) => span.context.description == 'First frame render',
@@ -113,7 +113,7 @@ void main() {
     });
 
     test(
-        'returns null and finishes the root when first frame barrier creation fails',
+        'returns null and finishes the root when first frame render span creation fails',
         () async {
       final trace = fixture.getSut(
         data: fixture.withFirstFrameBeforeProcessStart(),

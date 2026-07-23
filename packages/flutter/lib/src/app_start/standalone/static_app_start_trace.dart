@@ -15,7 +15,7 @@ import 'app_start_trace.dart';
 final class StaticAppStartTrace implements AppStartTrace {
   final AppStartData _data;
   final SentryTracer _root;
-  final ISentrySpan _firstFrameBarrier;
+  final ISentrySpan _firstFrameRenderSpan;
   final List<ISentrySpan> _children;
   final DateTime _finalDeadlineTimestamp;
   final String Function() _startScreenNameProvider;
@@ -29,13 +29,13 @@ final class StaticAppStartTrace implements AppStartTrace {
   StaticAppStartTrace._({
     required AppStartData data,
     required SentryTracer root,
-    required ISentrySpan firstFrameBarrier,
+    required ISentrySpan firstFrameRenderSpan,
     required List<ISentrySpan> children,
     required DateTime finalDeadlineTimestamp,
     required String Function() startScreenNameProvider,
   })  : _data = data,
         _root = root,
-        _firstFrameBarrier = firstFrameBarrier,
+        _firstFrameRenderSpan = firstFrameRenderSpan,
         _children = children,
         _finalDeadlineTimestamp = finalDeadlineTimestamp,
         _startScreenNameProvider = startScreenNameProvider;
@@ -70,15 +70,15 @@ final class StaticAppStartTrace implements AppStartTrace {
         return null;
       }
 
-      final firstFrameBarrier = root.startChild(
+      final firstFrameRenderSpan = root.startChild(
         SentrySpanOperations.appStartFirstFrameRender,
         description: appStartFirstFrameRenderDescription,
         startTimestamp: data.sentrySetupTimestamp,
       )..origin = SentryTraceOrigins.autoAppStart;
-      if (firstFrameBarrier is! NoOpSentrySpan) {
-        children.add(firstFrameBarrier);
+      if (firstFrameRenderSpan is! NoOpSentrySpan) {
+        children.add(firstFrameRenderSpan);
       }
-      if (firstFrameBarrier.samplingDecision?.sampled != true) {
+      if (firstFrameRenderSpan.samplingDecision?.sampled != true) {
         unawaited(_flushTrace(root: root, children: children));
         return null;
       }
@@ -86,7 +86,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       trace = StaticAppStartTrace._(
         data: data,
         root: root,
-        firstFrameBarrier: firstFrameBarrier,
+        firstFrameRenderSpan: firstFrameRenderSpan,
         children: children,
         finalDeadlineTimestamp:
             createdAt.add(standaloneAppStartFinalTimeout).toUtc(),
@@ -131,7 +131,7 @@ final class StaticAppStartTrace implements AppStartTrace {
     _root.scheduleFinish();
     unawaited(
       _finishSpanSafely(
-        _firstFrameBarrier,
+        _firstFrameRenderSpan,
         endTimestamp: endTimestamp.toUtc(),
         failureMessage: 'Failed to finish static app-start span',
       ),

@@ -44,7 +44,7 @@ void main() {
       );
     });
 
-    test('uses the first frame render operation for its barrier', () {
+    test('uses the first frame render operation for its span', () {
       fixture.getSut();
       final firstFrame = fixture.children.firstWhere(
         (span) => span.name == 'First frame render',
@@ -94,7 +94,8 @@ void main() {
       expect(fixture.getSut(), isNull);
     });
 
-    test('returns null and ends the root when first frame barrier is ignored',
+    test(
+        'returns null and ends the root when first frame render span is ignored',
         () {
       fixture.options.ignoreSpans = [
         IgnoreSpanRule.nameEquals('First frame render'),

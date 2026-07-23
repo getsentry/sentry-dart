@@ -12,7 +12,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   final Hub _hub;
   final AppStartData _data;
   final IdleRecordingSentrySpanV2 _root;
-  final RecordingSentrySpanV2 _firstFrameBarrier;
+  final RecordingSentrySpanV2 _firstFrameRenderSpan;
   final String Function() _startScreenNameProvider;
 
   late final SdkLifecycleCallback<OnProcessSpan> _processCallback;
@@ -24,12 +24,12 @@ final class StreamingAppStartTrace implements AppStartTrace {
     required Hub hub,
     required AppStartData data,
     required IdleRecordingSentrySpanV2 root,
-    required RecordingSentrySpanV2 firstFrameBarrier,
+    required RecordingSentrySpanV2 firstFrameRenderSpan,
     required String Function() startScreenNameProvider,
   })  : _hub = hub,
         _data = data,
         _root = root,
-        _firstFrameBarrier = firstFrameBarrier,
+        _firstFrameRenderSpan = firstFrameRenderSpan,
         _startScreenNameProvider = startScreenNameProvider;
 
   static StreamingAppStartTrace? tryCreate({
@@ -61,7 +61,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
       if (root is! IdleRecordingSentrySpanV2) return null;
       createdRoot = root;
 
-      final firstFrameBarrier = hub.startInactiveSpan(
+      final firstFrameRenderSpan = hub.startInactiveSpan(
         appStartFirstFrameRenderDescription,
         parentSpan: root,
         startTimestamp: data.sentrySetupTimestamp,
@@ -70,17 +70,17 @@ final class StreamingAppStartTrace implements AppStartTrace {
           SentrySpanOperations.appStartFirstFrameRender,
         ),
       );
-      if (firstFrameBarrier is! RecordingSentrySpanV2) {
+      if (firstFrameRenderSpan is! RecordingSentrySpanV2) {
         _finishProvisionalSpans(root: createdRoot);
         return null;
       }
-      createdChildren.add(firstFrameBarrier);
+      createdChildren.add(firstFrameRenderSpan);
 
       final trace = StreamingAppStartTrace._(
         hub: hub,
         data: data,
         root: root,
-        firstFrameBarrier: firstFrameBarrier,
+        firstFrameRenderSpan: firstFrameRenderSpan,
         startScreenNameProvider: startScreenNameProvider,
       );
       trace._processCallback = trace._processSpan;
@@ -143,7 +143,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   @override
   void recordFirstFrame(DateTime endTimestamp) {
     if (_closed || _completed) return;
-    _firstFrameBarrier.end(endTimestamp: endTimestamp.toUtc());
+    _firstFrameRenderSpan.end(endTimestamp: endTimestamp.toUtc());
   }
 
   @override
