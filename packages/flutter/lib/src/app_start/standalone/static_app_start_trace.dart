@@ -22,7 +22,7 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   late final SdkLifecycleCallback<OnSpanFinish> _onSpanFinishCallback;
   SentrySpan? _extendedSpan;
-  Future<void>? _extensionCompletion;
+  Future<void>? _extensionFinishFuture;
   DateTime? _extensionEndTimestamp;
   Timer? _finalTimeoutTimer;
   DateTime? _endTimestamp;
@@ -176,14 +176,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       return Future<void>.value();
     }
 
-    final completion = _extensionCompletion;
-    if (completion != null) {
-      return completion;
-    }
-
-    final future = _finishExtension(endTimestamp.toUtc());
-    _extensionCompletion = future;
-    return future;
+    return _extensionFinishFuture ??= _finishExtension(endTimestamp.toUtc());
   }
 
   @override
@@ -277,9 +270,9 @@ final class StaticAppStartTrace implements AppStartTrace {
     final status = SpanStatus.deadlineExceeded();
     _root.status = status;
 
-    final extensionCompletion = _extensionCompletion;
-    if (extensionCompletion != null) {
-      await _finishExtensionSafely(extensionCompletion);
+    final extensionFinishFuture = _extensionFinishFuture;
+    if (extensionFinishFuture != null) {
+      await _finishExtensionSafely(extensionFinishFuture);
     }
     if (_closed || _completed) return;
 
@@ -351,9 +344,9 @@ final class StaticAppStartTrace implements AppStartTrace {
     if (_closed || _completed) return;
     _closed = true;
     _clearFinalTimeout();
-    final completion = _extensionCompletion;
-    if (completion != null) {
-      await _finishExtensionSafely(completion);
+    final extensionFinishFuture = _extensionFinishFuture;
+    if (extensionFinishFuture != null) {
+      await _finishExtensionSafely(extensionFinishFuture);
     } else {
       final extension = _extendedSpan;
       if (extension != null && _extensionEndTimestamp == null) {

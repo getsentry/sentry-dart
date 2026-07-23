@@ -18,7 +18,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   late final SdkLifecycleCallback<OnProcessSpan> _processCallback;
   late final SdkLifecycleCallback<OnSpanEndV2> _onSpanEndCallback;
   RecordingSentrySpanV2? _extendedSpan;
-  Future<void>? _extensionCompletion;
+  Future<void>? _extensionFinishFuture;
   DateTime? _extensionEndTimestamp;
   DateTime? _endTimestamp;
   bool _completed = false;
@@ -197,14 +197,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
       return Future<void>.value();
     }
 
-    final completion = _extensionCompletion;
-    if (completion != null) {
-      return completion;
-    }
-
-    final future = _finishExtension(endTimestamp.toUtc());
-    _extensionCompletion = future;
-    return future;
+    return _extensionFinishFuture ??= _finishExtension(endTimestamp.toUtc());
   }
 
   @override
@@ -279,9 +272,9 @@ final class StreamingAppStartTrace implements AppStartTrace {
     if (_closed || _completed) return;
     _closed = true;
     try {
-      final completion = _extensionCompletion;
-      if (completion != null) {
-        await completion;
+      final extensionFinishFuture = _extensionFinishFuture;
+      if (extensionFinishFuture != null) {
+        await extensionFinishFuture;
       } else {
         final extension = _extendedSpan;
         if (extension != null && _extensionEndTimestamp == null) {
