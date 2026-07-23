@@ -62,7 +62,7 @@ void main() {
           extension.context.operation, SentrySpanOperations.appStartExtended);
       expect(extension.context.description, standaloneExtendedAppStartName);
       expect(extension.origin, SentryTraceOrigins.autoAppStart);
-      expect(extension.status, SpanStatus.ok());
+      expect(extension.status, isNull);
       expect(extension.startTimestamp, extensionStart);
       expect(sut.extendedSpanV2, isA<NoOpSentrySpanV2>());
       expect(sut.tryExtend(extensionStart), isFalse);
@@ -379,7 +379,7 @@ void main() {
       expect(fixture.root!.tracer.measurements['app_start_cold']?.value, 600);
     });
 
-    test('uses the first frame render operation for its barrier', () {
+    test('uses the first frame render operation for its span', () {
       fixture.getSut();
       final firstFrame = fixture.root!.tracer.children.firstWhere(
         (span) => span.context.description == 'First frame render',
@@ -388,7 +388,7 @@ void main() {
       expect(firstFrame.context.operation, 'app.start.first_frame_render');
     });
 
-    test('sets app-start origin on its first-frame barrier', () {
+    test('sets app-start origin on its first-frame render span', () {
       fixture.getSut();
       final firstFrame = fixture.root!.tracer.children.firstWhere(
         (span) => span.context.description == 'First frame render',
@@ -447,7 +447,7 @@ void main() {
     });
 
     test(
-        'returns null and finishes the root when first frame barrier creation fails',
+        'returns null and finishes the root when first frame render span creation fails',
         () async {
       final trace = fixture.getSut(
         data: fixture.withFirstFrameBeforeProcessStart(),

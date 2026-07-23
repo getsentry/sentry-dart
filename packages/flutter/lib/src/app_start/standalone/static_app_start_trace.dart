@@ -16,13 +16,12 @@ final class StaticAppStartTrace implements AppStartTrace {
   final Hub _hub;
   final AppStartData _data;
   final SentryTracer _root;
-  final ISentrySpan _firstFrameBarrier;
+  final ISentrySpan _firstFrameRenderSpan;
   final DateTime _finalDeadlineTimestamp;
   final String Function() _startScreenNameProvider;
 
   late final SdkLifecycleCallback<OnSpanFinish> _onSpanFinishCallback;
   SentrySpan? _extendedSpan;
-  bool _firstFrameRecorded = false;
   Future<void>? _extensionCompletion;
   DateTime? _extensionEndTimestamp;
   Timer? _finalTimeoutTimer;
@@ -35,13 +34,13 @@ final class StaticAppStartTrace implements AppStartTrace {
     required Hub hub,
     required AppStartData data,
     required SentryTracer root,
-    required ISentrySpan firstFrameBarrier,
+    required ISentrySpan firstFrameRenderSpan,
     required DateTime finalDeadlineTimestamp,
     required String Function() startScreenNameProvider,
   })  : _hub = hub,
         _data = data,
         _root = root,
-        _firstFrameBarrier = firstFrameBarrier,
+        _firstFrameRenderSpan = firstFrameRenderSpan,
         _finalDeadlineTimestamp = finalDeadlineTimestamp,
         _startScreenNameProvider = startScreenNameProvider {
     _onSpanFinishCallback = _onSpanFinish;
@@ -77,15 +76,15 @@ final class StaticAppStartTrace implements AppStartTrace {
         return null;
       }
 
-      final firstFrameBarrier = root.startChild(
+      final firstFrameRenderSpan = root.startChild(
         SentrySpanOperations.appStartFirstFrameRender,
         description: appStartFirstFrameRenderDescription,
         startTimestamp: data.sentrySetupTimestamp,
       )..origin = SentryTraceOrigins.autoAppStart;
-      if (firstFrameBarrier is! NoOpSentrySpan) {
-        children.add(firstFrameBarrier);
+      if (firstFrameRenderSpan is! NoOpSentrySpan) {
+        children.add(firstFrameRenderSpan);
       }
-      if (firstFrameBarrier.samplingDecision?.sampled != true) {
+      if (firstFrameRenderSpan.samplingDecision?.sampled != true) {
         unawaited(_flushTrace(root: root, children: children));
         return null;
       }
@@ -94,7 +93,7 @@ final class StaticAppStartTrace implements AppStartTrace {
         hub: hub,
         data: data,
         root: root,
-        firstFrameBarrier: firstFrameBarrier,
+        firstFrameRenderSpan: firstFrameRenderSpan,
         finalDeadlineTimestamp:
             createdAt.add(standaloneAppStartFinalTimeout).toUtc(),
         startScreenNameProvider: startScreenNameProvider,
@@ -137,7 +136,7 @@ final class StaticAppStartTrace implements AppStartTrace {
     if (_closed ||
         _completed ||
         _finalizing ||
-        _firstFrameRecorded ||
+        _firstFrameRenderSpan.endTimestamp != null ||
         _extendedSpan != null) {
       return false;
     }
@@ -151,9 +150,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       return false;
     }
 
-    extension
-      ..origin = SentryTraceOrigins.autoAppStart
-      ..status = SpanStatus.ok();
+    extension.origin = SentryTraceOrigins.autoAppStart;
     _extendedSpan = extension;
     _hub.options.lifecycleRegistry.registerCallback<OnSpanFinish>(
       _onSpanFinishCallback,
@@ -192,11 +189,10 @@ final class StaticAppStartTrace implements AppStartTrace {
   @override
   void recordFirstFrame(DateTime endTimestamp) {
     if (_closed || _completed) return;
-    _firstFrameRecorded = true;
     _root.scheduleFinish();
     unawaited(
       _finishSpanSafely(
-        _firstFrameBarrier,
+        _firstFrameRenderSpan,
         endTimestamp: endTimestamp.toUtc(),
         failureMessage: 'Failed to finish static app-start span',
       ),
