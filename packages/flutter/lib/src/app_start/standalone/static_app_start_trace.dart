@@ -20,7 +20,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   final DateTime _finalDeadlineTimestamp;
   final String Function() _startScreenNameProvider;
 
-  late final SdkLifecycleCallback<OnSpanFinish> _onSpanFinishCallback;
+  late final SdkLifecycleCallback<OnSpanFinish> _extensionSpanFinishCallback;
   SentrySpan? _extendedSpan;
   Future<void>? _extensionFinishFuture;
   DateTime? _extensionEndTimestamp;
@@ -43,7 +43,7 @@ final class StaticAppStartTrace implements AppStartTrace {
         _firstFrameRenderSpan = firstFrameRenderSpan,
         _finalDeadlineTimestamp = finalDeadlineTimestamp,
         _startScreenNameProvider = startScreenNameProvider {
-    _onSpanFinishCallback = _onSpanFinish;
+    _extensionSpanFinishCallback = _handleExtensionSpanFinish;
   }
 
   static StaticAppStartTrace? tryCreate({
@@ -153,7 +153,7 @@ final class StaticAppStartTrace implements AppStartTrace {
     extension.origin = SentryTraceOrigins.autoAppStart;
     _extendedSpan = extension;
     _hub.options.lifecycleRegistry.registerCallback<OnSpanFinish>(
-      _onSpanFinishCallback,
+      _extensionSpanFinishCallback,
     );
     return true;
   }
@@ -346,7 +346,9 @@ final class StaticAppStartTrace implements AppStartTrace {
     await _flushTrace(root: _root, children: _root.children.toList());
   }
 
-  void _onSpanFinish(OnSpanFinish event) {
+  // Handle callers finishing the span directly instead of using
+  // finishExtendedAppStart().
+  void _handleExtensionSpanFinish(OnSpanFinish event) {
     final extension = _extendedSpan;
     if (extension == null ||
         !identical(event.span, extension) ||
@@ -354,17 +356,13 @@ final class StaticAppStartTrace implements AppStartTrace {
       return;
     }
 
-    final endTimestamp = extension.endTimestamp;
-    if (endTimestamp == null) return;
+    final extensionEndTimestamp = extension.endTimestamp;
+    if (extensionEndTimestamp == null) return;
 
-    if (_root.status == SpanStatus.deadlineExceeded()) {
-      _extensionEndTimestamp = endTimestamp;
-      _removeSpanFinishCallback();
-      return;
+    _extensionEndTimestamp = extensionEndTimestamp;
+    if (_root.status != SpanStatus.deadlineExceeded()) {
+      extension.status = SpanStatus.ok();
     }
-
-    _extensionEndTimestamp = endTimestamp;
-    extension.status = SpanStatus.ok();
     _removeSpanFinishCallback();
   }
 
@@ -395,7 +393,7 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   void _removeSpanFinishCallback() {
     _hub.options.lifecycleRegistry.removeCallback<OnSpanFinish>(
-      _onSpanFinishCallback,
+      _extensionSpanFinishCallback,
     );
   }
 }
