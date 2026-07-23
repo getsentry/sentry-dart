@@ -282,6 +282,55 @@ void main() {
       expect(result, isNull);
     });
 
+    test('metric', () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+
+      final metrics = [
+        [1, 2, 3],
+        [4, 5],
+      ];
+      final envelope = SentryEnvelope.fromMetricsData(
+        metrics,
+        SdkVersion(name: 'test', version: 'test'),
+      );
+
+      rateLimiter.updateRetryAfterLimits(
+          '1:trace_metric:key, 5:trace_metric:organization', null, 1);
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+
+      final lostMetric = fixture.mockRecorder.lostMetrics.single;
+      expect(lostMetric.reason, DiscardReason.rateLimitBackoff);
+      expect(lostMetric.count, metrics.length);
+      expect(lostMetric.bytes, greaterThan(0));
+    });
+
+    test('trace_metric_byte limit applies to metric items', () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+
+      final metrics = [
+        [1, 2, 3],
+      ];
+      final envelope = SentryEnvelope.fromMetricsData(
+        metrics,
+        SdkVersion(name: 'test', version: 'test'),
+      );
+
+      rateLimiter.updateRetryAfterLimits(
+          '1:trace_metric_byte:key, 5:trace_metric_byte:organization', null, 1);
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+
+      final lostMetric = fixture.mockRecorder.lostMetrics.single;
+      expect(lostMetric.reason, DiscardReason.rateLimitBackoff);
+      expect(lostMetric.count, metrics.length);
+      expect(lostMetric.bytes, greaterThan(0));
+    });
+
     test('log', () {
       final rateLimiter = fixture.getSut();
       fixture.dateTimeToReturn = 0;

@@ -118,6 +118,31 @@ void main() {
       expect(lostLog.bytes, greaterThan(0));
     });
 
+    test('records lost metric count and bytes when client throws exception',
+        () async {
+      final httpMock = MockClient((http.Request request) async {
+        throw http.ClientException(
+            'Connection closed before full header was received');
+      });
+
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final metrics = [
+        [1, 2, 3],
+        [4, 5],
+      ];
+      final envelope =
+          SentryEnvelope.fromMetricsData(metrics, fixture.options.sdk);
+
+      await sut.send(envelope);
+
+      final lostMetric = fixture.clientReportRecorder.lostMetrics.single;
+      expect(lostMetric.reason, DiscardReason.networkError);
+      expect(lostMetric.count, metrics.length);
+      expect(lostMetric.bytes, greaterThan(0));
+    });
+
     test('records lost transaction and spans when client throws exception',
         () async {
       final httpMock = MockClient((http.Request request) async {
