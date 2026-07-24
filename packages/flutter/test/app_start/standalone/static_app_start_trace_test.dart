@@ -514,6 +514,17 @@ void main() {
       expect(root.finished, isTrue);
     });
 
+    test('when closing flushes root-owned children', () async {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!.tracer;
+      final child = root.startChild('late child');
+
+      await sut.close();
+
+      expect(child.finished, isTrue);
+      expect(root.finished, isTrue);
+    });
+
     testWidgets('waits for idle timeout after natural end', (tester) async {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;
@@ -599,6 +610,24 @@ void main() {
 
       expect(root.finished, isTrue);
       expect(root.status, SpanStatus.deadlineExceeded());
+    });
+
+    testWidgets('finishes root-owned children at the final deadline',
+        (tester) async {
+      fixture.getSut();
+      final root = fixture.root!.tracer;
+      final child = root.startChild('late child') as SentrySpan;
+      final grandchild = child.startChild('late grandchild') as SentrySpan;
+      final deadline = fixture.createdAt.add(const Duration(seconds: 30));
+
+      await tester.pump(const Duration(seconds: 30));
+      await tester.pump();
+
+      for (final span in [child, grandchild]) {
+        expect(span.status, SpanStatus.deadlineExceeded());
+        expect(span.endTimestamp, deadline);
+      }
+      expect(root.finished, isTrue);
     });
 
     testWidgets('rejects extension during deadline finalization',
