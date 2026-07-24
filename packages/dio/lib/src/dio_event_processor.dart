@@ -21,11 +21,13 @@ class DioEventProcessor implements EventProcessor {
 
     DioError? dioError;
 
-    for (final exception in event.exceptions ?? []) {
+    for (final exception in event.exceptions ?? <SentryException>[]) {
       final throwable = exception.throwable;
       if (throwable is DioError) {
-        dioError = throwable;
-        break;
+        if (_shouldReplaceValue(throwable)) {
+          exception.value = _valueFrom(throwable);
+        }
+        dioError ??= throwable;
       }
     }
 
@@ -39,6 +41,34 @@ class DioEventProcessor implements EventProcessor {
     // Keep the original one or if there's none create one.
     event.request = event.request ?? _requestFrom(dioError);
     return event;
+  }
+
+  /// Only replace a message that carries no information of its own. A bad
+  /// response is several lines of boilerplate — the meaning of the status code,
+  /// a link to MDN and generic remediation advice — and the other types either
+  /// name the timeout that elapsed or the connection error that occurred, which
+  /// we would otherwise drop.
+  bool _shouldReplaceValue(DioError dioError) {
+    // Never override a message the user chose to build themselves.
+    if (dioError.stringBuilder != null ||
+        DioException.readableStringBuilder !=
+            defaultDioExceptionReadableStringBuilder) {
+      return false;
+    }
+    return dioError.type == DioExceptionType.badResponse ||
+        dioError.message == null;
+  }
+
+  /// Keeps the status code and the route, which are what identify the failure.
+  /// The untouched [DioError] stays on [SentryException.throwable] for
+  /// `beforeSend`.
+  String _valueFrom(DioError dioError) {
+    final options = dioError.requestOptions;
+    final route = '${options.method.toUpperCase()} ${options.uri.path}';
+    final statusCode = dioError.response?.statusCode;
+
+    return 'DioException [${dioError.type.description}]: '
+        '${statusCode == null ? route : '$statusCode $route'}';
   }
 
   SentryRequest? _requestFrom(DioError dioError) {
@@ -175,6 +205,24 @@ class DioEventProcessor implements EventProcessor {
     }
     return data;
   }
+}
+
+/// Mirrors Dio's own type descriptions, which it only exposes through a private
+/// extension. A lookup rather than a switch, because Dio adds enum values in
+/// minor releases and our constraint spans them.
+const _dioExceptionTypeDescriptions = {
+  DioExceptionType.connectionTimeout: 'connection timeout',
+  DioExceptionType.sendTimeout: 'send timeout',
+  DioExceptionType.receiveTimeout: 'receive timeout',
+  DioExceptionType.badCertificate: 'bad certificate',
+  DioExceptionType.badResponse: 'bad response',
+  DioExceptionType.cancel: 'request cancelled',
+  DioExceptionType.connectionError: 'connection error',
+  DioExceptionType.unknown: 'unknown',
+};
+
+extension _DioExceptionTypeX on DioExceptionType {
+  String get description => _dioExceptionTypeDescriptions[this] ?? name;
 }
 
 /// Returns true if the data can be encoded as JSON within the given byte limit.

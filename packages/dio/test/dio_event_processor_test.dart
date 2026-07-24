@@ -977,6 +977,127 @@ void main() {
     });
   });
 
+  group('exception value', () {
+    test('$DioEventProcessor replaces bad response value with status and route',
+        () {
+      final sut = fixture.getSut();
+
+      final request = requestOptions.copyWith(method: 'POST');
+      final dioError = DioError.badResponse(
+        statusCode: 502,
+        requestOptions: request,
+        response: Response<dynamic>(statusCode: 502, requestOptions: request),
+      );
+      final event = SentryEvent(
+        throwable: dioError,
+        exceptions: [fixture.sentryError(dioError)],
+      );
+
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(
+        processedEvent.exceptions?.first.value,
+        'DioException [bad response]: 502 POST /foo/bar',
+      );
+    });
+
+    test('$DioEventProcessor keeps the timeout detail of a timeout value', () {
+      final sut = fixture.getSut();
+
+      final dioError = DioError.connectionTimeout(
+        timeout: Duration(seconds: 5),
+        requestOptions: requestOptions,
+      );
+      final event = SentryEvent(
+        throwable: dioError,
+        exceptions: [fixture.sentryError(dioError)],
+      );
+
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(processedEvent.exceptions?.first.value, contains('0:00:05'));
+    });
+
+    test('$DioEventProcessor replaces value when Dio provides no message', () {
+      final sut = fixture.getSut();
+
+      final dioError = DioError(requestOptions: requestOptions);
+      final event = SentryEvent(
+        throwable: dioError,
+        exceptions: [fixture.sentryError(dioError)],
+      );
+
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(
+        processedEvent.exceptions?.first.value,
+        'DioException [unknown]: GET /foo/bar',
+      );
+    });
+
+    test('$DioEventProcessor keeps value built by a custom string builder', () {
+      final sut = fixture.getSut();
+
+      final request = requestOptions.copyWith(method: 'POST');
+      final dioError = DioError.badResponse(
+        statusCode: 502,
+        requestOptions: request,
+        response: Response<dynamic>(statusCode: 502, requestOptions: request),
+      )..stringBuilder = (e) => 'my own message';
+      final event = SentryEvent(
+        throwable: dioError,
+        exceptions: [fixture.sentryError(dioError)],
+      );
+
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(processedEvent.exceptions?.first.value, 'my own message');
+    });
+
+    test('$DioEventProcessor keeps value built by a custom global builder', () {
+      addTearDown(() {
+        DioException.readableStringBuilder =
+            defaultDioExceptionReadableStringBuilder;
+      });
+      DioException.readableStringBuilder = (e) => 'my own global message';
+
+      final sut = fixture.getSut();
+
+      final request = requestOptions.copyWith(method: 'POST');
+      final dioError = DioError.badResponse(
+        statusCode: 502,
+        requestOptions: request,
+        response: Response<dynamic>(statusCode: 502, requestOptions: request),
+      );
+      final event = SentryEvent(
+        throwable: dioError,
+        exceptions: [fixture.sentryError(dioError)],
+      );
+
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(processedEvent.exceptions?.first.value, 'my own global message');
+    });
+
+    test('$DioEventProcessor keeps values of non-Dio exceptions', () {
+      final sut = fixture.getSut();
+
+      final exception = Exception('foo bar');
+      final dioError = DioError(requestOptions: requestOptions);
+      final event = SentryEvent(
+        throwable: dioError,
+        exceptions: [
+          fixture.sentryError(exception),
+          fixture.sentryError(dioError),
+        ],
+      );
+
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(processedEvent.exceptions?.first.value, exception.toString());
+    });
+  });
+
   test('$DioEventProcessor adds chained stacktraces', () {
     fixture.options.addExceptionCauseExtractor(DioErrorExtractor());
 
@@ -1006,7 +1127,10 @@ void main() {
 
     expect(processedEvent.exceptions?.length, 2);
 
-    expect(processedEvent.exceptions?[0].value, dioError.toString());
+    expect(
+      processedEvent.exceptions?[0].value,
+      'DioException [unknown]: GET /foo/bar',
+    );
     expect(processedEvent.exceptions?[0].stackTrace, isNotNull);
 
     expect(processedEvent.exceptions?[1].value, exception.toString());
