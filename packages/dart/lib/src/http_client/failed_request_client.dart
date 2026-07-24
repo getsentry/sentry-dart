@@ -6,6 +6,7 @@ import '../hub_adapter.dart';
 import '../protocol.dart';
 import '../throwable_mechanism.dart';
 import '../type_check_hint.dart';
+import '../utils/http_sanitizer.dart';
 import '../utils/tracing_utils.dart';
 import 'sentry_http_client.dart';
 import 'sentry_http_client_error.dart';
@@ -205,8 +206,13 @@ class FailedRequestClient extends BaseClient {
     final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
 
     if (response != null) {
+      final sendPii = _hub.options.sendDefaultPii;
       event.contexts.response = SentryResponse(
-        headers: _hub.options.sendDefaultPii ? response.headers : null,
+        headers:
+            sendPii ? HttpSanitizer.sanitizedHeaders(response.headers) : null,
+        // Read explicitly because sanitizing strips `set-cookie` before
+        // SentryResponse can pick it up. `package:http` lowercases header names.
+        cookies: sendPii ? response.headers['set-cookie'] : null,
         bodySize: response.contentLength,
         statusCode: response.statusCode,
       );

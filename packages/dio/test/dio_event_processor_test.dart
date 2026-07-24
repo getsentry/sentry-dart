@@ -803,7 +803,6 @@ void main() {
       expect(capturedResponse?.statusCode, 200);
       expect(capturedResponse?.headers, {
         'foo': 'bar',
-        'set-cookie': 'foo=bar',
         'content-length': '6',
       });
       expect(capturedResponse?.cookies, 'foo=bar');

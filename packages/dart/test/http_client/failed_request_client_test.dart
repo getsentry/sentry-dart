@@ -174,8 +174,7 @@ void main() {
       final response = eventCall.contexts.response!;
       expect(response.bodySize, 3);
       expect(response.statusCode, 404);
-      expect(response.headers,
-          equals({'lorem': 'ipsum', 'set-cookie': 'foo=bar'}));
+      expect(response.headers, equals({'lorem': 'ipsum'}));
       expect(response.cookies, equals('foo=bar'));
     });
 

@@ -184,8 +184,15 @@ class DioEventProcessor implements EventProcessor {
       contentLength = int.tryParse(contentLengthHeader);
     }
 
+    // ignore: invalid_use_of_internal_member
+    final sanitizedHeaders = HttpSanitizer.sanitizedHeaders(headers);
+    // Read explicitly because sanitizing strips `set-cookie` before
+    // SentryResponse can pick it up.
+    final setCookie = headers?['set-cookie'];
+
     return SentryResponse(
-      headers: _options.sendDefaultPii ? headers : null,
+      headers: _options.sendDefaultPii ? sanitizedHeaders : null,
+      cookies: _options.sendDefaultPii ? setCookie : null,
       bodySize: contentLength,
       statusCode: response?.statusCode,
       data: _getResponseData(dioError.response?.data, contentLength),
