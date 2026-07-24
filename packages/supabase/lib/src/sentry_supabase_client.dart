@@ -7,6 +7,7 @@ import 'constants.dart';
 import 'sentry_supabase_breadcrumb_client.dart';
 import 'sentry_supabase_tracing_client.dart';
 import 'sentry_supabase_error_client.dart';
+import 'sentry_supabase_exception_type_identifier.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client that
 /// instruments requests to Supabase.
@@ -108,6 +109,13 @@ class SentrySupabaseClient extends BaseClient {
         hub,
         failedRequestStatusCodes: failedRequestStatusCodes,
       );
+      // Checked before the integration is recorded, so building a second client
+      // for the same hub doesn't register the identifier twice.
+      if (!hub.options.sdk.integrations.contains(integrationNameErrors)) {
+        hub.options.prependExceptionTypeIdentifier(
+          SentrySupabaseExceptionTypeIdentifier(),
+        );
+      }
       hub.options.sdk.addIntegration(integrationNameErrors);
     }
 

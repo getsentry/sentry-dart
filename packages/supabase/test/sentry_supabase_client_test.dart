@@ -1,5 +1,6 @@
 import 'package:sentry_supabase/sentry_supabase.dart';
 import 'package:sentry_supabase/src/constants.dart';
+import 'package:sentry_supabase/src/sentry_supabase_exception_type_identifier.dart';
 import 'package:test/test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:http/http.dart';
@@ -267,6 +268,44 @@ void main() {
       expect(
         fixture.options.sdk.integrations,
         contains(integrationNameErrors),
+      );
+    });
+
+    test('adds $SentrySupabaseExceptionTypeIdentifier with the error client',
+        () {
+      fixture.getSut(
+        enableBreadcrumbs: false,
+        enableTracing: false,
+        enableErrors: true,
+      );
+
+      expect(
+        fixture.options.exceptionTypeIdentifiers.first,
+        isA<CachingExceptionTypeIdentifier>().having(
+          (c) => c.identifier,
+          'wrapped identifier',
+          isA<SentrySupabaseExceptionTypeIdentifier>(),
+        ),
+      );
+    });
+
+    test('does not duplicate $SentrySupabaseExceptionTypeIdentifier', () {
+      for (var i = 0; i < 2; i++) {
+        fixture.getSut(
+          enableBreadcrumbs: false,
+          enableTracing: false,
+          enableErrors: true,
+        );
+      }
+
+      expect(
+        fixture.options.exceptionTypeIdentifiers
+            .whereType<CachingExceptionTypeIdentifier>()
+            .where(
+              (it) => it.identifier is SentrySupabaseExceptionTypeIdentifier,
+            )
+            .length,
+        1,
       );
     });
 
