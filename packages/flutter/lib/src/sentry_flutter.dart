@@ -34,6 +34,7 @@ import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'profiling.dart';
 import 'replay/integration.dart';
+import 'replay/network_details_capture.dart';
 import 'screenshot/screenshot_support.dart';
 import 'utils/internal_logger.dart';
 import 'utils/platform_dispatcher_wrapper.dart';
@@ -127,6 +128,7 @@ mixin SentryFlutter {
 
   static Future<void> _initDefaultValues(SentryFlutterOptions options) async {
     options.addEventProcessor(FlutterExceptionEventProcessor());
+    options.networkDetailsCapture = FlutterNetworkDetailsCapture(options);
 
     // Not all platforms have a native integration.
     if (_native != null) {

@@ -29,6 +29,7 @@ dependencies:
   ffi: ^2.0.0
   web: ^1.1.0
   jni: 0.14.2
+  http: '>=0.13.0 <2.0.0'
 
 dev_dependencies:
   build_runner: ^2.4.2
@@ -39,7 +40,6 @@ dev_dependencies:
   yaml: ^3.1.0 # needed for version match (code and pubspec)
   flutter_lints: '>=4.0.0'
   remove_from_coverage: ^2.0.0
-  http: ^1.2.2 # check if js sdk cdn bundle exists
   flutter_localizations:
     sdk: flutter
   ffigen:
