@@ -91,6 +91,7 @@ class StandaloneAppStartLifecycle {
         );
       } else {
         _trace = trace;
+        _flutterOptions?.standaloneAppStartTrace = trace;
       }
     }
 
@@ -204,8 +205,12 @@ class StandaloneAppStartLifecycle {
   Future<void> close() async {
     _closed = true;
     _removeTimingsCallback();
-    await _trace?.close();
+    final trace = _trace;
+    await trace?.close();
     final options = _flutterOptions;
+    if (trace != null && identical(options?.standaloneAppStartTrace, trace)) {
+      options?.standaloneAppStartTrace = null;
+    }
     if (options != null) {
       switch (_preparedDisplayState) {
         case _PreparedDisplayState.static:
