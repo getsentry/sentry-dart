@@ -8,6 +8,7 @@ import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
 import 'diagnostic_log.dart';
 import 'environment/environment_variables.dart';
+import 'http_client/network_details_capture.dart';
 import 'noop_client.dart';
 import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
@@ -480,9 +481,14 @@ class SentryOptions {
   /// array, and only attach tracing headers if a match was found.
   final List<String> tracePropagationTargets = ['.*'];
 
-  /// Configuration for data captured for Session Replay, such as HTTP
-  /// request/response details shown alongside network spans.
-  final replay = SentryReplayOptions();
+  /// Captures HTTP request/response details for [SentryHttpClient] requests,
+  /// to be shown alongside network spans in Session Replay.
+  ///
+  /// Replay is currently only implemented by `sentry_flutter`, which sets
+  /// this during its own init; `null` otherwise, meaning nothing is
+  /// captured.
+  @internal
+  NetworkDetailsCapture? networkDetailsCapture;
 
   /// This option is used to enable the propagation of the
   /// W3C Trace Context HTTP header traceparent on outgoing HTTP requests.

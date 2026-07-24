@@ -9,7 +9,6 @@ import 'package:sentry/src/http_client/network_details_capture.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_hub.dart';
-import '../test_utils.dart';
 
 final requestUri = Uri.parse('https://example.com/path?foo=bar#baz');
 
@@ -264,9 +263,7 @@ void main() {
     });
 
     test('attaches network details when capture matches the request', () async {
-      final options = defaultTestOptions()
-        ..replay.networkDetailAllowUrls.add('.*');
-      final capture = NetworkDetailsCapture(options);
+      final capture = FakeNetworkDetailsCapture();
 
       final sut = fixture.getSut(
         fixture.getClient(statusCode: 200, reason: 'OK'),
@@ -283,11 +280,7 @@ void main() {
     test(
         'captures request headers as mutated by a wrapped client during '
         'send (e.g. tracing headers added after dispatch)', () async {
-      final options = defaultTestOptions()
-        ..replay.networkDetailAllowUrls.add('.*')
-        ..sendDefaultPii = true
-        ..replay.networkRequestHeaders.add('sentry-trace');
-      final capture = NetworkDetailsCapture(options);
+      final capture = FakeNetworkDetailsCapture();
 
       final sut = fixture.getSut(
         // MockClient's default (non-streaming) handler finalizes a copy of
@@ -314,9 +307,7 @@ void main() {
 
     test('does not attach network details when capture does not match',
         () async {
-      final options = defaultTestOptions()
-        ..replay.networkDetailAllowUrls.add('other.com');
-      final capture = NetworkDetailsCapture(options);
+      final capture = FakeNetworkDetailsCapture(shouldCaptureResult: false);
 
       final sut = fixture.getSut(
         fixture.getClient(statusCode: 200, reason: 'OK'),
@@ -364,6 +355,31 @@ void main() {
 }
 
 class CloseableMockClient extends Mock implements BaseClient {}
+
+/// A bare-bones [NetworkDetailsCapture] double: real filtering/truncation
+/// behavior is covered by `sentry_flutter`'s concrete implementation; here
+/// we only need something that exercises how [BreadcrumbClient] wires a
+/// capture into the breadcrumb.
+class FakeNetworkDetailsCapture implements NetworkDetailsCapture {
+  FakeNetworkDetailsCapture({this.shouldCaptureResult = true});
+
+  final bool shouldCaptureResult;
+
+  @override
+  bool shouldCapture(Uri url) => shouldCaptureResult;
+
+  @override
+  Map<String, dynamic> captureRequest(BaseRequest request) {
+    return {'headers': Map<String, String>.from(request.headers)};
+  }
+
+  @override
+  Future<(StreamedResponse, Map<String, dynamic>)> captureResponse(
+    StreamedResponse response,
+  ) async {
+    return (response, {'headers': Map<String, String>.from(response.headers)});
+  }
+}
 
 class Fixture {
   BreadcrumbClient getSut(

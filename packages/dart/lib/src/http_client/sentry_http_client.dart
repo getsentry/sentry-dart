@@ -4,7 +4,6 @@ import '../hub.dart';
 import '../hub_adapter.dart';
 import 'breadcrumb_client.dart';
 import 'failed_request_client.dart';
-import 'network_details_capture.dart';
 import 'tracing_client.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client.
@@ -115,7 +114,7 @@ class SentryHttpClient extends BaseClient {
       innerClient = BreadcrumbClient(
         client: innerClient,
         hub: _hub,
-        networkDetailsCapture: NetworkDetailsCapture(_hub.options),
+        networkDetailsCapture: _hub.options.networkDetailsCapture,
       );
     }
 

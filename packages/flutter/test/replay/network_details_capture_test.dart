@@ -1,12 +1,14 @@
+// ignore_for_file: invalid_use_of_internal_member
 import 'package:http/http.dart';
+// ignore: implementation_imports
 import 'package:sentry/src/constants.dart';
-import 'package:sentry/src/http_client/network_details_capture.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry_flutter/src/replay/network_details_capture.dart';
 
-import '../test_utils.dart';
+import '../mocks.dart';
 
 void main() {
-  group('$NetworkDetailsCapture', () {
+  group('$FlutterNetworkDetailsCapture', () {
     test('adds feature flag when allow list is non-empty', () {
       final fixture = Fixture();
       fixture.options.replay.networkDetailAllowUrls.add('example.com');
@@ -178,12 +180,12 @@ void main() {
 
         final request = Request('POST', Uri.parse('https://example.com'))
           ..headers['content-type'] = 'text/plain'
-          ..body = 'a' * NetworkDetailsCapture.maxBodySize;
+          ..body = 'a' * FlutterNetworkDetailsCapture.maxBodySize;
 
         final data = sut.captureRequest(request);
 
-        expect(
-            (data['body'] as String).length, NetworkDetailsCapture.maxBodySize);
+        expect((data['body'] as String).length,
+            FlutterNetworkDetailsCapture.maxBodySize);
       });
 
       test('does not capture request body exceeding max size', () {
@@ -193,7 +195,7 @@ void main() {
 
         final request = Request('POST', Uri.parse('https://example.com'))
           ..headers['content-type'] = 'text/plain'
-          ..body = 'a' * (NetworkDetailsCapture.maxBodySize + 100);
+          ..body = 'a' * (FlutterNetworkDetailsCapture.maxBodySize + 100);
 
         final data = sut.captureRequest(request);
 
@@ -270,7 +272,7 @@ void main() {
         final response = StreamedResponse(
           Stream.value('{"foo":"bar"}'.codeUnits),
           200,
-          contentLength: NetworkDetailsCapture.maxBodySize + 1,
+          contentLength: FlutterNetworkDetailsCapture.maxBodySize + 1,
           headers: {'content-type': 'application/json'},
         );
 
@@ -287,7 +289,8 @@ void main() {
         fixture.options.sendDefaultPii = true;
         final sut = fixture.getSut();
 
-        final oversizedBody = 'a' * (NetworkDetailsCapture.maxBodySize + 100);
+        final oversizedBody =
+            'a' * (FlutterNetworkDetailsCapture.maxBodySize + 100);
         // Split into chunks so the body is read incrementally rather than
         // available as a single value, matching a real chunked response.
         final chunks = [
@@ -308,8 +311,8 @@ void main() {
 
         final (forwardedResponse, data) = await sut.captureResponse(response);
 
-        expect(
-            (data['body'] as String).length, NetworkDetailsCapture.maxBodySize);
+        expect((data['body'] as String).length,
+            FlutterNetworkDetailsCapture.maxBodySize);
         expect(await forwardedResponse.stream.bytesToString(), oversizedBody);
       });
     });
@@ -319,5 +322,6 @@ void main() {
 class Fixture {
   final options = defaultTestOptions();
 
-  NetworkDetailsCapture getSut() => NetworkDetailsCapture(options);
+  FlutterNetworkDetailsCapture getSut() =>
+      FlutterNetworkDetailsCapture(options);
 }
