@@ -54,6 +54,12 @@ void main() {
               .attributes[SemanticAttributesConstants.sentryOrigin]?.value,
           SentryTraceOrigins.autoNavigationRouteObserver,
         );
+        expect(
+          activeSpan
+              .attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'component',
+        );
       });
 
       test('ends TTID span on next frame callback', () {
@@ -154,6 +160,18 @@ void main() {
     });
 
     group('when tracking app start', () {
+      test('adds component segment name source', () {
+        final sut = fixture.getSut();
+
+        final span = sut.trackAppStart();
+
+        expect(
+          span.attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'component',
+        );
+      });
+
       test('returns idle span named root /', () {
         final sut = fixture.getSut();
 
@@ -234,6 +252,20 @@ void main() {
     });
 
     group('when preparing app start', () {
+      test('adds component segment name source', () {
+        final sut = fixture.getSut();
+
+        sut.prepareAppStart();
+
+        expect(
+          fixture.hub
+              .getActiveSpan()
+              ?.attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'component',
+        );
+      });
+
       test('creates idle span eagerly', () {
         final sut = fixture.getSut();
 

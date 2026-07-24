@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
-import '../test_utils.dart';
-import 'mock_sentry_client.dart';
 import 'no_such_method_provider.dart';
 
+const _testDsn = 'https://public:secret@sentry.example.com/1';
+
+/// A fake [Hub] for SDK tests, tracking calls to each capture/lifecycle
+/// method so tests can assert on them.
 class MockHub with NoSuchMethodProvider implements Hub {
   List<CaptureEventCall> captureEventCalls = [];
   List<CaptureExceptionCall> captureExceptionCalls = [];
@@ -15,8 +17,6 @@ class MockHub with NoSuchMethodProvider implements Hub {
   List<CaptureLogCall> captureLogCalls = [];
   List<SentryClient?> bindClientCalls = [];
   List<CaptureSpanCall> captureSpanCalls = [];
-
-  // ignore: deprecated_member_use_from_same_package
   List<CaptureTransactionCall> captureTransactionCalls = [];
   int closeCalls = 0;
   bool _isEnabled = true;
@@ -26,7 +26,9 @@ class MockHub with NoSuchMethodProvider implements Hub {
   RecordingSentrySpanV2? activeSpan;
   ISentrySpan? legacySpan;
 
-  final _options = defaultTestOptions();
+  final _options = SentryOptions(dsn: _testDsn)
+    // ignore: invalid_use_of_internal_member
+    ..automatedTestMode = true;
 
   late Scope _scope;
 
@@ -217,4 +219,19 @@ class CaptureSpanCall {
   final SentrySpanV2 span;
 
   CaptureSpanCall(this.span);
+}
+
+class CaptureTransactionCall {
+  final SentryTransaction transaction;
+  final SentryTraceContextHeader? traceContext;
+  final Hint? hint;
+
+  CaptureTransactionCall(this.transaction, this.traceContext, this.hint);
+}
+
+class CaptureLogCall {
+  final SentryLog log;
+  final Scope? scope;
+
+  CaptureLogCall(this.log, this.scope);
 }

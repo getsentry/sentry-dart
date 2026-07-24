@@ -593,6 +593,12 @@ void main() {
           activeSpan?.attributes[SemanticAttributesConstants.sentryOp]?.value,
           SentrySpanOperations.uiActionClick,
         );
+        expect(
+          activeSpan
+              ?.attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'component',
+        );
       });
     });
 

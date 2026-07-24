@@ -140,6 +140,10 @@ void main() {
         // ignore: invalid_use_of_internal_member
         SentrySpanOperations.uiLoad,
       );
+      expect(
+        fixture.nativeAppStartHandler.context?.transactionNameSource,
+        SentryTransactionNameSource.component,
+      );
 
       expect(
         fixture.options.timeToDisplayTracker.transactionId,

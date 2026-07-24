@@ -11,6 +11,9 @@ class MockTelemetryProcessor implements TelemetryProcessor {
   /// When set, [addLog] throws this error instead of recording the log.
   Object? addLogError;
 
+  /// When set, [addMetric] throws this error instead of recording the metric.
+  Object? addMetricError;
+
   @override
   void addSpan(RecordingSentrySpanV2 span) {
     addedSpans.add(span);
@@ -27,6 +30,10 @@ class MockTelemetryProcessor implements TelemetryProcessor {
 
   @override
   void addMetric(SentryMetric metric) {
+    final error = addMetricError;
+    if (error != null) {
+      throw error;
+    }
     addedMetrics.add(metric);
   }
 

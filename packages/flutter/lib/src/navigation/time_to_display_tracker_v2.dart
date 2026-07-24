@@ -127,6 +127,9 @@ class TimeToDisplayTrackerV2 {
                 SentryAttribute.string(SentrySpanOperations.uiLoad),
             SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
                 SentryTraceOrigins.autoNavigationRouteObserver),
+            SemanticAttributesConstants.sentrySegmentNameSource:
+                SentryAttribute.string(
+                    SentryTransactionNameSource.component.name),
           });
 
   /// Ensures the TTFD span exists, creating it if not already present.

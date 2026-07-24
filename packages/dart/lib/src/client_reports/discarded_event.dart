@@ -78,6 +78,8 @@ extension _DataCategoryExtension on DataCategory {
         return 'metric_bucket';
       case DataCategory.metric:
         return 'trace_metric';
+      case DataCategory.metricByte:
+        return 'trace_metric_byte';
     }
   }
 }

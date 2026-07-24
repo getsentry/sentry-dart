@@ -1,7 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/telemetry/metric/metric_capture_pipeline.dart';
-import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import '../../mocks/mock_client_report_recorder.dart';
@@ -143,18 +142,31 @@ void main() {
         expect(fixture.processor.addedMetrics, isEmpty);
       });
 
-      test('returning null records lost event in client report', () async {
+      test('returning null records metric count and bytes', () async {
         fixture.options.beforeSendMetric = (_) => null;
 
         final metric = fixture.createMetric();
 
         await fixture.pipeline.captureMetric(metric, scope: fixture.scope);
 
-        expect(fixture.recorder.discardedEvents.length, 1);
-        expect(fixture.recorder.discardedEvents.first.reason,
-            DiscardReason.beforeSend);
-        expect(fixture.recorder.discardedEvents.first.category,
-            DataCategory.metric);
+        final lostMetric = fixture.recorder.lostMetrics.single;
+        expect(lostMetric.reason, DiscardReason.beforeSend);
+        expect(lostMetric.count, 1);
+        expect(lostMetric.bytes, greaterThan(0));
+      });
+
+      test('returning null omits bytes when size estimation fails', () async {
+        fixture.options.beforeSendMetric = (_) => null;
+
+        await fixture.pipeline.captureMetric(
+          fixture.createUnencodableMetric(),
+          scope: fixture.scope,
+        );
+
+        final lostMetric = fixture.recorder.lostMetrics.single;
+        expect(lostMetric.reason, DiscardReason.beforeSend);
+        expect(lostMetric.count, 1);
+        expect(lostMetric.bytes, isNull);
       });
 
       test('can mutate the metric', () async {
@@ -172,6 +184,23 @@ void main() {
         final captured = fixture.processor.addedMetrics.first;
         expect(captured.name, 'modified-name');
         expect(captured.attributes['added-key']?.value, 'added');
+      });
+    });
+
+    group('when capturing fails unexpectedly', () {
+      test('records lost metric as internal SDK error', () async {
+        fixture.options.automatedTestMode = false;
+        fixture.processor.addMetricError = StateError('boom');
+
+        await fixture.pipeline.captureMetric(
+          fixture.createMetric(),
+          scope: fixture.scope,
+        );
+
+        final lostMetric = fixture.recorder.lostMetrics.single;
+        expect(lostMetric.reason, DiscardReason.internalSdkError);
+        expect(lostMetric.count, 1);
+        expect(lostMetric.bytes, greaterThan(0));
       });
     });
   });
@@ -204,4 +233,19 @@ class Fixture {
       traceId: SentryId.newId(),
     );
   }
+
+  SentryMetric createUnencodableMetric() {
+    return _UnencodableMetric(
+      timestamp: DateTime.now().toUtc(),
+      traceId: SentryId.newId(),
+    );
+  }
+}
+
+final class _UnencodableMetric extends SentryMetric {
+  _UnencodableMetric({required super.timestamp, required super.traceId})
+      : super(type: 'counter', name: 'test metric', value: 1);
+
+  @override
+  Map<String, dynamic> toJson() => throw StateError('Encoding failed');
 }

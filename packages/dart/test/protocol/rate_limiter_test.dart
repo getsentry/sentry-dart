@@ -1,3 +1,4 @@
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
@@ -8,7 +9,6 @@ import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_client_report_recorder.dart';
-import '../mocks/mock_hub.dart';
 import '../test_utils.dart';
 
 void main() {
@@ -280,6 +280,55 @@ void main() {
 
       final result = rateLimiter.filter(envelope);
       expect(result, isNull);
+    });
+
+    test('metric', () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+
+      final metrics = [
+        [1, 2, 3],
+        [4, 5],
+      ];
+      final envelope = SentryEnvelope.fromMetricsData(
+        metrics,
+        SdkVersion(name: 'test', version: 'test'),
+      );
+
+      rateLimiter.updateRetryAfterLimits(
+          '1:trace_metric:key, 5:trace_metric:organization', null, 1);
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+
+      final lostMetric = fixture.mockRecorder.lostMetrics.single;
+      expect(lostMetric.reason, DiscardReason.rateLimitBackoff);
+      expect(lostMetric.count, metrics.length);
+      expect(lostMetric.bytes, greaterThan(0));
+    });
+
+    test('trace_metric_byte limit applies to metric items', () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+
+      final metrics = [
+        [1, 2, 3],
+      ];
+      final envelope = SentryEnvelope.fromMetricsData(
+        metrics,
+        SdkVersion(name: 'test', version: 'test'),
+      );
+
+      rateLimiter.updateRetryAfterLimits(
+          '1:trace_metric_byte:key, 5:trace_metric_byte:organization', null, 1);
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+
+      final lostMetric = fixture.mockRecorder.lostMetrics.single;
+      expect(lostMetric.reason, DiscardReason.rateLimitBackoff);
+      expect(lostMetric.count, metrics.length);
+      expect(lostMetric.bytes, greaterThan(0));
     });
 
     test('log', () {

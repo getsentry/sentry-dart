@@ -1,3 +1,4 @@
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sentry/sentry.dart';
@@ -11,7 +12,6 @@ import 'package:test/test.dart';
 
 import '../mocks.dart';
 import '../mocks/mock_client_report_recorder.dart';
-import '../mocks/mock_hub.dart';
 import '../test_utils.dart';
 
 void main() {
@@ -116,6 +116,31 @@ void main() {
       expect(lostLog.reason, DiscardReason.networkError);
       expect(lostLog.count, logs.length);
       expect(lostLog.bytes, greaterThan(0));
+    });
+
+    test('records lost metric count and bytes when client throws exception',
+        () async {
+      final httpMock = MockClient((http.Request request) async {
+        throw http.ClientException(
+            'Connection closed before full header was received');
+      });
+
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final metrics = [
+        [1, 2, 3],
+        [4, 5],
+      ];
+      final envelope =
+          SentryEnvelope.fromMetricsData(metrics, fixture.options.sdk);
+
+      await sut.send(envelope);
+
+      final lostMetric = fixture.clientReportRecorder.lostMetrics.single;
+      expect(lostMetric.reason, DiscardReason.networkError);
+      expect(lostMetric.count, metrics.length);
+      expect(lostMetric.bytes, greaterThan(0));
     });
 
     test('records lost transaction and spans when client throws exception',

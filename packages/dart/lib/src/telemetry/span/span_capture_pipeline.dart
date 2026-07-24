@@ -44,6 +44,11 @@ class SpanCapturePipeline {
             SemanticAttributesConstants.sentrySegmentId: SentryAttribute.string(
               span.segmentSpan.spanId.toString(),
             ),
+            if (identical(span, span.segmentSpan))
+              SemanticAttributesConstants.sentrySegmentNameSource:
+                  SentryAttribute.string(
+                SentryTransactionNameSource.custom.name,
+              ),
           });
 
           final beforeSendSpan = _options.beforeSendSpan;
