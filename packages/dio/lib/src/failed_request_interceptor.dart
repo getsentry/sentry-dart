@@ -31,9 +31,11 @@ class FailedRequestInterceptor extends Interceptor {
 
     final containsStatusCode =
         _failedRequestStatusCodes._containsStatusCode(err.response?.statusCode);
+    // Match on the resolved URL, not `requestOptions.path`, which is relative
+    // to `baseUrl` and would never match a host-based target.
     final containsRequestTarget = containsTargetOrMatchesRegExp(
       _failedRequestTargets,
-      err.requestOptions.path,
+      err.requestOptions.uri.toString(),
     );
 
     if (cfr && containsStatusCode && containsRequestTarget) {

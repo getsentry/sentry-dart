@@ -119,6 +119,26 @@ void main() {
     expect(fixture.hub.captureExceptionCalls.length, 0);
   });
 
+  test('capture target matching the base url', () async {
+    final requestOptions = RequestOptions(
+      path: '/foo/bar',
+      baseUrl: 'https://myapi.com',
+    );
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 502, requestOptions: requestOptions),
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut(
+      failedRequestTargets: ['myapi.com'],
+    );
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.hub.captureExceptionCalls.length, 1);
+  });
+
   test('don not capture not matching target', () async {
     final requestOptions = RequestOptions(path: 'https://example.com');
     final error = DioError(
