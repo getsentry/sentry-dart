@@ -16,7 +16,6 @@ final class StaticAppStartTrace implements AppStartTrace {
   final AppStartData _data;
   final SentryTracer _root;
   final ISentrySpan _firstFrameRenderSpan;
-  final List<ISentrySpan> _children;
   final DateTime _finalDeadlineTimestamp;
   final String Function() _startScreenNameProvider;
 
@@ -30,13 +29,11 @@ final class StaticAppStartTrace implements AppStartTrace {
     required AppStartData data,
     required SentryTracer root,
     required ISentrySpan firstFrameRenderSpan,
-    required List<ISentrySpan> children,
     required DateTime finalDeadlineTimestamp,
     required String Function() startScreenNameProvider,
   })  : _data = data,
         _root = root,
         _firstFrameRenderSpan = firstFrameRenderSpan,
-        _children = children,
         _finalDeadlineTimestamp = finalDeadlineTimestamp,
         _startScreenNameProvider = startScreenNameProvider;
 
@@ -87,7 +84,6 @@ final class StaticAppStartTrace implements AppStartTrace {
         data: data,
         root: root,
         firstFrameRenderSpan: firstFrameRenderSpan,
-        children: children,
         finalDeadlineTimestamp:
             createdAt.add(standaloneAppStartFinalTimeout).toUtc(),
         startScreenNameProvider: startScreenNameProvider,
@@ -207,7 +203,9 @@ final class StaticAppStartTrace implements AppStartTrace {
     final status = SpanStatus.deadlineExceeded();
     _root.status = status;
 
-    for (final child in _children) {
+    // The tracer stores parents before descendants. Reverse the list so finish
+    // callbacks observe a drained subtree before its parent ends.
+    for (final child in _root.children.reversed.toList()) {
       if (!child.finished) {
         await child.finish(
           status: status,
@@ -263,6 +261,6 @@ final class StaticAppStartTrace implements AppStartTrace {
     if (_closed || _completed) return;
     _closed = true;
     _clearFinalTimeout();
-    await _flushTrace(root: _root, children: _children);
+    await _flushTrace(root: _root, children: _root.children.toList());
   }
 }

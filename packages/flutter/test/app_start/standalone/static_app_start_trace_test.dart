@@ -132,7 +132,7 @@ void main() {
       expect(fixture.getSut(), isNull);
     });
 
-    test('close flushes the open root', () async {
+    test('when closing flushes the open root', () async {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;
 
@@ -142,6 +142,17 @@ void main() {
       expect(root.finished, isTrue);
       expect(root.data['app_start_type'], 'cold');
       expect(root.data['app.vitals.start.screen'], 'root /');
+    });
+
+    test('when closing flushes root-owned children', () async {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!.tracer;
+      final child = root.startChild('late child');
+
+      await sut.close();
+
+      expect(child.finished, isTrue);
+      expect(root.finished, isTrue);
     });
 
     testWidgets('waits for idle timeout after natural end', (tester) async {
@@ -201,6 +212,24 @@ void main() {
       expect(root.measurements['app_start_cold'], isNull);
     });
 
+    testWidgets('finishes root-owned children at the final deadline',
+        (tester) async {
+      fixture.getSut();
+      final root = fixture.root!.tracer;
+      final child = root.startChild('late child') as SentrySpan;
+      final grandchild = child.startChild('late grandchild') as SentrySpan;
+      final deadline = fixture.createdAt.add(const Duration(seconds: 30));
+
+      await tester.pump(const Duration(seconds: 30));
+      await tester.pump();
+
+      for (final span in [child, grandchild]) {
+        expect(span.status, SpanStatus.deadlineExceeded());
+        expect(span.endTimestamp, deadline);
+      }
+      expect(root.finished, isTrue);
+    });
+
     testWidgets('finishes the root once at the final deadline', (tester) async {
       final mockFixture = MockCreationFixture();
       final deadline = mockFixture.createdAt.add(Duration(seconds: 30));
@@ -219,7 +248,7 @@ void main() {
       )).called(1);
     });
 
-    testWidgets('close cancels the final deadline', (tester) async {
+    testWidgets('when closing cancels the final deadline', (tester) async {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;
 
@@ -231,7 +260,7 @@ void main() {
       expect(root.status, isNull);
     });
 
-    test('close flushes every tracked child', () async {
+    test('when closing flushes every tracked child', () async {
       final mockFixture = MockCreationFixture();
       final trace = StaticAppStartTrace.tryCreate(
         hub: mockFixture.hub,
@@ -444,6 +473,11 @@ class MockCreationFixture {
         hint: anyNamed('hint'),
       )).thenAnswer((_) async {});
     }
+    when(root.children).thenReturn([
+      firstFrameBarrier,
+      pluginRegistrationChild,
+      sentrySetupChild,
+    ]);
 
     when(
       root.startChild(
