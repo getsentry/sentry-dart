@@ -5,13 +5,13 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_handler_v2.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/native_app_start_handler_v2.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 
-import '../fake_frame_callback_handler.dart';
-import '../mocks.dart';
-import '../mocks.mocks.dart';
+import '../../fake_frame_callback_handler.dart';
+import '../../mocks.dart';
+import '../../mocks.mocks.dart';
 
 void main() {
   late Fixture fixture;

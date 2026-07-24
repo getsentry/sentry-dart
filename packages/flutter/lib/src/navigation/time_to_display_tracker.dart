@@ -12,15 +12,18 @@ import 'package:sentry/src/utils/iterable_utils.dart';
 
 @internal
 class TimeToDisplayTracker {
+  final Hub _hub;
   final TimeToInitialDisplayTracker _ttidTracker;
   final TimeToFullDisplayTracker _ttfdTracker;
   final SentryFlutterOptions options;
 
   TimeToDisplayTracker({
+    Hub? hub,
     TimeToInitialDisplayTracker? ttidTracker,
     TimeToFullDisplayTracker? ttfdTracker,
     required this.options,
-  })  : _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker(),
+  })  : _hub = hub ?? HubAdapter(),
+        _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker(),
         _ttfdTracker = ttfdTracker ??
             TimeToFullDisplayTracker(
               Duration(seconds: 30),
@@ -30,9 +33,43 @@ class TimeToDisplayTracker {
   SpanId? transactionId;
 
   DateTime? _pendingTTFDEndTimestamp;
+  SentryTracer? _preparedInitialDisplay;
 
   // The timestamp where report TTFD was called before the transaction was started.
   DateTime? get pendingTTFDEndTimestamp => _pendingTTFDEndTimestamp;
+
+  /// Creates and retains the initial standalone `ui.load` transaction.
+  void prepareInitialDisplay(DateTime startTimestamp) {
+    final context = _createInitialDisplayContext();
+    transactionId = context.spanId;
+    final transaction = _hub.startTransactionWithContext(
+      context,
+      startTimestamp: startTimestamp,
+      waitForChildren: true,
+      autoFinishAfter: const Duration(seconds: 3),
+      bindToScope: true,
+      trimEnd: true,
+    );
+    _preparedInitialDisplay = transaction is SentryTracer ? transaction : null;
+  }
+
+  /// Records TTID/TTFD on the retained initial standalone display root.
+  Future<void> recordInitialDisplay(DateTime endTimestamp) async {
+    final transaction = _preparedInitialDisplay;
+    _preparedInitialDisplay = null;
+    if (transaction != null) {
+      await track(transaction, ttidEndTimestamp: endTimestamp);
+    }
+  }
+
+  SentryTransactionContext _createInitialDisplayContext() {
+    return SentryTransactionContext(
+      'root /',
+      SentrySpanOperations.uiLoad,
+      transactionNameSource: SentryTransactionNameSource.component,
+      origin: SentryTraceOrigins.autoUiTimeToDisplay,
+    );
+  }
 
   Future<void> track(
     ISentrySpan transaction, {
@@ -117,9 +154,11 @@ class TimeToDisplayTracker {
   }
 
   void clear() {
+    // Drop the prepared root reference only. Idle auto-finish (and the
+    // childless-idle drop in SentryTracer) owns teardown without capture.
+    _preparedInitialDisplay = null;
     transactionId = null;
     _pendingTTFDEndTimestamp = null;
-
     _ttidTracker.clear();
     if (options.enableTimeToFullDisplayTracing) {
       _ttfdTracker.clear();

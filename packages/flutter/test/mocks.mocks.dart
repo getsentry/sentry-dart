@@ -4511,6 +4511,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     Duration? idleTimeout = const Duration(seconds: 3),
     Duration? finalTimeout = const Duration(seconds: 30),
     bool? trimIdleSpanEndTimestamp = true,
+    bool? bindToHub = true,
     Map<String, _i2.SentryAttribute>? attributes,
     DateTime? startTimestamp,
   }) =>
@@ -4522,6 +4523,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #idleTimeout: idleTimeout,
             #finalTimeout: finalTimeout,
             #trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
+            #bindToHub: bindToHub,
             #attributes: attributes,
             #startTimestamp: startTimestamp,
           },
@@ -4535,6 +4537,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
               #idleTimeout: idleTimeout,
               #finalTimeout: finalTimeout,
               #trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
+              #bindToHub: bindToHub,
               #attributes: attributes,
               #startTimestamp: startTimestamp,
             },

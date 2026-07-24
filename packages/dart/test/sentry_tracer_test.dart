@@ -424,6 +424,22 @@ void main() {
       expect(fixture.hub.captureTransactionCalls.isEmpty, true);
     });
 
+    test('scheduleFinish clears a finish request blocked by children',
+        () async {
+      final sut = fixture.getSut(
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 1),
+      );
+      final child = sut.startChild('child');
+      await sut.finish();
+
+      sut.scheduleFinish();
+      await child.finish();
+
+      expect(sut.finished, isFalse);
+      await sut.finish();
+    });
+
     test('tracer sets measurement', () async {
       final sut = fixture.getSut();
 

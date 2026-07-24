@@ -37,7 +37,7 @@ class TimeToDisplayTrackerV2 {
   /// Also creates the TTFD span so [ttfdSpanId] is available for
   /// [SentryFlutter.currentDisplay] before [trackAppStart] fires.
   /// Timestamps are backdated later in [trackAppStart].
-  void prepareAppStart() {
+  void prepareAppStart({DateTime? startTimestamp}) {
     assert(_preparedRootNavigationSpan == null,
         'prepareRootNavigation called while a prepared span is still pending');
 
@@ -45,9 +45,16 @@ class TimeToDisplayTrackerV2 {
     _appStartRouteName = _rootRouteName;
     _isAppStartRouteNamePending = true;
 
-    final routeSpan = _createRouteSpan(_rootRouteName);
+    final routeSpan = _createRouteSpan(
+      _rootRouteName,
+      startTimestamp: startTimestamp,
+    );
     _preparedRootNavigationSpan = routeSpan;
-    _ensureTtfdSpan(routeSpan, _rootRouteName);
+    _ensureTtfdSpan(
+      routeSpan,
+      _rootRouteName,
+      startTimestamp: startTimestamp,
+    );
   }
 
   /// Updates the prepared app-start spans with the first rendered route.
@@ -83,9 +90,11 @@ class TimeToDisplayTrackerV2 {
     final routeName = _appStartRouteName;
     _isAppStartRouteNamePending = false;
     final SentrySpanV2 routeSpan;
+    DateTime? displayStartTimestamp = startTimestamp;
     switch (_preparedRootNavigationSpan) {
       case final prepared?:
         _preparedRootNavigationSpan = null;
+        displayStartTimestamp ??= prepared.startTimestamp;
         if (startTimestamp != null) {
           if (prepared case final RecordingSentrySpanV2 span) {
             span.startTimestamp = startTimestamp;
@@ -102,7 +111,7 @@ class TimeToDisplayTrackerV2 {
     _trackDisplaySpans(
       routeSpan,
       routeName,
-      startTimestamp: startTimestamp,
+      startTimestamp: displayStartTimestamp,
       ttidEndTimestamp: ttidEndTimestamp,
     );
     return routeSpan;

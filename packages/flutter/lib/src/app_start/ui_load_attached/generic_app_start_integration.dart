@@ -2,8 +2,8 @@
 
 import 'package:meta/meta.dart';
 
-import '../../sentry_flutter.dart';
-import '../frame_callback_handler.dart';
+import '../../../sentry_flutter.dart';
+import '../../frame_callback_handler.dart';
 
 // TODO(buenaflor): marking this internal until we can find a robust way to unify the TTID/TTFD implementation as currently it is very fragmented.
 
