@@ -158,7 +158,7 @@ void main() {
       expect(exception?.type, 'SentryHttpClientError');
       expect(
         exception?.value,
-        'Exception: HTTP Client Error with status code: 404',
+        'HTTP Client Error with status code: 404',
       );
       expect(exception?.stackTrace?.snapshot, true);
 
