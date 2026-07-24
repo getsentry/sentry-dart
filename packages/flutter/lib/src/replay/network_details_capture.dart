@@ -26,17 +26,17 @@ class FlutterNetworkDetailsCapture implements NetworkDetailsCapture {
   /// Matches native's `SentryReplayOptions.MAX_NETWORK_BODY_SIZE`.
   static const maxBodySize = 150 * 1024;
 
-  FlutterNetworkDetailsCapture(this._options) {
-    if (_options.replay.networkDetailAllowUrls.isNotEmpty) {
-      _options.sdk.addFeature(SentryFeatures.replayNetworkDetailsCapturing);
-    }
-  }
+  FlutterNetworkDetailsCapture(this._options);
 
   @override
   bool shouldCapture(Uri url) {
     if (_options.replay.networkDetailAllowUrls.isEmpty) {
       return false;
     }
+    // Checked lazily rather than in the constructor: this is built in
+    // `_initDefaultValues`, before the user's `optionsConfiguration` runs, so
+    // `networkDetailAllowUrls` wouldn't be populated yet at construction time.
+    _options.sdk.addFeature(SentryFeatures.replayNetworkDetailsCapturing);
     final target = url.toString();
     if (containsTargetOrMatchesRegExp(
         _options.replay.networkDetailDenyUrls, target)) {

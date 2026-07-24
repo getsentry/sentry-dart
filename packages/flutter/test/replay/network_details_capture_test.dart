@@ -12,8 +12,9 @@ void main() {
     test('adds feature flag when allow list is non-empty', () {
       final fixture = Fixture();
       fixture.options.replay.networkDetailAllowUrls.add('example.com');
+      final sut = fixture.getSut();
 
-      fixture.getSut();
+      sut.shouldCapture(Uri.parse('https://example.com'));
 
       expect(fixture.options.sdk.features,
           contains(SentryFeatures.replayNetworkDetailsCapturing));
@@ -21,8 +22,9 @@ void main() {
 
     test('does not add feature flag when allow list is empty', () {
       final fixture = Fixture();
+      final sut = fixture.getSut();
 
-      fixture.getSut();
+      sut.shouldCapture(Uri.parse('https://example.com'));
 
       expect(fixture.options.sdk.features,
           isNot(contains(SentryFeatures.replayNetworkDetailsCapturing)));
