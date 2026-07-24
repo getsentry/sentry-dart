@@ -119,6 +119,62 @@ void main() {
     expect(fixture.hub.captureExceptionCalls.length, 0);
   });
 
+  test('capture connection error without a response', () async {
+    final error = DioError.connectionError(
+      requestOptions: RequestOptions(path: 'https://example.com'),
+      reason: "Failed host lookup: 'example.com'",
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.hub.captureExceptionCalls.length, 1);
+  });
+
+  test('capture timeout without a response', () async {
+    final error = DioError.connectionTimeout(
+      timeout: Duration(seconds: 5),
+      requestOptions: RequestOptions(path: 'https://example.com'),
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.hub.captureExceptionCalls.length, 1);
+  });
+
+  test('do not capture a cancelled request', () async {
+    final error = DioError.requestCancelled(
+      requestOptions: RequestOptions(path: 'https://example.com'),
+      reason: 'user navigated away',
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.hub.captureExceptionCalls.length, 0);
+  });
+
+  test('do not capture connection error outside the targets', () async {
+    final error = DioError.connectionError(
+      requestOptions: RequestOptions(path: 'https://example.com'),
+      reason: "Failed host lookup: 'example.com'",
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut(failedRequestTargets: ['myapi.com']);
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.hub.captureExceptionCalls.length, 0);
+  });
+
   test('capture target matching the base url', () async {
     final requestOptions = RequestOptions(
       path: '/foo/bar',
