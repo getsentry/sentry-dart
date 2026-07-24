@@ -978,7 +978,7 @@ void main() {
   });
 
   group('exception value', () {
-    test('$DioEventProcessor replaces bad response value with status and route',
+    test('$DioEventProcessor replaces bad response value with the status code',
         () {
       final sut = fixture.getSut();
 
@@ -997,8 +997,30 @@ void main() {
 
       expect(
         processedEvent.exceptions?.first.value,
-        'DioException [bad response]: 502 POST /foo/bar',
+        'HTTP Client Error with status code: 502',
       );
+    });
+
+    test('$DioEventProcessor value does not vary with the request path', () {
+      final sut = fixture.getSut();
+
+      String valueForPath(String path) {
+        final request = requestOptions.copyWith(path: path);
+        final dioError = DioError.badResponse(
+          statusCode: 404,
+          requestOptions: request,
+          response: Response<dynamic>(statusCode: 404, requestOptions: request),
+        );
+        final event = SentryEvent(
+          throwable: dioError,
+          exceptions: [fixture.sentryError(dioError)],
+        );
+
+        final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+        return processedEvent.exceptions!.first.value!;
+      }
+
+      expect(valueForPath('/users/12345'), valueForPath('/users/67890'));
     });
 
     test('$DioEventProcessor keeps the timeout detail of a timeout value', () {
@@ -1031,7 +1053,7 @@ void main() {
 
       expect(
         processedEvent.exceptions?.first.value,
-        'DioException [unknown]: GET /foo/bar',
+        'HTTP Client Error: unknown',
       );
     });
 
@@ -1129,7 +1151,7 @@ void main() {
 
     expect(
       processedEvent.exceptions?[0].value,
-      'DioException [unknown]: GET /foo/bar',
+      'HTTP Client Error: unknown',
     );
     expect(processedEvent.exceptions?[0].stackTrace, isNotNull);
 

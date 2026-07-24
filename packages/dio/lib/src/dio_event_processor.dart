@@ -59,16 +59,16 @@ class DioEventProcessor implements EventProcessor {
         dioError.message == null;
   }
 
-  /// Keeps the status code and the route, which are what identify the failure.
-  /// The untouched [DioError] stays on [SentryException.throwable] for
-  /// `beforeSend`.
+  /// Worded like the other SDKs' HTTP client errors so a Dio 502 and a
+  /// `package:http` 502 read the same. The route is deliberately left out — it
+  /// already travels on [SentryEvent.request] and would make the issue title
+  /// vary per path parameter. The untouched [DioError] stays on
+  /// [SentryException.throwable] for `beforeSend`.
   String _valueFrom(DioError dioError) {
-    final options = dioError.requestOptions;
-    final route = '${options.method.toUpperCase()} ${options.uri.path}';
     final statusCode = dioError.response?.statusCode;
-
-    return 'DioException [${dioError.type.description}]: '
-        '${statusCode == null ? route : '$statusCode $route'}';
+    return statusCode == null
+        ? 'HTTP Client Error: ${dioError.type.name}'
+        : 'HTTP Client Error with status code: $statusCode';
   }
 
   SentryRequest? _requestFrom(DioError dioError) {
@@ -205,24 +205,6 @@ class DioEventProcessor implements EventProcessor {
     }
     return data;
   }
-}
-
-/// Mirrors Dio's own type descriptions, which it only exposes through a private
-/// extension. A lookup rather than a switch, because Dio adds enum values in
-/// minor releases and our constraint spans them.
-const _dioExceptionTypeDescriptions = {
-  DioExceptionType.connectionTimeout: 'connection timeout',
-  DioExceptionType.sendTimeout: 'send timeout',
-  DioExceptionType.receiveTimeout: 'receive timeout',
-  DioExceptionType.badCertificate: 'bad certificate',
-  DioExceptionType.badResponse: 'bad response',
-  DioExceptionType.cancel: 'request cancelled',
-  DioExceptionType.connectionError: 'connection error',
-  DioExceptionType.unknown: 'unknown',
-};
-
-extension _DioExceptionTypeX on DioExceptionType {
-  String get description => _dioExceptionTypeDescriptions[this] ?? name;
 }
 
 /// Returns true if the data can be encoded as JSON within the given byte limit.
