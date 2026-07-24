@@ -13,22 +13,24 @@ import 'app_start_trace.dart';
 
 @internal
 final class StaticAppStartTrace implements AppStartTrace {
-  final Hub _hub;
   final AppStartData _data;
   final SentryTracer _root;
   final ISentrySpan _firstFrameRenderSpan;
   final DateTime _finalDeadlineTimestamp;
   final String Function() _startScreenNameProvider;
 
-  late final SdkLifecycleCallback<OnSpanFinish> _extensionSpanFinishCallback;
-  SentrySpan? _extendedSpan;
-  Future<void>? _extensionFinishFuture;
-  DateTime? _extensionEndTimestamp;
+  final _StaticAppStartExtensionLifecycle _extensionLifecycle;
   Timer? _finalTimeoutTimer;
-  DateTime? _endTimestamp;
+  DateTime? _appStartEndTimestamp;
+  // The final deadline drains descendants asynchronously. Block extension
+  // mutations while that sweep is in progress.
   bool _finalizing = false;
   bool _completed = false;
   bool _closed = false;
+
+  bool get _isClosedOrCompleted => _closed || _completed;
+  bool get _isFinalizingClosedOrCompleted =>
+      _finalizing || _isClosedOrCompleted;
 
   StaticAppStartTrace._({
     required Hub hub,
@@ -37,14 +39,15 @@ final class StaticAppStartTrace implements AppStartTrace {
     required ISentrySpan firstFrameRenderSpan,
     required DateTime finalDeadlineTimestamp,
     required String Function() startScreenNameProvider,
-  })  : _hub = hub,
-        _data = data,
+  })  : _data = data,
         _root = root,
         _firstFrameRenderSpan = firstFrameRenderSpan,
         _finalDeadlineTimestamp = finalDeadlineTimestamp,
-        _startScreenNameProvider = startScreenNameProvider {
-    _extensionSpanFinishCallback = _handleExtensionSpanFinish;
-  }
+        _startScreenNameProvider = startScreenNameProvider,
+        _extensionLifecycle = _StaticAppStartExtensionLifecycle(
+          hub: hub,
+          root: root,
+        );
 
   static StaticAppStartTrace? tryCreate({
     required Hub hub,
@@ -81,13 +84,11 @@ final class StaticAppStartTrace implements AppStartTrace {
         description: appStartFirstFrameRenderDescription,
         startTimestamp: data.sentrySetupTimestamp,
       )..origin = SentryTraceOrigins.autoAppStart;
-      if (firstFrameRenderSpan is! NoOpSentrySpan) {
-        children.add(firstFrameRenderSpan);
-      }
-      if (firstFrameRenderSpan.samplingDecision?.sampled != true) {
-        unawaited(_flushTrace(root: root, children: children));
+      if (firstFrameRenderSpan is NoOpSentrySpan) {
+        unawaited(_flushTrace(root: root));
         return null;
       }
+      children.add(firstFrameRenderSpan);
 
       trace = StaticAppStartTrace._(
         hub: hub,
@@ -133,55 +134,32 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   @override
   bool tryExtend(DateTime startTimestamp) {
-    if (_closed ||
-        _completed ||
-        _finalizing ||
-        _firstFrameRenderSpan.endTimestamp != null ||
-        _extendedSpan != null) {
+    if (_isFinalizingClosedOrCompleted ||
+        _firstFrameRenderSpan.endTimestamp != null) {
       return false;
     }
 
-    final extension = _root.startChild(
-      SentrySpanOperations.appStartExtended,
-      description: standaloneExtendedAppStartName,
-      startTimestamp: startTimestamp.toUtc(),
-    );
-    if (extension is! SentrySpan) {
-      return false;
-    }
-
-    extension.origin = SentryTraceOrigins.autoAppStart;
-    _extendedSpan = extension;
-    _hub.options.lifecycleRegistry.registerCallback<OnSpanFinish>(
-      _extensionSpanFinishCallback,
-    );
-    return true;
+    return _extensionLifecycle.tryStart(startTimestamp);
   }
 
   @override
-  ISentrySpan get extendedSpan {
-    final extension = _extendedSpan;
-    return extension == null || extension.finished
-        ? NoOpSentrySpan()
-        : extension;
-  }
+  ISentrySpan? get extendedSpan => _extensionLifecycle.activeSpan;
 
   @override
-  SentrySpanV2 get extendedSpanV2 => const NoOpSentrySpanV2();
+  SentrySpanV2? get extendedSpanV2 => null;
 
   @override
   Future<void> finishExtended(DateTime endTimestamp) {
-    final extension = _extendedSpan;
-    if (_closed || _completed || _finalizing || extension == null) {
+    if (_isFinalizingClosedOrCompleted) {
       return Future<void>.value();
     }
 
-    return _extensionFinishFuture ??= _finishExtension(endTimestamp.toUtc());
+    return _extensionLifecycle.finish(endTimestamp);
   }
 
   @override
   void recordFirstFrame(DateTime endTimestamp) {
-    if (_closed || _completed) return;
+    if (_isClosedOrCompleted) return;
     _root.scheduleFinish();
     unawaited(
       _finishSpanSafely(
@@ -194,8 +172,8 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   @override
   void finish(DateTime endTimestamp) {
-    if (_closed || _completed || _endTimestamp != null) return;
-    _endTimestamp = endTimestamp.toUtc();
+    if (_isClosedOrCompleted || _appStartEndTimestamp != null) return;
+    _appStartEndTimestamp = endTimestamp.toUtc();
     _root.scheduleFinish();
   }
 
@@ -211,18 +189,15 @@ final class StaticAppStartTrace implements AppStartTrace {
         _startScreenNameProvider(),
       );
 
-      final endTimestamp = _endTimestamp;
-      final extension = _extendedSpan;
-      final extensionCompleted = extension == null ||
-          (extension.finished && _extensionEndTimestamp != null);
+      final endTimestamp = _appStartEndTimestamp;
+      final extension = _extensionLifecycle.completionSnapshot;
       if (endTimestamp != null &&
-          extensionCompleted &&
+          extension.completed &&
           _root.status != SpanStatus.deadlineExceeded()) {
-        final extensionEndTimestamp = _extensionEndTimestamp;
-        final measurementEnd = extensionEndTimestamp != null &&
-                extensionEndTimestamp.isAfter(endTimestamp)
-            ? extensionEndTimestamp
-            : endTimestamp;
+        final measurementEnd = resolveAppStartMeasurementEnd(
+          endTimestamp,
+          extension.endTimestamp,
+        );
         final measurement = _data.measurementUntil(measurementEnd);
         _root.setMeasurement(
           measurement.name,
@@ -263,18 +238,15 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 
   Future<void> _finishAtDeadline() async {
-    if (_closed || _completed || _finalizing) return;
+    if (_isFinalizingClosedOrCompleted) return;
     _finalizing = true;
     _clearFinalTimeout();
 
     final status = SpanStatus.deadlineExceeded();
     _root.status = status;
 
-    final extensionFinishFuture = _extensionFinishFuture;
-    if (extensionFinishFuture != null) {
-      await extensionFinishFuture;
-    }
-    if (_closed || _completed) return;
+    await _extensionLifecycle.waitForPendingFinish();
+    if (_isClosedOrCompleted) return;
 
     // The tracer stores parents before descendants. Reverse the list so finish
     // callbacks observe a drained subtree before its parent ends.
@@ -331,54 +303,119 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   @override
   Future<void> close() async {
-    if (_closed || _completed) return;
+    if (_isClosedOrCompleted) return;
     _closed = true;
     _clearFinalTimeout();
-    final extensionFinishFuture = _extensionFinishFuture;
-    if (extensionFinishFuture != null) {
-      await extensionFinishFuture;
-    } else {
-      final extension = _extendedSpan;
-      if (extension != null && _extensionEndTimestamp == null) {
-        await _finishExtension(extension.endTimestamp);
-      }
-    }
+    await _extensionLifecycle.close();
     await _flushTrace(root: _root, children: _root.children.toList());
+  }
+}
+
+final class _StaticAppStartExtensionLifecycle {
+  final Hub _hub;
+  final SentryTracer _root;
+
+  late final SdkLifecycleCallback<OnSpanFinish> _spanFinishCallback;
+  SentrySpan? _span;
+  Future<void>? _finishFuture;
+  DateTime? _endTimestamp;
+  bool _closed = false;
+
+  _StaticAppStartExtensionLifecycle({
+    required Hub hub,
+    required SentryTracer root,
+  })  : _hub = hub,
+        _root = root {
+    _spanFinishCallback = _handleSpanFinish;
+  }
+
+  bool tryStart(DateTime startTimestamp) {
+    if (_closed || _span != null) return false;
+
+    final span = _root.startChild(
+      SentrySpanOperations.appStartExtended,
+      description: standaloneExtendedAppStartName,
+      startTimestamp: startTimestamp.toUtc(),
+    );
+    if (span is! SentrySpan) return false;
+
+    span.origin = SentryTraceOrigins.autoAppStart;
+    _span = span;
+    _hub.options.lifecycleRegistry.registerCallback<OnSpanFinish>(
+      _spanFinishCallback,
+    );
+    return true;
+  }
+
+  ISentrySpan? get activeSpan {
+    final span = _span;
+    return span == null || span.finished ? null : span;
+  }
+
+  ({bool completed, DateTime? endTimestamp}) get completionSnapshot {
+    final span = _span;
+    return (
+      completed: span == null || (span.finished && _endTimestamp != null),
+      endTimestamp: _endTimestamp,
+    );
+  }
+
+  Future<void> finish(DateTime endTimestamp) {
+    if (_closed || _span == null) return Future<void>.value();
+    return _finishFuture ??= _finishSpan(endTimestamp.toUtc());
+  }
+
+  Future<void> waitForPendingFinish() async {
+    final finishFuture = _finishFuture;
+    if (finishFuture != null) await finishFuture;
+  }
+
+  Future<void> close() async {
+    if (_closed) return;
+    _closed = true;
+
+    final finishFuture = _finishFuture;
+    if (finishFuture != null) {
+      await finishFuture;
+      return;
+    }
+
+    final span = _span;
+    if (span != null && _endTimestamp == null) {
+      await _finishSpan(span.endTimestamp);
+    }
   }
 
   // Handle callers finishing the span directly instead of using
   // finishExtendedAppStart().
-  void _handleExtensionSpanFinish(OnSpanFinish event) {
-    final extension = _extendedSpan;
-    if (extension == null ||
-        !identical(event.span, extension) ||
-        _extensionEndTimestamp != null) {
+  void _handleSpanFinish(OnSpanFinish event) {
+    final span = _span;
+    if (span == null || !identical(event.span, span) || _endTimestamp != null) {
       return;
     }
 
-    final extensionEndTimestamp = extension.endTimestamp;
-    if (extensionEndTimestamp == null) return;
+    final endTimestamp = span.endTimestamp;
+    if (endTimestamp == null) return;
 
-    _extensionEndTimestamp = extensionEndTimestamp;
+    _endTimestamp = endTimestamp;
     if (_root.status != SpanStatus.deadlineExceeded()) {
-      extension.status = SpanStatus.ok();
+      span.status = SpanStatus.ok();
     }
     _removeSpanFinishCallback();
   }
 
-  Future<void> _finishExtension(DateTime? endTimestamp) async {
-    if (_extensionEndTimestamp != null) return;
-    final extension = _extendedSpan;
+  Future<void> _finishSpan(DateTime? endTimestamp) async {
+    if (_endTimestamp != null) return;
+    final span = _span;
     try {
       final timestamp =
-          (extension?.endTimestamp ?? endTimestamp ?? _hub.options.clock())
-              .toUtc();
-      _extensionEndTimestamp = timestamp;
-      if (extension == null) return;
+          (span?.endTimestamp ?? endTimestamp ?? _hub.options.clock()).toUtc();
+      _endTimestamp = timestamp;
+      if (span == null) return;
 
-      extension.status = SpanStatus.ok();
-      if (!extension.finished) {
-        await extension.finish(endTimestamp: timestamp);
+      span.status = SpanStatus.ok();
+      if (!span.finished) {
+        await span.finish(endTimestamp: timestamp);
       }
     } catch (error, stackTrace) {
       internalLogger.error(
@@ -393,7 +430,7 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   void _removeSpanFinishCallback() {
     _hub.options.lifecycleRegistry.removeCallback<OnSpanFinish>(
-      _extensionSpanFinishCallback,
+      _spanFinishCallback,
     );
   }
 }

@@ -15,14 +15,13 @@ final class StreamingAppStartTrace implements AppStartTrace {
   final RecordingSentrySpanV2 _firstFrameRenderSpan;
   final String Function() _startScreenNameProvider;
 
+  final _StreamingAppStartExtensionLifecycle _extensionLifecycle;
   late final SdkLifecycleCallback<OnProcessSpan> _processCallback;
-  late final SdkLifecycleCallback<OnSpanEndV2> _extensionSpanEndCallback;
-  RecordingSentrySpanV2? _extendedSpan;
-  Future<void>? _extensionFinishFuture;
-  DateTime? _extensionEndTimestamp;
   DateTime? _endTimestamp;
   bool _completed = false;
   bool _closed = false;
+
+  bool get _isClosedOrCompleted => _closed || _completed;
 
   StreamingAppStartTrace._({
     required Hub hub,
@@ -34,9 +33,11 @@ final class StreamingAppStartTrace implements AppStartTrace {
         _data = data,
         _root = root,
         _firstFrameRenderSpan = firstFrameRenderSpan,
-        _startScreenNameProvider = startScreenNameProvider {
-    _extensionSpanEndCallback = _handleExtensionSpanEnd;
-  }
+        _startScreenNameProvider = startScreenNameProvider,
+        _extensionLifecycle = _StreamingAppStartExtensionLifecycle(
+          hub: hub,
+          root: root,
+        );
 
   static StreamingAppStartTrace? tryCreate({
     required Hub hub,
@@ -148,67 +149,37 @@ final class StreamingAppStartTrace implements AppStartTrace {
 
   @override
   bool tryExtend(DateTime startTimestamp) {
-    if (_closed ||
-        _completed ||
-        _firstFrameRenderSpan.isEnded ||
-        _extendedSpan != null) {
+    if (_isClosedOrCompleted || _firstFrameRenderSpan.isEnded) {
       return false;
     }
 
-    final extension = _hub.startInactiveSpan(
-      standaloneExtendedAppStartName,
-      parentSpan: _root,
-      startTimestamp: startTimestamp.toUtc(),
-      attributes: {
-        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
-          SentrySpanOperations.appStartExtended,
-        ),
-        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-          SentryTraceOrigins.autoAppStart,
-        ),
-      },
-    );
-    if (extension is! RecordingSentrySpanV2) {
-      return false;
-    }
-
-    _extendedSpan = extension;
-    _hub.options.lifecycleRegistry.registerCallback<OnSpanEndV2>(
-      _extensionSpanEndCallback,
-    );
-    return true;
+    return _extensionLifecycle.tryStart(startTimestamp);
   }
 
   @override
-  ISentrySpan get extendedSpan => NoOpSentrySpan();
+  ISentrySpan? get extendedSpan => null;
 
   @override
-  SentrySpanV2 get extendedSpanV2 {
-    final extension = _extendedSpan;
-    return extension == null || extension.isEnded
-        ? const NoOpSentrySpanV2()
-        : extension;
-  }
+  SentrySpanV2? get extendedSpanV2 => _extensionLifecycle.activeSpan;
 
   @override
   Future<void> finishExtended(DateTime endTimestamp) {
-    final extension = _extendedSpan;
-    if (_closed || _completed || extension == null) {
+    if (_isClosedOrCompleted) {
       return Future<void>.value();
     }
 
-    return _extensionFinishFuture ??= _finishExtension(endTimestamp.toUtc());
+    return _extensionLifecycle.finish(endTimestamp);
   }
 
   @override
   void recordFirstFrame(DateTime endTimestamp) {
-    if (_closed || _completed) return;
+    if (_isClosedOrCompleted) return;
     _firstFrameRenderSpan.end(endTimestamp: endTimestamp.toUtc());
   }
 
   @override
   void finish(DateTime endTimestamp) {
-    if (_closed || _completed || _endTimestamp != null) return;
+    if (_isClosedOrCompleted || _endTimestamp != null) return;
     _endTimestamp = endTimestamp.toUtc();
   }
 
@@ -229,16 +200,14 @@ final class StreamingAppStartTrace implements AppStartTrace {
       );
 
       final endTimestamp = _endTimestamp;
-      final extensionCompleted =
-          _extendedSpan == null || _extensionEndTimestamp != null;
+      final extension = _extensionLifecycle.completionSnapshot;
       if (endTimestamp != null &&
-          extensionCompleted &&
-          !_rootDeadlineExceeded) {
-        final extensionEndTimestamp = _extensionEndTimestamp;
-        final measurementEnd = extensionEndTimestamp != null &&
-                extensionEndTimestamp.isAfter(endTimestamp)
-            ? extensionEndTimestamp
-            : endTimestamp;
+          extension.completed &&
+          !_hasExceededDeadline(_root)) {
+        final measurementEnd = resolveAppStartMeasurementEnd(
+          endTimestamp,
+          extension.endTimestamp,
+        );
         final duration =
             _data.durationUntil(measurementEnd).inMilliseconds.toDouble();
         final value = SentryAttribute.double(duration);
@@ -269,63 +238,127 @@ final class StreamingAppStartTrace implements AppStartTrace {
 
   @override
   Future<void> close() async {
-    if (_closed || _completed) return;
+    if (_isClosedOrCompleted) return;
     _closed = true;
     try {
-      final extensionFinishFuture = _extensionFinishFuture;
-      if (extensionFinishFuture != null) {
-        await extensionFinishFuture;
-      } else {
-        final extension = _extendedSpan;
-        if (extension != null && _extensionEndTimestamp == null) {
-          await _finishExtension(extension.endTimestamp);
-        }
-      }
+      await _extensionLifecycle.close();
     } finally {
       _root.end();
+    }
+  }
+}
+
+final class _StreamingAppStartExtensionLifecycle {
+  final Hub _hub;
+  final IdleRecordingSentrySpanV2 _root;
+
+  late final SdkLifecycleCallback<OnSpanEndV2> _spanEndCallback;
+  RecordingSentrySpanV2? _span;
+  Future<void>? _finishFuture;
+  DateTime? _endTimestamp;
+  bool _closed = false;
+
+  _StreamingAppStartExtensionLifecycle({
+    required Hub hub,
+    required IdleRecordingSentrySpanV2 root,
+  })  : _hub = hub,
+        _root = root {
+    _spanEndCallback = _handleSpanEnd;
+  }
+
+  bool tryStart(DateTime startTimestamp) {
+    if (_closed || _span != null) return false;
+
+    final span = _hub.startInactiveSpan(
+      standaloneExtendedAppStartName,
+      parentSpan: _root,
+      startTimestamp: startTimestamp.toUtc(),
+      attributes: {
+        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
+          SentrySpanOperations.appStartExtended,
+        ),
+        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+          SentryTraceOrigins.autoAppStart,
+        ),
+      },
+    );
+    if (span is! RecordingSentrySpanV2) return false;
+
+    _span = span;
+    _hub.options.lifecycleRegistry.registerCallback<OnSpanEndV2>(
+      _spanEndCallback,
+    );
+    return true;
+  }
+
+  SentrySpanV2? get activeSpan {
+    final span = _span;
+    return span == null || span.isEnded ? null : span;
+  }
+
+  ({bool completed, DateTime? endTimestamp}) get completionSnapshot => (
+        completed: _span == null || _endTimestamp != null,
+        endTimestamp: _endTimestamp,
+      );
+
+  Future<void> finish(DateTime endTimestamp) {
+    if (_closed || _span == null) return Future<void>.value();
+    return _finishFuture ??= _finishSpan(endTimestamp.toUtc());
+  }
+
+  Future<void> close() async {
+    if (_closed) return;
+    _closed = true;
+
+    final finishFuture = _finishFuture;
+    if (finishFuture != null) {
+      await finishFuture;
+      return;
+    }
+
+    final span = _span;
+    if (span != null && _endTimestamp == null) {
+      await _finishSpan(span.endTimestamp);
     }
   }
 
   // Handle callers ending the span directly instead of using
   // finishExtendedAppStart().
-  void _handleExtensionSpanEnd(OnSpanEndV2 event) {
-    final extension = _extendedSpan;
-    if (extension == null ||
-        !identical(event.span, extension) ||
-        _extensionEndTimestamp != null) {
+  void _handleSpanEnd(OnSpanEndV2 event) {
+    final span = _span;
+    if (span == null || !identical(event.span, span) || _endTimestamp != null) {
       return;
     }
 
-    final extensionEndTimestamp = extension.endTimestamp;
-    if (extensionEndTimestamp == null) return;
+    final endTimestamp = span.endTimestamp;
+    if (endTimestamp == null) return;
 
-    if (_rootDeadlineExceeded) {
-      extension.status = SentrySpanStatusV2.error;
-      extension.setAttribute(
+    if (_hasExceededDeadline(_root)) {
+      span.status = SentrySpanStatusV2.error;
+      span.setAttribute(
         SemanticAttributesConstants.sentryStatusMessage,
         SentryAttribute.string(SentrySpanStatusMessages.deadlineExceeded),
       );
     } else {
-      extension.status = SentrySpanStatusV2.ok;
+      span.status = SentrySpanStatusV2.ok;
     }
 
-    _extensionEndTimestamp = extensionEndTimestamp;
+    _endTimestamp = endTimestamp;
     _removeSpanEndCallback();
   }
 
-  Future<void> _finishExtension(DateTime? endTimestamp) async {
-    if (_extensionEndTimestamp != null) return;
-    final extension = _extendedSpan;
+  Future<void> _finishSpan(DateTime? endTimestamp) async {
+    if (_endTimestamp != null) return;
+    final span = _span;
     try {
       final timestamp =
-          (extension?.endTimestamp ?? endTimestamp ?? _hub.options.clock())
-              .toUtc();
-      _extensionEndTimestamp = timestamp;
-      if (extension == null) return;
+          (span?.endTimestamp ?? endTimestamp ?? _hub.options.clock()).toUtc();
+      _endTimestamp = timestamp;
+      if (span == null) return;
 
-      extension.status = SentrySpanStatusV2.ok;
-      if (!extension.isEnded) {
-        extension.end(endTimestamp: timestamp);
+      span.status = SentrySpanStatusV2.ok;
+      if (!span.isEnded) {
+        span.end(endTimestamp: timestamp);
       }
     } catch (error, stackTrace) {
       internalLogger.error(
@@ -338,15 +371,14 @@ final class StreamingAppStartTrace implements AppStartTrace {
     }
   }
 
-  bool get _rootDeadlineExceeded =>
-      _root.status == SentrySpanStatusV2.error &&
-      _root.attributes[SemanticAttributesConstants.sentryStatusMessage]
-              ?.value ==
-          SentrySpanStatusMessages.deadlineExceeded;
-
   void _removeSpanEndCallback() {
     _hub.options.lifecycleRegistry.removeCallback<OnSpanEndV2>(
-      _extensionSpanEndCallback,
+      _spanEndCallback,
     );
   }
 }
+
+bool _hasExceededDeadline(IdleRecordingSentrySpanV2 root) =>
+    root.status == SentrySpanStatusV2.error &&
+    root.attributes[SemanticAttributesConstants.sentryStatusMessage]?.value ==
+        SentrySpanStatusMessages.deadlineExceeded;

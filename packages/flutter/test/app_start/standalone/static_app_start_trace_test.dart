@@ -56,15 +56,14 @@ void main() {
 
       expect(sut.tryExtend(extensionStart), isTrue);
 
-      final extension = sut.extendedSpan;
-      expect(extension, isA<SentrySpan>());
+      final extension = sut.extendedSpan as SentrySpan;
       expect(
           extension.context.operation, SentrySpanOperations.appStartExtended);
       expect(extension.context.description, standaloneExtendedAppStartName);
       expect(extension.origin, SentryTraceOrigins.autoAppStart);
       expect(extension.status, isNull);
       expect(extension.startTimestamp, extensionStart);
-      expect(sut.extendedSpanV2, isA<NoOpSentrySpanV2>());
+      expect(sut.extendedSpanV2, isNull);
       expect(sut.tryExtend(extensionStart), isFalse);
     });
 
@@ -76,7 +75,7 @@ void main() {
         sut.tryExtend(fixture.processStart.add(const Duration(seconds: 1))),
         isFalse,
       );
-      expect(sut.extendedSpan, isA<NoOpSentrySpan>());
+      expect(sut.extendedSpan, isNull);
     });
 
     test('leaves open extension descendants running', () async {
@@ -192,8 +191,7 @@ void main() {
       expect(extension.finished, isTrue);
     });
 
-    test('returns a no-op extended span after the extension finishes',
-        () async {
+    test('returns null after the extension finishes', () async {
       final sut = fixture.getSut()!;
       final extensionStart = fixture.processStart.add(
         const Duration(milliseconds: 400),
@@ -204,7 +202,7 @@ void main() {
 
       await sut.finishExtended(extensionEnd);
 
-      expect(sut.extendedSpan, isA<NoOpSentrySpan>());
+      expect(sut.extendedSpan, isNull);
     });
 
     test('preserves finished extension descendants', () async {

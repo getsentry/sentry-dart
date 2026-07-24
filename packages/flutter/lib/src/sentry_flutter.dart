@@ -386,34 +386,44 @@ mixin SentryFlutter {
 
   /// Returns the active static-lifecycle extended App Start span.
   ///
+  /// The returned span may be finished directly with [ISentrySpan.finish].
+  /// This completes the extension like [finishExtendedAppStart]; calling both
+  /// is unnecessary.
+  ///
   /// Use this getter when [SentryFlutterOptions.traceLifecycle] is
-  /// [SentryTraceLifecycle.static]. It returns [NoOpSentrySpan] when standalone
-  /// App Start is inactive, already finished, unavailable, or using the
-  /// streaming lifecycle instead.
+  /// [SentryTraceLifecycle.static]. It returns `null` when standalone App Start
+  /// is inactive, already finished, unavailable, or using the streaming
+  /// lifecycle instead.
   @experimental
-  static ISentrySpan getExtendedAppStartSpan() {
+  static ISentrySpan? getExtendedAppStartSpan() {
     final options = Sentry.currentHub.options;
     return options is SentryFlutterOptions
-        ? options.standaloneAppStartTrace?.extendedSpan ?? NoOpSentrySpan()
-        : NoOpSentrySpan();
+        ? options.standaloneAppStartTrace?.extendedSpan
+        : null;
   }
 
   /// Returns the active streaming-lifecycle extended App Start span.
   ///
+  /// The returned span may be ended directly with [SentrySpanV2.end].
+  /// This completes the extension like [finishExtendedAppStart]; calling both
+  /// is unnecessary.
+  ///
   /// Use this getter when [SentryFlutterOptions.traceLifecycle] is
-  /// [SentryTraceLifecycle.stream]. It returns [NoOpSentrySpanV2] when
-  /// standalone App Start is inactive, already finished, unavailable, or using
-  /// the static lifecycle instead.
+  /// [SentryTraceLifecycle.stream]. It returns `null` when standalone App Start
+  /// is inactive, already finished, unavailable, or using the static lifecycle
+  /// instead.
   @experimental
-  static SentrySpanV2 getExtendedAppStartSpanV2() {
+  static SentrySpanV2? getExtendedAppStartSpanV2() {
     final options = Sentry.currentHub.options;
     return options is SentryFlutterOptions
-        ? options.standaloneAppStartTrace?.extendedSpanV2 ??
-            const NoOpSentrySpanV2()
-        : const NoOpSentrySpanV2();
+        ? options.standaloneAppStartTrace?.extendedSpanV2
+        : null;
   }
 
   /// Finishes the active standalone App Start extension, if one exists.
+  ///
+  /// Alternatively, finish or end the span returned by the lifecycle-specific
+  /// extended App Start getter.
   ///
   /// Open descendants remain active while the standalone App Start root keeps
   /// its existing first-frame, idle, and deadline lifecycle.

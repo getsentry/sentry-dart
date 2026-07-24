@@ -741,10 +741,9 @@ void main() {
       );
     });
 
-    test('wrong-lifecycle getters return typed no-op spans', () async {
+    test('wrong-lifecycle getters return null', () async {
       final staticTrace = TestAppStartTrace(
         extendedSpan: MockSentrySpan(),
-        extendedSpanV2: const NoOpSentrySpanV2(),
       );
       fixture.options.standaloneAppStartTrace = staticTrace;
 
@@ -752,23 +751,19 @@ void main() {
         SentryFlutter.getExtendedAppStartSpan(),
         same(staticTrace.extendedSpan),
       );
-      expect(
-        SentryFlutter.getExtendedAppStartSpanV2(),
-        isA<NoOpSentrySpanV2>(),
-      );
+      expect(SentryFlutter.getExtendedAppStartSpanV2(), isNull);
 
       await Sentry.close();
 
       final streamOptions = defaultTestOptions(checker: MockRuntimeChecker());
       final streamHub = Hub(streamOptions);
       final streamTrace = TestAppStartTrace(
-        extendedSpan: NoOpSentrySpan(),
         extendedSpanV2: streamHub.startInactiveSpan('Extended App Start'),
       );
       streamOptions.standaloneAppStartTrace = streamTrace;
       await Sentry.init((_) {}, options: streamOptions);
 
-      expect(SentryFlutter.getExtendedAppStartSpan(), isA<NoOpSentrySpan>());
+      expect(SentryFlutter.getExtendedAppStartSpan(), isNull);
       expect(
         SentryFlutter.getExtendedAppStartSpanV2(),
         same(streamTrace.extendedSpanV2),
@@ -782,16 +777,13 @@ void main() {
     });
 
     test(
-        'APIs stay no-op after close and when standalone app start is disabled',
+        'APIs stay inactive after close and when standalone app start is disabled',
         () async {
       await Sentry.close();
 
       SentryFlutter.extendAppStart();
-      expect(SentryFlutter.getExtendedAppStartSpan(), isA<NoOpSentrySpan>());
-      expect(
-        SentryFlutter.getExtendedAppStartSpanV2(),
-        isA<NoOpSentrySpanV2>(),
-      );
+      expect(SentryFlutter.getExtendedAppStartSpan(), isNull);
+      expect(SentryFlutter.getExtendedAppStartSpanV2(), isNull);
       await SentryFlutter.finishExtendedAppStart();
 
       final disabledOptions = defaultTestOptions(checker: MockRuntimeChecker())
@@ -799,11 +791,8 @@ void main() {
       await Sentry.init((_) {}, options: disabledOptions);
 
       SentryFlutter.extendAppStart();
-      expect(SentryFlutter.getExtendedAppStartSpan(), isA<NoOpSentrySpan>());
-      expect(
-        SentryFlutter.getExtendedAppStartSpanV2(),
-        isA<NoOpSentrySpanV2>(),
-      );
+      expect(SentryFlutter.getExtendedAppStartSpan(), isNull);
+      expect(SentryFlutter.getExtendedAppStartSpanV2(), isNull);
       await SentryFlutter.finishExtendedAppStart();
     });
 
@@ -812,11 +801,8 @@ void main() {
 
       SentryFlutter.extendAppStart();
 
-      expect(SentryFlutter.getExtendedAppStartSpan(), isA<NoOpSentrySpan>());
-      expect(
-        SentryFlutter.getExtendedAppStartSpanV2(),
-        isA<NoOpSentrySpanV2>(),
-      );
+      expect(SentryFlutter.getExtendedAppStartSpan(), isNull);
+      expect(SentryFlutter.getExtendedAppStartSpanV2(), isNull);
 
       await SentryFlutter.finishExtendedAppStart();
     });

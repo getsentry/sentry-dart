@@ -42,7 +42,7 @@ Future<void> main() async {
 
 Future<void> _loadStartupConfiguration() async {
   final staticParent = SentryFlutter.getExtendedAppStartSpan();
-  if (staticParent is! NoOpSentrySpan) {
+  if (staticParent != null) {
     final child = staticParent.startChild(
       'app.init',
       description: 'Load startup configuration',
@@ -56,7 +56,7 @@ Future<void> _loadStartupConfiguration() async {
   }
 
   final streamParent = SentryFlutter.getExtendedAppStartSpanV2();
-  if (streamParent is! NoOpSentrySpanV2) {
+  if (streamParent != null) {
     final child = Sentry.startInactiveSpan(
       'Load startup configuration',
       parentSpan: streamParent,

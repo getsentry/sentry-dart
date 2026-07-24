@@ -5,19 +5,18 @@ import 'package:sentry_flutter/src/app_start/standalone/app_start_trace.dart';
 
 final class TestAppStartTrace implements AppStartTrace {
   TestAppStartTrace({
-    ISentrySpan? extendedSpan,
-    SentrySpanV2? extendedSpanV2,
-  })  : extendedSpan = extendedSpan ?? NoOpSentrySpan(),
-        extendedSpanV2 = extendedSpanV2 ?? const NoOpSentrySpanV2();
+    this.extendedSpan,
+    this.extendedSpanV2,
+  });
 
   DateTime? extensionStart;
   DateTime? extensionEnd;
 
   @override
-  final ISentrySpan extendedSpan;
+  final ISentrySpan? extendedSpan;
 
   @override
-  final SentrySpanV2 extendedSpanV2;
+  final SentrySpanV2? extendedSpanV2;
 
   @override
   bool tryExtend(DateTime startTimestamp) {

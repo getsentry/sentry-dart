@@ -171,8 +171,7 @@ void main() {
 
       expect(sut.tryExtend(extensionStart), isTrue);
 
-      final extension = sut.extendedSpanV2;
-      expect(extension, isA<RecordingSentrySpanV2>());
+      final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
       expect(extension.parentSpan, same(fixture.root));
       expect(
         extension.attributes[SemanticAttributesConstants.sentryOp]?.value,
@@ -182,7 +181,7 @@ void main() {
         extension.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
         'auto.app.start',
       );
-      expect(sut.extendedSpan, isA<NoOpSentrySpan>());
+      expect(sut.extendedSpan, isNull);
     });
 
     test('leaves open extension descendants running', () async {
@@ -331,7 +330,7 @@ void main() {
       expect(processedStatus, SentrySpanStatusV2.ok);
     });
 
-    test('returns a no-op extended span after the extension ends', () async {
+    test('returns null after the extension ends', () async {
       final sut = fixture.getSut()!;
       final extensionStart = fixture.processStart.add(
         const Duration(milliseconds: 400),
@@ -342,7 +341,7 @@ void main() {
 
       await sut.finishExtended(extensionEnd);
 
-      expect(sut.extendedSpanV2, isA<NoOpSentrySpanV2>());
+      expect(sut.extendedSpanV2, isNull);
     });
 
     test('uses the direct extension endpoint when finish is also requested',
