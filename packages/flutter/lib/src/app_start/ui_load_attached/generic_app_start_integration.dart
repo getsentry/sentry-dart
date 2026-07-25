@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../frame_callback_handler.dart';
+import '../../navigation/root_route.dart';
 
 // TODO(buenaflor): marking this internal until we can find a robust way to unify the TTID/TTFD implementation as currently it is very fragmented.
 
@@ -33,12 +34,7 @@ class GenericAppStartIntegration extends Integration<SentryFlutterOptions> {
       return;
     }
 
-    final transactionContext = SentryTransactionContext(
-      'root /',
-      SentrySpanOperations.uiLoad,
-      transactionNameSource: SentryTransactionNameSource.component,
-      origin: SentryTraceOrigins.autoUiTimeToDisplay,
-    );
+    final transactionContext = initialDisplayTransactionContext();
 
     final startTimeStamp = options.clock();
     final transaction = hub.startTransactionWithContext(

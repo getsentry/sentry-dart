@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import '../../../sentry_flutter.dart';
 import '../../frame_callback_handler.dart';
 import '../../native/sentry_native_binding.dart';
+import '../../navigation/root_route.dart';
 import '../../utils/internal_logger.dart';
 import '../app_start_data.dart';
 import 'app_start_trace.dart';
@@ -20,12 +21,12 @@ class StandaloneAppStartLifecycle {
   final FrameCallbackHandler _frameCallbackHandler;
   final SentryNativeBinding _native;
 
-  static const _defaultStartScreenName = 'root /';
-
   AppStartTrace? _trace;
   String? _startScreenName;
   TimingsCallback? _timingsCallback;
-  _PreparedDisplayState _preparedDisplayState = _PreparedDisplayState.none;
+
+  /// Tears down whatever [_prepareTimeToDisplay] set up, if anything.
+  void Function()? _cancelPreparedDisplay;
   bool _started = false;
   bool _closed = false;
 
@@ -61,10 +62,10 @@ class StandaloneAppStartLifecycle {
       if (nativeAppStart != null &&
           setupTimestamp != null &&
           snapshotTimestamp != null) {
-        data = AppStartData.tryParse(
+        data = AppStartData.tryParseAtSnapshot(
           nativeAppStart,
           sentrySetupTimestamp: setupTimestamp,
-          validUntil: snapshotTimestamp,
+          snapshotTimestamp: snapshotTimestamp,
         );
       }
     } catch (error, stackTrace) {
@@ -120,13 +121,7 @@ class StandaloneAppStartLifecycle {
     };
   }
 
-  String _resolveStartScreenName() {
-    final name = _startScreenName;
-    if (name == null || name.isEmpty || name == '/') {
-      return _defaultStartScreenName;
-    }
-    return name;
-  }
+  String _resolveStartScreenName() => resolveRouteDisplayName(_startScreenName);
 
   void _prepareTimeToDisplay(DateTime? startTimestamp) {
     final options = _flutterOptions;
@@ -137,15 +132,16 @@ class StandaloneAppStartLifecycle {
 
     switch (options.traceLifecycle) {
       case SentryTraceLifecycle.static:
-        _preparedDisplayState = _PreparedDisplayState.static;
         options.timeToDisplayTracker.prepareInitialDisplay(
           resolvedStartTimestamp,
         );
+        _cancelPreparedDisplay = options.timeToDisplayTracker.clear;
       case SentryTraceLifecycle.stream:
-        _preparedDisplayState = _PreparedDisplayState.stream;
         options.timeToDisplayTrackerV2.prepareAppStart(
           startTimestamp: resolvedStartTimestamp,
         );
+        _cancelPreparedDisplay =
+            options.timeToDisplayTrackerV2.cancelCurrentRoute;
     }
   }
 
@@ -169,7 +165,6 @@ class StandaloneAppStartLifecycle {
         _startScreenName ??= SentryNavigatorObserver.currentRouteName;
 
         _trace?.recordFirstFrame(endTimestamp);
-        _trace?.finish(endTimestamp);
 
         // Keep display tracking last because TTFD may wait for its timeout.
         final options = _flutterOptions;
@@ -205,18 +200,8 @@ class StandaloneAppStartLifecycle {
     _closed = true;
     _removeTimingsCallback();
     await _trace?.close();
-    final options = _flutterOptions;
-    if (options != null) {
-      switch (_preparedDisplayState) {
-        case _PreparedDisplayState.static:
-          options.timeToDisplayTracker.clear();
-        case _PreparedDisplayState.stream:
-          options.timeToDisplayTrackerV2.cancelCurrentRoute();
-        case _PreparedDisplayState.none:
-          break;
-      }
-    }
-    _preparedDisplayState = _PreparedDisplayState.none;
+    _cancelPreparedDisplay?.call();
+    _cancelPreparedDisplay = null;
     _trace = null;
     _startScreenName = null;
   }
@@ -230,10 +215,4 @@ class StandaloneAppStartLifecycle {
     _frameCallbackHandler.removeTimingsCallback(timingsCallback);
     _timingsCallback = null;
   }
-}
-
-enum _PreparedDisplayState {
-  none,
-  static,
-  stream,
 }

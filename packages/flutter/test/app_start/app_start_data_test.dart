@@ -3,7 +3,7 @@ import 'package:sentry_flutter/src/app_start/app_start_data.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 
 void main() {
-  group('$AppStartData.tryParse', () {
+  group('$AppStartData parsing', () {
     late Fixture fixture;
 
     setUp(() {
@@ -125,7 +125,7 @@ class Fixture {
     DateTime? pluginRegistration,
     DateTime? sentrySetup,
   }) =>
-      AppStartData.tryParse(
+      AppStartData.tryParseAtFirstFrame(
         NativeAppStart(
           appStartTime: (appStartTime ?? processStart).millisecondsSinceEpoch,
           pluginRegistrationTime:
@@ -135,6 +135,6 @@ class Fixture {
           nativeSpanTimes: nativeSpanTimes,
         ),
         sentrySetupTimestamp: sentrySetup ?? this.sentrySetup,
-        validUntil: validUntil,
+        firstFrameTimestamp: validUntil,
       );
 }

@@ -15,10 +15,8 @@ final class StreamingAppStartTrace implements AppStartTrace {
   final RecordingSentrySpanV2 _firstFrameRenderSpan;
   final String Function() _startScreenNameProvider;
 
-  late final SdkLifecycleCallback<OnProcessSpan> _processCallback;
   DateTime? _endTimestamp;
-  bool _completed = false;
-  bool _closed = false;
+  AppStartTraceState _state = AppStartTraceState.open;
 
   StreamingAppStartTrace._({
     required Hub hub,
@@ -83,13 +81,12 @@ final class StreamingAppStartTrace implements AppStartTrace {
         firstFrameRenderSpan: firstFrameRenderSpan,
         startScreenNameProvider: startScreenNameProvider,
       );
-      trace._processCallback = trace._processSpan;
       for (final phase in data.phases) {
         final child = hub.startInactiveSpan(
           phase.description,
           parentSpan: root,
           startTimestamp: phase.startTimestamp,
-          attributes: _childAttributes(data, phase.operation),
+          attributes: _childAttributes(data, phase.kind.operation),
         );
         if (child is RecordingSentrySpanV2) {
           createdChildren.add(child);
@@ -97,7 +94,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
         child.end(endTimestamp: phase.endTimestamp);
       }
       hub.options.lifecycleRegistry.registerCallback<OnProcessSpan>(
-        trace._processCallback,
+        trace._processSpan,
       );
       return trace;
     } catch (error, stackTrace) {
@@ -142,23 +139,17 @@ final class StreamingAppStartTrace implements AppStartTrace {
 
   @override
   void recordFirstFrame(DateTime endTimestamp) {
-    if (_closed || _completed) return;
-    _firstFrameRenderSpan.end(endTimestamp: endTimestamp.toUtc());
-  }
-
-  @override
-  void finish(DateTime endTimestamp) {
-    if (_closed || _completed || _endTimestamp != null) return;
+    if (_state.isTerminal || _endTimestamp != null) return;
     _endTimestamp = endTimestamp.toUtc();
+    _firstFrameRenderSpan.end(endTimestamp: _endTimestamp);
   }
 
   void _processSpan(OnProcessSpan event) {
-    if (!identical(event.span, _root) || _completed) return;
+    if (!identical(event.span, _root) ||
+        _state == AppStartTraceState.completed) {
+      return;
+    }
     try {
-      _root.setAttribute(
-        SemanticAttributesConstants.appVitalsStartType,
-        SentryAttribute.string(_data.type.name),
-      );
       _root.setAttribute(
         SemanticAttributesConstants.appVitalsStartScreen,
         SentryAttribute.string(_startScreenNameProvider()),
@@ -195,17 +186,17 @@ final class StreamingAppStartTrace implements AppStartTrace {
         stackTrace: stackTrace,
       );
     } finally {
-      _completed = true;
+      _state = AppStartTraceState.completed;
       _hub.options.lifecycleRegistry.removeCallback<OnProcessSpan>(
-        _processCallback,
+        _processSpan,
       );
     }
   }
 
   @override
   void close() {
-    if (_closed || _completed) return;
-    _closed = true;
+    if (_state.isTerminal) return;
+    _state = AppStartTraceState.closed;
     _root.end();
   }
 }

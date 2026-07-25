@@ -22,7 +22,6 @@ void main() {
       final root = fixture.root!.tracer;
 
       sut.recordFirstFrame(fixture.naturalEnd);
-      sut.finish(fixture.naturalEnd);
       await pumpEventQueue(times: 10);
       await root.finish(endTimestamp: fixture.rootFinish);
 
@@ -161,7 +160,6 @@ void main() {
 
       await tester.pump(Duration(seconds: 2));
       sut.recordFirstFrame(fixture.naturalEnd);
-      sut.finish(fixture.naturalEnd);
       await tester.pump(Duration(seconds: 1));
 
       expect(root.finished, isFalse);
@@ -179,7 +177,6 @@ void main() {
 
       await tester.pump(Duration(seconds: 4));
       sut.recordFirstFrame(fixture.naturalEnd);
-      sut.finish(fixture.naturalEnd);
       await tester.pump();
 
       expect(root.finished, isFalse);
@@ -358,13 +355,13 @@ class Fixture {
     sentrySetupTimestamp: sentrySetup,
     phases: [
       AppStartPhase(
-        operation: SentrySpanOperations.appStartPluginRegistration,
+        kind: AppStartPhaseKind.pluginRegistration,
         description: 'App start to plugin registration',
         startTimestamp: processStart,
         endTimestamp: pluginRegistration,
       ),
       AppStartPhase(
-        operation: SentrySpanOperations.appStartSentrySetup,
+        kind: AppStartPhaseKind.sentrySetup,
         description: 'Before Sentry Init Setup',
         startTimestamp: pluginRegistration,
         endTimestamp: sentrySetup,
@@ -421,13 +418,13 @@ class MockCreationFixture {
     sentrySetupTimestamp: sentrySetup,
     phases: [
       AppStartPhase(
-        operation: SentrySpanOperations.appStartPluginRegistration,
+        kind: AppStartPhaseKind.pluginRegistration,
         description: 'App start to plugin registration',
         startTimestamp: processStart,
         endTimestamp: pluginRegistration,
       ),
       AppStartPhase(
-        operation: SentrySpanOperations.appStartSentrySetup,
+        kind: AppStartPhaseKind.sentrySetup,
         description: 'Before Sentry Init Setup',
         startTimestamp: pluginRegistration,
         endTimestamp: sentrySetup,

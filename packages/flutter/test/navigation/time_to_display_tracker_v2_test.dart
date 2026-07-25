@@ -436,12 +436,14 @@ void main() {
         final sut = fixture.getSut();
 
         sut.prepareAppStart();
-        final firstRouteWasSet = sut.setAppStartRouteName('/login');
-        final secondRouteWasSet = sut.setAppStartRouteName('/dashboard');
+        expect(sut.isAppStartRoutePending, isTrue);
+
+        sut.setAppStartRouteName('/login');
+        expect(sut.isAppStartRoutePending, isFalse);
+
+        sut.setAppStartRouteName('/dashboard');
         final routeSpan = sut.trackAppStart();
 
-        expect(firstRouteWasSet, isTrue);
-        expect(secondRouteWasSet, isFalse);
         expect(routeSpan.name, '/login');
       });
 

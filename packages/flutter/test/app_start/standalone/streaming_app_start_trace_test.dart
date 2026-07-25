@@ -20,7 +20,6 @@ void main() {
       final root = fixture.root!;
 
       sut.recordFirstFrame(fixture.naturalEnd);
-      sut.finish(fixture.naturalEnd);
       root.end(endTimestamp: fixture.rootFinish);
       await pumpEventQueue(times: 10);
 
@@ -121,6 +120,20 @@ void main() {
       expect(throwingFixture.hub.firstPhaseChild?.isEnded, isTrue);
     });
 
+    test('deregisters its process-span callback after enriching', () async {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!;
+      final registry = fixture.options.lifecycleRegistry;
+
+      expect(registry.lifecycleCallbacks[OnProcessSpan], hasLength(1));
+
+      sut.recordFirstFrame(fixture.naturalEnd);
+      root.end(endTimestamp: fixture.rootFinish);
+      await pumpEventQueue(times: 10);
+
+      expect(registry.lifecycleCallbacks[OnProcessSpan], isEmpty);
+    });
+
     test('close flushes the open root', () async {
       final sut = fixture.getSut()!;
       final root = fixture.root!;
@@ -158,13 +171,13 @@ class Fixture {
     sentrySetupTimestamp: sentrySetup,
     phases: [
       AppStartPhase(
-        operation: SentrySpanOperations.appStartPluginRegistration,
+        kind: AppStartPhaseKind.pluginRegistration,
         description: 'App start to plugin registration',
         startTimestamp: processStart,
         endTimestamp: pluginRegistration,
       ),
       AppStartPhase(
-        operation: SentrySpanOperations.appStartSentrySetup,
+        kind: AppStartPhaseKind.sentrySetup,
         description: 'Before Sentry Init Setup',
         startTimestamp: pluginRegistration,
         endTimestamp: sentrySetup,
@@ -212,13 +225,13 @@ class ThrowingPhaseCreationFixture {
     sentrySetupTimestamp: sentrySetup,
     phases: [
       AppStartPhase(
-        operation: SentrySpanOperations.appStartPluginRegistration,
+        kind: AppStartPhaseKind.pluginRegistration,
         description: 'App start to plugin registration',
         startTimestamp: processStart,
         endTimestamp: pluginRegistration,
       ),
       AppStartPhase(
-        operation: SentrySpanOperations.appStartSentrySetup,
+        kind: AppStartPhaseKind.sentrySetup,
         description: 'Before Sentry Init Setup',
         startTimestamp: pluginRegistration,
         endTimestamp: sentrySetup,

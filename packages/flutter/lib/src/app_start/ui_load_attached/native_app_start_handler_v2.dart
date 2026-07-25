@@ -28,10 +28,10 @@ class NativeAppStartHandlerV2 {
       return;
     }
 
-    final appStartData = AppStartData.tryParse(
+    final appStartData = AppStartData.tryParseAtFirstFrame(
       nativeAppStart,
       sentrySetupTimestamp: setupTimestamp,
-      validUntil: appStartEnd,
+      firstFrameTimestamp: appStartEnd,
     );
     if (appStartData == null) {
       tracker.cancelCurrentRoute();

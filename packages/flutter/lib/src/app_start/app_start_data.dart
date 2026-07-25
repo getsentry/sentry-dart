@@ -24,17 +24,21 @@ const appStartFirstFrameRenderDescription = 'First frame render';
 @internal
 enum AppStartType { cold, warm }
 
+/// Which part of the startup timeline a phase covers.
+@internal
+enum AppStartPhaseKind { native, pluginRegistration, sentrySetup }
+
 /// A span-ready app-start phase (native, plugin registration, or setup).
 @internal
 final class AppStartPhase {
   AppStartPhase({
-    required this.operation,
+    required this.kind,
     required this.description,
     required this.startTimestamp,
     required this.endTimestamp,
   });
 
-  final String operation;
+  final AppStartPhaseKind kind;
   final String description;
   final DateTime startTimestamp;
   final DateTime endTimestamp;
@@ -59,9 +63,8 @@ final class AppStartData {
   /// Native + plugin registration + sentry setup phases, ready to become spans.
   final List<AppStartPhase> phases;
 
-  Iterable<AppStartPhase> get nativePhases => phases.where(
-        (phase) => phase.operation == SentrySpanOperations.appStartNative,
-      );
+  Iterable<AppStartPhase> get nativePhases =>
+      phases.where((phase) => phase.kind == AppStartPhaseKind.native);
 
   Duration durationUntil(DateTime endTimestamp) =>
       endTimestamp.difference(processStartTimestamp);
@@ -72,6 +75,40 @@ final class AppStartData {
         ? SentryMeasurement.coldAppStart(duration)
         : SentryMeasurement.warmAppStart(duration);
   }
+
+  /// Parses native timing for the eager standalone root, opened at SDK init.
+  ///
+  /// [snapshotTimestamp] is when the native snapshot was taken, so every
+  /// breakdown phase that snapshot reports can be retained. The first frame is
+  /// recorded later through the open first-frame span, so this is **not** the
+  /// app-start measurement end.
+  static AppStartData? tryParseAtSnapshot(
+    NativeAppStart nativeAppStart, {
+    required DateTime sentrySetupTimestamp,
+    required DateTime snapshotTimestamp,
+  }) =>
+      _tryParse(
+        nativeAppStart,
+        sentrySetupTimestamp: sentrySetupTimestamp,
+        validUntil: snapshotTimestamp,
+      );
+
+  /// Parses native timing retrospectively for the ui.load path, after the
+  /// first frame has been drawn.
+  ///
+  /// [firstFrameTimestamp] is both the validation ceiling and the natural
+  /// app-start measurement end (extend, if any, can still push the vital
+  /// later).
+  static AppStartData? tryParseAtFirstFrame(
+    NativeAppStart nativeAppStart, {
+    required DateTime sentrySetupTimestamp,
+    required DateTime firstFrameTimestamp,
+  }) =>
+      _tryParse(
+        nativeAppStart,
+        sentrySetupTimestamp: sentrySetupTimestamp,
+        validUntil: firstFrameTimestamp,
+      );
 
   /// Parses and validates native app-start timing into span-ready data.
   ///
@@ -85,20 +122,9 @@ final class AppStartData {
   ///
   /// [validUntil] is the latest timestamp allowed for anything validated
   /// here — native process/plugin/phase times and [sentrySetupTimestamp].
-  /// Callers choose it based on how much of the timeline they can trust
-  /// at parse time:
-  ///
-  /// - **Eager standalone** (root opened at SDK init): pass the native
-  ///   snapshot time so every breakdown phase returned by that snapshot can
-  ///   be retained. The first frame is recorded later via the open first-frame
-  ///   barrier, so [validUntil] is **not** the app-start measurement end.
-  /// - **Retrospective ui.load** (parse after first frame): pass first-frame
-  ///   end. That is both the validation ceiling and the natural measurement
-  ///   end (extend, if any, can still push the vital later).
-  ///
-  /// Native phases that end after [validUntil] are dropped; other failures
-  /// reject the entire parse.
-  static AppStartData? tryParse(
+  /// Native phases that end after it are dropped; other failures reject the
+  /// entire parse.
+  static AppStartData? _tryParse(
     NativeAppStart nativeAppStart, {
     required DateTime sentrySetupTimestamp,
     required DateTime validUntil,
@@ -150,13 +176,13 @@ final class AppStartData {
           latestTimestamp: latestTimestamp,
         ),
         AppStartPhase(
-          operation: SentrySpanOperations.appStartPluginRegistration,
+          kind: AppStartPhaseKind.pluginRegistration,
           description: appStartPluginRegistrationDescription,
           startTimestamp: processStart,
           endTimestamp: pluginRegistration,
         ),
         AppStartPhase(
-          operation: SentrySpanOperations.appStartSentrySetup,
+          kind: AppStartPhaseKind.sentrySetup,
           description: appStartSentrySetupDescription,
           startTimestamp: pluginRegistration,
           endTimestamp: setup,
@@ -185,7 +211,7 @@ final class AppStartData {
         }
         phases.add(
           AppStartPhase(
-            operation: SentrySpanOperations.appStartNative,
+            kind: AppStartPhaseKind.native,
             description: entry.key as String,
             startTimestamp: start,
             endTimestamp: end,
@@ -202,6 +228,20 @@ final class AppStartData {
     phases.sort((a, b) => a.startTimestamp.compareTo(b.startTimestamp));
     return phases;
   }
+}
+
+/// Per-phase span op for the standalone app-start path, where every phase
+/// carries its own op. The ui.load path instead labels each phase with the
+/// cold/warm op from [UiLoadAppStartTypeSpans].
+@internal
+extension StandaloneAppStartPhaseSpans on AppStartPhaseKind {
+  String get operation => switch (this) {
+        AppStartPhaseKind.native => SentrySpanOperations.appStartNative,
+        AppStartPhaseKind.pluginRegistration =>
+          SentrySpanOperations.appStartPluginRegistration,
+        AppStartPhaseKind.sentrySetup =>
+          SentrySpanOperations.appStartSentrySetup,
+      };
 }
 
 /// Nested-span op/description for the ui.load app-start path

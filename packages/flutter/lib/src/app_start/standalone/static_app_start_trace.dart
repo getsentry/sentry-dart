@@ -21,9 +21,7 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   Timer? _finalTimeoutTimer;
   DateTime? _endTimestamp;
-  bool _finalizing = false;
-  bool _completed = false;
-  bool _closed = false;
+  AppStartTraceState _state = AppStartTraceState.open;
 
   StaticAppStartTrace._({
     required AppStartData data,
@@ -90,7 +88,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       );
       for (final phase in data.phases) {
         final child = root.startChild(
-          phase.operation,
+          phase.kind.operation,
           description: phase.description,
           startTimestamp: phase.startTimestamp,
         )..origin = SentryTraceOrigins.autoAppStart;
@@ -106,7 +104,7 @@ final class StaticAppStartTrace implements AppStartTrace {
         );
       }
 
-      trace._scheduleFinalTimeout(hub.options.clock());
+      trace._scheduleFinalTimeout();
       return trace;
     } catch (error, stackTrace) {
       if (createdRoot != null) {
@@ -123,26 +121,22 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   @override
   void recordFirstFrame(DateTime endTimestamp) {
-    if (_closed || _completed) return;
+    if (_state.isTerminal || _endTimestamp != null) return;
+    // Set before finishing the child: finishing the last outstanding child can
+    // complete the tracer, which enriches from _endTimestamp.
+    _endTimestamp = endTimestamp.toUtc();
     _root.scheduleFinish();
     unawaited(
       _finishSpanSafely(
         _firstFrameRenderSpan,
-        endTimestamp: endTimestamp.toUtc(),
+        endTimestamp: _endTimestamp,
         failureMessage: 'Failed to finish static app-start span',
       ),
     );
   }
 
-  @override
-  void finish(DateTime endTimestamp) {
-    if (_closed || _completed || _endTimestamp != null) return;
-    _endTimestamp = endTimestamp.toUtc();
-    _root.scheduleFinish();
-  }
-
   void _enrichAndComplete() {
-    if (_completed) return;
+    if (_state == AppStartTraceState.completed) return;
     _clearFinalTimeout();
     try {
       final type = _data.type.name;
@@ -170,12 +164,12 @@ final class StaticAppStartTrace implements AppStartTrace {
         stackTrace: stackTrace,
       );
     } finally {
-      _completed = true;
+      _state = AppStartTraceState.completed;
     }
   }
 
-  void _scheduleFinalTimeout(DateTime now) {
-    void finishAtDeadline() {
+  void _scheduleFinalTimeout() {
+    _finalTimeoutTimer = Timer(standaloneAppStartFinalTimeout, () {
       unawaited(
         _finishAtDeadline().catchError((Object error, StackTrace stackTrace) {
           internalLogger.error(
@@ -185,19 +179,12 @@ final class StaticAppStartTrace implements AppStartTrace {
           );
         }),
       );
-    }
-
-    final remaining = _finalDeadlineTimestamp.difference(now.toUtc());
-    if (remaining <= Duration.zero) {
-      finishAtDeadline();
-    } else {
-      _finalTimeoutTimer = Timer(remaining, finishAtDeadline);
-    }
+    });
   }
 
   Future<void> _finishAtDeadline() async {
-    if (_closed || _completed || _finalizing) return;
-    _finalizing = true;
+    if (_state != AppStartTraceState.open) return;
+    _state = AppStartTraceState.finalizing;
     _clearFinalTimeout();
 
     final status = SpanStatus.deadlineExceeded();
@@ -258,8 +245,8 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   @override
   Future<void> close() async {
-    if (_closed || _completed) return;
-    _closed = true;
+    if (_state.isTerminal) return;
+    _state = AppStartTraceState.closed;
     _clearFinalTimeout();
     await _flushTrace(root: _root, children: _root.children.toList());
   }

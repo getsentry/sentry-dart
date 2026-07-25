@@ -3,6 +3,7 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import 'root_route.dart';
 import 'time_to_full_display_tracker.dart';
 import 'time_to_initial_display_tracker.dart';
 // ignore: implementation_imports
@@ -40,7 +41,7 @@ class TimeToDisplayTracker {
 
   /// Creates and retains the initial standalone `ui.load` transaction.
   void prepareInitialDisplay(DateTime startTimestamp) {
-    final context = _createInitialDisplayContext();
+    final context = initialDisplayTransactionContext();
     transactionId = context.spanId;
     final transaction = _hub.startTransactionWithContext(
       context,
@@ -60,15 +61,6 @@ class TimeToDisplayTracker {
     if (transaction != null) {
       await track(transaction, ttidEndTimestamp: endTimestamp);
     }
-  }
-
-  SentryTransactionContext _createInitialDisplayContext() {
-    return SentryTransactionContext(
-      'root /',
-      SentrySpanOperations.uiLoad,
-      transactionNameSource: SentryTransactionNameSource.component,
-      origin: SentryTraceOrigins.autoUiTimeToDisplay,
-    );
   }
 
   Future<void> track(

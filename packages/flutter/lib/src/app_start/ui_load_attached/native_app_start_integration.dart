@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../frame_callback_handler.dart';
+import '../../navigation/root_route.dart';
 import '../../utils/internal_logger.dart';
 import 'native_app_start_handler.dart';
 import 'native_app_start_handler_v2.dart';
@@ -42,12 +43,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
     // V1 path: Create context early so we have an id to reference for reporting full display
     SentryTransactionContext? context;
     if (options.traceLifecycle == SentryTraceLifecycle.static) {
-      context = SentryTransactionContext(
-        'root /',
-        SentrySpanOperations.uiLoad,
-        transactionNameSource: SentryTransactionNameSource.component,
-        origin: SentryTraceOrigins.autoUiTimeToDisplay,
-      );
+      context = initialDisplayTransactionContext();
       options.timeToDisplayTracker.transactionId = context.spanId;
     }
 

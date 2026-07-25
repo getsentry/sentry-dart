@@ -175,10 +175,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _addWebSessions(from: previousRoute, to: route);
 
     final routeName = _getRouteName(route) ?? _currentRouteName;
-    final isInitialAppStartRoute = previousRoute == null &&
-        _hub.options.traceLifecycle == SentryTraceLifecycle.stream &&
-        (_timeToDisplayTrackerV2?.setAppStartRouteName(routeName) ?? false);
-    if (isInitialAppStartRoute) {
+    if (_timeToDisplayTrackerV2 case final tracker?
+        when previousRoute == null && tracker.isAppStartRoutePending) {
+      tracker.setAppStartRouteName(routeName);
       return;
     }
 
