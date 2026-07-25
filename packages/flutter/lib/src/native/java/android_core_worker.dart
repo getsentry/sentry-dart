@@ -187,28 +187,26 @@ class AndroidCoreWorker {
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
     if (_isClosed) return null;
 
+    final normalizedBreadcrumb =
+        normalize(breadcrumb.toJson()) as Map<String, dynamic>;
     final client = _worker;
     if (client == null) {
       _addBreadcrumb(
-        breadcrumb.toJson(),
+        normalizedBreadcrumb,
         automatedTestMode: _config.automatedTestMode,
       );
       return null;
     }
 
-    return _addBreadcrumbFromWorker(client, breadcrumb);
+    return _addBreadcrumbFromWorker(client, normalizedBreadcrumb);
   }
 
   Future<void> _addBreadcrumbFromWorker(
     Worker client,
-    Breadcrumb breadcrumb,
+    Map<String, dynamic> breadcrumb,
   ) async {
     try {
-      await client.request(
-        _AddBreadcrumbRequest(
-          normalize(breadcrumb.toJson()) as Map<String, dynamic>,
-        ),
-      );
+      await client.request(_AddBreadcrumbRequest(breadcrumb));
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Android core worker failed to add breadcrumb',
@@ -251,24 +249,23 @@ class AndroidCoreWorker {
   FutureOr<void> setUser(SentryUser? user) {
     if (_isClosed) return null;
 
+    final normalizedUser =
+        user == null ? null : normalize(user.toJson()) as Map<String, dynamic>;
     final client = _worker;
     if (client == null) {
-      _setUser(user?.toJson(), automatedTestMode: _config.automatedTestMode);
+      _setUser(normalizedUser, automatedTestMode: _config.automatedTestMode);
       return null;
     }
 
-    return _setUserFromWorker(client, user);
+    return _setUserFromWorker(client, normalizedUser);
   }
 
-  Future<void> _setUserFromWorker(Worker client, SentryUser? user) async {
+  Future<void> _setUserFromWorker(
+    Worker client,
+    Map<String, dynamic>? user,
+  ) async {
     try {
-      await client.request(
-        _SetUserRequest(
-          user == null
-              ? null
-              : normalize(user.toJson()) as Map<String, dynamic>,
-        ),
-      );
+      await client.request(_SetUserRequest(user));
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Android core worker failed to set user',
@@ -733,5 +730,6 @@ void _removeContexts(String key, {bool automatedTestMode = false}) {
   }
 }
 
+/// [value] must already have been passed through [normalize].
 JByteArray _jsonToJByteArray(Object? value) =>
-    JByteArray.from(encodeUtf8Json(normalize(value)));
+    JByteArray.from(encodeUtf8Json(value));
