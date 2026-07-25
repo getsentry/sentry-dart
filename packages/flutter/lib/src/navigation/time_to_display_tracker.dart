@@ -34,15 +34,34 @@ class TimeToDisplayTracker {
   SpanId? transactionId;
 
   DateTime? _pendingTTFDEndTimestamp;
-  SentryTracer? _preparedInitialDisplay;
+  SentryTransactionContext? _preparedContext;
+  DateTime? _preparedStartTimestamp;
 
   // The timestamp where report TTFD was called before the transaction was started.
   DateTime? get pendingTTFDEndTimestamp => _pendingTTFDEndTimestamp;
 
-  /// Creates and retains the initial standalone `ui.load` transaction.
+  /// Reserves the initial standalone `ui.load` identity for the app start.
+  ///
+  /// Only the identity: [recordInitialDisplay] starts the transaction. Starting
+  /// it here would arm its idle timer before a first frame exists, and a start
+  /// slower than that timer drops the childless root along with TTID and TTFD.
   void prepareInitialDisplay(DateTime startTimestamp) {
     final context = initialDisplayTransactionContext();
     transactionId = context.spanId;
+    _preparedContext = context;
+    _preparedStartTimestamp = startTimestamp;
+  }
+
+  /// Starts the reserved initial standalone display root and records TTID/TTFD.
+  Future<void> recordInitialDisplay(DateTime endTimestamp) async {
+    final context = _preparedContext;
+    final startTimestamp = _preparedStartTimestamp;
+    _preparedContext = null;
+    _preparedStartTimestamp = null;
+    if (context == null || startTimestamp == null) {
+      return;
+    }
+
     final transaction = _hub.startTransactionWithContext(
       context,
       startTimestamp: startTimestamp,
@@ -51,16 +70,7 @@ class TimeToDisplayTracker {
       bindToScope: true,
       trimEnd: true,
     );
-    _preparedInitialDisplay = transaction is SentryTracer ? transaction : null;
-  }
-
-  /// Records TTID/TTFD on the retained initial standalone display root.
-  Future<void> recordInitialDisplay(DateTime endTimestamp) async {
-    final transaction = _preparedInitialDisplay;
-    _preparedInitialDisplay = null;
-    if (transaction != null) {
-      await track(transaction, ttidEndTimestamp: endTimestamp);
-    }
+    await track(transaction, ttidEndTimestamp: endTimestamp);
   }
 
   Future<void> track(
@@ -146,9 +156,9 @@ class TimeToDisplayTracker {
   }
 
   void clear() {
-    // Drop the prepared root reference only. Idle auto-finish (and the
-    // childless-idle drop in SentryTracer) owns teardown without capture.
-    _preparedInitialDisplay = null;
+    // Only an identity was reserved, so there is no root to tear down.
+    _preparedContext = null;
+    _preparedStartTimestamp = null;
     transactionId = null;
     _pendingTTFDEndTimestamp = null;
     _ttidTracker.clear();

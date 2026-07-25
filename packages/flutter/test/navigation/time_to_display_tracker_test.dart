@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 // ignore_for_file: inference_failure_on_instance_creation
 
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -105,11 +106,60 @@ void main() {
   });
 
   group('app start tracking', () {
-    test('prepareInitialDisplay creates ui.load transaction eagerly', () {
+    test(
+        'prepareInitialDisplay reserves the transaction id without starting a '
+        'transaction', () {
+      final sut = fixture.getSut();
+
+      sut.prepareInitialDisplay(DateTime.utc(2024, 1, 1, 12));
+
+      expect(sut.transactionId, isNotNull);
+      expect(fixture.hub.scope.span, isNull);
+    });
+
+    test(
+        'recordInitialDisplay tracks a live transaction when the first frame '
+        'outlives the idle timeout', () {
+      fakeAsync((async) {
+        final sut = fixture.getSut();
+        final startTimestamp = DateTime.utc(2024, 1, 1, 12);
+        final endTimestamp = startTimestamp.add(const Duration(seconds: 5));
+
+        SentryTracer? tracked;
+        when(fixture.ttidTracker.track(
+          transaction: anyNamed('transaction'),
+          endTimestamp: anyNamed('endTimestamp'),
+        )).thenAnswer((invocation) async {
+          final transaction =
+              invocation.namedArguments[#transaction] as SentryTracer;
+          tracked = transaction;
+          return fixture.getTTIDTransaction(transaction);
+        });
+
+        sut.prepareInitialDisplay(startTimestamp);
+        async.elapse(const Duration(seconds: 5));
+        unawaited(sut.recordInitialDisplay(endTimestamp));
+        async.flushMicrotasks();
+
+        expect(tracked, isNotNull);
+        expect(tracked!.finished, isFalse);
+      });
+    });
+
+    test('recordInitialDisplay starts the reserved ui.load transaction',
+        () async {
       final sut = fixture.getSut();
       final startTimestamp = DateTime.utc(2024, 1, 1, 12);
+      final endTimestamp = startTimestamp.add(const Duration(seconds: 1));
+      when(fixture.ttidTracker.track(
+        transaction: anyNamed('transaction'),
+        endTimestamp: endTimestamp,
+      )).thenAnswer((invocation) async => fixture.getTTIDTransaction(
+          invocation.namedArguments[#transaction] as SentryTracer));
 
       sut.prepareInitialDisplay(startTimestamp);
+      final reservedId = sut.transactionId;
+      await sut.recordInitialDisplay(endTimestamp);
 
       final transaction = fixture.hub.scope.span as SentryTracer;
       expect(transaction.name, 'root /');
@@ -119,26 +169,7 @@ void main() {
         SentryTransactionNameSource.component,
       );
       expect(transaction.startTimestamp, startTimestamp);
-      expect(sut.transactionId, transaction.context.spanId);
-    });
-
-    test('recordInitialDisplay tracks retained transaction', () async {
-      final sut = fixture.getSut();
-      final startTimestamp = DateTime.utc(2024, 1, 1, 12);
-      final endTimestamp = startTimestamp.add(const Duration(seconds: 1));
-      sut.prepareInitialDisplay(startTimestamp);
-      final transaction = fixture.hub.scope.span as SentryTracer;
-      when(fixture.ttidTracker.track(
-        transaction: transaction,
-        endTimestamp: endTimestamp,
-      )).thenAnswer((_) async => fixture.getTTIDTransaction(transaction));
-
-      await sut.recordInitialDisplay(endTimestamp);
-
-      verify(fixture.ttidTracker.track(
-        transaction: transaction,
-        endTimestamp: endTimestamp,
-      )).called(1);
+      expect(transaction.context.spanId, reservedId);
     });
   });
 
@@ -153,22 +184,18 @@ void main() {
       verify(fixture.ttfdTracker.clear()).called(1);
     });
 
-    test('releases prepared display without eager cancel', () async {
+    test('drops the reserved initial display', () async {
       final sut = fixture.getSut();
       final startTimestamp = DateTime.utc(2024, 1, 1, 12);
       sut.prepareInitialDisplay(startTimestamp);
-      final transaction = fixture.hub.scope.span as SentryTracer;
 
       sut.clear();
-      await pumpEventQueue();
-
-      // Idle auto-finish owns teardown; clear must not finish/cancel eagerly.
-      expect(transaction.finished, isFalse);
       expect(sut.transactionId, isNull);
 
       await sut.recordInitialDisplay(
         startTimestamp.add(const Duration(seconds: 1)),
       );
+      expect(fixture.hub.scope.span, isNull);
       verifyNever(fixture.ttidTracker.track(
         transaction: anyNamed('transaction'),
         endTimestamp: anyNamed('endTimestamp'),

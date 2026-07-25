@@ -72,7 +72,8 @@ void main() {
         };
 
       await fixture.startLifecycle();
-      await pumpEventQueue();
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
 
       expect(samplerCalls, 2);
       expect(fixture.rootSpans, hasLength(2));
@@ -94,6 +95,10 @@ void main() {
 
       await Future.wait([firstStart, secondStart]);
       await pumpEventQueue();
+      expect(fixture.frameHandler.registeredTimingsCallbacks, hasLength(1));
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
 
       final uiLoadRoots = fixture.rootSpans.where(
         (span) => span.context.operation == SentrySpanOperations.uiLoad,
@@ -101,11 +106,9 @@ void main() {
       verify(fixture.native.fetchNativeAppStart()).called(1);
       expect(fixture.appStartRoots, hasLength(1));
       expect(uiLoadRoots, hasLength(1));
-      expect(fixture.frameHandler.registeredTimingsCallbacks, hasLength(1));
     });
 
-    test('when app.start is unsampled still prepares sampled ui.load',
-        () async {
+    test('when app.start is unsampled still reports sampled ui.load', () async {
       fixture.options
         ..tracesSampleRate = null
         ..tracesSampler = (samplingContext) {
@@ -116,7 +119,10 @@ void main() {
         };
 
       await fixture.startLifecycle();
-      await pumpEventQueue();
+      expect(fixture.frameHandler.timingsCallback, isNotNull);
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
 
       final uiLoadRoots = fixture.rootSpans
           .where(
@@ -124,7 +130,6 @@ void main() {
           .toList();
 
       expect(uiLoadRoots, hasLength(1));
-      expect(fixture.frameHandler.timingsCallback, isNotNull);
     });
 
     test(
@@ -169,20 +174,22 @@ void main() {
       expect(fixture.frameHandler.timingsCallback, isNull);
     });
 
-    test('when native timing is invalid prepares ui.load and callback',
-        () async {
+    test('when native timing is invalid still reports ui.load', () async {
       when(fixture.native.fetchNativeAppStart()).thenAnswer(
         (_) async => fixture.nativeAppStart(appStartMilliseconds: 1000),
       );
 
       await fixture.startLifecycle();
+      expect(fixture.frameHandler.timingsCallback, isNotNull);
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
 
       final uiLoadRoot = fixture.rootSpans.single;
 
       expect(uiLoadRoot.context.operation, SentrySpanOperations.uiLoad);
       expect(uiLoadRoot.startTimestamp, fixture.setup);
       expect(fixture.appStartRoots, isEmpty);
-      expect(fixture.frameHandler.timingsCallback, isNotNull);
     });
 
     test(

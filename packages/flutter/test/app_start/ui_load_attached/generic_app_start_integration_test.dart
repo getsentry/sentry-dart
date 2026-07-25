@@ -113,6 +113,7 @@ void main() {
         final fixedTime = DateTime(2023, 1, 1, 12, 0, 0).toUtc();
         fixture.options.clock = () => fixedTime;
         final sut = fixture.getSut();
+        fixture.fakeFrameHandler.postFrameCallbackDelay = Duration.zero;
 
         sut.call(fixture.hub, fixture.options);
 
