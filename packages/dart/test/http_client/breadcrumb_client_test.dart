@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:io';
 
 import 'package:_sentry_testing/_sentry_testing.dart';
@@ -393,27 +395,28 @@ void main() {
     });
 
     test(
-        'end_timestamp reflects header arrival, not response capture '
-        'completion', () async {
+        'reads the clock at header arrival, before capturing the response '
+        'body', () async {
+      final callOrder = <String>[];
       final capture = FakeNetworkDetailsCapture(
-        captureResponseDelay: Duration(seconds: 1),
+        onCaptureResponse: () => callOrder.add('captureResponse'),
       );
 
       final sut = fixture.getSut(
         fixture.getClient(statusCode: 200, reason: 'OK'),
         capture,
       );
+      fixture.hub.options.clock = () {
+        callOrder.add('clock');
+        return DateTime.utc(2024);
+      };
 
-      final beforeRequest = DateTime.now().toUtc().millisecondsSinceEpoch;
       await sut.get(requestUri);
 
-      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
-      final endTimestamp = breadcrumb.data!['end_timestamp'] as int;
-
-      // captureResponseDelay is 1 second; if end_timestamp were captured
-      // after it (the bug this guards against), this would be off by
-      // roughly that much instead of being near-immediate.
-      expect(endTimestamp - beforeRequest, lessThan(1000));
+      // Reversed, this is the bug: the breadcrumb's timestamp would default
+      // to "now" at breadcrumb construction, after body capture completes,
+      // shifting Session Replay network spans to the end of body download.
+      expect(callOrder, ['clock', 'captureResponse']);
     });
   });
 }
@@ -429,11 +432,13 @@ class FakeNetworkDetailsCapture implements NetworkDetailsCapture {
     this.shouldCaptureResult = true,
     this.captureResponseDelay,
     this.captureResponseError,
+    this.onCaptureResponse,
   });
 
   final bool shouldCaptureResult;
   final Duration? captureResponseDelay;
   final Object? captureResponseError;
+  final void Function()? onCaptureResponse;
 
   @override
   bool shouldCapture(Uri url) => shouldCaptureResult;
@@ -447,6 +452,7 @@ class FakeNetworkDetailsCapture implements NetworkDetailsCapture {
   Future<(StreamedResponse, Map<String, dynamic>)> captureResponse(
     StreamedResponse response,
   ) async {
+    onCaptureResponse?.call();
     final delay = captureResponseDelay;
     if (delay != null) {
       await Future.delayed(delay);

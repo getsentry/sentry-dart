@@ -4,7 +4,6 @@ import 'package:meta/meta.dart';
 import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
-import '../utils.dart';
 import '../utils/breadcrumb_log_level.dart';
 import '../utils/url_details.dart';
 import '../utils/http_sanitizer.dart';
@@ -104,8 +103,10 @@ class BreadcrumbClient extends BaseClient {
         // moment as the stopwatch above rather than left to default to
         // "now" when the breadcrumb is built in the outer `finally` -
         // otherwise both timestamps would drift by however long response
-        // capture takes, even though duration wouldn't.
-        responseTimestamp = getUtcDateTime();
+        // capture takes, even though duration wouldn't. Uses the injectable
+        // clock (matching Hub's own usage) rather than the system clock
+        // directly, so this is fakeable in tests.
+        responseTimestamp = _hub.options.clock();
       }
 
       statusCode = response.statusCode;
