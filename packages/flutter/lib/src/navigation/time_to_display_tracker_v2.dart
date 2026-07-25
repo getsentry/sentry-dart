@@ -37,9 +37,6 @@ class TimeToDisplayTrackerV2 {
   /// [SentryFlutter.currentDisplay] before [trackAppStart] fires.
   /// Timestamps are backdated later in [trackAppStart].
   void prepareAppStart({DateTime? startTimestamp}) {
-    assert(_preparedRootNavigationSpan == null,
-        'prepareRootNavigation called while a prepared span is still pending');
-
     cancelCurrentRoute();
     _appStartRouteName = rootRouteName;
     _isAppStartRouteNamePending = true;

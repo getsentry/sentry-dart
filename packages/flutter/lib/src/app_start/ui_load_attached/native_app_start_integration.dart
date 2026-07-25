@@ -29,8 +29,25 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
   bool _allowProcessing = true;
 
+  /// Integrations are awaited by the SDK before `runApp`, so anything escaping
+  /// here would leave the app unstarted. App-start tracing is never worth that.
   @override
-  void call(Hub hub, SentryFlutterOptions options) async {
+  Future<void> call(Hub hub, SentryFlutterOptions options) async {
+    try {
+      _install(hub, options);
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Error while installing $integrationName integration',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (options.automatedTestMode) {
+        rethrow;
+      }
+    }
+  }
+
+  void _install(Hub hub, SentryFlutterOptions options) {
     if (options.usesStandaloneAppStart) return;
 
     if (!options.isTracingEnabled()) {

@@ -81,6 +81,26 @@ void main() {
       );
     });
 
+    test('does not let a failing handler escape into the integration chain',
+        () async {
+      fixture.options.automatedTestMode = false;
+      fixture.handler.startError = StateError('handler blew up');
+
+      await expectLater(
+        fixture.getSut().call(fixture.hub, fixture.options),
+        completes,
+      );
+    });
+
+    test('rethrows a failing handler under automatedTestMode', () async {
+      fixture.handler.startError = StateError('handler blew up');
+
+      await expectLater(
+        fixture.getSut().call(fixture.hub, fixture.options),
+        throwsStateError,
+      );
+    });
+
     test('closes the standalone app-start handler', () async {
       await fixture.getSut().close();
 
@@ -103,10 +123,15 @@ class Fixture {
 final class FakeStandaloneAppStartHandler implements StandaloneAppStartHandler {
   int startCalls = 0;
   int closeCalls = 0;
+  Object? startError;
 
   @override
   Future<void> start(SentryFlutterOptions options) async {
     startCalls++;
+    final error = startError;
+    if (error != null) {
+      throw error;
+    }
   }
 
   @override

@@ -13,25 +13,38 @@ final class StandaloneAppStartIntegration
 
   StandaloneAppStartIntegration(this._handler);
 
+  /// Integrations are awaited by the SDK before `runApp`, so anything escaping
+  /// here would leave the app unstarted. App-start tracing is never worth that.
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
-    if (!options.isTracingEnabled()) {
-      internalLogger.info(
-        'Skipping $_integrationName integration because tracing is disabled.',
-      );
-      return;
-    }
+    try {
+      if (!options.isTracingEnabled()) {
+        internalLogger.info(
+          'Skipping $_integrationName integration because tracing is disabled.',
+        );
+        return;
+      }
 
-    if (!options.usesStandaloneAppStart) {
-      internalLogger.info(
-        'Skipping $_integrationName integration because standalone app-start tracing is disabled or unsupported on this platform.',
-      );
-      return;
-    }
+      if (!options.usesStandaloneAppStart) {
+        internalLogger.info(
+          'Skipping $_integrationName integration because standalone app-start tracing is disabled or unsupported on this platform.',
+        );
+        return;
+      }
 
-    options.sdk.addIntegration(_integrationName);
-    options.sdk.addFeature(SentryFeatures.standaloneAppStartTracing);
-    await _handler.start(options);
+      options.sdk.addIntegration(_integrationName);
+      options.sdk.addFeature(SentryFeatures.standaloneAppStartTracing);
+      await _handler.start(options);
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Error while installing $_integrationName integration',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (options.automatedTestMode) {
+        rethrow;
+      }
+    }
   }
 
   @override

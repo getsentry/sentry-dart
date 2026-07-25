@@ -293,6 +293,19 @@ void main() {
         expect(activeSpan!.name, 'root /');
       });
 
+      test('cancels a still-pending prepared span instead of throwing', () {
+        final sut = fixture.getSut();
+        sut.prepareAppStart();
+        final firstSpan = fixture.hub.getActiveSpan();
+
+        sut.prepareAppStart();
+
+        expect(firstSpan?.isEnded, isTrue);
+        final secondSpan = fixture.hub.getActiveSpan();
+        expect(secondSpan, isNotNull);
+        expect(secondSpan, isNot(same(firstSpan)));
+      });
+
       test('makes ttfdSpanId available immediately', () {
         final sut = fixture.getSut();
 
