@@ -317,6 +317,26 @@ void main() {
             FlutterNetworkDetailsCapture.maxBodySize);
         expect(await forwardedResponse.stream.bytesToString(), oversizedBody);
       });
+
+      test('rethrows when the response body fails to read', () async {
+        final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
+        final sut = fixture.getSut();
+
+        final readError = Exception('stream read failed');
+        final response = StreamedResponse(
+          Stream<List<int>>.error(readError),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+
+        try {
+          await sut.captureResponse(response);
+          fail('Method did not throw');
+        } on Exception catch (e) {
+          expect(e, same(readError));
+        }
+      });
     });
   });
 }

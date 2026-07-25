@@ -83,9 +83,11 @@ class FlutterNetworkDetailsCapture implements NetworkDetailsCapture {
       internalLogger.warning(
         () => 'Failed to capture response body for replay: $exception',
       );
-      // The stream may be partially consumed at this point, so there's no
-      // safe way to forward it to the original caller anymore.
-      return (response, data);
+      // The stream is partially consumed at this point, so it can't be
+      // forwarded to the original caller anymore. Rethrow the real failure
+      // instead of returning a response whose stream would throw a
+      // confusing "already listened to" error when read again downstream.
+      rethrow;
     }
 
     // The body is already fully read at this point, so decoding failures
