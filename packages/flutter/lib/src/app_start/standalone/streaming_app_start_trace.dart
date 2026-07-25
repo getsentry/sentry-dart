@@ -160,11 +160,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
       );
 
       final endTimestamp = _endTimestamp;
-      final deadlineExceeded = _root.status == SentrySpanStatusV2.error &&
-          _root.attributes[SemanticAttributesConstants.sentryStatusMessage]
-                  ?.value ==
-              SentrySpanStatusMessages.deadlineExceeded;
-      if (endTimestamp != null && !deadlineExceeded) {
+      if (endTimestamp != null && !_root.deadlineExceeded) {
         final duration =
             _data.durationUntil(endTimestamp).inMilliseconds.toDouble();
         final value = SentryAttribute.double(duration);

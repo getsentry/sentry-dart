@@ -30,11 +30,6 @@ class StandaloneAppStartLifecycle {
   bool _started = false;
   bool _closed = false;
 
-  SentryFlutterOptions? get _flutterOptions {
-    final options = _hub.options;
-    return options is SentryFlutterOptions ? options : null;
-  }
-
   StandaloneAppStartLifecycle({
     Hub? hub,
     FrameCallbackHandler? frameCallbackHandler,
@@ -44,7 +39,7 @@ class StandaloneAppStartLifecycle {
             frameCallbackHandler ?? DefaultFrameCallbackHandler(),
         _native = native;
 
-  Future<void> start() async {
+  Future<void> start(SentryFlutterOptions options) async {
     if (_closed || _started) {
       return;
     }
@@ -58,14 +53,11 @@ class StandaloneAppStartLifecycle {
       }
 
       final setupTimestamp = SentryFlutter.sentrySetupStartTime;
-      final snapshotTimestamp = _flutterOptions?.clock();
-      if (nativeAppStart != null &&
-          setupTimestamp != null &&
-          snapshotTimestamp != null) {
+      if (nativeAppStart != null && setupTimestamp != null) {
         data = AppStartData.tryParseAtSnapshot(
           nativeAppStart,
           sentrySetupTimestamp: setupTimestamp,
-          snapshotTimestamp: snapshotTimestamp,
+          snapshotTimestamp: options.clock(),
         );
       }
     } catch (error, stackTrace) {
@@ -85,7 +77,7 @@ class StandaloneAppStartLifecycle {
         'Skipping standalone app start: native timing unavailable or invalid',
       );
     } else {
-      final trace = _createAppStartTrace(data);
+      final trace = _createAppStartTrace(options, data);
       if (trace == null) {
         internalLogger.info(
           'Skipping standalone app start: trace was not created',
@@ -95,16 +87,14 @@ class StandaloneAppStartLifecycle {
       }
     }
 
-    _prepareTimeToDisplay(
-      data?.processStartTimestamp ?? SentryFlutter.sentrySetupStartTime,
-    );
-    _recordFirstFrame();
+    _prepareTimeToDisplay(options, data?.processStartTimestamp);
+    _recordFirstFrame(options);
   }
 
-  AppStartTrace? _createAppStartTrace(AppStartData data) {
-    final options = _flutterOptions;
-    if (options == null) return null;
-
+  AppStartTrace? _createAppStartTrace(
+    SentryFlutterOptions options,
+    AppStartData data,
+  ) {
     // Resolve the app-start screen name during trace enrichment, not trace
     // creation. Its route is captured only at the first valid frame.
     return switch (options.traceLifecycle) {
@@ -123,12 +113,12 @@ class StandaloneAppStartLifecycle {
 
   String _resolveStartScreenName() => resolveRouteDisplayName(_startScreenName);
 
-  void _prepareTimeToDisplay(DateTime? startTimestamp) {
-    final options = _flutterOptions;
-    final resolvedStartTimestamp = startTimestamp ??
-        SentryFlutter.sentrySetupStartTime ??
-        options?.clock();
-    if (options == null || resolvedStartTimestamp == null) return;
+  void _prepareTimeToDisplay(
+    SentryFlutterOptions options,
+    DateTime? startTimestamp,
+  ) {
+    final resolvedStartTimestamp =
+        startTimestamp ?? SentryFlutter.sentrySetupStartTime ?? options.clock();
 
     switch (options.traceLifecycle) {
       case SentryTraceLifecycle.static:
@@ -145,7 +135,7 @@ class StandaloneAppStartLifecycle {
     }
   }
 
-  void _recordFirstFrame() {
+  void _recordFirstFrame(SentryFlutterOptions options) {
     void callback(List<FrameTiming> timings) async {
       if (_closed || timings.isEmpty) return;
 
@@ -167,18 +157,15 @@ class StandaloneAppStartLifecycle {
         _trace?.recordFirstFrame(endTimestamp);
 
         // Keep display tracking last because TTFD may wait for its timeout.
-        final options = _flutterOptions;
-        if (options != null) {
-          switch (options.traceLifecycle) {
-            case SentryTraceLifecycle.static:
-              await options.timeToDisplayTracker.recordInitialDisplay(
-                endTimestamp,
-              );
-            case SentryTraceLifecycle.stream:
-              options.timeToDisplayTrackerV2.trackAppStart(
-                ttidEndTimestamp: endTimestamp,
-              );
-          }
+        switch (options.traceLifecycle) {
+          case SentryTraceLifecycle.static:
+            await options.timeToDisplayTracker.recordInitialDisplay(
+              endTimestamp,
+            );
+          case SentryTraceLifecycle.stream:
+            options.timeToDisplayTrackerV2.trackAppStart(
+              ttidEndTimestamp: endTimestamp,
+            );
         }
       } catch (error, stackTrace) {
         internalLogger.error(
@@ -186,7 +173,7 @@ class StandaloneAppStartLifecycle {
           error: error,
           stackTrace: stackTrace,
         );
-        if (_flutterOptions?.automatedTestMode ?? false) {
+        if (options.automatedTestMode) {
           rethrow;
         }
       }

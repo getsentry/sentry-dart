@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_integration.dart';
 import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_lifecycle.dart';
@@ -58,6 +59,14 @@ void main() {
       );
     });
 
+    test('does not start lifecycle on an unsupported platform', () async {
+      fixture.options.platform = MockPlatform.macOS();
+
+      await fixture.getSut().call(fixture.hub, fixture.options);
+
+      expect(fixture.lifecycle.startCalls, 0);
+    });
+
     test(
         'does not add standalone app-start tracing feature when tracing is disabled',
         () async {
@@ -82,7 +91,7 @@ void main() {
 
 class Fixture {
   final lifecycle = FakeStandaloneAppStartLifecycle();
-  late final options = defaultTestOptions()
+  late final options = defaultTestOptions(platform: MockPlatform.iOS())
     ..tracesSampleRate = 1.0
     ..enableStandaloneAppStartTracing = true;
   late final hub = Hub(options);
@@ -97,7 +106,7 @@ final class FakeStandaloneAppStartLifecycle
   int closeCalls = 0;
 
   @override
-  Future<void> start() async {
+  Future<void> start(SentryFlutterOptions options) async {
     startCalls++;
   }
 

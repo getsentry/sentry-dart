@@ -59,7 +59,7 @@ class NativeAppStartHandler {
       return;
     }
     sentryTracer.setData(
-      "app_start_type",
+      SentrySpanData.appStartTypeKey,
       appStartData.type.name,
     );
 
@@ -185,7 +185,7 @@ class NativeAppStartHandler {
       _hub,
       startTimestamp: startTimestamp,
     );
-    span.setData("app_start_type", appStartType);
+    span.setData(SentrySpanData.appStartTypeKey, appStartType);
     await span.finish(endTimestamp: endTimestamp);
     return span;
   }

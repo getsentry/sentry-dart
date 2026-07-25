@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/app_start/ui_load_attached/generic_app_start_integration.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 // Internal import is fine in tests.
 import 'package:sentry/src/sentry_tracer.dart';
@@ -283,6 +284,10 @@ class Fixture {
     options = defaultTestOptions();
     options.transport = fakeTransport;
     hub = Hub(options);
+    options.timeToDisplayTracker = TimeToDisplayTracker(
+      hub: hub,
+      options: options,
+    );
   }
 
   final fakeTransport = _FakeTransport();

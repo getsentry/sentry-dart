@@ -140,7 +140,7 @@ final class StaticAppStartTrace implements AppStartTrace {
     _clearFinalTimeout();
     try {
       final type = _data.type.name;
-      _root.setData('app_start_type', type);
+      _root.setData(SentrySpanData.appStartTypeKey, type);
       _root.setData(SemanticAttributesConstants.appVitalsStartType, type);
       _root.setData(
         SemanticAttributesConstants.appVitalsStartScreen,

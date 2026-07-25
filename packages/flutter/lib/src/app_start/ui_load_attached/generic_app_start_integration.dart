@@ -4,7 +4,6 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../frame_callback_handler.dart';
-import '../../navigation/root_route.dart';
 
 // TODO(buenaflor): marking this internal until we can find a robust way to unify the TTID/TTFD implementation as currently it is very fragmented.
 
@@ -34,26 +33,12 @@ class GenericAppStartIntegration extends Integration<SentryFlutterOptions> {
       return;
     }
 
-    final transactionContext = initialDisplayTransactionContext();
-
-    final startTimeStamp = options.clock();
-    final transaction = hub.startTransactionWithContext(
-      transactionContext,
-      startTimestamp: startTimeStamp,
-      waitForChildren: true,
-      autoFinishAfter: Duration(seconds: 3),
-      bindToScope: true,
-      trimEnd: true,
-    );
-
-    options.timeToDisplayTracker.transactionId = transactionContext.spanId;
+    options.timeToDisplayTracker.prepareInitialDisplay(options.clock());
 
     _framesHandler.addPostFrameCallback((_) async {
       try {
-        final endTimestamp = options.clock();
-        await options.timeToDisplayTracker.track(
-          transaction,
-          ttidEndTimestamp: endTimestamp,
+        await options.timeToDisplayTracker.recordInitialDisplay(
+          options.clock(),
         );
 
         // Note: we do not set app start transaction measurements (yet) on purpose

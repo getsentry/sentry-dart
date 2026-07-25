@@ -31,7 +31,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   void call(Hub hub, SentryFlutterOptions options) async {
-    if (options.enableStandaloneAppStartTracing) return;
+    if (options.usesStandaloneAppStart) return;
 
     if (!options.isTracingEnabled()) {
       internalLogger.info(

@@ -186,6 +186,19 @@ class SentryFlutterOptions extends SentryOptions {
   @meta.experimental
   bool enableStandaloneAppStartTracing = false;
 
+  /// Whether this app start is reported by the standalone path rather than
+  /// attached to the initial `ui.load`.
+  ///
+  /// Both app-start integrations are registered before the options callback
+  /// sets [enableStandaloneAppStartTracing], so each one selects itself at call
+  /// time instead. Deriving both choices from this single predicate keeps them
+  /// mutually exclusive — a platform without standalone support must not lose
+  /// app start because the native integration stood down for a standalone
+  /// integration that never runs there.
+  @meta.internal
+  bool get usesStandaloneAppStart =>
+      enableStandaloneAppStartTracing && (platform.isIOS || platform.isAndroid);
+
   /// Automatically attaches a screenshot when capturing an error or exception.
   ///
   /// Requires adding the [SentryWidget] to the widget tree.

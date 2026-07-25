@@ -31,6 +31,14 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   Timer? _finalTimer;
   late final DateTime _finalDeadlineTimestamp;
   DateTime? _latestChildEndTimestamp;
+  bool _deadlineExceeded = false;
+
+  /// Whether this span was ended by [finalTimeout] rather than finishing
+  /// normally.
+  ///
+  /// Exposed so consumers can branch on the deadline without matching against
+  /// the status message attribute, which is a serialization detail.
+  bool get deadlineExceeded => _deadlineExceeded;
 
   IdleRecordingSentrySpanV2({
     required super.traceId,
@@ -147,6 +155,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     _removeLifecycleCallbacks();
 
     final deadlineExceeded = reason == _IdleSpanFinishReason.finalTimeout;
+    _deadlineExceeded = deadlineExceeded;
     final idleEndTimestamp = deadlineExceeded
         ? _finalDeadlineTimestamp
         : _resolveIdleEndTimestamp(requestedEndTimestamp);

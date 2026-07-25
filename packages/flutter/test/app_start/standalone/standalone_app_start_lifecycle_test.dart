@@ -379,7 +379,7 @@ class Fixture {
         nativeSpanTimes: {},
       );
 
-  Future<void> startLifecycle() => getSut().start();
+  Future<void> startLifecycle() => getSut().start(options);
 
   SpanId seedLegacyStaticDisplayTracking() {
     final transactionId = SentryTransactionContext(

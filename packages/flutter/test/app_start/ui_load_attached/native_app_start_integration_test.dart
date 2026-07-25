@@ -6,6 +6,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/app_start/ui_load_attached/native_app_start_handler.dart';
@@ -43,7 +44,9 @@ void main() {
           isNot(contains(NativeAppStartIntegration.integrationName)));
     });
 
-    test('does not install when standalone app start tracing is enabled', () {
+    test('does not install on iOS when standalone app start tracing is enabled',
+        () {
+      fixture.options.platform = MockPlatform.iOS();
       fixture.options.enableStandaloneAppStartTracing = true;
 
       fixture.callIntegration();
@@ -52,6 +55,19 @@ void main() {
       expect(
         fixture.options.sdk.integrations,
         isNot(contains(NativeAppStartIntegration.integrationName)),
+      );
+    });
+
+    test('installs on macOS when standalone app start tracing is enabled', () {
+      fixture.options.platform = MockPlatform.macOS();
+      fixture.options.enableStandaloneAppStartTracing = true;
+
+      fixture.callIntegration();
+
+      expect(fixture.frameCallbackHandler.timingsCallback, isNotNull);
+      expect(
+        fixture.options.sdk.integrations,
+        contains(NativeAppStartIntegration.integrationName),
       );
     });
 

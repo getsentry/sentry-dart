@@ -21,6 +21,7 @@ class SentrySpanOperations {
 
 @internal
 class SentrySpanData {
+  static const String appStartTypeKey = 'app_start_type';
   static const String dbSystemKey = 'db.system';
   static const String dbNameKey = 'db.name';
   static const String dbSchemaKey = 'db.schema';
