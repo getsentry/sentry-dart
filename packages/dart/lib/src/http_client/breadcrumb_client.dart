@@ -80,6 +80,12 @@ class BreadcrumbClient extends BaseClient {
 
     try {
       var response = await _client.send(request);
+      // Stopped as soon as headers arrive rather than in `finally`, so
+      // `requestDuration` measures time-to-headers consistently whether or
+      // not network details are captured. Capturing the response body below
+      // can take arbitrarily long (e.g. downloading a large body) and
+      // shouldn't inflate the measured duration.
+      stopwatch.stop();
 
       statusCode = response.statusCode;
       reason = response.reasonPhrase;
@@ -93,11 +99,10 @@ class BreadcrumbClient extends BaseClient {
 
       return response;
     } catch (_) {
+      stopwatch.stop();
       requestHadException = true;
       rethrow;
     } finally {
-      stopwatch.stop();
-
       // Captured after `_client.send` returns (or throws) rather than
       // before, so that headers set by clients further down the chain
       // (e.g. TracingClient's sentry-trace/baggage) are reflected instead

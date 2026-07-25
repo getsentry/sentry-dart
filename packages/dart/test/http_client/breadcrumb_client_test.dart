@@ -350,6 +350,25 @@ void main() {
       // we don't check for anything below a second
       expect(durationString.startsWith('0:00:01'), true);
     });
+
+    test('duration excludes response body capture time', () async {
+      final capture = FakeNetworkDetailsCapture(
+        captureResponseDelay: Duration(seconds: 1),
+      );
+
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 200, reason: 'OK'),
+        capture,
+      );
+
+      await sut.get(requestUri);
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      var durationString = breadcrumb.data!['duration']! as String;
+      // captureResponseDelay is 1 second, so a duration below that means it
+      // wasn't included in the measured request duration.
+      expect(durationString.startsWith('0:00:00'), true);
+    });
   });
 }
 
@@ -360,9 +379,13 @@ class CloseableMockClient extends Mock implements BaseClient {}
 /// we only need something that exercises how [BreadcrumbClient] wires a
 /// capture into the breadcrumb.
 class FakeNetworkDetailsCapture implements NetworkDetailsCapture {
-  FakeNetworkDetailsCapture({this.shouldCaptureResult = true});
+  FakeNetworkDetailsCapture({
+    this.shouldCaptureResult = true,
+    this.captureResponseDelay,
+  });
 
   final bool shouldCaptureResult;
+  final Duration? captureResponseDelay;
 
   @override
   bool shouldCapture(Uri url) => shouldCaptureResult;
@@ -376,6 +399,10 @@ class FakeNetworkDetailsCapture implements NetworkDetailsCapture {
   Future<(StreamedResponse, Map<String, dynamic>)> captureResponse(
     StreamedResponse response,
   ) async {
+    final delay = captureResponseDelay;
+    if (delay != null) {
+      await Future.delayed(delay);
+    }
     return (response, {'headers': Map<String, String>.from(response.headers)});
   }
 }
