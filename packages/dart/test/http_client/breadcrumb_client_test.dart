@@ -369,6 +369,28 @@ void main() {
       // wasn't included in the measured request duration.
       expect(durationString.startsWith('0:00:00'), true);
     });
+
+    test(
+        'breadcrumb reflects status code, not error level, when response '
+        'capture fails after a successful request', () async {
+      final capture = FakeNetworkDetailsCapture(
+        captureResponseError: Exception('capture failed'),
+      );
+
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 200, reason: 'OK'),
+        capture,
+      );
+
+      try {
+        await sut.get(requestUri);
+        fail('Method did not throw');
+      } on Exception catch (_) {}
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      expect(breadcrumb.data?['status_code'], 200);
+      expect(breadcrumb.level, isNot(SentryLevel.error));
+    });
   });
 }
 
@@ -382,10 +404,12 @@ class FakeNetworkDetailsCapture implements NetworkDetailsCapture {
   FakeNetworkDetailsCapture({
     this.shouldCaptureResult = true,
     this.captureResponseDelay,
+    this.captureResponseError,
   });
 
   final bool shouldCaptureResult;
   final Duration? captureResponseDelay;
+  final Object? captureResponseError;
 
   @override
   bool shouldCapture(Uri url) => shouldCaptureResult;
@@ -402,6 +426,10 @@ class FakeNetworkDetailsCapture implements NetworkDetailsCapture {
     final delay = captureResponseDelay;
     if (delay != null) {
       await Future.delayed(delay);
+    }
+    final error = captureResponseError;
+    if (error != null) {
+      throw error;
     }
     return (response, {'headers': Map<String, String>.from(response.headers)});
   }

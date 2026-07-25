@@ -79,13 +79,25 @@ class BreadcrumbClient extends BaseClient {
         capture != null && capture.shouldCapture(request.url);
 
     try {
-      var response = await _client.send(request);
-      // Stopped as soon as headers arrive rather than in `finally`, so
-      // `requestDuration` measures time-to-headers consistently whether or
-      // not network details are captured. Capturing the response body below
-      // can take arbitrarily long (e.g. downloading a large body) and
-      // shouldn't inflate the measured duration.
-      stopwatch.stop();
+      StreamedResponse response;
+      try {
+        response = await _client.send(request);
+      } catch (_) {
+        // Only a transport-level failure counts as a request exception for
+        // breadcrumb-level purposes; a capture failure below (once we
+        // already have a real response) shouldn't mark a successful
+        // request as an error.
+        requestHadException = true;
+        rethrow;
+      } finally {
+        // Stopped as soon as headers arrive (success or failure) rather
+        // than in the outer `finally`, so `requestDuration` measures
+        // time-to-headers consistently whether or not network details are
+        // captured. Capturing the response body below can take arbitrarily
+        // long (e.g. downloading a large body) and shouldn't inflate the
+        // measured duration.
+        stopwatch.stop();
+      }
 
       statusCode = response.statusCode;
       reason = response.reasonPhrase;
@@ -98,10 +110,6 @@ class BreadcrumbClient extends BaseClient {
       }
 
       return response;
-    } catch (_) {
-      stopwatch.stop();
-      requestHadException = true;
-      rethrow;
     } finally {
       // Captured after `_client.send` returns (or throws) rather than
       // before, so that headers set by clients further down the chain
