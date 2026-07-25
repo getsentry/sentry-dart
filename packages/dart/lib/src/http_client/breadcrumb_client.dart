@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
+import '../utils.dart';
 import '../utils/breadcrumb_log_level.dart';
 import '../utils/url_details.dart';
 import '../utils/http_sanitizer.dart';
@@ -70,6 +71,7 @@ class BreadcrumbClient extends BaseClient {
     int? responseBodySize;
     Map<String, dynamic>? requestDetail;
     Map<String, dynamic>? responseDetail;
+    DateTime? responseTimestamp;
 
     final stopwatch = Stopwatch();
     stopwatch.start();
@@ -97,6 +99,13 @@ class BreadcrumbClient extends BaseClient {
         // long (e.g. downloading a large body) and shouldn't inflate the
         // measured duration.
         stopwatch.stop();
+        // Breadcrumb.http anchors start_timestamp/end_timestamp on the
+        // timestamp passed below, so it needs to be taken at the same
+        // moment as the stopwatch above rather than left to default to
+        // "now" when the breadcrumb is built in the outer `finally` -
+        // otherwise both timestamps would drift by however long response
+        // capture takes, even though duration wouldn't.
+        responseTimestamp = getUtcDateTime();
       }
 
       statusCode = response.statusCode;
@@ -136,6 +145,7 @@ class BreadcrumbClient extends BaseClient {
         statusCode: statusCode,
         reason: reason,
         requestDuration: stopwatch.elapsed,
+        timestamp: responseTimestamp,
         requestBodySize: request.contentLength,
         responseBodySize: responseBodySize,
         httpQuery: urlDetails.query,

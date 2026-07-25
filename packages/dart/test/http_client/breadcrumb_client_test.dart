@@ -391,6 +391,30 @@ void main() {
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.level, isNot(SentryLevel.error));
     });
+
+    test(
+        'end_timestamp reflects header arrival, not response capture '
+        'completion', () async {
+      final capture = FakeNetworkDetailsCapture(
+        captureResponseDelay: Duration(seconds: 1),
+      );
+
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 200, reason: 'OK'),
+        capture,
+      );
+
+      final beforeRequest = DateTime.now().toUtc().millisecondsSinceEpoch;
+      await sut.get(requestUri);
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      final endTimestamp = breadcrumb.data!['end_timestamp'] as int;
+
+      // captureResponseDelay is 1 second; if end_timestamp were captured
+      // after it (the bug this guards against), this would be off by
+      // roughly that much instead of being near-immediate.
+      expect(endTimestamp - beforeRequest, lessThan(1000));
+    });
   });
 }
 
