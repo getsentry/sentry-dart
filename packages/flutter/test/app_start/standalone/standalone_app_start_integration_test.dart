@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_integration.dart';
-import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_lifecycle.dart';
+import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_handler.dart';
 
 import '../../mocks.dart';
 
@@ -16,10 +16,10 @@ void main() {
       fixture = Fixture();
     });
 
-    test('starts the standalone app-start lifecycle', () async {
+    test('starts the standalone app-start handler', () async {
       await fixture.getSut().call(fixture.hub, fixture.options);
 
-      expect(fixture.lifecycle.startCalls, 1);
+      expect(fixture.handler.startCalls, 1);
     });
 
     test('adds integration to sdk metadata', () async {
@@ -37,13 +37,13 @@ void main() {
       );
     });
 
-    test('does not start lifecycle when standalone tracing is disabled',
+    test('does not start the handler when standalone tracing is disabled',
         () async {
       fixture.options.enableStandaloneAppStartTracing = false;
 
       await fixture.getSut().call(fixture.hub, fixture.options);
 
-      expect(fixture.lifecycle.startCalls, 0);
+      expect(fixture.handler.startCalls, 0);
     });
 
     test(
@@ -59,12 +59,12 @@ void main() {
       );
     });
 
-    test('does not start lifecycle on an unsupported platform', () async {
+    test('does not start the handler on an unsupported platform', () async {
       fixture.options.platform = MockPlatform.macOS();
 
       await fixture.getSut().call(fixture.hub, fixture.options);
 
-      expect(fixture.lifecycle.startCalls, 0);
+      expect(fixture.handler.startCalls, 0);
     });
 
     test(
@@ -81,27 +81,26 @@ void main() {
       );
     });
 
-    test('closes the standalone app-start lifecycle', () async {
+    test('closes the standalone app-start handler', () async {
       await fixture.getSut().close();
 
-      expect(fixture.lifecycle.closeCalls, 1);
+      expect(fixture.handler.closeCalls, 1);
     });
   });
 }
 
 class Fixture {
-  final lifecycle = FakeStandaloneAppStartLifecycle();
+  final handler = FakeStandaloneAppStartHandler();
   late final options = defaultTestOptions(platform: MockPlatform.iOS())
     ..tracesSampleRate = 1.0
     ..enableStandaloneAppStartTracing = true;
   late final hub = Hub(options);
 
   StandaloneAppStartIntegration getSut() =>
-      StandaloneAppStartIntegration(lifecycle);
+      StandaloneAppStartIntegration(handler);
 }
 
-final class FakeStandaloneAppStartLifecycle
-    implements StandaloneAppStartLifecycle {
+final class FakeStandaloneAppStartHandler implements StandaloneAppStartHandler {
   int startCalls = 0;
   int closeCalls = 0;
 

@@ -3,7 +3,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/app_start/app_start_data.dart';
+import 'package:sentry_flutter/src/app_start/app_start_timing.dart';
 import 'package:sentry_flutter/src/app_start/standalone/static_app_start_trace.dart';
 
 import '../../mocks.dart';
@@ -115,7 +115,7 @@ void main() {
         'returns null and finishes the root when first frame render span creation fails',
         () async {
       final trace = fixture.getSut(
-        data: fixture.withFirstFrameBeforeProcessStart(),
+        timing: fixture.withFirstFrameBeforeProcessStart(),
       );
       await pumpEventQueue(times: 10);
 
@@ -233,7 +233,7 @@ void main() {
 
       StaticAppStartTrace.tryCreate(
         hub: mockFixture.hub,
-        data: mockFixture.data,
+        timing: mockFixture.timing,
         startScreenNameProvider: () => 'root /',
       );
       await tester.pump(Duration(seconds: 30));
@@ -261,7 +261,7 @@ void main() {
       final mockFixture = MockCreationFixture();
       final trace = StaticAppStartTrace.tryCreate(
         hub: mockFixture.hub,
-        data: mockFixture.data,
+        timing: mockFixture.timing,
         startScreenNameProvider: () => 'root /',
       )!;
 
@@ -286,7 +286,7 @@ void main() {
 
       final trace = StaticAppStartTrace.tryCreate(
         hub: mockFixture.hub,
-        data: mockFixture.data,
+        timing: mockFixture.timing,
         startScreenNameProvider: () => 'root /',
       );
 
@@ -299,7 +299,7 @@ void main() {
 
       final trace = StaticAppStartTrace.tryCreate(
         hub: mockFixture.hub,
-        data: mockFixture.data,
+        timing: mockFixture.timing,
         startScreenNameProvider: () => 'root /',
       );
       await tester.pump(Duration(seconds: 30));
@@ -318,7 +318,7 @@ void main() {
 
       final trace = StaticAppStartTrace.tryCreate(
         hub: mockFixture.hub,
-        data: mockFixture.data,
+        timing: mockFixture.timing,
         startScreenNameProvider: () => 'root /',
       );
       await pumpEventQueue(times: 10);
@@ -348,7 +348,7 @@ class Fixture {
   late final hub = Hub(options);
   late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
   late final sentrySetup = processStart.add(Duration(milliseconds: 200));
-  late final data = AppStartData(
+  late final timing = AppStartTiming(
     type: AppStartType.cold,
     processStartTimestamp: processStart,
     pluginRegistrationTimestamp: pluginRegistration,
@@ -369,24 +369,24 @@ class Fixture {
     ],
   );
 
-  AppStartData withFirstFrameBeforeProcessStart() {
-    return AppStartData(
-      type: data.type,
+  AppStartTiming withFirstFrameBeforeProcessStart() {
+    return AppStartTiming(
+      type: timing.type,
       processStartTimestamp: processStart,
       pluginRegistrationTimestamp: pluginRegistration,
       sentrySetupTimestamp: processStart.subtract(Duration(milliseconds: 1)),
-      phases: data.phases,
+      phases: timing.phases,
     );
   }
 
-  StaticAppStartTrace? getSut({AppStartData? data}) {
+  StaticAppStartTrace? getSut({AppStartTiming? timing}) {
     options.lifecycleRegistry.registerCallback<OnSpanStart>((event) {
       final span = event.span;
       if (span is SentrySpan && span.isRootSpan) root ??= span;
     });
     return StaticAppStartTrace.tryCreate(
       hub: hub,
-      data: data ?? this.data,
+      timing: timing ?? this.timing,
       startScreenNameProvider: () => 'root /',
     );
   }
@@ -411,7 +411,7 @@ class MockCreationFixture {
   late final pluginRegistrationChild = MockSentrySpan();
   late final sentrySetupChild = MockSentrySpan();
 
-  late final data = AppStartData(
+  late final timing = AppStartTiming(
     type: AppStartType.cold,
     processStartTimestamp: processStart,
     pluginRegistrationTimestamp: pluginRegistration,

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/app_start/app_start_data.dart';
+import 'package:sentry_flutter/src/app_start/app_start_timing.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 
 void main() {
-  group('$AppStartData parsing', () {
+  group('$AppStartTiming parsing', () {
     late Fixture fixture;
 
     setUp(() {
@@ -120,12 +120,12 @@ class Fixture {
     },
   };
 
-  AppStartData? parse({
+  AppStartTiming? parse({
     DateTime? appStartTime,
     DateTime? pluginRegistration,
     DateTime? sentrySetup,
   }) =>
-      AppStartData.tryParseAtFirstFrame(
+      AppStartTiming.tryParseAtFirstFrame(
         NativeAppStart(
           appStartTime: (appStartTime ?? processStart).millisecondsSinceEpoch,
           pluginRegistrationTime:

@@ -4,13 +4,14 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../utils/internal_logger.dart';
-import '../app_start_data.dart';
+import '../app_start_timing.dart';
 import 'app_start_trace.dart';
+import 'app_start_vitals.dart';
 
 @internal
 final class StreamingAppStartTrace implements AppStartTrace {
   final Hub _hub;
-  final AppStartData _data;
+  final AppStartTiming _timing;
   final IdleRecordingSentrySpanV2 _root;
   final RecordingSentrySpanV2 _firstFrameRenderSpan;
   final String Function() _startScreenNameProvider;
@@ -20,31 +21,38 @@ final class StreamingAppStartTrace implements AppStartTrace {
 
   StreamingAppStartTrace._({
     required Hub hub,
-    required AppStartData data,
+    required AppStartTiming timing,
     required IdleRecordingSentrySpanV2 root,
     required RecordingSentrySpanV2 firstFrameRenderSpan,
     required String Function() startScreenNameProvider,
   })  : _hub = hub,
-        _data = data,
+        _timing = timing,
         _root = root,
         _firstFrameRenderSpan = firstFrameRenderSpan,
         _startScreenNameProvider = startScreenNameProvider;
 
+  /// Opens the standalone root and its breakdown children.
+  ///
+  /// Returns `null` when the app start must not be reported: a root or
+  /// first-frame span the SDK did not record, or a failure while building the
+  /// children. Anything already created is flushed, so no span outlives a
+  /// failed creation.
   static StreamingAppStartTrace? tryCreate({
     required Hub hub,
-    required AppStartData data,
+    required AppStartTiming timing,
     required String Function() startScreenNameProvider,
   }) {
-    IdleRecordingSentrySpanV2? createdRoot;
+    // Held outside the try so a partially built trace can still be flushed.
+    IdleRecordingSentrySpanV2? root;
     final createdChildren = <RecordingSentrySpanV2>[];
     try {
-      final root = hub.startIdleSpan(
+      final createdRoot = hub.startIdleSpan(
         standaloneAppStartRootName,
         bindToHub: false,
         idleTimeout: standaloneAppStartIdleTimeout,
         finalTimeout: standaloneAppStartFinalTimeout,
         trimIdleSpanEndTimestamp: true,
-        startTimestamp: data.processStartTimestamp,
+        startTimestamp: timing.processStartTimestamp,
         attributes: {
           SemanticAttributesConstants.sentryOp: SentryAttribute.string(
             SentrySpanOperations.appStart,
@@ -53,40 +61,39 @@ final class StreamingAppStartTrace implements AppStartTrace {
             SentryTraceOrigins.autoAppStart,
           ),
           SemanticAttributesConstants.appVitalsStartType:
-              SentryAttribute.string(data.type.name),
+              SentryAttribute.string(timing.type.name),
         },
       );
-      if (root is! IdleRecordingSentrySpanV2) return null;
-      createdRoot = root;
+      if (createdRoot is! IdleRecordingSentrySpanV2) return null;
+      root = createdRoot;
 
       final firstFrameRenderSpan = hub.startInactiveSpan(
         appStartFirstFrameRenderDescription,
         parentSpan: root,
-        startTimestamp: data.sentrySetupTimestamp,
+        startTimestamp: timing.sentrySetupTimestamp,
         attributes: _childAttributes(
-          data,
+          timing,
           SentrySpanOperations.appStartFirstFrameRender,
         ),
       );
       if (firstFrameRenderSpan is! RecordingSentrySpanV2) {
-        _finishProvisionalSpans(root: createdRoot);
-        return null;
+        return _abort(root, reason: 'first-frame span is not recording');
       }
       createdChildren.add(firstFrameRenderSpan);
 
       final trace = StreamingAppStartTrace._(
         hub: hub,
-        data: data,
+        timing: timing,
         root: root,
         firstFrameRenderSpan: firstFrameRenderSpan,
         startScreenNameProvider: startScreenNameProvider,
       );
-      for (final phase in data.phases) {
+      for (final phase in timing.phases) {
         final child = hub.startInactiveSpan(
           phase.description,
           parentSpan: root,
           startTimestamp: phase.startTimestamp,
-          attributes: _childAttributes(data, phase.kind.operation),
+          attributes: _childAttributes(timing, phase.kind.operation),
         );
         if (child is RecordingSentrySpanV2) {
           createdChildren.add(child);
@@ -98,21 +105,17 @@ final class StreamingAppStartTrace implements AppStartTrace {
       );
       return trace;
     } catch (error, stackTrace) {
-      _finishProvisionalSpans(
-        root: createdRoot,
-        children: createdChildren,
-      );
       internalLogger.error(
         'Failed to create streaming standalone app start',
         error: error,
         stackTrace: stackTrace,
       );
-      return null;
+      return root == null ? null : _abort(root, children: createdChildren);
     }
   }
 
   static Map<String, SentryAttribute> _childAttributes(
-    AppStartData data,
+    AppStartTiming timing,
     String operation,
   ) =>
       {
@@ -121,20 +124,30 @@ final class StreamingAppStartTrace implements AppStartTrace {
           SentryTraceOrigins.autoAppStart,
         ),
         SemanticAttributesConstants.appVitalsStartType: SentryAttribute.string(
-          data.type.name,
+          timing.type.name,
         ),
       };
 
-  static void _finishProvisionalSpans({
-    IdleRecordingSentrySpanV2? root,
+  /// Flushes everything created so far and reports no trace.
+  ///
+  /// Children are ended here rather than left to the root's own teardown,
+  /// which force-ends descendants with timestamps derived for a trace that is
+  /// being reported — not one being abandoned.
+  static StreamingAppStartTrace? _abort(
+    IdleRecordingSentrySpanV2 root, {
     Iterable<RecordingSentrySpanV2> children = const [],
+    String? reason,
   }) {
+    if (reason != null) {
+      internalLogger.info('Skipping streaming standalone app start: $reason');
+    }
     for (final child in children) {
       if (!child.isEnded) {
         child.end();
       }
     }
-    root?.end();
+    root.end();
+    return null;
   }
 
   @override
@@ -150,30 +163,31 @@ final class StreamingAppStartTrace implements AppStartTrace {
       return;
     }
     try {
+      final vitals = AppStartVitals.resolve(
+        timing: _timing,
+        screen: _startScreenNameProvider(),
+        endTimestamp: _endTimestamp,
+        deadlineExceeded: _root.deadlineExceeded,
+      );
+
       _root.setAttribute(
         SemanticAttributesConstants.appVitalsStartScreen,
-        SentryAttribute.string(_startScreenNameProvider()),
+        SentryAttribute.string(vitals.screen),
       );
       _root.setAttribute(
         SemanticAttributesConstants.sentrySegmentName,
         SentryAttribute.string(standaloneAppStartRootName),
       );
 
-      final endTimestamp = _endTimestamp;
-      if (endTimestamp != null && !_root.deadlineExceeded) {
-        final duration =
-            _data.durationUntil(endTimestamp).inMilliseconds.toDouble();
-        final value = SentryAttribute.double(duration);
+      final duration = vitals.duration;
+      if (duration != null) {
+        final value =
+            SentryAttribute.double(duration.inMilliseconds.toDouble());
         _root.setAttribute(
           SemanticAttributesConstants.appVitalsStartValue,
           value,
         );
-        _root.setAttribute(
-          _data.type == AppStartType.cold
-              ? SemanticAttributesConstants.appVitalsStartColdValue
-              : SemanticAttributesConstants.appVitalsStartWarmValue,
-          value,
-        );
+        _root.setAttribute(vitals.durationAttributeKey, value);
       }
     } catch (error, stackTrace) {
       internalLogger.error(
@@ -190,7 +204,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }
 
   @override
-  void close() {
+  Future<void> close() async {
     if (_state.isTerminal) return;
     _state = AppStartTraceState.closed;
     _root.end();

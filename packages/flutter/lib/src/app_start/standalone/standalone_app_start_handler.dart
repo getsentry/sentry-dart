@@ -9,14 +9,15 @@ import '../../frame_callback_handler.dart';
 import '../../native/sentry_native_binding.dart';
 import '../../navigation/root_route.dart';
 import '../../utils/internal_logger.dart';
-import '../app_start_data.dart';
+import '../app_start_timing.dart';
+import 'app_start_display_tracking.dart';
 import 'app_start_trace.dart';
 import 'static_app_start_trace.dart';
 import 'streaming_app_start_trace.dart';
 
 /// Owns standalone app-start tracing from native timing through first display.
 @internal
-class StandaloneAppStartLifecycle {
+class StandaloneAppStartHandler {
   final Hub _hub;
   final FrameCallbackHandler _frameCallbackHandler;
   final SentryNativeBinding _native;
@@ -25,12 +26,12 @@ class StandaloneAppStartLifecycle {
   String? _startScreenName;
   TimingsCallback? _timingsCallback;
 
-  /// Tears down whatever [_prepareTimeToDisplay] set up, if anything.
-  void Function()? _cancelPreparedDisplay;
+  /// Set by [_prepareTimeToDisplay]; `null` until then.
+  AppStartDisplayTracking? _displayTracking;
   bool _started = false;
   bool _closed = false;
 
-  StandaloneAppStartLifecycle({
+  StandaloneAppStartHandler({
     Hub? hub,
     FrameCallbackHandler? frameCallbackHandler,
     required SentryNativeBinding native,
@@ -45,7 +46,7 @@ class StandaloneAppStartLifecycle {
     }
     _started = true;
 
-    AppStartData? data;
+    AppStartTiming? timing;
     try {
       final nativeAppStart = await _native.fetchNativeAppStart();
       if (_closed) {
@@ -54,7 +55,7 @@ class StandaloneAppStartLifecycle {
 
       final setupTimestamp = SentryFlutter.sentrySetupStartTime;
       if (nativeAppStart != null && setupTimestamp != null) {
-        data = AppStartData.tryParseAtSnapshot(
+        timing = AppStartTiming.tryParseAtSnapshot(
           nativeAppStart,
           sentrySetupTimestamp: setupTimestamp,
           snapshotTimestamp: options.clock(),
@@ -68,44 +69,45 @@ class StandaloneAppStartLifecycle {
       );
     }
 
+    // Re-checked because a throw above skips the in-try check.
     if (_closed) {
       return;
     }
 
-    if (data == null) {
+    if (timing == null) {
       internalLogger.info(
         'Skipping standalone app start: native timing unavailable or invalid',
       );
     } else {
-      final trace = _createAppStartTrace(options, data);
-      if (trace == null) {
+      _trace = _createAppStartTrace(options, timing);
+      if (_trace == null) {
         internalLogger.info(
           'Skipping standalone app start: trace was not created',
         );
-      } else {
-        _trace = trace;
       }
     }
 
-    _prepareTimeToDisplay(options, data?.processStartTimestamp);
-    _recordFirstFrame(options);
+    // Runs even without a trace, so the initial route still reports its
+    // display timings.
+    _prepareTimeToDisplay(options, timing?.processStartTimestamp);
+    _registerFirstFrameCallback(options);
   }
 
   AppStartTrace? _createAppStartTrace(
     SentryFlutterOptions options,
-    AppStartData data,
+    AppStartTiming timing,
   ) {
     // Resolve the app-start screen name during trace enrichment, not trace
     // creation. Its route is captured only at the first valid frame.
     return switch (options.traceLifecycle) {
       SentryTraceLifecycle.static => StaticAppStartTrace.tryCreate(
           hub: _hub,
-          data: data,
+          timing: timing,
           startScreenNameProvider: _resolveStartScreenName,
         ),
       SentryTraceLifecycle.stream => StreamingAppStartTrace.tryCreate(
           hub: _hub,
-          data: data,
+          timing: timing,
           startScreenNameProvider: _resolveStartScreenName,
         ),
     };
@@ -120,22 +122,12 @@ class StandaloneAppStartLifecycle {
     final resolvedStartTimestamp =
         startTimestamp ?? SentryFlutter.sentrySetupStartTime ?? options.clock();
 
-    switch (options.traceLifecycle) {
-      case SentryTraceLifecycle.static:
-        options.timeToDisplayTracker.prepareInitialDisplay(
-          resolvedStartTimestamp,
-        );
-        _cancelPreparedDisplay = options.timeToDisplayTracker.clear;
-      case SentryTraceLifecycle.stream:
-        options.timeToDisplayTrackerV2.prepareAppStart(
-          startTimestamp: resolvedStartTimestamp,
-        );
-        _cancelPreparedDisplay =
-            options.timeToDisplayTrackerV2.cancelCurrentRoute;
-    }
+    final displayTracking = AppStartDisplayTracking.forOptions(options);
+    _displayTracking = displayTracking;
+    displayTracking.prepare(resolvedStartTimestamp);
   }
 
-  void _recordFirstFrame(SentryFlutterOptions options) {
+  void _registerFirstFrameCallback(SentryFlutterOptions options) {
     void callback(List<FrameTiming> timings) async {
       if (_closed || timings.isEmpty) return;
 
@@ -146,10 +138,6 @@ class StandaloneAppStartLifecycle {
       _removeTimingsCallback();
 
       try {
-        if (_closed) {
-          return;
-        }
-
         // Freeze the launch screen during first frame before enrichment;
         // the user may navigate away before the app-start span finishes.
         _startScreenName ??= SentryNavigatorObserver.currentRouteName;
@@ -157,16 +145,7 @@ class StandaloneAppStartLifecycle {
         _trace?.recordFirstFrame(endTimestamp);
 
         // Keep display tracking last because TTFD may wait for its timeout.
-        switch (options.traceLifecycle) {
-          case SentryTraceLifecycle.static:
-            await options.timeToDisplayTracker.recordInitialDisplay(
-              endTimestamp,
-            );
-          case SentryTraceLifecycle.stream:
-            options.timeToDisplayTrackerV2.trackAppStart(
-              ttidEndTimestamp: endTimestamp,
-            );
-        }
+        await _displayTracking?.record(endTimestamp);
       } catch (error, stackTrace) {
         internalLogger.error(
           'Failed to record standalone app-start first frame',
@@ -187,8 +166,8 @@ class StandaloneAppStartLifecycle {
     _closed = true;
     _removeTimingsCallback();
     await _trace?.close();
-    _cancelPreparedDisplay?.call();
-    _cancelPreparedDisplay = null;
+    _displayTracking?.cancel();
+    _displayTracking = null;
     _trace = null;
     _startScreenName = null;
   }

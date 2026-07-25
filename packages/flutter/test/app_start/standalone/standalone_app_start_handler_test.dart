@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_lifecycle.dart';
+import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_handler.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
@@ -18,7 +18,7 @@ import '../../mocks.dart';
 import '../../mocks.mocks.dart';
 
 void main() {
-  group('$StandaloneAppStartLifecycle', () {
+  group('$StandaloneAppStartHandler', () {
     late Fixture fixture;
 
     setUp(() {
@@ -343,7 +343,7 @@ class Fixture {
     hub: hub,
     enableAutoTransactions: false,
   );
-  late final _sut = StandaloneAppStartLifecycle(
+  late final _sut = StandaloneAppStartHandler(
     hub: hub,
     frameCallbackHandler: frameHandler,
     native: native,
@@ -369,7 +369,7 @@ class Fixture {
     ).thenAnswer((_) async => nativeAppStart());
   }
 
-  StandaloneAppStartLifecycle getSut() => _sut;
+  StandaloneAppStartHandler getSut() => _sut;
 
   NativeAppStart nativeAppStart({int appStartMilliseconds = 0}) =>
       NativeAppStart(

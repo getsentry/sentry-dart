@@ -2,7 +2,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/app_start/app_start_data.dart';
+import 'package:sentry_flutter/src/app_start/app_start_timing.dart';
 import 'package:sentry_flutter/src/app_start/standalone/streaming_app_start_trace.dart';
 
 import '../../mocks.dart';
@@ -138,7 +138,7 @@ void main() {
       final sut = fixture.getSut()!;
       final root = fixture.root!;
 
-      sut.close();
+      await sut.close();
       await pumpEventQueue(times: 10);
 
       expect(root.isEnded, isTrue);
@@ -164,7 +164,7 @@ class Fixture {
   late final hub = Hub(options);
   late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
   late final sentrySetup = processStart.add(Duration(milliseconds: 200));
-  late final data = AppStartData(
+  late final timing = AppStartTiming(
     type: AppStartType.cold,
     processStartTimestamp: processStart,
     pluginRegistrationTimestamp: pluginRegistration,
@@ -199,7 +199,7 @@ class Fixture {
   StreamingAppStartTrace? getSut() {
     return StreamingAppStartTrace.tryCreate(
       hub: hub,
-      data: data,
+      timing: timing,
       startScreenNameProvider: () => 'root /',
     );
   }
@@ -218,7 +218,7 @@ class ThrowingPhaseCreationFixture {
   late final hub = _ThrowingOnPhaseStartHub(baseHub);
   late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
   late final sentrySetup = processStart.add(Duration(milliseconds: 200));
-  late final data = AppStartData(
+  late final timing = AppStartTiming(
     type: AppStartType.cold,
     processStartTimestamp: processStart,
     pluginRegistrationTimestamp: pluginRegistration,
@@ -242,7 +242,7 @@ class ThrowingPhaseCreationFixture {
   StreamingAppStartTrace? getSut() {
     return StreamingAppStartTrace.tryCreate(
       hub: hub,
-      data: data,
+      timing: timing,
       startScreenNameProvider: () => 'root /',
     );
   }

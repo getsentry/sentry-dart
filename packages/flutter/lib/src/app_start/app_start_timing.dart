@@ -45,9 +45,29 @@ final class AppStartPhase {
 }
 
 /// Validated app-start timing snapshot before the first Flutter frame.
+///
+/// The middle stage of how app-start data flows through the SDK:
+///
+/// 1. [NativeAppStart] — the raw platform-channel payload: epoch
+///    milliseconds, untyped span times, shape checks only.
+/// 2. [AppStartTiming] — this type. Validated [DateTime]s and typed
+///    [AppStartPhase]s, with launches that cannot be reported rejected
+///    outright by the parse entry points below.
+/// 3. `AppStartVitals` — what a standalone root actually reports: type,
+///    screen, and a duration that may be absent.
+/// 4. The span payload — measurements on the static path, attributes on the
+///    streaming one.
+///
+/// [AppStartType], [AppStartPhaseKind] and [AppStartPhase] are parts of this
+/// stage rather than stages of their own.
+///
+/// Stages 1 and 2 stay separate because validity is not a property of the
+/// payload. The parse entry points below take a caller-supplied ceiling and
+/// a Dart-side setup timestamp, so the same [NativeAppStart] can be accepted
+/// for one caller and rejected for another.
 @internal
-final class AppStartData {
-  AppStartData({
+final class AppStartTiming {
+  AppStartTiming({
     required this.type,
     required this.processStartTimestamp,
     required this.pluginRegistrationTimestamp,
@@ -82,7 +102,7 @@ final class AppStartData {
   /// breakdown phase that snapshot reports can be retained. The first frame is
   /// recorded later through the open first-frame span, so this is **not** the
   /// app-start measurement end.
-  static AppStartData? tryParseAtSnapshot(
+  static AppStartTiming? tryParseAtSnapshot(
     NativeAppStart nativeAppStart, {
     required DateTime sentrySetupTimestamp,
     required DateTime snapshotTimestamp,
@@ -99,7 +119,7 @@ final class AppStartData {
   /// [firstFrameTimestamp] is both the validation ceiling and the natural
   /// app-start measurement end (extend, if any, can still push the vital
   /// later).
-  static AppStartData? tryParseAtFirstFrame(
+  static AppStartTiming? tryParseAtFirstFrame(
     NativeAppStart nativeAppStart, {
     required DateTime sentrySetupTimestamp,
     required DateTime firstFrameTimestamp,
@@ -124,7 +144,7 @@ final class AppStartData {
   /// here — native process/plugin/phase times and [sentrySetupTimestamp].
   /// Native phases that end after it are dropped; other failures reject the
   /// entire parse.
-  static AppStartData? _tryParse(
+  static AppStartTiming? _tryParse(
     NativeAppStart nativeAppStart, {
     required DateTime sentrySetupTimestamp,
     required DateTime validUntil,
@@ -147,7 +167,7 @@ final class AppStartData {
       return null;
     }
 
-    return AppStartData(
+    return AppStartTiming(
       type: nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
       processStartTimestamp: processStart,
       pluginRegistrationTimestamp: pluginRegistration,

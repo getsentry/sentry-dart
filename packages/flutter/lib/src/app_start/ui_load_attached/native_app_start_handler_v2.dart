@@ -3,7 +3,7 @@
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
-import '../app_start_data.dart';
+import '../app_start_timing.dart';
 import '../../native/sentry_native_binding.dart';
 import '../../utils/internal_logger.dart';
 
@@ -28,34 +28,34 @@ class NativeAppStartHandlerV2 {
       return;
     }
 
-    final appStartData = AppStartData.tryParseAtFirstFrame(
+    final appStartTiming = AppStartTiming.tryParseAtFirstFrame(
       nativeAppStart,
       sentrySetupTimestamp: setupTimestamp,
       firstFrameTimestamp: appStartEnd,
     );
-    if (appStartData == null) {
+    if (appStartTiming == null) {
       tracker.cancelCurrentRoute();
       return;
     }
 
-    final appStartType = SentryAttribute.string(appStartData.type.name);
+    final appStartType = SentryAttribute.string(appStartTiming.type.name);
     final attributes = {
       SemanticAttributesConstants.sentryOp:
-          SentryAttribute.string(appStartData.type.operation),
+          SentryAttribute.string(appStartTiming.type.operation),
       SemanticAttributesConstants.sentryOrigin:
           SentryAttribute.string(SentryTraceOrigins.autoUiTimeToDisplay),
       SemanticAttributesConstants.appVitalsStartType: appStartType,
     };
 
     final rootSpan = tracker.trackAppStart(
-      startTimestamp: appStartData.processStartTimestamp,
+      startTimestamp: appStartTiming.processStartTimestamp,
       ttidEndTimestamp: appStartEnd,
     );
 
     final appStartSpan = hub.startInactiveSpan(
-      appStartData.type.description,
+      appStartTiming.type.description,
       parentSpan: rootSpan,
-      startTimestamp: appStartData.processStartTimestamp,
+      startTimestamp: appStartTiming.processStartTimestamp,
       attributes: {
         ...attributes,
         SemanticAttributesConstants.appVitalsStartScreen:
@@ -66,25 +66,25 @@ class NativeAppStartHandlerV2 {
     final pluginRegistrationSpan = hub.startInactiveSpan(
       appStartPluginRegistrationDescription,
       parentSpan: appStartSpan,
-      startTimestamp: appStartData.processStartTimestamp,
+      startTimestamp: appStartTiming.processStartTimestamp,
       attributes: attributes,
     );
 
     final sentrySetupSpan = hub.startInactiveSpan(
       appStartSentrySetupDescription,
       parentSpan: appStartSpan,
-      startTimestamp: appStartData.pluginRegistrationTimestamp,
+      startTimestamp: appStartTiming.pluginRegistrationTimestamp,
       attributes: attributes,
     );
 
     final firstFrameRenderSpan = hub.startInactiveSpan(
       appStartFirstFrameRenderDescription,
       parentSpan: appStartSpan,
-      startTimestamp: appStartData.sentrySetupTimestamp,
+      startTimestamp: appStartTiming.sentrySetupTimestamp,
       attributes: attributes,
     );
 
-    for (final timeSpan in appStartData.nativePhases) {
+    for (final timeSpan in appStartTiming.nativePhases) {
       try {
         final nativeSpan = hub.startInactiveSpan(
           timeSpan.description,
@@ -100,17 +100,17 @@ class NativeAppStartHandlerV2 {
     }
 
     pluginRegistrationSpan.end(
-      endTimestamp: appStartData.pluginRegistrationTimestamp,
+      endTimestamp: appStartTiming.pluginRegistrationTimestamp,
     );
-    sentrySetupSpan.end(endTimestamp: appStartData.sentrySetupTimestamp);
+    sentrySetupSpan.end(endTimestamp: appStartTiming.sentrySetupTimestamp);
     firstFrameRenderSpan.end(endTimestamp: appStartEnd);
 
     final durationMs = SentryAttribute.double(
-      appStartData.durationUntil(appStartEnd).inMilliseconds.toDouble(),
+      appStartTiming.durationUntil(appStartEnd).inMilliseconds.toDouble(),
     );
     // Emit both the legacy cold/warm split and the unified value+type pair
     // during the deprecation window for the former.
-    final legacyValueKey = switch (appStartData.type) {
+    final legacyValueKey = switch (appStartTiming.type) {
       AppStartType.cold => SemanticAttributesConstants.appVitalsStartColdValue,
       AppStartType.warm => SemanticAttributesConstants.appVitalsStartWarmValue,
     };

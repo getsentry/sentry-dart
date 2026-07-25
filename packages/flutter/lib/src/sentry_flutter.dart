@@ -18,7 +18,7 @@ import 'file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
 import 'app_start/standalone/standalone_app_start_integration.dart';
-import 'app_start/standalone/standalone_app_start_lifecycle.dart';
+import 'app_start/standalone/standalone_app_start_handler.dart';
 import 'app_start/ui_load_attached/generic_app_start_integration.dart';
 import 'app_start/ui_load_attached/native_app_start_handler.dart';
 import 'app_start/ui_load_attached/native_app_start_handler_v2.dart';
@@ -215,7 +215,7 @@ mixin SentryFlutter {
           if (platform.isIOS || platform.isAndroid) {
             integrations.add(
               StandaloneAppStartIntegration(
-                StandaloneAppStartLifecycle(
+                StandaloneAppStartHandler(
                   frameCallbackHandler: frameCallbackHandler,
                   native: native,
                 ),
