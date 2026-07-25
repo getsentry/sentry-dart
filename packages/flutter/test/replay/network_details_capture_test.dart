@@ -186,8 +186,9 @@ void main() {
 
         final data = sut.captureRequest(request);
 
-        expect((data['body'] as String).length,
-            FlutterNetworkDetailsCapture.maxBodySize);
+        // 150KB, pinned as a literal rather than maxBodySize so this can't
+        // pass by construction if the constant itself were wrong.
+        expect((data['body'] as String).length, 150 * 1024);
       });
 
       test('does not capture request body exceeding max size', () {
@@ -313,8 +314,9 @@ void main() {
 
         final (forwardedResponse, data) = await sut.captureResponse(response);
 
-        expect((data['body'] as String).length,
-            FlutterNetworkDetailsCapture.maxBodySize);
+        // 150KB, pinned as a literal rather than maxBodySize so this can't
+        // pass by construction if the constant itself were wrong.
+        expect((data['body'] as String).length, 150 * 1024);
         expect(await forwardedResponse.stream.bytesToString(), oversizedBody);
       });
 
