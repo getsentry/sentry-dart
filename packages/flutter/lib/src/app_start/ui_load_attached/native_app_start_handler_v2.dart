@@ -32,6 +32,7 @@ class NativeAppStartHandlerV2 {
       nativeAppStart,
       sentrySetupTimestamp: setupTimestamp,
       firstFrameTimestamp: appStartEnd,
+      maxNativePhases: options.maxSpans,
     );
     if (appStartTiming == null) {
       tracker.cancelCurrentRoute();

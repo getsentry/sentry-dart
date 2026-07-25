@@ -44,7 +44,7 @@ final class AppStartVitals {
         screen: screen,
         duration: endTimestamp == null || deadlineExceeded
             ? null
-            : timing.durationUntil(endTimestamp),
+            : timing.reportableDurationUntil(endTimestamp),
       );
 
   /// Cold or warm.

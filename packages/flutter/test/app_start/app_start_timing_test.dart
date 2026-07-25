@@ -97,6 +97,17 @@ void main() {
         ['early', 'late'],
       );
     });
+
+    test('caps native phases at the span limit, keeping the earliest', () {
+      fixture.nativeSpanTimes = fixture.buildNativeSpanTimes(5);
+
+      final data = fixture.parse(maxNativePhases: 2);
+
+      expect(
+        data!.nativePhases.map((phase) => phase.description),
+        ['phase 0', 'phase 1'],
+      );
+    });
   });
 }
 
@@ -105,7 +116,22 @@ class Fixture {
   late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
   late final sentrySetup = processStart.add(Duration(milliseconds: 200));
   late final validUntil = processStart.add(Duration(milliseconds: 300));
-  late final nativeSpanTimes = <dynamic, dynamic>{
+
+  /// Native phases keyed newest-first, so a correct parse has to sort rather
+  /// than lean on insertion order.
+  Map<dynamic, dynamic> buildNativeSpanTimes(int count) => {
+        for (var i = count - 1; i >= 0; i--)
+          'phase $i': {
+            'startTimestampMsSinceEpoch': processStart
+                .add(Duration(milliseconds: 10 + i))
+                .millisecondsSinceEpoch,
+            'stopTimestampMsSinceEpoch': processStart
+                .add(Duration(milliseconds: 11 + i))
+                .millisecondsSinceEpoch,
+          },
+      };
+
+  late Map<dynamic, dynamic> nativeSpanTimes = <dynamic, dynamic>{
     'late': {
       'startTimestampMsSinceEpoch':
           processStart.add(Duration(milliseconds: 50)).millisecondsSinceEpoch,
@@ -124,6 +150,7 @@ class Fixture {
     DateTime? appStartTime,
     DateTime? pluginRegistration,
     DateTime? sentrySetup,
+    int maxNativePhases = 1000,
   }) =>
       AppStartTiming.tryParseAtFirstFrame(
         NativeAppStart(
@@ -136,5 +163,6 @@ class Fixture {
         ),
         sentrySetupTimestamp: sentrySetup ?? this.sentrySetup,
         firstFrameTimestamp: validUntil,
+        maxNativePhases: maxNativePhases,
       );
 }

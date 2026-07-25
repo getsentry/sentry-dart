@@ -89,6 +89,23 @@ final class AppStartTiming {
   Duration durationUntil(DateTime endTimestamp) =>
       endTimestamp.difference(processStartTimestamp);
 
+  /// The duration safe to report, or `null` when the window is not a
+  /// plausible launch — longer than the 60s ceiling, or running backwards
+  /// because the wall clock was adjusted mid-startup.
+  ///
+  /// The parse entry points already apply this ceiling, but only against their
+  /// own `validUntil`. [tryParseAtSnapshot] validates against SDK init, so a
+  /// launch it accepts can still render its first frame arbitrarily later — a
+  /// process launched into the background and foregrounded a minute on would
+  /// otherwise report as a very slow cold start.
+  ///
+  /// Dropped rather than clamped, because a clamped 60s is indistinguishable
+  /// from a genuine one, and the parse rejects for the same reason.
+  Duration? reportableDurationUntil(DateTime endTimestamp) {
+    final duration = durationUntil(endTimestamp);
+    return duration.isNegative || duration > _maxAppStartAge ? null : duration;
+  }
+
   SentryMeasurement measurementUntil(DateTime endTimestamp) {
     final duration = durationUntil(endTimestamp);
     return type == AppStartType.cold
@@ -106,11 +123,13 @@ final class AppStartTiming {
     NativeAppStart nativeAppStart, {
     required DateTime sentrySetupTimestamp,
     required DateTime snapshotTimestamp,
+    required int maxNativePhases,
   }) =>
       _tryParse(
         nativeAppStart,
         sentrySetupTimestamp: sentrySetupTimestamp,
         validUntil: snapshotTimestamp,
+        maxNativePhases: maxNativePhases,
       );
 
   /// Parses native timing retrospectively for the ui.load path, after the
@@ -123,11 +142,13 @@ final class AppStartTiming {
     NativeAppStart nativeAppStart, {
     required DateTime sentrySetupTimestamp,
     required DateTime firstFrameTimestamp,
+    required int maxNativePhases,
   }) =>
       _tryParse(
         nativeAppStart,
         sentrySetupTimestamp: sentrySetupTimestamp,
         validUntil: firstFrameTimestamp,
+        maxNativePhases: maxNativePhases,
       );
 
   /// Parses and validates native app-start timing into span-ready data.
@@ -144,10 +165,15 @@ final class AppStartTiming {
   /// here — native process/plugin/phase times and [sentrySetupTimestamp].
   /// Native phases that end after it are dropped; other failures reject the
   /// entire parse.
+  ///
+  /// [maxNativePhases] bounds how many native phases become spans. The count
+  /// comes from the platform, so without a ceiling a misbehaving native SDK
+  /// could push arbitrarily many children onto the root.
   static AppStartTiming? _tryParse(
     NativeAppStart nativeAppStart, {
     required DateTime sentrySetupTimestamp,
     required DateTime validUntil,
+    required int maxNativePhases,
   }) {
     final processStart = DateTime.fromMillisecondsSinceEpoch(
       nativeAppStart.appStartTime,
@@ -178,6 +204,7 @@ final class AppStartTiming {
         pluginRegistration: pluginRegistration,
         setup: setup,
         latestTimestamp: until,
+        maxNativePhases: maxNativePhases,
       ),
     );
   }
@@ -188,12 +215,14 @@ final class AppStartTiming {
     required DateTime pluginRegistration,
     required DateTime setup,
     required DateTime latestTimestamp,
+    required int maxNativePhases,
   }) =>
       [
         ..._parseNativePhases(
           nativeAppStart,
           earliestTimestamp: processStart,
           latestTimestamp: latestTimestamp,
+          maxNativePhases: maxNativePhases,
         ),
         AppStartPhase(
           kind: AppStartPhaseKind.pluginRegistration,
@@ -213,6 +242,7 @@ final class AppStartTiming {
     NativeAppStart nativeAppStart, {
     required DateTime earliestTimestamp,
     required DateTime latestTimestamp,
+    required int maxNativePhases,
   }) {
     final phases = <AppStartPhase>[];
     for (final entry in nativeAppStart.nativeSpanTimes.entries) {
@@ -246,7 +276,14 @@ final class AppStartTiming {
       }
     }
     phases.sort((a, b) => a.startTimestamp.compareTo(b.startTimestamp));
-    return phases;
+    if (phases.length <= maxNativePhases) {
+      return phases;
+    }
+    internalLogger.warning(
+      'Dropping ${phases.length - maxNativePhases} native app-start phases '
+      'over the limit of $maxNativePhases',
+    );
+    return phases.sublist(0, maxNativePhases);
   }
 }
 

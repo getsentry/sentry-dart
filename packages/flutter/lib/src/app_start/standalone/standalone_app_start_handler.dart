@@ -59,6 +59,7 @@ class StandaloneAppStartHandler {
           nativeAppStart,
           sentrySetupTimestamp: setupTimestamp,
           snapshotTimestamp: options.clock(),
+          maxNativePhases: options.maxSpans,
         );
       }
     } catch (error, stackTrace) {

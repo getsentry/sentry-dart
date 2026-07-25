@@ -36,6 +36,7 @@ class NativeAppStartHandler {
       nativeAppStart,
       sentrySetupTimestamp: setupTimestamp,
       firstFrameTimestamp: appStartEnd,
+      maxNativePhases: options.maxSpans,
     );
     if (appStartTiming == null) {
       return;
