@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:isolate';
-import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
@@ -86,7 +85,10 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
       await _worker!.request(
         _WorkItem(
           timestamp: timestamp,
-          data: data.buffer.asUint8List(),
+          // Screenshots are megabytes at 1 fps. Sending the bytes as a
+          // TransferableTypedData hands ownership to the worker instead of
+          // paying a full copy through the port on every frame.
+          data: TransferableTypedData.fromList([data]),
           width: screenshot.width,
           height: screenshot.height,
         ),
@@ -169,7 +171,7 @@ class _AndroidReplayHandler extends WorkerHandler {
         bitmap = newBitmap;
       }
 
-      jBuffer = JByteBuffer.fromList(item.data);
+      jBuffer = JByteBuffer.fromList(item.data.materialize().asUint8List());
       bitmap.copyPixelsFromBuffer(jBuffer);
 
       // TODO timestamp is currently missing in onScreenshotRecorded()
@@ -212,7 +214,7 @@ class _CloseRequest {
 
 class _WorkItem {
   final int timestamp;
-  final Uint8List data;
+  final TransferableTypedData data;
   final int width;
   final int height;
 
