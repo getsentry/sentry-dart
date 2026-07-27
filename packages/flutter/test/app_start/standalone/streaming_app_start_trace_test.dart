@@ -120,6 +120,25 @@ void main() {
       expect(throwingFixture.hub.firstPhaseChild?.isEnded, isTrue);
     });
 
+    // Aborting only ends the root, which relies on the root having been told
+    // about its children. That notification is dispatched through the lifecycle
+    // registry, so an already-registered listener sits ahead of the root in the
+    // dispatch order — as FramesTrackingIntegration does in a real SDK.
+    test('ends created spans when phase creation throws behind a listener',
+        () async {
+      final throwingFixture = ThrowingPhaseCreationFixture(
+        leadingListener: (_) {},
+      );
+
+      final trace = throwingFixture.getSut();
+      await pumpEventQueue(times: 10);
+
+      expect(trace, isNull);
+      expect(throwingFixture.hub.root?.isEnded, isTrue);
+      expect(throwingFixture.hub.firstFrameBarrier?.isEnded, isTrue);
+      expect(throwingFixture.hub.firstPhaseChild?.isEnded, isTrue);
+    });
+
     test('deregisters its process-span callback after enriching', () async {
       final sut = fixture.getSut()!;
       final root = fixture.root!;
@@ -206,6 +225,12 @@ class Fixture {
 }
 
 class ThrowingPhaseCreationFixture {
+  ThrowingPhaseCreationFixture({this.leadingListener});
+
+  /// Registered before the root exists, mirroring integrations that hook
+  /// `OnSpanStartV2` during SDK init.
+  final SdkLifecycleCallback<OnSpanStartV2>? leadingListener;
+
   final processStart = DateTime.utc(2024, 1, 1, 12);
   final processor = MockTelemetryProcessor();
 
@@ -240,6 +265,10 @@ class ThrowingPhaseCreationFixture {
   );
 
   StreamingAppStartTrace? getSut() {
+    final listener = leadingListener;
+    if (listener != null) {
+      options.lifecycleRegistry.registerCallback<OnSpanStartV2>(listener);
+    }
     return StreamingAppStartTrace.tryCreate(
       hub: hub,
       timing: timing,

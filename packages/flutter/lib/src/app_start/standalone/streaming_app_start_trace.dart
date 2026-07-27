@@ -44,7 +44,6 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }) {
     // Held outside the try so a partially built trace can still be flushed.
     IdleRecordingSentrySpanV2? root;
-    final createdChildren = <RecordingSentrySpanV2>[];
     try {
       final createdRoot = hub.startIdleSpan(
         standaloneAppStartRootName,
@@ -79,7 +78,6 @@ final class StreamingAppStartTrace implements AppStartTrace {
       if (firstFrameRenderSpan is! RecordingSentrySpanV2) {
         return _abort(root, reason: 'first-frame span is not recording');
       }
-      createdChildren.add(firstFrameRenderSpan);
 
       final trace = StreamingAppStartTrace._(
         hub: hub,
@@ -95,9 +93,6 @@ final class StreamingAppStartTrace implements AppStartTrace {
           startTimestamp: phase.startTimestamp,
           attributes: _childAttributes(timing, phase.kind.operation),
         );
-        if (child is RecordingSentrySpanV2) {
-          createdChildren.add(child);
-        }
         child.end(endTimestamp: phase.endTimestamp);
       }
       hub.options.lifecycleRegistry.registerCallback<OnProcessSpan>(
@@ -110,7 +105,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
         error: error,
         stackTrace: stackTrace,
       );
-      return root == null ? null : _abort(root, children: createdChildren);
+      return root == null ? null : _abort(root);
     }
   }
 
@@ -130,21 +125,16 @@ final class StreamingAppStartTrace implements AppStartTrace {
 
   /// Flushes everything created so far and reports no trace.
   ///
-  /// Children are ended here rather than left to the root's own teardown,
-  /// which force-ends descendants with timestamps derived for a trace that is
-  /// being reported — not one being abandoned.
+  /// Ending the root force-ends the children it tracks, so a partially built
+  /// trace leaves nothing open. The root learns about a child through the
+  /// `OnSpanStartV2` dispatch, which reaches it synchronously only while no
+  /// earlier-registered listener returns a future — see the abort tests.
   static StreamingAppStartTrace? _abort(
     IdleRecordingSentrySpanV2 root, {
-    Iterable<RecordingSentrySpanV2> children = const [],
     String? reason,
   }) {
     if (reason != null) {
       internalLogger.info('Skipping streaming standalone app start: $reason');
-    }
-    for (final child in children) {
-      if (!child.isEnded) {
-        child.end();
-      }
     }
     root.end();
     return null;
