@@ -28,6 +28,10 @@ class StandaloneAppStartHandler {
 
   /// Set by [_prepareTimeToDisplay]; `null` until then.
   AppStartDisplayTracking? _displayTracking;
+
+  /// The options [_trace] was published on, so [close] clears the same ones.
+  SentryFlutterOptions? _publishedOptions;
+
   bool _started = false;
   bool _closed = false;
 
@@ -85,11 +89,15 @@ class StandaloneAppStartHandler {
         'Skipping standalone app start: native timing unavailable or invalid',
       );
     } else {
-      _trace = _createAppStartTrace(options, timing);
-      if (_trace == null) {
+      final trace = _createAppStartTrace(options, timing);
+      _trace = trace;
+      if (trace == null) {
         internalLogger.info(
           'Skipping standalone app start: trace was not created',
         );
+      } else {
+        options.standaloneAppStartTrace = trace;
+        _publishedOptions = options;
       }
     }
 
@@ -171,7 +179,14 @@ class StandaloneAppStartHandler {
   Future<void> close() async {
     _closed = true;
     _removeTimingsCallback();
-    await _trace?.close();
+    final trace = _trace;
+    await trace?.close();
+    final publishedOptions = _publishedOptions;
+    if (trace != null &&
+        identical(publishedOptions?.standaloneAppStartTrace, trace)) {
+      publishedOptions?.standaloneAppStartTrace = null;
+    }
+    _publishedOptions = null;
     _displayTracking?.cancel();
     _displayTracking = null;
     _trace = null;
