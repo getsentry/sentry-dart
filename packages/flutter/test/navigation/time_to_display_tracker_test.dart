@@ -171,6 +171,34 @@ void main() {
       expect(transaction.startTimestamp, startTimestamp);
       expect(transaction.context.spanId, reservedId);
     });
+
+    test('setAppStartRouteName names the reserved transaction', () async {
+      final sut = fixture.getSut();
+      final startTimestamp = DateTime.utc(2024, 1, 1, 12);
+      final endTimestamp = startTimestamp.add(const Duration(seconds: 1));
+      fixture.whenTtidTracked(endTimestamp);
+
+      sut.prepareInitialDisplay(startTimestamp);
+      sut.setAppStartRouteName('/login');
+      await sut.recordInitialDisplay(endTimestamp);
+
+      expect((fixture.hub.scope.span as SentryTracer).name, '/login');
+    });
+
+    test('setAppStartRouteName keeps the first initial route name', () async {
+      final sut = fixture.getSut();
+      final startTimestamp = DateTime.utc(2024, 1, 1, 12);
+      final endTimestamp = startTimestamp.add(const Duration(seconds: 1));
+      fixture.whenTtidTracked(endTimestamp);
+
+      sut.prepareInitialDisplay(startTimestamp);
+      sut.setAppStartRouteName('/login');
+      sut.setAppStartRouteName('/nested');
+      await sut.recordInitialDisplay(endTimestamp);
+
+      expect(sut.isAppStartRoutePending, isFalse);
+      expect((fixture.hub.scope.span as SentryTracer).name, '/login');
+    });
   });
 
   group('clear', () {
@@ -182,6 +210,15 @@ void main() {
 
       verify(fixture.ttidTracker.clear()).called(1);
       verify(fixture.ttfdTracker.clear()).called(1);
+    });
+
+    test('stops reporting a pending app start route', () {
+      final sut = fixture.getSut();
+      sut.prepareInitialDisplay(DateTime.utc(2024, 1, 1, 12));
+
+      sut.clear();
+
+      expect(sut.isAppStartRoutePending, isFalse);
     });
 
     test('drops the reserved initial display', () async {
@@ -480,6 +517,15 @@ class Fixture {
       'ui.load',
       startTimestamp: startTimestamp,
     ) as SentryTracer;
+  }
+
+  /// Stubs the TTID tracker to attach its span to whichever transaction it gets.
+  void whenTtidTracked(DateTime endTimestamp) {
+    when(ttidTracker.track(
+      transaction: anyNamed('transaction'),
+      endTimestamp: endTimestamp,
+    )).thenAnswer((invocation) async => getTTIDTransaction(
+        invocation.namedArguments[#transaction] as SentryTracer));
   }
 
   ISentrySpan getTTIDTransaction(SentryTracer parent) {

@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/app_start/ui_load_attached/generic_app_start_integration.dart';
@@ -166,6 +167,27 @@ void main() {
         expect(transactionEndTimestamp, endTime);
       });
 
+      test('names the reserved transaction after a non-root initial route',
+          () async {
+        final sut = fixture.getSut();
+        final observer = SentryNavigatorObserver(hub: fixture.hub);
+
+        sut.call(fixture.hub, fixture.options);
+        // The initial route is pushed while the first frame is being built,
+        // so it always precedes the post frame callback.
+        observer.didPush(fixture.route('/login'), null);
+        fixture.fakeFrameHandler.postFrameCallback!(Duration.zero);
+        await pumpEventQueue();
+
+        final tracer = fixture.hub.scope.span as SentryTracer?;
+        expect(tracer?.name, '/login');
+        expect(tracer?.origin, SentryTraceOrigins.autoUiTimeToDisplay);
+        expect(
+          tracer?.children.map((span) => span.context.description),
+          contains('/login initial display'),
+        );
+      });
+
       test('maintains transaction ID consistency between setup and tracking',
           () async {
         final sut = fixture.getSut();
@@ -299,6 +321,11 @@ class Fixture {
   GenericAppStartIntegration getSut() {
     return GenericAppStartIntegration(fakeFrameHandler);
   }
+
+  PageRoute<dynamic> route(String? name) => PageRouteBuilder<void>(
+        pageBuilder: (_, __, ___) => const SizedBox.shrink(),
+        settings: RouteSettings(name: name),
+      );
 }
 
 class _FakeTransport implements Transport {

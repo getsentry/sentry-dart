@@ -317,6 +317,40 @@ void main() {
 
       expect(root.data['app.vitals.start.screen'], 'root /');
     });
+
+    test('names the reserved ui.load after a non-root initial route', () async {
+      await fixture.startLifecycle();
+      fixture.pushInitialRoute('/login');
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+
+      final uiLoadRoot = fixture.rootSpans.singleWhere(
+        (span) => span.context.operation == SentrySpanOperations.uiLoad,
+      );
+
+      expect(uiLoadRoot.tracer.name, '/login');
+      expect(uiLoadRoot.startTimestamp, fixture.processStart);
+    });
+
+    test(
+        'keeps the app-start trace when a non-root initial route would start '
+        'a new one', () async {
+      await fixture.startLifecycle();
+      fixture.pushInitialRoute('/login', enableNewTraceOnNavigation: true);
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+
+      final uiLoadRoot = fixture.rootSpans.singleWhere(
+        (span) => span.context.operation == SentrySpanOperations.uiLoad,
+      );
+
+      expect(
+        uiLoadRoot.context.traceId,
+        fixture.appStartRoots.single.context.traceId,
+      );
+    });
   });
 }
 
@@ -407,8 +441,25 @@ class Fixture {
     options.traceLifecycle = SentryTraceLifecycle.stream;
   }
 
-  void setCurrentRouteName(String? name) {
-    navigatorObserver.didPush(
+  void setCurrentRouteName(String? name) =>
+      _didPushInitialRoute(navigatorObserver, name);
+
+  /// Pushes the initial route through an observer left at its defaults, the way
+  /// a real app's first `didPush` arrives.
+  void pushInitialRoute(
+    String? name, {
+    bool enableNewTraceOnNavigation = false,
+  }) =>
+      _didPushInitialRoute(
+        SentryNavigatorObserver(
+          hub: hub,
+          enableNewTraceOnNavigation: enableNewTraceOnNavigation,
+        ),
+        name,
+      );
+
+  void _didPushInitialRoute(SentryNavigatorObserver observer, String? name) {
+    observer.didPush(
       PageRouteBuilder<void>(
         pageBuilder: (_, __, ___) => const SizedBox.shrink(),
         settings: RouteSettings(name: name),

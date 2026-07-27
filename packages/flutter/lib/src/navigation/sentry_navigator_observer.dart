@@ -175,9 +175,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _addWebSessions(from: previousRoute, to: route);
 
     final routeName = _getRouteName(route) ?? _currentRouteName;
-    if (_timeToDisplayTrackerV2 case final tracker?
-        when previousRoute == null && tracker.isAppStartRoutePending) {
-      tracker.setAppStartRouteName(routeName);
+    if (previousRoute == null && _nameAppStartRoute(routeName)) {
       return;
     }
 
@@ -242,6 +240,28 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
+  /// Hands the initial route's name to a pending app start, if there is one.
+  ///
+  /// The app-start integrations reserve the initial route's display spans
+  /// before the first frame, so the observer must neither drop that
+  /// reservation nor start a competing route transaction. Only the tracker
+  /// belonging to the active trace lifecycle ever reports a pending app start.
+  ///
+  /// Returns whether the push was consumed.
+  bool _nameAppStartRoute(String? routeName) {
+    if (_timeToDisplayTracker case final tracker?
+        when tracker.isAppStartRoutePending) {
+      tracker.setAppStartRouteName(routeName);
+      return true;
+    }
+    if (_timeToDisplayTrackerV2 case final tracker?
+        when tracker.isAppStartRoutePending) {
+      tracker.setAppStartRouteName(routeName);
+      return true;
+    }
+    return false;
+  }
+
   void _startNewTraceIfEnabled() {
     if (_enableNewTraceOnNavigation) {
       _hub.generateNewTrace();
@@ -259,7 +279,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (_hub.options.traceLifecycle == SentryTraceLifecycle.stream) {
       _timeToDisplayTrackerV2?.trackRoute(routeName);
     } else {
-      // Clearing the display tracker here is safe since didPush happens before the Widget is built
+      // Safe to clear: a pending app start already consumed this push in
+      // didPush, so nothing the app-start integrations reserved is dropped.
       _timeToDisplayTracker?.clear();
 
       DateTime timestamp = _hub.options.clock();

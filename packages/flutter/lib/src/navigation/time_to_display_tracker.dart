@@ -34,8 +34,7 @@ class TimeToDisplayTracker {
   SpanId? transactionId;
 
   DateTime? _pendingTTFDEndTimestamp;
-  SentryTransactionContext? _preparedContext;
-  DateTime? _preparedStartTimestamp;
+  _PreparedInitialDisplay? _prepared;
 
   // The timestamp where report TTFD was called before the transaction was started.
   DateTime? get pendingTTFDEndTimestamp => _pendingTTFDEndTimestamp;
@@ -48,23 +47,35 @@ class TimeToDisplayTracker {
   void prepareInitialDisplay(DateTime startTimestamp) {
     final context = initialDisplayTransactionContext();
     transactionId = context.spanId;
-    _preparedContext = context;
-    _preparedStartTimestamp = startTimestamp;
+    _prepared = _PreparedInitialDisplay(context, startTimestamp);
+  }
+
+  /// Whether a prepared app start is still waiting for its first route name.
+  bool get isAppStartRoutePending => _prepared?.isRouteNamePending ?? false;
+
+  /// Names the reserved app-start root after the first rendered route.
+  ///
+  /// Only the first call takes effect, so a later initial push — a nested
+  /// navigator, for instance — is still treated as ordinary navigation.
+  void setAppStartRouteName(String? routeName) {
+    final prepared = _prepared;
+    if (prepared == null || !prepared.isRouteNamePending) return;
+
+    prepared.isRouteNamePending = false;
+    prepared.context.name = resolveRouteDisplayName(routeName);
   }
 
   /// Starts the reserved initial standalone display root and records TTID/TTFD.
   Future<void> recordInitialDisplay(DateTime endTimestamp) async {
-    final context = _preparedContext;
-    final startTimestamp = _preparedStartTimestamp;
-    _preparedContext = null;
-    _preparedStartTimestamp = null;
-    if (context == null || startTimestamp == null) {
+    final prepared = _prepared;
+    _prepared = null;
+    if (prepared == null) {
       return;
     }
 
     final transaction = _hub.startTransactionWithContext(
-      context,
-      startTimestamp: startTimestamp,
+      prepared.context,
+      startTimestamp: prepared.startTimestamp,
       waitForChildren: true,
       autoFinishAfter: const Duration(seconds: 3),
       bindToScope: true,
@@ -157,8 +168,7 @@ class TimeToDisplayTracker {
 
   void clear() {
     // Only an identity was reserved, so there is no root to tear down.
-    _preparedContext = null;
-    _preparedStartTimestamp = null;
+    _prepared = null;
     transactionId = null;
     _pendingTTFDEndTimestamp = null;
     _ttidTracker.clear();
@@ -166,4 +176,15 @@ class TimeToDisplayTracker {
       _ttfdTracker.clear();
     }
   }
+}
+
+/// An initial standalone `ui.load` root reserved but not yet started.
+final class _PreparedInitialDisplay {
+  _PreparedInitialDisplay(this.context, this.startTimestamp);
+
+  final SentryTransactionContext context;
+  final DateTime startTimestamp;
+
+  /// Cleared once the first rendered route has named [context].
+  bool isRouteNamePending = true;
 }
