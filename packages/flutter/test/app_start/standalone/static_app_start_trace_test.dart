@@ -257,7 +257,7 @@ void main() {
       expect(root.status, isNull);
     });
 
-    test('when closing flushes every tracked child', () async {
+    test('when closing flushes only the children still open', () async {
       final mockFixture = MockCreationFixture();
       final trace = StaticAppStartTrace.tryCreate(
         hub: mockFixture.hub,
@@ -268,16 +268,16 @@ void main() {
       await trace.close();
 
       verify(mockFixture.firstFrameBarrier.finish()).called(1);
+      // Both phase children were finished while the trace was built, so the
+      // flush must leave them alone.
       verify(mockFixture.pluginRegistrationChild.finish(
-        status: anyNamed('status'),
-        endTimestamp: anyNamed('endTimestamp'),
-        hint: anyNamed('hint'),
-      )).called(2);
+        endTimestamp: mockFixture.pluginRegistration,
+      )).called(1);
       verify(mockFixture.sentrySetupChild.finish(
-        status: anyNamed('status'),
-        endTimestamp: anyNamed('endTimestamp'),
-        hint: anyNamed('hint'),
-      )).called(2);
+        endTimestamp: mockFixture.sentrySetup,
+      )).called(1);
+      verifyNever(mockFixture.pluginRegistrationChild.finish());
+      verifyNever(mockFixture.sentrySetupChild.finish());
       verify(mockFixture.root.finish()).called(1);
     });
 
@@ -289,6 +289,8 @@ void main() {
         timing: mockFixture.timing,
         startScreenNameProvider: () => 'root /',
       );
+      // Otherwise the 30s final-timeout timer outlives the test.
+      addTearDown(() => trace?.close());
 
       expect(trace, isNotNull);
     });
@@ -325,7 +327,10 @@ void main() {
 
       expect(trace, isNull);
       verify(mockFixture.firstFrameBarrier.finish()).called(1);
-      verify(mockFixture.pluginRegistrationChild.finish()).called(1);
+      verify(mockFixture.pluginRegistrationChild.finish(
+        endTimestamp: mockFixture.pluginRegistration,
+      )).called(1);
+      verifyNever(mockFixture.pluginRegistrationChild.finish());
       verify(mockFixture.root.finish()).called(1);
     });
   });
@@ -455,20 +460,23 @@ class MockCreationFixture {
 
     when(firstFrameBarrier.samplingDecision)
         .thenReturn(SentryTracesSamplingDecision(true));
-    when(firstFrameBarrier.finished).thenReturn(false);
-    when(firstFrameBarrier.finish(
-      status: anyNamed('status'),
-      endTimestamp: anyNamed('endTimestamp'),
-      hint: anyNamed('hint'),
-    )).thenAnswer((_) async {});
 
-    for (final child in [pluginRegistrationChild, sentrySetupChild]) {
-      when(child.finished).thenReturn(false);
+    // `finished` has to follow `finish()` the way a real span does, otherwise
+    // the `!finished` guards in the trace are never exercised.
+    for (final child in [
+      firstFrameBarrier,
+      pluginRegistrationChild,
+      sentrySetupChild,
+    ]) {
+      var finished = false;
+      when(child.finished).thenAnswer((_) => finished);
       when(child.finish(
         status: anyNamed('status'),
         endTimestamp: anyNamed('endTimestamp'),
         hint: anyNamed('hint'),
-      )).thenAnswer((_) async {});
+      )).thenAnswer((_) async {
+        finished = true;
+      });
     }
     when(root.children).thenReturn([
       firstFrameBarrier,

@@ -214,7 +214,8 @@ final class StaticAppStartTrace implements AppStartTrace {
     // callbacks observe a drained subtree before its parent ends.
     for (final child in _root.children.reversed.toList()) {
       if (!child.finished) {
-        await child.finish(
+        await _finishSpan(
+          child,
           status: status,
           endTimestamp: _finalDeadlineTimestamp,
         );
@@ -244,10 +245,11 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   static Future<void> _finishSpan(
     ISentrySpan span, {
+    SpanStatus? status,
     DateTime? endTimestamp,
   }) async {
     try {
-      await span.finish(endTimestamp: endTimestamp);
+      await span.finish(status: status, endTimestamp: endTimestamp);
     } catch (error, stackTrace) {
       internalLogger.error(
         'Failed to finish static standalone app-start span',
