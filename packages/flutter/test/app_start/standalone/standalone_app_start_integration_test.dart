@@ -59,6 +59,19 @@ void main() {
       );
     });
 
+    test(
+        'does not add integration to sdk metadata when standalone tracing is disabled',
+        () async {
+      fixture.options.enableStandaloneAppStartTracing = false;
+
+      await fixture.getSut().call(fixture.hub, fixture.options);
+
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains('StandaloneAppStart')),
+      );
+    });
+
     test('does not start the handler on an unsupported platform', () async {
       fixture.options.platform = MockPlatform.macOS();
 
@@ -78,6 +91,28 @@ void main() {
       expect(
         fixture.options.sdk.features,
         isNot(contains(SentryFeatures.standaloneAppStartTracing)),
+      );
+    });
+
+    test('does not start the handler when tracing is disabled', () async {
+      fixture.options.tracesSampleRate = null;
+      fixture.options.tracesSampler = null;
+
+      await fixture.getSut().call(fixture.hub, fixture.options);
+
+      expect(fixture.handler.startCalls, 0);
+    });
+
+    test('does not add integration to sdk metadata when tracing is disabled',
+        () async {
+      fixture.options.tracesSampleRate = null;
+      fixture.options.tracesSampler = null;
+
+      await fixture.getSut().call(fixture.hub, fixture.options);
+
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains('StandaloneAppStart')),
       );
     });
 
