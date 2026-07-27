@@ -948,10 +948,11 @@ class Hub {
       span.setAttributes(attributes);
     }
 
-    _options.lifecycleRegistry.dispatchCallback(OnSpanStartV2(span));
     if (bindToHub) {
       _idleSpan = span;
     }
+
+    _options.lifecycleRegistry.dispatchCallback(OnSpanStartV2(span));
 
     return span;
   }
