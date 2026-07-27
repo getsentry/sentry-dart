@@ -51,8 +51,8 @@ final class AppStartPhase {
 /// 1. [NativeAppStart] — the raw platform-channel payload: epoch
 ///    milliseconds, untyped span times, shape checks only.
 /// 2. [AppStartTiming] — this type. Validated [DateTime]s and typed
-///    [AppStartPhase]s, with launches that cannot be reported rejected
-///    outright by the parse entry points below.
+///    [AppStartPhase]s, with self-contradicting timelines rejected outright by
+///    [tryParse].
 /// 3. `AppStartVitals` — what a standalone root actually reports: type,
 ///    screen, and a duration that may be absent.
 /// 4. The span payload — measurements on the static path, attributes on the
@@ -61,10 +61,10 @@ final class AppStartPhase {
 /// [AppStartType], [AppStartPhaseKind] and [AppStartPhase] are parts of this
 /// stage rather than stages of their own.
 ///
-/// Stages 1 and 2 stay separate because validity is not a property of the
-/// payload. The parse entry points below take a caller-supplied ceiling and
-/// a Dart-side setup timestamp, so the same [NativeAppStart] can be accepted
-/// for one caller and rejected for another.
+/// Stages 1 and 2 stay separate because a coherent timeline is not yet a
+/// reportable one. Plausibility depends on when the launch is measured to, so
+/// it is asked separately through [reportableDurationUntil] — the same
+/// [NativeAppStart] can be reportable for one caller and not another.
 @internal
 final class AppStartTiming {
   AppStartTiming({
@@ -86,94 +86,42 @@ final class AppStartTiming {
   Iterable<AppStartPhase> get nativePhases =>
       phases.where((phase) => phase.kind == AppStartPhaseKind.native);
 
-  Duration durationUntil(DateTime endTimestamp) =>
-      endTimestamp.difference(processStartTimestamp);
-
   /// The duration safe to report, or `null` when the window is not a
   /// plausible launch — longer than the 60s ceiling, or running backwards
   /// because the wall clock was adjusted mid-startup.
   ///
-  /// The parse entry points already apply this ceiling, but only against their
-  /// own `validUntil`. [tryParseAtSnapshot] validates against SDK init, so a
-  /// launch it accepts can still render its first frame arbitrarily later — a
-  /// process launched into the background and foregrounded a minute on would
-  /// otherwise report as a very slow cold start.
+  /// This is the only plausibility gate, so every caller that reports an app
+  /// start goes through it. Native hands over an OS process start with no hint
+  /// of how long ago it was: a pre-warmed or backgrounded launch can begin
+  /// minutes before the user ever saw the app, and nothing but the duration to
+  /// a caller-chosen end reveals that.
   ///
   /// Dropped rather than clamped, because a clamped 60s is indistinguishable
-  /// from a genuine one, and the parse rejects for the same reason.
+  /// from a genuine one.
   Duration? reportableDurationUntil(DateTime endTimestamp) {
-    final duration = durationUntil(endTimestamp);
+    final duration = endTimestamp.difference(processStartTimestamp);
     return duration.isNegative || duration > _maxAppStartAge ? null : duration;
   }
 
-  SentryMeasurement measurementUntil(DateTime endTimestamp) {
-    final duration = durationUntil(endTimestamp);
-    return type == AppStartType.cold
-        ? SentryMeasurement.coldAppStart(duration)
-        : SentryMeasurement.warmAppStart(duration);
-  }
+  SentryMeasurement measurementFor(Duration duration) =>
+      type == AppStartType.cold
+          ? SentryMeasurement.coldAppStart(duration)
+          : SentryMeasurement.warmAppStart(duration);
 
-  /// Parses native timing for the eager standalone root, opened at SDK init.
-  ///
-  /// [snapshotTimestamp] is when the native snapshot was taken, so every
-  /// breakdown phase that snapshot reports can be retained. The first frame is
-  /// recorded later through the open first-frame span, so this is **not** the
-  /// app-start measurement end.
-  static AppStartTiming? tryParseAtSnapshot(
-    NativeAppStart nativeAppStart, {
-    required DateTime sentrySetupTimestamp,
-    required DateTime snapshotTimestamp,
-    required int maxNativePhases,
-  }) =>
-      _tryParse(
-        nativeAppStart,
-        sentrySetupTimestamp: sentrySetupTimestamp,
-        validUntil: snapshotTimestamp,
-        maxNativePhases: maxNativePhases,
-      );
-
-  /// Parses native timing retrospectively for the ui.load path, after the
-  /// first frame has been drawn.
-  ///
-  /// [firstFrameTimestamp] is both the validation ceiling and the natural
-  /// app-start measurement end (extend, if any, can still push the vital
-  /// later).
-  static AppStartTiming? tryParseAtFirstFrame(
-    NativeAppStart nativeAppStart, {
-    required DateTime sentrySetupTimestamp,
-    required DateTime firstFrameTimestamp,
-    required int maxNativePhases,
-  }) =>
-      _tryParse(
-        nativeAppStart,
-        sentrySetupTimestamp: sentrySetupTimestamp,
-        validUntil: firstFrameTimestamp,
-        maxNativePhases: maxNativePhases,
-      );
-
-  /// Parses and validates native app-start timing into span-ready data.
-  ///
-  /// Returns `null` when the launch should not be reported as an app start
-  /// (impossible ordering, process start in the future, or older than 60s
-  /// relative to [validUntil]).
+  /// Parses native app-start timing into span-ready data, or `null` when the
+  /// payload is not a coherent timeline — plugin registration before process
+  /// start, or setup before plugin registration.
   ///
   /// [sentrySetupTimestamp] is when Flutter Sentry finished init (Dart-side).
-  /// It ends the "Before Sentry Init Setup" phase and must fall between
-  /// plugin registration and [validUntil].
+  /// It ends the "Before Sentry Init Setup" phase.
   ///
-  /// [validUntil] is the latest timestamp allowed for anything validated
-  /// here — native process/plugin/phase times and [sentrySetupTimestamp].
-  /// Native phases that end after it are dropped; other failures reject the
-  /// entire parse.
-  ///
-  /// [maxNativePhases] bounds how many native phases become spans. The count
-  /// comes from the platform, so without a ceiling a misbehaving native SDK
-  /// could push arbitrarily many children onto the root.
-  static AppStartTiming? _tryParse(
+  /// Coherent is not the same as reportable: this only rejects a timeline that
+  /// contradicts itself, which needs nothing beyond the payload. Whether the
+  /// launch is plausible enough to report is [reportableDurationUntil], asked
+  /// once the caller knows which end it measures to.
+  static AppStartTiming? tryParse(
     NativeAppStart nativeAppStart, {
     required DateTime sentrySetupTimestamp,
-    required DateTime validUntil,
-    required int maxNativePhases,
   }) {
     final processStart = DateTime.fromMillisecondsSinceEpoch(
       nativeAppStart.appStartTime,
@@ -182,14 +130,9 @@ final class AppStartTiming {
       nativeAppStart.pluginRegistrationTime,
     ).toUtc();
     final setup = sentrySetupTimestamp.toUtc();
-    final until = validUntil.toUtc();
 
-    final age = until.difference(processStart);
-    if (age.isNegative ||
-        age > _maxAppStartAge ||
-        pluginRegistration.isBefore(processStart) ||
-        setup.isBefore(pluginRegistration) ||
-        setup.isAfter(until)) {
+    if (pluginRegistration.isBefore(processStart) ||
+        setup.isBefore(pluginRegistration)) {
       return null;
     }
 
@@ -203,8 +146,6 @@ final class AppStartTiming {
         processStart: processStart,
         pluginRegistration: pluginRegistration,
         setup: setup,
-        latestTimestamp: until,
-        maxNativePhases: maxNativePhases,
       ),
     );
   }
@@ -214,16 +155,9 @@ final class AppStartTiming {
     required DateTime processStart,
     required DateTime pluginRegistration,
     required DateTime setup,
-    required DateTime latestTimestamp,
-    required int maxNativePhases,
   }) =>
       [
-        ..._parseNativePhases(
-          nativeAppStart,
-          earliestTimestamp: processStart,
-          latestTimestamp: latestTimestamp,
-          maxNativePhases: maxNativePhases,
-        ),
+        ..._parseNativePhases(nativeAppStart, earliestTimestamp: processStart),
         AppStartPhase(
           kind: AppStartPhaseKind.pluginRegistration,
           description: appStartPluginRegistrationDescription,
@@ -241,8 +175,6 @@ final class AppStartTiming {
   static List<AppStartPhase> _parseNativePhases(
     NativeAppStart nativeAppStart, {
     required DateTime earliestTimestamp,
-    required DateTime latestTimestamp,
-    required int maxNativePhases,
   }) {
     final phases = <AppStartPhase>[];
     for (final entry in nativeAppStart.nativeSpanTimes.entries) {
@@ -254,9 +186,7 @@ final class AppStartTiming {
             DateTime.fromMillisecondsSinceEpoch(startMilliseconds).toUtc();
         final end =
             DateTime.fromMillisecondsSinceEpoch(endMilliseconds).toUtc();
-        if (end.isBefore(start) ||
-            start.isBefore(earliestTimestamp) ||
-            end.isAfter(latestTimestamp)) {
+        if (end.isBefore(start) || start.isBefore(earliestTimestamp)) {
           continue;
         }
         phases.add(
@@ -276,14 +206,7 @@ final class AppStartTiming {
       }
     }
     phases.sort((a, b) => a.startTimestamp.compareTo(b.startTimestamp));
-    if (phases.length <= maxNativePhases) {
-      return phases;
-    }
-    internalLogger.warning(
-      'Dropping ${phases.length - maxNativePhases} native app-start phases '
-      'over the limit of $maxNativePhases',
-    );
-    return phases.sublist(0, maxNativePhases);
+    return phases;
   }
 }
 

@@ -21,23 +21,7 @@ void main() {
       );
     });
 
-    test('returns null for a future process start', () {
-      final data = fixture.parse(
-        appStartTime: fixture.validUntil.add(Duration(seconds: 1)),
-      );
-
-      expect(data, isNull);
-    });
-
-    test('returns null when older than sixty seconds', () {
-      final data = fixture.parse(
-        appStartTime: fixture.validUntil.subtract(Duration(seconds: 61)),
-      );
-
-      expect(data, isNull);
-    });
-
-    test('returns null for invalid root ordering', () {
+    test('returns null when plugin registration precedes process start', () {
       final data = fixture.parse(
         pluginRegistration: fixture.processStart.subtract(
           Duration(milliseconds: 1),
@@ -47,9 +31,11 @@ void main() {
       expect(data, isNull);
     });
 
-    test('returns null when setup is after validUntil', () {
+    test('returns null when setup precedes plugin registration', () {
       final data = fixture.parse(
-        sentrySetup: fixture.validUntil.add(Duration(milliseconds: 1)),
+        sentrySetup: fixture.pluginRegistration.subtract(
+          Duration(milliseconds: 1),
+        ),
       );
 
       expect(data, isNull);
@@ -57,7 +43,7 @@ void main() {
 
     test('discards one malformed optional phase', () {
       fixture.nativeSpanTimes['invalid'] = {
-        'startTimestampMsSinceEpoch': fixture.validUntil.millisecondsSinceEpoch,
+        'startTimestampMsSinceEpoch': fixture.firstFrame.millisecondsSinceEpoch,
         'stopTimestampMsSinceEpoch':
             fixture.processStart.millisecondsSinceEpoch,
       };
@@ -70,25 +56,15 @@ void main() {
       );
     });
 
-    test('discards optional phases outside the timing window', () {
-      fixture.nativeSpanTimes.addAll({
-        'before-process-start': {
-          'startTimestampMsSinceEpoch': fixture.processStart
-              .subtract(Duration(milliseconds: 2))
-              .millisecondsSinceEpoch,
-          'stopTimestampMsSinceEpoch': fixture.processStart
-              .subtract(Duration(milliseconds: 1))
-              .millisecondsSinceEpoch,
-        },
-        'after-valid-until': {
-          'startTimestampMsSinceEpoch': fixture.validUntil
-              .add(Duration(milliseconds: 1))
-              .millisecondsSinceEpoch,
-          'stopTimestampMsSinceEpoch': fixture.validUntil
-              .add(Duration(milliseconds: 2))
-              .millisecondsSinceEpoch,
-        },
-      });
+    test('discards optional phases starting before process start', () {
+      fixture.nativeSpanTimes['before-process-start'] = {
+        'startTimestampMsSinceEpoch': fixture.processStart
+            .subtract(Duration(milliseconds: 2))
+            .millisecondsSinceEpoch,
+        'stopTimestampMsSinceEpoch': fixture.processStart
+            .subtract(Duration(milliseconds: 1))
+            .millisecondsSinceEpoch,
+      };
 
       final data = fixture.parse();
 
@@ -97,16 +73,42 @@ void main() {
         ['early', 'late'],
       );
     });
+  });
 
-    test('caps native phases at the span limit, keeping the earliest', () {
-      fixture.nativeSpanTimes = fixture.buildNativeSpanTimes(5);
+  group('$AppStartTiming reportable duration', () {
+    late Fixture fixture;
 
-      final data = fixture.parse(maxNativePhases: 2);
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('returns the duration up to the given end', () {
+      final timing = fixture.parse()!;
 
       expect(
-        data!.nativePhases.map((phase) => phase.description),
-        ['phase 0', 'phase 1'],
+        timing.reportableDurationUntil(fixture.firstFrame),
+        Duration(milliseconds: 300),
       );
+    });
+
+    test('returns null when longer than sixty seconds', () {
+      final timing = fixture.parse()!;
+
+      final duration = timing.reportableDurationUntil(
+        fixture.processStart.add(Duration(seconds: 61)),
+      );
+
+      expect(duration, isNull);
+    });
+
+    test('returns null when the end precedes process start', () {
+      final timing = fixture.parse()!;
+
+      final duration = timing.reportableDurationUntil(
+        fixture.processStart.subtract(Duration(milliseconds: 1)),
+      );
+
+      expect(duration, isNull);
     });
   });
 }
@@ -115,22 +117,10 @@ class Fixture {
   final processStart = DateTime.utc(2024, 1, 1, 12);
   late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
   late final sentrySetup = processStart.add(Duration(milliseconds: 200));
-  late final validUntil = processStart.add(Duration(milliseconds: 300));
+  late final firstFrame = processStart.add(Duration(milliseconds: 300));
 
-  /// Native phases keyed newest-first, so a correct parse has to sort rather
-  /// than lean on insertion order.
-  Map<dynamic, dynamic> buildNativeSpanTimes(int count) => {
-        for (var i = count - 1; i >= 0; i--)
-          'phase $i': {
-            'startTimestampMsSinceEpoch': processStart
-                .add(Duration(milliseconds: 10 + i))
-                .millisecondsSinceEpoch,
-            'stopTimestampMsSinceEpoch': processStart
-                .add(Duration(milliseconds: 11 + i))
-                .millisecondsSinceEpoch,
-          },
-      };
-
+  /// Keyed newest-first, so a correct parse has to sort rather than lean on
+  /// insertion order.
   late Map<dynamic, dynamic> nativeSpanTimes = <dynamic, dynamic>{
     'late': {
       'startTimestampMsSinceEpoch':
@@ -150,9 +140,8 @@ class Fixture {
     DateTime? appStartTime,
     DateTime? pluginRegistration,
     DateTime? sentrySetup,
-    int maxNativePhases = 1000,
   }) =>
-      AppStartTiming.tryParseAtFirstFrame(
+      AppStartTiming.tryParse(
         NativeAppStart(
           appStartTime: (appStartTime ?? processStart).millisecondsSinceEpoch,
           pluginRegistrationTime:
@@ -162,7 +151,5 @@ class Fixture {
           nativeSpanTimes: nativeSpanTimes,
         ),
         sentrySetupTimestamp: sentrySetup ?? this.sentrySetup,
-        firstFrameTimestamp: validUntil,
-        maxNativePhases: maxNativePhases,
       );
 }

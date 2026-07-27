@@ -55,12 +55,17 @@ class StandaloneAppStartHandler {
 
       final setupTimestamp = SentryFlutter.sentrySetupStartTime;
       if (nativeAppStart != null && setupTimestamp != null) {
-        timing = AppStartTiming.tryParseAtSnapshot(
+        final parsed = AppStartTiming.tryParse(
           nativeAppStart,
           sentrySetupTimestamp: setupTimestamp,
-          snapshotTimestamp: options.clock(),
-          maxNativePhases: options.maxSpans,
         );
+        // The root opens here and only learns its end at the first frame, so a
+        // launch that is already implausible has to be rejected now — opening
+        // a root that can never report a duration is worse than reporting
+        // nothing.
+        if (parsed?.reportableDurationUntil(options.clock()) != null) {
+          timing = parsed;
+        }
       }
     } catch (error, stackTrace) {
       internalLogger.error(

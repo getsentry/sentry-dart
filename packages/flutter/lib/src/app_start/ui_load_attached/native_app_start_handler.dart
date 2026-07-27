@@ -32,13 +32,13 @@ class NativeAppStartHandler {
     if (nativeAppStart == null || setupTimestamp == null) {
       return;
     }
-    final appStartTiming = AppStartTiming.tryParseAtFirstFrame(
+    final appStartTiming = AppStartTiming.tryParse(
       nativeAppStart,
       sentrySetupTimestamp: setupTimestamp,
-      firstFrameTimestamp: appStartEnd,
-      maxNativePhases: options.maxSpans,
     );
-    if (appStartTiming == null) {
+    final appStartDuration =
+        appStartTiming?.reportableDurationUntil(appStartEnd);
+    if (appStartTiming == null || appStartDuration == null) {
       return;
     }
 
@@ -67,7 +67,7 @@ class NativeAppStartHandler {
     // We need to add the measurements before we add the child spans
     // If the child span finish the transaction will finish and then we cannot add measurements
     // TODO(buenaflor): eventually we can move this to the onFinish callback
-    final measurement = appStartTiming.measurementUntil(appStartEnd);
+    final measurement = appStartTiming.measurementFor(appStartDuration);
     sentryTracer.measurements[measurement.name] = measurement;
 
     await _attachAppStartSpans(appStartTiming, appStartEnd, sentryTracer);

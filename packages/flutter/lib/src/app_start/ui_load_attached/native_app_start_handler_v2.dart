@@ -28,13 +28,13 @@ class NativeAppStartHandlerV2 {
       return;
     }
 
-    final appStartTiming = AppStartTiming.tryParseAtFirstFrame(
+    final appStartTiming = AppStartTiming.tryParse(
       nativeAppStart,
       sentrySetupTimestamp: setupTimestamp,
-      firstFrameTimestamp: appStartEnd,
-      maxNativePhases: options.maxSpans,
     );
-    if (appStartTiming == null) {
+    final appStartDuration =
+        appStartTiming?.reportableDurationUntil(appStartEnd);
+    if (appStartTiming == null || appStartDuration == null) {
       tracker.cancelCurrentRoute();
       return;
     }
@@ -107,7 +107,7 @@ class NativeAppStartHandlerV2 {
     firstFrameRenderSpan.end(endTimestamp: appStartEnd);
 
     final durationMs = SentryAttribute.double(
-      appStartTiming.durationUntil(appStartEnd).inMilliseconds.toDouble(),
+      appStartDuration.inMilliseconds.toDouble(),
     );
     // Emit both the legacy cold/warm split and the unified value+type pair
     // during the deprecation window for the former.
