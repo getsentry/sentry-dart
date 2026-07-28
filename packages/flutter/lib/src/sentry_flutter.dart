@@ -359,10 +359,11 @@ mixin SentryFlutter {
   /// reported duration.
   ///
   /// **Always finish what you extend.** Until the extension finishes, the App
-  /// Start is still in progress: it stays open past its idle timeout, and is
-  /// reported without a duration if it hits its 30 second deadline first. Pair
-  /// this with [finishExtendedAppStart] in a `try` / `finally` so an early
-  /// return or a throw cannot strand it.
+  /// Start is still in progress: it stays open past its idle timeout, and if
+  /// it hits its 30 second deadline first the extension is dropped from the
+  /// reported duration, which falls back to the first frame. Pair this with
+  /// [finishExtendedAppStart] in a `try` / `finally` so an early return or a
+  /// throw cannot strand it.
   ///
   /// Requires [SentryFlutterOptions.enableStandaloneAppStartTracing] on iOS or
   /// Android. Does nothing on other platforms, once the first frame has

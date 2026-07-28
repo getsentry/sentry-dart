@@ -204,8 +204,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
         timing: _timing,
         screen: _startScreenNameProvider(),
         endTimestamp: _endTimestamp,
-        extension: _extensionLifecycle.outcome,
-        deadlineExceeded: _root.deadlineExceeded,
+        extensionEndTimestamp: _extensionLifecycle.measurementEnd,
       );
 
       _root.setAttribute(
@@ -267,6 +266,7 @@ final class _StreamingAppStartExtensionLifecycle {
   RecordingSentrySpanV2? _span;
   Future<void>? _finishFuture;
   DateTime? _endTimestamp;
+  bool _deadlineStamped = false;
   bool _closed = false;
 
   _StreamingAppStartExtensionLifecycle({
@@ -315,9 +315,12 @@ final class _StreamingAppStartExtensionLifecycle {
     return span == null || span.isEnded ? null : span;
   }
 
-  AppStartExtensionOutcome get outcome => _span == null
-      ? noAppStartExtension
-      : (isSettled: _endTimestamp != null, endTimestamp: _endTimestamp);
+  /// What the extension contributes to the app-start measurement.
+  ///
+  /// `null` once the root force-ended the extension at its deadline, since
+  /// that endpoint is the deadline rather than anything the extension actually
+  /// reached.
+  DateTime? get measurementEnd => _deadlineStamped ? null : _endTimestamp;
 
   Future<void> finish(DateTime endTimestamp) {
     if (_closed) {
@@ -364,6 +367,7 @@ final class _StreamingAppStartExtensionLifecycle {
         SemanticAttributesConstants.sentryStatusMessage,
         SentryAttribute.string(SentrySpanStatusMessages.deadlineExceeded),
       );
+      _deadlineStamped = true;
     } else {
       span.status = SentrySpanStatusV2.ok;
     }

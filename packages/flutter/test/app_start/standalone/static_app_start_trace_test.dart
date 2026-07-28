@@ -760,7 +760,7 @@ void main() {
       )).called(1);
     });
 
-    testWidgets('suppresses measurement for an unfinished extension deadline',
+    testWidgets('omits measurement without a first frame at the deadline',
         (tester) async {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;
@@ -779,6 +779,49 @@ void main() {
       expect(root.measurements['app_start_cold'], isNull);
       expect(root.data['app_start_type'], 'cold');
       expect(root.data['app.vitals.start.screen'], 'root /');
+    });
+
+    testWidgets('measures to the first frame when the extension never finished',
+        (tester) async {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!.tracer;
+      expect(
+        sut.tryExtend(
+          fixture.processStart.add(const Duration(milliseconds: 400)),
+        ),
+        isTrue,
+      );
+
+      sut.recordFirstFrame(fixture.naturalEnd);
+      await tester.pump(Duration(seconds: 30));
+      await tester.pump();
+
+      expect(root.status, SpanStatus.deadlineExceeded());
+      expect(root.measurements['app_start_cold']?.value, 350);
+    });
+
+    testWidgets('keeps the extension endpoint when a descendant deadlines',
+        (tester) async {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!.tracer;
+      expect(
+        sut.tryExtend(
+          fixture.processStart.add(const Duration(milliseconds: 400)),
+        ),
+        isTrue,
+      );
+      final extension = sut.extendedSpan as SentrySpan;
+      extension.startChild('extended child');
+
+      sut.recordFirstFrame(fixture.naturalEnd);
+      await sut.finishExtended(
+        fixture.processStart.add(const Duration(milliseconds: 600)),
+      );
+      await tester.pump(Duration(seconds: 30));
+      await tester.pump();
+
+      expect(root.status, SpanStatus.deadlineExceeded());
+      expect(root.measurements['app_start_cold']?.value, 600);
     });
 
     testWidgets('marks an unfinished extension subtree deadline exceeded',

@@ -203,8 +203,7 @@ final class StaticAppStartTrace implements AppStartTrace {
         timing: _timing,
         screen: _startScreenNameProvider(),
         endTimestamp: _endTimestamp,
-        extension: _extensionLifecycle.outcome,
-        deadlineExceeded: _root.status == SpanStatus.deadlineExceeded(),
+        extensionEndTimestamp: _extensionLifecycle.measurementEnd,
       );
 
       final type = vitals.type.name;
@@ -337,6 +336,7 @@ final class _StaticAppStartExtensionLifecycle {
   SentrySpan? _span;
   Future<void>? _finishFuture;
   DateTime? _endTimestamp;
+  bool _deadlineStamped = false;
   bool _closed = false;
 
   _StaticAppStartExtensionLifecycle({
@@ -380,18 +380,11 @@ final class _StaticAppStartExtensionLifecycle {
     return span == null || span.finished ? null : span;
   }
 
-  /// [_endTimestamp] alone is not enough here: [_finishSpan] latches it before
-  /// awaiting `finish()`, so the span is briefly mid-finish while the root
-  /// could be enriched. The streaming lifecycle ends spans synchronously and
-  /// has no such window.
-  AppStartExtensionOutcome get outcome {
-    final span = _span;
-    if (span == null) return noAppStartExtension;
-    return (
-      isSettled: span.finished && _endTimestamp != null,
-      endTimestamp: _endTimestamp,
-    );
-  }
+  /// What the extension contributes to the app-start measurement.
+  ///
+  /// `null` once the deadline drain stamped the extension, since that endpoint
+  /// is the deadline rather than anything the extension actually reached.
+  DateTime? get measurementEnd => _deadlineStamped ? null : _endTimestamp;
 
   Future<void> finish(DateTime endTimestamp) {
     if (_closed) {
@@ -437,8 +430,10 @@ final class _StaticAppStartExtensionLifecycle {
     final endTimestamp = span.endTimestamp;
     if (endTimestamp == null) return;
 
+    final status = _resolvedStatus;
+    _deadlineStamped = status == SpanStatus.deadlineExceeded();
     _endTimestamp = endTimestamp;
-    span.status = _resolvedStatus;
+    span.status = status;
     _removeSpanFinishCallback();
   }
 
@@ -458,10 +453,12 @@ final class _StaticAppStartExtensionLifecycle {
     try {
       final timestamp =
           (span?.endTimestamp ?? endTimestamp ?? _hub.options.clock()).toUtc();
+      final status = _resolvedStatus;
+      _deadlineStamped = status == SpanStatus.deadlineExceeded();
       _endTimestamp = timestamp;
       if (span == null) return;
 
-      span.status = _resolvedStatus;
+      span.status = status;
       if (!span.finished) {
         await span.finish(endTimestamp: timestamp);
       }

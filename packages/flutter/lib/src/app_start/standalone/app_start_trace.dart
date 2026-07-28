@@ -46,18 +46,6 @@ void logAppStartExtensionFinishRefusal(String reason) {
   internalLogger.info('$appStartExtensionFinishRefusalPrefix: $reason');
 }
 
-/// Where an app-start extension stands when the root is enriched.
-///
-/// [isSettled] means the extension is no longer holding the app start open —
-/// either it finished, or it was never started at all.
-@internal
-typedef AppStartExtensionOutcome = ({bool isSettled, DateTime? endTimestamp});
-
-/// The outcome of an app start that was never extended.
-@internal
-const AppStartExtensionOutcome noAppStartExtension =
-    (isSettled: true, endTimestamp: null);
-
 /// How far a standalone app-start trace has progressed.
 ///
 /// Shared by both trace implementations, which advance through it identically.

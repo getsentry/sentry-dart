@@ -4,7 +4,6 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../app_start_timing.dart';
-import 'app_start_trace.dart';
 
 /// What a standalone app-start root reports, resolved once for both trace
 /// lifecycles.
@@ -33,42 +32,44 @@ final class AppStartVitals {
   /// Resolves the reported signal for a root that is about to be captured.
   ///
   /// [endTimestamp] is the first frame, or `null` when none arrived.
-  /// [extension] is where an app-start extension stands, which can move the
-  /// measured endpoint past the first frame or withhold it entirely.
-  /// [deadlineExceeded] marks a root torn down by its hard deadline.
+  /// [extensionEndTimestamp] is what an app-start extension contributes, which
+  /// can move the measured endpoint past the first frame.
   factory AppStartVitals.resolve({
     required AppStartTiming timing,
     required String screen,
     required DateTime? endTimestamp,
-    required AppStartExtensionOutcome extension,
-    required bool deadlineExceeded,
+    required DateTime? extensionEndTimestamp,
   }) {
-    final measurementEnd = _resolveMeasurementEnd(endTimestamp, extension);
+    final measurementEnd =
+        _resolveMeasurementEnd(endTimestamp, extensionEndTimestamp);
     return AppStartVitals._(
       type: timing.type,
       screen: screen,
-      duration: measurementEnd == null || deadlineExceeded
+      duration: measurementEnd == null
           ? null
           : timing.reportableDurationUntil(measurementEnd),
     );
   }
 
-  /// The endpoint the app start is measured to, or `null` when it has none.
+  /// The endpoint the app start is measured to, or `null` when the first frame
+  /// never arrived.
   ///
-  /// An extension that has started but not settled leaves the app start still
-  /// running, so there is nothing to report yet — better to withhold the
-  /// duration than to report a window that ends mid-extension.
+  /// An extension that settled after the first frame moves the endpoint out to
+  /// it. One that contributes nothing — never started, still running, or
+  /// force-ended by the root's deadline — leaves the app start measured to the
+  /// first frame rather than withholding it, matching how sentry-java and
+  /// sentry-cocoa clamp a timed-out time-to-full-display back to
+  /// time-to-initial-display.
   static DateTime? _resolveMeasurementEnd(
     DateTime? endTimestamp,
-    AppStartExtensionOutcome extension,
+    DateTime? extensionEndTimestamp,
   ) {
-    if (endTimestamp == null || !extension.isSettled) {
+    if (endTimestamp == null) {
       return null;
     }
-
-    final extensionEnd = extension.endTimestamp;
-    return extensionEnd != null && extensionEnd.isAfter(endTimestamp)
-        ? extensionEnd
+    return extensionEndTimestamp != null &&
+            extensionEndTimestamp.isAfter(endTimestamp)
+        ? extensionEndTimestamp
         : endTimestamp;
   }
 
@@ -86,10 +87,9 @@ final class AppStartVitals {
   /// Time from process start to the first frame, or to the end of an extension
   /// that outlasted it.
   ///
-  /// `null` when the app start has no measurable duration: no first frame
-  /// arrived, an extension is still running so the window has no end yet, or
-  /// the root hit its hard deadline and the window is truncated. Type and
-  /// screen are still reported in those cases.
+  /// `null` when no first frame arrived and the app start therefore has no
+  /// measurable window at all. Type and screen are still reported in that
+  /// case.
   final Duration? duration;
 
   /// The cold/warm measurement for the static payload, or `null` when there is
