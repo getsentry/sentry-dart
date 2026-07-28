@@ -13,21 +13,20 @@ const standaloneAppStartIdleTimeout = Duration(seconds: 3);
 const standaloneAppStartFinalTimeout = Duration(seconds: 30);
 
 @internal
-const standaloneExtendedAppStartName = 'Extended App Start';
+const standaloneAppStartExtensionName = 'Extended App Start';
 
 /// Prefix shared by every reason an extension is turned down, so the public
 /// entry point and both lifecycles read the same way in the logs.
 @internal
 const appStartExtensionRefusalPrefix = 'Not extending the app start';
 
-/// Records why an extension was turned down and refuses it.
+/// Records why an extension was turned down.
 ///
 /// The public entry point returns nothing, so a log is the only way a user
 /// finds out their extension never opened.
 @internal
-bool refuseAppStartExtension(String reason) {
+void logAppStartExtensionRefusal(String reason) {
   internalLogger.info('$appStartExtensionRefusalPrefix: $reason');
-  return false;
 }
 
 /// Prefix shared by every reason a finish is turned down, so the public entry
@@ -36,16 +35,15 @@ bool refuseAppStartExtension(String reason) {
 const appStartExtensionFinishRefusalPrefix =
     'Not finishing the extended app start';
 
-/// Records why a finish was turned down and refuses it.
+/// Records why a finish was turned down.
 ///
-/// The counterpart to [refuseAppStartExtension], and the more valuable of the
-/// two: a finish is refused precisely when the app start has already been
+/// The counterpart to [logAppStartExtensionRefusal], and the more valuable of
+/// the two: a finish is refused precisely when the app start has already been
 /// reported, so the user is looking at a duration they expected the extension
 /// to cover and nothing else would tell them why it does not.
 @internal
-Future<void> refuseAppStartExtensionFinish(String reason) {
+void logAppStartExtensionFinishRefusal(String reason) {
   internalLogger.info('$appStartExtensionFinishRefusalPrefix: $reason');
-  return Future<void>.value();
 }
 
 /// Where an app-start extension stands when the root is enriched.

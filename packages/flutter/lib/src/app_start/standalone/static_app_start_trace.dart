@@ -147,10 +147,12 @@ final class StaticAppStartTrace implements AppStartTrace {
   @override
   bool tryExtend(DateTime startTimestamp) {
     if (_isFinalizingOrTerminal) {
-      return refuseAppStartExtension('the app start already ended');
+      logAppStartExtensionRefusal('the app start already ended');
+      return false;
     }
     if (_firstFrameRenderSpan.endTimestamp != null) {
-      return refuseAppStartExtension('the first frame already rendered');
+      logAppStartExtensionRefusal('the first frame already rendered');
+      return false;
     }
 
     return _extensionLifecycle.tryStart(startTimestamp);
@@ -165,7 +167,8 @@ final class StaticAppStartTrace implements AppStartTrace {
   @override
   Future<void> finishExtended(DateTime endTimestamp) {
     if (_isFinalizingOrTerminal) {
-      return refuseAppStartExtensionFinish('the app start already ended');
+      logAppStartExtensionFinishRefusal('the app start already ended');
+      return Future<void>.value();
     }
 
     return _extensionLifecycle.finish(endTimestamp);
@@ -200,7 +203,7 @@ final class StaticAppStartTrace implements AppStartTrace {
         timing: _timing,
         screen: _startScreenNameProvider(),
         endTimestamp: _endTimestamp,
-        extension: _extensionLifecycle.completionSnapshot,
+        extension: _extensionLifecycle.outcome,
         deadlineExceeded: _root.status == SpanStatus.deadlineExceeded(),
       );
 
@@ -344,19 +347,22 @@ final class _StaticAppStartExtensionLifecycle {
 
   bool tryStart(DateTime startTimestamp) {
     if (_closed) {
-      return refuseAppStartExtension('the app start already ended');
+      logAppStartExtensionRefusal('the app start already ended');
+      return false;
     }
     if (_span != null) {
-      return refuseAppStartExtension('it is already extended');
+      logAppStartExtensionRefusal('it is already extended');
+      return false;
     }
 
     final span = _root.startChild(
       SentrySpanOperations.appStartExtended,
-      description: standaloneExtendedAppStartName,
+      description: standaloneAppStartExtensionName,
       startTimestamp: startTimestamp.toUtc(),
     );
     if (span is! SentrySpan) {
-      return refuseAppStartExtension('the extension span was not recorded');
+      logAppStartExtensionRefusal('the extension span was not recorded');
+      return false;
     }
 
     span.origin = SentryTraceOrigins.autoAppStart;
@@ -376,7 +382,7 @@ final class _StaticAppStartExtensionLifecycle {
   /// awaiting `finish()`, so the span is briefly mid-finish while the root
   /// could be enriched. The streaming lifecycle ends spans synchronously and
   /// has no such window.
-  AppStartExtensionOutcome get completionSnapshot {
+  AppStartExtensionOutcome get outcome {
     final span = _span;
     if (span == null) return noAppStartExtension;
     return (
@@ -387,10 +393,12 @@ final class _StaticAppStartExtensionLifecycle {
 
   Future<void> finish(DateTime endTimestamp) {
     if (_closed) {
-      return refuseAppStartExtensionFinish('the app start already ended');
+      logAppStartExtensionFinishRefusal('the app start already ended');
+      return Future<void>.value();
     }
     if (_span == null) {
-      return refuseAppStartExtensionFinish('it was never extended');
+      logAppStartExtensionFinishRefusal('it was never extended');
+      return Future<void>.value();
     }
     return _finishFuture ??= _finishSpan(endTimestamp.toUtc());
   }

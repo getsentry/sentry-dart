@@ -58,7 +58,7 @@ void main() {
       final extension = sut.extendedSpan as SentrySpan;
       expect(
           extension.context.operation, SentrySpanOperations.appStartExtended);
-      expect(extension.context.description, standaloneExtendedAppStartName);
+      expect(extension.context.description, standaloneAppStartExtensionName);
       expect(extension.origin, SentryTraceOrigins.autoAppStart);
       expect(extension.status, isNull);
       expect(extension.startTimestamp, extensionStart);
