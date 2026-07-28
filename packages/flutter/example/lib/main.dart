@@ -16,16 +16,51 @@ import 'theme_provider.dart';
 
 Future<void> main() async {
   await setupSentry(
-    () => runApp(
-      SentryWidget(
-        child: DefaultAssetBundle(
-          bundle: SentryAssetBundle(),
-          child: const MyApp(),
+    () async {
+      runApp(
+        SentryWidget(
+          child: DefaultAssetBundle(
+            bundle: SentryAssetBundle(),
+            child: const MyApp(),
+          ),
         ),
-      ),
-    ),
+      );
+    },
     config.exampleDsn,
   );
+}
+
+Future<void> _loadStartupConfiguration() async {
+  final staticParent = SentryFlutter.getExtendedAppStartSpan();
+  if (staticParent != null) {
+    final child = staticParent.startChild(
+      'app.init',
+      description: 'Load startup configuration',
+    );
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+    } finally {
+      await child.finish();
+    }
+    return;
+  }
+
+  final streamParent = SentryFlutter.getExtendedAppStartSpanV2();
+  if (streamParent != null) {
+    final child = Sentry.startInactiveSpan(
+      'Load startup configuration',
+      parentSpan: streamParent,
+      attributes: {
+        SemanticAttributesConstants.sentryOp:
+            SentryAttribute.string('app.init'),
+      },
+    );
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+    } finally {
+      child.end();
+    }
+  }
 }
 
 Future<void> setupSentryWithCustomInit(
@@ -65,6 +100,7 @@ Future<void> setupSentry(
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.navigatorKey = config.navigatorKey;
       options.traceLifecycle = SentryTraceLifecycle.stream;
+      options.enableStandaloneAppStartTracing = true;
 
       options.replay.sessionSampleRate = 1.0;
       options.replay.onErrorSampleRate = 1.0;
@@ -133,11 +169,16 @@ class _MyAppState extends State<MyApp> {
   }
 
   void doWork() async {
+    // Extend before the first frame renders, so the App Start measures up to
+    // `finishExtendedAppStart` instead of the first frame.
+    SentryFlutter.extendAppStart();
     final rootDisplay = SentryFlutter.currentDisplay();
 
-    await Sentry.startSpan('Custom span that runs during app start', (_) async {
-      await Future.delayed(const Duration(seconds: 1));
-    });
+    try {
+      await _loadStartupConfiguration();
+    } finally {
+      await SentryFlutter.finishExtendedAppStart();
+    }
 
     rootDisplay?.reportFullyDisplayed();
   }
