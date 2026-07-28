@@ -30,6 +30,24 @@ bool refuseAppStartExtension(String reason) {
   return false;
 }
 
+/// Prefix shared by every reason a finish is turned down, so the public entry
+/// point and both lifecycles read the same way in the logs.
+@internal
+const appStartExtensionFinishRefusalPrefix =
+    'Not finishing the extended app start';
+
+/// Records why a finish was turned down and refuses it.
+///
+/// The counterpart to [refuseAppStartExtension], and the more valuable of the
+/// two: a finish is refused precisely when the app start has already been
+/// reported, so the user is looking at a duration they expected the extension
+/// to cover and nothing else would tell them why it does not.
+@internal
+Future<void> refuseAppStartExtensionFinish(String reason) {
+  internalLogger.info('$appStartExtensionFinishRefusalPrefix: $reason');
+  return Future<void>.value();
+}
+
 /// Where an app-start extension stands when the root is enriched.
 ///
 /// [isSettled] means the extension is no longer holding the app start open —

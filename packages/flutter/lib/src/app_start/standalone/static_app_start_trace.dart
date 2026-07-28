@@ -165,7 +165,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   @override
   Future<void> finishExtended(DateTime endTimestamp) {
     if (_isFinalizingOrTerminal) {
-      return Future<void>.value();
+      return refuseAppStartExtensionFinish('the app start already ended');
     }
 
     return _extensionLifecycle.finish(endTimestamp);
@@ -316,6 +316,14 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 }
 
+/// Owns the single extension span for the static lifecycle.
+///
+/// Deliberately not shared with its streaming counterpart, which mirrors this
+/// class step for step: the two operate on different span protocols, one ends
+/// spans asynchronously and the other synchronously, and each expresses status
+/// its own way. Unifying them would mean a type parameter plus an adapter per
+/// protocol to bridge those three differences, for one implementation each —
+/// the same reason the two trace classes above them stay separate.
 final class _StaticAppStartExtensionLifecycle {
   final Hub _hub;
   final SentryTracer _root;
@@ -378,7 +386,12 @@ final class _StaticAppStartExtensionLifecycle {
   }
 
   Future<void> finish(DateTime endTimestamp) {
-    if (_closed || _span == null) return Future<void>.value();
+    if (_closed) {
+      return refuseAppStartExtensionFinish('the app start already ended');
+    }
+    if (_span == null) {
+      return refuseAppStartExtensionFinish('it was never extended');
+    }
     return _finishFuture ??= _finishSpan(endTimestamp.toUtc());
   }
 

@@ -482,6 +482,11 @@ mixin SentryFlutter {
   /// Spans you started under the extension are left running. They hold the App
   /// Start open on their own until they finish or it hits its deadline, so
   /// finish them too if they should not delay it.
+  ///
+  /// Does nothing when there is no extension left to finish — it was never
+  /// started, or the App Start has already been reported because it hit its
+  /// deadline first. As with [extendAppStart], each of those is logged rather
+  /// than reported back to the caller.
   @experimental
   static Future<void> finishExtendedAppStart() async {
     final options = Sentry.currentHub.options;
@@ -489,7 +494,15 @@ mixin SentryFlutter {
       return;
     }
     try {
-      await options.standaloneAppStartTrace?.finishExtended(options.clock());
+      final trace = options.standaloneAppStartTrace;
+      if (trace == null) {
+        internalLogger.info(
+          '$appStartExtensionFinishRefusalPrefix: '
+          'there is no app start left to finish',
+        );
+        return;
+      }
+      await trace.finishExtended(options.clock());
     } catch (error, stackTrace) {
       internalLogger.error(
         'Failed to finish the extended app start',

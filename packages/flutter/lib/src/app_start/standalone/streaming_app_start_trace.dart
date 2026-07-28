@@ -156,6 +156,9 @@ final class StreamingAppStartTrace implements AppStartTrace {
 
   @override
   bool tryExtend(DateTime startTimestamp) {
+    // No `_finalizing` guard like the static trace's. The deadline is owned by
+    // the idle root here, which force-ends its descendants synchronously, so
+    // there is no window where the trace is winding down but not yet terminal.
     if (_state.isTerminal) {
       return refuseAppStartExtension('the app start already ended');
     }
@@ -175,7 +178,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   @override
   Future<void> finishExtended(DateTime endTimestamp) {
     if (_state.isTerminal) {
-      return Future<void>.value();
+      return refuseAppStartExtensionFinish('the app start already ended');
     }
 
     return _extensionLifecycle.finish(endTimestamp);
@@ -248,6 +251,10 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }
 }
 
+/// Owns the single extension span for the streaming lifecycle.
+///
+/// Mirrors `_StaticAppStartExtensionLifecycle` step for step; see the note
+/// there for why the two are not shared.
 final class _StreamingAppStartExtensionLifecycle {
   final Hub _hub;
   final IdleRecordingSentrySpanV2 _root;
@@ -307,7 +314,12 @@ final class _StreamingAppStartExtensionLifecycle {
       : (isSettled: _endTimestamp != null, endTimestamp: _endTimestamp);
 
   Future<void> finish(DateTime endTimestamp) {
-    if (_closed || _span == null) return Future<void>.value();
+    if (_closed) {
+      return refuseAppStartExtensionFinish('the app start already ended');
+    }
+    if (_span == null) {
+      return refuseAppStartExtensionFinish('it was never extended');
+    }
     return _finishFuture ??= _finishSpan(endTimestamp.toUtc());
   }
 
