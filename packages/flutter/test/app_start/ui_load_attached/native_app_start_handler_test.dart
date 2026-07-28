@@ -5,16 +5,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_handler.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/native_app_start_handler.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/native_app_start_integration.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 
-import '../mocks.dart';
-import '../mocks.mocks.dart';
+import '../../mocks.dart';
+import '../../mocks.mocks.dart';
 
 // ignore_for_file: invalid_use_of_internal_member
 // ignore_for_file: inference_failure_on_instance_creation
@@ -551,7 +551,9 @@ class Fixture {
 
   Fixture() {
     when(hub.options).thenReturn(options);
-    SentryFlutter.sentrySetupStartTime = DateTime.now().toUtc();
+    // Must sit between pluginRegistrationTime (10ms) and typical appStartEnd.
+    SentryFlutter.sentrySetupStartTime =
+        DateTime.fromMillisecondsSinceEpoch(10).toUtc();
   }
 
   Future<void> call({required DateTime appStartEnd}) async {

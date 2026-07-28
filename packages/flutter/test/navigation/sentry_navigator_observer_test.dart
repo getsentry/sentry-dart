@@ -1143,6 +1143,23 @@ void main() {
 
       verify(fixture.mockTimeToDisplayTracker.clear()).called(1);
     });
+
+    test('didPush hands a pending app start its initial route name', () {
+      final mockHub = _MockHub();
+
+      final tracer = getMockSentryTracer();
+      _whenAnyStart(mockHub, tracer);
+      when(fixture.mockTimeToDisplayTracker.isAppStartRoutePending)
+          .thenReturn(true);
+
+      final sut = fixture.getSut(hub: mockHub);
+
+      sut.didPush(route(RouteSettings(name: '/login')), null);
+
+      verify(fixture.mockTimeToDisplayTracker.setAppStartRouteName('/login'))
+          .called(1);
+      verifyNever(fixture.mockTimeToDisplayTracker.clear());
+    });
   });
 
   group('time to display (streaming)', () {
@@ -1216,6 +1233,10 @@ void main() {
 class Fixture {
   late MockTimeToDisplayTracker mockTimeToDisplayTracker =
       MockTimeToDisplayTracker();
+
+  Fixture() {
+    when(mockTimeToDisplayTracker.isAppStartRoutePending).thenReturn(false);
+  }
 
   SentryNavigatorObserver getSut({
     required Hub hub,

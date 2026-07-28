@@ -64,6 +64,7 @@ Future<void> setupSentry(
       options.maxRequestBodySize = MaxRequestBodySize.always;
       options.navigatorKey = config.navigatorKey;
       options.traceLifecycle = SentryTraceLifecycle.stream;
+      options.enableStandaloneAppStartTracing = true;
 
       options.replay.sessionSampleRate = 1.0;
       options.replay.onErrorSampleRate = 1.0;
