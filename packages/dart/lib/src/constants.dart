@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 @internal
 class SentrySpanOperations {
   static const String appStart = 'app.start';
+  static const String appStartExtended = 'app.start.extended';
   static const String appStartPluginRegistration =
       'app.start.plugin_registration';
   static const String appStartSentrySetup = 'app.start.sentry_setup';

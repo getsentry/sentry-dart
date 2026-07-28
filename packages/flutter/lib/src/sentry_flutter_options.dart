@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
 
+import 'app_start/standalone/app_start_trace.dart';
 import 'binding_wrapper.dart';
 import 'event_processor/screenshot_event_processor.dart';
 import 'navigation/time_to_display_tracker.dart';
@@ -198,6 +199,9 @@ class SentryFlutterOptions extends SentryOptions {
   @meta.internal
   bool get usesStandaloneAppStart =>
       enableStandaloneAppStartTracing && (platform.isIOS || platform.isAndroid);
+
+  @meta.internal
+  AppStartTrace? standaloneAppStartTrace;
 
   /// Automatically attaches a screenshot when capturing an error or exception.
   ///

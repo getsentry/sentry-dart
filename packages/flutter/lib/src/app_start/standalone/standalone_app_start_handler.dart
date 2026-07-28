@@ -22,12 +22,13 @@ class StandaloneAppStartHandler {
   final FrameCallbackHandler _frameCallbackHandler;
   final SentryNativeBinding _native;
 
-  AppStartTrace? _trace;
   String? _startScreenName;
   TimingsCallback? _timingsCallback;
+  SentryFlutterOptions? _options;
 
   /// Set by [_prepareTimeToDisplay]; `null` until then.
   AppStartDisplayTracking? _displayTracking;
+
   bool _started = false;
   bool _closed = false;
 
@@ -45,6 +46,7 @@ class StandaloneAppStartHandler {
       return;
     }
     _started = true;
+    _options = options;
 
     AppStartTiming? timing;
     try {
@@ -85,11 +87,13 @@ class StandaloneAppStartHandler {
         'Skipping standalone app start: native timing unavailable or invalid',
       );
     } else {
-      _trace = _createAppStartTrace(options, timing);
-      if (_trace == null) {
+      final trace = _createAppStartTrace(options, timing);
+      if (trace == null) {
         internalLogger.info(
           'Skipping standalone app start: trace was not created',
         );
+      } else {
+        options.standaloneAppStartTrace = trace;
       }
     }
 
@@ -110,14 +114,21 @@ class StandaloneAppStartHandler {
           hub: _hub,
           timing: timing,
           startScreenNameProvider: _resolveStartScreenName,
+          onCompleted: _unpublishTrace,
         ),
       SentryTraceLifecycle.stream => StreamingAppStartTrace.tryCreate(
           hub: _hub,
           timing: timing,
           startScreenNameProvider: _resolveStartScreenName,
+          onCompleted: _unpublishTrace,
         ),
     };
   }
+
+  /// Stops exposing the trace once it can no longer be extended, so a reported
+  /// app start does not stay reachable — and retained — for the process
+  /// lifetime.
+  void _unpublishTrace() => _options?.standaloneAppStartTrace = null;
 
   String _resolveStartScreenName() => resolveRouteDisplayName(_startScreenName);
 
@@ -148,7 +159,7 @@ class StandaloneAppStartHandler {
         // the user may navigate away before the app-start span finishes.
         _startScreenName ??= SentryNavigatorObserver.currentRouteName;
 
-        _trace?.recordFirstFrame(endTimestamp);
+        options.standaloneAppStartTrace?.recordFirstFrame(endTimestamp);
 
         // Keep display tracking last because TTFD may wait for its timeout.
         await _displayTracking?.record(endTimestamp);
@@ -171,10 +182,13 @@ class StandaloneAppStartHandler {
   Future<void> close() async {
     _closed = true;
     _removeTimingsCallback();
-    await _trace?.close();
+    // Read before closing: a trace that reports while closing unpublishes
+    // itself, and this teardown still has to await the one it started with.
+    final trace = _options?.standaloneAppStartTrace;
+    await trace?.close();
+    _unpublishTrace();
     _displayTracking?.cancel();
     _displayTracking = null;
-    _trace = null;
     _startScreenName = null;
   }
 
