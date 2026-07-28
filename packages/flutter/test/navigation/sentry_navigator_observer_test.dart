@@ -1144,7 +1144,7 @@ void main() {
       verify(fixture.mockTimeToDisplayTracker.clear()).called(1);
     });
 
-    test('didPush hands a pending app start its initial route name', () async {
+    test('didPush hands a pending app start its initial route name', () {
       final mockHub = _MockHub();
 
       final tracer = getMockSentryTracer();
@@ -1155,8 +1155,6 @@ void main() {
       final sut = fixture.getSut(hub: mockHub);
 
       sut.didPush(route(RouteSettings(name: '/login')), null);
-      // Delay a bit since we use await with the session api and we cannot await the navigation methods
-      await Future<void>.delayed(Duration(milliseconds: 100));
 
       verify(fixture.mockTimeToDisplayTracker.setAppStartRouteName('/login'))
           .called(1);
