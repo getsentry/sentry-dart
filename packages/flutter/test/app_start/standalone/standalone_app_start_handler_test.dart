@@ -319,7 +319,9 @@ void main() {
       );
     });
 
-    test('clears the published standalone trace once it completes', () async {
+    test(
+        'clears the published standalone trace once the static lifecycle completes',
+        () async {
       await fixture.startLifecycle();
       final root = fixture.appStartRoots.single.tracer;
 
@@ -328,6 +330,23 @@ void main() {
       fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
       await pumpEventQueue(times: 10);
       await root.finish(endTimestamp: fixture.snapshot);
+
+      expect(fixture.options.standaloneAppStartTrace, isNull);
+    });
+
+    test(
+        'clears the published standalone trace once the stream lifecycle completes',
+        () async {
+      fixture.useStreamingLifecycle();
+      await fixture.startLifecycle();
+      final root = fixture.streamAppStartRoots.single;
+
+      expect(fixture.options.standaloneAppStartTrace, isNotNull);
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+      root.end(endTimestamp: fixture.snapshot);
+      await pumpEventQueue(times: 10);
 
       expect(fixture.options.standaloneAppStartTrace, isNull);
     });
