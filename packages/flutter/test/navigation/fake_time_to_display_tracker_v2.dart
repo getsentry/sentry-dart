@@ -7,6 +7,7 @@ class FakeTimeToDisplayTrackerV2 extends TimeToDisplayTrackerV2 {
   final List<String> trackRouteChangeCalls = [];
   final List<String?> setAppStartRouteNameCalls = [];
   int cancelCurrentRouteCalls = 0;
+  bool _isAppStartRoutePending = true;
 
   @override
   SentrySpanV2 trackRoute(String routeName) {
@@ -15,9 +16,12 @@ class FakeTimeToDisplayTrackerV2 extends TimeToDisplayTrackerV2 {
   }
 
   @override
-  bool setAppStartRouteName(String? routeName) {
+  bool get isAppStartRoutePending => _isAppStartRoutePending;
+
+  @override
+  void setAppStartRouteName(String? routeName) {
     setAppStartRouteNameCalls.add(routeName);
-    return true;
+    _isAppStartRoutePending = false;
   }
 
   @override

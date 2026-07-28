@@ -5,15 +5,14 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
 import '../utils/internal_logger.dart';
-
-const _rootRouteName = 'root /';
+import 'root_route.dart';
 
 @internal
 class TimeToDisplayTrackerV2 {
   final Hub _hub;
   final FrameCallbackHandler _frameCallbackHandler;
   SentrySpanV2? _ttfdSpan;
-  String _appStartRouteName = _rootRouteName;
+  String _appStartRouteName = rootRouteName;
   bool _isAppStartRouteNamePending = false;
 
   /// Prepared root idle span, consumed by [trackAppStart].
@@ -37,28 +36,32 @@ class TimeToDisplayTrackerV2 {
   /// Also creates the TTFD span so [ttfdSpanId] is available for
   /// [SentryFlutter.currentDisplay] before [trackAppStart] fires.
   /// Timestamps are backdated later in [trackAppStart].
-  void prepareAppStart() {
-    assert(_preparedRootNavigationSpan == null,
-        'prepareRootNavigation called while a prepared span is still pending');
-
+  void prepareAppStart({DateTime? startTimestamp}) {
     cancelCurrentRoute();
-    _appStartRouteName = _rootRouteName;
+    _appStartRouteName = rootRouteName;
     _isAppStartRouteNamePending = true;
 
-    final routeSpan = _createRouteSpan(_rootRouteName);
+    final routeSpan = _createRouteSpan(
+      rootRouteName,
+      startTimestamp: startTimestamp,
+    );
     _preparedRootNavigationSpan = routeSpan;
-    _ensureTtfdSpan(routeSpan, _rootRouteName);
+    _ensureTtfdSpan(
+      routeSpan,
+      rootRouteName,
+      startTimestamp: startTimestamp,
+    );
   }
 
+  /// Whether a prepared app start is still waiting for its first route name.
+  bool get isAppStartRoutePending => _isAppStartRouteNamePending;
+
   /// Updates the prepared app-start spans with the first rendered route.
-  ///
-  /// Returns whether a pending app start consumed the route name.
-  bool setAppStartRouteName(String? routeName) {
-    if (!_isAppStartRouteNamePending) return false;
+  void setAppStartRouteName(String? routeName) {
+    if (!_isAppStartRouteNamePending) return;
 
     _isAppStartRouteNamePending = false;
-    final resolvedRouteName =
-        routeName == null || routeName == '/' ? _rootRouteName : routeName;
+    final resolvedRouteName = resolveRouteDisplayName(routeName);
     _appStartRouteName = resolvedRouteName;
 
     if (_preparedRootNavigationSpan case final prepared?) {
@@ -67,7 +70,6 @@ class TimeToDisplayTrackerV2 {
     if (_ttfdSpan case final ttfd?) {
       ttfd.name = '$resolvedRouteName full display';
     }
-    return true;
   }
 
   /// Tracks the app start (native or generic).
@@ -83,9 +85,11 @@ class TimeToDisplayTrackerV2 {
     final routeName = _appStartRouteName;
     _isAppStartRouteNamePending = false;
     final SentrySpanV2 routeSpan;
+    DateTime? displayStartTimestamp = startTimestamp;
     switch (_preparedRootNavigationSpan) {
       case final prepared?:
         _preparedRootNavigationSpan = null;
+        displayStartTimestamp ??= prepared.startTimestamp;
         if (startTimestamp != null) {
           if (prepared case final RecordingSentrySpanV2 span) {
             span.startTimestamp = startTimestamp;
@@ -102,7 +106,7 @@ class TimeToDisplayTrackerV2 {
     _trackDisplaySpans(
       routeSpan,
       routeName,
-      startTimestamp: startTimestamp,
+      startTimestamp: displayStartTimestamp,
       ttidEndTimestamp: ttidEndTimestamp,
     );
     return routeSpan;

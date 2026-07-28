@@ -1,8 +1,8 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-import '../../sentry_flutter.dart';
-import '../native/sentry_native_binding.dart';
-import 'native_app_start_data.dart';
+import '../../../sentry_flutter.dart';
+import '../app_start_timing.dart';
+import '../../native/sentry_native_binding.dart';
 
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
@@ -28,11 +28,17 @@ class NativeAppStartHandler {
     _options = options;
 
     final nativeAppStart = await _native.fetchNativeAppStart();
-    if (nativeAppStart == null) {
+    final setupTimestamp = SentryFlutter.sentrySetupStartTime;
+    if (nativeAppStart == null || setupTimestamp == null) {
       return;
     }
-    final appStartInfo = parseNativeAppStart(nativeAppStart, appStartEnd);
-    if (appStartInfo == null) {
+    final appStartTiming = AppStartTiming.tryParse(
+      nativeAppStart,
+      sentrySetupTimestamp: setupTimestamp,
+    );
+    final appStartDuration =
+        appStartTiming?.reportableDurationUntil(appStartEnd);
+    if (appStartTiming == null || appStartDuration == null) {
       return;
     }
 
@@ -40,7 +46,7 @@ class NativeAppStartHandler {
 
     final rootScreenTransaction = _hub.startTransactionWithContext(
       context,
-      startTimestamp: appStartInfo.start,
+      startTimestamp: appStartTiming.processStartTimestamp,
       waitForChildren: true,
       autoFinishAfter: Duration(seconds: 3),
       bindToScope: true,
@@ -53,70 +59,75 @@ class NativeAppStartHandler {
     } else {
       return;
     }
-    sentryTracer.setData("app_start_type", appStartInfo.type.name);
+    sentryTracer.setData(
+      SentrySpanData.appStartTypeKey,
+      appStartTiming.type.name,
+    );
 
     // We need to add the measurements before we add the child spans
     // If the child span finish the transaction will finish and then we cannot add measurements
     // TODO(buenaflor): eventually we can move this to the onFinish callback
-    SentryMeasurement? measurement = appStartInfo.toMeasurement();
-    sentryTracer.measurements[measurement.name] = appStartInfo.toMeasurement();
+    final measurement = appStartTiming.measurementFor(appStartDuration);
+    sentryTracer.measurements[measurement.name] = measurement;
 
-    await _attachAppStartSpans(appStartInfo, sentryTracer);
+    await _attachAppStartSpans(appStartTiming, appStartEnd, sentryTracer);
     await options.timeToDisplayTracker.track(
       rootScreenTransaction,
-      ttidEndTimestamp: appStartInfo.end,
+      ttidEndTimestamp: appStartEnd,
     );
   }
 
   Future<void> _attachAppStartSpans(
-      AppStartInfo appStartInfo, SentryTracer transaction) async {
+    AppStartTiming appStartTiming,
+    DateTime appStartEnd,
+    SentryTracer transaction,
+  ) async {
     final transactionTraceId = transaction.context.traceId;
-    final appStartEnd = appStartInfo.end;
 
     final appStartSpan = await _createAndFinishSpan(
       tracer: transaction,
-      operation: appStartInfo.appStartTypeOperation,
-      description: appStartInfo.appStartTypeDescription,
+      operation: appStartTiming.type.operation,
+      description: appStartTiming.type.description,
       parentSpanId: transaction.context.spanId,
       traceId: transactionTraceId,
-      startTimestamp: appStartInfo.start,
+      startTimestamp: appStartTiming.processStartTimestamp,
       endTimestamp: appStartEnd,
-      appStartType: appStartInfo.type.name,
+      appStartType: appStartTiming.type.name,
     );
 
-    await _attachNativeSpans(appStartInfo, transaction, appStartSpan);
+    await _attachNativeSpans(appStartTiming, transaction, appStartSpan);
 
     final pluginRegistrationSpan = await _createAndFinishSpan(
       tracer: transaction,
-      operation: appStartInfo.appStartTypeOperation,
-      description: appStartInfo.pluginRegistrationDescription,
+      operation: appStartTiming.type.operation,
+      description: appStartPluginRegistrationDescription,
       parentSpanId: appStartSpan.context.spanId,
       traceId: transactionTraceId,
-      startTimestamp: appStartInfo.start,
-      endTimestamp: appStartInfo.pluginRegistration,
-      appStartType: appStartInfo.type.name,
+      startTimestamp: appStartTiming.processStartTimestamp,
+      endTimestamp: appStartTiming.pluginRegistrationTimestamp,
+      appStartType: appStartTiming.type.name,
     );
 
     final sentrySetupSpan = await _createAndFinishSpan(
       tracer: transaction,
-      operation: appStartInfo.appStartTypeOperation,
-      description: appStartInfo.sentrySetupDescription,
+      operation: appStartTiming.type.operation,
+      description: appStartSentrySetupDescription,
       parentSpanId: appStartSpan.context.spanId,
       traceId: transactionTraceId,
-      startTimestamp: appStartInfo.pluginRegistration,
-      endTimestamp: appStartInfo.sentrySetupStart,
-      appStartType: appStartInfo.type.name,
+      startTimestamp: appStartTiming.pluginRegistrationTimestamp,
+      endTimestamp: appStartTiming.sentrySetupTimestamp,
+      appStartType: appStartTiming.type.name,
     );
 
     final firstFrameRenderSpan = await _createAndFinishSpan(
       tracer: transaction,
-      operation: appStartInfo.appStartTypeOperation,
-      description: appStartInfo.firstFrameRenderDescription,
+      operation: appStartTiming.type.operation,
+      description: appStartFirstFrameRenderDescription,
       parentSpanId: appStartSpan.context.spanId,
       traceId: transactionTraceId,
-      startTimestamp: appStartInfo.sentrySetupStart,
+      startTimestamp: appStartTiming.sentrySetupTimestamp,
       endTimestamp: appStartEnd,
-      appStartType: appStartInfo.type.name,
+      appStartType: appStartTiming.type.name,
     );
 
     transaction.children.addAll([
@@ -128,22 +139,22 @@ class NativeAppStartHandler {
   }
 
   Future<void> _attachNativeSpans(
-    AppStartInfo appStartInfo,
+    AppStartTiming appStartTiming,
     SentryTracer transaction,
     SentrySpan parent,
   ) async {
-    await Future.forEach<TimeSpan>(appStartInfo.nativeSpanTimes,
+    await Future.forEach<AppStartPhase>(appStartTiming.nativePhases,
         (timeSpan) async {
       try {
         final span = await _createAndFinishSpan(
           tracer: transaction,
-          operation: appStartInfo.appStartTypeOperation,
+          operation: appStartTiming.type.operation,
           description: timeSpan.description,
           parentSpanId: parent.context.spanId,
           traceId: transaction.context.traceId,
-          startTimestamp: timeSpan.start,
-          endTimestamp: timeSpan.end,
-          appStartType: appStartInfo.type.name,
+          startTimestamp: timeSpan.startTimestamp,
+          endTimestamp: timeSpan.endTimestamp,
+          appStartType: appStartTiming.type.name,
         );
         span.data.putIfAbsent('native', () => true);
         transaction.children.add(span);
@@ -175,7 +186,7 @@ class NativeAppStartHandler {
       _hub,
       startTimestamp: startTimestamp,
     );
-    span.setData("app_start_type", appStartType);
+    span.setData(SentrySpanData.appStartTypeKey, appStartType);
     await span.finish(endTimestamp: endTimestamp);
     return span;
   }
