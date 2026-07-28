@@ -31,43 +31,58 @@ final class AppStartVitals {
 
   /// Resolves the reported signal for a root that is about to be captured.
   ///
-  /// [endTimestamp] is the first frame, or `null` when none arrived.
-  /// [extensionEndTimestamp] is what an app-start extension contributes, which
-  /// can move the measured endpoint past the first frame.
+  /// [firstFrameTimestamp] is when the first frame finished rasterizing, or
+  /// `null` when no frame arrived. [extensionEndTimestamp] is what an app-start
+  /// extension contributes, which can move the measured endpoint past the first
+  /// frame.
   factory AppStartVitals.resolve({
     required AppStartTiming timing,
     required String screen,
-    required DateTime? endTimestamp,
+    required DateTime? firstFrameTimestamp,
     required DateTime? extensionEndTimestamp,
   }) {
-    final measurementEnd =
-        _resolveMeasurementEnd(endTimestamp, extensionEndTimestamp);
     return AppStartVitals._(
       type: timing.type,
       screen: screen,
-      duration: measurementEnd == null
-          ? null
-          : timing.reportableDurationUntil(measurementEnd),
+      duration: _resolveDuration(
+        timing,
+        firstFrameTimestamp,
+        extensionEndTimestamp,
+      ),
     );
   }
 
-  /// The later of the first frame and the extension, or `null` when the first
-  /// frame never arrived.
+  /// The duration to the later of the first frame and the extension, or `null`
+  /// when the first frame never arrived.
   ///
   /// An extension contributing nothing — never started, still running, or
-  /// force-ended by the root's deadline — therefore leaves the app start
-  /// measured to the first frame rather than withholding it, matching how
-  /// sentry-java and sentry-cocoa clamp a timed-out time-to-full-display back
-  /// to time-to-initial-display.
-  static DateTime? _resolveMeasurementEnd(
-    DateTime? endTimestamp,
+  /// force-ended by the root's deadline — leaves the app start measured to the
+  /// first frame rather than withholding it, matching how sentry-java and
+  /// sentry-cocoa clamp a timed-out time-to-full-display back to
+  /// time-to-initial-display.
+  ///
+  /// An extension whose endpoint is implausible clamps back the same way. The
+  /// two windows are anchored differently — the extension runs on a budget
+  /// measured from trace creation, which a pre-warmed launch can enter up to
+  /// the plausibility ceiling after the process started — so an extension can
+  /// breach that ceiling while the first frame is still within it. Reporting
+  /// nothing there would make extending strictly worse than not extending.
+  static Duration? _resolveDuration(
+    AppStartTiming timing,
+    DateTime? firstFrameTimestamp,
     DateTime? extensionEndTimestamp,
   ) {
-    if (endTimestamp == null) return null;
-    if (extensionEndTimestamp == null) return endTimestamp;
-    return extensionEndTimestamp.isAfter(endTimestamp)
-        ? extensionEndTimestamp
-        : endTimestamp;
+    if (firstFrameTimestamp == null) return null;
+
+    final firstFrameDuration =
+        timing.reportableDurationUntil(firstFrameTimestamp);
+    if (extensionEndTimestamp == null ||
+        !extensionEndTimestamp.isAfter(firstFrameTimestamp)) {
+      return firstFrameDuration;
+    }
+
+    return timing.reportableDurationUntil(extensionEndTimestamp) ??
+        firstFrameDuration;
   }
 
   /// Cold or warm.

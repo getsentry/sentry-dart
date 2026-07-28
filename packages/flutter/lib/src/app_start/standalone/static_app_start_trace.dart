@@ -26,8 +26,11 @@ final class StaticAppStartTrace implements AppStartTrace {
   DateTime? _endTimestamp;
   AppStartTraceState _state = AppStartTraceState.open;
 
-  // The final deadline drains descendants asynchronously. Block extension
-  // mutations while that sweep is in progress.
+  // One way flag — never cleared — once the final deadline starts draining
+  // descendants asynchronously. It blocks extension mutations across that
+  // sweep, after which the terminal state normally takes over; when the drain
+  // fails before reaching it, this stays the only thing refusing to extend a
+  // root that is already past its deadline.
   bool _finalizing = false;
 
   bool get _isFinalizingOrTerminal => _finalizing || _state.isTerminal;
@@ -202,7 +205,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       final vitals = AppStartVitals.resolve(
         timing: _timing,
         screen: _startScreenNameProvider(),
-        endTimestamp: _endTimestamp,
+        firstFrameTimestamp: _endTimestamp,
         extensionEndTimestamp: _extensionLifecycle.measurementEnd,
       );
 

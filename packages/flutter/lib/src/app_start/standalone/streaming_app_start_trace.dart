@@ -203,7 +203,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
       final vitals = AppStartVitals.resolve(
         timing: _timing,
         screen: _startScreenNameProvider(),
-        endTimestamp: _endTimestamp,
+        firstFrameTimestamp: _endTimestamp,
         extensionEndTimestamp: _extensionLifecycle.measurementEnd,
       );
 
