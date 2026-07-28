@@ -1,6 +1,8 @@
-// These helpers are only reached from the Android JNI paths, and they are not
-// web-safe: dart2js's JsonUtf8Encoder throws on non-finite doubles rather than
-// applying the fallback the VM applies.
+// These helpers are only reached from the Android JNI paths, so there is no
+// reason to compile them to JS. Encoding NaN would also fail there whenever
+// asserts are on: dart:convert asserts `identical(_seen.last, object)` after
+// invoking the toEncodable fallback, and NaN is never identical to itself in
+// JS. Infinity is unaffected, and so is a release web build.
 @TestOn('vm')
 library;
 
