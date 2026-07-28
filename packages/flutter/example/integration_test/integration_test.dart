@@ -833,11 +833,14 @@ void main() {
       await scope.clearBreadcrumbs();
     });
 
-    // 4. Verify they're cleared in native
+    // 4. Verify they're cleared in native. Automatic breadcrumbs (window
+    // metrics, lifecycle, native) can land between clearing and loading, so
+    // assert on our own breadcrumb rather than on an empty list.
     contexts = await SentryFlutter.native?.loadContexts();
     breadcrumbs = contexts!['breadcrumbs'] as List<dynamic>?;
-    expect(breadcrumbs == null || breadcrumbs.isEmpty, isTrue,
-        reason: 'Breadcrumbs should be null or empty after clearing');
+    expect(breadcrumbs ?? [],
+        isNot(contains(containsPair('message', 'test-breadcrumb-message'))),
+        reason: 'Test breadcrumb should be gone after clearing');
   });
 
   testWidgets('setUser syncs to native', (tester) async {
