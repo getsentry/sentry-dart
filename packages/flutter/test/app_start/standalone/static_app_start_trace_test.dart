@@ -505,6 +505,26 @@ void main() {
       expect(root.finished, isTrue);
     });
 
+    test('when closing measures the app start to the first frame', () async {
+      final sut = fixture.getSut()!;
+      final root = fixture.root!.tracer;
+      expect(
+        sut.tryExtend(
+          fixture.processStart.add(const Duration(milliseconds: 400)),
+        ),
+        isTrue,
+      );
+
+      sut.recordFirstFrame(fixture.naturalEnd);
+      // Closing force-ends the extension long after the first frame, and that
+      // endpoint must not become the app start's.
+      fixture.clock = fixture.processStart.add(const Duration(seconds: 5));
+      await sut.close();
+      await pumpEventQueue(times: 10);
+
+      expect(root.measurements['app_start_cold']?.value, 350);
+    });
+
     test('when closing flushes root-owned children', () async {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;
@@ -960,13 +980,16 @@ class Fixture {
   late final createdAt = processStart.add(Duration(milliseconds: 300));
   SentrySpan? root;
 
+  /// What `options.clock` reads, so a test can move time on after creation.
+  late DateTime clock = createdAt;
+
   final transport = _FakeTransport();
 
   late final options = defaultTestOptions()
     ..transport = transport
     ..tracesSampleRate = 1.0
     ..traceLifecycle = SentryTraceLifecycle.static
-    ..clock = () => createdAt;
+    ..clock = () => clock;
   late final hub = Hub(options);
   late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
   late final sentrySetup = processStart.add(Duration(milliseconds: 200));
@@ -1006,11 +1029,14 @@ class Fixture {
       final span = event.span;
       if (span is SentrySpan && span.isRootSpan) root ??= span;
     });
-    return StaticAppStartTrace.tryCreate(
+    final trace = StaticAppStartTrace.tryCreate(
       hub: hub,
       timing: timing ?? this.timing,
       startScreenNameProvider: () => 'root /',
     );
+    // Otherwise the 30s final-timeout timer outlives the test.
+    addTearDown(() => trace?.close());
+    return trace;
   }
 }
 

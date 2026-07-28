@@ -336,7 +336,7 @@ final class _StaticAppStartExtensionLifecycle {
   SentrySpan? _span;
   Future<void>? _finishFuture;
   DateTime? _endTimestamp;
-  bool _settledAfterDeadline = false;
+  bool _forceEnded = false;
   bool _closed = false;
 
   _StaticAppStartExtensionLifecycle({
@@ -382,10 +382,10 @@ final class _StaticAppStartExtensionLifecycle {
 
   /// The endpoint the extension contributes to the app-start measurement.
   ///
-  /// `null` when it contributes none: it never started, it is still running,
-  /// or it only settled once the root was already past its deadline — that
-  /// endpoint is the deadline rather than anything the extension reached.
-  DateTime? get measurementEnd => _settledAfterDeadline ? null : _endTimestamp;
+  /// `null` when it contributes none: it never started, it is still running, or
+  /// it was force-ended — by the root's deadline or by SDK close — which ends
+  /// the span at the teardown rather than at anything the extension reached.
+  DateTime? get measurementEnd => _forceEnded ? null : _endTimestamp;
 
   Future<void> finish(DateTime endTimestamp) {
     if (_closed) {
@@ -431,7 +431,7 @@ final class _StaticAppStartExtensionLifecycle {
     if (endTimestamp == null) return;
 
     final status = _resolvedStatus;
-    _settledAfterDeadline = status == SpanStatus.deadlineExceeded();
+    _forceEnded = status == SpanStatus.deadlineExceeded();
     _endTimestamp = endTimestamp;
     span.status = status;
     _removeSpanFinishCallback();
@@ -460,7 +460,9 @@ final class _StaticAppStartExtensionLifecycle {
       final timestamp =
           (span.endTimestamp ?? endTimestamp ?? _hub.options.clock()).toUtc();
       final status = _resolvedStatus;
-      _settledAfterDeadline = status == SpanStatus.deadlineExceeded();
+      // Only [close] gets here already closed, and the extension it ends never
+      // reached this endpoint on its own.
+      _forceEnded = _closed || status == SpanStatus.deadlineExceeded();
       _endTimestamp = timestamp;
 
       span.status = status;

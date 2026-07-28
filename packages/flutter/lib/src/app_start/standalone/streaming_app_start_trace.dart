@@ -269,7 +269,7 @@ final class _StreamingAppStartExtensionLifecycle {
   RecordingSentrySpanV2? _span;
   Future<void>? _finishFuture;
   DateTime? _endTimestamp;
-  bool _settledAfterDeadline = false;
+  bool _forceEnded = false;
   bool _closed = false;
 
   _StreamingAppStartExtensionLifecycle({
@@ -320,10 +320,10 @@ final class _StreamingAppStartExtensionLifecycle {
 
   /// The endpoint the extension contributes to the app-start measurement.
   ///
-  /// `null` when it contributes none: it never started, it is still running,
-  /// or it only settled once the root was already past its deadline — that
-  /// endpoint is the deadline rather than anything the extension reached.
-  DateTime? get measurementEnd => _settledAfterDeadline ? null : _endTimestamp;
+  /// `null` when it contributes none: it never started, it is still running, or
+  /// it was force-ended — by the root's deadline or by SDK close — which ends
+  /// the span at the teardown rather than at anything the extension reached.
+  DateTime? get measurementEnd => _forceEnded ? null : _endTimestamp;
 
   Future<void> finish(DateTime endTimestamp) {
     if (_closed) {
@@ -369,7 +369,7 @@ final class _StreamingAppStartExtensionLifecycle {
         SemanticAttributesConstants.sentryStatusMessage,
         SentryAttribute.string(SentrySpanStatusMessages.deadlineExceeded),
       );
-      _settledAfterDeadline = true;
+      _forceEnded = true;
     } else {
       span.status = SentrySpanStatusV2.ok;
     }
@@ -395,6 +395,9 @@ final class _StreamingAppStartExtensionLifecycle {
     try {
       final timestamp =
           (span.endTimestamp ?? endTimestamp ?? _hub.options.clock()).toUtc();
+      // Only [close] gets here already closed, and the extension it ends never
+      // reached this endpoint on its own.
+      _forceEnded = _closed;
       _endTimestamp = timestamp;
 
       span.status = SentrySpanStatusV2.ok;
