@@ -140,6 +140,7 @@ void main() {
 
       await tester.pump(const Duration(seconds: 30));
       await tester.pump();
+      expect(closeFuture, isNotNull);
       await closeFuture;
 
       expect(extension.status, SentrySpanStatusV2.error);

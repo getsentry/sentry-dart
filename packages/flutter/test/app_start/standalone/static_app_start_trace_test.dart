@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/app_start/app_start_timing.dart';
-import 'package:sentry_flutter/src/app_start/standalone/app_start_trace.dart';
 import 'package:sentry_flutter/src/app_start/standalone/static_app_start_trace.dart';
 
 import '../../mocks.dart';
@@ -56,10 +55,9 @@ void main() {
       expect(sut.tryExtend(extensionStart), isTrue);
 
       final extension = sut.extendedSpan as SentrySpan;
-      expect(
-          extension.context.operation, SentrySpanOperations.appStartExtended);
-      expect(extension.context.description, standaloneAppStartExtensionName);
-      expect(extension.origin, SentryTraceOrigins.autoAppStart);
+      expect(extension.context.operation, 'app.start.extended');
+      expect(extension.context.description, 'Extended App Start');
+      expect(extension.origin, 'auto.app.start');
       expect(extension.status, isNull);
       expect(extension.startTimestamp, extensionStart);
       expect(sut.extendedSpanV2, isNull);
