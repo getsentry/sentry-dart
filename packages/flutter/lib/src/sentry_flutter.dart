@@ -401,12 +401,13 @@ mixin SentryFlutter {
     try {
       final trace = options.standaloneAppStartTrace;
       if (trace == null) {
-        internalLogger.info(
-          '$appStartExtensionRefusalPrefix: '
+        logAppStartExtensionRefusal(
           'standalone app-start tracing is not active',
         );
         return;
       }
+      // The refusal is logged by the trace; this entry point reports nothing
+      // back to the caller.
       trace.tryExtend(options.clock());
     } catch (error, stackTrace) {
       internalLogger.error(
@@ -497,8 +498,7 @@ mixin SentryFlutter {
     try {
       final trace = options.standaloneAppStartTrace;
       if (trace == null) {
-        internalLogger.info(
-          '$appStartExtensionFinishRefusalPrefix: '
+        logAppStartExtensionFinishRefusal(
           'there is no app start left to finish',
         );
         return;

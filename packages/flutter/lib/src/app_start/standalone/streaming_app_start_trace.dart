@@ -255,8 +255,11 @@ final class StreamingAppStartTrace implements AppStartTrace {
 
 /// Owns the single extension span for the streaming lifecycle.
 ///
-/// Mirrors `_StaticAppStartExtensionLifecycle` step for step; see the note
-/// there for why the two are not shared.
+/// Mirrors `_StaticAppStartExtensionLifecycle` member for member; see the note
+/// there for why the two are not shared. It diverges in two places, both
+/// because the idle root here force-ends its descendants synchronously: there
+/// is no `waitForPendingFinish`, since no finish can be in flight when the
+/// deadline lands, and [_finishSpan] never has to stamp a deadline status.
 final class _StreamingAppStartExtensionLifecycle {
   final Hub _hub;
   final IdleRecordingSentrySpanV2 _root;
@@ -266,7 +269,7 @@ final class _StreamingAppStartExtensionLifecycle {
   RecordingSentrySpanV2? _span;
   Future<void>? _finishFuture;
   DateTime? _endTimestamp;
-  bool _deadlineStamped = false;
+  bool _settledAfterDeadline = false;
   bool _closed = false;
 
   _StreamingAppStartExtensionLifecycle({
@@ -315,12 +318,12 @@ final class _StreamingAppStartExtensionLifecycle {
     return span == null || span.isEnded ? null : span;
   }
 
-  /// What the extension contributes to the app-start measurement.
+  /// The endpoint the extension contributes to the app-start measurement.
   ///
-  /// `null` once the root force-ended the extension at its deadline, since
-  /// that endpoint is the deadline rather than anything the extension actually
-  /// reached.
-  DateTime? get measurementEnd => _deadlineStamped ? null : _endTimestamp;
+  /// `null` when it contributes none: it never started, it is still running,
+  /// or it only settled once the root was already past its deadline — that
+  /// endpoint is the deadline rather than anything the extension reached.
+  DateTime? get measurementEnd => _settledAfterDeadline ? null : _endTimestamp;
 
   Future<void> finish(DateTime endTimestamp) {
     if (_closed) {
@@ -331,7 +334,7 @@ final class _StreamingAppStartExtensionLifecycle {
       logAppStartExtensionFinishRefusal('it was never extended');
       return Future<void>.value();
     }
-    return _finishFuture ??= _finishSpan(endTimestamp.toUtc());
+    return _finishFuture ??= _finishSpan(endTimestamp: endTimestamp.toUtc());
   }
 
   Future<void> close() async {
@@ -344,9 +347,8 @@ final class _StreamingAppStartExtensionLifecycle {
       return;
     }
 
-    final span = _span;
-    if (span != null && _endTimestamp == null) {
-      await _finishSpan(span.endTimestamp);
+    if (_span != null && _endTimestamp == null) {
+      await _finishSpan();
     }
   }
 
@@ -367,7 +369,7 @@ final class _StreamingAppStartExtensionLifecycle {
         SemanticAttributesConstants.sentryStatusMessage,
         SentryAttribute.string(SentrySpanStatusMessages.deadlineExceeded),
       );
-      _deadlineStamped = true;
+      _settledAfterDeadline = true;
     } else {
       span.status = SentrySpanStatusV2.ok;
     }
@@ -376,18 +378,24 @@ final class _StreamingAppStartExtensionLifecycle {
     _removeSpanEndCallback();
   }
 
+  /// Settles the extension, ending the span unless the caller already did.
+  ///
+  /// A span the caller ended keeps its own endpoint; [endTimestamp] applies to
+  /// one that is still running, and falls back to now when omitted.
+  ///
   /// Unlike the static lifecycle, this always settles on success: the root
   /// force-ends the extension synchronously when it hits its deadline, and
   /// [_handleSpanEnd] latches [_endTimestamp] with the deadline outcome before
   /// anything here can run, so a deadline never reaches this path.
-  Future<void> _finishSpan(DateTime? endTimestamp) async {
+  Future<void> _finishSpan({DateTime? endTimestamp}) async {
     if (_endTimestamp != null) return;
     final span = _span;
+    if (span == null) return;
+
     try {
       final timestamp =
-          (span?.endTimestamp ?? endTimestamp ?? _hub.options.clock()).toUtc();
+          (span.endTimestamp ?? endTimestamp ?? _hub.options.clock()).toUtc();
       _endTimestamp = timestamp;
-      if (span == null) return;
 
       span.status = SentrySpanStatusV2.ok;
       if (!span.isEnded) {

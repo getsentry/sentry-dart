@@ -25,12 +25,10 @@ class StandaloneAppStartHandler {
   AppStartTrace? _trace;
   String? _startScreenName;
   TimingsCallback? _timingsCallback;
+  SentryFlutterOptions? _options;
 
   /// Set by [_prepareTimeToDisplay]; `null` until then.
   AppStartDisplayTracking? _displayTracking;
-
-  /// The options [_trace] was published on, so [close] clears the same ones.
-  SentryFlutterOptions? _publishedOptions;
 
   bool _started = false;
   bool _closed = false;
@@ -49,6 +47,7 @@ class StandaloneAppStartHandler {
       return;
     }
     _started = true;
+    _options = options;
 
     AppStartTiming? timing;
     try {
@@ -97,7 +96,6 @@ class StandaloneAppStartHandler {
         );
       } else {
         options.standaloneAppStartTrace = trace;
-        _publishedOptions = options;
       }
     }
 
@@ -132,17 +130,7 @@ class StandaloneAppStartHandler {
   /// Stops exposing the trace once it can no longer be extended, so a reported
   /// app start does not stay reachable — and retained — for the process
   /// lifetime.
-  ///
-  /// A trace published by someone else is left alone.
-  void _unpublishTrace() {
-    final publishedOptions = _publishedOptions;
-    final trace = _trace;
-    if (trace != null &&
-        identical(publishedOptions?.standaloneAppStartTrace, trace)) {
-      publishedOptions?.standaloneAppStartTrace = null;
-    }
-    _publishedOptions = null;
-  }
+  void _unpublishTrace() => _options?.standaloneAppStartTrace = null;
 
   String _resolveStartScreenName() => resolveRouteDisplayName(_startScreenName);
 

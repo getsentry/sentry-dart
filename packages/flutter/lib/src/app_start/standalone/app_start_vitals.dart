@@ -51,24 +51,21 @@ final class AppStartVitals {
     );
   }
 
-  /// The endpoint the app start is measured to, or `null` when the first frame
-  /// never arrived.
+  /// The later of the first frame and the extension, or `null` when the first
+  /// frame never arrived.
   ///
-  /// An extension that settled after the first frame moves the endpoint out to
-  /// it. One that contributes nothing — never started, still running, or
-  /// force-ended by the root's deadline — leaves the app start measured to the
-  /// first frame rather than withholding it, matching how sentry-java and
-  /// sentry-cocoa clamp a timed-out time-to-full-display back to
-  /// time-to-initial-display.
+  /// An extension contributing nothing — never started, still running, or
+  /// force-ended by the root's deadline — therefore leaves the app start
+  /// measured to the first frame rather than withholding it, matching how
+  /// sentry-java and sentry-cocoa clamp a timed-out time-to-full-display back
+  /// to time-to-initial-display.
   static DateTime? _resolveMeasurementEnd(
     DateTime? endTimestamp,
     DateTime? extensionEndTimestamp,
   ) {
-    if (endTimestamp == null) {
-      return null;
-    }
-    return extensionEndTimestamp != null &&
-            extensionEndTimestamp.isAfter(endTimestamp)
+    if (endTimestamp == null) return null;
+    if (extensionEndTimestamp == null) return endTimestamp;
+    return extensionEndTimestamp.isAfter(endTimestamp)
         ? extensionEndTimestamp
         : endTimestamp;
   }

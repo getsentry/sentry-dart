@@ -13,7 +13,6 @@ import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 
-import '../../app_start_trace_test_support.dart';
 import '../../fake_frame_callback_handler.dart';
 import '../../mocks.dart';
 import '../../mocks.mocks.dart';
@@ -300,23 +299,6 @@ void main() {
       await fixture.getSut().close();
 
       expect(fixture.options.standaloneAppStartTrace, isNull);
-    });
-
-    test('close preserves a replacement standalone trace', () async {
-      await fixture.startLifecycle();
-      final publishedTrace = fixture.options.standaloneAppStartTrace;
-      final replacementTrace = TestAppStartTrace();
-
-      expect(publishedTrace, isNotNull);
-
-      fixture.options.standaloneAppStartTrace = replacementTrace;
-
-      await fixture.getSut().close();
-
-      expect(
-        fixture.options.standaloneAppStartTrace,
-        same(replacementTrace),
-      );
     });
 
     test(

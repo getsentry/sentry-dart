@@ -15,25 +15,15 @@ const standaloneAppStartFinalTimeout = Duration(seconds: 30);
 @internal
 const standaloneAppStartExtensionName = 'Extended App Start';
 
-/// Prefix shared by every reason an extension is turned down, so the public
-/// entry point and both lifecycles read the same way in the logs.
-@internal
-const appStartExtensionRefusalPrefix = 'Not extending the app start';
-
-/// Records why an extension was turned down.
+/// Records why an extension was turned down, so the public entry point and
+/// both lifecycles read the same way in the logs.
 ///
 /// The public entry point returns nothing, so a log is the only way a user
 /// finds out their extension never opened.
 @internal
 void logAppStartExtensionRefusal(String reason) {
-  internalLogger.info('$appStartExtensionRefusalPrefix: $reason');
+  internalLogger.info('Not extending the app start: $reason');
 }
-
-/// Prefix shared by every reason a finish is turned down, so the public entry
-/// point and both lifecycles read the same way in the logs.
-@internal
-const appStartExtensionFinishRefusalPrefix =
-    'Not finishing the extended app start';
 
 /// Records why a finish was turned down.
 ///
@@ -43,7 +33,7 @@ const appStartExtensionFinishRefusalPrefix =
 /// to cover and nothing else would tell them why it does not.
 @internal
 void logAppStartExtensionFinishRefusal(String reason) {
-  internalLogger.info('$appStartExtensionFinishRefusalPrefix: $reason');
+  internalLogger.info('Not finishing the extended app start: $reason');
 }
 
 /// How far a standalone app-start trace has progressed.
@@ -84,15 +74,23 @@ abstract interface class AppStartTrace {
   /// first frame until it is finished.
   ///
   /// Returns `false` when the extension was refused: one already exists, the
-  /// first frame has already rendered, or the trace is winding down.
+  /// first frame has already rendered, or the trace is winding down. Every
+  /// refusal is logged, which is why the public entry point can discard this.
   bool tryExtend(DateTime startTimestamp);
 
   /// The running extension span on the static lifecycle, or `null` on the
   /// streaming one and once the extension is no longer running.
+  ///
+  /// There is one getter per span protocol because a caller parenting its own
+  /// work under the extension needs the concrete type its lifecycle speaks.
+  /// Each implementation answers for its own protocol and `null` for the other,
+  /// so the pair follows `SentryFlutterOptions.traceLifecycle`.
   ISentrySpan? get extendedSpan;
 
   /// The running extension span on the streaming lifecycle, or `null` on the
   /// static one and once the extension is no longer running.
+  ///
+  /// See [extendedSpan] for why there is one getter per protocol.
   SentrySpanV2? get extendedSpanV2;
 
   /// Ends the extension span, releasing the app start to report.

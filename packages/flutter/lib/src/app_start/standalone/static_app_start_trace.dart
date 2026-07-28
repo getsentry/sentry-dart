@@ -254,9 +254,9 @@ final class StaticAppStartTrace implements AppStartTrace {
   /// terminal check is enough to keep it out; [_finalizing] is what keeps
   /// extensions out while the drain below awaits. The state stays
   /// [AppStartTraceState.open] throughout, which lets a first frame arriving
-  /// between the awaits below still run [recordFirstFrame]. That is harmless:
-  /// the root is already `deadlineExceeded`, so the vitals omit the duration
-  /// either way.
+  /// between the awaits below still run [recordFirstFrame] — and it should:
+  /// that frame is the endpoint the app start reports, since a root past its
+  /// deadline still measures to the first frame.
   Future<void> _finishAtDeadline() async {
     if (_isFinalizingOrTerminal) return;
     _finalizing = true;
@@ -336,7 +336,7 @@ final class _StaticAppStartExtensionLifecycle {
   SentrySpan? _span;
   Future<void>? _finishFuture;
   DateTime? _endTimestamp;
-  bool _deadlineStamped = false;
+  bool _settledAfterDeadline = false;
   bool _closed = false;
 
   _StaticAppStartExtensionLifecycle({
@@ -380,11 +380,12 @@ final class _StaticAppStartExtensionLifecycle {
     return span == null || span.finished ? null : span;
   }
 
-  /// What the extension contributes to the app-start measurement.
+  /// The endpoint the extension contributes to the app-start measurement.
   ///
-  /// `null` once the deadline drain stamped the extension, since that endpoint
-  /// is the deadline rather than anything the extension actually reached.
-  DateTime? get measurementEnd => _deadlineStamped ? null : _endTimestamp;
+  /// `null` when it contributes none: it never started, it is still running,
+  /// or it only settled once the root was already past its deadline — that
+  /// endpoint is the deadline rather than anything the extension reached.
+  DateTime? get measurementEnd => _settledAfterDeadline ? null : _endTimestamp;
 
   Future<void> finish(DateTime endTimestamp) {
     if (_closed) {
@@ -395,7 +396,7 @@ final class _StaticAppStartExtensionLifecycle {
       logAppStartExtensionFinishRefusal('it was never extended');
       return Future<void>.value();
     }
-    return _finishFuture ??= _finishSpan(endTimestamp.toUtc());
+    return _finishFuture ??= _finishSpan(endTimestamp: endTimestamp.toUtc());
   }
 
   Future<void> waitForPendingFinish() async {
@@ -413,9 +414,8 @@ final class _StaticAppStartExtensionLifecycle {
       return;
     }
 
-    final span = _span;
-    if (span != null && _endTimestamp == null) {
-      await _finishSpan(span.endTimestamp);
+    if (_span != null && _endTimestamp == null) {
+      await _finishSpan();
     }
   }
 
@@ -431,7 +431,7 @@ final class _StaticAppStartExtensionLifecycle {
     if (endTimestamp == null) return;
 
     final status = _resolvedStatus;
-    _deadlineStamped = status == SpanStatus.deadlineExceeded();
+    _settledAfterDeadline = status == SpanStatus.deadlineExceeded();
     _endTimestamp = endTimestamp;
     span.status = status;
     _removeSpanFinishCallback();
@@ -447,16 +447,21 @@ final class _StaticAppStartExtensionLifecycle {
         : SpanStatus.ok();
   }
 
-  Future<void> _finishSpan(DateTime? endTimestamp) async {
+  /// Settles the extension, ending the span unless the caller already did.
+  ///
+  /// A span the caller ended keeps its own endpoint; [endTimestamp] applies to
+  /// one that is still running, and falls back to now when omitted.
+  Future<void> _finishSpan({DateTime? endTimestamp}) async {
     if (_endTimestamp != null) return;
     final span = _span;
+    if (span == null) return;
+
     try {
       final timestamp =
-          (span?.endTimestamp ?? endTimestamp ?? _hub.options.clock()).toUtc();
+          (span.endTimestamp ?? endTimestamp ?? _hub.options.clock()).toUtc();
       final status = _resolvedStatus;
-      _deadlineStamped = status == SpanStatus.deadlineExceeded();
+      _settledAfterDeadline = status == SpanStatus.deadlineExceeded();
       _endTimestamp = timestamp;
-      if (span == null) return;
 
       span.status = status;
       if (!span.finished) {
