@@ -7,7 +7,12 @@ final class TestAppStartTrace implements AppStartTrace {
   TestAppStartTrace({
     this.extendedSpan,
     this.extendedSpanV2,
+    this.refuseExtension = false,
   });
+
+  /// Stands in for a trace that turns the extension down — already extended,
+  /// past its first frame, or winding down.
+  final bool refuseExtension;
 
   DateTime? extensionStart;
   DateTime? extensionEnd;
@@ -20,6 +25,7 @@ final class TestAppStartTrace implements AppStartTrace {
 
   @override
   bool tryExtend(DateTime startTimestamp) {
+    if (refuseExtension) return false;
     extensionStart = startTimestamp;
     return true;
   }

@@ -730,6 +730,23 @@ void main() {
       expect(fixture.trace.extensionStart, fixture.now);
     });
 
+    test('extendAppStart stays quiet when the trace refuses the extension',
+        () async {
+      await Sentry.close();
+
+      final refusingOptions = defaultTestOptions(checker: MockRuntimeChecker());
+      final refusingTrace = TestAppStartTrace(refuseExtension: true);
+      refusingOptions.standaloneAppStartTrace = refusingTrace;
+      await Sentry.init((_) {}, options: refusingOptions);
+
+      SentryFlutter.extendAppStart();
+
+      expect(refusingTrace.extensionStart, isNull);
+      expect(SentryFlutter.getExtendedAppStartSpan(), isNull);
+      expect(SentryFlutter.getExtendedAppStartSpanV2(), isNull);
+      await expectLater(SentryFlutter.finishExtendedAppStart(), completes);
+    });
+
     test('getters return their lifecycle-specific spans', () {
       expect(
         SentryFlutter.getExtendedAppStartSpan(),
