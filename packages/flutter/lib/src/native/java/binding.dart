@@ -220,8 +220,7 @@ final class $SentryAndroid$Type$ extends jni$_.JType<SentryAndroid> {
 /// from: `io.sentry.android.core.SentryAndroidOptions$BeforeCaptureCallback`
 extension type SentryAndroidOptions$BeforeCaptureCallback._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static final _class = jni$_.JClass.forName(
     r'io/sentry/android/core/SentryAndroidOptions$BeforeCaptureCallback',
   );
@@ -6421,8 +6420,7 @@ final class $ReplayRecorderCallbacks$Type$
 /// from: `io.sentry.Sentry$OptionsConfiguration`
 extension type Sentry$OptionsConfiguration<$T extends jni$_.JObject?>._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static final _class = jni$_.JClass.forName(
     r'io/sentry/Sentry$OptionsConfiguration',
   );
@@ -10479,8 +10477,7 @@ final class $SentryOptions$BeforeSendReplayCallback$Type$
 /// from: `io.sentry.SentryOptions$BeforeSendTransactionCallback`
 extension type SentryOptions$BeforeSendTransactionCallback._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static final _class = jni$_.JClass.forName(
     r'io/sentry/SentryOptions$BeforeSendTransactionCallback',
   );
@@ -11565,8 +11562,7 @@ final class $SentryOptions$Logs$Type$ extends jni$_.JType<SentryOptions$Logs> {
 /// from: `io.sentry.SentryOptions$Metrics$BeforeSendMetricCallback`
 extension type SentryOptions$Metrics$BeforeSendMetricCallback._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static final _class = jni$_.JClass.forName(
     r'io/sentry/SentryOptions$Metrics$BeforeSendMetricCallback',
   );
@@ -22677,8 +22673,7 @@ final class $SentryOptions$Type$ extends jni$_.JType<SentryOptions> {
 /// from: `io.sentry.SentryReplayOptions$BeforeErrorSamplingCallback`
 extension type SentryReplayOptions$BeforeErrorSamplingCallback._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static final _class = jni$_.JClass.forName(
     r'io/sentry/SentryReplayOptions$BeforeErrorSamplingCallback',
   );
@@ -53079,8 +53074,7 @@ final class $SentryScreenshotOptions$Type$
 ///
 extension type SentryFeedbackOptions$$OptionsConfigurator._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static const jni$_.JType<SentryFeedbackOptions$$OptionsConfigurator> type =
       $SentryFeedbackOptions$$OptionsConfigurator$Type$();
 }
@@ -53350,8 +53344,7 @@ final class $ReplayBreadcrumbConverter$Type$
 ///
 extension type IConnectionStatusProvider$$ConnectionStatus._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static const jni$_.JType<IConnectionStatusProvider$$ConnectionStatus> type =
       $IConnectionStatusProvider$$ConnectionStatus$Type$();
 }
@@ -53472,8 +53465,7 @@ final class $TouchRecorderCallback$Type$
 ///
 extension type IConnectionStatusProvider$$IConnectionStatusObserver._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static const jni$_.JType<IConnectionStatusProvider$$IConnectionStatusObserver>
   type = $IConnectionStatusProvider$$IConnectionStatusObserver$Type$();
 }
