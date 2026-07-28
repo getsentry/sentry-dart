@@ -16,7 +16,6 @@ import 'package:sentry_grpc/src/version.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
-import 'mocks/mock_hub.dart';
 
 void main() {
   group('SentryGrpcInterceptor', () {

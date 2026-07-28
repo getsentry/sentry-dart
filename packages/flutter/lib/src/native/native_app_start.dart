@@ -1,6 +1,11 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
+/// Raw app-start payload from the platform channel.
+///
+/// The first stage of the app-start data flow: epoch milliseconds and untyped
+/// native span times, validated only for shape. `AppStartTiming` turns this
+/// into validated timing and documents the full chain.
 @internal
 class NativeAppStart {
   NativeAppStart(

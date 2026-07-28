@@ -1,5 +1,36 @@
 # Changelog
 
+## 9.25.0
+
+### Features
+
+- (replay) Record segment names on Android by @buenaflor in [#3897](https://github.com/getsentry/sentry-dart/pull/3897)
+- (tracing) Emit segment name source by @buenaflor in [#3904](https://github.com/getsentry/sentry-dart/pull/3904)
+
+### Fixes
+
+#### Flutter
+
+- Guard script completion by @buenaflor in [#3912](https://github.com/getsentry/sentry-dart/pull/3912)
+- Add app start screen attribute by @buenaflor in [#3893](https://github.com/getsentry/sentry-dart/pull/3893)
+- Prevent StateError when delayed frames list is empty by @muhammadkamel in [#3876](https://github.com/getsentry/sentry-dart/pull/3876)
+
+#### Other
+
+- (metrics) Add missing metric byte outcomes by @buenaflor in [#3905](https://github.com/getsentry/sentry-dart/pull/3905)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Native SDK to v0.15.4 by @github-actions in [#3910](https://github.com/getsentry/sentry-dart/pull/3910)
+- chore(deps): update Android SDK to v8.49.0 by @github-actions in [#3895](https://github.com/getsentry/sentry-dart/pull/3895)
+- chore(deps): update Cocoa SDK to v8.58.4 by @github-actions in [#3864](https://github.com/getsentry/sentry-dart/pull/3864)
+
+### Internal Changes
+
+- (dart) Accept beta wasm function name by @sentry-junior in [#3898](https://github.com/getsentry/sentry-dart/pull/3898)
+
 ## 9.24.0
 
 ### Features

@@ -9,7 +9,7 @@ on:
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - '.github/workflows/firebase_remote_config.yml'
-      - '.github/workflows/analyze.yml'
+      - '.github/workflows/package-analysis.yml'
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
       - '.github/actions/test-results/**'
@@ -53,8 +53,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: sentry_firebase_remote_config-${{ matrix.target }}-${{ matrix.sdk }}
 
-  analyze:
-    uses: ./.github/workflows/analyze.yml
+  package-analysis:
+    uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/firebase_remote_config
-      sdk: flutter

@@ -3859,6 +3859,12 @@ class MockTimeToDisplayTracker extends _i1.Mock
       ) as _i2.SentryFlutterOptions);
 
   @override
+  bool get isAppStartRoutePending => (super.noSuchMethod(
+        Invocation.getter(#isAppStartRoutePending),
+        returnValue: false,
+      ) as bool);
+
+  @override
   set transactionId(_i2.SpanId? value) => super.noSuchMethod(
         Invocation.setter(
           #transactionId,
@@ -3866,6 +3872,35 @@ class MockTimeToDisplayTracker extends _i1.Mock
         ),
         returnValueForMissingStub: null,
       );
+
+  @override
+  void prepareInitialDisplay(DateTime? startTimestamp) => super.noSuchMethod(
+        Invocation.method(
+          #prepareInitialDisplay,
+          [startTimestamp],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setAppStartRouteName(String? routeName) => super.noSuchMethod(
+        Invocation.method(
+          #setAppStartRouteName,
+          [routeName],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  _i12.Future<void> recordInitialDisplay(DateTime? endTimestamp) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #recordInitialDisplay,
+          [endTimestamp],
+        ),
+        returnValue: _i12.Future<void>.value(),
+        returnValueForMissingStub: _i12.Future<void>.value(),
+      ) as _i12.Future<void>);
 
   @override
   _i12.Future<void> track(
@@ -4511,6 +4546,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     Duration? idleTimeout = const Duration(seconds: 3),
     Duration? finalTimeout = const Duration(seconds: 30),
     bool? trimIdleSpanEndTimestamp = true,
+    bool? bindToHub = true,
     Map<String, _i2.SentryAttribute>? attributes,
     DateTime? startTimestamp,
   }) =>
@@ -4522,6 +4558,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #idleTimeout: idleTimeout,
             #finalTimeout: finalTimeout,
             #trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
+            #bindToHub: bindToHub,
             #attributes: attributes,
             #startTimestamp: startTimestamp,
           },
@@ -4535,6 +4572,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
               #idleTimeout: idleTimeout,
               #finalTimeout: finalTimeout,
               #trimIdleSpanEndTimestamp: trimIdleSpanEndTimestamp,
+              #bindToHub: bindToHub,
               #attributes: attributes,
               #startTimestamp: startTimestamp,
             },

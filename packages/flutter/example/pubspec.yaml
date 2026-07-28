@@ -1,6 +1,6 @@
 name: sentry_flutter_example
 description: Demonstrates how to use the sentry_flutter plugin.
-version: 9.24.0
+version: 9.25.0
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -40,6 +40,7 @@ dependency_overrides:
   isar_flutter_libs:
     git:
       url: https://github.com/Deepjyoti120/isar_flutter_libs.git
+      ref: e61ce33af7118153d31689189077facbcfef8490
 
 dev_dependencies:
   flutter_lints: ^2.0.0
@@ -49,7 +50,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   test: ^1.21.1
-  build_runner: any
+  build_runner: ^2.4.2
 
 flutter:
   uses-material-design: true

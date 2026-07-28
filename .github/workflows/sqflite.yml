@@ -9,7 +9,7 @@ on:
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - '.github/workflows/logging.yml'
-      - '.github/workflows/analyze.yml'
+      - '.github/workflows/package-analysis.yml'
       - '.github/actions/flutter-test/**'
       - '.github/actions/coverage/**'
       - '.github/actions/test-results/**'
@@ -56,8 +56,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: sentry_sqflite-${{ matrix.target }}-${{ matrix.sdk }}
 
-  analyze:
-    uses: ./.github/workflows/analyze.yml
+  package-analysis:
+    uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/sqflite
-      sdk: flutter
