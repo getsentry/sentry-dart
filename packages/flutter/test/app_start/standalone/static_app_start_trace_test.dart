@@ -683,6 +683,31 @@ void main() {
       expect(extension.status, SpanStatus.deadlineExceeded());
     });
 
+    testWidgets('when closing before the extension drains keeps the deadline',
+        (tester) async {
+      final sut = fixture.getSut()!;
+      expect(sut.tryExtend(fixture.createdAt), isTrue);
+      final extension = sut.extendedSpan as SentrySpan;
+      // The drain walks descendants first, so closing from the child's finish
+      // callback reaches the extension while it is still open.
+      final child = extension.startChild('extended child') as SentrySpan;
+      Future<void>? closeFuture;
+      fixture.options.lifecycleRegistry.registerCallback<OnSpanFinish>((event) {
+        if (identical(event.span, child)) {
+          closeFuture = sut.close();
+        }
+      });
+
+      await tester.pump(const Duration(seconds: 30));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      await closeFuture;
+
+      expect(extension.status, SpanStatus.deadlineExceeded());
+      expect(fixture.root!.tracer.status, SpanStatus.deadlineExceeded());
+    });
+
     testWidgets('finishes the root once at the final deadline', (tester) async {
       final mockFixture = MockCreationFixture();
       final deadline = mockFixture.createdAt.add(Duration(seconds: 30));

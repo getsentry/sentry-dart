@@ -319,6 +319,19 @@ void main() {
       );
     });
 
+    test('clears the published standalone trace once it completes', () async {
+      await fixture.startLifecycle();
+      final root = fixture.appStartRoots.single.tracer;
+
+      expect(fixture.options.standaloneAppStartTrace, isNotNull);
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+      await root.finish(endTimestamp: fixture.snapshot);
+
+      expect(fixture.options.standaloneAppStartTrace, isNull);
+    });
+
     test('close removes the first-frame callback', () async {
       await fixture.startLifecycle();
 

@@ -15,6 +15,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   final IdleRecordingSentrySpanV2 _root;
   final RecordingSentrySpanV2 _firstFrameRenderSpan;
   final String Function() _startScreenNameProvider;
+  final void Function()? _onCompleted;
 
   final _StreamingAppStartExtensionLifecycle _extensionLifecycle;
   DateTime? _endTimestamp;
@@ -26,14 +27,17 @@ final class StreamingAppStartTrace implements AppStartTrace {
     required IdleRecordingSentrySpanV2 root,
     required RecordingSentrySpanV2 firstFrameRenderSpan,
     required String Function() startScreenNameProvider,
+    required void Function()? onCompleted,
   })  : _hub = hub,
         _timing = timing,
         _root = root,
         _firstFrameRenderSpan = firstFrameRenderSpan,
         _startScreenNameProvider = startScreenNameProvider,
+        _onCompleted = onCompleted,
         _extensionLifecycle = _StreamingAppStartExtensionLifecycle(
           hub: hub,
           root: root,
+          timing: timing,
         );
 
   /// Opens the standalone root and its breakdown children.
@@ -42,10 +46,14 @@ final class StreamingAppStartTrace implements AppStartTrace {
   /// first-frame span the SDK did not record, or a failure while building the
   /// children. Anything already created is flushed, so no span outlives a
   /// failed creation.
+  ///
+  /// [onCompleted] fires once the root has reported and the trace can no
+  /// longer be extended, so the owner can stop holding on to it.
   static StreamingAppStartTrace? tryCreate({
     required Hub hub,
     required AppStartTiming timing,
     required String Function() startScreenNameProvider,
+    void Function()? onCompleted,
   }) {
     // Held outside the try so a partially built trace can still be flushed.
     IdleRecordingSentrySpanV2? root;
@@ -90,6 +98,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
         root: root,
         firstFrameRenderSpan: firstFrameRenderSpan,
         startScreenNameProvider: startScreenNameProvider,
+        onCompleted: onCompleted,
       );
       for (final phase in timing.phases) {
         final child = hub.startInactiveSpan(
@@ -223,6 +232,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
         _processSpan,
       );
     }
+    _onCompleted?.call();
   }
 
   @override
@@ -240,6 +250,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
 final class _StreamingAppStartExtensionLifecycle {
   final Hub _hub;
   final IdleRecordingSentrySpanV2 _root;
+  final AppStartTiming _timing;
 
   late final SdkLifecycleCallback<OnSpanEndV2> _spanEndCallback;
   RecordingSentrySpanV2? _span;
@@ -250,8 +261,10 @@ final class _StreamingAppStartExtensionLifecycle {
   _StreamingAppStartExtensionLifecycle({
     required Hub hub,
     required IdleRecordingSentrySpanV2 root,
+    required AppStartTiming timing,
   })  : _hub = hub,
-        _root = root {
+        _root = root,
+        _timing = timing {
     _spanEndCallback = _handleSpanEnd;
   }
 
@@ -262,14 +275,10 @@ final class _StreamingAppStartExtensionLifecycle {
       standaloneExtendedAppStartName,
       parentSpan: _root,
       startTimestamp: startTimestamp.toUtc(),
-      attributes: {
-        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
-          SentrySpanOperations.appStartExtended,
-        ),
-        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-          SentryTraceOrigins.autoAppStart,
-        ),
-      },
+      attributes: StreamingAppStartTrace._childAttributes(
+        _timing,
+        SentrySpanOperations.appStartExtended,
+      ),
     );
     if (span is! RecordingSentrySpanV2) return false;
 
@@ -286,7 +295,7 @@ final class _StreamingAppStartExtensionLifecycle {
   }
 
   AppStartExtensionOutcome get completionSnapshot => (
-        completed: _span == null || _endTimestamp != null,
+        isSettled: _span == null || _endTimestamp != null,
         endTimestamp: _endTimestamp,
       );
 
@@ -336,6 +345,10 @@ final class _StreamingAppStartExtensionLifecycle {
     _removeSpanEndCallback();
   }
 
+  /// Unlike the static lifecycle, this always settles on success: the root
+  /// force-ends the extension synchronously when it hits its deadline, and
+  /// [_handleSpanEnd] latches [_endTimestamp] with the deadline outcome before
+  /// anything here can run, so a deadline never reaches this path.
   Future<void> _finishSpan(DateTime? endTimestamp) async {
     if (_endTimestamp != null) return;
     final span = _span;

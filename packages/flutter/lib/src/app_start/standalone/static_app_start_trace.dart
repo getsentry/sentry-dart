@@ -19,6 +19,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   final ISentrySpan _firstFrameRenderSpan;
   final DateTime _finalDeadlineTimestamp;
   final String Function() _startScreenNameProvider;
+  final void Function()? _onCompleted;
 
   final _StaticAppStartExtensionLifecycle _extensionLifecycle;
   Timer? _finalTimeoutTimer;
@@ -38,11 +39,13 @@ final class StaticAppStartTrace implements AppStartTrace {
     required ISentrySpan firstFrameRenderSpan,
     required DateTime finalDeadlineTimestamp,
     required String Function() startScreenNameProvider,
+    required void Function()? onCompleted,
   })  : _timing = timing,
         _root = root,
         _firstFrameRenderSpan = firstFrameRenderSpan,
         _finalDeadlineTimestamp = finalDeadlineTimestamp,
         _startScreenNameProvider = startScreenNameProvider,
+        _onCompleted = onCompleted,
         _extensionLifecycle = _StaticAppStartExtensionLifecycle(
           hub: hub,
           root: root,
@@ -54,10 +57,14 @@ final class StaticAppStartTrace implements AppStartTrace {
   /// root, an unsampled first-frame span, or a failure while building the
   /// children. Anything already created is flushed, so no span outlives a
   /// failed creation.
+  ///
+  /// [onCompleted] fires once the root has reported and the trace can no
+  /// longer be extended, so the owner can stop holding on to it.
   static StaticAppStartTrace? tryCreate({
     required Hub hub,
     required AppStartTiming timing,
     required String Function() startScreenNameProvider,
+    void Function()? onCompleted,
   }) {
     // onFinish captures `trace` below before it is assigned. The tracer cannot
     // finish before it has a child, and the first child is created after the
@@ -104,6 +111,7 @@ final class StaticAppStartTrace implements AppStartTrace {
         finalDeadlineTimestamp:
             createdAt.add(standaloneAppStartFinalTimeout).toUtc(),
         startScreenNameProvider: startScreenNameProvider,
+        onCompleted: onCompleted,
       );
 
       for (final phase in timing.phases) {
@@ -220,6 +228,7 @@ final class StaticAppStartTrace implements AppStartTrace {
     } finally {
       _state = AppStartTraceState.completed;
     }
+    _onCompleted?.call();
   }
 
   void _scheduleFinalTimeout() {
@@ -347,10 +356,14 @@ final class _StaticAppStartExtensionLifecycle {
     return span == null || span.finished ? null : span;
   }
 
+  /// [_endTimestamp] alone is not enough here: [_finishSpan] latches it before
+  /// awaiting `finish()`, so the span is briefly mid-finish while the root
+  /// could be enriched. The streaming lifecycle ends spans synchronously and
+  /// has no such window.
   AppStartExtensionOutcome get completionSnapshot {
     final span = _span;
     return (
-      completed: span == null || (span.finished && _endTimestamp != null),
+      isSettled: span == null || (span.finished && _endTimestamp != null),
       endTimestamp: _endTimestamp,
     );
   }
@@ -393,10 +406,18 @@ final class _StaticAppStartExtensionLifecycle {
     if (endTimestamp == null) return;
 
     _endTimestamp = endTimestamp;
-    if (_root.status != SpanStatus.deadlineExceeded()) {
-      span.status = SpanStatus.ok();
-    }
+    span.status = _resolvedStatus;
     _removeSpanFinishCallback();
+  }
+
+  /// A finished extension normalizes to success, except once the root has hit
+  /// its final deadline — then it carries the deadline outcome instead, which
+  /// is what the deadline drain would have stamped on it.
+  SpanStatus get _resolvedStatus {
+    final deadlineExceeded = SpanStatus.deadlineExceeded();
+    return _root.status == deadlineExceeded
+        ? deadlineExceeded
+        : SpanStatus.ok();
   }
 
   Future<void> _finishSpan(DateTime? endTimestamp) async {
@@ -408,7 +429,7 @@ final class _StaticAppStartExtensionLifecycle {
       _endTimestamp = timestamp;
       if (span == null) return;
 
-      span.status = SpanStatus.ok();
+      span.status = _resolvedStatus;
       if (!span.finished) {
         await span.finish(endTimestamp: timestamp);
       }

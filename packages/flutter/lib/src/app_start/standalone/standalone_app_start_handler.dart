@@ -118,13 +118,30 @@ class StandaloneAppStartHandler {
           hub: _hub,
           timing: timing,
           startScreenNameProvider: _resolveStartScreenName,
+          onCompleted: _unpublishTrace,
         ),
       SentryTraceLifecycle.stream => StreamingAppStartTrace.tryCreate(
           hub: _hub,
           timing: timing,
           startScreenNameProvider: _resolveStartScreenName,
+          onCompleted: _unpublishTrace,
         ),
     };
+  }
+
+  /// Stops exposing the trace once it can no longer be extended, so a reported
+  /// app start does not stay reachable — and retained — for the process
+  /// lifetime.
+  ///
+  /// A trace published by someone else is left alone.
+  void _unpublishTrace() {
+    final publishedOptions = _publishedOptions;
+    final trace = _trace;
+    if (trace != null &&
+        identical(publishedOptions?.standaloneAppStartTrace, trace)) {
+      publishedOptions?.standaloneAppStartTrace = null;
+    }
+    _publishedOptions = null;
   }
 
   String _resolveStartScreenName() => resolveRouteDisplayName(_startScreenName);
@@ -179,14 +196,8 @@ class StandaloneAppStartHandler {
   Future<void> close() async {
     _closed = true;
     _removeTimingsCallback();
-    final trace = _trace;
-    await trace?.close();
-    final publishedOptions = _publishedOptions;
-    if (trace != null &&
-        identical(publishedOptions?.standaloneAppStartTrace, trace)) {
-      publishedOptions?.standaloneAppStartTrace = null;
-    }
-    _publishedOptions = null;
+    await _trace?.close();
+    _unpublishTrace();
     _displayTracking?.cancel();
     _displayTracking = null;
     _trace = null;

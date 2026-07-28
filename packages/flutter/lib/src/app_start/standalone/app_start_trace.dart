@@ -14,13 +14,16 @@ const standaloneAppStartFinalTimeout = Duration(seconds: 30);
 const standaloneExtendedAppStartName = 'Extended App Start';
 
 /// Where an app-start extension stands when the root is enriched.
+///
+/// [isSettled] means the extension is no longer holding the app start open —
+/// either it finished, or it was never started at all.
 @internal
-typedef AppStartExtensionOutcome = ({bool completed, DateTime? endTimestamp});
+typedef AppStartExtensionOutcome = ({bool isSettled, DateTime? endTimestamp});
 
 /// Returns the endpoint a standalone app start reports up to, or `null` when it
 /// has none.
 ///
-/// An extension that has started but not completed leaves the app start still
+/// An extension that has started but not settled leaves the app start still
 /// running, so there is nothing to report yet — both trace implementations must
 /// stay silent rather than report a window that ends mid-extension.
 @internal
@@ -28,7 +31,7 @@ DateTime? resolveAppStartMeasurementEnd(
   DateTime? appStartEndTimestamp,
   AppStartExtensionOutcome extension,
 ) {
-  if (appStartEndTimestamp == null || !extension.completed) {
+  if (appStartEndTimestamp == null || !extension.isSettled) {
     return null;
   }
 
@@ -71,16 +74,27 @@ enum AppStartTraceState {
 /// hierarchy and status through its lifecycle's own payload. What gets
 /// reported is resolved once in `AppStartVitals`; the implementations differ
 /// only in how they write it.
-///
-/// See `docs/standalone-app-start-spec.md` for the contract.
 @internal
 abstract interface class AppStartTrace {
+  /// Opens the single extension span, keeping the app start open past the
+  /// first frame until it is finished.
+  ///
+  /// Returns `false` when the extension was refused: one already exists, the
+  /// first frame has already rendered, or the trace is winding down.
   bool tryExtend(DateTime startTimestamp);
 
+  /// The running extension span on the static lifecycle, or `null` on the
+  /// streaming one and once the extension is no longer running.
   ISentrySpan? get extendedSpan;
 
+  /// The running extension span on the streaming lifecycle, or `null` on the
+  /// static one and once the extension is no longer running.
   SentrySpanV2? get extendedSpanV2;
 
+  /// Ends the extension span, releasing the app start to report.
+  ///
+  /// Descendants started under the extension are left running; they keep the
+  /// root open on their own until they end or the root hits its deadline.
   Future<void> finishExtended(DateTime endTimestamp);
 
   /// Ends the first-frame span and marks [endTimestamp] as the app-start end.
