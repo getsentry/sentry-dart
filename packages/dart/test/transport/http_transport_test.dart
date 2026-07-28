@@ -1,3 +1,4 @@
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sentry/sentry.dart';
@@ -11,7 +12,6 @@ import 'package:test/test.dart';
 
 import '../mocks.dart';
 import '../mocks/mock_client_report_recorder.dart';
-import '../mocks/mock_hub.dart';
 import '../test_utils.dart';
 
 void main() {

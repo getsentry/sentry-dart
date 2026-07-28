@@ -3,11 +3,11 @@ library;
 
 import 'dart:async';
 
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_run_zoned_guarded.dart';
 import 'package:test/test.dart';
 
-import 'mocks/mock_hub.dart';
 import 'mocks/mock_sentry_client.dart';
 import 'test_utils.dart';
 
