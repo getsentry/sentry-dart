@@ -379,8 +379,17 @@ mixin SentryFlutter {
   @experimental
   static void extendAppStart() {
     final options = Sentry.currentHub.options;
-    if (options is SentryFlutterOptions) {
+    if (options is! SentryFlutterOptions) {
+      return;
+    }
+    try {
       options.standaloneAppStartTrace?.tryExtend(options.clock());
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'Failed to extend app start',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -397,9 +406,19 @@ mixin SentryFlutter {
   @experimental
   static ISentrySpan? getExtendedAppStartSpan() {
     final options = Sentry.currentHub.options;
-    return options is SentryFlutterOptions
-        ? options.standaloneAppStartTrace?.extendedSpan
-        : null;
+    if (options is! SentryFlutterOptions) {
+      return null;
+    }
+    try {
+      return options.standaloneAppStartTrace?.extendedSpan;
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'Failed to read the extended app-start span',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return null;
+    }
   }
 
   /// Returns the active streaming-lifecycle extended App Start span.
@@ -415,9 +434,19 @@ mixin SentryFlutter {
   @experimental
   static SentrySpanV2? getExtendedAppStartSpanV2() {
     final options = Sentry.currentHub.options;
-    return options is SentryFlutterOptions
-        ? options.standaloneAppStartTrace?.extendedSpanV2
-        : null;
+    if (options is! SentryFlutterOptions) {
+      return null;
+    }
+    try {
+      return options.standaloneAppStartTrace?.extendedSpanV2;
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'Failed to read the extended app-start span',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return null;
+    }
   }
 
   /// Finishes the active standalone App Start extension, if one exists.
@@ -430,11 +459,17 @@ mixin SentryFlutter {
   @experimental
   static Future<void> finishExtendedAppStart() async {
     final options = Sentry.currentHub.options;
-    if (options is SentryFlutterOptions) {
-      final trace = options.standaloneAppStartTrace;
-      if (trace != null) {
-        await trace.finishExtended(options.clock());
-      }
+    if (options is! SentryFlutterOptions) {
+      return;
+    }
+    try {
+      await options.standaloneAppStartTrace?.finishExtended(options.clock());
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'Failed to finish the extended app start',
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 
