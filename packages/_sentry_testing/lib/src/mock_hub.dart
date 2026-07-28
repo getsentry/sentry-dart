@@ -167,6 +167,14 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
+  FutureOr<void> configureScope(ScopeCallback callback) async {
+    final result = callback(_scope);
+    if (result is Future) {
+      await result;
+    }
+  }
+
+  @override
   Scope get scope => _scope;
 }
 
