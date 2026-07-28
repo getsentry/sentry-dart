@@ -4,8 +4,10 @@ import 'dart:ui';
 
 import 'package:meta/meta.dart';
 
-import '../../sentry_flutter.dart';
-import '../frame_callback_handler.dart';
+import '../../../sentry_flutter.dart';
+import '../../frame_callback_handler.dart';
+import '../../navigation/root_route.dart';
+import '../../utils/internal_logger.dart';
 import 'native_app_start_handler.dart';
 import 'native_app_start_handler_v2.dart';
 
@@ -27,11 +29,29 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
   bool _allowProcessing = true;
 
+  /// Integrations are awaited by the SDK before `runApp`, so anything escaping
+  /// here would leave the app unstarted. App-start tracing is never worth that.
   @override
-  void call(Hub hub, SentryFlutterOptions options) async {
+  Future<void> call(Hub hub, SentryFlutterOptions options) async {
+    try {
+      _install(hub, options);
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Error while installing $integrationName integration',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (options.automatedTestMode) {
+        rethrow;
+      }
+    }
+  }
+
+  void _install(Hub hub, SentryFlutterOptions options) {
+    if (options.usesStandaloneAppStart) return;
+
     if (!options.isTracingEnabled()) {
-      options.log(
-        SentryLevel.info,
+      internalLogger.info(
         'Skipping $integrationName integration because tracing is disabled.',
       );
       return;
@@ -40,11 +60,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
     // V1 path: Create context early so we have an id to reference for reporting full display
     SentryTransactionContext? context;
     if (options.traceLifecycle == SentryTraceLifecycle.static) {
-      context = SentryTransactionContext(
-        'root /',
-        SentrySpanOperations.uiLoad,
-        origin: SentryTraceOrigins.autoUiTimeToDisplay,
-      );
+      context = initialDisplayTransactionContext();
       options.timeToDisplayTracker.transactionId = context.spanId;
     }
 
@@ -78,8 +94,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             );
           case SentryTraceLifecycle.static:
             if (context == null) {
-              options.log(
-                SentryLevel.warning,
+              internalLogger.warning(
                 'Skipping native app start integration because context is null',
               );
               return;
@@ -92,10 +107,9 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             );
         }
       } catch (exception, stackTrace) {
-        options.log(
-          SentryLevel.error,
+        internalLogger.error(
           'Error while capturing native app start',
-          exception: exception,
+          error: exception,
           stackTrace: stackTrace,
         );
         if (options.automatedTestMode) {

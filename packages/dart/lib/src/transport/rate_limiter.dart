@@ -30,6 +30,12 @@ class RateLimiter {
             item,
             DiscardReason.rateLimitBackoff,
           );
+        } else if (category == DataCategory.metric) {
+          TransportUtils.recordLostMetricItem(
+            _options,
+            item,
+            DiscardReason.rateLimitBackoff,
+          );
         } else {
           _options.recorder.recordLostEvent(
             DiscardReason.rateLimitBackoff,
@@ -133,6 +139,15 @@ class RateLimiter {
     if (dataCategory == DataCategory.logItem) {
       final dateLogByte = _rateLimitedUntil[DataCategory.logByte];
       if (dateLogByte != null && !currentDate.isAfter(dateLogByte)) {
+        return true;
+      }
+    }
+
+    // Metric envelope items map to `metric`, but Relay can rate limit their
+    // byte category independently. Honor that limit for metric items too.
+    if (dataCategory == DataCategory.metric) {
+      final dateMetricByte = _rateLimitedUntil[DataCategory.metricByte];
+      if (dateMetricByte != null && !currentDate.isAfter(dateMetricByte)) {
         return true;
       }
     }

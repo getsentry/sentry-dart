@@ -3647,6 +3647,37 @@ extension ReplayIntegration$$Methods on ReplayIntegration {
     ).check();
   }
 
+  static final _id_registerSegmentName = ReplayIntegration._class
+      .instanceMethodId(r'registerSegmentName', r'(Ljava/lang/String;)V');
+
+  static final _registerSegmentName =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public fun registerSegmentName(segmentName: java.lang.String): kotlin.Unit`
+  void registerSegmentName(jni$_.JString string) {
+    final _$string = string.reference;
+    _registerSegmentName(
+      reference.pointer,
+      _id_registerSegmentName.pointer,
+      _$string.pointer,
+    ).check();
+  }
+
   static final _id_stop = ReplayIntegration._class.instanceMethodId(
     r'stop',
     r'()V',

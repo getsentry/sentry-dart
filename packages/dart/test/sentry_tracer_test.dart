@@ -1,8 +1,10 @@
+// ignore_for_file: invalid_use_of_internal_member
+
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
-import 'mocks/mock_hub.dart';
 import 'mocks/mock_sentry_client.dart';
 import 'test_utils.dart';
 
@@ -448,6 +450,22 @@ void main() {
       await sut.finish();
 
       expect(fixture.hub.captureTransactionCalls.isEmpty, true);
+    });
+
+    test('scheduleFinish clears a finish request blocked by children',
+        () async {
+      final sut = fixture.getSut(
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 1),
+      );
+      final child = sut.startChild('child');
+      await sut.finish();
+
+      sut.scheduleFinish();
+      await child.finish();
+
+      expect(sut.finished, isFalse);
+      await sut.finish();
     });
 
     test('tracer sets measurement', () async {

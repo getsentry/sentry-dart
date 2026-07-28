@@ -86,6 +86,23 @@ void main() {
       expect(logByte?.quantity, 42);
     });
 
+    test('records metric item and byte outcomes separately', () {
+      final sut = fixture.getSut();
+
+      sut.recordLostMetric(DiscardReason.beforeSend, bytes: 42);
+
+      final clientReport = sut.flush();
+
+      final metric = clientReport?.discardedEvents
+          .firstWhere((event) => event.category == DataCategory.metric);
+      final metricByte = clientReport?.discardedEvents
+          .firstWhere((event) => event.category == DataCategory.metricByte);
+
+      expect(metric?.quantity, 1);
+      expect(metricByte?.quantity, 42);
+      expect(metricByte?.toJson()['category'], 'trace_metric_byte');
+    });
+
     test('calling flush multiple times returns null', () {
       final sut = fixture.getSut();
 

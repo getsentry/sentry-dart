@@ -1,8 +1,8 @@
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
-import 'mocks/mock_hub.dart';
 import 'test_utils.dart';
 
 void main() {

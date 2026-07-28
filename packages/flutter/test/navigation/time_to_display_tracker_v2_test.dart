@@ -55,6 +55,12 @@ void main() {
               ?.value,
           SentryTraceOrigins.autoNavigationRouteObserver,
         );
+        expect(
+          activeSpan
+              .attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'component',
+        );
       });
 
       test('ends TTID span on next frame callback', () {
@@ -156,6 +162,19 @@ void main() {
     });
 
     group('when tracking app start', () {
+      test('adds component segment name source', () {
+        final sut = fixture.getSut();
+
+        final span = sut.trackAppStart();
+
+        expect(
+          span
+              .attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'component',
+        );
+      });
+
       test('returns idle span named root /', () {
         final sut = fixture.getSut();
 
@@ -164,6 +183,23 @@ void main() {
         expect(routeSpan, isA<RecordingSentrySpanV2>());
         expect(routeSpan.name, 'root /');
         expect(fixture.hub.getActiveSpan()?.spanId, routeSpan.spanId);
+      });
+
+      test('no-arg call keeps generic app start behavior', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+
+        sut.trackAppStart();
+
+        final ttidSpan = childSpans.firstWhere(
+          (s) => s.name == 'root / initial display',
+        );
+        expect(ttidSpan.isEnded, isFalse);
+        expect(fixture.frameCallbackHandler.postFrameCallback, isNotNull);
+
+        fixture.frameCallbackHandler.postFrameCallback?.call(Duration.zero);
+
+        expect(ttidSpan.isEnded, isTrue);
       });
 
       group('with startTimestamp', () {
@@ -236,6 +272,20 @@ void main() {
     });
 
     group('when preparing app start', () {
+      test('adds component segment name source', () {
+        final sut = fixture.getSut();
+
+        sut.prepareAppStart();
+
+        expect(
+          fixture.hub
+              .getActiveSpan()
+              ?.attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'component',
+        );
+      });
+
       test('creates idle span eagerly', () {
         final sut = fixture.getSut();
 
@@ -244,6 +294,19 @@ void main() {
         final activeSpan = fixture.hub.getActiveSpan();
         expect(activeSpan, isNotNull);
         expect(activeSpan!.name, 'root /');
+      });
+
+      test('cancels a still-pending prepared span instead of throwing', () {
+        final sut = fixture.getSut();
+        sut.prepareAppStart();
+        final firstSpan = fixture.hub.getActiveSpan();
+
+        sut.prepareAppStart();
+
+        expect(firstSpan?.isEnded, isTrue);
+        final secondSpan = fixture.hub.getActiveSpan();
+        expect(secondSpan, isNotNull);
+        expect(secondSpan, isNot(same(firstSpan)));
       });
 
       test('makes ttfdSpanId available immediately', () {
@@ -367,6 +430,69 @@ void main() {
         );
         expect(ttidSpan.isEnded, isTrue);
         expect(ttidSpan.endTimestamp, equals(ttidEnd));
+      });
+
+      test('uses prepared route start for TTID when only end is provided', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+        final routeStart = DateTime.utc(2024, 1, 1, 12);
+        final ttidEnd = routeStart.add(const Duration(seconds: 1));
+
+        sut.prepareAppStart(startTimestamp: routeStart);
+        sut.trackAppStart(ttidEndTimestamp: ttidEnd);
+
+        final ttidSpan = childSpans.firstWhere(
+          (span) => span.name == 'root / initial display',
+        );
+        expect(ttidSpan.startTimestamp, routeStart);
+        expect(ttidSpan.endTimestamp, ttidEnd);
+      });
+
+      test('keeps the first initial route name', () {
+        final sut = fixture.getSut();
+
+        sut.prepareAppStart();
+        expect(sut.isAppStartRoutePending, isTrue);
+
+        sut.setAppStartRouteName('/login');
+        expect(sut.isAppStartRoutePending, isFalse);
+
+        sut.setAppStartRouteName('/dashboard');
+        final routeSpan = sut.trackAppStart();
+
+        expect(routeSpan.name, '/login');
+      });
+
+      test('uses a custom initial route for prepared app start spans', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+
+        sut.prepareAppStart();
+        sut.setAppStartRouteName('/login');
+        final routeSpan = sut.trackAppStart();
+
+        expect(routeSpan.name, '/login');
+        expect(
+          childSpans.map((span) => span.name),
+          containsAll(['/login initial display', '/login full display']),
+        );
+      });
+
+      test('uses root name for an unknown or slash initial route', () {
+        for (final routeName in <String?>[null, '/']) {
+          final localFixture = Fixture();
+          final sut = localFixture.getSut();
+
+          sut.prepareAppStart();
+          sut.setAppStartRouteName(routeName);
+          final routeSpan = sut.trackAppStart();
+
+          expect(
+            routeSpan.name,
+            'root /',
+            reason: 'Unexpected app start name for route $routeName',
+          );
+        }
       });
     });
 

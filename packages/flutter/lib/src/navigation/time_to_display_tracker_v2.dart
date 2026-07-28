@@ -5,14 +5,15 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../frame_callback_handler.dart';
 import '../utils/internal_logger.dart';
-
-const _rootRouteName = 'root /';
+import 'root_route.dart';
 
 @internal
 class TimeToDisplayTrackerV2 {
   final Hub _hub;
   final FrameCallbackHandler _frameCallbackHandler;
   SentrySpanV2? _ttfdSpan;
+  String _appStartRouteName = rootRouteName;
+  bool _isAppStartRouteNamePending = false;
 
   /// Prepared root idle span, consumed by [trackAppStart].
   ///
@@ -33,17 +34,36 @@ class TimeToDisplayTrackerV2 {
   /// Also creates the TTFD span so [ttfdSpanId] is available for
   /// [SentryFlutter.currentDisplay] before [trackAppStart] fires.
   /// Timestamps are backdated later in [trackAppStart].
-  void prepareAppStart() {
-    assert(
-      _preparedRootNavigationSpan == null,
-      'prepareRootNavigation called while a prepared span is still pending',
-    );
-
+  void prepareAppStart({DateTime? startTimestamp}) {
     cancelCurrentRoute();
+    _appStartRouteName = rootRouteName;
+    _isAppStartRouteNamePending = true;
 
-    final routeSpan = _createRouteSpan(_rootRouteName);
+    final routeSpan = _createRouteSpan(
+      rootRouteName,
+      startTimestamp: startTimestamp,
+    );
     _preparedRootNavigationSpan = routeSpan;
-    _ensureTtfdSpan(routeSpan, _rootRouteName);
+    _ensureTtfdSpan(routeSpan, rootRouteName, startTimestamp: startTimestamp);
+  }
+
+  /// Whether a prepared app start is still waiting for its first route name.
+  bool get isAppStartRoutePending => _isAppStartRouteNamePending;
+
+  /// Updates the prepared app-start spans with the first rendered route.
+  void setAppStartRouteName(String? routeName) {
+    if (!_isAppStartRouteNamePending) return;
+
+    _isAppStartRouteNamePending = false;
+    final resolvedRouteName = resolveRouteDisplayName(routeName);
+    _appStartRouteName = resolvedRouteName;
+
+    if (_preparedRootNavigationSpan case final prepared?) {
+      prepared.name = resolvedRouteName;
+    }
+    if (_ttfdSpan case final ttfd?) {
+      ttfd.name = '$resolvedRouteName full display';
+    }
   }
 
   /// Tracks the app start (native or generic).
@@ -56,10 +76,14 @@ class TimeToDisplayTrackerV2 {
     DateTime? startTimestamp,
     DateTime? ttidEndTimestamp,
   }) {
+    final routeName = _appStartRouteName;
+    _isAppStartRouteNamePending = false;
     final SentrySpanV2 routeSpan;
+    DateTime? displayStartTimestamp = startTimestamp;
     switch (_preparedRootNavigationSpan) {
       case final prepared?:
         _preparedRootNavigationSpan = null;
+        displayStartTimestamp ??= prepared.startTimestamp;
         if (startTimestamp != null) {
           if (prepared case final RecordingSentrySpanV2 span) {
             span.startTimestamp = startTimestamp;
@@ -70,16 +94,13 @@ class TimeToDisplayTrackerV2 {
         }
         routeSpan = prepared;
       case null:
-        routeSpan = _createRouteSpan(
-          _rootRouteName,
-          startTimestamp: startTimestamp,
-        );
+        routeSpan = _createRouteSpan(routeName, startTimestamp: startTimestamp);
     }
 
     _trackDisplaySpans(
       routeSpan,
-      _rootRouteName,
-      startTimestamp: startTimestamp,
+      routeName,
+      startTimestamp: displayStartTimestamp,
       ttidEndTimestamp: ttidEndTimestamp,
     );
     return routeSpan;
@@ -107,6 +128,10 @@ class TimeToDisplayTrackerV2 {
           SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
             SentryTraceOrigins.autoNavigationRouteObserver,
           ),
+          SemanticAttributesConstants.sentrySegmentNameSource:
+              SentryAttribute.string(
+                SentryTransactionNameSource.component.name,
+              ),
         },
       );
 
@@ -214,6 +239,7 @@ class TimeToDisplayTrackerV2 {
   void cancelCurrentRoute() {
     _ttfdSpan = null;
     _preparedRootNavigationSpan = null;
+    _isAppStartRouteNamePending = false;
 
     final activeSpan = _hub.getActiveSpan();
     if (activeSpan is IdleRecordingSentrySpanV2) {

@@ -1202,6 +1202,25 @@ void main() {
 
       verify(fixture.mockTimeToDisplayTracker.clear()).called(1);
     });
+
+    test('didPush hands a pending app start its initial route name', () {
+      final mockHub = _MockHub();
+
+      final tracer = getMockSentryTracer();
+      _whenAnyStart(mockHub, tracer);
+      when(
+        fixture.mockTimeToDisplayTracker.isAppStartRoutePending,
+      ).thenReturn(true);
+
+      final sut = fixture.getSut(hub: mockHub);
+
+      sut.didPush(route(RouteSettings(name: '/login')), null);
+
+      verify(
+        fixture.mockTimeToDisplayTracker.setAppStartRouteName('/login'),
+      ).called(1);
+      verifyNever(fixture.mockTimeToDisplayTracker.clear());
+    });
   });
 
   group('time to display (streaming)', () {
@@ -1214,11 +1233,25 @@ void main() {
     test('didPush tracks the new route change', () {
       final sut = streamingFixture.getSut();
 
-      sut.didPush(route(RouteSettings(name: '/dashboard')), null);
+      sut.didPush(
+        route(RouteSettings(name: '/dashboard')),
+        route(RouteSettings(name: '/')),
+      );
 
       expect(streamingFixture.fakeTracker.trackRouteChangeCalls, [
         '/dashboard',
       ]);
+    });
+
+    test('didPush records a custom initial route for app start', () {
+      final sut = streamingFixture.getSut();
+
+      sut.didPush(route(RouteSettings(name: '/login')), null);
+
+      expect(streamingFixture.fakeTracker.setAppStartRouteNameCalls, [
+        '/login',
+      ]);
+      expect(streamingFixture.fakeTracker.trackRouteChangeCalls, isEmpty);
     });
 
     test('didPush does not call tracker for root route', () {
@@ -1261,6 +1294,10 @@ void main() {
 class Fixture {
   late MockTimeToDisplayTracker mockTimeToDisplayTracker =
       MockTimeToDisplayTracker();
+
+  Fixture() {
+    when(mockTimeToDisplayTracker.isAppStartRoutePending).thenReturn(false);
+  }
 
   SentryNavigatorObserver getSut({
     required Hub hub,

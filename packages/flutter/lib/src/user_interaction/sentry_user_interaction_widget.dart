@@ -460,6 +460,8 @@ class _SentryUserInteractionWidgetState
         SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
           SentryTraceOrigins.autoUiInteraction,
         ),
+        SemanticAttributesConstants.sentrySegmentNameSource:
+            SentryAttribute.string(SentryTransactionNameSource.component.name),
       },
     );
   }

@@ -97,6 +97,8 @@ extension _DataCategoryExtension on DataCategory {
         return DataCategory.logByte;
       case 'trace_metric':
         return DataCategory.metric;
+      case 'trace_metric_byte':
+        return DataCategory.metricByte;
     }
     return DataCategory.unknown;
   }

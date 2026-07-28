@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 // ignore_for_file: inference_failure_on_instance_creation
 
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -117,6 +118,109 @@ void main() {
     });
   });
 
+  group('app start tracking', () {
+    test('prepareInitialDisplay reserves the transaction id without starting a '
+        'transaction', () {
+      final sut = fixture.getSut();
+
+      sut.prepareInitialDisplay(DateTime.utc(2024, 1, 1, 12));
+
+      expect(sut.transactionId, isNotNull);
+      expect(fixture.hub.scope.span, isNull);
+    });
+
+    test('recordInitialDisplay tracks a live transaction when the first frame '
+        'outlives the idle timeout', () {
+      fakeAsync((async) {
+        final sut = fixture.getSut();
+        final startTimestamp = DateTime.utc(2024, 1, 1, 12);
+        final endTimestamp = startTimestamp.add(const Duration(seconds: 5));
+
+        SentryTracer? tracked;
+        when(
+          fixture.ttidTracker.track(
+            transaction: anyNamed('transaction'),
+            endTimestamp: anyNamed('endTimestamp'),
+          ),
+        ).thenAnswer((invocation) async {
+          final transaction =
+              invocation.namedArguments[#transaction] as SentryTracer;
+          tracked = transaction;
+          return fixture.getTTIDTransaction(transaction);
+        });
+
+        sut.prepareInitialDisplay(startTimestamp);
+        async.elapse(const Duration(seconds: 5));
+        unawaited(sut.recordInitialDisplay(endTimestamp));
+        async.flushMicrotasks();
+
+        expect(tracked, isNotNull);
+        expect(tracked!.finished, isFalse);
+      });
+    });
+
+    test(
+      'recordInitialDisplay starts the reserved ui.load transaction',
+      () async {
+        final sut = fixture.getSut();
+        final startTimestamp = DateTime.utc(2024, 1, 1, 12);
+        final endTimestamp = startTimestamp.add(const Duration(seconds: 1));
+        when(
+          fixture.ttidTracker.track(
+            transaction: anyNamed('transaction'),
+            endTimestamp: endTimestamp,
+          ),
+        ).thenAnswer(
+          (invocation) async => fixture.getTTIDTransaction(
+            invocation.namedArguments[#transaction] as SentryTracer,
+          ),
+        );
+
+        sut.prepareInitialDisplay(startTimestamp);
+        final reservedId = sut.transactionId;
+        await sut.recordInitialDisplay(endTimestamp);
+
+        final transaction = fixture.hub.scope.span as SentryTracer;
+        expect(transaction.name, 'root /');
+        expect(transaction.context.operation, SentrySpanOperations.uiLoad);
+        expect(
+          transaction.transactionNameSource,
+          SentryTransactionNameSource.component,
+        );
+        expect(transaction.startTimestamp, startTimestamp);
+        expect(transaction.context.spanId, reservedId);
+      },
+    );
+
+    test('setAppStartRouteName names the reserved transaction', () async {
+      final sut = fixture.getSut();
+      final startTimestamp = DateTime.utc(2024, 1, 1, 12);
+      final endTimestamp = startTimestamp.add(const Duration(seconds: 1));
+      fixture.whenTtidTracked(endTimestamp);
+
+      sut.prepareInitialDisplay(startTimestamp);
+      sut.setAppStartRouteName('/login');
+      await sut.recordInitialDisplay(endTimestamp);
+
+      expect((fixture.hub.scope.span as SentryTracer).name, '/login');
+    });
+
+    test('setAppStartRouteName keeps the first initial route name', () async {
+      final sut = fixture.getSut();
+      final startTimestamp = DateTime.utc(2024, 1, 1, 12);
+      final endTimestamp = startTimestamp.add(const Duration(seconds: 1));
+      fixture.whenTtidTracked(endTimestamp);
+
+      sut.prepareInitialDisplay(startTimestamp);
+      sut.setAppStartRouteName('/login');
+      sut.setAppStartRouteName('/nested');
+      await sut.recordInitialDisplay(endTimestamp);
+
+      expect(sut.isAppStartRoutePending, isFalse);
+      expect((fixture.hub.scope.span as SentryTracer).name, '/login');
+    });
+  });
+
   group('clear', () {
     test('calls ttfd/ttid clear', () async {
       fixture.options.enableTimeToFullDisplayTracing = true;
@@ -126,6 +230,35 @@ void main() {
 
       verify(fixture.ttidTracker.clear()).called(1);
       verify(fixture.ttfdTracker.clear()).called(1);
+    });
+
+    test('stops reporting a pending app start route', () {
+      final sut = fixture.getSut();
+      sut.prepareInitialDisplay(DateTime.utc(2024, 1, 1, 12));
+
+      sut.clear();
+
+      expect(sut.isAppStartRoutePending, isFalse);
+    });
+
+    test('drops the reserved initial display', () async {
+      final sut = fixture.getSut();
+      final startTimestamp = DateTime.utc(2024, 1, 1, 12);
+      sut.prepareInitialDisplay(startTimestamp);
+
+      sut.clear();
+      expect(sut.transactionId, isNull);
+
+      await sut.recordInitialDisplay(
+        startTimestamp.add(const Duration(seconds: 1)),
+      );
+      expect(fixture.hub.scope.span, isNull);
+      verifyNever(
+        fixture.ttidTracker.track(
+          transaction: anyNamed('transaction'),
+          endTimestamp: anyNamed('endTimestamp'),
+        ),
+      );
     });
   });
 
@@ -442,6 +575,20 @@ class Fixture {
         as SentryTracer;
   }
 
+  /// Stubs the TTID tracker to attach its span to whichever transaction it gets.
+  void whenTtidTracked(DateTime endTimestamp) {
+    when(
+      ttidTracker.track(
+        transaction: anyNamed('transaction'),
+        endTimestamp: endTimestamp,
+      ),
+    ).thenAnswer(
+      (invocation) async => getTTIDTransaction(
+        invocation.namedArguments[#transaction] as SentryTracer,
+      ),
+    );
+  }
+
   ISentrySpan getTTIDTransaction(SentryTracer parent) {
     return parent.startChild(
       SentrySpanOperations.uiTimeToInitialDisplay,
@@ -452,6 +599,7 @@ class Fixture {
 
   TimeToDisplayTracker getSut() {
     return TimeToDisplayTracker(
+      hub: hub,
       ttidTracker: ttidTracker,
       ttfdTracker: ttfdTracker,
       options: options,

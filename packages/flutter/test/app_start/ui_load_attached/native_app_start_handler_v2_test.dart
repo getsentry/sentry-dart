@@ -5,13 +5,13 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_handler_v2.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/native_app_start_handler_v2.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 
-import '../fake_frame_callback_handler.dart';
-import '../mocks.dart';
-import '../mocks.mocks.dart';
+import '../../fake_frame_callback_handler.dart';
+import '../../mocks.dart';
+import '../../mocks.mocks.dart';
 
 void main() {
   late Fixture fixture;
@@ -217,6 +217,63 @@ void main() {
     });
 
     group('when emitting app start vitals', () {
+      test(
+        'does not add initial screen to breakdown app start spans',
+        () async {
+          await fixture.call();
+
+          final appStartSpan = fixture.findSpanByName('Cold Start')!;
+          final phaseSpan = fixture.findSpanByName(
+            'App start to plugin registration',
+          )!;
+          final nativeSpan = fixture.findSpanByName('native span 1')!;
+
+          expect(
+            appStartSpan.attributes['app.vitals.start.screen']?.value,
+            'root /',
+          );
+          expect(phaseSpan.attributes['app.vitals.start.screen'], isNull);
+          expect(nativeSpan.attributes['app.vitals.start.screen'], isNull);
+        },
+      );
+
+      test('adds initial screen to the warm app start span', () async {
+        when(
+          fixture.nativeBinding.fetchNativeAppStart(),
+        ).thenAnswer((_) async => fixture.warmNativeAppStart);
+
+        await fixture.call();
+
+        final appStartSpan = fixture.findSpanByName('Warm Start')!;
+        expect(
+          appStartSpan.attributes['app.vitals.start.screen']?.value,
+          'root /',
+        );
+      });
+
+      test('adds initial screen to the cold app start span', () async {
+        await fixture.call();
+
+        final appStartSpan = fixture.findSpanByName('Cold Start')!;
+        expect(
+          appStartSpan.attributes['app.vitals.start.screen']?.value,
+          'root /',
+        );
+      });
+
+      test('adds a custom initial route to the app start span', () async {
+        fixture.options.timeToDisplayTrackerV2.prepareAppStart();
+        fixture.options.timeToDisplayTrackerV2.setAppStartRouteName('/login');
+
+        await fixture.call();
+
+        final appStartSpan = fixture.findSpanByName('Cold Start')!;
+        expect(
+          appStartSpan.attributes['app.vitals.start.screen']?.value,
+          '/login',
+        );
+      });
+
       test(
         'cold start emits legacy cold value and unified value and type',
         () async {
