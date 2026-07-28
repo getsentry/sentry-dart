@@ -1,3 +1,9 @@
+// These helpers are only reached from the Android JNI paths, and they are not
+// web-safe: dart2js's JsonUtf8Encoder throws on non-finite doubles rather than
+// applying the fallback the VM applies.
+@TestOn('vm')
+library;
+
 import 'dart:convert';
 import 'dart:typed_data';
 
