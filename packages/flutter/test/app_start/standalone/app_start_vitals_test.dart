@@ -2,6 +2,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/app_start/app_start_timing.dart';
+import 'package:sentry_flutter/src/app_start/standalone/app_start_trace.dart';
 import 'package:sentry_flutter/src/app_start/standalone/app_start_vitals.dart';
 
 void main() {
@@ -34,6 +35,44 @@ void main() {
 
     test('returns null duration when no first frame arrived', () {
       final vitals = fixture.resolve(endTimestamp: null);
+
+      expect(vitals.duration, isNull);
+    });
+
+    test('measures to an extension that outlasted the first frame', () {
+      final vitals = fixture.resolve(
+        endTimestamp:
+            fixture.processStart.add(const Duration(milliseconds: 750)),
+        extension: (
+          isSettled: true,
+          endTimestamp:
+              fixture.processStart.add(const Duration(milliseconds: 1200)),
+        ),
+      );
+
+      expect(vitals.duration, const Duration(milliseconds: 1200));
+    });
+
+    test('keeps the first frame when the extension ended before it', () {
+      final vitals = fixture.resolve(
+        endTimestamp:
+            fixture.processStart.add(const Duration(milliseconds: 750)),
+        extension: (
+          isSettled: true,
+          endTimestamp:
+              fixture.processStart.add(const Duration(milliseconds: 400)),
+        ),
+      );
+
+      expect(vitals.duration, const Duration(milliseconds: 750));
+    });
+
+    test('returns null duration while an extension is unsettled', () {
+      final vitals = fixture.resolve(
+        endTimestamp:
+            fixture.processStart.add(const Duration(milliseconds: 750)),
+        extension: (isSettled: false, endTimestamp: null),
+      );
 
       expect(vitals.duration, isNull);
     });
@@ -141,12 +180,14 @@ class Fixture {
     AppStartType type = AppStartType.cold,
     String screen = 'root /',
     required DateTime? endTimestamp,
+    AppStartExtensionOutcome extension = noAppStartExtension,
     bool deadlineExceeded = false,
   }) =>
       AppStartVitals.resolve(
         timing: timing(type: type),
         screen: screen,
         endTimestamp: endTimestamp,
+        extension: extension,
         deadlineExceeded: deadlineExceeded,
       );
 }

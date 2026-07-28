@@ -156,8 +156,11 @@ final class StreamingAppStartTrace implements AppStartTrace {
 
   @override
   bool tryExtend(DateTime startTimestamp) {
-    if (_state.isTerminal || _firstFrameRenderSpan.isEnded) {
-      return false;
+    if (_state.isTerminal) {
+      return refuseAppStartExtension('the app start already ended');
+    }
+    if (_firstFrameRenderSpan.isEnded) {
+      return refuseAppStartExtension('the first frame already rendered');
     }
 
     return _extensionLifecycle.tryStart(startTimestamp);
@@ -194,10 +197,8 @@ final class StreamingAppStartTrace implements AppStartTrace {
       final vitals = AppStartVitals.resolve(
         timing: _timing,
         screen: _startScreenNameProvider(),
-        endTimestamp: resolveAppStartMeasurementEnd(
-          _endTimestamp,
-          _extensionLifecycle.completionSnapshot,
-        ),
+        endTimestamp: _endTimestamp,
+        extension: _extensionLifecycle.completionSnapshot,
         deadlineExceeded: _root.deadlineExceeded,
       );
 
@@ -269,7 +270,12 @@ final class _StreamingAppStartExtensionLifecycle {
   }
 
   bool tryStart(DateTime startTimestamp) {
-    if (_closed || _span != null) return false;
+    if (_closed) {
+      return refuseAppStartExtension('the app start already ended');
+    }
+    if (_span != null) {
+      return refuseAppStartExtension('it is already extended');
+    }
 
     final span = _hub.startInactiveSpan(
       standaloneExtendedAppStartName,
@@ -280,7 +286,9 @@ final class _StreamingAppStartExtensionLifecycle {
         SentrySpanOperations.appStartExtended,
       ),
     );
-    if (span is! RecordingSentrySpanV2) return false;
+    if (span is! RecordingSentrySpanV2) {
+      return refuseAppStartExtension('the extension span was not recorded');
+    }
 
     _span = span;
     _hub.options.lifecycleRegistry.registerCallback<OnSpanEndV2>(
@@ -294,10 +302,9 @@ final class _StreamingAppStartExtensionLifecycle {
     return span == null || span.isEnded ? null : span;
   }
 
-  AppStartExtensionOutcome get completionSnapshot => (
-        isSettled: _span == null || _endTimestamp != null,
-        endTimestamp: _endTimestamp,
-      );
+  AppStartExtensionOutcome get completionSnapshot => _span == null
+      ? noAppStartExtension
+      : (isSettled: _endTimestamp != null, endTimestamp: _endTimestamp);
 
   Future<void> finish(DateTime endTimestamp) {
     if (_closed || _span == null) return Future<void>.value();

@@ -17,6 +17,7 @@ import 'event_processor/widget_event_processor.dart';
 import 'file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
+import 'app_start/standalone/app_start_trace.dart';
 import 'app_start/standalone/standalone_app_start_integration.dart';
 import 'app_start/standalone/standalone_app_start_handler.dart';
 import 'app_start/ui_load_attached/generic_app_start_integration.dart';
@@ -353,8 +354,22 @@ mixin SentryFlutter {
 
   /// Extends the active standalone App Start trace, if one exists.
   ///
-  /// Call this in [init]'s `appRunner` before `runApp`, then pair it with
-  /// [finishExtendedAppStart] in a `try` / `finally` block:
+  /// The App Start then measures up to [finishExtendedAppStart] instead of the
+  /// first frame, so startup work that runs past the first frame is part of the
+  /// reported duration.
+  ///
+  /// **Always finish what you extend.** Until the extension finishes, the App
+  /// Start is still in progress: it stays open past its idle timeout, and is
+  /// reported without a duration if it hits its 30 second deadline first. Pair
+  /// this with [finishExtendedAppStart] in a `try` / `finally` so an early
+  /// return or a throw cannot strand it.
+  ///
+  /// Requires [SentryFlutterOptions.enableStandaloneAppStartTracing] on iOS or
+  /// Android. Does nothing on other platforms, once the first frame has
+  /// rendered, or when the App Start is already extended — each of those is
+  /// logged rather than reported back to the caller.
+  ///
+  /// Call this in [init]'s `appRunner` before `runApp`:
   ///
   /// ```dart
   /// await SentryFlutter.init(
@@ -383,7 +398,15 @@ mixin SentryFlutter {
       return;
     }
     try {
-      options.standaloneAppStartTrace?.tryExtend(options.clock());
+      final trace = options.standaloneAppStartTrace;
+      if (trace == null) {
+        internalLogger.info(
+          '$appStartExtensionRefusalPrefix: '
+          'standalone app-start tracing is not active',
+        );
+        return;
+      }
+      trace.tryExtend(options.clock());
     } catch (error, stackTrace) {
       internalLogger.error(
         'Failed to extend app start',
@@ -451,11 +474,14 @@ mixin SentryFlutter {
 
   /// Finishes the active standalone App Start extension, if one exists.
   ///
+  /// This is what releases the App Start opened by [extendAppStart] to report.
   /// Alternatively, finish or end the span returned by the lifecycle-specific
-  /// extended App Start getter.
+  /// extended App Start getter — either one completes the extension, so there
+  /// is no need to do both.
   ///
-  /// Open descendants remain active while the standalone App Start root keeps
-  /// its existing first-frame, idle, and deadline lifecycle.
+  /// Spans you started under the extension are left running. They hold the App
+  /// Start open on their own until they finish or it hits its deadline, so
+  /// finish them too if they should not delay it.
   @experimental
   static Future<void> finishExtendedAppStart() async {
     final options = Sentry.currentHub.options;

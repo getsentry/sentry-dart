@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../app_start_timing.dart';
+import 'app_start_trace.dart';
 
 /// What a standalone app-start root reports, resolved once for both trace
 /// lifecycles.
@@ -32,20 +33,44 @@ final class AppStartVitals {
   /// Resolves the reported signal for a root that is about to be captured.
   ///
   /// [endTimestamp] is the first frame, or `null` when none arrived.
+  /// [extension] is where an app-start extension stands, which can move the
+  /// measured endpoint past the first frame or withhold it entirely.
   /// [deadlineExceeded] marks a root torn down by its hard deadline.
   factory AppStartVitals.resolve({
     required AppStartTiming timing,
     required String screen,
     required DateTime? endTimestamp,
+    required AppStartExtensionOutcome extension,
     required bool deadlineExceeded,
-  }) =>
-      AppStartVitals._(
-        type: timing.type,
-        screen: screen,
-        duration: endTimestamp == null || deadlineExceeded
-            ? null
-            : timing.reportableDurationUntil(endTimestamp),
-      );
+  }) {
+    final measurementEnd = _resolveMeasurementEnd(endTimestamp, extension);
+    return AppStartVitals._(
+      type: timing.type,
+      screen: screen,
+      duration: measurementEnd == null || deadlineExceeded
+          ? null
+          : timing.reportableDurationUntil(measurementEnd),
+    );
+  }
+
+  /// The endpoint the app start is measured to, or `null` when it has none.
+  ///
+  /// An extension that has started but not settled leaves the app start still
+  /// running, so there is nothing to report yet — better to withhold the
+  /// duration than to report a window that ends mid-extension.
+  static DateTime? _resolveMeasurementEnd(
+    DateTime? endTimestamp,
+    AppStartExtensionOutcome extension,
+  ) {
+    if (endTimestamp == null || !extension.isSettled) {
+      return null;
+    }
+
+    final extensionEnd = extension.endTimestamp;
+    return extensionEnd != null && extensionEnd.isAfter(endTimestamp)
+        ? extensionEnd
+        : endTimestamp;
+  }
 
   /// Cold or warm.
   ///
@@ -58,11 +83,13 @@ final class AppStartVitals {
   /// The route observed at the first frame, or the `root /` fallback.
   final String screen;
 
-  /// Time from process start to the first frame.
+  /// Time from process start to the first frame, or to the end of an extension
+  /// that outlasted it.
   ///
   /// `null` when the app start has no measurable duration: no first frame
-  /// arrived, or the root hit its hard deadline and the window is truncated.
-  /// Type and screen are still reported in that case.
+  /// arrived, an extension is still running so the window has no end yet, or
+  /// the root hit its hard deadline and the window is truncated. Type and
+  /// screen are still reported in those cases.
   final Duration? duration;
 
   /// The cold/warm measurement for the static payload, or `null` when there is

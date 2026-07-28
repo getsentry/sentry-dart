@@ -146,8 +146,11 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   @override
   bool tryExtend(DateTime startTimestamp) {
-    if (_isFinalizingOrTerminal || _firstFrameRenderSpan.endTimestamp != null) {
-      return false;
+    if (_isFinalizingOrTerminal) {
+      return refuseAppStartExtension('the app start already ended');
+    }
+    if (_firstFrameRenderSpan.endTimestamp != null) {
+      return refuseAppStartExtension('the first frame already rendered');
     }
 
     return _extensionLifecycle.tryStart(startTimestamp);
@@ -196,10 +199,8 @@ final class StaticAppStartTrace implements AppStartTrace {
       final vitals = AppStartVitals.resolve(
         timing: _timing,
         screen: _startScreenNameProvider(),
-        endTimestamp: resolveAppStartMeasurementEnd(
-          _endTimestamp,
-          _extensionLifecycle.completionSnapshot,
-        ),
+        endTimestamp: _endTimestamp,
+        extension: _extensionLifecycle.completionSnapshot,
         deadlineExceeded: _root.status == SpanStatus.deadlineExceeded(),
       );
 
@@ -334,14 +335,21 @@ final class _StaticAppStartExtensionLifecycle {
   }
 
   bool tryStart(DateTime startTimestamp) {
-    if (_closed || _span != null) return false;
+    if (_closed) {
+      return refuseAppStartExtension('the app start already ended');
+    }
+    if (_span != null) {
+      return refuseAppStartExtension('it is already extended');
+    }
 
     final span = _root.startChild(
       SentrySpanOperations.appStartExtended,
       description: standaloneExtendedAppStartName,
       startTimestamp: startTimestamp.toUtc(),
     );
-    if (span is! SentrySpan) return false;
+    if (span is! SentrySpan) {
+      return refuseAppStartExtension('the extension span was not recorded');
+    }
 
     span.origin = SentryTraceOrigins.autoAppStart;
     _span = span;
@@ -362,8 +370,9 @@ final class _StaticAppStartExtensionLifecycle {
   /// has no such window.
   AppStartExtensionOutcome get completionSnapshot {
     final span = _span;
+    if (span == null) return noAppStartExtension;
     return (
-      isSettled: span == null || (span.finished && _endTimestamp != null),
+      isSettled: span.finished && _endTimestamp != null,
       endTimestamp: _endTimestamp,
     );
   }

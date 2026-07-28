@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
+import '../../utils/internal_logger.dart';
+
 @internal
 const standaloneAppStartRootName = 'App Start';
 
@@ -13,6 +15,21 @@ const standaloneAppStartFinalTimeout = Duration(seconds: 30);
 @internal
 const standaloneExtendedAppStartName = 'Extended App Start';
 
+/// Prefix shared by every reason an extension is turned down, so the public
+/// entry point and both lifecycles read the same way in the logs.
+@internal
+const appStartExtensionRefusalPrefix = 'Not extending the app start';
+
+/// Records why an extension was turned down and refuses it.
+///
+/// The public entry point returns nothing, so a log is the only way a user
+/// finds out their extension never opened.
+@internal
+bool refuseAppStartExtension(String reason) {
+  internalLogger.info('$appStartExtensionRefusalPrefix: $reason');
+  return false;
+}
+
 /// Where an app-start extension stands when the root is enriched.
 ///
 /// [isSettled] means the extension is no longer holding the app start open —
@@ -20,27 +37,10 @@ const standaloneExtendedAppStartName = 'Extended App Start';
 @internal
 typedef AppStartExtensionOutcome = ({bool isSettled, DateTime? endTimestamp});
 
-/// Returns the endpoint a standalone app start reports up to, or `null` when it
-/// has none.
-///
-/// An extension that has started but not settled leaves the app start still
-/// running, so there is nothing to report yet — both trace implementations must
-/// stay silent rather than report a window that ends mid-extension.
+/// The outcome of an app start that was never extended.
 @internal
-DateTime? resolveAppStartMeasurementEnd(
-  DateTime? appStartEndTimestamp,
-  AppStartExtensionOutcome extension,
-) {
-  if (appStartEndTimestamp == null || !extension.isSettled) {
-    return null;
-  }
-
-  final extensionEndTimestamp = extension.endTimestamp;
-  return extensionEndTimestamp != null &&
-          extensionEndTimestamp.isAfter(appStartEndTimestamp)
-      ? extensionEndTimestamp
-      : appStartEndTimestamp;
-}
+const AppStartExtensionOutcome noAppStartExtension =
+    (isSettled: true, endTimestamp: null);
 
 /// How far a standalone app-start trace has progressed.
 ///
