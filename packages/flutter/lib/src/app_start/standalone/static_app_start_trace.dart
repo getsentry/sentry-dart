@@ -292,9 +292,11 @@ final class StaticAppStartTrace implements AppStartTrace {
   /// Finishes every open child and then the root.
   ///
   /// Reads the children off the tracer, which owns them — no-op spans are
-  /// never added to it, so there is nothing to filter out here.
+  /// never added to it, so there is nothing to filter out here. Reversed for
+  /// the same reason as the deadline drain: descendants end before the parents
+  /// the tracer stored ahead of them.
   static Future<void> _flushTrace(SentryTracer root) async {
-    for (final child in root.children.toList()) {
+    for (final child in root.children.reversed.toList()) {
       if (!child.finished) {
         await _finishSpan(child);
       }

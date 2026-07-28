@@ -516,6 +516,42 @@ void main() {
       expect(root.finished, isTrue);
     });
 
+    test('when closing drains an extension subtree from the bottom up',
+        () async {
+      final sut = fixture.getSut()!;
+      expect(
+        sut.tryExtend(
+          fixture.processStart.add(const Duration(milliseconds: 400)),
+        ),
+        isTrue,
+      );
+      final extension = sut.extendedSpan as SentrySpan;
+      final child = extension.startChild('extended child') as SentrySpan;
+      final grandchild = child.startChild('extended grandchild') as SentrySpan;
+      final finishOrder = <SpanId>[];
+      fixture.options.lifecycleRegistry.registerCallback<OnSpanFinish>((event) {
+        final span = event.span;
+        if (span is SentrySpan &&
+            (identical(span, extension) ||
+                identical(span, child) ||
+                identical(span, grandchild) ||
+                identical(span, fixture.root))) {
+          finishOrder.add(span.context.spanId);
+        }
+      });
+
+      await sut.close();
+
+      // The extension goes first — closing settles it before the root is
+      // flushed — and the rest of the subtree then drains child-last.
+      expect(finishOrder, [
+        extension.context.spanId,
+        grandchild.context.spanId,
+        child.context.spanId,
+        fixture.root!.context.spanId,
+      ]);
+    });
+
     testWidgets('waits for idle timeout after natural end', (tester) async {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;
